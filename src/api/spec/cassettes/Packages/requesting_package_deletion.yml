@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:19:57 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:package_test_user/test_package/_meta
@@ -79,15 +79,14 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:19:57 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Nihil saepe aspernatur eaque maxime voluptate enim omnis. Qui laborum
-        inventore vel nemo quia voluptatem. Omnis iure laudantium voluptates voluptate.
-        Doloribus quod odio quibusdam.
+      string: Sed animi dolorem similique cumque deleniti. Dolorem autem repellendus
+        aut mollitia doloribus qui harum. Aspernatur natus eius.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -112,15 +111,15 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>a3eb1b9e298b092dbc956d4c27d12729</srcmd5>
+          <srcmd5>93c4308366d343310e49524bdc0f5231</srcmd5>
           <version>unknown</version>
-          <time>1471432797</time>
+          <time>1471431820</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:19:57 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:other_package_test_user/_meta
@@ -161,7 +160,7 @@ http_interactions:
           <person userid="other_package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:19:57 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_meta
@@ -200,15 +199,15 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:19:57 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Esse similique officia dolorem. Aliquid dolorem harum commodi voluptatem
-        dolor. Quidem dolorem nostrum. Dolorum molestiae reiciendis non amet magnam
-        perferendis. Enim ipsum dicta corrupti harum odio occaecati.
+      string: Culpa harum fugiat minus dolorem corporis a accusantium. Ipsam quis
+        aut qui recusandae mollitia perferendis. Qui id sit. Ut eaque autem neque
+        ipsa est modi.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -232,19 +231,19 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>54f5371c1526525f9e71b49a02d72268</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>6dcb48c84ae0bca529ec91fbb50f49e4</srcmd5>
           <version>unknown</version>
-          <time>1471432797</time>
+          <time>1471431820</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:19:57 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:41 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/_result?package=test_package&view=status
+    uri: http://localhost:3200/build/home:other_package_test_user/_result?package=branch_test_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -276,10 +275,10 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:19:59 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:41 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -302,18 +301,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '193'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test_package" rev="1" vrev="1" srcmd5="a3eb1b9e298b092dbc956d4c27d12729" verifymd5="a3eb1b9e298b092dbc956d4c27d12729">
-          <revtime>1471432797</revtime>
+        <sourceinfo package="branch_test_package" rev="2" vrev="2" srcmd5="6dcb48c84ae0bca529ec91fbb50f49e4" verifymd5="6dcb48c84ae0bca529ec91fbb50f49e4">
+          <revtime>1471431820</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:20:00 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:41 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -336,18 +335,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '212'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="1" vrev="1" srcmd5="a3eb1b9e298b092dbc956d4c27d12729">
-          <entry name="somefile.txt" md5="baf14d736228969635ca18fd7b68072a" size="180" mtime="1471432797" />
+        <directory name="branch_test_package" rev="2" vrev="2" srcmd5="6dcb48c84ae0bca529ec91fbb50f49e4">
+          <entry name="somefile.txt" md5="9bef6470585325ab56dcc4863e6da080" size="156" mtime="1471431820" />
         </directory>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:20:00 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:41 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:package_test_user/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -372,22 +371,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '333'
+      - '359'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="a1aad373c51d85b1c22f0efd73e905e4">
-          <old project="home:package_test_user" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:package_test_user" package="test_package" rev="1" srcmd5="a3eb1b9e298b092dbc956d4c27d12729" />
+        <sourcediff key="c3f8c3053fb22922ad18b27145f3b963">
+          <old project="home:other_package_test_user" package="branch_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:other_package_test_user" package="branch_test_package" rev="2" srcmd5="6dcb48c84ae0bca529ec91fbb50f49e4" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:20:00 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:41 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -410,18 +409,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '212'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="1" vrev="1" srcmd5="a3eb1b9e298b092dbc956d4c27d12729">
-          <entry name="somefile.txt" md5="baf14d736228969635ca18fd7b68072a" size="180" mtime="1471432797" />
+        <directory name="branch_test_package" rev="2" vrev="2" srcmd5="6dcb48c84ae0bca529ec91fbb50f49e4">
+          <entry name="somefile.txt" md5="9bef6470585325ab56dcc4863e6da080" size="156" mtime="1471431820" />
         </directory>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:20:00 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:41 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?expand=1&rev=1
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -446,18 +445,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '212'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="1" vrev="1" srcmd5="a3eb1b9e298b092dbc956d4c27d12729">
-          <entry name="somefile.txt" md5="baf14d736228969635ca18fd7b68072a" size="180" mtime="1471432797" />
+        <directory name="branch_test_package" rev="2" vrev="2" srcmd5="6dcb48c84ae0bca529ec91fbb50f49e4">
+          <entry name="somefile.txt" md5="9bef6470585325ab56dcc4863e6da080" size="156" mtime="1471431820" />
         </directory>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:20:00 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:41 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -482,18 +481,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '212'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="1" vrev="1" srcmd5="a3eb1b9e298b092dbc956d4c27d12729">
-          <entry name="somefile.txt" md5="baf14d736228969635ca18fd7b68072a" size="180" mtime="1471432797" />
+        <directory name="branch_test_package" rev="2" vrev="2" srcmd5="6dcb48c84ae0bca529ec91fbb50f49e4">
+          <entry name="somefile.txt" md5="9bef6470585325ab56dcc4863e6da080" size="156" mtime="1471431820" />
         </directory>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:20:00 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:41 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_history
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_history
     body:
       encoding: US-ASCII
       string: ''
@@ -516,23 +515,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '395'
     body:
       encoding: UTF-8
       string: |
         <revisionlist>
           <revision rev="1" vrev="1">
-            <srcmd5>a3eb1b9e298b092dbc956d4c27d12729</srcmd5>
+            <srcmd5>b3277ebc00aa1f24e179ce3f891c0d62</srcmd5>
             <version>unknown</version>
-            <time>1471432797</time>
+            <time>1471431814</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="2" vrev="2">
+            <srcmd5>6dcb48c84ae0bca529ec91fbb50f49e4</srcmd5>
+            <version>unknown</version>
+            <time>1471431820</time>
             <user>unknown</user>
           </revision>
         </revisionlist>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:20:00 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:41 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/_result?package=test_package&view=status
+    uri: http://localhost:3200/build/home:other_package_test_user/_result?package=branch_test_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -564,10 +569,10 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:20:00 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:41 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/_result?package=test_package&view=status
+    uri: http://localhost:3200/build/home:other_package_test_user/_result?package=branch_test_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -599,18 +604,18 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:20:00 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:41 GMT
 - request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/_result?code=unresolvable&view=status
+    method: post
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package?cmd=diff&expand=1&filelimit=0&rev=0&view=xml
     body:
-      encoding: US-ASCII
+      encoding: UTF-8
       string: ''
     headers:
       Content-Type:
-      - text/plain
+      - application/octet-stream
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -627,25 +632,36 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '56'
+      - '698'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
+      string: |
+        <sourcediff key="b053b7b883cfad0abcb3fd7738b911d5">
+          <old project="home:other_package_test_user" package="branch_test_package" rev="2" srcmd5="6dcb48c84ae0bca529ec91fbb50f49e4" />
+          <new project="home:other_package_test_user" package="branch_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <files>
+            <file state="deleted">
+              <old name="somefile.txt" md5="9bef6470585325ab56dcc4863e6da080" size="156" />
+              <diff lines="3">@@ -1 +0,0 @@
+        -Culpa harum fugiat minus dolorem corporis a accusantium. Ipsam quis aut qui recusandae mollitia perferendis. Qui id sit. Ut eaque autem neque ipsa est modi.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+        </sourcediff>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:20:01 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:42 GMT
 - request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/_result?view=summary
+    method: post
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package?cmd=diff&expand=1&filelimit=0&rev=0&view=xml
     body:
-      encoding: US-ASCII
+      encoding: UTF-8
       string: ''
     headers:
       Content-Type:
-      - text/plain
+      - application/octet-stream
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -657,17 +673,28 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
+      Content-Length:
+      - '698'
       Cache-Control:
       - no-cache
       Connection:
       - close
-      Content-Length:
-      - '56'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
+      string: |
+        <sourcediff key="b053b7b883cfad0abcb3fd7738b911d5">
+          <old project="home:other_package_test_user" package="branch_test_package" rev="2" srcmd5="6dcb48c84ae0bca529ec91fbb50f49e4" />
+          <new project="home:other_package_test_user" package="branch_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <files>
+            <file state="deleted">
+              <old name="somefile.txt" md5="9bef6470585325ab56dcc4863e6da080" size="156" />
+              <diff lines="3">@@ -1 +0,0 @@
+        -Culpa harum fugiat minus dolorem corporis a accusantium. Ipsam quis aut qui recusandae mollitia perferendis. Qui id sit. Ut eaque autem neque ipsa est modi.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+        </sourcediff>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 11:20:01 GMT
+  recorded_at: Wed, 17 Aug 2016 11:03:43 GMT
 recorded_with: VCR 3.0.1
