@@ -86,60 +86,10 @@ function configure_app() {
 }
 
 function configure_database() {
-  # Configure the database if it isn't
-  found=0
-  dbs=($(echo "show databases" | mysql -u root --password=opensuse))
-  for db in "${dbs[@]}"
-    do 
-      if [[ $db =~ api_development ]]; then
-        echo -e "Already have api_development db...\n"
-        set $found=1
-        break
-      fi  
-    done
-  if [ $found -eq 0 ]; then
-    echo -e "No database found. Will run setup...\n"
-    export DATABASE_URL="mysql2://root:opensuse@localhost/api_development"
-    cd /vagrant/src/api
-    rake -f /vagrant/src/api/Rakefile db:create
-    rake -f /vagrant/src/api/Rakefile db:setup
-    rake -f /vagrant/src/api/Rakefile test:unit/watched_project_test
-    cd -
-  else
-    echo -e "You already have a database. Skipping this step.\n"
-  fi
-}
-
-function _prepare_bound_directory() {
-
-  DIRNAMEEXT=$1
-  TMP_DIR=/tmp/vagrant_$1
-  MOUNT_DIR=/vagrant/src/api/$1
-  for dir in $MOUNT_DIR $TMP_DIR
-  do
-    if [ ! -d $dir ];then
-      echo " - Creating directory $dir"
-      mkdir -p $dir
-      chown vagrant:users $dir
-    fi 
-  done
-
-  # create log files to ensure they are owned by vagrant
-  if [ "$1" == "log" ];then
-    for log in backend_access.log  development.log  test.log
-    do
-      touch $TMP_DIR/$log
-    done
-  fi
-
-  chown vagrant:users -R $TMP_DIR
-
-  TMP_IN_FSTAB=$(grep "$MOUNT_DIR" /etc/fstab)
-  if [ -z "$TMP_IN_FSTAB" ];then
-    echo " - Adding $TMP_DIR to fstab"
-    echo -e "$TMP_DIR $MOUNT_DIR none bind 0 0" >> /etc/fstab
-  fi
-
+  copy_example_file database.yml && \
+  rake -f /vagrant/src/api/Rakefile db:version || \
+  rake -f /vagrant/src/api/Rakefile db:create && \
+  rake -f /vagrant/src/api/Rakefile db:setup
 }
 
 function setup_data_dir() {
@@ -151,8 +101,6 @@ function setup_data_dir() {
   mount -a
 
 }
-
-
 
 function print_final_information() {
   echo -e "\nProvisioning of your OBS API rails app done!"
@@ -202,3 +150,49 @@ function prepare_apache2 {
   systemctl enable apache2.service
 }
 
+##### INTERNAL FUNCTIONS #####
+
+function copy_example_file {
+  if [ -z $1 ]; then
+    return 1
+  fi
+
+  if [ ! -f /vagrant/src/api/config/$1 ] && [ -f /vagrant/src/api/config/$1.example ]; then
+    cp /vagrant/src/api/config/$1.example /vagrant/src/api/config/$1
+  else
+    echo "WARNING: You already have the config file $1, make sure it works with vagrant"
+    return 1
+  fi
+}
+
+function _prepare_bound_directory() {
+
+  DIRNAMEEXT=$1
+  TMP_DIR=/tmp/vagrant_$1
+  MOUNT_DIR=/vagrant/src/api/$1
+  for dir in $MOUNT_DIR $TMP_DIR
+  do
+    if [ ! -d $dir ];then
+      echo " - Creating directory $dir"
+      mkdir -p $dir
+    fi
+    chown vagrant:users $dir
+  done
+
+  # create log files to ensure they are owned by vagrant
+  if [ "$1" == "log" ];then
+    for log in backend_access.log  development.log  test.log
+    do
+      touch $TMP_DIR/$log
+    done
+  fi
+
+  chown vagrant:users -R $TMP_DIR
+
+  TMP_IN_FSTAB=$(grep "$MOUNT_DIR" /etc/fstab)
+  if [ -z "$TMP_IN_FSTAB" ];then
+    echo " - Adding $TMP_DIR to fstab"
+    echo -e "$TMP_DIR $MOUNT_DIR none bind 0 0" >> /etc/fstab
+  fi
+
+}

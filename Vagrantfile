@@ -38,9 +38,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     fe.vm.provision :shell, inline: 'mount /vagrant/src/api/tmp', run: "always"
 
     # Execute commands in the frontend directory
-    fe.exec.commands %w(rails rake rspec bundle),directory: '/vagrant/src/api'
+    fe.exec.commands %w(rails rake rspec bundle), directory: '/vagrant/src/api'
     fe.exec.commands '*', directory: '/vagrant'
-    fe.exec.commands '*', env: {'DATABASE_URL' => 'mysql2://root:opensuse@localhost/api_development'}
     fe.vm.network :forwarded_port, guest: 3000, host: 3000
     fe.vm.synced_folder "src/api/tmp/capybara/", "/vagrant/src/api/tmp/capybara", create: true, owner: "vagrant", group: 100
     fe.vm.synced_folder ".", "/vagrant", owner: "vagrant", group: 100
