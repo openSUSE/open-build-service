@@ -38,4 +38,42 @@ RSpec.describe Webui::RequestController do
       expect(response).to redirect_to(user_show_path(User.current))
     end
   end
+
+  describe "POST #delete_request" do
+    before do
+      login(submitter)
+    end
+
+    context "a valid request" do
+      before do
+        post :delete_request, project: target_project, package: target_package, description: "delete it!"
+        @bs_request = BsRequest.joins(:bs_request_actions).
+          where("bs_request_actions.target_project=? AND bs_request_actions.target_package=? AND type=?",
+                target_project.to_s, target_package.to_s, "delete"
+               ).first
+      end
+
+      it { expect(response).to redirect_to(request_show_path(number: @bs_request)) }
+      it { expect(flash[:success]).to match("Created .+repository delete request #{@bs_request.number}") }
+
+      it "creates a delete request with the correct description" do
+        expect(@bs_request).not_to be nil
+        expect(@bs_request.description).to eq("delete it!")
+      end
+    end
+
+    context "a request causing a APIException" do
+      before do
+        BsRequest.any_instance.stubs(:save!).raises(APIException, "something happened")
+        post :delete_request, project: target_project, package: target_package, description: "delete it!"
+      end
+
+      it { expect(flash[:error]).to eq("something happened") }
+      it { expect(response).to redirect_to(package_show_path(project: target_project, package: target_package)) }
+
+      it "does not create a delete request" do
+        expect(BsRequest.count).to eq(0)
+      end
+    end
+  end
 end
