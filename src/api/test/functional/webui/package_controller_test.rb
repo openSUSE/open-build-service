@@ -436,7 +436,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
                  page.current_path
   end
 
-  def test_submit_request
+  def test_submit_request # spec/controllers/webui/package_controller_spec.rb
     use_js
     login_Iggy
 
