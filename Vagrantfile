@@ -24,6 +24,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     fe.exec.commands %w(rails rake rspec bundle), directory: '/vagrant/src/api'
     fe.exec.commands '*', directory: '/vagrant'
     fe.vm.network :forwarded_port, guest: 3000, host: 3000
+
+    # FIXME: Setting group/owner is a temporary fix for
+    # https://github.com/mitchellh/vagrant/issues/7616
     fe.vm.synced_folder "src/api/tmp/capybara/", "/vagrant/src/api/tmp/capybara", create: true, owner: "vagrant", group: 100
     fe.vm.synced_folder ".", "/vagrant", owner: "vagrant", group: 100
   end

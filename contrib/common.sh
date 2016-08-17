@@ -34,7 +34,7 @@ function install_common_packages() {
     perl-JSON-XS \
     curl \
     vim-data \
-    psmisc \
+    psmisc
 
   # This is a workaround for a very strange behavior
   # After installing one of the follwing packages - obs-server, curl or vim-data
