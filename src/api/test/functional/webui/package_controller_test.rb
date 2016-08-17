@@ -423,7 +423,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
                  page.current_path, "Client-side validation should have prevented package submission."
   end
 
-  def test_submit_request_unchanged_sources
+  def test_submit_request_unchanged_sources # spec/controllers/webui/package_controller_spec.rb
     use_js
     login_Iggy
 
