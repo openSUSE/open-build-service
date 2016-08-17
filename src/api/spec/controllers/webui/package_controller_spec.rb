@@ -1,4 +1,8 @@
 require 'rails_helper'
+# WARNING: If you change owner tests make sure you uncomment this line
+# and start a test backend. Some of the Owner methods
+# require real backend answers for projects/packages.
+# CONFIG['global_write_through'] = true
 
 RSpec.describe Webui::PackageController, vcr: true do
   let(:admin) { create(:admin_user, login: "admin") }
@@ -6,6 +10,33 @@ RSpec.describe Webui::PackageController, vcr: true do
   let(:source_project) { user.home_project }
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
   let(:target_project) { create(:project) }
+  let(:repo_for_source_project) do
+    repo = create(:repository, project: source_project, architectures: ['i586'])
+    source_project.store
+    repo
+  end
+  let(:fake_build_results) do
+      Buildresult.new(
+        '<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
+          <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
+           <binarylist>
+              <binary filename="fake_binary_001"/>
+              <binary filename="fake_binary_002"/>
+              <binary filename="updateinfo.xml"/>
+              <binary filename="rpmlint.log"/>
+            </binarylist>
+          </result>
+        </resultlist>')
+  end
+  let(:fake_build_results_without_binaries) do
+      Buildresult.new(
+        '<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
+          <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
+           <binarylist>
+            </binarylist>
+          </result>
+        </resultlist>')
+  end
 
   describe 'submit_request' do
     context 'not successful' do
@@ -109,6 +140,64 @@ RSpec.describe Webui::PackageController, vcr: true do
           expect(user.home_project.packages).to be_empty
         end
       end
+    end
+  end
+
+  describe 'GET #binaries' do
+    before do
+      login user
+    end
+
+    after do
+      Package.destroy_all
+      Repository.destroy_all
+    end
+
+    context 'with a failure in the backend' do
+      before do
+        Buildresult.stubs(:find_hashed).raises(ActiveXML::Transport::Error, 'fake message')
+        post :binaries, package: source_package, project: source_project, repository: repo_for_source_project
+      end
+
+      it { expect(flash[:error]).to eq('fake message') }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+    end
+
+    context 'without build results' do
+      before do
+        Buildresult.stubs(:find_hashed).returns(nil)
+        post :binaries, package: source_package, project: source_project, repository: repo_for_source_project
+      end
+
+      it { expect(flash[:error]).to eq("Package \"#{source_package}\" has no build result for repository #{repo_for_source_project.to_param}") }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package, nextstatus: 404)) }
+    end
+
+    context 'with build results and no binaries' do
+      render_views
+
+      before do
+        Buildresult.stubs(:find).returns(fake_build_results_without_binaries)
+        post :binaries, package: source_package, project: source_project, repository: repo_for_source_project
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(response.body).to match(/No built binaries/) }
+    end
+
+    context 'with build results and binaries' do
+      render_views
+
+      before do
+        Buildresult.stubs(:find).returns(fake_build_results)
+        post :binaries, package: source_package, project: source_project, repository: repo_for_source_project
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(response.body).to match(/fake_binary_001/) }
+      it { expect(response.body).to match(/fake_binary_002/) }
+      it { expect(response.body).to match(/updateinfo.xml/) }
+      it { expect(response.body).to match(/rpmlint.log/) }
     end
   end
 end
