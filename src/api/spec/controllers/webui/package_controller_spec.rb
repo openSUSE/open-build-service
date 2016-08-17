@@ -30,7 +30,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(flash[:error]).to eq('Unable to submit: The source of package home:tom/my_package is broken') }
-      it { expect(BsRequestActionSubmit.where(target_project: target_project, target_package: source_package)).not_to exist }
+      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: source_package.name)).not_to exist }
     end
 
     context "a submit request that fails due to validation errors" do
