@@ -262,7 +262,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def delete_request
     required_parameters :project
-    req=nil
+    req = nil
     begin
       BsRequest.transaction do
         req = BsRequest.new
@@ -284,10 +284,14 @@ class Webui::RequestController < Webui::WebuiController
 
     rescue APIException => e
       flash[:error] = e.message
-      redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
-      redirect_to :controller => :project, :action => :show, :project => params[:project] and return
+      if params[:package]
+        redirect_to package_show_path(project: params[:project], package: params[:package])
+      else
+        redirect_to project_show_path(project: params[:project])
+      end
+      return
     end
-    redirect_to :controller => :request, :action => :show, :number => req.number
+    redirect_to request_show_path(number: req.number)
   end
 
   def add_role_request_dialog
