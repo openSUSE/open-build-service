@@ -313,7 +313,7 @@ class Webui::PackageController < Webui::WebuiController
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "Unable to submit (missing target): #{e.message}"
-    rescue APIException => e
+    rescue APIException, ActiveRecord::RecordInvalid => e
       flash[:error] = "Unable to submit: #{e.message}"
     end
 

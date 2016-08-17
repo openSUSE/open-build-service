@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:30:20 GMT
+  recorded_at: Thu, 18 Aug 2016 14:34:09 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta
@@ -79,14 +79,14 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:30:20 GMT
+  recorded_at: Thu, 18 Aug 2016 14:34:09 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Adipisci quod illum aliquid distinctio aut. Libero molestiae est omnis
-        sit repellat animi. Similique amet totam delectus.
+      string: Ab ipsa sed veritatis quia ea ad est. Veniam quidem tempore repellat
+        ipsum dolor. Saepe optio est natus sunt dicta omnis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -110,16 +110,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>4db681eaf22fdbb25bb791dfa05c69a5</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>14a3f73145b5bd45f3a60c008f5ed8a6</srcmd5>
           <version>unknown</version>
-          <time>1471530620</time>
+          <time>1471530849</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:30:20 GMT
+  recorded_at: Thu, 18 Aug 2016 14:34:09 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package
@@ -151,11 +151,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_package" rev="3" vrev="3" srcmd5="4db681eaf22fdbb25bb791dfa05c69a5">
-          <entry name="somefile.txt" md5="9be6dac78f272f691de776426c96b2ac" size="121" mtime="1471530620" />
+        <directory name="my_package" rev="4" vrev="4" srcmd5="14a3f73145b5bd45f3a60c008f5ed8a6">
+          <entry name="somefile.txt" md5="9f9eac65eb46f4d68daaeb3d580423a2" size="121" mtime="1471530849" />
         </directory>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:30:20 GMT
+  recorded_at: Thu, 18 Aug 2016 14:34:09 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&expand=1&filelimit=10000&opackage=my_package&oproject=home:tom
@@ -188,5 +188,5 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:30:20 GMT
+  recorded_at: Thu, 18 Aug 2016 14:34:09 GMT
 recorded_with: VCR 3.0.1
