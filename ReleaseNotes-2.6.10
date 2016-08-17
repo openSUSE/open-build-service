@@ -1,0 +1,32 @@
+#
+# openSUSE Build Service 2.6.10
+#
+
+Updaters from any OBS 2.6 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Feature backports:
+==================
+
+* [backend] hook to add scripts on un-publishing
+
+Changes:
+========
+
+* none
+
+Bugfixes:
+=========
+
+
+* [webui] fixing redirection after login
+* [webui] fixes for monitor page
+
+* [api] support handling of no_proxy settings
+
+* [backend] support handling of no_proxy settings
+* [backend] fixing servicemark collisions if projects gets deleted and recreated with the same name
+* [backend] avoid rebuild after project copy with binaries
+* [backend] worker do support jobs from OBS 2.8 servers
+
