@@ -183,23 +183,24 @@ sub server {
     if ($args->[0] eq '--test') {
       exit 0;
     }
-    if ($args->[0] eq '--stop' || $args->[0] eq '--exit') {
+
+    my $fn = { 'exit' => 'exit' , 'stop' => 'exit', 'restart' => 'restart'};
+
+    if ($args->[0] eq '--stop' || $args->[0] eq '--exit' || ($args->[0] eq '--restart' && @$args == 1) ) {
+      my $mode = $args->[0];
+      $mode =~ s/^--//;
       if (!isrunning($name, $conf)) {
 	print "server not running\n";
 	exit 0;
       }
-      print("exiting server...\n");
-      BSUtil::touch("$rundir/$name.exit");
-      BSUtil::waituntilgone("$rundir/$name.exit");
-      exit 0;
-    }
-    if ($args->[0] eq '--restart' && @$args == 1) {
-      if (!isrunning($name, $conf)) {
-	die("server not running\n");
-      }
-      print("restarting server...\n");
-      BSUtil::touch("$rundir/$name.restart");
-      BSUtil::waituntilgone("$rundir/$name.restart");
+      my $vars = $fn->{$args->[0]};
+      print($mode."ing server ...");
+      my $actionfile = "$rundir/$name.".$fn->{$mode};
+      # Drop privileges to give daemon the chance to cleanup
+      # .exit/.restart file
+      BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+      BSUtil::touch($actionfile);
+      BSUtil::waituntilgone($actionfile);
       exit 0;
     }
   }
