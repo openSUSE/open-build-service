@@ -46,6 +46,7 @@ fi
 
 # Generate Gemfile.lock file.
 cd /srv/www/obs/api
+rm -f Gemfile.lock
 rm -f .bundle/config
 bundle --local --quiet
 

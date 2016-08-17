@@ -5,59 +5,46 @@ export DH_OPTIONS
 export BUILD_ROOT=$(CURDIR)/debian/tmp
 
 %:
-	dh $@
-
-#override_dh_install:
-#	dh_install
-#	dh_installdebconf
-#	dh_installinit --name obsapidelayed
-#	dh_installinit --name obsservice
-#	dh_installinit --name obsrepserver
-#	dh_installinit --name obsdispatcher
-#	dh_installinit --name obsscheduler
-#	dh_installinit --name obssigner
-#	dh_installinit --name obswarden
-#	dh_installinit --name obspublisher
-#	dh_installinit --name obsworker --no-start
-#	dh_installinit --name obssrcserver
-#	# Rename dh_install installed web service config files.
-#	# (new default since OBS 2.3)
-#	mkdir -p debian/obs-api/etc/apache2/sites-available/
-#	cp debian/obs-apache2.conf \
-#		debian/obs-api/etc/apache2/sites-available/obs.conf
-#
-#	mkdir -p debian/obs-api/usr/share/dbconfig-common/data/obs-api/install/
-#	touch debian/obs-api/usr/share/dbconfig-common/data/obs-api/install/mysql
-#
-#	# Rename sysconfig file
-#	mv debian/obs-server/etc/default/sysconfig.obs-server \
-#		debian/obs-server/etc/default/obs-server
-#
-#	# these config files must not be hard linked
-#	install debian/options.yml.example \
-#		debian/obs-api/srv/www/obs/api/config/options.yml
-#
-#	# turn duplicates into hard links
-#	fdupes debian/obs-api/srv/www/obs
-#
-#	# Remove useless backend parts.
-#	rm -rf  debian/obs-server/usr/lib/obs/server/build
-#	ln -sf /usr/lib/obs-build debian/obs-server/usr/lib/obs/server/build
-#	rm -r  debian/obs-server/usr/lib/obs/server/testdata
-#	rm -f  debian/obs-server/usr/lib/obs/server/Makefile.PL
-#	rm -f  debian/obs-server/usr/lib/obs/server/bs_productconvert
-#	mv debian/obs-server/usr/lib/obs/server/BSConfig.pm.template \
-#		debian/obs-server/etc/obs/BSConfig.pm
-#
-#	# Generate log files
-#	touch debian/obs-api/srv/www/obs/api/log/access.log
-#	touch debian/obs-api/srv/www/obs/api/log/backend_access.log
-#	touch debian/obs-api/srv/www/obs/api/log/delayed_job.log
-#	touch debian/obs-api/srv/www/obs/api/log/error.log
-#	touch debian/obs-api/srv/www/obs/api/log/lastevents.access.log
-#
-override_dh_auto_test:
-	 dh_auto_test || true # temporary ignore
+	dh $@ --parallel --with=systemd
 
 override_dh_install:
+	# Remove useless backend parts.
+	rm -rf debian/tmp/usr/lib/obs/server/build
+	rm -rf debian/tmp/etc/apache2/vhosts.d/obs.conf
+	rm -f  debian/tmp/usr/share/doc/packages/obs-devel/README.devel
+	rm -f  debian/obs-server/usr/lib/obs/server/Makefile.PL
+	rm -f  debian/obs-server/usr/lib/obs/server/bs_productconvert
+
 	dh_install --list-missing
+	dh_installdebconf
+	# Rename dh_install installed web service config files.
+	# (new default since OBS 2.3)
+	mkdir -p debian/obs-api/etc/apache2/sites-available/
+	cp debian/obs-apache2.conf \
+		debian/obs-api/etc/apache2/sites-available/obs.conf
+
+	mkdir -p debian/obs-api/usr/share/dbconfig-common/data/obs-api/install/
+	touch debian/obs-api/usr/share/dbconfig-common/data/obs-api/install/mysql
+	cp debian/obs-server/usr/lib/obs/server/BSConfig.pm.template \
+		debian/obs-server/etc/obs/BSConfig.pm
+
+	# Rename sysconfig file
+	mv debian/obs-server/etc/default/sysconfig.obs-server \
+		debian/obs-server/etc/default/obs-server
+
+	# these config files must not be hard linked
+	install debian/options.yml.example \
+		debian/obs-api/srv/www/obs/api/config/options.yml
+
+	# turn duplicates into hard links
+	fdupes debian/obs-api/srv/www/obs
+
+	# Generate log files
+	touch debian/obs-api/srv/www/obs/api/log/access.log
+	touch debian/obs-api/srv/www/obs/api/log/backend_access.log
+	touch debian/obs-api/srv/www/obs/api/log/delayed_job.log
+	touch debian/obs-api/srv/www/obs/api/log/error.log
+	touch debian/obs-api/srv/www/obs/api/log/lastevents.access.log
+
+override_dh_auto_test:
+	 dh_auto_test || true # temporary ignore

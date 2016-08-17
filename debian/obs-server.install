@@ -6,15 +6,100 @@
 debian/obs_admin		/usr/sbin
 debian/obs_serverstatus		/usr/sbin
 debian/wrap-obs-service /usr/sbin
-dist/obs.repo_server.reg	/etc/slp.reg.d/
-dist/obs.source_server.reg	/etc/slp.reg.d/
-dist/overview.html.TEMPLATE	/srv/www/obs/overview/
 dist/sysconfig.obs-server       /etc/default/
-src/backend/*			        /usr/lib/obs/server/
-usr/sbin/
-usr/lib/obs/tests/appliance/
-usr/lib/obs/server/
-srv/www/obs/
-var/adm/
-etc/
+srv/www/obs/overview/overview.html.TEMPLATE
 
+# Config files
+etc/logrotate.d/obs-server
+etc/slp.reg.d/
+usr/lib/obs/server/BSConfig.pm
+
+etc/init.d/obsdeltastore
+etc/init.d/obspublisher
+etc/init.d/obsdispatcher
+etc/init.d/obssigner
+etc/init.d/obswarden
+etc/init.d/obsscheduler
+etc/init.d/obsdodup
+etc/init.d/obsstoragesetup
+etc/init.d/obssrcserver
+etc/init.d/obsservice
+etc/init.d/obsrepserver
+
+usr/lib/obs/tests/appliance/
+usr/sbin/obs_admin
+usr/sbin/obs_serverstatus
+usr/sbin/rcobsdispatcher
+usr/sbin/rcobspublisher
+usr/sbin/rcobsrepserver
+usr/sbin/rcobsscheduler
+usr/sbin/rcobssrcserver
+usr/sbin/rcobswarden
+usr/sbin/rcobsdodup
+usr/sbin/rcobsdeltastore
+usr/sbin/rcobssigner
+usr/lib/obs/server/plugins
+usr/lib/obs/server/BSAccess.pm
+usr/lib/obs/server/BSBuild.pm
+usr/lib/obs/server/BSCando.pm
+usr/lib/obs/server/BSConfiguration.pm
+usr/lib/obs/server/BSConfig.pm.template
+usr/lib/obs/server/BSDispatch.pm
+usr/lib/obs/server/BSEvents.pm
+usr/lib/obs/server/BSFileDB.pm
+usr/lib/obs/server/BSHTTP.pm
+usr/lib/obs/server/BSHandoff.pm
+usr/lib/obs/server/BSNotify.pm
+usr/lib/obs/server/BSPgp.pm
+usr/lib/obs/server/BSRPC.pm
+usr/lib/obs/server/BSServer.pm
+usr/lib/obs/server/BSServerEvents.pm
+usr/lib/obs/server/BSSrcdiff.pm
+usr/lib/obs/server/BSSSL.pm
+usr/lib/obs/server/BSSched
+usr/lib/obs/server/BSStdServer.pm
+usr/lib/obs/server/BSUtil.pm
+usr/lib/obs/server/BSVerify.pm
+usr/lib/obs/server/BSDB.pm
+usr/lib/obs/server/BSDBIndex.pm
+usr/lib/obs/server/BSXPathKeys.pm
+usr/lib/obs/server/BSWatcher.pm
+usr/lib/obs/server/BSXML.pm
+usr/lib/obs/server/BSXPath.pm
+usr/lib/obs/server/BSProductXML.pm
+usr/lib/obs/server/BSKiwiXML.pm
+usr/lib/obs/server/DESIGN
+usr/lib/obs/server/License
+usr/lib/obs/server/README
+usr/lib/obs/server/XML
+usr/lib/obs/server/bs_admin
+usr/lib/obs/server/bs_archivereq
+usr/lib/obs/server/bs_check_consistency
+usr/lib/obs/server/bs_deltastore
+usr/lib/obs/server/bs_dodup
+usr/lib/obs/server/bs_getbinariesproxy
+usr/lib/obs/server/bs_mergechanges
+usr/lib/obs/server/bs_mkarchrepo
+usr/lib/obs/server/bs_dispatch
+usr/lib/obs/server/bs_publish
+usr/lib/obs/server/bs_repserver
+usr/lib/obs/server/bs_sched
+usr/lib/obs/server/bs_serverstatus
+usr/lib/obs/server/bs_srcserver
+usr/lib/obs/server/bs_worker
+usr/lib/obs/server/bs_signer
+usr/lib/obs/server/bs_warden
+usr/lib/obs/server/worker
+usr/lib/obs/server/worker-deltagen.spec
+
+# obs-source_service
+etc/init.d/obsservice
+usr/sbin/rcobsservice
+usr/lib/obs/server/bs_service
+usr/lib/obs/server/call-service-in-lxc.sh
+
+# obs-common
+var/adm/fillup-templates/sysconfig.obs-server
+usr/lib/obs/server/setup-appliance.sh
+etc/init.d/obsstoragesetup
+usr/sbin/rcobsstoragesetup

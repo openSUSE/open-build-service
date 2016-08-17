@@ -4,3 +4,10 @@
 # the html dir was not found in source.
 docs/api/api/*.{rng,xsd}        /srv/www/obs/docs/api/
 src/api                                /srv/www/obs/
+etc/logrotate.d/obs-api
+srv/www/obs/api/
+srv/www/obs/docs/api/
+/usr/sbin/rcobsapidelayed
+/usr/sbin/rcobsapisetup
+etc/init.d/obsapisetup
+etc/init.d/obsapidelayed

@@ -1,2 +1,4 @@
 srv/www/obs/api/config			etc/obs/api/config
 srv/www/obs/docs/api                    srv/www/obs/api/public/schema
+etc/init.d/obsapidelayed                /usr/sbin/rcobsapidelayed
+
