@@ -1,0 +1,11 @@
+[Unit]
+Description=OBS dodup, updates download on demand metadata
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/default/obs-server
+ExecStart=/usr/lib/obs/server/bs_dodupr
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

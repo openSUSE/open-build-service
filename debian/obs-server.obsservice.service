@@ -1,0 +1,11 @@
+[Unit]
+Description=OBS source service server
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/default/obs-server
+ExecStart=/usr/lib/obs/server/bs_service
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

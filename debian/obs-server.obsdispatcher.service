@@ -1,0 +1,11 @@
+[Unit]
+Description=OBS job dispatcher
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/default/obs-server
+ExecStart=/usr/lib/obs/server/bs_dispatch
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
