@@ -80,9 +80,7 @@ function setup_memcached() {
 }
 
 function configure_app() {
-  if [ ! -f /vagrant/src/api/config/options.yml ] && [ -f /vagrant/src/api/config/options.yml.example ]; then
-    cp /vagrant/src/api/config/options.yml.example /vagrant/src/api/config/options.yml
-  fi
+  copy_example_file options.yml || return 1
 }
 
 function configure_database() {
