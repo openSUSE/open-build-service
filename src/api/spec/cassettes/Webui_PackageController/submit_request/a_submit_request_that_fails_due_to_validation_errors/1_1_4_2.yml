@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:53:58 GMT
+  recorded_at: Thu, 18 Aug 2016 16:01:55 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta
@@ -79,16 +79,14 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:53:58 GMT
+  recorded_at: Thu, 18 Aug 2016 16:01:55 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Quae consequuntur repudiandae necessitatibus voluptas ipsum. Doloremque
-        labore qui. Aut at odit quasi ut consequatur ratione. Tempora consequatur
-        atque aperiam occaecati iure odit architecto. Nemo cumque consectetur earum
-        tempora ullam adipisci et.
+      string: Et aut doloremque. Qui quia consectetur molestiae quo nesciunt aut.
+        Non hic deleniti. Eos aut aut repellat labore eligendi debitis sit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -108,20 +106,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>2b1645a7744676fbfa849dd56461b152</srcmd5>
+        <revision rev="11" vrev="11">
+          <srcmd5>6f80c906bceb83fa55b5b43b218aca88</srcmd5>
           <version>unknown</version>
-          <time>1471532038</time>
+          <time>1471536115</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:53:58 GMT
+  recorded_at: Thu, 18 Aug 2016 16:01:55 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
@@ -147,13 +145,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '210'
+      - '212'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="6" vrev="6" srcmd5="2b1645a7744676fbfa849dd56461b152">
-          <entry name="somefile.txt" md5="77581045873f8cb00079a1275753826e" size="248" mtime="1471532038" />
+        <directory name="package_with_file" rev="11" vrev="11" srcmd5="6f80c906bceb83fa55b5b43b218aca88">
+          <entry name="somefile.txt" md5="cb9affd3e08ddb38e319636840e8cd67" size="135" mtime="1471536115" />
         </directory>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:53:58 GMT
+  recorded_at: Thu, 18 Aug 2016 16:01:55 GMT
 recorded_with: VCR 3.0.1

@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:53:57 GMT
+  recorded_at: Thu, 18 Aug 2016 16:01:53 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta
@@ -79,14 +79,15 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:53:57 GMT
+  recorded_at: Thu, 18 Aug 2016 16:01:53 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Molestias aut omnis modi odio. Ab molestiae libero eveniet aut omnis
-        rerum. A et sint ut.
+      string: Illo nihil consequatur aspernatur harum architecto nobis et. Est officiis
+        facere est. Et aliquam qui. Nesciunt unde aspernatur rerum voluptatibus enim
+        fugit quod. Praesentium eligendi aperiam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -111,15 +112,15 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2" vrev="2">
-          <srcmd5>a46e128d046d902ba91e8288a582c074</srcmd5>
+          <srcmd5>24616987c20fd021cbc3a2a3973f62d5</srcmd5>
           <version>unknown</version>
-          <time>1471532037</time>
+          <time>1471536113</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:53:57 GMT
+  recorded_at: Thu, 18 Aug 2016 16:01:53 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file
@@ -147,15 +148,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '210'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="2" vrev="2" srcmd5="a46e128d046d902ba91e8288a582c074">
-          <entry name="somefile.txt" md5="47c3997439e2493e44278e4b486e57a3" size="89" mtime="1471532037" />
+        <directory name="package_with_file" rev="2" vrev="2" srcmd5="24616987c20fd021cbc3a2a3973f62d5">
+          <entry name="somefile.txt" md5="57761fbd3a3f5737d0739bfe36d3bc5d" size="192" mtime="1471536113" />
         </directory>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:53:57 GMT
+  recorded_at: Thu, 18 Aug 2016 16:01:53 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&opackage=package_with_file&oproject=home:tom
@@ -188,5 +189,5 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 14:53:57 GMT
+  recorded_at: Thu, 18 Aug 2016 16:01:53 GMT
 recorded_with: VCR 3.0.1
