@@ -57,6 +57,9 @@ RETURN="0"
 [ -d $MOUNTDIR ] || mkdir -p $MOUNTDIR
 # set -x
 
+# FIXME:
+# Use an none world writable dir here
+# and use mktemp
 INNEROUTDIR="/tmp/$$/out"
 OUTEROUTDIR="$MOUNTDIR/out"
 INNERSRCDIR="/tmp/$$/src"
