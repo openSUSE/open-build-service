@@ -39,7 +39,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         </resultlist>')
   end
 
-  describe 'submit_request' do
+  describe "POST #submit_request" do
     RSpec.shared_examples "a response of a successfull submit request" do
       it { expect(flash[:notice]).to match("Created .+submit request \\d.+to .+#{target_project}") }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
