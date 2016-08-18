@@ -46,9 +46,12 @@ RSpec.describe Webui::PackageController, vcr: true do
       it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: package.name)).to exist }
     end
 
+    before do
+      login(user)
+    end
+
     context "sending a valid submit request" do
       before do
-        login(user)
         post :submit_request, { project: source_project, package: package, targetproject: target_project }
       end
 
@@ -57,7 +60,6 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "having whitespaces in parameters" do
       before do
-        login(user)
         post :submit_request, { project: " #{source_project} ", package: " #{package} ", targetproject: " #{target_project} " }
       end
 
@@ -66,7 +68,6 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'not successful' do
       before do
-        login(user)
         post :submit_request, { project: source_project, package: source_package, targetproject: target_project.name }
       end
 
@@ -90,7 +91,6 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "unchanged sources" do
       before do
-        login(user)
         post :submit_request, { project: source_project, package: package, targetproject: source_project }
       end
 
@@ -104,7 +104,6 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "invalid request (missing parameters)" do
       before do
-        login(user)
         post :submit_request, { project: source_project, package: "", targetproject: source_project }
       end
 
