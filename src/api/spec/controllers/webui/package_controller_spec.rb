@@ -96,10 +96,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       it { expect(flash[:error]).to eq("Unable to submit, sources are unchanged") }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
-
-      it "doesn't create a submit request" do
-        expect(BsRequestActionSubmit.where(target_project: source_project.name, target_package: package.name)).not_to exist
-      end
+      it { expect(BsRequestActionSubmit.where(target_project: source_project.name, target_package: package.name)).not_to exist }
     end
 
     context "invalid request (missing parameters)" do
