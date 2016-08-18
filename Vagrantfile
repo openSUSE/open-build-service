@@ -22,6 +22,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # Execute commands in the frontend directory
     fe.exec.commands %w(rails rake rspec bundle), directory: '/vagrant/src/api'
+    fe.exec.commands 'start_test_backend', env: {'PATH' => '$PATH:/vagrant/src/api/script'}
+    fe.exec.commands 'start_development_backend', env: {'PATH' => '$PATH:/vagrant/contrib'}
     fe.exec.commands '*', directory: '/vagrant'
     fe.vm.network :forwarded_port, guest: 3000, host: 3000
 

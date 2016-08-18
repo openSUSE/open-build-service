@@ -81,7 +81,7 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
 6. Start your development backend with:
 
     ```
-    vagrant exec contrib/load_dev_backend.sh 
+    vagrant exec start_development_backend
     ```
 
 7. Start your development frontend with:
