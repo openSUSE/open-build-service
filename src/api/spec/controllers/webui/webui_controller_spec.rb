@@ -7,6 +7,7 @@ RSpec.describe Webui::WebuiController do
   controller do
     before_filter :require_admin, only: :new
     before_filter :require_login, only: :show
+    before_filter :set_project, only: :edit
 
     def index
       render text: 'anonymous controller'
@@ -20,6 +21,10 @@ RSpec.describe Webui::WebuiController do
 
     def show
       render text: 'anonymous controller - requires_login'
+    end
+
+    def edit
+      render text: 'anonymous controller - set_project'
     end
   end
 
@@ -109,6 +114,25 @@ RSpec.describe Webui::WebuiController do
 
     it 'prepends an underscore if id does not start with a valid character' do
       expect('_10_2').to eq(controller.valid_xml_id('10.2'))
+    end
+  end
+
+  describe '#set_project before filter' do
+    context 'with invalid project parameter' do
+      it 'raises an ActiveRecord::RecordNotFound exception' do
+        expect{
+          get :edit, id: 1, project: 'invalid'
+        }.to raise_error(ActiveRecord::RecordNotFound )
+      end
+    end
+
+    context 'with valid project parameter' do
+      let(:project) { create(:project) }
+
+      it 'sets the correct project' do
+        get :edit, id: 1, project: project.name
+        expect(assigns(:project)).to eq(project)
+      end
     end
   end
 end
