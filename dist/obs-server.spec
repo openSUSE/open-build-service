@@ -586,6 +586,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/sbin/rcobsservice
 /usr/lib/obs/server/bs_service
 /usr/lib/obs/server/call-service-in-lxc.sh
+/usr/lib/obs/server/call-service-in-docker.sh
 
 %files -n obs-worker
 %defattr(-,root,root)
