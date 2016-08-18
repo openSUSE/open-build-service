@@ -1,6 +1,126 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title/>
+          <description/>
+          <person userid="other_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title></title>
+          <description></description>
+          <person userid="other_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 17 Aug 2016 11:20:39 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/branch_test_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '122'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 17 Aug 2016 11:20:39 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/branch_test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Neque officiis quos dolor animi saepe quam sit. Qui est veniam inventore.
+        Expedita debitis dolore doloribus et quas.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>282e862b21f069cb85f9b6af3761f804</srcmd5>
+          <version>unknown</version>
+          <time>1471432839</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 17 Aug 2016 11:20:39 GMT
+- request:
     method: get
     uri: http://localhost:3200/build/home:user_tab_user/_result?package=group_test_package&view=status
     body:
@@ -36,7 +156,7 @@ http_interactions:
           <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 10 Mar 2016 10:36:28 GMT
+  recorded_at: Wed, 17 Aug 2016 11:20:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:user_tab_user/group_test_package?nofilename=1&view=info&withchangesmd5=1
@@ -71,7 +191,7 @@ http_interactions:
           <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 10 Mar 2016 10:36:28 GMT
+  recorded_at: Wed, 17 Aug 2016 11:20:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:user_tab_user/group_test_package
@@ -106,7 +226,7 @@ http_interactions:
           <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 10 Mar 2016 10:36:28 GMT
+  recorded_at: Wed, 17 Aug 2016 11:20:40 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:user_tab_user/group_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -143,7 +263,7 @@ http_interactions:
           <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 10 Mar 2016 10:36:28 GMT
+  recorded_at: Wed, 17 Aug 2016 11:20:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:user_tab_user/group_test_package
@@ -178,7 +298,7 @@ http_interactions:
           <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 10 Mar 2016 10:36:28 GMT
+  recorded_at: Wed, 17 Aug 2016 11:20:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:user_tab_user/group_test_package?expand=1
@@ -215,7 +335,7 @@ http_interactions:
           <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 10 Mar 2016 10:36:28 GMT
+  recorded_at: Wed, 17 Aug 2016 11:20:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:user_tab_user/group_test_package
@@ -252,7 +372,7 @@ http_interactions:
           <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 10 Mar 2016 10:36:28 GMT
+  recorded_at: Wed, 17 Aug 2016 11:20:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -289,7 +409,7 @@ http_interactions:
           <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 10 Mar 2016 10:36:29 GMT
+  recorded_at: Wed, 17 Aug 2016 11:20:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -326,5 +446,5 @@ http_interactions:
           <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 10 Mar 2016 10:36:29 GMT
+  recorded_at: Wed, 17 Aug 2016 11:20:40 GMT
 recorded_with: VCR 3.0.1

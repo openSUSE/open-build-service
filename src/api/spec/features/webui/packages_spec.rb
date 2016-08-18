@@ -12,11 +12,10 @@ RSpec.feature "Packages", :type => :feature, :js => true do
 
   let!(:user) { create(:confirmed_user, login: "package_test_user") }
   let!(:package) { create(:package_with_file, name: "test_package", project: user.home_project) }
+  let(:other_user) { create(:confirmed_user, login: "other_package_test_user") }
+  let!(:other_users_package) { create(:package_with_file, name: "branch_test_package", project: other_user.home_project) }
 
   describe "branching a package" do
-    let(:other_user) { create(:confirmed_user, login: "other_package_test_user") }
-    let!(:other_users_package) { create(:package_with_file, name: "branch_test_package", project: other_user.home_project) }
-
     after do
       # Cleanup backend
       if CONFIG["global_write_through"]
@@ -45,5 +44,16 @@ RSpec.feature "Packages", :type => :feature, :js => true do
     expect(find("#del_dialog")).to have_text("Do you really want to delete this package?")
     click_button('Ok')
     expect(find("#flash-messages")).to have_text("Package was successfully removed.")
+  end
+
+  scenario "requesting package deletion" do
+    login user
+    visit package_show_path(package: other_users_package, project: other_user.home_project)
+    click_link("Request deletion")
+    expect(page).to have_text("Do you really want to request the deletion of package ")
+    click_button("Ok")
+    expect(page).to have_text("Created repository delete request")
+    find("a", text: /repository delete request \d+/).click
+    expect(page.current_path).to match("/request/show/\\d+")
   end
 end
