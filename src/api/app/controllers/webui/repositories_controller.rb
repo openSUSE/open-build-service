@@ -53,7 +53,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     end
 
     if repository.save
-      @project.store
+      @project.store({ comment: "Added #{repository.name} repository" })
       flash[:success] = "Successfully added repository '#{repository.name}'"
       respond_to do |format|
         format.html { redirect_to({ action: :index, project: @project }) }
@@ -76,7 +76,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     archs = params[:arch].keys.map { |arch| Architecture.find_by_name(arch) } if params[:arch]
     repo.architectures = archs
     repo.save
-    @project.store
+    @project.store({ comment: "Modified #{repo.name} repository" })
 
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
@@ -92,7 +92,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     repository = @project.repositories.find_by(name: params[:target])
     result = repository && @project.repositories.delete(repository)
     if @project.valid? && result
-      @project.store
+      @project.store({ comment: "Removed #{repository.name} repository" })
       respond_to do |format|
         flash[:success] = "Successfully removed repository '#{repository.name}'"
         format.html { redirect_to({ action: :index, project: @project }) }
