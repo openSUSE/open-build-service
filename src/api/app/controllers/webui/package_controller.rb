@@ -313,12 +313,18 @@ class Webui::PackageController < Webui::WebuiController
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "Unable to submit (missing target): #{e.message}"
-    rescue APIException => e
+    rescue APIException, ActiveRecord::RecordInvalid => e
+      flash[:error] = "Unable to submit: #{e.message}"
+    rescue ActiveRecord::RecordInvalid => e
       flash[:error] = "Unable to submit: #{e.message}"
     end
 
     if flash[:error]
-      redirect_to(action: :show, project: project_name, package: package_name)
+      if package_name.blank?
+        redirect_to(project_show_path(project: project_name))
+      else
+        redirect_to(package_show_path(project: project_name, package: package_name))
+      end
       return
     end
 

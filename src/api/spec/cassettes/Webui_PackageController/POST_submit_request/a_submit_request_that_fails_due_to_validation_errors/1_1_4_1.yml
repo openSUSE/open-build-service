@@ -1,0 +1,158 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 18 Aug 2016 16:01:55 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 18 Aug 2016 16:01:55 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Exercitationem facere placeat doloremque quas eum facilis et. Aspernatur
+        odio qui deserunt ut laborum ea tempora. Non praesentium temporibus ducimus
+        minima suscipit vel. Velit molestiae nulla quis alias asperiores est dolorem.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="10" vrev="10">
+          <srcmd5>894c1693c8dfe772df460883e49a7837</srcmd5>
+          <version>unknown</version>
+          <time>1471536115</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 18 Aug 2016 16:01:55 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '212'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="10" vrev="10" srcmd5="894c1693c8dfe772df460883e49a7837">
+          <entry name="somefile.txt" md5="e25e13c1b95a1448e50acbe86844a9d8" size="226" mtime="1471536115" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 18 Aug 2016 16:01:55 GMT
+recorded_with: VCR 3.0.1

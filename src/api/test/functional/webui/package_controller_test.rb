@@ -407,7 +407,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.wont_have_field('supersede_request_numbers[]')
   end
 
-  def test_submit_request_clientside_form_validation
+  def test_submit_request_clientside_form_validation # spec/controllers/webui/package_controller_spec.rb
     use_js
     login_Iggy
 
@@ -423,7 +423,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
                  page.current_path, "Client-side validation should have prevented package submission."
   end
 
-  def test_submit_request_unchanged_sources
+  def test_submit_request_unchanged_sources # spec/controllers/webui/package_controller_spec.rb
     use_js
     login_Iggy
 
@@ -436,7 +436,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
                  page.current_path
   end
 
-  def test_submit_request
+  def test_submit_request # spec/controllers/webui/package_controller_spec.rb
     use_js
     login_Iggy
 

@@ -6,10 +6,11 @@ require 'rails_helper'
 
 RSpec.describe Webui::PackageController, vcr: true do
   let(:admin) { create(:admin_user, login: "admin") }
-  let(:user) { create(:user, login: 'tom') }
+  let(:user) { create(:confirmed_user, login: 'tom') }
   let(:source_project) { user.home_project }
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
   let(:target_project) { create(:project) }
+  let(:package) { create(:package_with_file, name: "package_with_file", project: source_project) }
   let(:repo_for_source_project) do
     repo = create(:repository, project: source_project, architectures: ['i586'])
     source_project.store
@@ -38,15 +39,74 @@ RSpec.describe Webui::PackageController, vcr: true do
         </resultlist>')
   end
 
-  describe 'submit_request' do
+  describe "POST #submit_request" do
+    RSpec.shared_examples "a response of a successful submit request" do
+      it { expect(flash[:notice]).to match("Created .+submit request \\d.+to .+#{target_project}") }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
+      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: package.name)).to exist }
+    end
+
+    before do
+      login(user)
+    end
+
+    context "sending a valid submit request" do
+      before do
+        post :submit_request, { project: source_project, package: package, targetproject: target_project }
+      end
+
+      it_should_behave_like "a response of a successful submit request"
+    end
+
+    context "having whitespaces in parameters" do
+      before do
+        post :submit_request, { project: " #{source_project} ", package: " #{package} ", targetproject: " #{target_project} " }
+      end
+
+      it_should_behave_like "a response of a successful submit request"
+    end
+
     context 'not successful' do
       before do
-        login(user)
         post :submit_request, { project: source_project, package: source_package, targetproject: target_project.name }
       end
 
       it { expect(flash[:error]).to eq('Unable to submit: The source of package home:tom/my_package is broken') }
-      it { expect(BsRequestActionSubmit.where(target_project: target_project, target_package: source_package).count).to eq(0) }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: source_package.name)).not_to exist }
+    end
+
+    context "a submit request that fails due to validation errors" do
+      let(:unconfirmed_user) { create(:user) }
+
+      before do
+        login(unconfirmed_user)
+        post :submit_request, { project: source_project, package: package, targetproject: target_project }
+      end
+
+      it { expect(flash[:error]).to eq("Unable to submit: Validation failed: Creator Login #{unconfirmed_user.login} is not an active user") }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
+      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: package.name)).not_to exist }
+    end
+
+    context "unchanged sources" do
+      before do
+        post :submit_request, { project: source_project, package: package, targetproject: source_project }
+      end
+
+      it { expect(flash[:error]).to eq("Unable to submit, sources are unchanged") }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
+      it { expect(BsRequestActionSubmit.where(target_project: source_project.name, target_package: package.name)).not_to exist }
+    end
+
+    context "invalid request (missing parameters)" do
+      before do
+        post :submit_request, { project: source_project, package: "", targetproject: source_project }
+      end
+
+      it { expect(flash[:error]).to eq("Unable to submit: #{source_project}/") }
+      it { expect(response).to redirect_to(project_show_path(project: source_project)) }
+      it { expect(BsRequestActionSubmit.where(target_project: source_project.name)).not_to exist }
     end
   end
 
