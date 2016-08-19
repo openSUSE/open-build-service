@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 16:01:54 GMT
+  recorded_at: Fri, 19 Aug 2016 09:47:07 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta
@@ -79,15 +79,15 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 16:01:54 GMT
+  recorded_at: Fri, 19 Aug 2016 09:47:07 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Aut itaque ducimus quas debitis voluptatem sint. Omnis maiores ea unde
-        velit libero. Voluptatem accusantium incidunt impedit sapiente. Velit quia
-        id aut sapiente dolorem. Qui laudantium ab molestias voluptas rerum rerum.
+      string: Omnis ex commodi et ut aut temporibus. Quia sed laborum fugit ipsam.
+        Exercitationem aliquam eligendi optio recusandae. Velit qui asperiores. At
+        ut quia nemo aut expedita non doloribus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -111,16 +111,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>c09da2358f8e75492b084db58f303b65</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>d40c986c9f45547bedd0c87847ec0af1</srcmd5>
           <version>unknown</version>
-          <time>1471536114</time>
+          <time>1471600027</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 16:01:54 GMT
+  recorded_at: Fri, 19 Aug 2016 09:47:07 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
@@ -150,9 +150,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="8" vrev="8" srcmd5="c09da2358f8e75492b084db58f303b65">
-          <entry name="somefile.txt" md5="a1cffcc9b7e5f9ebbe9422d2cd68ba79" size="220" mtime="1471536114" />
+        <directory name="package_with_file" rev="2" vrev="2" srcmd5="d40c986c9f45547bedd0c87847ec0af1">
+          <entry name="somefile.txt" md5="ce2009ba37ea622c3fcc9b340f0f60a7" size="184" mtime="1471600027" />
         </directory>
     http_version: 
-  recorded_at: Thu, 18 Aug 2016 16:01:54 GMT
+  recorded_at: Fri, 19 Aug 2016 09:47:07 GMT
 recorded_with: VCR 3.0.1

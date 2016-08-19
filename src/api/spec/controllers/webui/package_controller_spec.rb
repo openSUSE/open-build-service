@@ -40,7 +40,7 @@ RSpec.describe Webui::PackageController, vcr: true do
   end
 
   describe "POST #submit_request" do
-    RSpec.shared_examples "a response of a successfull submit request" do
+    RSpec.shared_examples "a response of a successful submit request" do
       it { expect(flash[:notice]).to match("Created .+submit request \\d.+to .+#{target_project}") }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
       it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: package.name)).to exist }
@@ -55,7 +55,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :submit_request, { project: source_project, package: package, targetproject: target_project }
       end
 
-      it_should_behave_like "a response of a successfull submit request"
+      it_should_behave_like "a response of a successful submit request"
     end
 
     context "having whitespaces in parameters" do
@@ -63,7 +63,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :submit_request, { project: " #{source_project} ", package: " #{package} ", targetproject: " #{target_project} " }
       end
 
-      it_should_behave_like "a response of a successfull submit request"
+      it_should_behave_like "a response of a successful submit request"
     end
 
     context 'not successful' do
