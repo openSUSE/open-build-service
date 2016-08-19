@@ -284,7 +284,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     click_button 'Revoke request'
   end
 
-  def test_change_devel_request
+  def test_change_devel_request # spec/features/webui/packages_spec.rb
     use_js
 
     # we need a package with current devel package

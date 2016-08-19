@@ -14,6 +14,8 @@ RSpec.feature "Packages", :type => :feature, :js => true do
   let!(:package) { create(:package_with_file, name: "test_package", project: user.home_project) }
   let(:other_user) { create(:confirmed_user, login: "other_package_test_user") }
   let!(:other_users_package) { create(:package_with_file, name: "branch_test_package", project: other_user.home_project) }
+  let(:package_with_develpackage) { create(:package, name: "develpackage", project: user.home_project, develpackage: other_users_package) }
+  let(:third_project) { create(:project_with_package, package_name: "develpackage") }
 
   describe "branching a package" do
     after do
@@ -76,5 +78,22 @@ RSpec.feature "Packages", :type => :feature, :js => true do
     expect(page).to have_text("Created repository delete request")
     find("a", text: /repository delete request \d+/).click
     expect(page.current_path).to match("/request/show/\\d+")
+  end
+
+  scenario "changing the package's devel project" do
+    login user
+    visit package_show_path(package: package_with_develpackage, project: user.home_project)
+    click_link("Request devel project change")
+    fill_in "description", with: "Hey, why not?"
+    fill_in "devel_project", with: third_project.name
+    click_button "Ok"
+
+    expect(find('#flash-messages').text).to be_empty
+    request = BsRequest.where(description: "Hey, why not?", creator: user.login, state: "review")
+    expect(request).to exist
+    expect(page.current_path).to match("/request/show/#{request.first.number}")
+    expect(page).to have_text("Created by #{user.login}")
+    expect(page).to have_text("In state review")
+    expect(page).to have_text("Set the devel project to package #{third_project.name} / develpackage for package #{user.home_project} / develpackage")
   end
 end
