@@ -84,6 +84,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
         expect(page).to have_text('In state accepted')
       end
     end
+
     describe 'for packages' do
       it 'can be submitted' do
         login submitter
@@ -98,6 +99,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
         expect(page).to have_css("#description-text", text: "I can produce bugs too.")
         expect(page).to have_text('In state new')
       end
+
       it 'can be accepted' do
         bs_request.bs_request_actions.delete_all
         create(:bs_request_action_add_maintainer_role, target_project: target_project.name,
@@ -174,6 +176,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
         expect(page).to have_text("Open review for #{reviewer.login}")
       end
     end
+
     describe 'for group' do
       let(:review_group) { create(:group) }
       it 'opens a review' do
@@ -186,6 +189,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
         expect(page).to have_text("Open review for #{review_group.title}")
       end
     end
+
     describe 'for project' do
       it 'opens a review' do
         login submitter
@@ -197,6 +201,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
         expect(page).to have_text("Review for #{submitter.home_project}")
       end
     end
+
     describe 'for package' do
       let(:package) { create(:package, project: submitter.home_project) }
       it 'opens a review' do
@@ -210,6 +215,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
         expect(page).to have_text("Review for #{submitter.home_project} / #{package.name}")
       end
     end
+
     describe 'for invalid reviewer' do
       it 'opens no review' do
         login submitter
