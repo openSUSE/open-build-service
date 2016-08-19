@@ -30,6 +30,22 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  def test_subaccount_permission
+    user = User.find_by(login: "adrian")
+
+    robot = User.create(login: 'robot_man', email: 'scorpions@hannover.de', password: 'dummy',
+                        owner: user)
+
+    axml = robot.render_axml
+    assert_xml_tag axml, tag: :owner, attributes: {userid: "adrian"}
+    assert robot.is_active?
+
+    # alias follows the user on disable
+    user.state = "locked"
+    user.save!
+    assert_equal false, robot.is_active?
+  end
+
   def test_basics
     assert @project
     assert @user

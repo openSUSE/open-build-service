@@ -6,6 +6,7 @@ xml.person do
     realname.toutf8
     xml.realname(realname)
   end
+  xml.owner(userid: my_model.owner.login) if my_model.owner
   xml.state(my_model.state)
 
   my_model.roles.global.each do |role|
