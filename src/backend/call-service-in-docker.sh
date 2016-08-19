@@ -56,17 +56,14 @@ MOUNTDIR=`dirname $OUTDIR`
 RETURN="0"
 [ -d $MOUNTDIR ] || mkdir -p $MOUNTDIR
 # set -x
-
-# FIXME:
-# Use an none world writable dir here
-# and use mktemp
-INNEROUTDIR="/tmp/$$/out"
+INNERBASEDIR=`mktemp -u /var/cache/obs/XXXXXXXXXXXX`
+INNEROUTDIR="$INNERBASEDIR/out"
 OUTEROUTDIR="$MOUNTDIR/out"
-INNERSRCDIR="/tmp/$$/src"
+INNERSRCDIR="$INNERBASEDIR/src"
 OUTERSRCDIR="$MOUNTDIR/src"
-INNERSCRIPTDIR="/tmp/$$/scripts"
+INNERSCRIPTDIR="$INNERBASEDIR/scripts"
 INNERSCRIPT="$INNERSCRIPTDIR/inner.sh"
-INNERGITCACHE="/tmp/git-cache"
+INNERGITCACHE="$INNERBASEDIR/git-cache"
 
 [ -d $OUTEROUTDIR ] || mkdir -p $OUTEROUTDIR
 [ -d $OUTERSRCDIR ] || mkdir -p $OUTERSRCDIR
@@ -103,13 +100,15 @@ fi
 echo "${COMMAND[@]} --outdir $INNEROUTDIR $JAILED" >> "$MOUNTDIR/${INNERSCRIPT}.command"
 
 # useful for debugging purposes
-#DEBUG_OPTIONS="-it"
-#INNERSCRIPT=/bin/bash
+if [[ $DEBUG_DOCKER ]];then
+	DEBUG_OPTIONS="-it"
+	INNERSCRIPT=/bin/bash
+fi
 
 # run jailed process
 if docker run $DOCKER_OPTS_NET --rm --name src-service-$$ $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT; then
   # move out the result
-  if [ 0`find "$MOUNTDIR/$INNEROUTDIR" -type f | wc -l` -gt 0 ]; then
+  if [ 0`find "$MOUNTDIR/$INNEROUTDIR" -type f 2>/dev/null| wc -l` -gt 0 ]; then
     for i in _service:* ; do
       if [ ! -f "$MOUNTDIR/$INNERSRCDIR/$i" ]; then
         rm -f "$i"
@@ -120,8 +119,8 @@ else
  RETURN="2"
 fi
 
-rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNERSRCDIR"
-rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNEROUTDIR"
+[ -d "$MOUNTDIR/$INNERSRCDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNERSRCDIR"
+[ -d "$MOUNTDIR/$INNEROUTDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNEROUTDIR"
 rm -f "$MOUNTDIR/${INNERSCRIPT}.command" 2> /dev/null
 rm -f "$MOUNTDIR/$INNERSCRIPT" 2> /dev/null
 rmdir --ignore-fail-on-non-empty "$MOUNTDIR$INNERSCRIPTDIR" 2> /dev/null
