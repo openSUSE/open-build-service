@@ -878,7 +878,7 @@ class Project < ActiveRecord::Base
   end
 
   def store(opts = {})
-    self.commit_opts = opts if opts
+    self.commit_opts = opts if opts.present?
     self.transaction do
       save!
       write_to_backend

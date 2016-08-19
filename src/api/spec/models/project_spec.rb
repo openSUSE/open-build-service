@@ -326,4 +326,26 @@ RSpec.describe Project do
       end
     end
   end
+
+  describe "#store" do
+    before do
+      project.stubs(:save!).returns(true)
+      project.stubs(:write_to_backend).returns(true)
+      project.commit_opts = { comment: 'the comment' }
+    end
+
+    context "without commit_opts parameter" do
+      it "does not overwrite the commit_opts" do
+        project.store
+        expect(project.commit_opts).to eq({ comment: 'the comment' })
+      end
+    end
+
+    context "with commit_opts parameter" do
+      it "does overwrite the commit_opts" do
+        project.store({ comment: 'a new comment'})
+        expect(project.commit_opts).to eq({ comment: 'a new comment' })
+      end
+    end
+  end
 end
