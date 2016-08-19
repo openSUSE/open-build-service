@@ -391,12 +391,14 @@ class Webui::RequestController < Webui::WebuiController
            Package::UnknownObjectError,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "No such package: #{e.message}"
-      redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
+      redirect_to package_show_path(project: params[:project], package: params[:package])
+      return
     rescue APIException => e
       flash[:error] = "Unable to create request: #{e.message}"
-      redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
+      redirect_to package_show_path(project: params[:project], package: params[:package])
+      return
     end
-    redirect_to :controller => 'request', :action => 'show', number: req.number
+    redirect_to request_show_path(number: req.number)
   end
 
   def set_incident_dialog
