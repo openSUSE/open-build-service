@@ -143,7 +143,7 @@ start it with
 
 ```
 vagrant exec rake db:fixtures:load RAILS_ENV=test
-vagrant exec start_test_backend
+vagrant exec script/start_test_backend
 ```
 
 We use [VCR](https://github.com/vcr/vcr) to record the response from the backend.
