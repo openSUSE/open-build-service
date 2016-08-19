@@ -419,7 +419,8 @@ module Webui::WebuiHelper
     }.join(",\n").html_safe
   end
 
-  def replace_meta_characters(input)
-    input.sub("!\"#$%&'()*+,./:;<=>?@[\\]^`{|}~", '_')
+  def replace_jquery_meta_characters(input)
+    # The stated characters are c&p from https://api.jquery.com/category/selectors/
+    input.gsub(/[!"#$%&'()*+,.\/:\\;<=>?@\[\]^`{|}~]/, '_')
   end
 end
