@@ -16,6 +16,10 @@ override_dh_install:
 	rm -f  debian/obs-server/usr/lib/obs/server/bs_productconvert
 
 	dh_install --list-missing
+
+        # Do not install database config file in obs-api.
+	rm -f  debian/obs-api/srv/www/obs/api/config/database.yml
+
 	dh_installdebconf
 	# Rename dh_install installed web service config files.
 	# (new default since OBS 2.3)
