@@ -3,6 +3,7 @@ require_dependency 'api_exception'
 require 'builder/xchar'
 require 'rexml/document'
 require_dependency 'has_relationships'
+require_dependency 'opensuse/validator'
 
 class Package < ActiveRecord::Base
   include FlagHelper

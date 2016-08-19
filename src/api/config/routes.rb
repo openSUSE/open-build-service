@@ -157,7 +157,6 @@ OBSApi::Application.routes.draw do
       post 'patchinfo/save' => :save
       post 'patchinfo/remove' => :remove
       get 'patchinfo/new_tracker' => :new_tracker
-      get 'patchinfo/get_issue_sum' => :get_issue_sum
       get 'patchinfo/delete_dialog' => :delete_dialog
     end
     #
