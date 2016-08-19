@@ -78,7 +78,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_text "Couldn't find project 'home:foo'. Are you sure it still exists?"
   end
 
-  def test_show_package_binary_as_user
+  def test_show_package_binary_as_user # src/api/spec/controllers/webui/package_controller_spec.rb
     login_user('fred', 'buildservice', to:
         package_binaries_path(package: 'TestPack', project: 'home:Iggy', repository: '10.2'))
 
