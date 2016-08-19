@@ -299,8 +299,9 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     assert_equal packages(:home_coolo_test_kdelibs_DEVEL_package), packages(:kde4_kdelibs).develpackage
   end
 
+  # spec/controllers/webui/package_controller_spec.rb
+  # spec/features/webui/requests_spec.rb
   uses_transaction :test_submit_package
-
   def test_submit_package
     use_js
 

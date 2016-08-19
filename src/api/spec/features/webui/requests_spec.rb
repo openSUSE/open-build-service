@@ -163,6 +163,27 @@ RSpec.feature "Requests", :type => :feature, :js => true do
     end
   end
 
+  describe 'decline' do
+    let(:maintainer) { create(:confirmed_user) }
+    let!(:relationship) { create(:relationship, project: target_project, user: maintainer) }
+
+    it 'maintainer declines request' do
+      create_submit_request
+      login maintainer
+      visit request_show_path(bs_request)
+      fill_in 'reason', with: "Don't like it:("
+      click_button 'Decline request'
+
+      expect(page).to have_text('Request declined!')
+      expect(page).to have_text("Request #{bs_request.number} (declined)")
+
+      bs_request.reload
+      expect(bs_request.state).to eq(:declined)
+      expect(bs_request.comment).to eq("Don't like it:(")
+      expect(bs_request.commenter).to eq(maintainer.login)
+    end
+  end
+
   context 'review' do
     describe 'for user' do
       let(:reviewer) { create(:confirmed_user) }
