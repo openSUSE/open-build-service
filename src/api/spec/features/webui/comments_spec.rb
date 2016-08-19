@@ -17,7 +17,8 @@ RSpec.feature "Comments", :type => :feature, :js => true do
     login user
     comment = create(:comment_project, project: Project.first, user: user)
     visit project_show_path(user.home_project)
-    page.execute_script("$('#reply_form_of_#{comment.id}').show();")
+    # reply link contains an img element. Thus the regex
+    find("a", text: /.*Reply/).click
     fill_in "reply_body_#{comment.id}", with: 'Reply Body'
     click_button("add_reply_#{comment.id}")
 

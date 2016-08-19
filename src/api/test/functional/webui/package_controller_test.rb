@@ -154,7 +154,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
-  def test_succesful_comment_creation
+  def test_succesful_comment_creation # spec/features/webui/comments_spec.rb
     use_js
     login_Iggy
     visit '/package/show/home:Iggy/TestPack'
@@ -176,7 +176,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     end
   end
 
-  def test_another_succesful_comment_creation
+  def test_another_succesful_comment_creation # spec/features/webui/comments_spec.rb
     use_js
     login_Iggy
     visit '/package/show?project=home:Iggy&package=TestPack'
@@ -189,13 +189,15 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     end
   end
 
+  # No difference to non-remote projects in regards of comments
+  # spec/features/webui/comments_spec.rb
   def test_check_comments_on_remote_projects
     login_Iggy
     visit package_show_path(project: 'UseRemoteInstanceIndirect', package: 'patchinfo')
     fill_comment
   end
 
-  def test_succesful_reply_comment_creation
+  def test_succesful_reply_comment_creation # spec/features/webui/comments_spec.rb
     use_js
     login_Iggy
     visit '/package/show/BaseDistro3/pack2'
