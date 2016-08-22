@@ -542,7 +542,7 @@ while (@ARGV) {
 
 my ($prpa, $repotype, $url) = @ARGV;
 my ($projid, $repoid, $arch) = split('/', ($prpa || ''), 3);
-die("Usage: bs_dudup [--stop|--restart]\n       bs_dodup --dodfile <dodfile>\n       bs_dodup [--pubkey <pubkeyfile>] <prpa> <repotype> <url>\n") unless @ARGV == 3 && defined($arch);
+die("Usage: bs_dodup [--stop|--restart]\n       bs_dodup --dodfile <dodfile>\n       bs_dodup [--pubkey <pubkeyfile>] <prpa> <repotype> <url>\n") unless @ARGV == 3 && defined($arch);
 
 my $doddata = {
   'project' => $projid,
