@@ -454,7 +454,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
                  page.current_path
   end
 
-  def test_remove_file
+  def test_remove_file # spec/controllers/webui/package_controller_spec.rb
     use_js
 
     login_dmayr to: package_show_path(project: 'home:dmayr', package: 'x11vnc')
