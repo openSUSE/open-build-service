@@ -9,7 +9,6 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     @package = 'TestPack'
     @project = 'home:Iggy'
     @package_object = Package.get_by_project_and_name(@project, @package)
-    super
 
     use_js
     login_Iggy to: package_show_path(:project => @project, :package => @package)
@@ -85,7 +84,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     end
   end
 
-  def test_erase_file_content
+  def test_erase_file_content # spec/features/webui/packages_spec.rb
     find(:css, "tr##{valid_xml_id('file-myfile')} td:first-child a").click
     page.must_have_text "File myfile of Package #{@package}"
     # is it all rendered?
@@ -102,11 +101,10 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     flash_message_type.must_equal :info
 
     # Check if the saved content matches the uploaded content
-    content = @package_object.source_file('myfile')
-    assert_equal ''.inspect, content.inspect
+    assert_equal "", @package_object.source_file("myfile")
   end
 
-  def test_edit_empty_file
+  def test_edit_empty_file # spec/features/webui/packages_spec.rb
     find(:css, "tr##{valid_xml_id('file-myfile')} td:first-child a").click
     page.must_have_text "File myfile of Package #{@package}"
     # is it all rendered?
@@ -129,13 +127,13 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     assert_equal edit_text.inspect, content.inspect
   end
 
-  def test_add_new_source_file_to_home_project_package
+  def test_add_new_source_file_to_home_project_package # spec/features/webui/packages_spec.rb
     open_add_file
     # Touch an empty file
     add_file(name: 'HomeSourceFile1')
   end
 
-  def test_chinese_chars
+  def test_chinese_chars # spec/features/webui/packages_spec.rb
     open_add_file
     fu = '学习总结' # you don't want to know what that means in chinese
     add_file(name: fu, upload_path: text_path('chinese.txt'))
@@ -144,12 +142,12 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     page.must_have_button 'Save'
   end
 
-  def test_add_source_file_from_local_file
+  def test_add_source_file_from_local_file # spec/features/webui/packages_spec.rb
     open_add_file
     add_file(upload_from: :local_file, upload_path: text_path('SourceFile.cc'))
   end
 
-  def test_add_source_file_from_local_file_override_name
+  def test_add_source_file_from_local_file_override_name # spec/features/webui/packages_spec.rb
     open_add_file
     add_file(
       name: 'HomeSourceFile3',
@@ -158,14 +156,14 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     )
   end
 
-  def test_add_source_file_from_empty_local_file
+  def test_add_source_file_from_empty_local_file # spec/features/webui/packages_spec.rb
     open_add_file
     add_file(
       upload_from: :local_file,
       upload_path: text_path('EmptySource.c'))
   end
 
-  def test_add_source_file_from_remote_file
+  def test_add_source_file_from_remote_file # spec/features/webui/packages_spec.rb
     open_add_file
     add_file(
       upload_from: :remote_url,
@@ -173,7 +171,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       expect: :service)
   end
 
-  def test_add_source_file_with_invalid_name
+  def test_add_source_file_with_invalid_name # spec/controllers/webui/package_controller_spec.rb
     open_add_file
     add_file(
       name: "\/\/ invalid name",
@@ -183,7 +181,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     )
   end
 
-  def test_add_source_file_all_fields_empty
+  def test_add_source_file_all_fields_empty # spec/controllers/webui/package_controller_spec.rb
     open_add_file
 
     # The button is disabled when all fields are empty.
@@ -198,7 +196,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     )
   end
 
-  def test_add_empty_special_file
+  def test_add_empty_special_file # spec/features/webui/packages_spec.rb
     open_add_file
     add_file(
       name: '_link',
@@ -209,7 +207,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     )
   end
 
-  def test_add_invalid_special_file
+  def test_add_invalid_special_file # spec/features/webui/packages_spec.rb
     open_add_file
     add_file(
       name: '_link',
@@ -220,7 +218,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     )
   end
 
-  def test_add_valid_special_file
+  def test_add_valid_special_file # spec/features/webui/packages_spec.rb
     open_add_file
     add_file(
       name: '_aggregate',

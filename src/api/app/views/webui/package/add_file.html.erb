@@ -10,9 +10,13 @@
 
 <%= form_tag({:action => :save_file, :project => @project, :package => @package}, {:multipart => true}) do %>
   <p>
-    <b>Filename (taken from uploaded file if empty):</b><br/>
+    <label for="filename">
+      <b>Filename (taken from uploaded file if empty):</b><br/>
+    </label>
     <%= text_field_tag('filename', '', :size => 80) %><br/>
-    <b>Upload from</b> <%= select_tag('file_type', options_for_select([['local file', 'local'], ['remote URL', 'remote']])) %> :<br/>
+    <label for="file_type">
+      <b>Upload from</b> <%= select_tag('file_type', options_for_select([['local file', 'local'], ['remote URL', 'remote']])) %> :<br/>
+    </label>
     <%= file_field_tag('file') %>
     <%= text_field_tag('file_url', '', :size => 80, :class => "hidden") %>
   </p>

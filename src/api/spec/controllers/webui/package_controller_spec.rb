@@ -260,4 +260,109 @@ RSpec.describe Webui::PackageController, vcr: true do
       it { expect(response.body).to match(/rpmlint.log/) }
     end
   end
+
+  describe "POST #save_file" do
+    before do
+      login(user)
+    end
+
+    context "without any uploaded file data" do
+      it "fails with an error message" do
+        post :save_file, project: source_project, package: source_package
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Error while creating '' file: No file or URI given.")
+      end
+    end
+
+    context "with an invalid filename" do
+      it "fails with a backend error message" do
+        post :save_file, project: source_project, package: source_package, filename: ".test"
+        expect(response).to redirect_to(root_path)
+        expect(flash[:error]).to eq("Error while creating '.test' file: filename '.test' is illegal.")
+      end
+    end
+
+    context "adding a file that doesn't exist yet" do
+      before do
+        post :save_file, project: source_project, package: source_package, filename: "newly_created_file",
+          file_type: "local"
+      end
+
+      it { expect(response).to have_http_status(:found) }
+      it { expect(flash[:success]).to eq("The file 'newly_created_file' has been successfully saved.") }
+      it { expect(source_package.source_file("newly_created_file")).to be nil }
+    end
+
+    context "uploading a utf-8 file" do
+      let(:file_to_upload) { File.read(File.expand_path(Rails.root.join("spec/support/files/chinese.txt"))) }
+
+      before do
+        post :save_file, project: source_project, package: source_package, filename: "学习总结",
+          file: file_to_upload
+      end
+
+      it { expect(response).to have_http_status(:found) }
+      it { expect(flash[:success]).to eq("The file '学习总结' has been successfully saved.") }
+      it "creates the file" do
+        expect { source_package.source_file("学习总结") }.not_to raise_error
+        expect(URI.encode(source_package.source_file("学习总结"))).to eq(URI.encode(file_to_upload))
+      end
+    end
+
+    context "uploading a file from remote URL" do
+      before do
+        post :save_file, project: source_project, package: source_package, filename: "remote_file",
+          file_url: "https://raw.github.com/openSUSE/open-build-service/master/.gitignore"
+      end
+
+      it { expect(response).to have_http_status(:found) }
+      it { expect(flash[:success]).to eq("The file 'remote_file' has been successfully saved.") }
+      # Uploading a remote file creates a service instead of downloading it directly!
+      it "creates a valid service file" do
+        expect { source_package.source_file("_service") }.not_to raise_error
+        expect { source_package.source_file("remote_file") }.to raise_error ActiveXML::Transport::NotFoundError
+
+        created_service = source_package.source_file("_service")
+        expect(created_service).to eq(<<-EOT.strip)
+<services>
+  <service name="download_url">
+    <param name="host">raw.github.com</param>
+    <param name="protocol">https</param>
+    <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+    <param name="filename">remote_file</param>
+  </service>
+</services>
+EOT
+      end
+    end
+
+    context "uploading a valid special file (_aggregate)" do
+      let(:file_to_upload) { File.read(File.expand_path(Rails.root.join("test/texts/aggregate.xml"))) }
+
+      before do
+        post :save_file, project: source_project, package: source_package, file: file_to_upload, filename: "_aggregate"
+      end
+
+      it { expect(response).to have_http_status(:found) }
+      it { expect(flash[:success]).to eq("The file '_aggregate' has been successfully saved.") }
+
+      it "create the '_aggregate' file" do
+        expect { source_package.source_file("_aggregate") }.not_to raise_error
+        expect(URI.encode(source_package.source_file("_aggregate"))).to eq(URI.encode(file_to_upload))
+      end
+    end
+
+    context "uploading an invalid special file (_link)" do
+      before do
+        post :save_file, project: source_project, package: source_package, filename: "_link",
+          file: File.expand_path(Rails.root.join("test/texts/broken_link.xml"))
+      end
+
+      it { expect(response).to have_http_status(:found) }
+      it { expect(flash[:error]).to eq("Error while creating '_link' file: link validation error: Start tag expected, '<' not found.") }
+      it "does not create a '_link' file" do
+        expect { source_package.source_file("_link") }.to raise_error ActiveXML::Transport::NotFoundError
+      end
+    end
+  end
 end

@@ -704,9 +704,10 @@ class Webui::PackageController < Webui::WebuiController
           errors << 'No file or URI given'
         end
       end
-
-    rescue APIException, StandardError => exception
-      errors << exception.message
+    rescue ActiveXML::Transport::Error => e
+      errors << Xmlhash::XMLHash.new(error: e.summary)[:error]
+    rescue APIException, StandardError => e
+      errors << e.message
     end
 
     if errors.empty?
