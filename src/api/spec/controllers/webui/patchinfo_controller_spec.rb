@@ -20,7 +20,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
                 description: 'long enough description is also ok' * 5,
                 issueid: [769484],
                 issuetracker: ['bgo'],
-                issuesum: [],
+                issuesum: [nil],
                 issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484'],
                 category: 'recommended',
                 rating: 'low',
@@ -186,7 +186,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
                     description: 'long enough description is also ok' * 5,
                     issueid: [769484],
                     issuetracker: ['NonExistingTracker'],
-                    issuesum: [],
+                    issuesum: [nil],
                     issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
       end
 
@@ -202,7 +202,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
                     description: 'long enough description is also ok' * 5,
                     issueid: [769484],
                     issuetracker: ['bgo'],
-                    issuesum: [],
+                    issuesum: [nil],
                     issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
       end
 
