@@ -5,9 +5,7 @@
 3. [How to contribute issues](#how-to-contribute-issues)
 4. [How to contribute documentation](#how-to-contribute-documentation)
 5. [How to conduct yourself when contributing](#how-to-conduct-yourself-when-contributing)
-6. [Communication](#communication)
-8. [How to setup an OBS backend development environment](#how-to-setup-an-obs-backend-development-environment)
-9. [How to setup an OBS frontend development environment](#how-to-setup-an-obs-frontend-development-environment)
+6. [How to setup an OBS development environment](#how-to-setup-an-obs-development-environment)
 
 # Request for contributions
 We are always looking for contributions to the Open Build Service. Read this guide on how to do that.
@@ -92,6 +90,7 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
 
 8. Check out your OBS frontend:
 You can access the frontend at [localhost:3000](http://localhost:3000). Whatever you change in your cloned repository will have effect in the development environment.
+**Note**: The vagrant instance is configured with a default user 'Admin' and password 'buildservice'.
 
 9. Changed something in the frontend? Test your changes!
 
@@ -112,7 +111,4 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
     vagrant ssh
     ```
 
-**Note**: The vagrant instances are configured to use the test fixtures in development mode. That includes users. Default user password is 'buildservice'. The admin user is king with password 'sunflower'.
-
-
-:heart: Your Open Build Service Team
+Happy Hacking! - :heart: Your Open Build Service Team
