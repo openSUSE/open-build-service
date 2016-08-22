@@ -33,10 +33,4 @@ end
 
 if Rails.env.test?
   require 'single_test/tasks'
-
-  begin
-    require 'ci/reporter/rake/minitest'
-  rescue LoadError
-    puts "Please run 'rake gems:install' to install the 'ci_reporter' gem."
-  end
 end

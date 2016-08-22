@@ -75,8 +75,6 @@ group :test do
   gem 'test-unit'
   # to ensure a clean state for testing
   gem 'database_cleaner', '>= 1.0.1'
-  # for jenkins
-  gem 'ci_reporter'
   # for test coverage reports
   gem 'simplecov', require: false
   gem 'coveralls', require: false
