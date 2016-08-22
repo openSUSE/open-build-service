@@ -5,9 +5,7 @@
 3. [How to contribute issues](#how-to-contribute-issues)
 4. [How to contribute documentation](#how-to-contribute-documentation)
 5. [How to conduct yourself when contributing](#how-to-conduct-yourself-when-contributing)
-6. [Communication](#communication)
-8. [How to setup an OBS backend development environment](#how-to-setup-an-obs-backend-development-environment)
-9. [How to setup an OBS frontend development environment](#how-to-setup-an-obs-frontend-development-environment)
+6. [How to setup an OBS development environment](#how-to-setup-an-obs-development-environment)
 
 # Request for contributions
 We are always looking for contributions to the Open Build Service. Read this guide on how to do that.
@@ -47,20 +45,16 @@ Principles!](http://en.opensuse.org/openSUSE:Guiding_principles) If you think
 someone doesn't do that, please let any of the [openSUSE
 owners](https://github.com/orgs/openSUSE/teams/owners) know!
 
-# How to setup an OBS backend development environment
-Check [src/backend/README](src/backend/README) how to run the backend from the source code repository.
+# How to setup an OBS development environment
 
-# How to setup an OBS frontend development environment
+We are using [Vagrant](https://www.vagrantup.com/) to create our development environment.
 
-We are using [Vagrant](https://www.vagrantup.com/) to create our development environments.
+1. Install [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). Both tools support Linux, MacOS and Windows.
 
-1. Install [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). Both tools support Linux, MacOS and Windows and in principal setting up your OBS development environment works similar.
-
-2. Install [vagrant-exec](https://github.com/p0deje/vagrant-exec) Vagrant Plugins:
+2. Install [vagrant-exec](https://github.com/p0deje/vagrant-exec):
 
     ```
     vagrant plugin install vagrant-exec
-    vagrant plugin install vagrant-reload
     ```
 
 3. Clone this code repository:
@@ -85,10 +79,10 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
 6. Start your development backend with:
 
     ```
-    vagrant exec RAILS_ENV=development ./script/start_test_backend
+    vagrant exec contrib/start_development_backend
     ```
 
-7. Start your development OBS frontend:
+7. Start your development frontend with:
 
     ```
     vagrant exec rails s
@@ -96,20 +90,25 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
 
 8. Check out your OBS frontend:
 You can access the frontend at [localhost:3000](http://localhost:3000). Whatever you change in your cloned repository will have effect in the development environment.
+**Note**: The vagrant instance is configured with a default user 'Admin' and password 'buildservice'.
 
-9. Changed something? Test your changes!:
+9. Changed something in the frontend? Test your changes!
 
     ```
     vagrant exec rake test
+    vagrant exec rspec
     ```
 
-10. Explore the development environment:
+10. Changed something in the backend? Test your changes!
+
+    ```
+    vagrant exec make -C src/backend test
+    ```
+
+11. Explore the development environment:
 
     ```
     vagrant ssh
     ```
 
-**Note**: The vagrant instances are configured to use the test fixtures in development mode. That includes users. Default user password is 'buildservice'. The admin user is king with password 'sunflower'.
-
-
-:heart: Your Open Build Service Team
+Happy Hacking! - :heart: Your Open Build Service Team

@@ -48,7 +48,6 @@ CONFIG['response_schema_validation'] = true
 
 CONFIG['frontend_host'] = "localhost"
 CONFIG['frontend_protocol'] = "http"
-CONFIG['source_port'] = 6200
 
 require 'socket'
 fname = "#{Rails.root}/config/environments/development.#{Socket.gethostname}.rb"

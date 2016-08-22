@@ -79,7 +79,7 @@ FileUtils.rm_rf(backend_config)
 
 # minimal auth
 @http_user = User.find_by_login('king')
-raise 'NO fixtures - run rake db:fixtures:obs' unless @http_user
+raise 'NO fixtures - run rake db:fixtures:load RAILS_ENV=test' unless @http_user
 User.current = @http_user
 
 puts "Creating backend config at #{backend_config}/BSConfig.pm"

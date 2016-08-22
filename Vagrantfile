@@ -1,6 +1,9 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+dev_mem = (ENV["OBS_VAGRANT_MEM"]) ? ENV["OBS_VAGRANT_MEM"] : 2048
+dev_cpu = (ENV["OBS_VAGRANT_CPU"]) ? ENV["OBS_VAGRANT_CPU"] : 2
+
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = '2'
 
@@ -9,61 +12,25 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
 
+  #calculate memory allocation
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.define "frontend" , primary: true do |fe|
-    fe.vm.box = 'M0ses/openSUSE-Leap-42.1-minimal'
+  config.vm.define "development" , primary: true do |fe|
+    fe.vm.box = 'opensuse/openSUSE-42.1-x86_64'
     # Provision the box with a simple shell script
-    fe.vm.provision :shell, inline: '/vagrant/contrib/bootstrap_frontend.sh'
+    fe.vm.provision :shell, inline: '/vagrant/contrib/bootstrap.sh'
     fe.vm.provision :shell, inline: 'mount /vagrant/src/api/tmp', run: "always"
 
     # Execute commands in the frontend directory
-    fe.exec.commands '*', directory: '/vagrant/src/api'
-    fe.exec.commands '*', env: {'DATABASE_URL' => 'mysql2://root:opensuse@localhost/api_development'}
+    fe.exec.commands %w(rails rake rspec bundle), directory: '/vagrant/src/api'
+    fe.exec.commands 'script/start_test_backend', directory: '/vagrant/src/api'
+    fe.exec.commands 'contrib/start_development_backend', directory: '/vagrant'
+    fe.exec.commands '*', directory: '/vagrant'
     fe.vm.network :forwarded_port, guest: 3000, host: 3000
 
-    fe.vm.synced_folder "src/api/tmp/capybara/", "/vagrant/src/api/tmp/capybara", create: true
-  end
-
-
-  config.vm.define "appliance" , primary: true do |app|
-    app.vm.box = 'M0ses/openSUSE-Leap-42.1-minimal'
-
-    # Provision the box with a simple shell script
-    app.vm.provision :shell, inline: '/vagrant/contrib/bootstrap_appliance.sh'
-
-    # reboot vm to run obsapisetup
-    app.vm.provision :reload
-
-    # finalize installation
-    app.vm.provision :shell, inline: '/vagrant/contrib/bootstrap_appliance-finalize.sh'
-
-  end
-
-  config.vm.define "rpm-test" , primary: true do |rpmt|
-    rpmt.vm.box = 'M0ses/openSUSE-Leap-42.1-minimal'
-    # Provision the box with a simple shell script
-    rpmt.vm.provision :shell, inline: <<SCRIPT
-export NO_CAT_LOG=1
-
-. /vagrant/contrib/common.sh
-
-allow_vendor_change
-
-add_common_repos
-
-install_common_packages
-
-setup_ruby
-
-install_bundle
-
-make -C /vagrant
-make -C /vagrant install
-
-make -C /vagrant/src/api test
-chown -R vagrant /vagrant
-SCRIPT
-
+    # FIXME: Setting group/owner is a temporary fix for
+    # https://github.com/mitchellh/vagrant/issues/7616
+    fe.vm.synced_folder "src/api/tmp/capybara/", "/vagrant/src/api/tmp/capybara", create: true, owner: "vagrant", group: 100
+    fe.vm.synced_folder ".", "/vagrant", owner: "vagrant", group: 100
   end
 
   # The url from where the 'config.vm.box' box will be fetched if it
@@ -73,9 +40,6 @@ SCRIPT
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-
-  config.vm.define "appliance", autostart: false
-  config.vm.define "rpm-test", autostart: false
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -98,18 +62,16 @@ SCRIPT
 
   # Use 1Gb of RAM for Vagrant box (otherwise bundle will go to swap)
   config.vm.provider :virtualbox do |vb|
-
-    vb.customize ['modifyvm', :id, '--memory', '2048']
+    vb.customize ['modifyvm', :id, '--memory', dev_mem]
+    vb.customize ['modifyvm', :id, '--cpus', dev_cpu]
     vb.destroy_unused_network_interfaces = true
 
     config.vm.provision :shell, inline: <<SCRIPT
 . /vagrant/contrib/common.sh
-setup_obs_backend
 SCRIPT
   end
 
   config.vm.provider :libvirt do |lv|
-      lv.memory = 2048
       # Still having permissions problems with synced_folder 9p but keeping this
       # for documentation purpose
       # config.vm.synced_folder './', '/vagrant', type: '9p', disabled: false
