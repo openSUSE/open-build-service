@@ -88,12 +88,12 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_text 'Total build: 503 s'
   end
 
-  def test_show_invalid_package
+  def test_show_invalid_package # spec/controllers/webui/package_controller_spec.rb
     visit package_show_path(package: 'TestPok', project: 'home:Iggy')
     page.status_code.must_equal 404
   end
 
-  def test_show_invalid_project
+  def test_show_invalid_project # spec/controllers/webui/webui_controller_spec.rb
     visit package_show_path(package: 'TestPok', project: 'home:Oggy')
     page.status_code.must_equal 404
   end

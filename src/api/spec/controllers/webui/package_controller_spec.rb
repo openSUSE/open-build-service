@@ -365,4 +365,36 @@ EOT
       end
     end
   end
+
+  describe "GET #show" do
+    context "require_package before_filter" do
+      context "with an invalid package" do
+        before do
+          get :show, project: user.home_project, package: 'no_package'
+        end
+
+        it "returns 302 status" do
+          expect(response.status).to eq(302)
+        end
+
+        it "redirects to project show path" do
+          expect(response).to redirect_to(project_show_path(project: user.home_project, nextstatus: 404))
+        end
+
+        it "shows error flash message" do
+          expect(flash[:error]).to eq("Package \"no_package\" not found in project \"#{user.home_project}\"")
+        end
+      end
+    end
+
+    context "with a valid package" do
+      before do
+        get :show, project: user.home_project, package: source_package.name
+      end
+
+      it "assigns @package" do
+        expect(assigns(:package)).to eq(source_package)
+      end
+    end
+  end
 end
