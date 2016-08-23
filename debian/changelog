@@ -1,5 +1,5 @@
-open-build-service (2.7.0-1~) UNRELEASED; urgency=low
+open-build-service (2.7.1-1~) UNRELEASED; urgency=low
 
   * New upstream release
 
- -- Andrew Lee (李健秋) <andrew.lee@collabora.co.uk>  Thu, 16 Jun 2016 06:23:07 +0800
+ -- Andrew Lee (李健秋) <andrew.lee@collabora.co.uk>  Sat, 20 Aug 2016 05:48:52 +0800
