@@ -1,0 +1,190 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 26 Aug 2016 07:47:49 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_files/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '114'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 26 Aug 2016 07:47:49 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Et qui quia ea vero vitae ipsum voluptatibus. Quis tempore perferendis
+        amet est. Ea rerum dolores velit eligendi corporis rerum voluptatem. Occaecati
+        est ut eos aut. Unde rerum ea id harum cumque rerum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>6ea7e41c72c39707eef4cd762e107512</srcmd5>
+          <version>unknown</version>
+          <time>1472197669</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 26 Aug 2016 07:47:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '202'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: Et qui quia ea vero vitae ipsum voluptatibus. Quis tempore perferendis
+        amet est. Ea rerum dolores velit eligendi corporis rerum voluptatem. Occaecati
+        est ut eos aut. Unde rerum ea id harum cumque rerum.
+    http_version: 
+  recorded_at: Fri, 26 Aug 2016 07:47:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '202'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: Et qui quia ea vero vitae ipsum voluptatibus. Quis tempore perferendis
+        amet est. Ea rerum dolores velit eligendi corporis rerum voluptatem. Occaecati
+        est ut eos aut. Unde rerum ea id harum cumque rerum.
+    http_version: 
+  recorded_at: Fri, 26 Aug 2016 07:50:05 GMT
+recorded_with: VCR 3.0.1
