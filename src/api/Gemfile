@@ -106,7 +106,7 @@ end
 
 group :development, :test do
   # as testing framework
-  gem 'rspec-rails', '~> 3.4.0'
+  gem 'rspec-rails', '~> 3.4.2'
   # for fixtures
   gem 'factory_girl_rails'
   # for mocking the backend
