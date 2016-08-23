@@ -728,4 +728,13 @@ sub identical {
   return 1;
 }
 
+sub printlog {
+  my ($msg) = @_;
+  $msg =~ s/\n$//s;
+  my @ltim = localtime(time);
+  my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
+  print "$msgtm $msg\n";
+}
+
+
 1;
