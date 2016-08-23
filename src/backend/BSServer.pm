@@ -216,7 +216,7 @@ sub server {
   my $idle_next = 0;
 
   if ($conf->{'serverstatus'}) {
-    open(STA, '>', $conf->{'serverstatus'});
+    open(STA, '>', $conf->{'serverstatus'}) || die "Could not open $conf->{'serverstatus'}: $!";
   }
 
   while (1) {
