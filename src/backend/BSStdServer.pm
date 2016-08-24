@@ -89,9 +89,8 @@ sub dispatch {
   my @lt = localtime(time);
   my $msg = "$req->{'action'} $req->{'path'}?$req->{'query'}";
   BSServer::setstatus(2, $msg) if $conf->{'serverstatus'};
-  $msg = BSUtil::isotime()." [$$]: $msg";
   $msg .= " (AJAX)" if $isajax;
-  print "$msg\n";
+  BSUtil::printlog($msg);
   if ($isajax) {
     BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain");
   }

@@ -359,9 +359,9 @@ sub server {
 sub msg {
   my $peer = ($BSServer::request || {})->{'peer'};
   if (defined($peer)) {
-    print BSUtil::isotime().": $peer: $_[0]\n";
+    BSUtil::printlog("$peer: $_[0]");
   } else {
-    print BSUtil::isotime().": $_[0]\n";
+    BSUtil::printlog($_[0]);
   }
 }
 

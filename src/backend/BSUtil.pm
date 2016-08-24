@@ -464,12 +464,6 @@ sub lockcreatexml {
   return 1;
 }
 
-sub isotime {
-  my ($t) = @_;
-  my @lt = localtime($t || time());
-  return sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
-}
-
 # XXX: does that really belong here?
 #
 # Algorithm:
@@ -732,8 +726,13 @@ sub printlog {
   my ($msg) = @_;
   $msg =~ s/\n$//s;
   my @ltim = localtime(time);
-  my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
-  print "$msgtm $msg\n";
+  printf "%04d-%02d-%02d %02d:%02d:%02d: %-7s - %s\n",
+    $ltim[5] + 1900,  # year
+    $ltim[4] + 1,     # month
+    @ltim[3,2,1,0],   # day, hour, minute, second
+    "[$$]",	      # [pid] (gets space padded right)
+    $msg
+    ;
 }
 
 
