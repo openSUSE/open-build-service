@@ -724,7 +724,6 @@ sub identical {
 
 sub printlog {
   my ($msg) = @_;
-  $msg =~ s/\n$//s;
   my @ltim = localtime(time);
   printf "%04d-%02d-%02d %02d:%02d:%02d: %-7s - %s\n",
     $ltim[5] + 1900,  # year
