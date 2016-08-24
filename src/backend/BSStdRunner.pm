@@ -221,7 +221,7 @@ sub run {
     }
   }
 
-  BSUtil::printlog("$name started\n");
+  BSUtil::printlog("$name started");
   $conf->{'run'}->($conf);
 }
 
