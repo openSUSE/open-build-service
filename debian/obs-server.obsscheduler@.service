@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 EnvironmentFile=/etc/default/obs-server
-ExecStart=/usr/lib/obs/server/bs_obsscheduler
+ExecStart=/usr/lib/obs/server/bs_sched $i
 ExecReload=/bin/kill -HUP $MAINPID
 
 [Install]
