@@ -421,7 +421,7 @@ sub scan_dodsdir {
 sub check_dod {
   my ($doddata) = @_;
   my $prpa = "$doddata->{'project'}/$doddata->{'repository'}/$doddata->{'arch'}";
-  printlog("checking $prpa...\n");
+  BSUtil::printlog("checking $prpa...");
   eval { update_dod($doddata) };
   my $now = time();
   $doddata->{'lastcheck'} = $now;
@@ -437,25 +437,17 @@ sub check_dod {
   }
 }
 
-sub printlog {
-  my ($msg) = @_;
-  $msg =~ s/\n$//s;
-  my @ltim = localtime(time);
-  my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
-  print "$msgtm $msg\n";
-}
-
 sub check_exitrestart {
   if (-e "$rundir/bs_dodup.exit") {
     close(RUNLOCK);
     unlink("$rundir/bs_dodup.exit");
-    printlog("exiting...");
+    BSUtil::printlog("exiting...");
     exit(0);
   }
   if (-e "$rundir/bs_dodup.restart") {
     close(RUNLOCK);
     unlink("$rundir/bs_dodup.restart");
-    printlog("restarting...");
+    BSUtil::printlog("restarting...");
     exec($0);
     die("$0: $!\n");
   }
@@ -496,7 +488,7 @@ if (!@ARGV || (@ARGV == 1 && ($ARGV[0] eq '--restart' || $ARGV[0] eq '--exit' ||
   $| = 1;
   $SIG{'PIPE'} = 'IGNORE';
   BSUtil::restartexit($ARGV[0], 'dodup', "$rundir/bs_dodup");
-  printlog("starting build service DoD updater");
+  BSUtil::printlog("starting build service DoD updater");
   mkdir_p($rundir);
   open(RUNLOCK, '>>', "$rundir/bs_dodup.lock") || die("$rundir/bs_dodup.lock: $!\n");
   flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dodup is already running!\n");
