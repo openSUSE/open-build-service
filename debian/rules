@@ -21,6 +21,17 @@ override_dh_install:
 	rm -f  debian/obs-api/srv/www/obs/api/config/database.yml
 
 	dh_installdebconf
+	dh_installinit --name obsapidelayed
+	dh_installinit --name obsservice
+	dh_installinit --name obsrepserver
+	dh_installinit --name obsdispatcher
+	dh_installinit --name obsscheduler
+	dh_installinit --name obssigner
+	dh_installinit --name obswarden
+	dh_installinit --name obspublisher
+	dh_installinit --name obsworker --no-start
+	dh_installinit --name obssrcserver
+
 	# Rename dh_install installed web service config files.
 	# (new default since OBS 2.3)
 	mkdir -p debian/obs-api/etc/apache2/sites-available/
