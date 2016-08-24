@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
+# Copyright (c) 2016  Frank Schreiner, SUSE LLC
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -16,11 +17,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
 ################################################################
-#
-# collection of useful functions
-#
 
 package BSUtil;
+
+=head1 NAME
+
+BSUtil - collection of useful functions
+
+=cut
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -36,6 +40,10 @@ use IO::Handle;
 use strict;
 
 our $fdatasync_before_rename;
+
+=head1 FUNCTIONS / METHODS
+
+=cut
 
 sub set_fdatasync_before_rename {
   $fdatasync_before_rename = 1;
@@ -171,8 +179,13 @@ sub mkdir_p {
   return 1;
 }
 
-# calls mkdir_p and changes ownership of the created directory to the
-# supplied user and group if provided.
+=head2 mkdir_p_chown - create directory recursivly and change ownership
+
+ calls mkdir_p and changes ownership of the created directory to the
+ supplied user and group if provided.
+
+=cut
+
 sub mkdir_p_chown {
   my ($dir, $user, $group) = @_;
 
@@ -466,12 +479,17 @@ sub lockcreatexml {
 
 # XXX: does that really belong here?
 #
-# Algorithm:
-# each enable/disable has a score:
-# +1 if it's a disable
-# +2 if the arch matches
-# +4 if the repo matches
-#
+
+=head2 enabled
+
+ Algorithm:
+ each enable/disable has a score:
+ +1 if it's a disable
+ +2 if the arch matches
+ +4 if the repo matches
+
+=cut
+
 sub enabled {
   my ($repoid, $disen, $default, $arch) = @_;
 
@@ -721,6 +739,14 @@ sub identical {
   }
   return 1;
 }
+
+=head2 printlog - print unified log messages
+
+ BSUtil::printlog($message);
+
+FORMAT: "YYYY-MM-DD hh:mm:ss [$pid] - $message"
+
+=cut
 
 sub printlog {
   my ($msg) = @_;
