@@ -110,7 +110,7 @@
                 <%= link_to(sprited_text('tools-report-bug', 'Report bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
               </li>
           <% end -%>
-          <% if User.current.can_modify_project?(@project.api_obj) %>
+          <% if User.current.can_modify_project?(@project.api_obj, true) %>
               <% unless @project.is_remote? %>
                   <% if @is_incident_project && @packages.present? && @has_patchinfo && @open_release_requests.blank? %>
                       <li>
