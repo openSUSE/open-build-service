@@ -138,7 +138,7 @@ sub run_source_update {
         print "Skip $name\n";
         next;
       }
-      print "Run for $name\n";
+      BSUtil::printlog("Run for $name\n");
       my $servicedef = readxml("$rootservicedir/$name.service", $BSXML::servicetype);
       my @run;
       if (defined $BSConfig::service_wrapper->{$name} ) {
@@ -159,6 +159,7 @@ sub run_source_update {
 
       mkdir("$myworkdir/out") || die("mkdir $myworkdir/out: $!\n");
     
+      BSUtil::printlog("Running command '@run'\n");
       # call the service
       if (! open(SERVICE, '-|')) {
         open(STDERR, ">&STDOUT");
