@@ -246,6 +246,7 @@ Summary:        The Open Build Service -- source service daemon
 Group:          Productivity/Networking/Web/Utilities
 %endif
 # Our default services, used in osc and webui
+Requires:	obs-common
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
 
