@@ -8,7 +8,7 @@
 
   <%= form_tag(:action => 'save') do %>
     <p>
-     <input id="user" name="user" type="hidden" value="<%= @displayed_user.login %>" />
+     <%= hidden_field_tag("user", @displayed_user.login) %>
      <%= label_tag :realname, 'Name:' %><br/>
      <%= text_field_tag :realname, @displayed_user.realname %>
     </p>
@@ -18,19 +18,12 @@
     </p>
     <p>
     <%= label_tag :globalrole, 'Admin:' %>
-    <% if @displayed_user.is_admin? %>
-      <input type="checkbox" name="globalrole" value="Admin" checked="checked" />
-    <% else %>
-      <input type="checkbox" name="globalrole" value="Admin"/>
-    <% end %>
+    <%= check_box_tag("globalrole", "Admin", @displayed_user.is_admin?) %>
     </p>
     <p>
-    <% @states.each do |s| %>
-      <%= label_tag "state_#{s}", "#{s}" %>
-      <% if s.to_s == @displayed_user.state %>
-        <% select = true %>
-      <% end %>
-      <%= radio_button_tag :state, s, select %>
+    <% @states.each do |state| %>
+      <%= label_tag "state_#{state}", "#{state}" %>
+      <%= radio_button_tag :state, state, (state.to_s == @displayed_user.state) %>
     <% end %>
     </p>
     <p><%= submit_tag 'Update' %></p>
