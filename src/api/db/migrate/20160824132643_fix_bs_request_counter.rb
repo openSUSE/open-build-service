@@ -7,7 +7,7 @@ class FixBsRequestCounter < ActiveRecord::Migration
     self.table_name = 'bs_request_counter'
   end
 
-  def self.change
+  def change
     # BsRequestCounter is not set correctly
     # Introduced with 20160321105300_request_counter.rb
     # See https://github.com/openSUSE/open-build-service/issues/2068
