@@ -1,0 +1,28 @@
+- @pagetitle = "Edit User Data"
+- @crumb_list = []
+- @crumb_list << link_to("Configuration", :controller => "configuration", :action => :index)
+- @crumb_list << link_to("User Management", :controller => "user", :action => :index)
+- @crumb_list << @pagetitle
+
+%h2
+  = "Editing User Data for User #{@displayed_user.login}"
+
+= form_tag(action: "save") do
+  %p
+    = hidden_field_tag("user", @displayed_user.login)
+    = label_tag(:realname, "Name:")
+    %br
+    = text_field_tag(:realname, @displayed_user.realname)
+  %p
+    = label_tag(:email, "e-Mail:")
+    %br
+    = text_field_tag(:email, @displayed_user.email, required: true, email: true)
+  %p
+    = label_tag(:globalrole, "Admin:")
+    = check_box_tag("globalrole", "Admin", @displayed_user.is_admin?)
+  %p
+    - @states.each do |state|
+      = label_tag("state_#{state}", state)
+      = radio_button_tag(:state, state, (state.to_s == @displayed_user.state))
+  %p
+    = submit_tag("Update")
