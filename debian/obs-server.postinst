@@ -15,6 +15,15 @@ fi
 mkdir -p /srv/obs/repos
 chown obsrun:obsrun /srv/obs/repos
 
+# Start up schedulers
+systemctl enable obsscheduler@i586.service || true
+systemctl enable obsscheduler@x86_64.service || true
+systemctl enable obsscheduler@armv7hl.service || true
+systemctl start obsscheduler@i586.service || true
+systemctl start obsscheduler@x86_64.service || true
+systemctl start obsscheduler@armv7hl.service || true
+
+
 if [ ! -f /srv/www/obs/overview/index.html ] ; then
   FQHOSTNAME=`hostname -f`
 
