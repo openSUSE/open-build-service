@@ -21,16 +21,38 @@ override_dh_install:
 	rm -f  debian/obs-api/srv/www/obs/api/config/database.yml
 
 	dh_installdebconf
-	dh_installinit --name obsapidelayed
-	dh_installinit --name obsservice
-	dh_installinit --name obsrepserver
-	dh_installinit --name obsdispatcher
-	dh_installinit --name obsscheduler
-	dh_installinit --name obssigner
-	dh_installinit --name obswarden
-	dh_installinit --name obspublisher
+	dh_installinit --restart-after-upgrade --name obsapidelayed
+	dh_installinit --restart-after-upgrade --name obsrepserver
+	dh_installinit --restart-after-upgrade --name obssrcserver
+	dh_installinit --restart-after-upgrade --name obsdispatcher
+	dh_installinit --restart-after-upgrade --name obsscheduler@
+	dh_installinit --restart-after-upgrade --name obswarden
+	dh_installinit --restart-after-upgrade --name obsdodup
+	dh_installinit --restart-after-upgrade --name obsservice
+	dh_installinit --restart-after-upgrade --name obspublisher
+	dh_installinit --restart-after-upgrade --name obssigner
 	dh_installinit --name obsworker --no-start
-	dh_installinit --name obssrcserver
+	dh_systemd_enable -p obs-api obsapidelayed.service
+	dh_systemd_enable -p obs-server \
+		obsrepserver.service \
+		obssrcserver.service \
+		obsdispatcher.service \
+		obswarden.service \
+		obsdodup.service \
+		obsservice.service \
+		obspublisher.service \
+		obssigner.service
+	dh_systemd_start -p obs-api --restart-after-upgrade \
+		obsapidelayed.service
+	dh_systemd_start -p obs-server \
+		obsrepserver.service \
+		obssrcserver.service \
+		obsdispatcher.service \
+		obswarden.service \
+		obsdodup.service \
+		obsservice.service \
+		obspublisher.service \
+		obssigner.service
 
 	# Rename dh_install installed web service config files.
 	# (new default since OBS 2.3)
