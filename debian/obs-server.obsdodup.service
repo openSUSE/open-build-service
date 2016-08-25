@@ -4,8 +4,9 @@ After=network.target
 
 [Service]
 EnvironmentFile=/etc/default/obs-server
-ExecStart=/usr/lib/obs/server/bs_dodupr
-ExecReload=/bin/kill -HUP $MAINPID
+ExecStart=/usr/lib/obs/server/bs_dodup
+ExecStop=/usr/lib/obs/server/bs_dodup --stop
+ExecReload=/usr/lib/obs/server/bs_dodup --restart
 
 [Install]
 WantedBy=multi-user.target
