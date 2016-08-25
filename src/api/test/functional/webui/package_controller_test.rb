@@ -34,8 +34,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   # spec/models/branch_package_spec.rb
-  # spec/features/webui/packages_spec.rb
-  def test_branch_package
+  def test_branch_package # spec/features/webui/packages_spec.rb
     use_js
     login_Iggy
 
@@ -107,9 +106,8 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   # spec/controllers/webui/package_controller_spec.rb
-  # spec/features/webui/packages_spec.rb
   uses_transaction :test_delete_package_as_admin
-  def test_delete_package_as_admin
+  def test_delete_package_as_admin # spec/features/webui/packages_spec.rb
     use_js
 
     login_king
@@ -270,8 +268,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   # spec/controllers/webui/request_controller_spec.rb
-  # spec/features/webui/packages_spec.rb
-  def test_delete_request
+  def test_delete_request # spec/features/webui/packages_spec.rb
     use_js
 
     login_tom to: package_show_path(package: 'TestPack', project: 'home:Iggy')
@@ -285,8 +282,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   # spec/features/webui/packages_spec.rb
-  # spec/controllers/webui/request_controller_spec.rb
-  def test_change_devel_request
+  def test_change_devel_request # spec/controllers/webui/request_controller_spec.rb
     use_js
 
     # we need a package with current devel package
