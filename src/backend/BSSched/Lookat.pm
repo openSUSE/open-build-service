@@ -221,8 +221,8 @@ sub lookatprp {
     @$lookat_med = grep {$_ ne $prp} @$lookat_med;
   }
   delete $gctx->{'nextmed'}->{$prp};
-  print BSUtil::isotime().": looking at $lookattype prio $prp";
-  print " (".@$lookat_high."/".@$lookat_med."/".@$lookat_low."/".(keys %$lookat_next)."/".@{$gctx->{'prps'}}.")\n";
+  BSUtil::printlog("looking at $lookattype prio $prp".
+    " (".@$lookat_high."/".@$lookat_med."/".@$lookat_low."/".(keys %$lookat_next)."/".@{$gctx->{'prps'}}.")");
 }
 
 1;

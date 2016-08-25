@@ -58,11 +58,9 @@ RSpec.describe "Preparation for building package obs-build" do
     click_link('build targets')
     expect(page).to have_content("openSUSE distributions")
     check('repo_openSUSE_Tumbleweed')
-    check('repo_openSUSE_Leap_42.1')
-    find('input[id="submitrepos"]').click #Add selected repositories
-    expect(page).to have_content("Successfully added repositories")
-    expect(page).to have_content("openSUSE_Leap_42.1 (x86_64)")
-    expect(page).to have_content("openSUSE_Tumbleweed (i586, x86_64)")
+    expect(page).to have_content("Successfully added repository 'openSUSE_Tumbleweed'")
+    check('repo_openSUSE_Leap_42_1')
+    expect(page).to have_content("Successfully added repository 'openSUSE_Leap_42.1'")
   end
 
   it "should be able to disable x86_64 in Tumbleweed" do

@@ -86,12 +86,17 @@ sub authorize {
 
 sub dispatch {
   my ($conf, $req) = @_;
-  my @lt = localtime(time);
-  my $msg = "$req->{'action'} $req->{'path'}?$req->{'query'}";
+
+  my $msg = sprintf("%s %-17s %s %s %s",
+    $req->{'action'},
+    "($req->{'peer'})",
+    $req->{'path'},
+    ($req->{'query'}) ? "?$req->{'query'}" : '',
+    ($isajax) ? " (AJAX)" : '',
+  );
   BSServer::setstatus(2, $msg) if $conf->{'serverstatus'};
-  $msg = BSUtil::isotime()." [$$]: $msg";
   $msg .= " (AJAX)" if $isajax;
-  print "$msg\n";
+  BSUtil::printlog($msg);
   if ($isajax) {
     BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain");
   }

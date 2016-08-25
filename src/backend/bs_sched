@@ -839,7 +839,7 @@ eval {
         my $ectx = BSSched::EventQueue->new($gctx);
         BSSched::EventHandler::event_exit($ectx, { 'type' => 'exitcomplete' });
       }
-      print BSUtil::isotime().": waiting for an event...\n";
+      BSUtil::printlog("waiting for an event...");
       exit 0 if $testprojid;
       my $sleepstart = time();
       my @watchers = (values(%remotewatchers), $gctx->{'retryevents'}->events(), $gctx->{'rctx'}->xrpc_handles());

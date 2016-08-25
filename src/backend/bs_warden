@@ -53,7 +53,7 @@ my $jobsdir = "$BSConfig::bsdir/jobs";
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($ARGV[0], 'warden', "$rundir/bs_warden");
-print BSUtil::isotime().": starting build service worker warden\n";
+BSUtil::printlog("starting build service worker warden");
 
 # get lock
 mkdir_p($rundir);
@@ -113,7 +113,7 @@ while (1) {
     if ($@) {
       warn($@);
       if ($worker->{'reposerver'}) {
-	print BSUtil::isotime().": restarting build of $arch/$job building on $js->{'workerid'}\n";
+	BSUtil::printlog("restarting build of $arch/$job building on $js->{'workerid'}");
 	my $param = {
 	  'uri' => "$worker->{'reposerver'}/jobs/$arch/$job",
 	  'request' => 'POST',
@@ -133,7 +133,7 @@ while (1) {
 	  close F;
 	  next;
 	}
-	print BSUtil::isotime().": restarting build of $arch/$job building on $js->{'workerid'}\n";
+	BSUtil::printlog("restarting build of $arch/$job building on $js->{'workerid'}");
 	unlink("$jobsdir/$arch/$job:status");
         unlink("$workersdir/building/$wname");
         delete $building{$wname};
@@ -169,7 +169,7 @@ while (1) {
 	if ($js && $js->{'code'} ne 'building') {
 	  my @s = stat("$jobsdir/$arch/$job:status");
 	  if (@s && $s[9] + 86400 < $now) {
-	    print BSUtil::isotime().": restarting build of $arch/$job stuck in code $js->{'code'}\n";
+	    BSUtil::printlog("restarting build of $arch/$job stuck in code $js->{'code'}");
 	    unlink("$jobsdir/$arch/$job:status");
 	  }
 	  next;
@@ -192,7 +192,7 @@ while (1) {
 	    close F;
 	    next;
 	  }
-	  print BSUtil::isotime().": restarting orphaned build of $arch/$job building on $js->{'workerid'}\n";
+	  BSUtil::printlog("restarting orphaned build of $arch/$job building on $js->{'workerid'}");
 	  unlink("$jobsdir/$arch/$job:status");
           close F;
 	}
@@ -205,7 +205,7 @@ while (1) {
 	  next if $jobs{$job};
 	  my @s = stat("$jobsdir/$arch/$job:dir");
 	  if (@s && $s[9] + 86400 < $now) {
-	    print BSUtil::isotime().": removing orphaned $arch/$job result directory\n";
+	    BSUtil::printlog("removing orphaned $arch/$job result directory");
 	    BSUtil::cleandir("$jobsdir/$arch/$job:dir");
 	    rmdir("$jobsdir/$arch/$job:dir");
 	  }
@@ -214,7 +214,7 @@ while (1) {
 	  next if $jobs{$job};
 	  my @s = stat("$jobsdir/$arch/$job:status");
 	  if (@s && $s[9] + 86400 < $now) {
-	    print BSUtil::isotime().": removing orphaned $arch/$job status file\n";
+	    BSUtil::printlog("removing orphaned $arch/$job status file");
 	    rmdir("$jobsdir/$arch/$job:status");
 	  }
 	}
@@ -227,13 +227,13 @@ while (1) {
     if (-e "$rundir/bs_warden.exit") {
       close(RUNLOCK);
       unlink("$rundir/bs_warden.exit");
-      print BSUtil::isotime().": exiting...\n";
+      BSUtil::printlog("exiting...");
       exit(0);
     }
     if (-e "$rundir/bs_warden.restart") {
       close(RUNLOCK);
       unlink("$rundir/bs_warden.restart");
-      print BSUtil::isotime().": restarting...\n";
+      BSUtil::printlog("restarting...");
       exec($0);
       die("$0: $!\n");
     }

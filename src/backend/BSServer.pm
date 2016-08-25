@@ -216,7 +216,7 @@ sub server {
   my $idle_next = 0;
 
   if ($conf->{'serverstatus'}) {
-    open(STA, '>', $conf->{'serverstatus'});
+    open(STA, '>', $conf->{'serverstatus'}) || die "Could not open $conf->{'serverstatus'}: $!";
   }
 
   while (1) {
@@ -359,9 +359,9 @@ sub server {
 sub msg {
   my $peer = ($BSServer::request || {})->{'peer'};
   if (defined($peer)) {
-    print BSUtil::isotime().": $peer: $_[0]\n";
+    BSUtil::printlog("$peer: $_[0]");
   } else {
-    print BSUtil::isotime().": $_[0]\n";
+    BSUtil::printlog($_[0]);
   }
 }
 

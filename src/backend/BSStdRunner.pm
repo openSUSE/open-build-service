@@ -59,7 +59,7 @@ sub fc_exit {
   my ($conf, $fc) = @_;
   unlink($fc);
   close($conf->{'runlock'});
-  print BSUtil::isotime().": $conf->{'name'} exiting...\n";
+  BSUtil::printlog("$conf->{'name'} exiting...");
   exit(0);
 }
 
@@ -67,7 +67,7 @@ sub fc_restart {
   my ($conf, $fc) = @_;
   unlink($fc);
   close($conf->{'runlock'});
-  print BSUtil::isotime().": $conf->{'name'} restarting...\n";
+  BSUtil::printlog("$conf->{'name'} restarting...");
   exec($0);
   die("$0: $!\n");
 }
@@ -221,7 +221,7 @@ sub run {
     }
   }
 
-  print BSUtil::isotime().": $name started\n";
+  BSUtil::printlog("$name started");
   $conf->{'run'}->($conf);
 }
 

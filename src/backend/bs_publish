@@ -1279,7 +1279,7 @@ sub deleterepo {
 sub publish {
   my ($projid, $repoid, $dbgsplit, $dbgpacktrack) = @_;
   my $prp = "$projid/$repoid";
-  print BSUtil::isotime().": publishing $prp\n";
+  BSUtil::printlog("publishing $prp");
 
   # get info from source server about this project/repository
   # we specify "withsrcmd5" so that we get the patternmd5. It still
@@ -2307,7 +2307,7 @@ sub publishevent {
     clear_repoinfo_state($prp);
     set_publish_retry($req, time() + 60);
     db_sync();
-    print BSUtil::isotime().": pushlish failed for $prp\n" if $req->{'forked'};
+    BSUtil::printlog("pushlish failed for $prp") if $req->{'forked'};
     return 0;
   }
 
@@ -2317,7 +2317,7 @@ sub publishevent {
   writepublishtimeevent($projid, $repoid, $now, $now - $starttime) if $req->{'forked'};
   notify_state($projid, $repoid, 'published');
   db_sync();
-  print BSUtil::isotime().": pushlish done for $prp\n" if $req->{'forked'};
+  BSUtil::printlog("pushlish done for $prp") if $req->{'forked'};
   return 1;
 }
 
