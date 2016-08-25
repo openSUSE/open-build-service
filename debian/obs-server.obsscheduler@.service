@@ -1,11 +1,11 @@
 [Unit]
-Description=OBS scheduler service
+Description=OBS scheduler service for %I
 After=network.target
 
 [Service]
 EnvironmentFile=/etc/default/obs-server
-ExecStart=/usr/lib/obs/server/bs_sched $i
-ExecReload=/bin/kill -HUP $MAINPID
+ExecStart=/usr/lib/obs/server/bs_sched %i
+ExecStop=/usr/lib/obs/server/bs_admin --shutdown-scheduler %i
 
 [Install]
 WantedBy=multi-user.target
