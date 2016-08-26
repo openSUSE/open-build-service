@@ -329,7 +329,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       login user
       apache2_project
       another_project.projects_linking_to << apache_project
-      xhr :get, :linking_projects, project: apache_project
+      get :linking_projects, params: { project: apache_project }, xhr: true
     end
 
     it { expect(Project.count).to eq(4) }
@@ -357,7 +357,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       summary = Xmlhash::XMLHash.new({'statuscount' => {'code' => 'succeeded', 'count' => 1} })
       build_result  = { 'result' => Xmlhash::XMLHash.new({'repository' => 'openSUSE', 'arch' => 'x86_64', 'summary' => summary }) }
       Buildresult.stubs(:find_hashed).returns(Xmlhash::XMLHash.new(build_result))
-      xhr :get, :buildresult, project: project_with_package
+      get :buildresult, params: { project: project_with_package }, xhr: true
       expect(assigns(:buildresult)).to match_array([["openSUSE", [["x86_64", [[:succeeded, 1]]]]]])
     end
   end
@@ -366,7 +366,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it 'assigns only linking_projects' do
       apache2_project
       another_project.projects_linking_to << apache_project
-      xhr :get, :delete_dialog, project: apache_project
+      get :delete_dialog, params: { project: apache_project }, xhr: true
       expect(assigns(:linking_projects)).to match_array([another_project.name])
     end
   end

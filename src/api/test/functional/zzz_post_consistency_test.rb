@@ -28,8 +28,8 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
 
     get "/search/project", :match => '[maintenance/maintains/@project="BaseDistro2.0:LinkedUpdateProject"]'
     assert_response :success
-    assert_tag :tag => 'collection', :children => { :count => 1 }
-    assert_tag :tag => 'project', :attributes => { :name => "My:Maintenance" }
+    assert_xml_tag :tag => 'collection', :children => { :count => 1 }
+    assert_xml_tag :tag => 'project', :attributes => { :name => "My:Maintenance" }
   end
 
   def test_fsck_backend

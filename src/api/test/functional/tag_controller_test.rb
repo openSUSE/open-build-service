@@ -1009,26 +1009,26 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
 
     # parameter steps
-    get "/tag/tagcloud", :steps => -1
+    get "/tag/tagcloud", params: { :steps => -1 }
     assert_response 404
 
-    get "/tag/tagcloud", :steps => 101
+    get "/tag/tagcloud", params: { :steps => 101 }
     assert_response 404
 
-    get "/tag/tagcloud", :steps => 6
+    get "/tag/tagcloud", params: { :steps => 6 }
     assert_response :success
 
-    # parameter distribution(_method)
-    get "/tag/tagcloud", :distribution => 'Alien'
+    # parameter distribution(_metho)
+    get "/tag/tagcloud", params: { :distribution => 'Alien' }
     assert_response 404
 
-    get "/tag/tagcloud", :distribution => 'raw'
+    get "/tag/tagcloud", params: { :distribution => 'raw' }
     assert_response :success
 
-    get "/tag/tagcloud", :distribution => 'logarithmic'
+    get "/tag/tagcloud", params: { :distribution => 'logarithmic' }
     assert_response :success
 
-    get "/tag/tagcloud", :distribution => 'linear'
+    get "/tag/tagcloud", params: { :distribution => 'linear' }
     assert_response :success
   end
 

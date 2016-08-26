@@ -1,6 +1,6 @@
 # The maintenance incident class represents the entry in the database.
 #
-class MaintenanceIncident < ActiveRecord::Base
+class MaintenanceIncident < ApplicationRecord
   belongs_to :project, class_name: "Project", foreign_key: :db_project_id
   belongs_to :maintenance_db_project, :class_name => "Project"
 

@@ -1,7 +1,7 @@
 require 'event'
 require 'set'
 
-class Comment < ActiveRecord::Base
+class Comment < ApplicationRecord
   belongs_to :bs_request, inverse_of: :comments
   belongs_to :project, inverse_of: :comments
   belongs_to :package, inverse_of: :comments

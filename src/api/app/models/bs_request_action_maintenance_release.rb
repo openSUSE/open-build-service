@@ -150,7 +150,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     if opts[:per_package_locking]
       object = spkg
     else
-      object = spkg.project
+      # Workaround: In rails 5 'spkg.project' started to return a readonly object
+      object = Project.find(spkg.project_id)
     end
     unless object.enabled_for?('lock', nil, nil)
       object.check_write_access!(true)

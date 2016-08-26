@@ -82,7 +82,7 @@ class Service < ActiveXML::Node
   def removeService(serviceid)
     each("/services/service") do |service|
       serviceid -= 1
-      if serviceid == 0
+      if serviceid.zero?
         delete_element service
         return true
       end

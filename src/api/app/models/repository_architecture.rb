@@ -1,4 +1,4 @@
-class RepositoryArchitecture < ActiveRecord::Base
+class RepositoryArchitecture < ApplicationRecord
   belongs_to :repository,   inverse_of: :repository_architectures
   belongs_to :architecture, inverse_of: :repository_architectures
 

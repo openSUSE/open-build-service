@@ -1,4 +1,4 @@
-class Repository < ActiveRecord::Base
+class Repository < ApplicationRecord
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :repositories
 
   before_destroy :cleanup_before_destroy
@@ -121,7 +121,7 @@ class Repository < ActiveRecord::Base
   # returns a list of repositories that include path_elements linking to this one
   # or empty list
   def linking_repositories
-    return [] if links.size == 0
+    return [] if links.size.zero?
     links.map {|l| l.repository}
   end
 
@@ -135,7 +135,7 @@ class Repository < ActiveRecord::Base
   end
 
   def linking_target_repositories
-    return [] if targetlinks.size == 0
+    return [] if targetlinks.size.zero?
     targetlinks.map {|l| l.target_repository}
   end
 

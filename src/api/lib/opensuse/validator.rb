@@ -75,6 +75,10 @@ module Suse
             schema_file = opt.to_s
           when Hash, HashWithIndifferentAccess
             schema_file = get_schema(opt).to_s
+          when ActionController::Parameters
+            # TODO: Once everything else works test if we can move this to
+            #       app/controllers/application_controller.rb:538
+            schema_file = get_schema(opt.to_unsafe_h.with_indifferent_access).to_s
           else
             raise "illegal option; need Hash/Symbol/String, seen: #{opt.class.name}"
         end
@@ -98,7 +102,6 @@ module Suse
           logger.debug "no content, skipping validation for #{schema_file}"
           raise ValidationError, "Document is empty, not allowed for #{schema_file}"
         end
-
         begin
           doc = Nokogiri::XML(content, nil, nil, Nokogiri::XML::ParseOptions::STRICT)
           schema.validate(doc).each do |error|

@@ -5,7 +5,7 @@ require 'rexml/document'
 require_dependency 'has_relationships'
 require_dependency 'opensuse/validator'
 
-class Package < ActiveRecord::Base
+class Package < ApplicationRecord
   include FlagHelper
   include CanRenderModel
   include ForbidsAnonymousUsers
@@ -1320,7 +1320,10 @@ class Package < ActiveRecord::Base
 
   def backend_build_command(command, params)
     begin
-      Suse::Backend.post("/build/#{URI.escape(project.name)}?cmd=#{command}&#{params.to_query}", '')
+      # Note: This list needs to keep in sync with the backend code
+      permitted_params = params.permit(:repository, :arch, :package, :code, :wipe)
+
+      Suse::Backend.post("/build/#{URI.escape(project.name)}?cmd=#{command}&#{permitted_params.to_h.to_query}", '')
     rescue ActiveXML::Transport::Error, Timeout::Error => e
       errors.add(:base, e.message)
       return false

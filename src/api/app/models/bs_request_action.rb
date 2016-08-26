@@ -1,6 +1,6 @@
 require 'api_exception'
 
-class BsRequestAction < ActiveRecord::Base
+class BsRequestAction < ApplicationRecord
   #### Includes and extends
   include ParsePackageDiff
 

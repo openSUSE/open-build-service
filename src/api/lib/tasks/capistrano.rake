@@ -1,5 +1,5 @@
 # =============================================================================
-# A set of rake tasks for invoking the Capistrano automation utility.
+# A set of rails tasks for invoking the Capistrano automation utility.
 # =============================================================================
 
 # Invoke the given actions via Capistrano
@@ -40,7 +40,7 @@ namespace :remote do
   desc "A simple task for performing one-off commands that may not require a full task to be written for them."
   task(:invoke) { cap :invoke }
 
-  desc "Run the migrate rake task."
+  desc "Run the migrate rails task."
   task(:migrate) { cap :migrate }
 
   desc "Restart the FCGI processes on the app server."

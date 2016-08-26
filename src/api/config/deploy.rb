@@ -121,8 +121,8 @@ Git log:
          exit 1
       end
     end
-    if !system("rake test")
-      puts "Error on rake test - will not deploy"
+    if !system("rails test")
+      puts "Error on rails test - will not deploy"
       exit 1
     end
   end

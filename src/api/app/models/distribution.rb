@@ -1,4 +1,4 @@
-class Distribution < ActiveRecord::Base
+class Distribution < ApplicationRecord
   validates_presence_of :vendor, :version, :name, :reponame, :repository, :project
 
   has_and_belongs_to_many :icons, -> { uniq() }, class_name: 'DistributionIcon'

@@ -1,4 +1,4 @@
-class RolesStaticPermission < ActiveRecord::Base
+class RolesStaticPermission < ApplicationRecord
   belongs_to :role
   belongs_to :static_permission
 end

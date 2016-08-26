@@ -1,5 +1,5 @@
 # This class represents a value inside of attribute part of package meta data
-class AttribValue < ActiveRecord::Base
+class AttribValue < ApplicationRecord
   #### Includes and extends
   #### Constants
   #### Self config

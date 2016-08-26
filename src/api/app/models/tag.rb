@@ -1,4 +1,4 @@
-class Tag < ActiveRecord::Base
+class Tag < ApplicationRecord
   has_many :taggings, :dependent => :destroy
   has_many :projects, -> { where("taggings.taggable_type = 'Project'") }, through: :taggings
   has_many :packages, -> { where("taggings.taggable_type = 'Package'") }, through: :taggings

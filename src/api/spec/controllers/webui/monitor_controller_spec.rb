@@ -19,7 +19,7 @@ RSpec.describe Webui::MonitorController, vcr: true do
 
   describe "GET #update_building" do
     before do
-        xhr :get, :update_building
+        get :update_building, xhr: true
         @json_response = JSON.parse(response.body)
     end
 
@@ -35,7 +35,7 @@ RSpec.describe Webui::MonitorController, vcr: true do
       create_list(:status_history, 10, source: 'waiting', range: 10000..42000)
       # i586
       create_list(:status_history, 5, source: 'squeue_high', architecture: 'i586')
-      xhr :get, :events, {arch: 'x86_64', range: 8760}
+      get :events, params: { arch: 'x86_64', range: 8760 }, xhr: true
       @json_response = JSON.parse(response.body)
     end
 

@@ -1,4 +1,4 @@
-require File.expand_path('../boot', __FILE__)
+require_relative 'boot'
 
 require 'rails/all'
 
@@ -24,7 +24,7 @@ module OBSApi
     # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
-    # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
+    # Run "rails -D time" for a list of tasks for finding time zone names. Default is UTC.
     # config.time_zone = 'Central Time (US & Canada)'
 
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
@@ -65,12 +65,12 @@ module OBSApi
     config.log_tags = [:uuid]
 
     # Use the database for sessions instead of the file system
-    # (create the session table with 'rake create_sessions_table')
+    # (create the session table with 'rails create_sessions_table')
     # config.action_controller.session_store = :active_record_store
 
     # put the rubygem requirements here for a clean handling
-    # rake gems:install (installs the needed gems)
-    # rake gems:unpack (this unpacks the gems to vendor/gems)
+    # rails gems:install (installs the needed gems)
+    # rails gems:unpack (this unpacks the gems to vendor/gems)
 
     config.cache_store = :dalli_store, 'localhost:11211', {:namespace => 'obs-api', :compress => true }
 

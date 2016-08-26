@@ -95,7 +95,7 @@ class ConvertRequestHistory < ActiveRecord::Migration
       e.destroy
     end
 
-    if OldHistory.count == 0
+    if OldHistory.count.zero?
       drop_table :bs_request_histories
     else
       puts "WARNING: not all old request history elements could be transfered to new model"

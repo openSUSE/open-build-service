@@ -1,4 +1,4 @@
-class PackageIssue < ActiveRecord::Base
+class PackageIssue < ApplicationRecord
   belongs_to :package
   belongs_to :issue
 
@@ -13,7 +13,7 @@ class PackageIssue < ActiveRecord::Base
         PackageIssue.where("package_id = ? AND NOT issue_id IN (?)", package, allissues).lock(true).delete_all
 
         # create missing in an efficient way
-        sql=ActiveRecord::Base.connection()
+        sql=ApplicationRecord.connection()
         (allissues - package.issues.to_ary).each do |i|
           sql.execute("INSERT INTO `package_issues` (`package_id`, `issue_id`) VALUES (#{package.id},#{i.id})")
         end

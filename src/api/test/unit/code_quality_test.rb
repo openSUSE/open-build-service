@@ -111,7 +111,7 @@ class CodeQualityTest < ActiveSupport::TestCase
               app/mixins app/indices app/helpers
               app/jobs webui/app/controllers webui/app/models
               webui/app/helpers webui/app/mixins)
-    files = FlogCLI.expand_dirs_to_files(*dirs)
+    files = PathExpander.new([], "**/*.rb").expand_dirs_to_files(*dirs)
     flog.flog(*files)
 
     black = BLACK_LIST.dup

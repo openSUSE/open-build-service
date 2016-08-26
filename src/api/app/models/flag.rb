@@ -1,4 +1,4 @@
-class Flag < ActiveRecord::Base
+class Flag < ApplicationRecord
   belongs_to :project, inverse_of: :flags
   belongs_to :package, inverse_of: :flags
 

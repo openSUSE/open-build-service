@@ -1,4 +1,4 @@
 
-class PackageKind < ActiveRecord::Base
+class PackageKind < ApplicationRecord
   belongs_to :package
 end

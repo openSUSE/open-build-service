@@ -1,4 +1,4 @@
-class PathElement < ActiveRecord::Base
+class PathElement < ApplicationRecord
   belongs_to :repository, :foreign_key => 'parent_id', inverse_of: :path_elements
   acts_as_list scope: [:parent_id]
 

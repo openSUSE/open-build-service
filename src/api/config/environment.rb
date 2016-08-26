@@ -1,7 +1,7 @@
 # Be sure to restart your web server when you modify this file.
 
 # Load the rails application
-require File.expand_path('../application', __FILE__)
+require_relative 'application'
 
 path = Rails.root.join("config", "options.yml")
 

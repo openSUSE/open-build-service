@@ -1,7 +1,7 @@
 # Class to track recent activity in order to provide rss feeds.
 # Log entries are created from events and deleted after a time threshold
 # @see ProjectLogRotate
-class ProjectLogEntry < ActiveRecord::Base
+class ProjectLogEntry < ApplicationRecord
   belongs_to :project
   belongs_to :bs_request
 
@@ -46,14 +46,14 @@ class ProjectLogEntry < ActiveRecord::Base
     @user ||= user_name.blank? ? nil : User.find_by_login(user_name)
   end
 
-  # Same mechanism that ActiveRecord::Base.serialize with extra robustness
+  # Same mechanism that ApplicationRecord.serialize with extra robustness
   def additional_info=(obj)
     write_attribute(:additional_info, YAML.dump(obj))
   rescue
     write_attribute(:additional_info, nil)
   end
 
-  # Almost equivalent to the ActiveRecord::Base.serialize mechanism
+  # Almost equivalent to the ApplicationRecord.serialize mechanism
   def additional_info
     a = read_attribute(:additional_info)
     (a) ? YAML.load(a) : {}

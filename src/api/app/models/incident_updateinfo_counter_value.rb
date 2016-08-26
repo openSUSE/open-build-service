@@ -1,4 +1,4 @@
-class IncidentUpdateinfoCounterValue < ActiveRecord::Base
+class IncidentUpdateinfoCounterValue < ApplicationRecord
   belongs_to :updateinfo_counter
   belongs_to :project
 

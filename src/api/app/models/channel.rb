@@ -1,4 +1,4 @@
-class Channel < ActiveRecord::Base
+class Channel < ApplicationRecord
   include ModelHelper
 
   belongs_to :package, foreign_key: :package_id
@@ -148,7 +148,7 @@ class Channel < ActiveRecord::Base
 
   def is_active?
     # no targets defined, the project has some
-    return true if self.channel_targets.size == 0
+    return true if self.channel_targets.size.zero?
 
     self.channel_targets.where(disabled: false).size > 0
   end

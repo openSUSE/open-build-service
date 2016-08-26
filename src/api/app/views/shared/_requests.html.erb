@@ -5,7 +5,7 @@
   no_target ||= false
   paginate = serverProcessing || (!requests.nil? && requests.count > 25)
   if serverProcessing
-    sort_columns = ['null', "{'bSortable': false}", '{\'bSortable\': false}']
+    sort_columns = ['null', "{'orderable': false}", '{\'orderable\': false}']
   else
     sort_columns = %w(null null null)
   end
@@ -14,7 +14,7 @@
 <% if !serverProcessing && requests.blank? %>
     <p>No requests.</p>
 <% else %>
-    <table id="<%= request_table_id %>">
+    <table width="100%" id="<%= request_table_id %>" class="compact">
       <thead>
       <tr>
         <th>Created</th>
@@ -27,7 +27,7 @@
         <th>Type</th>
         <%
         if serverProcessing
-          sort_columns.concat ['null', "{'bSortable': false}"]
+          sort_columns.concat ['null', "{'orderable': false}"]
         else
           sort_columns.concat %w(null null)
         end
@@ -49,18 +49,18 @@
     </table>
     <% content_for :ready_function do %>
         $('#<%= request_table_id %>').dataTable({
-          'aaSorting': [[0,'desc']],
-          'aoColumns': [
+          'order': [[0,'desc']],
+          'columns': [
           <%== sort_columns.join(",\n") %>,
-          {'bSortable': false}
+          {'orderable': false}
           ],
-          'bInfo': false,
-          'bPaginate': <%= paginate %>,
-          sPaginationType: "full_numbers",
+          'info': false,
+          'paging': <%= paginate %>,
+          pagingType: "full_numbers",
           <% if serverProcessing %>
-          bProcessing: true,
-          bServerSide: true,
-          sAjaxSource: '<%= user_requests_path %>',
+          processing: true,
+          serverSide: true,
+          ajax: '<%= user_requests_path %>',
           <% end %>
         });
     <% end %>

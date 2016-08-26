@@ -1,6 +1,6 @@
 require 'opensuse/backend'
 # The OBS instance configuration
-class Configuration < ActiveRecord::Base
+class Configuration < ApplicationRecord
   after_save :delayed_write_to_backend
 
   include CanRenderModel

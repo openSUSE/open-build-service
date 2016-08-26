@@ -1,2 +1,2 @@
-class BlacklistTag < ActiveRecord::Base
+class BlacklistTag < ApplicationRecord
 end

@@ -1,5 +1,5 @@
 # Attribute definition as part of project meta data. This is always inside of an attribute namespace
-class AttribType < ActiveRecord::Base
+class AttribType < ApplicationRecord
   #### Includes and extends
   #### Constants
   #### Self config

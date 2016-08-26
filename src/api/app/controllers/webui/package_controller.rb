@@ -869,12 +869,12 @@ class Webui::PackageController < Webui::WebuiController
     @finished = false
     @maxsize = 1024 * 64
 
-    set_initial_offset if @offset == 0
+    set_initial_offset if @offset.zero?
 
     begin
       @log_chunk = get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + @maxsize)
 
-      if @log_chunk.length == 0
+      if @log_chunk.length.zero?
         @finished = true
       else
         @offset += ActiveXML::backend.last_body_length

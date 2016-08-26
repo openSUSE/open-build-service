@@ -10,7 +10,7 @@
 <%= content_tag(:div, id: 'involved_users', data: data) do %>
     <% if @users.present? %>
         <h3>User Roles <%= image_tag 'ajax-loader.gif', :id => 'user_spinner', :class => 'hidden' %></h3>
-        <table id="user_table">
+        <table id="user_table" class="compact stripe">
           <thead>
           <tr>
             <td>Username</td>
@@ -61,7 +61,7 @@
 
     <% unless @groups.blank? %>
         <h3>Group Roles <%= image_tag 'ajax-loader.gif', :id => 'group_spinner', :class => 'hidden' %></h3>
-        <table id="group_table">
+        <table id="group_table" class="compact stripe">
           <thead>
           <tr>
             <td>Group name</td>
@@ -110,29 +110,29 @@
 <%= content_for :ready_function do %>
     <% if @users and @users.length > 0 %>
         $('#user_table').dataTable({
-        'aoColumns': [
+        'columns': [
         null,
         <% @roles.length.times do %>null,
         <% end %>
-        {'bSortable': false}
+        {'orderable': false}
         ],
-        'bInfo': false,
-        'bPaginate': false,
+        'info': false,
+        'paging': false,
         });
     <% end %>
     <% if @groups and @groups.length > 0 %>
         $('#group_table').dataTable({
-        'aoColumns': [
+        'columns': [
         null,
         <% @roles.length.times do %>null,
         <% end %>
         <% if user_is_maintainer %>
-            {'bSortable': false}
+            {'orderable': false}
         <% end %>
         ],
-        'bFilter': false,
-        'bInfo': false,
-        'bPaginate': false,
+        'searching': false,
+        'info': false,
+        'paging': false,
         });
     <% end %>
     <% if user_is_maintainer %>

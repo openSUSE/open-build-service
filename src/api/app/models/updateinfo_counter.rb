@@ -1,4 +1,4 @@
-class UpdateinfoCounter < ActiveRecord::Base
+class UpdateinfoCounter < ApplicationRecord
   def self.find_or_create(time, template)
     year = month = day = nil
 

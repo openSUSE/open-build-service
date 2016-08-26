@@ -20,28 +20,28 @@ if test -z "$SUBTEST"; then
   export TESTOPTS="-v"
   case $TEST_SUITE in
     api)
-      bundle exec rake test:api
+      bundle exec rails test:api
       ;;
     webui)
-      bundle exec rake test:webui
+      bundle exec rails test:webui
       ;;
     spider)
       unset DO_COVERAGE
-      bundle exec rake test:spider
+      bundle exec rails test:spider
       ;;
     rubocop)
-      bundle exec rake rubocop
+      bundle exec rails rubocop
       ;;
     rspec)
       bundle exec rspec
       ;;
     *)
-      bundle exec rake rubocop
-      bundle exec rake test:api
-      bundle exec rake test:webui
+      bundle exec rails rubocop
+      bundle exec rails test:api
+      bundle exec rails test:webui
       bundle exec rspec
       unset DO_COVERAGE
-      bundle exec rake test:spider
+      bundle exec rails test:spider
       ;;
   esac
 fi

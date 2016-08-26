@@ -132,7 +132,7 @@ class Webui::WebuiController < ActionController::Base
       sEcho:                options[:echo_next_count].to_i + 1,
       iTotalRecords:        options[:total_records_count].to_i,
       iTotalDisplayRecords: options[:total_filtered_records_count].to_i,
-      aaData:               options[:records].map do |record|
+      data:                 options[:records].map do |record|
         if block_given?
           yield record
         else

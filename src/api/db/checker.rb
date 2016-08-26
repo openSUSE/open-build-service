@@ -146,7 +146,7 @@ module DB
         statement = "update #{table} set #{id}=NULL where #{id} in (#{ids.join(",")});"
       end
       print "  Proposed solution: #{statement.green} Do you want to run it now? #{'[y/N]'.yellow}:"
-      execute_sql(statement) if gets.chomp.casecmp('Y') == 0
+      execute_sql(statement) if gets.chomp.casecmp('Y').zero?
     end
 
     def execute_sql(sql)

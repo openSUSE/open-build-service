@@ -1,5 +1,5 @@
 #
-class BsRequestActionAcceptInfo < ActiveRecord::Base
+class BsRequestActionAcceptInfo < ApplicationRecord
   #### Includes and extends
   #### Constants
   #### Self config

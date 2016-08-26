@@ -1,4 +1,4 @@
-class ChannelBinaryList < ActiveRecord::Base
+class ChannelBinaryList < ApplicationRecord
   belongs_to :channel
   belongs_to :project
   belongs_to :repository

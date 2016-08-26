@@ -497,7 +497,7 @@ for i in production.rb ; do
 done
 
 if [ ! -e %{secret_key_file} ]; then
-  ( umask 0077; RAILS_ENV=production bundle exec rake.ruby2.3 secret > %{secret_key_file} )
+  ( umask 0077; RAILS_ENV=production bundle exec rails.ruby2.3 secret > %{secret_key_file} )
 fi
 chmod 0640 %{secret_key_file}
 chown root.www %{secret_key_file}
@@ -606,6 +606,10 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %dir /srv/www/obs
 %dir /srv/www/obs/api
 %dir /srv/www/obs/api/config
+%config(noreplace) /srv/www/obs/api/config/cable.yml
+%config(noreplace) /srv/www/obs/api/config/puma.rb
+%config(noreplace) /srv/www/obs/api/config/secrets.yml
+%config(noreplace) /srv/www/obs/api/config/spring.rb
 /srv/www/obs/api/config/initializers
 %dir /srv/www/obs/api/config/environments
 %dir /srv/www/obs/api/files

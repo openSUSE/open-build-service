@@ -1,7 +1,7 @@
 # This class represents some kind of event within the build service
 # that users (or services) would like to know about
 module Event
-  class Base < ActiveRecord::Base
+  class Base < ApplicationRecord
     scope :not_in_queue, -> { where(queued: false) }
 
     self.inheritance_column = 'eventtype'

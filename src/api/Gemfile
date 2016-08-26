@@ -2,7 +2,7 @@
 # This preamble is the current preamble for Rails 3 apps; edit as needed.
 source 'https://rubygems.org'
 
-gem 'rails', '~> 4.2.2'
+gem 'rails', '~> 5.0.0'
 gem 'actionmailer'
 
 # as our database
@@ -47,6 +47,8 @@ gem 'acts_as_tree'
 gem 'flot-rails'
 # colorize for scripts
 gem 'colorize', :require => false
+# XML Serialization got moved here
+gem 'activemodel-serializers-xml'
 
 group :development, :production do
   # to have the delayed job daemon
@@ -94,6 +96,8 @@ group :test do
   gem 'mocha', '> 0.13.0', require: false
   # for testing common Rails functionality with simple one-liners
   gem 'shoulda-matchers', '~> 3.1'
+  # assigns has been extracted to a gem
+  gem 'rails-controller-testing'
 end
 
 # Gems used only during development not required in production environments by default.
@@ -106,7 +110,7 @@ end
 
 group :development, :test do
   # as testing framework
-  gem 'rspec-rails', '~> 3.4.0'
+  gem 'rspec-rails', '~> 3.5.0'
   # for fixtures
   gem 'factory_girl_rails'
   # for mocking the backend
@@ -121,8 +125,6 @@ group :development, :test do
   gem 'poltergeist', '>= 1.4'
   # to launch browser in test
   gem 'launchy'
-  # to turn off the asset pipeline log
-  gem 'quiet_assets'
 end
 
 # Gems used only for assets and not required in production environments by default.
@@ -134,7 +136,7 @@ group :assets do
   # to use sass in the asset pipeline
   gem 'sass-rails', '~> 5.0.1'
   # assets for jQuery DataTables
-  gem 'jquery-datatables-rails', '= 1.12.2'
+  gem 'jquery-datatables-rails'
   # assets for the text editor
   gem 'codemirror-rails'
   # assets for jQuery tokeninput
