@@ -102,7 +102,7 @@ function setup_data_dir() {
 
 function print_final_information() {
   echo -e "\nProvisioning of your OBS API rails app done!"
-  echo -e "To start your development OBS backend run: vagrant exec start_development_backend\n"
+  echo -e "To start your development OBS backend run: vagrant exec contrib/start_development_backend\n"
   echo -e "To start your development OBS frontend run: vagrant exec rails server\n"
   echo -e "\nHappy hacking!\n"
 }

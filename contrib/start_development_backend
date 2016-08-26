@@ -17,7 +17,7 @@ sudo /vagrant/src/backend/bs_srcserver &
 sleep 4
 echo "Starting bs_repserver"
 sudo /vagrant/src/backend/bs_repserver &
-sleep 2 
+sleep 2
 echo "Starting bs_sched"
 sudo /vagrant/src/backend/bs_sched i586 &
 sudo /vagrant/src/backend/bs_sched x86_64 &
