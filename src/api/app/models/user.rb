@@ -508,10 +508,7 @@ class User < ActiveRecord::Base
   #####################
 
   def is_admin?
-    if @is_admin.nil? # false is fine
-      @is_admin = roles.where(title: 'Admin').exists?
-    end
-    @is_admin
+    self.roles.where(title: 'Admin').exists?
   end
 
   def is_nobody?
@@ -520,11 +517,6 @@ class User < ActiveRecord::Base
 
   def is_active?
     self.state == 'confirmed'
-  end
-
-  # used to avoid
-  def is_admin=(is_she)
-    @is_admin = is_she
   end
 
   def is_in_group?(group)
