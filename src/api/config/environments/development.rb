@@ -52,6 +52,15 @@ OBSApi::Application.configure do
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
+
+  # Things to be done after rails has been fully initialized
+  config.after_initialize do
+    # Sync configuration to the backend if it's running
+    begin
+      ::Configuration.first.write_to_backend
+    rescue Errno::ECONNREFUSED
+    end
+  end
 end
 
 CONFIG['extended_backend_log'] = true
