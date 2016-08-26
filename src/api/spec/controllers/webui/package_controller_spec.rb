@@ -397,4 +397,47 @@ EOT
       end
     end
   end
+
+  describe "DELETE #remove_file" do
+    before do
+      login(user)
+      Package.any_instance.stubs(:delete_file).returns(true)
+    end
+
+    def remove_file_post
+      post :remove_file, project: user.home_project, package: source_package, filename: 'the_file'
+    end
+
+    context "with successful backend call" do
+      before do
+        remove_file_post
+      end
+
+      it { expect(flash[:notice]).to eq("File 'the_file' removed successfully") }
+      it { expect(assigns(:package)).to eq(source_package) }
+      it { expect(assigns(:project)).to eq(user.home_project) }
+      it { expect(response).to redirect_to(package_show_path(project: user.home_project, package: source_package)) }
+    end
+
+    context "with not successful backend call" do
+      before do
+        Package.any_instance.stubs(:delete_file).raises(ActiveXML::Transport::NotFoundError)
+        remove_file_post
+      end
+
+      it { expect(flash[:notice]).to eq("Failed to remove file 'the_file'") }
+    end
+
+    context "without filename parameter" do
+      it "renders 404" do
+        post :remove_file, project: user.home_project, package: source_package
+        expect(response.status).to eq(404)
+      end
+    end
+
+    it "calls delete_file method" do
+      Package.any_instance.expects(:delete_file).with('the_file')
+      remove_file_post
+    end
+  end
 end
