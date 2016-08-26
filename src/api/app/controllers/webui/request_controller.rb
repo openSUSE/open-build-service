@@ -372,33 +372,33 @@ class Webui::RequestController < Webui::WebuiController
 
   def change_devel_request
     required_parameters :devel_project, :package, :project
-    req=nil
+    req = nil
     begin
       BsRequest.transaction do
-        req = BsRequest.new
-        req.state = "new"
-        req.description = params[:description]
+        req = BsRequest.new(state: "new", description: params[:description])
+        action = BsRequestActionChangeDevel.new({
+          target_project: params[:project],
+          target_package: params[:package],
+          source_project: params[:devel_project],
+          source_package: params[:devel_package] || params[:package]
+        })
 
-        opts = {target_project: params[:project],
-                target_package: params[:package],
-                source_project: params[:devel_project],
-                source_package: params[:devel_package] || params[:package]}
-        action = BsRequestActionChangeDevel.new(opts)
         req.bs_request_actions << action
         action.bs_request = req
-
         req.save!
       end
     rescue BsRequestAction::UnknownProject,
            Package::UnknownObjectError,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "No such package: #{e.message}"
-      redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
+      redirect_to package_show_path(project: params[:project], package: params[:package])
+      return
     rescue APIException => e
       flash[:error] = "Unable to create request: #{e.message}"
-      redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
+      redirect_to package_show_path(project: params[:project], package: params[:package])
+      return
     end
-    redirect_to :controller => 'request', :action => 'show', number: req.number
+    redirect_to request_show_path(number: req.number)
   end
 
   def set_incident_dialog

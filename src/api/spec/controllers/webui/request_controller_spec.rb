@@ -55,11 +55,8 @@ RSpec.describe Webui::RequestController do
 
       it { expect(response).to redirect_to(request_show_path(number: @bs_request)) }
       it { expect(flash[:success]).to match("Created .+repository delete request #{@bs_request.number}") }
-
-      it "creates a delete request with the correct description" do
-        expect(@bs_request).not_to be nil
-        expect(@bs_request.description).to eq("delete it!")
-      end
+      it { expect(@bs_request).not_to be nil }
+      it { expect(@bs_request.description).to eq("delete it!") }
     end
 
     context "a request causing a APIException" do
@@ -74,6 +71,46 @@ RSpec.describe Webui::RequestController do
       it "does not create a delete request" do
         expect(BsRequest.count).to eq(0)
       end
+    end
+  end
+
+  describe "POST #change_devel_request" do
+    context "with valid parameters" do
+      before do
+        login(submitter)
+        post :change_devel_request, project: target_project.name, package: target_package.name,
+          devel_project: source_project.name, devel_package: source_package.name, description: "change it!"
+        @bs_request = BsRequest.where(description: "change it!", creator: submitter.login, state: "new").first
+      end
+
+      it { expect(response).to redirect_to(request_show_path(number: @bs_request)) }
+      it { expect(flash[:success]).to be nil }
+      it { expect(@bs_request).not_to be nil }
+      it { expect(@bs_request.description).to eq("change it!") }
+
+      it "creates a request action with correct data" do
+        request_action = @bs_request.bs_request_actions.where(
+          type: "change_devel",
+          target_project: target_project.name,
+          target_package: target_package.name,
+          source_project: source_project.name,
+          source_package: source_package.name
+        )
+        expect(request_action).to exist
+      end
+    end
+
+    context "with invalid devel_package parameter" do
+      before do
+        login(submitter)
+        post :change_devel_request, project: target_project.name, package: target_package.name,
+          devel_project: source_project.name, devel_package: "non-existant", description: "change it!"
+        @bs_request = BsRequest.where(description: "change it!", creator: submitter.login, state: "new").first
+      end
+
+      it { expect(flash[:error]).to eq("No such package: #{source_project.name}/non-existant") }
+      it { expect(response).to redirect_to(package_show_path(project: target_project, package: target_package)) }
+      it { expect(@bs_request).to be nil }
     end
   end
 end
