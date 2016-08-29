@@ -1,5 +1,6 @@
 FactoryGirl.define do
   factory :package do
+    project
     sequence(:name) { |n| "package_#{n}" }
     factory :package_with_file do
       after(:create) do |package|
