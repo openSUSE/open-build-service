@@ -114,7 +114,8 @@ class Webui::UserController < Webui::WebuiController
     @displayed_user.email = params[:email]
     if User.current.is_admin?
       @displayed_user.state = params[:state] if params[:state]
-      @displayed_user.update_globalroles([params[:globalrole]]) if params[:globalrole]
+      # FIXME: If we ever have more than one global this, and the view, has to be fixed
+      @displayed_user.update_globalroles([params[:globalrole]].compact)
     end
 
     begin
