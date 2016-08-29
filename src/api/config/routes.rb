@@ -340,6 +340,7 @@ OBSApi::Application.routes.draw do
   # first the routes where the mime type does not matter
   ### /public
   get 'public/build/:project(/:repository(/:arch(/:package(/:file))))' => 'public#build', constraints: cons, as: :public_build
+  get 'public/source/:project/:package/:filename' => 'public#source_file', constraints: cons
 
   ### /build
   get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile
