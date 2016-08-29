@@ -19,8 +19,8 @@ task(:writeconfiguration => :environment) { ::Configuration.first.write_to_backe
 require 'workers/import_requests'
 task(:importrequests => :environment) { ImportRequestsDelayedJob.new.perform }
 
-require File.expand_path('app/jobs/application_job.rb')
-require File.expand_path('app/jobs/consistency_check.rb')
+require(File.join(File.dirname(__FILE__), 'app/jobs/application_job.rb'))
+require(File.join(File.dirname(__FILE__), 'app/jobs/consistency_check.rb'))
 task(:check_project => :environment) { ConsistencyCheckJob.new.check_project }
 task(:fix_project => :environment) { ConsistencyCheckJob.new.fix_project }
 
