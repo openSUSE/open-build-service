@@ -169,6 +169,8 @@ GEM
       pkg-config (~> 1.1.7)
     nokogumbo (1.4.9)
       nokogiri
+    nyan-cat-formatter (0.11)
+      rspec (>= 2.99, >= 2.14.2, < 4)
     parser (2.3.1.2)
       ast (~> 2.2)
     path_expander (1.0.0)
@@ -226,6 +228,10 @@ GEM
     responders (2.2.0)
       railties (>= 4.2.0, < 5.1)
     riddle (1.5.12)
+    rspec (3.5.0)
+      rspec-core (~> 3.5.0)
+      rspec-expectations (~> 3.5.0)
+      rspec-mocks (~> 3.5.0)
     rspec-core (3.5.2)
       rspec-support (~> 3.5.0)
     rspec-expectations (3.5.0)
@@ -365,6 +371,7 @@ DEPENDENCIES
   mocha (> 0.13.0)
   mysql2
   nokogiri (~> 1.6.7)
+  nyan-cat-formatter
   poltergeist (>= 1.4)
   pry (>= 0.9.12)
   pundit
