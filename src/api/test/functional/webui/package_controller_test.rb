@@ -542,7 +542,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text("The Meta file has been successfully saved.")
   end
 
-  def test_trigger_rebuild_via_binaries_view
+  def test_trigger_rebuild_via_binaries_view # spec/features/webui/packages_spec.rb
     use_js
     login_king to: package_binaries_path(package: 'pack2.linked', project: 'BaseDistro2.0', repository: 'BaseDistro2_repo')
 
@@ -550,7 +550,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text('Triggered rebuild for BaseDistro2.0/pack2.linked successfully.')
   end
 
-  def test_trigger_rebuild_via_live_log
+  def test_trigger_rebuild_via_live_log # spec/features/webui/packages_spec.rb
     use_js
     login_king to: package_live_build_log_path(package: 'pack2.linked', project: 'BaseDistro2.0', repository: 'BaseDistro2_repo', arch: 'i586')
     find("div#content p:nth-of-type(3) > span.link_trigger_rebuild").click_link("Trigger Rebuild")

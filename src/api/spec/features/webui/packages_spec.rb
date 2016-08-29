@@ -1,4 +1,5 @@
 require "browser_helper"
+require "webmock/rspec"
 
 RSpec.feature "Packages", :type => :feature, :js => true do
   it_behaves_like 'user tab' do
@@ -95,5 +96,40 @@ RSpec.feature "Packages", :type => :feature, :js => true do
     expect(page).to have_text("Created by #{user.login}")
     expect(page).to have_text("In state review")
     expect(page).to have_text("Set the devel project to package #{third_project.name} / develpackage for package #{user.home_project} / develpackage")
+  end
+
+  context "triggering package rebuild" do
+    let(:repository) { create(:repository, architectures: ["x86_64"]) }
+    let(:rebuild_url) {
+      "http://localhost:3200/build/#{user.home_project.name}?cmd=rebuild&arch=x86_64&package=#{package.name}&repository=#{repository.name}"
+    }
+    let(:fake_buildresult) {
+      "<resultlist state='123'>
+         <result project='#{user.home_project.name}' repository='#{repository.name}' arch='x86_64'>
+           <binarylist/>
+         </result>
+       </resultlist>"
+    }
+
+    before do
+      user.home_project.repositories << repository
+      login(user)
+    end
+
+    scenario "via live build log" do
+      visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: "x86_64")
+      first(:link, "Trigger Rebuild").click
+      expect(a_request(:post, rebuild_url)).to have_been_made.once
+    end
+
+    scenario "via binaries view" do
+      Buildresult.stubs(:find_hashed).
+        with(project: user.home_project, package: package, repository: repository.name, view: %w(binarylist status)).
+        returns(Xmlhash.parse(fake_buildresult))
+
+      visit package_binaries_path(project: user.home_project, package: package, repository: repository.name)
+      click_link("Trigger")
+      expect(a_request(:post, rebuild_url)).to have_been_made.once
+    end
   end
 end
