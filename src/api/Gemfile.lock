@@ -359,7 +359,7 @@ DEPENDENCIES
   jquery-ui-rails (~> 4.2.1)
   kaminari
   launchy
-  minitest (= 5.8.3)
+  minitest (= 5.9.0)
   minitest-fail-fast
   minitest-reporters
   mocha (> 0.13.0)
@@ -395,4 +395,4 @@ DEPENDENCIES
   yajl-ruby
 
 BUNDLED WITH
-   1.11.2
+   1.10.6
