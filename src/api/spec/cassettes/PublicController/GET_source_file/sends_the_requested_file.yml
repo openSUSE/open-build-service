@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/_meta
+    uri: http://localhost:3200/source/public_controller_project/_meta
     body:
       encoding: UTF-8
       string: |
-        <project name="project_1">
-          <title>To a God Unknown</title>
+        <project name="public_controller_project">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '102'
+      - '143'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_1">
-          <title>To a God Unknown</title>
+        <project name="public_controller_project">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 30 Aug 2016 14:19:56 GMT
+  recorded_at: Tue, 30 Aug 2016 15:54:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/package_1/_meta
+    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_meta
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_1">
+        <package name="public_controller_package" project="public_controller_project">
           <title/>
           <description/>
         </package>
@@ -68,23 +68,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '138'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_1">
+        <package name="public_controller_package" project="public_controller_project">
           <title></title>
           <description></description>
         </package>
     http_version: 
-  recorded_at: Tue, 30 Aug 2016 14:19:56 GMT
+  recorded_at: Tue, 30 Aug 2016 15:54:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/package_1/somefile.txt
+    uri: http://localhost:3200/source/public_controller_project/public_controller_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Nulla sequi aut. Veritatis earum praesentium. Sint dolor omnis iusto
-        commodi aspernatur aliquam rerum.
+      string: Voluptatibus voluptas quo et omnis aliquam accusamus id. Nihil nihil
+        voluptate debitis velit consectetur beatae consequatur. Illo libero sunt tenetur.
+        Commodi soluta expedita et eum unde ut. Tempora sint quia ea velit eius.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -109,18 +110,18 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>16b0e9ff738318836316bf6c620ef3bc</srcmd5>
+          <srcmd5>51fc95cf44ecfb1114de96cac6f1f43c</srcmd5>
           <version>unknown</version>
-          <time>1472566796</time>
+          <time>1472572496</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 30 Aug 2016 14:19:56 GMT
+  recorded_at: Tue, 30 Aug 2016 15:54:56 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/project_1/package_1/somefile.txt
+    uri: http://localhost:3200/source/public_controller_project/public_controller_package/somefile.txt
     body:
       encoding: US-ASCII
       string: ''
@@ -139,20 +140,21 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '102'
+      - '223'
       Cache-Control:
       - no-cache
       Connection:
       - close
     body:
       encoding: UTF-8
-      string: Nulla sequi aut. Veritatis earum praesentium. Sint dolor omnis iusto
-        commodi aspernatur aliquam rerum.
+      string: Voluptatibus voluptas quo et omnis aliquam accusamus id. Nihil nihil
+        voluptate debitis velit consectetur beatae consequatur. Illo libero sunt tenetur.
+        Commodi soluta expedita et eum unde ut. Tempora sint quia ea velit eius.
     http_version: 
-  recorded_at: Tue, 30 Aug 2016 14:19:57 GMT
+  recorded_at: Tue, 30 Aug 2016 15:54:57 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/project_1/package_1/somefile.txt
+    uri: http://localhost:3200/source/public_controller_project/public_controller_package/somefile.txt
     body:
       encoding: US-ASCII
       string: ''
@@ -171,15 +173,16 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '102'
+      - '223'
       Cache-Control:
       - no-cache
       Connection:
       - close
     body:
       encoding: UTF-8
-      string: Nulla sequi aut. Veritatis earum praesentium. Sint dolor omnis iusto
-        commodi aspernatur aliquam rerum.
+      string: Voluptatibus voluptas quo et omnis aliquam accusamus id. Nihil nihil
+        voluptate debitis velit consectetur beatae consequatur. Illo libero sunt tenetur.
+        Commodi soluta expedita et eum unde ut. Tempora sint quia ea velit eius.
     http_version: 
-  recorded_at: Tue, 30 Aug 2016 14:19:57 GMT
+  recorded_at: Tue, 30 Aug 2016 15:54:57 GMT
 recorded_with: VCR 3.0.3
