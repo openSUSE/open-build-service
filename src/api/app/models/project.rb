@@ -52,6 +52,8 @@ class Project < ApplicationRecord
   has_many :attribs, :dependent => :destroy
 
   has_many :repositories, :dependent => :destroy, foreign_key: :db_project_id
+  has_many :path_elements, through: :repositories
+  has_many :linked_repositories, through: :path_elements, source: :link, foreign_key: :repository_id
   has_many :repository_architectures, -> { order("position") }, through: :repositories
   has_many :architectures, -> { order("position").distinct }, :through => :repository_architectures
 
@@ -168,11 +170,7 @@ class Project < ApplicationRecord
 
   # Check if the project has a path_element matching project and repository
   def has_distribution(project_name, repository)
-    project = Project.find_by(name: project_name)
-    return false unless project
-
-    link_id = project.repositories.find_by(name: repository).try(:id)
-    repositories.joins(path_elements: :link).where(links_path_elements: { id: link_id }).exists?
+    has_local_distribution(repository) || has_remote_distribution(project_name, repository)
   end
 
   def number_of_build_problems
@@ -1855,6 +1853,18 @@ class Project < ApplicationRecord
       }
     else
       {}
+    end
+  end
+
+  def has_remote_distribution(project_name, repository)
+    linked_repositories.remote.any? do |linked_repository|
+      project_name.end_with?(linked_repository.remote_project_name) && linked_repository.name == repository
+    end
+  end
+
+  def has_local_distribution(repository)
+    linked_repositories.not_remote.any? do |linked_repository|
+      linked_repository.name == repository
     end
   end
 end

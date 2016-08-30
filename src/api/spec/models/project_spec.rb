@@ -348,4 +348,29 @@ RSpec.describe Project do
       end
     end
   end
+
+  describe "#has_distribution" do
+    context "remote distribution" do
+      let(:remote_project) {create(:remote_project, name: "openSUSE.org")}
+      let(:remote_distribution) { create(:repository, name: "snapshot", remote_project_name: "openSUSE:Factory", project: remote_project) }
+      let(:other_remote_distribution) { create(:repository, name: "standard", remote_project_name: "openSUSE:Leap:42.1", project: remote_project) }
+      let(:repository) { create(:repository, name: "openSUSE_Tumbleweed", project: project) }
+      let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: remote_distribution.id, position: 1)}
+
+      it { expect(project.has_distribution("openSUSE.org:openSUSE:Factory", "snapshot")).to be(true) }
+      it { expect(project.has_distribution("openSUSE.org:openSUSE:Leap:42.1", "standard")).to be(false) }
+    end
+
+    context "local distribution" do
+      let(:distribution) { create(:project, name: "BaseDistro2.0") }
+      let(:distribution_repository) { create(:repository, name: "BaseDistro2_repo", project: distribution) }
+      let(:other_distribution) { create(:project, name: "BaseDistro") }
+      let!(:other_distribution_repository) { create(:repository, name: "BaseDistro_repo", project: distribution) }
+      let(:repository) { create(:repository, name: "Base_repo", project: project) }
+      let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: distribution_repository.id, position: 1)}
+
+      it { expect(project.has_distribution("BaseDistro2.0", "BaseDistro2_repo")).to be(true) }
+      it { expect(project.has_distribution("BaseDistro", "BaseDistro_repo")).to be(false) }
+    end
+  end
 end
