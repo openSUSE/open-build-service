@@ -109,7 +109,11 @@
                 <%= link_to(sprited_text('tools-report-bug', 'Report bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
               </li>
           <% end -%>
-          <% if User.current.can_modify_project?(@project, true) %>
+          <% if @project.is_locked? && User.current.can_modify_project?(@project, true) %>
+                  <li>
+                    <%= link_to(sprited_text('lock_open', 'Unlock project'), { controller: 'project', action: 'unlock_dialog', project: @project.name }, remote: true) %>
+                  </li>
+          <% elsif User.current.can_modify_project?(@project) %>
               <% unless @project.defines_remote_instance? %>
                   <% if @is_incident_project && @packages.present? && @has_patchinfo && @open_release_requests.blank? %>
                       <li>
@@ -120,13 +124,13 @@
                         <%= link_to(sprited_text('brick_add', 'Create maintenance incident'), { controller: 'project', action: 'new_incident', ns: @project.name }, method: :post) %>
                       </li>
                   <% else %>
-                      <% if !@has_patchinfo %>
+                      <% if @has_patchinfo %>
                           <li>
-                            <%= link_to(sprited_text('plugin_add', 'Create patchinfo'), { controller: 'patchinfo', action: :new_patchinfo, project: @project }, method: :post) %>
+                            <%= link_to(sprited_text('information', 'Show patchinfo'), controller: 'patchinfo', action: 'show', project: @project, package: 'patchinfo') %>
                           </li>
                       <% else %>
                           <li>
-                            <%= link_to(sprited_text('information', 'Show patchinfo'), controller: 'patchinfo', action: 'show', project: @project, package: 'patchinfo') %>
+                            <%= link_to(sprited_text('plugin_add', 'Create patchinfo'), { controller: 'patchinfo', action: :new_patchinfo, project: @project }, method: :post) %>
                           </li>
                       <% end %>
                       <% if !@is_incident_project && @releasetargets.length > 0 %>
@@ -142,12 +146,7 @@
               <li>
                 <%= link_to(sprited_text('brick_delete', 'Delete project'), { controller: 'project', action: 'delete_dialog', project: @project.name }, remote: true, id: 'delete-project') %>
               </li>
-              <% if @project.is_locked? %>
-                  <li>
-                    <%= link_to(sprited_text('lock_open', 'Unlock project'), { controller: 'project', action: 'unlock_dialog', project: @project.name }, remote: true) %>
-                  </li>
-              <% end %>
-          <% else %>
+          <% elsif !@project.is_locked? %>
               <li>
                 <%= link_to(sprited_text('user_add', 'Request role addition'), { controller: 'request', action: 'add_role_request_dialog', project: @project }, remote: true) %>
               </li>
