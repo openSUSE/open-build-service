@@ -659,4 +659,32 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(assigns(:project).repositories.count).to eq(1)}
     end
   end
+
+  describe 'GET #toggle_watch' do
+    before do
+      login user
+    end
+
+    it "with a project already whatched" do
+      create(:watched_project, project: user.home_project, user: user)
+      get :toggle_watch, project: user.home_project
+      expect(user.watched_project_names).not_to include(user.home_project_name)
+    end
+
+    it "with a project not whatched" do
+      get :toggle_watch, project: user.home_project
+      expect(user.watched_project_names).to include(user.home_project_name)
+    end
+
+    it "redirects to back if a referer is there" do
+      request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+      get :toggle_watch, project: user.home_project
+      is_expected.to redirect_to(:back)
+    end
+
+    it "redirects to project#show" do
+      get :toggle_watch, project: user.home_project
+      is_expected.to redirect_to(project_show_path(user.home_project))
+    end
+  end
 end
