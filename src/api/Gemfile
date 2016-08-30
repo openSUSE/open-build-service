@@ -73,7 +73,7 @@ end
 # Gems used only for testing the application and not required in production environments by default.
 group :test do
   # as testing frameworks
-  gem 'minitest', '= 5.8.3'
+  gem 'minitest', '= 5.9.0'
   gem 'test-unit'
   # to ensure a clean state for testing
   gem 'database_cleaner', '>= 1.0.1'
