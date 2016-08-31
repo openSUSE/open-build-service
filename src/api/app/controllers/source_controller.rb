@@ -1282,7 +1282,9 @@ class SourceController < ApplicationController
   def package_command_instantiate
     project = Project.get_by_name(params[:project])
     opackage = Package.get_by_project_and_name(project.name, params[:package], {check_update_project: true})
-
+    unless opackage
+      raise RemoteProjectError.new "Instantiation from remote project is not supported"
+    end
     if project == opackage.project
       raise CmdExecutionNoPermission.new "package is already intialized here"
     end
