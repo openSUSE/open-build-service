@@ -8,10 +8,14 @@ class CacheLine < ApplicationRecord
 
     cont = yield
     Rails.cache.write(cache_key, cont)
-    CacheLine.create key: cache_key,
-                     project: opts[:project],
-                     package: opts[:package],
-                     request: opts[:request]
+    begin
+      CacheLine.create key: cache_key,
+                       project: opts[:project],
+                       package: opts[:package],
+                       request: opts[:request]
+    rescue ActiveRecord::StatementInvalid, Mysql2::Error
+      # just don't cache in error, may caused by too large key
+    end
     cont
   end
 
