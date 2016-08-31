@@ -92,20 +92,29 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
 You can access the frontend at [localhost:3000](http://localhost:3000). Whatever you change in your cloned repository will have effect in the development environment.
 **Note**: The vagrant instance is configured with a default user 'Admin' and password 'buildservice'.
 
-9. Changed something in the frontend? Test your changes!
+9. Building packages:
+     The easiest way to start building is to create an interconnect to build.opensuse.org. All resources, including the base distributions can be used that way directly.
+     To set this up, follow these steps:
+     * Login as admin and go to cofiguration page.
+     * Go to the 'Interconnect' tab and press 'Save changes'. That creates an interconnect to build.opensuse.org.
+     * Switch back to the 'Configuration' tab and press 'Update' to send your changes to the backend.
+     * Restart the backend.
+     * Now you can choose from a wide range of repositories to build your packages and images for.
+
+10. Changed something in the frontend? Test your changes!
 
     ```
     vagrant exec rake test
     vagrant exec rspec
     ```
 
-10. Changed something in the backend? Test your changes!
+11. Changed something in the backend? Test your changes!
 
     ```
     vagrant exec make -C src/backend test
     ```
 
-11. Explore the development environment:
+12. Explore the development environment:
 
     ```
     vagrant ssh
