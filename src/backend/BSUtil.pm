@@ -763,8 +763,7 @@ FORMAT: "YYYY-MM-DD hh:mm:ss [$pid] - $message"
 sub printlog {
   my ($msg) = @_;
   my $tim = isotime(time);
-  print "%s: %-7s - %s\n", $tim, "[$$]", $msg;
-  printf "%04d-%02d-%02d %02d:%02d:%02d: %-7s - %s\n";
+  printf "%s: %-7s - %s\n", $tim, "[$$]", $msg;
 }
 
 1;
