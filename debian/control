@@ -101,7 +101,7 @@ Depends: apt-utils,
          patch,
          reprepro,
          sphinxsearch (>= 2.0.8),
-         sysvinit-utils,
+         sysvinit-utils (>= 2.88dsf-59),
          ${misc:Depends},
          ${shlibs:Depends}
 Recommends: createrepo (>= 0.9.8),
