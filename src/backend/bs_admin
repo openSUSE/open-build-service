@@ -1083,7 +1083,7 @@ while (@ARGV) {
         print "\nfile:\t$sourcefiles{$f}" if $debug;
         next if !grep(/$f/, @deletefiles);
         if ( -e $sourcefiles{$f} ) {
-          $deletedbytes = $deletedbytes + (stat($sourcefiles{$f}))[7];
+          $deletedbytes = $deletedbytes + (stat($sourcefiles{$f}))[7] if (stat($sourcefiles{$f}))[3] == 1;
           $dr = unlink $sourcefiles{$f} || warn "Could not unlink $sourcefiles{$f}: $!"; 
           if ($dr) {
             print " deleted\n" if $debug;
