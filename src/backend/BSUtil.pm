@@ -740,6 +740,18 @@ sub identical {
   return 1;
 }
 
+=head2 isotime - convert time to iso format
+
+ BSUtil::isotime($time);
+
+=cut
+
+sub isotime {
+  my ($t) = @_;
+  my @lt = localtime($t || time());
+  return sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
+}
+
 =head2 printlog - print unified log messages
 
  BSUtil::printlog($message);
@@ -750,15 +762,9 @@ FORMAT: "YYYY-MM-DD hh:mm:ss [$pid] - $message"
 
 sub printlog {
   my ($msg) = @_;
-  my @ltim = localtime(time);
-  printf "%04d-%02d-%02d %02d:%02d:%02d: %-7s - %s\n",
-    $ltim[5] + 1900,  # year
-    $ltim[4] + 1,     # month
-    @ltim[3,2,1,0],   # day, hour, minute, second
-    "[$$]",	      # [pid] (gets space padded right)
-    $msg
-    ;
+  my $tim = isotime(time);
+  print "%s: %-7s - %s\n", $tim, "[$$]", $msg;
+  printf "%04d-%02d-%02d %02d:%02d:%02d: %-7s - %s\n";
 }
-
 
 1;
