@@ -87,12 +87,11 @@ sub authorize {
 sub dispatch {
   my ($conf, $req) = @_;
 
-  my $msg = sprintf("%s %-17s %s %s %s",
+  my $msg = sprintf("%s %-17s %s%s",
     $req->{'action'},
     "($req->{'peer'})",
     $req->{'path'},
     ($req->{'query'}) ? "?$req->{'query'}" : '',
-    ($isajax) ? " (AJAX)" : '',
   );
   BSServer::setstatus(2, $msg) if $conf->{'serverstatus'};
   $msg .= " (AJAX)" if $isajax;
