@@ -2,8 +2,9 @@
 # docs/api/html                 /srv/www/obs/api/public/apidocs/
 # install apidocs
 # the html dir was not found in source.
-docs/api/api/*.{rng,xsd}        /srv/www/obs/docs/api/
 src/api                                /srv/www/obs/
+docs/api/api/*.rng        /srv/www/obs/docs/api/
+docs/api/api/*.xsd        /srv/www/obs/docs/api/
 etc/logrotate.d/obs-api
 srv/www/obs/api/
 srv/www/obs/docs/api/
