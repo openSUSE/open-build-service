@@ -3,3 +3,5 @@
 if [ "$1" = "remove" ]; then
     deluser --system --quiet obsworker
 fi
+
+#DEBHELPER#
