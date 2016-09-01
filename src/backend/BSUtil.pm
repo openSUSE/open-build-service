@@ -756,14 +756,13 @@ sub isotime {
 
  BSUtil::printlog($message);
 
-FORMAT: "YYYY-MM-DD hh:mm:ss [$pid] - $message"
+FORMAT: "YYYY-MM-DD hh:mm:ss [$pid] $message"
 
 =cut
 
 sub printlog {
   my ($msg) = @_;
-  my $tim = isotime(time);
-  printf "%s: %-7s - %s\n", $tim, "[$$]", $msg;
+  printf "%s: %-7s %s\n", isotime(time), "[$$]", $msg;
 }
 
 1;
