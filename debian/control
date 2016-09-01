@@ -228,8 +228,7 @@ Description: Open Build Service (api)
 
 Package: obs-productconverter
 Architecture: any
-Depends: obs-server,
-         ${misc:Depends},
+Depends: ${misc:Depends},
          ${shlibs:Depends}
 Description: Open Build Service (product definition utility)
  The obs_productconvert is a utility to create Kiwi- and Spec- files
