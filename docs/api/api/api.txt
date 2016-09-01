@@ -1871,5 +1871,5 @@ XmlResult: message
 == Internal only routes
 
 /public shall not be used in any tools, it is for OBS remote support only and may
-change or disappear at any time.
+change or disappear at any time. The route is only working when anonymous mode is enabled.
 
