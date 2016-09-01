@@ -78,7 +78,7 @@ Build-Depends: debhelper (>= 9),
                ruby-xpath,
                ruby-yajl,
                rubygems-integration,
-Standards-Version: 3.9.7
+Standards-Version: 3.9.8
 Homepage: http://en.opensuse.org/Build_Service
 
 Package: obs-server
