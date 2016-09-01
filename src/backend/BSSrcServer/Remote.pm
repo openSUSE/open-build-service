@@ -468,45 +468,38 @@ sub getrev_remote {
   return $rev;
 }
 
-my %remote_getrev_getfiles_inprogress;
+sub remote_getrev_setup {
+  my ($projid) = @_;
 
-sub remote_getrev_getfiles {
+  my $jev = $BSServerEvents::gev;
+  my $proj = remoteprojid($projid);
+  die("missing project/package\n") unless $proj;
+  $jev->{'remoteurl'} = $proj->{'remoteurl'};
+  $jev->{'remoteproject'} = $proj->{'remoteproject'};
+  $jev->{'remoteproxy'} = $proj->{'remoteproxy'};
+}
+
+sub remote_getrev_getfilelist {
   my ($projid, $packid, $srcmd5) = @_;
 
   my $jev = $BSServerEvents::gev;
-  my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
+  remote_getrev_setup($projid) unless $jev->{'remoteurl'};
 
-  # setup
-  if (!$jev->{'remoteurl'}) {
-    my $proj = remoteprojid($projid);
-    die("missing project/package\n") unless $proj;
-    $jev->{'remoteurl'} = $proj->{'remoteurl'};
-    $jev->{'remoteproject'} = $proj->{'remoteproject'};
-    $jev->{'remoteproxy'} = $proj->{'remoteproxy'};
-  }
+  my $param = {
+    'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid",
+    'proxy' => $jev->{'remoteproxy'},
+  };   
+  return BSWatcher::rpc($param, $BSXML::dir, "rev=$srcmd5");
+}
 
-  # get the filelist
-  if (!$jev->{'filelist'}) {
-    return $BSStdServer::return_ok if $remote_getrev_getfiles_inprogress{"$projid/$packid/$srcmd5"};
-    my $param = {
-      'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid",
-      'proxy' => $jev->{'remoteproxy'},
-    };   
-    eval {
-      $jev->{'filelist'} = BSWatcher::rpc($param, $BSXML::dir, "rev=$srcmd5");
-    };   
-    if ($@) {
-      my $err = $@;
-      die($err);
-    }
-    return undef unless $jev->{'filelist'};
-    $jev = BSWatcher::background($BSStdServer::return_ok);
-    $jev->{'idstring'} = "$projid/$packid/$srcmd5";
-    $remote_getrev_getfiles_inprogress{"$projid/$packid/$srcmd5"} = $jev;
-    $jev->{'handler'} = sub {delete $remote_getrev_getfiles_inprogress{"$projid/$packid/$srcmd5"}};
-  }
-  
+sub remote_getrev_getfiles {
+  my ($projid, $packid, $srcmd5, $filelist) = @_;
+
+  my $jev = $BSServerEvents::gev;
+  remote_getrev_setup($projid) unless $jev->{'remoteurl'};
+
   # get missing files
+  my $rev = {'project' => $projid, 'package' => $packid};
   my $havesize = 0; 
   my $needsize = 0; 
   my @need;
@@ -577,7 +570,6 @@ sub remote_getrev_getfiles {
     BSSrcrep::addfile($projid, $packid, "$uploaddir/$$-$jev->{'id'}", $entry->{'name'}, $entry->{'md5'});
   }
   BSWatcher::serialize_end($serial) if $serial;
-  delete $remote_getrev_getfiles_inprogress{"$projid/$packid/$srcmd5"};
   return '';
 }
 

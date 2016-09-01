@@ -3662,6 +3662,8 @@ sub getsources {
   return undef;
 }
 
+my %getfilelist_ajax_inprogress;
+
 sub getfilelist_ajax {
   my ($cgi, $projid, $packid) = @_;
 
@@ -3674,17 +3676,34 @@ sub getfilelist_ajax {
     return undef;
   }
   if ($cgi->{'view'} eq 'notify') {
+    my $jev = $BSServerEvents::gev;
+    my $filelist = $jev->{'filelist'};
+    my $idstring = "$projid/$packid/$srcmd5";
+    if (!$filelist) {
+      return $BSStdServer::return_ok if $getfilelist_ajax_inprogress{$idstring};
+      $filelist = BSSrcServer::Remote::remote_getrev_getfilelist($projid, $packid, $srcmd5);
+      return undef unless defined $filelist;
+      # ok, got the filelist, we're the master. get the missing files in the background.
+      $jev = BSWatcher::background($BSStdServer::return_ok);
+      $getfilelist_ajax_inprogress{$idstring} = $jev;
+      $jev->{'filelist'} = $filelist;
+      $jev->{'idstring'} = $idstring;
+      $jev->{'handler'} = sub {delete $getfilelist_ajax_inprogress{$idstring}};
+    }
+
+    # here we're the backgrounded master. get missing files and notify
     my $ret;
     eval {
-      $ret = BSSrcServer::Remote::remote_getrev_getfiles($projid, $packid, $srcmd5);
+      $ret = BSSrcServer::Remote::remote_getrev_getfiles($projid, $packid, $srcmd5, $filelist);
     };
     if ($@) {
-      my $jev = $BSServerEvents::gev;
-      # notify if backgrounded
-      notify_all_repservers('package', $projid, $packid) unless $jev->{'fd'};
+      # hmm, what to do here? for now we just notify. this will lead to a retry loop, though.
+      notify_all_repservers('package', $projid, $packid);
       die($@);
     }
-    notify_all_repservers('package', $projid, $packid) if defined($ret) && $ret eq '';
+    return undef unless defined $ret;
+    delete $getfilelist_ajax_inprogress{$idstring};
+    notify_all_repservers('package', $projid, $packid);
     return $ret;
   }
   die("unknown view '$cgi->{'view'}'\n");
