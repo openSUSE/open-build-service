@@ -3056,13 +3056,16 @@ sub createkey {
   die("don't know how to create a key\n") unless $BSConfig::sign;
   die("404 project $projid does not exist\n") unless -s "$projectsdir/$projid.xml";
   mkdir_p($uploaddir);
-  my $pubkey = '';
+  unlink("$uploaddir/signkey.$$");
   my @keyargs = ('rsa@2048', '800');
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
+  push @signargs, '-P', "$uploaddir/signkey.$$";
+  push @signargs, '-h', 'sha256';	# used by newer signd versions
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
+  my $pubkey = '';
   local *F;
-  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$uploaddir/signkey.$$", '-g', @keyargs, "$projid OBS Project", "$projid\@$obsname") || die("$BSConfig::sign: $!\n");
+  open(F, '-|', $BSConfig::sign, @signargs, '-g', @keyargs, "$projid OBS Project", "$projid\@$obsname") || die("$BSConfig::sign: $!\n");
   1 while sysread(F, $pubkey, 4096, length($pubkey));
   close(F) || die("$BSConfig::sign: $?\n");
   die("sign did not create signkey\n") unless -s "$uploaddir/signkey.$$";
@@ -3085,9 +3088,10 @@ sub extendkey {
   my @keyargs = ('800');
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
+  push @signargs, '-P', "$projectsdir/$projid.pkg/_signkey";
   my $pubkey = '';
   local *F;
-  open(F, '-|', $BSConfig::sign, @signargs, '-P', "$projectsdir/$projid.pkg/_signkey", '-x', @keyargs, "$projectsdir/$projid.pkg/_pubkey") || die("$BSConfig::sign: $!\n");
+  open(F, '-|', $BSConfig::sign, @signargs, '-x', @keyargs, "$projectsdir/$projid.pkg/_pubkey") || die("$BSConfig::sign: $!\n");
   1 while sysread(F, $pubkey, 4096, length($pubkey));
   close(F) || die("$BSConfig::sign: $?\n");
   mkdir_p($uploaddir);
