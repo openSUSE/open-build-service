@@ -10,25 +10,25 @@
           <p><i>No build result available</i></p>
       <% end %>
   <% else %>
-      <table title="Repositories" class="repostatus">
-        <% @buildresult.each do |repo, archarray| %>
+      <table class="repostatus">
+        <% @buildresult.each do |repository, archarray| %>
             <% index = 0
-               srepo = truncate(repo, :length => 17)
                archarray.each do |arch, counts| %>
                 <tr>
                   <% if index == 0 %>
-                      <td class="repo nowrap" rowspan="<%= archarray.length %>">
-                        <%= link_to(elide(srepo, 26), { action: :state, project: @project.name, repository: repo, controller: :repositories }, { title: "Repository #{srepo}"}) %>
+                      <td class="repo" rowspan="<%= archarray.length %>">
+                        <%= link_to(word_break(repository, 12), { action: :state, project: @project.name, repository: repository, controller: :repositories }, { title: "Repository #{repository}"}) %>
                       </td>
                       <% index += 1 %>
                   <% end %>
                   <td class="nowrap">
-                    <%= repo_status_icon(@repostatushash[repo][arch], @repostatusdetailshash[repo][arch])%> <%= arch %>
+                    <%= repo_status_icon(@repostatushash[repository][arch], @repostatusdetailshash[repository][arch])%> <%= arch %>
                   </td>
-                  <td style="width: 1%">
+                  <td style="width: 1%" class="nowrap">
                     <% counts.each do |code, count| %>
-                        <%= link_to("#{code}: #{count}", {:action => :monitor, valid_xml_id('repo_' + repo) => 1,
+                        <%= link_to("#{code}: #{count}", {:action => :monitor, valid_xml_id('repo_' + repository) => 1,
                                                           'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0}, :rel => 'nofollow', :class => 'nowrap') %>
+                        <%= sprite_tag('help', title: Buildresult.status_description(code)) %><br />
                     <% end %>
                   </td>
                 </tr>
