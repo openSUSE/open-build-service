@@ -955,7 +955,7 @@ sub getrev {
   my ($projid, $packid, $revid, $linked, $missingok) = @_;
   my $rev = BSRevision::getrev_local($projid, $packid, $revid);
   return $rev if $rev;
-  my $proj = readproj($projid, 1);
+  my $proj = BSRevision::readproj_local($projid, 1);
   if ($proj && $proj->{'link'}) {
     $rev = getrev_projlink($projid, $packid, $revid, $linked, $missingok, $proj->{'link'});
     return $rev if $rev;
@@ -1978,7 +1978,7 @@ sub findpackages_projlink {
         $lorigins->{$_} = $lprojid for @lpackids;
       }
     } else {
-      my $lproj = readproj($lprojid, 1);
+      my $lproj = BSRevision::readproj_local($lprojid, 1);
       if (!$lproj || $lproj->{'remoteurl'}) {
         $lproj = BSSrcServer::Remote::remoteprojid($lprojid);
 	next unless $lproj;	# linked project does not exist
@@ -2002,7 +2002,7 @@ sub findpackages {
   my ($projid, $proj, $nonfatal, $origins, $noexpand, $deleted, $seen) = @_;
 
   # check remote case
-  $proj ||= readproj($projid, 1) || {};
+  $proj ||= BSRevision::readproj_local($projid, 1) || {};
   return BSSrcServer::Remote::findpackages_remote($projid, $proj, $nonfatal, $origins, $noexpand, $deleted) if $proj->{'remoteurl'};
 
   # get local packages
@@ -2019,37 +2019,6 @@ sub findpackages {
   }
 
   return @packids;
-}
-
-sub readproj {
-  my ($projid, $nonfatal, $revid) = @_;
-  my $proj;
-  if ($revid) {
-    my $rev = BSRevision::getrev_meta($projid, undef, $revid);
-    my $files = $rev ? BSSrcrep::lsrev($rev) : {};
-    $proj = BSSrcrep::repreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::proj, 1) if $files->{'_meta'};
-  } else {
-    $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
-  }
-  die("404 project '$projid' does not exist\n") if !$proj && !$nonfatal;
-  return $proj;
-}
-
-sub readpack {
-  my ($projid, $packid, $nonfatal, $revid) = @_;
-  my $pack;
-  if ($revid) {
-    my $rev = BSRevision::getrev_meta($projid, $packid, $revid);
-    my $files = $rev ? BSSrcrep::lsrev($rev) : {};
-    $pack = BSSrcrep::repreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::pack, 1) if $files->{'_meta'};
-  } else {
-    $pack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
-  }
-  if (!$pack && !$nonfatal) {
-    readproj($projid);
-    die("404 package '$packid' does not exist in project '$projid'\n");
-  }
-  return $pack;
 }
 
 # collect all global source services via all package and project links
@@ -2070,7 +2039,7 @@ sub getprojectservices {
   }
 
   # find further projects via project link
-  my $proj = readproj($projid, 1);
+  my $proj = BSRevision::readproj_local($projid, 1);
   for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
     my $lpack;
     eval {
@@ -2245,7 +2214,7 @@ sub mergeroles {
   my @person;
   my @group;
   while ($projid ne '') {
-    $proj ||= readproj($projid, 1); 
+    $proj ||= BSRevision::readproj_local($projid, 1); 
     if ($proj) {
       push @person, @{$proj->{'person'} || []};
       push @group , @{$proj->{'group'} || []};
@@ -2313,7 +2282,7 @@ sub getprojpack {
       die("cannot determine partition for $projid\n") unless defined $par;
       if ($par ne $partition) {
 	# check if it is remote, if not then it belongs to another partition
-	my $r = readproj($projid, 1);
+	my $r = BSRevision::readproj_local($projid, 1);
 	$r = BSSrcServer::Remote::remoteprojid($projid) unless defined $r;
 	if (!($r && $r->{'remoteurl'})) {
 	  # not remote, but on wrong partition
@@ -2346,7 +2315,7 @@ sub getprojpack {
   while (@projids) {
     my $projid = shift @projids;
     my $jinfo = { 'name' => $projid };
-    my $proj = readproj($projid, 1);
+    my $proj = BSRevision::readproj_local($projid, 1);
     if ($remotemap && (!$proj || $proj->{'remoteurl'})) {
       if ($cgi->{'project'}) {
 	# fill remote data if asked for that specific project
@@ -2556,7 +2525,7 @@ sub getprojpack {
       next if $packids && !$packids->{$packid};
       my $pinfo = {'name' => $packid};
       push @pinfo, $pinfo;
-      my $pack = readpack($projid, $packid, 1);
+      my $pack = BSRevision::readpack_local($projid, $packid, 1);
       ($pack) = getpackage({}, $projid, $packid) if $proj->{'remoteurl'} && $cgi->{'parseremote'};
       $pack ||= {} if $proj->{'link'};
       if (!$pack) {
@@ -2675,7 +2644,7 @@ sub getprojpack {
 	      for my $li (@$linked) {
 		my $lprojid = $li->{'project'};
 		next if $remotemap->{$lprojid} || $remotemap->{':partitions'}->{$lprojid};
-		my $lproj = readproj($lprojid, 1);
+		my $lproj = BSRevision::readproj_local($lprojid, 1);
 		if ($lproj && !$lproj->{'remoteurl'}) {
 		  BSSrcServer::Partition::checkpartition($remotemap, $lprojid, $lproj);
 		} else {
@@ -2722,7 +2691,7 @@ sub getprojpack {
 	    for my $aggregate (@{$aggregatelist->{'aggregate'} || []}) {
 	      my $aprojid = $aggregate->{'project'};
 	      next if $remotemap->{$aprojid} && !$remotemap->{$aprojid}->{'proto'};
-	      my $aproj = readproj($aprojid, 1);
+	      my $aproj = BSRevision::readproj_local($aprojid, 1);
 	      if (!$aproj || $aproj->{'remoteurl'}) {
 		$aproj = BSSrcServer::Remote::remoteprojid($aprojid);
 		eval {
@@ -2992,7 +2961,7 @@ sub getprojectlist {
 sub getproject {
   my ($cgi, $projid) = @_;
   # Read the project xml file
-  my $proj = readproj($projid, 1, $cgi->{'rev'});
+  my $proj = BSRevision::readproj_local($projid, 1, $cgi->{'rev'});
   $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || ($proj->{'remoteurl'} && $proj->{'remoteproject'});
   die("404 project '$projid' does not exist\n") unless $proj;
   if ($proj->{'remoteurl'} && $proj->{'remoteproject'}) {
@@ -3126,7 +3095,7 @@ sub getpubkey {
   my ($cgi, $projid) = @_;
   my $pubkey;
 
-  my $proj = readproj($projid, 1, $cgi->{'rev'});
+  my $proj = BSRevision::readproj_local($projid, 1, $cgi->{'rev'});
   $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
   die("404 project '$projid' does not exist\n") unless $proj;
 
@@ -3181,7 +3150,7 @@ sub putproject {
     }
   }
 
-  $proj = readproj($projid);
+  $proj = BSRevision::readproj_local($projid);
   return ($proj, $BSXML::proj);
 }
 
@@ -3288,7 +3257,7 @@ sub getpackage {
     my $meta = BSSrcrep::repreadstr($rev, '_meta', $files->{'_meta'});
     return ($meta);
   }
-  my $pack = readpack($projid, $packid, 1);
+  my $pack = BSRevision::readpack_local($projid, $packid, 1);
   $pack->{'project'} ||= $projid if $pack;
   if (!$pack && $proj->{'link'}) {
     my %checked = ($projid => 1);
@@ -3297,7 +3266,7 @@ sub getpackage {
       my $lprojid = shift @todo;
       next if $checked{$lprojid};
       $checked{$lprojid} = 1;
-      my $lproj = readproj($lprojid, 1);
+      my $lproj = BSRevision::readproj_local($lprojid, 1);
       $lproj = BSSrcServer::Remote::remoteprojid($lprojid) if !$lproj || $lproj->{'remoteurl'};
       if ($lproj->{'remoteurl'}) {
 	eval {
@@ -3311,7 +3280,7 @@ sub getpackage {
 	  }
 	}
       } else {
-        $pack = readpack($lprojid, $packid, 1);
+        $pack = BSRevision::readpack_local($lprojid, $packid, 1);
         $pack->{'project'} ||= $lprojid if $pack;
         unshift @todo, map {$_->{'project'}} @{$lproj->{'link'}} if !$pack && $lproj->{'link'};
       }
@@ -3332,7 +3301,7 @@ sub putpackage {
   BSVerify::verify_pack($pack, $packid);
   writexml("$uploaddir/$$.2", undef, $pack, $BSXML::pack);
   unlink("$uploaddir/$$");
-  my $proj = readproj($projid);
+  my $proj = BSRevision::readproj_local($projid);
   die("$projid is a remote project\n") if $proj->{'remoteurl'};
   if ($packid eq '_product' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
     # creating a _product package, make sure that there is no _product:xxx package
@@ -3352,7 +3321,7 @@ sub putpackage {
   if (!BSUtil::identical($oldpack, $pack, \%except)) {
     notify_repservers('package', $projid, $packid);
   }
-  $pack = readpack($projid, $packid);
+  $pack = BSRevision::readpack_local($projid, $packid);
   return ($pack, $BSXML::pack);
 }
 
@@ -3474,7 +3443,7 @@ sub expandsearchpath {
       ($base->{'project'}, $base->{'repository'}) = ($t->{'project'}, $t->{'repository'}) if $base;
       last if $done{"/$prp"};
       my ($pid, $tid) = ($t->{'project'}, $t->{'repository'});
-      my $proj = readproj($pid, 1);
+      my $proj = BSRevision::readproj_local($pid, 1);
       if (!$proj || $proj->{'remoteurl'}) {
 	undef $proj;
 	$proj = $remotemap->{$pid} if $remotemap && $remotemap->{$pid};
@@ -3490,7 +3459,7 @@ sub expandsearchpath {
       push @path, @{$repo[0]->{'path'}} if @repo && $repo[0]->{'path'};
     } elsif ($remotemap) {
       my $pid = $t->{'project'};
-      my $proj = readproj($pid, 1);
+      my $proj = BSRevision::readproj_local($pid, 1);
       if ((!$proj || $proj->{'remoteurl'}) && !$remotemap->{$pid}) {
         my $r = BSSrcServer::Remote::remoteprojid($pid);
         $remotemap->{$pid} = {%$r, 'proto' => 1} if $r;
@@ -3633,7 +3602,7 @@ sub getprojectconfig {
 
 sub putprojectconfig {
   my ($cgi, $projid) = @_;
-  my $proj = readproj($projid);
+  my $proj = BSRevision::readproj_local($projid);
   mkdir_p($uploaddir);
   my $uploadfile = "$uploaddir/$$";
   die("upload failed\n") unless BSServer::read_file($uploadfile);
@@ -4647,7 +4616,7 @@ sub moveproject {
   my $oprojid = $cgi->{'oproject'};
   return $BSStdServer::return_ok if $oprojid eq $projid;
 
-  my $oproj = readproj($oprojid);
+  my $oproj = BSRevision::readproj_local($oprojid);
 
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $oreposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($oprojid) : $BSConfig::reposerver;
@@ -4692,8 +4661,8 @@ sub copyproject {
   my $oprojid = $cgi->{'oproject'};
   return $BSStdServer::return_ok if $oprojid eq $projid;
 
-  my $proj = readproj($projid);
-  my $oproj = readproj($oprojid);
+  my $proj = BSRevision::readproj_local($projid);
+  my $oproj = BSRevision::readproj_local($oprojid);
 
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $oreposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($oprojid) : $BSConfig::reposerver;
@@ -4723,7 +4692,7 @@ sub copyproject {
   for my $packid (@pkgs) {
     if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
       # new package, create. hopefully the API can deal with this
-      my $opack = readpack($oprojid, $packid);
+      my $opack = BSRevision::readpack_local($oprojid, $packid);
       my $pack = {
 	'project' => $projid,
 	'name' => $packid,
@@ -5277,7 +5246,7 @@ sub getrepositorylist {
 
 sub getrepository {
   my ($cgi, $projid, $repoid) = @_;
-  my $proj = readproj($projid);
+  my $proj = BSRevision::readproj_local($projid);
   my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   die("404 $repoid: no such repository\n") unless $repo;
   return ($repo, $BSXML::repo);
@@ -5390,7 +5359,7 @@ sub docommand {
   my %repoidfilter = map {$_ => 1} @{$cgi->{'repository'} || []};
   my %archfilter = map {$_ => 1} @{$cgi->{'arch'} || []};
 
-  my $proj = readproj($projid);
+  my $proj = BSRevision::readproj_local($projid);
   my @prpas;
   for my $repo (@{$proj->{'repository'} || []}) {
     next if %repoidfilter && !$repoidfilter{$repo->{'name'}};
@@ -5432,7 +5401,7 @@ sub docommand {
 
 sub checkprojrepoarch {
   my ($projid, $repoid, $arch, $remoteok) = @_;
-  my $proj = readproj($projid, 1);
+  my $proj = BSRevision::readproj_local($projid, 1);
   $proj = BSSrcServer::Remote::remoteprojid($projid) if $remoteok && (!$proj || $proj->{'remoteurl'});
   die("404 project '$projid' does not exist\n") if !$proj;
   die("404 project '$projid' is remote\n") if $proj->{'remoteurl'} && !$remoteok;
@@ -6000,7 +5969,7 @@ sub search_proj {
   $match =~ s/^\[(.*)\]$/$1/s;
   my $data = [];
   for my $projid (findprojects()) {
-    my $proj = readproj($projid);
+    my $proj = BSRevision::readproj_local($projid);
     push @$data, $proj;
   }
   $data = BSXPath::match($data, $match);
@@ -6016,7 +5985,7 @@ sub search_proj {
 sub pkgsearch_fetch {
   my ($db, $k) = @_;
   my ($projid, $packid) = split('/', $k, 2);
-  my $pack = readpack($projid, $packid, 1) || {'name' => $packid};
+  my $pack = BSRevision::readpack_local($projid, $packid, 1) || {'name' => $packid};
   $pack->{'project'} = $projid;
   #my @linkinfo = BSDBIndex::getvalues($db, 'linkinfo', $k);
   #$pack->{'linkinfo'} = $linkinfo[0] if @linkinfo;
@@ -6268,7 +6237,7 @@ sub pattern_key_to_data {
 sub published_projectindexfunc {
   my ($db, $path, $value) = @_;
   return findprojects() unless defined $value;
-  my $proj = readproj($value);
+  my $proj = BSRevision::readproj_local($value);
   return () unless $proj;
   my @repoids = map {$_->{'name'}} @{$proj->{'repository'} || []};
   my %bins;
@@ -6340,7 +6309,7 @@ sub search {
   my $data = [];
   if ($in eq 'projects') {
     for my $projid (findprojects()) {
-      my $proj = readproj($projid);
+      my $proj = BSRevision::readproj_local($projid);
       push @$data, $proj;
     }
   } elsif ($in eq 'packages') {
@@ -6679,7 +6648,7 @@ sub getrequest {
 sub findremote {
   my ($projid) = @_;
 
-  my $proj = readproj($projid, 1);
+  my $proj = BSRevision::readproj_local($projid, 1);
   $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
   die("404 project '$projid' does not exist\n") unless $proj;
   if (!$proj->{'remoteurl'}) {
@@ -6867,7 +6836,7 @@ sub addevent {
   # and filter in the request
   if (defined($ev->{'project'})) {
     my $access = 1;
-    my $proj = readproj($ev->{'project'}, 1);
+    my $proj = BSRevision::readproj_local($ev->{'project'}, 1);
     if ($proj && $proj->{'access'}) {
       $access = BSUtil::enabled('', $proj->{'access'}, $access, '');
     }
