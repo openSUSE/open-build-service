@@ -253,7 +253,12 @@ sub getpackage_remote {
     $pack = BSRPC::rpc($param, $BSXML::pack, @args);
   };
   die($@) if $@ && (!$missingok || $@ !~ /^404/);
-  mappackagedata($pack, $proj) if $pack;
+  if ($pack) {
+    mappackagedata($pack, $proj);
+    delete $pack->{'person'};
+    delete $pack->{'group'};
+    delete $pack->{$_} for map {$_->[0]} @BSXML::flags;
+  }
   return $pack;
 }
 

@@ -3236,15 +3236,7 @@ sub getpackage {
   my $proj;
   $proj = checkprojrepoarch($projid, undef, undef, 1) unless $cgi->{'deleted'};
   if ($proj && $proj->{'remoteurl'}) {
-    my @args = BSRPC::args($cgi, 'rev');
-    my $pack = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta", 'proxy' => $proxy}, $BSXML::pack, @args);
-    $pack->{'project'} = $projid;	# local name
-    if ($pack->{'devel'} && exists($pack->{'devel'}->{'project'})) {
-      $pack->{'devel'}->{'project'} = BSSrcServer::Remote::maptoremote($proj, $pack->{'devel'}->{'project'});
-    }
-    delete $pack->{'person'};
-    delete $pack->{'group'};
-    delete $pack->{$_} for map {$_->[0]} @BSXML::flags;
+    my $pack = BSSrcServer::Remote::getpackage_remote($projid, $proj, $packid, $cgi->{'rev'});
     return ($pack, $BSXML::pack);
   }
   if ($cgi->{'rev'} || $cgi->{'deleted'} || $packid eq '_project') {
