@@ -508,15 +508,29 @@ sub lspackages_local {
 # small helpers
 #
 sub readproj_local {
-  my ($projid, $nonfatal) = @_;
-  my $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
+  my ($projid, $nonfatal, $revid) = @_;
+  my $proj;
+  if ($revid) {
+    my $rev = getrev_meta($projid, undef, $revid);
+    my $files = $rev ? BSSrcrep::lsrev($rev) : {};
+    $proj = BSSrcrep::repreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::proj, 1) if $files->{'_meta'};
+  } else {
+    $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
+  }
   die("404 project '$projid' does not exist\n") if !$proj && !$nonfatal;
   return $proj;
 }
 
 sub readpack_local {
-  my ($projid, $packid, $nonfatal) = @_;
-  my $pack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
+  my ($projid, $packid, $nonfatal, $revid) = @_;
+  my $pack;
+  if ($revid) {
+    my $rev = BSRevision::getrev_meta($projid, $packid, $revid);
+    my $files = $rev ? BSSrcrep::lsrev($rev) : {};
+    $pack = BSSrcrep::repreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::pack, 1) if $files->{'_meta'};
+  } else {
+    $pack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
+  }
   if (!$pack && !$nonfatal) {
     readproj_local($projid);
     die("404 package '$packid' does not exist in project '$projid'\n");
