@@ -440,4 +440,82 @@ EOT
       remove_file_post
     end
   end
+
+  describe "GET #revisions" do
+    before do
+      login(user)
+    end
+
+    context "without source access" do
+      before do
+        package.add_flag("sourceaccess", "disable")
+        package.save
+        get :revisions, project: source_project, package: package
+      end
+
+      it { expect(flash[:error]).to eq("Could not access revisions") }
+      it { expect(response).to redirect_to(package_show_path(project: source_project.name, package: package.name)) }
+    end
+
+    context "with source access" do
+      before do
+        get :revisions, project: source_project, package: package
+      end
+
+      after do
+        # This is necessary to delete the commits created in the before statement
+        package.destroy
+      end
+
+      it { expect(assigns(:project)).to eq(source_project) }
+      it { expect(assigns(:package)).to eq(package) }
+
+      context "with no revisions" do
+        it { expect(assigns(:lastrev)).to eq(1) }
+        it { expect(assigns(:revisions)).to eq([1]) }
+      end
+
+      context "with less than 21 revisions" do
+        let(:package_with_commits) { create(:package_with_file, name: "package_with_commits", project: source_project) }
+
+        before do
+          19.times { |i| Suse::Backend.put("/source/#{source_project}/#{package_with_commits}/somefile.txt", i.to_s) }
+          get :revisions, project: source_project, package: package_with_commits
+        end
+
+        after do
+          # This is necessary to delete the commits created in the before statement
+          package_with_commits.destroy
+        end
+
+        it { expect(assigns(:lastrev)).to eq(20) }
+        it { expect(assigns(:revisions)).to eq((1..20).to_a.reverse) }
+      end
+
+      context "with 21 revisions" do
+        let(:package_with_more_commits) { create(:package_with_file, name: "package_with_more_commits", project: source_project) }
+
+        before do
+          20.times { |i| Suse::Backend.put("/source/#{source_project}/#{package_with_more_commits}/somefile.txt", i.to_s) }
+          get :revisions, project: source_project, package: package_with_more_commits
+        end
+
+        after do
+          # This is necessary to delete the commits created in the before statement
+          package_with_more_commits.destroy
+        end
+
+        it { expect(assigns(:lastrev)).to eq(21) }
+        it { expect(assigns(:revisions)).to eq((2..21).to_a.reverse) }
+
+        context "with showall parameter set" do
+          before do
+            get :revisions, project: source_project, package: package_with_more_commits, showall: true
+          end
+
+          it { expect(assigns(:revisions)).to eq((1..21).to_a.reverse) }
+        end
+      end
+    end
+  end
 end
