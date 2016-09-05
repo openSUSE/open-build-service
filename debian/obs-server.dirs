@@ -1,5 +1,3 @@
 /etc/obs
-/srv/www/obs/api/log
-/srv/www/obs/api/tmp
 /usr/bin
 /usr/sbin

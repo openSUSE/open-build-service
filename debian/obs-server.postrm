@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if [ -f /srv/www/obs/overview/index.html ]; then
-   rm -f /srv/www/obs/overview/index.html
+if [ -f /usr/share/obs/overview/index.html ]; then
+   rm -f /usr/share/obs/overview/index.html
 fi
 
 #DEBHELPER#

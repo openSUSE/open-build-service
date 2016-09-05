@@ -7,7 +7,7 @@ debian/obs_admin		/usr/sbin
 debian/obs_serverstatus		/usr/sbin
 debian/wrap-obs-service /usr/sbin
 dist/sysconfig.obs-server       /etc/default/
-srv/www/obs/overview/overview.html.TEMPLATE
+usr/share/obs/overview/overview.html.TEMPLATE
 
 # Config files
 etc/logrotate.d/obs-server

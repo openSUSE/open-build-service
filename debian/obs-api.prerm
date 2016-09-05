@@ -4,6 +4,4 @@
 . /usr/share/dbconfig-common/dpkg/prerm.mysql
 dbc_go obs-api $@
 
-rm -f /srv/obs/www/api/vendor/rails
-
 #DEBHELPER#

@@ -1,5 +1,5 @@
 
-/srv/obs/log/*.log {
+/var/obs/log/*.log {
     compress
     dateext
     rotate 2

@@ -24,13 +24,13 @@ systemctl start obsscheduler@x86_64.service || true
 systemctl start obsscheduler@armv7hl.service || true
 
 
-if [ ! -f /srv/www/obs/overview/index.html ] ; then
+if [ ! -f /usr/share/obs/overview/index.html ] ; then
   FQHOSTNAME=`hostname -f`
 
   sed -e "s,___WEBUI_URL___,https://$FQHOSTNAME,g" \
       -e "s,___API_URL___,https://$FQHOSTNAME:444,g" \
       -e "s,___REPO_URL___,http://$FQHOSTNAME:82,g" \
-        /srv/www/obs/overview/overview.html.TEMPLATE > /srv/www/obs/overview/index.html
+        /usr/share/obs/overview/overview.html.TEMPLATE > /usr/share/obs/overview/index.html
 fi
 
 reload_apache()

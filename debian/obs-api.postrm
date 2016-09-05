@@ -12,16 +12,16 @@ if [ -f /usr/share/dbconfig-common/dpkg/postrm.mysql ]; then
 fi
 if [ "$1" = "purge" ]; then
     # ucf follows the symlink under /etc
-    rm -f /srv/www/obs/api/config/database.yml
+    rm -f /usr/share/obs/api/config/database.yml
     if which ucf >/dev/null 2>&1; then
-	ucf --purge /srv/www/obs/api/config/database.yml
+	ucf --purge /usr/share/obs/api/config/database.yml
     fi
-    rm -f /srv/www/obs/api/.bundle/config
-    rm -f /srv/www/obs/api/config/secret.key
+    rm -f /usr/share/obs/api/.bundle/config
+    rm -f /usr/share/obs/api/config/secret.key
 fi
 
-if [ -L /srv/www/obs/api/vendor/rails ]; then
-    rm -f /srv/www/obs/api/vendor/rails
+if [ -L /usr/share/obs/api/vendor/rails ]; then
+    rm -f /usr/share/obs/api/vendor/rails
 fi
 
 

@@ -14,7 +14,7 @@ if [ ! -e "$fRailsDir" ]; then
 fi
 
 chown www-data:root /etc/obs/api/config/environment.rb
-cd /srv/www/obs/api
+cd /usr/share/obs/api
 if [ ! -L vendor/rails ]; then
     ln -s "$fRailsDir" vendor/rails
 else
@@ -26,18 +26,18 @@ else
     fi
 fi
 
-  chown -R nobody:www-data /srv/www/obs/api/log /srv/www/obs/api/tmp
+  chown -R nobody:www-data /usr/share/obs/api/log /usr/share/obs/api/tmp
 # Generate log files
-  touch /srv/www/obs/api/log/access.log
-  touch /srv/www/obs/api/log/backend_access.log
-  touch /srv/www/obs/api/log/delayed_job.log
-  touch /srv/www/obs/api/log/error.log
-  touch /srv/www/obs/api/log/lastevents.access.log
-  touch /srv/www/obs/api/log/production.log
-  chown nobody /srv/www/obs/api/log/*.log
-  chown nobody /srv/www/obs/api/config/database.yml
+  touch /usr/share/obs/api/log/access.log
+  touch /usr/share/obs/api/log/backend_access.log
+  touch /usr/sahre/obs/api/log/delayed_job.log
+  touch /usr/share/obs/api/log/error.log
+  touch /usr/share/obs/api/log/lastevents.access.log
+  touch /usr/share/obs/api/log/production.log
+  chown nobody /usr/share/obs/api/log/*.log
+  chown nobody /usr/share/obs/api/config/database.yml
 
-SECRET_KEY="/srv/www/obs/api/config/secret.key"
+SECRET_KEY="/usr/share/obs/api/config/secret.key"
 if [ ! -e "$SECRET_KEY" ]; then
     ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )
 fi
@@ -45,7 +45,7 @@ fi
   chown nobody.www-data $SECRET_KEY
 
 # Generate Gemfile.lock file.
-cd /srv/www/obs/api
+cd /usr/share/obs/api
 rm -f Gemfile.lock
 rm -f .bundle/config
 bundle --local --quiet
@@ -56,10 +56,10 @@ bundle config --local frozen 1
 bundle config --local without test:assets:development
 
 if [ -z "$2" ]; then
-    RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:create
-    RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:setup
+    RAILS_ENV=production rake -f /usr/share/obs/api/Rakefile db:create
+    RAILS_ENV=production rake -f /usr/share/obs/api/Rakefile db:setup
 else
-    RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:migrate
+    RAILS_ENV=production rake -f /usr/share/obs/api/Rakefile db:migrate
 fi
 
 bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets

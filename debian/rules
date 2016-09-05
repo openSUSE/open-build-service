@@ -18,7 +18,7 @@ override_dh_install:
 	dh_install --list-missing
 
         # Do not install database config file in obs-api.
-	rm -f  debian/obs-api/srv/www/obs/api/config/database.yml
+	rm -f  debian/obs-api/usr/share/obs/api/config/database.yml
 
 	dh_installdebconf
 	dh_installinit --restart-after-upgrade --name obsapidelayed
@@ -71,17 +71,17 @@ override_dh_install:
 
 	# these config files must not be hard linked
 	install debian/options.yml.example \
-		debian/obs-api/srv/www/obs/api/config/options.yml
+		debian/obs-api/usr/share/obs/api/config/options.yml
 
 	# turn duplicates into hard links
-	fdupes debian/obs-api/srv/www/obs
+	fdupes debian/obs-api/usr/share/obs/
 
 	# Generate log files
-	touch debian/obs-api/srv/www/obs/api/log/access.log
-	touch debian/obs-api/srv/www/obs/api/log/backend_access.log
-	touch debian/obs-api/srv/www/obs/api/log/delayed_job.log
-	touch debian/obs-api/srv/www/obs/api/log/error.log
-	touch debian/obs-api/srv/www/obs/api/log/lastevents.access.log
+	touch debian/obs-api/usr/share/obs/api/log/access.log
+	touch debian/obs-api/usr/share/obs/api/log/backend_access.log
+	touch debian/obs-api/usr/share/obs/api/log/delayed_job.log
+	touch debian/obs-api/usr/share/obs/api/log/error.log
+	touch debian/obs-api/usr/share/obs/api/log/lastevents.access.log
 
 override_dh_auto_test:
 	 dh_auto_test || true # temporary ignore
