@@ -1,0 +1,37 @@
+Description: FHS path to point obs document root as /var/lib/obs/www/obs.
+
+--- a/Makefile.include
++++ b/Makefile.include
+@@ -1,6 +1,6 @@
+ INSTALL=/usr/bin/install
+ OBS_BACKEND_PREFIX=/usr/lib/obs/server
+-OBS_DOCUMENT_ROOT=/srv/www/obs
++OBS_DOCUMENT_ROOT=/usr/share/obs/
+ OBS_API_PREFIX=$(OBS_DOCUMENT_ROOT)/api
+ OBS_APIDOCS_PREFIX=$(OBS_DOCUMENT_ROOT)/docs
+ 
+--- a/src/api/Makefile
++++ b/src/api/Makefile
+@@ -48,10 +48,10 @@
+ 	$(foreach logfile,$(OBS_API_LOGS),$(shell touch $(DESTDIR)$(OBS_API_PREFIX)/log/$(logfile) ))
+ 
+ build: config
+-	$(shell [ -d $(DESTDIR)/srv/www/obs/api/.bundle ] && rm -rf $(DESTDIR)/srv/www/obs/api/.bundle)
++	$(shell [ -d $(DESTDIR)/usr/share/obs/api/.bundle ] && rm -rf $(DESTDIR)/usr/share/obs/api/.bundle)
+ 	# we need to have *something* as secret key
+-	echo "" | sha256sum| cut -d\  -f 1 > $(DESTDIR)/srv/www/obs/api/config/secret.key
+-	cd $(DESTDIR)/srv/www/obs/api ;\
++	echo "" | sha256sum| cut -d\  -f 1 > $(DESTDIR)/usr/share/obs/api/config/secret.key
++	cd $(DESTDIR)/usr/share/obs/api ;\
+ 	bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets ;\
+ 	rm -rf tmp/cache/sass tmp/cache/assets config/secret.key ;\
+ 	$(OBS_API_BUNDLER_OPTS) bundle config --local frozen 1 ;\
+@@ -60,7 +60,7 @@
+ 	$(INSTALL) config/database.yml.example $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
+ 	# fixed hardlinking problem in SLE 11
+ 	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
+-	: >  $(DESTDIR)/srv/www/obs/api/log/production.log
++	: >  $(DESTDIR)/usr/share/obs/api/log/production.log
+ 	sed -i -e 's,^api_version.*,api_version = "$(OBS_VERSION)",'  $(DESTDIR)$(OBS_API_PREFIX)/config/initializers/02_apiversion.rb
+ 
+ test_unit:

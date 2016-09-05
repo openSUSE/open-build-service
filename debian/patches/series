@@ -4,3 +4,4 @@ drop-test-and-development-depends.patch
 drop-ruby-hoptoad-notifier.patch
 rails-4-gem-assets.patch
 ruby2.3.patch
+FHS-path.patch
