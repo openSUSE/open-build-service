@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 if ! getent group obsworker > /dev/null; then
     addgroup --system --quiet obsworker

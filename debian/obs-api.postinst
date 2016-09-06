@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 . /usr/share/debconf/confmodule
 . /usr/share/dbconfig-common/dpkg/postinst.mysql

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 if [ -f /usr/share/obs/overview/index.html ]; then
    rm -f /usr/share/obs/overview/index.html
