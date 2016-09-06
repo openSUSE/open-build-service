@@ -113,6 +113,15 @@ class PersonController < ApplicationController
       # only admin is allowed to change these, ignore for others
       user.state = xml.value('state')
       update_globalroles(user, xml)
+
+      if xml['owner']
+        user.state = :subaccount
+        user.owner = User.find_by_login! xml['owner']['userid']
+        if user.owner.owner
+          render_error :status => 400, :errorcode => 'subaccount_chaining',
+            :message => "A subaccount can not be assigned to subaccount #{user.owner.login}" and return
+        end
+      end
     end
     update_watchlist(user, xml)
     user.save!

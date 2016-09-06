@@ -284,6 +284,41 @@ XML
     assert_no_xml_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
   end
 
+  def test_create_subaccount
+    login_king
+
+    user_xml = "<person>
+  <login>lost_guy</login>
+  <email>lonely_person@universe.com</email>
+  <realname>The Other Guy</realname>
+  <owner userid='adrian'/>
+</person>"
+
+    # create new user
+    put "/person/lost_guy", user_xml
+    assert_response :success
+
+    get "/person/lost_guy"
+    assert_response :success
+    assert_xml_tag tag: 'owner', attributes: { userid: "adrian" }
+
+    lost_guy = User.find_by_login! "lost_guy"
+    assert_equal 'subaccount', lost_guy[:state]
+    assert_equal 'confirmed', lost_guy.state
+
+    user_xml = "<person>
+  <login>lost_guy2</login>
+  <email>lonely_person@universe.com</email>
+  <realname>The Other Guy</realname>
+  <owner userid='lost_guy'/>
+</person>"
+
+    # no account chaining
+    put "/person/lost_guy2", user_xml
+    assert_response 400
+    assert_xml_tag tag: "status", attributes: { code: "subaccount_chaining" }
+  end
+
   def test_lock_user
     login_king
 

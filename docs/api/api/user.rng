@@ -17,6 +17,14 @@
           <element name="realname"><text/></element>
         </optional>
         <optional>
+          <element name="owner">
+            <attribute name="userid">
+              <data type="string" />
+            </attribute>
+            <empty/>
+          </element>
+        </optional>
+        <optional>
           <element name="state"><text/></element>
         </optional>
         <zeroOrMore>

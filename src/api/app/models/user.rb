@@ -37,6 +37,9 @@ class User < ApplicationRecord
 
   has_many :event_subscriptions, inverse_of: :user
 
+  belongs_to :owner, class_name: 'User'
+  has_many :subaccounts, class_name: 'User', foreign_key: 'owner_id'
+
   # users have a n:m relation to group
   has_and_belongs_to_many :groups, -> { uniq }
   # users have a n:m relation to roles
@@ -516,6 +519,8 @@ class User < ApplicationRecord
   end
 
   def is_active?
+    return self.owner.is_active? if self.owner
+
     self.state == 'confirmed'
   end
 
@@ -896,6 +901,12 @@ class User < ApplicationRecord
       '(relationships.user_id = ?) OR '\
       '(relationships.user_id is null AND packages.project_id in (?) )', self.id, projects_ids])
     packages.pluck(:id)
+  end
+
+  def state
+    return self.owner.state if self.owner
+
+    read_attribute(:state)
   end
 
   def to_s
