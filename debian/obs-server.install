@@ -99,7 +99,6 @@ usr/lib/obs/server/bs_service
 usr/lib/obs/server/call-service-in-lxc.sh
 
 # obs-common
-var/adm/fillup-templates/sysconfig.obs-server
 usr/lib/obs/server/setup-appliance.sh
 etc/init.d/obsstoragesetup
 usr/sbin/rcobsstoragesetup
