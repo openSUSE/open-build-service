@@ -92,15 +92,15 @@
             end
           end
         end
-        p['requests_to'].each do |id|
-          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :number => id), p['develproject']])
+        p['requests_to'].each do |number|
+          outs.unshift("Request %s to %s" % [link_to(number, :controller => :request, :action => :show, :number => number), p['develproject']])
           icon = "changes"
-          sortkey = "3-request%06d-%s" % [ 999999 - id, p['name']]
+          sortkey = "3-request%06d-%s" % [ 999999 - number, p['name']]
         end
-        p['requests_from'].each do |id|
-          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :number => id), @project.name])
+        p['requests_from'].each do |number|
+          outs.unshift("Request %s to %s" % [link_to(number, :controller => :request, :action => :show, :number => number), @project.name])
           icon = "changes"
-          sortkey = "2-drequest%06d-%s" % [ 999999 - id, p['name']]
+          sortkey = "2-drequest%06d-%s" % [ 999999 - number, p['name']]
         end
         # ignore the upstream version if there are already changes pending
         if p['upstream_version'] and sortkey.nil?

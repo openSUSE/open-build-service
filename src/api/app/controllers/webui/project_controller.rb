@@ -1072,25 +1072,25 @@ class Webui::ProjectController < Webui::WebuiController
     # we do not filter requests for project because we need devel projects too later on and as long as the
     # number of open requests is limited this is the easiest solution
     raw_requests = BsRequest.order(:number).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-        where(bs_request_actions: {type: 'submit'}).pluck('bs_requests.id', 'bs_requests.state',
+        where(bs_request_actions: {type: 'submit'}).pluck('bs_requests.number', 'bs_requests.state',
                                                           'bs_request_actions.target_project',
                                                           'bs_request_actions.target_package')
 
     @declined_requests = {}
     @submits = Hash.new
-    raw_requests.each do |id, state, tproject, tpackage|
+    raw_requests.each do |number, state, tproject, tpackage|
       if state == 'declined'
         next if tproject != @api_obj.name || !@name2id.has_key?(tpackage)
-        @status[@name2id[tpackage]].declined_request = id
-        @declined_requests[id] = nil
+        @status[@name2id[tpackage]].declined_request = number
+        @declined_requests[number] = nil
       else
         key = "#{tproject}/#{tpackage}"
         @submits[key] ||= Array.new
-        @submits[key] << id
+        @submits[key] << number
       end
     end
-    BsRequest.where(id: @declined_requests.keys).each do |r|
-      @declined_requests[r.id] = r
+    BsRequest.where(number: @declined_requests.keys).each do |r|
+      @declined_requests[r.number] = r
     end
   end
 
