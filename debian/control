@@ -84,6 +84,7 @@ Homepage: http://en.opensuse.org/Build_Service
 Package: obs-server
 Architecture: any
 Depends: apt-utils,
+         adduser,
          diffutils,
          git,
          libbssolv-perl (>= 0.02),
@@ -117,6 +118,7 @@ Description: Open Build Service (server component)
 Package: obs-worker
 Architecture: any
 Depends: apt-utils,
+         adduser,
          binutils,
          bsdtar,
          cpio,
