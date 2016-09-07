@@ -45,10 +45,11 @@ our $findpackages = sub {
   }
 };
 
-our $getpackage = sub {
-  my ($projid, $proj, $packid, $revid) = @_;
+our $readpackage = sub {
+  my ($projid, $proj, $packid, $revid, $missingok) = @_;
   my $pack = BSRevision::readpack_local($projid, $packid, 1);
   $pack->{'project'} ||= $projid if $pack;
+  die("404 package '$packid' does not exist in project '$projid'\n") if !$missingok && !$pack;
   return $pack;
 };
 
@@ -158,10 +159,10 @@ sub findpackages_projlink {
   return sort(keys %packids);
 }
 
-sub getpackage_projlink {
+sub readpackage_projlink {
   my ($projid, $proj, $packid, $rev, $missingok) = @_;
 
-  die("getpackage_projlink: revid is not supported\n") if $rev;
+  die("readpackage_projlink: revid is not supported\n") if $rev;
   my %checked = ($projid => 1);
   my @todo = map {$_->{'project'}} @{$proj->{'link'}};
   while (@todo) {
@@ -171,7 +172,7 @@ sub getpackage_projlink {
     my $lproj = BSRevision::readproj_local($lprojid, 1);
     my $llink;
     $llink = delete $lproj->{'link'} if $lproj;
-    my $pack = $getpackage->($lprojid, $lproj, $packid, undef, 1);
+    my $pack = $readpackage->($lprojid, $lproj, $packid, undef, 1);
     return $pack if $pack;
     unshift @todo, map {$_->{'project'}} @$llink if $llink;
   }

@@ -68,7 +68,7 @@ use BSSrcServer::Link;
 # configure projlink and link handling
 $BSSrcServer::Projlink::getrev       = \&getrev;
 $BSSrcServer::Projlink::findpackages = \&findpackages;
-$BSSrcServer::Projlink::getpackage   = \&readpackage;
+$BSSrcServer::Projlink::readpackage  = \&readpackage;
 
 # links point to service expanded files
 $BSSrcServer::Link::getrev = \&getrev;
@@ -1275,13 +1275,13 @@ sub readpackage {
 
   if (!$proj || $proj->{'remoteurl'}) {
     $proj = BSSrcServer::Remote::remoteprojid($projid);
-    return BSSrcServer::Remote::getpackage_remote($projid, $proj, $packid, $rev, $missingok) if $proj;
+    return BSSrcServer::Remote::readpackage_remote($projid, $proj, $packid, $rev, $missingok) if $proj;
   }
   my $pack = BSRevision::readpack_local($projid, $packid, 1);
   $pack->{'project'} ||= $projid if $pack;
 
   if (!$pack && $proj && $proj->{'link'}) {
-    $pack = BSSrcServer::Projlink::getpackage_projlink($projid, $proj, $packid, $rev, $missingok);
+    $pack = BSSrcServer::Projlink::readpackage_projlink($projid, $proj, $packid, $rev, $missingok);
   }
 
   die("404 package '$packid' does not exist in project '$projid'\n") if !$missingok && !$pack;

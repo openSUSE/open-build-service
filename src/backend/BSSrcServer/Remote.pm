@@ -239,7 +239,7 @@ sub getproject_remote {
 
 # returns undef if the project or package does not exist
 # dies on other errors
-sub getpackage_remote {
+sub readpackage_remote {
   my ($projid, $proj, $packid, $rev, $missingok) = @_;
   my @args;
   push @args, "rev=$rev" if $rev;
