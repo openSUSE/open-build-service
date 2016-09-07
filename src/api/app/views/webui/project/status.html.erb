@@ -93,12 +93,12 @@
           end
         end
         p['requests_to'].each do |number|
-          outs.unshift("Request %s to %s" % [link_to(number, :controller => :request, :action => :show, :number => number), p['develproject']])
+          outs.unshift(("Request %s to %s" % [link_to(number, :controller => :request, :action => :show, :number => number), h(p['develproject'])]).html_safe)
           icon = "changes"
           sortkey = "3-request%06d-%s" % [ 999999 - number, p['name']]
         end
         p['requests_from'].each do |number|
-          outs.unshift("Request %s to %s" % [link_to(number, :controller => :request, :action => :show, :number => number), @project.name])
+          outs.unshift(("Request %s to %s" % [link_to(number, :controller => :request, :action => :show, :number => number), h(@project.name)]).html_safe)
           icon = "changes"
           sortkey = "2-drequest%06d-%s" % [ 999999 - number, p['name']]
         end
@@ -113,7 +113,7 @@
         end
         if p['firstfail']
           outs.unshift(link_to("Fails", :controller => :package,
-              :action => :live_build_log, :arch => p['failedarch'], :repository => p['failedrepo'], :project => @project.name, :package => p['name']) +
+              :action => :live_build_log, :arch => h(p['failedarch']), :repository => h(p['failedrepo']), :project => h(@project.name), :package => h(p['name'])).html_safe +
               " for #{Integer(Time.now.to_i - p['firstfail']) / 3600 / 24} days: " +
               content_tag(:span, show_status_comment( p['failedcomment'], p['name'], p['firstfail'], comments_to_clear ), id: valid_xml_id('comment_' + p['name'])))
           icon = "error"
