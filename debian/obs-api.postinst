@@ -42,7 +42,7 @@ if [ ! -e "$SECRET_KEY" ]; then
     ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )
 fi
   chmod 0640 $SECRET_KEY
-  chown nobody.www-data $SECRET_KEY
+  chown nobody:www-data $SECRET_KEY
 
 # Generate Gemfile.lock file.
 cd /usr/share/obs/api
