@@ -24,27 +24,38 @@ mkdir -p /srv/obs/repos
 chown obsrun:obsrun /srv/obs/repos
 
 # Start up schedulers
-systemctl enable obsscheduler@i586.service || true
-systemctl enable obsscheduler@x86_64.service || true
-systemctl enable obsscheduler@armv7hl.service || true
-systemctl start obsscheduler@i586.service || true
-systemctl start obsscheduler@x86_64.service || true
-systemctl start obsscheduler@armv7hl.service || true
-
+deb-systemd-helper enable obsscheduler@i586.service
+deb-systemd-helper enable obsscheduler@x86_64.service
+deb-systemd-helper enable obsscheduler@armv7hl.service
+invoke-rc.d obsscheduler@i586 start || true
+invoke-rc.d obsscheduler@x86_64 start || true
+invoke-rc.d obsscheduler@armv7hl start || true
 
 if [ ! -f /usr/share/obs/overview/index.html ] ; then
   FQHOSTNAME=`hostname -f`
 
-  sed -e "s,___WEBUI_URL___,https://$FQHOSTNAME,g" \
-      -e "s,___API_URL___,https://$FQHOSTNAME:444,g" \
+  sed -e "s,___API_URL___,https://$FQHOSTNAME,g" \
       -e "s,___REPO_URL___,http://$FQHOSTNAME:82,g" \
         /usr/share/obs/overview/overview.html.TEMPLATE > /usr/share/obs/overview/index.html
 fi
 
+pathfind() {
+    OLDIFS="$IFS"
+    IFS=:
+    for p in $PATH; do
+        if [ -x "$p/$*" ]; then
+            IFS="$OLDIFS"
+            return 0
+        fi
+    done
+    IFS="$OLDIFS"
+    return 1
+}
+
 reload_apache()
 {
     if apache2ctl configtest 2>/dev/null; then
-        if [ -x /usr/sbin/invoke-rc.d ]; then
+        if `pathfind defoma-font`; then
             invoke-rc.d apache2 $1 3>/dev/null || true
         else
             /etc/init.d/apache2 $1 3>/dev/null || true

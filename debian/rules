@@ -8,20 +8,15 @@ export BUILD_ROOT=$(CURDIR)/debian/tmp
 	dh $@ --parallel --with=systemd
 
 override_dh_install:
-	# Remove useless backend parts.
-	rm -rf debian/tmp/usr/lib/obs/server/build
-	rm -rf debian/tmp/etc/apache2/vhosts.d/obs.conf
-	rm -f  debian/tmp/usr/share/doc/packages/obs-devel/README.devel
-	rm -f  debian/obs-server/usr/lib/obs/server/Makefile.PL
-	rm -f  debian/obs-server/usr/lib/obs/server/bs_productconvert
+	# Drop useless files.
+	rm -f debian/tmp/etc/apache2/vhosts.d/obs.conf
+	rm -f debian/tmp/etc/init.d/obsapisetup
+	rm -f debian/tmp/usr/lib/obs/server/build/build exists
+	rm -f debian/tmp/usr/share/doc/packages/obs-devel/README.devel
 
 	dh_install --list-missing
 
-        # Do not install database config file in obs-api.
-	rm -f  debian/obs-api/usr/share/obs/api/config/database.yml
-
 	dh_installdebconf
-	dh_installinit --noscripts --restart-after-upgrade --name obsapidelayed
 	dh_installinit --noscripts --restart-after-upgrade --name obsrepserver
 	dh_installinit --noscripts --restart-after-upgrade --name obssrcserver
 	dh_installinit --noscripts --restart-after-upgrade --name obsdispatcher
@@ -31,28 +26,27 @@ override_dh_install:
 	dh_installinit --noscripts --restart-after-upgrade --name obsservice
 	dh_installinit --noscripts --restart-after-upgrade --name obspublisher
 	dh_installinit --noscripts --restart-after-upgrade --name obssigner
-	dh_installinit --noscripts --name obsworker --no-start
-	dh_systemd_enable -p obs-api obsapidelayed.service
+	dh_installinit --restart-after-upgrade --name obsapidelayed
+	dh_installinit --name obsworker --no-start
 	dh_systemd_enable -p obs-server \
 		obsrepserver.service \
 		obssrcserver.service \
 		obsdispatcher.service \
 		obswarden.service \
 		obsdodup.service \
-		obsservice.service \
 		obspublisher.service \
 		obssigner.service
-	dh_systemd_start -p obs-api --restart-after-upgrade \
-		obsapidelayed.service
 	dh_systemd_start -p obs-server \
 		obsrepserver.service \
 		obssrcserver.service \
 		obsdispatcher.service \
 		obswarden.service \
 		obsdodup.service \
-		obsservice.service \
 		obspublisher.service \
 		obssigner.service
+
+	# Do not install database config file in obs-api.
+	rm -f  debian/obs-api/usr/share/obs/api/config/database.yml
 
 	# Rename dh_install installed web service config files.
 	# (new default since OBS 2.3)
@@ -76,12 +70,18 @@ override_dh_install:
 	# turn duplicates into hard links
 	fdupes debian/obs-api/usr/share/obs/
 
-	# Generate log files
-	touch debian/obs-api/usr/share/obs/api/log/access.log
-	touch debian/obs-api/usr/share/obs/api/log/backend_access.log
-	touch debian/obs-api/usr/share/obs/api/log/delayed_job.log
-	touch debian/obs-api/usr/share/obs/api/log/error.log
-	touch debian/obs-api/usr/share/obs/api/log/lastevents.access.log
+	# Clean up vcs control file
+	find debian/obs-api -name '.gitignore' -type f | xargs rm -f
+
+	# fix permissions
+	chmod a-x debian/obs-api/usr/share/obs/api/config/options.yml
+	chmod a-x debian/obs-api/usr/share/obs/api/script/update_bento.sh
+	chmod a-x debian/obs-api/usr/share/obs/api/Rakefile
+	# Clean up "extra" license
+	rm debian/obs-server/usr/lib/obs/server/License
+
+	# Fix Mark scripts as executable until upstream fixes
+	chmod a+x debian/obs-server/usr/lib/obs/tests/appliance/*t*
 
 override_dh_auto_test:
 	 dh_auto_test || true # temporary ignore

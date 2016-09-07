@@ -7,8 +7,8 @@
 #
 ### BEGIN INIT INFO
 # Provides:          obsworker
-# Required-Start:    $time $network $syslog $local_fs
-# Required-Stop:     $time $network $syslog $local_fs
+# Required-Start:    $time $network $syslog $local_fs $remote_fs
+# Required-Stop:     $time $network $syslog $local_fs $remote_fs
 # Should-Start:      $remote_fs obsstoragesetup obssrcserver obsrepserver xendomains
 # Should-Stop:       $none
 # Default-Start:     2 3 4 5
@@ -21,6 +21,8 @@ set -e
 NAME="obsworker"
 DESC="openSUSE Buildservice worker"
 DEFAULTS="/etc/default/obsworker"
+
+. /lib/lsb/init-functions
 
 if [ -f "${DEFAULTS}" ];then
     . "${DEFAULTS}"
@@ -365,12 +367,11 @@ case "$1" in
         fi
         # Remember status and be quiet
     ;;
-    status)
-        echo -n "Checking for obsworker: "
-		echo "W: not implemented"
+    status|force-reload)
+	echo "W: not implemented."
     ;;
     *)
-        echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+        echo "Usage: $0 {start|stop|status|try-restart|restart|reload|force-reload}"
         exit 1
     ;;
 esac

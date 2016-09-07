@@ -2,10 +2,6 @@
 # create symlink for product converter by rules file.
 # install SLP registration files
 # install overview page template
-# symlinks for obs_admin and obs_serverstatus
-debian/obs_admin		/usr/sbin
-debian/obs_serverstatus		/usr/sbin
-debian/wrap-obs-service /usr/sbin
 dist/sysconfig.obs-server       /etc/default/
 usr/share/obs/overview/overview.html.TEMPLATE
 

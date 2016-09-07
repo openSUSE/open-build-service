@@ -7,35 +7,25 @@ dbc_generate_include_args="-o template_infile=/etc/obs/api/config/database.yml.e
 dbc_generate_include_owner=www-data
 dbc_go obs-api $@
 
-fRailsDir=/usr/lib/ruby/vendor_ruby/rails
-if [ ! -e "$fRailsDir" ]; then
-    # keep rails package compatibility
-    fRailsDir="/usr/share/rails-ruby1.8"
-fi
-
 chown www-data:root /etc/obs/api/config/environment.rb
-cd /usr/share/obs/api
-if [ ! -L vendor/rails ]; then
-    ln -s "$fRailsDir" vendor/rails
-else
-    # rails 2.3 to ruby-rails-2.3 migration
-    fMigrateLink=$(readlink vendor/rails)
-    if [ "$fMigrateLink" != "$fRailsDir" ]; then
-        rm -f vendor/rails
-        ln -s "$fRailsDir" vendor/rails
-    fi
-fi
 
-  chown -R nobody:www-data /usr/share/obs/api/log /usr/share/obs/api/tmp
+if [ ! -l /var/log/obs ] ; then
+  ln -fs /usr/share/obs/api/log /var/log/obs
+fi
+if [ ! -l /var/cache/obs/tmp ] ; then
+  mkdir -p /var/cache/obs
+  ln -fs /usr/share/obs/api/tmp /var/cache/obs/tmp
+fi
 # Generate log files
-  touch /usr/share/obs/api/log/access.log
-  touch /usr/share/obs/api/log/backend_access.log
-  touch /usr/sahre/obs/api/log/delayed_job.log
-  touch /usr/share/obs/api/log/error.log
-  touch /usr/share/obs/api/log/lastevents.access.log
-  touch /usr/share/obs/api/log/production.log
-  chown nobody /usr/share/obs/api/log/*.log
-  chown nobody /usr/share/obs/api/config/database.yml
+  touch /var/log/obs/access.log
+  touch /var/log/obs/backend_access.log
+  touch /var/log/obs/delayed_job.log
+  touch /var/log/obs/error.log
+  touch /var/log/obs/lastevents.access.log
+  touch /var/log/obs/production.log
+  chown -R nobody:www-data /var/log/obs/ /var/cache/obs/tmp/
+  chmod 664 /var/log/obs/*.log
+  chown nobody:root /usr/share/obs/api/config/database.yml
 
 SECRET_KEY="/usr/share/obs/api/config/secret.key"
 if [ ! -e "$SECRET_KEY" ]; then
@@ -64,13 +54,21 @@ fi
 
 bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
 
-# reinstall
-#install config/database.yml.example config/database.yml
-#: > log/production.log
-#sed -i -e 's,^api_version.*,api_version = "%version",' config/initializers/02_apiversion.rb
+pathfind() {
+    OLDIFS="$IFS"
+    IFS=:
+    for p in $PATH; do
+        if [ -x "$p/$*" ]; then
+            IFS="$OLDIFS"
+            return 0
+        fi
+    done
+    IFS="$OLDIFS"
+    return 1
+}
 
 # Test whether a2enmod is available (and thus also apache2ctl).
-if [ -x /usr/sbin/a2enmod ]; then
+if `pathfind defoma-font`; then
         # Enable the Apache2 modules if not already enabled
         a2enmod ssl     > /dev/null || true
         a2enmod rewrite > /dev/null || true
