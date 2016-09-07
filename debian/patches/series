@@ -6,3 +6,4 @@ rails-4-gem-assets.patch
 ruby2.3.patch
 FHS-path.patch
 drop-init-scripts.patch
+Rakefile-fix.patch
