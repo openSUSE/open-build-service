@@ -23,7 +23,7 @@ use BSRevision;
 use BSSrcrep;
 use BSAccess;
 
-my $frozenlinks_cache;
+our $frozenlinks_cache;
 
 #############################################################################
 
