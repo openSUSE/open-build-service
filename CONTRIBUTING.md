@@ -90,7 +90,7 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
 
 8. Check out your OBS frontend:
 You can access the frontend at [localhost:3000](http://localhost:3000). Whatever you change in your cloned repository will have effect in the development environment.
-**Note**: The vagrant instance is configured with a default user 'Admin' and password 'buildservice'.
+**Note**: The vagrant instance is configured with a default user 'Admin' and password 'opensuse'.
 
 9. Building packages:
      The easiest way to start building is to create an interconnect to build.opensuse.org. All resources, including the base distributions can be used that way directly.
