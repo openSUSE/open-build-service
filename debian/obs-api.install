@@ -7,7 +7,4 @@ docs/api/api/*.xsd        /usr/share/obs/docs/api/
 etc/logrotate.d/obs-api
 usr/share/obs/api/
 usr/share/obs/docs/api/
-/usr/sbin/rcobsapidelayed
-/usr/sbin/rcobsapisetup
-etc/init.d/obsapisetup
-etc/init.d/obsapidelayed
+

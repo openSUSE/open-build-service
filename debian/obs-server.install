@@ -14,30 +14,9 @@ etc/logrotate.d/obs-server
 etc/slp.reg.d/
 usr/lib/obs/server/BSConfig.pm
 
-etc/init.d/obsdeltastore
-etc/init.d/obspublisher
-etc/init.d/obsdispatcher
-etc/init.d/obssigner
-etc/init.d/obswarden
-etc/init.d/obsscheduler
-etc/init.d/obsdodup
-etc/init.d/obsstoragesetup
-etc/init.d/obssrcserver
-etc/init.d/obsservice
-etc/init.d/obsrepserver
-
 usr/lib/obs/tests/appliance/
 usr/sbin/obs_admin
 usr/sbin/obs_serverstatus
-usr/sbin/rcobsdispatcher
-usr/sbin/rcobspublisher
-usr/sbin/rcobsrepserver
-usr/sbin/rcobsscheduler
-usr/sbin/rcobssrcserver
-usr/sbin/rcobswarden
-usr/sbin/rcobsdodup
-usr/sbin/rcobsdeltastore
-usr/sbin/rcobssigner
 usr/lib/obs/server/plugins
 usr/lib/obs/server/BSAccess.pm
 usr/lib/obs/server/BSBuild.pm
@@ -93,12 +72,8 @@ usr/lib/obs/server/worker
 usr/lib/obs/server/worker-deltagen.spec
 
 # obs-source_service
-etc/init.d/obsservice
-usr/sbin/rcobsservice
 usr/lib/obs/server/bs_service
 usr/lib/obs/server/call-service-in-lxc.sh
 
 # obs-common
 usr/lib/obs/server/setup-appliance.sh
-etc/init.d/obsstoragesetup
-usr/sbin/rcobsstoragesetup

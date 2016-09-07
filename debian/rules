@@ -21,17 +21,17 @@ override_dh_install:
 	rm -f  debian/obs-api/usr/share/obs/api/config/database.yml
 
 	dh_installdebconf
-	dh_installinit --restart-after-upgrade --name obsapidelayed
-	dh_installinit --restart-after-upgrade --name obsrepserver
-	dh_installinit --restart-after-upgrade --name obssrcserver
-	dh_installinit --restart-after-upgrade --name obsdispatcher
-	dh_installinit --restart-after-upgrade --name obsscheduler@
-	dh_installinit --restart-after-upgrade --name obswarden
-	dh_installinit --restart-after-upgrade --name obsdodup
-	dh_installinit --restart-after-upgrade --name obsservice
-	dh_installinit --restart-after-upgrade --name obspublisher
-	dh_installinit --restart-after-upgrade --name obssigner
-	dh_installinit --name obsworker --no-start
+	dh_installinit --noscripts --restart-after-upgrade --name obsapidelayed
+	dh_installinit --noscripts --restart-after-upgrade --name obsrepserver
+	dh_installinit --noscripts --restart-after-upgrade --name obssrcserver
+	dh_installinit --noscripts --restart-after-upgrade --name obsdispatcher
+	dh_installinit --noscripts --restart-after-upgrade --name obsscheduler@
+	dh_installinit --noscripts --restart-after-upgrade --name obswarden
+	dh_installinit --noscripts --restart-after-upgrade --name obsdodup
+	dh_installinit --noscripts --restart-after-upgrade --name obsservice
+	dh_installinit --noscripts --restart-after-upgrade --name obspublisher
+	dh_installinit --noscripts --restart-after-upgrade --name obssigner
+	dh_installinit --noscripts --name obsworker --no-start
 	dh_systemd_enable -p obs-api obsapidelayed.service
 	dh_systemd_enable -p obs-server \
 		obsrepserver.service \

@@ -1,0 +1,11 @@
+--- a/dist/Makefile
++++ b/dist/Makefile
+@@ -5,7 +5,7 @@
+ OBS_BIN_SCRIPTS 	:= obs_productconvert
+ OBS_SBIN_SCRIPTS 	:= obs_admin obs_serverstatus
+ 
+-install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs install_overview install_tests_appliance
++install: install_obsapisetup install_apache install_project_update install_logrotate install_slp install_obs_bin install_devel_docs install_overview install_tests_appliance
+ 
+ #install_overview
+ 

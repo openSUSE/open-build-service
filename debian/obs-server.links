@@ -1,12 +1,4 @@
 # OBS Config file
 # run scripts
-etc/init.d/obsdispatcher		/usr/sbin/rcobsdispatcher
-etc/init.d/obspublisher			/usr/sbin/rcobspublisher
-etc/init.d/obsrepserver			/usr/sbin/rcobsrepserver
-etc/init.d/obsscheduler			/usr/sbin/rcobsscheduler
-etc/init.d/obsservice			/usr/sbin/rcobsservice
-etc/init.d/obssigner			/usr/sbin/rcobssigner
-etc/init.d/obssrcserver			/usr/sbin/rcobssrcserver
-etc/init.d/obswarden			/usr/sbin/rcobswarden
 etc/obs/BSConfig.pm			/usr/lib/obs/server/BSConfig.pm
 usr/lib/obs-build			/usr/lib/obs/server/build

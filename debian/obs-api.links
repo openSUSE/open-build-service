@@ -1,4 +1,3 @@
 usr/share/obs/api/config			etc/obs/api/config
 usr/share/obs/docs/api                    usr/share/obs/api/public/schema
-etc/init.d/obsapidelayed                /usr/sbin/rcobsapidelayed
 
