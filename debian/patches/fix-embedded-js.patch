@@ -1,0 +1,55 @@
+--- a/src/api/public/402.html
++++ b/src/api/public/402.html
+@@ -5,7 +5,7 @@
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Error 402</title>
+   
+-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
++  <link rel="stylesheet" href="css/bootstrap.min.css">
+   <style type="text/css">
+     html,
+     body {
+--- a/src/api/public/403.html
++++ b/src/api/public/403.html
+@@ -5,7 +5,7 @@
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Error 403</title>
+   
+-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
++  <link rel="stylesheet" href="css/bootstrap.min.css">
+   <style type="text/css">
+     html,
+     body {
+--- a/src/api/public/404.html
++++ b/src/api/public/404.html
+@@ -5,7 +5,7 @@
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Error 404</title>
+   
+-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
++  <link rel="stylesheet" href="css/bootstrap.min.css">
+   <style type="text/css">
+     html,
+     body {
+--- a/src/api/public/408.html
++++ b/src/api/public/408.html
+@@ -5,7 +5,7 @@
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Error 408</title>
+   
+-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
++  <link rel="stylesheet" href="css/bootstrap.min.css">
+   <style type="text/css">
+     html,
+     body {
+--- a/src/api/public/500.html
++++ b/src/api/public/500.html
+@@ -5,7 +5,7 @@
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Error 500</title>
+   
+-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
++  <link rel="stylesheet" href="css/bootstrap.min.css">
+   <style type="text/css">
+     html,
+     body {

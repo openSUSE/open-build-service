@@ -8,3 +8,4 @@ FHS-path.patch
 drop-init-scripts.patch
 Rakefile-fix.patch
 ruby-interpreter.patch
+fix-embedded-js.patch
