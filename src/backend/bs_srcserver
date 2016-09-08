@@ -885,23 +885,6 @@ sub getprojquotapackage {
   return $packagequota{':packages'};
 }
 
-# this is kind of a snapshot in time, but good enough for now 
-sub mergeroles {
-  my ($projid, $proj) = @_; 
-  my @person;
-  my @group;
-  while ($projid ne '') {
-    $proj ||= BSRevision::readproj_local($projid, 1); 
-    if ($proj) {
-      push @person, @{$proj->{'person'} || []};
-      push @group , @{$proj->{'group'} || []};
-    }   
-    last unless $projid =~ s/:[^:]*$//;
-    undef $proj;
-  }
-  return (\@person, \@group);
-}
-
 sub readbuildenv {
   my ($pinfo, $rev, $files, $repoid, $arch) = @_;
   my $bifile = "_buildenv.$repoid.$arch";
@@ -1121,7 +1104,7 @@ sub getprojpack {
     }
     if ($proj->{'access'}) {
       # we need the roles if the project is protected, see checkroles() in the scheduler
-      my ($person, $group) = mergeroles($projid, $proj);
+      my ($person, $group) = BSSrcServer::Access::mergeroles($projid, $proj);
       $jinfo->{'person'} = $person if $person && @$person;
       $jinfo->{'group'} = $group if $group && @$group;
     }

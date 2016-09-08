@@ -39,4 +39,21 @@ sub checksourceaccess {
   return 1;
 }
 
+# this is kind of a snapshot in time, but good enough for now 
+sub mergeroles {
+  my ($projid, $proj) = @_;
+  my @person;
+  my @group;
+  while ($projid ne '') {
+    $proj ||= BSRevision::readproj_local($projid, 1);
+    if ($proj) {
+      push @person, @{$proj->{'person'} || []};
+      push @group , @{$proj->{'group'} || []};
+    }
+    last unless $projid =~ s/:[^:]*$//;
+    undef $proj;
+  }
+  return (\@person, \@group);
+}
+
 1;
