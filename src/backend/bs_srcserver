@@ -1678,7 +1678,7 @@ sub createkey {
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, '-P', "$uploaddir/signkey.$$";
-  push @signargs, '-h', 'sha256';	# used by newer signd versions
+  #push @signargs, '-h', 'sha256';
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $pubkey = '';
   local *F;
