@@ -1,0 +1,24 @@
+--- a/src/api/app/assets/javascripts/webui/application.js
++++ b/src/api/app/assets/javascripts/webui/application.js
+@@ -219,21 +219,6 @@
+     $("#pTable td#added_parameter_" + number).load(path);
+ }
+ 
+-function callPiwik() {
+-    var u = (("https:" == document.location.protocol) ? "https://beans.opensuse.org/piwik/" : "http://beans.opensuse.org/piwik/");
+-    _paq.push(['setSiteId', 8]);
+-    _paq.push(['setTrackerUrl', u + 'piwik.php']);
+-    _paq.push(['trackPageView']);
+-    _paq.push(['setDomains', ["*.opensuse.org"]]);
+-    var d = document,
+-        g = d.createElement('script'),
+-        s = d.getElementsByTagName('script')[0];
+-    g.type = 'text/javascript';
+-    g.defer = true;
+-    g.async = true;
+-    g.src = u + 'piwik.js';
+-    s.parentNode.insertBefore(g, s);
+-}
+ 
+ $(document).ajaxSend(function (event, request, settings) {
+     if (typeof(CSRF_PROTECT_AUTH_TOKEN) == "undefined") return;
