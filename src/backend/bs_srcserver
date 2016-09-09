@@ -79,7 +79,7 @@ $BSSrcServer::Projlink::readpackage  = \&readpackage;
 
 # links point to service expanded files
 $BSSrcServer::Link::getrev = \&getrev;
-$BSSrcServer::Link::lsrev = \&lsrev_service;
+$BSSrcServer::Link::lsrev_linktarget = \&lsrev_service;
 
 $BSSrcServer::Service::getrev = \&getrev;
 $BSSrcServer::Service::readpackage  = \&readpackage;
@@ -983,7 +983,7 @@ sub getprojpack {
   $packids = { map {$_ => 1} @$packids } if $packids;
   my $bconf = Build::read_config($arch);
 
-  $BSSrcServer::Projlink::frozenlinks_cache = {};
+  BSSrcServer::Projlink::enable_frozenlinks_cache();
   my %channeldata;
   my @res;
   my @projids = @$projids;
@@ -1595,7 +1595,8 @@ sub getprojpack {
     $jinfo->{'package'} = \@pinfo;
     push @res, $jinfo;
   }
-  $BSSrcServer::Projlink::frozenlinks_cache = undef;
+  BSSrcServer::Projlink::disable_frozenlinks_cache();
+
   my $ret = {'repoid' => $datarepoid, 'project' => \@res};
   if ($remotemap) {
     delete $remotemap->{':partition'};
@@ -1635,7 +1636,7 @@ sub getprojectlist {
 
 sub getproject {
   my ($cgi, $projid) = @_;
-  $proj = readproject($projid, undef, $cgi->{'rev'});
+  my $proj = readproject($projid, undef, $cgi->{'rev'});
   return ($proj, $BSXML::proj);
 }
 
@@ -5298,7 +5299,7 @@ sub getprojectsourceinfo {
   my ($cgi, $projid) = @_;
   my $proj = checkprojrepoarch($projid, $cgi->{'repository'}, $cgi->{'arch'}, 1);
   my @packages = @{$cgi->{'package'} || []};
-  $BSSrcServer::Projlink::frozenlinks_cache = {};
+  BSSrcServer::Projlink::enable_frozenlinks_cache();
   @packages = findpackages($projid, $proj) unless @packages;
   my $bconf;
   if (!$cgi->{'nofilename'}) {
@@ -5329,7 +5330,7 @@ sub getprojectsourceinfo {
   for my $packid (@packages) {
     push @res, sourceinfo($cgi, $projid, $packid, $bconf);
   }
-  $BSSrcServer::Projlink::frozenlinks_cache = undef;
+  BSSrcServer::Projlink::disable_frozenlinks_cache();
   return ({'sourceinfo' => \@res}, $BSXML::sourceinfolist);
 }
 

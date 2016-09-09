@@ -28,24 +28,19 @@ use BSUtil;
 use BSVerify;
 
 use BSSrcServer::Access;
-
-
-# this is what's used to get the next hop
-our $getrev = sub {
-  my ($projid, $packid, $revid, $linked, $missingok) = @_;
-  my $rev = BSRevision::getrev_local($projid, $packid, $revid);
-  return $rev if $rev;
-  return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok;
-  die("404 package '$packid' does not exist in project '$projid'\n");
-};
-  
-our $lsrev = sub {
-  return BSSrcrep::lsrev($_[0], $_[1] || {})
-};
-
+use BSSrcServer::Local;
 
 my $srcrep = "$BSConfig::bsdir/sources";
 my $uploaddir = "$srcrep/:upload";
+
+
+# this is what's used to get the next hop
+our $getrev = \&BSSrcServer::Local::getrev;
+
+our $lsrev_linktarget = sub {
+  return BSSrcrep::lsrev($_[0], $_[1] || {})
+};
+
 
 sub isascii {
   my ($file) = @_;
@@ -597,7 +592,7 @@ sub handlelinks {
     undef $files;
     eval {
       # links point to expanded services
-      $files = $lsrev->($lrev);
+      $files = $lsrev_linktarget->($lrev);
     };
     if ($@) {
       my $error = $@;
@@ -1064,7 +1059,7 @@ sub findlastworkinglink {
 
 sub lsrev_expanded {
   my ($rev, $linkinfo) = @_;
-  my $files = $lsrev->($rev, $linkinfo);
+  my $files = $lsrev_linktarget->($rev, $linkinfo);
   return $files unless $files->{'_link'};
   $files = handlelinks($rev, $files, $linkinfo);
   die("$files\n") unless ref $files;

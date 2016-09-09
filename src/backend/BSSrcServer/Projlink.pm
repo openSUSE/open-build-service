@@ -23,35 +23,15 @@ use BSRevision;
 use BSSrcrep;
 use BSAccess;
 
-our $frozenlinks_cache;
+use BSSrcServer::Local;
+
+my $frozenlinks_cache;
 
 #############################################################################
 
-our $getrev = sub {
-  my ($projid, $packid, $revid, $linked, $missingok) = @_;
-  my $rev = BSRevision::getrev_local($projid, $packid, $revid);
-  return $rev if $rev;
-  return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok;
-  die("404 package '$packid' does not exist in project '$projid'\n");
-};
-
-our $findpackages = sub {
-  my ($projid, $proj, $nonfatal, $origins, $noexpand, $deleted) = @_;
-  my @packids = BSRevision::lspackages_local($projid, $deleted);
-  if ($origins) {
-    for (@packids) {
-      $origins->{$_} = $projid unless defined $origins->{$_};
-    }
-  }
-};
-
-our $readpackage = sub {
-  my ($projid, $proj, $packid, $revid, $missingok) = @_;
-  my $pack = BSRevision::readpack_local($projid, $packid, 1);
-  $pack->{'project'} ||= $projid if $pack;
-  die("404 package '$packid' does not exist in project '$projid'\n") if !$missingok && !$pack;
-  return $pack;
-};
+our $getrev = \&BSSrcServer::Local::getrev;
+our $findpackages = \&BSSrcServer::Local::findpackages;
+our $readpackage = \&BSSrcServer::Local::readpackage;
 
 #############################################################################
 
@@ -178,6 +158,14 @@ sub readpackage_projlink {
   }
   die("404 package '$packid' does not exist in project '$projid'\n") unless $missingok;
   return undef;
+}
+
+sub enable_frozenlinks_cache {
+  $frozenlinks_cache ||= {};
+}
+
+sub disable_frozenlinks_cache {
+  $frozenlinks_cache = undef;
 }
 
 1;
