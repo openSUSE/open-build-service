@@ -219,7 +219,7 @@ sub fetchremoteconfig {
 
 
 # returns undef if the project does not exist
-sub getproject_remote {
+sub readproject_remote {
   my ($projid, $proj, $rev, $missingok) = @_;
   my @args;
   push @args, "rev=$rev" if $rev;
@@ -233,7 +233,12 @@ sub getproject_remote {
     $rproj = BSRPC::rpc($param, $BSXML::proj, @args);
   };
   die($@) if $@ && (!$missingok || $@ !~ /^404/);
-  mapprojectdata($rproj, $proj) if $rproj;
+  if ($rproj) {
+    mapprojectdata($rproj, $proj);
+    delete $rproj->{'person'};
+    delete $rproj->{'group'};
+    $rproj->{'mountproject'} = $proj->{'root'} if defined($proj->{'root'});
+  }
   return $rproj;
 }
 

@@ -744,19 +744,34 @@ sub findpackages {
 sub readpackage {
   my ($projid, $proj, $packid, $rev, $missingok) = @_;
 
+  $proj ||= BSRevision::readproj_local($projid, 1);
   if (!$proj || $proj->{'remoteurl'}) {
     $proj = BSSrcServer::Remote::remoteprojid($projid);
     return BSSrcServer::Remote::readpackage_remote($projid, $proj, $packid, $rev, $missingok) if $proj;
   }
-  my $pack = BSRevision::readpack_local($projid, $packid, 1);
+  my $pack = BSRevision::readpack_local($projid, $packid, 1, $rev);
   $pack->{'project'} ||= $projid if $pack;
 
   if (!$pack && $proj && $proj->{'link'}) {
-    $pack = BSSrcServer::Projlink::readpackage_projlink($projid, $proj, $packid, $rev, $missingok);
+    if (!defined($rev) || !BSRevision::readpack_local($projid, $packid, 1)) {
+      $pack = BSSrcServer::Projlink::readpackage_projlink($projid, $proj, $packid, $rev, $missingok);
+    }
   }
 
   die("404 package '$packid' does not exist in project '$projid'\n") if !$missingok && !$pack;
   return $pack;
+}
+
+sub readproject {
+  my ($projid, $proj, $rev, $missingok) = @_;
+  $proj ||= BSRevision::readproj_local($projid, 1, $rev);
+  if (!$proj || ($proj->{'remoteurl'} && $proj->{'remoteproject'})) {
+    $proj = BSSrcServer::Remote::remoteprojid($projid);
+    return BSSrcServer::Remote::readproject_remote($projid, $proj, $rev, $missingok) if $proj && $proj->{'remoteproject'};
+  }
+  $proj->{'name'} ||= $projid if $proj;
+  die("404 project '$projid' does not exist\n") if !$missingok && !$proj;
+  return $proj;
 }
 
 # collect all global source services via all package and project links
@@ -1620,18 +1635,7 @@ sub getprojectlist {
 
 sub getproject {
   my ($cgi, $projid) = @_;
-  # Read the project xml file
-  my $proj = BSRevision::readproj_local($projid, 1, $cgi->{'rev'});
-  $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || ($proj->{'remoteurl'} && $proj->{'remoteproject'});
-  die("404 project '$projid' does not exist\n") unless $proj;
-  if ($proj->{'remoteurl'} && $proj->{'remoteproject'}) {
-    my $mountproject = $proj->{'root'};
-    $proj = BSSrcServer::Remote::getproject_remote($projid, $proj, $cgi->{'rev'});
-    die("404 project '$projid' does not exist\n") unless $proj;
-    delete $proj->{'person'};
-    delete $proj->{'group'};
-    $proj->{'mountproject'} = $mountproject if defined $mountproject;
-  }
+  $proj = readproject($projid, undef, $cgi->{'rev'});
   return ($proj, $BSXML::proj);
 }
 
