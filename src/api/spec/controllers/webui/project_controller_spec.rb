@@ -687,4 +687,51 @@ RSpec.describe Webui::ProjectController, vcr: true do
       is_expected.to redirect_to(project_show_path(user.home_project))
     end
   end
+
+  describe 'POST #unlock' do
+    before do
+      login user
+    end
+
+    context "with a project that is locked" do
+      before do
+        user.home_project.flags.create(flag: 'lock', status: 'enable')
+      end
+
+      context  'successfully unlocks the project' do
+        before do
+          post :unlock, project: user.home_project
+        end
+
+        it { is_expected.to redirect_to(action: :show, project: user.home_project) }
+        it { expect(flash[:notice]).to eq('Successfully unlocked project') }
+      end
+
+      context "with a project that has maintenance release requests" do
+        let!(:bs_request) { create(:bs_request, type: 'maintenance_release', source_project: user.home_project.name) }
+
+        before do
+          user.home_project.update(kind: 'maintenance_incident')
+          post :unlock, project: user.home_project
+        end
+
+        it { is_expected.to redirect_to(action: :show, project: user.home_project) }
+        it do
+          expect(flash[:notice]).to eq("Project can't be unlocked: Unlock of maintenance incident #{user.home_project.name} is not possible," +
+                                            " because there is a running release request: #{bs_request.id}")
+        end
+      end
+    end
+
+    context "with a project that isn't locked" do
+      context  "project can't be unlocked" do
+        before do
+          post :unlock, project: user.home_project
+        end
+
+        it { is_expected.to redirect_to(action: :show, project: user.home_project) }
+        it { expect(flash[:notice]).to eq("Project can't be unlocked: is not locked") }
+      end
+    end
+  end
 end
