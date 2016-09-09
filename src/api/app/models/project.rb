@@ -491,10 +491,10 @@ class Project < ApplicationRecord
       maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: self.name})
       if maintenance_release_requests.exists?
         if with_exception
-          raise OpenReleaseRequest.new "Unlock of maintenance incident #{self.maintenance_incident.project.name} is not possible," +
+          raise OpenReleaseRequest.new "Unlock of maintenance incident #{self.name} is not possible," +
                                        " because there is a running release request: #{maintenance_release_requests.first.id}"
         else
-          errors.add(:base, "Unlock of maintenance incident #{self.maintenance_incident.project.name} is not possible," +
+          errors.add(:base, "Unlock of maintenance incident #{self.name} is not possible," +
                             " because there is a running release request: #{maintenance_release_requests.first.id}")
         end
       end
