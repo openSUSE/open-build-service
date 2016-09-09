@@ -33,6 +33,15 @@ $maxchild = $BSConfig::servicedispatch_maxchild if defined $BSConfig::servicedis
 
 my $myeventdir = "$eventdir/servicedispatch";
 
+sub notify_repservers {
+  my ($type, $projid, $packid) = @_;
+  BSRPC::rpc({
+    'uri'       => "$BSConfig::srcserver/source/$projid/$packid",
+    'request'   => 'POST',
+    'timeout'   => 60,
+  }, undef, 'cmd=notifypackagechange');
+}
+
 sub addrev_service {
   my ($rev, $servicemark, $files, $error) = @_;
 
@@ -41,7 +50,7 @@ sub addrev_service {
     $error ||= 'unknown service error';
   }
   if ($files->{'_service_error'} && !$error) {
-    $error = BSSrcrep::repreadstr($rev, '_service_error', $files->{'_service_error'});
+    $error = BSRevision::revreadstr($rev, '_service_error', $files->{'_service_error'});
     chomp $error;
     $error ||= 'unknown service error';
   }
@@ -71,6 +80,7 @@ sub addrev_service {
   };
   $p->{'error'} = $error if $error;
   BSNotify::notify($error ? 'SRCSRV_SERVICE_FAIL' : 'SRCSRV_SERVICE_SUCCESS', $p);
+  notify_repservers('package', $rev->{'project'}, $rev->{'package'});
 }
 
 
@@ -89,7 +99,7 @@ sub runservice {
     $rev = BSRevision::getrev_local($projid, $packid, $srcmd5);
   }
   my $linkinfo = {};
-  my $files = BSSrcrep::lsrev($rev, $linkinfo);
+  my $files = BSRevision::lsrev($rev, $linkinfo);
   die("servicemark mismatch\n") unless ($linkinfo->{'xservicemd5'} || '') eq $servicemark;
 
   # check if in progress
@@ -101,20 +111,20 @@ sub runservice {
   if ($linksrcmd5) {
     $linkfiles = $files;
     my $lrev = BSRevision::getrev_local($projid, $packid, $linksrcmd5);
-    $files = BSSrcrep::lsrev($lrev);
+    $files = BSRevision::lsrev($lrev);
   }
 
   # get old files
   my $oldfiles;
   if ($oldsrcmd5) {
     my $oldrev = BSRevision::getrev_local($projid, $packid, $oldsrcmd5);
-    $oldfiles = BSSrcrep::lsrev($oldrev);
+    $oldfiles = BSRevision::lsrev($oldrev);
   }
   $oldfiles ||= {};
 
-  my @send = map {BSSrcrep::repcpiofile($rev, $_, $files->{$_})} sort(keys %$files);
-  push @send, BSSrcrep::repcpiofile({'project' => $projid, 'package' => '_project'}, '_serviceproject', $projectservicesmd5) if $projectservicesmd5;
-  push @send, map {BSSrcrep::repcpiofile($rev, $_, $oldfiles->{$_})} grep {!$files->{$_}} sort(keys %$oldfiles);
+  my @send = map {BSRevision::revcpiofile($rev, $_, $files->{$_})} sort(keys %$files);
+  push @send, BSRevision::revcpiofile({'project' => $projid, 'package' => '_project'}, '_serviceproject', $projectservicesmd5) if $projectservicesmd5;
+  push @send, map {BSRevision::revcpiofile($rev, $_, $oldfiles->{$_})} grep {!$files->{$_}} sort(keys %$oldfiles);
 
   my $odir = "$uploaddir/runservice$$";
   BSUtil::cleandir($odir) if -d $odir;
@@ -162,6 +172,8 @@ sub runservice {
     $error ||= 'error';
     $error = "service daemon error:\n $error";
   }
+  BSUtil::cleandir($odir);
+  rmdir($odir);
   if ($linkfiles) {
     # argh, a link! put service run result in old filelist
     if (!$error) {
@@ -170,13 +182,6 @@ sub runservice {
     $files = $linkfiles;
   }
   addrev_service($rev, $servicemark, $files, $error);
-  BSUtil::cleandir($odir);
-  rmdir($odir);
-  BSRPC::rpc({
-    'uri'       => "$BSConfig::srcserver/source/$projid/$packid",
-    'request'   => 'POST',
-    'timeout'   => 60,
-  }, undef, 'cmd=notifypackagechange');
 }
 
 sub getevent {

@@ -217,7 +217,7 @@ my $emptymd5 = 'd41d8cd98f00b204e9800998ecf8427e';
 #### FIXME: this function is copied from src server. We should move it to some util module maybe.
 sub findfile {
   my ($rev, $repoid, $ext, $files) = @_;
-  $files = BSSrcrep::lsrev($rev) unless ref $files;
+  $files = BSRevision::lsrev($rev) unless ref $files;
   my $packid = $rev->{'package'};
   return ($files->{"$packid-$repoid.$ext"}, "$packid-$repoid.$ext") if defined($repoid) && $files->{"$packid-$repoid.$ext"};
   return ($files->{"$packid.$ext"}, "$packid.$ext") if $files->{"$packid.$ext"} && defined($repoid);
@@ -244,7 +244,7 @@ sub find_latest_file {
   if (!$rev || $rev->{'srcmd5'} eq 'empty') {
     return ( "Refered to non existing $type in $project $package" );
   }
-  my $files = BSSrcrep::lsrev($rev);
+  my $files = BSRevision::lsrev($rev);
 # FIXME: handle source links
 #   $files = handlelinks($projid, $pinfo, $files, $rev) if ref($files) && $files->{'_link'};
   if (!ref $files) {
@@ -584,7 +584,7 @@ while (@ARGV) {
       for my $packid (BSRevision::lspackages_local($projid)) {
         print "$projid/$packid\n";
         my $rev = BSRevision::getrev_local($projid, $packid);
-        BSRevision::updatelinkinfodb($projid, $packid, $rev, BSSrcrep::lsrev($rev));
+        BSRevision::updatelinkinfodb($projid, $packid, $rev, BSRevision::lsrev($rev));
       }
     }
   } elsif ($arg eq "--check-kiwi-xml") {

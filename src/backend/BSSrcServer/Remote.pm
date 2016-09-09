@@ -407,7 +407,7 @@ sub getrev_remote {
   for my $entry (@{$dir->{'entry'} || []}) {
     $files->{$entry->{'name'}} = $entry->{'md5'};
     # check if we already have the file
-    next if -e BSSrcrep::repfilename($rev, $entry->{'name'}, $entry->{'md5'});
+    next if -e BSRevision::revfilename($rev, $entry->{'name'}, $entry->{'md5'});
     # nope, download it
     if ($linked && $entry->{'size'} > 8192) {
       # getprojpack request, hand over to AJAX
@@ -514,7 +514,7 @@ sub remote_getrev_getfiles {
   my $needsize = 0; 
   my @need;
   for my $entry (@{$jev->{'filelist'}->{'entry'} || []}) {
-    if (-e BSSrcrep::repfilename($rev, $entry->{'name'}, $entry->{'md5'})) {
+    if (-e BSRevision::revfilename($rev, $entry->{'name'}, $entry->{'md5'})) {
       $havesize += $entry->{'size'};
     } else {
       push @need, $entry;
@@ -557,7 +557,7 @@ sub remote_getrev_getfiles {
     return undef unless $res;
   }
   for my $entry (@need) {
-    next if -e BSSrcrep::repfilename($rev, $entry->{'name'}, $entry->{'md5'});
+    next if -e BSRevision::revfilename($rev, $entry->{'name'}, $entry->{'md5'});
     my $param = {
       'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid/$entry->{'name'}",
       'filename' => "$uploaddir/$$-$jev->{'id'}",

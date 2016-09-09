@@ -123,7 +123,7 @@ sub addrev_service {
   }
   # new style services
   if ($files->{'_service_error'} && !$error) {
-    $error = BSSrcrep::repreadstr($rev, '_service_error', $files->{'_service_error'});
+    $error = BSRevision::revreadstr($rev, '_service_error', $files->{'_service_error'});
     chomp $error;
     $error ||= 'unknown service error';
   }
@@ -168,7 +168,7 @@ sub fake_service_run {
   my $error;
   if ($sfiles->{'_service_error'}) {
     # hmm, die instead?
-    $error = BSSrcrep::repreadstr($rev, '_service_error', $sfiles->{'_service_error'});
+    $error = BSRevision::revreadstr($rev, '_service_error', $sfiles->{'_service_error'});
     chomp $error;
     $error ||= 'unknown service error';
   }
@@ -211,7 +211,7 @@ sub runservice {
       eval {
 	my $linkinfo = {};
 	$oldfilesrev = BSRevision::getrev_local($projid, $packid, $revno);
-	$oldfiles = BSSrcrep::lsrev($oldfilesrev, $linkinfo) || {};
+	$oldfiles = BSRevision::lsrev($oldfilesrev, $linkinfo) || {};
 	$oldfiles = handleservice($oldfilesrev, $oldfiles, $linkinfo->{'xservicemd5'}) if $linkinfo->{'xservicemd5'};
       };
       if ($@) {
@@ -267,7 +267,7 @@ sub runservice {
   my $linksrcmd5;
   if ($files->{'_link'}) {
     # make sure it's a branch
-    my $l = BSSrcrep::repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
+    my $l = BSRevision::revreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
     if (!$l || !$l->{'patches'} || @{$l->{'patches'}->{''} || []} != 1 || (keys %{$l->{'patches'}->{''}->[0]})[0] ne 'branch') {
       #addrev_service($cgi, $rev, $files, "services only work on branches\n");
       #return;
@@ -327,9 +327,9 @@ sub runservice {
     BSUtil::touch($lockfile);
   }
 
-  my @send = map {BSSrcrep::repcpiofile($rev, $_, $files->{$_})} grep {$_ ne '/SERVICE'} sort(keys %$files);
+  my @send = map {BSRevision::revcpiofile($rev, $_, $files->{$_})} grep {$_ ne '/SERVICE'} sort(keys %$files);
   push @send, {'name' => '_serviceproject', 'data' => BSUtil::toxml($projectservices, $BSXML::services)} if $projectservices;
-  push @send, map {BSSrcrep::repcpiofile($rev, $_, $oldfiles->{$_})} grep {!$files->{$_}} sort(keys %$oldfiles);
+  push @send, map {BSRevision::revcpiofile($rev, $_, $oldfiles->{$_})} grep {!$files->{$_}} sort(keys %$oldfiles);
 
   # run the source update in own process (do not wait for it)
   my $pid = xfork();
@@ -446,12 +446,12 @@ sub handleservice {
   my $packid = $rev->{'package'};
   my $sfiles;
   if (BSSrcrep::existstree($projid, $packid, $servicemark)) {
-    $sfiles = BSSrcrep::lsrev($rev);
+    $sfiles = BSRevision::lsrev($rev);
   } elsif (! -e "$projectsdir/$projid.pkg/$packid.xml") {
     # not our own package (project link, remote...)
     # don't run service. try getrev/lsrev instead.
     my $rrev = $getrev->($rev->{'project'}, $rev->{'package'}, $servicemark);
-    $sfiles = BSSrcrep::lsrev($rrev);
+    $sfiles = BSRevision::lsrev($rrev);
     if ($sfiles->{'_serviceerror'}) {
       my $serror = BSSrcrep::getserviceerror($rev->{'project'}, $rev->{'package'}, $servicemark) || 'unknown service error';
       die("$serror\n");
@@ -461,7 +461,7 @@ sub handleservice {
     # tree is available, i.e. the service has finished
     if ($sfiles->{'_service_error'}) {
       # old style...
-      my $error = BSSrcrep::repreadstr($rev, '_service_error', $sfiles->{'_service_error'});
+      my $error = BSRevision::revreadstr($rev, '_service_error', $sfiles->{'_service_error'});
       $error =~ s/[\r\n]+$//s;
       $error =~ s/.*[\r\n]//s;
       die(str2utf8xml($error ? "$error\n" : "unknown service error\n"));
@@ -492,9 +492,9 @@ sub getprojectservices {
 
   # get source services from this project
   my $projectrev = $getrev->($projid, '_project');
-  my $projectfiles = BSSrcrep::lsrev($projectrev);
+  my $projectfiles = BSRevision::lsrev($projectrev);
   if ($projectfiles->{'_service'}) {
-    $services = BSSrcrep::repreadxml($projectrev, '_service', $projectfiles->{'_service'}, $BSXML::services, 1) || {};
+    $services = BSRevision::revreadxml($projectrev, '_service', $projectfiles->{'_service'}, $BSXML::services, 1) || {};
   }
 
   # find further projects via project link
@@ -519,12 +519,12 @@ sub getprojectservices {
   } else {
     eval {
        $packagerev = $getrev->($projid, $packid, $revid);
-       $packagefiles = BSSrcrep::lsrev($packagerev);
+       $packagefiles = BSRevision::lsrev($packagerev);
     };
   }
 
   if ($packagerev && $packagefiles && $packagefiles->{'_link'}) {
-    my $l = BSSrcrep::repreadxml($packagerev, '_link', $packagefiles->{'_link'}, $BSXML::link, 1);
+    my $l = BSRevision::revreadxml($packagerev, '_link', $packagefiles->{'_link'}, $BSXML::link, 1);
     if ($l) {
       my $lprojid = defined($l->{'project'}) ? $l->{'project'} : $projid;
       my $lpackid = defined($l->{'package'}) ? $l->{'package'} : $packid;

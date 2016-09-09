@@ -38,7 +38,7 @@ my $uploaddir = "$srcrep/:upload";
 our $getrev = \&BSSrcServer::Local::getrev;
 
 our $lsrev_linktarget = sub {
-  return BSSrcrep::lsrev($_[0], $_[1] || {})
+  return BSRevision::lsrev($_[0], $_[1] || {})
 };
 
 
@@ -213,8 +213,8 @@ sub applylink {
     my $lerror = BSSrcrep::getlinkerror($llnk->{'project'}, $llnk->{'package'}, $md5);
     return $lerror if $lerror;
   }
-  my $flnk = BSSrcrep::lsrev($llnk);
-  my $fsrc = BSSrcrep::lsrev($lsrc);
+  my $flnk = BSRevision::lsrev($llnk);
+  my $fsrc = BSRevision::lsrev($lsrc);
   my $l = $llnk->{'link'};
   my $patches = $l->{'patches'} || {};
   my @patches = ();
@@ -281,12 +281,12 @@ sub applylink {
     for my $f (sort keys %$fsrc) {
       next if $flnk->{$f} && !$apply{$f};
       BSSrcrep::copyonefile_tmp($lsrc->{'project'}, $lsrc->{'package'}, $f, $fsrc->{$f}, "$tmpdir/$f");
-      $fl{$f} = BSSrcrep::repfilename($lsrc, $f, $fsrc->{$f});
+      $fl{$f} = BSRevision::revfilename($lsrc, $f, $fsrc->{$f});
     }
     for my $f (sort keys %$flnk) {
       next if $apply{$f} || $f eq '_link';
       BSSrcrep::copyonefile_tmp($llnk->{'project'}, $llnk->{'package'}, $f, $flnk->{$f}, "$tmpdir/$f");
-      $fl{$f} = BSSrcrep::repfilename($llnk, $f, $flnk->{$f});
+      $fl{$f} = BSRevision::revfilename($llnk, $f, $flnk->{$f});
     }
   }
   my $failed;
@@ -306,7 +306,7 @@ sub applylink {
       my %brev = (%$lsrc, 'srcmd5' => $baserev);
       my $fbas;
       eval {
-        $fbas = BSSrcrep::lsrev(\%brev);
+        $fbas = BSRevision::lsrev(\%brev);
       };
       return "baserev $baserev does not exist" unless $fbas;
       return "baserev is link" if $fbas->{'_link'};
@@ -326,13 +326,13 @@ sub applylink {
 	if ($mbas eq $mlnk) {
 	  next if $msrc eq '';
 	  BSSrcrep::copyonefile_tmp($lsrc->{'project'}, $lsrc->{'package'}, $f, $fsrc->{$f}, "$tmpdir/$f");
-	  $fl{$f} = BSSrcrep::repfilename($lsrc, $f, $fsrc->{$f});
+	  $fl{$f} = BSRevision::revfilename($lsrc, $f, $fsrc->{$f});
 	  next;
 	}
 	if ($mbas eq $msrc || $mlnk eq $msrc) {
 	  next if $mlnk eq '';
 	  BSSrcrep::copyonefile_tmp($llnk->{'project'}, $llnk->{'package'}, $f, $flnk->{$f}, "$tmpdir/$f");
-	  $fl{$f} = BSSrcrep::repfilename($llnk, $f, $flnk->{$f});
+	  $fl{$f} = BSRevision::revfilename($llnk, $f, $flnk->{$f});
 	  next;
 	}
 	if ($mbas eq '' || $msrc eq '' || $mlnk eq '') {
@@ -427,7 +427,7 @@ sub applylink {
     if (!($pid = xfork())) {
       delete $SIG{'__DIE__'};
       chdir($tmpdir) || die("$tmpdir: $!\n");
-      my $pnfile = BSSrcrep::repfilename($llnk, $pn, $flnk->{$pn});
+      my $pnfile = BSRevision::revfilename($llnk, $pn, $flnk->{$pn});
       open(STDIN, '<', $pnfile) || die("$pnfile: $!\n");
       open(STDOUT, '>>', ".log") || die(".log: $!\n");
       open(STDERR, '>&STDOUT');
@@ -542,7 +542,7 @@ sub handlelinks {
   my $vrevdone;
   my $lrev = $rev;
   while ($files->{'_link'}) {
-    my $l = BSSrcrep::repreadxml($lrev, '_link', $files->{'_link'}, $BSXML::link, 1);
+    my $l = BSRevision::revreadxml($lrev, '_link', $files->{'_link'}, $BSXML::link, 1);
     return '_link is bad' unless $l;
     my $cicount = $l->{'cicount'} || 'add';
     eval {
@@ -637,7 +637,7 @@ sub handlelinks {
     $oldl = $l;
   }
   $rev->{'srcmd5'} = $md5;
-  return BSSrcrep::lsrev($rev, $li);
+  return BSRevision::lsrev($rev, $li);
 }
 
 sub rundiff {
@@ -682,9 +682,9 @@ sub keeplink {
   return $files if !defined($files) || !%$files;
   return $files if $files->{'_link'};
   $orev ||= $getrev->($projid, $packid, 'latest');
-  my $ofilesl = BSSrcrep::lsrev($orev);
+  my $ofilesl = BSRevision::lsrev($orev);
   return $files unless $ofilesl && $ofilesl->{'_link'};
-  my $l = BSSrcrep::repreadxml($orev, '_link', $ofilesl->{'_link'}, $BSXML::link);
+  my $l = BSRevision::revreadxml($orev, '_link', $ofilesl->{'_link'}, $BSXML::link);
   my $changedlink = 0;
   my %lignore;
   my $isbranch;
@@ -736,7 +736,7 @@ sub keeplink {
     $ofiles = handlelinks(\%olrev, $ofilesl, \%li);
     die("bad link: $ofiles\n") unless ref $ofiles;
     $ltgtsrcmd5 = $li{'srcmd5'};
-    $ofilesfn{$_} = BSSrcrep::repfilename(\%olrev, $_, $ofiles->{$_}) for keys %$ofiles;
+    $ofilesfn{$_} = BSRevision::revfilename(\%olrev, $_, $ofiles->{$_}) for keys %$ofiles;
   }
 
   # get link target file list
@@ -746,7 +746,7 @@ sub keeplink {
   my $ltgtfiles;
   if ($ltgtsrcmd5) {
     $ltgtrev = {'project' => $ltgtprojid, 'package' => $ltgtpackid, 'srcmd5' => $ltgtsrcmd5};
-    $ltgtfiles = BSSrcrep::lsrev($ltgtrev);
+    $ltgtfiles = BSRevision::lsrev($ltgtrev);
   } else {
     $ltgtrev = $getrev->($ltgtprojid, $ltgtpackid, $linkrev || $l->{'rev'});
     $ltgtfiles = lsrev_expanded($ltgtrev);
@@ -788,7 +788,7 @@ sub keeplink {
   if ($cgi->{'convertbranchtopatch'}) {
     $ofilesl = {};
     $ofiles = $ltgtfiles;
-    $ofilesfn{$_} = BSSrcrep::repfilename($ltgtrev, $_, $ofiles->{$_}) for keys %$ofiles;
+    $ofilesfn{$_} = BSRevision::revfilename($ltgtrev, $_, $ofiles->{$_}) for keys %$ofiles;
   } elsif ($repair || $changedlink) {
     # apply changed link
     my $frominfo = {'project' => $ltgtprojid, 'package' => $ltgtpackid, 'srcmd5' => $ltgtsrcmd5};
@@ -831,12 +831,12 @@ sub keeplink {
       if ($ofiles->{$file} eq $files->{$file}) {
 	next;
       }
-      if (!isascii(BSSrcrep::repfilename($orev, $file, $files->{$file})) || !isascii($ofilesfn{$file})) {
+      if (!isascii(BSRevision::revfilename($orev, $file, $files->{$file})) || !isascii($ofilesfn{$file})) {
 	$nfiles->{$file} = $files->{$file};
 	next;
       }
     } else {
-      if (!isascii(BSSrcrep::repfilename($orev, $file, $files->{$file}))) {
+      if (!isascii(BSRevision::revfilename($orev, $file, $files->{$file}))) {
 	$nfiles->{$file} = $files->{$file};
 	next;
       }
@@ -853,7 +853,7 @@ sub keeplink {
     }
     # both are ascii, create diff
     mkdir_p($uploaddir);
-    if (!rundiff($ofiles->{$file} ? $ofilesfn{$file} : '/dev/null', BSSrcrep::repfilename($orev, $file, $files->{$file}), $file, "$uploaddir/$$")) {
+    if (!rundiff($ofiles->{$file} ? $ofilesfn{$file} : '/dev/null', BSRevision::revfilename($orev, $file, $files->{$file}), $file, "$uploaddir/$$")) {
       $nfiles->{$file} = $files->{$file};
     }
   }
@@ -897,7 +897,7 @@ sub integratelink {
   my ($files, $projid, $packid, $rev, $ofiles, $oprojid, $opackid, $l, $orev) = @_;
 
   # append patches from link l to link nl
-  my $nl = BSSrcrep::repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
+  my $nl = BSRevision::revreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
 
   # FIXME: remove hunks from patches that deal with replaced/deleted files
   my $nlchanged;
@@ -945,7 +945,7 @@ sub integratelink {
     # and integrate
     delete $ofiles->{'_link'};
     $ofiles = keeplink({'convertbranchtopatch' => 1, 'linkrev' => 'base'}, $oprojid, $opackid, $ofiles, $orev);
-    $l = BSSrcrep::repreadxml($orev, '_link', $ofiles->{'_link'}, $BSXML::link);
+    $l = BSRevision::revreadxml($orev, '_link', $ofiles->{'_link'}, $BSXML::link);
   }
 
   if (!$nlisbranch && $l->{'patches'}) {
@@ -995,9 +995,9 @@ sub linkinfo_addtarget {
   my ($rev, $linkinfo) = @_;
   my %lrev = %$rev;
   $lrev{'srcmd5'} = $linkinfo->{'lsrcmd5'} if $linkinfo->{'lsrcmd5'};
-  my $files = BSSrcrep::lsrev(\%lrev);
+  my $files = BSRevision::lsrev(\%lrev);
   die("linkinfo_addtarget: not a link?\n") unless $files->{'_link'};
-  my $l = BSSrcrep::repreadxml(\%lrev, '_link', $files->{'_link'}, $BSXML::link, 1);
+  my $l = BSRevision::revreadxml(\%lrev, '_link', $files->{'_link'}, $BSXML::link, 1);
   if ($l) {
     $linkinfo->{'project'} = defined($l->{'project'}) ? $l->{'project'} : $lrev{'project'};
     $linkinfo->{'package'} = defined($l->{'package'}) ? $l->{'package'} : $lrev{'package'};
@@ -1017,7 +1017,7 @@ sub findlastworkinglink {
   for my $cand (@cand) {
     my $candrev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $cand};
     my %li;
-    my $files = BSSrcrep::lsrev($candrev, \%li);
+    my $files = BSRevision::lsrev($candrev, \%li);
     next unless $li{'lsrcmd5'} && $li{'lsrcmd5'} eq $rev->{'srcmd5'};
     $cand{$cand} = $li{'srcmd5'};
   }
@@ -1027,9 +1027,9 @@ sub findlastworkinglink {
 
   while (1) {
     my $lrev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $rev->{'srcmd5'}};
-    my $lfiles = BSSrcrep::lsrev($lrev);
+    my $lfiles = BSRevision::lsrev($lrev);
     return undef unless $lfiles;
-    my $l = BSSrcrep::repreadxml($lrev, '_link', $lfiles->{'_link'}, $BSXML::link, 1);
+    my $l = BSRevision::revreadxml($lrev, '_link', $lfiles->{'_link'}, $BSXML::link, 1);
     return undef unless $l;
     $projid = $l->{'project'} if exists $l->{'project'};
     $packid = $l->{'package'} if exists $l->{'package'};
@@ -1038,7 +1038,7 @@ sub findlastworkinglink {
       next unless $cand{$cand};
       my %li;
       my $candrev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $cand{$cand}};
-      BSSrcrep::lsrev($candrev, \%li);
+      BSRevision::lsrev($candrev, \%li);
       $candrev->{'srcmd5'} = $li{'lsrcmd5'} if $li{'lsrcmd5'};
       $candrev = BSRevision::findlastrev($candrev);
       next unless $candrev;

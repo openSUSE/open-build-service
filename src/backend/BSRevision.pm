@@ -90,7 +90,7 @@ sub getrev_local {
     return undef unless -e "$projectsdir/$projid.pkg/$packid.rev" || -e "$projectsdir/$projid.pkg/$packid.mrev";
     $rev = {'srcmd5' => $revid, 'rev' => $revid};
   } elsif ($revid eq 'upload') {
-    $rev = {'srcmd5' => 'upload', 'rev' => 'upload', 'special_meta' => "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS"};
+    $rev = {'srcmd5' => 'upload', 'rev' => 'upload'};
   } elsif ($revid eq 'repository') {
     $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5, 'rev' => 'repository'}
   } elsif ($revid eq '0') {
@@ -187,35 +187,35 @@ sub retrofit_old_meta {
 
 sub extract_old_prjsource {
   my ($projid, $rev) = @_;
-  my $files = BSSrcrep::lsrev($rev);
+  my $files = lsrev($rev);
   my $config;
-  $config = BSSrcrep::repreadstr($rev, '_config', $files->{'_config'}, 1) if $files->{'_config'};
+  $config = revreadstr($rev, '_config', $files->{'_config'}, 1) if $files->{'_config'};
   writestr("$uploaddir/$$.2", "$projectsdir/$projid.conf", $config) if $config;
 }
 
 sub extract_old_meta {
   my ($projid, $packid, $rev) = @_;
   $rev->{'keepsignkey'} = 1;
-  my $files = BSSrcrep::lsrev($rev);
+  my $files = lsrev($rev);
   delete $rev->{'keepsignkey'};
   if (!defined($packid) || $packid eq '_project') {
     $packid = '_project';
     my $pubkey;
-    $pubkey = BSSrcrep::repreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
+    $pubkey = revreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
     writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_pubkey", $pubkey) if $pubkey;
     my $signkey;
-    $signkey = BSSrcrep::repreadstr($rev, '_signkey', $files->{'_signkey'}, 1) if $files->{'_signkey'};
+    $signkey = revreadstr($rev, '_signkey', $files->{'_signkey'}, 1) if $files->{'_signkey'};
     if ($signkey) {
       writestr("$uploaddir/$$.2", undef, $signkey);
       chmod(0600, "$uploaddir/$$.2");
       rename("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_signkey") || die("rename $uploaddir/$$.2 $projectsdir/$projid.pkg/_signkey: $!\n");
     }
     my $meta;
-    $meta = BSSrcrep::repreadstr($rev, '_meta', $files->{'_meta'}, 1) if $files->{'_meta'};
+    $meta = revreadstr($rev, '_meta', $files->{'_meta'}, 1) if $files->{'_meta'};
     writestr("$uploaddir/$$.2", "$projectsdir/$projid.xml", $meta) if $meta;
   } else {
     my $meta;
-    $meta = BSSrcrep::repreadstr($rev, '_meta', $files->{'_meta'}, 1) if $files->{'_meta'};
+    $meta = revreadstr($rev, '_meta', $files->{'_meta'}, 1) if $files->{'_meta'};
     writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", $meta) if $meta;
   }
 }
@@ -251,7 +251,7 @@ sub addrev_replace_common {
     $rev->{'project'} = $projid;
     $rev->{'package'} = $rpackid;
     $rev->{'keepsignkey'} = 1;
-    $files = BSSrcrep::lsrev($rev);
+    $files = lsrev($rev);
     delete $rev->{'keepsignkey'};
   } else {
     $files = {};
@@ -320,7 +320,7 @@ sub updatelinkinfodb {
   my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
   my $linkinfo;
   if ($files && $files->{'_link'}) {
-    my $l = BSSrcrep::repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
+    my $l = revreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
     if ($l) {
       $linkinfo = {};
       $linkinfo->{'project'} = defined $l->{'project'} ? $l->{'project'} : $projid;
@@ -342,7 +342,7 @@ sub movelinkinfos {
     next unless -e "$projectsdir/$projid.pkg/$packid.xml";
     eval {
       my $rev = getrev_local($projid, $packid);
-      updatelinkinfodb($projid, $packid, $rev, BSSrcrep::lsrev($rev)) if $rev;
+      updatelinkinfodb($projid, $packid, $rev, lsrev($rev)) if $rev;
     };
     warn($@) if $@;
     updatelinkinfodb($oprojid, $packid);
@@ -370,7 +370,7 @@ sub addrev_local {
   $rev->{'project'} = $projid;
   $rev->{'package'} = $packid;
   if (!$files && !$cgi->{'nolinkinfodb'}) {
-    eval { $files = BSSrcrep::lsrev($rev) };
+    eval { $files = lsrev($rev) };
   }
   # update linked package database
   updatelinkinfodb($projid, $packid, $rev, $files) if $files;
@@ -419,7 +419,7 @@ sub undelete_rev {
     if ($packid eq '_project') {
       extract_old_prjsource($projid, $nrev);
     } else {
-      updatelinkinfodb($projid, $packid, $rev, BSSrcrep::lsrev($nrev));
+      updatelinkinfodb($projid, $packid, $rev, lsrev($nrev));
     }
   } elsif ($revfileto =~ /\.mrev$/) {
     BSRevision::extract_old_meta($projid, $packid, $nrev);
@@ -505,6 +505,55 @@ sub lspackages_local {
 }
 
 #
+# revision data access
+#
+
+sub revstat {
+  my ($rev, $filename, $md5) = @_;
+  return BSSrcrep::filestat($rev->{'project'}, $rev->{'package'}, $filename, $md5);
+}
+
+sub revopen {
+  my ($rev, $filename, $md5, $fd) = @_;
+  return BSSrcrep::fileopen($rev->{'project'}, $rev->{'package'}, $filename, $md5, $fd);
+}
+
+sub revreadstr {
+  my ($rev, $filename, $md5, $nonfatal) = @_;
+  return BSSrcrep::filereadstr($rev->{'project'}, $rev->{'package'}, $filename, $md5, $nonfatal);
+}
+
+sub revreadxml {
+  my ($rev, $filename, $md5, $dtd, $nonfatal) = @_;
+  return BSSrcrep::filereadxml($rev->{'project'}, $rev->{'package'}, $filename, $md5, $dtd, $nonfatal);
+}
+
+sub revfilename {
+  my ($rev, $filename, $md5) = @_;
+  return BSSrcrep::filepath($rev->{'project'}, $rev->{'package'}, $filename, $md5);
+}
+
+sub revcpiofile {
+  my ($rev, $filename, $md5, $forcehandle) = @_;
+  return BSSrcrep::cpiofile($rev->{'project'}, $rev->{'package'}, $filename, $md5, $forcehandle);
+}
+
+sub lsrev {
+  my ($rev, $linkinfo) = @_;
+  die("nothing known\n") unless $rev;
+  my $projid = $rev->{'project'};
+  my $packid = $rev->{'package'};
+  my $srcmd5 = $rev->{'srcmd5'};
+  die("revision project missing\n") unless defined $projid;
+  die("revision package missing\n") unless defined $packid;
+  die("no such revision\n") unless defined $srcmd5;
+  my $files = BSSrcrep::lsfiles($projid, $packid, $srcmd5, $linkinfo);
+  # hack: do not list _signkey in project meta
+  delete $files->{'_signkey'} if $packid eq '_project' && !$rev->{'keepsignkey'};
+  return $files;
+}
+
+#
 # small helpers
 #
 sub readproj_local {
@@ -512,8 +561,8 @@ sub readproj_local {
   my $proj;
   if ($revid) {
     my $rev = getrev_meta($projid, undef, $revid);
-    my $files = $rev ? BSSrcrep::lsrev($rev) : {};
-    $proj = BSSrcrep::repreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::proj, 1) if $files->{'_meta'};
+    my $files = $rev ? lsrev($rev) : {};
+    $proj = revreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::proj, 1) if $files->{'_meta'};
   } else {
     $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
   }
@@ -525,9 +574,9 @@ sub readpack_local {
   my ($projid, $packid, $nonfatal, $revid) = @_;
   my $pack;
   if ($revid) {
-    my $rev = BSRevision::getrev_meta($projid, $packid, $revid);
-    my $files = $rev ? BSSrcrep::lsrev($rev) : {};
-    $pack = BSSrcrep::repreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::pack, 1) if $files->{'_meta'};
+    my $rev = getrev_meta($projid, $packid, $revid);
+    my $files = $rev ? lsrev($rev) : {};
+    $pack = revreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::pack, 1) if $files->{'_meta'};
   } else {
     $pack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
   }

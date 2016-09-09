@@ -40,10 +40,10 @@ sub get_frozenlinks {
   my ($projid) = @_;
   return $frozenlinks_cache->{$projid} if $frozenlinks_cache && exists $frozenlinks_cache->{$projid};
   my $rev = BSRevision::getrev_meta($projid);
-  my $files = BSSrcrep::lsrev($rev);
+  my $files = BSRevision::lsrev($rev);
   my $frozen;
   if ($files->{'_frozenlinks'}) {
-    my $frozenx = BSSrcrep::repreadxml($rev, '_frozenlinks', $files->{'_frozenlinks'}, $BSXML::frozenlinks);
+    my $frozenx = BSRevision::revreadxml($rev, '_frozenlinks', $files->{'_frozenlinks'}, $BSXML::frozenlinks);
     $frozen = {};
     for my $fp (@{$frozenx->{'frozenlink'} || []}) {
       my $n = defined($fp->{'project'}) ? $fp->{'project'} : '/all';

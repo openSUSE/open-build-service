@@ -320,7 +320,7 @@ sub triggerservicerun {
   my ($cgi, $projid, $packid) = @_;
   my $rev = getrev($projid, $packid);
   my $linkinfo = {};
-  my $files = BSSrcrep::lsrev($rev, $linkinfo);
+  my $files = BSRevision::lsrev($rev, $linkinfo);
   $cgi->{'triggerservicerun'} = 1;	# hack
   if ($BSConfig::old_style_services) {
     # old style, just run the service again...
@@ -346,7 +346,7 @@ sub waitservicerun {
   if (!$BSStdServer::isajax) {
     my $rev = getrev($projid, $packid);
     my $linkinfo = {};
-    my $files = BSSrcrep::lsrev($rev, $linkinfo);
+    my $files = BSRevision::lsrev($rev, $linkinfo);
     my $servicemark = $linkinfo->{'xservicemd5'};
     return $BSStdServer::return_ok unless $servicemark;
     eval {
@@ -370,7 +370,7 @@ sub mergeservicerun {
   my ($cgi, $projid, $packid) = @_;
   my $rev = getrev($projid, $packid);
   my $linkinfo = {};
-  my $files = BSSrcrep::lsrev($rev, $linkinfo);
+  my $files = BSRevision::lsrev($rev, $linkinfo);
   my $servicemark = $linkinfo->{'xservicemd5'};
   die("package has no service\n") unless $servicemark;
   $files = BSSrcServer::Service::handleservice($rev, $files, $servicemark);
@@ -410,7 +410,7 @@ sub getcommitinfo {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
     my $file = findfile($rev, undef, $type, $files);
     next unless defined $file;
-    my $d = Build::parse($bconf, BSSrcrep::repfilename($rev, $file, $files->{$file}));
+    my $d = Build::parse($bconf, BSRevision::revfilename($rev, $file, $files->{$file}));
     next unless defined $d->{'version'};
     $version = $d->{'version'};
     $release = $d->{'release'} if defined $d->{'release'};
@@ -458,7 +458,7 @@ sub getrev {
     $rev = BSSrcServer::Remote::getrev_remote($projid, $proj, $packid, $revid, $linked, $missingok) if $proj;
     return $rev if $rev;
   }
-  return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern', 'special_meta' => "$projectsdir/$projid.pkg/pattern-MD5SUMS"} if $packid eq '_pattern';
+  return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
   return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok;
   die("404 package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
   die("404 project '$projid' does not exist\n");
@@ -576,7 +576,7 @@ sub addrev {
 
   if ($files->{'_patchinfo'}) {
     die("bad files in patchinfo container\n") if grep {$_ ne '_patchinfo'} keys %$files;
-    my $p = BSSrcrep::repreadxml({'project' => $projid, 'package' => $packid}, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo);
+    my $p = BSRevision::revreadxml({'project' => $projid, 'package' => $packid}, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo);
     BSVerify::verify_patchinfo($p);
   }
 
@@ -599,7 +599,7 @@ sub addrev {
   
   my $rev_old = getrev($projid, $packid);
   $rev_old->{'keepsignkey'} = 1;
-  my $files_old = BSSrcrep::lsrev($rev_old);
+  my $files_old = BSRevision::lsrev($rev_old);
   delete $rev_old->{'keepsignkey'};
   my $filestr = generate_commit_flist($files_old, $files);
 
@@ -688,7 +688,7 @@ sub addrev {
 sub lsrev_service {
   my ($rev, $linkinfo) = @_;
   $linkinfo ||= {};
-  my $files = BSSrcrep::lsrev($rev, $linkinfo);
+  my $files = BSRevision::lsrev($rev, $linkinfo);
   $files = BSSrcServer::Service::handleservice($rev, $files, $linkinfo->{'xservicemd5'}) if $linkinfo->{'xservicemd5'};
   return $files;
 }
@@ -844,10 +844,10 @@ sub kiwibootcallback {
   BSVerify::verify_packid($packid);
   BSSrcServer::Access::checksourceaccess($projid, $packid);
   my $rev = getrev($projid, $packid);
-  my $files = BSSrcrep::lsrev($rev);
+  my $files = BSRevision::lsrev($rev);
   my $file = findfile($rev, undef, 'kiwi', $files);
   die("no kiwi file found\n") unless $file;
-  my $xml = BSSrcrep::repreadstr($rev, $file, $files->{$file});
+  my $xml = BSRevision::revreadstr($rev, $file, $files->{$file});
   return ($xml, {'project' => $projid, 'package' => $packid, 'srcmd5' => $rev->{'srcmd5'}, 'file' => $file});
 }
 $Build::Kiwi::bootcallback = \&kiwibootcallback;
@@ -906,7 +906,7 @@ sub readbuildenv {
   $bifile = '_buildenv' unless $files->{$bifile};
   eval {
     die("$bifile does not exist\n") unless $files->{$bifile};
-    $pinfo->{'hasbuildenv'} = BSSrcrep::repreadstr($rev, $bifile, $files->{$bifile});
+    $pinfo->{'hasbuildenv'} = BSRevision::revreadstr($rev, $bifile, $files->{$bifile});
   };
   if ($@) {
     $pinfo->{'error'} = "buildenv: $@";
@@ -1278,7 +1278,7 @@ sub getprojpack {
 	my $files;
 	eval {
 	  my $linkinfo = {};
-          $files = BSSrcrep::lsrev($rev, $linkinfo);
+          $files = BSRevision::lsrev($rev, $linkinfo);
 	  if ($linkinfo->{'xservicemd5'}) {
 	    $files = BSSrcServer::Service::handleservice($rev, $files, $linkinfo->{'xservicemd5'});
 	    $pinfo->{'srcmd5'} = $rev->{'srcmd5'};
@@ -1347,7 +1347,7 @@ sub getprojpack {
 	  next;
 	}
 	if ($files->{'_aggregate'}) {
-	  my $aggregatelist = BSSrcrep::repreadxml($rev, '_aggregate', $files->{'_aggregate'}, $BSXML::aggregatelist, 1);
+	  my $aggregatelist = BSRevision::revreadxml($rev, '_aggregate', $files->{'_aggregate'}, $BSXML::aggregatelist, 1);
 	  if (!$aggregatelist) {
 	    $pinfo->{'error'} = "bad aggregatelist data";
 	    next;
@@ -1390,7 +1390,7 @@ sub getprojpack {
 	    $pinfo->{'info'} = \@dinfo if @dinfo;
 	  }
 	} elsif ($files->{'_patchinfo'}) {
-	  my $patchinfo = BSSrcrep::repreadxml($rev, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo, 1);
+	  my $patchinfo = BSRevision::revreadxml($rev, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo, 1);
           if (!$patchinfo) {
 	    $pinfo->{'error'} = "bad patchinfo data";
 	    next;
@@ -1420,7 +1420,7 @@ sub getprojpack {
 	} elsif ($files->{'_channel'}) {
 	  if (!exists($channeldata{$files->{'_channel'}})) {
 	    eval {
-	      my $channel = BSSrcrep::repreadxml($rev, '_channel', $files->{'_channel'}, $BSXML::channel);
+	      my $channel = BSRevision::revreadxml($rev, '_channel', $files->{'_channel'}, $BSXML::channel);
 	      BSVerify::verify_channel($channel);
 	      $channeldata{$files->{'_channel'}} = $channel;
 	    };
@@ -1525,7 +1525,7 @@ sub getprojpack {
 	      }
 	    }
 	    # get build dependency info
-	    my $d = Build::parse_typed($conf, BSSrcrep::repfilename($rev, $file, $files->{$file}), $buildtype);
+	    my $d = Build::parse_typed($conf, BSRevision::revfilename($rev, $file, $files->{$file}), $buildtype);
 	    data2utf8xml($d);
 	    if (!$d || !defined($d->{'name'})) {
 	      $rinfo->{'error'} = "can not parse package name from $file";
@@ -1543,7 +1543,7 @@ sub getprojpack {
 	    }
             # add all source services to be used at build time
 	    if ($files->{'_service'}) {
-              my $services = BSSrcrep::repreadxml($rev, '_service', $files->{'_service'}, $BSXML::services, 1);
+              my $services = BSRevision::revreadxml($rev, '_service', $files->{'_service'}, $BSXML::services, 1);
               for my $service (@{$services->{'service'} || []}) {
                 next unless $service->{'mode'} && $service->{'mode'} eq 'buildtime';
                 my $pkgname = "obs-service-$service->{'name'}";
@@ -1664,7 +1664,7 @@ sub updatesslcert {
   my ($projid, $pubkeyfile, $signkeyfile) = @_;
   my $rev = BSRevision::getrev_meta($projid, undef);
   return undef unless $rev;
-  my $files = BSSrcrep::lsrev($rev);
+  my $files = BSRevision::lsrev($rev);
   return undef unless $files->{'_sslcert'};
   my $cert = pubkey2sslcert($projid, $pubkeyfile, $signkeyfile);
   mkdir_p($uploaddir);
@@ -1757,8 +1757,8 @@ sub getpubkey {
   } else {
     if ($cgi->{'rev'}) {
       my $rev = BSRevision::getrev_meta($projid, undef, $cgi->{'rev'});
-      my $files = $rev ? BSSrcrep::lsrev($rev) : {};
-      $pubkey = BSSrcrep::repreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
+      my $files = $rev ? BSRevision::lsrev($rev) : {};
+      $pubkey = BSRevision::revreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
     } else {
       $pubkey = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
     }
@@ -1893,9 +1893,9 @@ sub getpackage {
     # we also do not look at project links
     # we return the data as string so that the md5 sum matches
     my $rev = BSRevision::getrev_meta($projid, $packid, $cgi->{'rev'}, $cgi->{'deleted'});
-    my $files = BSSrcrep::lsrev($rev);
+    my $files = BSRevision::lsrev($rev);
     die("404 _meta: no such file\n") unless $files->{'_meta'};
-    my $meta = BSSrcrep::repreadstr($rev, '_meta', $files->{'_meta'});
+    my $meta = BSRevision::revreadstr($rev, '_meta', $files->{'_meta'});
     return ($meta);
   }
   my $pack = readpackage($projid, $proj, $packid, $cgi->{'rev'});
@@ -1977,7 +1977,7 @@ sub undeletepackage {
   if ($packid eq '_product') {
     my $rev = BSRevision::getrev_local($projid, $packid);
     if ($rev) {
-      my $files = BSSrcrep::lsrev($rev);
+      my $files = BSRevision::lsrev($rev);
       BSSrcServer::Product::expandproduct($projid, $packid, $rev, $files, $rev->{'user'});
     }
   }
@@ -2202,8 +2202,8 @@ sub getprojectconfig {
   my $config;
   if ($cgi->{'rev'}) {
     my $rev = getrev($projid, '_project', $cgi->{'rev'});
-    my $files = $rev ? BSSrcrep::lsrev($rev) : {};
-    $config = BSSrcrep::repreadstr($rev, '_config', $files->{'_config'}, 1) if $files->{'_config'};
+    my $files = $rev ? BSRevision::lsrev($rev) : {};
+    $config = BSRevision::revreadstr($rev, '_config', $files->{'_config'}, 1) if $files->{'_config'};
   } else {
     $config = readstr("$projectsdir/$projid.conf", 1);
   }
@@ -2240,8 +2240,8 @@ sub delprojectconfig {
 sub getsources {
   my ($cgi, $projid, $packid, $srcmd5) = @_;
   my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
-  my $files = BSSrcrep::lsrev($rev);
-  my @files = map {BSSrcrep::repcpiofile($rev, $_, $files->{$_})} sort keys %$files;
+  my $files = BSRevision::lsrev($rev);
+  my @files = map {BSRevision::revcpiofile($rev, $_, $files->{$_})} sort keys %$files;
   BSServer::reply_cpio(\@files);
   return undef;
 }
@@ -2254,8 +2254,8 @@ sub getfilelist_ajax {
   my $srcmd5 = $cgi->{'rev'};
   if ($cgi->{'view'} eq 'cpio') {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
-    my $files = BSSrcrep::lsrev($rev);
-    my @files = map {BSSrcrep::repcpiofile($rev, $_, $files->{$_})} sort keys %$files;
+    my $files = BSRevision::lsrev($rev);
+    my @files = map {BSRevision::revcpiofile($rev, $_, $files->{$_})} sort keys %$files;
     BSWatcher::reply_cpio(\@files);
     return undef;
   }
@@ -2343,7 +2343,7 @@ sub getfilelist {
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload', $linked);
   }
   my $li = {};
-  my $files = BSSrcrep::lsrev($rev, $li);
+  my $files = BSRevision::lsrev($rev, $li);
 
   # show state of current source service run, if defined
   my $serviceinfo;
@@ -2382,18 +2382,18 @@ sub getfilelist {
       $serviceinfo->{'code'} = 'running';
     } elsif ($files->{'_service_error'}) {
       $serviceinfo->{'code'} = 'failed';
-      $serviceinfo->{'error'} = BSSrcrep::repreadstr($rev, '_service_error', $files->{'_service_error'});
+      $serviceinfo->{'error'} = BSRevision::revreadstr($rev, '_service_error', $files->{'_service_error'});
     } else {
       $serviceinfo->{'code'} = 'succeeded';
     }
   } elsif ($files->{'_service_error'}) {
     $serviceinfo = {'code' => 'failed'};
-    $serviceinfo->{'error'} = BSSrcrep::repreadstr($rev, '_service_error', $files->{'_service_error'});
+    $serviceinfo->{'error'} = BSRevision::revreadstr($rev, '_service_error', $files->{'_service_error'});
   }
 
   if ($files->{'_link'}) {
     if ($cgi->{'emptylink'}) {
-      my $l = BSSrcrep::repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
+      my $l = BSRevision::revreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
       delete $l->{'patches'};
       mkdir_p($uploaddir);
       writexml("$uploaddir/$$", undef, $l, $BSXML::link);
@@ -2449,14 +2449,14 @@ sub getfilelist {
 	BSHandoff::handoff("/source/$projid/$packid", undef, "rev=$rev->{'srcmd5'}", 'view=cpio');
       }
     }
-    my @files = map {BSSrcrep::repcpiofile($rev, $_, $files->{$_})} sort keys %$files;
+    my @files = map {BSRevision::revcpiofile($rev, $_, $files->{$_})} sort keys %$files;
     BSServer::reply_cpio(\@files);
     return undef;
   }
 
   if ($view && ($view eq 'products' || $view eq 'productrepositories') ) {
     my @res;
-    my $reader = sub { return BSSrcrep::repreadstr($rev, $_[0], $files->{$_[0]}) };
+    my $reader = sub { return BSRevision::revreadstr($rev, $_[0], $files->{$_[0]}) };
     for my $filename (sort keys %$files) {
       next unless $filename =~ /\.product$/s;
       next if $cgi->{'product'} && $filename ne "$cgi->{'product'}.product";
@@ -2479,7 +2479,7 @@ sub getfilelist {
   $ret->{'serviceinfo'} = $serviceinfo if $serviceinfo;
   my @res;
   for my $filename (sort keys %$files) {
-    my @s = BSSrcrep::repstat($rev, $filename, $files->{$filename});
+    my @s = BSRevision::revstat($rev, $filename, $files->{$filename});
     if (@s) {
       push @res, {'name' => $filename, 'md5' => $files->{$filename}, 'size' => $s[7], 'mtime' => $s[9]};
     } else {
@@ -2517,10 +2517,10 @@ sub getfile {
   if ($cgi->{'expand'}) {
     $files = lsrev_expanded($rev);
   } else {
-    $files = BSSrcrep::lsrev($rev);
+    $files = BSRevision::lsrev($rev);
   }
   die("404 $filename: no such file\n") unless $files->{$filename};
-  my @s = BSSrcrep::repstat($rev, $filename, $files->{$filename});
+  my @s = BSRevision::revstat($rev, $filename, $files->{$filename});
   die("$projid/$packid/$files->{$filename}-$filename: $!\n") unless @s;
   if (!$BSStdServer::isajax && $rev->{'srcmd5'} && $rev->{'srcmd5'} ne 'upload' && $rev->{'srcmd5'} ne 'pattern' && $rev->{'srcmd5'} ne 'empty' && $rev->{'srcmd5'} ne $BSSrcrep::emptysrcmd5) {
     # hack: we identify remote source downloads by looking at the user agent
@@ -2530,7 +2530,7 @@ sub getfile {
     }
   }
   my $fd = gensym;
-  BSSrcrep::repopen($rev, $filename, $files->{$filename}, $fd) || die("$projid/$packid/$files->{$filename}-$filename: $!\n");
+  BSRevision::revopen($rev, $filename, $files->{$filename}, $fd) || die("$projid/$packid/$files->{$filename}-$filename: $!\n");
   BSWatcher::reply_file($fd);
   return undef;
 }
@@ -2569,7 +2569,7 @@ sub putfile {
   if ($cgi->{'keeplink'}) {
     $files = lsrev_expanded($rev);
   } else {
-    $files = BSSrcrep::lsrev($rev);
+    $files = BSRevision::lsrev($rev);
   }
   $files->{$filename} = $uploaded->{'md5'};
   $files = BSSrcServer::Link::keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
@@ -2620,7 +2620,7 @@ sub sourcediff {
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload', undef, $cgi->{'missingok'});
   }
   my $linkinfo = {};
-  my $files = BSSrcrep::lsrev($rev, $linkinfo);
+  my $files = BSRevision::lsrev($rev, $linkinfo);
   $files = BSSrcServer::Service::handleservice($rev, $files, $linkinfo->{'xservicemd5'}) if $cgi->{'expand'} && $linkinfo->{'xservicemd5'};
   my $orev = $cgi->{'orev'};
   if (!defined($cgi->{'oproject'}) && !defined($cgi->{'opackage'}) && !defined($cgi->{'orev'}) && $rev->{'rev'}) {
@@ -2635,14 +2635,14 @@ sub sourcediff {
     $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest', undef, $cgi->{'missingok'});
   }
   my $olinkinfo = {};
-  my $ofiles = BSSrcrep::lsrev($orev, $olinkinfo);
+  my $ofiles = BSRevision::lsrev($orev, $olinkinfo);
   $ofiles = BSSrcServer::Service::handleservice($orev, $ofiles, $olinkinfo->{'xservicemd5'}) if $cgi->{'expand'} && $olinkinfo->{'xservicemd5'};
   if ($cgi->{'expand'} || (!$have0rev && $files->{'_link'} && !$ofiles->{'_link'}) || (!$have0rev && $ofiles->{'_link'} && !$files->{'_link'})) {
     # expand links
     if ($files->{'_link'}) {
       $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
       my %li;
-      my $l = BSSrcrep::repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
+      my $l = BSRevision::revreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
       if ($l) {
         $l->{'project'} = $rev->{'project'} unless defined $l->{'project'};
         $l->{'package'} = $rev->{'package'} unless defined $l->{'package'};
@@ -2655,11 +2655,11 @@ sub sourcediff {
         # we're diffing against the link target. As the user specified a baserev, we should use it
         # instead of the latest source
         $orev = getrev($oprojid, $opackid, $li{'srcmd5'});
-        $ofiles = BSSrcrep::lsrev($orev);
+        $ofiles = BSRevision::lsrev($orev);
       }
       # olinkrev=linkrev: reuse same linkrev if the link target matches
       if ($cgi->{'olinkrev'} && $cgi->{'olinkrev'} eq 'linkrev' && $ofiles->{'_link'}) {
-	my $ol = BSSrcrep::repreadxml($orev, '_link', $ofiles->{'_link'}, $BSXML::link, 1);
+	my $ol = BSRevision::revreadxml($orev, '_link', $ofiles->{'_link'}, $BSXML::link, 1);
 	if ($ol) {
 	  $ol->{'project'} = $orev->{'project'} unless defined $ol->{'project'};
 	  $ol->{'package'} = $orev->{'package'} unless defined $ol->{'package'};
@@ -2744,7 +2744,7 @@ sub sourcediff {
   my %xobscpio;
   mkdir_p($uploaddir);
   my $xobscpio = sub {
-    return BSSrcrep::repfilename($_[0], $_[1], $_[2]) if $_[1] !~ /\.obscpio$/;
+    return BSRevision::revfilename($_[0], $_[1], $_[2]) if $_[1] !~ /\.obscpio$/;
     my $tmp = "$uploaddir/sourcediff.obscpio.$$.$_[2]-$_[1]";
     BSSrcrep::copyonefile_tmp($_[0]->{'project'}, $_[0]->{'package'}, $_[1], $_[2], $tmp) unless $xobscpio{$tmp};
     $xobscpio{$tmp} = 1;
@@ -2798,7 +2798,7 @@ sub servicediff {
   die("servicediff only works for new style services\n") if $BSConfig::old_style_services;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   my $linkinfo = {};
-  my $files = BSSrcrep::lsrev($rev, $linkinfo);
+  my $files = BSRevision::lsrev($rev, $linkinfo);
   if ($linkinfo->{'xservicemd5'}) {
     return sourcediff({%$cgi, 'expand' => 0, 'orev' => $rev->{'srcmd5'}, 'rev' => $linkinfo->{'xservicemd5'}}, $projid, $packid);
   } elsif ($linkinfo->{'lservicemd5'}) {
@@ -2811,7 +2811,7 @@ sub servicediff {
 sub sourcecommit {
   my ($cgi, $projid, $packid) = @_;
   my $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
-  my $files = BSSrcrep::lsrev($rev);
+  my $files = BSRevision::lsrev($rev);
   $files = BSSrcServer::Link::keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   $rev = addrev($cgi, $projid, $packid, $files);
   BSSrcServer::Service::runservice($cgi, $rev, $files) unless $cgi->{'noservice'};
@@ -2835,7 +2835,7 @@ sub sourcecommitfilelist {
   for my $entry (@{$fl->{'entry'} || []}) {
     BSVerify::verify_filename($entry->{'name'});
     BSVerify::verify_md5($entry->{'md5'});
-    if (! -e BSSrcrep::repfilename($orev, $entry->{'name'}, $entry->{'md5'})) {
+    if (! -e BSRevision::revfilename($orev, $entry->{'name'}, $entry->{'md5'})) {
       push @missing, $entry;
     } else {
       die("duplicate file: $entry->{'name'}\n") if exists $files->{$entry->{'name'}};
@@ -2850,7 +2850,7 @@ sub sourcecommitfilelist {
   if (-e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") {
     # autocommit old update revision so that it doesn't get lost
     my $uploadrev = {'project' => $projid, 'package' => $packid, 'srcmd5' => 'upload'};
-    my $uploadfiles = BSSrcrep::lsrev($uploadrev);
+    my $uploadfiles = BSRevision::lsrev($uploadrev);
     addrev({ %$cgi, 'comment' => 'autocommit update revision'}, $projid, $packid, $uploadfiles);
   }
   my $rev = addrev($cgi, $projid, $packid, $files);
@@ -2927,7 +2927,7 @@ sub copyproject {
   # copy _project data
   if (-e "$projectsdir/$oprojid.pkg/_project.rev" || -e "$projectsdir/$oprojid.conf") {
     my $lastorev = getrev($oprojid, '_project');
-    my $files = BSSrcrep::lsrev($lastorev);
+    my $files = BSRevision::lsrev($lastorev);
     BSSrcrep::copyfiles($projid, '_project', $oprojid, '_project', $files);
     addrev($cgi, $projid, '_project', $files);
   }
@@ -2989,7 +2989,7 @@ sub copyproject {
       # always do one new commit, we don't use addrev to have full control over vrev
       my $linkinfo = {};
       my $frev = { %$lastorev, 'project' => $oprojid, 'package' => $packid };
-      my $files = BSSrcrep::lsrev($frev, $linkinfo);
+      my $files = BSRevision::lsrev($frev, $linkinfo);
 
       my $servicemark;
       if ($linkinfo->{'xservicemd5'}) {
@@ -3076,7 +3076,7 @@ sub update_link_in_service {
   return $xservicemd5 unless $files->{'_link'};
   my $sfiles;
   eval {
-    $sfiles = BSSrcrep::lsrev({%$rev, 'srcmd5' => $xservicemd5});
+    $sfiles = BSRevision::lsrev({%$rev, 'srcmd5' => $xservicemd5});
   };
   return $xservicemd5 unless $sfiles && $sfiles->{'_link'};
   return $xservicemd5 if $sfiles->{'_link'} && $sfiles->{'_link'} eq $files->{'_link'};	# nothing changed
@@ -3106,7 +3106,7 @@ sub sourcecopy {
   $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
   my $orev_srcmd5 = $orev->{'srcmd5'};  # so that we can restore it later
   my $linkinfo = {};
-  my $files = $cgi->{'noservice'} || $cgi->{'expand'} ? lsrev_service($orev, $linkinfo) : BSSrcrep::lsrev($orev, $linkinfo);
+  my $files = $cgi->{'noservice'} || $cgi->{'expand'} ? lsrev_service($orev, $linkinfo) : BSRevision::lsrev($orev, $linkinfo);
   die("need a revision to copy\n") if !$cgi->{'rev'} && !$cgi->{'orev'} && $oprojid eq $projid && $opackid eq $packid && !($files->{'_link'} && $cgi->{'expand'});
 
   die("makeoriginolder currently does not work on links\n") if $cgi->{'makeoriginolder'} && $files->{'_link'};
@@ -3118,7 +3118,7 @@ sub sourcecopy {
 
   if ($files->{'_link'} && !$cgi->{'dontupdatesource'} && !$cgi->{'rev'}) {
     # fix me: do this in a more generic way
-    my $olink = BSSrcrep::repreadxml($orev, '_link', $files->{'_link'}, $BSXML::link, 1);
+    my $olink = BSRevision::revreadxml($orev, '_link', $files->{'_link'}, $BSXML::link, 1);
     if ($olink) {
       my $lprojid = $oprojid;
       my $lpackid = $opackid;
@@ -3150,7 +3150,7 @@ sub sourcecopy {
 	# we're integrating this link
 	$lrev = getrev($lprojid, $lpackid, $lrev);
 	$autosimplifylink_lrev = { %$lrev };
-	my $lfiles = $cgi->{'noservice'} && !$cgi->{'expand'} ? lsrev_service({ %$lrev }) : BSSrcrep::lsrev($lrev);
+	my $lfiles = $cgi->{'noservice'} && !$cgi->{'expand'} ? lsrev_service({ %$lrev }) : BSRevision::lsrev($lrev);
 	if ($lfiles->{'_link'} && !$cgi->{'expand'}) {
 	  # link to a link, join
 	  $files = BSSrcServer::Link::integratelink($lfiles, $lprojid, $lpackid, $lrev, $files, $oprojid, $opackid, $olink, $orev);
@@ -3232,7 +3232,7 @@ sub sourcecopy {
       # we should not need to update the baserev, instead we should change
       # the way branches get applied
 
-      my $ofiles = BSSrcrep::lsrev($orev);
+      my $ofiles = BSRevision::lsrev($orev);
       delete $ofiles->{'_link'};
       BSSrcrep::copyfiles($projid, $packid, $oprojid, $opackid, $ofiles);
       my $newbase = BSSrcrep::addmeta($projid, $packid, $ofiles);
@@ -3240,9 +3240,9 @@ sub sourcecopy {
 	eval {
           my $latestorev = getrev($oprojid, $opackid);
 	  my $latestlinkinfo = {};
-          my $latestfiles = BSSrcrep::lsrev($latestorev, $latestlinkinfo);
+          my $latestfiles = BSRevision::lsrev($latestorev, $latestlinkinfo);
           if ($latestfiles->{'_link'}) {
-	    my $latestl = BSSrcrep::repreadxml($latestorev, '_link', $latestfiles->{'_link'}, $BSXML::link, 1);
+	    my $latestl = BSRevision::revreadxml($latestorev, '_link', $latestfiles->{'_link'}, $BSXML::link, 1);
 	    my $latestisbranch = grep {(keys %$_)[0] eq 'branch'} @{$latestl->{'patches'}->{''} || []};
 	    if ($latestisbranch && $latestl->{'baserev'} eq $autosimplifylink->{'baserev'}) {
 	      $latestl->{'baserev'} = $newbase;
@@ -3275,7 +3275,7 @@ sub sourcecopy {
         if ($latestorev->{'srcmd5'} eq $orev->{'srcmd5'}) {
           # simplify link
 	  my $latestlinkinfo = {};
-          my $latestfiles = BSSrcrep::lsrev($latestorev, $latestlinkinfo);
+          my $latestfiles = BSRevision::lsrev($latestorev, $latestlinkinfo);
           my $nl = { %$autosimplifylink };
           delete $nl->{'patches'};
           delete $nl->{'baserev'};
@@ -3352,9 +3352,9 @@ sub linktobranch {
   my ($cgi, $projid, $packid) = @_;
   my $rev = getrev($projid, $packid);
   $rev->{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
-  my $files = BSSrcrep::lsrev($rev);
+  my $files = BSRevision::lsrev($rev);
   die("package is not a link\n") unless $files->{'_link'};
-  my $l = BSSrcrep::repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
+  my $l = BSRevision::revreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
   die("package is already a branch\n") if $l->{'patches'} && grep {(keys %$_)[0] eq 'branch'} @{$l->{'patches'}->{''} || []};
   my $linkinfo = {};
   $files = lsrev_expanded($rev, $linkinfo);
@@ -3426,7 +3426,7 @@ sub sourcecollectbuildenv {
   $buildenvs{'_buildenv'} = BSUtil::toxml($be, $BSXML::buildinfo);
   # now add all the buildenvs to the last commit (unexpanded is enough for us)
   my $rev = getrev($projid, $packid);
-  my $files = BSSrcrep::lsrev($rev);
+  my $files = BSRevision::lsrev($rev);
   delete $files->{$_} for grep {/^_buildenv/} keys %$files;
   mkdir_p($uploaddir);
   for my $file (sort keys %buildenvs) {
@@ -3471,7 +3471,7 @@ sub delfile {
   if ($cgi->{'keeplink'}) {
     $files = lsrev_expanded($rev);
   } else {
-    $files = BSSrcrep::lsrev($rev);
+    $files = BSRevision::lsrev($rev);
   }
   die("404 file '$filename' does not exist\n") unless $files->{$filename};
   delete $files->{$filename};
@@ -3947,11 +3947,11 @@ sub getlogfile {
     if ($@) {
       my $error = $@;
       if ($rev->{'srcmd5'}) {
-        my $files = BSSrcrep::lsrev($rev);
+        my $files = BSRevision::lsrev($rev);
 	if ($files->{'_serviceerror'}) {
-	  $error = BSSrcrep::repreadstr($rev, '_serviceerror', $files->{'_serviceerror'});
+	  $error = BSRevision::revreadstr($rev, '_serviceerror', $files->{'_serviceerror'});
 	} elsif ($files->{'_linkerror'}) {
-	  $error = BSSrcrep::repreadstr($rev, '_linkerror', $files->{'_linkerror'});
+	  $error = BSRevision::revreadstr($rev, '_linkerror', $files->{'_linkerror'});
 	}
       }
       if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
@@ -4843,7 +4843,7 @@ sub getsslcert {
     my $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
     $pk = autoextend_check($projid, $pk) if $cgi->{'autoextend'};
     my $rev = BSRevision::getrev_meta($projid, undef);
-    my $files = BSSrcrep::lsrev($rev);
+    my $files = BSRevision::lsrev($rev);
     my $cert;
     if (!$files->{'_sslcert'}) {
       # length(signkey) <= 2 means special handling, don't commit it
@@ -4856,7 +4856,7 @@ sub getsslcert {
       writestr("$uploaddir/sslcert.$$", undef, $cert);
       BSRevision::addrev_meta_replace({'comment' => 'automatic cert creation'}, $projid, undef, [ "$uploaddir/sslcert.$$", undef, '_sslcert']);
     } else {
-      $cert = BSSrcrep::repreadstr($rev, '_sslcert', $files->{'_sslcert'});
+      $cert = BSRevision::revreadstr($rev, '_sslcert', $files->{'_sslcert'});
     }
     return ($cert, 'Content-Type: text/plain');
   }
@@ -5204,7 +5204,7 @@ sub sourceinfo {
       $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5, 'project' => $projid, 'package' => $packid };
     }
     my $linkinfo = {};
-    $files = BSSrcrep::lsrev($rev, $linkinfo);
+    $files = BSRevision::lsrev($rev, $linkinfo);
     if ($linkinfo->{'xservicemd5'}) {
       $files = BSSrcServer::Service::handleservice($rev, $files, $linkinfo->{'xservicemd5'});
       $r->{'srcmd5'} = $rev->{'srcmd5'};
@@ -5284,7 +5284,7 @@ sub sourceinfo {
     $r->{'error'} = "don't know how to build $file";
     return $r;
   }
-  my $d = Build::parse_typed($bconf, BSSrcrep::repfilename($rev, $file, $files->{$file}), $buildtype);
+  my $d = Build::parse_typed($bconf, BSRevision::revfilename($rev, $file, $files->{$file}), $buildtype);
   if (!$d) {
     $r->{'error'} = "parse error";
     return $r;

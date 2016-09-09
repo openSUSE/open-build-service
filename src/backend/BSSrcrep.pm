@@ -34,6 +34,7 @@ use strict;
 my $srcrep = "$BSConfig::bsdir/sources";
 my $treesdir = $BSConfig::nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrep;
 my $eventdir = "$BSConfig::bsdir/events";
+my $projectsdir = "$BSConfig::bsdir/projects";		# for upload/pattern meta
 
 my $uploaddir = "$srcrep/:upload";
 
@@ -50,54 +51,54 @@ if (!defined(&BSSolv::isobscpio)) {
 #  Source file handling
 #
 
-sub repstat {
-  my ($rev, $filename, $md5) = @_;
-  return stat(repfilename($rev, $filename, $md5)) if $filename eq '_serviceerror';
-  return BSSolv::obscpiostat("$srcrep/$rev->{'package'}/$md5-$filename") if $filename =~ /\.obscpio$/s;
-  return stat("$srcrep/$rev->{'package'}/$md5-$filename");
+sub filestat {
+  my ($projid, $packid, $filename, $md5) = @_;
+  return stat(filepath($projid, $packid, $filename, $md5)) if $filename eq '_serviceerror';
+  return BSSolv::obscpiostat("$srcrep/$packid/$md5-$filename") if $filename =~ /\.obscpio$/s;
+  return stat("$srcrep/$packid/$md5-$filename");
 }
 
-sub repopen {
-  my ($rev, $filename, $md5, $fd) = @_;
-  return open($fd, '<', repfilename($rev, $filename, $md5)) if $filename eq '_serviceerror';
-  return BSSolv::obscpioopen("$srcrep/$rev->{'package'}/$md5-$filename", "$srcrep/$rev->{'package'}/deltastore", $fd, $uploaddir) if $filename =~ /\.obscpio$/s;
-  return open($fd, '<', "$srcrep/$rev->{'package'}/$md5-$filename");
+sub fileopen {
+  my ($projid, $packid, $filename, $md5, $fd) = @_;
+  return open($fd, '<', filepath($projid, $packid, $filename, $md5)) if $filename eq '_serviceerror';
+  return BSSolv::obscpioopen("$srcrep/$packid/$md5-$filename", "$srcrep/$packid/deltastore", $fd, $uploaddir) if $filename =~ /\.obscpio$/s;
+  return open($fd, '<', "$srcrep/$packid/$md5-$filename");
 }
 
-sub repreadstr {
-  my ($rev, $filename, $md5, $nonfatal) = @_;
-  die("repreadstr does not work with .obscpio files\n") if $filename =~ /\.obscpio$/s;
-  return readstr("$srcrep/$rev->{'package'}/$md5-$filename", $nonfatal);
+sub filereadstr {
+  my ($projid, $packid, $filename, $md5, $nonfatal) = @_;
+  die("filereadstr does not work with .obscpio files\n") if $filename =~ /\.obscpio$/s;
+  return readstr("$srcrep/$packid/$md5-$filename", $nonfatal);
 }
 
-sub repreadxml {
-  my ($rev, $filename, $md5, $dtd, $nonfatal) = @_;
-  die("repreadxml does not work with .obscpio files\n") if $filename =~ /\.obscpio$/s;
-  return readxml("$srcrep/$rev->{'package'}/$md5-$filename", $dtd, $nonfatal);
+sub filereadxml {
+  my ($projid, $packid, $filename, $md5, $dtd, $nonfatal) = @_;
+  die("filereadxml does not work with .obscpio files\n") if $filename =~ /\.obscpio$/s;
+  return readxml("$srcrep/$packid/$md5-$filename", $dtd, $nonfatal);
 }
 
-sub repfilename {
-  my ($rev, $filename, $md5) = @_;
+sub filepath {
+  my ($projid, $packid, $filename, $md5) = @_;
   if ($filename eq '_serviceerror') {
     # sigh, _serviceerror files live in the trees...
-    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$rev->{'project'}/$rev->{'package'}" : "$treesdir/$rev->{'package'}";
+    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
     return "$treedir/$md5-_serviceerror" if -e "$treedir/$md5-_serviceerror";
   }
-  return "$srcrep/$rev->{'package'}/$md5-$filename";
+  return "$srcrep/$packid/$md5-$filename";
 }
 
 # small helper to build cpio requests
-sub repcpiofile {
-  my ($rev, $filename, $md5, $forcehandle) = @_;
+sub cpiofile {
+  my ($projid, $packid, $filename, $md5, $forcehandle) = @_;
   if ($forcehandle || $filename =~ /\.obscpio$/s) {
     my $fd = gensym;
-    if (!repopen($rev, $filename, $md5, $fd)) {
-      return {'name' => $filename, 'error' => "repopen $md5: $!"};
+    if (!fileopen($projid, $packid, $filename, $md5, $fd)) {
+      return {'name' => $filename, 'error' => "fileopen $md5: $!"};
     } else {
       return {'name' => $filename, 'filename' => $fd};
     }
   }
-  return {'name' => $filename, 'filename' => repfilename($rev, $filename, $md5)};
+  return {'name' => $filename, 'filename' => filepath($projid, $packid, $filename, $md5)};
 }
 
 sub addfile {
@@ -192,25 +193,18 @@ sub adddeltastoreevent {
 #  Tree handling
 #
 
-sub lsrev {
-  my ($rev, $linkinfo) = @_;
-  die("nothing known\n") unless $rev;
-  my $projid = $rev->{'project'};
-  my $packid = $rev->{'package'};
-  my $srcmd5 = $rev->{'srcmd5'};
-  die("revision project missing\n") unless defined $projid;
-  die("revision package missing\n") unless defined $packid;
-  die("no such revision\n") unless defined $srcmd5;
+sub lsfiles {
+  my ($projid, $packid, $srcmd5, $linkinfo) = @_;
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;	# just in case...
   if ($srcmd5 eq 'empty' || $srcmd5 eq $emptysrcmd5) {
     return {};
   }
   local *F;
   if ($srcmd5 eq 'upload' || $srcmd5 eq 'pattern') {
-    die("no meta file for special revision\n") unless $rev->{'special_meta'};
-    if (!open(F, '<', $rev->{'special_meta'})) {
+    my $special_meta = $srcmd5 eq 'upload' ? "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS" : "$projectsdir/$projid.pkg/pattern-MD5SUMS";
+    if (!open(F, '<', $special_meta)) {
       return {} if $srcmd5 eq 'pattern';
-      die("$projid/$packid has no upload revision\n");
+      die("$projid/$packid has no $srcmd5 revision\n");
     }
   } else {
     die("bad srcmd5 '$srcmd5'\n") if $srcmd5 !~ /^[0-9a-f]{32}$/;
@@ -229,7 +223,6 @@ sub lsrev {
   chomp @files;
   my $files = {map {substr($_, 34) => substr($_, 0, 32)} @files};
   # hack: do not list _signkey in project meta
-  delete $files->{'_signkey'} if $packid eq '_project' && !$rev->{'keepsignkey'};
   if ($linkinfo) {
     $linkinfo->{'lsrcmd5'} = $files->{'/LOCAL'} if $files->{'/LOCAL'};
     $linkinfo->{'srcmd5'} = $files->{'/LINK'} if $files->{'/LINK'};
@@ -300,7 +293,7 @@ sub copytree {
   return if !$BSConfig::nosharedtrees && $packid eq $opackid;
   my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
   return if -e "$treedir/$srcmd5-MD5SUMS";	# already known
-  my $files = lsrev({'project' => $oprojid, 'package' => $opackid, 'srcmd5' => $srcmd5});
+  my $files = lsfiles($oprojid, $opackid, $srcmd5);
   die("cannot copy service errors\n") if $files->{'_serviceerror'} && keys(%$files) == 1;
   # first copy file content
   copyfiles($projid, $packid, $oprojid, $opackid, $files);
