@@ -285,6 +285,7 @@ Suse::Backend.put('/source/BrokenPublishing/pack_broken_publish/package.spec?use
 
 # manual placing of files
 FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_pubkey", "#{backend_data}/projects/BaseDistro.pkg/_pubkey")
+FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_signkey", "#{backend_data}/projects/BaseDistro.pkg/_signkey")
 FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_sslcert", "#{backend_data}/projects/BaseDistro.pkg/_sslcert")
 # put meta again so that the srcserver puts the files into history
 FileUtils.rm("#{backend_data}/projects/BaseDistro.pkg/_project.mrev")
