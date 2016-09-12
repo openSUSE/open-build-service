@@ -15,7 +15,7 @@ FactoryGirl.define do
         request.creator   = user.login
         request.commenter = user.login
       end
-      unless request.bs_request_actions.any?
+      if request.bs_request_actions.none?
         request.bs_request_actions << create(:bs_request_action, type: evaluator.type, source_project: evaluator.source_project)
       end
       # Monkeypatch to avoid errors caused by permission checks made
