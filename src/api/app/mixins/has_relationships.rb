@@ -11,16 +11,6 @@ module HasRelationships
     Relationship.add_group(self, group, role, ignoreLock)
   end
 
-  def users_and_roles
-    relationships.joins(:role, :user).order('role_name, login').
-        pluck('users.login as login, roles.title AS role_name')
-  end
-
-  def groups_and_roles
-    relationships.joins(:role, :group).order('role_name, title').
-        pluck('groups.title as title', 'roles.title as role_name')
-  end
-
   # webui code is a huge table - TODO to optimize
   def users
     relationships.users.includes(:user).map { |r| r.user }.uniq
@@ -40,11 +30,11 @@ module HasRelationships
   end
 
   def render_relationships(xml)
-    users_and_roles.each do |user, role|
+    relationships.with_users_and_roles.each do |user, role|
       xml.person(userid: user, role: role)
     end
 
-    groups_and_roles.each do |group, role|
+    relationships.with_groups_and_roles.each do |group, role|
       xml.group(groupid: group, role: role)
     end
   end
