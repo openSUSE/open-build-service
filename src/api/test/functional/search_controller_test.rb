@@ -437,6 +437,14 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert get_package_count == (all_packages_count - 3)
   end
 
+  def test_find_all_persons
+    # people misuse this as export function .... is this a privacy violation?
+    login_Iggy
+    get "/search/person?match=*"
+    assert_response :success
+    assert_xml_tag tag: 'collection'
+  end
+
   def test_find_owner
     login_king
 
