@@ -19,6 +19,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Provision the box with a simple shell script
     fe.vm.provision :shell, inline: '/vagrant/contrib/bootstrap.sh'
     fe.vm.provision :shell, inline: 'mount /vagrant/src/api/tmp', run: "always"
+    fe.vm.provision :shell, inline: 'chown -R vagrant:users /vagrant/src/api/tmp', run: "always"
 
     # Execute commands in the frontend directory
     fe.exec.commands %w(rails rake rspec bundle), directory: '/vagrant/src/api'
