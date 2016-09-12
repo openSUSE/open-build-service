@@ -43,6 +43,14 @@ class Relationship < ApplicationRecord
   scope :packages, -> { where("package_id is not null") }
   scope :groups, -> { where("group_id is not null") }
   scope :users, -> { where("user_id is not null") }
+  scope :with_users_and_roles, lambda {
+    joins(:role, :user).order('role_name, login').
+      pluck('users.login as login, roles.title AS role_name')
+  }
+  scope :with_groups_and_roles, lambda {
+    joins(:role, :group).order('role_name, title').
+      pluck('groups.title as title', 'roles.title as role_name')
+  }
 
   # we only care for project<->user relationships, but the cache is not *that* expensive
   # to recalculate
