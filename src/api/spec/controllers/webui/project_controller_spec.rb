@@ -26,7 +26,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     it 'will protect forms without authenticity token' do
-      expect { post :save_person, project: 'home:tom' }.to raise_error ActionController::InvalidAuthenticityToken
+      expect { post :save_person, project: user.home_project }.to raise_error ActionController::InvalidAuthenticityToken
     end
   end
 
@@ -508,9 +508,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
       request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
     end
 
-    shared_examples "a valid project saved" do |project|
-      it { expect(flash[:notice]).to start_with("Project '#{project}' was created successfully") }
-      it { is_expected.to redirect_to(project_show_path(project)) }
+    shared_examples "a valid project saved" do
+      it { expect(flash[:notice]).to start_with("Project '#{user.home_project_name}:my_project' was created successfully") }
+      it { is_expected.to redirect_to(project_show_path("#{user.home_project_name}:my_project")) }
     end
 
     context "with a namespace called 'base'" do
@@ -519,7 +519,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(assigns(:project).name).to eq("#{user.home_project_name}:my_project") }
-      it_should_behave_like "a valid project saved", "home:tom:my_project"
+      it_should_behave_like "a valid project saved"
     end
 
     context 'with a param called maintenance_project' do
@@ -528,7 +528,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(assigns(:project).kind).to eq('maintenance') }
-      it_should_behave_like "a valid project saved", "home:tom:my_project"
+      it_should_behave_like "a valid project saved"
     end
 
     context 'with a param that disables a flag' do
@@ -539,7 +539,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         it { expect(assigns(:project).flags.pluck(:flag)).to include(flag_name) }
         it { expect(assigns(:project).flags.find_by(flag: flag_name).status).to eq('disable') }
-        it_should_behave_like "a valid project saved", "home:tom:my_project"
+        it_should_behave_like "a valid project saved"
       end
 
       it_should_behave_like "a param that creates a disabled flag", :access_protection, 'access'
