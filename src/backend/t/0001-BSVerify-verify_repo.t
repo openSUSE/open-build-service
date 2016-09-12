@@ -24,7 +24,7 @@ use Data::Dumper;
 
 
 my $tc_repo = {
-    test_class_name     => "repoistory",
+    test_class_name     => "repository",
     code_ref            => \&BSVerify::verify_repo,
     valid               => [
         {
