@@ -95,7 +95,7 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
 9. Building packages:
      The easiest way to start building is to create an interconnect to build.opensuse.org. All resources, including the base distributions can be used that way directly.
      To set this up, follow these steps:
-     * Login as admin and go to cofiguration page.
+     * Login as admin and go to configuration page.
      * Go to the 'Interconnect' tab and press 'Save changes'. That creates an interconnect to build.opensuse.org.
      * Switch back to the 'Configuration' tab and press 'Update' to send your changes to the backend.
      * Restart the backend.
