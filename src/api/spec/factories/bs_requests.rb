@@ -3,7 +3,12 @@ FactoryGirl.define do
     description { Faker::Lorem.paragraph }
     state "new"
 
-    before(:create) do |request|
+    transient do
+      type nil
+      source_project nil
+    end
+
+    before(:create) do |request, evaluator|
       unless request.creator
         user = create(:confirmed_user)
 
@@ -11,7 +16,7 @@ FactoryGirl.define do
         request.commenter = user.login
       end
       unless request.bs_request_actions.any?
-        request.bs_request_actions << create(:bs_request_action)
+        request.bs_request_actions << create(:bs_request_action, type: evaluator.type, source_project: evaluator.source_project)
       end
       # Monkeypatch to avoid errors caused by permission checks made
       # in user and bs_request model
