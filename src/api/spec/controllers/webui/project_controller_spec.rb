@@ -1,4 +1,8 @@
 require 'rails_helper'
+# WARNING: If you change owner tests make sure you uncomment this line
+# and start a test backend. Some of the Owner methods
+# require real backend answers for projects/packages.
+# CONFIG['global_write_through'] = true
 
 RSpec.describe Webui::ProjectController, vcr: true do
   let(:user) { create(:confirmed_user, login: "tom") }
@@ -821,6 +825,36 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(user.home_project.maintained_projects.where(project: user.home_project)).not_to exist }
       it { is_expected.to redirect_to(action: :show, project: user.home_project) }
+    end
+  end
+
+  describe 'POST #new_incident_request' do
+    before do
+      login user
+      request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+    end
+
+    it "without an existent project will raise an exception" do
+      expect { post :new_incident_request, project: 'non:existent:project' }.to raise_error Project::UnknownObjectError
+    end
+
+    context "without a proper action for the maintenance project" do
+      before do
+        post :new_incident_request, project: maintenance_project, description: "Fake description for a request"
+      end
+
+      it { expect(flash[:error]).to eq("MaintenanceHelper::MissingAction") }
+      it { is_expected.to redirect_to(:back) }
+    end
+
+    context "with the proper params" do
+      before do
+        BsRequest.any_instance.stubs(:save!).returns(true)
+        post :new_incident_request, project: maintenance_project, description: "Fake description for a request"
+      end
+
+      it { expect(flash[:success]).to eq("Created maintenance incident request") }
+      it { is_expected.to redirect_to(project_show_path(maintenance_project)) }
     end
   end
 end
