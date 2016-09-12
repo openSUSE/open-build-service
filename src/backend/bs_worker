@@ -2782,7 +2782,7 @@ sub dobuild {
       my $prio = 0;
       for my $prjpath (@{$buildinfo->{'path'} || []}) {
         $prio = $prio + 1;
-	my $repo ="repos/$prjpath->{'project'}/$prjpath->{'repository'}";
+	my $repo ="dir://./repos/$prjpath->{'project'}/$prjpath->{'repository'}";
 	$repo =~ s/:/:\//g;		# XXX: no longer needed?
 	push @args, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
 	push @args, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', 'rpm-md';
