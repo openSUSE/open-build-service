@@ -1,61 +1,134 @@
 #!/bin/bash
 
+#function to help with the usage
+function _print_syntax() {
+  me=`basename "$0"`
+  echo "Usage: $me [-d <dir> -l <dir>]"
+  echo -e "\t-d <dir>\tDirectory of source code. If not provided /vagrant ist used"
+  echo -e "\t-l <dir>\tDirectory where the logfiles should be put. If not set STDERR and STDOUT will be printed to console"
+}
+
+#reset OPTIND
+OPTIND=1
+
+#preset GIT_HOME
+GIT_HOME="/vagrant"
+
+#get options and check if there is a space in the dir arguments
+while getopts "l:d:h?" opt; do
+  case "$opt" in
+  l)
+    REDIR_LOG=$OPTARG
+    if [[ "REDIR_LOG" =~ [[:space:]] ]]; then
+      echo "Directory may not contain whitespaces"
+      exit
+    fi
+    ;;
+  d)
+    GIT_HOME=$OPTARG
+    if [[ "$GIT_HOME" =~ [[:space:]] ]]; then
+      echo "Directory may not contain whitespaces"
+      exit
+    fi
+    ;;
+  h|\?)
+    _print_syntax
+    exit 0
+  esac
+done
+
+#REDIR_LOG points to the directory where the logfiles should be created. If the directory does not
+#exist it will be created. APPEND_ARR[*] is filled with the output redirection for each service.
+if [ -n "$REDIR_LOG" ]; then
+  if [ ! -d "$REDIR_LOG" ]; then
+    echo "$REDIR_LOG does not exist. Will try to create it"
+    mkdir -p "$REDIR_LOG" || { echo "Failure in creating directory:"; print_error; exit; }
+  fi
+  APPEND_ARR[0]=">$REDIR_LOG/bs_srcserver.log 2>&1"
+  APPEND_ARR[1]=">$REDIR_LOG/bs_repserver.log 2>&1"
+  APPEND_ARR[2]=">$REDIR_LOG/bs_sched_i586.log 2>&1"
+  APPEND_ARR[3]=">$REDIR_LOG/bs_sched_x86_64.log 2>&1"
+  APPEND_ARR[4]=">$REDIR_LOG/bs_dispatch.log 2>&1"
+  APPEND_ARR[5]=">$REDIR_LOG/bs_publish.log 2>&1"
+  APPEND_ARR[6]=">$REDIR_LOG/bs_worker.log 2>&1"
+fi
+
+#check if GIT_HOME exists. If not it does not make any sense to continue.
+if [ ! -d "$GIT_HOME" ]; then
+  echo "There seems to be something wrong. Directory $GIT_HOME not found."
+  echo "Please check if you are pointing to the right directory."
+  exit 1
+fi
+
 #set perl include path to our development backend
-PERL5LIB=/vagrant/src/backend
+PERL5LIB=$GIT_HOME/src/backend
 export PERL5LIB
 
 #create BSConfig.pm and change hostname to localhost
-if [ ! -f /vagrant/src/backend/BSConfig.pm ]; then
-  cp /vagrant/src/backend/BSConfig.pm.template /vagrant/src/backend/BSConfig.pm
+if [ ! -f $GIT_HOME/src/backend/BSConfig.pm ]; then
+  cp $GIT_HOME/src/backend/BSConfig.pm.template $GIT_HOME/src/backend/BSConfig.pm
 fi
-perl -pi -e 's/my \$hostname.*/my \$hostname="localhost";/' /vagrant/src/backend/BSConfig.pm
+perl -pi -e 's/my \$hostname.*/my \$hostname="localhost";/' $GIT_HOME/src/backend/BSConfig.pm
 
 
 #start backend services (the minimum needed) with two arch(i586/x86_64) schedulers and one worker
 echo "Starting bs_srcserver"
-sudo /vagrant/src/backend/bs_srcserver &
+COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_srcserver ${APPEND_ARR[0]} &"
+eval $COMMAND_STRING
 sleep 4
 echo "Starting bs_repserver"
-sudo /vagrant/src/backend/bs_repserver &
+COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_repserver ${APPEND_ARR[1]} &"
+eval $COMMAND_STRING
 sleep 2
-echo "Starting bs_sched"
-sudo /vagrant/src/backend/bs_sched i586 &
-sudo /vagrant/src/backend/bs_sched x86_64 &
+echo "Starting bs_sched i586"
+COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_sched i586 ${APPEND_ARR[2]} &"
+eval $COMMAND_STRING
+echo "Starting bs_sched x86_64"
+COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_sched x86_64 ${APPEND_ARR[3]} &"
+eval $COMMAND_STRING
 echo "Starting bs_dispatch"
-sudo /vagrant/src/backend/bs_dispatch &
+COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_dispatch ${APPEND_ARR[4]} &"
+eval $COMMAND_STRING
 echo "Starting bs_publish"
-sudo /vagrant/src/backend/bs_publish &
+COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_publish ${APPEND_ARR[5]} &"
+eval $COMMAND_STRING
 if [ ! -d /srv/obs/run/worker/1 ]; then
-	sudo mkdir -p /srv/obs/run/worker/1
+  sudo mkdir -p /srv/obs/run/worker/1
 fi
 if [ ! -d /var/cache/obs/worker/root_1 ]; then
-	sudo mkdir -p /var/cache/obs/worker/root_1
+  sudo mkdir -p /var/cache/obs/worker/root_1
 fi
 sudo chown -R obsrun:obsrun /srv/obs/run/
 echo "Starting bs_worker"
-sudo /vagrant/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_1 --statedir /srv/obs/run/worker/1 --id vagrant-obs:1 --reposerver http://localhost:5252 --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 &
+COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_1 --statedir /srv/obs/run/worker/1 --id $HOSTNAME:1 --reposerver http://localhost:5252 --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 ${APPEND_ARR[6]} &"
+eval $COMMAND_STRING
 
 #Cleanup function to terminate all backend services
 function clean_up {
-	echo -e "\ncleaning up and exit"
-	echo -e "Terminating Services"
-	sudo killall bs_srcserver
-	echo -e "Terminated SRC Server"
-	sudo killall bs_repserver
-	echo -e "Terminated REP Server"
-	sudo killall bs_sched
-	echo -e "Terminated Scheduler"
-	sudo killall bs_dispatch
-	echo -e "Terminated Dispatcher"
-	sudo killall bs_worker
-	echo -e "Terminated Worker"
-        sudo killall bs_publish
-	echo -e "Terminated Publisher"
-	exit;
+  echo -e "\ncleaning up and exit"
+  echo -e "Terminating Services"
+  sudo killall bs_srcserver
+  echo -e "Terminated SRC Server"
+  sudo killall bs_repserver
+  echo -e "Terminated REP Server"
+  sudo killall bs_sched
+  echo -e "Terminated Scheduler"
+  sudo killall bs_dispatch
+  echo -e "Terminated Dispatcher"
+  sudo killall bs_worker
+  echo -e "Terminated Worker"
+  sudo killall bs_publish
+  echo -e "Terminated Publisher"
+  exit;
 }
 
+if [ -n "$REDIR_LOG" ]; then
+  echo "Logfiles will be written to $REDIR_LOG"
+  echo "Each service has it's own logfile"
+fi
 echo "If you want to terminate the backend, just hit Ctrl-C"
+
 while true; do
-	trap clean_up SIGHUP SIGINT SIGTERM SIGKILL
+  trap clean_up SIGHUP SIGINT SIGTERM SIGKILL
 done
 
