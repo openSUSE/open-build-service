@@ -81,11 +81,6 @@ class Webui::PackageController < Webui::WebuiController
 
     @comments = @package.comments
     @requests = []
-    # TODO!!!
-    # BsRequest.list(
-    #  {:states => %w(review), :reviewstates => %w(new), :roles => %w(reviewer), :project => @project.name, :package => @package.name}
-    # ) +
-    # BsRequest.list({:states => %w(new), :roles => %w(target), :project => @project.name, :package => @package.name})
   end
 
   def main_object
