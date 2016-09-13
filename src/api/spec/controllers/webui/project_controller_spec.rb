@@ -734,4 +734,56 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
     end
   end
+
+  describe 'POST #remove_maintained_project' do
+    before do
+      login user
+    end
+
+    context "with maintained kind" do
+      before do
+        user.home_project.update(kind: 'maintenance')
+      end
+
+      context "maintained project successfully removed" do
+        let(:maintained_project) { create(:maintained_project, project: user.home_project) }
+
+        before do
+          post :remove_maintained_project, project: user.home_project, maintained_project: maintained_project.project.name
+        end
+
+        it { expect(flash[:notice]).to eq("Removed #{maintained_project.project.name} from maintenance") }
+        it { is_expected.to redirect_to(action: 'maintained_projects', project: user.home_project) }
+      end
+
+      context "with an invalid maintained project" do
+        before do
+          request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+          post :remove_maintained_project, project: user.home_project, maintained_project: user.home_project.name
+        end
+
+        it { expect(flash[:error]).to eq("Failed to remove #{user.home_project.name} from maintenance") }
+        it { is_expected.to redirect_to(:back) }
+      end
+
+      # raise the exception in the before_filter set_maintained_project
+      it "#remove_maintained_project raise excepction with invalid maintained project" do
+        expect {
+          post :remove_maintained_project, project: user.home_project, maintained_project: "invalid"
+        }.to raise_exception ActiveRecord::RecordNotFound
+      end
+    end
+
+    # redirect in the before_filter require_maintenance_project
+    context "#remove_maintained_project fails without maintenance kind for a valid maintained project" do
+      let(:maintained_project) { create(:maintained_project, project: user.home_project) }
+
+      before do
+        user.home_project.update(kind: nil)
+        post :remove_maintained_project, project: user.home_project, maintained_project: maintained_project.project.name
+      end
+
+      it { is_expected.to redirect_to(action: :show, project: user.home_project) }
+    end
+  end
 end
