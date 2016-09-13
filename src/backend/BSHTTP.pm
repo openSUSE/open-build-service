@@ -466,7 +466,7 @@ sub cpio_sender {
       my $r = 0;
       while(1) {
 	$r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
-	die "Error while reading file $file->{filename}: $!\n" if ! defined($r);
+	die("error while reading '$filename': $!\n") unless defined $r;
 	$data .= $pad if $r == $l;
 	swrite($sock, $data, $param->{'chunked'});
 	$data = '';
