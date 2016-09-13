@@ -221,6 +221,7 @@ sub server {
     $conf->{'periodic_interval'} ||= 1;
     $conf->{'serverstatus'} ||= "$rundir/$name.status";
     $conf->{'setkeepalive'} = 1 unless defined $conf->{'setkeepalive'};
+    $conf->{'run'} ||= \&BSServer::server;
     $conf->{'name'} = $name;
     BSDispatch::compile($conf);
   }
@@ -237,6 +238,7 @@ sub server {
     $aconf->{'setkeepalive'} = 1 unless defined $aconf->{'setkeepalive'};
     $aconf->{'getrequest_timeout'} = 10 unless exists $aconf->{'getrequest_timeout'};
     $aconf->{'replrequest_timeout'} = 10 unless exists $aconf->{'replrequest_timeout'};
+    $aconf->{'run'} ||= \&BSEvents::schedule;
     $aconf->{'name'} = $name;
     BSDispatch::compile($aconf);
   }
@@ -264,13 +266,14 @@ sub server {
       $aconf->{'server_ev'} = $sev;	# for periodic_ajax
       BSServer::msg("AJAX: $name started");
       eval {
-        BSEvents::schedule();
+        $aconf->{'run'}->($aconf);
       };
       writestr("$rundir/$name.AJAX.died", undef, $@);
       die("AJAX: died $@\n");
     }
   }
   mkdir_p($rundir);
+  die("cannot write to rundir '$rundir'\n") unless -w $rundir;
   # intialize xml converter to speed things up
   XMLin(['startup' => '_content'], '<startup>x</startup>');
 
@@ -279,7 +282,7 @@ sub server {
   } else {
     BSServer::msg("$name started on port $conf->{port}");
   }
-  BSServer::server($conf);
+  $conf->{'run'}->($conf);
   die("server returned\n");
 }
 
