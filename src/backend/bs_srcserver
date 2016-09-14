@@ -1779,9 +1779,9 @@ sub putproject {
   BSVerify::verify_proj($proj, $projid);
   writexml("$uploaddir/$$.2", undef, $proj, $BSXML::proj);
   unlink("$uploaddir/$$");
-  my $oldproj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
+  my $oldproj = BSRevision::readproj_local($projid, 1);
   notify($oldproj ? "SRCSRV_UPDATE_PROJECT" : "SRCSRV_CREATE_PROJECT", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
-  mkdir_p("$projectsdir") || die("creating $projectsdir: $!\n");
+  mkdir_p($projectsdir) || die("creating $projectsdir: $!\n");
   BSRevision::addrev_meta_replace($cgi, $projid, undef, [ "$uploaddir/$$.2", "$projectsdir/$projid.xml", '_meta' ]);
   BSConfiguration::check_configuration_once();
   if ($BSConfig::forceprojectkeys) {
@@ -1792,7 +1792,7 @@ sub putproject {
   my %except = map {$_ => 1} qw{title description person group url attributes};
   if (!BSUtil::identical($oldproj, $proj, \%except)) {
     my $type = ($cgi->{'lowprio'}) ? 'lowprioproject' : 'project';
-    if ($proj->{'remoteurl'}) {
+    if ($proj->{'remoteurl'} || ($oldproj || {})->{'remoteurl'}) {
       # inform all repserves about a remote project
       # need to add the event here since notify_all_repservers() doesn't do it
       my $ev = {'type' => $type, 'project' => $projid};
@@ -1924,7 +1924,7 @@ sub putpackage {
   }
   mkdir_p("$projectsdir/$projid.pkg");
 
-  my $oldpack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
+  my $oldpack = BSRevision::readpack_local($projid, $packid, 1);
   notify($oldpack ? "SRCSRV_UPDATE_PACKAGE" : "SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
 
   BSRevision::addrev_meta_replace($cgi, $projid, $packid, [ "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta' ]);
