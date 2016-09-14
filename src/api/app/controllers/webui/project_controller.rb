@@ -709,8 +709,8 @@ class Webui::ProjectController < Webui::WebuiController
 
   def remove_maintained_project
     authorize @project, :update?
-    @project.maintained_projects.delete(MaintainedProject.find_by(project: @maintained_project))
-    if @project.save
+    maintained_project = MaintainedProject.find_by(project: @maintained_project)
+    if maintained_project && @project.maintained_projects.destroy(maintained_project)
       @project.store
       redirect_to({:action => 'maintained_projects', :project => @project}, notice: "Removed #{@maintained_project} from maintenance")
     else
