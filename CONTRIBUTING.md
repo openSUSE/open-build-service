@@ -29,7 +29,7 @@ In particular, this community seeks the following types of contributions:
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
 * Enter your issue and a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will label and prioritize it for you.
 
-We are using priority labels from **P0** to **P4** for our issues. So if you are a memer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) you are supposed to
+We are using priority labels from **P0** to **P4** for our issues. So if you are a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) you are supposed to
 * P0: Critical Situation - Drop what you are doing and fix this issue now!
 * P1: Urgent - Fix this next even if you still have other issues assigned to you.
 * P2: High   - Fix this after you have fixed all your other issues.
