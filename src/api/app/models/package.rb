@@ -377,6 +377,14 @@ class Package < ApplicationRecord
     end
   end
 
+  def unlock_by_request(request)
+    f = self.flags.find_by_flag_and_status('lock', 'enable')
+    if f
+      self.flags.delete(f)
+      self.store(comment: "Request got revoked", request: request, lowprio: 1)
+    end
+  end
+
   def sources_changed(opts = {})
     dir_xml = opts[:dir_xml]
     update_activity

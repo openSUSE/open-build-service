@@ -478,7 +478,12 @@ class BsRequest < ApplicationRecord
     self.bs_request_actions.where(type: 'maintenance_release').each do |action|
       # unlock incident project in the soft way
       prj = Project.get_by_name(action.source_project)
-      prj.unlock_by_request(self)
+      if prj.is_locked?
+        prj.unlock_by_request(self)
+      else
+        pkg = Package.get_by_project_and_name(action.source_project, action.source_package)
+        pkg.unlock_by_request(self) if pkg.is_locked?
+      end
     end
   end
 

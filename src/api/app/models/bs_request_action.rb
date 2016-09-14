@@ -888,13 +888,14 @@ class BsRequestAction < ApplicationRecord
     end
 
     if [:submit, :maintenance_release, :maintenance_incident].include?(self.action_type)
-      per_package_locking = false
       packages = Array.new
+      per_package_locking = false
       if self.source_package
         packages << Package.get_by_project_and_name(self.source_project, self.source_package)
         per_package_locking = true
       else
         packages = Project.get_by_name(self.source_project).packages
+        per_package_locking = true if self.action_type == :maintenance_release
       end
 
       return create_expand_package(packages, {ignore_build_state: ignore_build_state}),
@@ -945,7 +946,13 @@ class BsRequestAction < ApplicationRecord
       url = Package.source_path(self.source_project, self.source_package, nil, query)
       c = Suse::Backend.get(url).body
       if add_revision and !self.source_rev
-        self.source_rev = Xmlhash.parse(c)['srcmd5']
+        dir = Xmlhash.parse(c)
+        if self.action_type == :maintenance_release and dir['entry']
+          # patchinfos in release requests get not frozen to allow to modify meta data
+          return if dir['entry'].kind_of?(Array) && dir['entry'].map{|e| e['name']}.include?('_patchinfo')
+          return if dir['entry'].kind_of?(Hash) && dir['entry']['name'] == '_patchinfo'
+        end
+        self.source_rev = dir['srcmd5']
       end
     rescue ActiveXML::Transport::Error
       # rubocop:disable Metrics/LineLength
