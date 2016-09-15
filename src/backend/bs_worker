@@ -2677,7 +2677,7 @@ sub dobuild {
   my @configpath;
   if ($kiwimode) {
     @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$buildinfo->{'syspath'} || $buildinfo->{'path'} || []};
-    unshift @configpath, "path=$projid/$repoid" unless @configpath;
+    unshift @configpath, "path=$projid/$repoid" unless @configpath && $configpath[0] eq "path=$projid/$repoid";
   }
   my $server = $buildinfo->{'srcserver'} || $srcserver;
   my $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
