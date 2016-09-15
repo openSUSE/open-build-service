@@ -125,7 +125,7 @@ OBSApi::Application.routes.draw do
       post 'package/save_person/:project/:package' => :save_person, constraints: cons
       post 'package/save_group/:project/:package' => :save_group, constraints: cons
       post 'package/remove_role/:project/:package' => :remove_role, constraints: cons
-      get 'package/view_file/(:project/(:package/(:filename)))' => :view_file, constraints: cons, as: 'package_view_file'
+      get 'package/view_file/(:project/(:package/(:filename)))' => :view_file, constraints: cons, as: 'package_view_file', defaults: {format: "html"}
       get 'package/live_build_log/(:project/(:package/(:repository/(:arch))))' => :live_build_log, constraints: cons, as: 'package_live_build_log'
       get 'package/update_build_log/:project/:package' => :update_build_log, constraints: cons
       get 'package/abort_build/:project/:package' => :abort_build, constraints: cons
