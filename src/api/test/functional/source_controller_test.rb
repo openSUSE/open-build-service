@@ -3999,6 +3999,28 @@ EOF
       }.to_query, project_config
     assert_response :success
   end
+
+  def test_backend_package_indexing
+    # at least 3 links found
+    assert_operator BackendPackage.links.count, :>=, 3
+
+    # now call the same without crashing
+    count_before = BackendPackage.links.count
+    assert_equal BackendPackage.links.count, count_before
+
+    # now create a link
+    login_king
+    count_before = BackendPackage.links.count
+    delete "/source/BaseDistro2.0/pack2.linked/_link"
+    assert_response :success
+
+    # the link should disappear in database
+    assert_equal 1, count_before - BackendPackage.links.count
+
+    # now readd the link (also to fix the fixtures)
+    put('/source/BaseDistro2.0/pack2.linked/_link', "<link package=\"pack2\" cicount='copy' />")
+    assert_equal count_before, BackendPackage.links.count
+  end
 end
 # rubocop:enable Metrics/LineLength
 # rubocop:enable Metrics/ClassLength

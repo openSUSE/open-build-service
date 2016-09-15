@@ -34,7 +34,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     branch_package
     create_request
 
-    @package.project.destroy
+    @project.destroy
 
     @request.reload
     assert_equal :revoked, @request.state
@@ -76,7 +76,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     assert_equal :accepted, @request.reload.state
     assert_equal 0, HistoryElement::RequestRevoked.where(op_object_id: @request.id).count
 
-    @package.project.destroy
+    @project.destroy
   end
 
   def test_accept_request_does_not_revoke_request_for_multiple_packages
@@ -94,7 +94,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     assert_equal :accepted, @request.reload.state
     assert_equal 0, HistoryElement::RequestRevoked.where(op_object_id: @request.id).count
 
-    @package.project.destroy
+    @project.destroy
   end
 
   def test_review_gets_obsoleted
@@ -121,7 +121,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     assert_equal :new, @request.state
 
     # cleanup
-    @package.project.destroy
+    review_project.destroy
   end
 
   def test_cleanup_packages
@@ -138,6 +138,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   def branch_package(project = 'Apache', package = 'apache2')
     # Branch a package and change it's contents
     BranchPackage.new(project: project, package: package).branch
+    @project = Project.find_by_name("home:#{User.current.login}:branches:#{project}")
     @package = Package.find_by_project_and_name("home:#{User.current.login}:branches:#{project}", package)
     @package.save_file(file: 'whatever', filename: "testfile#{SecureRandom.hex}") # always new file to have changes in the package
   end

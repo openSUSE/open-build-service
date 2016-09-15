@@ -26,7 +26,7 @@ class IssueTracker < ApplicationRecord
     Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
 
     # We need to parse again ALL sources ...
-    UpdatePackageMetaJob.perform_later
+    BackendPackage.delete_all
   end
 
   before_validation(on: :create) do
