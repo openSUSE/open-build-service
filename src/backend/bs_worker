@@ -824,15 +824,18 @@ sub getcode {
   rm_rf($odir) if -e $odir;
 
   mkdir($ndir) || die("mkdir $ndir: $!\n");
-  my $res = BSRPC::rpc({
-    'uri' => $uri,
-    'directory' => $ndir,
-    'timeout' => $gettimeout,
-    'withmd5' => 1,
-    'createsubdirs' => 1,
-    'receiver' => \&BSHTTP::cpio_receiver,
-  });
-  die("getcode error\n") unless $res;
+  my $res;
+  eval {
+    $res = BSRPC::rpc({
+      'uri' => $uri,
+      'directory' => $ndir,
+      'timeout' => $gettimeout,
+      'withmd5' => 1,
+      'createsubdirs' => 1,
+      'receiver' => \&BSHTTP::cpio_receiver,
+    });
+  };
+  die("getcode: $@") if $@;
 
   # got everything, clean things up, check if it really works
   if ($dir eq 'worker') {
@@ -882,14 +885,17 @@ sub getsources {
   push @meta, ($buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'})."  $buildinfo->{'package'}";
   my $server = $buildinfo->{'srcserver'} || $srcserver;
 
-  my $res = BSRPC::rpc({
-    'uri' => "$server/getsources",
-    'directory' => $dir,
-    'timeout' => $gettimeout,
-    'withmd5' => 1,
-    'receiver' => \&BSHTTP::cpio_receiver,
-  }, undef, "project=$buildinfo->{'project'}", "package=$buildinfo->{'package'}", "srcmd5=$buildinfo->{'srcmd5'}");
-  die("Error\n") unless ref($res) eq 'ARRAY';
+  my $res;
+  eval {
+    $res = BSRPC::rpc({
+      'uri' => "$server/getsources",
+      'directory' => $dir,
+      'timeout' => $gettimeout,
+      'withmd5' => 1,
+      'receiver' => \&BSHTTP::cpio_receiver,
+    }, undef, "project=$buildinfo->{'project'}", "package=$buildinfo->{'package'}", "srcmd5=$buildinfo->{'srcmd5'}");
+  };
+  die("getsources: $@") if $@;
   if (-e "$dir/.errors") {
     my $errors = readstr("$dir/.errors", 1);
     die("getsources: $errors");
@@ -921,7 +927,6 @@ sub getsources {
       'withmd5' => 1,
       'receiver' => \&BSHTTP::cpio_receiver,
     }, undef, "project=$src->{'project'}", "package=$src->{'package'}", "srcmd5=$src->{'srcmd5'}");
-    die("Error\n") unless ref($res) eq 'ARRAY';
     if (-e "$idir/.errors") {
       my $errors = readstr("$idir/.errors", 1);
       die("getsources: $errors");
@@ -943,7 +948,6 @@ sub getdeltasources {
     'timeout' => $gettimeout,
     'receiver' => \&BSHTTP::cpio_receiver,
   }, undef, "job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$buildinfo->{'jobid'}");
-  die("Error\n") unless ref($res) eq 'ARRAY';
   return @meta;
 }
 
@@ -956,7 +960,6 @@ sub getfollowupsources {
     'timeout' => $gettimeout,
     'receiver' => \&BSHTTP::cpio_receiver,
   }, undef, "job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$buildinfo->{'jobid'}");
-  die("Error\n") unless ref($res) eq 'ARRAY';
   die("no old sources in followup job\n") unless @$res;
   # need to get buildenv from old sources ;(
   $server = $buildinfo->{'srcserver'} || $srcserver;
@@ -2264,12 +2267,16 @@ sub getoldpackages {
 
   # get old package build for compare and diffing tools
   mkdir_p($odir) || die("mkdir_p $odir: $!\n");
-  my $res = BSRPC::rpc({
-    'uri' => "$buildinfo->{'reposerver'}/build/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}/$buildinfo->{'package'}",
-    'directory' => $odir,
-    'timeout' => $gettimeout,
-    'receiver' => \&BSHTTP::cpio_receiver,
-  }, undef, 'view=cpio', 'noajax=1', 'noimport=1');
+  my $res;
+  eval {
+    $res = BSRPC::rpc({
+      'uri' => "$buildinfo->{'reposerver'}/build/$buildinfo->{'project'}/$buildinfo->{'repository'}/$buildinfo->{'arch'}/$buildinfo->{'package'}",
+      'directory' => $odir,
+      'timeout' => $gettimeout,
+      'receiver' => \&BSHTTP::cpio_receiver,
+    }, undef, 'view=cpio', 'noajax=1', 'noimport=1');
+  };
+  die("getoldpackages: $@") if $@;
   rmdir($odir);	# if not needed
   for my $file (@$res) {
     $binariesdownload += 1;
