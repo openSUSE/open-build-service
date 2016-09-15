@@ -170,7 +170,7 @@ class Project < ApplicationRecord
 
   # Check if the project has a path_element matching project and repository
   def has_distribution(project_name, repository)
-    has_local_distribution(repository) || has_remote_distribution(project_name, repository)
+    has_local_distribution(project_name, repository) || has_remote_distribution(project_name, repository)
   end
 
   def number_of_build_problems
@@ -1862,9 +1862,10 @@ class Project < ApplicationRecord
     end
   end
 
-  def has_local_distribution(repository)
+  def has_local_distribution(project_name, repository)
     linked_repositories.not_remote.any? do |linked_repository|
-      linked_repository.name == repository
+      linked_repository.project.name == project_name &&
+          linked_repository.name == repository
     end
   end
 end

@@ -362,15 +362,30 @@ RSpec.describe Project do
     end
 
     context "local distribution" do
-      let(:distribution) { create(:project, name: "BaseDistro2.0") }
-      let(:distribution_repository) { create(:repository, name: "BaseDistro2_repo", project: distribution) }
-      let(:other_distribution) { create(:project, name: "BaseDistro") }
-      let!(:other_distribution_repository) { create(:repository, name: "BaseDistro_repo", project: distribution) }
-      let(:repository) { create(:repository, name: "Base_repo", project: project) }
-      let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: distribution_repository.id, position: 1)}
+      context "with linked distribution" do
+        let(:distribution) { create(:project, name: "BaseDistro2.0") }
+        let(:distribution_repository) { create(:repository, name: "BaseDistro2_repo", project: distribution) }
+        let(:repository) { create(:repository, name: "Base_repo2", project: project) }
+        let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: distribution_repository.id, position: 1)}
 
-      it { expect(project.has_distribution("BaseDistro2.0", "BaseDistro2_repo")).to be(true) }
-      it { expect(project.has_distribution("BaseDistro", "BaseDistro_repo")).to be(false) }
+        it { expect(project.has_distribution("BaseDistro2.0", "BaseDistro2_repo")).to be(true) }
+      end
+
+      context "with not linked distribution" do
+        let(:not_linked_distribution) { create(:project, name: "BaseDistro") }
+        let!(:not_linked_distribution_repository) { create(:repository, name: "BaseDistro_repo", project: not_linked_distribution) }
+
+        it { expect(project.has_distribution("BaseDistro", "BaseDistro_repo")).to be(false) }
+      end
+
+      context "with linked distribution but wrong query" do
+        let(:other_distribution) { create(:project, name: "BaseDistro3.0") }
+        let!(:other_distribution_repository) { create(:repository, name: "BaseDistro3_repo", project: other_distribution) }
+        let(:other_repository) { create(:repository, name: "Base_repo3", project: project) }
+        let!(:path_element) { create(:path_element, parent_id: other_repository.id, repository_id: other_distribution_repository.id, position: 1)}
+        it { expect(project.has_distribution("BaseDistro3.0", "standard")).to be(false) }
+        it { expect(project.has_distribution("BaseDistro4.0", "BaseDistro3_repo")).to be(false) }
+      end
     end
   end
 end
