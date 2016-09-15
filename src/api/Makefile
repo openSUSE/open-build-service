@@ -67,5 +67,7 @@ test_unit:
 	[ -d log ] || mkdir log
 	echo > log/test.log
 	./script/api_test_in_spec.sh
+clean:
+	rm -rf ../../docs/api/html
 
 .PHONY: test

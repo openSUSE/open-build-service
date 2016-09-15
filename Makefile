@@ -10,3 +10,5 @@ test:
 	make -C src/api test
 	make -C dist test
 	make -C src/backend test
+clean:
+	make -C src/api clean
