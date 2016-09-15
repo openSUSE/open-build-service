@@ -779,7 +779,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
       let(:maintained_project) { create(:maintained_project, project: user.home_project) }
 
       before do
-        user.home_project.update(kind: nil)
         post :remove_maintained_project, project: user.home_project, maintained_project: maintained_project.project.name
       end
 
