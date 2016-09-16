@@ -2082,6 +2082,14 @@ XML
     get '/request?view=collection&group=test_group&states=new,review'
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
+    # be sure we have not 2 invalidating the limit test
+    assert_no_xml_tag(tag: "collection", attributes: { matches: 2 })
+
+    # test limit
+    get '/request?view=collection&group=test_group&states=new,review&limit=2'
+    assert_response :success
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: "collection", attributes: { matches: 2 })
 
     # try to break permissions
     post "/request/#{id}?cmd=changestate&newstate=accepted"

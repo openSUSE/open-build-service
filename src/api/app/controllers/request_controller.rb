@@ -38,6 +38,7 @@ class RequestController < ApplicationController
     rel = BsRequest.collection(params).includes([:reviews]).
           includes({bs_request_actions: :bs_request_action_accept_info}).
           order('bs_requests.id').references(:bs_requests)
+    rel = rel.limit(params[:limit].to_i) if params[:limit].to_i > 0
 
     xml = ActiveXML::Node.new '<collection/>'
     matches=0

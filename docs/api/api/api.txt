@@ -869,6 +869,7 @@ Parameters:
   roles: filter for given roles (creator, maintainer, reviewer, source or target)
   withhistory: includes the request history in result
   withfullhistory: includes the request and review history in result
+  limit: to limit the result to the given number of requests
 
 XmlResult: collection
 
