@@ -40,6 +40,7 @@ our @exclude_pkgs = ();
 our @remove_old_sources = ();
 our $service_cleanup = 0;
 our @full_cleanup = ();
+our $remove_deleted_project = 0;
 our $debug = 0;
 our $search = 0;
 our $move_dst = 0;
@@ -68,6 +69,8 @@ MODE (mandatory)
       NOTE when using search-option with full-cleanup: service file cleanup search checks
       only against current revisions. It doesn't take into account what revisions will be
       deleted.
+  --remove-deleted-project <project>
+      Remove files of an deleted project.
 
 OPTIONS (optional)
   --help|-h
@@ -294,12 +297,48 @@ sub search_srcs {
     closedir(SRC_DIR);
 }
 
+# taken from BSUtils
+sub ls {
+  local *D;
+  opendir(D, $_[0]) || return ();
+  my @r = grep {$_ ne '.' && $_ ne '..'} readdir(D);
+  closedir D;
+  return @r;
+}
+
+# taken from BSRevision:lsprojects_local
+sub lsprojects_local {
+  my ($deleted) = @_;
+  if ($deleted) {
+    my @projids = grep {s/\.pkg$//} ls("$OBS_PROJ_DIR/_deleted");
+    @projids = grep {! -e "$OBS_PROJ_DIR/$_.xml"} @projids;
+    return sort @projids;
+  }
+  local *D;
+  return () unless opendir(D, $OBS_PROJ_DIR);
+  my @projids = grep {s/\.xml$//} readdir(D);
+  closedir(D);
+  return sort @projids;
+}
+
 # functionality based on bs_admin script
 sub remove_old_srcs {
     my $days = shift;
     my $min_revs = shift;
-    die("ERROR: second argument must be >=1!\n") if $min_revs <1;
+    my $deleted_prj = shift || "";
+    my $deleted_projects = shift || 0;
+    my $proj_dir = $OBS_PROJ_DIR;
+    my @projids;
 
+    if ($deleted_projects) {
+        $min_revs = 0;
+        $days = 0;
+        $proj_dir = "$OBS_PROJ_DIR/_deleted";
+        @projids = ($deleted_prj);
+    } else {
+        @projids = lsprojects_local();
+        die("ERROR: second argument must be >=1!\n") if $min_revs <1;
+    }
     my $mastertimestamp = time - $days*60*60*24;
     my %deletehashes;
     my %keephashes;
@@ -310,44 +349,44 @@ sub remove_old_srcs {
 
     # get all .rev and .mrev files and fill hashes with files to delete or not do delete
     my @projectdirs;
-    opendir(D, $OBS_PROJ_DIR) || die ($!);
-    foreach my $prjdir (readdir(D)) {
-        next if $prjdir =~ /^\.{1,2}$/;
-        if ( -d $OBS_PROJ_DIR.'/'.$prjdir ) {
-            opendir(E, $OBS_PROJ_DIR.'/'.$prjdir) || die($!);
-            foreach my $file (readdir(E)) {
-                if ( $file =~ /\.(rev)(\.del){0,1}$/ ) {
-                    push @revfiles, "$OBS_PROJ_DIR/$prjdir/$file";
-                    open(F, '<', $OBS_PROJ_DIR.'/'.$prjdir.'/'.$file) || die($!);
-                    my @lines = <F>;
-                    close(F);
+    foreach my $prjid (@projids) {
+      my $prjdir = "$prjid.pkg";
+      if ( -d $proj_dir.'/'.$prjdir ) {
+          opendir(E, $proj_dir.'/'.$prjdir) || die($!);
+          foreach my $file (readdir(E)) {
+              if ( $file =~ /\.(rev)(\.del){0,1}$/ ) {
+                  push @revfiles, "$proj_dir/$prjdir/$file";
+                  open(F, '<', $proj_dir.'/'.$prjdir.'/'.$file) || die($!);
+                  my @lines = <F>;
+                  close(F);
 
-                    my @keeplines;
+                  my @keeplines;
+                  if (!$deleted_projects) {
                     if (scalar(@lines) < $min_revs) {
                         @keeplines = splice(@lines, -scalar(@lines));
                     } else {
                         @keeplines = splice(@lines, -$min_revs);
                     }
-                    # remove lines to keep from normal timestamp checking and put them directly into hash
-                    foreach my $line (@keeplines) {
-                        my ($hash, $time) = ( split(/\|/, $line))[2,4];
-                        push @{$keephashes{$hash}}, { project => $prjdir, file => $OBS_PROJ_DIR.'/'.$prjdir.'/'.$file };
-                    }
+                  }
+                  # remove lines to keep from normal timestamp checking and put them directly into hash
+                  foreach my $line (@keeplines) {
+                      my ($hash, $time) = ( split(/\|/, $line))[2,4];
+                      push @{$keephashes{$hash}}, { project => $prjdir, file => $proj_dir.'/'.$prjdir.'/'.$file };
+                  }
 
-                    foreach my $line (@lines) {
-                        my ($hash, $time) = ( split(/\|/, $line) )[2,4];
-                        if ( $time < $mastertimestamp) {
-                            push @{$deletehashes{$hash}},  { project => $prjdir, file => $OBS_PROJ_DIR.'/'.$prjdir.'/'.$file };
-                        } else {
-                            push @{$keephashes{$hash}}, { project => $prjdir, file => $OBS_PROJ_DIR.'/'.$prjdir.'/'.$file };
-                        }
-                    }
-                }
-            }
-            closedir(E);
-        }
+                  foreach my $line (@lines) {
+                      my ($hash, $time) = ( split(/\|/, $line) )[2,4];
+                      if ( $time < $mastertimestamp || $deleted_projects) {
+                          push @{$deletehashes{$hash}},  { project => $prjdir, file => $proj_dir.'/'.$prjdir.'/'.$file };
+                      } else {
+                          push @{$keephashes{$hash}}, { project => $prjdir, file => $proj_dir.'/'.$prjdir.'/'.$file };
+                      }
+                  }
+              }
+          }
+          closedir(E);
+      }
     }
-    closedir(D);
 
     if ($debug) {
         print "all hashes to keep (must be at least one per project):\n";
@@ -549,6 +588,15 @@ sub remove_old_srcs {
 
     if (scalar(keys %deletefiles) == 0) {
         print "\ndidn't find any files to remove!\n";
+        if ($deleted_projects) {
+          print "deleting project rev files\n";
+          foreach my $revfile (@revfiles) {
+            print "\nfile:\t $revfile" if $debug;
+            if (unlink $revfile || warn "Could not unlink $revfile: $!") {
+              print "deleted\n" if $debug;
+            }
+          }
+        }
         return;
     }
 
@@ -580,45 +628,87 @@ sub remove_old_srcs {
     # rewrite rev files
     if ($remove || $move_dst) {
         print "\nupdate revision files:\n" if $debug;
-        foreach my $key (keys %deletefiles) {
-            my $path = "$OBS_SRC_DIR/".$deletefiles{$key}->{"package"}."/"
-                .$deletefiles{$key}->{"hash"}."-".$deletefiles{$key}->{"desc"};
-            unless (-e $path) {
-                my $revfile = "$OBS_PROJ_DIR/".$deletefiles{$key}->{"project"}.".pkg/".
-                    $deletefiles{$key}->{"package"}.".rev";
-                my $del_hash = $deletefiles{$key}->{"revision"};
-                open(F, '<', $revfile) or die($!);
-                my @revisions = ();
-                foreach my $line (<F>) {
-                    my ($hash) = ( split(/\|/, $line) )[2];
-                    if ($hash =~ $del_hash) {
-                        print "remove $hash from $revfile\n" if $debug;
-                    } else {
-                        push @revisions, $line;
+        print "\ndelete not needed revision files:\n" if $debug && $deleted_projects;
+        if (!$deleted_projects) {
+            foreach my $key (keys %deletefiles) {
+                my $path = "$OBS_SRC_DIR/".$deletefiles{$key}->{"package"}."/"
+                    .$deletefiles{$key}->{"hash"}."-".$deletefiles{$key}->{"desc"};
+                unless (-e $path) {
+                    my $revfile = "$proj_dir/".$deletefiles{$key}->{"project"}.".pkg/".
+                        $deletefiles{$key}->{"package"}.".rev";
+                    my $del_hash = $deletefiles{$key}->{"revision"};
+                    open(F, '<', $revfile) or die($!);
+                    my @revisions = ();
+                    foreach my $line (<F>) {
+                        my ($hash) = ( split(/\|/, $line) )[2];
+                        if ($hash =~ $del_hash) {
+                            print "remove $hash from $revfile\n" if $debug;
+                        } else {
+                            push @revisions, $line;
+                        }
                     }
+                    close(F);
+                    open(F, '>', $revfile) or die($!);
+                    print F @revisions;
+                    close(F);
                 }
-                close(F);
-                open(F, '>', $revfile) or die($!);
-                print F @revisions;
-                close(F);
+            }
+        } else {
+            # remove revfiles, not rewrite them
+            print "deleting project rev files\n";
+            foreach my $revfile (@revfiles) {
+                print "\nfile:\t $revfile" if $debug;
+                if (unlink $revfile || warn "Could not unlink $revfile: $!") {
+                    print " deleted\n" if $debug;
+                }
             }
         }
+    }
+
+    if ($deleted_projects) {
+        if (-d "$OBS_PROJ_DIR/_deleted/$deleted_prj.pkg") {
+            opendir(D, "$OBS_PROJ_DIR/_deleted/$deleted_prj.pkg");
+            foreach my $f (grep {$_ ne '.' && $_ ne '..'} readdir(D)) {
+                unlink("$OBS_PROJ_DIR/_deleted/$deleted_prj.pkg/$f");
+            }
+            close(F);
+        }
+        rmdir("$OBS_PROJ_DIR/_deleted/$deleted_prj.pkg");
+
+        if (-d "$OBS_TREES_DIR/$deleted_prj") {
+            opendir(D, "$OBS_TREES_DIR/$deleted_prj");
+            foreach my $p (grep {$_ ne '.' && $_ ne '..'} readdir(D)) {
+                if (-d "$OBS_TREES_DIR/$deleted_prj/$p") {
+                    opendir(F, "$OBS_TREES_DIR/$deleted_prj/$p");
+                    foreach my $f (grep {$_ ne '.' && $_ ne '..'} readdir(F)) {
+                        print "deleting file from treesdir: $OBS_TREES_DIR/$deleted_prj/$p/$f\n" if $debug;
+                        unlink("$OBS_TREES_DIR/$deleted_prj/$p/$f");
+                    }
+                    close(F);
+                    rmdir("$OBS_TREES_DIR/$deleted_prj/$p");
+                }
+            }
+            close(D);
+            rmdir("$OBS_TREES_DIR/$deleted_prj");
+        }
+        rmdir("$OBS_PROJ_DIR/_deleted/$deleted_prj.pkg");
     }
 }
 
 my $no_args = @ARGV;
 
 my $res = GetOptions(
-    'remove-old-sources=i{2,2}'   => \@remove_old_sources,
-    'service-cleanup'             => \$service_cleanup,
-    'full-cleanup=i{2,2}'         => \@full_cleanup,
-    'include-packages=s{1,}'      => \@include_pkgs,
-    'exclude-packages=s{1,}'      => \@exclude_pkgs,
-    'debug|d'                     => \$debug,
-    'search|s'                    => \$search,
-    'remove|rm'                   => \$remove,
-    'move|mv=s'                   => \$move_dst,
-    'help|h'                      => \$help
+    'remove-old-sources=i{2,2}'     => \@remove_old_sources,
+    'service-cleanup'               => \$service_cleanup,
+    'full-cleanup=i{2,2}'           => \@full_cleanup,
+    'remove-deleted-project=s{1,1}' => \$remove_deleted_project,
+    'include-packages=s{1,}'        => \@include_pkgs,
+    'exclude-packages=s{1,}'        => \@exclude_pkgs,
+    'debug|d'                       => \$debug,
+    'search|s'                      => \$search,
+    'remove|rm'                     => \$remove,
+    'move|mv=s'                     => \$move_dst,
+    'help|h'                        => \$help
 );
 
 if ($help || $no_args == 0 || $res != 1) {
@@ -648,12 +738,17 @@ if (@exclude_pkgs == 1 && -e $exclude_pkgs[0]) {
 }
 
 if (@remove_old_sources == 2) {
-    remove_old_srcs($remove_old_sources[0], $remove_old_sources[1]);
+    remove_old_srcs($remove_old_sources[0], $remove_old_sources[1], "", 0);
 } elsif ($service_cleanup) {
     search_srcs;
 } elsif (@full_cleanup == 2) {
-    remove_old_srcs($full_cleanup[0], $full_cleanup[1]);
+    remove_old_srcs($full_cleanup[0], $full_cleanup[1], "", 0);
     search_srcs;
+} elsif ($remove_deleted_project) {
+    if (! grep(/$remove_deleted_project/, lsprojects_local(1)) ) {
+      die("$remove_deleted_project is not a deleted project!\n");
+    }
+    remove_old_srcs(0, 0, $remove_deleted_project, 1);
 } else {
     die "mode missing!\n";
 }
