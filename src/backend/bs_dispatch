@@ -49,6 +49,7 @@ use BSRPC;
 use BSUtil;
 use BSXML;
 use BSCando;
+use BSSrcServer::Partition;
 
 use strict;
 
@@ -596,24 +597,6 @@ my $lastmdloadsync;
 
 0 if $BSConfig::partition; # skip perl warning
 #
-# XXX: should not be here! Use src server instead!
-sub projid2reposerver {
-  my ($projid) = @_;
-  return $BSConfig::reposerver unless $BSConfig::partitionservers;
-  my @p = @{$BSConfig::partitioning || []}; 
-  my $par;
-  while (@p) {
-    if ($projid =~ /^$p[0]/) {
-      $par = $p[1];
-      last;
-    }    
-    splice(@p, 0, 2);
-  }
-  $par = $BSConfig::partition unless defined $par;
-  die("cannot determine partition for $projid\n") unless defined $par;
-  die("partition '$par' from partitioning does not exist\n") unless $BSConfig::partitionservers->{$par};
-  return $BSConfig::partitionservers->{$par};
-}
 
 sub dispatchslave {
   my $synced = 0;
@@ -650,7 +633,7 @@ sub dispatchslave {
 	my ($projid, $repoid, $packid) = split('::', $jn);
 	next unless defined $packid;
 	my $reposerver = $projid2repocache{$projid};
-	$reposerver = $projid2repocache{$projid} = projid2reposerver($projid) unless $reposerver;
+	$reposerver = $projid2repocache{$projid} = BSSrcServer::Partition::projid2reposerver($projid) unless $reposerver;
 	next if $reposerver ne $BSConfig::reposerver;
         $syncedjobs{$arch}->{$job} = 1;
       }
