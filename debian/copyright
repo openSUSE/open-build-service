@@ -59,8 +59,49 @@ Copyright: Adrian Schröter <adrian@suse.de>
            tux <tux@einherjer.suse.de>
 License: GPL-2+
 
+Files: src/backend/t/_chooseparser/lib3/XML/Parser.pm
+Copyright: 1998-2000 Larry Wall and Clark Cooper
+License: Artistic
+
+Files: src/backend/worker/Structured.pm
+       src/backend/XML/Structured.pm
+Copyright:  2006 Michael Schroeder <mls@suse.de>
+License: Artistic
+
+Files: debian/missing-sources/jquery.expander.js
+       src/api/vendor/assets/javascripts/jquery.expander.min.js
+Copyright:  2016 Karl Swedberg
+License: Expat
+
+License: Artistic
+ The full text of the Artistic Licence can be found in
+ "/usr/share/common-licenses/Artistic".
+
+License: Expat
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 Files: debian/*
-Copyright: 2012-2015 Andrew Lee (李健秋) <andrew.lee@collabora.co.uk>
+Copyright: 2012-2016 Andrew Lee (李健秋) <andrew.lee@collabora.co.uk>
+	   2016      Bob Ham <bob.ham@collabora.com>
+           2016      Cédric Boutillier <boutil@moszumanska.debian.org>
+           2015	     Antonio Terceiro <terceiro@debian.org>
            2013-2014 Jeremy Whiting <jeremy.whiting@collabora.com>
            2013-2014 Hector Oron <hector.oron@collabora.co.uk>
            2013-2014 Sjoerd Simons <sjoerd.simons@collabora.co.uk>
