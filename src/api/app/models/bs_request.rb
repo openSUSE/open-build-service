@@ -43,7 +43,6 @@ class BsRequest < ApplicationRecord
            ["%#{search}%"] * SEARCHABLE_FIELDS.length].flatten)
   }
 
-  before_create :assign_number
   before_save :assign_number
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
   has_many :reviews, :dependent => :delete_all
@@ -102,22 +101,14 @@ class BsRequest < ApplicationRecord
   end
 
   def assign_number
-     return if self.number
-     # to assign a unique and steady incremental number. Using MySQL auto-increment
-     # mechanism is not working on clusters.
-     sql = BsRequest.connection
-     r = sql.execute("SELECT counter FROM bs_request_counter FOR UPDATE").first
-     if r.nil?
-       # no counter exists, initialize it base on current highest entry
-       last_number = BsRequest.order(:id).last.try(:id)
-       last_number ||= 1
-       sql.execute("INSERT INTO bs_request_counter(counter) VALUES('#{last_number}')")
-       r = sql.execute("SELECT counter FROM bs_request_counter FOR UPDATE").first
+     return if number
+     # to assign a unique and steady incremental number.
+     # Using MySQL auto-increment mechanism is not working on clusters.
+     BsRequest.transaction do
+       request_counter = BsRequestCounter.lock(true).first_or_create
+       self.number = request_counter.counter
+       request_counter.increment!(:counter)
      end
-
-     # do an atomic increase of counter
-     sql.execute("UPDATE bs_request_counter SET counter = counter+1")
-     self.number = r[0]
   end
 
   def check_supersede_state
