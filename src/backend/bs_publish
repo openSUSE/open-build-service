@@ -827,11 +827,11 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-Build\d\d\d\d(-Media\d)(\.iso?(\.sha256)?)$/s) {
         # product builds
         $link = "$1$2$3"; # no support for versioned links
-      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+([-\.].*\.(gz|bz2|tbz|tgz|xz)?(?:\.sha256)?)$/s) {
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)?(-\w+)?-Build\d+\.\d+([-\.].*\.(gz|bz2|tbz|tgz|xz)?(?:\.sha256)?)$/s) {
         # kiwi appliance
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
-      } elsif (/^(.*)-(\d+\.\d+\.\d+)?(\.\w+)?-Build\d+\..*(\.(raw.install.raw.xz|raw.xz|box|json|install.iso|tbz|tgz|vmx|vmdk|vdi|vhdfixed.xz|iso|qcow2|qcow2.xz|ova)?(?:\.sha256)?)$/s) {
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)?([\.-]\w+)?-Build\d+\..*(\.(raw.install.raw.xz|raw.xz|box|json|install.iso|tbz|tgz|vmx|vmdk|vdi|vhdfixed.xz|iso|qcow2|qcow2.xz|ova)?(?:\.sha256)?)$/s) {
         # kiwi appliance
         my $profile = $3 || "";
         $link = "$1$profile$4";
