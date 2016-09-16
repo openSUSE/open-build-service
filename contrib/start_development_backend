@@ -6,6 +6,7 @@ function _print_syntax() {
   echo "Usage: $me [-d <dir> -l <dir>]"
   echo -e "\t-d <dir>\tDirectory of source code. If not provided /vagrant ist used"
   echo -e "\t-l <dir>\tDirectory where the logfiles should be put. If not set STDERR and STDOUT will be printed to console"
+  echo -e "\t-w <num>\tNumber of workers that should be spawned. This can reduce the performance of the system!"
 }
 
 #reset OPTIND
@@ -14,8 +15,11 @@ OPTIND=1
 #preset GIT_HOME
 GIT_HOME="/vagrant"
 
+#preset WORKER_COUNT
+WORKER_N=1
+
 #get options and check if there is a space in the dir arguments
-while getopts "l:d:h?" opt; do
+while getopts "l:d:w:h?" opt; do
   case "$opt" in
   l)
     REDIR_LOG=$OPTARG
@@ -30,6 +34,9 @@ while getopts "l:d:h?" opt; do
       echo "Directory may not contain whitespaces"
       exit
     fi
+    ;;
+  w)
+    WORKER_N=$OPTARG
     ;;
   h|\?)
     _print_syntax
@@ -50,7 +57,13 @@ if [ -n "$REDIR_LOG" ]; then
   APPEND_ARR[3]=">$REDIR_LOG/bs_sched_x86_64.log 2>&1"
   APPEND_ARR[4]=">$REDIR_LOG/bs_dispatch.log 2>&1"
   APPEND_ARR[5]=">$REDIR_LOG/bs_publish.log 2>&1"
-  APPEND_ARR[6]=">$REDIR_LOG/bs_worker.log 2>&1"
+  w_count=1
+  while [ $w_count -le $WORKER_N ]
+  do 
+    index=5+$w_count
+    APPEND_ARR[$index]=">$REDIR_LOG/bs_worker_$w_count.log 2>&1"
+    let w_count=$w_count+1
+  done
 fi
 
 #check if GIT_HOME exists. If not it does not make any sense to continue.
@@ -92,16 +105,23 @@ eval $COMMAND_STRING
 echo "Starting bs_publish"
 COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_publish ${APPEND_ARR[5]} &"
 eval $COMMAND_STRING
-if [ ! -d /srv/obs/run/worker/1 ]; then
-  sudo mkdir -p /srv/obs/run/worker/1
-fi
-if [ ! -d /var/cache/obs/worker/root_1 ]; then
-  sudo mkdir -p /var/cache/obs/worker/root_1
-fi
-sudo chown -R obsrun:obsrun /srv/obs/run/
-echo "Starting bs_worker"
-COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_1 --statedir /srv/obs/run/worker/1 --id $HOSTNAME:1 --reposerver http://localhost:5252 --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 ${APPEND_ARR[6]} &"
-eval $COMMAND_STRING
+w_count=1
+while [ $w_count -le $WORKER_N ]
+do
+  if [ ! -d /srv/obs/run/worker/$w_count ]; then
+    sudo mkdir -p /srv/obs/run/worker/$w_count
+  fi
+  if [ ! -d /var/cache/obs/worker/root_$w_count ]; then
+    sudo mkdir -p /var/cache/obs/worker/root_$w_count
+  fi
+  sudo chown -R obsrun:obsrun /srv/obs/run/
+
+  index=$w_count+5;
+  echo "Starting bs_worker"
+  COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_$w_count --statedir /srv/obs/run/worker/$w_count --id $HOSTNAME:$w_count --reposerver http://localhost:5252 --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 ${APPEND_ARR[$index]} &"
+  eval $COMMAND_STRING
+  let w_count=$w_count+1
+done
 
 #Cleanup function to terminate all backend services
 function clean_up {
