@@ -123,7 +123,7 @@ class BinaryRelease < ApplicationRecord
   end
 
   def update_for_product
-    repository.product_update_repositories.map{ |i| i.product if i.product }
+    repository.product_update_repositories.map{ |i| i.product if i.product }.uniq
   end
 
   def product_medium
@@ -162,7 +162,7 @@ class BinaryRelease < ApplicationRecord
       binary.maintainer self.binary_maintainer if self.binary_maintainer
       binary.disturl self.binary_disturl if self.binary_disturl
 
-      update_for_product.uniq.each do |up|
+      update_for_product.each do |up|
         binary.updatefor( up.extend_id_hash({project: up.package.project.name, product: up.name}) )
       end
 

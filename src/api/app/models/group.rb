@@ -23,9 +23,9 @@ class Group < ApplicationRecord
                           :message => 'is the name of an already existing group.'
 
   # groups have a n:m relation to user
-  has_and_belongs_to_many :users, -> { uniq }
+  has_and_belongs_to_many :users, -> { distinct }
   # groups have a n:m relation to groups
-  has_and_belongs_to_many :roles, -> { uniq }
+  has_and_belongs_to_many :roles, -> { distinct }
 
   def self.find_by_title!(title)
     find_by_title(title) or raise NotFoundError.new("Couldn't find Group '#{title}'")
@@ -121,9 +121,7 @@ class Group < ApplicationRecord
     role = Role.rolecache['maintainer']
 
     ### all projects where user is maintainer
-    projects = Relationship.projects.where(group_id: id, role_id: role.id).pluck(:project_id)
-
-    projects.uniq
+    Relationship.projects.where(group_id: id, role_id: role.id).distinct.pluck(:project_id)
   end
   protected :involved_projects_ids
 

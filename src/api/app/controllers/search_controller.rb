@@ -297,7 +297,7 @@ class SearchController < ApplicationController
       pack2attrib[pkg] = attrib_id
     end
     packages.sort! { |x, y| x[0] <=> y[0] }
-    projects = Project.where(id: packages.collect { |p| p[2] }.uniq).pluck(:id, :name)
+    projects = Project.where(id: packages.collect { |p| p[2] }).distinct.pluck(:id, :name)
     builder = Builder::XmlMarkup.new(:indent => 2)
     xml = builder.attribute(:namespace => namespace, :name => name) do
       projects.each do |prj_id, prj_name|
