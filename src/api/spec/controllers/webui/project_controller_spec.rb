@@ -752,6 +752,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           post :remove_maintained_project, project: user.home_project, maintained_project: maintained_project.project.name
         end
 
+        it { expect(user.home_project.maintained_projects.where(project: user.home_project)).not_to exist }
         it { expect(flash[:notice]).to eq("Removed #{maintained_project.project.name} from maintenance") }
         it { is_expected.to redirect_to(action: 'maintained_projects', project: user.home_project) }
       end
@@ -774,7 +775,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
     end
 
-    # redirect in the before_filter require_maintenance_project
     context "#remove_maintained_project fails without maintenance kind for a valid maintained project" do
       let(:maintained_project) { create(:maintained_project, project: user.home_project) }
 
