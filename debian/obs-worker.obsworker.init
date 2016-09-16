@@ -1,0 +1,376 @@
+#!/bin/bash
+# Copyright (c) 2007-2011, SUSE Inc.
+#
+# Author: adrian@suse.de
+#
+# /etc/init.d/obsworker
+#
+### BEGIN INIT INFO
+# Provides:          obsworker
+# Required-Start:    $time $network $syslog $local_fs
+# Required-Stop:     $time $network $syslog $local_fs
+# Should-Start:      $remote_fs obsstoragesetup obssrcserver obsrepserver xendomains
+# Should-Stop:       $none
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Description:       Open Build Service worker
+### END INIT INFO
+
+set -e
+
+NAME="obsworker"
+DESC="openSUSE Buildservice worker"
+DEFAULTS="/etc/default/obsworker"
+
+if [ -f "${DEFAULTS}" ];then
+    . "${DEFAULTS}"
+fi
+
+if [ -z "$OBS_SRC_SERVER" ]; then
+	OBS_SRC_SERVER="localhost:5352"
+fi
+
+# Preconfigured by obsstoragesetup runlevel setup script
+if [ -f /etc/buildhost.config ];then
+    . /etc/buildhost.config
+fi
+
+if [ -z "$OBS_WORKER_DIRECTORY" ]; then
+    OBS_WORKER_DIRECTORY="/var/cache/obs/worker"
+fi
+mkdir -p "$OBS_WORKER_DIRECTORY"
+
+if [ -z "$OBS_RUN_DIR" ]; then
+    OBS_RUN_DIR="/var/run/obs"
+fi
+if [ -z "$OBS_LOG_DIR" ]; then
+    OBS_LOG_DIR="/var/log/obs"
+fi
+if [ -z "$OBS_REPO_SERVERS" ]; then
+    OBS_REPO_SERVERS="localhost:5252"
+fi
+
+if [ -n "$OBS_WORKER_TEST_MODE" ]; then
+    OBS_TEST="--test"
+fi
+if [ -n "$OBS_WORKER_JOBS" ]; then
+    OBS_JOBS="--jobs $OBS_WORKER_JOBS"
+fi
+if [ -n "$OBS_WORKER_THREADS" ]; then
+    OBS_THREADS="--threads $OBS_WORKER_THREADS"
+fi
+if [ -n "$OBS_WORKER_NICE_LEVEL" ]; then
+    OBS_NICE=$OBS_WORKER_NICE_LEVEL
+else
+    OBS_NICE=18
+fi
+
+REPO_PARAM=
+for i in $OBS_REPO_SERVERS; do
+    REPO_PARAM="$REPO_PARAM --reposerver http://$i"
+    WORKER_CODE="http://$i"
+done
+
+obsrundir="$OBS_RUN_DIR"
+workerdir="$obsrundir"/worker
+workerbootdir="$workerdir"/boot
+screenrc="$workerdir"/boot/screenrc
+OBS_WORKER_OPT=""
+
+if [ -n "$OBS_CACHE_SIZE" -a -n "$OBS_CACHE_DIR" ]; then
+    OBS_WORKER_OPT="--cachedir $OBS_CACHE_DIR"
+    mkdir -p $OBS_CACHE_DIR
+    OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $OBS_CACHE_SIZE"
+fi
+
+if [ -n "$OBS_VM_KERNEL" -a "$OBS_VM_KERNEL" != "none" ] ; then
+    OBS_WORKER_OPT="$OBS_WORKER_OPT --vm-kernel $OBS_VM_KERNEL"
+fi
+
+if [ -n "$OBS_VM_INITRD" -a "$OBS_VM_INITRD" != "none" ] ; then
+    OBS_WORKER_OPT="$OBS_WORKER_OPT --vm-initrd $OBS_VM_INITRD"
+fi
+
+if [ -n "$OBS_WORKER_LOCALKIWI_DIRECTORY" ]; then
+    OBS_WORKER_OPT="$OBS_WORKER_OPT --localkiwi $OBS_WORKER_LOCALKIWI_DIRECTORY --arch local"
+fi
+
+if [ -n "$OBS_WORKER_BINARIES_PROXY" ]; then
+    OBS_WORKER_OPT="$OBS_WORKER_OPT --getbinariesproxy $OBS_WORKER_BINARIES_PROXY"
+fi
+
+if [ -n "$OBS_VM_ENABLE_CONSOLE" ]; then
+    OBS_WORKER_OPT="$OBS_WORKER_OPT --vm-enable-console"
+fi
+
+[ -z "$OBS_INSTANCE_MEMORY" ] && OBS_INSTANCE_MEMORY=512
+
+vmopt=
+
+ARCH=""
+EMULATOR=""
+if [ -n "$OBS_VM_TYPE" -a "$OBS_VM_TYPE" != "auto" ] ; then
+    if [ "${OBS_VM_TYPE#emulator:}" != "$OBS_VM_TYPE" ] ; then
+        vmopt="--emulator"
+        options=(${OBS_VM_TYPE//:/ })
+        ARCH="--arch ${options[1]}"
+        [ -n "${options[2]}" ] && EMULATOR="--emulator-script ${options[2]}"
+    elif [ "$OBS_VM_TYPE" != "none" ] ; then
+        vmopt="--$OBS_VM_TYPE"
+    fi
+elif [ -e /dev/kvm -a -x /usr/bin/qemu-kvm ] ; then
+    vmopt=--kvm
+    OBS_VM_TYPE="kvm"
+elif [ -e /sys/hypervisor/type ] && [ -x /usr/sbin/xl -o -x /usr/sbin/xm ] && grep -q xen /sys/hypervisor/type; then
+    vmopt=--xen
+    OBS_VM_TYPE="xen"
+fi
+
+if [ "$OBS_VM_TYPE" = "zvm" ]; then
+    # for z/VM, the disks are already setup with the workers.
+    if [ -n "$OBS_VM_DISK_AUTOSETUP_FILESYSTEM" ]; then
+            VMDISK_FILESYSTEM="--vmdisk-filesystem ${OBS_VM_DISK_AUTOSETUP_FILESYSTEM}"
+    fi
+    if [ -n "$OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS" ]; then
+            VMDISK_MOUNT_OPTIONS="--vmdisk-mount-options ${OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS}"
+    fi
+    if [ -n "$OBS_VM_DISK_CLEAN" ];then
+            VMDISK_CLEAN="--vmdisk-clean"
+    fi
+fi
+
+if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" -o "${OBS_VM_TYPE#emulator:}" != "$OBS_VM_TYPE" ] ; then
+    # we start up in VM mode, check for the worker disk options
+    if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" ]; then
+        VMDISK_ROOT_FILESIZE="--vmdisk-rootsize ${OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE}"
+        if [ -n "$OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE" ]; then
+            VMDISK_SWAP_FILESIZE="--vmdisk-swapsize ${OBS_VM_DISK_AUTOSETUP_SWAP_FILESIZE}"
+        fi
+        if [ -n "$OBS_VM_DISK_AUTOSETUP_FILESYSTEM" ]; then
+            VMDISK_FILESYSTEM="--vmdisk-filesystem ${OBS_VM_DISK_AUTOSETUP_FILESYSTEM}"
+        fi
+        if [ -n "$OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS" ]; then
+            VMDISK_MOUNT_OPTIONS="--vmdisk-mount-options ${OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS}"
+        fi
+        if [ -n "$OBS_VM_DISK_CLEAN" ];then
+            VMDISK_CLEAN="--vmdisk-clean"
+        fi
+    fi
+fi
+
+check_vmcp()
+{
+	# try to load the kernel module
+	modprobe vmcp 2> /dev/null || :
+	# run a vmcp command that always works from within z/VM
+	vmcp q privclass
+}
+
+create_initrd()
+{
+        # $1 name of kernel
+        # $2 name of initrd
+        # 0150 is already included from the local guest
+        if test -z "$2" ; then
+                echo "Please define a name for the new initrd in /etc/sysconfig/obs-server"
+                return 1
+        else
+		# create initrd with system scripts
+                mkinitrd -k $1 -i $2 -m "xfs reiserfs ext3 ext4 fat vfat" -B -S
+                TEMPDIR=$(mktemp -d /tmp/initrd.XXX)
+                pushd $TEMPDIR
+		# unpack initrd to add some extra files 
+                zcat $2 | cpio -i
+                cat - > etc/udev/rules.d/51-dasd-0.0.0250.rules <<EOF
+ACTION=="add", SUBSYSTEM=="ccw", KERNEL=="0.0.0250",
+IMPORT{program}="collect 0.0.0250 %k 0.0.0250 dasd-eckd"
+ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="dasd-eckd",
+IMPORT{program}="collect 0.0.0250 %k 0.0.0250 dasd-eckd"
+ACTION=="add", ENV{COLLECT_0.0.0250}=="0", ATTR{[ccw/0.0.0250]online}="1"
+EOF
+                # lets activate the alias devices too
+                for device in {1..2}E{C..F}; do
+                cat - > etc/udev/rules.d/51-dasd-0.0.0${device}.rules <<EOF
+ACTION=="add", SUBSYSTEM=="ccw", KERNEL=="0.0.0${device}",
+IMPORT{program}="collect 0.0.0${device} %k 0.0.0${device} dasd-eckd"
+ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="dasd-eckd",
+IMPORT{program}="collect 0.0.0${device} %k 0.0.0${device} dasd-eckd"
+ACTION=="add", ENV{COLLECT_0.0.0${device}}=="0", ATTR{[ccw/0.0.0${device}]online}="1"
+EOF
+                done
+                cp -a /usr/sbin/xfs_check /sbin/fsck.xfs /usr/sbin/xfs_db sbin/
+		# create new initrd:
+                find . | cpio -H newc -o | gzip -9 -c > $2
+                popd
+                rm -rf $TEMPDIR
+        fi
+}
+
+case "$1" in
+    start)
+        # reset screenrc
+        mkdir -p "$obsrundir"
+        chown obsworker:obsworker "$obsrundir"
+        rm -rf "$workerdir"
+        mkdir -p "$workerbootdir"
+        echo "zombie on"       > $screenrc
+        echo 'caption always "%3n %t%? [%h]%?"' >> $screenrc
+
+        if [ 0"$OBS_WORKER_INSTANCES" -gt 0 ]; then
+            NUM="$OBS_WORKER_INSTANCES"
+        else
+            # start one build backend per CPU
+            NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
+        fi
+	if [ "--zvm" == "$vmopt" ]; then
+	    check_vmcp
+	    create_initrd $OBS_VM_KERNEL $OBS_VM_INITRD
+            if [ -n "$OBS_WORKER_INSTANCE_NAMES" ]; then
+                WORKERS=($OBS_WORKER_INSTANCE_NAMES)
+                NUM=${#WORKERS[*]}
+            fi
+	fi
+
+        if [ -n "$OBS_WORKER_OWNER" ]; then
+            HOSTOWNER="--owner $OBS_WORKER_OWNER"
+        fi
+
+	# print some config data
+        echo "Run $NUM obsworker using $OBS_WORKER_DIRECTORY"
+        echo -n "Type of obsworker is "
+	if [ "--kvm" == "$vmopt" ]; then echo "KVM virtual machine"
+	elif [ "--xen" == "$vmopt" ]; then echo "XEN virtual machine"
+	elif [ "--zvm" == "$vmopt" ]; then echo "z/VM virtual machine"
+	elif [ "--emulator" == "$vmopt" ]; then echo "System emulated virtual machine"
+	else  echo "chroot"
+	fi
+
+        # find SLP announced OBS servers
+        if [ "$OBS_USE_SLP" == "yes" ]; then
+            for i in `slptool findsrvs service:obs.repo_server | sed -n 's/service:obs.repo_server:\([^,]*\),.*/\1/p'`; do
+                [ "${i#http://localhost}" != "$i" ] && continue
+                [ "${i#http://127.}" != "$i" ] && continue
+                REPO_PARAM="$REPO_PARAM --reposerver $i"
+                # any of them should be okay
+                WORKER_CODE="$i"
+            done
+        fi
+
+        # fetch worker sources from server
+        echo "Fetching initial worker code from $WORKER_CODE"
+        mkdir -p "$workerbootdir"
+        pushd "$workerbootdir" > /dev/null
+        I=0
+        while ! curl -s "$WORKER_CODE"/getworkercode | cpio --quiet --extract ; do
+          # we need to wait for rep server maybe
+          echo >&2 "WARNING: Could not reach rep server $WORKER_CODE. Trying again."
+          I=$(( $I + 1 ))
+          if test "10" -lt "$I"; then
+             echo >&2 "ERROR: Unable to reach rep server $WORKER_CODE!"
+             exit 1
+          fi
+          sleep 10
+        done
+        ln -s . XML 
+        chmod 755 bs_worker
+        popd > /dev/null
+
+        for i in $OBS_WORKER_HOSTLABELS; do
+           HOSTLABELS="$HOSTLABELS --hostlabel $i"
+        done
+        OBS_WORKER_OPT1="$OBS_WORKER_OPT"
+        I=0
+        while test "$NUM" -gt "$I"; do
+            if [ 0"$OBS_WORKER_PORTBASE" -gt 0 ]; then
+                port="--port $((OBS_WORKER_PORTBASE + I))"
+            else
+                port=""
+            fi
+	    I_INDEX=$I
+            I=$(( $I + 1 ))
+	    if [ "$OBS_VM_TYPE" = 'zvm' ]; then
+		WORKERID="${HOSTNAME}:${WORKERS[$I_INDEX]}"
+	    else
+                WORKERID="${HOSTNAME}:$I"
+	    fi
+            R=$OBS_WORKER_DIRECTORY/root_$I
+            # prepare obsworker startup in screen...
+            TMPFS=
+            if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" -o "${OBS_VM_TYPE#emulator:}" != "$OBS_VM_TYPE" ] ; then
+                mkdir -p $R
+                DEVICE="$OBS_WORKER_DIRECTORY/root_$I/root"
+                SWAP="$OBS_WORKER_DIRECTORY/root_$I/swap"
+                if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" ]; then
+                    OBS_WORKER_OPT="$OBS_WORKER_OPT1 $VMDISK_AUTOSETUP $VMDISK_ROOT_FILESIZE $VMDISK_SWAP_FILESIZE $VMDISK_FILESYSTEM $VMDISK_MOUNT_OPTIONS $VMDISK_CLEAN"
+                elif [ ! -e "$DEVICE" ]; then
+                    echo "ERROR: worker is configured to use a VM, but the root device do not exist: $DEVICE"
+                    exit 1
+                fi
+                if [ -n "$OBS_VM_USE_TMPFS" ]; then
+                    TMPFS="--tmpfs"
+                fi
+                DEVICE="--device $DEVICE"
+                SWAP="--swap $SWAP"
+                MEMORY="--vm-memory $OBS_INSTANCE_MEMORY"
+                if [ -n "$OBS_VM_USE_HUGETLBFS" ]; then
+                    HUGETLBFS="--hugetlbfs $OBS_VM_USE_HUGETLBFS"
+                fi
+	    elif [ -n "$vmopt" -a "$OBS_VM_TYPE" = 'zvm' ]; then
+		mkdir -p $R
+		# Without a worker being defined, we would not be in this loop.
+		WORKER="--vm-worker ${WORKERS[$I_INDEX]}"
+		WORKER_NR="--vm-worker-nr $I"
+		OBS_WORKER_OPT="$OBS_WORKER_OPT1 $WORKER $WORKER_NR $VMDISK_FILESYSTEM $VMDISK_MOUNT_OPTIONS $VMDISK_CLEAN"
+            else
+                mkdir -p $R
+                DEVICE=
+                SWAP=
+                MEMORY=
+            fi
+	    echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker --hardstatus $vmopt $port --root $R" \
+                "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
+                "$HOSTOWNER $OBS_JOBS $OBS_THREADS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
+                "$ARCH $EMULATOR" \
+                >> $screenrc
+	    mkdir -p $workerdir/$I
+        done
+        pushd "$workerbootdir" > /dev/null
+        screen -m -d -c $screenrc
+        popd > /dev/null
+    ;;
+    stop)
+        echo -n "Shutting down obsworker"
+        for I in "$workerdir"/*; do
+	    test -d "$I" || continue
+	    test -e "$I/state" || continue
+	    pushd "$workerbootdir" > /dev/null
+	    ./bs_worker --statedir "$I" --exit &
+	    popd > /dev/null
+        done
+	wait
+        killall bs_worker 2>/dev/null
+        sleep 2
+        killall -s 9 bs_worker 2>/dev/null
+    ;;
+    restart)
+        ## If first returns OK call the second, if first or
+        ## second command fails, set echo return value.
+        $0 stop
+        $0 start
+    ;;
+    try-restart|reload)
+        $0 status
+        if test $? = 0; then
+            $0 restart
+        fi
+        # Remember status and be quiet
+    ;;
+    status)
+        echo -n "Checking for obsworker: "
+		echo "W: not implemented"
+    ;;
+    *)
+        echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+        exit 1
+    ;;
+esac
