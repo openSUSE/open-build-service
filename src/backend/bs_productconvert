@@ -980,8 +980,12 @@ sub writeProductSPECfile( $$$$ )
       $productprovides.="Obsoletes:       product:$predecessor\n";
     }
 
-    if (defined($product->{'endoflife'}) && $product->{'endoflife'} ne '') {
-      $productprovides.="Provides:       product-endoflife() = ".escapeProvides($product->{'endoflife'})."\n";
+    if (defined($product->{'endoflife'})) {
+      if ($product->{'endoflife'} eq '') {
+        $productprovides.="Provides:       product-endoflife()\n";
+      } else {
+        $productprovides.="Provides:       product-endoflife() = ".escapeProvides($product->{'endoflife'})."\n";
+      }
     }
     if (defined($product->{'patchlevel'}) && $product->{'patchlevel'} ne '0') {
       $productprovides.="Provides:       product($product->{'name'}-SP$product->{'patchlevel'}) = %version-%release\n";
@@ -1304,7 +1308,8 @@ sub createProductFile ( $$ ) {
     delete $zypp_product->{'releasepkgname'};
     my $d;
     my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$product->{name}.prod";
-    if ($product->{'endoflife'} && !($product->{'endoflife'} =~ /^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$/)) {
+    if (defined($product->{'endoflife'})&& $product->{'endoflife'} ne "" 
+        && !($product->{'endoflife'} =~ /^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$/)) {
       die("400 endoflife not in ISO 8601 format (YYYY-MM-DD)");
     }
     my $mediaStyle = getMediaStyle($prodRef);
@@ -1332,7 +1337,7 @@ sub createProductFile ( $$ ) {
        if ($mediaStyle =~ /^suse-sle12/) {
          die("Define NCC targets instead of target") if $product->{'register'}->{'target'};
          # SLE 12 medias require an end-of-life definition
-         die("400 endoflife not defined") unless $product->{'endoflife'};
+         die("400 endoflife not defined") unless defined($product->{'endoflife'});
        }
        # convert them to repoids
        my @r;
