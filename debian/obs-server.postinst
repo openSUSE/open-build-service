@@ -12,6 +12,14 @@ if ! getent passwd obsrun > /dev/null; then
     usermod -c "User for build service backend" obsrun
 fi
 
+if ! getent passwd obsservicerun > /dev/null; then
+    adduser --system --quiet \
+        --ingroup obsrun --shell /bin/false \
+        --home /usr/lib/obs/server --no-create-home \
+        --shell /bin/false obsservicerun
+    usermod -c "User for obs source service server" obsservicerun
+fi
+
 mkdir -p /srv/obs/repos
 chown obsrun:obsrun /srv/obs/repos
 
