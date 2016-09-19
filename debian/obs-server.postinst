@@ -24,49 +24,24 @@ mkdir -p /srv/obs/repos
 chown obsrun:obsrun /srv/obs/repos
 
 # Start up schedulers
-deb-systemd-helper enable obsscheduler@i586.service
-deb-systemd-helper enable obsscheduler@x86_64.service
-deb-systemd-helper enable obsscheduler@armv7hl.service
+#deb-systemd-helper enable obsscheduler\@i586.service
+#deb-systemd-helper enable obsscheduler\@x86_64.service
+#deb-systemd-helper enable obsscheduler\@armv7hl.service
+# FIXME manually creating symlink, deb-systemd-helper does not support
+# template services yet.
+ln -sf /lib/systemd/system/obsscheduler@.service \
+   /etc/systemd/system/multi-user.target.wants/obsscheduler\@i586.service
+ln -sf /lib/systemd/system/obsscheduler@.service \
+   /etc/systemd/system/multi-user.target.wants/obsscheduler\@x86_64.service
+ln -sf /lib/systemd/system/obsscheduler@.service \
+   /etc/systemd/system/multi-user.target.wants/obsscheduler\@armv7hl.service
+# tell systemd to reload
+if [ -d /run/systemd/system ]; then
+  systemctl --system daemon-reload >/dev/null || true
+fi
 invoke-rc.d obsscheduler@i586 start || true
 invoke-rc.d obsscheduler@x86_64 start || true
 invoke-rc.d obsscheduler@armv7hl start || true
-
-if [ ! -f /usr/share/obs/overview/index.html ] ; then
-  FQHOSTNAME=`hostname -f`
-
-  sed -e "s,___API_URL___,https://$FQHOSTNAME,g" \
-      -e "s,___REPO_URL___,http://$FQHOSTNAME:82,g" \
-        /usr/share/obs/overview/overview.html.TEMPLATE > /usr/share/obs/overview/index.html
-fi
-
-pathfind() {
-    OLDIFS="$IFS"
-    IFS=:
-    for p in $PATH; do
-        if [ -x "$p/$*" ]; then
-            IFS="$OLDIFS"
-            return 0
-        fi
-    done
-    IFS="$OLDIFS"
-    return 1
-}
-
-reload_apache()
-{
-    if apache2ctl configtest 2>/dev/null; then
-        if `pathfind defoma-font`; then
-            invoke-rc.d apache2 $1 3>/dev/null || true
-        else
-            /etc/init.d/apache2 $1 3>/dev/null || true
-        fi
-    else
-        echo "Your Apache 2 configuration is broken, so we're not restarting it for you."
-    fi
-}
-
-# Restart Apache to really enable the module and load obs.conf
-reload_apache restart
 
 #DEBHELPER#
 
