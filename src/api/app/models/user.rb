@@ -116,9 +116,9 @@ class User < ApplicationRecord
 
   # After saving, we want to set the "@new_hash_type" value set to false
   # again.
-  after_save '@new_hash_type = false'
+  after_save :set_new_hash_type_false
   # After saving the object into the database, the password is not new any more.
-  after_save '@new_password = false'
+  after_save :set_new_password_false
 
   # When a record object is initialized, we set the state, password
   # hash type, indicator whether the password has freshly been set
@@ -985,6 +985,14 @@ class User < ApplicationRecord
   end
 
   private
+
+  def set_new_hash_type_false
+    @new_hash_type = false
+  end
+
+  def set_new_password_false
+    @new_password = false
+  end
 
   def can_modify_project_internal(project, ignoreLock)
     # The ordering is important because of the lock status check
