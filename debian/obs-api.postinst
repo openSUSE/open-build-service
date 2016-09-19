@@ -9,10 +9,10 @@ dbc_go obs-api $@
 
 chown www-data:root /etc/obs/api/config/environment.rb
 
-if [ ! -l /var/log/obs ] ; then
+if [ ! -f /var/log/obs ] ; then
   ln -fs /usr/share/obs/api/log /var/log/obs
 fi
-if [ ! -l /var/cache/obs/tmp ] ; then
+if [ ! -f /var/cache/obs/tmp ] ; then
   mkdir -p /var/cache/obs
   ln -fs /usr/share/obs/api/tmp /var/cache/obs/tmp
 fi
@@ -119,4 +119,3 @@ reload_apache()
 reload_apache restart
 
 #DEBHELPER#
-
