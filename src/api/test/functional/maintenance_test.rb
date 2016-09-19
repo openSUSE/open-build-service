@@ -702,6 +702,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 404 # due to noaccess
     post "/request/#{id}?cmd=diff&view=xml", nil
     assert_response :success
+    assert_match(/new_content_2137/, @response.body) # check if our changes are part of the diff
 
     # accept request
     post "/request/#{id}?cmd=changestate&newstate=accepted"
