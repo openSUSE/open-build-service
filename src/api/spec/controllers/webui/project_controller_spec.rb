@@ -785,4 +785,42 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { is_expected.to redirect_to(action: :show, project: user.home_project) }
     end
   end
+
+  describe "POST #add_maintained_project" do
+    before do
+      login user
+    end
+
+    context "with a maintenance project (kind 'maintenance')" do
+      before do
+        user.home_project.update(kind: 'maintenance')
+      end
+
+      context "adding a valid maintained project" do
+        before do
+          post :add_maintained_project, project: user.home_project, maintained_project: user.home_project.name
+        end
+
+        it { expect(user.home_project.maintained_projects.where(project: user.home_project)).to exist }
+        it { expect(flash[:notice]).to eq("Added #{user.home_project.name} to maintenance") }
+        it { is_expected.to redirect_to(action: 'maintained_projects', project: user.home_project) }
+      end
+
+      # raise the exception in the before_filter set_maintained_project
+      it "#add_maintained_project raise excepction with invalid maintained project" do
+        expect {
+          post :add_maintained_project, project: user.home_project, maintained_project: "invalid"
+        }.to raise_exception ActiveRecord::RecordNotFound
+      end
+    end
+
+    context "without a maintenance project (kind 'maintenance')" do
+      before do
+        post :add_maintained_project, project: user.home_project, maintained_project: user.home_project.name
+      end
+
+      it { expect(user.home_project.maintained_projects.where(project: user.home_project)).not_to exist }
+      it { is_expected.to redirect_to(action: :show, project: user.home_project) }
+    end
+  end
 end
