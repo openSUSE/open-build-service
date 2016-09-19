@@ -542,9 +542,6 @@ class Project < ApplicationRecord
     self.remoteurl = xmlhash.value('remoteurl')
     self.remoteproject = xmlhash.value('remoteproject')
     self.kind = xmlhash.value('kind') unless xmlhash.value('kind').blank?
-
-    # give us an id
-    self.commit_opts = { no_backend_write: 1 }
     self.save!
 
     update_linked_projects(xmlhash)
