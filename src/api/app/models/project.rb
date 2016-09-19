@@ -32,9 +32,9 @@ class Project < ApplicationRecord
 
   before_destroy :cleanup_before_destroy
 
-  after_save 'Relationship.discard_cache'
+  after_save :discard_cache
   after_rollback :reset_cache
-  after_rollback 'Relationship.discard_cache'
+  after_rollback :discard_cache
   after_initialize :init
 
   attr_reader :commit_opts
@@ -1819,6 +1819,10 @@ class Project < ApplicationRecord
   end
 
   private
+
+  def discard_cache
+    Relationship.discard_cache
+  end
 
   # Go through all enabled build flags and look for a repo name that matches a
   # previously parsed release target name (from "release_targets_ng").

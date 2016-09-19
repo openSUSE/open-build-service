@@ -54,9 +54,9 @@ class Relationship < ApplicationRecord
 
   # we only care for project<->user relationships, but the cache is not *that* expensive
   # to recalculate
-  after_create 'Relationship.discard_cache'
-  after_rollback 'Relationship.discard_cache'
-  after_destroy 'Relationship.discard_cache'
+  after_create :discard_cache
+  after_rollback :discard_cache
+  after_destroy :discard_cache
 
   def self.add_user(obj, user, role, ignoreLock = nil, check = nil)
     obj.check_write_access!(ignoreLock)
@@ -157,6 +157,10 @@ class Relationship < ApplicationRecord
   end
 
   private
+
+  def discard_cache
+    Relationship.discard_cache
+  end
 
   def check_global_role
     return unless self.role && self.role.global
