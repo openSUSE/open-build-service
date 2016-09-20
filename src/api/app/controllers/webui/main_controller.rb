@@ -2,7 +2,7 @@ class Webui::MainController < Webui::WebuiController
   include StatisticsCalculations
 
   # permissions.status_message_create
-  before_filter :require_admin, only: [:delete_message, :add_news]
+  before_action :require_admin, only: [:delete_message, :add_news]
   skip_before_action :check_anonymous, only: [:index]
 
   def gather_busy

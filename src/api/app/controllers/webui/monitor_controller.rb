@@ -1,7 +1,7 @@
 class Webui::MonitorController < Webui::WebuiController
-  before_filter :require_settings, :only => [:old, :index, :filtered_list, :update_building]
-  before_filter :require_available_architectures, :only => [:index]
-  before_filter :fetch_workerstatus, :only => [:old, :filtered_list, :update_building]
+  before_action :require_settings, :only => [:old, :index, :filtered_list, :update_building]
+  before_action :require_available_architectures, :only => [:index]
+  before_action :fetch_workerstatus, :only => [:old, :filtered_list, :update_building]
 
   def fetch_workerstatus
     @workerstatus = WorkerStatus.hidden.to_hash

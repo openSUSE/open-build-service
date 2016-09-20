@@ -1,6 +1,6 @@
 class Webui::RepositoriesController < Webui::WebuiController
-  before_filter :set_project
-  before_filter :find_repository_parent, only: [:index, :create_flag, :remove_flag, :toggle_flag]
+  before_action :set_project
+  before_action :find_repository_parent, only: [:index, :create_flag, :remove_flag, :toggle_flag]
   after_action :verify_authorized, except: [:index, :distributions, :state]
 
   # GET /repositories/:project(/:package)

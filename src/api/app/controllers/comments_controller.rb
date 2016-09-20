@@ -1,5 +1,5 @@
 class CommentsController < ApplicationController
-  before_filter :find_obj, only: [:show_comments, :create]
+  before_action :find_obj, only: [:show_comments, :create]
 
   def show_comments
     @comments = @obj.comments.order(:id)

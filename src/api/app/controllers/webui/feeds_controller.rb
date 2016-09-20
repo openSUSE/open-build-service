@@ -2,7 +2,7 @@ class Webui::FeedsController < Webui::WebuiController
   include StatisticsCalculations
 
   layout false
-  before_filter :set_project, only: ['commits']
+  before_action :set_project, only: ['commits']
 
   def news
     @news = StatusMessage.alive.limit(5)

@@ -1,8 +1,8 @@
 class Webui::AttributeController < Webui::WebuiController
   helper :all
-  before_filter :set_container, :only => [:index, :new, :edit]
-  before_filter :set_attribute, :only => [:update, :destroy]
-  before_filter :set_attribute_by_name, :only => [:edit]
+  before_action :set_container, :only => [:index, :new, :edit]
+  before_action :set_attribute, :only => [:update, :destroy]
+  before_action :set_attribute_by_name, :only => [:edit]
 
   # raise an exception if authorize has not yet been called.
   after_action :verify_authorized, :except => :index

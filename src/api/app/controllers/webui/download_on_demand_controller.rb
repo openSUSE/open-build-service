@@ -1,5 +1,5 @@
 class Webui::DownloadOnDemandController < Webui::WebuiController
-  before_filter :set_project
+  before_action :set_project
 
   def create
     @download_on_demand = DownloadRepository.new(permitted_params)

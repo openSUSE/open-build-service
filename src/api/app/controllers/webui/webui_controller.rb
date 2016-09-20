@@ -9,11 +9,11 @@ class Webui::WebuiController < ActionController::Base
   include Pundit
   protect_from_forgery
 
-  before_filter :setup_view_path
-  before_filter :instantiate_controller_and_action_names
-  before_filter :check_user
-  before_filter :check_anonymous
-  before_filter :require_configuration
+  before_action :setup_view_path
+  before_action :instantiate_controller_and_action_names
+  before_action :check_user
+  before_action :check_anonymous
+  before_action :require_configuration
   after_filter :clean_cache
 
   # We execute both strategies here. The default rails strategy (resetting the session)

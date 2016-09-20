@@ -13,7 +13,7 @@ class Webui::PackageController < Webui::WebuiController
 
   helper 'webui/comment'
 
-  before_filter :set_project, :only => [:show, :users, :linking_packages, :dependency, :binary, :binaries,
+  before_action :set_project, :only => [:show, :users, :linking_packages, :dependency, :binary, :binaries,
                                         :requests, :statistics, :commit, :revisions, :submit_request_dialog,
                                         :add_person, :add_group, :rdiff, :wizard_new, :wizard, :save_new,
                                         :branch_dialog, :branch, :save_new_link, :save, :delete_dialog,
@@ -23,7 +23,7 @@ class Webui::PackageController < Webui::WebuiController
                                         :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                         :save_meta, :attributes, :edit, :import_spec, :files, :comments]
 
-  before_filter :require_package, :only => [:show, :linking_packages, :dependency, :binary, :binaries,
+  before_action :require_package, :only => [:show, :linking_packages, :dependency, :binary, :binaries,
                                             :requests, :statistics, :commit, :revisions, :submit_request_dialog,
                                             :add_person, :add_group, :rdiff, :wizard_new, :wizard,
                                             :branch_dialog, :branch, :save, :delete_dialog,
@@ -35,13 +35,13 @@ class Webui::PackageController < Webui::WebuiController
                                             :save_comment]
 
   # make sure it's after the require_, it requires both
-  before_filter :require_login, :except => [:show, :linking_packages, :linking_packages, :dependency,
+  before_action :require_login, :except => [:show, :linking_packages, :linking_packages, :dependency,
                                             :binary, :binaries, :users, :requests, :statistics, :commit,
                                             :revisions, :rdiff, :wizard_new, :view_file, :live_build_log,
                                             :update_build_log, :devel_project, :buildresult, :rpmlint_result,
                                             :rpmlint_log, :meta, :attributes, :files]
 
-  prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
+  prepend_before_action :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
     if lockout_spiders

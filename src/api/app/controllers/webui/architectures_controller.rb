@@ -1,6 +1,6 @@
 # Enabling/Disabling default architectures
 class Webui::ArchitecturesController < Webui::WebuiController
-  before_filter :require_admin
+  before_action :require_admin
 
   def index
     @architectures = Architecture.order(:name)

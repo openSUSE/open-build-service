@@ -1,7 +1,7 @@
 class Webui::ConfigurationController < Webui::WebuiController
-  before_filter :require_admin
-  before_filter :set_configuration, only: [:update]
-  before_filter :require_available_architectures, only: [:index]
+  before_action :require_admin
+  before_action :set_configuration, only: [:update]
+  before_action :require_available_architectures, only: [:index]
 
   def index; end
 

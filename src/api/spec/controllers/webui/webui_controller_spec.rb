@@ -5,9 +5,9 @@ RSpec.describe Webui::WebuiController do
   # therefore we need an anoynmous rspec controller
   # https://www.relishapp.com/rspec/rspec-rails/docs/controller-specs/anonymous-controller
   controller do
-    before_filter :require_admin, only: :new
-    before_filter :require_login, only: :show
-    before_filter :set_project, only: :edit
+    before_action :require_admin, only: :new
+    before_action :require_login, only: :show
+    before_action :set_project, only: :edit
 
     def index
       render text: 'anonymous controller'

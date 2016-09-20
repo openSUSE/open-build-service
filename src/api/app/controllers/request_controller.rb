@@ -8,7 +8,7 @@ class RequestController < ApplicationController
   validate_action :request_create => { method: :post, response: :request }
 
   # TODO: allow PUT for non-admins
-  before_filter :require_admin, :only => [:update, :destroy]
+  before_action :require_admin, :only => [:update, :destroy]
 
   # GET /request
   def index
