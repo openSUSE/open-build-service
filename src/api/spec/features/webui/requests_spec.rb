@@ -15,7 +15,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
   let(:create_submit_request) do
     bs_request.bs_request_actions.delete_all
     create(:bs_request_action_submit, target_project: target_project.name,
-                                      target_package: source_package.name,
+                                      target_package: target_package.name,
                                       source_project: source_project.name,
                                       source_package: source_package.name,
                                       bs_request_id: bs_request.id)
@@ -126,11 +126,14 @@ RSpec.feature "Requests", :type => :feature, :js => true do
 
       expect(page).to have_text("Request #{bs_request.number} (accepted)")
       expect(page).to have_text('In state accepted')
-      expect(submitter.has_local_permission?('change_package', target_project.packages.find_by(name: source_package.name))).to be_truthy
+      expect(submitter.has_local_permission?('change_package', target_project.packages.find_by(name: target_package.name))).to be_truthy
     end
   end
 
   describe 'superseed' do
+    # Make source and target package name match for testing superseeding.
+    let!(:target_package) { create(:package, name: source_package.name, project_id: target_project.id) }
+
     it 'other requests' do
       create_submit_request
       Suse::Backend.put("/source/#{source_package.project.name}/#{source_package.name}/somefile.txt", Faker::Lorem.paragraph)
