@@ -2,48 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:kugelblitz">
-          <title/>
-          <description/>
-          <person userid="kugelblitz" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '143'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:kugelblitz">
-          <title></title>
-          <description></description>
-          <person userid="kugelblitz" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:04 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:titan/_meta?user=titan
+    uri: http://localhost:3200/source/home:titan/_meta
     body:
       encoding: UTF-8
       string: |
@@ -81,10 +40,10 @@ http_interactions:
           <person userid="titan" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:04 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:00 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/goal/_meta?user=_nobody_
+    uri: http://localhost:3200/source/home:titan/goal/_meta
     body:
       encoding: UTF-8
       string: |
@@ -120,10 +79,92 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:04 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:00 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta?user=_nobody_
+    uri: http://localhost:3200/source/home:titan/goal/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Iusto reprehenderit et qui aperiam. Accusantium sed magnam sunt. Voluptatem
+        ut perferendis facere vero dolores dolore. Dolorum possimus non quia molestiae
+        molestiae vero eveniet.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="13" vrev="13">
+          <srcmd5>59ede73687c6b1ef93af38e9891f02ac</srcmd5>
+          <version>unknown</version>
+          <time>1474383240</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 20 Sep 2016 14:54:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title/>
+          <description/>
+          <person userid="kugelblitz" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title></title>
+          <description></description>
+          <person userid="kugelblitz" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 20 Sep 2016 14:54:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta
     body:
       encoding: UTF-8
       string: |
@@ -159,7 +200,47 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:04 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/ball/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Assumenda praesentium voluptatem veritatis temporibus. A modi quos qui
+        aliquam labore. Quod omnis voluptas quis rem odit ea qui.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="12" vrev="12">
+          <srcmd5>605696c27adbe9b5a05935731d03b9a8</srcmd5>
+          <version>unknown</version>
+          <time>1474383240</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 20 Sep 2016 14:54:00 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:kugelblitz/ball
@@ -187,14 +268,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '79'
+      - '199'
     body:
       encoding: UTF-8
       string: |
-        <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="ball" rev="12" vrev="12" srcmd5="605696c27adbe9b5a05935731d03b9a8">
+          <entry name="somefile.txt" md5="2279425a0e3595e33a9af233807447db" size="128" mtime="1474383240" />
         </directory>
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:00 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&view=xml&withissues=1
@@ -222,17 +304,30 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '275'
+      - '924'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="ee39059183dbb9dad82d8c67da425b63">
-          <old project="home:titan" package="goal" rev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <files />
+        <sourcediff key="671b5b12c376a2418edadcd77f6ecb7f">
+          <old project="home:titan" package="goal" rev="13" srcmd5="59ede73687c6b1ef93af38e9891f02ac" />
+          <new project="home:kugelblitz" package="ball" rev="12" srcmd5="605696c27adbe9b5a05935731d03b9a8" />
+          <files>
+            <file state="changed">
+              <old name="somefile.txt" md5="44b23e99955514c82928a0990888a5c5" size="178" />
+              <new name="somefile.txt" md5="2279425a0e3595e33a9af233807447db" size="128" />
+              <diff lines="5">@@ -1 +1 @@
+        -Iusto reprehenderit et qui aperiam. Accusantium sed magnam sunt. Voluptatem ut perferendis facere vero dolores dolore. Dolorum possimus non quia molestiae molestiae vero eveniet.
+        \ No newline at end of file
+        +Assumenda praesentium voluptatem veritatis temporibus. A modi quos qui aliquam labore. Quod omnis voluptas quis rem odit ea qui.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:00 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:titan/goal
@@ -258,14 +353,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '96'
+      - '199'
     body:
       encoding: UTF-8
       string: |
-        <directory name="goal" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="goal" rev="13" vrev="13" srcmd5="59ede73687c6b1ef93af38e9891f02ac">
+          <entry name="somefile.txt" md5="44b23e99955514c82928a0990888a5c5" size="178" mtime="1474383240" />
         </directory>
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:00 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
@@ -300,7 +396,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:01 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
@@ -335,7 +431,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:01 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:kugelblitz/ball
@@ -363,14 +459,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '79'
+      - '199'
     body:
       encoding: UTF-8
       string: |
-        <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="ball" rev="12" vrev="12" srcmd5="605696c27adbe9b5a05935731d03b9a8">
+          <entry name="somefile.txt" md5="2279425a0e3595e33a9af233807447db" size="128" mtime="1474383240" />
         </directory>
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:01 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&view=xml&withissues=1
@@ -393,22 +490,35 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
+      Content-Length:
+      - '924'
       Cache-Control:
       - no-cache
       Connection:
       - close
-      Content-Length:
-      - '275'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="ee39059183dbb9dad82d8c67da425b63">
-          <old project="home:titan" package="goal" rev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <files />
+        <sourcediff key="671b5b12c376a2418edadcd77f6ecb7f">
+          <old project="home:titan" package="goal" rev="13" srcmd5="59ede73687c6b1ef93af38e9891f02ac" />
+          <new project="home:kugelblitz" package="ball" rev="12" srcmd5="605696c27adbe9b5a05935731d03b9a8" />
+          <files>
+            <file state="changed">
+              <old name="somefile.txt" md5="44b23e99955514c82928a0990888a5c5" size="178" />
+              <new name="somefile.txt" md5="2279425a0e3595e33a9af233807447db" size="128" />
+              <diff lines="5">@@ -1 +1 @@
+        -Iusto reprehenderit et qui aperiam. Accusantium sed magnam sunt. Voluptatem ut perferendis facere vero dolores dolore. Dolorum possimus non quia molestiae molestiae vero eveniet.
+        \ No newline at end of file
+        +Assumenda praesentium voluptatem veritatis temporibus. A modi quos qui aliquam labore. Quod omnis voluptas quis rem odit ea qui.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:01 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:titan/goal
@@ -434,14 +544,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '96'
+      - '199'
     body:
       encoding: UTF-8
       string: |
-        <directory name="goal" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="goal" rev="13" vrev="13" srcmd5="59ede73687c6b1ef93af38e9891f02ac">
+          <entry name="somefile.txt" md5="44b23e99955514c82928a0990888a5c5" size="178" mtime="1474383240" />
         </directory>
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:01 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
@@ -476,7 +587,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:01 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
@@ -511,5 +622,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
+  recorded_at: Tue, 20 Sep 2016 14:54:01 GMT
 recorded_with: VCR 3.0.3
