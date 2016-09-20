@@ -41,9 +41,9 @@ class User < ApplicationRecord
   has_many :subaccounts, class_name: 'User', foreign_key: 'owner_id'
 
   # users have a n:m relation to group
-  has_and_belongs_to_many :groups, -> { uniq }
+  has_and_belongs_to_many :groups, -> { distinct }
   # users have a n:m relation to roles
-  has_and_belongs_to_many :roles, -> { uniq }
+  has_and_belongs_to_many :roles, -> { distinct }
   # users have 0..1 user_registration records assigned to them
   has_one :user_registration
 

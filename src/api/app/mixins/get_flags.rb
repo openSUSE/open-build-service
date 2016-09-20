@@ -13,7 +13,7 @@ module GetFlags
     [nil].concat(self.repositories.pluck(:name)).each do |repository|
       the_flags[repository] = []
       # [nil] is a placeholder for "all" architectures
-      [nil].concat(self.architectures.reorder('name').uniq).each do |architecture|
+      [nil].concat(self.architectures.reorder('name').distinct).each do |architecture|
         architecture_id = architecture ? architecture.id : nil
         flag = self.flags.where(flag: flag_type).where(repo: repository).where(architecture_id: architecture_id).first
         # If there is no flag create a temporary one.

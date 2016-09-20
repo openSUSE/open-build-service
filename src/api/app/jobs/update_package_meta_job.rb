@@ -1,6 +1,6 @@
 class UpdatePackageMetaJob < ApplicationJob
   def scan_links
-    names = Package.distinct(:name).order(:name).pluck(:name)
+    names = Package.distinct.order(:name).pluck(:name)
     while !names.empty?
       slice = names.slice!(0, 30)
       path = "/search/package/id?match=("

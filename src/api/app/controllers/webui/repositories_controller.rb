@@ -12,7 +12,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     @debuginfo = @main_object.get_flags('debuginfo')
     @publish = @main_object.get_flags('publish')
     @useforbuild = @main_object.get_flags('useforbuild')
-    @architectures = @main_object.architectures.reorder('name').uniq
+    @architectures = @main_object.architectures.reorder('name').distinct
   end
 
   # GET project/add_repository/:project
