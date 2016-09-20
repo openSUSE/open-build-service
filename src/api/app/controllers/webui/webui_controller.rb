@@ -14,7 +14,7 @@ class Webui::WebuiController < ActionController::Base
   before_action :check_user
   before_action :check_anonymous
   before_action :require_configuration
-  after_filter :clean_cache
+  after_action :clean_cache
 
   # We execute both strategies here. The default rails strategy (resetting the session)
   # and throwing an exception if the session is handled elswhere (e.g. proxy_auth_mode: :on)
