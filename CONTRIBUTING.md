@@ -25,6 +25,13 @@ In particular, this community seeks the following types of contributions:
 * A developer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will review your pull-request
   * If the pull request gets a positive review the reviewer will merge it
 
+We tag our commits depending on the area that is affected by the change. Those are
+* [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and it's views
+* [api]     - Changes in api related parts of app/model/ and lib/ as well as app/controllers/*.rb and it's views
+* [backend] - Changes in the perl-written backend of OBS
+* [ci]      - Changes that affect our test suite
+* [doc]     - Any documentation related changes
+
 # How to contribute issues
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
 * Enter your issue and a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will label and prioritize it for you.
