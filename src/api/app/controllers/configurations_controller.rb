@@ -2,7 +2,7 @@ require 'configuration'
 
 class ConfigurationsController < ApplicationController
   # Site-specific configuration is insensitive information, no login needed therefore
-  before_filter :require_admin, :only => [:update]
+  before_action :require_admin, :only => [:update]
   skip_filter :validate_params, :only => [:update] # we use an array for archs here
 
   validate_action :show => {:method => :get, :response => :configuration}

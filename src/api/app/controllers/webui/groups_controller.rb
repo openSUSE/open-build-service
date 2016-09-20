@@ -1,6 +1,6 @@
 class Webui::GroupsController < Webui::WebuiController
-  before_filter :require_login, except: [:show, :tokens, :autocomplete]
-  before_filter :set_group, only: [:show, :update, :edit]
+  before_action :require_login, except: [:show, :tokens, :autocomplete]
+  before_action :set_group, only: [:show, :update, :edit]
   after_action :verify_authorized, except: [:show, :autocomplete, :tokens]
 
   def index

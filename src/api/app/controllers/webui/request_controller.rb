@@ -6,13 +6,13 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/comment'
   helper 'webui/package'
 
-  before_filter :require_login, :except => [:show, :sourcediff, :diff]
+  before_action :require_login, :except => [:show, :sourcediff, :diff]
   # requests do not really add much value for our page rank :)
-  before_filter :lockout_spiders
+  before_action :lockout_spiders
 
-  before_filter :require_request, only: [:changerequest]
+  before_action :require_request, only: [:changerequest]
 
-  before_filter :set_project, only: [:change_devel_request_dialog]
+  before_action :set_project, only: [:change_devel_request_dialog]
 
   def add_reviewer_dialog
     @request_number = params[:number]

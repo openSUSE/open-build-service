@@ -8,12 +8,12 @@ class Webui::ProjectController < Webui::WebuiController
 
   helper 'webui/comment'
 
-  before_filter :lockout_spiders, :only => [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
+  before_action :lockout_spiders, :only => [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
 
-  before_filter :require_login, :only => [:create, :toggle_watch, :destroy, :new, :new_incident_request,
+  before_action :require_login, :only => [:create, :toggle_watch, :destroy, :new, :new_incident_request,
                                           :new_release_request, :new_package_branch, :new_package]
 
-  before_filter :set_project, only: [:autocomplete_packages, :autocomplete_repositories, :users, :subprojects,
+  before_action :set_project, only: [:autocomplete_packages, :autocomplete_repositories, :users, :subprojects,
                                      :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
                                      :show, :linking_projects, :add_person, :add_group, :buildresult, :delete_dialog,
                                      :destroy, :remove_path_from_target, :rebuild_time, :packages_simple,
@@ -25,22 +25,22 @@ class Webui::ProjectController < Webui::WebuiController
                                      :move_path, :save_prjconf, :clear_failed_comment]
 
   # TODO: check if get_by_name or set_by_name is used for save_prjconf
-  before_filter :set_project_by_name, only: [:save_meta, :save_prjconf]
+  before_action :set_project_by_name, only: [:save_meta, :save_prjconf]
 
-  before_filter :set_project_by_id, only: [:update]
+  before_action :set_project_by_id, only: [:update]
 
-  before_filter :load_project_info, :only => [:show, :packages_simple, :rebuild_time,
+  before_action :load_project_info, :only => [:show, :packages_simple, :rebuild_time,
                                               :maintained_projects, :add_maintained_project_dialog,
                                               :add_maintained_project, :remove_maintained_project]
 
-  before_filter :load_releasetargets, :only => [:show, :incident_request_dialog]
+  before_action :load_releasetargets, :only => [:show, :incident_request_dialog]
 
-  before_filter :require_maintenance_project, only: [:maintained_projects,
+  before_action :require_maintenance_project, only: [:maintained_projects,
                                                      :add_maintained_project_dialog,
                                                      :add_maintained_project,
                                                      :remove_maintained_project]
 
-  before_filter :set_maintained_project, only: [:add_maintained_project, :remove_maintained_project]
+  before_action :set_maintained_project, only: [:add_maintained_project, :remove_maintained_project]
 
   after_action :verify_authorized, only: [:save_new, :new_incident, :save_meta]
 

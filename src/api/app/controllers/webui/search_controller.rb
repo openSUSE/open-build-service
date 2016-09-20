@@ -1,7 +1,7 @@
 class Webui::SearchController < Webui::WebuiController
-  before_filter :set_attribute_list
-  before_filter :set_tracker_list
-  before_filter :set_parameters
+  before_action :set_attribute_list
+  before_action :set_tracker_list
+  before_action :set_parameters
 
   def index
     search

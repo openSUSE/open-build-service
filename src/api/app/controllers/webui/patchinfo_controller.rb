@@ -1,9 +1,9 @@
 class Webui::PatchinfoController < Webui::WebuiController
   include Webui::PackageHelper
-  before_filter :set_project
-  before_filter :get_binaries, except: [:show, :delete]
-  before_filter :require_exists, except: [:new_patchinfo]
-  before_filter :require_login, except: [:show]
+  before_action :set_project
+  before_action :get_binaries, except: [:show, :delete]
+  before_action :require_exists, except: [:new_patchinfo]
+  before_action :require_login, except: [:show]
 
   def new_patchinfo
     unless User.current.can_create_package_in? @project

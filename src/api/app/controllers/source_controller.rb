@@ -214,7 +214,7 @@ class SourceController < ApplicationController
     render partial: 'package_issues'
   end
 
-  before_filter :require_package, only: [:show_package, :delete_package, :package_command]
+  before_action :require_package, only: [:show_package, :delete_package, :package_command]
 
   # GET /source/:project/:package
   def show_package
@@ -287,7 +287,7 @@ class SourceController < ApplicationController
     render_ok
   end
 
-  # before_filter for show_package, delete_package and package_command
+  # before_action for show_package, delete_package and package_command
   def require_package
     # init and validation
     #--------------------

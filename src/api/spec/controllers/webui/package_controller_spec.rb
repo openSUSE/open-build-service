@@ -367,7 +367,7 @@ EOT
   end
 
   describe "GET #show" do
-    context "require_package before_filter" do
+    context "require_package before_action" do
       context "with an invalid package" do
         before do
           get :show, project: user.home_project, package: 'no_package'

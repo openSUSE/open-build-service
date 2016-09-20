@@ -1,9 +1,9 @@
 class Webui::DriverUpdateController < Webui::PackageController
-  before_filter :set_project
-  before_filter :require_package
-  before_filter :require_available_architectures, only: [:create, :edit]
-  before_filter :check_images_repo, only: [:create, :edit]
-  before_filter :require_login
+  before_action :set_project
+  before_action :require_package
+  before_action :require_available_architectures, only: [:create, :edit]
+  before_action :check_images_repo, only: [:create, :edit]
+  before_action :require_login
 
   def create
     if @package.services.find_first("service[@name='generator_driver_update_disk']")

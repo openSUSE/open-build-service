@@ -1,5 +1,5 @@
 class Webui::NotificationsController < Webui::WebuiController
-  before_filter :require_admin
+  before_action :require_admin
 
   def index
     @notifications = Event::Base.notification_events
