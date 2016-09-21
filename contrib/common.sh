@@ -7,6 +7,7 @@ function allow_vendor_change() {
 function add_common_repos() {
   zypper -q ar -f http://download.opensuse.org/repositories/devel:/languages:/perl/openSUSE_Leap_42.1/devel:languages:perl.repo
   zypper -q ar -f http://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_42.1/OBS:Server:Unstable.repo
+  zypper -q ar -f http://download.opensuse.org/repositories/openSUSE:/Tools/openSUSE_42.1/openSUSE:Tools.repo
   zypper -q --gpg-auto-import-keys refresh
 }
 
@@ -34,7 +35,10 @@ function install_common_packages() {
     perl-JSON-XS \
     curl \
     vim-data \
-    psmisc
+    psmisc \
+    obs-service-download_src_package obs-service-download_files obs-service-download_url \
+    obs-service-format_spec_file obs-service-kiwi_import \
+    osc
 
   # This is a workaround for a very strange behavior
   # After installing one of the follwing packages - obs-server, curl or vim-data
