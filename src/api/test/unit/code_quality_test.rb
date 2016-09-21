@@ -101,6 +101,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::PackageController#dependency'                                     => 83.57,
       'Webui::PatchinfoController#save'                                         => 256.25,
       'Webui::ProjectController#check_devel_package_status'                     => 81.95,
+      'Webui::RequestController#show'                                           => 103.59,
       'Webui::SearchController#set_parameters'                                  => 98.04,
       'WizardController#package_wizard'                                         => 97.46
   }
