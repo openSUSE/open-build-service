@@ -394,3 +394,8 @@ div.dataTables_wrapper:after {
 #schedulerstatus, #building_all, #idlehosts {
   padding-top: 1em;
 }
+
+// Some general stuff for avoiding inline css
+.padding-10pt {
+  padding: 10pt;
+}

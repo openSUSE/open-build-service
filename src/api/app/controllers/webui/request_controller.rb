@@ -110,6 +110,17 @@ class Webui::RequestController < Webui::WebuiController
     @history = History.find_by_request(@bsreq, {withreviews: 1})
     @actions = @req['actions']
 
+    # retrieve a list of all package maintainers that are assigned to at least one target package
+    @package_maintainers = get_target_package_maintainers(@actions) || []
+
+    # search for a project, where the user is not a package maintainer but a project maintainer and show
+    # a hint if that package has some package maintainers (issue#1970)
+    projects = @actions.map{|action| action[:tprj]}.uniq
+    maintainer_role = Role.find_by_title("maintainer")
+
+    @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.current) &&
+      projects.any? { |project| Project.find_by_name(project).user_has_role?(User.current, maintainer_role) })
+
     @request_before = nil
     @request_after = nil
     index = session[:request_numbers].try(:index, @number)
@@ -120,6 +131,11 @@ class Webui::RequestController < Webui::WebuiController
     end
 
     @comments = @bsreq.comments
+  end
+
+  def package_maintainers_dialog
+    @maintainers = get_target_package_maintainers(params[:actions])
+    render_dialog unless @maintainers.empty?
   end
 
   def sourcediff
@@ -431,6 +447,11 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   private
+
+  def get_target_package_maintainers(actions)
+    actions.uniq!{ |action| action[:tpkg] }
+    actions.flat_map { |action| Package.find_by_project_and_name(action[:tprj], action[:tpkg]).try(:maintainers) }.compact.uniq
+  end
 
   def change_state(newstate, params)
     req = BsRequest.find_by_number(params[:number])

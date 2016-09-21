@@ -270,6 +270,7 @@ OBSApi::Application.routes.draw do
       get 'request/set_incident_dialog' => :set_incident_dialog
       post 'request/set_incident' => :set_incident
       post 'request/comments/:number' => :save_comment
+      get 'request/package_maintainers_dialog' => :package_maintainers_dialog
     end
 
     controller 'webui/search' do

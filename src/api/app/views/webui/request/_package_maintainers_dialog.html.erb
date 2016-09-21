@@ -1,0 +1,23 @@
+  <div class="dialog" id="disable_mask"></div>
+  <div class="dialog darkgrey_box" id="branch_dialog">
+    <div class="box box-shadow">
+      <h2 class="box-header"><%= pluralize(@maintainers.size, "Package Maintainer") %></h2>
+      <div class="dialog-content">
+        <table>
+          <tbody>
+          <% @maintainers.each do |m| %>
+          <tr>
+            <td>
+              <%= user_with_realname_and_icon(m, short: true) %>
+            </td>
+          </tr>
+          <% end %>
+          </tbody>
+         </table>
+        
+        <div class="dialog-buttons">
+         <%= remove_dialog_tag('Close') %>
+        </div>
+      </div>
+    </div>
+  </div>
