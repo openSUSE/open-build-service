@@ -39,7 +39,7 @@ fi
 if [ -n "$OBS_BACKENDCODE_DIR" ]; then
         obsdir="$OBS_BACKENDCODE_DIR"
 else
-        obsdir=/usr/lib/obs/server/
+        obsdir=/usr/lib/obs/server
 fi
 rundir="$OBS_RUN_DIR"
 logdir="$OBS_LOG_DIR"
