@@ -3,6 +3,14 @@ FactoryGirl.define do
     sequence(:name) { |n| "project_#{n}" }
     title { Faker::Book.title }
 
+    after(:create) do |project|
+      # NOTE: Enable global write through when writing new VCR cassetes.
+      # ensure the backend knows the project
+      if CONFIG['global_write_through']
+        Suse::Backend.put("/source/#{CGI.escape(project.name)}/_meta", project.to_axml)
+      end
+    end
+
     # remote projects validate additional the description and remoteurl
     factory :remote_project do
       description { Faker::Lorem.sentence }
