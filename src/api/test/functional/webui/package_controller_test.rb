@@ -55,6 +55,10 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
                  "Should create project 'home:Iggy:branches:BaseDistro:Update' and redirect to that project"
   end
 
+  def test_rpmlint_result_test
+    skip("Show rpmlint results")
+  end
+
   def test_live_build_log_doesnt_cause_500_error
     visit(package_live_build_log_path(
             project: "home:tom",

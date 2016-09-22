@@ -976,7 +976,7 @@ class Webui::PackageController < Webui::WebuiController
       @repo_arch_hash[hash_key] << result['arch']
       repos << result.value('repository')
     end if @buildresult
-    repos.distinct.each do |repo_name|
+    repos.uniq.each do |repo_name|
       @repo_list << [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
     if @repo_list.empty?
