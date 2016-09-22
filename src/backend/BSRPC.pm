@@ -282,7 +282,10 @@ sub rpc {
       my $ans = '';
       do {
 	my $r = sysread(S, $ans, 1024, length($ans));
-	die("received truncated answer\n") if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
+	if (!$r) {
+	  die("received truncated answer: $!\n") if !defined($r) && $! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK;
+	  die("received truncated answer\n") if defined $r;
+	}
       } while ($ans !~ /\n\r?\n/s);
       die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
       my $status = $1;
@@ -350,7 +353,10 @@ sub rpc {
   my $ans = '';
   do {
     my $r = sysread(S, $ans, 1024, length($ans));
-    die("received truncated answer\n") if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
+    if (!$r) {
+      die("received truncated answer: $!\n") if !defined($r) && $! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK;
+      die("received truncated answer\n") if defined $r;
+    }
   } while ($ans !~ /\n\r?\n/s);
   die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
   my $status = $1;
