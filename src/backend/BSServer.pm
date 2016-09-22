@@ -214,6 +214,8 @@ sub server {
   my $periodic_next = 0;
   my @idle;
   my $idle_next = 0;
+  my $chld_full = 0;
+  my $chld2_full = 0;
 
   if ($conf->{'serverstatus'}) {
     open(STA, '>', $conf->{'serverstatus'}) || die "Could not open $conf->{'serverstatus'}: $!";
@@ -235,7 +237,7 @@ sub server {
     my $rin = '';
     if ($MS2) {
       vec($rin, fileno(MS), 1) = 1 if !defined($maxchild) || keys(%chld) < $maxchild;
-      vec($rin, fileno($MS2), 1) = 1 if !defined($maxchild2) || keys(%chld2) < $maxchild;
+      vec($rin, fileno($MS2), 1) = 1 if !defined($maxchild2) || keys(%chld2) < $maxchild2;
     } else {
       vec($rin, fileno(MS), 1) = 1;
     }
@@ -269,12 +271,22 @@ sub server {
       }
       close CLNT;
     }
+
+    if (defined($maxchild) && $chld_full != (keys(%chld) >= $maxchild ? 1 : 0)) {
+      $chld_full = $chld_full ? 0 : 1;
+      BSUtil::printlog($chld_full ? "maxchild limit reached" : "maxchild limit ok");
+    }
+    if ($MS2 && defined($maxchild2) && $chld2_full != (keys(%chld2) >= $maxchild2 ? 1 : 0)) {
+      $chld2_full = $chld2_full ? 0 : 1;
+      BSUtil::printlog($chld2_full ? "maxchild2 limit reached" : "maxchild2 limit ok");
+    }
+
     # if there are already $maxchild connected, make blocking waitpid
     # otherwise make non-blocking waitpid
     while (1) {
       my $hang = 0;
       $hang = POSIX::WNOHANG if !defined($maxchild) || keys(%chld) < $maxchild;
-      $hang = POSIX::WNOHANG if $MS2 && (!defined($maxchild2) || keys(%chld) < $maxchild2);
+      $hang = POSIX::WNOHANG if $MS2 && (!defined($maxchild2) || keys(%chld2) < $maxchild2);
       $pid = waitpid(-1, $hang);
       last unless $pid > 0;
       my $slot = delete $chld{$pid};
@@ -324,36 +336,41 @@ sub server {
   };
 
   setsockopt(CLNT, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
+
+  # run the accept hook if configured
   if ($conf->{'accept'}) {
     eval {
       $conf->{'accept'}->($conf, $req);
     };
     reply_error($conf, $@) if $@;
   }
-  if ($conf->{'dispatch'}) {
-    eval {
-      do {
-        local $SIG{'ALRM'} = sub {POSIX::_exit(0);};
-        alarm(60);	# should be enough to read the request
-        readrequest($req);
-        alarm(0);
-      };
-      my @r = $conf->{'dispatch'}->($conf, $req);
-      if (!$req->{'replying'}) {
-        if ($conf->{'stdreply'}) {
-          $conf->{'stdreply'}->(@r);
-        } else {
-	  reply(@r);
-        }
-      }
-    };
-    return @{$req->{'returnfromserver'}} if $req->{'returnfromserver'} && !$@;
-    reply_error($conf, $@) if $@;
-    close CLNT;
-    exit(0);
+
+  if (!$conf->{'dispatch'}) {
+    # the old way... please use a dispatch function in new code
+    $SIG{'__DIE__'} = sub { die(@_) if $^S; reply_error($conf, $_[0]); };
+    return $req;
   }
-  $SIG{'__DIE__'} = sub { die(@_) if $^S; reply_error($conf, $_[0]); };
-  return $req;
+
+  eval {
+    do {
+      local $SIG{'ALRM'} = sub {print "read request timout for peer $req->{'peer'}\n" ; POSIX::_exit(0);};
+      alarm(60);	# should be enough to read the request
+      readrequest($req);
+      alarm(0);
+    };
+    my @r = $conf->{'dispatch'}->($conf, $req);
+    if (!$req->{'replying'}) {
+      if ($conf->{'stdreply'}) {
+	$conf->{'stdreply'}->(@r);
+      } else {
+	reply(@r);
+      }
+    }
+  };
+  return @{$req->{'returnfromserver'}} if $req->{'returnfromserver'} && !$@;
+  reply_error($conf, $@) if $@;
+  close CLNT;
+  exit(0);
 }
 
 sub msg {
@@ -455,8 +472,9 @@ sub reply_error  {
 }
 
 sub done {
+  my ($noexit) = @_;
   close CLNT;
-  exit(0);
+  exit(0) unless $noexit;
 }
 
 sub getpeerdata {
