@@ -164,7 +164,7 @@ module MaintenanceHelper
                                                                :opackage, :comment, :requestid,
                                                                :expand, :withvrev, :noservice,
                                                                :freezelink, :withacceptinfo])
-    result = Suse::Backend.post(cp_path, nil)
+    result = Suse::Backend.post(cp_path)
     result = Xmlhash.parse(result.body)
     action.set_acceptinfo(result["acceptinfo"]) if action
   end
@@ -216,7 +216,7 @@ module MaintenanceHelper
     cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage,
                                                                :orepository, :setupdateinfoid,
                                                                :resign, :setrelease])
-    Suse::Backend.post cp_path, nil
+    Suse::Backend.post cp_path
   end
 
   def get_updateinfo_id(sourcePackage, targetRepo)
@@ -344,11 +344,11 @@ module MaintenanceHelper
         # a package exists via project link, make it older in any case
         path << "+and+make+source+instance+older&makeoriginolder=1"
       end
-      Suse::Backend.post path, nil
+      Suse::Backend.post path
     else
       # rubocop:disable Metrics/LineLength
       # simple branch
-      Suse::Backend.post pkg.source_path + "?cmd=branch&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+as+branch", nil
+      Suse::Backend.post pkg.source_path + "?cmd=branch&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+as+branch"
       # rubocop:enable Metrics/LineLength
     end
     pkg.sources_changed
@@ -370,7 +370,7 @@ module MaintenanceHelper
 
       # rubocop:disable Metrics/LineLength
       # copy project local linked packages
-      Suse::Backend.post "/source/#{pkg.project.name}/#{lpkg.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}#{arguments}&user=#{CGI.escape(User.current.login)}", nil
+      Suse::Backend.post "/source/#{pkg.project.name}/#{lpkg.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}#{arguments}&user=#{CGI.escape(User.current.login)}"
       # rubocop:enable Metrics/LineLength
       # and fix the link
       ret = ActiveXML::Node.new(lpkg.source_file('_link'))

@@ -56,7 +56,7 @@ class WizardController < ApplicationController
     xml = create_service_file
 
     Suse::Backend.put("/source/#{params[:project]}/#{params[:package]}/_service?rev=upload&user=#{User.current.login}", xml)
-    Suse::Backend.post("/source/#{params[:project]}/#{params[:package]}?cmd=commit&rev=upload&user=#{User.current.login}", '')
+    Suse::Backend.post("/source/#{params[:project]}/#{params[:package]}?cmd=commit&rev=upload&user=#{User.current.login}")
 
     @wizard_form.last = true
     render_wizard

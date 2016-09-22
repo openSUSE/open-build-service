@@ -88,7 +88,7 @@ class BsRequestActionSubmit < BsRequestAction
                                                                :orev, :expand, :keeplink, :comment,
                                                                :requestid, :dontupdatesource, :noservice,
                                                                :withacceptinfo])
-    result = Suse::Backend.post cp_path, nil
+    result = Suse::Backend.post cp_path
     result = Xmlhash.parse(result.body)
     self.set_acceptinfo(result["acceptinfo"])
 
@@ -109,7 +109,7 @@ class BsRequestActionSubmit < BsRequestAction
       h[:opackage] = self.target_package
       cp_path = "/source/#{CGI.escape(self.source_project)}/#{CGI.escape(self.source_package)}"
       cp_path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :keepcontent])
-      Suse::Backend.post cp_path, nil
+      Suse::Backend.post cp_path
     elsif self.sourceupdate == "cleanup"
       self.source_cleanup
     end

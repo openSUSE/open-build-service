@@ -1082,7 +1082,7 @@ class SourceController < ApplicationController
     begin
       project.name = params[:project]
 
-      Suse::Backend.post "/source/#{URI.escape(project.name)}?cmd=move&oproject=#{CGI.escape(project_name)}", nil
+      Suse::Backend.post "/source/#{URI.escape(project.name)}?cmd=move&oproject=#{CGI.escape(project_name)}"
       project.store(commit)
       # update meta data in all packages, they contain the project name as well
       project.packages.each {|p| p.store(commit)}
@@ -1249,7 +1249,7 @@ class SourceController < ApplicationController
       # we could request the links on remote instance via that: but we would need to search also localy and merge ...
 
 #      path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(package_name)}\"+and+@linkinfo/project=\"#{CGI.escape(project_name)}\")"
-#      answer = Suse::Backend.post path, nil
+#      answer = Suse::Backend.post path
 #      render :text => answer.body, :content_type => 'text/xml'
       render :text => '<collection/>', :content_type => 'text/xml'
       return
@@ -1562,7 +1562,7 @@ class SourceController < ApplicationController
     if not pkg_linkrev.nil? and not pkg_linkrev.empty?
       linkrev = "&linkrev=#{pkg_linkrev}"
     end
-    Suse::Backend.post "/source/#{@package.project.name}/#{@package.name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}", nil
+    Suse::Backend.post "/source/#{@package.project.name}/#{@package.name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}"
 
     @package.sources_changed
     render_ok

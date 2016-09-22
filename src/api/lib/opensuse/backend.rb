@@ -96,7 +96,7 @@ module Suse
         put_or_post("PUT", path, data, in_headers)
       end
 
-      def post(path, data, in_headers = {})
+      def post(path, data = nil, in_headers = {})
         in_headers = {
             'Content-Type' => 'application/octet-stream'
         }.merge in_headers

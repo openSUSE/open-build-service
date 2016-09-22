@@ -101,7 +101,7 @@ class Owner
     path += "+and+("
     path += prjlist.join("+or+")
     path += "))"
-    answer = Suse::Backend.post path, nil
+    answer = Suse::Backend.post path
     data = Xmlhash.parse(answer.body)
     # found binary package?
     return [] if data["matches"].to_i.zero?

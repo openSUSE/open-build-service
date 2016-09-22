@@ -341,7 +341,7 @@ class Package < ApplicationRecord
     path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(self.name)}\"+and+linkinfo/@project=\"#{CGI.escape(self.project.name)}\""
     path += "+and+@project=\"#{CGI.escape(self.project.name)}\"" if project_local
     path += ')'
-    answer = Suse::Backend.post path, nil
+    answer = Suse::Backend.post path
     data = REXML::Document.new(answer.body)
     result = []
     data.elements.each('collection/package') do |e|
@@ -471,7 +471,7 @@ class Package < ApplicationRecord
 
   def parse_issues_xml(query, force_state = nil)
     begin
-      answer = Suse::Backend.post(self.source_path(nil, query), nil)
+      answer = Suse::Backend.post(self.source_path(nil, query))
     rescue ActiveXML::Transport::Error => e
       Rails.logger.debug "failed to parse issues: #{e.inspect}"
       return {}
@@ -991,7 +991,7 @@ class Package < ApplicationRecord
     path = self.source_path
     path += Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok, :olinkrev])
     # branch sources in backend
-    Suse::Backend.post path, nil
+    Suse::Backend.post path
   end
 
   # just make sure the backend_package is there
@@ -1323,7 +1323,7 @@ class Package < ApplicationRecord
       # Note: This list needs to keep in sync with the backend code
       permitted_params = params.permit(:repository, :arch, :package, :code, :wipe)
 
-      Suse::Backend.post("/build/#{URI.escape(project.name)}?cmd=#{command}&#{permitted_params.to_h.to_query}", '')
+      Suse::Backend.post("/build/#{URI.escape(project.name)}?cmd=#{command}&#{permitted_params.to_h.to_query}")
     rescue ActiveXML::Transport::Error, Timeout::Error => e
       errors.add(:base, e.message)
       return false
