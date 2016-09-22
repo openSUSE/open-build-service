@@ -57,10 +57,11 @@ if [ -n "$REDIR_LOG" ]; then
   APPEND_ARR[3]=">$REDIR_LOG/bs_sched_x86_64.log 2>&1"
   APPEND_ARR[4]=">$REDIR_LOG/bs_dispatch.log 2>&1"
   APPEND_ARR[5]=">$REDIR_LOG/bs_publish.log 2>&1"
+  APPEND_ARR[6]=">$REDIR_LOG/bs_service.log 2>&1"
   w_count=1
   while [ $w_count -le $WORKER_N ]
   do 
-    index=5+$w_count
+    index=6+$w_count
     APPEND_ARR[$index]=">$REDIR_LOG/bs_worker_$w_count.log 2>&1"
     let w_count=$w_count+1
   done
@@ -82,6 +83,7 @@ if [ ! -f $GIT_HOME/src/backend/BSConfig.pm ]; then
   cp $GIT_HOME/src/backend/BSConfig.pm.template $GIT_HOME/src/backend/BSConfig.pm
 fi
 perl -pi -e 's/my \$hostname.*/my \$hostname="localhost";/' $GIT_HOME/src/backend/BSConfig.pm
+perl -pi -e 's/our \$bsserviceuser.*/our \$bsserviceuser="obsrun";/' $GIT_HOME/src/backend/BSConfig.pm
 
 
 #start backend services (the minimum needed) with two arch(i586/x86_64) schedulers and one worker
@@ -105,6 +107,9 @@ eval $COMMAND_STRING
 echo "Starting bs_publish"
 COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_publish ${APPEND_ARR[5]} &"
 eval $COMMAND_STRING
+echo "Starting bs_service"
+COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_service ${APPEND_ARR[6]} &"
+eval $COMMAND_STRING
 w_count=1
 while [ $w_count -le $WORKER_N ]
 do
@@ -116,7 +121,7 @@ do
   fi
   sudo chown -R obsrun:obsrun /srv/obs/run/
 
-  index=$w_count+5;
+  index=$w_count+6;
   echo "Starting bs_worker"
   COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_$w_count --statedir /srv/obs/run/worker/$w_count --id $HOSTNAME:$w_count --reposerver http://localhost:5252 --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 ${APPEND_ARR[$index]} &"
   eval $COMMAND_STRING
@@ -138,6 +143,8 @@ function clean_up {
   sudo killall bs_worker
   echo -e "Terminated Worker"
   sudo killall bs_publish
+  echo -e "Terminated Publisher"
+  sudo killall bs_service
   echo -e "Terminated Publisher"
   exit;
 }
