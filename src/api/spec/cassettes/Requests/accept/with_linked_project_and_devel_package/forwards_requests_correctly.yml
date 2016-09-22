@@ -2,1670 +2,6 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:titan">
-          <title/>
-          <description/>
-          <person userid="titan" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '133'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:titan">
-          <title></title>
-          <description></description>
-          <person userid="titan" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:19 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:titan/goal/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="goal" project="home:titan">
-          <title/>
-          <description/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '102'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="goal" project="home:titan">
-          <title></title>
-          <description></description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:19 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:titan/goal/somefile.txt
-    body:
-      encoding: UTF-8
-      string: Quas ab est eligendi sequi odit distinctio. Fugit omnis dolor distinctio
-        aut doloribus voluptas. Earum dolore qui exercitationem et possimus temporibus
-        nisi. Voluptatem porro recusandae tempore sit omnis qui. Modi qui qui qui
-        vel pariatur voluptas ut.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '209'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="11" vrev="11">
-          <srcmd5>7a5d98d70d8f9867e2df368df3079f1e</srcmd5>
-          <version>unknown</version>
-          <time>1474383199</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:19 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:kugelblitz/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:kugelblitz">
-          <title/>
-          <description/>
-          <person userid="kugelblitz" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '143'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:kugelblitz">
-          <title></title>
-          <description></description>
-          <person userid="kugelblitz" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:19 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="ball" project="home:kugelblitz">
-          <title/>
-          <description/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '107'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="ball" project="home:kugelblitz">
-          <title></title>
-          <description></description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:19 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:kugelblitz/ball/somefile.txt
-    body:
-      encoding: UTF-8
-      string: Inventore quia sunt provident minus mollitia. Error ea voluptas. Eveniet
-        eum voluptas et tempore magni. Consequuntur velit iure in. Dolorem occaecati
-        et.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>710cb32235e8c5584eef192fa029774b</srcmd5>
-          <version>unknown</version>
-          <time>1474383199</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:19 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:kugelblitz/ball/somefile.txt?user=kugelblitz
-    body:
-      encoding: UTF-8
-      string: some more changes
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Content-Length:
-      - '17'
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '210'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="9" vrev="9">
-          <srcmd5>31cd6b40d3a414ec86024998388897c3</srcmd5>
-          <version>unknown</version>
-          <time>1474383199</time>
-          <user>kugelblitz</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:19 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '196'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="ball" rev="9" vrev="9" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:19 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball?nofilename=1&view=info&withchangesmd5=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '178'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourceinfo package="ball" rev="9" vrev="9" srcmd5="31cd6b40d3a414ec86024998388897c3" verifymd5="31cd6b40d3a414ec86024998388897c3">
-          <revtime>1474383199</revtime>
-        </sourceinfo>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:19 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '196'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="ball" rev="9" vrev="9" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:19 GMT
-- request:
-    method: post
-    uri: http://localhost:3200/source/home:kugelblitz/ball?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '303'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="5bec365b4ea76646e30414211938d41f">
-          <old project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:kugelblitz" package="ball" rev="9" srcmd5="31cd6b40d3a414ec86024998388897c3" />
-          <files />
-          <issues>
-          </issues>
-        </sourcediff>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:19 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '196'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="ball" rev="9" vrev="9" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:20 GMT
-- request:
-    method: post
-    uri: http://localhost:3200/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&view=xml&withissues=1
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '884'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="ce0c3906a279d3774e505795be55ba78">
-          <old project="home:titan" package="goal" rev="11" srcmd5="7a5d98d70d8f9867e2df368df3079f1e" />
-          <new project="home:kugelblitz" package="ball" rev="9" srcmd5="31cd6b40d3a414ec86024998388897c3" />
-          <files>
-            <file state="changed">
-              <old name="somefile.txt" md5="438d708c3dc7b91ec42c0e06a4c9a7b8" size="251" />
-              <new name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" />
-              <diff lines="5">@@ -1 +1 @@
-        -Quas ab est eligendi sequi odit distinctio. Fugit omnis dolor distinctio aut doloribus voluptas. Earum dolore qui exercitationem et possimus temporibus nisi. Voluptatem porro recusandae tempore sit omnis qui. Modi qui qui qui vel pariatur voluptas ut.
-        \ No newline at end of file
-        +some more changes
-        \ No newline at end of file
-        </diff>
-            </file>
-          </files>
-          <issues>
-          </issues>
-        </sourcediff>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:20 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:titan/goal
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '199'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="goal" rev="11" vrev="11" srcmd5="7a5d98d70d8f9867e2df368df3079f1e">
-          <entry name="somefile.txt" md5="438d708c3dc7b91ec42c0e06a4c9a7b8" size="251" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:20 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/project_1/package_1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'project_1' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'project_1' does not exist</summary>
-          <details>404 project 'project_1' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:20 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/project_2/package_2
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'project_2' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'project_2' does not exist</summary>
-          <details>404 project 'project_2' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:20 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '56'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:20 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '56'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball?expand=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '196'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="ball" rev="9" vrev="9" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball?expand=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '196'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="ball" rev="9" vrev="9" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=copy&comment=a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20&expand=1&keeplink=1&noservice=1&opackage=ball&oproject=home:kugelblitz&requestid=1&user=titan&withacceptinfo=1
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '3130'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="12" vrev="12">
-          <srcmd5>31cd6b40d3a414ec86024998388897c3</srcmd5>
-          <version>unknown</version>
-          <time>1474383201</time>
-          <user>titan</user>
-          <comment>a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - </comment>
-          <requestid>1</requestid>
-          <acceptinfo rev="12" srcmd5="31cd6b40d3a414ec86024998388897c3" osrcmd5="7a5d98d70d8f9867e2df368df3079f1e" />
-        </revision>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:titan/goal
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '198'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="goal" rev="12" vrev="12" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:titan/goal?nofilename=1&view=info&withchangesmd5=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '180'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourceinfo package="goal" rev="12" vrev="12" srcmd5="31cd6b40d3a414ec86024998388897c3" verifymd5="31cd6b40d3a414ec86024998388897c3">
-          <revtime>1474383201</revtime>
-        </sourceinfo>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:titan/goal
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '198'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="goal" rev="12" vrev="12" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Content-Length:
-      - '303'
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="5bec365b4ea76646e30414211938d41f">
-          <old project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:kugelblitz" package="ball" rev="9" srcmd5="31cd6b40d3a414ec86024998388897c3" />
-          <files />
-          <issues>
-          </issues>
-        </sourcediff>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:titan/goal
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '198'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="goal" rev="12" vrev="12" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:titan/goal
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '198'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="goal" rev="12" vrev="12" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&expand=1&filelimit=10000&opackage=package_1&oproject=project_1&rev=12
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'project_1' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'project_1' does not exist</summary>
-          <details>404 project 'project_1' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:titan/goal?expand=1&rev=12
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '198'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="goal" rev="12" vrev="12" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:titan/goal
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '198'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="goal" rev="12" vrev="12" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:titan/goal
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '198'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="goal" rev="12" vrev="12" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&expand=1&filelimit=10000&opackage=package_2&oproject=project_2&rev=12
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'project_2' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'project_2' does not exist</summary>
-          <details>404 project 'project_2' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:titan/goal?expand=1&rev=12
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '198'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="goal" rev="12" vrev="12" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&orev=7a5d98d70d8f9867e2df368df3079f1e&rev=31cd6b40d3a414ec86024998388897c3&view=xml&withissues=1
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '940'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="09cdea9bd2dcfedf8c5a76de90563bd3">
-          <old project="home:titan" package="goal" rev="7a5d98d70d8f9867e2df368df3079f1e" srcmd5="7a5d98d70d8f9867e2df368df3079f1e" />
-          <new project="home:titan" package="goal" rev="31cd6b40d3a414ec86024998388897c3" srcmd5="31cd6b40d3a414ec86024998388897c3" />
-          <files>
-            <file state="changed">
-              <old name="somefile.txt" md5="438d708c3dc7b91ec42c0e06a4c9a7b8" size="251" />
-              <new name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" />
-              <diff lines="5">@@ -1 +1 @@
-        -Quas ab est eligendi sequi odit distinctio. Fugit omnis dolor distinctio aut doloribus voluptas. Earum dolore qui exercitationem et possimus temporibus nisi. Voluptatem porro recusandae tempore sit omnis qui. Modi qui qui qui vel pariatur voluptas ut.
-        \ No newline at end of file
-        +some more changes
-        \ No newline at end of file
-        </diff>
-            </file>
-          </files>
-          <issues>
-          </issues>
-        </sourcediff>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:titan/goal
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '198'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="goal" rev="12" vrev="12" srcmd5="31cd6b40d3a414ec86024998388897c3">
-          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474383199" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/project_1/package_1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'project_1' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'project_1' does not exist</summary>
-          <details>404 project 'project_1' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/project_2/package_2
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'project_2' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'project_2' does not exist</summary>
-          <details>404 project 'project_2' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:21 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '56'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:22 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '56'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
-    http_version: 
-  recorded_at: Tue, 20 Sep 2016 14:53:22 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/project_1/package_2
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: package 'package_2' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>package 'package_2' does not exist</summary>
-          <details>404 package 'package_2' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 22 Sep 2016 08:04:38 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/project_2/package_3
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: package 'package_3' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>package 'package_3' does not exist</summary>
-          <details>404 package 'package_3' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 22 Sep 2016 08:04:38 GMT
-- request:
-    method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&expand=1&filelimit=10000&opackage=package_2&oproject=project_1&rev=12
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: no such revision
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '110'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>no such revision</summary>
-          <details>404 no such revision</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 22 Sep 2016 08:04:39 GMT
-- request:
-    method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&expand=1&filelimit=10000&opackage=package_3&oproject=project_2&rev=12
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: no such revision
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '110'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>no such revision</summary>
-          <details>404 no such revision</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 22 Sep 2016 08:04:39 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/project_1/package_2
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: package 'package_2' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>package 'package_2' does not exist</summary>
-          <details>404 package 'package_2' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 22 Sep 2016 08:04:39 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/project_2/package_3
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: package 'package_3' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>package 'package_3' does not exist</summary>
-          <details>404 package 'package_3' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 22 Sep 2016 08:04:39 GMT
-- request:
-    method: put
     uri: http://localhost:3200/source/home:titan/_meta?user=titan
     body:
       encoding: UTF-8
@@ -1704,7 +40,7 @@ http_interactions:
           <person userid="titan" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:55:59 GMT
+  recorded_at: Thu, 22 Sep 2016 12:51:37 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:titan/goal/_meta?user=_nobody_
@@ -1743,7 +79,125 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:55:59 GMT
+  recorded_at: Thu, 22 Sep 2016 12:51:37 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:titan/goal/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:37 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:titan/goal/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Non sapiente voluptatem recusandae et aut. Repudiandae quidem odio quam
+        minus veritatis voluptate. Sapiente omnis facilis cum enim accusantium.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>5556cacdbb9ec0437110699f99e0d0ca</srcmd5>
+          <version>unknown</version>
+          <time>1474548697</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:37 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_1/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>An Evil Cradling</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>An Evil Cradling</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:37 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/project_1/package_1/_meta?user=_nobody_
@@ -1784,7 +238,87 @@ http_interactions:
           <devel project="home:titan" package="goal" />
         </package>
     http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:55:59 GMT
+  recorded_at: Thu, 22 Sep 2016 12:51:37 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_1/package_1/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title/>
+          <description/>
+          <devel project="home:titan" package="goal"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title></title>
+          <description></description>
+          <devel project="home:titan" package="goal" />
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:37 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_2/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Great Work of Time</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Great Work of Time</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:37 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/project_2/package_2/_meta?user=_nobody_
@@ -1825,13 +359,18 @@ http_interactions:
           <devel project="home:titan" package="goal" />
         </package>
     http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:55:59 GMT
+  recorded_at: Thu, 22 Sep 2016 12:51:37 GMT
 - request:
-    method: delete
-    uri: http://localhost:3200/source/project_1
+    method: put
+    uri: http://localhost:3200/source/project_2/package_2/_meta
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="project_2">
+          <title/>
+          <description/>
+          <devel project="home:titan" package="goal"/>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -1851,179 +390,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '154'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
+      string: |
+        <package name="package_2" project="project_2">
+          <title></title>
+          <description></description>
+          <devel project="home:titan" package="goal" />
+        </package>
     http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:58:04 GMT
-- request:
-    method: delete
-    uri: http://localhost:3200/source/project_2
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:58:06 GMT
-- request:
-    method: delete
-    uri: http://localhost:3200/source/project_3
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:58:07 GMT
-- request:
-    method: delete
-    uri: http://localhost:3200/source/project_4
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:58:09 GMT
-- request:
-    method: delete
-    uri: http://localhost:3200/source/home:titan
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:58:28 GMT
-- request:
-    method: delete
-    uri: http://localhost:3200/source/home:kugelblitz
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:58:50 GMT
+  recorded_at: Thu, 22 Sep 2016 12:51:37 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
@@ -2064,7 +441,7 @@ http_interactions:
           <person userid="kugelblitz" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:58:56 GMT
+  recorded_at: Thu, 22 Sep 2016 12:51:43 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:kugelblitz/ball/_meta?user=kugelblitz
@@ -2103,5 +480,1304 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Sep 2016 10:58:56 GMT
+  recorded_at: Thu, 22 Sep 2016 12:51:43 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:43 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/ball/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Est eos sit eum laborum quia aut iusto. Autem ut magnam ad sint fugiat.
+        Inventore nam dolore voluptas optio aut. Officia ut non laborum magni enim
+        vel.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>6f56b676c478aa8a073b178513b8af19</srcmd5>
+          <version>unknown</version>
+          <time>1474548703</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:43 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/ball/somefile.txt?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: some more changes
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '17'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '210'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>31cd6b40d3a414ec86024998388897c3</srcmd5>
+          <version>unknown</version>
+          <time>1474548703</time>
+          <user>kugelblitz</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:43 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="2" vrev="2" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:43 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="ball" rev="2" vrev="2" srcmd5="31cd6b40d3a414ec86024998388897c3" verifymd5="31cd6b40d3a414ec86024998388897c3">
+          <revtime>1474548703</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:43 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="2" vrev="2" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:43 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:kugelblitz/ball?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '303'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="8fc55d5fc0bf1227a248f57e69851acf">
+          <old project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:kugelblitz" package="ball" rev="2" srcmd5="31cd6b40d3a414ec86024998388897c3" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:43 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="2" vrev="2" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:48 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '775'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="b38f6973b603019c9ef81ca14d4323f8">
+          <old project="home:titan" package="goal" rev="3" srcmd5="5556cacdbb9ec0437110699f99e0d0ca" />
+          <new project="home:kugelblitz" package="ball" rev="2" srcmd5="31cd6b40d3a414ec86024998388897c3" />
+          <files>
+            <file state="changed">
+              <old name="somefile.txt" md5="5e596efe6629e97e087b5b64fa5476ea" size="143" />
+              <new name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" />
+              <diff lines="5">@@ -1 +1 @@
+        -Non sapiente voluptatem recusandae et aut. Repudiandae quidem odio quam minus veritatis voluptate. Sapiente omnis facilis cum enim accusantium.
+        \ No newline at end of file
+        +some more changes
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:48 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="3" vrev="3" srcmd5="5556cacdbb9ec0437110699f99e0d0ca">
+          <entry name="somefile.txt" md5="5e596efe6629e97e087b5b64fa5476ea" size="143" mtime="1474548697" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:48 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/project_1/package_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:48 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/project_2/package_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:48 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="2" vrev="2" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="2" vrev="2" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:titan/goal?cmd=copy&comment=a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20&expand=1&keeplink=1&noservice=1&opackage=ball&oproject=home:kugelblitz&requestid=1&user=titan&withacceptinfo=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '3127'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>31cd6b40d3a414ec86024998388897c3</srcmd5>
+          <version>unknown</version>
+          <time>1474548709</time>
+          <user>titan</user>
+          <comment>a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - a long text - </comment>
+          <requestid>1</requestid>
+          <acceptinfo rev="4" srcmd5="31cd6b40d3a414ec86024998388897c3" osrcmd5="5556cacdbb9ec0437110699f99e0d0ca" />
+        </revision>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="4" vrev="4" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:titan/goal?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="goal" rev="4" vrev="4" srcmd5="31cd6b40d3a414ec86024998388897c3" verifymd5="31cd6b40d3a414ec86024998388897c3">
+          <revtime>1474548709</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="4" vrev="4" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '303'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="8fc55d5fc0bf1227a248f57e69851acf">
+          <old project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:kugelblitz" package="ball" rev="2" srcmd5="31cd6b40d3a414ec86024998388897c3" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="4" vrev="4" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="4" vrev="4" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&expand=1&filelimit=10000&opackage=package_1&oproject=project_1&rev=4
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '179'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        new:
+        ----
+          somefile.txt
+
+        other changes:
+        --------------
+
+        ++++++ somefile.txt (new)
+        --- somefile.txt
+        +++ somefile.txt
+        @@ -0,0 +1 @@
+        +some more changes
+        \ No newline at end of file
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:titan/goal?expand=1&rev=4
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="4" vrev="4" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="4" vrev="4" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:50 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="4" vrev="4" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:50 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&expand=1&filelimit=10000&opackage=package_2&oproject=project_2&rev=4
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '179'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |2
+
+        new:
+        ----
+          somefile.txt
+
+        other changes:
+        --------------
+
+        ++++++ somefile.txt (new)
+        --- somefile.txt
+        +++ somefile.txt
+        @@ -0,0 +1 @@
+        +some more changes
+        \ No newline at end of file
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:50 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:titan/goal?expand=1&rev=4
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="4" vrev="4" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:50 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&orev=5556cacdbb9ec0437110699f99e0d0ca&rev=31cd6b40d3a414ec86024998388897c3&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '832'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="cb0842f450611ea4a7728de2c25096a3">
+          <old project="home:titan" package="goal" rev="5556cacdbb9ec0437110699f99e0d0ca" srcmd5="5556cacdbb9ec0437110699f99e0d0ca" />
+          <new project="home:titan" package="goal" rev="31cd6b40d3a414ec86024998388897c3" srcmd5="31cd6b40d3a414ec86024998388897c3" />
+          <files>
+            <file state="changed">
+              <old name="somefile.txt" md5="5e596efe6629e97e087b5b64fa5476ea" size="143" />
+              <new name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" />
+              <diff lines="5">@@ -1 +1 @@
+        -Non sapiente voluptatem recusandae et aut. Repudiandae quidem odio quam minus veritatis voluptate. Sapiente omnis facilis cum enim accusantium.
+        \ No newline at end of file
+        +some more changes
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:50 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="4" vrev="4" srcmd5="31cd6b40d3a414ec86024998388897c3">
+          <entry name="somefile.txt" md5="41c62f803148d5471e9af9b56125480d" size="17" mtime="1474548703" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:50 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/project_1/package_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:50 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/project_2/package_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:50 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:50 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 12:51:50 GMT
 recorded_with: VCR 3.0.3
