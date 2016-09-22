@@ -9,6 +9,14 @@ SERVICES_DIR="/srv/obs/service/"
 SCM_COMMAND=0
 WITH_NET=0
 COMMAND="$1"
+LOGDIR=/srv/obs/service/log/
+LOGFILE=$LOGDIR/`basename $0`.log
+
+function printlog {
+  printf "%s %s %7s %s\n" `date +"%Y-%m-%d %H:%M:%S"` "[$$]" "$@" >> $LOGFILE
+}
+
+[ -d $LOGDIR ] || mkdir -p $LOGDIR
 
 shift
 case "$COMMAND" in
@@ -22,7 +30,7 @@ case "$COMMAND" in
 esac
 
 while [ $# -gt 0 ]; do
-  case $1 in 
+  case $1 in
     --scm)
       PARAM_SCM=$2
     ;;
@@ -57,6 +65,7 @@ RETURN="0"
 [ -d $MOUNTDIR ] || mkdir -p $MOUNTDIR
 # set -x
 INNERBASEDIR=`mktemp -u /var/cache/obs/XXXXXXXXXXXX`
+CONTAINER_ID=src-service-`basename $INNERBASEDIR`
 INNEROUTDIR="$INNERBASEDIR/out"
 OUTEROUTDIR="$MOUNTDIR/out"
 INNERSRCDIR="$INNERBASEDIR/src"
@@ -69,7 +78,7 @@ INNERGITCACHE="$INNERBASEDIR/git-cache"
 [ -d $OUTERSRCDIR ] || mkdir -p $OUTERSRCDIR
 [ -d $MOUNTDIR$INNERSCRIPTDIR ] || mkdir -p $MOUNTDIR$INNERSCRIPTDIR
 
-# Create inner.sh which is just a wrapper for 
+# Create inner.sh which is just a wrapper for
 # su nobody -s inner.sh.command
 echo "#!/bin/bash" > "$MOUNTDIR/$INNERSCRIPT"
 echo "cd $INNERSRCDIR" >> "$MOUNTDIR/$INNERSCRIPT"
@@ -97,7 +106,9 @@ if [ $SCM_COMMAND -eq 1 -a "$PARAM_SCM" == "git" ];then
   echo "export CACHEDIRECTORY='$INNERGITCACHE'" >> "$MOUNTDIR/${INNERSCRIPT}.command"
   JAILED="--jailed=1"
 fi
-echo "${COMMAND[@]} --outdir $INNEROUTDIR $JAILED" >> "$MOUNTDIR/${INNERSCRIPT}.command"
+FULL_COMMAND="${COMMAND[@]} --outdir $INNEROUTDIR $JAILED"
+printlog "FULL_COMMAND: '$FULL_COMMAND'"
+echo "$FULL_COMMAND" >> "$MOUNTDIR/${INNERSCRIPT}.command"
 
 # useful for debugging purposes
 if [[ $DEBUG_DOCKER ]];then
@@ -106,7 +117,10 @@ if [[ $DEBUG_DOCKER ]];then
 fi
 
 # run jailed process
-if docker run $DOCKER_OPTS_NET --rm --name src-service-$$ $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT; then
+DOCKER_RUN_CMD="docker run $DOCKER_OPTS_NET --rm --name $CONTAINER_ID $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
+printlog "DOCKER_RUN_CMD: '$DOCKER_RUN_CMD'"
+CMD_OUT=$(${DOCKER_RUN_CMD} 2>&1)
+if [ $? -eq 0 ]; then
   # move out the result
   if [ 0`find "$MOUNTDIR/$INNEROUTDIR" -type f 2>/dev/null| wc -l` -gt 0 ]; then
     for i in _service:* ; do
@@ -116,8 +130,11 @@ if docker run $DOCKER_OPTS_NET --rm --name src-service-$$ $DOCKER_VOLUMES $DEBUG
     done
   fi
 else
+ printlog "$CMD_OUT"
+ echo "$CMD_OUT"
  RETURN="2"
 fi
+
 
 [ -d "$MOUNTDIR/$INNERSRCDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNERSRCDIR"
 [ -d "$MOUNTDIR/$INNEROUTDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNEROUTDIR"
@@ -125,5 +142,7 @@ rm -f "$MOUNTDIR/${INNERSCRIPT}.command" 2> /dev/null
 rm -f "$MOUNTDIR/$INNERSCRIPT" 2> /dev/null
 rmdir --ignore-fail-on-non-empty "$MOUNTDIR$INNERSCRIPTDIR" 2> /dev/null
 rmdir --ignore-fail-on-non-empty "$MOUNTDIR" 2> /dev/null
+
+docker rm --force --volumes $CONTAINER_ID
 
 exit $RETURN
