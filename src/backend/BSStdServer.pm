@@ -273,7 +273,10 @@ sub server {
     }
   }
   mkdir_p($rundir);
-  die("cannot write to rundir '$rundir'\n") unless -w $rundir;
+  {
+    use filetest 'access';
+    die("cannot write to rundir '$rundir'\n") unless -w $rundir;
+  }
   # intialize xml converter to speed things up
   XMLin(['startup' => '_content'], '<startup>x</startup>');
 
