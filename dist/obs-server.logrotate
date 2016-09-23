@@ -2,10 +2,17 @@
 /srv/obs/log/*.log {
     compress
     dateext
-    rotate 2 
+    rotate 2
     daily
     missingok
     copytruncate
-} 
+}
 
-
+/srv/obs/service/log/*.log {
+    compress
+    dateext
+    rotate 2
+    daily
+    missingok
+    copytruncate
+}
