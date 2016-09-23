@@ -44,6 +44,7 @@ use strict;
 
 my $server;
 my $MS2;	# secondary server port
+my $serverstatus_ok;
 
 our $request;		# FIXME: should not be global
 
@@ -187,7 +188,7 @@ sub setstatus {
 
 sub serverstatus {
   my @res;
-  return @res unless defined $BSServer::slot;
+  return @res unless $serverstatus_ok;
   return @res unless defined(sysseek(STA, 0, Fcntl::SEEK_SET));
   my $sta;
   my $slot = 0;
@@ -221,7 +222,7 @@ sub dumpserverstatus {
 }
 
 sub maxchildreached {
-  my ($what, $group, $full, $last);
+  my ($what, $group, $full, $last) = @_;
   if ($full) {
     BSUtil::printlog("$what limit reached");
   } else {
@@ -250,8 +251,9 @@ sub server {
   my $chld_full_last;
   my $chld2_full_last;
 
-  if ($conf->{'serverstatus'}) {
-    open(STA, '>', $conf->{'serverstatus'}) || die("could not open $conf->{'serverstatus'}: $!\n");
+  if ($conf->{'serverstatus'} && !$serverstatus_ok) {
+    open(STA, '+>', $conf->{'serverstatus'}) || die("could not open $conf->{'serverstatus'}: $!\n");
+    $serverstatus_ok = 1;
   }
 
   while (1) {
@@ -297,7 +299,7 @@ sub server {
       if (defined($pid)) {
         if ($pid == 0) {
 	  # child
-	  $BSServer::slot = $slot if $conf->{'serverstatus'};
+	  $BSServer::slot = $slot if $serverstatus_ok;
 	  last;
 	}
         $chldp->{$pid} = $slot;
@@ -328,7 +330,7 @@ sub server {
       my $slot = delete $chld{$pid};
       $slot = delete $chld2{$pid} unless defined $slot;
       if (defined($slot)) {
-        if ($conf->{'serverstatus'} && defined(sysseek(STA, $slot * 256, Fcntl::SEEK_SET))) {
+        if ($serverstatus_ok && defined(sysseek(STA, $slot * 256, Fcntl::SEEK_SET))) {
 	  syswrite(STA, "\0" x 256, 256);
 	}
         if ($slot == $idle_next - 1) {
@@ -354,7 +356,7 @@ sub server {
     'server' => $server,
     'starttime' => time(),
   };
-  if ($conf->{'serverstatus'}) {
+  if ($serverstatus_ok) {
     close(STA);
     if (open(STA, '+<', $conf->{'serverstatus'})) {
       fcntl(STA, F_SETFD, FD_CLOEXEC);
@@ -362,6 +364,7 @@ sub server {
         syswrite(STA, pack("NNCCnZ244", $req->{'starttime'}, $$, $group, 0, 1, 'forked'), 256);
       }
     } else {
+      undef $serverstatus_ok;
       undef $BSServer::slot;
     }
   }
