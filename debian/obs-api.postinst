@@ -26,6 +26,8 @@ fi
   chown -R nobody:www-data /var/log/obs/ /var/cache/obs/tmp/
   chmod 664 /var/log/obs/*.log
   chown nobody:root /usr/share/obs/api/config/database.yml
+  touch /var/log/obs/clockworkd.clock.output
+  chown www-data:www-data /var/log/obs/clockworkd.clock.output
 
 SECRET_KEY="/usr/share/obs/api/config/secret.key"
 if [ ! -e "$SECRET_KEY" ]; then
