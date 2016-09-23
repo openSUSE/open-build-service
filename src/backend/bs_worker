@@ -1127,6 +1127,25 @@ sub trygetbinariesproxy {
   return $res;
 }
 
+sub trygetbinariesproxy_preinstallimage {
+  my ($server, $filename, $img) = @_;
+  return undef unless $getbinariesproxy;
+  my $res;
+  eval {
+    $res = BSRPC::rpc({
+      'uri' => "$getbinariesproxy/getpreinstallimage",
+      'filename' => $filename,
+      'timeout' => $gettimeout,
+      'receiver' => \&BSHTTP::file_receiver,
+    }, undef, "server=$server", "prpa=$img->{'prpa'}", "hdrmd5=$img->{'hdrmd5'}", "sizek=$img->{'sizek'}", "path=$img->{'path'}");
+  };
+  if ($@) {
+    warn($@);
+    undef $res;
+  }
+  return $res;
+}
+
 sub getbinaries_cache {
   my ($dir, $server, $projid, $repoid, $arch, $nometa, $bins, $bvl) = @_;
 
@@ -1876,8 +1895,9 @@ sub getpreinstallimage {
     # nope, download it
     manage_cache($cachesize - $bestimg->{'sizek'} * 1024) if $cachedir;	# make room
     my $res;
+    $res = trygetbinariesproxy_preinstallimage($bestimg->{'server'}, "$dir/$ifile", $bestimg) if $getbinariesproxy;
     eval {
-      $res = BSRPC::rpc({
+      $res ||= BSRPC::rpc({
 	'uri' => "$bestimg->{'server'}/build/$bestimg->{'prpa'}/$bestimg->{'path'}",
 	'timeout' => $gettimeout,
 	'receiver' => \&BSHTTP::file_receiver,

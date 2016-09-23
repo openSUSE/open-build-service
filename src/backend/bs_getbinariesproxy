@@ -337,6 +337,57 @@ sub getbinaries {
   return undef;
 }
 
+sub getpreinstallimage {
+  my ($cgi, $prpa, $hdrmd5) = @_;
+
+  mkdir_p($cachedir);
+  mkdir_p($cachetmpdir);
+  set_maxopen() unless defined $maxopen;
+
+  my $cacheid = Digest::MD5::md5_hex("$prpa/$hdrmd5");
+  my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+  my $cachefilemeta = readstr("$cachefile.meta", 1) || '';
+  if ($cachefilemeta eq "$hdrmd5  :preinstallimage\n") {
+    # got it
+    my $fd = gensym;
+    if (open($fd, '<', $cachefile)) {
+      # re-check to make races unlikely
+      $cachefilemeta = readstr("$cachefile.meta", 1) || '';
+      if ($cachefilemeta eq "$hdrmd5  :preinstallimage\n") {
+	# use it!
+	my @s = stat($fd);
+	# put entry on top
+	manage_cache($cachesize, [ [$cacheid, $s[7]] ], undef) if @s;
+	BSServer::reply_file($fd, "Content-Type: application/octet-stream");
+	return undef;
+      }
+      close($fd);
+    }
+  }
+
+  # not in cache, fetch
+  print "downloading: $prpa/$cgi->{'path'}\n";
+  manage_cache($cachesize - $cgi->{'sizek'} * 1024) if $cgi->{'sizek'};
+  my $tmpfilename = "$cachetmpdir/$$".'_preinstallimage';
+  unlink($tmpfilename);
+  my $res = BSRPC::rpc({
+    'uri' => "$cgi->{'server'}/build/$prpa/$cgi->{'path'}",
+    'timeout' => $gettimeout,
+    'receiver' => \&BSHTTP::file_receiver,
+    'filename' => $tmpfilename,
+  });  
+  my $fd = gensym;
+  open($fd, '<', $tmpfilename) || die("$tmpfilename: $!\n");
+  my @s = stat($tmpfilename);
+  die("stat: $!\n") unless @s;
+  writestr("$tmpfilename.meta", undef, "$hdrmd5  :preinstallimage\n");
+  manage_cache($cachesize, undef, [ [$cacheid, $s[7], $tmpfilename] ]);
+  unlink("$tmpfilename.meta");
+  unlink($tmpfilename);
+  BSServer::reply_file($fd, "Content-Type: application/octet-stream");
+  return undef;
+}
+
 sub hello {
   my ($cgi) = @_;
   return "<hello name=\"Getbinaries Proxy Server\" />\n";
@@ -345,6 +396,7 @@ sub hello {
 my $dispatches = [
   '/' => \&hello,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? server:' => \&getbinaries,
+  '/getpreinstallimage $prpa $hdrmd5:md5 path: sizek:num? server:' => \&getpreinstallimage,
 ];
 
 my $conf = {
