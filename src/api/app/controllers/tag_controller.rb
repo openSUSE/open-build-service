@@ -342,7 +342,7 @@ class TagController < ApplicationController
       old_tags = get_tags_by_user_and_package( false )
       old_tags.each do |old_tag|
         unless tag_hash.has_key? old_tag.name
-          Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@package.id} AND taggable_type = 'Package' AND tag_id = #{old_tag.id}")
+          Tagging.where("user_id = #{@user.id} AND taggable_id = #{@package.id} AND taggable_type = 'Package' AND tag_id = #{old_tag.id}").delete_all
         end
       end
       save_tags(@package, @user, tags)
@@ -351,7 +351,7 @@ class TagController < ApplicationController
       old_tags = get_tags_by_user_and_project( false )
       old_tags.each do |old_tag|
         unless tag_hash.has_key? old_tag.name
-          Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@project.id} AND taggable_type = 'Project' AND tag_id = #{old_tag.id}")
+          Tagging.where("user_id = #{@user.id} AND taggable_id = #{@project.id} AND taggable_type = 'Project' AND tag_id = #{old_tag.id}").delete_all
         end
       end
       save_tags(@project, @user, tags)
