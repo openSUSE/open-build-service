@@ -64,7 +64,7 @@ sub deamonize {
 sub serveropen {
   # creates MS (=master socket) socket
   # 512 connections in the queue maximum
-  # $port:  
+  # $port:
   #     reference              - port is assigned by system and is returned using this reference
   #     string starting with & - named socket according to the string (&STDOUT, &1)
   #     other string           - tcp socket on $port (assumes it is a number)
@@ -200,6 +200,37 @@ sub serverstatus {
   return @res;
 }
 
+sub dumpserverstatus {
+  my ($group) = @_;
+  my $now = time();
+  for my $s (serverstatus()) {
+    my $state = $s->{'state'};
+    next unless $state;
+    next if defined($group) && ($s->{'group'} || 0) != $group;
+    my $d = $now - $s->{'starttime'};
+    if ($state == 1) {
+      $state = 'F';
+    } elsif ($state == 2) {
+      $state = 'R';
+    } else {
+      $state = '?';
+    }
+    $state .= $s->{'group'} || '' unless defined $group;
+    print "$state $d $s->{'pid'}, $s->{'data'}";
+  }
+}
+
+sub maxchildreached {
+  my ($what, $group, $full, $last);
+  if ($full) {
+    BSUtil::printlog("$what limit reached");
+  } else {
+    my $d = $last ? time() - $last : 0;
+    BSUtil::printlog("$what limit ok, duration $d seconds");
+    dumpserverstatus($group) if $d >= 3;
+  }
+}
+
 sub server {
   my ($conf) = @_;
 
@@ -216,13 +247,15 @@ sub server {
   my $idle_next = 0;
   my $chld_full = 0;
   my $chld2_full = 0;
+  my $chld_full_last;
+  my $chld2_full_last;
 
   if ($conf->{'serverstatus'}) {
-    open(STA, '>', $conf->{'serverstatus'}) || die "Could not open $conf->{'serverstatus'}: $!";
+    open(STA, '>', $conf->{'serverstatus'}) || die("could not open $conf->{'serverstatus'}: $!\n");
   }
 
   while (1) {
-    my $tout = $timeout || 5;
+    my $tout = $timeout || 5;	# reap every 5 seconds
     if ($conf->{'periodic'}) {
       my $due = $periodic_next - time();
       if ($due <= 0) {
@@ -243,8 +276,8 @@ sub server {
     }
     my $r = select($rin, undef, undef, $tout);
     if (!defined($r) || $r == -1) {
-      next if $! == POSIX::EINTR;
-      die("select: $!\n");
+      die("select: $!\n") unless $! == POSIX::EINTR;
+      $r = undef;
     }
     # now we know there is a connection on MS waiting to be accepted
     my $pid;
@@ -272,13 +305,16 @@ sub server {
       close CLNT;
     }
 
+    # log if we reached the maxchild limit
     if (defined($maxchild) && $chld_full != (keys(%chld) >= $maxchild ? 1 : 0)) {
       $chld_full = $chld_full ? 0 : 1;
-      BSUtil::printlog($chld_full ? "maxchild limit reached" : "maxchild limit ok");
+      maxchildreached('maxchild', 0, $chld_full, $chld_full_last);
+      $chld_full_last = time();
     }
     if ($MS2 && defined($maxchild2) && $chld2_full != (keys(%chld2) >= $maxchild2 ? 1 : 0)) {
       $chld2_full = $chld2_full ? 0 : 1;
-      BSUtil::printlog($chld2_full ? "maxchild2 limit reached" : "maxchild2 limit ok");
+      maxchildreached('maxchild2', 1, $chld2_full, $chld2_full_last);
+      $chld2_full_last = time();
     }
 
     # if there are already $maxchild connected, make blocking waitpid
@@ -302,9 +338,10 @@ sub server {
 	}
       }
     }
-    # timeout was set in the $conf and select timeouted on this value. There was no new connection -> exit.
-    return undef if !$r && defined $timeout;
+    # timeout was set in the $conf and select timeouted on this value
+    return undef if !$r && defined($r) && defined($timeout);
   }
+
   # from now on, this is only the child process
   close MS;
   if ($MS2) {
@@ -423,7 +460,7 @@ sub reply {
   1 while sysread(CLNT, $dummy, 1024, 0);
   fcntl(CLNT, F_SETFL,0);
 
-  my $l;  
+  my $l;
   while (length($data)) {
     $l = syswrite(CLNT, $data, length($data));
     die("write error: $!\n") unless $l;
@@ -434,7 +471,7 @@ sub reply {
 
 # "parse" error string into code and tag
 sub parse_error_string {
-  my ($conf, $err) = @_; 
+  my ($conf, $err) = @_;
 
   $err ||= "unspecified error";
   $err =~ s/\n$//s;
@@ -458,7 +495,7 @@ sub parse_error_string {
 }
 
 sub reply_error  {
-  my ($conf, $errstr) = @_; 
+  my ($conf, $errstr) = @_;
   my ($err, $code, $tag, @hdrs) = parse_error_string($conf, $errstr);
   # send reply through custom function or standard reply
   if ($conf && $conf->{'errorreply'}) {
@@ -531,7 +568,7 @@ sub readrequest {
       die("417 unknown expect\n") unless lc($headers{'expect'}) eq '100-continue';
       $req->{'need_continue'} = 1;
     }
-    
+
     my $transfer_encoding = lc($headers{'transfer-encoding'} || '');
     if ($act eq 'POST' && $headers{'content-type'} && lc($headers{'content-type'}) eq 'application/x-www-form-urlencoded') {
       die("cannot do x-www-form-urlencoded with chunks\n") if $transfer_encoding eq 'chunked';
@@ -679,11 +716,11 @@ sub reply_receiver {
   my $chunked;
   $chunked = 1 if $hdr->{'transfer-encoding'} && lc($hdr->{'transfer-encoding'}) eq 'chunked';
   my @hdrs;
-  push @hdrs, "Status: $st" if $st; 
+  push @hdrs, "Status: $st" if $st;
   push @hdrs, "Content-Type: $ct";
   push @hdrs, "Content-Length: $cl" if defined($cl) && !$chunked;
   push @hdrs, 'Transfer-Encoding: chunked' if $chunked;
-  reply(undef, @hdrs); 
+  reply(undef, @hdrs);
   $replyreq->{'replying'} = 2 if $chunked;
   while(1) {
     my $data = BSHTTP::read_data($req, 8192);
