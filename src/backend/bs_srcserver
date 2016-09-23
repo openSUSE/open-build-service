@@ -4952,6 +4952,7 @@ sub worker_getbinaryversions {
   my @binaries = split(',', $cgi->{'binaries'});
   my $proj = findremote($projid);
   my $binaryversions = BSSrcServer::Remote::getremotebinaryversions($proj, $projid, $repoid, $arch, \@binaries);
+  return undef unless $binaryversions;
   my $bvl = {};
   $bvl->{'binary'} = [ map {$binaryversions->{$_}} @binaries];
   return ($bvl, $BSXML::binaryversionlist);
