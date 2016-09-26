@@ -3351,7 +3351,7 @@ $conf->{'dispatch'} ||= \&BSDispatch::dispatch;
 my ($state, $buildinfo) = BSServer::server($conf);
 
 print "got job, run build...\n";
-close(BSServer::getsocket());
+BSServer::done(1);
 
 unlink("$buildroot/.build.meta");
 unlink("$buildroot/.build.packages");
