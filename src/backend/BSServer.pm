@@ -201,9 +201,10 @@ sub serverstatus {
   return @res;
 }
 
-sub dumpserverstatus {
+sub serverstatus_str {
   my ($group) = @_;
   my $now = time();
+  my $str = '';
   for my $s (serverstatus()) {
     my $state = $s->{'state'};
     next unless $state;
@@ -217,18 +218,26 @@ sub dumpserverstatus {
       $state = '?';
     }
     $state .= $s->{'group'} || '' unless defined $group;
-    print "$state $d $s->{'pid'}, $s->{'data'}";
+    $str .= sprintf "%s %3d %5d %s\n", $state, $d, $s->{'pid'}, $s->{'data'};
   }
+  return $str;
 }
 
 sub maxchildreached {
-  my ($what, $group, $full, $last) = @_;
+  my ($what, $group, $full, $data) = @_;
   if ($full) {
     BSUtil::printlog("$what limit reached");
+    $data->{'start'} = time();
+    $data->{'startstatus'} = serverstatus_str($group);
   } else {
-    my $d = $last ? time() - $last : 0;
+    my $d = time() - $data->{'start'};
     BSUtil::printlog("$what limit ok, duration $d seconds");
-    dumpserverstatus($group) if $d >= 3;
+    if ($d >= 3) {
+      print "--- serverstatus at start:\n$data->{'startstatus'}";
+      print "--- serverstatus at end:\n".serverstatus_str($group);
+    }
+    delete $data->{'start'};
+    delete $data->{'startstatus'};
   }
 }
 
@@ -243,13 +252,14 @@ sub server {
   my %chld2;
   my $peeraddr;
   my $group = 0;
+  my $slot;
   my $periodic_next = 0;
   my @idle;
   my $idle_next = 0;
   my $chld_full = 0;
   my $chld2_full = 0;
-  my $chld_full_last;
-  my $chld2_full_last;
+  my $chld_full_data = {};
+  my $chld2_full_data = {};
 
   if ($conf->{'serverstatus'} && !$serverstatus_ok) {
     open(STA, '+>', $conf->{'serverstatus'}) || die("could not open $conf->{'serverstatus'}: $!\n");
@@ -294,29 +304,26 @@ sub server {
 	$group = 0;
       }
       next unless $peeraddr;
-      my $slot = @idle ? shift(@idle) : $idle_next++;
-      $pid = fork();
-      if (defined($pid)) {
-        if ($pid == 0) {
-	  # child
-	  $BSServer::slot = $slot if $serverstatus_ok;
-	  last;
-	}
-        $chldp->{$pid} = $slot;
+      if (defined($pid = fork())) {
+	$slot = @idle ? shift(@idle) : $idle_next++;
+	last if $pid == 0;	# child
+	$chldp->{$pid} = $slot;
       }
       close CLNT;
     }
 
     # log if we reached the maxchild limit
     if (defined($maxchild) && $chld_full != (keys(%chld) >= $maxchild ? 1 : 0)) {
-      $chld_full = $chld_full ? 0 : 1;
-      maxchildreached('maxchild', 0, $chld_full, $chld_full_last);
-      $chld_full_last = time();
+      if (!$chld_full || !vec($rin, fileno(MS), 1)) {
+        $chld_full = $chld_full ? 0 : 1;
+        maxchildreached('maxchild', 0, $chld_full, $chld_full_data);
+      }
     }
     if ($MS2 && defined($maxchild2) && $chld2_full != (keys(%chld2) >= $maxchild2 ? 1 : 0)) {
-      $chld2_full = $chld2_full ? 0 : 1;
-      maxchildreached('maxchild2', 1, $chld2_full, $chld2_full_last);
-      $chld2_full_last = time();
+      if (!$chld2_full || !vec($rin, fileno($MS2), 1)) {
+        $chld2_full = $chld2_full ? 0 : 1;
+        maxchildreached('maxchild2', 1, $chld2_full, $chld2_full_data);
+      }
     }
 
     # if there are already $maxchild connected, make blocking waitpid
@@ -357,15 +364,16 @@ sub server {
     'starttime' => time(),
   };
   if ($serverstatus_ok) {
+    # reopen so that we do not share the file offset
     close(STA);
     if (open(STA, '+<', $conf->{'serverstatus'})) {
+      $BSServer::slot = $slot;
       fcntl(STA, F_SETFD, FD_CLOEXEC);
       if (defined(sysseek(STA, $BSServer::slot * 256, Fcntl::SEEK_SET))) {
         syswrite(STA, pack("NNCCnZ244", $req->{'starttime'}, $$, $group, 0, 1, 'forked'), 256);
       }
     } else {
       undef $serverstatus_ok;
-      undef $BSServer::slot;
     }
   }
   $BSServer::request = $req;
