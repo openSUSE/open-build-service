@@ -222,6 +222,7 @@ sub server {
     $conf->{'serverstatus'} ||= "$rundir/$name.status";
     $conf->{'setkeepalive'} = 1 unless defined $conf->{'setkeepalive'};
     $conf->{'run'} ||= \&BSServer::server;
+    $conf->{'slowrequestlog'} ||= "$bsdir/log/$name.slow" if $conf->{'slowrequestthr'};
     $conf->{'name'} = $name;
     BSDispatch::compile($conf);
   }

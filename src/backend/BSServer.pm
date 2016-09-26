@@ -362,6 +362,7 @@ sub server {
     'conf' => $conf,
     'server' => $server,
     'starttime' => time(),
+    'group' => $group,
   };
   if ($serverstatus_ok) {
     # reopen so that we do not share the file offset
@@ -418,6 +419,7 @@ sub server {
   return @{$req->{'returnfromserver'}} if $req->{'returnfromserver'} && !$@;
   reply_error($conf, $@) if $@;
   close CLNT;
+  log_slow_requests($conf, $req) if $conf->{'slowrequestlog'};
   exit(0);
 }
 
@@ -505,6 +507,16 @@ sub parse_error_string {
   return ($err, $code, $tag, @hdrs);
 }
 
+sub log_slow_requests {
+  my ($conf, $req) = @_;
+  return unless $req && $conf->{'slowrequestlog'} && $conf->{'slowrequestthr'} && $req->{'starttime'};
+  my $duration = time() - $req->{'starttime'};
+  return unless $duration >= $conf->{'slowrequestthr'};
+  my $msg = sprintf("%s: %3ds %-7s %s %-17s %s%s\n", BSUtil::isotime($req->{'starttime'}), $duration, "[$$]",
+      $req->{'action'}, "($req->{'peer'})", $req->{'path'}, ($req->{'query'}) ? "?$req->{'query'}" : '');
+  eval { BSUtil::appendstr($conf->{'slowrequestlog'}, $msg) };
+}
+
 sub reply_error  {
   my ($conf, $errstr) = @_;
   my ($err, $code, $tag, @hdrs) = parse_error_string($conf, $errstr);
@@ -515,7 +527,9 @@ sub reply_error  {
     reply("$err\n", "Status: $code $tag", 'Content-Type: text/plain', @hdrs);
   }
   close CLNT;
-  my $peer = ($BSServer::request || {})->{'peer'};
+  my $req = $BSServer::request || {};
+  log_slow_requests($conf, $req) if $conf->{'slowrequestlog'};
+  my $peer = $req->{'peer'};
   die("$peer: $err\n");
 }
 
