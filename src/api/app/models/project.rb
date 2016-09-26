@@ -719,7 +719,7 @@ class Project < ApplicationRecord
   def update_repository_architectures(current_repo, xml_hash)
     # destroy architecture references
     logger.debug "delete all repository architectures of repository '#{self.id}'"
-    RepositoryArchitecture.delete_all(['repository_id = ?', current_repo.id])
+    RepositoryArchitecture.where('repository_id = ?', current_repo.id).delete_all
 
     position = 1
     xml_hash.elements('arch') do |arch|

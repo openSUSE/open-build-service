@@ -55,7 +55,7 @@ class Group < ApplicationRecord
       end
     end
     cache.each do |login_id, _|
-      GroupMaintainer.delete_all(['user_id = ? AND group_id = ?', login_id, self.id])
+      GroupMaintainer.where('user_id = ? AND group_id = ?', login_id, self.id).delete_all
     end
 
     # update user list
@@ -77,7 +77,7 @@ class Group < ApplicationRecord
 
     # delete all users which were not listed
     cache.each do |login_id, _gu|
-      GroupsUser.delete_all(['user_id = ? AND group_id = ?', login_id, self.id])
+      GroupsUser.where('user_id = ? AND group_id = ?', login_id, self.id).delete_all
     end
   end
 
@@ -100,7 +100,7 @@ class Group < ApplicationRecord
   end
 
   def remove_user(user)
-    GroupsUser.delete_all(['user_id = ? AND group_id = ?', user.id, self.id])
+    GroupsUser.where('user_id = ? AND group_id = ?', user.id, self.id).delete_all
   end
 
   def set_email(email)

@@ -28,7 +28,7 @@ class ProjectLogEntry < ApplicationRecord
 
   # Delete old entries
   def self.clean_older_than(date)
-    delete_all(["datetime < ?", date])
+    where('datetime < ?', date).delete_all
   end
 
   # Human readable message, based in the event class
