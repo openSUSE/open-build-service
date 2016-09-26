@@ -105,6 +105,9 @@
                 <li>
                   <%= link_to(sprited_text('package_delete', 'Delete package'), { :action => :delete_dialog, :package => @package, :project => @project }, :remote => true, id: 'delete-package') %>
                 </li>
+                <li>
+                  <%= link_to(sprited_text('package_link', 'Trigger services'), { action: :trigger_services, package: @package, project: @project }, method: :post) %>
+                </li>
             <% else %>
                 <li>
                   <%= link_to(sprited_text('user_add', 'Request role addition'), { :controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package }, :remote => true) %>
