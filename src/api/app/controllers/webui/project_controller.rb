@@ -40,7 +40,7 @@ class Webui::ProjectController < Webui::WebuiController
                                                      :add_maintained_project,
                                                      :remove_maintained_project]
 
-  before_action :set_maintained_project, only: [:add_maintained_project, :remove_maintained_project]
+  before_action :set_maintained_project, only: [:remove_maintained_project]
 
   after_action :verify_authorized, only: [:save_new, :new_incident, :save_meta]
 
@@ -698,12 +698,15 @@ class Webui::ProjectController < Webui::WebuiController
 
   def add_maintained_project
     authorize @project, :update?
-    @project.maintained_projects.new(project: @maintained_project)
-    if @project.save
+
+    maintained_project = Project.find_by(name: params[:maintained_project])
+    if maintained_project
+      @project.maintained_projects.create!(project: maintained_project)
       @project.store
-      redirect_to({action: 'maintained_projects', project: @project}, notice: "Added #{@maintained_project} to maintenance" )
+      redirect_to({action: 'maintained_projects', project: @project}, notice: "Added #{params[:maintained_project]} to maintenance")
     else
-      redirect_to :back, error: "Failed to add #{@maintained_project} to maintenance"
+      # TODO: Better redirect to the project (maintained project tab), where the user actually came from
+      redirect_to(:back, error: "Failed to add #{params[:maintained_project]} to maintenance")
     end
   end
 

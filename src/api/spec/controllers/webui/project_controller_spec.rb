@@ -806,11 +806,14 @@ RSpec.describe Webui::ProjectController, vcr: true do
         it { is_expected.to redirect_to(action: 'maintained_projects', project: user.home_project) }
       end
 
-      # raise the exception in the before_action set_maintained_project
-      it "#add_maintained_project raise excepction with invalid maintained project" do
-        expect {
-          post :add_maintained_project, project: user.home_project, maintained_project: "invalid"
-        }.to raise_exception ActiveRecord::RecordNotFound
+      context "adding an invalid project" do
+        before do
+          post :add_maintained_project, project: user.home_project, maintained_project: "invalid project"
+        end
+
+        it { expect(user.home_project.maintained_projects.where(project_id: user.home_project.id)).not_to exist }
+        it { expect(flash[:error]).to eq("Failed to add invalid project to maintenance") }
+        it { is_expected.to redirect_to(root_path) }
       end
     end
 
