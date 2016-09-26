@@ -25,7 +25,6 @@ use BSUtil;
 
 sub projid2reposerver {
   my ($projid) = @_;
-  # XXX Should not rely on local BSConfig. Should query SrcServer Config instead
   return $BSConfig::reposerver unless $BSConfig::partitionservers;
   my @p = @{$BSConfig::partitioning || []}; 
   my $par;

@@ -49,7 +49,6 @@ use BSRPC;
 use BSUtil;
 use BSXML;
 use BSCando;
-use BSSrcServer::Partition;
 
 use strict;
 
@@ -595,8 +594,6 @@ my %syncedjobs;
 my %lastmastersync;
 my $lastmdloadsync;
 
-0 if $BSConfig::partition; # skip perl warning
-#
 
 sub dispatchslave {
   my $synced = 0;
@@ -610,33 +607,22 @@ sub dispatchslave {
     my $now = time();
     my $added = 0;
     my $deleted = 0;
-    # if we know how to do project partitioning, we get the job list from
-    # the master dispatcher and reduce it to the jobs in our partition
-    if ($BSConfig::partitioning && ($lastmastersync{$arch} || 0) + 600 < $now) {
+    # if we only work on a partition get the filtered jobs from the
+    # source server
+    if ($BSConfig::partition && ($lastmastersync{$arch} || 0) + 600 < $now) {
+      $lastmastersync{$arch} = $now;
       my $res;
       eval {
         $res = BSRPC::rpc({
-          'uri'     => "$BSConfig::masterdispatcher/jobs/$arch",
+          'uri'     => "$BSConfig::srcserver/jobs/$arch",
 	  'timeout' => 60,
-        }, $BSXML::dir);
+        }, $BSXML::dir, "partition=$BSConfig::partition");
       };
       if ($@) {
 	warn($@);
 	next;
       }
-      $lastmastersync{$arch} = $now;
-      $syncedjobs{$arch} = {};
-      $res ||= {};
-      for my $job (sort(map {$_->{'name'}} @{$res->{'entry'} || []})) {
-	my $jn = $job;
-	$jn =~ s/-[0-9a-f]{32}$//s;
-	my ($projid, $repoid, $packid) = split('::', $jn);
-	next unless defined $packid;
-	my $reposerver = $projid2repocache{$projid};
-	$reposerver = $projid2repocache{$projid} = BSSrcServer::Partition::projid2reposerver($projid) unless $reposerver;
-	next if $reposerver ne $BSConfig::reposerver;
-        $syncedjobs{$arch}->{$job} = 1;
-      }
+      $syncedjobs{$arch} = { map {$_->{'name'} => 1} @{$res->{'entry'} || []} };
     }
     my @jobs = sort(ls($jobsdir));
     my @b = grep {!/^\./} ls("$jobsdir/$arch");
