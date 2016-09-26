@@ -5511,6 +5511,33 @@ sub notify_plugins {
 
 ####################################################################
 
+sub listjobs {
+  my ($cgi, $arch) = @_;
+  die("not masterdispatching\n") unless $BSConfig::masterdispatcher;
+  my $dir = BSRPC::rpc({
+    'uri'     => "$BSConfig::masterdispatcher/jobs/$arch",
+    'timeout' => 60,
+  }, $BSXML::dir);
+  my @jobs = sort(map {$_->{'name'}} @{$dir->{'entry'} || []});
+  if ($cgi->{'partition'}) {
+    my %good = map {$_ => 1} @{$cgi->{'partition'}};
+    my %projid2partition;
+    for my $job (splice @jobs) {
+      my $jn = $job;
+      $jn =~ s/-[0-9a-f]{32}$//s;
+      my ($projid, $repoid, $packid) = split('::', $jn);
+      next unless defined $repoid;
+      my $part = $projid2partition{$projid};
+      $part = $projid2partition{$projid} = BSSrcServer::Partition::projid2partition($projid) unless defined $part;
+      push @jobs, $job if $good{$part};
+    }
+  }
+  @jobs = map {{'name' => $_}} @jobs;
+  return return ({'entry' => \@jobs}, $BSXML::dir);
+}
+
+####################################################################
+
 sub hello {
   my ($cgi) = @_;
   return "<hello name=\"Source Repository Ajax Server\" repoid=\"$datarepoid\" />\n" if $BSStdServer::isajax;
@@ -5666,6 +5693,9 @@ my $dispatches = [
 
   '/request/_lastid' => \&getlastidrequest,	# just required for migration into api
   '/request/$id:num' => \&getrequest, 		# just required for migration into api
+
+  # for masterdispatcher syncing
+  '/jobs/$arch partition:*' => \&listjobs,
 
   # notifications from publisher/repserver - CGI
   'POST:/notify/$_type: *:?' => \&external_notification,
