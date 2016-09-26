@@ -58,11 +58,11 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       commit_params[:comment] << " the update " << opts[:updateinfoIDs].join(", ") if opts[:updateinfoIDs]
       commit_path = "/source/#{URI.escape(tprj)}/_project"
       commit_path << Suse::Backend.build_query_from_hash(commit_params, [:cmd, :user, :comment, :requestid, :rev])
-      Suse::Backend.post commit_path, nil
+      Suse::Backend.post commit_path
 
       next if cleanedProjects[sprj]
       # cleanup published binaries to save disk space on ftp server and mirrors
-      Suse::Backend.post "/build/#{URI.escape(sprj)}?cmd=wipepublishedlocked", nil
+      Suse::Backend.post "/build/#{URI.escape(sprj)}?cmd=wipepublishedlocked"
       cleanedProjects[sprj] = 1
     end
     opts[:projectCommit] = {}

@@ -365,8 +365,8 @@ scheduler_thread = Thread.new do
   TestBackendTasks.run_scheduler('i586')
 
   # copy build result
-  Suse::Backend.post('/build/HiddenProject/nada/i586/packCopy?cmd=copy&opackage=pack', nil)
-  Suse::Backend.post('/build/BaseDistro/BaseDistro_repo/i586/pack2?cmd=copy&oproject=home:Iggy&orepository=10.2&opackage=TestPack', nil)
+  Suse::Backend.post('/build/HiddenProject/nada/i586/packCopy?cmd=copy&opackage=pack')
+  Suse::Backend.post('/build/BaseDistro/BaseDistro_repo/i586/pack2?cmd=copy&oproject=home:Iggy&orepository=10.2&opackage=TestPack')
 
   # run scheduler again to handle the copy build event
   TestBackendTasks.run_scheduler('i586')

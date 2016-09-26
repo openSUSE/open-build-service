@@ -158,7 +158,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage,
                                                                :keeplink, :expand, :comment,
                                                                :requestid, :withacceptinfo])
-    result = Suse::Backend.post cp_path, nil
+    result = Suse::Backend.post cp_path
     result = Xmlhash.parse(result.body)
     self.set_acceptinfo(result["acceptinfo"])
 

@@ -1321,7 +1321,7 @@ class Project < ApplicationRecord
     begin
       path = "/source/#{URI.escape(self.name)}"
       path << Suse::Backend.build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder, :noservice])
-      Suse::Backend.post path, nil
+      Suse::Backend.post path
     rescue ActiveXML::Transport::Error => e
       logger.debug "copy failed: #{e.summary}"
       # we need to check results of backend in any case (also timeout error eg)
@@ -1523,7 +1523,7 @@ class Project < ApplicationRecord
 
     return unless self.repositories.count > 0
     # ensure higher build numbers for re-release
-    Suse::Backend.post "/build/#{URI.escape(self.name)}?cmd=wipe", nil
+    Suse::Backend.post "/build/#{URI.escape(self.name)}?cmd=wipe"
   end
 
   def build_succeeded?(repository = nil)
