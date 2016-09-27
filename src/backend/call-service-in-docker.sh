@@ -102,6 +102,8 @@ JAILED=""
 if [ $SCM_COMMAND -eq 1 -a "$PARAM_SCM" == "git" ];then
   URL_HASH=`echo $PARAM_URL|sha256sum|cut -f1 -d\ `
   OUTERGITCACHE="$SERVICES_DIR/git-cache/$URL_HASH"
+  [ -d $OUTERGITCACHE ] || mkdir -p $OUTERGITCACHE
+
   DOCKER_VOLUMES="$DOCKER_VOLUMES -v $OUTERGITCACHE:$INNERGITCACHE"
   echo "export CACHEDIRECTORY='$INNERGITCACHE'" >> "$MOUNTDIR/${INNERSCRIPT}.command"
   JAILED="--jailed=1"
@@ -132,7 +134,6 @@ if [ $? -eq 0 ]; then
 else
  printlog "$CMD_OUT"
  echo "$CMD_OUT"
-exit 2
  RETURN="2"
 fi
 
