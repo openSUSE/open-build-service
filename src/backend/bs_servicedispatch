@@ -84,6 +84,13 @@ sub addrev_service {
 }
 
 
+sub getrev {
+  my ($projid, $packid, $revid) = @_;
+  my $rev = BSRevision::getrev_local($projid, $packid, $revid);
+  $rev = BSRevision::getrev_deleted_srcmd5($projid, $packid, $revid) if !$rev && $revid && $revid =~ /^[0-9a-f]{32}$/;
+  return $rev;
+}
+
 sub runservice {
   my ($projid, $packid, $servicemark, $srcmd5, $revid, $linksrcmd5, $projectservicesmd5, $oldsrcmd5) = @_;
 
@@ -92,11 +99,11 @@ sub runservice {
   my $rev;
   if ($revid) {
     eval {
-      $rev = BSRevision::getrev_local($projid, $packid, $revid);
+      $rev = getrev($projid, $packid, $revid);
     };
   }
   if (!$rev || $rev->{'srcmd5'} ne $srcmd5) {
-    $rev = BSRevision::getrev_local($projid, $packid, $srcmd5);
+    $rev = getrev($projid, $packid, $srcmd5);
   }
   my $linkinfo = {};
   my $files = BSRevision::lsrev($rev, $linkinfo);
@@ -110,14 +117,14 @@ sub runservice {
   my $linkfiles;
   if ($linksrcmd5) {
     $linkfiles = $files;
-    my $lrev = BSRevision::getrev_local($projid, $packid, $linksrcmd5);
+    my $lrev = getrev($projid, $packid, $linksrcmd5);
     $files = BSRevision::lsrev($lrev);
   }
 
   # get old files
   my $oldfiles;
   if ($oldsrcmd5) {
-    my $oldrev = BSRevision::getrev_local($projid, $packid, $oldsrcmd5);
+    my $oldrev = getrev($projid, $packid, $oldsrcmd5);
     $oldfiles = BSRevision::lsrev($oldrev);
   }
   $oldfiles ||= {};
