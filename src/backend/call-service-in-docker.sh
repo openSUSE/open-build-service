@@ -82,7 +82,7 @@ INNERGITCACHE="$INNERBASEDIR/git-cache"
 # su nobody -s inner.sh.command
 echo "#!/bin/bash" > "$MOUNTDIR/$INNERSCRIPT"
 echo "cd $INNERSRCDIR" >> "$MOUNTDIR/$INNERSCRIPT"
-echo -n "su $RUNUSER -s ${INNERSCRIPT}.command" >> "$MOUNTDIR/$INNERSCRIPT"
+echo -n "${INNERSCRIPT}.command" >> "$MOUNTDIR/$INNERSCRIPT"
 
 # Create inner.sh.command
 # dirname /srv/obs/service/11875/out/
@@ -102,6 +102,8 @@ JAILED=""
 if [ $SCM_COMMAND -eq 1 -a "$PARAM_SCM" == "git" ];then
   URL_HASH=`echo $PARAM_URL|sha256sum|cut -f1 -d\ `
   OUTERGITCACHE="$SERVICES_DIR/git-cache/$URL_HASH"
+  [ -d $OUTERGITCACHE ] || mkdir -p $OUTERGITCACHE
+
   DOCKER_VOLUMES="$DOCKER_VOLUMES -v $OUTERGITCACHE:$INNERGITCACHE"
   echo "export CACHEDIRECTORY='$INNERGITCACHE'" >> "$MOUNTDIR/${INNERSCRIPT}.command"
   JAILED="--jailed=1"
@@ -117,7 +119,7 @@ if [[ $DEBUG_DOCKER ]];then
 fi
 
 # run jailed process
-DOCKER_RUN_CMD="docker run $DOCKER_OPTS_NET --rm --name $CONTAINER_ID $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
+DOCKER_RUN_CMD="docker run -u `id -u $USER` $DOCKER_OPTS_NET --rm --name $CONTAINER_ID $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
 printlog "DOCKER_RUN_CMD: '$DOCKER_RUN_CMD'"
 CMD_OUT=$(${DOCKER_RUN_CMD} 2>&1)
 if [ $? -eq 0 ]; then
@@ -143,6 +145,6 @@ rm -f "$MOUNTDIR/$INNERSCRIPT" 2> /dev/null
 rmdir --ignore-fail-on-non-empty "$MOUNTDIR$INNERSCRIPTDIR" 2> /dev/null
 rmdir --ignore-fail-on-non-empty "$MOUNTDIR" 2> /dev/null
 
-docker rm --force --volumes $CONTAINER_ID
+docker inspect $CONTAINER_ID > /dev/null 2>&1 && docker rm --force --volumes $CONTAINER_ID
 
 exit $RETURN
