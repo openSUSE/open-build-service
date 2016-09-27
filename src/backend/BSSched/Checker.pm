@@ -977,6 +977,17 @@ sub addrepo {
   if ($remoteprojs->{$projid}) {
     return BSSched::Remote::addrepo_remote($ctx, $pool, $prp, $arch, $remoteprojs->{$projid});
   }
+  if ($arch ne $gctx->{'arch'}) {
+    my $alien_cache = $ctx->{'alien_repo_cache'};
+    $alien_cache = $ctx->{'alien_repo_cache'} = {} unless $alien_cache;
+    $r = $pool->repofromstr($prp, $alien_cache->{"$prp/$arch"}) if exists $alien_cache->{"$prp/$arch"};
+    if (!$r) {
+      # needs some mem, but it's hopefully worth it
+      $r = BSSched::BuildRepo::addrepo_scan($gctx, $pool, $prp, $arch);
+      $alien_cache->{"$prp/$arch"} = $r->tostr() if $r;
+    }
+    return $r;
+  }
   return BSSched::BuildRepo::addrepo_scan($gctx, $pool, $prp, $arch);
 }
 
