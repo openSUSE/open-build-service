@@ -570,6 +570,7 @@ sub checkpkgs {
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
 
   # Step 2d: check status of all packages
+  print "    checking packages\n";
   my $projbuildenabled = 1;
   $projbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'build'}, 1, $myarch) if $projpacks->{$projid}->{'build'};
   my $projlocked = 0;
@@ -988,8 +989,16 @@ sub read_gbininfo {
   if ($remoteprojs->{$projid}) {
     return BSSched::Remote::read_gbininfo_remote($ctx, "$prp/$arch", $remoteprojs->{$projid}, $ps);
   }
-  my $reporoot = $gctx->{'reporoot'};
-  return BSSched::BuildResult::read_gbininfo("$reporoot/$prp/$arch", $arch eq $gctx->{'arch'} ? 0 : 1);
+  # a per ctx cache
+  my $gbininfo_cache = $ctx->{'gbininfo_cache'};
+  $gbininfo_cache = $ctx->{'gbininfo_cache'} = {} unless $gbininfo_cache;
+  my $gbininfo = $gbininfo_cache->{"$prp/$arch"};
+  if (!$gbininfo) {
+    my $reporoot = $gctx->{'reporoot'};
+    $gbininfo = BSSched::BuildResult::read_gbininfo("$reporoot/$prp/$arch", $arch eq $gctx->{'arch'} ? 0 : 1);
+    $gbininfo_cache->{"$prp/$arch"} = $gbininfo if $gbininfo;
+  }
+  return $gbininfo;
 }
 
 sub writejob {
