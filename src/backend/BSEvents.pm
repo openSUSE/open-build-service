@@ -172,4 +172,8 @@ sub schedule {
   }
 }
 
+sub allevents {
+  return values(%events);
+}
+
 1;

@@ -136,13 +136,20 @@ sub periodic {
 
 sub periodic_ajax {
   my ($conf) = @_;
-  my @s = stat(BSServer::getserverlock());
-  return if $s[3];
-  my $sev = $conf->{'server_ev'};
-  close($sev->{'fd'});
-  BSEvents::rem($sev);
-  BSServer::msg("AJAX: $conf->{'name'} exiting.");
-  exit(0);
+  if (!$conf->{'exiting'}) {
+    my @s = stat(BSServer::getserverlock());
+    return if $s[3];
+    my $sev = $conf->{'server_ev'};
+    close($sev->{'fd'});
+    BSEvents::rem($sev);
+    BSServer::msg("AJAX: $conf->{'name'} exiting.");
+    $conf->{'exiting'} = 10 + 1;
+  }
+  my @events = BSEvents::allevents();
+  if (@events <= 1 || --$conf->{'exiting'} == 0) {
+    BSServer::msg("AJAX: $conf->{'name'} goodbye.");
+    exit(0);
+  }
 }
 
 sub serverstatus {
@@ -250,9 +257,11 @@ sub server {
       POSIX::close($ports[1]) if !$port2 && defined $ports[1];
     }
     BSServer::serveropen($port2 ? "$port,$port2" : $port, $BSConfig::bsuser, $BSConfig::bsgroup);
-    $conf->{'ajaxsocketpath'} = $aconf->{'socketpath'} if $aconf;
-    $conf->{'handoffpath'} = $aconf->{'socketpath'} if $aconf;
-    unlink("$aconf->{'socketpath'}.lock") if $aconf;
+  }
+  if ($conf && $aconf) {
+    $conf->{'ajaxsocketpath'} = $aconf->{'socketpath'};
+    $conf->{'handoffpath'} = $aconf->{'socketpath'};
+    unlink("$aconf->{'socketpath'}.lock");
   }
   if ($aconf) {
     if (!$conf || xfork() == 0) {
