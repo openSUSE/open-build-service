@@ -439,12 +439,14 @@ sub reply {
   my ($str, @hdrs) = @_;
 
   my $req = $BSServer::request || {};
-  if (@hdrs && $hdrs[0] =~ /^status: (\d+.*)/i) {
+  if (@hdrs && $hdrs[0] =~ /^status: ((\d+).*)/i) {
     my $msg = $1;
     $msg =~ s/:/ /g;
     $hdrs[0] = "HTTP/1.1 $msg";
+    $req->{'statuscode'} ||= $2;
   } else {
     unshift @hdrs, "HTTP/1.1 200 OK";
+    $req->{'statuscode'} ||= 200;
   }
   push @hdrs, "Cache-Control: no-cache";
   push @hdrs, "Connection: close";
@@ -521,16 +523,19 @@ sub reply_error  {
   my ($conf, $errstr) = @_;
   my ($err, $code, $tag, @hdrs) = parse_error_string($conf, $errstr);
   # send reply through custom function or standard reply
-  if ($conf && $conf->{'errorreply'}) {
-    $conf->{'errorreply'}->($err, $code, $tag, @hdrs);
-  } else {
-    reply("$err\n", "Status: $code $tag", 'Content-Type: text/plain', @hdrs);
-  }
-  close CLNT;
+  eval {
+    if ($conf && $conf->{'errorreply'}) {
+      $conf->{'errorreply'}->($err, $code, $tag, @hdrs);
+    } else {
+      reply("$err\n", "Status: $code $tag", 'Content-Type: text/plain', @hdrs);
+    }
+  };
   my $req = $BSServer::request || {};
+  warn("$req->{'peer'} [$$] reply_error: $@") if $@;
+  close CLNT;
+  $req->{'statuscode'} ||= $code;
   log_slow_requests($conf, $req) if $conf->{'slowrequestlog'};
-  my $peer = $req->{'peer'};
-  die("$peer: $err\n");
+  die("$req->{'peer'} [$$]: $err\n");
 }
 
 sub done {
