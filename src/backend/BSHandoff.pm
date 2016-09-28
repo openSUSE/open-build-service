@@ -57,9 +57,9 @@ sub receivefd {
 sub handoff {
   my ($path, @args) = @_;
   my $req = $BSServer::request;
+  my $conf = $req->{'conf'};
   $path = { 'uri' => $path } unless ref $path;
-  my $sockpath = $path->{'handoffpath'};
-  $sockpath = $req->{'conf'}->{'handoffpath'} unless $sockpath;
+  my $sockpath = $path->{'handoffpath'} || $conf->{'handoffpath'};
   die("no handoff path set\n") unless $sockpath;
   local *SOCK;
   socket(SOCK, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
@@ -78,7 +78,10 @@ sub handoff {
   }
   $param->{'headers'} = \@headers if @headers;
   my $r = BSRPC::rpc($param, @args);
-  exit(0) unless $path->{'noexit'};
+  if (!$path->{'noexit'}) {
+    BSServer::log_slow_requests($conf, $req);
+    exit(0);
+  }
   return $r;
 }
 
