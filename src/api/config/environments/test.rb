@@ -57,6 +57,7 @@ end
 
 CONFIG['source_host'] = "localhost"
 CONFIG['source_port'] = 3200
+CONFIG['url'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
 
 CONFIG['response_schema_validation'] = true
 
