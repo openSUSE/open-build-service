@@ -2,7 +2,7 @@ class PublicController < ApplicationController
   include PublicHelper
 
   # we need to fall back to _nobody_ (_public_)
-  before_action :extract_user_public
+  before_action :extract_user_public, :set_response_format_to_xml
   skip_before_action :extract_user
   skip_before_action :require_login
 

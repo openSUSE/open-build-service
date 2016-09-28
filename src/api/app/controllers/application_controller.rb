@@ -560,6 +560,10 @@ class ApplicationController < ActionController::Base
     # rubocop:enable Metrics/LineLength
   end
 
+  def set_response_format_to_xml
+    request.format = :xml if request.format == :html
+  end
+
   private
 
   def forward_from_backend(path)

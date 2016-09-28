@@ -16,8 +16,11 @@ end
 class APIMatcher
   def self.matches?(request)
     format = request.format.to_sym || :xml
-    # Rails.logger.debug "MATCHES #{format}"
-    format == :xml || format == :json
+    format == :xml || format == :json || public_or_about_path?(request)
+  end
+
+  def self.public_or_about_path?(request)
+    request.fullpath.start_with?("/public", "/about")
   end
 end
 
@@ -339,11 +342,6 @@ OBSApi::Application.routes.draw do
     get 'apidocs(/index)' => 'webui/apidocs#index'
   end
 
-  # first the routes where the mime type does not matter
-  ### /public
-  get 'public/build/:project(/:repository(/:arch(/:package(/:file))))' => 'public#build', constraints: cons, as: :public_build
-  get 'public/source/:project/:package/:filename' => 'public#source_file', constraints: cons
-
   ### /build
   get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile
   match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: [:get, :post]
@@ -606,7 +604,6 @@ OBSApi::Application.routes.draw do
     put '/mail_handler' => 'mail_handler#upload'
 
     ### /public
-
     controller :public do
       get 'public' => :index
       get 'public/about' => 'about#index'
@@ -622,6 +619,7 @@ OBSApi::Application.routes.draw do
       get 'public/source/:project/:package/:filename' => :source_file, constraints: cons
       get 'public/distributions' => :distributions
       get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
+      get 'public/build/:project(/:repository(/:arch(/:package(/:file))))' => 'public#build', constraints: cons, as: :public_build
     end
 
     get 'public/status/:action' => 'status#index'
