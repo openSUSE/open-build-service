@@ -86,6 +86,7 @@ sub redo_request {
   my ($jev) = @_;
   return if $jev->{'deljob_done'};	# job is already deleted
   local $BSServerEvents::gev = $jev;
+  local $BSServer::request = $jev->{'request'};
   my $conf = $jev->{'conf'};
   eval {
     my @r = $jev->{'redohandler'}->(@{$jev->{'args'} || []});

@@ -34,9 +34,6 @@ use strict;
 
 our $gev;	# our event
 
-# FIXME: should not set global
-$BSServer::request if 0;	# get rid of used only once warning
-
 sub replstream_timeout {
   my ($ev) = @_;
   print "replstream timeout for $ev->{'peer'}\n";
@@ -336,7 +333,7 @@ sub getrequest {
     die("501 invalid path\n") unless $path =~ /^\//;
     %$req = ( %$req, 'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers, 'state' => 'processing' );
     # FIXME: should not use global
-    $BSServer::request = $req;
+    local $BSServer::request = $req;
     my @r = $conf->{'dispatch'}->($conf, $req);
     if ($conf->{'stdreply'}) {
       $conf->{'stdreply'}->(@r);
@@ -344,7 +341,10 @@ sub getrequest {
       reply(@r);
     }
   };
-  reply_error($conf, $@) if $@;
+  if ($@) {
+    local $BSServer::request = $req;
+    reply_error($conf, $@);
+  }
 }
 
 sub newconnect {
