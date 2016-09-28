@@ -530,11 +530,15 @@ sub reply_error  {
       reply("$err\n", "Status: $code $tag", 'Content-Type: text/plain', @hdrs);
     }
   };
-  my $req = $BSServer::request || {};
-  warn("$req->{'peer'} [$$] reply_error: $@") if $@;
+  my $reply_err = $@;
   close CLNT;
+  my $req = $BSServer::request || {};
   $req->{'statuscode'} ||= $code;
   log_slow_requests($conf, $req) if $conf->{'slowrequestlog'};
+  if ($reply_err) {
+    warn("$req->{'peer'} [$$]: $err\n");
+    $err = "reply_error: $reply_err";
+  }
   die("$req->{'peer'} [$$]: $err\n");
 }
 
