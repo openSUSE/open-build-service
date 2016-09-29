@@ -1526,6 +1526,7 @@ sub publish {
 	    my $name = $repotype{'slepool'}->[0] || 'product';
 	    $p = $bin;
 	    if ($name eq 'nobuildid') {
+		$p = "repo/$bin";
 		$p =~ s/-Build\d+-/-/;
 	    } elsif ($bin =~ /.*-Media1(\.license|)$/) {
 	      $p = "$name$1";
