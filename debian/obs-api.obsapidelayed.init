@@ -77,7 +77,7 @@ case "$1" in
 	echo -n "Shutting down OBS api clock daemon "
         run_in_api $CLOCKWORKD -l -c config/clock.rb stop
 	echo -n "Shutting down OBS searchd daemon "
-        run_in_api rake.ruby2.3 ts:stop
+        run_in_api rake ts:stop
 	;;
     try-restart|condrestart)
 	if test "$1" = "condrestart"; then
