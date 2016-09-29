@@ -1525,7 +1525,9 @@ sub publish {
 	    # HACK: do fancy sle repo renaming
 	    my $name = $repotype{'slepool'}->[0] || 'product';
 	    $p = $bin;
-	    if ($bin =~ /.*-Media1(\.license|)$/) {
+	    if ($name eq 'nobuildid') {
+		$p =~ s/-Build\d+-/-/;
+	    } elsif ($bin =~ /.*-Media1(\.license|)$/) {
 	      $p = "$name$1";
 	    } elsif ($bin =~ /-Media3$/) {
 	      $p = "${name}_debug";
