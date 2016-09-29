@@ -514,8 +514,8 @@ sub log_slow_requests {
   return unless $req && $conf->{'slowrequestlog'} && $conf->{'slowrequestthr'} && $req->{'starttime'};
   my $duration = time() - $req->{'starttime'};
   return unless $duration >= $conf->{'slowrequestthr'};
-  my $msg = sprintf("%s: %3ds %-7s %s %-17s %s%s\n", BSUtil::isotime($req->{'starttime'}), $duration, "[$$]",
-      $req->{'action'}, "($req->{'peer'})", $req->{'path'}, ($req->{'query'}) ? "?$req->{'query'}" : '');
+  my $msg = sprintf("%s: %3ds %-7s %-22s %s%s\n", BSUtil::isotime($req->{'starttime'}), $duration, "[$$]",
+      "$req->{'action'} ($req->{'peer'})", $req->{'path'}, ($req->{'query'}) ? "?$req->{'query'}" : '');
   eval { BSUtil::appendstr($conf->{'slowrequestlog'}, $msg) };
 }
 
