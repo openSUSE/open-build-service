@@ -1817,10 +1817,19 @@ sub delproject {
   BSRevision::addrev_local_replace($cgi, $projid, undef);
   BSRevision::addrev_meta_replace($cgi, $projid, undef);
 
-  if (-d "$projectsdir/$projid.pkg") {
-    # delete packages in sub process to avoid timeout errors
-    my $pid;
-    if (!($pid = xfork())) {
+  unlink("$projectsdir/$projid.conf");
+  unlink("$projectsdir/$projid.xml");
+  notify_repservers('project', $projid);
+
+  notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown"), "requestid" => $cgi->{'requestid'} });
+
+  # send reply
+  BSServer::reply($BSStdServer::return_ok);
+  BSServer::done(1);
+
+  # now delete all packages
+  eval {
+    if (-d "$projectsdir/$projid.pkg") {
       mkdir_p("$projectsdir/_deleted/$projid.pkg");
       # make room in old delete area by deleting all old packages
       BSRevision::delete_deleted($cgi, $projid);
@@ -1838,14 +1847,9 @@ sub delproject {
       }
       rmdir("$projectsdir/$projid.pkg") || die("rmdir $projectsdir/$projid.pkg: $!\n");
     }
-  }
-  unlink("$projectsdir/$projid.conf");
-  unlink("$projectsdir/$projid.xml");
-  notify_repservers('project', $projid);
-
-  notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown"), "requestid" => $cgi->{'requestid'} });
-
-  return $BSStdServer::return_ok;
+  };
+  warn($@) if $@;
+  return undef;
 }
 
 sub undeleteproject {
