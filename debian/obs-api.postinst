@@ -26,7 +26,8 @@ fi
   chown -R nobody:www-data /var/log/obs/ /var/cache/obs/tmp/
   chmod 664 /var/log/obs/*.log
   chmod g+w -R /var/cache/obs/tmp/
-  chown www-data:root /usr/share/obs/api/config/database.yml
+  chown nobody:www-data /usr/share/obs/api/config/database.yml
+  chmod 660 /usr/share/obs/api/config/database.yml
   touch /var/log/obs/clockworkd.clock.output
   chown www-data:www-data /var/log/obs/clockworkd.clock.output
 
