@@ -63,7 +63,7 @@ case "$1" in
         # to be removed later. This is just for processing old jobs without default queue
         run_in_api script/delayed_job.api.rb start -i 1030
 	echo -n "Starting OBS api clock daemon "
-        run_in_api $CLOCKWORKD --log-dir=log -l -c config/clock.rb start
+        run_in_api $CLOCKWORKD --log-dir=log -l -c config/clock.rb -d $API_ROOT start
         # searchd got started by clockd
 	;;
     stop)
