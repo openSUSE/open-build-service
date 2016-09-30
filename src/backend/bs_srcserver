@@ -5737,6 +5737,7 @@ my $conf = {
   'dispatches' => $dispatches,
   'maxchild' => 20,
   'maxchild2' => 20,
+  'slowrequestthr' => 10,
 };
 
 my $aconf = {
