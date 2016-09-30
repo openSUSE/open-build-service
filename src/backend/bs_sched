@@ -253,6 +253,7 @@ sub sendrelsyncupdate {
   my $param = {
     'uri' => "$BSConfig::srcserver/relsync",
     'request' => 'POST',
+    'timeout' => 600,
     'data' => BSUtil::tostorable($relsyncmax),
   };
   eval {
