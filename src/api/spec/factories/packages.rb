@@ -20,5 +20,13 @@ FactoryGirl.define do
         end
       end
     end
+
+    factory :package_with_service do
+      after(:create) do |package|
+        # NOTE: Enable global write through when writing new VCR cassetes.
+        # ensure the backend knows the project
+        Suse::Backend.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<service/>')
+      end
+    end
   end
 end

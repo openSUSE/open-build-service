@@ -118,6 +118,7 @@ OBSApi::Application.routes.draw do
       post 'package/save_new_link/:project' => :save_new_link, constraints: cons
       post 'package/save/:project/:package' => :save, constraints: cons
       get 'package/delete_dialog/:project/:package' => :delete_dialog, constraints: cons
+      post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons
       post 'package/remove/:project/:package' => :remove, constraints: cons
       get 'package/add_file/:project/:package' => :add_file, constraints: cons
       post 'package/save_file/:project/:package' => :save_file, constraints: cons

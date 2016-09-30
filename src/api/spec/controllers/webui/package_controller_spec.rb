@@ -1,4 +1,5 @@
 require 'rails_helper'
+require "webmock/rspec"
 # WARNING: If you change owner tests make sure you uncomment this line
 # and start a test backend. Some of the Owner methods
 # require real backend answers for projects/packages.
@@ -11,6 +12,7 @@ RSpec.describe Webui::PackageController, vcr: true do
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
   let(:target_project) { create(:project) }
   let(:package) { create(:package_with_file, name: "package_with_file", project: source_project) }
+  let(:service_package) { create(:package_with_service, name: "package_with_service", project: source_project) }
   let(:repo_for_source_project) do
     repo = create(:repository, project: source_project, architectures: ['i586'])
     source_project.store
@@ -516,6 +518,40 @@ EOT
           it { expect(assigns(:revisions)).to eq((1..21).to_a.reverse) }
         end
       end
+    end
+  end
+
+  describe 'GET #trigger_services' do
+    before do
+      login user
+    end
+
+    context 'with right params' do
+      let(:post_url) { "#{CONFIG['url']}/source/#{source_project}/#{service_package}?cmd=runservice&user=#{user}" }
+
+      before do
+        get :trigger_services, params: { project: source_project, package: service_package }
+      end
+
+      it { expect(a_request(:post, post_url)).to have_been_made.once }
+      it { expect(flash[:notice]).to eq('Services successfully triggered') }
+      it { is_expected.to redirect_to(action: :show, project: source_project, package: service_package) }
+    end
+
+    context "without a service file in the package" do
+      let(:post_url) { "#{CONFIG['url']}/source/#{source_project}/#{source_package}?cmd=runservice&user=#{user}" }
+      let(:error) do
+        "Services couldn't be triggered: <status code=\"404\">\n  <summary>no source service defined!</summary>" \
+        "\n  <details>404 no source service defined!</details>\n</status>\n"
+      end
+
+      before do
+        get :trigger_services, params: { project: source_project, package: source_package }
+      end
+
+      it { expect(a_request(:post, post_url)).to have_been_made.once }
+      it { expect(flash[:error]).to eq(error) }
+      it { is_expected.to redirect_to(action: :show, project: source_project, package: source_package) }
     end
   end
 end

@@ -19,7 +19,7 @@ class Webui::PackageController < Webui::WebuiController
                                         :branch_dialog, :branch, :save_new_link, :save, :delete_dialog,
                                         :remove, :add_file, :save_file, :remove_file, :save_person,
                                         :save_group, :remove_role, :view_file,
-                                        :abort_build, :trigger_rebuild,
+                                        :abort_build, :trigger_rebuild, :trigger_services,
                                         :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                         :save_meta, :attributes, :edit, :import_spec, :files, :comments]
 
@@ -29,7 +29,7 @@ class Webui::PackageController < Webui::WebuiController
                                             :branch_dialog, :branch, :save, :delete_dialog,
                                             :remove, :add_file, :save_file, :remove_file, :save_person,
                                             :save_group, :remove_role, :view_file,
-                                            :abort_build, :trigger_rebuild,
+                                            :abort_build, :trigger_rebuild, :trigger_services,
                                             :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                             :attributes, :edit, :import_spec, :files, :comments, :users,
                                             :save_comment]
@@ -661,6 +661,16 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to(package_show_path(project: @project, package: @package),
                   notice: "Package can't be removed: #{@package.errors.full_messages.to_sentence}")
     end
+  end
+
+  def trigger_services
+    begin
+      Suse::Backend.post "/source/#{URI.escape(@project.name)}/#{URI.escape(@package.name)}?cmd=runservice&user=#{User.current}"
+      flash[:notice] = 'Services successfully triggered'
+    rescue Timeout::Error, ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
+      flash[:error] = "Services couldn't be triggered: " + e.message
+    end
+    redirect_to package_show_path(@project, @package)
   end
 
   def add_file
