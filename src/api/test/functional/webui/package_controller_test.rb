@@ -502,7 +502,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_text "[1] this is my dummy logfile -> ümlaut"
   end
 
-  def test_save_meta
+  def test_save_meta # src/api/spec/controllers/webui/package_controller_spec.rb
     use_js
 
     skip("Valid test, but the rails stack on SLE 11 is currently not able to deal with
