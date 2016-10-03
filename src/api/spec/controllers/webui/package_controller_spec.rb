@@ -1,5 +1,5 @@
-require 'rails_helper'
 require "webmock/rspec"
+require 'rails_helper'
 # WARNING: If you change owner tests make sure you uncomment this line
 # and start a test backend. Some of the Owner methods
 # require real backend answers for projects/packages.
@@ -398,6 +398,16 @@ EOT
         expect(assigns(:package)).to eq(source_package)
       end
     end
+
+    context "with a package that have derived packages" do
+      before do
+        login user
+        BranchPackage.new(project: source_project.name, package: package.name).branch
+        get :show, project: source_project, package: package
+      end
+
+      it { expect(assigns(:linking_packages)).to match_array(package.linking_packages) }
+    end
   end
 
   describe "DELETE #remove_file" do
@@ -622,6 +632,25 @@ EOT
 
       it { expect(flash[:error]).to eq("Error while saving the Meta file: Package doesn't exists in that project..") }
       it { expect(response).to have_http_status(:bad_request) }
+    end
+  end
+
+  describe 'GET #rdiff' do
+    context "when no difference in sources diff is empty" do
+      before do
+        get :rdiff, project: source_project, package: package, oproject: source_project, opackage: package
+      end
+
+      it { expect(assigns[:filenames]).to be_empty }
+    end
+
+    context "when an empty revision is provided" do
+      before do
+        get :rdiff, project: source_project, package: package, rev: ''
+      end
+
+      it { expect(flash[:error]).to eq('Error getting diff: revision is empty') }
+      it { is_expected.to redirect_to(package_show_path(project: source_project, package: package)) }
     end
   end
 end
