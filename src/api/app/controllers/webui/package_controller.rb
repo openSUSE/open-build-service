@@ -667,8 +667,10 @@ class Webui::PackageController < Webui::WebuiController
     begin
       Suse::Backend.post "/source/#{URI.escape(@project.name)}/#{URI.escape(@package.name)}?cmd=runservice&user=#{User.current}"
       flash[:notice] = 'Services successfully triggered'
-    rescue Timeout::Error, ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
+    rescue Timeout::Error => e
       flash[:error] = "Services couldn't be triggered: " + e.message
+    rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
+      flash[:error] = "Services couldn't be triggered: " + Xmlhash::XMLHash.new(error: e.summary)[:error]
     end
     redirect_to package_show_path(@project, @package)
   end

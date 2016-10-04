@@ -540,17 +540,13 @@ EOT
 
     context "without a service file in the package" do
       let(:post_url) { "#{CONFIG['url']}/source/#{source_project}/#{source_package}?cmd=runservice&user=#{user}" }
-      let(:error) do
-        "Services couldn't be triggered: <status code=\"404\">\n  <summary>no source service defined!</summary>" \
-        "\n  <details>404 no source service defined!</details>\n</status>\n"
-      end
 
       before do
         get :trigger_services, params: { project: source_project, package: source_package }
       end
 
       it { expect(a_request(:post, post_url)).to have_been_made.once }
-      it { expect(flash[:error]).to eq(error) }
+      it { expect(flash[:error]).to eq("Services couldn't be triggered: no source service defined!") }
       it { is_expected.to redirect_to(action: :show, project: source_project, package: source_package) }
     end
   end
