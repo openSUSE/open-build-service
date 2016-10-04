@@ -36,7 +36,7 @@ RSpec.describe Package, vcr: true do
 
   context '#delete_file' do
     let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: home_project)}
-    let(:url) { "http://localhost:3200/source/#{home_project.name}/#{package_with_file.name}" }
+    let(:url) { "#{CONFIG['source_url']}/source/#{home_project.name}/#{package_with_file.name}" }
 
     before do
       User.current = user

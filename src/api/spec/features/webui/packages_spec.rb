@@ -101,7 +101,7 @@ RSpec.feature "Packages", :type => :feature, :js => true do
   context "triggering package rebuild" do
     let(:repository) { create(:repository, architectures: ["x86_64"]) }
     let(:rebuild_url) {
-      "http://localhost:3200/build/#{user.home_project.name}?cmd=rebuild&arch=x86_64&package=#{package.name}&repository=#{repository.name}"
+      "#{CONFIG['source_url']}/build/#{user.home_project.name}?cmd=rebuild&arch=x86_64&package=#{package.name}&repository=#{repository.name}"
     }
     let(:fake_buildresult) {
       "<resultlist state='123'>
