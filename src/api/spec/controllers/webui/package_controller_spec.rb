@@ -527,7 +527,7 @@ EOT
     end
 
     context 'with right params' do
-      let(:post_url) { "#{CONFIG['url']}/source/#{source_project}/#{service_package}?cmd=runservice&user=#{user}" }
+      let(:post_url) { "#{CONFIG['source_url']}/source/#{source_project}/#{service_package}?cmd=runservice&user=#{user}" }
 
       before do
         get :trigger_services, params: { project: source_project, package: service_package }
@@ -539,7 +539,7 @@ EOT
     end
 
     context "without a service file in the package" do
-      let(:post_url) { "#{CONFIG['url']}/source/#{source_project}/#{source_package}?cmd=runservice&user=#{user}" }
+      let(:post_url) { "#{CONFIG['source_url']}/source/#{source_project}/#{source_package}?cmd=runservice&user=#{user}" }
 
       before do
         get :trigger_services, params: { project: source_project, package: source_package }

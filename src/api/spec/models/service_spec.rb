@@ -6,7 +6,7 @@ RSpec.describe Service, vcr: true do
   let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
   let(:service) { package.services }
-  let(:url) { "http://localhost:3200/source/#{home_project.name}/#{package.name}" }
+  let(:url) { "#{CONFIG['source_url']}/source/#{home_project.name}/#{package.name}" }
 
   context '#addKiwiImport' do
     before do
