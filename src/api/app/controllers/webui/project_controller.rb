@@ -651,7 +651,6 @@ class Webui::ProjectController < Webui::WebuiController
     v.position = 1
     attr.save!
     @comment = params[:text]
-    @update = params[:update]
   end
 
   def status
