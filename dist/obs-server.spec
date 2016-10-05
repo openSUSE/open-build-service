@@ -411,6 +411,9 @@ make -C dist test
 # TODO - clarify if test suite is needed as extra package (M0ses)
 rm -rf $RPM_BUILD_ROOT/srv/www/obs/api/spec
 
+# Don't package our burndown charts
+rm -r $RPM_BUILD_ROOT/srv/www/obs/api/bs-team-burndown
+
 %pre
 getent group obsrun >/dev/null || groupadd -r obsrun
 getent passwd obsrun >/dev/null || \

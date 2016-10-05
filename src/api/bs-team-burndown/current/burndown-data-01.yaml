@@ -1,0 +1,61 @@
+---
+meta:
+  board_id: Fs7boVwI
+  sprint: 1
+  not_done_columns:
+  - Backlog
+  - Doing
+  - In Review
+  total_days: 10
+  weekend_lines:
+  - 3.5
+  - 8.5
+days:
+- date: '2016-09-27'
+  updated_at: '2016-09-27T11:58:00+02:00'
+  story_points:
+    total: 33.0
+    open: 33.0
+  tasks:
+    total: 172
+    open: 147
+- date: '2016-09-28'
+  updated_at: '2016-09-28T11:38:00+02:00'
+  story_points:
+    total: 33.0
+    open: 30.0
+  tasks:
+    total: 172
+    open: 137
+- date: '2016-09-29'
+  updated_at: '2016-09-29T11:26:34+02:00'
+  story_points:
+    total: 33.0
+    open: 29.0
+  tasks:
+    total: 172
+    open: 130
+- date: '2016-09-30'
+  updated_at: '2016-09-30T11:28:30+02:00'
+  story_points:
+    total: 33.0
+    open: 29.0
+  tasks:
+    total: 172
+    open: 123
+- date: '2016-10-04'
+  updated_at: '2016-10-04T13:01:00+02:00'
+  story_points:
+    total: 33.0
+    open: 29.0
+  tasks:
+    total: 172
+    open: 100
+- date: '2016-10-05'
+  updated_at: '2016-10-05T11:21:03+02:00'
+  story_points:
+    total: 33.0
+    open: 21.0
+  tasks:
+    total: 172
+    open: 97
