@@ -81,6 +81,7 @@ class Webui::PackageController < Webui::WebuiController
 
     @comments = @package.comments
     @requests = []
+    @services = Service.find(project: @project.name, package: @package.name)
   end
 
   def main_object
