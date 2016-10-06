@@ -28,5 +28,14 @@ FactoryGirl.define do
         Suse::Backend.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<service/>')
       end
     end
+
+    factory :package_with_failed_comment_attribute do
+      after(:create) do |package|
+        attribute_type = AttribType.find_by_name("OBS:ProjectStatusPackageFailComment")
+        attrib = build(:attrib, attrib_type: attribute_type, package: package)
+        attrib.values << build(:attrib_value, value: Faker::Lorem.sentence)
+        attrib.save!
+      end
+    end
   end
 end

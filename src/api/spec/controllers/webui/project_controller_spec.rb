@@ -888,4 +888,33 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(assigns(:error)).to eq("Can't create attributes in home_package") }
     end
   end
+
+  describe 'GET #clear_failed_comment' do
+    let(:package) { create(:package_with_failed_comment_attribute, name: 'my_package', project: user.home_project) }
+    let(:attribute_type) { AttribType.find_by_name("OBS:ProjectStatusPackageFailComment") }
+
+    before do
+      login(user)
+    end
+
+    context 'with format html' do
+      before do
+        get :clear_failed_comment, project: user.home_project, package: package
+      end
+
+      it { expect(flash[:notice]).to eq("Cleared comments for packages.") }
+      it { expect(response).to redirect_to(project_status_path(user.home_project)) }
+      it { expect(package.attribs.where(attrib_type: attribute_type)).to be_empty }
+    end
+
+    context 'with format js' do
+      before do
+        get :clear_failed_comment, params: { project: user.home_project, package: package, format: 'js' }, xhr: true
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(response.body).to eq("<em>Cleared comments for packages</em>") }
+      it { expect(package.attribs.where(attrib_type: attribute_type)).to be_empty }
+    end
+  end
 end
