@@ -860,4 +860,32 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { is_expected.to redirect_to(project_show_path(maintenance_project)) }
     end
   end
+
+  describe 'POST #edit_comment' do
+    let(:package){ create(:package, name: 'home_package', project: user.home_project) }
+    let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment') }
+    let(:text) { "The text to edit the comment" }
+
+    before do
+    end
+
+    context 'with a user that can create attributes' do
+      before do
+        login user
+        post :edit_comment, project: user.home_project, package: package, text: text, format: 'js'
+      end
+
+      it { expect(package.attribs.where(attrib_type: attribute_type).first.values.first.value).to eq(text) }
+      it { expect(package.attribs.where(attrib_type: attribute_type).first.values.first.position).to eq(1) }
+    end
+
+    context "with a user that can't create attributes" do
+      before do
+        post :edit_comment, project: user.home_project, package: package, text: text, last_comment: 'Last comment', format: 'js'
+      end
+
+      it { expect(assigns(:comment)).to eq('Last comment') }
+      it { expect(assigns(:error)).to eq("Can't create attributes in home_package") }
+    end
+  end
 end
