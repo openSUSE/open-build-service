@@ -136,6 +136,7 @@ RSpec.feature "Requests", :type => :feature, :js => true, vcr: true do
       let!(:other_devel_package_link) { create(:package, develpackage: target_package) }
 
       before do
+        create_submit_request
         # Source package sources have to differ from target packages's sources
         User.current = submitter
         source_package.save_file(filename: "somefile.txt", file: "some more changes")
@@ -144,7 +145,6 @@ RSpec.feature "Requests", :type => :feature, :js => true, vcr: true do
       end
 
       it "forwards requests correctly" do
-        create_submit_request
         login receiver
         visit request_show_path(bs_request.reload)
 
