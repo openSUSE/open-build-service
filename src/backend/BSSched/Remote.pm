@@ -550,6 +550,10 @@ sub convertpackagebinarylist {
     chomp $error;
     warn("$error\n");
     $error ||= 'internal error';
+    if (BSSched::RPC::is_transient_error($error)) {
+      my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+      $gctx->{'retryevents'}->addretryevent({'type' => 'scanprjbinaries', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
+    }
     $remotegbininfos->{$prpa} = { 'lastfetch' => time(), 'error' => $error };
     return (undef, undef);
   }

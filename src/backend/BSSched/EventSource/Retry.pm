@@ -54,6 +54,8 @@ sub addretryevent {
     next if $ev->{'type'} ne $oev->{'type'} || $ev->{'project'} ne $oev->{'project'};
     if ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'recheck') {
       next if $ev->{'repository'} ne $oev->{'repository'};
+    } elsif ($ev->{'type'} eq 'scanprjbinaries') {
+      next if $ev->{'repository'} ne $oev->{'repository'} || ($ev->{'arch'} || '') ne ($oev->{'arch'} || '');
     } elsif ($ev->{'type'} eq 'package') {
       next if ($ev->{'package'} || '') ne ($oev->{'package'} || '');
     }
