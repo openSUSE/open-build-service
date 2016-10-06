@@ -49,7 +49,7 @@ class SourceController < ApplicationController
   # POST /source
   def global_command
     unless %w(createmaintenanceincident branch).include? params[:cmd]
-      raise UnknownCommandError.new "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
+      raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
     dispatch_command(:global_command, params[:cmd])
   end
