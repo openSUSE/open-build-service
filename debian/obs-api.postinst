@@ -23,13 +23,18 @@ fi
   touch /var/log/obs/error.log
   touch /var/log/obs/lastevents.access.log
   touch /var/log/obs/production.log
-  chown -R nobody:www-data /var/log/obs/ /var/cache/obs/tmp/
+  touch /var/log/obs/production.searchd.log
+  touch /var/log/obs/production.searchd.query.log
+  touch /var/log/obs/production.sphinx.pid
+  touch /var/log/obs/clockworkd.clock.output
+  chown -R www-data:www-data /var/log/obs/ /var/cache/obs/tmp/
+  chown -R www-data:www-data /usr/share/obs/api/db
+  chown -R www-data:www-data /usr/share/obs/api/public
+  chown www-data:www-data /usr/share/obs/api/config/production.sphinx.conf
   chmod 664 /var/log/obs/*.log
-  chmod g+w -R /var/cache/obs/tmp/
   chown nobody:www-data /usr/share/obs/api/config/database.yml
   chmod 660 /usr/share/obs/api/config/database.yml
-  touch /var/log/obs/clockworkd.clock.output
-  chown www-data:www-data /var/log/obs/clockworkd.clock.output
+  chown nobody:www-data /var/log/obs/backend_access.log
 
 SECRET_KEY="/usr/share/obs/api/config/secret.key"
 if [ ! -e "$SECRET_KEY" ]; then
@@ -50,13 +55,22 @@ bundle config --local frozen 1
 bundle config --local without test:assets:development
 
 if [ -z "$2" ]; then
-    RAILS_ENV=production rake -f /usr/share/obs/api/Rakefile db:create
-    RAILS_ENV=production rake -f /usr/share/obs/api/Rakefile db:setup
+    RAILS_ENV=production bundle exec rake db:create >> log/db_setup.log
+    RAILS_ENV=production bundle exec rake db:setup >> log/db_setup.log
 else
-    RAILS_ENV=production rake -f /usr/share/obs/api/Rakefile db:migrate
+    RAILS_ENV=production bundle exec rake db:migrate >> log/db_migrate.log
 fi
 
-bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
+API_ROOT=/usr/share/obs/api
+
+run_in_api () {
+  export RAILS_ENV="production"
+  # startproc only works for classical daemons
+  chroot --userspec=www-data:www-data / /bin/bash -c "cd $API_ROOT && /usr/bin/bundle exec $*"
+}
+
+run_in_api rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
+run_in_api rake ts:index
 
 pathfind() {
     OLDIFS="$IFS"
