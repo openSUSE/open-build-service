@@ -4,7 +4,7 @@ require "browser_helper"
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.feature "Requests", :type => :feature, :js => true, vcr: false do
+RSpec.feature "Requests", :type => :feature, :js => true, vcr: true do
   let(:submitter) { create(:confirmed_user, login: 'kugelblitz' ) }
   let(:receiver) { create(:confirmed_user, login: 'titan' ) }
   let(:target_project) { receiver.home_project }
@@ -144,6 +144,7 @@ RSpec.feature "Requests", :type => :feature, :js => true, vcr: false do
       end
 
       it "forwards requests correctly" do
+        create_submit_request
         login receiver
         visit request_show_path(bs_request.reload)
 
