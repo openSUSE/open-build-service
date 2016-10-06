@@ -4,13 +4,13 @@ require "browser_helper"
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
-RSpec.feature "Requests", :type => :feature, :js => true do
+RSpec.feature "Requests", :type => :feature, :js => true, vcr: true do
   let(:submitter) { create(:confirmed_user, login: 'kugelblitz' ) }
   let(:receiver) { create(:confirmed_user, login: 'titan' ) }
   let(:target_project) { receiver.home_project }
-  let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
+  let(:target_package) { create(:package_with_file, name: 'goal', project: target_project) }
   let(:source_project) { submitter.home_project }
-  let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
+  let(:source_package) { create(:package_with_file, name: 'ball', project: source_project) }
   let(:bs_request) { create(:bs_request, description: "a long text - " * 200, creator: submitter.login) }
   let(:create_submit_request) do
     bs_request.bs_request_actions.delete_all
@@ -127,6 +127,44 @@ RSpec.feature "Requests", :type => :feature, :js => true do
       expect(page).to have_text("Request #{bs_request.number} (accepted)")
       expect(page).to have_text('In state accepted')
       expect(submitter.has_local_permission?('change_package', target_project.packages.find_by(name: target_package.name))).to be_truthy
+    end
+
+    context "with linked project and devel package" do
+      let(:linked_package) { create(:package) }
+      let(:devel_package) { create(:package, develpackage: target_package) }
+      let!(:devel_package_link) { create(:package, develpackage: target_package) }
+      let!(:other_devel_package_link) { create(:package, develpackage: target_package) }
+
+      before do
+        create_submit_request
+        # Source package sources have to differ from target packages's sources
+        User.current = submitter
+        source_package.save_file(filename: "somefile.txt", file: "some more changes")
+
+        create_submit_request
+      end
+
+      it "forwards requests correctly" do
+        login receiver
+        visit request_show_path(bs_request.reload)
+
+        check "forward_devel_0"
+        check "forward_devel_1"
+        click_button "Accept request"
+
+        expect(page).to have_text("Request #{bs_request.number} (accepted)")
+        expect(page).to have_text("In state accepted")
+
+        expect(bs_request.reload.state).to eq(:accepted)
+        expect(BsRequest).to have_a_submit_request_for({
+          target_package: devel_package_link,
+          source_package: target_package
+        })
+        expect(BsRequest).to have_a_submit_request_for({
+          target_package: other_devel_package_link,
+          source_package: target_package
+        })
+      end
     end
   end
 
