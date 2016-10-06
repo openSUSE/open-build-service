@@ -210,12 +210,12 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
-  def test_diff_is_empty
+  def test_diff_is_empty # /src/api/spec/controllers/webui/package_controller_spec.rb
     visit '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0'
     find('#content').must_have_text 'No source changes!'
   end
 
-  def test_revision_is_empty
+  def test_revision_is_empty # /src/api/spec/controllers/webui/package_controller_spec.rb
     visit '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0&rev='
     flash_message_type.must_equal :alert
     flash_message.must_equal 'Error getting diff: revision is empty'
@@ -246,7 +246,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_link 'Add group'
   end
 
-  def test_derived_packages
+  def test_derived_packages # /src/api/spec/controllers/webui/package_controller_spec.rb
     use_js
 
     login_adrian to: package_show_path(package: 'pack2', project: 'BaseDistro')
