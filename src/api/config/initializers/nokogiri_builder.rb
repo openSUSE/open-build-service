@@ -5,7 +5,7 @@ module ActionView
   module Template::Handlers
     class NokogiriBuilder
       class_attribute :default_format
-      self.default_format = Mime::XML
+      self.default_format = Mime[:xml]
 
       def call(template)
         "xml = ::Nokogiri::XML::Builder.new { |xml|" +
