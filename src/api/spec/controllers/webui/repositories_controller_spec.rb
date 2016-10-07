@@ -74,7 +74,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
       it 'each repository has a different position' do
         id = user.home_project.repositories.pluck(:id)
         foo = RepositoryArchitecture.where(repository_id: id)
-        expect(foo.count).to eq(foo.uniq.count)
+        expect(foo.count).to eq(foo.distinct.count)
       end
 
       it { expect(repo_for_user_home.architectures.pluck(:name)).to match_array(['i586', 'x86_64']) }
