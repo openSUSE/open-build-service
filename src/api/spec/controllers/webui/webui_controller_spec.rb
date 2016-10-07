@@ -10,21 +10,21 @@ RSpec.describe Webui::WebuiController do
     before_action :set_project, only: :edit
 
     def index
-      render text: 'anonymous controller'
+      render plain: 'anonymous controller'
     end
 
     # RSpec anonymous controller only support RESTful routes
     # http://stackoverflow.com/questions/7027518/no-route-matches-rspecs-anonymous-controller
     def new
-      render text: 'anonymous controller - requires_admin_privileges'
+      render plain: 'anonymous controller - requires_admin_privileges'
     end
 
     def show
-      render text: 'anonymous controller - requires_login'
+      render plain: 'anonymous controller - requires_login'
     end
 
     def edit
-      render text: 'anonymous controller - set_project'
+      render plain: 'anonymous controller - set_project'
     end
   end
 

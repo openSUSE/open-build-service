@@ -623,7 +623,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     respond_to do |format|
       format.html { redirect_to({ :action => :status, project: @project }, notice: 'Cleared comments for packages.') }
-      format.js { render text: '<em>Cleared comments for packages</em>' }
+      format.js { render js: '<em>Cleared comments for packages</em>' }
     end
   end
 

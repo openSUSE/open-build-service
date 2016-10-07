@@ -179,7 +179,7 @@ class Webui::UserController < Webui::WebuiController
 
     expires_in 5.hours, public: true
     if stale?(etag: Digest::MD5.hexdigest(content))
-      render text: content, layout: false, content_type: 'image/png'
+      render body: content, layout: false, content_type: 'image/png'
     end
   end
 

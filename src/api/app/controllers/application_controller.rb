@@ -360,7 +360,7 @@ class ApplicationController < ActionController::Base
       text = xml.dump_xml
     rescue ActiveXML::ParseError
     end
-    render text: text, status: http_status
+    render plain: text, status: http_status
   end
 
   rescue_from Project::WritePermissionError do |exception|
