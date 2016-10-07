@@ -103,8 +103,8 @@
 
                   <% if action[:forward] %>
                       <%# TODO: Make this work for each submit action individually: %>
+                      <% index = 0 %>
                       <% action[:forward].each do |forward| %>
-                          <% index = 0 %>
                           <% if forward[:type] == 'link' %>
                               <br/><%= check_box_tag('forward_link', "#{forward[:project]}_#_#{forward[:package]}", false, :class => 'forward_checkbox') %>
                               Forward to linked package
