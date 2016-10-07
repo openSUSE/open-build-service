@@ -46,7 +46,7 @@ class MyParamsParser
     end
 
     case request.content_mime_type
-    when Mime::JSON
+    when Mime[:json]
       begin
         data = Yajl::Parser.parse(request.raw_post)
       rescue Yajl::ParseError => e
@@ -56,7 +56,7 @@ class MyParamsParser
       request.body.rewind if request.body.respond_to?(:rewind)
       data = {:_json => data} unless data.is_a?(Hash)
       data.with_indifferent_access
-    when Mime::XML
+    when Mime[:xml]
       data = Xmlhash.parse(request.body.read)
       request.body.rewind if request.body.respond_to?(:rewind)
       if data

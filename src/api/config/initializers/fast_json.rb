@@ -4,6 +4,6 @@ require 'yajl'
 
 ActionController::Renderers.add :json do |json, _|
     json = Yajl::Encoder.encode(json) unless json.kind_of?(String)
-    self.content_type ||= Mime::JSON
+    self.content_type ||= Mime[:json]
     json
 end
