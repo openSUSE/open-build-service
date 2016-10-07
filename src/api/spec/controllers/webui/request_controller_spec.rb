@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::RequestController do
+RSpec.describe Webui::RequestController, vcr: true do
   let(:submitter) { create(:confirmed_user, login: 'kugelblitz' ) }
   let(:receiver) { create(:confirmed_user, login: 'titan' ) }
   let(:target_project) { receiver.home_project }
@@ -11,7 +11,7 @@ RSpec.describe Webui::RequestController do
   let(:create_submit_request) do
     bs_request.bs_request_actions.delete_all
     create(:bs_request_action_submit, target_project: target_project.name,
-                                      target_package: source_package.name,
+                                      target_package: target_package.name,
                                       source_project: source_project.name,
                                       source_package: source_package.name,
                                       bs_request_id: bs_request.id)
@@ -36,6 +36,30 @@ RSpec.describe Webui::RequestController do
       get :show, number: '200000'
       expect(flash[:error]).to eq("Can't find request 200000")
       expect(response).to redirect_to(user_show_path(User.current))
+    end
+
+    it 'shows a hint to project maintainers when there are package maintainers' do
+      login receiver
+
+      create_submit_request
+
+      # the hint will only be shown, when the target package has at least one
+      # maintainer. so we'll gonna add a maintainer to the target package
+      create(:relationship_package_user, user: submitter, package: target_package)
+
+      get :show, number: bs_request.number
+
+      expect(assigns(:show_project_maintainer_hint)).to eq(true)
+    end
+
+    it 'does not show a hint to project maintainers if the target package has no maintainers' do
+      login receiver
+
+      create_submit_request
+
+      get :show, number: bs_request.number
+
+      expect(assigns(:show_project_maintainer_hint)).to eq(false)
     end
   end
 

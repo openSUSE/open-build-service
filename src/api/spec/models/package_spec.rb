@@ -7,6 +7,11 @@ RSpec.describe Package, vcr: true do
   let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
   let(:services) { package.services }
+  let(:group_bugowner) { create(:group, title: 'senseless_group') }
+  let(:group) { create(:group, title: 'my_test_group') }
+  let(:other_user) { create(:confirmed_user, login: 'other_user') }
+  let(:other_user2) { create(:confirmed_user, login: 'other_user2') }
+  let(:other_user3) { create(:confirmed_user, login: 'other_user3') }
 
   context '#save_file' do
     before do
@@ -96,6 +101,62 @@ RSpec.describe Package, vcr: true do
           package_with_file.source_file('not_existent.txt')
         }.to raise_error(ActiveXML::Transport::NotFoundError)
       end
+    end
+  end
+
+  context '#maintainers' do
+    before do
+      User.current = user
+    end
+
+    it 'returns an array with user objects to all maintainers for a package' do
+      # first of all, we add a user who is not a maintainer but a bugowner
+      # he/she should not be recognized by package.maintainers
+      create(:relationship_package_user_as_bugowner, user: other_user2, package: package)
+
+      # we expect both users to be in that returning array
+      create(:relationship_package_user, user: user, package: package)
+      create(:relationship_package_user, user: other_user, package: package)
+
+      expect(package.maintainers).to match_array([other_user, user])
+    end
+
+    it 'resolves groups properly' do
+      # groups should be resolved and only their assigned users should be in the
+      # returning array
+      group.add_user(other_user)
+      group.add_user(other_user2)
+
+      # add a group to the package what is not a maintainer to make sure it'll
+      # be ignored when calling package.maintainers
+      group_bugowner.add_user(other_user3)
+
+      create(:relationship_package_group_as_bugowner, group: group_bugowner, package: package)
+      create(:relationship_package_group, group: group, package: package)
+
+      expect(package.maintainers).to match_array([other_user, other_user2])
+    end
+
+    it 'makes sure that no user is listed more than one time' do
+      group.add_user(user)
+      group_bugowner.add_user(user)
+
+      create(:relationship_package_group, group: group, package: package)
+      create(:relationship_package_group, group: group_bugowner, package: package)
+      create(:relationship_package_user, user: user, package: package)
+
+      expect(package.maintainers).to match_array([user])
+    end
+
+    it 'returns users and the users of resolved groups' do
+      group.add_user(user)
+      group_bugowner.add_user(other_user)
+
+      create(:relationship_package_group, group: group, package: package)
+      create(:relationship_package_group, group: group_bugowner, package: package)
+      create(:relationship_package_user, user: other_user2, package: package)
+
+      expect(package.maintainers).to match_array([user, other_user, other_user2])
     end
   end
 end

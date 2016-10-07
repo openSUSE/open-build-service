@@ -43,13 +43,14 @@ class Relationship < ApplicationRecord
   scope :packages, -> { where("package_id is not null") }
   scope :groups, -> { where("group_id is not null") }
   scope :users, -> { where("user_id is not null") }
-  scope :with_users_and_roles, lambda {
-    joins(:role, :user).order('role_name, login').
-      pluck('users.login as login, roles.title AS role_name')
+  scope :with_users_and_roles_query, lambda {
+    joins(:role, :user).order('roles.title, users.login')
   }
-  scope :with_groups_and_roles, lambda {
-    joins(:role, :group).order('role_name, title').
-      pluck('groups.title as title', 'roles.title as role_name')
+  scope :with_groups_and_roles_query, lambda {
+    joins(:role, :group).order('roles.title, groups.title')
+  }
+  scope :maintainers, lambda {
+    where('roles.title' => 'maintainer')
   }
 
   # we only care for project<->user relationships, but the cache is not *that* expensive
@@ -154,6 +155,14 @@ class Relationship < ApplicationRecord
     cache_sequence = Rails.cache.read('cache_sequence_for_forbidden_projects') || 0
     Rails.cache.write('cache_sequence_for_forbidden_projects', cache_sequence + 1)
     Rails.cache.delete('forbidden_projects')
+  end
+
+  def self.with_users_and_roles
+    with_users_and_roles_query.pluck('users.login as login, roles.title AS role_name')
+  end
+
+  def self.with_groups_and_roles
+    with_groups_and_roles_query.pluck('groups.title as title', 'roles.title as role_name')
   end
 
   private

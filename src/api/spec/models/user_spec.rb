@@ -4,6 +4,7 @@ RSpec.describe User do
   let(:admin_user) { create(:admin_user, login: 'king') }
   let(:user) { create(:user, login: 'eisendieter') }
   let(:input) { { 'Event::RequestCreate' => { source_maintainer: '1' } } }
+  let(:project_with_package) { create(:project_with_package, name: 'project_b') }
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:login).with_message('must be given') }
@@ -104,7 +105,6 @@ RSpec.describe User do
 
   describe "methods used in the User's dashboard" do
     let(:project) { create(:project, name: 'project_a') }
-    let(:project_with_package) { create(:project_with_package, name: 'project_b') }
 
     it "will have involved packages" do
       create(:relationship_package_user, package: project_with_package.packages.first, user: user)
