@@ -190,7 +190,7 @@ class RequestController < ApplicationController
       xml_request.set_attribute('actions', "0")
       render xml: xml_request.dump_xml
     else
-      render text: diff_text
+      render plain: diff_text
     end
   end
 
