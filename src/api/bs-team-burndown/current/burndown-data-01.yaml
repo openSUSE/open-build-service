@@ -6,7 +6,7 @@ meta:
   - Backlog
   - Doing
   - In Review
-  total_days: 10
+  total_days: 8
   weekend_lines:
   - 3.5
   - 8.5
@@ -68,7 +68,7 @@ days:
     total: 171
     open: 89
 - date: '2016-10-07'
-  updated_at: '2016-10-07T13:38:47+02:00'
+  updated_at: '2016-10-07T17:01:52+02:00'
   story_points:
     total: 33.0
     open: 10.0
