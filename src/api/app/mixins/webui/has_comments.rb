@@ -8,10 +8,10 @@ module Webui::HasComments
 
     respond_to do |format|
       if comment.save
-        format.html { redirect_to :back, notice: 'Comment was successfully created.' }
+        format.html { redirect_back(fallback_location: root_path, notice: 'Comment was successfully created.') }
         format.json { render json: 'ok' }
       else
-        format.html { redirect_to :back, error: "Comment can't be saved: #{comment.errors.full_messages.to_sentence}." }
+        format.html { redirect_back(fallback_location: root_path, error: "Comment can't be saved: #{comment.errors.full_messages.to_sentence}.") }
         format.json { render json: comment.errors, status: :unprocessable_entity }
       end
     end

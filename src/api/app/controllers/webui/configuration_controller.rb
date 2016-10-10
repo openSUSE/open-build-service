@@ -15,7 +15,7 @@ class Webui::ConfigurationController < Webui::WebuiController
       logger.debug "New remote project with url #{@project.remoteurl}"
       redirect_to controller: :project, action: 'show', project: @project.name
     else
-      redirect_to :back, error: "Project can't be saved: #{@project.errors.full_messages.to_sentence}"
+      redirect_back(fallback_location: root_path, error: "Project can't be saved: #{@project.errors.full_messages.to_sentence}")
     end
   end
 
@@ -24,7 +24,9 @@ class Webui::ConfigurationController < Webui::WebuiController
       if @configuration.update(configuration_params)
         format.html { redirect_to configuration_path, notice: 'Configuration was successfully updated.' }
       else
-        format.html { redirect_to :back, error: "Configuration can't be saved: #{@configuration.errors.full_messages.to_sentence}" }
+        format.html do
+          redirect_back(fallback_location: root_path, error: "Configuration can't be saved: #{@configuration.errors.full_messages.to_sentence}")
+        end
       end
     end
   end

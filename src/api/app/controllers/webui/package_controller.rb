@@ -75,7 +75,7 @@ class Webui::PackageController < Webui::WebuiController
       end
     elsif @revision_parameter
       flash[:error] = "No such revision: #{@revision_parameter}"
-      redirect_back_or_to controller: :package, action: :show, project: @project, package: @package
+      redirect_back(fallback_location: {controller: :package, action: :show, project: @project, package: @package})
       return
     end
 
@@ -100,20 +100,20 @@ class Webui::PackageController < Webui::WebuiController
   def dependency
     unless Project.find_by_name(params[:dproject].to_s)
       flash[:error] = "Project '#{params[:dproject]}' is invalid."
-      redirect_back_or_to root_path
+      redirect_back(fallback_location: root_path)
       return
     end
 
     unless Architecture.archcache.include?(params[:arch])
       flash[:error] = "Architecture '#{params[:arch]}' is invalid."
-      redirect_back_or_to project_show_path(project: params[:dproject])
+      redirect_back(fallback_location: project_show_path(project: params[:dproject]))
       return
     end
     project_repositories = Project.find_by_name(params[:dproject]).repositories.pluck(:name)
     [:repository, :drepository].each do |repo_key|
       unless project_repositories.include?(params[repo_key])
         flash[:error] = "Repository '#{params[repo_key]}' is invalid."
-        redirect_back_or_to project_show_path(project: params[:dproject])
+        redirect_back(fallback_location: project_show_path(project: params[:dproject]))
         # rubocop:disable Lint/NonLocalExitFromIterator
         return
         # rubocop:enable Lint/NonLocalExitFromIterator
@@ -130,8 +130,8 @@ class Webui::PackageController < Webui::WebuiController
       :filename => params[:dname], :view => 'fileinfo_ext')
     @durl = nil
     unless @fileinfo # avoid displaying an error for non-existing packages
-      redirect_back_or_to(action: :binary, project: params[:project], package: params[:package],
-                          repository: @repository, arch: @arch, filename: @filename)
+      redirect_back(fallback_location: { action: :binary, project: params[:project], package: params[:package],
+                                         repository: @repository, arch: @arch, filename: @filename })
     end
   end
 
@@ -199,7 +199,7 @@ class Webui::PackageController < Webui::WebuiController
       :repository => @repository, :view => %w(binarylist status))
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
-      redirect_back_or_to controller: :package, action: :show, project: @project, package: @package
+      redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
       return
     end
     unless @buildresult
@@ -474,7 +474,7 @@ class Webui::PackageController < Webui::WebuiController
         @rdiff = ActiveXML.backend.direct_http URI(path + '&expand=0'), method: 'POST', timeout: 10
       rescue ActiveXML::Transport::Error => e
         flash[:error] = 'Error getting diff: ' + e.summary
-        redirect_back_or_to package_show_path(project: @project, package: @package)
+        redirect_back(fallback_location: package_show_path(project: @project, package: @package))
         return false
       end
     end
@@ -574,7 +574,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to(package_show_path(project: User.current.branch_project_name(@project), package: @package),
                   notice: 'You have already branched this package')
   rescue APIException => e
-      redirect_to :back, error: e.message
+      redirect_back(fallback_location: root_path, error: e.message)
   end
 
   def save_new_link
@@ -588,7 +588,7 @@ class Webui::PackageController < Webui::WebuiController
     else
       source_package = Package.find_by_project_and_name(params[:linked_project], params[:linked_package])
       unless source_package
-        redirect_to :back, error: "Failed to branch: Package does not exist."
+        redirect_back(fallback_location: root_path, error: "Failed to branch: Package does not exist.")
         return
       end
       authorize source_package, :branch?
@@ -599,11 +599,11 @@ class Webui::PackageController < Webui::WebuiController
     unless params[:current_revision].blank?
       dirhash = Directory.hashed(project: source_project_name, package: source_package_name)
       if dirhash['error']
-        redirect_to :back, error: dirhash['error']
+        redirect_back(fallback_location: root_path, error: dirhash['error'])
       end
       revision = dirhash['xsrcmd5'] || dirhash['rev']
       unless revision
-        redirect_to :back, error: "Failed to branch: Package has no source revision yet"
+        redirect_back(fallback_location: root_path, error: "Failed to branch: Package has no source revision yet")
         return
       end
     end
@@ -625,7 +625,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to(package_show_path(project: @project, package: params[:target_package]),
                   notice: 'You have already branched this package')
     rescue => e
-      redirect_to :back, error: "Failed to branch: #{e.message}"
+      redirect_back(fallback_location: root_path, error: "Failed to branch: #{e.message}")
     end
   end
 
@@ -735,7 +735,7 @@ class Webui::PackageController < Webui::WebuiController
         flash.now[:error] = message
         render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
       else
-        redirect_to(:back, error: message)
+        redirect_back(fallback_location: root_path, error: message)
       end
       return
     end
@@ -757,7 +757,7 @@ class Webui::PackageController < Webui::WebuiController
     @filename = params[:filename] || params[:file] || ''
     if Package.is_binary_file?(@filename) # We don't want to display binary files
       flash[:error] = "Unable to display binary file #{@filename}"
-      redirect_back_or_to action: :show, project: @project, package: @package
+      redirect_back(fallback_location: { action: :show, project: @project, package: @package })
       return
     end
     @rev = params[:rev]
@@ -784,7 +784,7 @@ class Webui::PackageController < Webui::WebuiController
       return
     rescue ActiveXML::Transport::Error => e
       flash[:error] = "Error: #{e}"
-      redirect_back_or_to action: :show, project: @project, package: @package
+      redirect_back(fallback_location: { action: :show, project: @project, package: @package })
       return
     end
     if @spider_bot
@@ -826,7 +826,7 @@ class Webui::PackageController < Webui::WebuiController
       @project = Project.get_by_name(params[:project])
     else
       flash[:error] = "Couldn't find project '#{params[:project]}'. Are you sure it still exists?"
-      redirect_to :back
+      redirect_back(fallback_location: root_path)
       return
     end
 

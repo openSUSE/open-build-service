@@ -440,12 +440,10 @@ class ApplicationController < ActionController::Base
       format.xml { render template: 'status', status: @status }
       format.json { render json: { errorcode: @errorcode, summary: @summary }, status: @status }
       format.html do
-        if request.env['HTTP_REFERER']
-          redirect_to(:back)
-        else
+        unless request.env['HTTP_REFERER']
           flash[:error] = "#{@errorcode}(#{@summary}): #{@message}"
-          redirect_to root_path
         end
+        redirect_back(fallback_location: root_path)
       end
     end
   end

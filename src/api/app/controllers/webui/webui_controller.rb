@@ -47,7 +47,7 @@ class Webui::WebuiController < ActionController::Base
       render json: { error: message }, status: 400
     else
       flash[:error] = message
-      redirect_back_or_to root_path
+      redirect_back(fallback_location: root_path)
     end
   end
 
@@ -113,15 +113,6 @@ class Webui::WebuiController < ActionController::Base
   end
 
   protected
-
-  # Same as redirect_to(:back) if there is a valid HTTP referer, otherwise redirect_to()
-  def redirect_back_or_to(options = {}, response_status = {})
-    if request.env['HTTP_REFERER']
-      redirect_to(:back)
-    else
-      redirect_to(options, response_status)
-    end
-  end
 
   # Renders a json response for jquery dataTables
   def render_json_response_for_dataTable(options)
@@ -248,7 +239,7 @@ class Webui::WebuiController < ActionController::Base
       rescue NotFoundError
         # admins can see deleted users
         @displayed_user = User.find_by_login(params['user']) if User.current and User.current.is_admin?
-        redirect_to :back, error: "User not found #{params['user']}" unless @displayed_user
+        redirect_back(fallback_location: root_path, error: "User not found #{params['user']}") unless @displayed_user
       end
     else
         @displayed_user = User.current
@@ -284,7 +275,7 @@ class Webui::WebuiController < ActionController::Base
   def require_admin
     if User.current.nil? || !User.current.is_admin?
       flash[:error] = 'Requires admin privileges'
-      redirect_back_or_to :controller => 'main', :action => 'index'
+      redirect_back(fallback_location: { :controller => 'main', :action => 'index' })
       return
     end
   end
@@ -294,7 +285,7 @@ class Webui::WebuiController < ActionController::Base
     if User.current and User.current.is_nobody?
       unless ::Configuration.anonymous
         flash[:error] = "No anonymous access. Please log in!"
-        redirect_back_or_to root_path
+        redirect_back(fallback_location: root_path)
       end
     else
       false

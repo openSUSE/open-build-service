@@ -20,7 +20,7 @@ class Webui::ArchitecturesController < Webui::WebuiController
       if all_valid
         format.html { redirect_to architectures_path, notice: 'Architectures successfully updated.' }
       else
-        format.html { redirect_to :back, error: 'Not all architectures could be saved' }
+        format.html { redirect_back(fallback_location: root_path, error: 'Not all architectures could be saved') }
       end
     end
   end
