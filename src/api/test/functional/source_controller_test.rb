@@ -60,6 +60,17 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                    :children => { :count => 2, :only => { :tag => 'entry' } }
   end
 
+  def test_post_orderkiwirepos
+    post '/source?cmd=orderkiwirepos'
+    assert_response 401
+
+    login_tom
+    post '/source?cmd=orderkiwirepos'
+    assert_response 400
+    assert_xml_tag tag: 'status', attributes: { code: "400", origin: "backend" }
+    # api handed it over to backend, enough tested here
+  end
+
   def test_get_packagelist_with_hidden_project
     login_tom
     get '/source/HiddenProject'

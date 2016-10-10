@@ -247,6 +247,7 @@ POST /source
 
   Commands on processing sources globally. Possible commands are
   branch: branch a set of packages based on attributes or on existing request
+  orderkiwirepos: sort the repositories inside of a kiwi file according to path relationships
   createmaintenanceincident: create mainatenance incident projects based on attribute search
 
 Parameters:

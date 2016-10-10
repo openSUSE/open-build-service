@@ -48,7 +48,7 @@ class SourceController < ApplicationController
 
   # POST /source
   def global_command
-    unless %w(createmaintenanceincident branch).include? params[:cmd]
+    unless %w(createmaintenanceincident branch orderkiwirepos).include? params[:cmd]
       raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
     dispatch_command(:global_command, params[:cmd])
@@ -891,6 +891,11 @@ class SourceController < ApplicationController
   # POST /source?cmd=branch (aka osc mbranch)
   def global_command_branch
     private_branch_command
+  end
+
+  # POST /source?cmd=orderkiwirepos
+  def global_command_orderkiwirepos
+    pass_to_backend
   end
 
   # create a id collection of all projects doing a project link to this one
