@@ -4,6 +4,8 @@
 # Be verbose and fail script on the first error
 set -xe
 
+TEST_SUITE="$1"
+
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C5C219E7
 
 # Install updates from our own repository
@@ -17,3 +19,7 @@ sudo apt-get update
 
 # Install the dependencies of the backend
 sudo apt-get install --force-yes travis-deps libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2 createrepo libbssolv-perl sphinxsearch libjson-xs-perl libxml-simple-perl libgd-gd2-perl
+
+if [ "$TEST_SUITE" == "backend" ]; then
+  sudo apt-get install --force-yes libdevel-cover-perl
+fi

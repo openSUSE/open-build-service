@@ -35,11 +35,19 @@ if test -z "$SUBTEST"; then
     rspec)
       bundle exec rspec
       ;;
+    backend)
+      pushd ../backend
+      bundle exec make test_unit
+      popd
+      ;;
     *)
       bundle exec rails rubocop
       bundle exec rails test:api
       bundle exec rails test:webui
       bundle exec rspec
+      pushd ../backend
+      bundle exec make test_unit
+      popd
       unset DO_COVERAGE
       bundle exec rails test:spider
       ;;

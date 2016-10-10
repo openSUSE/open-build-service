@@ -2,7 +2,7 @@ language: ruby
 cache: bundler
 rvm: 2.3.0
 gemfile: src/api/Gemfile
-before_install: dist/ci/obs_testsuite_travis_install.sh
+before_install: "dist/ci/obs_testsuite_travis_install.sh $TEST_SUITE"
 before_script: dist/ci/obs_testsuite_travis_before.sh
 after_failure: dist/ci/obs_testsuite_travis_failure.sh
 script: "dist/ci/obs_testsuite_travis.sh $TEST_SUITE"
@@ -12,6 +12,7 @@ env:
   - TEST_SUITE=webui
   - TEST_SUITE=spider
   - TEST_SUITE=rspec
+  - TEST_SUITE=backend
 matrix:
   fast_finish: true
 notifications:
