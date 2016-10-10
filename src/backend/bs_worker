@@ -761,7 +761,7 @@ sub send_state {
     };
     if ($state eq 'idle') {
       $param->{'request'} = 'POST';
-      $param->{'data'} = BSUtil::toxml($workerinfo, $BSXML::worker);
+      $param->{'data'} = BSUtil::toxml({ %$workerinfo, 'registerserver' => $server}, $BSXML::worker);
     }
     eval {
       BSRPC::rpc($param, undef, @args);
@@ -3151,7 +3151,7 @@ sub startbuild {
   $buildinfo->{'nobadhost'} = $cgi->{'nobadhost'} if $cgi->{'nobadhost'};
 
   # make the BSServer::server() call return
-  $BSServer::request->{'returnfromserver'} = [$state, $buildinfo];
+  $BSServer::request->{'returnfromserver'} = [$state, $buildinfo, $cgi->{'registerserver'}];
 
   return ("<status code=\"failed\">\n  <details>testmode activated</details>\n</status>\n", 'Status: 400 Testmode', 'Content-Type: text/xml') if $testmode;
   return "<status code=\"ok\">\n  <details>so much work, so little time...</details>\n</status>\n";
@@ -3330,7 +3330,7 @@ my $dispatches = [
   '/logfile $jobid:? nostream:? start:? end:? view:?' => \&getlogfile,
   '/kill $jobid:?' => \&killjob,
   '/discard $jobid:?' => \&discardjob,
-  'PUT:/build $jobid:? buildcode:? workercode:? port:? nobadhost:? *:?' => \&startbuild,
+  'PUT:/build $jobid:? buildcode:? workercode:? port:? registerserver:? nobadhost:? *:?' => \&startbuild,
 ];
 
 my $conf = {
@@ -3348,7 +3348,7 @@ $conf->{'dispatch'} ||= \&BSDispatch::dispatch;
 
 # run the server, this will return only for /build requests
 # see returnfromserver setting above
-my ($state, $buildinfo) = BSServer::server($conf);
+my ($state, $buildinfo, $registerserver) = BSServer::server($conf);
 
 print "got job, run build...\n";
 BSServer::done(1);
@@ -3364,7 +3364,7 @@ $state->{'pid'} = $$;
 commitstate($state);
 
 hardstatus("$buildinfo->{'arch'} $buildinfo->{'package'}");
-send_state('building', $port, $hostarch, $buildinfo->{'reposerver'});
+send_state('building', $port, $hostarch, $registerserver || $buildinfo->{'reposerver'});
 
 my $ex;
 eval {

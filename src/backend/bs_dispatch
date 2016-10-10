@@ -249,6 +249,7 @@ sub assignjob {
   $worker->{'hardware'}->{'nativeonly'} = undef if $worker->{'hardware'} && exists($worker->{'hardware'}->{'nativeonly'});
 
   my @args = ("port=$port", "workercode=$workercode", "buildcode=$buildcode");
+  push @args, "registerserver=$worker->{'registerserver'}" if $worker->{'registerserver'};
   my $attempt = 0;
   if ($badhost{"$info->{'arch'}/$job"}) {
     my $id = "$info->{'arch'}/$job";
@@ -286,10 +287,12 @@ sub assignjob {
     if ($err =~ /bad job/) {
       return 'badjob';
     }
-    unlink("$workersdir/idle/$idlename");	# broken client or rebooting
+    mkdir_p("$workersdir/dead");
+    rename("$workersdir/idle/$idlename", "$workersdir/dead/$idlename");	# broken client or rebooting
     return undef;
   }
   unlink("$workersdir/idle/$idlename");	# no longer idle
+  unlink("$workersdir/dead/$idlename") if -e "$workersdir/dead/$idlename"; #no longer dead
   $jobstatus->{'code'} = 'building';
   $jobstatus->{'uri'} = "http://$worker->{'ip'}:$worker->{'port'}";
   $jobstatus->{'workerid'} = $worker->{'workerid'} if defined $worker->{'workerid'};
