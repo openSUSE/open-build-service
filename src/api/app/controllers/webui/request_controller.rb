@@ -433,7 +433,7 @@ class Webui::RequestController < Webui::WebuiController
         flash[:notice] = "Set target of request #{req.number} to incident #{params[:incident_project]}"
       rescue Project::UnknownObjectError => e
         flash[:error] = "Incident #{e.message} does not exist"
-      rescue APIExcetion => e
+      rescue APIException => e
         flash[:error] = "Not able to set incident: #{e.message}"
       end
     end
