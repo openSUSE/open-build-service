@@ -69,10 +69,6 @@ our $servicedir = "/usr/lib/obs/service/";
 #our $notification_plugin = "notify_hermes notify_rabbitmq";
 #
 
-# For the workers only, it is possible to define multiple repository servers here.
-# But only one source server is possible yet.
-our @reposervers = ("http://$hostname:5252");
-
 # Package defaults
 our $bsdir = '/srv/obs';
 our $bsuser = 'obsrun';
