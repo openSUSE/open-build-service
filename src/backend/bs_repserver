@@ -971,11 +971,11 @@ sub getlogfile {
     # no longer building, use local logfile
   }
   my $logfile = "$reporoot/$projid/$repoid/$arch/$packid/logfile";
-  if ($jobstatus && $jobstatus->{'code'} && ($jobstatus->{'code'} eq 'finished'||$jobstatus->{'code'} eq 'signing')) {
+  if ($jobstatus && $jobstatus->{'code'} && ($jobstatus->{'code'} eq 'finished' || $jobstatus->{'code'} eq 'signing')) {
     $logfile = "$jobsdir/$arch/$status->{'job'}:dir/logfile";
   }
   my @s = stat($logfile);
-  die("$packid: no logfile\n") unless @s;
+  die("404 package '$packid' has no logfile\n") unless @s;
   if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
     my $entry = {'name' => '_log', 'size' => $s[7], 'mtime' => $s[9]};
     return ({'entry' => [ $entry ]}, $BSXML::dir);
