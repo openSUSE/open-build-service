@@ -3,6 +3,7 @@ class PublicController < ApplicationController
 
   # we need to fall back to _nobody_ (_public_)
   before_action :extract_user_public
+  before_action :remove_format_parameter, only: [:build, :project_index, :project_file, :package_index]
   skip_before_action :extract_user
   skip_before_action :require_login
 
@@ -54,7 +55,7 @@ class PublicController < ApplicationController
     Project.get_by_name(params[:project])
 
     path = unshift_public(request.path_info)
-    path += "?#{request.query_string}" unless request.query_string.empty?
+    path += "?#{request.query_parameters.to_query}" unless request.query_parameters.empty?
 
     pass_to_backend path
   end
@@ -91,7 +92,7 @@ class PublicController < ApplicationController
         return
       end
       # path has multiple package= parameters
-      path += '?' + request.query_string
+      path += "?#{request.query_parameters.to_query}"
       path += '&nofilename=1' unless params[:nofilename]
     elsif params[:view] == 'verboseproductlist'
       @products = Product.all_products(@project, params[:expand])
@@ -114,7 +115,7 @@ class PublicController < ApplicationController
     Project.get_by_name(params[:project])
 
     path = unshift_public(request.path_info)
-    path += "?#{request.query_string}" unless request.query_string.empty?
+    path += "?#{request.query_parameters.to_query}" unless request.query_parameters.empty?
     pass_to_backend path
   end
 
@@ -123,7 +124,7 @@ class PublicController < ApplicationController
     check_package_access(params[:project], params[:package])
 
     path = unshift_public(request.path_info)
-    path += "?#{request.query_string}" unless request.query_string.empty?
+    path += "?#{request.query_parameters.to_query}" unless request.query_parameters.empty?
     pass_to_backend path
   end
 
@@ -227,5 +228,9 @@ class PublicController < ApplicationController
     else
       return path
     end
+  end
+
+  def remove_format_parameter
+    request.query_parameters.except!(:format)
   end
 end
