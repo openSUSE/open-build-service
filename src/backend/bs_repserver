@@ -1285,7 +1285,8 @@ sub workerstate {
   my $idlename = "$harch:$workerid";
   $idlename =~ s/\//_/g;
   if ($state eq 'building' || $state eq 'exit') {
-    unlink("$workersdir/idle/$idlename");
+    mkdir_p("$workersdir/away");
+    rename("$workersdir/idle/$idlename", "$workersdir/away/$idlename");
   } elsif ($state eq 'idle') {
     if (-e "$workersdir/building/$idlename") {
       # worker must have crashed, discard old job...
@@ -1314,6 +1315,8 @@ sub workerstate {
       }
     }
     unlink("$workersdir/building/$idlename");
+    unlink("$workersdir/away/$idlename");
+    unlink("$workersdir/dead/$idlename");
 
     # make sure that we can connect to the client
     if ($BSConfig::checkclientconnectivity || $BSConfig::checkclientconnectivity) {

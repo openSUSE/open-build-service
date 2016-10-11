@@ -122,6 +122,7 @@ while (1) {
 	eval {
 	  BSRPC::rpc($param, undef, 'cmd=idleworker', "workerid=$worker->{'workerid'}", "jobid=$js->{'jobid'}");
 	  unlink("$workersdir/building/$wname");
+	  unlink("$workersdir/away/$wname");
 	  delete $building{$wname};
 	};
 	warn($@) if $@;
