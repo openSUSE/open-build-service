@@ -42,6 +42,13 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     opts[:updateinfoIDs] = release_package(pkg, Project.get_by_name(self.target_project), self.target_package, nil, self)
     opts[:projectCommit] ||= {}
     opts[:projectCommit][self.target_project] = self.source_project
+
+    # lock project when last package is released
+    return if pkg.project.is_locked?
+    f = pkg.project.flags.find_by_flag_and_status('lock', 'disable')
+    pkg.project.flags.delete(f) if f # remove possible existing disable lock flag
+    pkg.project.flags.create(:status => 'enable', :flag => 'lock')
+    pkg.project.store(comment: "maintenance_release request accepted")
   end
 
   def per_request_cleanup(opts)
@@ -148,6 +155,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     object = nil
     spkg = Package.find_by_project_and_name self.source_project, self.source_package
     if opts[:per_package_locking]
+      # we avoid patchinfo's to be able to complete meta data about the update
+      return if spkg.is_patchinfo?
       object = spkg
     else
       # Workaround: In rails 5 'spkg.project' started to return a readonly object

@@ -2,6 +2,7 @@
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/MethodLength
+# rubocop:disable Metrics/ClassLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
@@ -1255,7 +1256,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_no_xml_tag( :tag => 'source', :attributes => { rev: nil } )
+    assert_no_xml_tag( :tag => 'source', :attributes => { package: 'pack2.0', rev: nil } )
+    assert_no_xml_tag( :tag => 'source', :attributes => { package: 'pack2.linked.0', rev: nil } )
+    assert_xml_tag( :tag => 'source', :attributes => { package: 'patchinfo', rev: nil } )
     assert_no_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro2.0' } ) # BaseDistro2 has an update project, nothing should go to GA project
     assert_no_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2' } )
     assert_no_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro3', package: 'pack2' } )
@@ -1301,10 +1304,20 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # source project got locked?
     get "/source/#{incidentProject}/_meta"
     assert_response :success
-    assert_xml_tag( :parent => { tag: 'lock' }, :tag => 'enable')
+    assert_xml_tag( :parent => { tag: 'lock' }, :tag => 'disable')
     assert_xml_tag( :parent => { tag: 'access' }, :tag => 'disable', :content => nil ) # but still not out there
     assert_no_xml_tag( :parent => { tag: 'publish' } )
-    assert_no_xml_tag( :parent => { tag: 'lock' }, :tag => 'disable') # disable got removed
+    # packages are locked
+    ['pack2.BaseDistro2.0_LinkedUpdateProject',
+     'pack2.BaseDistro3',
+     'pack2.linked.BaseDistro2.0_LinkedUpdateProject',
+     'packNew.BaseDistro2.0_LinkedUpdateProject'].each do |pkg|
+      get "/source/#{incidentProject}/#{pkg}/_meta"
+      assert_xml_tag( :parent => { tag: 'lock' }, :tag => 'enable')
+    end
+    # patchinfo not
+    get "/source/#{incidentProject}/patchinfo/_meta"
+    assert_no_xml_tag( :parent => { tag: 'lock' }, :tag => 'enable')
 
     # incident project not visible for tom
     login_tom
@@ -1320,7 +1333,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_adrian
     post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_incident">
-                                     <source project="kde4" package="kdelibs" />
+                                     <source project="BaseDistro3" package="pack2" />
                                      <target project="' + incidentProject + '" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
                                    </action>
                                    <state name="new" />
@@ -1433,7 +1446,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # validate result
     get "/source/#{incidentProject}/_meta"
     assert_response :success
-    assert_xml_tag( :parent => { tag: 'lock' }, :tag => 'enable') # still locked
+    assert_xml_tag( :parent => { tag: 'lock' }, :tag => 'enable') # got locked
     assert_no_xml_tag( :parent => { tag: 'access' }, :tag => 'disable', :content => nil ) # got published, so access got enabled
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_response :success

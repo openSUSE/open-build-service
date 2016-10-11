@@ -1,3 +1,6 @@
+# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength
+
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
@@ -321,7 +324,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_no_xml_tag( :tag => 'source', :attributes => { rev: nil } )
+    assert_no_xml_tag( :tag => 'source', :attributes => { package: 'BaseDistro2.Channel', rev: nil } )
+    assert_no_xml_tag( :tag => 'source', :attributes => { package: 'kgraft-GA.BaseDistro2.0', rev: nil } )
+    assert_xml_tag( :tag => 'source', :attributes => { package: 'patchinfo', rev: nil } )
     # GM project may be locked, must not appear
     assert_no_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro2.0' } )
     assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "maintenance_release" } },
