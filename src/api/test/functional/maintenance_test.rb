@@ -1,6 +1,5 @@
 # rubocop:disable Metrics/LineLength
 # rubocop:disable Metrics/AbcSize
-# rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Metrics/ClassLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
