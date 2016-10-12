@@ -2261,6 +2261,7 @@ sub getresult {
     $sl->{'details'} = $schedulerdetails if defined $schedulerdetails;
     $sl->{'dirty'} = 'true' if -e "$reporoot/$prpa/:schedulerstate.dirty";
     $sl->{'dirty'} = 'true' if $schedulerstate eq 'scheduling'; # flag already removed, but new state not yet written
+    $state .= "$schedulerstate\0\0";
     fixpackstatus($prpa, $ps, \%buildingjobs, %code ? \%code : undef) unless $cgi->{'lastbuild'};
     for my $packid (sort(keys %{$ps->{'packstatus'} || {}})) {
       my $code = $ps->{'packstatus'}->{$packid};
@@ -2275,7 +2276,6 @@ sub getresult {
       }
       next if %code && !$code{$code};
       $state .= "$packid\0$code\0";
-      $state .= "$sl->{'state'}\0$sl->{'code'}\0";
       if ($cgi->{'summary'}) {
         $sum{$code} = ($sum{$code} || 0) + 1;
       } else {
