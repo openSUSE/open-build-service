@@ -1287,10 +1287,11 @@ sub workerstate {
   if ($state eq 'building') {
     mkdir_p("$workersdir/away");
     rename("$workersdir/idle/$idlename", "$workersdir/away/$idlename");
+    unlink("$workersdir/down/$idlename");
     unlink("$workersdir/dead/$idlename");
   } elsif ($state eq 'exit') {
-    mkdir_p("$workersdir/dead");
-    rename("$workersdir/idle/$idlename", "$workersdir/dead/$idlename");
+    mkdir_p("$workersdir/down");
+    rename("$workersdir/idle/$idlename", "$workersdir/down/$idlename");
     unlink("$workersdir/away/$idlename");
   } elsif ($state eq 'idle') {
     if (-e "$workersdir/building/$idlename") {
@@ -1321,6 +1322,7 @@ sub workerstate {
     }
     unlink("$workersdir/building/$idlename");
     unlink("$workersdir/away/$idlename");
+    unlink("$workersdir/down/$idlename");
     unlink("$workersdir/dead/$idlename");
 
     # make sure that we can connect to the client

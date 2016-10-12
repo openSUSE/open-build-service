@@ -287,12 +287,13 @@ sub assignjob {
     if ($err =~ /bad job/) {
       return 'badjob';
     }
-    mkdir_p("$workersdir/dead");
-    rename("$workersdir/idle/$idlename", "$workersdir/dead/$idlename");	# broken client or rebooting
+    mkdir_p("$workersdir/down");
+    rename("$workersdir/idle/$idlename", "$workersdir/down/$idlename");	# broken client or rebooting
     return undef;
   }
   unlink("$workersdir/idle/$idlename");	# no longer idle
-  unlink("$workersdir/dead/$idlename") if -e "$workersdir/dead/$idlename"; #no longer dead
+  unlink("$workersdir/down/$idlename");
+  unlink("$workersdir/dead/$idlename");
   $jobstatus->{'code'} = 'building';
   $jobstatus->{'uri'} = "http://$worker->{'ip'}:$worker->{'port'}";
   $jobstatus->{'workerid'} = $worker->{'workerid'} if defined $worker->{'workerid'};
