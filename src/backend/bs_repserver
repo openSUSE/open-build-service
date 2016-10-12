@@ -1284,9 +1284,14 @@ sub workerstate {
   }
   my $idlename = "$harch:$workerid";
   $idlename =~ s/\//_/g;
-  if ($state eq 'building' || $state eq 'exit') {
+  if ($state eq 'building') {
     mkdir_p("$workersdir/away");
     rename("$workersdir/idle/$idlename", "$workersdir/away/$idlename");
+    unlink("$workersdir/dead/$idlename");
+  } elsif ($state eq 'exit') {
+    mkdir_p("$workersdir/dead");
+    rename("$workersdir/idle/$idlename", "$workersdir/dead/$idlename");
+    unlink("$workersdir/away/$idlename");
   } elsif ($state eq 'idle') {
     if (-e "$workersdir/building/$idlename") {
       # worker must have crashed, discard old job...

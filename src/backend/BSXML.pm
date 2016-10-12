@@ -734,7 +734,7 @@ our $worker = [
 	'hostarch',
 	'ip',
 	'port',
-        'registerserver',
+	'registerserver',
 	'workerid',
       [ 'buildarch' ],
       [ 'hostlabel' ],

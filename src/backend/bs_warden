@@ -112,6 +112,7 @@ while (1) {
     };
     if ($@) {
       warn($@);
+      # worker is down or doing something weird.
       if ($worker->{'reposerver'}) {
 	BSUtil::printlog("restarting build of $arch/$job building on $js->{'workerid'}");
 	my $param = {
@@ -121,8 +122,8 @@ while (1) {
 	};
 	eval {
 	  BSRPC::rpc($param, undef, 'cmd=idleworker', "workerid=$worker->{'workerid'}", "jobid=$js->{'jobid'}");
-	  unlink("$workersdir/building/$wname");
-	  unlink("$workersdir/away/$wname");
+	  mkdir_p("$workersdir/dead");
+	  rename("$workersdir/building/$wname", "$workersdir/dead/$wname");
 	  delete $building{$wname};
 	};
 	warn($@) if $@;
@@ -136,7 +137,8 @@ while (1) {
 	}
 	BSUtil::printlog("restarting build of $arch/$job building on $js->{'workerid'}");
 	unlink("$jobsdir/$arch/$job:status");
-        unlink("$workersdir/building/$wname");
+	mkdir_p("$workersdir/dead");
+	rename("$workersdir/building/$wname", "$workersdir/dead/$wname");
         delete $building{$wname};
         close F;
       }
