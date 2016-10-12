@@ -2275,6 +2275,7 @@ sub getresult {
       }
       next if %code && !$code{$code};
       $state .= "$packid\0$code\0";
+      $state .= "$sl->{'state'}\0$sl->{'code'}\0";
       if ($cgi->{'summary'}) {
         $sum{$code} = ($sum{$code} || 0) + 1;
       } else {
