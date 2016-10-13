@@ -8,6 +8,7 @@ FactoryGirl.define do
       # ensure the backend knows the project
       if CONFIG['global_write_through']
         Suse::Backend.put("/source/#{CGI.escape(project.name)}/_meta", project.to_axml)
+        Suse::Backend.put("/source/#{CGI.escape(project.name)}/_config", Faker::Lorem.paragraph)
       end
     end
 
