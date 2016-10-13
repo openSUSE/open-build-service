@@ -196,8 +196,8 @@ class Webui::WebuiController < ActionController::Base
   def lockout_spiders
     check_spiders
     if @spider_bot
-       render :nothing => true
-       return true
+      head :ok
+      return true
     end
     return false
   end
