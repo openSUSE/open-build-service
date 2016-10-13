@@ -143,7 +143,7 @@ sub check {
       if ($code eq 'excluded') {
         next;
       }
-      if ($code ne 'done' && $code ne 'disabled') {
+      if ($code ne 'done' && $code ne 'disabled' && $code ne 'locked') {
         $blocked = 1;
         last;
       }
@@ -224,7 +224,7 @@ sub check {
       my $code = $apackstatus->{$apackid} || '';
       next if $code eq 'excluded';
       $enabled_seen = 1 unless $code eq 'disabled';
-      if ($code ne 'done' && $code ne 'disabled') {
+      if ($code ne 'done' && $code ne 'disabled' && $code ne 'locked') {
         $blockedarch = 1;
         push @blocked, "$arch/$apackid";
         next;
