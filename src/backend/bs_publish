@@ -2312,7 +2312,7 @@ sub publishevent {
     clear_repoinfo_state($prp);
     set_publish_retry($req, time() + 60);
     db_sync();
-    BSUtil::printlog("pushlish failed for $prp") if $req->{'forked'};
+    BSUtil::printlog("publish failed for $prp") if $req->{'forked'};
     return 0;
   }
 
@@ -2322,7 +2322,7 @@ sub publishevent {
   writepublishtimeevent($projid, $repoid, $now, $now - $starttime) if $req->{'forked'};
   notify_state($projid, $repoid, 'published');
   db_sync();
-  BSUtil::printlog("pushlish done for $prp") if $req->{'forked'};
+  BSUtil::printlog("publish done for $prp") if $req->{'forked'};
   return 1;
 }
 
