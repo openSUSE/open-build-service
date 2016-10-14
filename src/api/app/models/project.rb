@@ -527,18 +527,18 @@ class Project < ActiveRecord::Base
 
     # check for raising read access permissions, which can't get ensured atm
     unless self.new_record? || self.disabled_for?('access', nil, nil)
-      if FlagHelper.xml_disabled_for?(xmlhash, 'access')
+      if FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.current.is_admin?
         raise ForbiddenError.new
       end
     end
     unless self.new_record? || self.disabled_for?('sourceaccess', nil, nil)
-      if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess')
+      if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.current.is_admin?
         raise ForbiddenError.new
       end
     end
     new_record = self.new_record?
-    if ::Configuration.default_access_disabled == true and not new_record
-      if self.disabled_for?('access', nil, nil) and not FlagHelper.xml_disabled_for?(xmlhash, 'access')
+    if ::Configuration.default_access_disabled == true && !new_record
+      if self.disabled_for?('access', nil, nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.current.is_admin?
         raise ForbiddenError.new
       end
     end
