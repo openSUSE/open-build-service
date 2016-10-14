@@ -689,7 +689,7 @@ class SourceController < ApplicationController
       end
 
       if pkg && !pkg.disabled_for?('sourceaccess', nil, nil)
-        if FlagHelper.xml_disabled_for?(rdata, 'sourceaccess')
+        if FlagHelper.xml_disabled_for?(rdata, 'sourceaccess') && !User.current.is_admin?
           render_error status: 403, errorcode: 'change_package_protection_level',
                        message: 'admin rights are required to raise the protection level of a package'
           return
