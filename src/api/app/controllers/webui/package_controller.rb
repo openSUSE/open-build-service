@@ -411,8 +411,7 @@ class Webui::PackageController < Webui::WebuiController
         return set_file_details
       end
       if @expand == 1
-        @forced_unexpand = e.summary
-        @forced_unexpand = e.details if e.details
+        @forced_unexpand = e.details || e.summary
         @expand = 0
         return set_file_details
       end
