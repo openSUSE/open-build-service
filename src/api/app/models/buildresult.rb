@@ -36,6 +36,7 @@ class Buildresult < ActiveXML::Node
       disabled:     "The package has been disabled from building in project or package metadata.",
       excluded:     "The package build has been disabled in package build description (for example in the .spec file) or " +
                     "does not provide a matching build description for the target.",
+      locked:       "The package is frozen",
       unknown:      "The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages."
   }.with_indifferent_access
 
