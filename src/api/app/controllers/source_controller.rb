@@ -19,8 +19,8 @@ class SourceController < ApplicationController
   validate_action update_project_meta: { request: :project, response: :status}
   validate_action update_package_meta: { request: :package, response: :status}
 
-  skip_before_action :extract_user, only: [:lastevents_public]
-  skip_before_action :require_login, only: [:lastevents_public]
+  skip_before_action :extract_user, only: [:lastevents_public, :global_command_orderkiwirepos]
+  skip_before_action :require_login, only: [:lastevents_public, :global_command_orderkiwirepos]
 
   before_action :require_valid_project_name, except: [ :index, :lastevents, :lastevents_public,
                                                        :global_command_orderkiwirepos, :global_command_branch,

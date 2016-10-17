@@ -70,7 +70,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_anonymous_access_for_global_commands
     post '/source?cmd=orderkiwirepos'
-    assert_response 401
+    # anonymous access allowed here, just forwarding the request to backend fails
+    assert_response 400
 
     post '/source?cmd=createmaintenanceincident'
     assert_response 401
