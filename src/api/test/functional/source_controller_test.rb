@@ -60,7 +60,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                    :children => { :count => 2, :only => { :tag => 'entry' } }
   end
 
-  def test_post_orderkiwirepos
+  def test_post_orderkiwirepos # spec/controllers/source_controller_spec.rb
     login_tom
     post '/source?cmd=orderkiwirepos'
     assert_response 400
