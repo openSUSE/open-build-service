@@ -66,6 +66,7 @@ our %event_handlers = (
   'configuration'   => \&BSSched::EventHandler::event_configuration,
   'suspendproject'  => \&BSSched::EventHandler::event_suspendproject,
   'memstats'        => \&BSSched::EventHandler::event_memstats,
+  'dispatchdetails' => \&BSSched::EventHandler::event_dispatchdetails,
 );
 
 =head1 NAME
@@ -610,6 +611,21 @@ sub event_memstats {
   };
   warn($@) if $@;
   %$gctx = %gctx;
+}
+
+sub event_dispatchdetails {
+  my ($ectx, $ev) = @_;
+  my $gctx = $ectx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
+  my $myjobsdir = $gctx->{'myjobsdir'};
+  my $reporoot = $gctx->{'reporoot'};
+  my $info = readxml("$myjobsdir/$ev->{'job'}", $BSXML::buildinfo, 1);
+  return unless $info;
+  return if -e "$myjobsdir/$ev->{'job'}:status";
+  my $job = $ev->{'job'};
+  $job =~ s/.*\///;
+  my $gdst = "$reporoot/$info->{'project'}/$info->{'repository'}/$myarch";
+  BSUtil::appendstr("$gdst/:packstatus.finished", "scheduled $info->{'package'}/$job/$ev->{'details'}\n");
 }
 
 1;
