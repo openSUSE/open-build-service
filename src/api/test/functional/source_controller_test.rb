@@ -61,14 +61,22 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_post_orderkiwirepos
-    post '/source?cmd=orderkiwirepos'
-    assert_response 401
-
     login_tom
     post '/source?cmd=orderkiwirepos'
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: "400", origin: "backend" }
     # api handed it over to backend, enough tested here
+  end
+
+  def test_anonymous_access_for_global_commands
+    post '/source?cmd=orderkiwirepos'
+    assert_response 401
+
+    post '/source?cmd=createmaintenanceincident'
+    assert_response 401
+
+    post '/source/kde4?cmd=branch'
+    assert_response 401
   end
 
   def test_get_packagelist_with_hidden_project
