@@ -60,7 +60,7 @@ class Webui::SearchController < Webui::WebuiController
         redirect_to controller: 'package', action: 'show', project: disturl_project, package: disturl_package, rev: disturl_rev
         return
       else
-        redirect_to :back, notice: 'Sorry, this disturl does not compute...'
+        redirect_back(fallback_location: root_path, notice: 'Sorry, this disturl does not compute...')
         return
       end
     end

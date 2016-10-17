@@ -53,7 +53,7 @@ class Webui::AttributeController < Webui::WebuiController
                     notice: 'Attribute was successfully created.'
       end
     else
-      redirect_to :back, error: "Saving attribute failed: #{@attribute.errors.full_messages.join(', ')}"
+      redirect_back(fallback_location: root_path, error: "Saving attribute failed: #{@attribute.errors.full_messages.join(', ')}")
     end
   end
 
@@ -64,7 +64,7 @@ class Webui::AttributeController < Webui::WebuiController
       redirect_to edit_attribs_path(:project => @attribute.project.to_s, :package => @attribute.package.to_s, :attribute => @attribute.fullname),
                   notice: 'Attribute was successfully updated.'
     else
-      redirect_to :back, error: "Updating attribute failed: #{@attribute.errors.full_messages.join(', ')}"
+      redirect_back(fallback_location: root_path, error: "Updating attribute failed: #{@attribute.errors.full_messages.join(', ')}" )
     end
   end
 
@@ -72,7 +72,7 @@ class Webui::AttributeController < Webui::WebuiController
     authorize @attribute
 
     @attribute.destroy
-    redirect_to :back, notice: 'Attribute sucessfully deleted!'
+    redirect_back(fallback_location: root_path, notice: 'Attribute sucessfully deleted!')
   end
 
   private

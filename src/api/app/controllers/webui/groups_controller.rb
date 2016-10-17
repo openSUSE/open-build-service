@@ -32,7 +32,7 @@ class Webui::GroupsController < Webui::WebuiController
       flash[:success] = "Group '#{group.title}' successfully updated."
       redirect_to controller: :groups, action: :index
     else
-      redirect_to :back, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}"
+      redirect_back(fallback_location: root_path, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}")
     end
   end
 
@@ -43,7 +43,7 @@ class Webui::GroupsController < Webui::WebuiController
       flash[:success] = "Group '#{@group.title}' successfully updated."
       redirect_to controller: :groups, action: :index
     else
-      redirect_to :back, error: "Group can't be saved: #{@group.errors.full_messages.to_sentence}"
+      redirect_back(fallback_location: root_path, error: "Group can't be saved: #{@group.errors.full_messages.to_sentence}")
     end
   end
 
@@ -72,7 +72,7 @@ class Webui::GroupsController < Webui::WebuiController
     # Group.find_by_title! is self implemented and would raise an 500 error
     unless @group
       flash[:error] = "Group '#{params[:title]}' does not exist"
-      redirect_back_or_to controller: 'main', action: 'index'
+      redirect_back(fallback_location: {controller: 'main', action: 'index'})
     end
   end
 end

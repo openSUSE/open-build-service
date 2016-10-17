@@ -136,7 +136,7 @@ class Webui::ProjectController < Webui::WebuiController
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = e.message
-      redirect_back_or_to :action => 'show', :project => params[:project] and return
+      redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
     end
     redirect_to :action => 'show', :project => params[:project]
   end
@@ -173,10 +173,10 @@ class Webui::ProjectController < Webui::WebuiController
              BsRequestAction::UnknownTargetProject,
              BsRequestAction::UnknownTargetPackage => e
         flash[:error] = e.message
-        redirect_back_or_to :action => 'show', :project => params[:project] and return
+        redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
       rescue APIException
         flash[:error] = 'Internal problem while release request creation'
-        redirect_back_or_to :action => 'show', :project => params[:project] and return
+        redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
       end
     end
     redirect_to :action => 'show', :project => params[:project]
@@ -350,7 +350,7 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to :action => 'show', :project => @project.name
     else
       flash[:error] = "Failed to save project '#{@project}'. #{@project.errors.full_messages.to_sentence}."
-      redirect_to :back
+      redirect_back(fallback_location: root_path)
     end
   end
 
@@ -406,7 +406,7 @@ class Webui::ProjectController < Webui::WebuiController
       @project.store
       redirect_to({ action: :index, controller: :repositories, project: @project }, success: "Successfully removed path")
     else
-      redirect_to :back, error: "Can not remove path: #{@project.errors.full_messages.to_sentence}"
+      redirect_back(fallback_location: root_path, error: "Can not remove path: #{@project.errors.full_messages.to_sentence}")
     end
   end
 
@@ -534,7 +534,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     if request.env['HTTP_REFERER']
-      redirect_to :back
+      redirect_back(fallback_location: root_path)
     else
       redirect_to :action => :show, :project => @project
     end
@@ -705,7 +705,7 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to({action: 'maintained_projects', project: @project}, notice: "Added #{params[:maintained_project]} to maintenance")
     else
       # TODO: Better redirect to the project (maintained project tab), where the user actually came from
-      redirect_to(:back, error: "Failed to add #{params[:maintained_project]} to maintenance")
+      redirect_back(fallback_location: root_path, error: "Failed to add #{params[:maintained_project]} to maintenance")
     end
   end
 
@@ -716,7 +716,7 @@ class Webui::ProjectController < Webui::WebuiController
       @project.store
       redirect_to({:action => 'maintained_projects', :project => @project}, notice: "Removed #{@maintained_project} from maintenance")
     else
-      redirect_to :back, error: "Failed to remove #{@maintained_project} from maintenance"
+      redirect_back(fallback_location: root_path, error: "Failed to remove #{@maintained_project} from maintenance")
     end
   end
 
@@ -789,7 +789,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def require_maintenance_project
     unless @is_maintenance_project
-      redirect_back_or_to :action => 'show', :project => @project
+      redirect_back(fallback_location: { action: 'show', project: @project })
       return false
     end
     return true
