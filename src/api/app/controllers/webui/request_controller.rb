@@ -87,7 +87,7 @@ class Webui::RequestController < Webui::WebuiController
     @bsreq = BsRequest.find_by_number(params[:number])
     unless @bsreq
       flash[:error] = "Can't find request #{params[:number]}"
-      redirect_back(fallback_location: user_show_path(User.current)) and return
+      redirect_back(fallback_location: user_show_path(User.current)) && return
     end
 
     @req = @bsreq.webui_infos
@@ -151,7 +151,7 @@ class Webui::RequestController < Webui::WebuiController
     @req = BsRequest.find_by_number params[:number]
     unless @req
       flash[:error] = "Can't find request #{params[:number]}"
-      redirect_back(fallback_location: user_show_path(User.current)) and return
+      redirect_back(fallback_location: user_show_path(User.current)) && return
     end
   end
 
@@ -159,7 +159,7 @@ class Webui::RequestController < Webui::WebuiController
     @req = BsRequest.find_by_number(params[:number])
     unless @req
       flash[:error] = "Can't find request #{params[:number]}"
-      redirect_back(fallback_location: user_show_path(User.current)) and return
+      redirect_back(fallback_location: user_show_path(User.current)) && return
     end
 
     changestate = nil

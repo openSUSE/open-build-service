@@ -107,7 +107,7 @@ class Webui::UserController < Webui::WebuiController
     unless User.current.is_admin?
       if User.current != @displayed_user
         flash[:error] = "Can't edit #{@displayed_user.login}"
-        redirect_back(fallback_location: root_path) and return
+        redirect_back(fallback_location: root_path) && return
       end
     end
     @displayed_user.realname = params[:realname]
@@ -125,7 +125,7 @@ class Webui::UserController < Webui::WebuiController
       flash[:error] = "Couldn't update user: #{e.message}."
     end
 
-    redirect_back(fallback_location: { :action => 'show', user: @displayed_user })
+    redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
 
   def edit
@@ -136,25 +136,25 @@ class Webui::UserController < Webui::WebuiController
   def delete
     @displayed_user.state = 'deleted'
     @displayed_user.save
-    redirect_back(fallback_location: { :action => 'show', user: @displayed_user })
+    redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
 
   def confirm
     @displayed_user.state = 'confirmed'
     @displayed_user.save
-    redirect_back(fallback_location: { :action => 'show', user: @displayed_user })
+    redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
 
   def lock
     @displayed_user.state = 'locked'
     @displayed_user.save
-    redirect_back(fallback_location: { :action => 'show', user: @displayed_user })
+    redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
 
   def admin
     @displayed_user.update_globalroles(%w(Admin))
     @displayed_user.save
-    redirect_back(fallback_location: { :action => 'show', user: @displayed_user })
+    redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
 
   def save_dialog

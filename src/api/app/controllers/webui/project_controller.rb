@@ -136,7 +136,7 @@ class Webui::ProjectController < Webui::WebuiController
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = e.message
-      redirect_back(fallback_location: { :action => 'show', :project => params[:project] }) and return
+      redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
     end
     redirect_to :action => 'show', :project => params[:project]
   end
@@ -173,10 +173,10 @@ class Webui::ProjectController < Webui::WebuiController
              BsRequestAction::UnknownTargetProject,
              BsRequestAction::UnknownTargetPackage => e
         flash[:error] = e.message
-        redirect_back(fallback_location: { :action => 'show', :project => params[:project] }) and return
+        redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
       rescue APIException
         flash[:error] = 'Internal problem while release request creation'
-        redirect_back(fallback_location: { :action => 'show', :project => params[:project] }) and return
+        redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
       end
     end
     redirect_to :action => 'show', :project => params[:project]
@@ -789,7 +789,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def require_maintenance_project
     unless @is_maintenance_project
-      redirect_back(fallback_location: { :action => 'show', :project => @project })
+      redirect_back(fallback_location: { action: 'show', project: @project })
       return false
     end
     return true
