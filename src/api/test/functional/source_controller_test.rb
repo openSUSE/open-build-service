@@ -68,7 +68,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # api handed it over to backend, enough tested here
   end
 
-  def test_anonymous_access_for_global_commands
+  def test_anonymous_access_for_global_commands # spec/controllers/source_controller_spec.rb
     post '/source?cmd=orderkiwirepos'
     # anonymous access allowed here, just forwarding the request to backend fails
     assert_response 400

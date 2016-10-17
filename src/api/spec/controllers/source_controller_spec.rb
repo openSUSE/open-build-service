@@ -8,4 +8,20 @@ RSpec.describe SourceController, vcr: true do
       expect(Xmlhash.parse(response.body)["summary"]).to eq("read_file: no content attached")
     end
   end
+
+  describe "POST #global_command_branch" do
+    it "is not accessible anonymously" do
+      post :global_command_branch, params: { cmd: "branch" }
+      expect(flash[:error]).to eq("anonymous_user(Anonymous user is not allowed here - please login): ")
+      expect(response).to redirect_to(root_path)
+    end
+  end
+
+  describe "POST #global_command_createmaintenanceincident" do
+    it "is not accessible anonymously" do
+      post :global_command_createmaintenanceincident, params: { cmd: "createmaintenanceincident" }
+      expect(flash[:error]).to eq("anonymous_user(Anonymous user is not allowed here - please login): ")
+      expect(response).to redirect_to(root_path)
+    end
+  end
 end
