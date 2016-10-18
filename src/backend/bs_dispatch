@@ -181,7 +181,6 @@ my %badhost;
 my %newestsrcchange;
 my %infocache;
 my %constraintscache;
-my %scheduleinfo;
 
 my %lastbuild;	# last time a job was build in that prpa
 
@@ -817,6 +816,36 @@ sub filechecks {
   }
 }
 
+# check all workers against the job constains so that the
+# users get feedback
+sub checkconstraints {
+  my ($info, $arch, $job, $constraints) = @_;
+
+  my $details = "";
+  my @nonidlestates = qw(building away down dead);
+  for my $nonidlestate (@nonidlestates) {
+    my $oraresult = 0;
+    my @workerarr = sort(BSUtil::ls("$workersdir/$nonidlestate"));
+    for my $workertooracle (@workerarr) {
+      my $worker = readxml("$workersdir/$nonidlestate/$workertooracle", $BSXML::worker, 1);
+      next unless $worker;
+      next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker);
+      $oraresult++ if oracle($worker, $constraints) > 0;
+    }
+    if ($oraresult > 0) {
+      $details .= "$oraresult/" . scalar(@workerarr) . " $nonidlestate ";
+    }
+  }
+  if (!$details) {
+    $details = "no worker provides the capabilities to comply with the constraints";
+  }
+  $details =~ s/\s+$//;
+  if (!$info->{'scheduleinfo'} || $info->{'scheduleinfo'} ne $details) {
+    $info->{'scheduleinfo'} = $details;
+    setdispatchdetails($info, $arch, $job, $details);
+  }
+}
+
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($ARGV[0], 'dispatcher', "$rundir/bs_dispatch");
@@ -1020,9 +1049,6 @@ while (1) {
     my %notlocked = map {$_ => 1} grep {!$locked{$_}} @b;
     for (grep {!$notlocked{$_} && !$locked{$_}} keys (%{$infocache{$arch} || {}})) {
       delete $infocache{$arch}->{$_};
-    }
-    for (grep {!$notlocked{$_}} keys (%{$scheduleinfo{$arch} || {}})) {
-      delete $scheduleinfo{$arch}->{$_};
     }
     # adapt load
     for my $job (keys %locked) {
@@ -1379,29 +1405,9 @@ while (1) {
       # we have jobs that could not be assigned and have constraints.
       # check if non idle workers could build these job or if there are no
       # workers that met the constraints
-      my @nonidlestates = qw(building away down dead);
       if (!$haveassigned && $constraints) {
         if ($info->{'allworkercheck'}++ % 5 == 0) {
-          my $details = "";
-          foreach my $nonidlestate (@nonidlestates) {
-            my $oraresult = 0;
-            my @workerarr = BSUtil::ls("$workersdir/$nonidlestate");
-            foreach my $workertooracle (@workerarr) {
-              my $worker = readxml("$workersdir/$nonidlestate/$workertooracle", $BSXML::worker, 1);
-              $oraresult++ if (oracle($worker,$constraints) == 1);
-            }
-            if (scalar(@workerarr) > 0 && $oraresult > 0) {
-              $details .= "$oraresult/" . scalar(@workerarr) . " $nonidlestate ";
-            }
-          }
-          if ($details eq "") {
-            $details = "no worker provides the capabilities to comply with the constraints";
-          }
-          $details =~ s/\s+$//;
-          if (!exists $scheduleinfo{$arch}->{$job} || $scheduleinfo{$arch}->{$job} ne $details) {
-            $scheduleinfo{$arch}->{$job} = $details;
-            setdispatchdetails($info,$arch,$job,$details);
-          }
+	  checkconstraints($info, $arch, $job, $constraints);
         }
       }
 
@@ -1451,7 +1457,7 @@ sub setdispatchdetails {
     };
     BSRPC::rpc($param, undef, "details=$details");
   } else {
-    my $ev = { type => 'dispatchdetails', job => "$job", details => $details };
+    my $ev = { type => 'dispatchdetails', job => $job, details => $details };
     my $evname = "dispatchdetails:$job";
     mkdir_p("$eventdir/$arch");
     writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);

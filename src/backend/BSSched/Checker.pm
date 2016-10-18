@@ -556,6 +556,25 @@ sub calcrelsynctrigger {
   $ctx->{'relsyncmax'} = $relsyncmax;
 }
 
+sub prune_packstatus_finished {
+  my ($gdst, $building) = @_;
+
+  my $psf = readstr("$gdst/:packstatus.finished", 1);
+  return unless $psf;
+  my %dispatchdetails;
+  for (split("\n", $psf)) {
+    my ($code, $rest) = split(' ', $_, 2);
+    next unless $code eq 'scheduled';
+    my ($packid, $job, $details) = split('/', $rest, 3);
+    $dispatchdetails{$packid} = "$_\n" if $job && ($building->{$packid} || '') eq $job;
+  }
+  if (%dispatchdetails) {
+    writestr("$gdst/.:packstatus.finished", "$gdst/.:packstatus.finished", join('', sort values %dispatchdetails));
+  } else {
+    unlink("$gdst/:packstatus.finished");
+  }
+}
+
 sub checkpkgs {
   my ($ctx) = @_;
 
@@ -848,26 +867,12 @@ sub checkpkgs {
     'packstatus' => \%packstatus,
     'packerror' => \%packerror,
   });
-  # prune packstatus.finished
   if (%building) {
-    my $psf = readstr("$gdst/:packstatus.finished", 1);
-    if ($psf) {
-      my %dispatchdetails;
-      for (split("\n", $psf)) {
-        my ($code, $rest) = split(' ', $_, 2);
-        next unless $code eq 'scheduled';
-        my ($packid, $job, $details) = split('/', $rest, 3);
-        $dispatchdetails{$packid} = "$_\n" if $job && ($building{$packid} || '') eq $job;
-      }
-      if (%dispatchdetails) {
-        writestr("$gdst/.:packstatus.finished", "$gdst/.:packstatus.finished", join('', sort values %dispatchdetails));
-      } else {
-        unlink("$gdst/:packstatus.finished");
-      }
-    }
+    prune_packstatus_finished($gdst, \%building);
   } else {
     unlink("$gdst/:packstatus.finished");
   }
+
   my $schedulerstate;
   if (keys %building) {
     $schedulerstate = 'building';

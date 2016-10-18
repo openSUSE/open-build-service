@@ -651,7 +651,7 @@ our $event = [
 	'linksrcmd5',		# for type=servicedispatch
 	'projectservicesmd5',	# for type=servicedispatch
 	'oldsrcmd5',		# for type=servicedispatch
-        'details',              # for type=dispatchdetails
+	'details',              # for type=dispatchdetails
 ];
 
 our $events = [
