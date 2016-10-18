@@ -95,7 +95,7 @@ class BsRequestActionSubmit < BsRequestAction
     target_package.sources_changed
 
     # cleanup source project
-    if relinkSource and not self.sourceupdate == "noupdate"
+    if relinkSource && !(self.sourceupdate == "noupdate")
       # source package got used as devel package, link it to the target
       # re-create it via branch , but keep current content...
       h = {}

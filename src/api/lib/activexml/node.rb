@@ -78,7 +78,7 @@ module ActiveXML
         if args[0].kind_of? Hash
           hash = Hash.new
           args[0].each do |key, value|
-            if key.nil? or value.nil?
+            if key.nil? || value.nil?
               Rails.logger.debug "nil value given #{args.inspect}"
               next
             end
@@ -364,7 +364,7 @@ module ActiveXML
     end
 
     def parent
-      return nil unless _data.parent and _data.parent.element?
+      return nil unless _data.parent && _data.parent.element?
       Node.new(_data.parent)
     end
 

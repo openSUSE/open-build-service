@@ -86,7 +86,7 @@ class PublicController < ApplicationController
     path = unshift_public(request.path_info)
     if params[:view] == 'info'
       # nofilename since a package may have no source access
-      if params[:nofilename] and params[:nofilename] != '1'
+      if params[:nofilename] && params[:nofilename] != '1'
         render_error :status => 400, :errorcode => 'parameter_error', :message => 'nofilename is not allowed as parameter'
         return
       end
@@ -192,7 +192,7 @@ class PublicController < ApplicationController
           dist_id = dist.id
           @binary_links[dist_id] ||= {}
           binary = binary_map[repo.name].select {|bin| bin.value(:name) == @pkg.name}.first
-          if binary and dist.vendor == 'openSUSE'
+          if binary && dist.vendor == 'openSUSE'
             @binary_links[dist_id][:ymp] = { :url => ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name+'.ymp') ) }
           end
 

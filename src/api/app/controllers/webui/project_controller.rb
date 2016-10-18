@@ -99,10 +99,10 @@ class Webui::ProjectController < Webui::WebuiController
 
     if incident
       flash[:success] = "Created maintenance incident project #{incident.project.name}"
-      redirect_to action: :show, project: incident.project.name and return
+      redirect_to(action: :show, project: incident.project.name) && return
     else
       flash[:error] = 'Incident projects shall only create below maintenance projects.'
-      redirect_to action: 'show', project: params[:ns] and return
+      redirect_to(action: 'show', project: params[:ns]) && return
     end
   end
 
@@ -285,7 +285,7 @@ class Webui::ProjectController < Webui::WebuiController
     bdep = BuilddepInfo.find(:project => @project.name, :repository => @repository, :arch => @arch)
     jobs = Jobhistory.find(:project => @project.name, :repository => @repository, :arch => @arch,
             :limit => (@packages.size + @ipackages.size) * 3, :code => %w(succeeded unchanged))
-    unless bdep and jobs
+    unless bdep && jobs
       flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
       redirect_to :action => :show, :project => @project
       return
@@ -391,7 +391,7 @@ class Webui::ProjectController < Webui::WebuiController
     rescue BsRequestAction::UnknownTargetProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = e.message
-      redirect_to action: :index, controller: :repositories, project: params[:project] and return
+      redirect_to(action: :index, controller: :repositories, project: params[:project]) && return
     end
     redirect_to :controller => :request, :action => :show, :number => req.number
   end
@@ -990,8 +990,8 @@ class Webui::ProjectController < Webui::WebuiController
       end
     end
 
-    return unless (currentpack['firstfail'] or currentpack['failedcomment'] or currentpack['upstream_version'] or
-        !currentpack['problems'].empty? or !currentpack['requests_from'].empty? or !currentpack['requests_to'].empty?)
+    return unless (currentpack['firstfail'] || currentpack['failedcomment'] || currentpack['upstream_version'] ||
+        !currentpack['problems'].empty? || !currentpack['requests_from'].empty? || !currentpack['requests_to'].empty?)
     if @limit_to_old
       return unless currentpack['upstream_version']
     end
@@ -1052,7 +1052,7 @@ class Webui::ProjectController < Webui::WebuiController
       if value.develpack
         dproject = value.develpack.project
         @develprojects[dproject] = 1
-        if (current_develproject != dproject or current_develproject == @no_project) and current_develproject != @all_projects
+        if (current_develproject != dproject || current_develproject == @no_project) && current_develproject != @all_projects
           next
         end
       else

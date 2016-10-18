@@ -25,8 +25,8 @@
   <% unless no_target %>
       <td class="request_target">
         <% if target_project %>
-            <% if not @project or @project.name != target_project %><!-- <%= target_project %>  -->
-                <% if target_package and source_package != target_package %> <!-- /<%= target_package %> -->
+            <% if !@project || @project.name != target_project %><!-- <%= target_project %>  -->
+                <% if target_package && source_package != target_package %> <!-- /<%= target_package %> -->
 			<%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) -%>
                 <% else %>
 	           <%= project_or_package_link(project: target_project, trim_to: elide_len, short: true) %>

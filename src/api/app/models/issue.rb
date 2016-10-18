@@ -55,7 +55,7 @@ class Issue < ApplicationRecord
   def self.valid_name?(tracker, name)
     # We only verify cve format atm. This should be done via a regexp definition in the
     # tracker definition in future
-    return false if tracker.cve? and not Regexp.new(/^\d\d\d\d-\d+$/).match(name)
+    return false if tracker.cve? && !Regexp.new(/^\d\d\d\d-\d+$/).match(name)
     true
   end
 

@@ -175,17 +175,17 @@ class Webui::PackageController < Webui::WebuiController
 
     repo = Repository.find_by_project_and_name(@project.to_s, @repository.to_s)
     @durl = repo.download_url_for_package(@package, @arch, @filename)
-    if @durl and not file_available?( @durl )
+    if @durl && !file_available?( @durl )
       # ignore files not available
       @durl = nil
     end
-    unless User.current.is_nobody? or @durl
+    unless User.current.is_nobody? || @durl
       # only use API for logged in users if the mirror is not available
       @durl = rpm_url( @project, @package, @repository, @arch, @filename )
     end
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
-    if request.format != Mime::HTML and @durl
+    if request.format != Mime::HTML && @durl
       redirect_to @durl
       return
     end
@@ -393,7 +393,7 @@ class Webui::PackageController < Webui::WebuiController
 
     begin
       @current_rev = @package.rev
-      if not @revision and not @srcmd5
+      if !@revision && !@srcmd5
         # on very first page load only
         @revision = @current_rev
       end
@@ -441,7 +441,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def find_last_req
-    if @oproject and @opackage
+    if @oproject && @opackage
       last_req = BsRequestAction.where(target_project: @oproject,
                                        target_package: @opackage,
                                        source_project: @package.project,
@@ -942,7 +942,7 @@ class Webui::PackageController < Webui::WebuiController
     check_ajax
     required_parameters :package, :project
     tgt_pkg = Package.find_by_project_and_name( params[:project], params[:package] )
-    if tgt_pkg and tgt_pkg.develpackage
+    if tgt_pkg && tgt_pkg.develpackage
       render plain: tgt_pkg.develpackage.project
     else
       render plain: ''
@@ -1082,7 +1082,7 @@ class Webui::PackageController < Webui::WebuiController
       http.open_timeout = 15
       http.read_timeout = 15
       response =  http.head uri.path
-      if response.code.to_i == 302 and response['location'] and max_redirects > 0
+      if response.code.to_i == 302 && response['location'] && max_redirects > 0
         return file_available? response['location'], (max_redirects - 1)
       end
       return response.code.to_i == 200 ? true : false

@@ -165,14 +165,14 @@ class Package < ApplicationRecord
     prj = internal_get_project(project)
     return nil unless prj # remote prjs
 
-    if pkg.nil? and opts[:follow_project_links]
+    if pkg.nil? && opts[:follow_project_links]
       pkg = prj.find_package(package, opts[:check_update_project])
     elsif pkg.nil?
       pkg = prj.update_instance.packages.find_by_name(package) if opts[:check_update_project]
       pkg = prj.packages.find_by_name(package) if pkg.nil?
     end
 
-    if pkg.nil? and opts[:follow_project_links]
+    if pkg.nil? && opts[:follow_project_links]
       # in case we link to a remote project we need to assume that the
       # backend may be able to find it even when we don't have the package local
       prj.expand_all_projects.each do |p|
@@ -277,7 +277,7 @@ class Package < ApplicationRecord
   end
 
   def check_source_access?
-    if self.disabled_for?('sourceaccess', nil, nil) or self.project.disabled_for?('sourceaccess', nil, nil)
+    if self.disabled_for?('sourceaccess', nil, nil) || self.project.disabled_for?('sourceaccess', nil, nil)
       unless User.current && User.current.can_source_access?(self)
         return false
       end
@@ -306,7 +306,7 @@ class Package < ApplicationRecord
   end
 
   def check_write_access!(ignoreLock = nil)
-    return if Rails.env.test? and User.current.nil? # for unit tests
+    return if Rails.env.test? && User.current.nil? # for unit tests
     unless self.check_write_access(ignoreLock)
       raise WritePermissionError, "No permission to modify package '#{self.name}' for user '#{User.current.login}'"
     end
@@ -507,7 +507,7 @@ class Package < ApplicationRecord
       (issue_change.keys + new.keys).uniq.each do |key|
         issue_change[key] ||= {}
         issue_change[key].merge!(new[key]) if new[key]
-        issue_change['kept'].delete(new[key]) if issue_change['kept'] and key != 'kept'
+        issue_change['kept'].delete(new[key]) if issue_change['kept'] && key != 'kept'
       end
     end
 
@@ -623,7 +623,7 @@ class Package < ApplicationRecord
     if pkg == pkg.develpackage
       raise CycleError.new 'Package defines itself as devel package'
     end
-    while (pkg.develpackage or pkg.project.develproject)
+    while (pkg.develpackage || pkg.project.develproject)
       # logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
@@ -913,18 +913,18 @@ class Package < ApplicationRecord
     project_name = opkg.project.update_instance.name
 
     # not my link target, so it does not qualify for my code streastream
-    return unless self.linkinfo and project_name == self.linkinfo['project']
+    return unless self.linkinfo && project_name == self.linkinfo['project']
 
     # main package
     name = opkg.name.dup
     # strip incident suffix in update release projects
     # but beware of packages where the name has already a dot
-    name.gsub!(/\.[^\.]*$/, '') if opkg.project.is_maintenance_release? and not opkg.is_link?
+    name.gsub!(/\.[^\.]*$/, '') if opkg.project.is_maintenance_release? && !opkg.is_link?
     ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
       _add_channel(mode, cb, "Listed in #{project_name} #{name}")
     end
     # and all possible existing local links
-    if opkg.project.is_maintenance_release? and opkg.is_link?
+    if opkg.project.is_maintenance_release? && opkg.is_link?
       opkg = opkg.project.packages.find_by_name opkg.linkinfo["package"]
     end
 
@@ -941,13 +941,13 @@ class Package < ApplicationRecord
 
   def _add_channel(mode, channel_binary, message)
     # add source container
-    return if mode == :skip_disabled and not channel_binary.channel_binary_list.channel.is_active?
+    return if mode == :skip_disabled && !channel_binary.channel_binary_list.channel.is_active?
     cpkg = channel_binary.create_channel_package_into(self.project, message)
     return unless cpkg
     # be sure that the object exists or a background job get launched
     cpkg.backend_package
     # add and enable repos
-    return if mode == :add_disabled and not channel_binary.channel_binary_list.channel.is_active?
+    return if mode == :add_disabled && !channel_binary.channel_binary_list.channel.is_active?
     cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
   end
   private :_add_channel
@@ -992,8 +992,8 @@ class Package < ApplicationRecord
                 opackage:  origin_package,
                 user:      User.current.login
     }
-    myparam[:orev] = rev if rev and not rev.empty?
-    myparam[:olinkrev] = olinkrev if olinkrev and not olinkrev.empty?
+    myparam[:orev] = rev if rev && !rev.empty?
+    myparam[:olinkrev] = olinkrev if olinkrev && !olinkrev.empty?
     myparam[:missingok] = '1' if missingok
     myparam[:comment] = comment if comment
     path = self.source_path
@@ -1199,7 +1199,7 @@ class Package < ApplicationRecord
   end
 
   def commit( rev = nil )
-    if rev and rev.to_i < 0
+    if rev && rev.to_i < 0
       # going backward from not yet known current revision, find out ...
       r = self.rev.to_i + rev.to_i + 1
       rev = r.to_s
@@ -1231,7 +1231,7 @@ class Package < ApplicationRecord
     end
 
     # validate all files inside of _pattern container
-    if pkg and pkg.name == "_pattern"
+    if pkg && pkg.name == "_pattern"
       Suse::Validator.validate('pattern', content)
     end
 

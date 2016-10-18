@@ -21,7 +21,7 @@ class BsRequestActionDelete < BsRequestAction
     super
     errors.add(:source_project, "source can not be used in delete action") if source_project
     errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
-    errors.add(:target_project, "must not target package and target repository") if target_repository and target_package
+    errors.add(:target_project, "must not target package and target repository") if target_repository && target_package
   end
 
   def remove_repository(opts)

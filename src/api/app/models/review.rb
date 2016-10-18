@@ -32,27 +32,27 @@ class Review < ApplicationRecord
     # NOTE: they can disappear later and the review should be still
     #       usable to some degree (can be showed at least)
     #       But it must not be possible to create one with broken references
-    unless self.by_user or self.by_group or self.by_project
+    unless self.by_user || self.by_group || self.by_project
       errors.add(:unknown, 'no reviewer defined')
     end
 
-    if self.by_user and not User.find_by_login(self.by_user)
+    if self.by_user && !User.find_by_login(self.by_user)
       errors.add(:by_user, "#{self.by_user} not found")
     end
 
-    if self.by_group and not Group.find_by_title(self.by_group)
+    if self.by_group && !Group.find_by_title(self.by_group)
       errors.add(:by_group, "#{self.by_group} not found")
     end
 
-    if self.by_project and not Project.find_by_name(self.by_project)
+    if self.by_project && !Project.find_by_name(self.by_project)
       # must be a local project or we can't ask
       errors.add(:by_project, "#{self.by_project} not found")
     end
 
-    if self.by_package and not self.by_project
+    if self.by_package && !self.by_project
       errors.add(:unknown, 'by_package defined, but missing by_project')
     end
-    if self.by_package and not Package.find_by_project_and_name(self.by_project, self.by_package)
+    if self.by_package && !Package.find_by_project_and_name(self.by_project, self.by_package)
       # must be a local package. maybe we should rewrite in case the
       # package comes via local project link...
       errors.add(:by_package, "#{self.by_project}/#{self.by_package} not found")

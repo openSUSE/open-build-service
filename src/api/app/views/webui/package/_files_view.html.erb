@@ -23,7 +23,7 @@
             <td><span class="hidden"><%= file[:mtime] %></span><%= fuzzy_time_string(Time.at(file[:mtime].to_i).to_s) %>
             </td>
             <!-- limit download for anonymous user to avoid getting killed by crawlers -->
-            <td><%= if !User.current.is_nobody? or file[:size].to_i < (4 * 1024 * 1024)
+            <td><%= if !User.current.is_nobody? || file[:size].to_i < (4 * 1024 * 1024)
                       link_to sprite_tag('page_white_get', title: 'Download File'),
                               file_url(@project.name, @package.name, file[:name], file[:srcmd5])
                     end %>
@@ -54,7 +54,7 @@
     </p>
 <% end %>
 
-<% unless @files.blank? or @spider_bot %>
+<% unless @files.blank? || @spider_bot %>
     <% unless @is_current_rev %>
         <h3>Revision <%= @revision %> (latest revision is <%= @current_rev %>)</h3>
     <% else %>

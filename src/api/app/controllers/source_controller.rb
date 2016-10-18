@@ -228,7 +228,7 @@ class SourceController < ApplicationController
     end
 
     if params[:view] == 'issues'
-       show_package_issues and return
+       show_package_issues && return
     end
 
     # exec
@@ -354,15 +354,15 @@ class SourceController < ApplicationController
       @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name)
     end
     # rubocop:enable Metrics/LineLength
-    unless Package_creating_commands.include? @command and not Project.exists_by_name(@target_project_name)
+    unless Package_creating_commands.include?(@command) && !Project.exists_by_name(@target_project_name)
       valid_project_name! params[:project]
       valid_package_name! params[:package]
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name @target_project_name
       # rubocop:disable Metrics/LineLength
-      if not Package_creating_commands.include? @command or Package.exists_by_project_and_name( @target_project_name,
-                                                                                                @target_package_name,
-                                                                                                follow_project_links: Source_untouched_commands.include?(@command) )
+      if !Package_creating_commands.include?(@command) || Package.exists_by_project_and_name( @target_project_name,
+                                                                                              @target_package_name,
+                                                                                              follow_project_links: Source_untouched_commands.include?(@command) )
         validate_target_for_package_command_exists!
       end
       # rubocop:enable Metrics/LineLength
@@ -392,14 +392,14 @@ class SourceController < ApplicationController
       if @package # for remote package case it's nil
         @project = @package.project
         ignoreLock = @command == 'unlock'
-        unless Read_commands.include? @command or User.current.can_modify_package?(@package, ignoreLock)
+        unless Read_commands.include?(@command) || User.current.can_modify_package?(@package, ignoreLock)
           raise CmdExecutionNoPermission.new "no permission to modify package #{@package.name} in project #{@project.name}"
         end
       end
     end
 
     # check read access rights when the package does not exist anymore
-    if @package.nil? and @deleted_package
+    if @package.nil? && @deleted_package
       validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
     end
   end
@@ -613,8 +613,8 @@ class SourceController < ApplicationController
 
     # check for permissions
     upperProject = @prj.name.gsub(/:[^:]*$/, '')
-    while upperProject != @prj.name and not upperProject.blank?
-      if Project.exists_by_name(upperProject) and User.current.can_modify_project?(Project.get_by_name(upperProject))
+    while upperProject != @prj.name && upperProject.present?
+      if Project.exists_by_name(upperProject) && User.current.can_modify_project?(Project.get_by_name(upperProject))
         pass_to_backend path
         return
       end
@@ -647,7 +647,7 @@ class SourceController < ApplicationController
 
     pack = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
 
-    if params.has_key?(:rev) or pack.nil? # and not pro_name
+    if params.has_key?(:rev) || pack.nil? # and not pro_name
                                           # check if this comes from a remote project, also true for _project package
                                           # or if rev it specified we need to fetch the meta from the backend
       answer = Suse::Backend.get(request.path_info)
@@ -690,7 +690,7 @@ class SourceController < ApplicationController
         return
       end
 
-      if pkg and not pkg.disabled_for?('sourceaccess', nil, nil)
+      if pkg && !pkg.disabled_for?('sourceaccess', nil, nil)
         if FlagHelper.xml_disabled_for?(rdata, 'sourceaccess')
           render_error :status => 403, :errorcode => 'change_package_protection_level',
                        :message => 'admin rights are required to raise the protection level of a package'
@@ -699,7 +699,7 @@ class SourceController < ApplicationController
       end
     else
       prj = Project.get_by_name(@project_name)
-      unless prj.kind_of?(Project) and User.current.can_create_package_in?(prj)
+      unless prj.kind_of?(Project) && User.current.can_create_package_in?(prj)
         render_error :status => 403, :errorcode => 'create_package_no_permission',
                      :message => "no permission to create a package in project '#{@project_name}'"
         return
@@ -766,7 +766,7 @@ class SourceController < ApplicationController
     @pack = nil
     @allowed = false
 
-    if @package_name == '_project' or @package_name == '_pattern'
+    if @package_name == '_project' || @package_name == '_pattern'
       @allowed = permissions.project_change? @prj
 
       if @file == '_attribute' &&  @package_name == '_project'
@@ -790,7 +790,7 @@ class SourceController < ApplicationController
     # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
     # package here implicit to stay api compatible.
     # FIXME3.0: to be revisited
-    if @package_name == '_pattern' and not Package.exists_by_project_and_name( @project_name, @package_name, follow_project_links: false )
+    if @package_name == '_pattern' && !Package.exists_by_project_and_name( @project_name, @package_name, follow_project_links: false )
       @pack = Package.new(:name => '_pattern', :title => 'Patterns', :description => 'Package Patterns')
       @prj.packages << @pack
       @pack.save
@@ -802,7 +802,7 @@ class SourceController < ApplicationController
     pass_to_backend @path
 
     # update package timestamp and reindex sources
-    unless params[:rev] == 'repository' or %w(_project _pattern).include? @package_name
+    unless params[:rev] == 'repository' || %w(_project _pattern).include?(@package_name)
       special_file = %w{_aggregate _constraints _link _service _patchinfo _channel}.include? params[:filename]
       @pack.sources_changed(wait_for_update: special_file) # wait for indexing for special files
     end
@@ -819,7 +819,7 @@ class SourceController < ApplicationController
     @path += build_query_from_hash(params, [:user, :comment, :meta, :rev, :linkrev, :keeplink])
     Suse::Backend.delete @path
 
-    unless @package_name == '_pattern' or @package_name == '_project'
+    unless @package_name == '_pattern' || @package_name == '_project'
       # _pattern was not a real package in old times
       @pack.sources_changed
     end
@@ -1036,7 +1036,7 @@ class SourceController < ApplicationController
   def verify_repos_match!(pro)
     repo_matches=nil
     pro.repositories.each do |repo|
-      next if params[:repository] and params[:repository] != repo.name
+      next if params[:repository] && params[:repository] != repo.name
       repo.release_targets.each do |releasetarget|
         unless User.current.can_modify_project?(releasetarget.target_repository.project)
           raise CmdExecutionNoPermission.new "no permission to write in project #{releasetarget.target_repository.project.name}"
@@ -1102,7 +1102,7 @@ class SourceController < ApplicationController
     project_name = params[:project]
 
     @project = Project.find_by_name(project_name)
-    unless (@project and User.current.can_modify_project?(@project)) or User.current.can_create_project?(project_name)
+    unless (@project && User.current.can_modify_project?(@project)) || User.current.can_create_project?(project_name)
       raise CmdExecutionNoPermission.new "no permission to execute command 'copy'"
     end
     oprj = Project.get_by_name(params[:oproject], {:includeallpackages => 1})
@@ -1308,12 +1308,12 @@ class SourceController < ApplicationController
       raise PackageExists.new "the package exists already #{@target_project_name} #{@target_package_name}"
     end
     tprj = Project.get_by_name(@target_project_name)
-    unless tprj.kind_of?(Project) and User.current.can_create_package_in?(tprj)
+    unless tprj.kind_of?(Project) && User.current.can_create_package_in?(tprj)
       raise CmdExecutionNoPermission.new "no permission to create package in project #{@target_project_name}"
     end
 
     path = request.path_info
-    unless User.current.is_admin? or params[:time].blank?
+    unless User.current.is_admin? || params[:time].blank?
       raise CmdExecutionNoPermission.new "Only administrators are allowed to set the time"
     end
     path += build_query_from_hash(params, [:cmd, :user, :comment, :time])
@@ -1487,7 +1487,7 @@ class SourceController < ApplicationController
 
       # loop via all defined targets
       pkg.project.repositories.each do |repo|
-        next if params[:repository] and params[:repository] != repo.name
+        next if params[:repository] && params[:repository] != repo.name
         repo.release_targets.each do |releasetarget|
           # find md5sum and release source and binaries
           release_package(pkg, releasetarget.target_repository, pkg.name, repo, nil, params[:setrelease], true)
@@ -1501,7 +1501,7 @@ class SourceController < ApplicationController
   def _package_command_release_manual_target(pkg)
       verify_can_modify_target!
 
-      if params[:target_repository].blank? or params[:repository].blank?
+      if params[:target_repository].blank? || params[:repository].blank?
         raise MissingParameterError.new 'release action with specified target project needs also "repository" and "target_repository" parameter'
       end
       targetrepo=Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
@@ -1554,11 +1554,11 @@ class SourceController < ApplicationController
 
     # convert link to branch
     rev = ''
-    if not pkg_rev.nil? and not pkg_rev.empty?
+    if !pkg_rev.nil? && !pkg_rev.empty?
       rev = "&orev=#{pkg_rev}"
     end
     linkrev = ''
-    if not pkg_linkrev.nil? and not pkg_linkrev.empty?
+    if !pkg_linkrev.nil? && !pkg_linkrev.empty?
       linkrev = "&linkrev=#{pkg_linkrev}"
     end
     Suse::Backend.post "/source/#{@package.project.name}/#{@package.name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}"
@@ -1622,10 +1622,10 @@ class SourceController < ApplicationController
 
     # Raising permissions afterwards is not secure. Do not allow this by default.
     unless User.current.is_admin?
-      if params[:flag] == 'access' and params[:status] == 'enable' and not @project.enabled_for?('access', params[:repository], params[:arch])
+      if params[:flag] == 'access' && params[:status] == 'enable' && !@project.enabled_for?('access', params[:repository], params[:arch])
         raise Project::ForbiddenError.new
       end
-      if params[:flag] == 'sourceaccess' and params[:status] == 'enable' and
+      if params[:flag] == 'sourceaccess' && params[:status] == 'enable' &&
           !@project.enabled_for?('sourceaccess', params[:repository], params[:arch])
         raise Project::ForbiddenError.new
       end

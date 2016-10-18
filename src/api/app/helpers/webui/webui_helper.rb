@@ -52,7 +52,7 @@ module Webui::WebuiHelper
   def format_projectname(prjname, login)
     splitted = prjname.split(':', 3)
     if splitted[0] == 'home'
-      if login and splitted[1] == login
+      if login && splitted[1] == login
         prjname = '~'
       else
         prjname = '~' + splitted[1]
@@ -114,7 +114,7 @@ module Webui::WebuiHelper
     opts[:package] = @package.to_s if @package
     opts[:project] = @project.to_s if @project
     link_opts = { id: "tab-#{id}" }
-    if @current_action.to_s == opts[:action].to_s and @current_controller.to_s == opts[:controller].to_s
+    if @current_action.to_s == opts[:action].to_s && @current_controller.to_s == opts[:controller].to_s
       link_opts[:class] = 'selected'
     end
     return content_tag('li', link_to(h(text), opts), link_opts)

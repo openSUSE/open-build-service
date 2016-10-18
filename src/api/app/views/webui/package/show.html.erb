@@ -133,7 +133,7 @@
   <h3>Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
     <% if @linkinfo && @revision_parameter.nil? %>
   <span style="font-size: small; font-weight: normal">
-    <% if @expand && @expand.to_s == '1' or !@forced_unexpand.blank? %>
+    <% if @expand && @expand.to_s == '1' || @forced_unexpand.present? %>
       <%= link_to '(show unmerged sources)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0' %>
     <% else %>
       <%= link_to '(show merged sources derived from linked package)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '1' %>

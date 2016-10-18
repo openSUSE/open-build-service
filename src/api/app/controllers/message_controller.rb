@@ -64,8 +64,8 @@ class MessageController < ApplicationController
   private
 
   def check_permissions
-    if (@package and not permissions.package_change? @package.name, @project.name) or
-        (@project and not permissions.project_change? @project.name)
+    if (@package && !permissions.package_change?(@package.name, @project.name)) ||
+        (@project && !permissions.project_change?(@project.name))
       render_error :status => 403, :errorcode => 'permission denied',
                    :message => 'message cannot be created, insufficient permissions'
       return nil

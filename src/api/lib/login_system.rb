@@ -44,7 +44,7 @@ module LoginSystem
       return true
     end
 
-    if @session[:user] and authorize?(@session[:user])
+    if @session[:user] && authorize?(@session[:user])
       return true
     end
 

@@ -64,7 +64,7 @@ class ApplicationController < ActionController::Base
     logger.debug "Checking for  Admin role for user #{@http_user.login}"
     unless @http_user.is_admin?
       logger.debug "not granted!"
-      render_error :status => 403, :errorcode => "put_request_no_permission", :message => "Requires admin privileges" and return false
+      render_error(:status => 403, :errorcode => "put_request_no_permission", :message => "Requires admin privileges") && (return false)
     end
     return true
   end
@@ -145,7 +145,7 @@ class ApplicationController < ActionController::Base
 
     # privacy! logger.debug( "AUTH: #{authorization.inspect}" )
 
-    if authorization and authorization[0] == "Basic"
+    if authorization && authorization[0] == "Basic"
       # logger.debug( "AUTH2: #{authorization}" )
       @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
 
@@ -564,7 +564,7 @@ class ApplicationController < ActionController::Base
 
   def forward_from_backend(path)
     # apache & mod_xforward case
-    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
+    if CONFIG['use_xforward'] && CONFIG['use_xforward'] != "false"
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
       headers['X-Forward'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
       headers['Cache-Control'] = 'no-transform' # avoid compression

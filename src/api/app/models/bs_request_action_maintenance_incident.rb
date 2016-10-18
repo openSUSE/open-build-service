@@ -66,7 +66,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     # find link target
     dir_hash = Directory.hashed(project: source_project, package: source_package)
     linkinfo = dir_hash['linkinfo']
-    if linkinfo and linkinfo['project'] == source_project
+    if linkinfo && linkinfo['project'] == source_project
       # local link, skip it, it will come via branch command
       return
     end
@@ -100,7 +100,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       # accept branching from former update incidents or GM (for kgraft case)
       linkprj = Project.find_by_name(linkinfo['project']) if linkinfo
       if defined?(linkprj) && linkprj
-        if linkprj.is_maintenance_incident? or linkprj != linkprj.update_instance or kinds.include? 'channel'
+        if linkprj.is_maintenance_incident? || linkprj != linkprj.update_instance || kinds.include?('channel')
           branch_params[:project] = linkinfo['project']
           branch_params[:ignoredevel] = "1"
         end
@@ -113,7 +113,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
 
       # use link target as fallback
-    elsif linkinfo and not linkinfo['missingok']
+    elsif linkinfo && !linkinfo['missingok']
       # linked to an existing package in an external project
       linked_project = linkinfo['project']
       linked_package = linkinfo['package']
@@ -128,7 +128,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
     else
       # a new package for all targets
-      if linkinfo and linkinfo['package']
+      if linkinfo && linkinfo['package']
         if Package.exists_by_project_and_name(incidentProject.name, source_package, follow_project_links: false)
           new_pkg = Package.get_by_project_and_name(incidentProject.name, source_package, use_source: false, follow_project_links: false)
         else
@@ -193,7 +193,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     end
 
     # create a patchinfo if missing and incident has just been created
-    if opts[:check_for_patchinfo] and !incident_project.packages.joins(:package_kinds).where("kind = 'patchinfo'").exists?
+    if opts[:check_for_patchinfo] && !incident_project.packages.joins(:package_kinds).where("kind = 'patchinfo'").exists?
       Patchinfo.new.create_patchinfo_from_request(incident_project, self.bs_request)
     end
 
@@ -209,7 +209,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       maintenanceProject = Project.get_maintenance_project
       self.target_project = maintenanceProject.name
     end
-    unless maintenanceProject.is_maintenance_incident? or maintenanceProject.is_maintenance?
+    unless maintenanceProject.is_maintenance_incident? || maintenanceProject.is_maintenance?
       raise NoMaintenanceProject.new 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
     end
     raise IllegalRequest.new 'Target package must not be specified in maintenance_incident actions' if self.target_package

@@ -32,7 +32,7 @@
               <%= link_to(pluralize(@maintained_projects.count, "maintained project"), action: 'maintained_projects', project: @project) %>
             </li>
         <% else # also for incident project                                    %>
-            <% if @nr_of_problem_packages and @nr_of_problem_packages > 0 %>
+            <% if @nr_of_problem_packages && @nr_of_problem_packages > 0 %>
                 <li>
                   <%= sprite_tag 'exclamation' %>
                   <%= link_to(pluralize(@nr_of_problem_packages, "build error"), action: 'monitor', project: @project, succeeded: 0, blocked: 0, finished: 0, signing: 0, dispatching: 0, scheduled: 0, building: 0) %>
@@ -101,10 +101,10 @@
     <% end %>
   </div>
 
-  <% if (not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil?) or !User.current.is_nobody? %>
+  <% if (!@bugowners_mail.empty? && !CONFIG['bugzilla_host'].nil?) || !User.current.is_nobody? %>
       <div class="grid_16 alpha omega">
         <ul class="horizontal-list">
-          <% if not @bugowners_mail.empty? and !CONFIG['bugzilla_host'].nil? %>
+          <% if !@bugowners_mail.empty? && !CONFIG['bugzilla_host'].nil? %>
               <li>
                 <%= link_to(sprited_text('tools-report-bug', 'Report bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
               </li>

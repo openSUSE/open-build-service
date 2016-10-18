@@ -77,7 +77,7 @@ class WizardController < ApplicationController
       end
 
       # run generator
-      if @wizard['generator'] and @wizard['generator'] != '-'
+      if @wizard['generator'] && @wizard['generator'] != '-'
         s.service(:name => "generator_#{@wizard['generator']}")
       end
 

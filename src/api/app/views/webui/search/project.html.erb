@@ -18,7 +18,7 @@
   <p>
   <h4>Search in:</h4>
   <p>
-  <% if params[:name].nil? or params[:name] == "1"%>
+  <% if params[:name].nil? || params[:name] == "1"%>
     <input type="hidden" name="name" value="0" />
     <input checked="checked" id="name" name="name" type="checkbox" value="1" />
   <% elsif params[:name] == "0" %>
@@ -27,7 +27,7 @@
   <% end %>
   <label for="name">Name</label>
 
-  <% if params[:title].nil? or params[:title] == "0"%>
+  <% if params[:title].nil? || params[:title] == "0"%>
     <input type="hidden" name="title" value="0" />
     <input id="title" name="title" type="checkbox" value="1" />
   <% elsif params[:title] == "1" %>
@@ -36,7 +36,7 @@
   <% end %>
   <label for="title">Title</label>
 
-  <% if params[:description].nil? or params[:description] == "0"%>
+  <% if params[:description].nil? || params[:description] == "0"%>
     <input type="hidden" name="description" value="0" />
     <input id="description" name="description" type="checkbox" value="1" />
   <% elsif params[:description] == "1" %>

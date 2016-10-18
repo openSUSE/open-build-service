@@ -128,7 +128,7 @@ class AttributeController < ApplicationController
 
       xml_element = Xmlhash.parse( request.raw_post )
 
-      unless xml_element and xml_element['name'] == name and xml_element['namespace'] == namespace
+      unless xml_element && xml_element['name'] == name && xml_element['namespace'] == namespace
         render_error :status => 400, :errorcode => 'illegal_request',
           :message => "Illegal request: PUT/POST #{request.path}: path does not match content"
         return
@@ -176,7 +176,7 @@ class AttributeController < ApplicationController
     # init
     # checks
     # exec
-    if params[:rev] or @attribute_container.nil?
+    if params[:rev] || @attribute_container.nil?
       # old or remote instance entry
       path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package]||'_project')}/_attribute?meta=1"
       path += "&rev=#{CGI.escape(params[:rev])}" if params[:rev]
@@ -197,7 +197,7 @@ class AttributeController < ApplicationController
     find_attribute_container
 
     # init
-    if params[:namespace].blank? or params[:name].blank?
+    if params[:namespace].blank? || params[:name].blank?
       render_error :status => 400, :errorcode => "missing_attribute",
                    :message => "No attribute got specified for delete"
       return
@@ -206,8 +206,8 @@ class AttributeController < ApplicationController
 
     # checks
     unless ac
-      render_error :status => 404, :errorcode => "not_found",
-                   :message => "Attribute #{params[:attribute]} does not exist" and return
+      render_error(:status => 404, :errorcode => "not_found",
+                   :message => "Attribute #{params[:attribute]} does not exist") && return
     end
     if params[:attribute]
       unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
@@ -279,7 +279,7 @@ class AttributeController < ApplicationController
     @binary=nil
     @binary=params[:binary] if params[:binary]
     # valid post commands
-    if params[:package] and params[:package] != "_project"
+    if params[:package] && params[:package] != "_project"
       @attribute_container = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
     else
       # project

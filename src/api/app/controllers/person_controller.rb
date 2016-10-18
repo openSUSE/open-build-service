@@ -51,7 +51,7 @@ class PersonController < ApplicationController
     if params[:cmd] == "change_password"
       login ||= @http_user.login
       password = request.raw_post.to_s.chomp
-      if login != @http_user.login and not @http_user.is_admin?
+      if login != @http_user.login && !@http_user.is_admin?
         render_error :status => 403, :errorcode => "change_password_no_permission",
                      :message => "No permission to change password for user #{login}"
         return
@@ -88,10 +88,10 @@ class PersonController < ApplicationController
     user = User.find_by_login(login) if login
 
     if user
-      unless user.login == User.current.login or User.current.is_admin?
+      unless user.login == User.current.login || User.current.is_admin?
         logger.debug "User has no permission to change userinfo"
-        render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
-          :message => "no permission to change userinfo for user #{user.login}" and return
+        render_error(:status => 403, :errorcode => 'change_userinfo_no_permission',
+          :message => "no permission to change userinfo for user #{user.login}") && return
       end
     else
       if User.current.is_admin?
@@ -101,7 +101,7 @@ class PersonController < ApplicationController
         logger.debug "Tried to create non-existing user without admin rights"
         @errorcode = 404
         @summary = "Requested non-existing user"
-        render_error status: @errorcode and return
+        render_error(status: @errorcode) && return
       end
     end
 
@@ -118,8 +118,8 @@ class PersonController < ApplicationController
         user.state = :subaccount
         user.owner = User.find_by_login! xml['owner']['userid']
         if user.owner.owner
-          render_error :status => 400, :errorcode => 'subaccount_chaining',
-            :message => "A subaccount can not be assigned to subaccount #{user.owner.login}" and return
+          render_error(:status => 400, :errorcode => 'subaccount_chaining',
+            :message => "A subaccount can not be assigned to subaccount #{user.owner.login}") && return
         end
       end
     end
@@ -230,7 +230,7 @@ class PersonController < ApplicationController
       render :template => 'error', :status => 401
     end
 
-    if login.blank? or password.blank?
+    if login.blank? || password.blank?
       render_error :status => 404, :errorcode => 'failed to change password',
             :message => "Failed to change password: missing parameter"
       return
@@ -279,7 +279,7 @@ class PersonController < ApplicationController
       raise UnknownCommandError.new "Allowed commands are 'create'"
     end
     pkg = nil
-    if params[:project] or params[:package]
+    if params[:project] || params[:package]
       pkg = Package.get_by_project_and_name( params[:project], params[:package] )
     end
     @token = Token.create( user: user, package: pkg )

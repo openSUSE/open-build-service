@@ -50,7 +50,7 @@ class PackInfo
              maxmtime:   maxmtime,
              release:    release
            }
-    unless verifymd5.blank? or verifymd5 == srcmd5
+    unless verifymd5.blank? || verifymd5 == srcmd5
       opts[:verifymd5] = verifymd5
     end
     xml.package(opts) do
@@ -82,7 +82,7 @@ class PackInfo
   end
 
   def set_versrel(versrel, time)
-    return if @versiontime and @versiontime > time
+    return if @versiontime && @versiontime > time
     versrel = versrel.split('-')
     @versiontime = time
     @version = versrel[0..-2].join('-')
@@ -214,7 +214,7 @@ class ProjectStatusCalculator
     links = Array.new
     # find links
     mypackages.each_value.each do |package|
-      if package.project == @dbproj.name and package.links_to_id
+      if package.project == @dbproj.name && package.links_to_id
         links << package.links_to_id
       end
     end

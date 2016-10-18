@@ -303,7 +303,7 @@ class Project < ApplicationRecord
       ret = 0
       grouprels.each do |grouprel|
         # check if User.current belongs to group
-        if grouprel and grouprel.group_id
+        if grouprel && grouprel.group_id
           # LOCAL
           # if user is in group -> return true
           ret = ret + 1 if User.current.is_in_group?(grouprel.group_id)
@@ -351,7 +351,7 @@ class Project < ApplicationRecord
     # hardcoded default. frontends can lookup themselfs a different target via attribute search
     at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
     maintenanceProject = Project.find_by_attribute_type(at).first
-    unless maintenanceProject and check_access?(maintenanceProject)
+    unless maintenanceProject && check_access?(maintenanceProject)
       raise UnknownObjectError.new 'There is no project flagged as maintenance project on server and no target in request defined.'
     end
     maintenanceProject
@@ -402,7 +402,7 @@ class Project < ApplicationRecord
   end
 
   def check_write_access!(ignoreLock = nil)
-    return if Rails.env.test? and User.current.nil? # for unit tests
+    return if Rails.env.test? && User.current.nil? # for unit tests
 
     # the can_create_check is inconsistent with package class check_write_access! check
     unless check_write_access(ignoreLock)
@@ -527,8 +527,8 @@ class Project < ApplicationRecord
       end
     end
     new_record = self.new_record?
-    if ::Configuration.default_access_disabled == true and not new_record
-      if self.disabled_for?('access', nil, nil) and not FlagHelper.xml_disabled_for?(xmlhash, 'access')
+    if ::Configuration.default_access_disabled == true && !new_record
+      if self.disabled_for?('access', nil, nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access')
         raise ForbiddenError.new
       end
     end
@@ -552,7 +552,7 @@ class Project < ApplicationRecord
 
     #--- update flag group ---#
     update_all_flags(xmlhash)
-    if ::Configuration.default_access_disabled == true and new_record
+    if ::Configuration.default_access_disabled == true && new_record
       # write a default access disable flag by default in this mode for projects if not defined
       if xmlhash.elements('access').empty?
         self.flags.new(:status => 'disable', :flag => 'access')
@@ -1055,7 +1055,7 @@ class Project < ApplicationRecord
     pkg = nil
     pkg = self.update_instance.packages.find_by_name(package_name) if check_update_project
     pkg = self.packages.find_by_name(package_name) if pkg.nil?
-    return pkg if pkg and Package.check_access?(pkg)
+    return pkg if pkg && Package.check_access?(pkg)
 
     # search via all linked projects
     self.linking_to.each do |lp|
@@ -1192,7 +1192,7 @@ class Project < ApplicationRecord
     # shall we use the repositories from a different project?
     project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
     skip_repos=[]
-    a = project.find_attribute('OBS', 'BranchSkipRepositories') and skip_repos=a.values.map{|v| v.value}
+    (a = project.find_attribute('OBS', 'BranchSkipRepositories')) && (skip_repos=a.values.map{|v| v.value})
     project.repositories.each do |repo|
       next if skip_repos.include? repo.name
       repoName = opts[:extend_names] ? repo.extended_name : repo.name
@@ -1201,7 +1201,7 @@ class Project < ApplicationRecord
       next if self.repositories.find_by_name(repoName)
 
       # copy target repository when operating on a channel
-      targets = repo.release_targets if (pkg_to_enable and pkg_to_enable.is_channel?)
+      targets = repo.release_targets if (pkg_to_enable && pkg_to_enable.is_channel?)
       # base is a maintenance incident, take its target instead (kgraft case)
       targets = repo.release_targets if repo.project.is_maintenance_incident?
 
@@ -1266,7 +1266,7 @@ class Project < ApplicationRecord
     disable_publish_for_branches = ::Configuration.disable_publish_for_branches
     project.flags.each do |f|
       next if %w(build lock).include?(f.flag)
-      next if f.flag == 'publish' and disable_publish_for_branches
+      next if f.flag == 'publish' && disable_publish_for_branches
       # NOTE: it does not matter if that flag is set to enable or disable, so we do not check fro
       #       for same flag status here explizit
       next if self.flags.where(flag: f.flag, architecture: f.architecture, repo: f.repo).exists?
@@ -1420,12 +1420,12 @@ class Project < ApplicationRecord
     all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
 
     all_pkgs.each do |pkg|
-      if b_pkg_index.has_key?(pkg) and not f_pkg_index.has_key?(pkg)
+      if b_pkg_index.has_key?(pkg) && !f_pkg_index.has_key?(pkg)
         # new autopackage, import in database
         p = self.packages.new(name: pkg)
         p.update_from_xml(Xmlhash.parse(b_pkg_index[pkg].dump_xml))
         p.store
-      elsif f_pkg_index.has_key?(pkg) and not b_pkg_index.has_key?(pkg)
+      elsif f_pkg_index.has_key?(pkg) && !b_pkg_index.has_key?(pkg)
         # autopackage was removed, remove from database
         f_pkg_index[pkg].destroy
       end

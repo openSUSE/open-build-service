@@ -39,11 +39,11 @@ class AttribType < ApplicationRecord
   end
 
   def self.find_by_namespace_and_name(namespace, name, or_fail = false)
-    unless namespace and name
+    unless namespace && name
       raise ArgumentError, "Need namespace and name as parameters"
     end
     ats = joins(:attrib_namespace).where("attrib_namespaces.name = ? and attrib_types.name = ?", namespace, name)
-    if or_fail and ats.count != 1
+    if or_fail && ats.count != 1
       raise UnknownAttributeTypeError, "Attribute Type #{namespace}:#{name} does not exist"
     end
     ats.first

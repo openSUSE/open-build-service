@@ -238,7 +238,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
     deps = BuilddepInfo.find(:project => @project.name, :package => '-', :repository => @repository.name, :arch => arch)
     nr_cycles = 0
-    if deps and deps.has_element? :cycle
+    if deps && deps.has_element?(:cycle)
       packages = Hash.new
       deps.each(:cycle) do |cycle|
         current_cycles = Array.new

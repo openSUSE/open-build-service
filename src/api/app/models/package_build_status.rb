@@ -39,7 +39,7 @@ class PackageBuildStatus
       end
     end
     archs.uniq!
-    if !trepo or trepo.nil?
+    if !trepo || trepo.nil?
       raise NoRepositoriesFound.new "Can not find repository building against target"
     end
 

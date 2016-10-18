@@ -10,7 +10,7 @@ Such requests get not created for projects with open requests or if you remove t
   def perform
     # disabled ?
     cleanupDays = ::Configuration.cleanup_after_days
-    return unless cleanupDays and cleanupDays > 0
+    return unless cleanupDays && cleanupDays > 0
 
     # defaults
     User.current ||= User.find_by_login "Admin"
@@ -24,7 +24,7 @@ Such requests get not created for projects with open requests or if you remove t
 
   def autoclean_project(prj)
     # project may be locked?
-    return if prj.nil? or prj.is_locked?
+    return if prj.nil? || prj.is_locked?
 
     # open requests do block the cleanup
     open_requests_count = BsRequest.in_states([:new, :review, :declined]).

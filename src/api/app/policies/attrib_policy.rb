@@ -21,14 +21,14 @@ class AttribPolicy < ApplicationPolicy
       end
     else
       type_perms.each do |rule|
-        next if rule.user and rule.user != @user
-        next if rule.group and not @user.is_in_group? rule.group
-        next if rule.role and not @user.has_local_role?(rule.role, @record.container)
+        next if rule.user && rule.user != @user
+        next if rule.group && !@user.is_in_group?(rule.group)
+        next if rule.role && !@user.has_local_role?(rule.role, @record.container)
         return true
       end
       namespace_perms.each do |rule|
-        next if rule.user and rule.user != @user
-        next if rule.group and not @user.is_in_group? rule.group
+        next if rule.user && rule.user != @user
+        next if rule.group && !@user.is_in_group?(rule.group)
         return true
       end
     end

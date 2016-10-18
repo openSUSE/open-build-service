@@ -240,7 +240,7 @@ class Webui::RequestController < Webui::WebuiController
     rescue APIException => e
       HoptoadNotifier.notify(e, { failed_job: "Failed to forward BsRequest '#{params[:number]}'" })
       flash[:error] = "Unable to forward submit: #{e.message}"
-      redirect_to(request_show_path(params[:number])) and return
+      redirect_to(request_show_path(params[:number])) && return
     end
 
     target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
@@ -254,7 +254,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def list
-    redirect_to user_show_path(User.current) and return unless request.xhr? # non ajax request
+    redirect_to(user_show_path(User.current)) && return unless request.xhr? # non ajax request
     requests = BsRequest.list_ids(params)
     elide_len = (params[:elide_len] || 44).to_i
     session[:request_numbers] = requests.map { |id| BsRequest.find(id).number }.uniq
@@ -264,7 +264,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def list_small
     required_parameters :project # the minimum
-    redirect_to user_show_path(User.current) and return unless request.xhr? # non ajax request
+    redirect_to(user_show_path(User.current)) && return unless request.xhr? # non ajax request
     requests = BsRequest.list_ids(params)
     requests = BsRequest.collection(ids: requests)
     render partial: 'requests_small', locals: {requests: requests}
@@ -339,8 +339,8 @@ class Webui::RequestController < Webui::WebuiController
       end
     rescue APIException => e
       flash[:error] = e.message
-      redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
-      redirect_to :controller => :project, :action => :show, :project => params[:project] and return
+      redirect_to(:controller => :package, :action => :show, :package => params[:package], :project => params[:project]) && return if params[:package]
+      redirect_to(:controller => :project, :action => :show, :project => params[:project]) && return
     end
     redirect_to :controller => :request, :action => :show, :number => req.number
   end
@@ -370,8 +370,8 @@ class Webui::RequestController < Webui::WebuiController
       end
     rescue APIException => e
       flash[:error] = e.message
-      redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
-      redirect_to :controller => :project, :action => :show, :project => params[:project] and return
+      redirect_to(:controller => :package, :action => :show, :package => params[:package], :project => params[:project]) && return if params[:package]
+      redirect_to(:controller => :project, :action => :show, :project => params[:project]) && return
     end
     redirect_to :controller => :request, :action => :show, :number => req.number
   end

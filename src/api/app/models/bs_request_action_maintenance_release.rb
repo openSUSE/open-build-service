@@ -129,7 +129,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
     # creating release requests is also locking the source package, therefore we require write access there.
     spkg = Package.find_by_project_and_name self.source_project, self.source_package
-    unless spkg or not User.current.can_modify_package? spkg
+    unless spkg || !User.current.can_modify_package?(spkg)
       raise LackingReleaseMaintainership.new 'Creating a release request action requires maintainership in source package'
     end
   end
@@ -141,7 +141,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     pkg = Package.find_by_project_and_name( self.target_project, basePackageName )
     if pkg
       opkg = pkg.origin_container
-      if opkg.name != self.target_package or opkg.project.name != self.target_project
+      if opkg.name != self.target_package || opkg.project.name != self.target_project
         ai['oproject'] = opkg.project.name
         ai['opackage'] = opkg.name
         ai['osrcmd5'] = opkg.backend_package.srcmd5
@@ -173,7 +173,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def minimum_priority
     spkg = Package.find_by_project_and_name self.source_project, self.source_package
-    return unless spkg and spkg.is_patchinfo?
+    return unless spkg && spkg.is_patchinfo?
     pi = Xmlhash.parse(spkg.patchinfo.dump_xml)
     pi["rating"]
   end
