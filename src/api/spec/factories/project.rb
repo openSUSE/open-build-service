@@ -55,7 +55,7 @@ FactoryGirl.define do
       kind 'maintenance'
 
       after(:create) do |project|
-        create(:attrib, project_id: project.id, attrib_type: AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject'))
+        create(:maintainance_project_attrib, project: project)
       end
     end
   end
