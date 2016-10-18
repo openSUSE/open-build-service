@@ -78,7 +78,7 @@ OBS_WORKER_TEST_MODE=""
 #
 # This is /run by default
 #
-OBS_RUN_DIR="/run"
+OBS_RUN_DIR="/srv/obs/run"
 
 ## Path:        Applications/OBS
 ## Description: The base for OBS logging directory
