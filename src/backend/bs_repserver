@@ -180,9 +180,16 @@ sub readpackstatus {
   if ($psf) {
     for (split("\n", $psf)) {
       my ($code, $packid) = split(' ', $_, 2);
-      next unless ($ps->{'packstatus'}->{$packid} || '') eq 'scheduled';
-      $ps->{'packstatus'}->{$packid} = 'finished';
-      $ps->{'packerror'}->{$packid} = $code;
+      if ($code eq 'scheduled') {
+        my ($job, $details);
+        ($packid, $job, $details) = split('/', $packid, 3);
+        next unless ($ps->{'packstatus'}->{$packid} || '') eq 'scheduled';
+        $ps->{'packerror'}->{$packid} = $details;
+      } else {
+        next unless ($ps->{'packstatus'}->{$packid} || '') eq 'scheduled';
+        $ps->{'packstatus'}->{$packid} = 'finished';
+        $ps->{'packerror'}->{$packid} = $code;
+      }
     }
   }
   return $ps;
@@ -3442,6 +3449,19 @@ sub idleworkerjob {
   return $BSStdServer::return_ok;
 }
 
+sub setdispatchdetails {
+  my ($cgi, $arch, $job) = @_;
+  my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+  if ($info) {
+    my $ev = { type => 'dispatchdetails', job => "$arch/$job", details => $cgi->{'details'}};
+    my $evname = "dispatchdetails:$job";
+    mkdir_p("$eventdir/$arch");
+    writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+    BSUtil::ping("$eventdir/$arch/.ping");
+  }
+  return $BSStdServer::return_ok;
+}
+
 sub putconfiguration {
   my ($cgi) = @_;
   mkdir_p($uploaddir);
@@ -3485,6 +3505,7 @@ my $dispatches = [
   '!- GET:' => undef,
   '!- HEAD:' => undef,
 
+  'POST:/build/$project cmd=move oproject:project' => \&moveproject,
   'POST:/build/$project/$repository/$arch/_repository match:' => \&postrepo,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
@@ -3492,7 +3513,6 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
-  'POST:/build/$project cmd=move oproject:project' => \&moveproject,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
@@ -3540,6 +3560,7 @@ my $dispatches = [
   '/jobs/$arch' => \&listjobs,
   'PUT:/jobs/$arch/$job' => \&addjob,
   'POST:/jobs/$arch/$job cmd=idleworker workerid jobid?' => \&idleworkerjob,
+  'POST:/jobs/$arch/$job cmd=setdispatchdetails details:' => \&setdispatchdetails,
   'DELETE:/jobs/$arch/$job' => \&deljob,
   '/jobs/$arch/$job view:?' => \&getjob,
 

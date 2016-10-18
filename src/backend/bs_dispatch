@@ -181,6 +181,7 @@ my %badhost;
 my %newestsrcchange;
 my %infocache;
 my %constraintscache;
+my %scheduleinfo;
 
 my %lastbuild;	# last time a job was build in that prpa
 
@@ -1020,6 +1021,9 @@ while (1) {
     for (grep {!$notlocked{$_} && !$locked{$_}} keys (%{$infocache{$arch} || {}})) {
       delete $infocache{$arch}->{$_};
     }
+    for (grep {!$notlocked{$_}} keys (%{$scheduleinfo{$arch} || {}})) {
+      delete $scheduleinfo{$arch}->{$_};
+    }
     # adapt load
     for my $job (keys %locked) {
       my $jn = $job;
@@ -1372,6 +1376,35 @@ while (1) {
 	$haveassigned = 1;
 	last;
       }
+      # we have jobs that could not be assigned and have constraints.
+      # check if non idle workers could build these job or if there are no
+      # workers that met the constraints
+      my @nonidlestates = qw(building away down dead);
+      if (!$haveassigned && $constraints) {
+        if ($info->{'allworkercheck'}++ % 5 == 0) {
+          my $details = "";
+          foreach my $nonidlestate (@nonidlestates) {
+            my $oraresult = 0;
+            my @workerarr = BSUtil::ls("$workersdir/$nonidlestate");
+            foreach my $workertooracle (@workerarr) {
+              my $worker = readxml("$workersdir/$nonidlestate/$workertooracle", $BSXML::worker, 1);
+              $oraresult++ if (oracle($worker,$constraints) == 1);
+            }
+            if (scalar(@workerarr) > 0 && $oraresult > 0) {
+              $details .= "$oraresult/" . scalar(@workerarr) . " $nonidlestate ";
+            }
+          }
+          if ($details eq "") {
+            $details = "no worker provides the capabilities to comply with the constraints";
+          }
+          $details =~ s/\s+$//;
+          if (!exists $scheduleinfo{$arch}->{$job} || $scheduleinfo{$arch}->{$job} ne $details) {
+            $scheduleinfo{$arch}->{$job} = $details;
+            setdispatchdetails($info,$arch,$job,$details);
+          }
+        }
+      }
+
       # Tricky, still increase load so that we don't assign
       # too many non-powerjobs. But only do that once for each powerjob.
       if (!$haveassigned && $powerjobs{$job} && !$extraload{"$arch/$job"}) {
@@ -1407,4 +1440,21 @@ while (1) {
     }
   }
   filechecks();
+}
+
+sub setdispatchdetails {
+  my ($info, $arch, $job, $details) = @_;
+  if ($info->{'masterdispatched'}) {
+    my $param = {
+      'uri' => "$info->{'reposerver'}/$arch/$job",
+      'request' => 'POST',
+    };
+    BSRPC::rpc($param, undef, "details=$details");
+  } else {
+    my $ev = { type => 'dispatchdetails', job => "$job", details => $details };
+    my $evname = "dispatchdetails:$job";
+    mkdir_p("$eventdir/$arch");
+    writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+    BSUtil::ping("$eventdir/$arch/.ping");
+  }
 }
