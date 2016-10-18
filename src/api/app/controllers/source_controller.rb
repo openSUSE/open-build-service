@@ -19,10 +19,12 @@ class SourceController < ApplicationController
   validate_action update_project_meta: { request: :project, response: :status}
   validate_action update_package_meta: { request: :package, response: :status}
 
-  skip_before_action :extract_user, only: [:lastevents_public]
-  skip_before_action :require_login, only: [:lastevents_public]
+  skip_before_action :extract_user, only: [:lastevents_public, :global_command_orderkiwirepos]
+  skip_before_action :require_login, only: [:lastevents_public, :global_command_orderkiwirepos]
 
-  before_action :require_valid_project_name, except: [:index, :lastevents, :lastevents_public, :global_command]
+  before_action :require_valid_project_name, except: [ :index, :lastevents, :lastevents_public,
+                                                       :global_command_orderkiwirepos, :global_command_branch,
+                                                       :global_command_createmaintenanceincident ]
 
   class NoPermissionForDeleted < APIException
     setup 403, 'only admins can see deleted projects'
@@ -44,14 +46,6 @@ class SourceController < ApplicationController
     else
       projectlist
     end
-  end
-
-  # POST /source
-  def global_command
-    unless %w(createmaintenanceincident branch orderkiwirepos).include? params[:cmd]
-      raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
-    end
-    dispatch_command(:global_command, params[:cmd])
   end
 
   def projectlist
@@ -846,16 +840,6 @@ class SourceController < ApplicationController
     volley_backend_path(path) unless forward_from_backend(path)
   end
 
-  private
-
-  class AttributeNotFound < APIException
-    setup 'not_found', 404
-  end
-
-  class ModifyProjectNoPermission < APIException
-    setup 403
-  end
-
   # POST /source?cmd=createmaintenanceincident
   def global_command_createmaintenanceincident
     # set defaults
@@ -868,6 +852,26 @@ class SourceController < ApplicationController
     # find maintenance project via attribute
     prj = Project.get_maintenance_project(at)
     actually_create_incident(prj)
+  end
+
+  # POST /source?cmd=branch (aka osc mbranch)
+  def global_command_branch
+    private_branch_command
+  end
+
+  # POST /source?cmd=orderkiwirepos
+  def global_command_orderkiwirepos
+    pass_to_backend
+  end
+
+  private
+
+  class AttributeNotFound < APIException
+    setup 'not_found', 404
+  end
+
+  class ModifyProjectNoPermission < APIException
+    setup 403
   end
 
   def actually_create_incident(project)
@@ -886,16 +890,6 @@ class SourceController < ApplicationController
   end
 
   class RepoDependency < APIException
-  end
-
-  # POST /source?cmd=branch (aka osc mbranch)
-  def global_command_branch
-    private_branch_command
-  end
-
-  # POST /source?cmd=orderkiwirepos
-  def global_command_orderkiwirepos
-    pass_to_backend
   end
 
   # create a id collection of all projects doing a project link to this one
