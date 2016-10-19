@@ -460,9 +460,6 @@ OBSApi::Application.routes.draw do
       get 'tag/:tag/_packages' => :get_packages_by_tag
       get 'tag/:tag/_all' => :get_objects_by_tag
 
-      # Get a tagcloud including all tags.
-      match 'tag/tagcloud' => :tagcloud, via: [:get, :post]
-
       get 'tag/get_tagged_projects_by_user' => :get_tagged_projects_by_user
       get 'tag/get_tagged_packages_by_user' => :get_tagged_packages_by_user
       get 'tag/get_tags_by_user' => :get_tags_by_user
@@ -481,9 +478,6 @@ OBSApi::Application.routes.draw do
     # Get objects tagged by user. (objects with tags)
     get 'user/:user/tags/_projects' => 'tag#get_tagged_projects_by_user', constraints: cons
     get 'user/:user/tags/_packages' => 'tag#get_tagged_packages_by_user', constraints: cons
-
-    # Get tags by user.
-    get 'user/:user/tags/_tagcloud' => 'tag#tagcloud', constraints: cons
 
     # Get tags for a certain object by user.
     match 'user/:user/tags/:project(/:package)' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
