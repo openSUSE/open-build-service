@@ -93,19 +93,6 @@ if [ ! -f /usr/share/obs/overview/index.html ] ; then
         /usr/share/obs/overview/overview.html.TEMPLATE > /usr/share/obs/overview/index.html
 fi
 
-pathfind() {
-    OLDIFS="$IFS"
-    IFS=:
-    for p in $PATH; do
-        if [ -x "$p/$*" ]; then
-            IFS="$OLDIFS"
-            return 0
-        fi
-    done
-    IFS="$OLDIFS"
-    return 1
-}
-
 # Test whether a2enmod is available (and thus also apache2ctl).
 if `pathfind a2enmod`; then
         # Enable the Apache2 modules if not already enabled
