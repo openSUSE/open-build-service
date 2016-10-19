@@ -246,3 +246,36 @@ function select_from_autocomplete(toselect) {
         if ($(this).text() == toselect) { $(this).trigger('mouseenter').click(); }
     });
 }
+
+// convert timestamps to real dates
+$(function() {
+  $('.convert-dates').on('click', function() {
+    var targets = $('.'+$(this).data('target'));
+
+    if (typeof $(this).data('showtext') === typeof undefined)
+    {
+        $(this).data('showtext', $(this).html());
+        $(this).html($(this).data('hidetext'));
+    }
+    else
+    {
+        $(this).html($(this).data('showtext'));
+        $(this).removeData('showtext');
+    }
+
+    for (var i = 0; i < targets.length; i++) {
+        var element = $(targets[i]);
+        if (typeof element.data('old') == typeof undefined)
+        {
+            var date = new Date(parseInt(element.data('timestamp'))*1000);
+            element.data('old', element.html());
+            element.html(date.toDateString() + ' ' + date.toTimeString());
+        }
+        else
+        {
+            element.html(element.data('old'));
+            element.removeData('old');
+        }
+    }
+  });
+});

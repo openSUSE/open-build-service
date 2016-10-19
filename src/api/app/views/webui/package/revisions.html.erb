@@ -13,7 +13,10 @@
     <% end %>
   </div>
   <% unless params[:showall] %>
-    <p><%= link_to('Show all', :action  => 'revisions', :project => @project, :package => @package, :showall => 1) %></p>
+    <p>
+     <%= link_to('Show all', :action  => 'revisions', :project => @project, :package => @package, :showall => 1) %> |
+     <a data-target="revision-date" data-hidetext="Hide full commit dates" class="convert-dates">Show full commit dates</a>
+    </p>
   <% end %>
 <% else %>
   <h3><%= @pagetitle %></h3>

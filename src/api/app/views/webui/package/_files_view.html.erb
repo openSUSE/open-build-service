@@ -60,6 +60,9 @@
     <% else %>
         <h3>Latest Revision</h3>
     <% end %>
+    <p>
+     <a data-target="revision-date" data-hidetext="Hide full commit date" class="convert-dates">Show full commit date</a>
+    </p>
     <div style="margin-left: 1.2em">
       <%= render :partial => 'commit_item', :locals => {:rev => @revision} %>
     </div>
