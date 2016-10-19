@@ -1,0 +1,17 @@
+Description: Added codemirror/addons/mode/simple.js
+Author: Bob Ham <bob.ham@collabora.com>
+Bug-Debian: https://bugs.debian.org/839133
+Origin: Debian
+Reviewed-By: Andrew Lee (李健秋) <ajqlee@debian.org>
+Last-Update: 2016-10-20
+
+--- open-build-service-2.7.1.orig/src/api/app/assets/javascripts/webui/application/cm2/index.js
++++ open-build-service-2.7.1/src/api/app/assets/javascripts/webui/application/cm2/index.js
+@@ -11,6 +11,7 @@
+ // GO AFTER THE REQUIRES BELOW.
+ //
+ //= require codemirror
++//= require codemirror/addons/mode/simple.js
+ //= require webui/application/cm2/toolbars
+ //= require webui/application/cm2/mode/baselibsconf
+ //= require webui/application/cm2/mode/prjconf
