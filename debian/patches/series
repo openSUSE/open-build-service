@@ -10,3 +10,4 @@ Rakefile-fix.patch
 ruby-interpreter.patch
 fix-embedded-js.patch
 fix-privacy-breach-piwik.patch
+jquery.ui.widget.patch
