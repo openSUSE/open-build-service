@@ -1554,9 +1554,9 @@ class SourceController < ApplicationController
 
     # convert link to branch
     rev = ''
-    rev = "&orev=#{pkg_rev}" if !pkg_rev.nil? && !pkg_rev.empty?
+    rev = "&orev=#{pkg_rev}" if pkg_rev.present?
     linkrev = ''
-    linkrev = "&linkrev=#{pkg_linkrev}" if !pkg_linkrev.nil? && !pkg_linkrev.empty?
+    linkrev = "&linkrev=#{pkg_linkrev}" if pkg_linkrev.present?
     Suse::Backend.post "/source/#{@package.project.name}/#{@package.name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}"
 
     @package.sources_changed

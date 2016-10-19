@@ -992,8 +992,8 @@ class Package < ApplicationRecord
                 opackage:  origin_package,
                 user:      User.current.login
     }
-    myparam[:orev] = rev if rev && !rev.empty?
-    myparam[:olinkrev] = olinkrev if olinkrev && !olinkrev.empty?
+    myparam[:orev] = rev if rev.present?
+    myparam[:olinkrev] = olinkrev if olinkrev.present?
     myparam[:missingok] = '1' if missingok
     myparam[:comment] = comment if comment
     path = self.source_path
