@@ -54,8 +54,13 @@ FactoryGirl.define do
     factory :maintenance_project do
       kind 'maintenance'
 
-      after(:create) do |project|
+      transient do
+        target_project nil
+      end
+
+      after(:create) do |project, evaluator|
         create(:maintainance_project_attrib, project: project)
+        create(:maintained_project, project: evaluator.target_project, maintenance_project: project) if evaluator.target_project
       end
     end
 
