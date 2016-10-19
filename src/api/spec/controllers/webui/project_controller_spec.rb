@@ -30,7 +30,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     it 'will protect forms without authenticity token' do
-      expect { post :save_person, project: user.home_project }.to raise_error ActionController::InvalidAuthenticityToken
+      expect { post :save_person, params: { project: user.home_project } }.to raise_error ActionController::InvalidAuthenticityToken
     end
   end
 
@@ -39,7 +39,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       before do
         home_moi_project
         another_project
-        get :index, { show_all: true}
+        get :index, params: { show_all: true}
       end
 
       it { expect(assigns(:projects).length).to eq(2) }
@@ -51,7 +51,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       before do
         home_moi_project
         another_project
-        get :index, { show_all: false}
+        get :index, params: { show_all: false}
       end
 
       it { expect(assigns(:projects).length).to eq(1) }
@@ -75,7 +75,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context "with valid parameters" do
       before do
         login user
-        patch :update, id: project.id, project: { description: "My projects description", title: "My projects title" }
+        patch :update, params: { id: project.id, project: { description: "My projects description", title: "My projects title" } }
         project.reload
       end
 
@@ -88,7 +88,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context "with invalid data" do
       before do
         login user
-        patch :update, id: project.id, project: { description: "My projects description", title: "My projects title"*200 }
+        patch :update, params: { id: project.id, project: { description: "My projects description", title: "My projects title"*200 } }
         project.reload
       end
 
@@ -119,7 +119,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with search term' do
       before do
-        get :autocomplete_projects, term: 'Apache'
+        get :autocomplete_projects, params: { term: 'Apache' }
         @json_response = JSON.parse(response.body)
       end
 
@@ -133,7 +133,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     before do
       apache_project
       apache_maintenance_incident_project
-      get :autocomplete_incidents, term: 'Apache'
+      get :autocomplete_incidents, params: { term: 'Apache' }
       @json_response = JSON.parse(response.body)
     end
 
@@ -150,7 +150,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'without search term' do
       before do
-        get :autocomplete_packages, project: apache_project
+        get :autocomplete_packages, params: { project: apache_project }
         @json_response = JSON.parse(response.body)
       end
 
@@ -160,7 +160,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with search term' do
       before do
-        get :autocomplete_packages, { project: apache_project, term: 'Apache2' }
+        get :autocomplete_packages, params: { project: apache_project, term: 'Apache2' }
         @json_response = JSON.parse(response.body)
       end
 
@@ -173,7 +173,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #autocomplete_repositories' do
     before do
       @repositories = create_list(:repository, 5, { project: apache_project })
-      get :autocomplete_repositories, project: apache_project
+      get :autocomplete_repositories, params: { project: apache_project }
       @json_response = JSON.parse(response.body)
     end
 
@@ -188,7 +188,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       create(:relationship_project_user, project: another_project, user: create(:confirmed_user))
       create(:relationship_project_group, project: another_project, group: create(:group))
-      get :users, project: apache_project
+      get :users, params: { project: apache_project }
     end
 
     it { expect(assigns(:users)).to match_array(apache_project.users) }
@@ -203,7 +203,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       create(:project, name: 'Apache:Apache2:TestSubproject')
       create(:project, name: 'Apache:Apache2:TestSubproject2')
       another_project
-      get :subprojects, project: @project
+      get :subprojects, params: { project: @project }
     end
 
     it { expect(assigns(:subprojects)).to match_array(@project.subprojects) }
@@ -213,7 +213,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #new' do
     before do
       login user
-      get :new, name: 'ProjectName'
+      get :new, params: { name: 'ProjectName' }
     end
 
     it { expect(assigns(:project)).to be_a(Project) }
@@ -228,7 +228,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'without nextstatus param' do
       before do
-        get :show, project: apache_project
+        get :show, params: { project: apache_project }
       end
 
       it { expect(response).to have_http_status(:ok) }
@@ -236,7 +236,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with nextstatus param' do
       before do
-        get :show, { project: apache_project, nextstatus: 500 }
+        get :show, params: { project: apache_project, nextstatus: 500 }
       end
 
       it { expect(response).to have_http_status(:internal_server_error) }
@@ -244,7 +244,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'without patchinfo' do
       before do
-        get :show, project: apache_project
+        get :show, params: { project: apache_project }
       end
 
       it { expect(assigns(:has_patchinfo)).to be_falsey }
@@ -258,7 +258,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         # Avoid writing to the backend
         Package.any_instance.stubs(:sources_changed).returns(nil)
         Patchinfo.new.create_patchinfo(apache_project.name, nil, comment: 'Fake comment', force: false)
-        get :show, project: apache_project
+        get :show, params: { project: apache_project }
       end
 
       it { expect(assigns(:has_patchinfo)).to be_truthy }
@@ -267,7 +267,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with comments' do
       before do
         apache_project.comments << build(:comment_project, user: user)
-        get :show, project: apache_project
+        get :show, params: { project: apache_project }
       end
 
       it { expect(assigns(:comments)).to match_array(apache_project.comments) }
@@ -276,7 +276,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with bugowners' do
       before do
         create(:relationship_project_user, role: Role.find_by_title('bugowner'), project: apache_project, user: user)
-        get :show, project: apache_project
+        get :show, params: { project: apache_project }
       end
 
       it { expect(assigns(:bugowners_mail)).to match_array([user.email]) }
@@ -284,7 +284,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'without bugowners' do
       before do
-        get :show, project: apache_project
+        get :show, params: { project: apache_project }
       end
 
       it { expect(assigns(:bugowners_mail)).to be_a(Array) }
@@ -296,7 +296,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it 'branches the package' do
       login user
       @remote_projects_created = create_list(:remote_project, 3)
-      get :new_package_branch, project: apache_project
+      get :new_package_branch, params: { project: apache_project }
       expect(assigns(:remote_projects)).to match_array(@remote_projects_created.map {|r| [r.id, r.name, r.title]})
     end
   end
@@ -311,7 +311,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       let(:new_maintenance_incident_project) { Project.maintenance_incident.first }
 
       before do
-        get :new_incident, ns: maintenance_project
+        get :new_incident, params: { ns: maintenance_project }
       end
 
       it { is_expected.to redirect_to(project_show_path(project: new_maintenance_incident_project.name)) }
@@ -320,7 +320,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'without a Maintenance project' do
       before do
-        get :new_incident, ns: apache_project
+        get :new_incident, params: { ns: apache_project }
       end
 
       it { is_expected.to redirect_to(project_show_path(project: apache_project)) }
@@ -343,7 +343,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #add_person' do
     it 'assigns the local roles' do
       login user
-      get :add_person, project: user.home_project
+      get :add_person, params: { project: user.home_project }
       expect(assigns(:roles)).to match_array(Role.local_roles)
     end
   end
@@ -351,7 +351,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #add_group' do
     it 'assigns the local roles' do
       login user
-      get :add_group, project: user.home_project
+      get :add_group, params: { project: user.home_project }
       expect(assigns(:roles)).to match_array(Role.local_roles)
     end
   end
@@ -388,7 +388,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'having a parent project' do
         before do
           subproject = create(:project, name: "#{user.home_project}:subproject")
-          delete :destroy, project: subproject
+          delete :destroy, params: { project: subproject }
         end
 
         it { expect(Project.count).to eq(1) }
@@ -398,7 +398,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context 'not having a parent project' do
         before do
-          delete :destroy, project: user.home_project
+          delete :destroy, params: { project: user.home_project }
         end
 
         it { expect(Project.count).to eq(0) }
@@ -410,7 +410,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with check_weak_dependencies disabled' do
       before do
         Project.any_instance.stubs(:check_weak_dependencies?).returns(false)
-        delete :destroy, project: user.home_project
+        delete :destroy, params: { project: user.home_project }
       end
 
       it { expect(Project.count).to eq(1) }
@@ -427,7 +427,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with an invalid scheduler' do
       before do
-        get :rebuild_time, project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64', scheduler: 'invalid_scheduler'
+        get :rebuild_time, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64', scheduler: 'invalid_scheduler' }
       end
 
       it { expect(flash[:error]).to eq('Invalid scheduler type, check mkdiststats docu - aehm, source') }
@@ -438,7 +438,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       before do
         BuilddepInfo.stubs(:find).returns(nil)
         Jobhistory.stubs(:find).returns(nil)
-        get :rebuild_time, project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64'
+        get :rebuild_time, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
       end
 
       it { expect(flash[:error]).to start_with('Could not collect infos about repository') }
@@ -456,7 +456,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           path = Xmlhash::XMLHash.new({'package' => 'package_name' })
           longestpaths_xml = Xmlhash::XMLHash.new({ 'longestpath' => Xmlhash::XMLHash.new({'path' => path }) })
           Webui::ProjectController.any_instance.stubs(:call_diststats).returns(longestpaths_xml)
-          get :rebuild_time, project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64'
+          get :rebuild_time, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
 
         it { expect(assigns(:longestpaths)).to match_array([[], [], [], [], ["package_name"]]) }
@@ -465,7 +465,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'with diststats not generated' do
         before do
           Webui::ProjectController.any_instance.stubs(:call_diststats).returns(nil)
-          get :rebuild_time, project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64'
+          get :rebuild_time, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
 
         it { expect(assigns(:longestpaths)).to match_array([[], [], [], []]) }
@@ -476,7 +476,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #rebuild_time_png' do
     context 'with an invalid key' do
       before do
-        get :rebuild_time_png, project: user.home_project, key: 'invalid_key'
+        get :rebuild_time_png, params: { project: user.home_project, key: 'invalid_key' }
       end
 
       it { expect(response.body).to be_empty }
@@ -487,7 +487,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with a valid key' do
       before do
         Rails.cache.write("rebuild-valid_key.png", "PNG Content")
-        get :rebuild_time_png, project: user.home_project, key: 'valid_key'
+        get :rebuild_time_png, params: { project: user.home_project, key: 'valid_key' }
       end
 
       it { expect(response.body).to eq("PNG Content") }
@@ -498,7 +498,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #requests' do
     before do
-      get :requests, project: apache_project, type: 'my_type', state: 'my_state'
+      get :requests, params: { project: apache_project, type: 'my_type', state: 'my_state' }
     end
 
     it { expect(assigns(:requests)).to eq(apache_project.open_requests) }
@@ -519,7 +519,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "with a namespace called 'base'" do
       before do
-        get :create, project: { name: 'my_project' }, ns: user.home_project_name
+        get :create, params: { project: { name: 'my_project' }, ns: user.home_project_name }
       end
 
       it { expect(assigns(:project).name).to eq("#{user.home_project_name}:my_project") }
@@ -528,7 +528,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with a param called maintenance_project' do
       before do
-        get :create, project: { name: 'my_project' }, ns: user.home_project_name, maintenance_project: true
+        get :create, params: { project: { name: 'my_project' }, ns: user.home_project_name, maintenance_project: true }
       end
 
       it { expect(assigns(:project).kind).to eq('maintenance') }
@@ -538,7 +538,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with a param that disables a flag' do
       shared_examples "a param that creates a disabled flag" do |param_name, flag_name|
         before do
-          get :create, :project => { name: 'my_project' }, :ns => user.home_project_name, param_name.to_sym => true
+          get :create, params: { :project => { name: 'my_project' }, :ns => user.home_project_name, param_name.to_sym => true }
         end
 
         it { expect(assigns(:project).flags.pluck(:flag)).to include(flag_name) }
@@ -553,7 +553,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with an invalid project data' do
       before do
-        get :create, project: { name: 'my invalid project' }, ns: user.home_project_name
+        get :create, params: { project: { name: 'my invalid project' }, ns: user.home_project_name }
       end
 
       it { expect(flash[:error]).to start_with('Failed to save project') }
@@ -568,7 +568,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "with valid data" do
       before do
-        patch :update, id: user.home_project.id, project: { title: 'New Title' }
+        patch :update, params: { id: user.home_project.id, project: { title: 'New Title' } }
       end
 
       it { expect(assigns(:project).title).to eq('New Title') }
@@ -578,7 +578,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "with no valid data" do
       before do
-        patch :update, id: user.home_project.id, project: { name: 'non valid name' }
+        patch :update, params: { id: user.home_project.id, project: { name: 'non valid name' } }
       end
 
       it { expect(flash[:error]).to eq("Failed to update project") }
@@ -595,7 +595,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context "without target project" do
       before do
         BsRequestActionDelete.expects(:new).raises(BsRequestAction::UnknownTargetProject)
-        post :remove_target_request, project: apache_project, description: 'Fake description'
+        post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
 
       it { expect(flash[:error]).to eq("BsRequestAction::UnknownTargetProject") }
@@ -605,7 +605,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context "without target package" do
       before do
         BsRequestActionDelete.expects(:new).raises(BsRequestAction::UnknownTargetPackage)
-        post :remove_target_request, project: apache_project, description: 'Fake description'
+        post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
 
       it { expect(flash[:error]).to eq("BsRequestAction::UnknownTargetPackage") }
@@ -614,7 +614,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "with proper params" do
       before do
-        post :remove_target_request, project: apache_project, description: 'Fake description'
+        post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
 
       it do
@@ -633,16 +633,16 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     it "without a repository param" do
-      expect { post :remove_path_from_target, project: user }.to raise_error ActiveRecord::RecordNotFound
+      expect { post :remove_path_from_target, params: { project: user } }.to raise_error ActiveRecord::RecordNotFound
     end
 
     it "with a repository param but without a path param" do
-      expect { post :remove_path_from_target, repository: repo_for_user_home, project: user }.to raise_error ActiveRecord::RecordNotFound
+      expect { post :remove_path_from_target, params: { repository: repo_for_user_home, project: user } }.to raise_error ActiveRecord::RecordNotFound
     end
 
     context "with a repository and path" do
       before do
-        post :remove_path_from_target, project: user.home_project, repository: repo_for_user_home, path: path_element
+        post :remove_path_from_target, params: { project: user.home_project, repository: repo_for_user_home, path: path_element }
       end
 
       it { expect(flash[:success]).to eq("Successfully removed path") }
@@ -655,7 +655,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
         path_element # Needed before stubbing Project#valid? to false
         Project.any_instance.stubs(:valid?).returns(false)
-        post :remove_path_from_target, project: user.home_project, repository: repo_for_user_home, path: path_element
+        post :remove_path_from_target, params: { project: user.home_project, repository: repo_for_user_home, path: path_element }
       end
 
       it { expect(flash[:error]).to eq("Can not remove path: ") }
@@ -671,23 +671,23 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     it "with a project already whatched" do
       create(:watched_project, project: user.home_project, user: user)
-      get :toggle_watch, project: user.home_project
+      get :toggle_watch, params: { project: user.home_project }
       expect(user.watched_project_names).not_to include(user.home_project_name)
     end
 
     it "with a project not whatched" do
-      get :toggle_watch, project: user.home_project
+      get :toggle_watch, params: { project: user.home_project }
       expect(user.watched_project_names).to include(user.home_project_name)
     end
 
     it "redirects to back if a referer is there" do
       request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
-      get :toggle_watch, project: user.home_project
+      get :toggle_watch, params: { project: user.home_project }
       is_expected.to redirect_to(:back)
     end
 
     it "redirects to project#show" do
-      get :toggle_watch, project: user.home_project
+      get :toggle_watch, params: { project: user.home_project }
       is_expected.to redirect_to(project_show_path(user.home_project))
     end
   end
@@ -704,7 +704,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context  'successfully unlocks the project' do
         before do
-          post :unlock, project: user.home_project
+          post :unlock, params: { project: user.home_project }
         end
 
         it { is_expected.to redirect_to(action: :show, project: user.home_project) }
@@ -716,7 +716,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         before do
           user.home_project.update(kind: 'maintenance_incident')
-          post :unlock, project: user.home_project
+          post :unlock, params: { project: user.home_project }
         end
 
         it { is_expected.to redirect_to(action: :show, project: user.home_project) }
@@ -730,7 +730,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context "with a project that isn't locked" do
       context  "project can't be unlocked" do
         before do
-          post :unlock, project: user.home_project
+          post :unlock, params: { project: user.home_project }
         end
 
         it { is_expected.to redirect_to(action: :show, project: user.home_project) }
@@ -753,7 +753,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         let(:maintained_project) { create(:maintained_project, project: user.home_project) }
 
         before do
-          post :remove_maintained_project, project: user.home_project, maintained_project: maintained_project.project.name
+          post :remove_maintained_project, params: { project: user.home_project, maintained_project: maintained_project.project.name }
         end
 
         it { expect(user.home_project.maintained_projects.where(project: user.home_project)).not_to exist }
@@ -764,7 +764,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context "with an invalid maintained project" do
         before do
           request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
-          post :remove_maintained_project, project: user.home_project, maintained_project: user.home_project.name
+          post :remove_maintained_project, params: { project: user.home_project, maintained_project: user.home_project.name }
         end
 
         it { expect(flash[:error]).to eq("Failed to remove #{user.home_project.name} from maintenance") }
@@ -774,7 +774,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       # raise the exception in the before_action set_maintained_project
       it "#remove_maintained_project raise excepction with invalid maintained project" do
         expect {
-          post :remove_maintained_project, project: user.home_project, maintained_project: "invalid"
+          post :remove_maintained_project, params: { project: user.home_project, maintained_project: "invalid" }
         }.to raise_exception ActiveRecord::RecordNotFound
       end
     end
@@ -783,7 +783,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       let(:maintained_project) { create(:maintained_project, project: user.home_project) }
 
       before do
-        post :remove_maintained_project, project: user.home_project, maintained_project: maintained_project.project.name
+        post :remove_maintained_project, params: { project: user.home_project, maintained_project: maintained_project.project.name }
       end
 
       it { is_expected.to redirect_to(action: :show, project: user.home_project) }
@@ -802,7 +802,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context "adding a valid maintained project" do
         before do
-          post :add_maintained_project, project: user.home_project, maintained_project: user.home_project.name
+          post :add_maintained_project, params: { project: user.home_project, maintained_project: user.home_project.name }
         end
 
         it { expect(user.home_project.maintained_projects.where(project: user.home_project)).to exist }
@@ -812,7 +812,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context "adding an invalid project" do
         before do
-          post :add_maintained_project, project: user.home_project, maintained_project: "invalid project"
+          post :add_maintained_project, params: { project: user.home_project, maintained_project: "invalid project" }
         end
 
         it { expect(user.home_project.maintained_projects.where(project_id: user.home_project.id)).not_to exist }
@@ -823,7 +823,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "without a maintenance project (kind 'maintenance')" do
       before do
-        post :add_maintained_project, project: user.home_project, maintained_project: user.home_project.name
+        post :add_maintained_project, params: { project: user.home_project, maintained_project: user.home_project.name }
       end
 
       it { expect(user.home_project.maintained_projects.where(project: user.home_project)).not_to exist }
@@ -838,12 +838,12 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     it "without an existent project will raise an exception" do
-      expect { post :new_incident_request, project: 'non:existent:project' }.to raise_error Project::UnknownObjectError
+      expect { post :new_incident_request, params: { project: 'non:existent:project' } }.to raise_error Project::UnknownObjectError
     end
 
     context "without a proper action for the maintenance project" do
       before do
-        post :new_incident_request, project: maintenance_project, description: "Fake description for a request"
+        post :new_incident_request, params: { project: maintenance_project, description: "Fake description for a request" }
       end
 
       it { expect(flash[:error]).to eq("MaintenanceHelper::MissingAction") }
@@ -853,7 +853,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context "with the proper params" do
       before do
         BsRequest.any_instance.stubs(:save!).returns(true)
-        post :new_incident_request, project: maintenance_project, description: "Fake description for a request"
+        post :new_incident_request, params: { project: maintenance_project, description: "Fake description for a request" }
       end
 
       it { expect(flash[:success]).to eq("Created maintenance incident request") }
@@ -872,7 +872,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with a user that can create attributes' do
       before do
         login user
-        post :edit_comment, project: user.home_project, package: package, text: text, format: 'js'
+        post :edit_comment, params: { project: user.home_project, package: package, text: text, format: 'js' }
       end
 
       it { expect(package.attribs.where(attrib_type: attribute_type).first.values.first.value).to eq(text) }
@@ -881,7 +881,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "with a user that can't create attributes" do
       before do
-        post :edit_comment, project: user.home_project, package: package, text: text, last_comment: 'Last comment', format: 'js'
+        post :edit_comment, params: { project: user.home_project, package: package, text: text, last_comment: 'Last comment', format: 'js' }
       end
 
       it { expect(assigns(:comment)).to eq('Last comment') }
@@ -899,7 +899,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with format html' do
       before do
-        get :clear_failed_comment, project: user.home_project, package: package
+        get :clear_failed_comment, params: { project: user.home_project, package: package }
       end
 
       it { expect(flash[:notice]).to eq("Cleared comments for packages.") }

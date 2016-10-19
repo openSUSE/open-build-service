@@ -13,24 +13,24 @@ RSpec.describe Webui::SearchController, vcr: true do
 
   describe "GET #owner" do
     it 'just returns with blank search text' do
-      get(:owner, { search_text: '', owner: 1 })
+      get :owner, params: { search_text: '', owner: 1 }
       expect(response).to have_http_status(:success)
     end
 
     it 'warns about short search text' do
-      get(:owner, { search_text: 'a', owner: 1 })
+      get :owner, params: { search_text: 'a', owner: 1 }
       expect(controller).to set_flash[:error].to("Search string must contain at least two characters.")
     end
 
     it 'assigns results' do
-      get(:owner, { search_text: 'package', owner: 1 })
+      get :owner, params: { search_text: 'package', owner: 1 }
       expect(assigns(:results)[0].users).to eq({"maintainer"=>["Iggy"]})
     end
 
     it 'assigns results for devel package' do
       package.update_attributes(develpackage: develpackage)
 
-      get(:owner, { search_text: 'package', owner: 1, devel: 'on' })
+      get :owner, params: { search_text: 'package', owner: 1, devel: 'on' }
       expect(assigns(:results)[0].users).to eq({"maintainer"=>["DevelIggy"]})
       expect(assigns(:results)[0].users).not_to eq({"maintainer"=>["Iggy"]})
     end
@@ -44,7 +44,7 @@ RSpec.describe Webui::SearchController, vcr: true do
 
     context 'with a short search text' do
       before do
-        get :index, { search_text: 'a' }
+        get :index, params: { search_text: 'a' }
       end
 
       it { expect(flash[:error]).to eq('Search string must contain at least two characters.') }
@@ -53,7 +53,7 @@ RSpec.describe Webui::SearchController, vcr: true do
 
     context 'request number when string starts with a #' do
       before do
-        get :index, { search_text: '#1' }
+        get :index, params: { search_text: '#1' }
       end
 
       it { is_expected.to redirect_to(controller: :request, action: :show, number: 1) }
@@ -63,7 +63,7 @@ RSpec.describe Webui::SearchController, vcr: true do
       context 'and a package' do
         before do
           Package.stubs(:exists_by_project_and_name).returns(true)
-          get :index, { search_text: "obs://build.opensuse.org/#{user.home_project.name}/i586/1-#{package.name}" }
+          get :index, params: { search_text: "obs://build.opensuse.org/#{user.home_project.name}/i586/1-#{package.name}" }
         end
 
         it { is_expected.to redirect_to(controller: :package, action: :show, project: user.home_project, package: package.name, rev: 1) }
@@ -72,7 +72,7 @@ RSpec.describe Webui::SearchController, vcr: true do
       context 'and a non existent package' do
         before do
           request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
-          get :index, { search_text: "obs://build.opensuse.org/#{user.home_project.name}/i586/1-non_existent_package" }
+          get :index, params: { search_text: "obs://build.opensuse.org/#{user.home_project.name}/i586/1-non_existent_package" }
         end
 
         it { expect(flash[:notice]).to eq('Sorry, this disturl does not compute...') }
@@ -82,7 +82,7 @@ RSpec.describe Webui::SearchController, vcr: true do
 
     context 'with bad search_where' do
       before do
-        get :index, { search_text: 'whatever', name: '0' }
+        get :index, params: { search_text: 'whatever', name: '0' }
       end
 
       it { expect(flash[:error]).to eq("You have to search for whatever in something. Click the advanced button...") }
@@ -92,7 +92,7 @@ RSpec.describe Webui::SearchController, vcr: true do
     context 'with proper parameters but no results' do
       before do
         ThinkingSphinx.stubs(:search).returns([])
-        get :index, { search_text: 'whatever' }
+        get :index, params: { search_text: 'whatever' }
       end
 
       it { expect(flash[:notice]).to eq('Your search did not return any results.') }
@@ -103,7 +103,7 @@ RSpec.describe Webui::SearchController, vcr: true do
     context 'with proper parameters and some results' do
       before do
         ThinkingSphinx.stubs(:search).returns(["Fake result with #{package.name}"])
-        get :index, { search_text: package.name }
+        get :index, params: { search_text: package.name }
       end
 
       it { expect(response).to have_http_status(:success) }

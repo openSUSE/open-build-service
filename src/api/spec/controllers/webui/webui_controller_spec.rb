@@ -82,14 +82,14 @@ RSpec.describe Webui::WebuiController do
 
   describe 'require_login before filter' do
     it 'redirects to main page for new users' do
-      get :show, id: 1
+      get :show, params: { id: 1 }
       expect(response).to redirect_to(user_login_path)
       expect(flash[:error]).to eq('Please login to access the requested page.')
     end
 
     it 'does not redirect for a confirmed user' do
       login(create(:confirmed_user, login: 'eisendieter'))
-      get :show, id: 1
+      get :show, params: { id: 1 }
       expect(response).to have_http_status(:success)
     end
   end
@@ -121,7 +121,7 @@ RSpec.describe Webui::WebuiController do
     context 'with invalid project parameter' do
       it 'raises an ActiveRecord::RecordNotFound exception' do
         expect{
-          get :edit, id: 1, project: 'invalid'
+          get :edit, params: { id: 1, project: 'invalid' }
         }.to raise_error(ActiveRecord::RecordNotFound )
       end
     end
@@ -130,7 +130,7 @@ RSpec.describe Webui::WebuiController do
       let(:project) { create(:project) }
 
       it 'sets the correct project' do
-        get :edit, id: 1, project: project.name
+        get :edit, params: { id: 1, project: project.name }
         expect(assigns(:project)).to eq(project)
       end
     end

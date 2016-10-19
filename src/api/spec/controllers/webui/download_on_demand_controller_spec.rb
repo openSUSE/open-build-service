@@ -30,7 +30,7 @@ RSpec.describe Webui::DownloadOnDemandController do
   it "uses strong parameters" do
     login(admin_user)
     should permit(:arch, :repotype, :url, :repository_id, :archfilter, :masterurl, :mastersslfingerprint, :pubkey).
-              for(:create, params: dod_parameters).on(:download_repository)
+      for(:create, params: dod_parameters ).on(:download_repository)
   end
 
   describe "POST create" do
@@ -41,7 +41,7 @@ RSpec.describe Webui::DownloadOnDemandController do
     context "for non-admin users" do
       before do
         login(create(:confirmed_user))
-        post :create, dod_parameters
+        post :create, params: dod_parameters
       end
 
       it { is_expected.to redirect_to(root_path) }
@@ -52,7 +52,7 @@ RSpec.describe Webui::DownloadOnDemandController do
     context "valid requests" do
       before do
         login(admin_user)
-        post :create, dod_parameters
+        post :create, params: dod_parameters
       end
 
       it { is_expected.to redirect_to(project_repositories_path(project)) }
@@ -65,7 +65,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       before do
         dod_parameters[:download_repository][:arch] = ""
         login(admin_user)
-        post :create, dod_parameters
+        post :create, params: dod_parameters
       end
 
       it { is_expected.to redirect_to(root_path) }
@@ -81,7 +81,7 @@ RSpec.describe Webui::DownloadOnDemandController do
     context "for non-admin users" do
       before do
         login(create(:confirmed_user))
-        delete :destroy, id: dod_repository.id, project: project.name
+        delete :destroy, params: { id: dod_repository.id, project: project.name }
       end
 
       it { is_expected.to redirect_to(root_path) }
@@ -94,7 +94,7 @@ RSpec.describe Webui::DownloadOnDemandController do
 
       before do
         login(admin_user)
-        delete :destroy, id: dod_repository.id, project: project.name
+        delete :destroy, params: { id: dod_repository.id, project: project.name }
       end
 
       it { is_expected.to redirect_to(project_repositories_path(project)) }
@@ -105,7 +105,7 @@ RSpec.describe Webui::DownloadOnDemandController do
     context "invalid requests" do
       before do
         login(admin_user)
-        delete :destroy, id: dod_repository.id, project: project.name
+        delete :destroy, params: { id: dod_repository.id, project: project.name }
       end
 
       it { is_expected.to redirect_to(root_path) }
@@ -123,7 +123,7 @@ RSpec.describe Webui::DownloadOnDemandController do
         dod_parameters[:id] = dod_repository.id
         dod_parameters[:download_repository][:url] = "http://opensuse.org"
 
-        post :update, dod_parameters
+        post :update, params: dod_parameters
       end
 
       it { is_expected.to redirect_to(root_path) }
@@ -141,7 +141,7 @@ RSpec.describe Webui::DownloadOnDemandController do
         dod_parameters[:download_repository][:url] = "http://opensuse.org"
         dod_parameters[:download_repository][:repository_id] = dod_repository.repository.id
 
-        post :update, dod_parameters
+        post :update, params: dod_parameters
       end
 
       it { is_expected.to redirect_to(project_repositories_path(project)) }

@@ -54,7 +54,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "sending a valid submit request" do
       before do
-        post :submit_request, { project: source_project, package: package, targetproject: target_project }
+        post :submit_request, params: { project: source_project, package: package, targetproject: target_project }
       end
 
       it_should_behave_like "a response of a successful submit request"
@@ -62,7 +62,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "having whitespaces in parameters" do
       before do
-        post :submit_request, { project: " #{source_project} ", package: " #{package} ", targetproject: " #{target_project} " }
+        post :submit_request, params: { project: " #{source_project} ", package: " #{package} ", targetproject: " #{target_project} " }
       end
 
       it_should_behave_like "a response of a successful submit request"
@@ -70,7 +70,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'not successful' do
       before do
-        post :submit_request, { project: source_project, package: source_package, targetproject: target_project.name }
+        post :submit_request, params: { project: source_project, package: source_package, targetproject: target_project.name }
       end
 
       it { expect(flash[:error]).to eq('Unable to submit: The source of package home:tom/my_package is broken') }
@@ -83,7 +83,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       before do
         login(unconfirmed_user)
-        post :submit_request, { project: source_project, package: package, targetproject: target_project }
+        post :submit_request, params: { project: source_project, package: package, targetproject: target_project }
       end
 
       it { expect(flash[:error]).to eq("Unable to submit: Validation failed: Creator Login #{unconfirmed_user.login} is not an active user") }
@@ -93,7 +93,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "unchanged sources" do
       before do
-        post :submit_request, { project: source_project, package: package, targetproject: source_project }
+        post :submit_request, params: { project: source_project, package: package, targetproject: source_project }
       end
 
       it { expect(flash[:error]).to eq("Unable to submit, sources are unchanged") }
@@ -103,7 +103,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "invalid request (missing parameters)" do
       before do
-        post :submit_request, { project: source_project, package: "", targetproject: source_project }
+        post :submit_request, params: { project: source_project, package: "", targetproject: source_project }
       end
 
       it { expect(flash[:error]).to eq("Unable to submit: #{source_project}/") }
@@ -115,7 +115,9 @@ RSpec.describe Webui::PackageController, vcr: true do
   describe 'POST #save' do
     before do
       login(user)
-      post :save, { project: source_project, package: source_package, title: 'New title for package', description: 'New description for package' }
+      post :save, params: {
+          project: source_project, package: source_package, title: 'New title for package', description: 'New description for package'
+        }
     end
 
     it { expect(flash[:notice]).to eq("Package data for '#{source_package.name}' was saved successfully") }
@@ -130,13 +132,13 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
 
     it "shows an error if source package doesn't exist" do
-      post :save_new_link, project: user.home_project, linked_project: source_project
+      post :save_new_link, params: { project: user.home_project, linked_project: source_project }
       expect(flash[:error]).to eq("Failed to branch: Package does not exist.")
       expect(response).to redirect_to(root_path)
     end
 
     it "shows an error if source project doesn't exist" do
-      post :save_new_link, project: user.home_project
+      post :save_new_link, params: { project: user.home_project }
       expect(flash[:error]).to eq("Failed to branch: Package does not exist.")
       expect(response).to redirect_to(root_path)
     end
@@ -151,7 +153,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       let(:target_package) { create(:package, name: "forbidden_package", project: target_project) }
 
       it "does not allow other users than the owner to delete a package" do
-        post :remove, project: target_project, package: target_package
+        post :remove, params: { project: target_project, package: target_package }
 
         expect(flash[:error]).to eq("Sorry, you are not authorized to delete this Package.")
         expect(target_project.packages).not_to be_empty
@@ -159,7 +161,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       it "allows admins to delete other user's packages" do
         login(admin)
-        post :remove, project: target_project, package: target_package
+        post :remove, params: { project: target_project, package: target_package }
 
         expect(flash[:notice]).to eq("Package was successfully removed.")
         expect(target_project.packages).to be_empty
@@ -168,7 +170,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "a package" do
       before do
-        post :remove, project: user.home_project, package: source_package
+        post :remove, params: { project: user.home_project, package: source_package }
       end
 
       it { expect(response).to have_http_status(:found) }
@@ -186,7 +188,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it "does not delete the package and shows an error message" do
-        post :remove, project: user.home_project, package: source_package
+        post :remove, params: { project: user.home_project, package: source_package }
 
         expect(flash[:notice]).to eq "Package can't be removed: used as devel package by #{target_project}/#{devel_project}"
         expect(user.home_project.packages).not_to be_empty
@@ -194,7 +196,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context "forcing the deletion" do
         before do
-          post :remove, project: user.home_project, package: source_package, force: true
+          post :remove, params: { project: user.home_project, package: source_package, force: true }
         end
 
         it "deletes the package" do
@@ -218,7 +220,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'with a failure in the backend' do
       before do
         Buildresult.stubs(:find_hashed).raises(ActiveXML::Transport::Error, 'fake message')
-        post :binaries, package: source_package, project: source_project, repository: repo_for_source_project
+        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
       end
 
       it { expect(flash[:error]).to eq('fake message') }
@@ -228,7 +230,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'without build results' do
       before do
         Buildresult.stubs(:find_hashed).returns(nil)
-        post :binaries, package: source_package, project: source_project, repository: repo_for_source_project
+        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
       end
 
       it { expect(flash[:error]).to eq("Package \"#{source_package}\" has no build result for repository #{repo_for_source_project.to_param}") }
@@ -240,7 +242,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       before do
         Buildresult.stubs(:find).returns(fake_build_results_without_binaries)
-        post :binaries, package: source_package, project: source_project, repository: repo_for_source_project
+        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -252,7 +254,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       before do
         Buildresult.stubs(:find).returns(fake_build_results)
-        post :binaries, package: source_package, project: source_project, repository: repo_for_source_project
+        post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -270,7 +272,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "without any uploaded file data" do
       it "fails with an error message" do
-        post :save_file, project: source_project, package: source_package
+        post :save_file, params: { project: source_project, package: source_package }
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Error while creating '' file: No file or URI given.")
       end
@@ -278,7 +280,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "with an invalid filename" do
       it "fails with a backend error message" do
-        post :save_file, project: source_project, package: source_package, filename: ".test"
+        post :save_file, params: { project: source_project, package: source_package, filename: ".test" }
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq("Error while creating '.test' file: filename '.test' is illegal.")
       end
@@ -286,8 +288,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "adding a file that doesn't exist yet" do
       before do
-        post :save_file, project: source_project, package: source_package, filename: "newly_created_file",
-          file_type: "local"
+        post :save_file, params: { project: source_project, package: source_package, filename: "newly_created_file", file_type: "local" }
       end
 
       it { expect(response).to have_http_status(:found) }
@@ -299,8 +300,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       let(:file_to_upload) { File.read(File.expand_path(Rails.root.join("spec/support/files/chinese.txt"))) }
 
       before do
-        post :save_file, project: source_project, package: source_package, filename: "学习总结",
-          file: file_to_upload
+        post :save_file, params: { project: source_project, package: source_package, filename: "学习总结", file: file_to_upload }
       end
 
       it { expect(response).to have_http_status(:found) }
@@ -313,8 +313,10 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "uploading a file from remote URL" do
       before do
-        post :save_file, project: source_project, package: source_package, filename: "remote_file",
-          file_url: "https://raw.github.com/openSUSE/open-build-service/master/.gitignore"
+        post :save_file, params: {
+            project: source_project, package: source_package, filename: "remote_file",
+            file_url: "https://raw.github.com/openSUSE/open-build-service/master/.gitignore"
+          }
       end
 
       it { expect(response).to have_http_status(:found) }
@@ -342,7 +344,7 @@ EOT
       let(:file_to_upload) { File.read(File.expand_path(Rails.root.join("test/texts/aggregate.xml"))) }
 
       before do
-        post :save_file, project: source_project, package: source_package, file: file_to_upload, filename: "_aggregate"
+        post :save_file, params: { project: source_project, package: source_package, file: file_to_upload, filename: "_aggregate" }
       end
 
       it { expect(response).to have_http_status(:found) }
@@ -356,8 +358,10 @@ EOT
 
     context "uploading an invalid special file (_link)" do
       before do
-        post :save_file, project: source_project, package: source_package, filename: "_link",
-          file: File.expand_path(Rails.root.join("test/texts/broken_link.xml"))
+        post :save_file, params: {
+            project: source_project, package: source_package, filename: "_link",
+            file: File.expand_path(Rails.root.join("test/texts/broken_link.xml"))
+          }
       end
 
       it { expect(response).to have_http_status(:found) }
@@ -372,7 +376,7 @@ EOT
     context "require_package before_action" do
       context "with an invalid package" do
         before do
-          get :show, project: user.home_project, package: 'no_package'
+          get :show, params: { project: user.home_project, package: 'no_package' }
         end
 
         it "returns 302 status" do
@@ -391,7 +395,7 @@ EOT
 
     context "with a valid package" do
       before do
-        get :show, project: user.home_project, package: source_package.name
+        get :show, params: { project: user.home_project, package: source_package.name }
       end
 
       it "assigns @package" do
@@ -403,7 +407,7 @@ EOT
       before do
         login user
         BranchPackage.new(project: source_project.name, package: package.name).branch
-        get :show, project: source_project, package: package
+        get :show, params: { project: source_project, package: package }
       end
 
       it { expect(assigns(:linking_packages)).to match_array(package.linking_packages) }
@@ -417,7 +421,7 @@ EOT
     end
 
     def remove_file_post
-      post :remove_file, project: user.home_project, package: source_package, filename: 'the_file'
+      post :remove_file, params: { project: user.home_project, package: source_package, filename: 'the_file' }
     end
 
     context "with successful backend call" do
@@ -442,7 +446,7 @@ EOT
 
     context "without filename parameter" do
       it "renders 404" do
-        post :remove_file, project: user.home_project, package: source_package
+        post :remove_file, params: { project: user.home_project, package: source_package }
         expect(response.status).to eq(404)
       end
     end
@@ -462,7 +466,7 @@ EOT
       before do
         package.add_flag("sourceaccess", "disable")
         package.save
-        get :revisions, project: source_project, package: package
+        get :revisions, params: { project: source_project, package: package }
       end
 
       it { expect(flash[:error]).to eq("Could not access revisions") }
@@ -471,7 +475,7 @@ EOT
 
     context "with source access" do
       before do
-        get :revisions, project: source_project, package: package
+        get :revisions, params: { project: source_project, package: package }
       end
 
       after do
@@ -492,7 +496,7 @@ EOT
 
         before do
           19.times { |i| Suse::Backend.put("/source/#{source_project}/#{package_with_commits}/somefile.txt", i.to_s) }
-          get :revisions, project: source_project, package: package_with_commits
+          get :revisions, params: { project: source_project, package: package_with_commits }
         end
 
         after do
@@ -509,7 +513,7 @@ EOT
 
         before do
           20.times { |i| Suse::Backend.put("/source/#{source_project}/#{package_with_more_commits}/somefile.txt", i.to_s) }
-          get :revisions, project: source_project, package: package_with_more_commits
+          get :revisions, params: { project: source_project, package: package_with_more_commits }
         end
 
         after do
@@ -522,7 +526,7 @@ EOT
 
         context "with showall parameter set" do
           before do
-            get :revisions, project: source_project, package: package_with_more_commits, showall: true
+            get :revisions, params: { project: source_project, package: package_with_more_commits, showall: true }
           end
 
           it { expect(assigns(:revisions)).to eq((1..21).to_a.reverse) }
@@ -588,7 +592,7 @@ EOT
 
     context "with proper params" do
       before do
-        post :save_meta, project: source_project, package: source_package, meta: valid_meta
+        post :save_meta, params: { project: source_project, package: source_package, meta: valid_meta }
       end
 
       it { expect(flash[:success]).to eq("The Meta file has been successfully saved.") }
@@ -597,7 +601,7 @@ EOT
 
     context "with an invalid package name" do
       before do
-        post :save_meta, project: source_project, package: source_package, meta: invalid_meta_because_package_name
+        post :save_meta, params: { project: source_project, package: source_package, meta: invalid_meta_because_package_name }
       end
 
       it { expect(flash[:error]).to eq('Error while saving the Meta file: package name in xml data does not match resource path component.') }
@@ -606,7 +610,7 @@ EOT
 
     context "with an invalid project name" do
       before do
-        post :save_meta, project: source_project, package: source_package, meta: invalid_meta_because_project_name
+        post :save_meta, params: { project: source_project, package: source_package, meta: invalid_meta_because_project_name }
       end
 
       it { expect(flash[:error]).to eq("Error while saving the Meta file: project name in xml data does not match resource path component.") }
@@ -615,7 +619,7 @@ EOT
 
     context "with invalid XML" do
       before do
-        post :save_meta, project: source_project, package: source_package, meta: invalid_meta_because_xml
+        post :save_meta, params: { project: source_project, package: source_package, meta: invalid_meta_because_xml }
       end
 
       it do
@@ -627,7 +631,7 @@ EOT
 
     context "with an unexistent package" do
       before do
-        post :save_meta, project: source_project, package: 'blah', meta: valid_meta
+        post :save_meta, params: { project: source_project, package: 'blah', meta: valid_meta }
       end
 
       it { expect(flash[:error]).to eq("Error while saving the Meta file: Package doesn't exists in that project..") }
@@ -638,7 +642,7 @@ EOT
   describe 'GET #rdiff' do
     context "when no difference in sources diff is empty" do
       before do
-        get :rdiff, project: source_project, package: package, oproject: source_project, opackage: package
+        get :rdiff, params: { project: source_project, package: package, oproject: source_project, opackage: package }
       end
 
       it { expect(assigns[:filenames]).to be_empty }
@@ -646,7 +650,7 @@ EOT
 
     context "when an empty revision is provided" do
       before do
-        get :rdiff, project: source_project, package: package, rev: ''
+        get :rdiff, params: { project: source_project, package: package, rev: '' }
       end
 
       it { expect(flash[:error]).to eq('Error getting diff: revision is empty') }

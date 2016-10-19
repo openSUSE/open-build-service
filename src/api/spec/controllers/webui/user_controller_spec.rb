@@ -23,7 +23,7 @@ RSpec.describe Webui::UserController do
     shared_examples "a non existent account" do
       before do
         request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
-        get :show, {user: user}
+        get :show, params: { user: user }
       end
 
       it { expect(controller).to set_flash[:error].to("User not found #{user}") }
@@ -34,7 +34,7 @@ RSpec.describe Webui::UserController do
       before { login admin_user }
 
       it "deleted users are shown" do
-        get :show, { user: deleted_user }
+        get :show, params: { user: deleted_user }
         expect(response).to render_template("webui/user/show")
       end
 
@@ -58,13 +58,13 @@ RSpec.describe Webui::UserController do
       end
       describe "showing self" do
         it 'includes requests' do
-          get :show, {user: non_admin_user}
+          get :show, params: { user: non_admin_user }
           expect(assigns(:requests_out)).to eq non_admin_user.outgouing_requests
         end
       end
       describe "showing someone else" do
         it 'does not include requests' do
-          get :show, {user: admin_user}
+          get :show, params: { user: admin_user }
           expect(assigns(:reviews)).to be_nil
         end
       end
@@ -74,7 +74,7 @@ RSpec.describe Webui::UserController do
   describe "GET #user_edit" do
     before do
       login admin_user
-      get :edit, {user: user}
+      get :edit, params: { user: user }
     end
 
     it { is_expected.to render_template("webui/user/edit") }
@@ -86,25 +86,25 @@ RSpec.describe Webui::UserController do
     end
 
     it 'logs in users with correct credentials' do
-      post :do_login, {username: user.login, password: 'buildservice'}
+      post :do_login, params: { username: user.login, password: 'buildservice' }
       expect(response).to redirect_to search_url
     end
 
     it 'tells users about wrong credentials' do
-      post :do_login, {username: user.login, password: 'password123'}
+      post :do_login, params: { username: user.login, password: 'password123' }
       expect(response).to redirect_to user_login_path
       expect(flash[:error]).to eq("Authentication failed")
     end
 
     it 'tells users about wrong state' do
       user.update_attribute('state', :locked)
-      post :do_login, {username: user.login, password: 'buildservice'}
+      post :do_login, params: { username: user.login, password: 'buildservice' }
       expect(response).to redirect_to root_path
       expect(flash[:error]).to eq("Your account is disabled. Please contact the adminsitrator for details.")
     end
 
     it 'assigns the current user' do
-      post :do_login, {username: user.login, password: 'buildservice'}
+      post :do_login, params: { username: user.login, password: 'buildservice' }
       expect(User.current).to eq(user)
       expect(session[:login]).to eq(user.login)
     end
@@ -128,7 +128,7 @@ RSpec.describe Webui::UserController do
       context "with valid data" do
         before do
           login user
-          post :save, { user: user, realname: 'another real name', email: 'new_valid@email.es' }
+          post :save, params: { user: user, realname: 'another real name', email: 'new_valid@email.es' }
           user.reload
         end
 
@@ -141,7 +141,7 @@ RSpec.describe Webui::UserController do
       context "with invalid data" do
         before do
           login user
-          post :save, { user: user, realname: "another real name", email: "" }
+          post :save, params: { user: user, realname: "another real name", email: "" }
           user.reload
         end
 
@@ -156,7 +156,7 @@ RSpec.describe Webui::UserController do
       before do
         login user
         request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
-        post :save, {user: non_admin_user, realname: 'another real name', email: 'new_valid@email.es' }
+        post :save, params: { user: non_admin_user, realname: 'another real name', email: 'new_valid@email.es' }
         non_admin_user.reload
       end
 
@@ -169,7 +169,7 @@ RSpec.describe Webui::UserController do
     context "when admin is updating another user's profile" do
       before do
         login admin_user
-        post :save, {user: user, realname: 'another real name', email: 'new_valid@email.es' }
+        post :save, params: { user: user, realname: 'another real name', email: 'new_valid@email.es' }
         user.reload
       end
 
@@ -213,7 +213,7 @@ RSpec.describe Webui::UserController do
     context "when existing user is already registered with this login" do
       before do
         already_registered_user = create(:confirmed_user, login: 'previous_user')
-        post :register, { login: already_registered_user.login, email: already_registered_user.email, password: 'buildservice' }
+        post :register, params: { login: already_registered_user.login, email: already_registered_user.email, password: 'buildservice' }
       end
 
       it { expect(flash[:error]).not_to be nil }
@@ -223,7 +223,7 @@ RSpec.describe Webui::UserController do
     context "when home project creation enabled" do
       before do
         Configuration.stubs(:allow_user_to_create_home_project).returns(true)
-        post :register, { login: new_user.login, email: new_user.email, password: 'buildservice' }
+        post :register, params: { login: new_user.login, email: new_user.email, password: 'buildservice' }
       end
 
       it { expect(flash[:success]).to eq("The account '#{new_user.login}' is now active.") }
@@ -233,7 +233,7 @@ RSpec.describe Webui::UserController do
     context "when home project creation disabled" do
       before do
         Configuration.stubs(:allow_user_to_create_home_project).returns(false)
-        post :register, { login: new_user.login, email: new_user.email, password: 'buildservice' }
+        post :register, params: { login: new_user.login, email: new_user.email, password: 'buildservice' }
       end
 
       it { expect(flash[:success]).to eq("The account '#{new_user.login}' is now active.") }

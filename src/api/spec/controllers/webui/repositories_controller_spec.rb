@@ -9,7 +9,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
 
   describe 'GET #index' do
     before do
-      get :index, project: apache_project
+      get :index, params: { project: apache_project }
     end
 
     it { expect(assigns(:build).to_s).to eq(apache_project.get_flags('build').to_s) }
@@ -22,7 +22,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
   describe 'GET #state' do
     context 'with a valid repository param' do
       before do
-        get :state, project: user.home_project, repository: repo_for_user_home.name
+        get :state, params: { project: user.home_project, repository: repo_for_user_home.name }
       end
 
       it { expect(assigns(:repocycles)).to be_a(Hash) }
@@ -33,7 +33,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     context 'with a non valid repository param' do
       before do
         request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
-        get :state, project: user.home_project, repository: 'non_valid_repo_name'
+        get :state, params: { project: user.home_project, repository: 'non_valid_repo_name' }
       end
 
       it { expect(assigns(:repocycles)).to be_a(Hash) }
@@ -50,14 +50,14 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     context 'updating non existent repository' do
       it 'will raise a NoMethodError' do
         expect do
-          post :update, project: user.home_project, repo: 'standard'
+          post :update, params: { project: user.home_project, repo: 'standard' }
         end.to raise_error(NoMethodError)
       end
     end
 
     context 'updating the repository without architectures' do
       before do
-        post :update, project: user.home_project, repo: repo_for_user_home.name
+        post :update, params: { project: user.home_project, repo: repo_for_user_home.name }
       end
 
       it { expect(repo_for_user_home.architectures.pluck(:name)).to be_empty }
@@ -68,7 +68,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
 
     context 'updating the repository with architectures' do
       before do
-        post :update, project: user.home_project, repo: repo_for_user_home.name, arch: {'i586' => true, 'x86_64' => true}
+        post :update, params: { project: user.home_project, repo: repo_for_user_home.name, arch: {'i586' => true, 'x86_64' => true} }
       end
 
       it 'each repository has a different position' do
@@ -91,7 +91,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
         login user
         create_list(:distribution, 4, vendor: 'vendor1')
         create_list(:distribution, 2, vendor: 'vendor2')
-        get :distributions, project: apache_project
+        get :distributions, params: { project: apache_project }
         expect(assigns(:distributions).length).to eq(2)
       end
     end
@@ -99,7 +99,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     context 'without any distribution and being normal user' do
       before do
         login user
-        get :distributions, project: apache_project
+        get :distributions, params: { project: apache_project }
       end
 
       it { is_expected.to redirect_to(action: 'new', project: apache_project) }
@@ -109,7 +109,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     context 'without any distribution and being admin user' do
       before do
         login admin_user
-        get :distributions, project: apache_project
+        get :distributions, params: { project: apache_project }
       end
 
       it { is_expected.to redirect_to(configuration_interconnect_path) }
@@ -125,7 +125,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     end
 
     context "with a non valid repository name" do
-      let(:action) { post :create, project: user.home_project, repository: '_not/valid/name' }
+      let(:action) { post :create, params: { project: user.home_project, repository: '_not/valid/name' } }
 
       it 'should eq Successfully added repositories' do
         action
@@ -138,7 +138,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
 
     context "with a non valid target repository" do
       before do
-        post :create, project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: 'non_valid_repo'
+        post :create, params: { project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: 'non_valid_repo' }
       end
 
       it { expect(flash[:error]).to eq("Can not add repository: Path elements is invalid and Path Element: Link can't be blank") }
@@ -148,7 +148,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     context "with a valid repository but with a non valid architecture" do
       before do
         create(:repository, project: another_project)
-        post :create, project: user.home_project, repository: 'valid_name', architectures: ['non_existent_arch']
+        post :create, params: { project: user.home_project, repository: 'valid_name', architectures: ['non_existent_arch'] }
       end
 
       it { expect(flash[:error]).to start_with("Can not add repository: Repository ") }
@@ -158,8 +158,10 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     context "with a valid repository" do
       before do
         target_repo = create(:repository, project: another_project)
-        post :create, project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: target_repo.name,
-          architectures: ['i586']
+        post :create, params: {
+            project: user.home_project, repository: 'valid_name',
+            target_project: another_project, target_repo: target_repo.name, architectures: ['i586']
+          }
       end
 
       it { expect(flash[:success]).to eq("Successfully added repository 'valid_name'") }
@@ -169,7 +171,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
 
     context "without any repository passed" do
       before do
-        post :create, project: user.home_project
+        post :create, params: { project: user.home_project }
       end
 
       it {
@@ -243,7 +245,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
       before do
         login user
         Project.any_instance.stubs(:prepend_kiwi_config).returns(true)
-        post :create_image_repository, project: user.home_project
+        post :create_image_repository, params: { project: user.home_project }
       end
 
       it { expect(flash[:success]).to eq('Successfully added image repository') }
