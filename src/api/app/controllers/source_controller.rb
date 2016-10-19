@@ -1554,13 +1554,9 @@ class SourceController < ApplicationController
 
     # convert link to branch
     rev = ''
-    if !pkg_rev.nil? && !pkg_rev.empty?
-      rev = "&orev=#{pkg_rev}"
-    end
+    rev = "&orev=#{pkg_rev}" if !pkg_rev.nil? && !pkg_rev.empty?
     linkrev = ''
-    if !pkg_linkrev.nil? && !pkg_linkrev.empty?
-      linkrev = "&linkrev=#{pkg_linkrev}"
-    end
+    linkrev = "&linkrev=#{pkg_linkrev}" if !pkg_linkrev.nil? && !pkg_linkrev.empty?
     Suse::Backend.post "/source/#{@package.project.name}/#{@package.name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}"
 
     @package.sources_changed
@@ -1578,7 +1574,7 @@ class SourceController < ApplicationController
 
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
       verify_can_modify_target_package!
-    elsif (not @project.kind_of?(Project)) || !User.current.can_create_package_in?(@project)
+    elsif !@project.kind_of?(Project) || !User.current.can_create_package_in?(@project)
       raise CmdExecutionNoPermission.new "no permission to create package in project #{@target_project_name}"
     end
   end

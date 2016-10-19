@@ -154,8 +154,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def matches_package?(source_or_target, pkg)
-    self.send("#{source_or_target}_project") == pkg.project.name &&
-      self.send("#{source_or_target}_package") == pkg.name
+    self.send("#{source_or_target}_project") == pkg.project.name && self.send("#{source_or_target}_package") == pkg.name
   end
 
   def store_from_xml(hash)

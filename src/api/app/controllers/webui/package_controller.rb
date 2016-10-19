@@ -175,10 +175,7 @@ class Webui::PackageController < Webui::WebuiController
 
     repo = Repository.find_by_project_and_name(@project.to_s, @repository.to_s)
     @durl = repo.download_url_for_package(@package, @arch, @filename)
-    if @durl && !file_available?( @durl )
-      # ignore files not available
-      @durl = nil
-    end
+    @durl = nil if @durl && !file_available?(@durl) # ignore files not available
     unless User.current.is_nobody? || @durl
       # only use API for logged in users if the mirror is not available
       @durl = rpm_url( @project, @package, @repository, @arch, @filename )
@@ -393,10 +390,7 @@ class Webui::PackageController < Webui::WebuiController
 
     begin
       @current_rev = @package.rev
-      if !@revision && !@srcmd5
-        # on very first page load only
-        @revision = @current_rev
-      end
+      @revision = @current_rev if !@revision && !@srcmd5 # on very first page load only
 
       if @srcmd5
         @files = package_files(@srcmd5, @expand)

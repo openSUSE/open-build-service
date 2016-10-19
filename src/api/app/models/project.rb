@@ -1192,7 +1192,8 @@ class Project < ApplicationRecord
     # shall we use the repositories from a different project?
     project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
     skip_repos=[]
-    (a = project.find_attribute('OBS', 'BranchSkipRepositories')) && (skip_repos=a.values.map{|v| v.value})
+    a = project.find_attribute('OBS', 'BranchSkipRepositories')
+    skip_repos = a.values.map{|v| v.value} if a
     project.repositories.each do |repo|
       next if skip_repos.include? repo.name
       repoName = opts[:extend_names] ? repo.extended_name : repo.name

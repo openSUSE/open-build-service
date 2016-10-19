@@ -165,7 +165,7 @@ class Channel < ApplicationRecord
     self.channel_targets.each do |ct|
       next if mode == :skip_disabled && ct.disabled
       repo_name = ct.repository.extended_name
-      next unless mode==:enable_all || !ct.disabled
+      next unless mode == :enable_all || !ct.disabled
       # add repositories
       unless cp.project.repositories.find_by_name(repo_name)
         tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository])
