@@ -59,6 +59,7 @@ $port = $1 if $BSConfig::serviceserver =~ /:(\d+)$/;
 
 my $servicedir = $BSConfig::servicedir || "/usr/lib/obs/service";
 my $rootservicedir = $BSConfig::serviceroot ? "$BSConfig::serviceroot/$servicedir" : $servicedir;
+my $uploaddir = "$BSConfig::bsdir/upload";
 
 my $noproxy = $BSConfig::noproxy;
 my $maxchild = $BSConfig::service_maxchild;
@@ -246,6 +247,21 @@ sub list_service {
   return ({'service' => \@sl}, $BSXML::servicelist); 
 }
 
+sub putconfiguration {
+  my ($cgi) = @_;
+  mkdir_p($uploaddir);
+  my $uploaded = BSServer::read_file("$uploaddir/$$");
+  die("upload failed\n") unless $uploaded;
+  my $configurationxml = readstr("$uploaddir/$$");
+  unlink("$uploaddir/$$");
+  my $oldconfigurationxml = readstr("$BSConfig::bsdir/configuration.xml", 1);
+  if ($configurationxml ne ($oldconfigurationxml || '')) {
+    BSUtil::fromxml($configurationxml, $BSXML::configuration);	# test xml syntax
+    writestr("$BSConfig::bsdir/.configuration.xml", "$BSConfig::bsdir/configuration.xml", $configurationxml);
+  }
+  return $BSStdServer::return_ok;
+}
+
 BSUtil::mkdir_p_chown($tempdir, $BSConfig::bsuser, $BSConfig::bsgroup);
 
 # define server
@@ -259,6 +275,8 @@ my $dispatches = [
   '/service' => \&list_service,
   '/serverstatus' => \&BSStdServer::serverstatus,
   '!- POST:/sourceupdate/$project/$package' => \&run_source_update,
+  # configuration
+  'PUT:/configuration' => \&putconfiguration,
 ];
 
 my $conf = {

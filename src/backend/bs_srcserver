@@ -5372,8 +5372,9 @@ sub putconfiguration {
   writestr("$BSConfig::bsdir/.configuration.xml", "$BSConfig::bsdir/configuration.xml", $configurationxml);
 
   # distribute to repo servers
-  my @reposervers = BSSrcServer::Partition::allreposervers();
-  for my $server (@reposervers) {
+  my @servers = BSSrcServer::Partition::allreposervers();
+  push @servers, $BSConfig::serviceserver if $BSConfig::serviceserver;
+  for my $server (@servers) {
     my $param = {
       'uri' => "$server/configuration",
       'request' => 'PUT',
