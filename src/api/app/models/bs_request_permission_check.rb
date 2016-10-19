@@ -201,7 +201,7 @@ class BsRequestPermissionCheck
     # general write permission check on the target on accept
     @write_permission_in_this_action = false
     # meta data change shall also be allowed after freezing a project using force:
-    (ignoreLock = opts[:force]) && [:set_bugowner].include?(action.action_type)
+    ignoreLock = opts[:force] && action.action_type == :set_bugowner
     if @target_package
       if User.current.can_modify_package?(@target_package, ignoreLock)
         @write_permission_in_target = true
