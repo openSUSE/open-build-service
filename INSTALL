@@ -52,6 +52,16 @@ Deployment with RPM packages
 Please have a look at the following file on how to set up a complete Build
 Service instance from RPM packages: dist/README.SETUP
 
+If you use another package management tool without the zypper(openSUSE),
+you can run make command as follows to install the OBS in a Linux distribution.
+
+To install the packages:
+
+ $ make
+ $ sudo make install
+
+To remove all the files that had been created in the source folder:
+ $ make clean
 
 Deployment from git
 ===================
