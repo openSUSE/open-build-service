@@ -129,6 +129,7 @@ sub run_source_update {
   }
 
   # set environment
+  $::ENV{'OBS_SERVICE_APIURL'} = $BSConfig::apiurl;
   $::ENV{'OBS_SERVICE_PROJECT'} = $projid;
   $::ENV{'OBS_SERVICE_PACKAGE'} = $packid;
   $::ENV{'no_proxy'} = $noproxy;
