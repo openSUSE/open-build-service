@@ -1,3 +1,24 @@
+open-build-service (2.7.1-2) experimental; urgency=medium
+
+  * Generate clockworkd.clock.output log file. (Closes:#839211)
+  * debian/obs-api.postinst: set config/database.yml own by www-data.
+    (Closes: #839163)
+  * debian/obs-api.obsapidelayed.init: calls rake instead of rake.ruby2.3.
+    (Closes: #839166)
+  * debian/obs-api.postinst: set correct permission in tmp dir for
+    delayed_job start up correctly. (Closes: #839174)
+  * debian/obs-api.obsapidelayed.init: specific directory to API_ROOT for
+    clockworkd to run. (Closes: #839219)
+  * Apply fix-sphinx.patch: fix brackets in Makefile that prepare for sphinx
+    to run.
+  * debian/obs-worker.obsworker.default: update OBS_RUN_DIR.
+  * debian/obs-worker.obsworker.init: set correct permission for
+    obsworker to run.
+  * debian/obs-api.postinst: drop duplicate pathfind function.
+  * debian/obs-api.postinst: drop path in command.
+
+ -- Andrew Lee (李健秋) <ajqlee@debian.org>  Fri, 30 Sep 2016 18:02:41 +0800
+
 open-build-service (2.7.1-1) experimental; urgency=low
 
   * New upstream release. (Closes: #838022)
