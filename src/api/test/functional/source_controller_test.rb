@@ -60,7 +60,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                    :children => { :count => 2, :only => { :tag => 'entry' } }
   end
 
-  def test_post_orderkiwirepos
+  def test_post_orderkiwirepos # spec/controllers/source_controller_spec.rb
     login_tom
     post '/source?cmd=orderkiwirepos'
     assert_response 400
@@ -68,7 +68,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # api handed it over to backend, enough tested here
   end
 
-  def test_anonymous_access_for_global_commands
+  def test_anonymous_access_for_global_commands # spec/controllers/source_controller_spec.rb
     post '/source?cmd=orderkiwirepos'
     # anonymous access allowed here, just forwarding the request to backend fails
     assert_response 400
