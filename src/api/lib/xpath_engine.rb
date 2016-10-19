@@ -476,16 +476,16 @@ class XpathEngine
         a << "@"+expr.shift
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
-        if @last_key and @attribs[table][@last_key][:empty]
+        if @last_key && @attribs[table][@last_key][:empty]
           return ""
         end
-        if @last_key and @attribs[table][@last_key][:split]
+        if @last_key && @attribs[table][@last_key][:split]
           tvalues = value.split(@attribs[table][@last_key][:split])
           if tvalues.size != 2
             raise XpathEngine::IllegalXpathError, "attributes must be $NAMESPACE:$NAME"
           end
           @condition_values_needed.times { @condition_values << tvalues }
-        elsif @last_key and @attribs[table][@last_key][:double]
+        elsif @last_key && @attribs[table][@last_key][:double]
           @condition_values_needed.times { @condition_values << [value, value] }
         else
           @condition_values_needed.times { @condition_values << value }
@@ -500,7 +500,7 @@ class XpathEngine
     # this is a wild hack - we need to save the key, so we can possibly split the next
     # literal. The real fix is to translate the xpath into SQL directly
     @last_key = key
-    raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] and @attribs[table].has_key? key
+    raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] && @attribs[table].has_key?(key)
     # logger.debug "-- found key: #{key} --"
     if @attribs[table][key][:empty]
       return nil
@@ -524,7 +524,7 @@ class XpathEngine
     lval = evaluate_expr(lv, root)
     rval = evaluate_expr(rv, root)
 
-    if lval.nil? or rval.nil?
+    if lval.nil? || rval.nil?
       condition = '0'
     else
       condition = "#{lval} = #{rval}"
@@ -540,7 +540,7 @@ class XpathEngine
     lval = evaluate_expr(lv, root)
     rval = evaluate_expr(rv, root)
 
-    if lval.nil? or rval.nil?
+    if lval.nil? || rval.nil?
       condition = '1'
     else
       condition = "#{lval} != #{rval}"
@@ -618,7 +618,7 @@ class XpathEngine
     hs = evaluate_expr(haystack, root)
     ne = evaluate_expr(needle, root, true)
 
-    if hs.nil? or ne.nil?
+    if hs.nil? || ne.nil?
       condition = '0'
     else
       condition = "LOWER(#{hs}) LIKE LOWER(CONCAT('%',#{ne},'%'))"

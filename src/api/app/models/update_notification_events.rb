@@ -67,7 +67,7 @@ class UpdateNotificationEvents
         BackendInfo.lastnotification_nr = Integer(@last['next'])
         return
       end
-      limit_reached=(not @last['limit_reached'].blank?)
+      limit_reached = @last['limit_reached'].present?
 
       create_events
     end

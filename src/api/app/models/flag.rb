@@ -23,11 +23,11 @@ class Flag < ApplicationRecord
 
   validate :validate_custom_save
   def validate_custom_save
-    errors.add(:name, 'Please set either project or package.') if self.project.nil? and self.package.nil?
-    errors.add(:name, 'Please set either project or package.') unless self.project.nil? or self.package.nil?
+    errors.add(:name, 'Please set either project or package.') if self.project.nil? && self.package.nil?
+    errors.add(:name, 'Please set either project or package.') unless self.project.nil? || self.package.nil?
     errors.add(:flag, 'There needs to be a valid flag.') unless FlagHelper::TYPES.has_key?(self.flag.to_s)
     # rubocop:disable Metrics/LineLength
-    errors.add(:status, 'Status needs to be enable or disable') unless (self.status && (self.status.to_sym == :enable or self.status.to_sym == :disable))
+    errors.add(:status, 'Status needs to be enable or disable') unless (self.status && (self.status.to_sym == :enable || self.status.to_sym == :disable))
     # rubocop:enable Metrics/LineLength
   end
 
@@ -99,11 +99,11 @@ class Flag < ApplicationRecord
 
     arch = architecture ? architecture.name : nil
 
-    return false if arch.nil? and !in_arch.nil?
-    return false if !arch.nil? and in_arch.nil?
+    return false if arch.nil? && !in_arch.nil?
+    return false if !arch.nil? && in_arch.nil?
 
-    return false if repo.nil? and !in_repo.nil?
-    return false if !repo.nil? and in_repo.nil?
+    return false if repo.nil? && !in_repo.nil?
+    return false if !repo.nil? && in_repo.nil?
 
     return true
   end
@@ -112,14 +112,14 @@ class Flag < ApplicationRecord
   def is_relevant_for?(in_repo, in_arch)
     arch = architecture ? architecture.name : nil
 
-    if arch.nil? and repo.nil?
+    if arch.nil? && repo.nil?
       return true
-    elsif arch.nil? and not repo.nil?
+    elsif arch.nil? && !repo.nil?
       return true if in_repo == repo
-    elsif not arch.nil? and repo.nil?
+    elsif !arch.nil? && repo.nil?
       return true if in_arch == arch
     else
-      return true if in_arch == arch and in_repo == repo
+      return true if in_arch == arch && in_repo == repo
     end
 
     return false

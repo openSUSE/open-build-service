@@ -1,5 +1,5 @@
 <div id="package_buildstatus">
-  <% if not @project.repositories.any? %>
+  <% if !@project.repositories.any? %>
     <%= render "no_repositories" %>
   <% elsif @buildresult.blank? %>
     <p><i>No build result available</i></p>

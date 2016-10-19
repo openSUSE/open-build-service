@@ -104,7 +104,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro3/BaseDistro3_repo/repodata/*-primary.xml.gz") do |io|
        hashed = Xmlhash.parse(io.read)
        hashed.elements("package").each do |p|
-         next unless (p["name"] == "package" and p["arch"] == "i586") or (p["name"] == "package_newweaktags" and p["arch"] == "x86_64")
+         next unless (p["name"] == "package" && p["arch"] == "i586") || (p["name"] == "package_newweaktags" && p["arch"] == "x86_64")
          package_seen[p["name"]] = true
 
          assert_not_nil p

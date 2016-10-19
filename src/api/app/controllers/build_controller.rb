@@ -1,7 +1,7 @@
 class BuildController < ApplicationController
   def index
     # for read access and visibility permission check
-    if params[:package] and not %w(_repository _jobhistory).include?(params[:package])
+    if params[:package] && !%w(_repository _jobhistory).include?(params[:package])
       Package.get_by_project_and_name( params[:project], params[:package], use_source: false )
     else
       Project.get_by_name params[:project]
@@ -54,7 +54,7 @@ class BuildController < ApplicationController
         return
       end
 
-      if not allowed and not params[:package].nil?
+      if !allowed && !params[:package].nil?
         package_names = nil
         if params[:package].kind_of? Array
           package_names = params[:package]
@@ -107,7 +107,7 @@ class BuildController < ApplicationController
   def buildinfo
     required_parameters :project, :repository, :arch, :package
     # just for permission checking
-    if request.post? and params[:package] == "_repository"
+    if request.post? && params[:package] == "_repository"
       # for osc local package build in this repository
       Project.get_by_name params[:project]
     else
@@ -150,7 +150,7 @@ class BuildController < ApplicationController
       prj = pkg.project if pkg.class == Package
     end
 
-    if prj.class == Project and prj.disabled_for?('binarydownload', params[:repository], params[:arch]) and not @http_user.can_download_binaries?(prj)
+    if prj.class == Project && prj.disabled_for?('binarydownload', params[:repository], params[:arch]) && !@http_user.can_download_binaries?(prj)
       render_error :status => 403, :errorcode => "download_binary_no_permission",
         :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
@@ -232,8 +232,8 @@ class BuildController < ApplicationController
     # for permission check
     pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: true
 
-    if pkg.class == Package and pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) and
-        not @http_user.can_download_binaries?(pkg.project)
+    if pkg.class == Package && pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
+        !@http_user.can_download_binaries?(pkg.project)
       render_error status: 403, errorcode: "download_binary_no_permission",
                    message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return

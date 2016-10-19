@@ -53,7 +53,7 @@
       <% else %>
         <%= link_to(sprited_text('user_edit', 'Edit your account'), { :controller => 'user', :action => 'save_dialog', :user => User.current }, {:id => 'save_dialog', :remote => true}) %><br />
       <% end %>
-      <% if @configuration['change_password'] and CONFIG['proxy_auth_mode'] != :on %>
+      <% if @configuration['change_password'] && CONFIG['proxy_auth_mode'] != :on %>
         <%= link_to(sprited_text('key', 'Change your password'), { :controller => 'user', :action => 'password_dialog', :user => User.current }, {:id => 'password_dialog', :remote => true}) %><br />
       <% end %>
       <%= link_to(sprited_text('email', 'Change your notifications'), user_notifications_path) %><br />

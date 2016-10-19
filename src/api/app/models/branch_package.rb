@@ -137,7 +137,7 @@ class BranchPackage
         ret.delete_attribute('project') # its a local link, project name not needed
         linked_package = p[:link_target_package]
          # user enforce a rename of base package
-        linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.value('package')
+        linked_package = params[:target_package] if params[:target_package] && params[:package] == ret.value('package')
         linked_package += '.' + p[:link_target_project].name.tr(':', '_') if @extend_names
         ret.set_attribute('package', linked_package)
         Suse::Backend.put tpkg.source_path('_link', user: User.current.login), ret.dump_xml
@@ -159,7 +159,7 @@ class BranchPackage
         end
 
         # fetch newer sources from devel package, if defined
-        if p[:copy_from_devel] and p[:copy_from_devel].project != tpkg.project and not p[:rev]
+        if p[:copy_from_devel] && p[:copy_from_devel].project != tpkg.project && !p[:rev]
           if p[:copy_from_devel].project.is_maintenance_incident?
             msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}"
           else
@@ -307,9 +307,9 @@ class BranchPackage
                        "as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
         else
           # is incident ?
-          if ipkg.project.is_maintenance_incident? and ipkg.project.is_unreleased?
+          if ipkg.project.is_maintenance_incident? && ipkg.project.is_unreleased?
             # is a newer incident ?
-            if incident_pkg.nil? or ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
+            if incident_pkg.nil? || ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
               incident_pkg = ipkg
             end
           end
@@ -332,10 +332,10 @@ class BranchPackage
     end
 
     # validate and resolve devel package or devel project definitions
-    unless params[:ignoredevel] or p[:copy_from_devel]
+    unless params[:ignoredevel] || p[:copy_from_devel]
 
       devel_package = p[:package].find_devel_package if p[:package].is_a? Package
-      if @copy_from_devel and devel_package
+      if @copy_from_devel && devel_package
         p[:copy_from_devel] = devel_package
         logger.info "sources will get copied from devel package #{devel_package.project.name}/#{devel_package.name}"
       else
@@ -343,7 +343,7 @@ class BranchPackage
         if incident_pkg
           p[:copy_from_devel] = incident_pkg
           logger.info "sources will get copied from incident package #{incident_pkg.project.name}/#{incident_pkg.name}"
-        elsif not @copy_from_devel and devel_package
+        elsif !@copy_from_devel && devel_package
           p[:package] = devel_package
           p[:link_target_project] = p[:package].project unless params[:newinstance]
           p[:target_package] = p[:package].name
@@ -393,7 +393,7 @@ class BranchPackage
     if pa
       # We have a package in the update project already, take that
       p[:package] = pa
-      unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
+      unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
         p[:link_target_project] = pa.project
         logger.info "branch call found package in update project #{pa.project.name}"
       end
@@ -403,7 +403,7 @@ class BranchPackage
         p[:copy_from_devel] = p[:package]
       end
     else
-      unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
+      unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
         p[:link_target_project] = update_project
       end
       update_pkg = update_project.find_package(pkg_name, true) # true for check_update_package in older service pack projects
@@ -413,7 +413,7 @@ class BranchPackage
         if defined?(up) && up
           # nevertheless, check if update project has a devel project which contains an instance
           p[:package] = up
-          unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
+          unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
             p[:link_target_project] = up.project unless @copy_from_devel
           end
           logger.info "link target will create package in update project #{up.project.name} for #{prj.name}"
@@ -454,7 +454,7 @@ class BranchPackage
       # is the package itself a local link ?
       link = Suse::Backend.get("/source/#{p[:package].project.name}/#{p[:package].name}/_link")
       ret = Xmlhash.parse(link.body)
-      if !ret['project'] or ret['project'] == p[:package].project.name
+      if !ret['project'] || ret['project'] == p[:package].project.name
         pkg = Package.get_by_project_and_name(p[:package].project.name, ret['package'])
       end
     end
@@ -515,7 +515,7 @@ class BranchPackage
 
         @packages.push({ link_target_project: action.source_project, package: pkg, target_package: "#{pkg.name}.#{pkg.project.name}" })
       end
-    elsif params[:project] and params[:package]
+    elsif params[:project] && params[:package]
       pkg = nil
       prj = Project.get_by_name params[:project]
       if params[:missingok]
@@ -524,7 +524,7 @@ class BranchPackage
         end
       else
         pkg = Package.get_by_project_and_name params[:project], params[:package], {check_update_project: true}
-        if prj.is_a? Project and prj.find_attribute('OBS', 'BranchTarget')
+        if prj.is_a?(Project) && prj.find_attribute('OBS', 'BranchTarget')
           @copy_from_devel = true
         else
           prj = pkg.project if pkg
@@ -567,7 +567,7 @@ class BranchPackage
           # FIXME: this will not find packages on linked remote projects
           ltprj = lprj
           pkg2 = lprj.find_package(params[:package])
-          unless pkg2.nil? or @packages.map { |p| p[:package] }.include? pkg2 # avoid double instances
+          unless pkg2.nil? || @packages.map { |p| p[:package] }.include?(pkg2) # avoid double instances
             logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name}" +
                         "for attribute #{at.name} and given package name #{params[:package]}"
             if ltprj.find_attribute('OBS', 'BranchTarget').nil?

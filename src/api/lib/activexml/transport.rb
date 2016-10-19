@@ -152,7 +152,7 @@ module ActiveXML
         raise ArgumentError.new "find with string is no longer allowed #{args.inspect}"
       when Hash
         # logger.debug "Transport.find: using hash"
-        if args[0].has_key? :predicate and args[0].has_key? :what
+        if args[0].has_key?(:predicate) && args[0].has_key?(:what)
           own_mimetype = "application/x-www-form-urlencoded"
         end
         params = args[0]
@@ -205,7 +205,7 @@ module ActiveXML
     # defines an additional header that is passed to the REST server on every subsequent request
     # e.g.: set_additional_header( "X-Username", "margarethe" )
     def set_additional_header( key, value )
-      if value.nil? and @http_header.has_key? key
+      if value.nil? && @http_header.has_key?(key)
         @http_header[key] = nil
       end
 
@@ -244,7 +244,7 @@ module ActiveXML
         pairs.each do |pair|
           if pair.length == 2
             if pair[1] =~ /:(\w+)/
-              next if not params.has_key? $1.to_sym or params[$1.to_sym].nil?
+              next if !params.has_key?($1.to_sym) || params[$1.to_sym].nil?
               pair[1] = CGI.escape(params[$1.to_sym])
             end
             new_pairs << pair.join("=")
@@ -255,7 +255,7 @@ module ActiveXML
             # when param is array, put multiple params in url
             # when param is a hash, put key=value params in url
             # any other case, stringify param and put it in url
-            next if not params.has_key? $1.to_sym or params[$1.to_sym].nil?
+            next if !params.has_key?($1.to_sym) || params[$1.to_sym].nil?
             sub_val = params[$1.to_sym]
             if sub_val.kind_of? Array
               sub_val.each do |val|
@@ -281,7 +281,7 @@ module ActiveXML
     def substituted_uri_for( object, path_id = nil, opt = {} )
       symbolified_model = object.class.name.downcase.split('::').last.to_sym
       options = options_for(symbolified_model)
-      if path_id and options.has_key? path_id
+      if path_id && options.has_key?(path_id)
         uri = options[path_id]
       else
         uri = target_for( symbolified_model )

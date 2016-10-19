@@ -1,7 +1,7 @@
 .row
   .col-md-12
     .commit_header{:style=>"background-color: #f1f1f1;"}
-      - unless @files.blank? or @spider_bot
+      - unless @files.blank? || @spider_bot
         = render :partial => 'links' if (@linkinfo && !@linkinfo.has_attribute?('error'))
       .commit_item
         = render :partial => 'commit', :locals => {:rev => @revision}

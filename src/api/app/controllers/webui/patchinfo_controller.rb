@@ -8,20 +8,20 @@ class Webui::PatchinfoController < Webui::WebuiController
   def new_patchinfo
     unless User.current.can_create_package_in? @project
       flash[:error] = 'No permission to create packages'
-      redirect_to controller: 'project', action: 'show', project: @project and return
+      redirect_to(controller: 'project', action: 'show', project: @project) && return
     end
 
     unless @project.exists_package? 'patchinfo'
       unless Patchinfo.new.create_patchinfo(@project.name, nil)
         flash[:error] = 'Error creating patchinfo'
-        redirect_to controller: 'project', action: 'show', project: @project and return
+        redirect_to(controller: 'project', action: 'show', project: @project) && return
       end
     end
     @package = @project.packages.find_by_name('patchinfo')
     @file = @package.patchinfo
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"
-      redirect_to controller: 'package', action: 'show', project: @project, package: @package and return
+      redirect_to(controller: 'package', action: 'show', project: @project, package: @package) && return
     end
 
     read_patchinfo
@@ -332,7 +332,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     unless @package && @package.patchinfo
       # FIXME: should work for remote packages
       flash[:error] = "Patchinfo not found for #{params[:project]}"
-      redirect_to controller: 'package', action: 'show', project: @project, package: @package and return
+      redirect_to(controller: 'package', action: 'show', project: @project, package: @package) && return
     end
     @patchinfo = @file = @package.patchinfo
   end

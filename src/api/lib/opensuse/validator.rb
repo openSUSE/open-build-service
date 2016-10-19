@@ -32,7 +32,7 @@ module Suse
       # [user][edit-put-request] = user
       # [user][edit-put-response] = status
       def add_schema_mapping(controller, action, opt)
-        unless (opt.has_key?(:request) or opt.has_key?(:response))
+        unless (opt.has_key?(:request) || opt.has_key?(:response))
           raise "missing (or wrong) parameters, #{opt.inspect}"
         end
         # logger.debug "add validation mapping: #{controller.inspect}, #{action.inspect} => #{opt.inspect}"
@@ -55,7 +55,7 @@ module Suse
 
       # Retrieves the schema filename from the action to schema mapping.
       def get_schema(opt)
-        unless opt.has_key?(:controller) and opt.has_key?(:action) and opt.has_key?(:method) and opt.has_key?(:type)
+        unless opt.has_key?(:controller) && opt.has_key?(:action) && opt.has_key?(:method) && opt.has_key?(:type)
           raise 'option hash needs keys :controller and :action'
         end
         c = opt[:controller].to_s

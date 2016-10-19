@@ -84,7 +84,7 @@ class User < ApplicationRecord
   validates_format_of :password,
                       :with => %r{\A[\w\.\- !?(){}|~*]+\z},
                       :message => 'must not contain invalid characters.',
-                      :if => Proc.new { |user| user.new_password? and not user.password.nil? }
+                      :if => Proc.new { |user| user.new_password? && !user.password.nil? }
 
   # We want the password to have between 6 and 64 characters.
   # The length must only be checked if the password has been set and the record
@@ -93,7 +93,7 @@ class User < ApplicationRecord
                       :within => 6..64,
                       :too_long => 'must have between 6 and 64 characters.',
                       :too_short => 'must have between 6 and 64 characters.',
-                     :if => Proc.new { |user| user.new_password? and not user.password.nil? }
+                     :if => Proc.new { |user| user.new_password? && !user.password.nil? }
 
   after_create :create_home_project
   def create_home_project
@@ -136,7 +136,7 @@ class User < ApplicationRecord
 
   # After validation, the password should be encrypted
   after_validation(:on => :create) do
-    if errors.empty? and @new_password and !password.nil?
+    if errors.empty? && @new_password && !password.nil?
       # generate a new 10-char long hash only Base64 encoded so things are compatible
       self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9]
 
@@ -317,7 +317,7 @@ class User < ApplicationRecord
   def self.get_by_login(login)
     user = find_by_login!(login)
     # FIXME: Move permission checks to controller level
-    unless User.current.is_admin? or user == User.current
+    unless User.current.is_admin? || user == User.current
       raise NoPermission.new "User #{login} can not be accessed by #{User.current.login}"
     end
     return user
@@ -341,7 +341,7 @@ class User < ApplicationRecord
 
     # check that the password hash type has not been set if no new password
     # has been provided
-    if @new_hash_type and (!@new_password or password.nil?)
+    if @new_hash_type && (!@new_password || password.nil?)
       errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
     end
   end
@@ -492,12 +492,12 @@ class User < ApplicationRecord
   # updates users email address and real name using data transmitted by authentification proxy
   def update_user_info_from_proxy_env(env)
     proxy_email = env['HTTP_X_EMAIL']
-    if not proxy_email.blank? and self.email != proxy_email
+    if proxy_email.present? && self.email != proxy_email
       logger.info "updating email for user #{self.login} from proxy header: old:#{self.email}|new:#{proxy_email}"
       self.email = proxy_email
       self.save
     end
-    if not env['HTTP_X_FIRSTNAME'].blank? and not env['HTTP_X_LASTNAME'].blank?
+    if env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
       realname = env['HTTP_X_FIRSTNAME'] + ' ' + env['HTTP_X_LASTNAME']
       if self.realname != realname
         self.realname = realname
@@ -567,7 +567,7 @@ class User < ApplicationRecord
     unless package.kind_of? Package
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
-    return false if not ignoreLock and package.is_locked?
+    return false if !ignoreLock && package.is_locked?
     return true if is_admin?
     return true if has_global_permission? 'change_package'
     return true if has_local_permission? 'change_package', package
@@ -580,7 +580,7 @@ class User < ApplicationRecord
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
-    return false if not ignoreLock and project.is_locked?
+    return false if !ignoreLock && project.is_locked?
     return true if is_admin?
     return true if has_global_permission? 'create_package'
     return true if has_local_permission? 'create_package', project
@@ -616,8 +616,8 @@ class User < ApplicationRecord
 
     abies = object.attrib_namespace_modifiable_bies.includes([:user, :group])
     abies.each do |mod_rule|
-      next if mod_rule.user and mod_rule.user != self
-      next if mod_rule.group and not is_in_group? mod_rule.group
+      next if mod_rule.user && mod_rule.user != self
+      next if mod_rule.group && !is_in_group?(mod_rule.group)
       return true
     end
 
@@ -625,7 +625,7 @@ class User < ApplicationRecord
   end
 
   def can_create_attribute_in?(object, opts)
-    if not object.kind_of? Project and not object.kind_of? Package
+    if !object.kind_of?(Project) && !object.kind_of?(Package)
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
     unless opts[:namespace]
@@ -651,9 +651,9 @@ class User < ApplicationRecord
       end
     else
       abies.each do |mod_rule|
-        next if mod_rule.user and mod_rule.user != self
-        next if mod_rule.group and not is_in_group? mod_rule.group
-        next if mod_rule.role and not has_local_role?(mod_rule.role, object)
+        next if mod_rule.user && mod_rule.user != self
+        next if mod_rule.group && !is_in_group?(mod_rule.group)
+        next if mod_rule.role && !has_local_role?(mod_rule.role, object)
         return true
       end
     end

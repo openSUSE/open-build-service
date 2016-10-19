@@ -76,10 +76,10 @@ module FlagHelper
 
     flags_to_remove = Array.new
     flaglist.each do |f|
-      next if !repository.blank? and f.repo != repository
-      next if repository.blank? and !f.repo.blank?
-      next if !arch.blank? and f.architecture != arch
-      next if arch.blank? and !f.architecture.nil?
+      next if !repository.blank? && f.repo != repository
+      next if repository.blank? && !f.repo.blank?
+      next if !arch.blank? && f.architecture != arch
+      next if arch.blank? && !f.architecture.nil?
       flags_to_remove << f
     end
     self.flags.delete(flags_to_remove)
@@ -87,7 +87,7 @@ module FlagHelper
 
   def add_flag(flag, status, repository = nil, arch = nil)
     validate_type flag
-    unless status == 'enable' or status == 'disable'
+    unless status == 'enable' || status == 'disable'
       raise ArgumentError.new("Error: unknown status for flag '#{status}'")
     end
     self.flags.build( status: status, flag: flag ) do |f|

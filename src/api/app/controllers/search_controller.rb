@@ -58,7 +58,7 @@ class SearchController < ApplicationController
   end
 
   def attribute
-    unless params[:namespace] and params[:name]
+    unless params[:namespace] && params[:name]
       render_error :status => 400, :message => "need namespace and name parameter"
       return
     end
@@ -78,8 +78,8 @@ class SearchController < ApplicationController
     obj = params[:binary] unless params[:binary].blank?
     obj = User.find_by_login!(params[:user]) unless params[:user].blank?
     obj = Group.find_by_title!(params[:group]) unless params[:group].blank?
-    obj = Package.get_by_project_and_name(params[:project], params[:package]) unless params[:project].blank? or params[:package].blank?
-    obj = Project.get_by_name(params[:project]) unless not obj.nil? or params[:project].blank?
+    obj = Package.get_by_project_and_name(params[:project], params[:package]) unless params[:project].blank? || params[:package].blank?
+    obj = Project.get_by_name(params[:project]) if obj.nil? && params[:project].present?
 
     if obj.blank?
       render_error :status => 400, :errorcode => "no_binary",
@@ -99,7 +99,7 @@ class SearchController < ApplicationController
       else
            p
     end
-    pred = "*" if pred.nil? or pred.empty?
+    pred = "*" if pred.nil? || pred.empty?
     pred
   end
 
@@ -158,7 +158,7 @@ class SearchController < ApplicationController
   end
 
   def search(what, render_all)
-    if render_all and params[:match].blank?
+    if render_all && params[:match].blank?
       render_error :status => 400, :errorcode => "empty_match",
                    :message => "No predicate found in match argument"
       return

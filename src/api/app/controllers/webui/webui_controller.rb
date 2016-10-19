@@ -136,7 +136,7 @@ class Webui::WebuiController < ActionController::Base
 
   def require_login
     if User.current.nil? || User.current.is_nobody?
-      render :text => 'Please login' and return false if request.xhr?
+      render(:text => 'Please login') && (return false) if request.xhr?
 
       flash[:error] = 'Please login to access the requested page.'
       mode = CONFIG['proxy_auth_mode'] || :off
@@ -238,7 +238,7 @@ class Webui::WebuiController < ActionController::Base
         @displayed_user = User.find_by_login!(params['user'])
       rescue NotFoundError
         # admins can see deleted users
-        @displayed_user = User.find_by_login(params['user']) if User.current and User.current.is_admin?
+        @displayed_user = User.find_by_login(params['user']) if User.current && User.current.is_admin?
         redirect_back(fallback_location: root_path, error: "User not found #{params['user']}") unless @displayed_user
       end
     else
@@ -282,7 +282,7 @@ class Webui::WebuiController < ActionController::Base
 
   # before filter to only show the frontpage to anonymous users
   def check_anonymous
-    if User.current and User.current.is_nobody?
+    if User.current && User.current.is_nobody?
       unless ::Configuration.anonymous
         flash[:error] = "No anonymous access. Please log in!"
         redirect_back(fallback_location: root_path)

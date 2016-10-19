@@ -12,7 +12,7 @@ class TriggerController < ApplicationController
 
   def runservice
     auth = request.env['HTTP_AUTHORIZATION']
-    unless auth and auth[0..4] == "Token" and auth[6..-1].match(/^[A-Za-z0-9+\/]+$/)
+    unless auth && auth[0..4] == "Token" && auth[6..-1].match(/^[A-Za-z0-9+\/]+$/)
       render_error errorcode: 'permission_denied',
                    message: "No valid token found 'Authorization' header",
                    status: 403

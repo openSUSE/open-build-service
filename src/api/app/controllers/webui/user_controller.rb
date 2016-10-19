@@ -172,7 +172,7 @@ class Webui::UserController < Webui::WebuiController
     required_parameters :user
     size = params[:size].to_i || '20'
     user = User.find_by_login(params[:user])
-    if user.nil? or (content = user.gravatar_image(size)) == :none
+    if user.nil? || (content = user.gravatar_image(size)) == :none
       redirect_to ActionController::Base.helpers.asset_path('default_face.png')
       return
     end

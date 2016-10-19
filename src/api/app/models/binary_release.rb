@@ -57,8 +57,8 @@ class BinaryRelease < ApplicationRecord
         # compare with existing entry
         if existing.count == 1
           entry = existing.first
-          if entry.binary_disturl                   == binary["disturl"] and
-             entry.binary_supportstatus             == binary["supportstatus"] and
+          if entry.binary_disturl                   == binary["disturl"] &&
+             entry.binary_supportstatus             == binary["supportstatus"] &&
              entry.binary_buildtime.to_datetime.utc == ::Time.at(binary["buildtime"].to_i).to_datetime.utc
              # same binary, don't touch
              processed_item[entry.id] = true
@@ -92,7 +92,7 @@ class BinaryRelease < ApplicationRecord
             # patchinfo disappeared meanwhile
           end
           # no database object on purpose, since it must also work for historic releases...
-          hash[:binary_maintainer] = pi.to_hash['packager'] if pi and pi.to_hash['packager']
+          hash[:binary_maintainer] = pi.to_hash['packager'] if pi && pi.to_hash['packager']
         end
 
         # new entry, also for modified binaries.

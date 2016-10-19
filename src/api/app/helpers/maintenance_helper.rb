@@ -31,7 +31,7 @@ module MaintenanceHelper
         link = nil
       end
     end
-    if link and (link.value(:project).nil? or link.value(:project) == sourcePackage.project.name)
+    if link && (link.value(:project).nil? || link.value(:project) == sourcePackage.project.name)
       release_package_relink(link, action, targetPackageName, targetProject, tpkg)
     else
       # copy sources
@@ -50,7 +50,7 @@ module MaintenanceHelper
     end
     targetProject.check_write_access!
 
-    if sourcePackage.name.starts_with? "_product:" and targetProject.packages.where(name: "_product").count>0
+    if sourcePackage.name.starts_with?("_product:") && targetProject.packages.where(name: "_product").count>0
       # a master _product container exists, so we need to copy all sources
       _release_product(sourcePackage, targetProject, action)
     else
@@ -65,7 +65,7 @@ module MaintenanceHelper
     end
 
     # create or update main package linking to incident package
-    unless sourcePackage.is_patchinfo? or manual
+    unless sourcePackage.is_patchinfo? || manual
       release_package_create_main_package(action.bs_request, sourcePackage, targetPackageName, targetProject)
     end
 
@@ -172,7 +172,7 @@ module MaintenanceHelper
   def copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
     updateIDs=[]
     sourcePackage.project.repositories.each do |sourceRepo|
-      next if filterSourceRepository and filterSourceRepository != sourceRepo
+      next if filterSourceRepository && filterSourceRepository != sourceRepo
       sourceRepo.release_targets.each do |releasetarget|
         # FIXME: filter given release and/or target repos here
         if releasetarget.target_repository.project == targetProject
@@ -251,7 +251,7 @@ module MaintenanceHelper
       msg = cts.map{|cti| "#{cti.channel.package.project.name}/#{cti.channel.package.name}"}.join(", ")
       raise MultipleUpdateInfoTemplate.new "Multiple channel targets found in #{msg} for repository #{targetRepo.project.name}/#{targetRepo.name}"
     end
-    id_template = cts.first.id_template if cts.first and cts.first.id_template
+    id_template = cts.first.id_template if cts.first && cts.first.id_template
 
     uID = mi.getUpdateinfoId(id_template, patchName)
     return uID
@@ -309,7 +309,7 @@ module MaintenanceHelper
   def instantiate_container(project, opackage, opts = {})
     opkg = opackage.origin_container
     pkg_name = opkg.name
-    if opkg.is_a? Package and opkg.project.is_maintenance_release?
+    if opkg.is_a?(Package) && opkg.project.is_maintenance_release?
       # strip incident suffix
       pkg_name = opkg.name.gsub(/\.[^\.]*$/, '')
     end
@@ -320,7 +320,7 @@ module MaintenanceHelper
     end
     opkg.find_project_local_linking_packages.each do |p|
       lpkg_name = p.name
-      if p.is_a? Package and p.project.is_maintenance_release?
+      if p.is_a?(Package) && p.project.is_maintenance_release?
         # strip incident suffix
         lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
       end
@@ -356,7 +356,7 @@ module MaintenanceHelper
     # and create the needed local links
     opkg.find_project_local_linking_packages.each do |p|
       lpkg_name = p.name
-      if p.is_a? Package and p.project.is_maintenance_release?
+      if p.is_a?(Package) && p.project.is_maintenance_release?
         # strip incident suffix
         lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
         # skip the base links

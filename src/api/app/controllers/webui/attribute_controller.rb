@@ -24,7 +24,7 @@ class Webui::AttributeController < Webui::WebuiController
 
   def edit
     authorize @attribute
-    if @attribute.attrib_type.value_count and ( @attribute.attrib_type.value_count > @attribute.values.length )
+    if @attribute.attrib_type.value_count && ( @attribute.attrib_type.value_count > @attribute.values.length )
       ( @attribute.attrib_type.value_count - @attribute.values.length ).times do
         @attribute.values.build(attrib: @attribute)
       end
@@ -83,13 +83,13 @@ class Webui::AttributeController < Webui::WebuiController
       @project = Project.get_by_name(params[:project])
     rescue APIException
       flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => 'project' and return
+      redirect_to(:controller => 'project') && return
     end
     if params[:package]
       begin
         @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
       rescue APIException
-        redirect_to project_show_path(@project.to_s), error: "Package #{params[:package]} not found" and return
+        redirect_to(project_show_path(@project.to_s), error: "Package #{params[:package]} not found") && (return)
       end
       @container = @package
     else

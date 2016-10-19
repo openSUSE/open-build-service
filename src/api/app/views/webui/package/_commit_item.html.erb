@@ -22,7 +22,7 @@
         <% end %>
     <% end %>
     <%= fuzzy_time(Time.at(commit['time'].to_i)) %> (revision <%= commit['rev'] %>)
-    <% unless commit['user'] == '_service' or commit['comment'].blank? %>
+    <% unless commit['user'] == '_service' || commit['comment'].blank? %>
         <pre class="plain"><%= commit['comment'] %></pre>
     <% end %>
     <ul class="horizontal-list" style="margin: 5px 0px 0px 20px;">

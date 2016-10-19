@@ -120,7 +120,7 @@ class IssueTracker < ApplicationRecord
     http = Net::HTTP.start("cve.mitre.org")
     header = http.head("/data/downloads/allitems.xml.gz")
     mtime = Time.parse(header["Last-Modified"])
-    if mtime.nil? or self.issues_updated.nil? or (self.issues_updated < mtime)
+    if mtime.nil? || self.issues_updated.nil? || (self.issues_updated < mtime)
       # new file exists
       h = http.get("/data/downloads/allitems.xml.gz")
       unzipedio = StringIO.new(h.body) # Net::HTTP is decompressing already
@@ -332,7 +332,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
       @@mySummary = ""
       @@isDesc = false
     end
-    if @@myIssue and name == "desc"
+    if @@myIssue && name == "desc"
       @@isDesc=true
     else
       @@isDesc=false

@@ -43,11 +43,15 @@ Style/AlignParameters:
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
   Enabled: true
-
-# Henne
+  
 Style/AndOr:
-  Enabled: false
+  # Whether `and` and `or` are banned only in conditionals (conditionals)
+  # or completely (always).
+  Enabled: true
   EnforcedStyle: always
+  SupportedStyles:
+    - always
+    - conditionals
 
 Style/EmptyElse:
   EnforcedStyle: both

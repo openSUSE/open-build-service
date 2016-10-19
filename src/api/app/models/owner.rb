@@ -76,7 +76,7 @@ class Owner
       elsif obj.is_a? String
         owners += self.find_assignees(project, obj, limit.to_i, devel,
                                       filter, (true unless params[:webui_mode].blank?))
-      elsif obj.is_a? Project or obj.is_a? Package
+      elsif obj.is_a?(Project) || obj.is_a?(Package)
         owners += self.find_maintainers(obj, filter)
       else
         owners += self.find_containers(project, obj, devel, filter)
@@ -134,11 +134,11 @@ class Owner
         # add matching entry
         maintainers << m
         limit = limit - 1
-        return maintainers if limit < 1 and not match_all
+        return maintainers if limit < 1 && !match_all
       end
     end
 
-    return instances_without_definition if webui_mode and maintainers.length < 1
+    return instances_without_definition if webui_mode && maintainers.length < 1
 
     maintainers << deepest_match if deepest_match
 
@@ -259,7 +259,7 @@ class Owner
       end
       m.filter = filter
       self._extract_from_container(m, cont.relationships, sql, nil)
-      maintainers << m unless m.users.nil? and m.groups.nil?
+      maintainers << m unless m.users.nil? && m.groups.nil?
     }
     project = container
     if container.is_a? Package
@@ -290,14 +290,14 @@ class Owner
     # no match, loop about projects below with this package container name
     pkg.project.expand_all_projects.each do |prj|
       p = prj.packages.find_by_name(pkg.name )
-      next if p.nil? or already_checked[p.id]
+      next if p.nil? || already_checked[p.id]
 
       already_checked[p.id] = 1
 
       m = self.extract_maintainer(rootproject, p.resolve_devel_package, filter, owner) if devel == true
       m = self.extract_maintainer(rootproject, p, filter, owner) unless m
 
-      break if m and not deepest
+      break if m && !deepest
     end
 
     # found entry
@@ -321,12 +321,12 @@ class Owner
     m = self._extract_from_container(m, pkg.relationships, sql, objfilter)
 
     # did it it match? if not fallback to project level
-    unless m.users or m.groups
+    unless m.users || m.groups
       m.package = nil
       m = self._extract_from_container(m, pkg.project.relationships, sql, objfilter)
     end
     # still not matched? Ignore it
-    return nil unless m.users or m.groups
+    return nil unless m.users || m.groups
 
     return m
   end

@@ -193,7 +193,7 @@ class UserLdapStrategy
     ldap_con.search(search_base, LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
       result << entry.dn
       result << entry.attrs
-      if required_attr and entry.attrs.include?(required_attr)
+      if required_attr && entry.attrs.include?(required_attr)
         result << entry.vals(required_attr)
       end
     end
@@ -280,13 +280,13 @@ class UserLdapStrategy
       end
 
       # user memberof attr exist?
-      if user_memberof_attr and user_memberof_attr.include?(group_dn)
+      if user_memberof_attr && user_memberof_attr.include?(group_dn)
         result << eachgroup
         Rails.logger.debug("#{user} is in #{group}")
         next
       end
       # group member attr exist?
-      if group_member_attr and group_member_attr.include?(user_dn)
+      if group_member_attr && group_member_attr.include?(user_dn)
         result << eachgroup
         Rails.logger.debug("#{user} is in #{group}")
         next
@@ -340,7 +340,7 @@ class UserLdapStrategy
   end
 
   def self.authenticate_with_local(password, entry)
-    if not entry.key?(CONFIG['ldap_auth_attr']) or entry[CONFIG['ldap_auth_attr']].empty?
+    if !entry.key?(CONFIG['ldap_auth_attr']) || entry[CONFIG['ldap_auth_attr']].empty?
       Rails.logger.info("Failed to get attr:#{CONFIG['ldap_auth_attr']}")
       return false
     end
@@ -556,7 +556,7 @@ class UserLdapStrategy
 
     max_ldap_attempts = CONFIG.has_key?('ldap_max_attempts') ? CONFIG['ldap_max_attempts'] : 10
 
-    while !ping and count < max_ldap_attempts
+    while !ping && count < max_ldap_attempts
       count += 1
       server = ldap_servers[rand(ldap_servers.length)]
       # Ruby only contains TCP echo ping.  Use system ping for real ICMP ping.
@@ -591,7 +591,7 @@ class UserLdapStrategy
       end
       conn.bind(user_name, password)
     rescue LDAP::ResultError
-      if not conn.nil? and conn.bound?
+      if !conn.nil? && conn.bound?
         conn.unbind()
       end
       Rails.logger.debug("Not bound as #{user_name}: #{conn.err2string(conn.err)}")

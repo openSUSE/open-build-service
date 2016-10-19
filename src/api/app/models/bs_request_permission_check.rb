@@ -77,7 +77,7 @@ class BsRequestPermissionCheck
       check_delete_accept(action)
     end
 
-    if action.makeoriginolder and Package.exists_by_project_and_name(action.target_project, action.target_package)
+    if action.makeoriginolder && Package.exists_by_project_and_name(action.target_project, action.target_package)
       # the target project may link to another project where we need to check modification permissions
       originpkg = Package.get_by_project_and_name action.target_project, action.target_package
       unless User.current.can_modify_package?(originpkg, true)
@@ -141,7 +141,7 @@ class BsRequestPermissionCheck
   def check_action_target(action)
     return unless [:submit, :change_devel, :maintenance_release, :maintenance_incident].include? action.action_type
 
-    if action.action_type == :change_devel and !action.target_package
+    if action.action_type == :change_devel && !action.target_package
       raise PostRequestNoPermission.new "Target package is missing in request #{action.bs_request.number} (type #{action.action_type})"
     end
 
@@ -193,25 +193,25 @@ class BsRequestPermissionCheck
     end
 
     # general source write permission check (for revoke)
-    if (@source_package and User.current.can_modify_package?(@source_package, true)) or
-        (not @source_package and @source_project and User.current.can_modify_project?(@source_project, true))
+    if (@source_package && User.current.can_modify_package?(@source_package, true)) ||
+        (!@source_package && @source_project && User.current.can_modify_project?(@source_project, true))
       @write_permission_in_source = true
     end
 
     # general write permission check on the target on accept
     @write_permission_in_this_action = false
     # meta data change shall also be allowed after freezing a project using force:
-    ignoreLock = opts[:force] and [:set_bugowner].include? action.action_type
+    (ignoreLock = opts[:force]) && [:set_bugowner].include?(action.action_type)
     if @target_package
       if User.current.can_modify_package?(@target_package, ignoreLock)
         @write_permission_in_target = true
         @write_permission_in_this_action = true
       end
     else
-      if @target_project and User.current.can_create_package_in?(@target_project, true)
+      if @target_project && User.current.can_create_package_in?(@target_project, true)
         @write_permission_in_target = true
       end
-      if @target_project and User.current.can_create_package_in?(@target_project, ignoreLock)
+      if @target_project && User.current.can_create_package_in?(@target_project, ignoreLock)
         @write_permission_in_this_action = true
       end
     end
@@ -268,7 +268,7 @@ class BsRequestPermissionCheck
     # Basic validations of given parameters
     by_user = User.find_by_login!(opts[:by_user]) if opts[:by_user]
     by_group = Group.find_by_title!(opts[:by_group]) if opts[:by_group]
-    if opts[:by_project] and opts[:by_package]
+    if opts[:by_project] && opts[:by_package]
       by_package = Package.get_by_project_and_name(opts[:by_project], opts[:by_package])
     elsif opts[:by_project]
       by_project = Project.get_by_name(opts[:by_project])
@@ -283,17 +283,17 @@ class BsRequestPermissionCheck
     unless by_user || by_group || by_package || by_project
       raise ReviewNotSpecified.new 'The review must specified via by_user, by_group or by_project(by_package) argument.'
     end
-    if by_user and not User.current == by_user
+    if by_user && !(User.current == by_user)
       raise ReviewChangeStateNoPermission.new "review state change is not permitted for #{User.current.login}"
     end
-    if by_group and not User.current.is_in_group?(by_group)
+    if by_group && !User.current.is_in_group?(by_group)
       raise ReviewChangeStateNoPermission.new "review state change for group #{by_group.title} is not permitted for #{User.current.login}"
     end
-    if by_package and not User.current.can_modify_package?(by_package, true)
+    if by_package && !User.current.can_modify_package?(by_package, true)
       raise ReviewChangeStateNoPermission.new "review state change for package #{opts[:by_project]}/#{opts[:by_package]} " +
                                               "is not permitted for #{User.current.login}"
     end
-    if by_project and not User.current.can_modify_project?(by_project, true)
+    if by_project && !User.current.can_modify_project?(by_project, true)
       raise ReviewChangeStateNoPermission.new "review state change for project #{opts[:by_project]} is not permitted for #{User.current.login}"
     end
   end
@@ -305,7 +305,7 @@ class BsRequestPermissionCheck
     end
 
     # enforce state to "review" if going to "new", when review tasks are open
-    if opts[:newstate] == 'new' and req.reviews
+    if opts[:newstate] == 'new' && req.reviews
       req.reviews.each do |r|
         opts[:newstate]= 'review' if r.state == :new
       end
@@ -328,7 +328,7 @@ class BsRequestPermissionCheck
       end
     end
 
-    if opts[:newstate] == 'superseded' and not opts[:superseded_by]
+    if opts[:newstate] == 'superseded' && !opts[:superseded_by]
       raise PostRequestMissingParamater.new "Supersed a request requires a 'superseded_by' parameter with the request id."
     end
 
@@ -339,10 +339,10 @@ class BsRequestPermissionCheck
       raise PostRequestNoPermission.new 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
     end
 
-    if %w(new review revoked superseded).include?(opts[:newstate]) and req.creator == User.current.login
+    if %w(new review revoked superseded).include?(opts[:newstate]) && req.creator == User.current.login
       # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
-    elsif req.state == :declined and %w(new review).include?(opts[:newstate]) and req.commenter == User.current.login
+    elsif req.state == :declined && %w(new review).include?(opts[:newstate]) && req.commenter == User.current.login
       # people who declined a request shall also be able to reopen it
       permission_granted = true
     end
@@ -354,7 +354,7 @@ class BsRequestPermissionCheck
       check_newstate_action! action, opts
 
       # abort immediatly if we want to write and can't
-      if "accepted" == opts[:newstate] and not @write_permission_in_this_action
+      if "accepted" == opts[:newstate] && !@write_permission_in_this_action
         msg = ''
         msg = "No permission to modify target of request " +
               "#{action.bs_request.number} (type #{action.action_type}): project #{action.target_project}" unless action.bs_request.new_record?
@@ -379,7 +379,7 @@ class BsRequestPermissionCheck
 
 # Is the user involved in any project or package ?
   def require_permissions_in_target_or_source
-    unless @write_permission_in_target or @write_permission_in_source
+    unless @write_permission_in_target || @write_permission_in_source
       raise AddReviewNotPermitted.new "You have no role in request #{req.number}"
     end
     true
@@ -390,7 +390,7 @@ class BsRequestPermissionCheck
         case opts[:newstate]
           when 'superseded'
             # Is the user involved in any project or package ?
-            unless @write_permission_in_target or @write_permission_in_source
+            unless @write_permission_in_target || @write_permission_in_source
               "You have no role in request #{req.number}"
             end
           when 'accepted'

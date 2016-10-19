@@ -29,7 +29,7 @@ class Channel < ApplicationRecord
             pkg = prj.find_package(b['package'] )
             raise UnknownPackage.new "Package does not exist #{prj.name}/#{p['package']}" unless pkg
           end
-          if b['repository'] and not prj.repositories.find_by_name(b['repository'])
+          if b['repository'] && !prj.repositories.find_by_name(b['repository'])
             raise UnknownRepository.new "Repository does not exist #{prj.name}/#{b['repository']}"
           end
         end
@@ -114,12 +114,12 @@ class Channel < ApplicationRecord
       hasharray = Array.new
       # search the right xml binaries group for this cbl
       xmlhash.elements('binaries') do |b|
-        next if cbl.project      and b['project'] != cbl.project.name
-        next if cbl.repository   and b['repository'] != cbl.repository.name
-        next if cbl.architecture and b['arch'] != cbl.architecture.name
-        next if cbl.project.nil?      and b['project']
-        next if cbl.repository.nil?   and b['repository']
-        next if cbl.architecture.nil? and b['arch']
+        next if cbl.project      && b['project'] != cbl.project.name
+        next if cbl.repository   && b['repository'] != cbl.repository.name
+        next if cbl.architecture && b['arch'] != cbl.architecture.name
+        next if cbl.project.nil?      && b['project']
+        next if cbl.repository.nil?   && b['repository']
+        next if cbl.architecture.nil? && b['arch']
         hasharray << b['binary']
       end
       hasharray.flatten!
@@ -163,9 +163,9 @@ class Channel < ApplicationRecord
 
     # defined in channel
     self.channel_targets.each do |ct|
-      next if mode == :skip_disabled and ct.disabled
+      next if mode == :skip_disabled && ct.disabled
       repo_name = ct.repository.extended_name
-      next unless mode==:enable_all or not ct.disabled
+      next unless mode == :enable_all || !ct.disabled
       # add repositories
       unless cp.project.repositories.find_by_name(repo_name)
         tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository])

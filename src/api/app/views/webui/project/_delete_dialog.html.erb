@@ -7,7 +7,7 @@
   
         <%= form_tag({:controller => 'project', :action => 'destroy'}, :method => 'delete') do %>
           <%= hidden_field_tag(:project, @project) %>
-          <% if @linking_projects and @linking_projects.length > 0 %>
+          <% if @linking_projects && @linking_projects.length > 0 %>
             <p>Other projects still have source links to this project:</p>
             <ul>
               <% @linking_projects.each do |link| %>

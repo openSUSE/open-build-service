@@ -59,7 +59,7 @@ class BsRequest < ApplicationRecord
 
   def save!(args = {})
     new = self.created_at ? nil : 1
-    sanitize! if new and not @skip_sanitize
+    sanitize! if new && !@skip_sanitize
     super
     notify if new
   end
@@ -112,10 +112,10 @@ class BsRequest < ApplicationRecord
   end
 
   def check_supersede_state
-    if self.state == :superseded and ( not self.superseded_by.is_a?(Numeric) or not self.superseded_by > 0 )
+    if self.state == :superseded && (!self.superseded_by.is_a?(Numeric) || !(self.superseded_by > 0))
       errors.add(:superseded_by, 'Superseded_by should be set')
     end
-    if self.superseded_by and not self.state == :superseded
+    if self.superseded_by && !(self.state == :superseded)
       errors.add(:superseded_by, 'Superseded_by should not be set')
     end
   end
@@ -207,7 +207,7 @@ class BsRequest < ApplicationRecord
       str = hashed.value('accept_at')
       request.accept_at = DateTime.parse(str) if str
       hashed.delete('accept_at')
-      raise SaveError, 'Auto accept time is in the past' if request.accept_at and request.accept_at < DateTime.now
+      raise SaveError, 'Auto accept time is in the past' if request.accept_at && request.accept_at < DateTime.now
 
       # we do not support to import history anymore on purpose
       # would be all fake, but means also history gets lost when
@@ -275,7 +275,7 @@ class BsRequest < ApplicationRecord
         review.render_xml(r)
       end
 
-      if opts[:withfullhistory] or opts[:withhistory]
+      if opts[:withfullhistory] || opts[:withhistory]
         attributes = {who: self.creator, when: self.created_at.strftime('%Y-%m-%dT%H:%M:%S')}
         builder.history(attributes) do
           # request description is on purpose the comment in history:
@@ -313,10 +313,10 @@ class BsRequest < ApplicationRecord
       elsif r.by_project
         if r.by_package
           pkg = Package.find_by_project_and_name r.by_project, r.by_package
-          return true if pkg and user.can_modify_package? pkg
+          return true if pkg && user.can_modify_package?(pkg)
         else
           prj = Project.find_by_name r.by_project
-          return true if prj and user.can_modify_project? prj
+          return true if prj && user.can_modify_project?(prj)
         end
       end
     end
@@ -325,12 +325,12 @@ class BsRequest < ApplicationRecord
   end
 
   def obsolete_reviews(opts)
-    return false unless opts[:by_user] or opts[:by_group] or opts[:by_project] or opts[:by_package]
+    return false unless opts[:by_user] || opts[:by_group] || opts[:by_project] || opts[:by_package]
     reviews.each do |review|
-      if review.by_user and review.by_user == opts[:by_user] or
-          review.by_group and review.by_group == opts[:by_group] or
-          review.by_project and review.by_project == opts[:by_project] or
-          review.by_package and review.by_package == opts[:by_package]
+      if review.by_user && review.by_user == opts[:by_user] ||
+          review.by_group && review.by_group == opts[:by_group] ||
+          review.by_project && review.by_project == opts[:by_project] ||
+          review.by_package && review.by_package == opts[:by_package]
         logger.debug "Obsoleting review #{review.id}"
         review.state = :obsoleted
         review.save
@@ -338,7 +338,7 @@ class BsRequest < ApplicationRecord
         history.create(review: review, comment: "reviewer got removed", user_id: User.current.id)
 
         # Maybe this will turn the request into an approved state?
-        if self.state == :review and self.reviews.where(state: "new").none?
+        if self.state == :review && self.reviews.where(state: "new").none?
           self.state = :new
           self.save
           history = HistoryElement::RequestAllReviewsApproved
@@ -354,7 +354,7 @@ class BsRequest < ApplicationRecord
     group.check_for_group_in_new
 
     # and now check the reviews
-    if self.bs_request_action_groups.empty? and self.state == :review
+    if self.bs_request_action_groups.empty? && self.state == :review
       self.reviews.each do |r|
         # if the review is open, there is nothing we have to care about
         return if r.state == :new
@@ -700,7 +700,7 @@ class BsRequest < ApplicationRecord
       history.create(p) if history
 
       # we want to check right now if pre-approved requests can be processed
-      if go_new_state == :new and self.accept_at
+      if go_new_state == :new && self.accept_at
         Delayed::Job.enqueue AcceptRequestsJob.new
       end
     end
@@ -764,9 +764,9 @@ class BsRequest < ApplicationRecord
     # rails enums do not support compare and break db constraints :/
     if new == "critical"
       self.priority = new
-    elsif new == "important" and [ "moderate", "low" ].include? self.priority
+    elsif new == "important" && [ "moderate", "low" ].include?(self.priority)
       self.priority = new
-    elsif new == "moderate" and "low" == self.priority
+    elsif new == "moderate" && "low" == self.priority
       self.priority = new
     end
   end
@@ -896,7 +896,7 @@ class BsRequest < ApplicationRecord
   def auto_accept
     # do not run for processed requests. Ignoring review on purpose since this
     # must also work when people do not react anymore
-    return unless self.state == :new or self.state == :review
+    return unless self.state == :new || self.state == :review
 
     self.with_lock do
       User.current ||= User.find_by_login self.creator
@@ -946,10 +946,10 @@ class BsRequest < ApplicationRecord
     self.creator ||= User.current.login
     self.commenter ||= User.current.login
     # FIXME: Move permission checks to controller level
-    unless self.creator == User.current.login or User.current.is_admin?
+    unless self.creator == User.current.login || User.current.is_admin?
       raise SaveError, 'Admin permissions required to set request creator to foreign user'
     end
-    unless self.commenter == User.current.login or User.current.is_admin?
+    unless self.commenter == User.current.login || User.current.is_admin?
       raise SaveError, 'Admin permissions required to set request commenter to foreign user'
     end
 
@@ -1007,10 +1007,10 @@ class BsRequest < ApplicationRecord
         next if self.reviews.select{|a| a.by_group == r.title}.length > 0
         self.reviews.new(by_group: r.title, state: :new)
       elsif r.class == Project
-        next if self.reviews.select{|a| a.by_project == r.name and a.by_package.nil? }.length > 0
+        next if self.reviews.select{|a| a.by_project == r.name && a.by_package.nil? }.length > 0
         self.reviews.new(by_project: r.name, state: :new)
       elsif r.class == Package
-        next if self.reviews.select{|a| a.by_project == r.project.name and a.by_package == r.name }.length > 0
+        next if self.reviews.select{|a| a.by_project == r.project.name && a.by_package == r.name }.length > 0
         self.reviews.new(by_project: r.project.name, by_package: r.name, state: :new)
       else
         raise 'Unknown review type'
@@ -1125,7 +1125,7 @@ class BsRequest < ApplicationRecord
       newactions.concat(na)
     end
     # will become an empty request
-    raise MissingAction.new if newactions.empty? and oldactions.size == self.bs_request_actions.size
+    raise MissingAction.new if newactions.empty? && oldactions.size == self.bs_request_actions.size
 
     oldactions.each { |a| self.bs_request_actions.destroy a }
     newactions.each { |a| self.bs_request_actions << a }

@@ -108,7 +108,7 @@
 <% end %>
 
 <%= content_for :ready_function do %>
-    <% if @users and @users.length > 0 %>
+    <% if @users && @users.length > 0 %>
         $('#user_table').dataTable({
         'columns': [
         null,
@@ -120,7 +120,7 @@
         'paging': false,
         });
     <% end %>
-    <% if @groups and @groups.length > 0 %>
+    <% if @groups && @groups.length > 0 %>
         $('#group_table').dataTable({
         'columns': [
         null,

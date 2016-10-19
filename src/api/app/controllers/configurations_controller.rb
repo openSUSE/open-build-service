@@ -29,13 +29,9 @@ class ConfigurationsController < ApplicationController
     xml = Xmlhash.parse(request.raw_post) || {}
     attribs = {}
     # scheduler architecture list
-    archs=nil
-    if xml["schedulers"] and xml["schedulers"]["arch"].class == Array
-      archs=Hash[xml["schedulers"]["arch"].map{|a| [a, 1]}]
-    end
-    if params["arch"].class == Array
-      archs=Hash[params["arch"].map{|a| [a, 1]}]
-    end
+    archs = nil
+    archs = Hash[xml["schedulers"]["arch"].map{|a| [a, 1]}] if xml["schedulers"] && xml["schedulers"]["arch"].class == Array
+    archs = Hash[params["arch"].map{|a| [a, 1]}] if params["arch"].class == Array
     if archs
       Architecture.all.each do |arch|
         if arch.available != (archs[arch.name] == 1)
@@ -52,10 +48,10 @@ class ConfigurationsController < ApplicationController
       value = xml[key.to_s] || params[key.to_s]
 
       # is it defined in options.yml
-      if value and not value.blank?
+      if value && !value.blank?
         v = ::Configuration::map_value( key, value )
         ov = ::Configuration::map_value( key, ::Configuration::OPTIONS_YML[key] )
-        if ov != v and not ov.blank?
+        if ov != v && ov.present?
           render_error :status => 403, :errorcode => 'no_permission_to_change',
                        :message => "The api has a different value for #{key} configured in options.yml file. Remove it there first."
           return
