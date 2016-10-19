@@ -16,7 +16,7 @@ FactoryGirl.define do
       end
 
       attrib_type AttribType.find_by_namespace_and_name!('OBS', 'UpdateProject')
-      values { [ build(:attrib_value, value: update_project.name) ] }
+      values { [build(:attrib_value, value: update_project.name)] }
     end
 
     factory :project_status_package_fail_comment_attrib do

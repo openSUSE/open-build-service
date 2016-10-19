@@ -58,5 +58,24 @@ FactoryGirl.define do
         create(:maintainance_project_attrib, project: project)
       end
     end
+
+    factory :update_project do
+      kind 'maintenance_release'
+
+      transient do
+        target_project nil
+      end
+
+      after(:create) do |update_project, evaluator|
+        create(:update_project_attrib, project: evaluator.target_project, update_project: update_project)
+        if evaluator.target_project
+          create(:build_flag, status: 'disable', project: evaluator.target_project)
+          create(:publish_flag, status: 'disable', project: evaluator.target_project)
+          update_project.projects_linking_to << evaluator.target_project
+          new_repository = create(:repository, project: update_project, architectures: ['i586'])
+          create(:path_element, repository: new_repository, link: evaluator.target_project.repositories.first)
+        end
+      end
+    end
   end
 end
