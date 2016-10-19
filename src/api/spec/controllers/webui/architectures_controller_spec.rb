@@ -11,7 +11,7 @@ RSpec.describe Webui::ArchitecturesController do
       it 'creates the architectures' do
         login(admin_user)
 
-        post :bulk_update_availability, archs: { i586: '0', s390x: '1' }
+        post :bulk_update_availability, params: { archs: { i586: '0', s390x: '1' } }
         expect(response).to redirect_to(architectures_path)
         expect(flash[:notice]).to eq('Architectures successfully updated.')
         expect(Architecture.find_by_name('i586').available).to be false

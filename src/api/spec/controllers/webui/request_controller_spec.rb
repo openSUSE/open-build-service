@@ -22,18 +22,18 @@ RSpec.describe Webui::RequestController, vcr: true do
 
   describe 'GET show' do
     it 'is successful as nobody' do
-      get :show, number: bs_request.number
+      get :show, params: { number: bs_request.number }
       expect(response).to have_http_status(:success)
     end
 
     it 'assigns @bsreq' do
-      get :show, number: bs_request.number
+      get :show, params: { number: bs_request.number }
       expect(assigns(:bsreq)).to eq(bs_request)
     end
 
     it 'redirects to root_path if request does not exist' do
       login submitter
-      get :show, number: '200000'
+      get :show, params: { number: '200000' }
       expect(flash[:error]).to eq("Can't find request 200000")
       expect(response).to redirect_to(user_show_path(User.current))
     end
@@ -47,7 +47,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       # maintainer. so we'll gonna add a maintainer to the target package
       create(:relationship_package_user, user: submitter, package: target_package)
 
-      get :show, number: bs_request.number
+      get :show, params: { number: bs_request.number }
 
       expect(assigns(:show_project_maintainer_hint)).to eq(true)
     end
@@ -57,7 +57,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       create_submit_request
 
-      get :show, number: bs_request.number
+      get :show, params: { number: bs_request.number }
 
       expect(assigns(:show_project_maintainer_hint)).to eq(false)
     end
@@ -70,7 +70,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
     context "a valid request" do
       before do
-        post :delete_request, project: target_project, package: target_package, description: "delete it!"
+        post :delete_request, params: { project: target_project, package: target_package, description: "delete it!" }
         @bs_request = BsRequest.joins(:bs_request_actions).
           where("bs_request_actions.target_project=? AND bs_request_actions.target_package=? AND type=?",
                 target_project.to_s, target_package.to_s, "delete"
@@ -86,7 +86,7 @@ RSpec.describe Webui::RequestController, vcr: true do
     context "a request causing a APIException" do
       before do
         BsRequest.any_instance.stubs(:save!).raises(APIException, "something happened")
-        post :delete_request, project: target_project, package: target_package, description: "delete it!"
+        post :delete_request, params: { project: target_project, package: target_package, description: "delete it!" }
       end
 
       it { expect(flash[:error]).to eq("something happened") }
@@ -102,8 +102,10 @@ RSpec.describe Webui::RequestController, vcr: true do
     context "with valid parameters" do
       before do
         login(submitter)
-        post :change_devel_request, project: target_project.name, package: target_package.name,
-          devel_project: source_project.name, devel_package: source_package.name, description: "change it!"
+        post :change_devel_request, params: {
+            project: target_project.name, package: target_package.name,
+            devel_project: source_project.name, devel_package: source_package.name, description: "change it!"
+          }
         @bs_request = BsRequest.where(description: "change it!", creator: submitter.login, state: "new").first
       end
 
@@ -127,8 +129,10 @@ RSpec.describe Webui::RequestController, vcr: true do
     context "with invalid devel_package parameter" do
       before do
         login(submitter)
-        post :change_devel_request, project: target_project.name, package: target_package.name,
-          devel_project: source_project.name, devel_package: "non-existant", description: "change it!"
+        post :change_devel_request, params: {
+            project: target_project.name, package: target_package.name,
+            devel_project: source_project.name, devel_package: "non-existant", description: "change it!"
+          }
         @bs_request = BsRequest.where(description: "change it!", creator: submitter.login, state: "new").first
       end
 

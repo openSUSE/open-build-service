@@ -8,7 +8,7 @@ RSpec.describe Webui::MainController do
     it "create a status message" do
       login(admin_user)
 
-      post :add_news, message: "Some message", severity: "Green"
+      post :add_news, params: { message: "Some message", severity: "Green" }
       expect(response).to redirect_to(root_path)
       message = StatusMessage.where(user: admin_user, message: "Some message", severity: "Green")
       expect(message).to exist
@@ -18,13 +18,13 @@ RSpec.describe Webui::MainController do
       login(admin_user)
 
       expect {
-        post :add_news, message: "Some message"
+        post :add_news, params: { message: "Some message" }
       }.to_not change(StatusMessage, :count)
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq("Please provide a message and severity")
 
       expect {
-        post :add_news, severity: "Green"
+        post :add_news, params: { severity: "Green" }
       }.to_not change(StatusMessage, :count)
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq("Please provide a message and severity")
@@ -34,7 +34,7 @@ RSpec.describe Webui::MainController do
       before do
         login(user)
 
-        post :add_news, message: "Some message", severity: "Green"
+        post :add_news, params: { message: "Some message", severity: "Green" }
       end
 
       it "does not create a status message" do
@@ -47,7 +47,7 @@ RSpec.describe Webui::MainController do
     context "empty message" do
       before do
         login(admin_user)
-        post :add_news, severity: "Green"
+        post :add_news, params: { severity: "Green" }
       end
 
       it { expect(flash[:error]).to eq("Please provide a message and severity") }
@@ -56,7 +56,7 @@ RSpec.describe Webui::MainController do
     context "empty severity" do
       before do
         login(admin_user)
-        post :add_news, message: "Some message"
+        post :add_news, params: { message: "Some message" }
       end
 
       it { expect(flash[:error]).to eq("Please provide a message and severity") }
@@ -69,7 +69,7 @@ RSpec.describe Webui::MainController do
     it "marks a message as deleted" do
       login(admin_user)
 
-      post :delete_message, message_id: message.id
+      post :delete_message, params: { message_id: message.id }
       expect(response).to redirect_to(root_path)
       expect(message.reload.deleted_at).to be_a_kind_of(ActiveSupport::TimeWithZone)
     end
@@ -77,7 +77,7 @@ RSpec.describe Webui::MainController do
     context "non-admin users" do
       before do
         login(user)
-        post :delete_message, message_id: message.id
+        post :delete_message, params: { message_id: message.id }
       end
 
       it "can't delete messages" do
@@ -129,7 +129,7 @@ RSpec.describe Webui::MainController do
 
     before do
       create_list(:project_with_package, 5)
-      get :sitemap_packages, {listaction: 'show'}
+      get :sitemap_packages, params: { listaction: 'show' }
       @package_paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map { |url| URI.parse(url).path }
     end
 

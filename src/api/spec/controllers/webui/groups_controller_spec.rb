@@ -13,17 +13,17 @@ RSpec.describe Webui::GroupsController do
 
   describe 'GET show' do
     it 'is successful as nobody' do
-      get :show, title: group.title
+      get :show, params: { title: group.title }
       expect(response).to have_http_status(:success)
     end
 
     it 'assigns @group' do
-      get :show, title: group.title
+      get :show, params: { title: group.title }
       expect(assigns(:group)).to eq(group)
     end
 
     it 'redirects to root_path if group does not exist' do
-      get :show, title: 'Foobar'
+      get :show, params: { title: 'Foobar' }
       expect(flash[:error]).to eq("Group 'Foobar' does not exist")
       expect(response).to redirect_to(root_path)
     end
@@ -31,36 +31,36 @@ RSpec.describe Webui::GroupsController do
 
   describe 'GET tokens' do
     it 'returns a hash with one group for a match' do
-      get :tokens, q: group.title
+      get :tokens, params: { q: group.title }
       expect(response.body).to eq([{ name: group.title }].to_json)
     end
 
     it 'returns a hash with more than one group for a match' do
       another_group # necessary for initialization
-      get :tokens, q: group.title
+      get :tokens, params: { q: group.title }
       expect(response.body).to eq([{ name: group.title }, { name: another_group.title }].to_json)
     end
 
     it 'returns empty hash if no match' do
-      get :tokens, q: 'no_group'
+      get :tokens, params: { q: 'no_group' }
       expect(response.body).to eq([].to_json)
     end
   end
 
   describe 'GET autocomplete' do
     it 'returns list with one group for a match' do
-      get :autocomplete, term: group.title
+      get :autocomplete, params: { term: group.title }
       expect(response.body).to eq([group.title].to_json)
     end
 
     it 'returns list with more than one group for a match' do
       another_group # necessary for initialization
-      get :autocomplete, term: group.title
+      get :autocomplete, params: { term: group.title }
       expect(response.body).to eq([group.title, another_group.title].to_json)
     end
 
     it 'returns empty list if no match' do
-      get :autocomplete, term: 'no_group'
+      get :autocomplete, params: { term: 'no_group' }
       expect(response.body).to eq([].to_json)
     end
   end
