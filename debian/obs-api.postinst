@@ -66,7 +66,7 @@ API_ROOT=/usr/share/obs/api
 run_in_api () {
   export RAILS_ENV="production"
   # startproc only works for classical daemons
-  chroot --userspec=www-data:www-data / /bin/bash -c "cd $API_ROOT && /usr/bin/bundle exec $*"
+  chroot --userspec=www-data:www-data / /bin/bash -c "cd $API_ROOT && bundle exec $*"
 }
 
 run_in_api rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
