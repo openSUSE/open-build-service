@@ -1454,8 +1454,12 @@ sub setdispatchdetails {
     my $param = {
       'uri' => "$info->{'reposerver'}/jobs/$arch/$job",
       'request' => 'POST',
+      'timeout' => 60,
     };
-    BSRPC::rpc($param, undef, ("cmd=setdispatchdetails", "details=$details"));
+    eval {
+      BSRPC::rpc($param, undef, ("cmd=setdispatchdetails", "details=$details"));
+    };
+    warn($@) if $@;
   } else {
     my $ev = { type => 'dispatchdetails', job => $job, details => $details };
     my $evname = "dispatchdetails:$job";
