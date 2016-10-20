@@ -820,8 +820,10 @@ sub filechecks {
 # users get feedback
 sub checkconstraints {
   my ($info, $arch, $job, $constraints) = @_;
+  my @all_workers;
 
-  my $details = "";
+  my $sumworkers = 0;
+  my $downworkers = 0;
   my @nonidlestates = qw(building away down dead);
   for my $nonidlestate (@nonidlestates) {
     my $oraresult = 0;
@@ -829,15 +831,28 @@ sub checkconstraints {
     for my $workertooracle (@workerarr) {
       my $worker = readxml("$workersdir/$nonidlestate/$workertooracle", $BSXML::worker, 1);
       next unless $worker;
+      push @all_workers, $worker;
       next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker);
       $oraresult++ if oracle($worker, $constraints) > 0;
+      $downworkers ++ if $nonidlestate eq "down";
     }
-    if ($oraresult > 0) {
-      $details .= "$oraresult/" . scalar(@workerarr) . " $nonidlestate ";
-    }
+    $sumworkers += $oraresult if $oraresult > 0;
   }
-  if (!$details) {
-    $details = "no worker provides the capabilities to comply with the constraints";
+  my $details = "waiting for $sumworkers possible workers";
+  $details .= " ($downworkers down)" if $downworkers > 0;
+  if ($sumworkers == 0) {
+    $details = "no possible workers (constraints mismatch hint:";
+    if ($BSConfig::dispatch_constraint) {
+      if (!grep {$BSConfig::dispatch_constraint->($info, $_)} @all_workers) {
+        $details .= " dispatch constraints";
+      }
+    }
+    for my $cpart (sort(keys(%$constraints))) {
+      my $cconstraint = { $cpart => $constraints->{$cpart} };
+      next if (grep {oracle($_, $cconstraint) > 0} @all_workers);
+      $details .= " $cpart";
+    }
+    $details .= ")";
   }
   $details =~ s/\s+$//;
   if (!$info->{'scheduleinfo'} || $info->{'scheduleinfo'} ne $details) {
