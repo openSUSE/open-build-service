@@ -1,3 +1,12 @@
+open-build-service (2.7.1-3) experimental; urgency=medium
+
+  * jquery.ui.widget.patch: added missing jquery.ui.widget.
+    (Closes: #839143, #839144)
+  * missing-codemirror-js.patch: added missing
+    codemirror/addons/mode/simple.js. (Closes: #839133)
+
+ -- Andrew Lee (李健秋) <ajqlee@debian.org>  Thu, 20 Oct 2016 05:12:47 +0800
+
 open-build-service (2.7.1-2) experimental; urgency=medium
 
   * Generate clockworkd.clock.output log file. (Closes:#839211)
