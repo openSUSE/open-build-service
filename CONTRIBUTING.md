@@ -52,8 +52,11 @@ someone doesn't do that, please let any of the [openSUSE
 owners](https://github.com/orgs/openSUSE/teams/owners) know!
 
 # How to setup an OBS development environment
-
-We are using [Vagrant](https://www.vagrantup.com/) to create our development environment.
+We are using [Vagrant](https://www.vagrantup.com/) to create our development
+environment. All the tools needed for this are available for Linux, MacOS and
+Windows. **Please note** that the OBS backend uses advanced filesystem features
+that require an case sensitive filesystem (default in Linux, configurable in MacOS/Windows),
+make sure you run all this from a filesystem that supports this.
 
 1. Install [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). Both tools support Linux, MacOS and Windows.
 
