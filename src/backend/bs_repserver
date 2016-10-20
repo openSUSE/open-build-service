@@ -2165,7 +2165,7 @@ sub forwardevent {
       for my $a (ls($eventdir)) {
         next if $a =~ /^\./;
         next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer' || $a eq 'dispatch' || $a eq 'service' || $a eq 'deltastore';
-        next unless -d "$eventdir/$a";
+        push @archs, $a if -d "$eventdir/$a";
       }
     }
     for my $a (@archs) {
