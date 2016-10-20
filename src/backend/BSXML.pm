@@ -1535,6 +1535,7 @@ our $configuration = [
 	'download_on_demand',
 	'download_url',
 	'obs_url',
+	'api_url',
 	'ymp_url',
 	'errbit_url',
 	'bugzilla_url',

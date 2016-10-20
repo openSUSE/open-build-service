@@ -19,6 +19,7 @@ class Configuration < ApplicationRecord
                    disallow_group_creation:           CONFIG['disallow_group_creation_with_api'],
                    change_password:                   CONFIG['change_passwd'],
                    obs_url:                           nil, # inital setup may happen in webui api controller
+                   api_url:                           nil,
                    hide_private_options:              CONFIG['hide_private_options'],
                    gravatar:                          CONFIG['use_gravatar'],
                    download_url:                      CONFIG['download_url'],
@@ -79,6 +80,10 @@ class Configuration < ApplicationRecord
       attribs[k] = ::Configuration.map_value(k, attribs[k])
     end
 
+    # special for api_url
+    unless CONFIG['frontend_host'].blank? || CONFIG['frontend_port'].blank? || CONFIG['frontend_protocol'].blank?
+      attribs["api_url"] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}"
+    end
     update_attributes(attribs)
     self.save!
   end
