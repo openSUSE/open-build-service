@@ -487,7 +487,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     all(:css, 'div.commit_item').count.must_equal 23
   end
 
-  def test_access_live_build_log
+  def test_access_live_build_log # src/api/spec/controllers/webui/package_controller_spec.rb && # src/api/spec/features/webui/packages_spec.rb
     use_js
     visit '/package/live_build_log/home:Iggy/TestPack/10.2/i586'
     page.status_code.must_equal 200

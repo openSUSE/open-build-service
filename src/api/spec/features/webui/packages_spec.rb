@@ -132,4 +132,21 @@ RSpec.feature "Packages", :type => :feature, :js => true do
       expect(a_request(:post, rebuild_url)).to have_been_made.once
     end
   end
+
+  context "access live_build_log" do
+    let(:repository) { create(:repository, architectures: ["i586"]) }
+
+    before do
+      user.home_project.repositories << repository
+      login(user)
+      stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?nostream=1&start=0&end=65536")
+        .and_return(body: '[1] this is my dummy logfile -> ümlaut')
+    end
+
+    scenario "the build finished succesfully" do
+      visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'i586')
+      expect(page).to have_text('Build finished')
+      expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
+    end
+  end
 end

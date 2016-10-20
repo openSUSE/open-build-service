@@ -657,4 +657,26 @@ EOT
       it { is_expected.to redirect_to(package_show_path(project: source_project, package: package)) }
     end
   end
+
+  describe 'GET #package_live_build_log' do
+    context "successfully" do
+      before do
+        get :live_build_log, project: source_project, package: source_package, repository: '10.2', arch: 'i586', format: 'js'
+      end
+
+      it { expect(response).to have_http_status(:ok) }
+    end
+
+    context "with a protected package" do
+      let(:flag) { create(:sourceaccess_flag, project: source_project) }
+
+      before do
+        flag
+        get :live_build_log, project: source_project, package: source_package, repository: '10.2', arch: 'i586', format: 'js'
+      end
+
+      it { expect(flash[:error]).to eq('Could not access build log') }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+    end
+  end
 end
