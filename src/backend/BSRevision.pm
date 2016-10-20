@@ -224,6 +224,7 @@ sub extract_old_meta {
 sub addrev_replace_common {
   my ($cgi, $projid, $packid, $suf, @todo) = @_;
 
+  die("package '$packid' is read-only\n") if $packid && $packid =~ /(?<!^_product)(?<!^_patchinfo):./;
   $suf ||= 'mrev';
   undef $packid if $packid && $packid eq '_project';
   my $rpackid = defined($packid) ? $packid : '_project';
@@ -351,6 +352,7 @@ sub movelinkinfos {
 
 sub addrev_local {
   my ($cgi, $projid, $packid, $rev, $files) = @_;
+  die("package '$packid' is read-only\n") if $packid =~ /(?<!^_product)(?<!^_patchinfo):./;
   mkdir_p("$projectsdir/$projid.pkg");
   if ($packid eq '_project') {
     $rev = BSFileDB::fdb_add_i("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, $rev);

@@ -1771,4 +1771,9 @@ our $publishedpath = [
 	'url',
 ];
 
+our $multibuild = [
+    'multibuild' =>
+	  [ 'package' ],
+];
+
 1;

@@ -43,6 +43,13 @@ sub verify_projkind {
 sub verify_packid {
   my $packid = $_[0];
   die("packid is empty\n") unless defined($packid) && $packid ne '';
+  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+    die("packid '$packid' is illegal\n") unless $packid =~ /^([^:]+):([^:]+)$/s;
+    my ($p1, $p2) = ($1, $2);
+    verify_packid($p1);
+    verify_packid($p2);
+    return;
+  }
   $packid =~ s/^_product://s;
   $packid =~ s/^_patchinfo://s;
   die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
@@ -489,6 +496,14 @@ sub verify_dod {
   if ($master) {
     verify_url($master->{'url'}) if defined $master->{'url'};
     verify_simple($master->{'sslfingerprint'}) if defined $master->{'sslfingerprint'};
+  }
+}
+
+sub verify_multibuild {
+  my ($mb) = @_;
+  for my $packid (@{$mb->{'package'} || []}) {
+    verify_packid($packid);
+    die("packid $packid is illegal in multibuild\n") if $packid =~ /:/;
   }
 }
 

@@ -125,6 +125,10 @@ sub get_projpacks {
     print "getting data for project '$projid' package '".join("', '", @packids)."' from $BSConfig::srcserver\n";
     push @args, "project=$projid";
     for my $packid (@packids) {
+      if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./ && $packid =~ /^(.*):[^:]+$/) {
+	push @args, "package=$1" unless grep {$_ eq "package=$1"} @args;
+	next;
+      }
       push @args, "package=$packid";
     }
   } elsif (defined($projid)) {
@@ -333,8 +337,15 @@ sub update_projpacks {
     delete $projpacks->{$projid};
     $isgone = 1;
   } elsif ($projpacks->{$projid} && $projpacks->{$projid}->{'package'}) {
+    my $packs =  $projpacks->{$projid}->{'package'};
     for my $packid (@$packids) {
-      delete $projpacks->{$projid}->{'package'}->{$packid};
+      delete $packs->{$packid};
+    }
+    # we always send all multibuild packages in the reply, so delete them as well
+    my %packids = map {$_ => 1} @$packids;
+    for my $packid (grep {/(?<!^_product)(?<!^_patchinfo):./} keys %$packs) {
+      next unless $packid =~ /^(.*):[^:]+$/;
+      delete $packs->{$packid} if $packids{$1};
     }
   }
   # incorporate new channel data
@@ -561,8 +572,14 @@ sub clone_projpacks_part {
   $oldprojdata = Storable::dclone($oldprojdata);
   my $oldpackdata = {};
   my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
+  my %packids = map {$_ => 1} @$packids;
   for my $packid (@$packids) {
     $oldpackdata->{$packid} = $packs->{$packid} ? Storable::dclone($packs->{$packid}) : undef;
+  }
+  # clone multibuild packages as well
+  for my $packid (grep {/(?<!^_product)(?<!^_patchinfo):./} keys %$packs) {
+    next unless $packid =~ /^(.*):[^:]+$/;
+    $oldpackdata->{$packid} = $packs->{$packid} ? Storable::dclone($packs->{$packid}) : undef if $packids{$1};
   }
   $oldprojdata->{'package'} = $oldpackdata;
   return $oldprojdata;
@@ -590,6 +607,11 @@ sub postprocess_needed_check {
     if (!BSUtil::identical($oldpackdata->{$packid}, $packs->{$packid}, \%except)) {
       return 1;
     }
+  }
+  # check if we had all multibuild packages before
+  for my $packid (grep {/(?<!^_product)(?<!^_patchinfo):./} keys %$packs) {
+    next unless $packid =~ /^(.*):[^:]+$/;
+    return 1 if $oldpackdata->{$1} && !$oldpackdata->{$packid};
   }
   return 0;
 }

@@ -560,6 +560,10 @@ sub handlelinks {
       return "_link is bad: $err" if @linkinfo == 1;
       return "$lrev->{'project'}/$lrev->{'package'}: _link is bad: $err";
     }
+    if (exists $l->{'package'}) {
+      # just in case, we want all links to point to real packages...
+      return "link points to illegal package name '$l->{'package'}'" if $l->{'package'} =~ /(?<!^_product)(?<!^_patchinfo):./;
+    }
     $l->{'project'} = $linkinfo[-1]->{'project'} unless exists $l->{'project'};
     $l->{'package'} = $linkinfo[-1]->{'package'} unless exists $l->{'package'};
     $linkrev = $l->{'baserev'} if $linkrev && $linkrev eq 'base';

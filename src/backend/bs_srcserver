@@ -71,6 +71,7 @@ use BSSrcServer::Projlink;
 use BSSrcServer::Link;
 use BSSrcServer::Service;
 use BSSrcServer::Product;
+use BSSrcServer::Multibuild;
 
 # configure modules
 $BSSrcServer::Projlink::getrev       = \&getrev;
@@ -442,6 +443,17 @@ sub getcommitinfo {
 #
 sub getrev {
   my ($projid, $packid, $revid, $linked, $missingok) = @_;
+  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+    my $proj = BSRevision::readproj_local($projid, 1);
+    if ($proj && !$proj->{'remoteurl'}) {
+      # local project
+      my $lpackid = $packid;
+      $lpackid =~ s/(?<!^_product)(?<!^_patchinfo):.*//;
+      my $rev = getrev($projid, $lpackid, $revid, $linked, $missingok);
+      $rev->{'originpackage'} = $packid if $rev;
+      return $rev;
+    }
+  }
   my $rev = BSRevision::getrev_local($projid, $packid, $revid);
   return $rev if $rev;
   my $proj = BSRevision::readproj_local($projid, 1);
@@ -521,6 +533,7 @@ sub addrev {
   if ($packid =~ /^_product:/) {
     die("403 package '$packid' is read-only if a '_product' package exists\n") if -e "$projectsdir/$projid.pkg/_product.xml";
   }
+  die("403 package '$packid' is read-only\n") if $packid =~ /(?<!^_product)(?<!^_patchinfo):./;
   my $user = $cgi->{'user'};
   my $comment = $cgi->{'comment'};
   my $requestid = $cgi->{'requestid'};
@@ -731,6 +744,7 @@ sub findpackages {
       $origins->{$_} = $projid unless defined $origins->{$_};
     }
   }
+  @packids = BSSrcServer::Multibuild::addmultibuildpackages($projid, $origins, @packids) unless $deleted;
 
   # handle project links (but not if deleted)
   if ($proj && $proj->{'link'} && !$noexpand && !$deleted) {
@@ -812,6 +826,7 @@ sub findfile {
   }
 
   my $packid = $rev->{'package'};
+  $packid = $1 if $rev->{'originpackage'} && $rev->{'originpackage'} =~ /:([^:]+)$/;
   return $files{"$packid-$repoid.$ext"} if defined($repoid) && $files{"$packid-$repoid.$ext"};
   # 28.4.2009 mls: deleted "&& defined($repoid)"
   return $files{"$packid.$ext"} if $files{"$packid.$ext"};
@@ -1108,6 +1123,9 @@ sub getprojpack {
     @packages = findpackages($projid, $proj, 2) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
     @packages = @{$cgi->{'package'}} if $proj->{'remoteurl'} && $cgi->{'package'} && $cgi->{'parseremote'};
     my $missing_packages = grep {$_ eq ':missing_packages'} @packages;
+    if (!$proj->{'remoteurl'} && !$missing_packages && !$cgi->{'nopackages'}) {
+      BSSrcServer::Multibuild::prunemultibuild($projid, \@packages);
+    }
     if ($missing_packages) {
       @packages = grep {$_ ne ':missing_packages'} @packages;
       $jinfo->{'missingpackages'} = 1;
@@ -1197,10 +1215,20 @@ sub getprojpack {
       }
       my $packid = shift(@packages);
 
-      next if $packids && !$packids->{$packid};
+      if ($packids && !$packids->{$packid}) {
+	next unless $packid =~ /(?<!^_product)(?<!^_patchinfo):./ && $packid =~ /^(.*):/;
+	next unless $packids->{$1};
+      }
       my $pinfo = {'name' => $packid};
       push @pinfo, $pinfo;
-      my $pack = BSRevision::readpack_local($projid, $packid, 1);
+      my $pack;
+      if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+        my $lpackid = $packid;
+	$lpackid =~ s/:[^:]+$//;
+        $pack = BSRevision::readpack_local($projid, $lpackid, 1);
+      } else {
+        $pack = BSRevision::readpack_local($projid, $packid, 1);
+      }
       ($pack) = getpackage({}, $projid, $packid) if $proj->{'remoteurl'} && $cgi->{'parseremote'};
       $pack ||= {} if $proj->{'link'};
       if (!$pack) {
@@ -1340,6 +1368,12 @@ sub getprojpack {
 	  my $meta = '';
 	  $meta .= "$files->{$_}  $_\n" for sort keys %$files;
 	  $pinfo->{'verifymd5'} = Digest::MD5::md5_hex($meta);
+	}
+	my $mb = BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, 1);
+	if ($mb) {
+	  # update our idea of the multiversion packages
+	  @packages = grep {!/^\Q$packid\E:/} @packages;
+	  unshift @packages, map {"$packid:$_"} @{$mb->{'package'} || []};
 	}
 	if ($packid eq '_pattern') {
 	  $jinfo->{'patternmd5'} = $pinfo->{'srcmd5'};
@@ -2339,12 +2373,14 @@ sub getfilelist {
   my $rev;
   my $linked;
   $linked = [] if $cgi->{'withlinked'};
+  my $islatestrev;
   if ($cgi->{'meta'}) {
     $rev = BSRevision::getrev_meta($projid, $packid, $cgi->{'rev'}, $cgi->{'deleted'});
   } elsif ($cgi->{'deleted'}) {
     $rev = BSRevision::getrev_local($projid, $packid, $cgi->{'rev'}, $cgi->{'deleted'});
   } else {
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload', $linked);
+    $islatestrev = 1 if !defined($cgi->{'rev'}) && $rev->{'srcmd5'} && $rev->{'srcmd5'} ne 'pattern' && $rev->{'srcmd5'} ne 'upload';
   }
   my $li = {};
   my $files = BSRevision::lsrev($rev, $li);
@@ -2394,6 +2430,7 @@ sub getfilelist {
     $serviceinfo = {'code' => 'failed'};
     $serviceinfo->{'error'} = BSRevision::revreadstr($rev, '_service_error', $files->{'_service_error'});
   }
+  undef $islatestrev if $serviceinfo && !$cgi->{'expand'};
 
   if ($files->{'_link'}) {
     if ($cgi->{'emptylink'}) {
@@ -2404,11 +2441,13 @@ sub getfilelist {
       $files = {};
       $files->{'_link'} = BSSrcrep::addfile($projid, $packid, "$uploaddir/$$", '_link');
       $rev = addrev({}, $projid, $packid, $files, '');
+      undef $islatestrev;
     }
     my %lrev = %$rev;
     $lrev{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
     $li->{'linked'} = $linked if $linked;
     my $lfiles = BSSrcServer::Link::handlelinks(\%lrev, $files, $li);
+    BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $lfiles) if $islatestrev && !$cgi->{'linkrev'} && ref($lfiles);
     if ($cgi->{'expand'}) {
       if (!ref($lfiles)) {
 	if ($cgi->{'withlinked'} && !$view) {
@@ -2430,13 +2469,19 @@ sub getfilelist {
 	# link is broken
 	$li->{'error'} = $lfiles;
 	# set xsrcmd5 if we have a link error file
-	$li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'} && BSSrcrep::havelinkerror($projid, $packid, $lrev{'srcmd5'});
+	$li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'} && BSSrcrep::havelinkerror($lrev{'project'}, $lrev{'package'}, $lrev{'srcmd5'});
 	if ($cgi->{'lastworking'}) {
 	  my $lastworking = BSSrcServer::Link::findlastworkinglink($rev);
 	  $li->{'lastworking'} = $lastworking if $lastworking;
 	}
       }
     }
+  } else {
+    BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files) if $islatestrev;
+  }
+  if ($islatestrev && $rev->{'originpackage'}) {
+    my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $rev->{'package'}) || {};
+    die("404 package '$packid' does not exist\n") unless grep {"$rev->{'package'}:$_" eq $packid} @{$mb->{'package'} || []};
   }
 
   if ($cgi->{'extension'}) {
@@ -3316,8 +3361,8 @@ sub sourcebranch {
   my $orev = $cgi->{'orev'};
   die("cannot branch myself\n") if $oprojid eq $projid && $opackid eq $packid;
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest', undef, $cgi->{'missingok'});
+  $opackid = $orev->{'package'} if $opackid =~ /(?<!^_product)(?<!^_patchinfo):./;
   $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
-  print "SOURCEBRANCH $oprojid $opackid\n";
   my $files = lsrev_expanded($orev);	# modifies srcmd5, thus also needed for keepcontent case
   if ($cgi->{'keepcontent'}) {
     die("keepcontent is only supported for branches\n") unless $usebranch;
@@ -5251,6 +5296,16 @@ sub sourceinfo {
   if ($cgi->{'withchangesmd5'}) {
     $r->{'revtime'} = $rev->{'time'};
     $r->{'changesmd5'} = $files->{"$packid.changes"} if $files->{"$packid.changes"};
+  }
+  if (!$cgi->{'rev'} && !$cgi->{'linkrev'}) {
+    BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files);
+    if ($rev->{'originpackage'}) {
+      my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $rev->{'package'}) || {};
+      if (!grep {"$rev->{'package'}:$_" eq $packid} @{$mb->{'package'} || []}) {
+        $r->{'error'} = "package '$packid' does not exist";
+        return $r;
+      }
+    }
   }
   return $r if $cgi->{'nofilename'};
   return $r if $packid eq '_pattern';
