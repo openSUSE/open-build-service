@@ -1452,10 +1452,10 @@ sub setdispatchdetails {
   my ($info, $arch, $job, $details) = @_;
   if ($info->{'masterdispatched'}) {
     my $param = {
-      'uri' => "$info->{'reposerver'}/$arch/$job",
+      'uri' => "$info->{'reposerver'}/jobs/$arch/$job",
       'request' => 'POST',
     };
-    BSRPC::rpc($param, undef, "details=$details");
+    BSRPC::rpc($param, undef, ("cmd=setdispatchdetails", "details=$details"));
   } else {
     my $ev = { type => 'dispatchdetails', job => $job, details => $details };
     my $evname = "dispatchdetails:$job";

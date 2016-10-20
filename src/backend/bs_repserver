@@ -3560,7 +3560,7 @@ my $dispatches = [
   '/jobs/$arch' => \&listjobs,
   'PUT:/jobs/$arch/$job' => \&addjob,
   'POST:/jobs/$arch/$job cmd=idleworker workerid jobid?' => \&idleworkerjob,
-  'POST:/jobs/$arch/$job cmd=setdispatchdetails details:' => \&setdispatchdetails,
+  'POST:/jobs/$arch/$job cmd=setdispatchdetails details:?' => \&setdispatchdetails,
   'DELETE:/jobs/$arch/$job' => \&deljob,
   '/jobs/$arch/$job view:?' => \&getjob,
 
