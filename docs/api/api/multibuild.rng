@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <start>
+    <ref name="multibuild-element"/>
+  </start>
+
+  <define name="multibuild-element">
+    <element>
+      <name ns="">multibuild</name>
+
+      <oneOrMore>
+        <element>
+          <name ns="">package</name>
+          <text/>
+        </element>
+      </oneOrMore>
+
+    </element>
+  </define>
+</grammar>
