@@ -678,5 +678,23 @@ EOT
       it { expect(flash[:error]).to eq('Could not access build log') }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
+
+    context "with a non existant package" do
+      before do
+        get :live_build_log, project: source_project, package: 'nonexistant', repository: '10.2', arch: 'i586'
+      end
+
+      it { expect(flash[:error]).to eq("Couldn't find package 'nonexistant' in project '#{source_project}'. Are you sure it exists?") }
+      it { expect(response).to redirect_to(project_show_path(project: source_project)) }
+    end
+
+    context "with a non existant project" do
+      before do
+        get :live_build_log, project: 'home:foo', package: 'nonexistant', repository: '10.2', arch: 'i586'
+      end
+
+      it { expect(flash[:error]).to eq("Couldn't find project 'home:foo'. Are you sure it still exists?") }
+      it { expect(response).to redirect_to(root_path) }
+    end
   end
 end

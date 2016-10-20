@@ -59,7 +59,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     skip("Show rpmlint results")
   end
 
-  def test_live_build_log_doesnt_cause_500_error
+  def test_live_build_log_doesnt_cause_500_error # src/api/spec/controllers/webui/package_controller_spec.rb
     visit(package_live_build_log_path(
             project: "home:tom",
             package: "nonexistant",

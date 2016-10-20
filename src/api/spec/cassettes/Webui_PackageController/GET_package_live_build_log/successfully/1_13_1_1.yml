@@ -36,5 +36,5 @@ http_interactions:
           <details>404 project 'home:tom' has no repository '10.2'</details>
         </status>
     http_version: 
-  recorded_at: Thu, 20 Oct 2016 13:15:59 GMT
+  recorded_at: Tue, 25 Oct 2016 13:54:34 GMT
 recorded_with: VCR 3.0.3
