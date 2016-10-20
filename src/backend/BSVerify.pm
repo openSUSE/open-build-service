@@ -43,7 +43,7 @@ sub verify_projkind {
 sub verify_packid {
   my $packid = $_[0];
   die("packid is empty\n") unless defined($packid) && $packid ne '';
-  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+  if ($packid =~ /(?<!^_product)(?<!^_patchinfo)(?<!^_project)(?<!^_pattern):./) {
     die("packid '$packid' is illegal\n") unless $packid =~ /^([^:]+):([^:]+)$/s;
     my ($p1, $p2) = ($1, $2);
     verify_packid($p1);
