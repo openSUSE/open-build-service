@@ -83,7 +83,7 @@ BuildRequires:  procps
 BuildRequires:  xorg-x11-server
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
-Requires:       obs-common
+Requires(pre):  obs-common
 Requires:       build >= 20151130
 Requires:       obs-productconverter >= %version
 Requires:       perl-BSSolv >= 0.28
@@ -127,7 +127,7 @@ The Open Build Service (OBS) backend is used to store all sources and binaries. 
 calculates the need for new build jobs and distributes it.
 
 %package -n obs-worker
-Requires:       obs-common
+Requires(pre):  obs-common
 Requires:       cpio
 Requires:       curl
 Requires:       perl-Compress-Zlib
@@ -180,7 +180,7 @@ Group:          Productivity/Networking/Web/Utilities
 %endif
 %if 0%{?suse_version}
 PreReq:         %insserv_prereq
-Requires:       obs-common
+Requires(pre):  obs-common
 %endif
 
 #For apache
@@ -246,7 +246,7 @@ Summary:        The Open Build Service -- source service daemon
 Group:          Productivity/Networking/Web/Utilities
 %endif
 # Our default services, used in osc and webui
-Requires:	obs-common
+Requires(pre):	obs-common
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
 
@@ -411,14 +411,8 @@ make -C dist test
 # TODO - clarify if test suite is needed as extra package (M0ses)
 rm -rf $RPM_BUILD_ROOT/srv/www/obs/api/spec
 
-%pre
-getent group obsrun >/dev/null || groupadd -r obsrun
-getent passwd obsrun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
-    -c "User for build service backend" obsrun
-exit 0
-
-%pre -n obs-worker
+# create user and group in advance of obs-server
+%pre -n obs-common
 getent group obsrun >/dev/null || groupadd -r obsrun
 getent passwd obsrun >/dev/null || \
     /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
