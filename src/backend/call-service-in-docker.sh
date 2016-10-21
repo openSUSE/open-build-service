@@ -23,7 +23,7 @@ case "$COMMAND" in
   */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom)
     WITH_NET="1"
     ;;
-  */tar_scm|*/obs_scm)
+  */tar_scm|*/obs_scm|*/snapcraft)
     SCM_COMMAND=1
     WITH_NET="1"
   ;;
