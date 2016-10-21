@@ -2,49 +2,13 @@ class PublicController < ApplicationController
   include PublicHelper
 
   # we need to fall back to _nobody_ (_public_)
-  before_action :extract_user_public
+  before_action :extract_user_public, :set_response_format_to_xml
   skip_before_action :extract_user
   skip_before_action :require_login
-
-  def extract_user_public
-    # to become _public_ special user
-    if ::Configuration.anonymous
-      load_nobody
-      return true
-    end
-    logger.error 'No public access is configured'
-    render_error( :message => 'No public access is configured', :status => 401 )
-    return false
-  end
 
   def index
     redirect_to controller: 'about', action: 'index'
   end
-
-  def check_package_access(project, package, use_source = true)
-    # don't use the cache for use_source
-    if use_source
-      begin
-        Package.get_by_project_and_name(project, package)
-      rescue ForbidsAnonymousUsers::AnonymousUser
-        raise Package::ReadSourceAccessError, "#{project} / #{package} "
-      end
-      return
-    end
-
-    # generic access checks
-    key = 'public_package:' + project + ':' + package
-    allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
-      begin
-        Package.get_by_project_and_name(project, package, use_source: false)
-        true
-      rescue Exception
-        false
-      end
-    end
-    raise Package::UnknownObjectError, "#{project} / #{package} " unless allowed
-  end
-  private :check_package_access
 
   # GET /public/build/:project/:repository/:arch/:package
   def build
@@ -227,5 +191,40 @@ class PublicController < ApplicationController
     else
       return path
     end
+  end
+
+  def extract_user_public
+    # to become _public_ special user
+    if ::Configuration.anonymous
+      load_nobody
+      return true
+    end
+    logger.error 'No public access is configured'
+    render_error( :message => 'No public access is configured', :status => 401 )
+    return false
+  end
+
+  def check_package_access(project, package, use_source = true)
+    # don't use the cache for use_source
+    if use_source
+      begin
+        Package.get_by_project_and_name(project, package)
+      rescue ForbidsAnonymousUsers::AnonymousUser
+        raise Package::ReadSourceAccessError, "#{project} / #{package} "
+      end
+      return
+    end
+
+    # generic access checks
+    key = 'public_package:' + project + ':' + package
+    allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
+      begin
+        Package.get_by_project_and_name(project, package, use_source: false)
+        true
+      rescue Exception
+        false
+      end
+    end
+    raise Package::UnknownObjectError, "#{project} / #{package} " unless allowed
   end
 end

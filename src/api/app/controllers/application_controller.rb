@@ -260,7 +260,7 @@ class ApplicationController < ActionController::Base
       end
     end
     opts[:length] = @volleyfile.length
-    opts[:disposition] = 'inline' if opts[:type] == 'text/plain'
+    opts[:disposition] = 'inline' if %w(text/plain text/xml).include?(opts[:type])
     # streaming makes it very hard for test cases to verify output
     opts[:stream] = false if Rails.env.test?
     send_file(@volleyfile.path, opts)
@@ -558,6 +558,10 @@ class ApplicationController < ActionController::Base
       logger.debug "Validate XML response: #{response} took #{Integer(ms + 0.5)}ms"
     end
     # rubocop:enable Metrics/LineLength
+  end
+
+  def set_response_format_to_xml
+    request.format = :xml if request.format == :html
   end
 
   private
