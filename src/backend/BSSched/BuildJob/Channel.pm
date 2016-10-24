@@ -174,30 +174,9 @@ sub check {
       my @sbins;
       my %usedsrc;
 
-      # this messy code tries to guess the "final" package name for
-      # maintenance incidents.
-      my $lapackid;     #linked package id
-      my $linked = ($pdatas->{$apackid} || {})->{'linked'};
-      if (!@{$linked || []}) {
-        $lapackid = $apackid;
-        if (($proj->{'kind'} || '') eq 'maintenance_incident' && (($pdatas->{$apackid} || {})->{'error'} || '') eq 'disabled') {
-          # workaround for src server not sending linked data for disabled packages
-          $lapackid =~ s/\.[^\.]+$//;
-        }
-      } elsif ($linked->[0]->{'project'} ne $projid) {
-        $lapackid = $linked->[0]->{'package'};
-      } else {
-        # what a mess! but bug compatible to api...
-        my ($pin, $pout);
-        for (@$linked) {
-          $pout = $_->{'package'};
-          last if $_->{'project'} ne $projid;
-          $pin = $pout;
-        }
-        $lapackid = $apackid;
-        if ($pin =~ s/^\Q$pout\E//) {
-          $lapackid =~ s/\Q$pin\E$//;
-        }
+      my $lapackid = $apackid;		# release target package
+      if (($proj->{'kind'} || '') eq 'maintenance_incident') {
+        $lapackid =~ s/\.[^\.]+$//;
       }
 
       my @pf = @{$packagefilter{"$arepoid/$apackid"} || $packagefilter{"$arepoid/$lapackid"} || []};
