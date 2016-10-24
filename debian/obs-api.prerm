@@ -1,7 +1,19 @@
 #!/bin/sh -e
 
 . /usr/share/debconf/confmodule
-. /usr/share/dbconfig-common/dpkg/prerm.mysql
-dbc_go obs-api $@
+
+case "$1" in
+	remove)
+		db_get obs-api || true
+		gOldInstances="${RET}"
+		if [ "$RET" = "true" ]; then
+			. /usr/share/dbconfig-common/dpkg/prerm.mysql
+			dbc_go obs-api $@
+		fi
+	;;
+
+	purge|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+	;;
+esac
 
 #DEBHELPER#

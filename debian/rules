@@ -46,7 +46,7 @@ override_dh_install:
 		obssigner.service
 
 	# Do not install database config file in obs-api.
-	rm -f  debian/obs-api/usr/share/obs/api/config/database.yml
+	rm -f  debian/obs-api/etc/obs/api/config/database.yml
 
 	# Rename dh_install installed web service config files.
 	# (new default since OBS 2.3)
