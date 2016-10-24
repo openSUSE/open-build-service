@@ -20,7 +20,7 @@
                 <%= link_to(elide(update[1], 20), :controller => 'project', :action => 'show', :project => update[1]) %>
             <% end %>
           </td>
-          <td class="nowrap" style="width: 1%"><%= fuzzy_time(update[0]) %></td>
+          <td class="nowrap" style="width: 1%"><%= fuzzy_time(update[0], :with_fulltime) %></td>
         </tr>
     <% end %>
     </tbody>

@@ -28,7 +28,7 @@
           = link_to("request #{commit['requestid']}", {:controller => :request, :action => :show, :number => commit['requestid']})
         - else
           authored
-        = fuzzy_time(Time.at(commit['time'].to_i))
+        = fuzzy_time(Time.at(commit['time'].to_i, :with_fulltime))
     .col-md-2
       %span.pull-right
         = link_to({:controller => :package, :action => :rdiff, :package => @package, :project => @project, :rev => commit['rev'], :linkrev => 'base'}) do
