@@ -31,7 +31,7 @@ use BSXML;
 # old values from BSConfig.pm are winning, remember which have been set
 my %bsconfigvalues;
 $bsconfigvalues{'obsname'} = 1 if defined $BSConfig::obsname;
-$bsconfigvalues{'apiurl'} = 1 if defined $BSConfig::apiurl;
+$bsconfigvalues{'api_url'} = 1 if defined $BSConfig::api_url;
 $bsconfigvalues{'proxy'} = 1 if defined $BSConfig::proxy;
 $bsconfigvalues{'noproxy'} = 1 if defined $BSConfig::noproxy;
 $bsconfigvalues{'repodownload'} = 1 if defined $BSConfig::repodownload;
@@ -49,7 +49,7 @@ sub update_from_configuration {
   $configurationid = @s ? "$s[9]/$s[7]/$s[1]" : '';
   my $xml = readxml($configuration_file, $BSXML::configuration, 1) || {};
   $BSConfig::obsname = $xml->{'name'} unless $bsconfigvalues{'obsname'};
-  $BSConfig::apiurl = $xml->{'apiurl'} unless $bsconfigvalues{'apiurl'};
+  $BSConfig::api_url = $xml->{'api_url'} unless $bsconfigvalues{'api_url'};
   $BSConfig::proxy = $xml->{'http_proxy'} unless $bsconfigvalues{'proxy'};
   $BSConfig::noproxy = $xml->{'no_proxy'} unless $bsconfigvalues{'noproxy'};
   $BSConfig::repodownload  = $xml->{'download_url'} unless $bsconfigvalues{'repodownload'};
