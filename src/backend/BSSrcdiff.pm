@@ -29,6 +29,114 @@ use strict;
 
 use BSUtil;
 
+#
+# batcher support: if we need to do lots of diffs for a bif tar archive,
+# we call the diff program from an extra process. While this sounds like
+# something that makes no sense at all, it actually speeds up diffing
+# by a factor of 20. The reason is that fork/exec is much slower if the
+# process has a big memory size.
+#
+# A better approach would be a perl module that does the diffing with
+# no exec at all but alas, there seems to be no such thing (execpt a
+# pure perl version that is too slow).
+#
+my $batcherpid;
+
+sub batcher {
+  $| = 1;
+  open(OUT, ">&3") || die("open fd 3: $!\n");
+  my $r = 0;
+  while (1) {
+    my $in = '';
+    my $inl = sysread(STDIN, $in, 4);
+    last if defined($inl) && $inl == 0;
+    die("read error length\n") unless $inl && $inl == 4;
+    $inl = unpack('N', $in);
+    if ($inl == 0) {	# ping
+      syswrite(OUT, $in, 4);
+      next;
+    }
+    $in = '';
+    while ($inl > 0) {
+      my $l = $inl > 8192 ? 8192 : $inl;
+      $l = sysread(STDIN, $in, $l, length($in));
+      die("read error body\n") unless $l && $l > 0;
+      $inl -= $l;
+    }
+    $in = BSUtil::fromstorable($in);
+    $in = BSSrcdiff::filediff(@$in);
+    $in = BSUtil::tostorable($in);
+    $in = pack('N', length($in)).$in;
+    while (length($in)) {
+      my $l = syswrite(OUT, $in, length($in));
+      die("write error: $!\n") unless $l;
+      $in = substr($in, $l);
+    }
+    eval {
+      exec("/usr/bin/perl", '-I', $INC[0], '-MBSSrcdiff', '-e', 'BSSrcdiff::batcher()') if $r++ == 1000;
+    };
+    warn($@) if $@;
+  }
+}
+
+sub startbatcher {
+  die("batcher is already running\n") if $batcherpid;
+  pipe(BATCHERIN, TOBATCHER);
+  pipe(FROMBATCHER, BATCHEROUT);
+  if (($batcherpid = xfork()) == 0) {
+    close(TOBATCHER);
+    close(FROMBATCHER);
+    POSIX::dup2(fileno(BATCHERIN), 0);
+    POSIX::dup2(fileno(BATCHEROUT), 3);
+    my $dir = __FILE__;
+    $dir =~ s/[^\/]+$/./;
+    exec("/usr/bin/perl", '-I', $dir, '-MBSSrcdiff', '-e', 'BSSrcdiff::batcher()');
+    die("/usr/bin/perl: $!\n");
+  }
+  my $p = '';
+  close(BATCHEROUT);
+  syswrite(TOBATCHER, "\000\000\000\000", 4);
+  if (sysread(FROMBATCHER, $p, 4) != 4 || $p ne "\000\000\000\000") {
+    warn("batcher did not start\n");
+    close(BATCHEROUT);
+    close(TOBATCHER);
+    close(FROMBATCHER);
+    waitpid($batcherpid, 0);
+    undef($batcherpid);
+    return;
+  }
+  close(BATCHERIN);
+}
+
+sub endbatcher {
+  return unless $batcherpid;
+  close(TOBATCHER);
+  close(FROMBATCHER);
+  waitpid($batcherpid, 0);
+  undef($batcherpid);
+}
+
+sub filediff_batcher {
+  die("batcher is not running\n") unless $batcherpid;
+  my $p = BSUtil::tostorable(\@_);
+  $p = pack('N', length($p)).$p;
+  while (length($p)) {
+    my $l = syswrite(TOBATCHER, $p, length($p));
+    die("batcher write: $!\n") unless $l;
+    $p = substr($p, $l);
+  }
+  $p = '';
+  sysread(FROMBATCHER, $p, 4) == 4 || die;
+  my $pl = unpack('N', $p);
+  $p = '';
+  while ($pl > 0) {
+    my $l = $pl > 8192 ? 8192 : $pl;
+    $l = sysread(FROMBATCHER, $p, $l, length($p));
+    die unless $l > 0;
+    $pl -= $l;
+  }
+  return BSUtil::fromstorable($p);
+}
 
 #
 # fmax: maximum number of lines in a diff
@@ -267,6 +375,8 @@ sub listextractcpio {
 sub filediff {
   my ($f1, $f2, %opts) = @_;
 
+  return filediff_batcher(@_) if $batcherpid;
+
   my $nodecomp = $opts{'nodecomp'};
   my $arg = $opts{'diffarg'} || '-u';
   my $max = $opts{'fmax'};
@@ -306,7 +416,7 @@ sub filediff {
     }
     fcntl(F1, F_SETFD, 0);
     fcntl(F2, F_SETFD, 0);
-    exec 'diff', $arg, '/dev/fd/'.fileno(F1), '/dev/fd/'.fileno(F2);
+    exec '/usr/bin/diff', $arg, '/dev/fd/'.fileno(F1), '/dev/fd/'.fileno(F2);
     die("diff: $!\n");
   }
   my $lcnt = $opts{'linestart'} || 0;
@@ -539,6 +649,7 @@ sub tardiff {
       $e2cnt++;
     }
   }
+
   if ($e1cnt || $e2cnt) {
     if (! -d $edir) {
       mkdir($edir) || die("mkdir $edir: $!\n");
@@ -546,6 +657,9 @@ sub tardiff {
     extractit($f1, \@l1) if $e1cnt;
     extractit($f2, \@l2) if $e2cnt;
   }
+
+  startbatcher() if $e1cnt + $e2cnt > 100 || ($e1cnt + $e2cnt > 10 && @f > 20000);
+
   my $lcnt = 0;
   my $d = '';
   my @ret;
@@ -587,6 +701,8 @@ sub tardiff {
   }
   unlink($_) for @efiles;
   rmdir($edir);
+
+  endbatcher();
   return @ret;
 }
 
