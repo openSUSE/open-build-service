@@ -225,6 +225,7 @@ Depends: apache2,
          ${shlibs:Depends}
 Recommends: mysql-server
 Suggests: obs-server
+Breaks: obs-server (<= 2.7.1-3)
 Description: Open Build Service (api)
  This is the API server instance for the OBS.
 

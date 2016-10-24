@@ -8,3 +8,5 @@ etc/logrotate.d/obs-api
 usr/share/obs/api/
 usr/share/obs/docs/api/
 
+usr/share/obs/overview/overview.html.TEMPLATE
+

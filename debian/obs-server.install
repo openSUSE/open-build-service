@@ -3,7 +3,6 @@
 # install SLP registration files
 # install overview page template
 dist/sysconfig.obs-server       /etc/default/
-usr/share/obs/overview/overview.html.TEMPLATE
 
 # Config files
 etc/logrotate.d/obs-server
