@@ -165,6 +165,16 @@ sub opentar {
   }
 }
 
+#
+# entries have the following attributes:
+#
+#  sname: name we are using for diffing
+#   name: name in tar file
+#   type: [-dlbcp] type of file
+#   size: size in bytes
+#   mode: mode as rwx... string
+#   info: md5sum for plain files, link target for symlinks
+
 sub listtar {
   my ($tar, $gemdata) = @_;
   local *F;
@@ -192,7 +202,7 @@ sub listtar {
       if ($size == 0) {
 	$info = 'd41d8cd98f00b204e9800998ecf8427e';
       } else {
-	$fc++;
+	$fc++;		# need 2nd pass
       }
     }
     push @c, {'type' => $type, 'name' => $name, 'size' => $size, 'mode' => $mode};
@@ -460,6 +470,7 @@ sub filediff {
       $havediff = 0;
       $binary = 1;
       $lcnt = $opts{'linestart'} || 0;
+      $ccnt = 0;
     }
   }
   if ($d eq '' && !$havediff && ((defined($f1) && ref($f1)) || defined($f2) && ref($f2))) {
@@ -598,9 +609,9 @@ sub tardiff {
 
   my %l1 = map {$_->{'sname'} => $_} @l1;
   my %l2 = map {$_->{'sname'} => $_} @l2;
-  my %l3 = (%l1, %l2);
-  my @f = sort keys %l3;
+  my @f = sort keys %{ { %l1, %l2 } };
 
+  # find renamed files
   my %l1md5;
   for (@l1) {
     next unless $_->{'type'} eq '-' && $_->{'size'} && $_->{'sname'} ne '';
@@ -617,6 +628,7 @@ sub tardiff {
     $ren{$f} = $l1->{'sname'};
     delete $l1md5{$l2->{'info'}};	# used up
   }
+  %l1md5 = (); 	# free mem
 
   my $e1cnt = 0;
   my $e2cnt = 0;
@@ -625,32 +637,35 @@ sub tardiff {
   for my $f (@f) {
     next if $f eq '';
     next if $ren{$f};
+    my $l1 = $l1{$f};
+    my $l2 = $l2{$f};
     my $suf1 = '';
-    $suf1 = $1 if $l1{$f} && $l1{$f}->{'name'} =~ /(\.[gx]z)$/;
+    $suf1 = ".$1" if $l1 && $l1->{'name'} =~ /\.(gz|xz|bz2)$/;
     my $suf2 = '';
-    $suf2 = $1 if $l2{$f} && $l2{$f}->{'name'} =~ /(\.[gx]z)$/;
-    if ($l1{$f} && $l2{$f}) {
-      next if $l1{$f}->{'type'} ne $l2{$f}->{'type'};
-      next if $l1{$f}->{'type'} ne '-';
-      next if $l1{$f}->{'info'} eq $l2{$f}->{'info'};
-      $l1{$f}->{'extract'} = "$edir/a$e1cnt$suf1";
+    $suf2 = ".$1" if $l2 && $l2->{'name'} =~ /\.(gz|xz|bz2)$/;
+    if ($l1 && $l2) {
+      next if $l1->{'type'} ne $l2->{'type'};
+      next if $l1->{'type'} ne '-';
+      next if $l1->{'info'} eq $l2->{'info'};
+      $l1->{'extract'} = "$edir/a$e1cnt$suf1";
       push @efiles, "$edir/a$e1cnt$suf1";
       $e1cnt++;
-      $l2{$f}->{'extract'} = "$edir/b$e2cnt$suf2";
+      $l2->{'extract'} = "$edir/b$e2cnt$suf2";
       push @efiles, "$edir/b$e2cnt$suf2";
       $e2cnt++;
-    } elsif ($l1{$f} && $l1{$f}->{'size'}) {
-      $l1{$f}->{'extract'} = "$edir/a$e1cnt$suf1";
+    } elsif ($l1 && $l1->{'size'}) {
+      $l1->{'extract'} = "$edir/a$e1cnt$suf1";
       push @efiles, "$edir/a$e1cnt$suf1";
       $e1cnt++;
-    } elsif ($l2{$f} && $l2{$f}->{'size'}) {
-      $l2{$f}->{'extract'} = "$edir/b$e2cnt$suf2";
+    } elsif ($l2 && $l2->{'size'}) {
+      $l2->{'extract'} = "$edir/b$e2cnt$suf2";
       push @efiles, "$edir/b$e2cnt$suf2";
       $e2cnt++;
     }
   }
 
   if ($e1cnt || $e2cnt) {
+    # need to extract some files
     if (! -d $edir) {
       mkdir($edir) || die("mkdir $edir: $!\n");
     }
@@ -666,31 +681,33 @@ sub tardiff {
   my $ccnt = 0;
   for my $f (@f) {
     next if $f eq '';
+    my $l1 = $l1{$f};
+    my $l2 = $l2{$f};
     if ($ren{$f}) {
       my $r = {'lines' => 1, 'name' => $f};
-      if ($l1{$f}) {
+      if ($l1) {
 	$r->{'_content'} = "(renamed to $ren{$f})\n";
-	$r->{'new'} = {'name' => $ren{$f}, 'md5' => $l1{$f}->{'info'}, 'size' => $l1{$f}->{'size'}};
+	$r->{'new'} = {'name' => $ren{$f}, 'md5' => $l1->{'info'}, 'size' => $l1->{'size'}};
       } else {
 	$r->{'_content'} = "(renamed from $ren{$f})\n";
-	$r->{'new'} = {'name' => $f, 'md5' => $l2{$f}->{'info'}, 'size' => $l2{$f}->{'size'}};
+	$r->{'new'} = {'name' => $f, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}};
       }
       push @ret, $r;
       $lcnt += $r->{'lines'};
       next;
     }
-    next unless $l1{$f} || $l2{$f};
-    if ($l1{$f} && $l2{$f}) {
-      next if $l1{$f}->{'type'} eq $l2{$f}->{'type'} && (!defined($l1{$f}->{'info'}) || $l1{$f}->{'info'} eq $l2{$f}->{'info'});
-      next if $l1{$f}->{'type'} eq 'gemdata' && $l2{$f}->{'type'} eq 'gemdata';
+    next unless $l1 || $l2;
+    if ($l1 && $l2) {
+      next if $l1->{'type'} eq $l2->{'type'} && (!defined($l1->{'info'}) || $l1->{'info'} eq $l2->{'info'});
+      next if $l1->{'type'} eq 'gemdata' && $l2->{'type'} eq 'gemdata';
     }
     my $fmax;
     $fmax = $max > $lcnt ? $max - $lcnt : 0 if defined $max;
     $fmax = $tfmax if defined($tfmax) && (!defined($fmax) || $fmax > $tfmax);
-    my $r = filediff(fixup($l1{$f}), fixup($l2{$f}), %opts, 'fmax' => $fmax, 'fmaxc' => $tfmaxc);
+    my $r = filediff(fixup($l1), fixup($l2), %opts, 'fmax' => $fmax, 'fmaxc' => $tfmaxc);
     $r->{'name'} = $f;
-    $r->{'old'} = {'name' => $f, 'md5' => $l1{$f}->{'info'}, 'size' => $l1{$f}->{'size'}} if $l1{$f};
-    $r->{'new'} = {'name' => $f, 'md5' => $l2{$f}->{'info'}, 'size' => $l2{$f}->{'size'}} if $l2{$f};
+    $r->{'old'} = {'name' => $f, 'md5' => $l1->{'info'}, 'size' => $l1->{'size'}} if $l1;
+    $r->{'new'} = {'name' => $f, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}} if $l2;
     push @ret, $r;
     $lcnt += $r->{'shown'} || $r->{'lines'};
     $ccnt += length($r->{'_content'}) if exists $r->{'_content'};
