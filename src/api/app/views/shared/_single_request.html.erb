@@ -53,11 +53,5 @@
   <td>
     <%= link_to(sprite_tag('req-showdiff', title: "Show request ##{req.number}"),
                 { :controller => :request, :action => :show, :number => req.number }, { :class => 'request_link' }) -%>
-    <% if source_package && source_package != :multiple && source_exists %>
-        <%= link_to(sprite_tag('information', title: 'Build results', number: "req_#{req.number}"), source_url) %>
-        <%= javascript_tag do %>
-            setup_buildresult_tooltip('<%= "req_#{req.number}" %>', '<%= buildresult_url %>')
-        <% end %>
-    <% end %>
   </td>
 </tr>
