@@ -81,19 +81,18 @@ class Webui::UserController < Webui::WebuiController
         3 => :creator,
         5 => :priority
       }
-    sorting_field = sortable_fields[params[:iSortCol_0].to_i]
+    sorting_field = sortable_fields[params['order[0][column]'].to_i]
     sorting_field ||= :created_at
-    sorting_dir = params[:sSortDir_0].try(:to_sym)
-    sorting_dir = :asc unless ["asc", "desc"].include?(params[:sSortDir_0])
+    sorting_dir = params['order[0][dir]'].try(:to_sym)
+    sorting_dir = :asc unless ["asc", "desc"].include?(params['order[0][dir]'])
     @requests = @displayed_user.requests(params[:search].permit![:value])
     @requests_count = @requests.count
-    page_length = (params[:pageLength] || 1).to_i
-    @requests = @requests.offset(params[:displayStart].to_i).limit(page_length).reorder(sorting_field => sorting_dir)
+    @requests = @requests.offset(params[:start].to_i).limit(params[:length].to_i).reorder(sorting_field => sorting_dir)
     respond_to do |format|
       # For jquery dataTable
       format.json {
         render_json_response_for_dataTable(
-          echo_next_count: params[:sEcho].to_i + 1,
+          draw: params[:draw].to_i + 1,
           total_records_count: @displayed_user.requests.count,
           total_filtered_records_count: @requests_count,
           records: @requests.includes(:bs_request_actions)
