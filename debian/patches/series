@@ -12,3 +12,4 @@ fix-embedded-js.patch
 fix-privacy-breach-piwik.patch
 jquery.ui.widget.patch
 missing-codemirror-js.patch
+Do-not-ship-database.yml.patch

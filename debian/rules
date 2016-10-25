@@ -45,9 +45,6 @@ override_dh_install:
 		obspublisher.service \
 		obssigner.service
 
-	# Do not install database config file in obs-api.
-	rm -f  debian/obs-api/etc/obs/api/config/database.yml
-
 	# Rename dh_install installed web service config files.
 	# (new default since OBS 2.3)
 	mkdir -p debian/obs-api/etc/apache2/sites-available/

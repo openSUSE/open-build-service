@@ -1,0 +1,32 @@
+--- a/src/api/Makefile
++++ b/src/api/Makefile
+@@ -33,14 +33,14 @@
+ 
+ config: prepare_dirs
+ 	# we need config also in building environment, otherwise rake will break
+-	$(INSTALL) -m 644  config/database.yml.example 				config/database.yml
++	#$(INSTALL) -m 644  config/database.yml.example 				config/database.yml
+ 	$(INSTALL) -m 644  config/options.yml.example 				config/options.yml
+ 	$(INSTALL) -m 644 config/thinking_sphinx.yml.example 	config/thinking_sphinx.yml
+ 	# TODO: see if these configuration work in real life
+-	$(INSTALL) -m 644  config/database.yml.example 				$(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
++	#$(INSTALL) -m 644  config/database.yml.example 				$(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
+ 	$(INSTALL) -m 644  config/options.yml.example 				$(DESTDIR)$(OBS_API_PREFIX)/config/options.yml
+ 	$(INSTALL) -m 644 config/thinking_sphinx.yml.example 	$(DESTDIR)$(OBS_API_PREFIX)/config/thinking_sphinx.yml
+-	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
++	#echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
+ 	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/options.yml
+ 	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/thinking_sphinx.yml
+ 
+@@ -57,9 +57,9 @@
+ 	$(OBS_API_BUNDLER_OPTS) bundle config --local frozen 1 ;\
+ 	$(OBS_API_BUNDLER_OPTS) bundle config --local without test:assets:development
+ 	# reinstall
+-	$(INSTALL) config/database.yml.example $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
++	#$(INSTALL) config/database.yml.example $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
+ 	# fixed hardlinking problem in SLE 11
+-	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
++	#echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
+ 	: >  $(DESTDIR)/usr/share/obs/api/log/production.log
+ 	sed -i -e 's,^api_version.*,api_version = "$(OBS_VERSION)",'  $(DESTDIR)$(OBS_API_PREFIX)/config/initializers/02_apiversion.rb
+ 
