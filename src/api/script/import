@@ -100,7 +100,7 @@ def create_missing_users_for( meta )
   return unless CREATE_MISSING_USERS
   meta.each_person do |person|
     u = User.find_by_login person.userid.to_s
-    if not u
+    if !u
       attribs = {:login => person.userid.to_s}.merge DUMMY_USER_ATTR
       u = User.create attribs
       u.save
@@ -124,7 +124,7 @@ restart = false
 STDERR.puts "--> storing projects"
 projects.each_entry do |entry|
   # if filter is set, only fetch the projects in the array
-  if not filter.empty?
+  if !filter.empty?
     next unless filter.include? entry.name
   end
 

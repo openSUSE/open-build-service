@@ -381,7 +381,7 @@ class BsRequestAction < ApplicationRecord
                 raise LackingMaintainership.new
               end
             end
-            if  not sprj.find_attribute('OBS', 'ApprovedRequestSource')
+            if  !sprj.find_attribute('OBS', 'ApprovedRequestSource')
               reviews.push(sprj)
             end
           end
@@ -651,7 +651,7 @@ class BsRequestAction < ApplicationRecord
       if self.is_maintenance_incident?
         newTargets << tprj.name if tprj
         newAction.target_releaseproject = releaseproject.name if releaseproject
-      elsif not pkg.is_channel?
+      elsif !pkg.is_channel?
         newTargets << tprj.name
         newAction.target_project = tprj.name
         newAction.target_package = tpkg + incident_suffix

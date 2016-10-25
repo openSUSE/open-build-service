@@ -224,7 +224,7 @@ class Webui::UserController < Webui::WebuiController
     unless User.current.password_equals?(params[:password])
       errmsg = 'The value of current password does not match your current password. Please enter the password and try again.'
     end
-    if not params[:new_password] == params[:repeat_password]
+    if params[:new_password] != params[:repeat_password]
       errmsg = 'The passwords do not match, please try again.'
     end
     if params[:password] == params[:new_password]

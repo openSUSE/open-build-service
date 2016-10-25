@@ -298,7 +298,7 @@ module ActiveXML
       end
 
       # set default host if not set in uri
-      if not url.host
+      if !url.host
         url.scheme, url.host = @schema, @host
       end
       url.port ||= @port
@@ -316,7 +316,7 @@ module ActiveXML
         keepalive = true
       end
       begin
-        if not @http
+        if !@http
           @http = Net::HTTP.new(url.host, url.port)
           @http.use_ssl = true if url.scheme == "https"
           # esp. for the appliance we trust the localhost or we have problems anyway

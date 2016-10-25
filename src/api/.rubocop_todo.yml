@@ -756,7 +756,7 @@ Style/Next:
 # Offense count: 126
 # Cop supports --auto-correct.
 Style/Not:
-  Enabled: false
+  Enabled: true
 
 # Offense count: 4
 # Cop supports --auto-correct.

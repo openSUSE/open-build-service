@@ -287,7 +287,7 @@ class TagController < ApplicationController
       save_tags(@project, @user, tags)
     end
 
-    if not unsaved_tags
+    if !unsaved_tags
       render_ok
     else
       error = "[TAG:] There are rejected Tags: #{unsaved_tags.inspect}"
@@ -353,7 +353,7 @@ class TagController < ApplicationController
     unless tag
       tag = Tag.create(name: tagname)
     end
-    raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) if not tag.valid?
+    raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) if !tag.valid?
     return tag
   end
 

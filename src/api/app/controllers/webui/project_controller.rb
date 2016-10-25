@@ -458,7 +458,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     @buildresult = @buildresult.to_hash
-    if not @buildresult.has_key? 'result'
+    if !@buildresult.has_key? 'result'
       @buildresult_unavailable = true
       return
     end
@@ -473,7 +473,7 @@ class Webui::ProjectController < Webui::WebuiController
     @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames ####
-    @packagenames.reject! {|name| not filter_matches?(name, @name_filter) } if not @name_filter.blank?
+    @packagenames.reject! {|name| !filter_matches?(name, @name_filter) } if !@name_filter.blank?
 
     packagename_hash = Hash.new
     @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
@@ -766,7 +766,7 @@ class Webui::ProjectController < Webui::WebuiController
   def load_project_info
     find_maintenance_infos
     @packages = @project.packages.order_by_name.pluck(:name)
-    @ipackages = @project.expand_all_packages.find_all{ |p| not @packages.include?(p[0]) }
+    @ipackages = @project.expand_all_packages.find_all{ |p| !@packages.include?(p[0]) }
     @linking_projects = @project.linked_by_projects.pluck(:name)
 
     reqs = @project.open_requests
