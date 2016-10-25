@@ -61,11 +61,47 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_post_orderkiwirepos # spec/controllers/source_controller_spec.rb
-    login_tom
-    post '/source?cmd=orderkiwirepos'
-    assert_response 400
-    assert_xml_tag tag: 'status', attributes: { code: "400", origin: "backend" }
-    # api handed it over to backend, enough tested here
+    # urls with http protocol
+    kiwi_config_http = <<-EOF
+<?xml version='1.0' encoding='UTF-8'?>
+<image name='openSUSE_JeOS' displayname='openSUSE_JeOS' schemaversion='5.2'>
+  <repository type='rpm-md'>
+    <source path='http://example.com/download/BaseDistro2.0/BaseDistro2_repo'/>
+  </repository>
+  <repository type='rpm-md'>
+    <source path='http://example.com/download/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repoBase'/>
+  </repository>
+</image>
+EOF
+
+    post '/source?cmd=orderkiwirepos', kiwi_config_http, { "Content-Type" => "text/xml" }
+    assert_response 200
+    converted_xml = Xmlhash.parse(response.body)
+    first  = converted_xml["repository"].first
+    second = converted_xml["repository"].second
+    assert_equal first["source"]["path"], "http://example.com/download/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo"
+    assert_equal second["source"]["path"], "http://example.com/download/BaseDistro2.0/BaseDistro2_repo"
+
+    # urls with obs protocol
+    kiwi_config_obs = <<-EOF
+<?xml version='1.0' encoding='UTF-8'?>
+<image name='openSUSE_JeOS' displayname='openSUSE_JeOS' schemaversion='5.2'>
+  <repository type='rpm-md'>
+    <source path='obs://BaseDistro2.0/BaseDistro2_repo'/>
+  </repository>
+  <repository type='rpm-md'>
+    <source path='obs://BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repoBase'/>
+  </repository>
+</image>
+EOF
+
+    post '/source?cmd=orderkiwirepos', kiwi_config_obs, { "Content-Type" => "text/xml" }
+    assert_response 200
+    converted_xml = Xmlhash.parse(response.body)
+    first  = converted_xml["repository"].first
+    second = converted_xml["repository"].second
+    assert_equal first["source"]["path"], "obs://BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo"
+    assert_equal second["source"]["path"], "obs://BaseDistro2.0/BaseDistro2_repo"
   end
 
   def test_anonymous_access_for_global_commands # spec/controllers/source_controller_spec.rb
