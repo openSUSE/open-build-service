@@ -69,7 +69,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     <source path='http://example.com/download/BaseDistro2.0/BaseDistro2_repo'/>
   </repository>
   <repository type='rpm-md'>
-    <source path='http://example.com/download/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repoBase'/>
+    <source path='http://example.com/download/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'/>
   </repository>
 </image>
 EOF
@@ -90,7 +90,7 @@ EOF
     <source path='obs://BaseDistro2.0/BaseDistro2_repo'/>
   </repository>
   <repository type='rpm-md'>
-    <source path='obs://BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repoBase'/>
+    <source path='obs://BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'/>
   </repository>
 </image>
 EOF
