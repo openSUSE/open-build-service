@@ -85,9 +85,10 @@ class Webui::UserController < Webui::WebuiController
     sorting_field ||= :created_at
     sorting_dir = params[:sSortDir_0].try(:to_sym)
     sorting_dir = :asc unless ["asc", "desc"].include?(params[:sSortDir_0])
-    @requests = @displayed_user.requests(params[:search])
+    @requests = @displayed_user.requests(params[:search].permit![:value])
     @requests_count = @requests.count
-    @requests = @requests.offset(params[:displayStart].to_i).limit(params[:pageLength].to_i).reorder(sorting_field => sorting_dir)
+    page_length = (params[:pageLength] || 1).to_i
+    @requests = @requests.offset(params[:displayStart].to_i).limit(page_length).reorder(sorting_field => sorting_dir)
     respond_to do |format|
       # For jquery dataTable
       format.json {
