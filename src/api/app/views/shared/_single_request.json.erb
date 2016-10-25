@@ -5,13 +5,6 @@
    request_type = cp[:request_type]
    target_package = cp[:target_package]
    target_project = cp[:target_project]
-   if source_package && source_package != :multiple && source_project != :multiple
-     source_url = url_for(controller: 'package', action: 'show', project: source_project, package: source_package)
-     buildresult_url = url_for(controller: 'project', action: 'package_buildresult', project: source_project, package: source_package)
-     source_exists = Package.exists_by_project_and_name(source_project, source_package)
-   else
-     source_exists = false
-   end
 -%>
 <%= fuzzy_time(req.created_at) %>,
 <%= project_or_package_link(project: source_project, package: source_package, creator: req.creator, trim_to: elide_len, short: true) %>,
@@ -38,9 +31,3 @@
 <%= req.priority %>,
 <%= link_to(sprite_tag('req-showdiff', title: "Show request ##{req.number}"),
             { :controller => :request, :action => :show, :number => req.number }, { :class => 'request_link' }) -%>
-<% if source_package && source_package != :multiple && source_exists %>
-    <%= link_to(sprite_tag('information', title: 'Build results', id: "req_#{req.number}"), source_url) %>
-    <%= javascript_tag do %>
-        setup_buildresult_tooltip('<%= "req_#{req.number}" %>', '<%= buildresult_url %>')
-    <% end %>
-<% end %>
