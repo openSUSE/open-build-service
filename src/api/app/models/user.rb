@@ -835,18 +835,18 @@ class User < ApplicationRecord
   end
 
   # list requests involving this user
-  def declined_requests
-    BsRequest.collection(user: login, states: %w(declined), roles: %w(creator))
+  def declined_requests(search = nil)
+    BsRequest.collection(user: login, states: %w(declined), roles: %w(creator), search: search)
   end
 
   # list incoming requests involving this user
-  def incoming_requests
-    BsRequest.collection(user: login, states: %w(new), roles: %w(maintainer))
+  def incoming_requests(search = nil)
+    BsRequest.collection(user: login, states: %w(new), roles: %w(maintainer), search: search)
   end
 
   # list outgoing requests involving this user
-  def outgouing_requests
-    BsRequest.collection(user: login, states: %w(new review), roles: %w(creator))
+  def outgouing_requests(search = nil)
+    BsRequest.collection(user: login, states: %w(new review), roles: %w(creator), search: search)
   end
 
   # finds if the user have any request
