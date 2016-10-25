@@ -845,7 +845,7 @@ class User < ApplicationRecord
   end
 
   # list outgoing requests involving this user
-  def outgouing_requests(search = nil)
+  def outgoing_requests(search = nil)
     BsRequest.collection(user: login, states: %w(new review), roles: %w(creator), search: search)
   end
 

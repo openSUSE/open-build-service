@@ -60,7 +60,7 @@ class Webui::UserController < Webui::WebuiController
         @reviews = @displayed_user.involved_reviews
         @patchinfos = @displayed_user.involved_patchinfos
         @requests_in = @displayed_user.incoming_requests
-        @requests_out = @displayed_user.outgouing_requests
+        @requests_out = @displayed_user.outgoing_requests
         @declined_requests = @displayed_user.declined_requests
         @user_have_requests = @displayed_user.requests?
     end
@@ -88,7 +88,7 @@ class Webui::UserController < Webui::WebuiController
     search = params[:search] ? params[:search].permit![:value] : ""
     request_methods = {
       'all_requests_table' => :requests,
-      'requests_out_table' => :outgouing_requests
+      'requests_out_table' => :outgoing_requests
     }
     request_method = request_methods[params[:dataTableId]] || :requests
     @requests = @displayed_user.send(request_method, search)
