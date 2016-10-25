@@ -87,8 +87,9 @@ class Webui::UserController < Webui::WebuiController
     sorting_dir = :asc unless ["asc", "desc"].include?(params['order[0][dir]'])
     search = params[:search] ? params[:search].permit![:value] : ""
     request_methods = {
-      'all_requests_table' => :requests,
-      'requests_out_table' => :outgoing_requests
+      'all_requests_table'      => :requests,
+      'requests_out_table'      => :outgoing_requests,
+      'requests_declined_table' => :declined_requests
     }
     request_method = request_methods[params[:dataTableId]] || :requests
     @requests = @displayed_user.send(request_method, search)
