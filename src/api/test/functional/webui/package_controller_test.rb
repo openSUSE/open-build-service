@@ -257,7 +257,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_link 'BaseDistro:Update'
   end
 
-  def test_download_logfile
+  def test_download_logfile # spec/features/webui/packages_spec.rb
     use_js
 
     visit package_show_path(package: 'TestPack', project: 'home:Iggy')

@@ -133,7 +133,7 @@ RSpec.feature "Packages", :type => :feature, :js => true do
     end
   end
 
-  context "access live_build_log" do
+  context "log" do
     let(:repository) { create(:repository, architectures: ["i586"]) }
 
     before do
@@ -141,12 +141,33 @@ RSpec.feature "Packages", :type => :feature, :js => true do
       login(user)
       stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?nostream=1&start=0&end=65536")
         .and_return(body: '[1] this is my dummy logfile -> ümlaut')
+      stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status&package=#{package}")
+        .and_return(body: %(<resultlist state="8da2ae1e32481175f43dc30b811ad9b5">
+                              <result project="#{user.home_project}" repository="#{repository.name}" arch="i586" code="published" state="published">
+                                <status package="#{package}" code="success" />
+                              </result>
+                            </resultlist>
+                            )
+                   )
+      stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log")
+        .and_return(headers: {'Content-Type'=> 'text/plain'}, body: '[1] this is my dummy logfile -> ümlaut')
     end
 
-    scenario "the build finished succesfully" do
+    scenario "live build finishes succesfully" do
       visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'i586')
       expect(page).to have_text('Build finished')
       expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
+    end
+
+    scenario "download logfile succesfully" do
+      visit package_show_path(project: user.home_project, package: package)
+      # test reload and wait for the build to finish
+      find('.icons-reload').click
+      find('.buildstatus', 'succeeded').click
+      expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
+      first(:link, 'Download logfile').click
+      # don't bother with the umlaut
+      expect(page.source).to have_text('[1] this is my dummy logfile')
     end
   end
 end

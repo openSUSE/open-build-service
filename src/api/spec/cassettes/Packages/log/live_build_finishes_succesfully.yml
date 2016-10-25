@@ -36,7 +36,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 20 Oct 2016 13:14:55 GMT
+  recorded_at: Wed, 26 Oct 2016 08:36:32 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:package_test_user/repository_1/i586/test_package/_log?view=entry
@@ -73,7 +73,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 20 Oct 2016 13:14:55 GMT
+  recorded_at: Wed, 26 Oct 2016 08:36:32 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:package_test_user/repository_1/i586/test_package/_log?end=65574&nostream=1&start=38
@@ -110,5 +110,5 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Thu, 20 Oct 2016 13:14:57 GMT
+  recorded_at: Wed, 26 Oct 2016 08:36:35 GMT
 recorded_with: VCR 3.0.3
