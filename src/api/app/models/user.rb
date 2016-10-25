@@ -827,11 +827,8 @@ class User < ApplicationRecord
   end
 
   # lists reviews involving this user
-  def involved_reviews
-    open_reviews = BsRequest.collection(user: login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review))
-    open_reviews.select do |review|
-      review['creator'] != login
-    end
+  def involved_reviews(search = nil)
+    BsRequest.collection(user: login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review), search: search).not_creator(login)
   end
 
   # list requests involving this user

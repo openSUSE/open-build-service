@@ -141,7 +141,7 @@
       </div>
       <% if @reviews.count > 0 %>
         <div id="reviews_in" class="tab">
-          <%= render(:partial => 'shared/requests', :locals => { :requests => @reviews, :request_table_id => 'reviews_in_table', :hide_state => true }) %>
+          <%= render(:partial => 'shared/requests', :locals => { :requests => @reviews, :request_table_id => 'reviews_in_table', :hide_state => true, :serverProcessing => true }) %>
         </div>
       <% end %>
    </div>
