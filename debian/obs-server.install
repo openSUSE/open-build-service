@@ -2,7 +2,7 @@
 # create symlink for product converter by rules file.
 # install SLP registration files
 # install overview page template
-dist/sysconfig.obs-server       /etc/default/
+dist/sysconfig.obs-server      /etc/default/
 
 # Config files
 etc/logrotate.d/obs-server
@@ -72,3 +72,15 @@ usr/lib/obs/server/call-service-in-lxc.sh
 
 # obs-common
 usr/lib/obs/server/setup-appliance.sh
+
+# systemd stuff
+debian/systemd/obsrepserver.service	/lib/systemd/system/
+debian/systemd/obssrcserver.service	/lib/systemd/system/
+debian/systemd/obsdispatcher.service	/lib/systemd/system/
+debian/systemd/obsscheduler@.service	/lib/systemd/system/
+debian/systemd/obswarden.service	/lib/systemd/system/
+debian/systemd/obsdodup.service		/lib/systemd/system/
+debian/systemd/obsservice.service	/lib/systemd/system/
+debian/systemd/obspublisher.service	/lib/systemd/system/
+debian/systemd/obssigner.service	/lib/systemd/system/
+

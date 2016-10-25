@@ -17,33 +17,6 @@ override_dh_install:
 	dh_install --list-missing
 
 	dh_installdebconf
-	dh_installinit --noscripts --restart-after-upgrade --name obsrepserver
-	dh_installinit --noscripts --restart-after-upgrade --name obssrcserver
-	dh_installinit --noscripts --restart-after-upgrade --name obsdispatcher
-	dh_installinit --noscripts --restart-after-upgrade --name obsscheduler@
-	dh_installinit --noscripts --restart-after-upgrade --name obswarden
-	dh_installinit --noscripts --restart-after-upgrade --name obsdodup
-	dh_installinit --noscripts --restart-after-upgrade --name obsservice
-	dh_installinit --noscripts --restart-after-upgrade --name obspublisher
-	dh_installinit --noscripts --restart-after-upgrade --name obssigner
-	dh_installinit --restart-after-upgrade --name obsapidelayed
-	dh_installinit --name obsworker --no-start
-	dh_systemd_enable -p obs-server \
-		obsrepserver.service \
-		obssrcserver.service \
-		obsdispatcher.service \
-		obswarden.service \
-		obsdodup.service \
-		obspublisher.service \
-		obssigner.service
-	dh_systemd_start -p obs-server \
-		obsrepserver.service \
-		obssrcserver.service \
-		obsdispatcher.service \
-		obswarden.service \
-		obsdodup.service \
-		obspublisher.service \
-		obssigner.service
 
 	# Rename dh_install installed web service config files.
 	# (new default since OBS 2.3)
@@ -79,6 +52,31 @@ override_dh_install:
 
 	# Fix Mark scripts as executable until upstream fixes
 	chmod a+x debian/obs-server/usr/lib/obs/tests/appliance/*t*
+
+override_dh_systemd_enable:
+	dh_systemd_enable -p obs-server \
+		obsrepserver.service \
+		obssrcserver.service \
+		obsdispatcher.service \
+		obswarden.service \
+		obsdodup.service \
+		obspublisher.service \
+		obssigner.service
+
+override_dh_installinit:
+	dh_installinit --restart-after-upgrade --name obsapidelayed
+	dh_installinit --name obsworker --no-start
+
+override_dh_systemd_start:
+	dh_systemd_start -p obs-server \
+		obsrepserver.service \
+		obssrcserver.service \
+		obsdispatcher.service \
+		obswarden.service \
+		obsdodup.service \
+		obspublisher.service \
+		obssigner.service
+
 
 override_dh_auto_test:
 	 dh_auto_test || true # temporary ignore
