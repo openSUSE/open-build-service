@@ -16,13 +16,12 @@ if [ "$1" = "purge" ]; then
     if which ucf >/dev/null 2>&1; then
 	ucf --purge /etc/obs/api/config/database.yml
     fi
-    rm -f /etc/obs/api/.bundle/config
-    rm -f /etc/obs/api/config/secret.key
+    rm -rf /usr/share/obs/api
+    rm -rf /usr/share/obs/overview
 fi
 
 if [ -L /usr/share/obs/api/vendor/rails ]; then
     rm -f /usr/share/obs/api/vendor/rails
 fi
-
 
 #DEBHELPER#
