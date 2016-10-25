@@ -1,6 +1,7 @@
 xml.package(name: my_model.name, project: my_model.project.name) do
   xml.title(my_model.title)
   xml.description(my_model.description)
+  xml.releasename(my_model.releasename) if my_model.releasename
 
   if my_model.develpackage
     xml.devel(project: my_model.develpackage.project.name, package: my_model.develpackage.name)

@@ -174,8 +174,11 @@ sub check {
       my @sbins;
       my %usedsrc;
 
+      my $apdata = $pdatas->{$apackid} || {};
       my $lapackid = $apackid;		# release target package
-      if (($proj->{'kind'} || '') eq 'maintenance_incident') {
+      if ($apdata->{'releasename'}) {
+        $lapackid = $apdata->{'releasename'};
+      } elsif (($proj->{'kind'} || '') eq 'maintenance_incident') {
         $lapackid =~ s/\.[^\.]+$//;
       }
 

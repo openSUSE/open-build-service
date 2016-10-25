@@ -7,6 +7,8 @@
     Developer informations
   devel
     if present, this element defines a devel package location
+  releasename
+    this defines the target package container name on release
   person
     An optional list of persons
   group
@@ -70,6 +72,11 @@
               <attribute name="package"/>
           </optional>
           <empty/>
+        </element>
+      </optional>
+      <optional>
+        <element ns="" name="releasename">
+          <text/>
         </element>
       </optional>
       <zeroOrMore>
