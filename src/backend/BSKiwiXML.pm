@@ -136,6 +136,7 @@ our $kiwidesc = [
 		  ],
 	      ],
 	      [ 'oemconfig' =>
+		    [],
 		    'oem-ataraid-scan',
 		    'oem-multipath-scan',
 		    'oem-boot-title',
