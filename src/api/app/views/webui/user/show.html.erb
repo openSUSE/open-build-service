@@ -162,13 +162,13 @@
         <%= render(:partial => 'shared/requests', :locals => { :requests => @requests_in, :request_table_id => 'requests_in_table', :hide_state => true }) %>
       </div>
       <div id="requests_out" class="tab">
-        <%= render(:partial => 'shared/requests', :locals => { :requests => @requests_out, :request_table_id => 'requests_out_table', :hide_state => true }) %>
+        <%= render(:partial => 'shared/requests', :locals => { :requests => @requests_out, :request_table_id => 'requests_out_table', :hide_state => true, :serverProcessing => true }) %>
       </div>
       <div id="requests_declined" class="tab">
         <%= render(:partial => 'shared/requests', :locals => { :requests => @declined_requests, :request_table_id => 'requests_declined_table', :hide_state => true }) %>
       </div>
       <div id="all_requests" class="tab">
-        <%= render(:partial => 'shared/requests', :locals => { :request_table_id => 'all_requests_table', :hide_state => true, :serverProcessing => true}) %>
+        <%= render(:partial => 'shared/requests', :locals => { :request_table_id => 'all_requests_table', :hide_state => true, :serverProcessing => true }) %>
       </div>
   </div>
 </div>

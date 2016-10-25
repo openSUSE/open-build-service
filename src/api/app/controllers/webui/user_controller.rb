@@ -85,7 +85,13 @@ class Webui::UserController < Webui::WebuiController
     sorting_field ||= :created_at
     sorting_dir = params['order[0][dir]'].try(:to_sym)
     sorting_dir = :asc unless ["asc", "desc"].include?(params['order[0][dir]'])
-    @requests = @displayed_user.requests(params[:search].permit![:value])
+    search = params[:search] ? params[:search].permit![:value] : ""
+    request_methods = {
+      'all_requests_table' => :requests,
+      'requests_out_table' => :outgouing_requests
+    }
+    request_method = request_methods[params[:dataTableId]] || :requests
+    @requests = @displayed_user.send(request_method, search)
     @requests_count = @requests.count
     @requests = @requests.offset(params[:start].to_i).limit(params[:length].to_i).reorder(sorting_field => sorting_dir)
     respond_to do |format|
@@ -93,7 +99,7 @@ class Webui::UserController < Webui::WebuiController
       format.json {
         render_json_response_for_dataTable(
           draw: params[:draw].to_i + 1,
-          total_records_count: @displayed_user.requests.count,
+          total_records_count: @displayed_user.send(request_method).count,
           total_filtered_records_count: @requests_count,
           records: @requests.includes(:bs_request_actions)
         ) do |request|
