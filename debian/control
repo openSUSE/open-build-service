@@ -150,7 +150,7 @@ Depends: apache2,
          libgd-gd2-perl,
          libjs-bootstrap,
          memcached,
-         mysql-client,
+         default-mysql-client,
          ruby | ruby-interpreter,
          ruby-acts-as-list,
          ruby-acts-as-tree,
@@ -222,7 +222,7 @@ Depends: apache2,
          unicorn,
          ${misc:Depends},
          ${shlibs:Depends}
-Recommends: mysql-server
+Recommends: default-mysql-server
 Suggests: obs-server
 Breaks: obs-server (<= 2.7.1-3)
 Description: Open Build Service (api)
