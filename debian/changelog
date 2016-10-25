@@ -1,3 +1,20 @@
+open-build-service (2.7.1-4) experimental; urgency=medium
+
+  * debian/control: move sphinxsearch deps from obs-server to obs-api as
+    it's needed search function for the webui instead of backend server.
+  * Fixed database.yml generatation while reinstall.
+  * Move overview.html.TEMPLATE file from obs-server to obs-api.
+  * debian/control: obs-server shouldn't depends on obs-api. It should be
+    able to install independently.
+  * Do not ship database.yml as it should generates from template.
+  * debian/control: depends on default-mysql-client and recommends on
+    default-mysql-server as the old package name has been obsoleted.
+  * debian/control: added depends on lsb-base for init.d scripts calls lsb
+    functions.
+  * debian/obs-api.postrm: clean up api folder while purge.
+
+ -- Andrew Lee (李健秋) <ajqlee@debian.org>  Mon, 24 Oct 2016 14:55:03 +0800
+
 open-build-service (2.7.1-3) experimental; urgency=medium
 
   * jquery.ui.widget.patch: added missing jquery.ui.widget.
