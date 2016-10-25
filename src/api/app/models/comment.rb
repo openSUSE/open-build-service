@@ -9,6 +9,10 @@ class Comment < ApplicationRecord
 
   validates :body, :user, :type, presence: true
 
+  # Only instances of Comment's children can be created, not directly from Comment.
+  # So the type attribute, which is reserved for storing the inheritance class, must be the name of a child class.
+  validate :check_is_child
+
   after_create :create_notification
 
   has_many :children, dependent: :destroy, :class_name => 'Comment', :foreign_key => 'parent_id'
@@ -74,5 +78,13 @@ class Comment < ApplicationRecord
   # FIXME: This is to work around https://github.com/rails/rails/pull/12450/files
   def destroy
     super
+  end
+
+  private
+
+  def check_is_child
+    unless type.safe_constantize.try(:superclass) == Comment
+      errors[:type] << "is reserved for storing the inheritance class which was not found"
+    end
   end
 end
