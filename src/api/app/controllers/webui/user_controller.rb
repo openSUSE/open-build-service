@@ -89,7 +89,8 @@ class Webui::UserController < Webui::WebuiController
     request_methods = {
       'all_requests_table'      => :requests,
       'requests_out_table'      => :outgoing_requests,
-      'requests_declined_table' => :declined_requests
+      'requests_declined_table' => :declined_requests,
+      'requests_in_table'       => :incoming_requests
     }
     request_method = request_methods[params[:dataTableId]] || :requests
     @requests = @displayed_user.send(request_method, search)

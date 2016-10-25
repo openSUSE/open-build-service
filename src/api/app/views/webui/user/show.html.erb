@@ -159,7 +159,7 @@
       </ul>
     </div>
       <div id="requests_in" class="tab">
-        <%= render(:partial => 'shared/requests', :locals => { :requests => @requests_in, :request_table_id => 'requests_in_table', :hide_state => true }) %>
+        <%= render(:partial => 'shared/requests', :locals => { :requests => @requests_in, :request_table_id => 'requests_in_table', :hide_state => true, :serverProcessing => true }) %>
       </div>
       <div id="requests_out" class="tab">
         <%= render(:partial => 'shared/requests', :locals => { :requests => @requests_out, :request_table_id => 'requests_out_table', :hide_state => true, :serverProcessing => true }) %>
