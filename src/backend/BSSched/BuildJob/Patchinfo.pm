@@ -140,20 +140,19 @@ sub check {
     my $packstatus = $ctx->{'packstatus'};
     for my $apackid (@packages) {
       my $code = $packstatus->{$apackid} || '';
-      if ($code eq 'excluded') {
-        next;
-      }
+      next if $code eq 'excluded';
       if ($code ne 'done' && $code ne 'disabled' && $code ne 'locked') {
         $blocked = 1;
         last;
       }
       if (-e "$gdst/:logfiles.fail/$apackid") {
-        $blocked = 1;
-        last;
-      }
-      if (! -e "$gdst/:logfiles.success/$apackid") {
+        if (($code ne 'locked' && $code ne 'disabled') || -e "$gdst/:logfiles.success/$apackid") {
+          $blocked = 1;
+          last;
+	}
+      } elsif (! -e "$gdst/:logfiles.success/$apackid") {
         if (! -e "$gdst/$apackid/.channelinfo") {
-          next if $code eq 'disabled';
+          next if $code eq 'disabled' || $code eq 'locked';
           $blocked = 1;
           last;
         }
@@ -169,7 +168,7 @@ sub check {
     }
     if ($blocked && !$broken) {
       # hmm, we should be blocked. trigger build arch check
-      if (!-e "$markerdir/.waiting_for_$myarch") {
+      if (! -e "$markerdir/.waiting_for_$myarch") {
         BSUtil::touch("$reporoot/$prp/$buildarch/:schedulerstate.dirty") if -d "$reporoot/$prp/$buildarch";
         BSSched::EventSource::Directory::sendunblockedevent($gctx, $prp, $buildarch);
         print "      - $packid (patchinfo)\n";
@@ -223,7 +222,6 @@ sub check {
     for my $apackid (@packages) {
       my $code = $apackstatus->{$apackid} || '';
       next if $code eq 'excluded';
-      $enabled_seen = 1 unless $code eq 'disabled';
       if ($code ne 'done' && $code ne 'disabled' && $code ne 'locked') {
         $blockedarch = 1;
         push @blocked, "$arch/$apackid";
@@ -231,20 +229,22 @@ sub check {
       }
       if (-e "$agdst/:logfiles.fail/$apackid") {
         # last build failed
-        if ($code ne 'disabled' || -e "$agdst/:logfiles.success/$apackid") {
+        if (($code ne 'locked' && $code ne 'disabled') || -e "$agdst/:logfiles.success/$apackid") {
           $blockedarch = 1;
           push @blocked, "$arch/$apackid (failed)";
           next;
         }
+	next;	# locked or disabled and nothing built, nothing to pick up
       } elsif (! -e "$agdst/:logfiles.success/$apackid") {
         # package was never built yet or channel
         if (! -e "$agdst/$apackid/.channelinfo") {
-          next if $code eq 'disabled';
+          next if $code eq 'disabled' || $code eq 'locked';
           $blockedarch = 1;
           push @blocked, "$arch/$apackid (no logfiles.success)";
           next;
-        }
+	}
       }
+      $enabled_seen = 1 unless $code eq 'disabled';
       if ($ptype eq 'binary') {
         # like aggregates
         my $d = "$agdst/$apackid";
