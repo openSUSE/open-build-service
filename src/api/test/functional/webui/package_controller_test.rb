@@ -59,7 +59,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     skip("Show rpmlint results")
   end
 
-  def test_live_build_log_doesnt_cause_500_error
+  def test_live_build_log_doesnt_cause_500_error # src/api/spec/controllers/webui/package_controller_spec.rb
     visit(package_live_build_log_path(
             project: "home:tom",
             package: "nonexistant",
@@ -257,7 +257,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_link 'BaseDistro:Update'
   end
 
-  def test_download_logfile
+  def test_download_logfile # spec/features/webui/packages_spec.rb
     use_js
 
     visit package_show_path(package: 'TestPack', project: 'home:Iggy')
@@ -487,7 +487,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     all(:css, 'div.commit_item').count.must_equal 23
   end
 
-  def test_access_live_build_log
+  def test_access_live_build_log # src/api/spec/controllers/webui/package_controller_spec.rb && # src/api/spec/features/webui/packages_spec.rb
     use_js
     visit '/package/live_build_log/home:Iggy/TestPack/10.2/i586'
     page.status_code.must_equal 200
