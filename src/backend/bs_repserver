@@ -3028,6 +3028,10 @@ sub findympbinary {
   for my $b (ls($binarydir)) {
     next unless $b =~ /\.(?:$binsufsre)$/;
     next unless $b =~ /^\Q$binaryname\E/;
+    if ($b =~ /(.+)-[^-]+-[^-]+\.[a-zA-Z][^\.\-]*\.rpm$/) {
+      my $bn = $1;
+      next unless $binaryname =~ /^\Q$bn\E/;
+    }
     my $data = Build::query("$binarydir/$b", 'evra' => 1);
     if ($data->{'name'} eq $binaryname || "$data->{'name'}-$data->{'version'}" eq $binaryname) {
       return "$binarydir/$b";
@@ -3079,6 +3083,7 @@ sub publisheddir {
       my $binary;
       my @archs = ls($extrep);
       for my $a (@archs) {
+	next if $a eq 'repodata' || $a eq 'repocache';
 	next unless -d "$extrep/$a";
 	$binary = findympbinary("$extrep/$a", $binaryname);
 	last if $binary;
