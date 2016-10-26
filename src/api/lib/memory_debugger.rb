@@ -13,13 +13,13 @@ class MemoryDebugger
       return unless line.parent.nil?
       return unless check_up(line)
       line.parent = self
-      self.lines << line
+      lines << line
     end
 
     def check_up(line)
       return false if self == line
-      return true unless self.parent
-      return self.parent.check_up(line)
+      return true unless parent
+      return parent.check_up(line)
     end
   end
 

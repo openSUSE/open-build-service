@@ -98,17 +98,17 @@ class User < ApplicationRecord
   after_create :create_home_project
   def create_home_project
     # avoid errors during seeding
-    return if [ "_nobody_", "Admin" ].include? self.login
+    return if [ "_nobody_", "Admin" ].include? login
     # may be disabled via Configuration setting
-    return unless can_create_project?(self.home_project_name)
+    return unless can_create_project?(home_project_name)
     # find or create the project
-    project = Project.find_by(name: self.home_project_name)
+    project = Project.find_by(name: home_project_name)
     unless project
-      project = Project.create(name: self.home_project_name)
+      project = Project.create(name: home_project_name)
       # make the user maintainer
       project.relationships.create(user: self,
                                    role: Role.find_by_title('maintainer'))
-      project.store({login: self.login})
+      project.store({login: login})
       @home_project = project
     end
     true
@@ -126,12 +126,12 @@ class User < ApplicationRecord
   # unconfirmed/false/0 when it has not been set yet.
   before_validation(:on => :create) do
     self.state ||= 'unconfirmed'
-    self.password_hash_type = 'md5' if self.password_hash_type.to_s == ''
+    self.password_hash_type = 'md5' if password_hash_type.to_s == ''
 
     @new_password = false if @new_password.nil?
     @new_hash_type = false if @new_hash_type.nil?
 
-    self.login_failure_count = 0 if self.login_failure_count.nil?
+    self.login_failure_count = 0 if login_failure_count.nil?
   end
 
   # After validation, the password should be encrypted
@@ -220,7 +220,7 @@ class User < ApplicationRecord
         # stuff without affect to update_at
         user.last_logged_in_at = Time.now
         user.login_failure_count = 0
-        self.execute_without_timestamps { user.save! }
+        execute_without_timestamps { user.save! }
 
         # Check for ldap updates
         if user.email != ldap_info[0] || user.realname != ldap_info[1]
@@ -265,7 +265,7 @@ class User < ApplicationRecord
     if user && user.password_equals?(password)
       user.last_logged_in_at = Time.now
       user.login_failure_count = 0
-      self.execute_without_timestamps { user.save! }
+      execute_without_timestamps { user.save! }
 
       return user
     end
@@ -273,7 +273,7 @@ class User < ApplicationRecord
     # Otherwise increase the login count - if the user could be found - and return nil
     if user
       user.login_failure_count = user.login_failure_count + 1
-      self.execute_without_timestamps { user.save! }
+      execute_without_timestamps { user.save! }
     end
 
     return nil
@@ -411,12 +411,12 @@ class User < ApplicationRecord
   # Returns "true" on success and "false" on failure/or the user is already
   # confirmed and/or has no "user_registration" record.
   def confirm_registration(token)
-    return false if self.user_registration.nil?
+    return false if user_registration.nil?
     return false if user_registration.token != token
     return false unless state_transition_allowed?(state, 'confirmed')
 
     self.state = 'confirmed'
-    self.save!
+    save!
     user_registration.destroy
 
     return true
@@ -432,7 +432,7 @@ class User < ApplicationRecord
   # This method checks whether the given value equals the password when
   # hashed with this user's password hash type. Returns a boolean.
   def password_equals?(value)
-    hash_string(value) == self.password
+    hash_string(value) == password
   end
 
   # Sets the last login time and saves the object. Note: Must currently be
@@ -478,7 +478,7 @@ class User < ApplicationRecord
   end
 
   def home_project_name
-    "home:#{self.login}"
+    "home:#{login}"
   end
 
   def home_project
@@ -486,22 +486,22 @@ class User < ApplicationRecord
   end
 
   def branch_project_name(branch)
-    "#{self.home_project_name}:branches:#{branch}"
+    "#{home_project_name}:branches:#{branch}"
   end
 
   # updates users email address and real name using data transmitted by authentification proxy
   def update_user_info_from_proxy_env(env)
     proxy_email = env['HTTP_X_EMAIL']
-    if proxy_email.present? && self.email != proxy_email
-      logger.info "updating email for user #{self.login} from proxy header: old:#{self.email}|new:#{proxy_email}"
+    if proxy_email.present? && email != proxy_email
+      logger.info "updating email for user #{login} from proxy header: old:#{email}|new:#{proxy_email}"
       self.email = proxy_email
-      self.save
+      save
     end
     if env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
       realname = env['HTTP_X_FIRSTNAME'] + ' ' + env['HTTP_X_LASTNAME']
       if self.realname != realname
         self.realname = realname
-        self.save
+        save
       end
     end
   end
@@ -511,15 +511,15 @@ class User < ApplicationRecord
   #####################
 
   def is_admin?
-    self.roles.where(title: 'Admin').exists?
+    roles.where(title: 'Admin').exists?
   end
 
   def is_nobody?
-    self.login == '_nobody_'
+    login == '_nobody_'
   end
 
   def is_active?
-    return self.owner.is_active? if self.owner
+    return owner.is_active? if owner
 
     self.state == 'confirmed'
   end
@@ -542,7 +542,7 @@ class User < ApplicationRecord
   # of the given permission titles.
   def has_global_permission?(perm_string)
     logger.debug "has_global_permission? #{perm_string}"
-    self.roles.detect do |role|
+    roles.detect do |role|
       return true if role.static_permissions.where('static_permissions.title = ?', perm_string).first
     end
   end
@@ -590,8 +590,8 @@ class User < ApplicationRecord
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
-    return true if project_name == self.home_project_name && Configuration.allow_user_to_create_home_project
-    return true if /^#{self.home_project_name}:/.match(project_name) && Configuration.allow_user_to_create_home_project
+    return true if project_name == home_project_name && Configuration.allow_user_to_create_home_project
+    return true if /^#{home_project_name}:/.match(project_name) && Configuration.allow_user_to_create_home_project
 
     return true if has_global_permission?('create_project')
     parent_project = Project.new(name: project_name).parent
@@ -702,10 +702,10 @@ class User < ApplicationRecord
 
   def has_local_role?( role, object )
     if object.is_a?(Package) || object.is_a?(Project)
-      logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
-      rels = object.relationships.where(:role_id => role.id, :user_id => self.id)
+      logger.debug "running local role package check: user #{login}, package #{object.name}, role '#{role.title}'"
+      rels = object.relationships.where(:role_id => role.id, :user_id => id)
       return true if rels.exists?
-      rels = object.relationships.joins(:groups_users).where(:groups_users => { user_id: self.id }).where(:role_id => role.id)
+      rels = object.relationships.joins(:groups_users).where(:groups_users => { user_id: id }).where(:role_id => role.id)
       return true if rels.exists?
 
       return true if lookup_strategy.local_role_check(role, object)
@@ -728,11 +728,11 @@ class User < ApplicationRecord
     parent = nil
     case object
     when Package
-      logger.debug "running local permission check: user #{self.login}, package #{object.name}, permission '#{perm_string}'"
+      logger.debug "running local permission check: user #{login}, package #{object.name}, permission '#{perm_string}'"
       # check permission for given package
       parent = object.project
     when Project
-      logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
+      logger.debug "running local permission check: user #{login}, project #{object.name}, permission '#{perm_string}'"
       # check permission for given project
       parent = object.parent
     when nil
@@ -740,9 +740,9 @@ class User < ApplicationRecord
     else
       return false
     end
-    rel = object.relationships.where(:user_id => self.id).where('role_id in (?)', roles)
+    rel = object.relationships.where(:user_id => id).where('role_id in (?)', roles)
     return true if rel.exists?
-    rel = object.relationships.joins(:groups_users).where(:groups_users => { user_id: self.id }).where('role_id in (?)', roles)
+    rel = object.relationships.joins(:groups_users).where(:groups_users => { user_id: id }).where('role_id in (?)', roles)
     return true if rel.exists?
 
     return true if lookup_strategy.local_permission_check(roles, object)
@@ -758,10 +758,10 @@ class User < ApplicationRecord
 
   def lock!
     self.state = 'locked'
-    self.save!
+    save!
 
     # lock also all home projects to avoid unneccessary builds
-    Project.where("name like ?", "#{self.home_project_name}%").each do |prj|
+    Project.where("name like ?", "#{home_project_name}%").each do |prj|
       next if prj.is_locked?
       prj.lock("User account got locked")
     end
@@ -769,10 +769,10 @@ class User < ApplicationRecord
 
   def delete!
     self.state = 'deleted'
-    self.save!
+    save!
 
     # wipe also all home projects
-    Project.where("name like ?", "#{self.home_project_name}%").each do |prj|
+    Project.where("name like ?", "#{home_project_name}%").each do |prj|
       prj.commit_opts = { comment: "User account got deleted"}
       prj.destroy
     end
@@ -783,10 +783,10 @@ class User < ApplicationRecord
     role = Role.rolecache['maintainer']
 
     ### all projects where user is maintainer
-    projects = self.relationships.projects.where(role_id: role.id).pluck(:project_id)
+    projects = relationships.projects.where(role_id: role.id).pluck(:project_id)
 
     # all projects where user is maintainer via a group
-    projects += Relationship.projects.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:project_id)
+    projects += Relationship.projects.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: id }).pluck(:project_id)
 
     projects.uniq
   end
@@ -805,10 +805,10 @@ class User < ApplicationRecord
     projects << -1 if projects.empty?
 
     # all packages where user is maintainer
-    packages = self.relationships.where(role_id: role.id).joins(:package).where('packages.project_id not in (?)', projects).pluck(:package_id)
+    packages = relationships.where(role_id: role.id).joins(:package).where('packages.project_id not in (?)', projects).pluck(:package_id)
 
     # all packages where user is maintainer via a group
-    packages += Relationship.packages.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:package_id)
+    packages += Relationship.packages.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: id }).pluck(:package_id)
 
     Package.where(id: packages).where('project_id not in (?)', projects)
   end
@@ -828,7 +828,7 @@ class User < ApplicationRecord
 
   # lists reviews involving this user
   def involved_reviews
-    open_reviews = BsRequest.collection(user: self.login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review))
+    open_reviews = BsRequest.collection(user: login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review))
     open_reviews.select do |review|
       review['creator'] != login
     end
@@ -836,12 +836,12 @@ class User < ApplicationRecord
 
   # list requests involving this user
   def declined_requests
-    BsRequest.collection(user: self.login, states: %w(declined), roles: %w(creator))
+    BsRequest.collection(user: login, states: %w(declined), roles: %w(creator))
   end
 
   # list incoming requests involving this user
   def incoming_requests
-    BsRequest.collection(user: self.login, states: %w(new), roles: %w(maintainer))
+    BsRequest.collection(user: login, states: %w(new), roles: %w(maintainer))
   end
 
   # list outgoing requests involving this user
@@ -894,23 +894,23 @@ class User < ApplicationRecord
   def user_relevant_packages_for_status
     role_id = Role.rolecache['maintainer'].id
     # First fetch the project ids
-    projects_ids = self.involved_projects_ids
+    projects_ids = involved_projects_ids
     packages = Package.joins("LEFT OUTER JOIN relationships ON (relationships.package_id = packages.id AND relationships.role_id = #{role_id})")
     # No maintainers
     packages = packages.where([
       '(relationships.user_id = ?) OR '\
-      '(relationships.user_id is null AND packages.project_id in (?) )', self.id, projects_ids])
+      '(relationships.user_id is null AND packages.project_id in (?) )', id, projects_ids])
     packages.pluck(:id)
   end
 
   def state
-    return self.owner.state if self.owner
+    return owner.state if owner
 
     read_attribute(:state)
   end
 
   def to_s
-    self.login
+    login
   end
 
   def to_param
@@ -952,7 +952,7 @@ class User < ApplicationRecord
   end
 
   def update_globalroles(global_role_titles)
-    self.roles.replace(
+    roles.replace(
       Role.where(title: global_role_titles) + roles.where(global: false)
     )
   end
@@ -961,7 +961,7 @@ class User < ApplicationRecord
   def gravatar_image(size)
     Rails.cache.fetch([self, 'home_face', size, Configuration.first]) do
       if ::Configuration.gravatar
-        hash = Digest::MD5.hexdigest(self.email.downcase)
+        hash = Digest::MD5.hexdigest(email.downcase)
         begin
           content = ActiveXML.backend.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
           content.force_encoding('ASCII-8BIT') if content
@@ -975,8 +975,8 @@ class User < ApplicationRecord
   end
 
   def display_name
-    address = Mail::Address.new self.email
-    address.display_name = self.realname
+    address = Mail::Address.new email
+    address.display_name = realname
     address.format
   end
 
@@ -1001,7 +1001,7 @@ class User < ApplicationRecord
 
     return true if has_global_permission? 'change_project'
     return true if has_local_permission? 'change_project', project
-    return true if project.name == self.home_project_name # users tend to remove themself, allow to re-add them
+    return true if project.name == home_project_name # users tend to remove themself, allow to re-add them
     false
   end
 
@@ -1009,7 +1009,7 @@ class User < ApplicationRecord
   # "password_salt" property's value to make the hashing more secure.
   def hash_string(value)
     if password_hash_type == "md5"
-      Digest::MD5.hexdigest(value + self.password_salt)
+      Digest::MD5.hexdigest(value + password_salt)
     end
   end
 

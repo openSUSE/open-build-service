@@ -14,27 +14,26 @@ class Flag < ApplicationRecord
   after_destroy :discard_forbidden_project_cache
 
   before_validation(:on => :create) do
-    if self.project
-      self.position = (self.project.flags.maximum(:position) || 0 ) + 1
-    elsif self.package
-      self.position = (self.package.flags.maximum(:position) || 0 ) + 1
+    if project
+      self.position = (project.flags.maximum(:position) || 0 ) + 1
+    elsif package
+      self.position = (package.flags.maximum(:position) || 0 ) + 1
     end
   end
 
   validate :validate_custom_save
   def validate_custom_save
-    errors.add(:name, 'Please set either project or package.') if self.project.nil? && self.package.nil?
-    errors.add(:name, 'Please set either project or package.') unless self.project.nil? || self.package.nil?
-    errors.add(:flag, 'There needs to be a valid flag.') unless FlagHelper::TYPES.has_key?(self.flag.to_s)
-    # rubocop:disable Metrics/LineLength
-    errors.add(:status, 'Status needs to be enable or disable') unless (self.status && (self.status.to_sym == :enable || self.status.to_sym == :disable))
+    errors.add(:name, 'Please set either project or package.') if project.nil? && package.nil?
+    errors.add(:name, 'Please set either project or package.') unless project.nil? || package.nil?
+    errors.add(:flag, 'There needs to be a valid flag.') unless FlagHelper::TYPES.has_key?(flag.to_s)
+    errors.add(:status, 'Status needs to be enable or disable') unless (status && (status.to_sym == :enable || status.to_sym == :disable))
     # rubocop:enable Metrics/LineLength
   end
 
   validate :validate_duplicates, :on => :create
   def validate_duplicates
     # rubocop:disable Metrics/LineLength
-    if Flag.where("status = ? AND repo = ? AND project_id = ? AND package_id = ? AND architecture_id = ? AND flag = ?", self.status, self.repo, self.project_id, self.package_id, self.architecture_id, self.flag).exists?
+    if Flag.where("status = ? AND repo = ? AND project_id = ? AND package_id = ? AND architecture_id = ? AND flag = ?", status, repo, project_id, package_id, architecture_id, flag).exists?
       errors.add(:flag, "Flag already exists")
     end
     # rubocop:enable Metrics/LineLength
@@ -52,31 +51,31 @@ class Flag < ApplicationRecord
   end
 
   def discard_forbidden_project_cache
-    Relationship.discard_cache if self.flag == 'access'
+    Relationship.discard_cache if flag == 'access'
   end
 
   def default_status
-    all_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", self.flag).first
-    repo_flag = main_object.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", self.flag, self.repo).first
-    arch_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id = ?", self.flag, self.architecture_id).first
+    all_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag).first
+    repo_flag = main_object.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo).first
+    arch_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id).first
 
     # Package settings only override project settings...
     if main_object.kind_of? Package
-      all_flag = main_object.project.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", self.flag).first unless all_flag
-      repo_flag = main_object.project.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", self.flag, self.repo).first unless repo_flag
+      all_flag = main_object.project.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag).first unless all_flag
+      repo_flag = main_object.project.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo).first unless repo_flag
       arch_flag = main_object.project.flags.where("flag = ?
                                                    AND repo IS NULL
-                                                   AND architecture_id = ?", self.flag, self.architecture_id).first unless arch_flag
+                                                   AND architecture_id = ?", flag, architecture_id).first unless arch_flag
       same_flag = main_object.project.flags.where("flag = ?
                                                    AND repo = ?
-                                                   AND architecture_id = ?", self.flag, self.repo, self.architecture_id).first
+                                                   AND architecture_id = ?", flag, repo, architecture_id).first
     end
 
     return same_flag.status if same_flag
     return repo_flag.status if repo_flag
     return arch_flag.status if arch_flag
     return all_flag.status if all_flag
-    return Flag.default_status(self.flag)
+    return Flag.default_status(flag)
   end
 
   def has_children
@@ -87,10 +86,10 @@ class Flag < ApplicationRecord
   end
 
   def to_xml(builder)
-    raise RuntimeError.new( "FlagError: No flag-status set. \n #{self.inspect}" ) if self.status.nil?
+    raise RuntimeError.new( "FlagError: No flag-status set. \n #{inspect}" ) if status.nil?
     options = Hash.new
-    options['arch'] = self.architecture.name unless self.architecture.nil?
-    options['repository'] = self.repo unless self.repo.nil?
+    options['arch'] = architecture.name unless architecture.nil?
+    options['repository'] = repo unless repo.nil?
     builder.send(status.to_s, options)
   end
 
@@ -135,13 +134,13 @@ class Flag < ApplicationRecord
 
   def to_s
     ret = status
-    ret += " arch=#{self.architecture.name}" unless self.architecture.nil?
-    ret += " repo=#{self.repo}" unless self.repo.nil?
+    ret += " arch=#{architecture.name}" unless architecture.nil?
+    ret += " repo=#{repo}" unless repo.nil?
     ret
   end
 
   def fullname
-    ret = self.flag
+    ret = flag
     ret += "_#{repo}" unless repo.blank?
     ret += "_#{architecture.name}" unless architecture_id.blank?
     ret
@@ -152,6 +151,6 @@ class Flag < ApplicationRecord
   end
 
   def main_object
-    self.package || self.project
+    package || project
   end
 end

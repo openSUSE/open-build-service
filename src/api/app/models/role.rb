@@ -48,7 +48,7 @@ class Role < ApplicationRecord
   end
 
   def self.rolecache
-    @cache || self.create_cache
+    @cache || create_cache
   end
 
   def self.create_cache

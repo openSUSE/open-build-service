@@ -72,14 +72,14 @@ class Owner
       end
 
       if obj.nil?
-        owners += self.find_containers_without_definition(project, devel, filter)
+        owners += find_containers_without_definition(project, devel, filter)
       elsif obj.is_a? String
-        owners += self.find_assignees(project, obj, limit.to_i, devel,
-                                      filter, (true unless params[:webui_mode].blank?))
+        owners += find_assignees(project, obj, limit.to_i, devel,
+                                 filter, (true unless params[:webui_mode].blank?))
       elsif obj.is_a?(Project) || obj.is_a?(Package)
-        owners += self.find_maintainers(obj, filter)
+        owners += find_maintainers(obj, filter)
       else
-        owners += self.find_containers(project, obj, devel, filter)
+        owners += find_containers(project, obj, devel, filter)
       end
     end
 
@@ -116,7 +116,7 @@ class Owner
         next if pkg.nil?
 
         # the "" means any matching relationships will get taken
-        m, limit, already_checked = self.lookup_package_owner(rootproject, pkg, "", limit, devel, filter, deepest, already_checked)
+        m, limit, already_checked = lookup_package_owner(rootproject, pkg, "", limit, devel, filter, deepest, already_checked)
 
         unless m
           # collect all no matched entries
@@ -247,7 +247,7 @@ class Owner
 
   def self.find_maintainers(container, filter)
     maintainers = []
-    sql = self._build_rolefilter_sql(filter)
+    sql = _build_rolefilter_sql(filter)
     add_owners = Proc.new {|cont|
       m = Owner.new
       m.rootproject = ''
@@ -258,7 +258,7 @@ class Owner
         m.project = cont.name
       end
       m.filter = filter
-      self._extract_from_container(m, cont.relationships, sql, nil)
+      _extract_from_container(m, cont.relationships, sql, nil)
       maintainers << m unless m.users.nil? && m.groups.nil?
     }
     project = container
@@ -279,8 +279,8 @@ class Owner
 
     # optional check for devel package instance first
     m = nil
-    m = self.extract_maintainer(rootproject, pkg.resolve_devel_package, filter, owner) if devel == true
-    m = self.extract_maintainer(rootproject, pkg, filter, owner) unless m
+    m = extract_maintainer(rootproject, pkg.resolve_devel_package, filter, owner) if devel == true
+    m = extract_maintainer(rootproject, pkg, filter, owner) unless m
 
     already_checked[pkg.id] = 1
 
@@ -294,8 +294,8 @@ class Owner
 
       already_checked[p.id] = 1
 
-      m = self.extract_maintainer(rootproject, p.resolve_devel_package, filter, owner) if devel == true
-      m = self.extract_maintainer(rootproject, p, filter, owner) unless m
+      m = extract_maintainer(rootproject, p.resolve_devel_package, filter, owner) if devel == true
+      m = extract_maintainer(rootproject, p, filter, owner) unless m
 
       break if m && !deepest
     end
@@ -316,14 +316,14 @@ class Owner
 
     # no filter defined, so do not check for roles and just return container
     return m if rolefilter.empty?
-    sql = self._build_rolefilter_sql(rolefilter)
+    sql = _build_rolefilter_sql(rolefilter)
     # lookup in package container
-    m = self._extract_from_container(m, pkg.relationships, sql, objfilter)
+    m = _extract_from_container(m, pkg.relationships, sql, objfilter)
 
     # did it it match? if not fallback to project level
     unless m.users || m.groups
       m.package = nil
-      m = self._extract_from_container(m, pkg.project.relationships, sql, objfilter)
+      m = _extract_from_container(m, pkg.project.relationships, sql, objfilter)
     end
     # still not matched? Ignore it
     return nil unless m.users || m.groups

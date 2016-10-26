@@ -68,7 +68,7 @@ class AttribType < ApplicationRecord
     new_rule[:user] = User.find_by_login!(node["user"]) if node["user"]
     new_rule[:group] = Group.find_by_title!(node["group"]) if node["group"]
     new_rule[:role] = Role.find_by_title!(node["role"]) if node["role"]
-    self.attrib_type_modifiable_bies << AttribTypeModifiableBy.new(new_rule)
+    attrib_type_modifiable_bies << AttribTypeModifiableBy.new(new_rule)
   end
 
   def update_default_values(default_elements)
@@ -76,7 +76,7 @@ class AttribType < ApplicationRecord
     position = 1
     default_elements.each do |d|
       d.elements("value") do |v|
-        self.default_values << AttribDefaultValue.new(value: v, position: position)
+        default_values << AttribDefaultValue.new(value: v, position: position)
         position += 1
       end
     end
@@ -105,7 +105,7 @@ class AttribType < ApplicationRecord
       # allow issues?
       logger.debug "XML #{xmlhash.inspect}"
       self.issue_list = !xmlhash["issue_list"].nil?
-      logger.debug "IL #{self.issue_list}"
+      logger.debug "IL #{issue_list}"
 
       # default values of a attribute stored
       update_default_values(xmlhash.elements("default"))

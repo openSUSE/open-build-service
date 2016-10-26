@@ -491,13 +491,13 @@ class UserLdapStrategy
   end
 
   def groups_ldap
-    Rails.logger.debug "List the groups #{self.login} is in"
+    Rails.logger.debug "List the groups #{login} is in"
     ldapgroups = Array.new
     # check with LDAP
     if Configuration.ldapgroup_enabled?
       grouplist = Group.all
       begin
-        ldapgroups = UserLdapStrategy.render_grouplist_ldap(grouplist, self.login)
+        ldapgroups = UserLdapStrategy.render_grouplist_ldap(grouplist, login)
       rescue Exception
         Rails.logger.debug "Error occurred in searching user_group in ldap."
       end
@@ -526,7 +526,7 @@ class UserLdapStrategy
     group_relationships.each do |r|
       return false if r.group.nil?
       # check whether current user is in this group
-      return true if user_in_group_ldap?(self.login, r.group)
+      return true if user_in_group_ldap?(login, r.group)
     end
     Rails.logger.debug "Failed with local_permission_check_with_ldap"
     return false
@@ -538,7 +538,7 @@ class UserLdapStrategy
     for rel in rels
       return false if rel.group.nil?
       # check whether current user is in this group
-      return true if user_in_group_ldap?(self.login, rel.group)
+      return true if user_in_group_ldap?(login, rel.group)
     end
     Rails.logger.debug "Failed with local_role_check_with_ldap"
     return false

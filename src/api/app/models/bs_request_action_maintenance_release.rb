@@ -34,14 +34,14 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   end
 
   def execute_accept(opts)
-    pkg = Package.get_by_project_and_name(self.source_project, self.source_package)
+    pkg = Package.get_by_project_and_name(source_project, source_package)
 
     # have a unique time stamp for release
     opts[:acceptTimeStamp] ||= Time.now
 
-    opts[:updateinfoIDs] = release_package(pkg, Project.get_by_name(self.target_project), self.target_package, nil, self)
+    opts[:updateinfoIDs] = release_package(pkg, Project.get_by_name(target_project), target_package, nil, self)
     opts[:projectCommit] ||= {}
-    opts[:projectCommit][self.target_project] = self.source_project
+    opts[:projectCommit][target_project] = source_project
 
     # lock project when last package is released
     return if pkg.project.is_locked?
@@ -58,7 +58,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       commit_params = {
         cmd:       "commit",
         user:      User.current.login,
-        requestid: self.bs_request.number,
+        requestid: bs_request.number,
         rev:       "latest",
         comment:   "Releasing from project #{sprj}"
       }
@@ -77,7 +77,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def sanity_check!
     # get sure that the releasetarget definition exists or we release without binaries
-    prj = Project.get_by_name(self.source_project)
+    prj = Project.get_by_name(source_project)
     prj.repositories.includes(:release_targets).each do |repo|
       unless repo.release_targets.size > 0
         raise RepositoryWithoutReleaseTarget.new "Release target definition is missing in #{prj.name} / #{repo.name}"
@@ -108,27 +108,27 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
     # patchinfos don't get a link, all others should not conflict with any other
     # FIXME2.4 we have a directory model
-    answer = Suse::Backend.get "/source/#{CGI.escape(self.source_project)}/#{CGI.escape(self.source_package)}"
+    answer = Suse::Backend.get "/source/#{CGI.escape(source_project)}/#{CGI.escape(source_package)}"
     xml = REXML::Document.new(answer.body.to_s)
     rel = BsRequest.where(state: [:new, :review]).joins(:bs_request_actions)
-    rel = rel.where(bs_request_actions: { target_project: self.target_project })
+    rel = rel.where(bs_request_actions: { target_project: target_project })
     if xml.elements["/directory/entry/@name='_patchinfo'"]
-      rel = rel.where(bs_request_actions: { target_package: self.target_package } )
+      rel = rel.where(bs_request_actions: { target_package: target_package } )
     else
-      tpkgprefix = self.target_package.gsub(/\.[^\.]*$/, '')
-      rel = rel.where('bs_request_actions.target_package = ? or bs_request_actions.target_package like ?', self.target_package, "#{tpkgprefix}.%")
+      tpkgprefix = target_package.gsub(/\.[^\.]*$/, '')
+      rel = rel.where('bs_request_actions.target_package = ? or bs_request_actions.target_package like ?', target_package, "#{tpkgprefix}.%")
     end
 
     # run search
     open_ids = rel.select('bs_requests').pluck(:number)
-    open_ids.delete(self.bs_request.number) if self.bs_request
+    open_ids.delete(bs_request.number) if bs_request
     if open_ids.count > 0
-      msg = "The following open requests have the same target #{self.target_project} / #{tpkgprefix}: " + open_ids.join(', ')
+      msg = "The following open requests have the same target #{target_project} / #{tpkgprefix}: " + open_ids.join(', ')
       raise OpenReleaseRequests.new msg
     end
 
     # creating release requests is also locking the source package, therefore we require write access there.
-    spkg = Package.find_by_project_and_name self.source_project, self.source_package
+    spkg = Package.find_by_project_and_name source_project, source_package
     unless spkg || !User.current.can_modify_package?(spkg)
       raise LackingReleaseMaintainership.new 'Creating a release request action requires maintainership in source package'
     end
@@ -137,11 +137,11 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   def set_acceptinfo(ai)
     # packages in maintenance_release projects are expanded copies, so we can not use
     # the link information. We need to patch the "old" part
-    basePackageName = self.target_package.gsub(/\.[^\.]*$/, '')
-    pkg = Package.find_by_project_and_name( self.target_project, basePackageName )
+    basePackageName = target_package.gsub(/\.[^\.]*$/, '')
+    pkg = Package.find_by_project_and_name( target_project, basePackageName )
     if pkg
       opkg = pkg.origin_container
-      if opkg.name != self.target_package || opkg.project.name != self.target_project
+      if opkg.name != target_package || opkg.project.name != target_project
         ai['oproject'] = opkg.project.name
         ai['opackage'] = opkg.name
         ai['osrcmd5'] = opkg.backend_package.srcmd5
@@ -153,7 +153,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def create_post_permissions_hook(opts)
     object = nil
-    spkg = Package.find_by_project_and_name self.source_project, self.source_package
+    spkg = Package.find_by_project_and_name source_project, source_package
     if opts[:per_package_locking]
       # we avoid patchinfo's to be able to complete meta data about the update
       return if spkg.is_patchinfo?
@@ -172,7 +172,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   end
 
   def minimum_priority
-    spkg = Package.find_by_project_and_name self.source_project, self.source_package
+    spkg = Package.find_by_project_and_name source_project, source_package
     return unless spkg && spkg.is_patchinfo?
     pi = Xmlhash.parse(spkg.patchinfo.dump_xml)
     pi["rating"]

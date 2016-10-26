@@ -66,7 +66,7 @@ class Relationship < ApplicationRecord
     end
     if role.global
       # only nonglobal roles may be set in an object
-      raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in #{obj.class} '#{self.name}'"
+      raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in #{obj.class} '#{name}'"
     end
 
     unless user.kind_of? User
@@ -96,7 +96,7 @@ class Relationship < ApplicationRecord
 
     if role.global
       # only nonglobal roles may be set in an object
-      raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in #{obj.class} '#{self.name}'"
+      raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in #{obj.class} '#{name}'"
     end
 
     unless group.kind_of? Group
@@ -172,8 +172,8 @@ class Relationship < ApplicationRecord
   end
 
   def check_global_role
-    return unless self.role && self.role.global
+    return unless role && role.global
     errors.add(:base,
-               "global role #{self.role.title} is not allowed.")
+               "global role #{role.title} is not allowed.")
   end
 end

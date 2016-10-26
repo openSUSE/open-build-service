@@ -22,7 +22,7 @@ class HistoryElement::Request < ::HistoryElement::Base
   self.abstract_class = true
 
   def request
-    BsRequest.find(self.op_object_id)
+    BsRequest.find(op_object_id)
   end
 
   def request=(request)
@@ -30,10 +30,10 @@ class HistoryElement::Request < ::HistoryElement::Base
   end
 
   def render_xml(builder)
-    attributes = {who: self.user.login, when: self.created_at.strftime('%Y-%m-%dT%H:%M:%S')}
+    attributes = {who: user.login, when: created_at.strftime('%Y-%m-%dT%H:%M:%S')}
     builder.history(attributes) do
-      builder.description! self.description
-      builder.comment! self.comment unless self.comment.blank?
+      builder.description! description
+      builder.comment! comment unless comment.blank?
     end
   end
 end
@@ -85,7 +85,7 @@ class HistoryElement::RequestSuperseded < HistoryElement::Request
 
   def description
     desc = 'Request got superseded'
-    desc << " by request " << self.description_extension if self.description_extension
+    desc << " by request " << description_extension if description_extension
     desc
   end
 
@@ -127,7 +127,7 @@ class HistoryElement::RequestSetIncident < HistoryElement::Request
   end
 
   def description
-    'Maintenance target got moved to project ' + self.description_extension
+    'Maintenance target got moved to project ' + description_extension
   end
 end
 
@@ -137,7 +137,7 @@ class HistoryElement::RequestPriorityChange < HistoryElement::Request
   end
 
   def description
-    'Request got a new priority: ' + self.description_extension
+    'Request got a new priority: ' + description_extension
   end
 end
 
@@ -146,11 +146,11 @@ class HistoryElement::Review < ::HistoryElement::Base
   self.abstract_class = true
 
   def review
-    Review.find(self.op_object_id)
+    Review.find(op_object_id)
   end
 
   def request
-    Review.find(self.op_object_id).bs_request
+    Review.find(op_object_id).bs_request
   end
 
   def review=(review)
@@ -158,10 +158,10 @@ class HistoryElement::Review < ::HistoryElement::Base
   end
 
   def render_xml(builder)
-    attributes = {who: self.user.login, when: self.created_at.strftime('%Y-%m-%dT%H:%M:%S')}
+    attributes = {who: user.login, when: created_at.strftime('%Y-%m-%dT%H:%M:%S')}
     builder.history(attributes) do
-      builder.description! self.description
-      builder.comment! self.comment unless self.comment.blank?
+      builder.description! description
+      builder.comment! comment unless comment.blank?
     end
   end
 end

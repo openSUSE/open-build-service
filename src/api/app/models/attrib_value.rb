@@ -33,8 +33,8 @@ class AttribValue < ApplicationRecord
     if read_attribute(:position).blank?
       self.position = 1
     end
-    if self.attrib
-      default = self.attrib.attrib_type.default_values.find_by position: self.position
+    if attrib
+      default = attrib.attrib_type.default_values.find_by position: position
       if default
         value = default.value
       end

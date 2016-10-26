@@ -3,9 +3,9 @@ class CommentPackage < Comment
 
   def create_notification(params = {})
     super
-    params[:project] = self.package.project.name
-    params[:package] = self.package.name
-    params[:commenters] = involved_users(:package_id, self.package.id)
+    params[:project] = package.project.name
+    params[:package] = package.name
+    params[:commenters] = involved_users(:package_id, package.id)
 
     # call the action
     Event::CommentForPackage.create params

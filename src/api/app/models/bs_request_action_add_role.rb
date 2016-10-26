@@ -27,28 +27,28 @@ class BsRequestActionAddRole < BsRequestAction
   end
 
   def execute_accept(_opts)
-    object = Project.find_by_name(self.target_project)
-    if self.target_package
-      object = object.packages.find_by_name(self.target_package)
+    object = Project.find_by_name(target_project)
+    if target_package
+      object = object.packages.find_by_name(target_package)
     end
-    if self.person_name
+    if person_name
       role = Role.find_by_title!(self.role)
-      object.add_user( self.person_name, role )
+      object.add_user( person_name, role )
     end
-    if self.group_name
+    if group_name
       role = Role.find_by_title!(self.role)
-      object.add_group( self.group_name, role )
+      object.add_group( group_name, role )
     end
-    object.store(comment: "add_role request #{self.bs_request.number}", request: self.bs_request)
+    object.store(comment: "add_role request #{bs_request.number}", request: bs_request)
   end
 
   def render_xml_attributes(node)
     render_xml_target(node)
-    if self.person_name
-      node.person name: self.person_name, role: self.role
+    if person_name
+      node.person name: person_name, role: role
     end
-    if self.group_name
-      node.group :name => self.group_name, :role => self.role
+    if group_name
+      node.group :name => group_name, :role => role
     end
   end
 

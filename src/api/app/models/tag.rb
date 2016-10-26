@@ -17,15 +17,15 @@ class Tag < ApplicationRecord
       tags = opt[:tags]
       @cached_count = 0
       tags.each do |tag|
-        @cached_count = @cached_count + 1 if tag.name == self.name
+        @cached_count = @cached_count + 1 if tag.name == name
       end
     elsif opt[:scope] == "user"
       user = opt[:user]
       # logger.debug "[TAG:] calculating user-dependent tag usage count"
-      @cached_count ||= Tagging.where( "tag_id = ? AND user_id = ?", self.id, user.id ).count
+      @cached_count ||= Tagging.where( "tag_id = ? AND user_id = ?", id, user.id ).count
     else
       # logger.debug "[TAG:] calculating user-independent tag usage count"
-      @cached_count ||= Tagging.where( "tag_id = ?", self.id ).count
+      @cached_count ||= Tagging.where( "tag_id = ?", id ).count
     end
     # logger.debug "[TAG:] count: #{@cached_count}"
     @cached_count

@@ -25,28 +25,28 @@ class BsRequestActionDelete < BsRequestAction
   end
 
   def remove_repository(opts)
-    prj = Project.get_by_name(self.target_project)
-    r=prj.repositories.find_by_name(self.target_repository)
+    prj = Project.get_by_name(target_project)
+    r=prj.repositories.find_by_name(target_repository)
     unless r
-      raise RepositoryMissing.new "The repository #{self.target_project} / #{self.target_repository} does not exist"
+      raise RepositoryMissing.new "The repository #{target_project} / #{target_repository} does not exist"
     end
     r.destroy
-    prj.store(lowprio: opts[:lowprio], comment: opts[:comment], request: self.bs_request)
+    prj.store(lowprio: opts[:lowprio], comment: opts[:comment], request: bs_request)
   end
 
   def render_xml_attributes(node)
     attributes = xml_package_attributes('target')
-    attributes[:repository] = self.target_repository unless self.target_repository.blank?
+    attributes[:repository] = target_repository unless target_repository.blank?
     node.target attributes
   end
 
   def sourcediff(opts = {})
-    if self.target_package
-      path = Package.source_path self.target_project, self.target_package
+    if target_package
+      path = Package.source_path target_project, target_package
       query = {'cmd' => 'diff', expand: 1, filelimit: 0, rev: 0}
       query[:view] = 'xml' if opts[:view] == 'xml' # Request unified diff in full XML view
       return BsRequestAction.get_package_diff(path, query)
-    elsif self.target_repository
+    elsif target_repository
       # no source diff
     else
       raise DiffError.new("Project diff isn't implemented yet")
@@ -55,22 +55,22 @@ class BsRequestActionDelete < BsRequestAction
   end
 
   def execute_accept(opts)
-    if self.target_repository
+    if target_repository
       remove_repository(opts)
       return
     end
 
-    if self.target_package
-      package = Package.get_by_project_and_name(self.target_project, self.target_package,
+    if target_package
+      package = Package.get_by_project_and_name(target_project, target_package,
                                                 use_source: true, follow_project_links: false)
-      package.commit_opts = { comment: self.bs_request.description, request: self.bs_request }
+      package.commit_opts = { comment: bs_request.description, request: bs_request }
       package.destroy
-      return Package.source_path self.target_project, self.target_package
+      return Package.source_path target_project, target_package
     else
-      project = Project.get_by_name(self.target_project)
-      project.commit_opts = { comment: self.bs_request.description, request: self.bs_request }
+      project = Project.get_by_name(target_project)
+      project.commit_opts = { comment: bs_request.description, request: bs_request }
       project.destroy
-      return "/source/#{self.target_project}"
+      return "/source/#{target_project}"
     end
   end
 

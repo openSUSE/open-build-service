@@ -32,14 +32,14 @@ class Group < ApplicationRecord
   end
 
   def update_from_xml( xmlhash )
-    self.with_lock do
+    with_lock do
       if xmlhash.value('email')
         self.email = xmlhash.value('email')
       else
         self.email = nil
       end
     end
-    self.save!
+    save!
 
     # update maintainer list
     cache = group_maintainers.index_by(&:user_id)
@@ -55,7 +55,7 @@ class Group < ApplicationRecord
       end
     end
     cache.each do |login_id, _|
-      GroupMaintainer.where('user_id = ? AND group_id = ?', login_id, self.id).delete_all
+      GroupMaintainer.where('user_id = ? AND group_id = ?', login_id, id).delete_all
     end
 
     # update user list
@@ -77,12 +77,12 @@ class Group < ApplicationRecord
 
     # delete all users which were not listed
     cache.each do |login_id, _gu|
-      GroupsUser.where('user_id = ? AND group_id = ?', login_id, self.id).delete_all
+      GroupsUser.where('user_id = ? AND group_id = ?', login_id, id).delete_all
     end
   end
 
   def add_user(user)
-    return if self.users.find_by_id user.id # avoid double creation
+    return if users.find_by_id user.id # avoid double creation
     gu = GroupsUser.create( user: user, group: self)
     gu.save!
   end
@@ -100,16 +100,16 @@ class Group < ApplicationRecord
   end
 
   def remove_user(user)
-    GroupsUser.where('user_id = ? AND group_id = ?', user.id, self.id).delete_all
+    GroupsUser.where('user_id = ? AND group_id = ?', user.id, id).delete_all
   end
 
   def set_email(email)
     self.email = email
-    self.save!
+    save!
   end
 
   def to_s
-    self.title
+    title
   end
 
   def to_param
@@ -150,8 +150,8 @@ class Group < ApplicationRecord
   end
 
   def display_name
-    address = Mail::Address.new self.email
-    address.display_name = self.title
+    address = Mail::Address.new email
+    address.display_name = title
     address.format
   end
 end

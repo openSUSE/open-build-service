@@ -8,10 +8,10 @@ class UpdateBackendInfos < CreateJob
   end
 
   def update_pkg(pkg)
-    return if self.checked_pkgs.has_key? pkg.id
+    return if checked_pkgs.has_key? pkg.id
     return if pkg.project.is_locked?
     pkg.update_backendinfo
-    self.checked_pkgs[pkg.id] = 1
+    checked_pkgs[pkg.id] = 1
     BackendPackage.where(links_to_id: pkg.id).find_each do |p|
       p = Package.find_by_id p.package_id
       update_pkg(p) if p

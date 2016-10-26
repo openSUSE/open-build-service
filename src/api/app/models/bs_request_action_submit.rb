@@ -25,31 +25,31 @@ class BsRequestActionSubmit < BsRequestAction
 
   def execute_accept(opts)
     # use the request description as comments for history
-    source_history_comment = self.bs_request.description
+    source_history_comment = bs_request.description
 
     cp_params = {
       cmd:            "copy",
       user:           User.current.login,
-      oproject:       self.source_project,
-      opackage:       self.source_package,
+      oproject:       source_project,
+      opackage:       source_package,
       noservice:      1,
-      requestid:      self.bs_request.number,
+      requestid:      bs_request.number,
       comment:        source_history_comment,
       withacceptinfo: 1
     }
-    cp_params[:orev] = self.source_rev if self.source_rev
-    cp_params[:dontupdatesource] = 1 if self.sourceupdate == "noupdate"
-    unless self.updatelink
+    cp_params[:orev] = source_rev if source_rev
+    cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
+    unless updatelink
       cp_params[:expand] = 1
       cp_params[:keeplink] = 1
     end
 
     # create package unless it exists already
     target_project = Project.get_by_name(self.target_project)
-    if self.target_package
+    if target_package
       target_package = target_project.packages.find_by_name(self.target_package)
     else
-      target_package = target_project.packages.find_by_name(self.source_package)
+      target_package = target_project.packages.find_by_name(source_package)
     end
 
     relinkSource=false
@@ -60,13 +60,13 @@ class BsRequestActionSubmit < BsRequestAction
       linked_package = target_project.find_package(self.target_package)
       if linked_package
         # exists via project links
-        opts = { request: self.bs_request }
-        opts[:makeoriginolder] = true if self.makeoriginolder
+        opts = { request: bs_request }
+        opts[:makeoriginolder] = true if makeoriginolder
         instantiate_container(target_project, linked_package.update_instance, opts)
         target_package = target_project.packages.find_by_name(linked_package.name)
       else
         # new package, base container on source container
-        answer = Suse::Backend.get("/source/#{URI.escape(self.source_project)}/#{URI.escape(self.source_package)}/_meta")
+        answer = Suse::Backend.get("/source/#{URI.escape(source_project)}/#{URI.escape(source_package)}/_meta")
         newxml = Xmlhash.parse(answer.body)
         newxml['name'] = self.target_package
         newxml['devel'] = nil
@@ -76,10 +76,10 @@ class BsRequestActionSubmit < BsRequestAction
         target_package.remove_all_persons
         target_package.remove_all_groups
         if initialize_devel_package
-          target_package.develpackage = Package.find_by_project_and_name( self.source_project, self.source_package )
+          target_package.develpackage = Package.find_by_project_and_name( source_project, source_package )
           relinkSource=true
         end
-        target_package.store(comment: "submit request #{self.bs_request.number}", request: self.bs_request)
+        target_package.store(comment: "submit request #{bs_request.number}", request: bs_request)
       end
     end
 
@@ -90,28 +90,28 @@ class BsRequestActionSubmit < BsRequestAction
                                                                :withacceptinfo])
     result = Suse::Backend.post cp_path
     result = Xmlhash.parse(result.body)
-    self.set_acceptinfo(result["acceptinfo"])
+    set_acceptinfo(result["acceptinfo"])
 
     target_package.sources_changed
 
     # cleanup source project
-    if relinkSource && !(self.sourceupdate == "noupdate")
+    if relinkSource && !(sourceupdate == "noupdate")
       # source package got used as devel package, link it to the target
       # re-create it via branch , but keep current content...
       h = {}
       h[:cmd] = "branch"
       h[:user] = User.current.login
-      h[:comment] = "initialized devel package after accepting #{self.bs_request.number}"
-      h[:requestid] = self.bs_request.number
+      h[:comment] = "initialized devel package after accepting #{bs_request.number}"
+      h[:requestid] = bs_request.number
       h[:keepcontent] = "1"
       h[:noservice] = "1"
       h[:oproject] = self.target_project
       h[:opackage] = self.target_package
-      cp_path = "/source/#{CGI.escape(self.source_project)}/#{CGI.escape(self.source_package)}"
+      cp_path = "/source/#{CGI.escape(source_project)}/#{CGI.escape(source_package)}"
       cp_path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :keepcontent])
       Suse::Backend.post cp_path
-    elsif self.sourceupdate == "cleanup"
-      self.source_cleanup
+    elsif sourceupdate == "cleanup"
+      source_cleanup
     end
 
     if self.target_package == "_product"

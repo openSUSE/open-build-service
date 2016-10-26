@@ -5,6 +5,6 @@ class StatusMessage < ApplicationRecord
 
   def delete
     self.deleted_at = Time.now
-    self.save
+    save
   end
 end

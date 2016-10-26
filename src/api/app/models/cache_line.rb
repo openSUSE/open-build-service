@@ -48,7 +48,7 @@ class CacheLine < ApplicationRecord
     case key
       when Array
         if key.size > 1
-          key = key.collect { |element| self.expanded_key(element) }
+          key = key.collect { |element| expanded_key(element) }
         else
           key = key.first
         end

@@ -1,6 +1,6 @@
 class ProductAndChannelSetup < ActiveRecord::Migration
   def up
-    self.transaction do
+    transaction do
     create_table :products do |t|
       t.string :name, null: false
       t.belongs_to :package, null: false
@@ -70,7 +70,7 @@ class ProductAndChannelSetup < ActiveRecord::Migration
   end
 
   def down
-    self.transaction do
+    transaction do
       drop_table :channel_binaries
       drop_table :channel_targets
       drop_table :channel_binary_lists

@@ -10,7 +10,7 @@ class GroupsUser < ApplicationRecord
 
   validate :validate_duplicates, :on => :create
   def validate_duplicates
-    if GroupsUser.where("user_id = ? AND group_id = ?", self.user, self.group).first
+    if GroupsUser.where("user_id = ? AND group_id = ?", user, group).first
       errors.add(:user, "User already has this group")
     end
   end

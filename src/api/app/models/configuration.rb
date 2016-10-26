@@ -85,7 +85,7 @@ class Configuration < ApplicationRecord
       attribs["api_url"] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}"
     end
     update_attributes(attribs)
-    self.save!
+    save!
   end
 
   # We don't really care about consistency at this point.

@@ -25,7 +25,7 @@ class FullTextSearch
   def initialize(attrib = {})
     if attrib
       attrib.each do |att, value|
-        self.send(:"#{att}=", value)
+        send(:"#{att}=", value)
       end
     end
     @result = nil

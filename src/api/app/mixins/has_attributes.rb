@@ -11,10 +11,10 @@ module HasAttributes
 
   def write_attributes(comment = nil)
     login = User.current.login
-    path = self.attribute_url + "?meta=1&user=#{CGI.escape(login)}"
+    path = attribute_url + "?meta=1&user=#{CGI.escape(login)}"
     path += "&comment=#{CGI.escape(comment)}" if comment
     begin
-      Suse::Backend.put_source(path, self.render_attribute_axml)
+      Suse::Backend.put_source(path, render_attribute_axml)
     rescue ActiveXML::Transport::Error => e
       raise AttributeSaveError.new e.summary
     end
@@ -48,8 +48,8 @@ module HasAttributes
     if a.nil?
       # create the new attribute
       a = Attrib.new(attrib_type: attrib_type, binary: binary)
-      a.project = self if self.is_a? Project
-      a.package = self if self.is_a? Package
+      a.project = self if is_a? Project
+      a.package = self if is_a? Package
       if a.attrib_type.value_count
         a.attrib_type.value_count.times do |i|
           a.values.build(position: i, value: "")
@@ -74,7 +74,7 @@ module HasAttributes
       raise AttributeFindError, "Name must be given"
     end
     if binary
-      if self.is_a? Project
+      if is_a? Project
         raise AttributeFindError, "binary packages are not allowed in project attributes"
       end
       # rubocop:disable Metrics/LineLength
@@ -97,7 +97,7 @@ module HasAttributes
 
       # show project values as fallback ?
       if params[:with_project]
-        self.project.render_main_attributes(xml, params)
+        project.render_main_attributes(xml, params)
       end
     end
     return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',

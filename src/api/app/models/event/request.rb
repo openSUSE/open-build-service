@@ -56,7 +56,7 @@ class Event::Request < ::Event::Base
   end
 
   def actions_summary
-    BsRequest.actions_summary(self.payload)
+    BsRequest.actions_summary(payload)
   end
 
   def calculate_diff(a)

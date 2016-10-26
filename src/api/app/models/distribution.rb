@@ -24,7 +24,7 @@ class Distribution < ApplicationRecord
   end
 
   def to_hash
-    res = self.attributes
+    res = attributes
     res["architectures"] = architectures.map { |a| a.name }
     res["icons"] = icons.map { |i| i.attributes }
     res

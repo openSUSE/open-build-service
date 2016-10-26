@@ -8,15 +8,15 @@ module HasRatings
 
   def rating(user_id = nil)
     score = 0
-    self.ratings.each do |rating|
+    ratings.each do |rating|
       score += rating.score
     end
-    count = self.ratings.length
+    count = ratings.length
     score = score.to_f
     score /= (count.nonzero? || 1)
     score = -1 if score.nan?
     score = (score * 100).round.to_f / 100
-    user_rating = self.ratings.find_by_user_id(user_id)
+    user_rating = ratings.find_by_user_id(user_id)
     if user_rating
       user_score = user_rating.score
     else

@@ -3,7 +3,7 @@ class UniqRepositories < ActiveRecord::Migration
     # find broken double definitions and import current state from backend
     old = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
-    self.transaction do
+    transaction do
       # make it case insensitive first
       execute("ALTER TABLE `repositories` CHANGE `name` `name` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL")
 

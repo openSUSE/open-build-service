@@ -1,6 +1,6 @@
 class AddAttribIssues < ActiveRecord::Migration
   def self.up
-    self.transaction do
+    transaction do
       create_table :attrib_issues do |t|
         t.integer :attrib_id, null: false
         t.integer :issue_id, null: false
@@ -17,7 +17,7 @@ class AddAttribIssues < ActiveRecord::Migration
   end
 
   def self.down
-    self.transaction do
+    transaction do
       drop_table :attrib_issues
       remove_column :attrib_types, :issue_list
     end

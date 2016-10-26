@@ -8,11 +8,11 @@ class BuildContainer < ApplicationRecord
   belongs_to :repository_architecture, foreign_key: 'repository_architecture_id'
 
   def self.find_or_create_by_package_repo_and_arch( package, repository, architecture )
-    obj = self.find_by_package_repo_and_arch( package, repository, architecture )
+    obj = find_by_package_repo_and_arch( package, repository, architecture )
     if obj.empty?
       # we store also the local project here to allow fast lookups for projects independend if they
       # are building local or remote packages or even mixed ones.
-      obj = self.create(local_project: package.project, package: package, repository: repository, architecture: architecture)
+      obj = create(local_project: package.project, package: package, repository: repository, architecture: architecture)
     end
 
     return obj.load
@@ -22,7 +22,7 @@ class BuildContainer < ApplicationRecord
     raise NotFoundError.new( "Error: Package not valid." ) unless package.kind_of? Package
     raise NotFoundError.new( "Error: Repository not valid." ) unless repository.kind_of? Repository
     raise NotFoundError.new( "Error: Architecture not valid." ) unless architecture.kind_of? Architecture
-    obj = self.joins(:repository_architecture).where(package: package,
+    obj = joins(:repository_architecture).where(package: package,
                                                      remote_package: nil,
                                                      repository_architectures: {
                                                        repository_id:   repository.id,
@@ -34,9 +34,9 @@ class BuildContainer < ApplicationRecord
   end
 
   def self.find_or_create_by_remote_package_repo_and_arch( project, package, repository, architecture )
-    obj = self.find_by_remote_package_repo_and_arch(package, repository, architecture)
+    obj = find_by_remote_package_repo_and_arch(package, repository, architecture)
     if obj.empty?
-      obj = self.create(local_project: project, remote_package: package, repository: repository, architecture: architecture)
+      obj = create(local_project: project, remote_package: package, repository: repository, architecture: architecture)
     end
 
     return obj.load
@@ -47,7 +47,7 @@ class BuildContainer < ApplicationRecord
     raise NotFoundError.new( "Error: Package not valid." ) unless package.kind_of? String
     raise NotFoundError.new( "Error: Repository not valid." ) unless repository.kind_of? Repository
     raise NotFoundError.new( "Error: Architecture not valid." ) unless architecture.kind_of? Architecture
-    obj = self.joins(:repository_architecture).where(package_id: nil,
+    obj = joins(:repository_architecture).where(package_id: nil,
                                                      local_project: project,
                                                      remote_package: package,
                                                      repository_architectures: {
@@ -61,10 +61,10 @@ class BuildContainer < ApplicationRecord
 
   def set_state(state)
     self.state = state
-    self.save
+    save
   end
 
   def status
-    return self.state
+    return state
   end
 end

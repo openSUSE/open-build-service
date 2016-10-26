@@ -58,7 +58,7 @@ class BsRequest < ApplicationRecord
   after_update :send_state_change
 
   def save!(args = {})
-    new = self.created_at ? nil : 1
+    new = created_at ? nil : 1
     sanitize! if new && !@skip_sanitize
     super
     notify if new
@@ -88,12 +88,12 @@ class BsRequest < ApplicationRecord
   end
 
   def check_creator
-    unless self.creator
+    unless creator
       errors.add(:creator, 'No creator defined')
     end
-    user = User.get_by_login self.creator
+    user = User.get_by_login creator
     unless user
-      errors.add(:creator, "Invalid creator specified #{self.creator}")
+      errors.add(:creator, "Invalid creator specified #{creator}")
     end
     unless user.is_active?
       errors.add(:creator, "Login #{user.login} is not an active user")
@@ -112,16 +112,16 @@ class BsRequest < ApplicationRecord
   end
 
   def check_supersede_state
-    if self.state == :superseded && (!self.superseded_by.is_a?(Numeric) || !(self.superseded_by > 0))
+    if state == :superseded && (!superseded_by.is_a?(Numeric) || !(superseded_by > 0))
       errors.add(:superseded_by, 'Superseded_by should be set')
     end
-    if self.superseded_by && !(self.state == :superseded)
+    if superseded_by && !(state == :superseded)
       errors.add(:superseded_by, 'Superseded_by should not be set')
     end
   end
 
   def superseding
-    BsRequest.where(superseded_by: self.number)
+    BsRequest.where(superseded_by: number)
   end
 
   def state
@@ -247,7 +247,7 @@ class BsRequest < ApplicationRecord
 
   def to_axml_id
     # FIXME: naming it axml is nonsense if it's just a string
-    "<request id='#{self.number}'/>\n"
+    "<request id='#{number}'/>\n"
   end
 
   def to_param
@@ -256,14 +256,14 @@ class BsRequest < ApplicationRecord
 
   def render_xml(opts = {})
     builder = Nokogiri::XML::Builder.new
-    builder.request(id: self.number, creator: self.creator) do |r|
-      self.bs_request_actions.each do |action|
+    builder.request(id: number, creator: creator) do |r|
+      bs_request_actions.each do |action|
         action.render_xml(r)
       end
-      attributes = {name: self.state, who: self.commenter, when: self.updated_at.strftime('%Y-%m-%dT%H:%M:%S')}
-      attributes[:superseded_by] = self.superseded_by if self.superseded_by
+      attributes = {name: state, who: commenter, when: updated_at.strftime('%Y-%m-%dT%H:%M:%S')}
+      attributes[:superseded_by] = superseded_by if superseded_by
 
-      r.priority self.priority unless self.priority == "moderate"
+      r.priority priority unless priority == "moderate"
 
       r.state(attributes) do |s|
         comment = self.comment
@@ -271,16 +271,16 @@ class BsRequest < ApplicationRecord
         s.comment! comment
       end
 
-      self.reviews.each do |review|
+      reviews.each do |review|
         review.render_xml(r)
       end
 
       if opts[:withfullhistory] || opts[:withhistory]
-        attributes = {who: self.creator, when: self.created_at.strftime('%Y-%m-%dT%H:%M:%S')}
+        attributes = {who: creator, when: created_at.strftime('%Y-%m-%dT%H:%M:%S')}
         builder.history(attributes) do
           # request description is on purpose the comment in history:
           builder.description! "Request created"
-          builder.comment! self.description unless self.description.blank?
+          builder.comment! description unless description.blank?
         end
       end
       if opts[:withfullhistory]
@@ -295,17 +295,17 @@ class BsRequest < ApplicationRecord
         end
       end
 
-      r.accept_at self.accept_at unless self.accept_at.nil?
-      r.description self.description unless self.description.nil?
+      r.accept_at accept_at unless accept_at.nil?
+      r.description description unless description.nil?
     end
     builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def is_reviewer? (user)
-    return false if self.reviews.blank?
+    return false if reviews.blank?
 
-    self.reviews.each do |r|
+    reviews.each do |r|
       if r.by_user
         return true if user.login == r.by_user
       elsif r.by_group
@@ -338,9 +338,9 @@ class BsRequest < ApplicationRecord
         history.create(review: review, comment: "reviewer got removed", user_id: User.current.id)
 
         # Maybe this will turn the request into an approved state?
-        if self.state == :review && self.reviews.where(state: "new").none?
+        if state == :review && reviews.where(state: "new").none?
           self.state = :new
-          self.save
+          save
           history = HistoryElement::RequestAllReviewsApproved
           history.create(request: self, comment: opts[:comment], user_id: User.current.id)
         end
@@ -349,19 +349,19 @@ class BsRequest < ApplicationRecord
   end
 
   def remove_from_group(group)
-    self.bs_request_action_groups.delete(group)
+    bs_request_action_groups.delete(group)
     # this request could be the last one in review
     group.check_for_group_in_new
 
     # and now check the reviews
-    if self.bs_request_action_groups.empty? && self.state == :review
-      self.reviews.each do |r|
+    if bs_request_action_groups.empty? && state == :review
+      reviews.each do |r|
         # if the review is open, there is nothing we have to care about
         return if r.state == :new
       end
       self.comment = "removed from group #{group.bs_request.number}"
       self.state = :new
-      self.save
+      save
 
       p={request: self, comment: "Reopened by removing from group #{group.bs_request.number}", user_id: User.current.id}
       HistoryElement::RequestReopened.create(p)
@@ -386,12 +386,12 @@ class BsRequest < ApplicationRecord
   def permission_check_addreview!
     # allow request creator to add further reviewers
     checker = BsRequestPermissionCheck.new(self, {})
-    checker.cmd_addreview_permissions(self.creator == User.current.login || self.is_reviewer?(User.current))
+    checker.cmd_addreview_permissions(creator == User.current.login || is_reviewer?(User.current))
   end
 
   def permission_check_change_groups!
     # adding and removing of requests is only allowed for groups
-    if self.bs_request_actions.first.action_type != :group
+    if bs_request_actions.first.action_type != :group
       raise GroupRequestSpecial.new "Command is only valid for group requests"
     end
   end
@@ -402,10 +402,10 @@ class BsRequest < ApplicationRecord
 
     # check target write permissions
     if opts[:newstate] == 'accepted'
-      self.bs_request_actions.each do |action|
+      bs_request_actions.each do |action|
         action.check_action_permission!(true)
         action.check_for_expand_errors! !@addrevision.nil?
-        self.raisepriority(action.minimum_priority)
+        raisepriority(action.minimum_priority)
       end
     end
   end
@@ -413,7 +413,7 @@ class BsRequest < ApplicationRecord
   def changestate_accepted(opts)
     # all maintenance_incident actions go into the same incident project
     incident_project = nil  # .where(type: 'maintenance_incident')
-    self.bs_request_actions.each do |action|
+    bs_request_actions.each do |action|
       source_project = Project.find_by_name(action.source_project)
       if action.source_project && action.is_maintenance_release?
         if source_project.kind_of?(Project)
@@ -455,18 +455,18 @@ class BsRequest < ApplicationRecord
     end
 
     # We have permission to change all requests inside, now execute
-    self.bs_request_actions.each do |action|
+    bs_request_actions.each do |action|
       action.execute_accept(opts)
     end
 
     # now do per request cleanup
-    self.bs_request_actions.each do |action|
+    bs_request_actions.each do |action|
       action.per_request_cleanup(opts)
     end
   end
 
   def changestate_revoked
-    self.bs_request_actions.where(type: 'maintenance_release').each do |action|
+    bs_request_actions.where(type: 'maintenance_release').each do |action|
       # unlock incident project in the soft way
       prj = Project.get_by_name(action.source_project)
       if prj.is_locked?
@@ -479,8 +479,8 @@ class BsRequest < ApplicationRecord
   end
 
   def change_state(opts)
-    self.with_lock do
-      self.permission_check_change_state!(opts)
+    with_lock do
+      permission_check_change_state!(opts)
       changestate_revoked if opts[:newstate] == 'revoked'
       changestate_accepted(opts) if opts[:newstate] == 'accepted'
 
@@ -489,8 +489,8 @@ class BsRequest < ApplicationRecord
         # "inform" the actions
         a.request_changes_state(state)
       end
-      self.bs_request_action_groups.each do |g|
-        g.remove_request(self.number)
+      bs_request_action_groups.each do |g|
+        g.remove_request(number)
         if opts[:superseded_by] && state == :superseded
           g.addrequest('newid' => opts[:superseded_by])
         end
@@ -502,7 +502,7 @@ class BsRequest < ApplicationRecord
 
       # check for not accepted reviews on re-open
       if state == :new || state == :review
-        self.reviews.each do |review|
+        reviews.each do |review|
           if review.state != :accepted
             # FIXME3.0 review history?
             review.state = :new
@@ -511,7 +511,7 @@ class BsRequest < ApplicationRecord
           end
         end
       end
-      self.save!
+      save!
 
       params={request: self, comment: opts[:comment], user_id: User.current.id}
       case opts[:newstate]
@@ -523,7 +523,7 @@ class BsRequest < ApplicationRecord
           history = HistoryElement::RequestRevoked
         when "superseded" then
           history = HistoryElement::RequestSuperseded
-          params[:description_extension] = self.superseded_by.to_s
+          params[:description_extension] = superseded_by.to_s
         when "review" then
           history = HistoryElement::RequestReopened
         when "new" then
@@ -537,7 +537,7 @@ class BsRequest < ApplicationRecord
 
   def _assignreview_update_reviews(reviewer, opts)
     review_comment = nil
-    self.reviews.reverse_each do |review|
+    reviews.reverse_each do |review|
       next if review.by_user
       next if review.by_group && review.by_group != opts[:by_group]
       next if review.by_project && review.by_project != opts[:by_project]
@@ -566,7 +566,7 @@ class BsRequest < ApplicationRecord
   private :_assignreview_update_reviews
 
   def assignreview(opts = {})
-    unless self.state == :review || (self.state == :new && state == :new)
+    unless state == :review || (state == :new && state == :new)
       raise InvalidStateError.new 'request is not in review state'
     end
     reviewer = User.find_by_login!(opts[:reviewer])
@@ -575,7 +575,7 @@ class BsRequest < ApplicationRecord
       review_comment = _assignreview_update_reviews(reviewer, opts)
 
       # check if user is a reviewer already
-      user_review = self.reviews.where(by_user: reviewer.login).last
+      user_review = reviews.where(by_user: reviewer.login).last
       if opts[:revert]
         raise Review::NotFoundError.new unless user_review
         raise InvalidStateError.new "review is not in new state" unless user_review.state == :new
@@ -587,21 +587,21 @@ class BsRequest < ApplicationRecord
           user_review.save!
           HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.current)
         else
-          user_review = self.reviews.create(by_user: reviewer.login, creator: User.current.login)
+          user_review = reviews.create(by_user: reviewer.login, creator: User.current.login)
           user_review.state = :new
           user_review.save!
           HistoryElement::ReviewAssigned.create(review: user_review, comment: review_comment, user: User.current)
         end
       end
-      self.save!
+      save!
     end
   end
 
   def change_review_state(new_review_state, opts = {})
-    self.with_lock do
+    with_lock do
       new_review_state = new_review_state.to_sym
 
-      unless self.state == :review || (self.state == :new && new_review_state == :new)
+      unless state == :review || (state == :new && new_review_state == :new)
         raise InvalidStateError.new 'request is not in review state'
       end
       check_if_valid_review!(opts)
@@ -614,7 +614,7 @@ class BsRequest < ApplicationRecord
       found = false
 
       reviews_seen = Hash.new
-      self.reviews.reverse_each do |review|
+      reviews.reverse_each do |review|
         matching = true
         matching = false if review.by_user && review.by_user != opts[:by_user]
         matching = false if review.by_group && review.by_group != opts[:by_group]
@@ -662,14 +662,14 @@ class BsRequest < ApplicationRecord
         self.state = :superseded
         self.superseded_by = opts[:superseded_by]
         history = HistoryElement::RequestSuperseded
-        p[:description_extension] = self.superseded_by.to_s
-        self.save!
+        p[:description_extension] = superseded_by.to_s
+        save!
         history.create(p)
       elsif go_new_state # either no open reviews anymore or going back to review
         if go_new_state == :new
           history = HistoryElement::RequestAllReviewsApproved
           # if it would go to new, we need to check if all groups agree
-          self.bs_request_action_groups.each do |g|
+          bs_request_action_groups.each do |g|
             if g.find_review_state_of_group == :review
               go_new_state = nil
               history = nil
@@ -677,12 +677,12 @@ class BsRequest < ApplicationRecord
           end
           # if all groups agreed, we can set all now to new
           if go_new_state
-            self.bs_request_action_groups.each do |g|
+            bs_request_action_groups.each do |g|
               g.set_group_to_new
             end
           end
         elsif go_new_state == :review
-          self.bs_request_action_groups.each do |g|
+          bs_request_action_groups.each do |g|
             g.set_group_to_review
           end
         elsif go_new_state == :declined
@@ -696,11 +696,11 @@ class BsRequest < ApplicationRecord
         self.comment = opts[:comment]
         self.comment = 'All reviewers accepted request' if go_new_state == :accepted
       end
-      self.save!
+      save!
       history.create(p) if history
 
       # we want to check right now if pre-approved requests can be processed
-      if go_new_state == :new && self.accept_at
+      if go_new_state == :new && accept_at
         Delayed::Job.enqueue AcceptRequestsJob.new
       end
     end
@@ -713,16 +713,16 @@ class BsRequest < ApplicationRecord
   end
 
   def addreview(opts)
-    self.permission_check_addreview!
+    permission_check_addreview!
 
-    self.with_lock do
+    with_lock do
       check_if_valid_review!(opts)
 
       self.state = 'review'
       self.commenter = User.current.login
       self.comment = opts[:comment] if opts[:comment]
 
-      newreview = self.reviews.create(
+      newreview = reviews.create(
         reason:     opts[:comment],
         by_user:    opts[:by_user],
         by_group:   opts[:by_group],
@@ -730,7 +730,7 @@ class BsRequest < ApplicationRecord
         by_package: opts[:by_package],
         creator:    User.current.login
       )
-      self.save!
+      save!
 
       history_params = {
         request:               self,
@@ -739,22 +739,22 @@ class BsRequest < ApplicationRecord
       }
       history_params[:comment] = opts[:comment] if opts[:comment]
       HistoryElement::RequestReviewAdded.create(history_params)
-      newreview.create_notification(self.notify_parameters)
+      newreview.create_notification(notify_parameters)
     end
   end
 
   def setpriority(opts)
-    self.permission_check_setpriority!
+    permission_check_setpriority!
 
     unless [ 'low', 'moderate', 'important', 'critical' ].include? opts[:priority]
       raise SaveError, "Illegal priority '#{opts[:priority]}'"
     end
 
-    p={request: self, user_id: User.current.id, description_extension: "#{self.priority} => #{opts[:priority]}"}
+    p={request: self, user_id: User.current.id, description_extension: "#{priority} => #{opts[:priority]}"}
     p[:comment] = opts[:comment] if opts[:comment]
 
     self.priority = opts[:priority]
-    self.save!
+    save!
     reset_cache
 
     HistoryElement::RequestPriorityChange.create(p)
@@ -764,20 +764,20 @@ class BsRequest < ApplicationRecord
     # rails enums do not support compare and break db constraints :/
     if new == "critical"
       self.priority = new
-    elsif new == "important" && [ "moderate", "low" ].include?(self.priority)
+    elsif new == "important" && [ "moderate", "low" ].include?(priority)
       self.priority = new
-    elsif new == "moderate" && "low" == self.priority
+    elsif new == "moderate" && "low" == priority
       self.priority = new
     end
   end
 
   def setincident(incident)
-    self.permission_check_setincident!(incident)
+    permission_check_setincident!(incident)
 
     touched = false
     # all maintenance_incident actions go into the same incident project
     p={request: self, user_id: User.current.id}
-    self.bs_request_actions.where(type: 'maintenance_incident').each do |action|
+    bs_request_actions.where(type: 'maintenance_incident').each do |action|
       tprj = Project.get_by_name action.target_project
 
       # use an existing incident
@@ -791,7 +791,7 @@ class BsRequest < ApplicationRecord
     end
 
     if touched
-      self.save!
+      save!
       HistoryElement::RequestSetIncident.create(p)
     end
   end
@@ -799,27 +799,27 @@ class BsRequest < ApplicationRecord
   IntermediateStates = %w(new review)
 
   def send_state_change
-    return if self.state_was.to_s == self.state.to_s
+    return if state_was.to_s == state.to_s
     # new->review && review->new are not worth an event - it's just spam
-    return if IntermediateStates.include?(self.state.to_s) && IntermediateStates.include?(self.state_was.to_s)
-    Event::RequestStatechange.create(self.notify_parameters)
+    return if IntermediateStates.include?(state.to_s) && IntermediateStates.include?(state_was.to_s)
+    Event::RequestStatechange.create(notify_parameters)
   end
 
   ActionNotifyLimit=50
 
   def notify_parameters(ret = {})
-    ret[:number] = self.number
-    ret[:description] = self.description
-    ret[:state] = self.state
-    ret[:oldstate] = self.state_was if self.state_changed?
-    ret[:who] = self.commenter if self.commenter.present?
-    ret[:when] = self.updated_at.strftime('%Y-%m-%dT%H:%M:%S')
-    ret[:comment] = self.comment
-    ret[:author] = self.creator
+    ret[:number] = number
+    ret[:description] = description
+    ret[:state] = state
+    ret[:oldstate] = state_was if state_changed?
+    ret[:who] = commenter if commenter.present?
+    ret[:when] = updated_at.strftime('%Y-%m-%dT%H:%M:%S')
+    ret[:comment] = comment
+    ret[:author] = creator
 
     # Use a nested data structure to support multiple actions in one request
     ret[:actions] = []
-    self.bs_request_actions[0..ActionNotifyLimit].each do |a|
+    bs_request_actions[0..ActionNotifyLimit].each do |a|
       ret[:actions] << a.notify_params
     end
     ret
@@ -861,7 +861,7 @@ class BsRequest < ApplicationRecord
 
   def reviews_for_user_and_others(user)
     user_reviews, other_open_reviews = [], []
-    self.reviews.where(state: 'new').each do |review|
+    reviews.where(state: 'new').each do |review|
       if review_matches_user?(review, user)
         user_reviews << review.webui_infos
       else
@@ -874,32 +874,32 @@ class BsRequest < ApplicationRecord
   def webui_infos(opts = {})
     opts.reverse_merge!(diffs: true)
     result = Hash.new
-    result['id'] = self.id
-    result['number'] = self.number
+    result['id'] = id
+    result['number'] = number
 
-    result['description'] = self.description
-    result['priority'] = self.priority
-    result['state'] = self.state
-    result['creator'] = User.find_by_login(self.creator)
-    result['created_at'] = self.created_at
-    result['accept_at'] = self.accept_at if self.accept_at
-    result['superseded_by'] = self.superseded_by if self.superseded_by
-    result['superseding'] = self.superseding unless self.superseding.empty?
-    result['is_target_maintainer'] = self.is_target_maintainer?(User.current)
+    result['description'] = description
+    result['priority'] = priority
+    result['state'] = state
+    result['creator'] = User.find_by_login(creator)
+    result['created_at'] = created_at
+    result['accept_at'] = accept_at if accept_at
+    result['superseded_by'] = superseded_by if superseded_by
+    result['superseding'] = superseding unless superseding.empty?
+    result['is_target_maintainer'] = is_target_maintainer?(User.current)
 
-    result['my_open_reviews'], result['other_open_reviews'] = self.reviews_for_user_and_others(User.current)
+    result['my_open_reviews'], result['other_open_reviews'] = reviews_for_user_and_others(User.current)
 
-    result['actions'] = self.webui_actions(opts[:diffs])
+    result['actions'] = webui_actions(opts[:diffs])
     result
   end
 
   def auto_accept
     # do not run for processed requests. Ignoring review on purpose since this
     # must also work when people do not react anymore
-    return unless self.state == :new || self.state == :review
+    return unless state == :new || state == :review
 
-    self.with_lock do
-      User.current ||= User.find_by_login self.creator
+    with_lock do
+      User.current ||= User.find_by_login creator
 
       begin
         change_state({:newstate => 'accepted', :comment => 'Auto accept'})
@@ -922,7 +922,7 @@ class BsRequest < ApplicationRecord
   # Check if 'user' is maintainer in _all_ request targets:
   def is_target_maintainer?(user = User.current)
     has_target, is_target_maintainer = false, true
-    self.bs_request_actions.each do |a|
+    bs_request_actions.each do |a|
       next unless a.target_project
       if a.target_package
         tpkg = Package.find_by_project_and_name(a.target_project, a.target_package)
@@ -959,16 +959,16 @@ class BsRequest < ApplicationRecord
     # expand release and submit request targets if not specified
     expand_targets
 
-    self.bs_request_actions.each do |action|
+    bs_request_actions.each do |action|
       # permission checks
       action.check_action_permission!
       action.check_for_expand_errors! !@addrevision.nil?
-      self.raisepriority(action.minimum_priority)
+      raisepriority(action.minimum_priority)
     end
 
     # Autoapproval? Is the creator allowed to accept it?
-    if self.accept_at
-      self.permission_check_change_state!({:newstate => 'accepted'})
+    if accept_at
+      permission_check_change_state!({:newstate => 'accepted'})
     end
 
     apply_default_reviewers
@@ -976,10 +976,10 @@ class BsRequest < ApplicationRecord
 
   def set_accept_at!(time = nil)
     # Approve a request to be accepted when the reviews finished
-    self.permission_check_change_state!({:newstate => 'accepted'})
+    permission_check_change_state!({:newstate => 'accepted'})
 
     self.accept_at = time || Time.now
-    self.save!
+    save!
     reset_cache
   end
 
@@ -990,7 +990,7 @@ class BsRequest < ApplicationRecord
     # check targets for defined default reviewers
     reviewers = []
 
-    self.bs_request_actions.each do |action|
+    bs_request_actions.each do |action|
       reviewers += action.default_reviewers
 
       action.create_post_permissions_hook({
@@ -1001,29 +1001,29 @@ class BsRequest < ApplicationRecord
     # apply reviewers
     reviewers.uniq.each do |r|
       if r.class == User
-        next if self.reviews.select{|a| a.by_user == r.login}.length > 0
-        self.reviews.new(by_user: r.login, state: :new)
+        next if reviews.select{|a| a.by_user == r.login}.length > 0
+        reviews.new(by_user: r.login, state: :new)
       elsif r.class == Group
-        next if self.reviews.select{|a| a.by_group == r.title}.length > 0
-        self.reviews.new(by_group: r.title, state: :new)
+        next if reviews.select{|a| a.by_group == r.title}.length > 0
+        reviews.new(by_group: r.title, state: :new)
       elsif r.class == Project
-        next if self.reviews.select{|a| a.by_project == r.name && a.by_package.nil? }.length > 0
-        self.reviews.new(by_project: r.name, state: :new)
+        next if reviews.select{|a| a.by_project == r.name && a.by_package.nil? }.length > 0
+        reviews.new(by_project: r.name, state: :new)
       elsif r.class == Package
-        next if self.reviews.select{|a| a.by_project == r.project.name && a.by_package == r.name }.length > 0
-        self.reviews.new(by_project: r.project.name, by_package: r.name, state: :new)
+        next if reviews.select{|a| a.by_project == r.project.name && a.by_package == r.name }.length > 0
+        reviews.new(by_project: r.project.name, by_package: r.name, state: :new)
       else
         raise 'Unknown review type'
       end
     end
-    self.state = :review if self.reviews.select{|a| a.state == :new}.length > 0
+    self.state = :review if reviews.select{|a| a.state == :new}.length > 0
   end
 
   def notify
-    notify = self.notify_parameters
+    notify = notify_parameters
     Event::RequestCreate.create notify
 
-    self.reviews.each do |review|
+    reviews.each do |review|
       review.create_notification(notify)
     end
   end
@@ -1031,7 +1031,7 @@ class BsRequest < ApplicationRecord
   def webui_actions(with_diff = true)
     # TODO: Fix!
     actions = []
-    self.bs_request_actions.each do |xml|
+    bs_request_actions.each do |xml|
       action = {type: xml.action_type}
 
       if xml.source_project
@@ -1116,7 +1116,7 @@ class BsRequest < ApplicationRecord
     newactions = []
     oldactions = []
 
-    self.bs_request_actions.each do |action|
+    bs_request_actions.each do |action|
       na, ppl = action.expand_targets(!@ignore_build_state.nil?)
       @per_package_locking ||= ppl
       next if na.nil?
@@ -1125,10 +1125,10 @@ class BsRequest < ApplicationRecord
       newactions.concat(na)
     end
     # will become an empty request
-    raise MissingAction.new if newactions.empty? && oldactions.size == self.bs_request_actions.size
+    raise MissingAction.new if newactions.empty? && oldactions.size == bs_request_actions.size
 
-    oldactions.each { |a| self.bs_request_actions.destroy a }
-    newactions.each { |a| self.bs_request_actions << a }
+    oldactions.each { |a| bs_request_actions.destroy a }
+    newactions.each { |a| bs_request_actions << a }
   end
 
   def self.collection(opts)
