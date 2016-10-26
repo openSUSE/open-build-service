@@ -79,5 +79,5 @@ sub check_configuration_once {
 }
 
 update_from_configuration();
-
+BSUtil::setdebuglevel($BSConfig::debuglevel) if $BSConfig::debuglevel;
 1;
