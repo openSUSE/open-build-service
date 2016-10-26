@@ -86,12 +86,11 @@ echo -n "${INNERSCRIPT}.command" >> "$MOUNTDIR/$INNERSCRIPT"
 
 # Create inner.sh.command
 # dirname /srv/obs/service/11875/out/
-echo "#!/bin/bash"               >  "$MOUNTDIR/${INNERSCRIPT}.command"
-chmod 0755 "$MOUNTDIR/$INNERSCRIPT" "$MOUNTDIR/${INNERSCRIPT}.command"
-echo "set -x" >> "$MOUNTDIR/${INNERSCRIPT}.command"
+echo "#!/bin/bash"               			>  "$MOUNTDIR/${INNERSCRIPT}.command"
+echo "set -x" 						>> "$MOUNTDIR/${INNERSCRIPT}.command"
 echo "echo Running ${COMMAND[@]} --outdir $INNEROUTDIR" >> "$MOUNTDIR/${INNERSCRIPT}.command"
 
-DOCKER_OPTS_NET="--net=host"
+DOCKER_OPTS_NET="--net=bridge"
 if [ "$WITH_NET" != "1" ] ; then
   DOCKER_OPTS_NET="--net=none"
 fi
@@ -105,12 +104,13 @@ if [ $SCM_COMMAND -eq 1 -a "$PARAM_SCM" == "git" ];then
   [ -d $OUTERGITCACHE ] || mkdir -p $OUTERGITCACHE
 
   DOCKER_VOLUMES="$DOCKER_VOLUMES -v $OUTERGITCACHE:$INNERGITCACHE"
-  echo "export CACHEDIRECTORY='$INNERGITCACHE'" >> "$MOUNTDIR/${INNERSCRIPT}.command"
-  JAILED="--jailed=1"
+  echo "export CACHEDIRECTORY='$INNERGITCACHE'" 	>> "$MOUNTDIR/${INNERSCRIPT}.command"
 fi
-FULL_COMMAND="${COMMAND[@]} --outdir $INNEROUTDIR $JAILED"
+FULL_COMMAND="${COMMAND[@]} --outdir $INNEROUTDIR"
 printlog "FULL_COMMAND: '$FULL_COMMAND'"
-echo "$FULL_COMMAND" >> "$MOUNTDIR/${INNERSCRIPT}.command"
+echo "export HOME=/home/daemon" 			>> "$MOUNTDIR/${INNERSCRIPT}.command"
+echo "$FULL_COMMAND" 					>> "$MOUNTDIR/${INNERSCRIPT}.command"
+chmod 0755 "$MOUNTDIR/$INNERSCRIPT" "$MOUNTDIR/${INNERSCRIPT}.command"
 
 # useful for debugging purposes
 if [[ $DEBUG_DOCKER ]];then
@@ -119,7 +119,7 @@ if [[ $DEBUG_DOCKER ]];then
 fi
 
 # run jailed process
-DOCKER_RUN_CMD="docker run -u `id -u $USER` $DOCKER_OPTS_NET --rm --name $CONTAINER_ID $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
+DOCKER_RUN_CMD="docker run -u 2:2 $DOCKER_OPTS_NET --rm --name $CONTAINER_ID $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
 printlog "DOCKER_RUN_CMD: '$DOCKER_RUN_CMD'"
 CMD_OUT=$(${DOCKER_RUN_CMD} 2>&1)
 if [ $? -eq 0 ]; then

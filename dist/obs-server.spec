@@ -247,6 +247,8 @@ Group:          Productivity/Networking/Web/Utilities
 %endif
 # Our default services, used in osc and webui
 Requires(pre):	obs-common
+Requires:	perl(XML::Structured)
+# 
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
 
