@@ -78,7 +78,7 @@ class UserLdapStrategy
     end
 
     # Update the dn name if it is changed
-    if not login == newlogin
+    if login != newlogin
       begin
         ldap_con.modrdn(dn, "#{CONFIG['ldap_name_attr']}=#{newlogin}", true)
       rescue LDAP::ResultError
@@ -216,7 +216,7 @@ class UserLdapStrategy
       return result
     end
 
-    if not user.nil?
+    if user
       # search user
       if CONFIG.has_key?('ldap_user_filter')
         filter = "(&(#{CONFIG['ldap_search_attr']}=#{user})#{CONFIG['ldap_user_filter']})"
@@ -447,7 +447,7 @@ class UserLdapStrategy
     # Attempt to authenticate user
     case CONFIG['ldap_authenticate']
     when :local then
-      if not authenticate_with_local(password, user)
+      unless authenticate_with_local(password, user)
         Rails.logger.debug("Unable to local authenticate #{user['dn']}")
         return nil
       end

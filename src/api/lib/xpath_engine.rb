@@ -419,7 +419,7 @@ class XpathEngine
       when :function
         fname = stack.shift
         fname_int = "xpath_func_"+fname.gsub(/-/, "_")
-        if not respond_to? fname_int
+        unless respond_to? fname_int
           raise IllegalXpathError, "unknown xpath function '#{fname}'"
         end
         __send__ fname_int, root, *(stack.shift)
@@ -447,7 +447,7 @@ class XpathEngine
       when *@operators
         opname = token.to_s
         opname_int = "xpath_op_"+opname
-        if not respond_to? opname_int
+        unless respond_to? opname_int
           raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
         end
         __send__ opname_int, root, *(stack)

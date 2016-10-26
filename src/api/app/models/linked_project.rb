@@ -7,7 +7,7 @@ class LinkedProject < ApplicationRecord
   protected
 
   def validate_duplicates
-    if not self.project
+    if !self.project
       errors.add(:project, "Can not link project to not existing project")
     elsif !self.linked_db_project && !self.linked_remote_project_name
       errors.add(:linked_db_project, "It must be linked to somewhere")

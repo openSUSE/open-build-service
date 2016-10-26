@@ -11,7 +11,7 @@ module Webui::WebuiHelper
     opt[:port] ||= CONFIG['external_frontend_port'] || CONFIG['frontend_port']
     opt[:protocol] ||= CONFIG['external_frontend_protocol'] || CONFIG['frontend_protocol']
 
-    if not opt[:controller]
+    unless opt[:controller]
       logger.error 'No controller given for get_frontend_url_for().'
       return
     end
