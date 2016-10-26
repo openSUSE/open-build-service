@@ -1421,8 +1421,13 @@ sub publish {
 	$appdatas_state .= $appdatamd5;
 	my $appdata;
 	eval {
-	  $appdata = XML::Simple::XMLin($appdataxml, 'ForceArray' => 1);
+	  $appdata = XML::Simple::XMLin($appdataxml, 'ForceArray' => 1, 'KeepRoot' => 1);
 	};
+	if ($appdata && !$appdata->{'component'} && !$appdata->{'application'}) {
+	  $appdata = $appdata->{'components'} || $appdata->{'applications'};
+	} elsif ($appdata && !$appdata->{'version'} && $appdata->{'component'}) {
+	  $appdata->{'version'} ||= '0.8';
+	}
 	$appdata ||= {};
 	# merge the applications/components
 	if ($appdatas) {
