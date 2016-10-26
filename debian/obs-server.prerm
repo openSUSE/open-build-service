@@ -3,6 +3,26 @@
 #DEBHELPER#
 
 if [ "$1" = "remove" ]; then
+    # Stop the obsschedulers that we started by default
+    invoke-rc.d obsscheduler@i586 stop || true
+    invoke-rc.d obsscheduler@x86_64 stop || true
+    invoke-rc.d obsscheduler@armv7hl stop || true
+    # Disable schedulers
+    #deb-systemd-helper disable obsscheduler\@i586.service
+    #deb-systemd-helper disable obsscheduler\@x86_64.service
+    #deb-systemd-helper disable obsscheduler\@armv7hl.service
+    # FIXME manually drop symlink, deb-systemd-helper does not support
+    # template services yet.
+    rm -f /etc/systemd/system/multi-user.target.wants/obsscheduler\@i586.service
+    rm -f /etc/systemd/system/multi-user.target.wants/obsscheduler\@x86_64.service
+    rm -f /etc/systemd/system/multi-user.target.wants/obsscheduler\@armv7hl.service
+    # tell systemd to reload
+    if [ -d /run/systemd/system ]; then
+	systemctl --system daemon-reload >/dev/null || true
+    fi
+    # Delete obs users and group
     deluser --system --quiet obsrun
+    deluser --system --quiet obsservicerun
+    delgroup --system --quiet obsrun
 fi
 

@@ -5,7 +5,6 @@
 case "$1" in
 	remove)
 		db_get obs-api || true
-		gOldInstances="${RET}"
 		if [ "$RET" = "true" ]; then
 			. /usr/share/dbconfig-common/dpkg/prerm.mysql
 			dbc_go obs-api $@

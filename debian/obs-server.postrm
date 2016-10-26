@@ -1,7 +1,9 @@
 #!/bin/sh -e
 
-if [ -f /usr/share/obs/overview/index.html ]; then
-   rm -f /usr/share/obs/overview/index.html
+if [ "$1" = "purge" ]; then
+    # Remove obs data under /srv
+    rm -rf /srv/obs
+
 fi
 
 #DEBHELPER#
