@@ -458,7 +458,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     @buildresult = @buildresult.to_hash
-    if !@buildresult.has_key? 'result'
+    unless @buildresult.has_key? 'result'
       @buildresult_unavailable = true
       return
     end
@@ -473,7 +473,7 @@ class Webui::ProjectController < Webui::WebuiController
     @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames ####
-    @packagenames.reject! {|name| !filter_matches?(name, @name_filter) } if !@name_filter.blank?
+    @packagenames.reject! {|name| !filter_matches?(name, @name_filter) } if @name_filter.present?
 
     packagename_hash = Hash.new
     @packagenames.each { |p| packagename_hash[p.to_s] = 1 }

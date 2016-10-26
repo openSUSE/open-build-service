@@ -38,7 +38,7 @@ class BsRequestPermissionCheck
   end
 
   def check_accepted_action(action)
-    if !@target_project
+    unless @target_project
       raise NotExistingTarget.new "Unable to process project #{action.target_project}; it does not exist."
     end
 

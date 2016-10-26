@@ -353,7 +353,7 @@ class TagController < ApplicationController
     unless tag
       tag = Tag.create(name: tagname)
     end
-    raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) if !tag.valid?
+    raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) unless tag.valid?
     return tag
   end
 

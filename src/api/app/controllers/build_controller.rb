@@ -65,14 +65,14 @@ class BuildController < ApplicationController
           pkg = Package.find_by_project_and_name( prj.name, pack_name )
           if pkg.nil?
             allowed = permissions.project_change? prj
-            if !allowed
+            unless allowed
               render_error :status => 403, :errorcode => "execute_cmd_no_permission",
                 :message => "No permission to execute command on package #{pack_name} in project #{prj.name}"
               return
             end
           else
             allowed = permissions.package_change? pkg
-            if !allowed
+            unless allowed
               render_error :status => 403, :errorcode => "execute_cmd_no_permission",
                 :message => "No permission to execute command on package #{pack_name}"
               return

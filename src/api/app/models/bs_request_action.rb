@@ -381,9 +381,7 @@ class BsRequestAction < ApplicationRecord
                 raise LackingMaintainership.new
               end
             end
-            if  !sprj.find_attribute('OBS', 'ApprovedRequestSource')
-              reviews.push(sprj)
-            end
+            reviews.push(sprj) unless sprj.find_attribute('OBS', 'ApprovedRequestSource')
           end
         end
       end

@@ -608,7 +608,7 @@ class User < ApplicationRecord
     if object.kind_of? AttribType
       object = object.attrib_namespace
     end
-    if !object.kind_of? AttribNamespace
+    unless object.kind_of? AttribNamespace
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
 
