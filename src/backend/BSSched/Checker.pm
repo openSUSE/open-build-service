@@ -569,7 +569,7 @@ sub prune_packstatus_finished {
     $dispatchdetails{$packid} = "$_\n" if $job && ($building->{$packid} || '') eq $job;
   }
   if (%dispatchdetails) {
-    writestr("$gdst/.:packstatus.finished", "$gdst/.:packstatus.finished", join('', sort values %dispatchdetails));
+    writestr("$gdst/.:packstatus.finished", "$gdst/:packstatus.finished", join('', sort values %dispatchdetails));
   } else {
     unlink("$gdst/:packstatus.finished");
   }
