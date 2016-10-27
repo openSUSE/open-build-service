@@ -126,8 +126,14 @@ $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
 # strip helpers from cando
 my %cando = %BSCando::cando;
 for my $hostarch (values %cando) {
-  $hostarch = [ @{$hostarch || []} ];
+  $hostarch = [ @{$hostarch || []} ];	# make a copy so we can modify
   s/:.*// for @$hostarch;
+}
+my %harchcando;		# can the harch build an arch?
+for my $harch (keys %cando) {
+  for my $arch (@{$cando{$harch}}) {
+    $harchcando{"$harch/$arch"} = 1;
+  }
 }
 
 # 4h build will add .5 to the load
@@ -819,21 +825,26 @@ sub filechecks {
 # check all workers against the job constains so that the
 # users get feedback
 sub checkconstraints {
-  my ($info, $arch, $job, $constraints) = @_;
+  my ($info, $arch, $job, $constraints, $workercache) = @_;
   my @all_workers;
 
+  BSUtil::printlog("checkconstraints $arch/$job");
+  $workercache ||= {};
   my $sumworkers = 0;
   my $downworkers = 0;
-  my @nonidlestates = qw(building away down dead);
+  my @nonidlestates = qw(building away down);
   for my $nonidlestate (@nonidlestates) {
     my $oraresult = 0;
     my @workerarr = sort(BSUtil::ls("$workersdir/$nonidlestate"));
     for my $workertooracle (@workerarr) {
-      my $worker = readxml("$workersdir/$nonidlestate/$workertooracle", $BSXML::worker, 1);
+      my ($harch) = split(':', $workertooracle, 2);
+      next unless $harchcando{"$harch/$arch"};
+      my $worker = $workercache->{"$nonidlestate/$workertooracle"} || readxml("$workersdir/$nonidlestate/$workertooracle", $BSXML::worker, 1);
       next unless $worker;
+      $workercache->{"$nonidlestate/$workertooracle"} = $worker;
       push @all_workers, $worker;
       next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker);
-      $oraresult++ if oracle($worker, $constraints) > 0;
+      $oraresult++ if !$constraints || oracle($worker, $constraints) > 0;
       $downworkers ++ if $nonidlestate eq "down";
     }
     $sumworkers += $oraresult if $oraresult > 0;
@@ -847,7 +858,7 @@ sub checkconstraints {
         $details .= " dispatch constraints";
       }
     }
-    for my $cpart (sort(keys(%$constraints))) {
+    for my $cpart (sort(keys(%{$constraints || {}}))) {
       my $cconstraint = { $cpart => $constraints->{$cpart} };
       next if (grep {oracle($_, $cconstraint) > 0} @all_workers);
       $details .= " $cpart";
@@ -1191,6 +1202,7 @@ while (1) {
 
   @jobprpas = sort {$scales{$a} * $load->{$a} <=> $scales{$b} * $load->{$b}} @jobprpas;
 
+  my %checkconstraintscache;
   #BSUtil::printlog("assigning jobs");
   while (@jobprpas) {
     my $prpa = shift @jobprpas;
@@ -1422,7 +1434,10 @@ while (1) {
       # workers that met the constraints
       if (!$haveassigned && $constraints) {
         if ($info->{'allworkercheck'}++ % 5 == 0) {
-	  checkconstraints($info, $arch, $job, $constraints);
+	  if (!$info->{'allworkerchecktime'} || $now - $info->{'allworkerchecktime'} > 300) {
+	    $info->{'allworkerchecktime'} = $now;
+	    checkconstraints($info, $arch, $job, $constraints, \%checkconstraintscache);
+	  }
         }
       }
 
