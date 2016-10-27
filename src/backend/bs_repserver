@@ -3458,7 +3458,7 @@ sub setdispatchdetails {
   my ($cgi, $arch, $job) = @_;
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
   if ($info) {
-    my $ev = { type => 'dispatchdetails', job => "$arch/$job", details => $cgi->{'details'}};
+    my $ev = { type => 'dispatchdetails', job => $job, details => $cgi->{'details'}};
     my $evname = "dispatchdetails:$job";
     mkdir_p("$eventdir/$arch");
     writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);

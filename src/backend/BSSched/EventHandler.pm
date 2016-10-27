@@ -622,10 +622,8 @@ sub event_dispatchdetails {
   my $info = readxml("$myjobsdir/$ev->{'job'}", $BSXML::buildinfo, 1);
   return unless $info;
   return if -e "$myjobsdir/$ev->{'job'}:status";
-  my $job = $ev->{'job'};
-  $job =~ s/.*\///;
   my $gdst = "$reporoot/$info->{'project'}/$info->{'repository'}/$myarch";
-  BSUtil::appendstr("$gdst/:packstatus.finished", "scheduled $info->{'package'}/$job/$ev->{'details'}\n");
+  BSUtil::appendstr("$gdst/:packstatus.finished", "scheduled $info->{'package'}/$ev->{'job'}/$ev->{'details'}\n");
 }
 
 1;
