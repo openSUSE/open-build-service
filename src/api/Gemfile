@@ -124,7 +124,7 @@ group :development, :test do
   # to generate random long strings
   gem 'faker'
   # as driver for capybara
-  gem 'poltergeist', '>= 1.4'
+  gem 'poltergeist'
   # to launch browser in test
   gem 'launchy'
 end
