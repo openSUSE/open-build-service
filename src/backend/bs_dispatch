@@ -866,6 +866,16 @@ sub checkconstraints {
     for my $cpart (sort(keys(%{$constraints || {}}))) {
       my $cconstraint = { $cpart => $constraints->{$cpart} };
       next if (grep {oracle($_, $cconstraint) > 0} @all_workers);
+      if ($cpart eq 'hardware' || $cpart eq 'linux') {
+	my $hhint = '';
+	for my $ccpart (sort(keys(%{$constraints->{$cpart} || {}}))) {
+          my $ccconstraint = { $cpart => { $ccpart => $constraints->{$cpart}->{$ccpart} } };
+          next if (grep {oracle($_, $ccconstraint) > 0} @all_workers);
+          $hhint .= " $cpart:$ccpart";
+	}
+	$hint .= $hhint ? $hhint : " $cpart";
+	next;
+      }
       $hint .= " $cpart";
     }
     $details .= " (constraints mismatch hint:$hint)" if $hint;
