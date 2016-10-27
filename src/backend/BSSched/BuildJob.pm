@@ -309,11 +309,27 @@ sub writejob {
   $binfo->{'reposerver'} ||= $workerreposerver;
 
   my $myjobsdir = $ctx->{gctx}->{'myjobsdir'};
+  $ctx->{'otherjobscache'} ||= [ grep {/-[0-9a-f]{32}$/} grep {!/^\./} ls($myjobsdir) ];
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
   add_crossmarker($ctx->{gctx}, $binfo->{'hostarch'}, $job) if $binfo->{'hostarch'};
   $ourjobs{$1}->{$job} = 1 if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
+  push @{$ctx->{'otherjobscache'}}, $job;
 }
 
+=head2 find_otherjobs - find all jobs for the same build
+
+Note that the job must not contain the srcmd5
+
+=cut
+
+sub find_otherjobs {
+  my ($ctx, $jobprefix) = @_;
+  my $myjobsdir = $ctx->{'gctx'}->{'myjobsdir'};
+  $ctx->{'otherjobscache'} ||= [ grep {/-[0-9a-f]{32}$/} grep {!/^\./} ls($myjobsdir) ];
+  my @otherjobs = grep {/^\Q$jobprefix\E-[0-9a-f]{32}$/} @{$ctx->{'otherjobscache'}};
+  @otherjobs = BSUtil::unify(grep {-e "$myjobsdir/$_"} @otherjobs) if @otherjobs;
+  return @otherjobs;
+}
 
 =head2 add_crossmarker - add a marker into a foreign jobdir
 
@@ -848,20 +864,19 @@ sub create {
   my $proj = $projpacks->{$projid};
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
-  my $job = $packid ? jobname($prp, $packid) : undef;
-  my @otherjobs;
+  my $jobprefix = $packid ? jobname($prp, $packid) : undef;
   my $myjobsdir = $gctx->{'myjobsdir'};
   my $dobuildinfo = $ctx->{'dobuildinfo'};
 
   if ($myjobsdir) {
-    if (-s "$myjobsdir/$job-$srcmd5") {
-      add_crossmarker($gctx, $bconf->{'hostarch'}, "$job-$srcmd5") if $bconf->{'hostarch'};	# just in case...
-      return ('scheduled', "$job-$srcmd5");
+    if (-s "$myjobsdir/$jobprefix-$srcmd5") {
+      add_crossmarker($gctx, $bconf->{'hostarch'}, "$jobprefix-$srcmd5") if $bconf->{'hostarch'};	# just in case...
+      return ('scheduled', "$jobprefix-$srcmd5");
     }
-    return ('scheduled', $job) if -s "$myjobsdir/$job";   # obsolete
-    @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
+    return ('scheduled', $jobprefix) if -s "$myjobsdir/$jobprefix";   # obsolete
   }
-  $job = "$job-$srcmd5" if defined($job) && $srcmd5;
+  my $job = $jobprefix;
+  $job .= "-$srcmd5" if defined($job) && $srcmd5;
 
   # a new one. expand usedforbuild. write info file.
   my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($info->{'file'});
@@ -924,9 +939,12 @@ sub create {
   }
 
   # kill those ancient other jobs
-  for my $otherjob (@otherjobs) {
-    print "        killing old job $otherjob\n" if $ctx->{'verbose'};
-    killjob($gctx, $otherjob);
+  if ($myjobsdir) {
+    my @otherjobs = find_otherjobs($ctx, $jobprefix);
+    for my $otherjob (@otherjobs) {
+      print "        killing old job $otherjob\n" if $ctx->{'verbose'};
+      killjob($gctx, $otherjob);
+    }
   }
 
   my @pdeps = Build::get_preinstalls($bconf);
