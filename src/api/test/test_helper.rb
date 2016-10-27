@@ -149,7 +149,7 @@ class ActionDispatch::IntegrationTest
         # it does not check the content (eg. repository list in project meta)
         compare_project_and_package_lists
       rescue MiniTest::Assertion => e
-        puts "Backend became out of sync in #{self.name}"
+        puts "Backend became out of sync in #{name}"
         puts e.inspect
         exit
       end
@@ -289,7 +289,7 @@ module Webui
 
     teardown do
       dirpath = Rails.root.join('tmp', 'capybara')
-      htmlpath = dirpath.join(self.name + '.html')
+      htmlpath = dirpath.join(name + '.html')
       if !passed?
         Dir.mkdir(dirpath) unless Dir.exist? dirpath
         save_page(htmlpath)

@@ -40,24 +40,24 @@ module HasRelationships
   end
 
   def user_has_role?(user, role)
-    return true if self.relationships.where(role_id: role.id, user_id: user.id).exists?
-    self.relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).exists?
+    return true if relationships.where(role_id: role.id, user_id: user.id).exists?
+    relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).exists?
   end
 
   def group_has_role?(group, role)
-    self.relationships.where(role_id: role.id, group_id: group.id).exists?
+    relationships.where(role_id: role.id, group_id: group.id).exists?
   end
 
   def remove_role(what, role)
     check_write_access!
 
     if what.kind_of? Group
-      rel = self.relationships.where(group_id: what.id)
+      rel = relationships.where(group_id: what.id)
     else
-      rel = self.relationships.where(user_id: what.id)
+      rel = relationships.where(user_id: what.id)
     end
     rel = rel.where(role_id: role.id) if role
-    self.transaction do
+    transaction do
       rel.delete_all
       write_to_backend
     end
@@ -66,11 +66,11 @@ module HasRelationships
   def add_role(what, role)
     check_write_access!
 
-    self.transaction do
+    transaction do
       if what.kind_of? Group
-        self.relationships.create!(role: role, group: what)
+        relationships.create!(role: role, group: what)
       else
-        self.relationships.create!(role: role, user: what)
+        relationships.create!(role: role, user: what)
       end
       write_to_backend
     end
@@ -85,12 +85,12 @@ module HasRelationships
 
   def remove_all_persons
     check_write_access!
-    self.relationships.users.delete_all
+    relationships.users.delete_all
   end
 
   def remove_all_groups
     check_write_access!
-    self.relationships.groups.delete_all
+    relationships.groups.delete_all
   end
 
   def remove_all_old_relationships(cache)
@@ -174,7 +174,7 @@ module HasRelationships
   def update_generic_relationships(xmlhash)
     # we remember the current relationships in a hash
     cache = Hash.new
-    self.relationships.each do |purr|
+    relationships.each do |purr|
       next if @updater.ignore?(purr)
       h = cache[@updater.name_for_relationship(purr)] ||= Hash.new
       h[purr.role.title] = purr
@@ -197,12 +197,12 @@ module HasRelationships
           pcache[role.title] = :keep
         else
           # new role
-          record = self.relationships.new(role: role)
+          record = relationships.new(role: role)
           @updater.set_item(record, item)
           pcache[role.title] = :new
         end
       else
-        record = self.relationships.new(role: role)
+        record = relationships.new(role: role)
         @updater.set_item(record, item)
         cache[id] = { role.title => :new }
       end

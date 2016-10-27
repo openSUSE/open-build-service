@@ -70,7 +70,7 @@ class Repository < ApplicationRecord
 
   def cleanup_before_destroy
     # change all linking repository pathes
-    self.linking_repositories.each do |lrep|
+    linking_repositories.each do |lrep|
       lrep.path_elements.includes(:link, :repository).each do |pe|
         next unless pe.link == self # this is not pointing to our repo
         if lrep.path_elements.where(repository_id: Repository.deleted_instance).size > 0
@@ -84,8 +84,8 @@ class Repository < ApplicationRecord
       lrep.project.store({:lowprio => true})
     end
     # target repos
-    logger.debug "remove target repositories from repository #{self.project.name}/#{self.name}"
-    self.linking_target_repositories.each do |lrep|
+    logger.debug "remove target repositories from repository #{project.name}/#{name}"
+    linking_target_repositories.each do |lrep|
       lrep.targetlinks.includes(:target_repository, :repository).each do |rt|
         next unless rt.target_repository == self # this is not pointing to our repo
         repo = rt.repository
@@ -104,14 +104,14 @@ class Repository < ApplicationRecord
   end
 
   def project_name
-    return self.project.name  if self.project
-    self.remote_project_name
+    return project.name  if project
+    remote_project_name
   end
 
   def expand_all_repositories
     repositories = [self]
     # add all linked and indirect linked repositories
-    self.links.each do |path_element|
+    links.each do |path_element|
       path_element.repository.expand_all_repositories.each do |repo|
         repositories << repo
       end
@@ -128,10 +128,10 @@ class Repository < ApplicationRecord
 
   def is_local_channel?
     # is any our path elements the target of a channel package in this project?
-    self.path_elements.includes(:link).each do |pe|
-      return true if ChannelTarget.find_by_repo(pe.link, [self.project]).any?
+    path_elements.includes(:link).each do |pe|
+      return true if ChannelTarget.find_by_repo(pe.link, [project]).any?
     end
-    return true if ChannelTarget.find_by_repo(self, [self.project]).any?
+    return true if ChannelTarget.find_by_repo(self, [project]).any?
     false
   end
 
@@ -141,10 +141,10 @@ class Repository < ApplicationRecord
   end
 
   def extended_name
-    longName = self.project.name.gsub(':', '_')
-    if self.project.repositories.count > 1
+    longName = project.name.gsub(':', '_')
+    if project.repositories.count > 1
       # keep short names if project has just one repo
-      longName += '_'+self.name unless self.name == 'standard'
+      longName += '_'+name unless name == 'standard'
     end
     return longName
   end
@@ -159,35 +159,35 @@ class Repository < ApplicationRecord
 
   def is_kiwi_type?
     # HACK: will be cleaned up after implementing FATE #308899
-    self.name == "images"
+    name == "images"
   end
 
   def clone_repository_from(source_repository)
     source_repository.repository_architectures.each do |ra|
-      self.repository_architectures.create :architecture => ra.architecture, :position => ra.position
+      repository_architectures.create :architecture => ra.architecture, :position => ra.position
     end
 
     if source_repository.is_kiwi_type?
       # kiwi builds need to copy path elements
       source_repository.path_elements.each do |pa|
-        self.path_elements.create(:link => pa.link, :position => pa.position)
+        path_elements.create(:link => pa.link, :position => pa.position)
       end
       # and set type in prjconf
-      prjconf = self.project.source_file('_config')
+      prjconf = project.source_file('_config')
       unless prjconf =~ /^Type:/
         prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-        Suse::Backend.put_source(self.project.source_path('_config'), prjconf)
+        Suse::Backend.put_source(project.source_path('_config'), prjconf)
       end
       return
     end
 
     # we build against the other repository by default
-    self.path_elements.create(:link => source_repository, :position => 1)
+    path_elements.create(:link => source_repository, :position => 1)
   end
 
   def download_medium_url(medium)
-    Rails.cache.fetch("download_url_#{self.project.name}##{self.name}##medium##{medium}") do
-      path  = "/published/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}"
+    Rails.cache.fetch("download_url_#{project.name}##{name}##medium##{medium}") do
+      path  = "/published/#{URI.escape(project.name)}/#{URI.escape(name)}"
       path += "?view=publishedpath"
       path += "&medium=#{CGI.escape(file)}"
       xml = Xmlhash.parse(Suse::Backend.get(path).body)
@@ -196,8 +196,8 @@ class Repository < ApplicationRecord
   end
 
   def download_url(file)
-    url = Rails.cache.fetch("download_url_#{self.project.name}##{self.name}") do
-      path  = "/published/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}"
+    url = Rails.cache.fetch("download_url_#{project.name}##{name}") do
+      path  = "/published/#{URI.escape(project.name)}/#{URI.escape(name)}"
       path += "?view=publishedpath"
       xml = Xmlhash.parse(Suse::Backend.get(path).body)
       xml.elements('url').last.to_s
@@ -206,9 +206,8 @@ class Repository < ApplicationRecord
   end
 
   def download_url_for_package(package, architecture, filename)
-    Rails.cache.fetch("download_url_for_package_#{self.project.name}##{self.name}##{package.name}##{architecture}##{filename}") do
-      # rubocop:disable Metrics/LineLength
-      path  = "/build/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/#{URI.escape(architecture)}/#{URI.escape(package.name)}/#{URI.escape(filename)}"
+    Rails.cache.fetch("download_url_for_package_#{project.name}##{name}##{package.name}##{architecture}##{filename}") do
+      path  = "/build/#{URI.escape(project.name)}/#{URI.escape(name)}/#{URI.escape(architecture)}/#{URI.escape(package.name)}/#{URI.escape(filename)}"
       # rubocop:enable Metrics/LineLength
       path += "?view=publishedpath"
       xml = Xmlhash.parse(Suse::Backend.get(path).body)
@@ -217,6 +216,6 @@ class Repository < ApplicationRecord
   end
 
   def is_dod_repository?
-    self.download_repositories.any?
+    download_repositories.any?
   end
 end

@@ -31,8 +31,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   def get_releaseproject(pkg, tprj)
     return nil if pkg.is_patchinfo?
     releaseproject = nil
-    if self.target_releaseproject
-      releaseproject = Project.get_by_name self.target_releaseproject
+    if target_releaseproject
+      releaseproject = Project.get_by_name target_releaseproject
     else
       if !tprj
         raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains no defined release target project for package #{pkg.name}"
@@ -53,7 +53,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     unless opts[:view] == "xml"
       # skip local links
       hash = Directory.hashed(project: source_project, package: source_package)
-      return '' if hash['linkinfo'] && hash['linkinfo']['project'] == self.source_project
+      return '' if hash['linkinfo'] && hash['linkinfo']['project'] == source_project
     end
     super(opts)
   end
@@ -82,7 +82,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         new_pkg = incidentProject.packages.create(:name => source_package, :title => pkg_title, :description => pkg_description)
         new_pkg.flags.create(:status => 'enable', :flag => 'build')
         new_pkg.flags.create(:status => 'enable', :flag => 'publish') unless incidentProject.flags.find_by_flag_and_status('access', 'disable')
-        new_pkg.store(comment: "maintenance_incident request #{self.bs_request.number}", request: self.bs_request)
+        new_pkg.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
       end
 
       # use specified release project if defined
@@ -134,7 +134,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         else
           new_pkg = Package.new(:name => source_package, :title => pkg.title, :description => pkg.description)
           incidentProject.packages << new_pkg
-          new_pkg.store(comment: "maintenance_incident request #{self.bs_request.number}", request: self.bs_request)
+          new_pkg.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
         end
       else
         # no link and not a patchinfo
@@ -160,7 +160,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                                                                :requestid, :withacceptinfo])
     result = Suse::Backend.post cp_path
     result = Xmlhash.parse(result.body)
-    self.set_acceptinfo(result["acceptinfo"])
+    set_acceptinfo(result["acceptinfo"])
 
     new_pkg.sources_changed
     new_pkg
@@ -172,39 +172,39 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     pkg = _merge_pkg_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject, request)
 
     incidentProject.save!
-    incidentProject.store(comment: "maintenance_incident request #{self.bs_request.number}", request: self.bs_request)
+    incidentProject.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
     pkg
   end
 
   def execute_accept(opts)
     # create or merge into incident project
-    incident_project = Project.get_by_name(self.target_project)
+    incident_project = Project.get_by_name(target_project)
 
     # the incident got created before
     self.target_package = merge_into_maintenance_incident(incident_project,
-                                                          self.source_project, self.source_package,
-                                                          self.target_releaseproject, self.bs_request)
+                                                          source_project, source_package,
+                                                          target_releaseproject, bs_request)
 
     # update action with real target project
     self.target_project = incident_project.name
 
-    if self.sourceupdate == 'cleanup'
-      self.source_cleanup
+    if sourceupdate == 'cleanup'
+      source_cleanup
     end
 
     # create a patchinfo if missing and incident has just been created
     if opts[:check_for_patchinfo] && !incident_project.packages.joins(:package_kinds).where("kind = 'patchinfo'").exists?
-      Patchinfo.new.create_patchinfo_from_request(incident_project, self.bs_request)
+      Patchinfo.new.create_patchinfo_from_request(incident_project, bs_request)
     end
 
-    self.save
+    save
   end
 
   def expand_targets(ignore_build_state)
     # find maintenance project
     maintenanceProject = nil
-    if self.target_project
-      maintenanceProject = Project.get_by_name self.target_project
+    if target_project
+      maintenanceProject = Project.get_by_name target_project
     else
       maintenanceProject = Project.get_maintenance_project
       self.target_project = maintenanceProject.name
@@ -212,7 +212,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     unless maintenanceProject.is_maintenance_incident? || maintenanceProject.is_maintenance?
       raise NoMaintenanceProject.new 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
     end
-    raise IllegalRequest.new 'Target package must not be specified in maintenance_incident actions' if self.target_package
+    raise IllegalRequest.new 'Target package must not be specified in maintenance_incident actions' if target_package
     super(ignore_build_state)
   end
 

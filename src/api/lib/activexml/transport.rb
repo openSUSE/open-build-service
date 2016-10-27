@@ -26,9 +26,9 @@ module ActiveXML
         begin
           @xml = Xmlhash.parse( exception.message )
         rescue TypeError
-          Rails.logger.error "Couldn't parse error xml: #{self.message[0..120]}"
+          Rails.logger.error "Couldn't parse error xml: #{message[0..120]}"
         end
-        @xml ||= {'summary' => self.message[0..120], 'code' => '500'}
+        @xml ||= {'summary' => message[0..120], 'code' => '500'}
       end
 
       def api_exception
@@ -49,7 +49,7 @@ module ActiveXML
         if @xml.has_key? 'summary'
           return @xml['summary']
         else
-          return self.message
+          return message
         end
       end
 
@@ -368,7 +368,7 @@ module ActiveXML
         keepalive = false
         raise ConnectionError, "Failed to establish connection for #{url}: " + err.message
       ensure
-        if self.details && self.details.respond_to?('add') && http_response
+        if details && details.respond_to?('add') && http_response
           runtime = http_response["X-Runtime"]
           payload = http_response["X-Opensuse-Runtimes"]
           payload = JSON.parse(payload) if payload
@@ -377,7 +377,7 @@ module ActiveXML
             payload[:runtime] = Float(runtime) * 1000
           end
           payload[:all] = (Time.now - start) * 1000
-          self.details.add(payload)
+          details.add(payload)
           logger.debug "RT #{url} #{payload.inspect}"
         end
         unless keepalive

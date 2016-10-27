@@ -25,8 +25,8 @@ class Comment < ApplicationRecord
   end
 
   def create_notification(params = {})
-    params[:commenter] = self.user.id
-    params[:comment_body] = self.body
+    params[:commenter] = user.id
+    params[:comment_body] = body
   end
 
   # build an array of users, commenting on a specific object type
@@ -53,25 +53,25 @@ class Comment < ApplicationRecord
     return true if User.current.is_admin?
 
     # Users can always delete their own comments - or if the comments are deleted
-    User.current == self.user || self.user.is_nobody?
+    User.current == user || user.is_nobody?
   end
 
   def to_xml(builder)
-    attrs = { who: self.user, when: self.created_at, id: self.id }
-    attrs[:parent] = self.parent_id if self.parent_id
+    attrs = { who: user, when: created_at, id: id }
+    attrs[:parent] = parent_id if parent_id
 
     builder.comment_(attrs) do
-      builder.text(self.body)
+      builder.text(body)
     end
   end
 
   def blank_or_destroy
-    if self.children.exists?
+    if children.exists?
       self.body = 'This comment has been deleted'
       self.user = User.find_nobody!
-      self.save!
+      save!
     else
-      self.destroy
+      destroy
     end
   end
 

@@ -68,7 +68,7 @@ class IssueTracker < ApplicationRecord
   end
 
   def update_issues_bugzilla
-    return unless self.enable_fetch
+    return unless enable_fetch
 
     begin
       result = bugzilla_server.search(:last_change_time => self.issues_updated)
@@ -85,14 +85,14 @@ class IssueTracker < ApplicationRecord
 
     if private_fetch_issues(ids)
       self.issues_updated = @update_time_stamp
-      self.save!
+      save!
 
       return true
     end
   end
 
   def update_issues_github
-    return unless self.enable_fetch
+    return unless enable_fetch
 
     # must be like this "url = https://github.com/repos/#{self.owner}/#{self.name}/issues"
     url = URI.parse("#{self.url}?since=#{self.issues_updated.to_time.iso8601}")
@@ -109,11 +109,11 @@ class IssueTracker < ApplicationRecord
 
     # done
     self.issues_updated = mtime - 1.second
-    self.save
+    save
   end
 
   def update_issues_cve
-    return unless self.enable_fetch
+    return unless enable_fetch
 
     # fixed URL of all entries
     # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
@@ -130,7 +130,7 @@ class IssueTracker < ApplicationRecord
       parser.parse_io(unzipedio)
       # done
       self.issues_updated = mtime - 1.second
-      self.save
+      save
     end
   end
 
@@ -155,7 +155,7 @@ class IssueTracker < ApplicationRecord
 
     if private_fetch_issues(ids)
       self.issues_updated = @update_time_stamp
-      self.save!
+      save!
       return true
     end
     return false
@@ -201,7 +201,7 @@ class IssueTracker < ApplicationRecord
   end
 
   def parse_single_bugzilla_issue(r)
-    issue = Issue.find_by_name_and_tracker r["id"].to_s, self.name
+    issue = Issue.find_by_name_and_tracker r["id"].to_s, name
     if issue
       if r["is_open"]
         # bugzilla sees it as open
@@ -235,9 +235,9 @@ class IssueTracker < ApplicationRecord
   def parse_github_issue(js, create = nil)
       issue = nil
       if create
-        issue = Issue.find_or_create_by_name_and_tracker(js["number"].to_s, self.name)
+        issue = Issue.find_or_create_by_name_and_tracker(js["number"].to_s, name)
       else
-        issue = Issue.find_by_name_and_tracker(js["number"].to_s, self.name)
+        issue = Issue.find_by_name_and_tracker(js["number"].to_s, name)
         return if issue.nil?
       end
 
@@ -253,8 +253,8 @@ class IssueTracker < ApplicationRecord
   end
 
   def private_fetch_issues(ids)
-    unless self.enable_fetch
-      logger.info "Bug mentioned on #{self.name}, but fetching from server is disabled"
+    unless enable_fetch
+      logger.info "Bug mentioned on #{name}, but fetching from server is disabled"
       return false
     end
 
@@ -271,7 +271,7 @@ class IssueTracker < ApplicationRecord
   end
 
   def fetch_fate_issues
-    url = URI.parse("#{self.url}/#{self.name}?contenttype=text%2Fxml")
+    url = URI.parse("#{self.url}/#{name}?contenttype=text%2Fxml")
     begin # Need a loop to follow redirects...
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = (url.scheme == 'https')
@@ -300,10 +300,10 @@ class IssueTracker < ApplicationRecord
   end
 
   def bugzilla_server
-    server = XMLRPC::Client.new2("#{self.url}/xmlrpc.cgi")
+    server = XMLRPC::Client.new2("#{url}/xmlrpc.cgi")
     server.timeout = 300 # 5 minutes timeout
-    server.user=self.user if self.user
-    server.password=self.password if self.password
+    server.user=user if user
+    server.password=password if password
     return server.proxy('Bug')
   end
 end

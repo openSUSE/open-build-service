@@ -29,7 +29,7 @@ class AttribNamespace < ApplicationRecord
     new_rule = {}
     new_rule[:user] = User.find_by_login!(node["user"]) if node["user"]
     new_rule[:group] = Group.find_by_title!(node["group"]) if node["group"]
-    self.attrib_namespace_modifiable_bies << AttribNamespaceModifiableBy.new(new_rule)
+    attrib_namespace_modifiable_bies << AttribNamespaceModifiableBy.new(new_rule)
   end
 
   def update_from_xml(node)

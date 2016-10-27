@@ -13,7 +13,7 @@ class Issue < ApplicationRecord
   scope :stateless, -> { where(:state => nil) }
 
   def self.find_or_create_by_name_and_tracker( name, issue_tracker_name, force_update = nil )
-    self.find_by_name_and_tracker(name, issue_tracker_name, {
+    find_by_name_and_tracker(name, issue_tracker_name, {
       :force_update   => force_update,
       :create_missing => true
     })
@@ -61,58 +61,58 @@ class Issue < ApplicationRecord
   after_create :fetch_issues
   def fetch_issues
     # inject update jobs after issue got created
-    self.issue_tracker.delay(queue: 'issuetracking').fetch_issues
+    issue_tracker.delay(queue: 'issuetracking').fetch_issues
   end
 
   def fetch_updates
     # FIXME: dependency cycle, but not better solvable because multiple issues
     #        may get fetched ?
-    self.issue_tracker.fetch_issues([self])
+    issue_tracker.fetch_issues([self])
   end
 
   def label
-    return self.issue_tracker.label.gsub('@@@', self.name)
+    return issue_tracker.label.gsub('@@@', name)
   end
 
   def webui_infos
     issue = {
-      created_at: self.created_at,
-      name:       self.name,
-      tracker:    self.issue_tracker.name,
-      label:      self.label,
-      url:        self.url
+      created_at: created_at,
+      name:       name,
+      tracker:    issue_tracker.name,
+      label:      label,
+      url:        url
     }
 
-    issue[:updated_at] = self.updated_at if self.updated_at
-    issue[:state]      = self.state if self.state
-    issue[:summary]    = self.summary if self.summary
+    issue[:updated_at] = updated_at if updated_at
+    issue[:state]      = state if state
+    issue[:summary]    = summary if summary
     # self.owner must not by used, since it is reserved by rails
-    o = User.find_by_id(self.owner_id)
+    o = User.find_by_id(owner_id)
     issue[:owner] = o.login if o
 
     issue
   end
 
   def url
-    self.issue_tracker.show_url.gsub('@@@', self.name)
+    issue_tracker.show_url.gsub('@@@', name)
   end
 
   def render_body(node, change = nil)
     p={}
     p[:change] = change if change
     node.issue(p) do |issue|
-      issue.created_at(self.created_at)
-      issue.updated_at(self.updated_at)   if self.updated_at
-      issue.name(self.name)
-      issue.tracker(self.issue_tracker.name)
-      issue.label(self.label)
-      issue.url(self.url)
-      issue.state(self.state)             if self.state
-      issue.summary(self.summary) if self.summary
+      issue.created_at(created_at)
+      issue.updated_at(updated_at)   if updated_at
+      issue.name(name)
+      issue.tracker(issue_tracker.name)
+      issue.label(label)
+      issue.url(url)
+      issue.state(state)             if state
+      issue.summary(summary) if summary
 
-      if self.owner_id
+      if owner_id
         # self.owner must not by used, since it is reserved by rails
-        o = User.find self.owner_id
+        o = User.find owner_id
         issue.owner do |owner|
           owner.login(o.login)
           owner.email(o.email)
@@ -124,7 +124,7 @@ class Issue < ApplicationRecord
 
   def render_axml
     builder = Nokogiri::XML::Builder.new do |node|
-      self.render_body node
+      render_body node
     end
     builder.to_xml :indent => 2, :encoding => 'UTF-8',
                                :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
@@ -132,7 +132,7 @@ class Issue < ApplicationRecord
   end
 
   def to_axml(_opts = {})
-    Rails.cache.fetch('issue_%d' % self.id) do
+    Rails.cache.fetch('issue_%d' % id) do
       render_axml
     end
   end

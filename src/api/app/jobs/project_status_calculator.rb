@@ -54,7 +54,7 @@ class PackInfo
       opts[:verifymd5] = verifymd5
     end
     xml.package(opts) do
-      self.fails.each do |repo, tuple|
+      fails.each do |repo, tuple|
         xml.failure(:repo => repo, :time => tuple[0], :srcmd5 => tuple[1])
       end
       if develpack
@@ -72,7 +72,7 @@ class PackInfo
   end
 
   def relationships_to_xml(builder, arrayname, elementname, tag)
-    arr = self.send(arrayname)
+    arr = send(arrayname)
     return if arr.empty?
     builder.send(arrayname) do
       arr.each do |element, role_name|

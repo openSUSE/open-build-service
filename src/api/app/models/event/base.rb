@@ -24,7 +24,7 @@ module Event
       end
 
       def classnames
-        @classnames || [self.name]
+        @classnames || [name]
       end
 
       def add_classname(name)
@@ -62,10 +62,10 @@ module Event
       def inherited(subclass)
         super
 
-        subclass.add_classname(self.name) unless self.name == 'Event::Base'
-        subclass.payload_keys(*self.payload_keys)
-        subclass.create_jobs(*self.create_jobs)
-        subclass.receiver_roles(*self.receiver_roles)
+        subclass.add_classname(name) unless name == 'Event::Base'
+        subclass.payload_keys(*payload_keys)
+        subclass.create_jobs(*create_jobs)
+        subclass.receiver_roles(*receiver_roles)
       end
     end
 
@@ -129,10 +129,10 @@ module Event
     end
 
     def notify_backend
-      return false if self.queued
+      return false if queued
       self.queued = true
       begin
-        self.save
+        save
       rescue ActiveRecord::StaleObjectError
         # if someone else saved it too, better don't send it
         return false
@@ -140,7 +140,7 @@ module Event
       return false unless self.class.raw_type
       # tell the backend to tell the (old) plugins
       p = payload
-      p['time'] = self.created_at.to_i
+      p['time'] = created_at.to_i
       logger.debug "notify_backend #{self.class.name} #{p.inspect}"
       ret = Suse::Backend.post("/notify_plugins/#{self.class.raw_type}",
                                Yajl::Encoder.encode(p),
@@ -152,9 +152,9 @@ module Event
 
     def perform_create_jobs
       self.undone_jobs = 0
-      self.save
-      Rails.logger.debug "PCJ #{self.inspect} #{self.create_jobs.inspect}"
-      self.create_jobs.each do |job|
+      save
+      Rails.logger.debug "PCJ #{inspect} #{create_jobs.inspect}"
+      create_jobs.each do |job|
         eclass = job.to_s.camelize.safe_constantize
         raise "#{job.to_s.camelize} does not map to a constant" if eclass.nil?
         djob = eclass.new(self)
@@ -164,7 +164,7 @@ module Event
         Delayed::Job.enqueue djob, opts
         self.undone_jobs += 1
       end
-      self.save if self.undone_jobs > 0
+      save if self.undone_jobs > 0
     end
 
     # to be overwritten in subclasses

@@ -56,7 +56,7 @@ class Channel < ApplicationRecord
                      requires_issue: p['requires_issue'],
                      disabled: (p.has_key? 'disabled') }
     }
-    sync_hash_with_model(ChannelTarget, self.channel_targets, hasharray)
+    sync_hash_with_model(ChannelTarget, channel_targets, hasharray)
   end
 
   def _update_from_xml_binary_lists(xmlhash)
@@ -76,7 +76,7 @@ class Channel < ApplicationRecord
       hasharray << { project: project, architecture: arch,
                      repository: repository }
     }
-    sync_hash_with_model(ChannelBinaryList, self.channel_binary_lists, hasharray)
+    sync_hash_with_model(ChannelBinaryList, channel_binary_lists, hasharray)
   end
 
   def _update_from_xml_binaries(cbl, xmlhash)
@@ -102,7 +102,7 @@ class Channel < ApplicationRecord
     _update_from_xml_targets(xmlhash)
     _update_from_xml_binary_lists(xmlhash)
 
-    if self.package.project.is_maintenance_incident? || self.package.is_link?
+    if package.project.is_maintenance_incident? || package.is_link?
       # we skip binaries in incidents and when they are just a branch
       # we do not need the data since it is not the origin definition
       save
@@ -110,7 +110,7 @@ class Channel < ApplicationRecord
     end
 
     # sync binaries for all lists
-    self.channel_binary_lists.each { |cbl|
+    channel_binary_lists.each { |cbl|
       hasharray = Array.new
       # search the right xml binaries group for this cbl
       xmlhash.elements('binaries') do |b|
@@ -132,10 +132,10 @@ class Channel < ApplicationRecord
   end
 
   def branch_channel_package_into_project(project, comment = nil)
-    cp = self.package
+    cp = package
 
     # create a package container
-    tpkg = Package.new(:name => self.name, :title => cp.title, :description => cp.description)
+    tpkg = Package.new(:name => name, :title => cp.title, :description => cp.description)
     project.packages << tpkg
     tpkg.store({comment: comment})
 
@@ -148,21 +148,21 @@ class Channel < ApplicationRecord
 
   def is_active?
     # no targets defined, the project has some
-    return true if self.channel_targets.size.zero?
+    return true if channel_targets.size.zero?
 
-    self.channel_targets.where(disabled: false).size > 0
+    channel_targets.where(disabled: false).size > 0
   end
 
   def add_channel_repos_to_project(tpkg, mode = nil)
-    cp = self.package
-    if self.channel_targets.empty?
+    cp = package
+    if channel_targets.empty?
       # not defined in channel, so take all from project
       tpkg.project.branch_to_repositories_from(cp.project, cp, {extend_names: true})
       return
     end
 
     # defined in channel
-    self.channel_targets.each do |ct|
+    channel_targets.each do |ct|
       next if mode == :skip_disabled && ct.disabled
       repo_name = ct.repository.extended_name
       next unless mode == :enable_all || !ct.disabled

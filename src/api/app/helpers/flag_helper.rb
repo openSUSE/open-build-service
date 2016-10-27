@@ -29,7 +29,7 @@ module FlagHelper
 
   def update_all_flags(xmlhash)
     Flag.transaction do
-      self.flags.delete_all
+      flags.delete_all
       position = 1
       FlagHelper.flag_types.each do |flagtype|
         position = update_flags( xmlhash, flagtype, position )
@@ -56,7 +56,7 @@ module FlagHelper
           repo = xmlflag['repository']
 
           # instantiate new flag object
-          self.flags.new(:status => status, :position => position, :flag => flagtype) do |flag|
+          flags.new(:status => status, :position => position, :flag => flagtype) do |flag|
             # set the flag attributes
             flag.repo = repo
             flag.architecture = arch
@@ -71,7 +71,7 @@ module FlagHelper
 
   def remove_flag(flag, repository, arch = nil)
     validate_type flag
-    flaglist = self.flags.of_type(flag)
+    flaglist = flags.of_type(flag)
     arch = Architecture.find_by_name(arch) if arch
 
     flags_to_remove = Array.new
@@ -82,7 +82,7 @@ module FlagHelper
       next if arch.blank? && !f.architecture.nil?
       flags_to_remove << f
     end
-    self.flags.delete(flags_to_remove)
+    flags.delete(flags_to_remove)
   end
 
   def add_flag(flag, status, repository = nil, arch = nil)
@@ -90,7 +90,7 @@ module FlagHelper
     unless status == 'enable' || status == 'disable'
       raise ArgumentError.new("Error: unknown status for flag '#{status}'")
     end
-    self.flags.build( status: status, flag: flag ) do |f|
+    flags.build( status: status, flag: flag ) do |f|
       f.architecture = Architecture.find_by_name(arch) if arch
       f.repo = repository
     end
@@ -100,7 +100,7 @@ module FlagHelper
     validate_type flag
 
     prj = self
-    prj = self.project if self.kind_of? Package
+    prj = project if kind_of? Package
     update = nil
 
     # we find all repositories targeted by given products
@@ -124,7 +124,7 @@ module FlagHelper
       end
     end
 
-    self.store if update
+    store if update
   end
 
   def enabled_for?(flag_type, repo, arch)
@@ -140,7 +140,7 @@ module FlagHelper
   end
 
   def find_flag_state(flag_type, repo, arch)
-    flag = self.flags.of_type(flag_type).
+    flag = flags.of_type(flag_type).
       select { |f| f.is_relevant_for?(repo, arch) }.
       sort_by(&:specifics).
       last
@@ -148,9 +148,9 @@ module FlagHelper
     state = flag.try(:status) || :default
 
     if state == :default
-      if self.respond_to? 'project'
+      if respond_to? 'project'
         logger.debug 'flagcheck: package has default state, checking project'
-        state = self.project.find_flag_state(flag_type, repo, arch)
+        state = project.find_flag_state(flag_type, repo, arch)
       else
         state = FlagHelper.default_for(flag_type)
       end

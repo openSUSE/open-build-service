@@ -4,7 +4,7 @@ class AddOwnerRootProjectAttribType  < ActiveRecord::Migration
     p[:role] = Role.find_by_title("Admin")
     ans = AttribNamespace.find_by_name "OBS"
 
-    self.transaction do
+    transaction do
       at=AttribType.create( :attrib_namespace => ans, :name => "OwnerRootProject" )
       at.attrib_type_modifiable_bies.create(p)
       at.allowed_values << AttribAllowedValue.new( :value => "DisableDevel" )

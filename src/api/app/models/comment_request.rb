@@ -8,8 +8,8 @@ class CommentRequest < Comment
 
   def create_notification(params = {})
     super
-    params = BsRequest.find(self.bs_request_id).notify_parameters(params)
-    params[:commenters] = involved_users(:bs_request_id, self.bs_request_id)
+    params = BsRequest.find(bs_request_id).notify_parameters(params)
+    params[:commenters] = involved_users(:bs_request_id, bs_request_id)
 
     # call the action
     Event::CommentForRequest.create params

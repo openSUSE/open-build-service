@@ -7,25 +7,25 @@ class Product < ApplicationRecord
 
   def self.find_or_create_by_name_and_package( name, package )
     raise Product::NotFoundError.new( "Error: Package not valid." ) unless package.class == Package
-    product = self.find_by_name_and_package name, package
+    product = find_by_name_and_package name, package
 
-    product = self.create( :name => name, :package => package ) unless product.length > 0
+    product = create( :name => name, :package => package ) unless product.length > 0
 
     return product
   end
 
   def self.find_by_name_and_package( name, package )
-    return self.where(name: name, package: package).load
+    return where(name: name, package: package).load
   end
 
   def self.all_products( project, expand = nil )
     return project.expand_all_products if expand
 
-    self.joins(:package).where("packages.project_id = ? and packages.name = '_product'", project.id)
+    joins(:package).where("packages.project_id = ? and packages.name = '_product'", project.id)
   end
 
   def to_axml(_opts = {})
-    Rails.cache.fetch('xml_product_%d' % self.id) do
+    Rails.cache.fetch('xml_product_%d' % id) do
       # CanRenderModel
       render_xml
     end
@@ -34,7 +34,7 @@ class Product < ApplicationRecord
   def set_CPE(swClass, vendor, pversion = nil)
     # hack for old SLE 11 definitions
     vendor="suse" if vendor.start_with?("SUSE LINUX")
-    self.cpe = "cpe:/#{swClass}:#{vendor.downcase}:#{self.name.downcase}"
+    self.cpe = "cpe:/#{swClass}:#{vendor.downcase}:#{name.downcase}"
     self.cpe += ":#{pversion}" unless pversion.blank?
   end
 
@@ -51,7 +51,7 @@ class Product < ApplicationRecord
   end
 
   def update_from_xml(xml)
-    self.transaction do
+    transaction do
       xml.elements('productdefinition') do |pd|
         # we are either an operating system or an application for CPE
         swClass = "o"
@@ -63,13 +63,13 @@ class Product < ApplicationRecord
         end
         pd.elements('products') do |ps|
           ps.elements('product') do |p|
-            next unless p['name'] == self.name
+            next unless p['name'] == name
             self.baseversion = p['baseversion']
             self.patchlevel = p['patchlevel']
             pversion = p['version']
             pversion = p['baseversion'] if p['baseversion']
             pversion += ":sp#{p['patchlevel']}" if p['patchlevel'] && p['patchlevel'].to_i > 0
-            self.set_CPE(swClass, p['vendor'], pversion)
+            set_CPE(swClass, p['vendor'], pversion)
             self.version = pversion
             # update update channel connections
             p.elements('register') do |r|
@@ -86,7 +86,7 @@ class Product < ApplicationRecord
   def _update_from_xml_register_pool(rxml)
     rxml.elements('pool') do |u|
       medium = {}
-      self.product_media.each do |pm|
+      product_media.each do |pm|
         key = "#{pm.repository.id}/#{pm.name}"
         arch = nil
         if pm.arch_filter_id
@@ -119,18 +119,18 @@ class Product < ApplicationRecord
               errors.add(:invalid, "Architecture #{arch} not valid")
             end
           end
-          self.product_media.create(p)
+          product_media.create(p)
         end
         medium.delete(key)
       end
-      self.product_media.delete(medium.values)
+      product_media.delete(medium.values)
     end
   end
 
   def _update_from_xml_register_update(rxml)
     rxml.elements('updates') do |u|
       update = {}
-      self.product_update_repositories.each do |pu|
+      product_update_repositories.each do |pu|
         next unless pu.repository # it may be remote or not yet exist
         key = pu.repository.id.to_s
         key += "/" + pu.arch_filter.name if pu.arch_filter_id
@@ -154,7 +154,7 @@ class Product < ApplicationRecord
         ProductUpdateRepository.create(p) unless update[key]
         update.delete(key)
       end
-      self.product_update_repositories.delete(update.values)
+      product_update_repositories.delete(update.values)
     end
   end
 

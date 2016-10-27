@@ -101,7 +101,7 @@ module ActiveXML
 
       def calc_key( args )
         # Rails.logger.debug "Cache key for #{args.inspect}"
-        self.name + '_' + Digest::MD5.hexdigest( '2' + args.to_s )
+        name + '_' + Digest::MD5.hexdigest( '2' + args.to_s )
       end
 
       def find_priv(cache_time, *args )
@@ -114,23 +114,23 @@ module ActiveXML
             fromcache = true
             objdata, params, objhash = Rails.cache.fetch(cache_key, :expires_in => cache_time) do
               fromcache = false
-              objdata, params = self.transport.find( self, *args)
-              obj = self.new( objdata )
+              objdata, params = transport.find( self, *args)
+              obj = new( objdata )
               [objdata, params, obj.to_hash]
             end
 	    if fromcache
 	      logger.debug "returning #{args.inspect} from rails cache #{cache_key}"
 	    end
           else
-            objdata, params = self.transport.find( self, *args)
+            objdata, params = transport.find( self, *args)
           end
-          obj = self.new( objdata ) unless obj
+          obj = new( objdata ) unless obj
           obj.instance_variable_set( '@cache_key', cache_key ) if cache_key
           obj.instance_variable_set( '@init_options', params )
           obj.instance_variable_set( '@hash_cache', objhash) if objhash
           return obj
         rescue ActiveXML::Transport::NotFoundError
-          Rails.logger.debug "#{self.name}.find( #{args.map {|a| a.inspect}.join(', ')} ) did not find anything, return nil"
+          Rails.logger.debug "#{name}.find( #{args.map {|a| a.inspect}.join(', ')} ) did not find anything, return nil"
           return nil
         end
       end
@@ -476,7 +476,7 @@ module ActiveXML
 
     def find_matching(conds)
       return self if NodeMatcher.match(self, conds) == true
-      self.each do |c|
+      each do |c|
         ret = c.find_matching(conds)
         return ret if ret
       end

@@ -10,15 +10,15 @@ module GetFlags
     the_flags = {}
 
     # [nil] is a placeholder for "all" repositories
-    [nil].concat(self.repositories.pluck(:name)).each do |repository|
+    [nil].concat(repositories.pluck(:name)).each do |repository|
       the_flags[repository] = []
       # [nil] is a placeholder for "all" architectures
-      [nil].concat(self.architectures.reorder('name').distinct).each do |architecture|
+      [nil].concat(architectures.reorder('name').distinct).each do |architecture|
         architecture_id = architecture ? architecture.id : nil
-        flag = self.flags.where(flag: flag_type).where(repo: repository).where(architecture_id: architecture_id).first
+        flag = flags.where(flag: flag_type).where(repo: repository).where(architecture_id: architecture_id).first
         # If there is no flag create a temporary one.
         unless flag
-          flag = self.flags.new( flag: flag_type, repo: repository, architecture: architecture )
+          flag = flags.new( flag: flag_type, repo: repository, architecture: architecture )
           flag.status = flag.default_status
         end
         the_flags[repository] << flag

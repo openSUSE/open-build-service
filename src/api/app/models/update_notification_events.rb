@@ -4,7 +4,7 @@ class UpdateNotificationEvents
   cattr_accessor :semaphore
 
   def initialize
-    self.class.semaphore = self.semaphore || Mutex.new
+    self.class.semaphore = semaphore || Mutex.new
   end
 
   def create_events

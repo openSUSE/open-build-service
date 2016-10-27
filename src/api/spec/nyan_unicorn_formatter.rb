@@ -10,11 +10,11 @@ class NyanUnicornFormatter < NyanCatFormatter
   #
   # @return [String] Nyan Cat
   def nyan_cat
-    if self.failed_or_pending? && self.finished?
+    if failed_or_pending? && finished?
       ascii_cat('x')[@color_index%2].join("\n")
-    elsif self.failed_or_pending?
+    elsif failed_or_pending?
       ascii_cat('o')[@color_index%2].join("\n")
-    elsif self.finished?
+    elsif finished?
       ascii_cat('-')[@color_index%2].join("\n")
     else
       ascii_cat('·')[@color_index%2].join("\n")

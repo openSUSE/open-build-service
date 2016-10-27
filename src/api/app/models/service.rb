@@ -115,10 +115,10 @@ class Service < ActiveXML::Node
       end
     else
       super(comment: 'Modified via webui', user: User.current.login)
-      package = Package.get_by_project_and_name(self.init_options[:project], self.init_options[:package],
+      package = Package.get_by_project_and_name(init_options[:project], init_options[:package],
                                                 use_source: true, follow_project_links: false)
       return false unless User.current.can_modify_package?(package)
-      Suse::Backend.post("/source/#{self.init_options[:project]}/#{self.init_options[:package]}?cmd=runservice&user=#{User.current.login}")
+      Suse::Backend.post("/source/#{init_options[:project]}/#{init_options[:package]}?cmd=runservice&user=#{User.current.login}")
       package.sources_changed
     end
     true

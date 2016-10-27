@@ -134,7 +134,7 @@ class BinaryRelease < ApplicationRecord
   def render_attributes
     attributes = { project: repository.project.name, repository: repository.name }
     [:binary_name, :binary_epoch, :binary_version, :binary_release, :binary_arch, :medium].each do |key|
-      value = self.send(key)
+      value = send(key)
       next unless value
       ekey = key.to_s.gsub(/^binary_/, '')
       attributes[ekey] = value
@@ -145,29 +145,29 @@ class BinaryRelease < ApplicationRecord
   def render_xml
     builder = Nokogiri::XML::Builder.new
     builder.binary(render_attributes) do |binary|
-      binary.operation self.operation
+      binary.operation operation
 
       node={}
-      node[:package] = self.release_package.name if self.release_package
+      node[:package] = release_package.name if release_package
       node[:time] = self.binary_releasetime if self.binary_releasetime
       binary.publish(node) if node.length > 0
 
-      binary.build(:time => self.binary_buildtime) if self.binary_buildtime
-      binary.modify(:time => self.modify_time) if self.modify_time
-      binary.obsolete(:time => self.obsolete_time) if self.obsolete_time
+      binary.build(:time => binary_buildtime) if binary_buildtime
+      binary.modify(:time => modify_time) if modify_time
+      binary.obsolete(:time => obsolete_time) if obsolete_time
 
-      binary.supportstatus self.binary_supportstatus if self.binary_supportstatus
-      binary.updateinfo({:id      => self.binary_updateinfo,
-                         :version => self.binary_updateinfo_version}) if self.binary_updateinfo
-      binary.maintainer self.binary_maintainer if self.binary_maintainer
-      binary.disturl self.binary_disturl if self.binary_disturl
+      binary.supportstatus binary_supportstatus if binary_supportstatus
+      binary.updateinfo({:id      => binary_updateinfo,
+                         :version => binary_updateinfo_version}) if binary_updateinfo
+      binary.maintainer binary_maintainer if binary_maintainer
+      binary.disturl binary_disturl if binary_disturl
 
       update_for_product.each do |up|
         binary.updatefor( up.extend_id_hash({project: up.package.project.name, product: up.name}) )
       end
 
-      if self.product_medium
-        binary.product( product_medium.product.extend_id_hash({name: self.product_medium.product.name}) )
+      if product_medium
+        binary.product( product_medium.product.extend_id_hash({name: product_medium.product.name}) )
       end
     end
     builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |

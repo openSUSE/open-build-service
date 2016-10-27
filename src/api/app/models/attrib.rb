@@ -85,7 +85,7 @@ class Attrib < ApplicationRecord
 
     #--- update issues ---#
     if issues.map { |i| i.name }.sort != self.issues.map { |i| i.name }.sort
-      logger.debug "Attrib.update_with_associations: Issues for #{self.fullname} changed, updating."
+      logger.debug "Attrib.update_with_associations: Issues for #{fullname} changed, updating."
       will_save = true
       self.issues.delete_all
       issues.each do |issue|
@@ -95,7 +95,7 @@ class Attrib < ApplicationRecord
 
     #--- update values ---#
     if values.sort != self.values.map { |v| v.value}.sort
-      logger.debug "Attrib.update_with_associations: Values for #{self.fullname} changed, updating."
+      logger.debug "Attrib.update_with_associations: Values for #{fullname} changed, updating."
       will_save = true
       self.values.delete_all
       position = 1
@@ -105,7 +105,7 @@ class Attrib < ApplicationRecord
       end
     end
 
-    self.save! if will_save
+    save! if will_save
     will_save
   end
 
@@ -115,11 +115,11 @@ class Attrib < ApplicationRecord
   private
 
   def validate_value_count
-    if self.attrib_type && self.attrib_type.allowed_values.any?
-      self.values.map(&:value).each do |value|
-        allowed_values = self.attrib_type.allowed_values.map(&:value)
+    if attrib_type && attrib_type.allowed_values.any?
+      values.map(&:value).each do |value|
+        allowed_values = attrib_type.allowed_values.map(&:value)
         unless allowed_values.include?(value)
-          self.errors[:values] <<
+          errors[:values] <<
             "Value '#{value}' is not allowed. Please use one of: #{allowed_values.join(', ')}"
         end
       end
@@ -127,15 +127,15 @@ class Attrib < ApplicationRecord
   end
 
   def validate_issues
-    if self.attrib_type && !self.attrib_type.issue_list && self.issues.any?
-      self.errors[:issues] << "can't have issues"
+    if attrib_type && !attrib_type.issue_list && issues.any?
+      errors[:issues] << "can't have issues"
     end
   end
 
   def validate_allowed_values_for_attrib_type
-    value_count = self.attrib_type.try(:value_count)
-    if value_count && value_count != self.values.length
-      self.errors[:values] << "has #{self.values.length} values, but only #{value_count} are allowed"
+    value_count = attrib_type.try(:value_count)
+    if value_count && value_count != values.length
+      errors[:values] << "has #{values.length} values, but only #{value_count} are allowed"
     end
   end
 end

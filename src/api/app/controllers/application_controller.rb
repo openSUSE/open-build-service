@@ -516,7 +516,7 @@ class ApplicationController < ActionController::Base
   # end
   def self.validate_action(opt)
     opt.each do |action, action_opt|
-      Suse::Validator.add_schema_mapping(self.controller_path, action, action_opt)
+      Suse::Validator.add_schema_mapping(controller_path, action, action_opt)
     end
   end
 

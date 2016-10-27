@@ -33,13 +33,13 @@ class BsRequestActionGroup < BsRequestAction
 
     # Creators can group their own creations
     creator = User.current
-    if self.bs_request # bootstrap?
-      creator = self.bs_request.creator
+    if bs_request # bootstrap?
+      creator = bs_request.creator
     end
     return if creator == req.creator
 
     # a single request is always fine
-    return if self.bs_requests.size == 1
+    return if bs_requests.size == 1
 
     return if req.is_target_maintainer?(User.current)
 
@@ -48,14 +48,14 @@ class BsRequestActionGroup < BsRequestAction
 
   def check_and_add_request(newid)
     req = BsRequest.find_by_number(newid)
-    if self.bs_requests.where(id: req.id).exists?
-      raise AlreadyGrouped.new "#{req.number} is already part of the group request #{self.bs_request.number}"
+    if bs_requests.where(id: req.id).exists?
+      raise AlreadyGrouped.new "#{req.number} is already part of the group request #{bs_request.number}"
     end
     if req.bs_request_actions.first.action_type == :group
       raise CantGroupInGroups.new 'Groups are not supported in groups'
     end
     check_permissions_on(req)
-    self.bs_requests << req
+    bs_requests << req
   end
 
   def store_from_xml(hash)
@@ -69,17 +69,17 @@ class BsRequestActionGroup < BsRequestAction
 
   def check_permissions!
     # so we need an involvement in all requests
-    self.bs_requests.each do |r|
+    bs_requests.each do |r|
       check_permissions_on(r)
     end
 
-    if self.bs_request.bs_request_actions.size > 1
+    if bs_request.bs_request_actions.size > 1
       raise GroupActionMustBeSingle.new "You can't mix group actions with other actions"
     end
   end
 
   def render_xml_attributes(node)
-    self.bs_requests.each do |r|
+    bs_requests.each do |r|
       node.grouped id: r.number
     end
   end
@@ -92,7 +92,7 @@ class BsRequestActionGroup < BsRequestAction
   def remove_request(oldid)
     req = BsRequest.find_by_number oldid
     unless req
-      raise NotInGroup.new "Request #{oldid} can't be removed from group request #{self.bs_request.number}"
+      raise NotInGroup.new "Request #{oldid} can't be removed from group request #{bs_request.number}"
     end
     req.remove_from_group(self)
   end
@@ -101,7 +101,7 @@ class BsRequestActionGroup < BsRequestAction
     if [:revoked, :declined, :superseded].include? state
       # now comes the heavy lifting. we need to make sure all requests
       # get their right state
-      self.bs_requests.each do |r|
+      bs_requests.each do |r|
         r.remove_from_group(self)
       end
     end
@@ -111,7 +111,7 @@ class BsRequestActionGroup < BsRequestAction
     group_state = find_review_state_of_group
     # only if there are open reviews, there is any need to change something
     if group_state == :review
-      self.bs_request.state = :review
+      bs_request.state = :review
       set_group_to_review
     end
   end
@@ -122,25 +122,25 @@ class BsRequestActionGroup < BsRequestAction
 
   # this function is only called if all requests have no open reviews
   def set_group_to_new
-    self.bs_request.state = :new
-    self.bs_requests.each do |req|
+    bs_request.state = :new
+    bs_requests.each do |req|
       next unless req.state == :review
       # TODO add history
       req.state = :new
       req.save
     end
-    self.bs_request.save
+    bs_request.save
   end
 
   def set_group_to_review
-    self.bs_request.state = :review
-    self.bs_requests.each do |req|
+    bs_request.state = :review
+    bs_requests.each do |req|
       next if req.state == :review
       # TODO add history
       req.state = :review
       req.save
     end
-    self.bs_request.save
+    bs_request.save
   end
 
   def addrequest(opts)
@@ -159,7 +159,7 @@ class BsRequestActionGroup < BsRequestAction
 
   def check_for_group_in_new
     group_state = find_review_state_of_group
-    if group_state == :new && self.bs_request.state == :review
+    if group_state == :new && bs_request.state == :review
       set_group_to_new
     end
   end
@@ -177,7 +177,7 @@ class BsRequestActionGroup < BsRequestAction
   end
 
   def find_review_state_of_group
-    self.bs_requests.each do |req|
+    bs_requests.each do |req|
       req.reviews.each do |rev|
         return :review if rev.state != :accepted
       end

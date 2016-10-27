@@ -32,30 +32,30 @@ class Review < ApplicationRecord
     # NOTE: they can disappear later and the review should be still
     #       usable to some degree (can be showed at least)
     #       But it must not be possible to create one with broken references
-    unless self.by_user || self.by_group || self.by_project
+    unless by_user || by_group || by_project
       errors.add(:unknown, 'no reviewer defined')
     end
 
-    if self.by_user && !User.find_by_login(self.by_user)
-      errors.add(:by_user, "#{self.by_user} not found")
+    if by_user && !User.find_by_login(by_user)
+      errors.add(:by_user, "#{by_user} not found")
     end
 
-    if self.by_group && !Group.find_by_title(self.by_group)
-      errors.add(:by_group, "#{self.by_group} not found")
+    if by_group && !Group.find_by_title(by_group)
+      errors.add(:by_group, "#{by_group} not found")
     end
 
-    if self.by_project && !Project.find_by_name(self.by_project)
+    if by_project && !Project.find_by_name(by_project)
       # must be a local project or we can't ask
-      errors.add(:by_project, "#{self.by_project} not found")
+      errors.add(:by_project, "#{by_project} not found")
     end
 
-    if self.by_package && !self.by_project
+    if by_package && !by_project
       errors.add(:unknown, 'by_package defined, but missing by_project')
     end
-    if self.by_package && !Package.find_by_project_and_name(self.by_project, self.by_package)
+    if by_package && !Package.find_by_project_and_name(by_project, by_package)
       # must be a local package. maybe we should rewrite in case the
       # package comes via local project link...
-      errors.add(:by_package, "#{self.by_project}/#{self.by_package} not found")
+      errors.add(:by_package, "#{by_project}/#{by_package} not found")
     end
   end
 
@@ -83,21 +83,21 @@ class Review < ApplicationRecord
   end
 
   def _get_attributes
-    attributes = { state: self.state.to_s }
+    attributes = { state: state.to_s }
     # old requests didn't have who and when
-    attributes[:when] = self.created_at.strftime('%Y-%m-%dT%H:%M:%S') if self.reviewer
-    attributes[:who] = self.reviewer if self.reviewer
-    attributes[:by_group] = self.by_group if self.by_group
-    attributes[:by_user] = self.by_user if self.by_user
-    attributes[:by_package] = self.by_package if self.by_package
-    attributes[:by_project] = self.by_project if self.by_project
+    attributes[:when] = created_at.strftime('%Y-%m-%dT%H:%M:%S') if reviewer
+    attributes[:who] = reviewer if reviewer
+    attributes[:by_group] = by_group if by_group
+    attributes[:by_user] = by_user if by_user
+    attributes[:by_package] = by_package if by_package
+    attributes[:by_project] = by_project if by_project
 
     attributes
   end
 
   def render_xml(builder)
     builder.review(_get_attributes) do
-      builder.comment! self.reason if self.reason
+      builder.comment! reason if reason
       History.find_by_review(self).each do |history|
         history.render_xml(builder)
       end
@@ -107,7 +107,7 @@ class Review < ApplicationRecord
   def webui_infos
     ret = _get_attributes
     # XML has this perl format, don't use that here
-    ret[:when] = self.created_at
+    ret[:when] = created_at
     ret
   end
 
@@ -119,19 +119,19 @@ class Review < ApplicationRecord
   end
 
   def users_and_groups_for_review
-    if self.by_user
-       return [User.find_by_login!(self.by_user)]
+    if by_user
+       return [User.find_by_login!(by_user)]
     end
-    if self.by_group
-      return [Group.find_by_title!(self.by_group)]
+    if by_group
+      return [Group.find_by_title!(by_group)]
     end
     obj = nil
-    if self.by_package
-      obj = Package.find_by_project_and_name(self.by_project, self.by_package)
+    if by_package
+      obj = Package.find_by_project_and_name(by_project, by_package)
       return [] unless obj
       reviewers_for_obj(obj) + reviewers_for_obj(obj.project)
     else
-      reviewers_for_obj(Project.find_by_name(self.by_project))
+      reviewers_for_obj(Project.find_by_name(by_project))
     end
   end
 
@@ -141,7 +141,7 @@ class Review < ApplicationRecord
 
   def create_notification(params = {})
     params = params.merge(_get_attributes)
-    params[:comment] = self.reason
+    params[:comment] = reason
     params[:reviewers] = map_objects_to_ids(users_and_groups_for_review)
 
     # send email later

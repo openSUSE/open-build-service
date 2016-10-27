@@ -6,7 +6,7 @@ module DB
     attr_accessor :failed
 
     def self.run
-      checker = self.new
+      checker = new
       checker.warn_for_environment
       checker.resolve_devel_packages
       checker.check_foreign_keys
