@@ -844,30 +844,34 @@ sub checkconstraints {
       $workercache->{"$nonidlestate/$workertooracle"} = $worker;
       push @all_workers, $worker;
       next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker);
-      $oraresult++ if !$constraints || oracle($worker, $constraints) > 0;
-      $downworkers ++ if $nonidlestate eq "down";
+      next unless !$constraints || oracle($worker, $constraints) > 0;
+      $oraresult++;
+      $downworkers++ if $nonidlestate eq 'down';
     }
-    $sumworkers += $oraresult if $oraresult > 0;
+    $sumworkers += $oraresult;
   }
+  # return if more than half of the workers satisfy the constraint
+  return if $sumworkers - $downworkers > 5 && ($sumworkers - $downworkers) > scalar(@all_workers) / 2;
   my $details = "waiting for $sumworkers compliant workers";
-  $details .= " ($downworkers down)" if $downworkers > 0;
-  if ($sumworkers == 0) {
-    $details = "no compliant workers (constraints mismatch hint:";
+  $details .= " ($downworkers of them down)" if $downworkers;
+  if (!$sumworkers) {
+    $details = "no compliant workers";
+    my $hint = '';
     if ($BSConfig::dispatch_constraint) {
       if (!grep {$BSConfig::dispatch_constraint->($info, $_)} @all_workers) {
-        $details .= " dispatch constraints";
+        $hint .= " dispatch_constraints";
       }
     }
     for my $cpart (sort(keys(%{$constraints || {}}))) {
       my $cconstraint = { $cpart => $constraints->{$cpart} };
       next if (grep {oracle($_, $cconstraint) > 0} @all_workers);
-      $details .= " $cpart";
+      $hint .= " $cpart";
     }
-    $details .= ")";
+    $details .= " (constraints mismatch hint:$hint)" if $hint;
   }
-  $details =~ s/\s+$//;
   if (!$info->{'scheduleinfo'} || $info->{'scheduleinfo'} ne $details) {
     $info->{'scheduleinfo'} = $details;
+    print "setting dispatch details to: $details\n";
     setdispatchdetails($info, $arch, $job, $details);
   }
 }
