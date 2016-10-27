@@ -833,12 +833,13 @@ sub checkconstraints {
   my $sumworkers = 0;
   my $downworkers = 0;
   my @nonidlestates = qw(building away down);
+  my $buildarch = $info->{'hostarch'} || $arch;
   for my $nonidlestate (@nonidlestates) {
     my $oraresult = 0;
     my @workerarr = sort(BSUtil::ls("$workersdir/$nonidlestate"));
     for my $workertooracle (@workerarr) {
       my ($harch) = split(':', $workertooracle, 2);
-      next unless $harchcando{"$harch/$arch"};
+      next unless $harchcando{"$harch/$buildarch"};
       my $worker = $workercache->{"$nonidlestate/$workertooracle"} || readxml("$workersdir/$nonidlestate/$workertooracle", $BSXML::worker, 1);
       next unless $worker;
       $workercache->{"$nonidlestate/$workertooracle"} = $worker;
