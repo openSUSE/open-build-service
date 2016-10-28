@@ -245,6 +245,25 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_match(/unknown_package/, @response.body)
   end
 
+  def test_multibuild_routes
+    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild"
+    assert_response :success
+    assert_xml_tag( tag: "binary", parent: {tag: "binarylist"} )
+    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild/_log"
+    assert_response :success
+    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild/package-1.0-1.src.rpm"
+    assert_response :success
+    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild/_buildinfo"
+    assert_response :success
+    assert_xml_tag( tag: "buildinfo" )
+
+# backend bug?
+#    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild_not_here"
+#    assert_response 404
+    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild_not_here/_log"
+    assert_response 404
+  end
+
   def test_read_sourceaccess_protected_logfile
     prepare_request_valid_user
     get "/build/SourceprotectedProject/repo/i586/pack/_log"

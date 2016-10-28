@@ -2,7 +2,7 @@ class BuildController < ApplicationController
   def index
     # for read access and visibility permission check
     if params[:package] && !%w(_repository _jobhistory).include?(params[:package])
-      Package.get_by_project_and_name( params[:project], params[:package], use_source: false )
+      Package.get_by_project_and_name( params[:project], params[:package], use_source: false, follow_multibuild: true )
     else
       Project.get_by_name params[:project]
     end
@@ -111,7 +111,7 @@ class BuildController < ApplicationController
       # for osc local package build in this repository
       Project.get_by_name params[:project]
     else
-      Package.get_by_project_and_name params[:project], params[:package], use_source: false
+      Package.get_by_project_and_name params[:project], params[:package], use_source: false, follow_multibuild: true
     end
 
     path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/#{params[:package]}/_buildinfo"
@@ -146,7 +146,7 @@ class BuildController < ApplicationController
     if params[:package] == "_repository"
       prj = Project.get_by_name params[:project]
     else
-      pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: false
+      pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: false, follow_multibuild: true
       prj = pkg.project if pkg.class == Package
     end
 
@@ -230,7 +230,7 @@ class BuildController < ApplicationController
 
   def logfile
     # for permission check
-    pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: true
+    pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: true, follow_multibuild: true
 
     if pkg.class == Package && pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
         !@http_user.can_download_binaries?(pkg.project)

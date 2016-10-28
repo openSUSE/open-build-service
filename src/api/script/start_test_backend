@@ -231,7 +231,10 @@ Suse::Backend.put('/source/BaseDistro2.0/pack2/myfile?user=king', 'DummyContent 
 Suse::Backend.put('/source/BaseDistro2.0/pack2/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
 Suse::Backend.put('/source/BaseDistro2.0/pack2.linked/_link?user=king', "<link package=\"pack2\" cicount='copy' />")
 Suse::Backend.put('/source/BaseDistro3/_config?user=king', "Type: spec\nRepotype: rpm-md suse")
-Suse::Backend.put('/source/BaseDistro3/pack2/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put('/source/BaseDistro3/pack2/pack2.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put('/source/BaseDistro3/pack2/_multibuild?user=king', '<multibuild><package>package_multibuild</package></multibuild>')
+Suse::Backend.put('/source/BaseDistro3/pack2/package_multibuild.spec?user=king',
+                  File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
 Suse::Backend.put('/source/BaseDistro:Update/pack2/_link?user=king', "<link project=\"BaseDistro\" package=\"pack2\" />")
 Suse::Backend.put('/source/Devel:BaseDistro:Update/pack2/_link?user=king', "<link project=\"BaseDistro:Update\" package=\"pack2\" />")
 Suse::Backend.put('/source/Devel:BaseDistro:Update/pack2/from_devel_project?user=king', 'no content')
@@ -355,6 +358,7 @@ scheduler_thread = Thread.new do
   inject_build_job('BinaryprotectedProject', 'bdpack', 'nada', 'i586')
   inject_build_job('SourceprotectedProject', 'pack', 'repo', 'i586')
   inject_build_job('BrokenPublishing', 'pack_broken_publish', 'BrokenPublishing_repo', 'i586')
+  inject_build_job('BaseDistro3', 'pack2:package_multibuild', 'BaseDistro3_repo', 'i586')
   inject_build_job('BaseDistro3', 'pack2', 'BaseDistro3_repo', 'i586', "package_newweaktags-1.0-1.x86_64.rpm")
 
   # upload a binary file to repository directly

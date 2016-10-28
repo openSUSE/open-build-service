@@ -151,13 +151,23 @@ class Package < ApplicationRecord
     prj
   end
 
+  def self.striping_multibuild_suffix(name)
+    # exception for package names used to have a collon
+    return name if name.start_with?("_patchinfo:", "_product:")
+
+    name.gsub(/:.*$/, '')
+  end
+
   # returns an object of package or raises an exception
   # should be always used when a project is required
   # in case you don't access sources or build logs in any way use
   # use_source: false to skip check for sourceaccess permissions
   # function returns a nil object in case the package is on remote instance
   def self.get_by_project_and_name(project, package, opts = {})
-    opts = { use_source: true, follow_project_links: true, check_update_project: false }.merge(opts)
+    opts = { use_source: true, follow_project_links: true,
+             follow_multibuild: false, check_update_project: false }.merge(opts)
+
+    package = striping_multibuild_suffix(package) if opts[:follow_multibuild]
 
     pkg = check_cache(project, package, opts)
     return pkg if pkg
