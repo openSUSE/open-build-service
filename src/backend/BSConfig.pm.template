@@ -221,4 +221,7 @@ if (-r $hostconfig) {
 # use modifyrepo_c instead of modifyrepo
 #our $modifyrepo = '/usr/bin/modifyrepo_c';
 
+# print all messages with a lower level than $debuglevel in addition to the normal log messages
+#our $debuglevel = 1;
+
 1;

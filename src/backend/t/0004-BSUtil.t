@@ -1,7 +1,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 43; 
+use Test::More tests => 50;
+use FindBin;
+
+use lib "$FindBin::Bin/lib/";
+use Test::Mock::BSConfig;
 
 require_ok('BSUtil');
 
@@ -172,5 +176,30 @@ my $latin1 = "m\x{c7}gtig";
 ok(BSUtil::checkutf8($latin1) == 0, "Checking if BSUtil spots $latin1 as non-utf8");
 my $utf8_con = BSUtil::str2utf8($latin1);
 ok(BSUtil::checkutf8($utf8_con) == 1, "Checking if BSUtil converts $latin1 to $utf8_con");
+
+my $log_print = "";
+my $test_log_string = "This is the test log string";
+
+# Test the printlog function without loglevel for backwards compatibility.
+do {
+  local *STDOUT;
+  open STDOUT, '>', \$log_print;
+  BSUtil::printlog($test_log_string);
+};
+like($log_print, qr/$test_log_string/, "BSUtil testing the printlog function without loglevel");
+
+# Test the printlog function with loglevel
+for(my $testcount = 0; $testcount <= ($BSConfig::debuglevel + 2); $testcount++) {
+  do {
+    local *STDOUT;
+    open STDOUT, '>', \$log_print;
+    BSUtil::printlog($test_log_string, $testcount);
+  };
+  if ($testcount <= $BSConfig::debuglevel) {
+    like($log_print, qr/$test_log_string/, "BSUtil testing the printlog function wih level $testcount");
+  } else {
+    unlike ($log_print, qr/$test_log_string/, "BSutil printlog should not print level $testcount");
+  }
+}
 
 exit 0;

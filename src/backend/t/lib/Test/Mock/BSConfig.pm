@@ -27,5 +27,6 @@ $BSConfig::bsdir = "$FindBin::Bin/data/shared";
 $BSConfig::srcserver = 'srcserver';
 $BSConfig::reposerver = 'reposerver';
 $BSConfig::repodownload = 'http://download.opensuse.org/repositories';
+$BSConfig::debuglevel = 3;
 
 1; 

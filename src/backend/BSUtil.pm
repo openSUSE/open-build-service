@@ -754,16 +754,25 @@ sub isotime {
   return sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
 }
 
+my $debuglevel;
+sub setdebuglevel {
+  my ($level) = @_;
+  $debuglevel = $level;
+}
+
+
 =head2 printlog - print unified log messages
 
- BSUtil::printlog($message);
+  BSUtil::printlog($message [, $level]);
 
 FORMAT: "YYYY-MM-DD hh:mm:ss [$pid] $message"
 
 =cut
 
 sub printlog {
-  my ($msg) = @_;
+  my ($msg, $level) = @_;
+  return if $level && !($debuglevel && $debuglevel >= $level);
+  $msg = "[debug $level] $msg" if $level;
   printf "%s: %-7s %s\n", isotime(time), "[$$]", $msg;
 }
 
