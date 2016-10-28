@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /usr/bin/env bash
 # Copyright (c) 2009 SUSE Linux AG, Nuernberg, Germany.
 # All rights reserved.
 #
