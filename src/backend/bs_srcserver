@@ -444,15 +444,11 @@ sub getcommitinfo {
 sub getrev {
   my ($projid, $packid, $revid, $linked, $missingok) = @_;
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
-    my $proj = BSRevision::readproj_local($projid, 1);
-    if ($proj && !$proj->{'remoteurl'}) {
-      # local project
-      my $lpackid = $packid;
-      $lpackid =~ s/(?<!^_product)(?<!^_patchinfo):.*//;
-      my $rev = getrev($projid, $lpackid, $revid, $linked, $missingok);
-      $rev->{'originpackage'} = $packid if $rev;
-      return $rev;
-    }
+    my $lpackid = $packid;
+    $lpackid =~ s/(?<!^_product)(?<!^_patchinfo):.*//;
+    my $rev = getrev($projid, $lpackid, $revid, $linked, $missingok);
+    $rev->{'originpackage'} = $packid if $rev;
+    return $rev;
   }
   my $rev = BSRevision::getrev_local($projid, $packid, $revid);
   return $rev if $rev;
@@ -2277,6 +2273,7 @@ sub delprojectconfig {
 
 sub getsources {
   my ($cgi, $projid, $packid, $srcmd5) = @_;
+  $packid =~ s/(?<!^_product)(?<!^_patchinfo):.+//;
   my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
   my $files = BSRevision::lsrev($rev);
   my @files = map {BSRevision::revcpiofile($rev, $_, $files->{$_})} sort keys %$files;
@@ -2495,7 +2492,7 @@ sub getfilelist {
       # hack: we identify remote source downloads by looking at the user agent
       my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
       if ($useragent =~ /BSRPC/) {
-	BSHandoff::handoff("/source/$projid/$packid", undef, "rev=$rev->{'srcmd5'}", 'view=cpio');
+	BSHandoff::handoff("/source/$projid/$rev->{'package'}", undef, "rev=$rev->{'srcmd5'}", 'view=cpio');
       }
     }
     my @files = map {BSRevision::revcpiofile($rev, $_, $files->{$_})} sort keys %$files;
