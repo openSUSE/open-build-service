@@ -222,7 +222,7 @@ sub assignjob {
   if (! -e "$jobsdir/$arch/$job") {
     unlink("$jobsdir/$arch/$job:status");
     close F;
-    BSUtil::printlog("job disappered!");
+    BSUtil::printlog("job disappeared!");
     return 'badjob';
   }
 
@@ -883,7 +883,11 @@ sub checkconstraints {
   if (!$info->{'scheduleinfo'} || $info->{'scheduleinfo'} ne $details) {
     $info->{'scheduleinfo'} = $details;
     print "setting dispatch details to: $details\n";
-    setdispatchdetails($info, $arch, $job, $details);
+    if ($sumworkers) {
+      setdispatchdetails($info, $arch, $job, $details);
+    } else {
+      failjob($info, $arch, $job, "package build was not possible:\n\n$details\n\nPlease adapt your constraints.\n");
+    }
   }
 }
 
@@ -1502,7 +1506,7 @@ sub setdispatchdetails {
       'timeout' => 60,
     };
     eval {
-      BSRPC::rpc($param, undef, ("cmd=setdispatchdetails", "details=$details"));
+      BSRPC::rpc($param, undef, "cmd=setdispatchdetails", "details=$details");
     };
     warn($@) if $@;
   } else {
@@ -1513,3 +1517,17 @@ sub setdispatchdetails {
     BSUtil::ping("$eventdir/$arch/.ping");
   }
 }
+
+sub failjob {
+  my ($info, $arch, $job, $message) = @_;
+  my $param = {
+    'uri' => "$info->{'reposerver'}/jobs/$arch/$job",
+    'request' => 'POST',
+    'timeout' => 60,
+  };
+  eval {
+    BSRPC::rpc($param, undef, "cmd=failjob", "message=$message");
+  };
+  warn($@) if $@;
+}
+

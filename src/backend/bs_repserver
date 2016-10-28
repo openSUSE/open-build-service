@@ -1729,6 +1729,27 @@ sub receivekiwitree {
   return \@tosign;
 }
 
+sub notify_jobresult {
+  my ($info, $jobstatus, $prpa) = @_;
+
+  # create notification info
+  my %ninfo;
+  for (qw{project package repository arch rev srcmd5 verifymd5 readytime reason versrel bcnt release}) {
+    $ninfo{$_} = $info->{$_} if defined $info->{$_};
+  }
+  $ninfo{'starttime'} = $jobstatus->{'starttime'};
+  $ninfo{'endtime'} = $jobstatus->{'endtime'};
+  $ninfo{'workerid'} = $jobstatus->{'workerid'};
+  $ninfo{'previouslyfailed'} = 1 if -e "$reporoot/$prpa/:logfiles.fail/$info->{'package'}";
+  if ($jobstatus->{'result'} eq 'unchanged') {
+    BSNotify::notify('BUILD_UNCHANGED', \%ninfo);
+  } elsif ($jobstatus->{'result'} eq 'succeeded') {
+    BSNotify::notify('BUILD_SUCCESS', \%ninfo);
+  } else {
+    BSNotify::notify('BUILD_FAIL', \%ninfo);
+  }
+}
+
 sub putjob {
   my ($cgi, $arch, $job, $jobid) = @_;
 
@@ -1754,7 +1775,6 @@ sub putjob {
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   my $projid = $info->{'project'} || $info->{'path'}->[0]->{'project'};
   my $repoid = $info->{'repository'} || $info->{'path'}->[0]->{'repository'};
-  my $prpa = "$projid/$repoid/$arch";
 
   my $now = time();
 
@@ -1837,24 +1857,9 @@ sub putjob {
     $jobstatus->{'result'} = 'succeeded';
     last;
   }
+  $jobstatus->{'result'} = 'unchanged' if $cgi->{'code'} && $cgi->{'code'} eq 'unchanged';
 
-  # prune notification info
-  my %ninfo;
-  for (qw{project package repository arch rev srcmd5 verifymd5 readytime reason versrel bcnt release}) {
-    $ninfo{$_} = $info->{$_} if defined $info->{$_};
-  }
-  $ninfo{'starttime'} = $jobstatus->{'starttime'};
-  $ninfo{'endtime'} = $jobstatus->{'endtime'};
-  $ninfo{'workerid'} = $jobstatus->{'workerid'};
-
-  $ninfo{'previouslyfailed'} = 1 if -e "$reporoot/$prpa/:logfiles.fail/$info->{package}";
-
-  if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
-    $jobstatus->{'result'} = 'unchanged';
-    BSNotify::notify('BUILD_UNCHANGED', \%ninfo);
-  } else {
-    BSNotify::notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', \%ninfo);
-  }
+  notify_jobresult($info, $jobstatus, "$projid/$repoid/$arch");
 
   # calculate binary info to speed up scheduler
   my $bininfo = {};
@@ -3467,6 +3472,43 @@ sub setdispatchdetails {
   return $BSStdServer::return_ok;
 }
 
+sub failjob {
+  my ($cgi, $arch, $job) = @_;
+  local *F;
+  return unless -e "$jobsdir/$arch/$job";
+  if (!BSUtil::lockopen(\*F, '+>>', "$jobsdir/$arch/$job:status", 1))  {
+    die("job lock failed!\n");
+  }
+  if (-s "$jobsdir/$arch/$job:status") {
+    close F;
+    die("job is building!\n");
+  }
+  my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+  if (!$info) {
+    unlink("$jobsdir/$arch/$job:status");
+    close F;
+    die("job disappeared!\n");
+  }
+  my $projid = $info->{'project'} || $info->{'path'}->[0]->{'project'};
+  my $repoid = $info->{'repository'} || $info->{'path'}->[0]->{'repository'};
+
+  my $dir = "$jobsdir/$arch/$job:dir";
+  mkdir_p($dir);
+  BSUtil::cleandir($dir);
+  writestr("$dir/logfile", undef, $cgi->{'message'});
+  my $now = time();
+  my $jobstatus = { code => 'finished', result => 'failed', starttime => $now, endtime => $now,
+                    workerid => 'dispatcher', 'hostarch' => '' };
+  notify_jobresult($info, $jobstatus, "$projid/$repoid/$arch");
+  my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
+  writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+  close F;
+  dirty($projid, $repoid, $arch);
+  mkdir_p("$eventdir/$arch");
+  writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
+  BSUtil::ping("$eventdir/$arch/.ping");
+}
+
 sub putconfiguration {
   my ($cgi) = @_;
   mkdir_p($uploaddir);
@@ -3566,6 +3608,7 @@ my $dispatches = [
   'PUT:/jobs/$arch/$job' => \&addjob,
   'POST:/jobs/$arch/$job cmd=idleworker workerid jobid?' => \&idleworkerjob,
   'POST:/jobs/$arch/$job cmd=setdispatchdetails details:?' => \&setdispatchdetails,
+  'POST:/jobs/$arch/$job cmd=fail message:' => \&failjob,
   'DELETE:/jobs/$arch/$job' => \&deljob,
   '/jobs/$arch/$job view:?' => \&getjob,
 
