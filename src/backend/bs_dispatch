@@ -832,24 +832,24 @@ sub checkconstraints {
   $workercache ||= {};
   my $sumworkers = 0;
   my $downworkers = 0;
-  my @nonidlestates = qw(building away down);
   my $buildarch = $info->{'hostarch'} || $arch;
-  for my $nonidlestate (@nonidlestates) {
-    my $oraresult = 0;
-    my @workerarr = sort(BSUtil::ls("$workersdir/$nonidlestate"));
-    for my $workertooracle (@workerarr) {
-      my ($harch) = split(':', $workertooracle, 2);
+  my %workerseen;
+  for my $workerstate (qw{idle building away down}) {
+    my @workernames = sort(BSUtil::ls("$workersdir/$workerstate"));
+    for my $workername (@workernames) {
+      next if $workerseen{$workername};
+      my ($harch) = split(':', $workername, 2);
       next unless $harchcando{"$harch/$buildarch"};
-      my $worker = $workercache->{"$nonidlestate/$workertooracle"} || readxml("$workersdir/$nonidlestate/$workertooracle", $BSXML::worker, 1);
+      my $worker = $workercache->{"$workerstate/$workername"} || readxml("$workersdir/$workerstate/$workername", $BSXML::worker, 1);
       next unless $worker;
-      $workercache->{"$nonidlestate/$workertooracle"} = $worker;
+      $workercache->{"$workerstate/$workername"} = $worker;
+      $workerseen{$workername} = 1;
       push @all_workers, $worker;
       next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker);
       next unless !$constraints || oracle($worker, $constraints) > 0;
-      $oraresult++;
-      $downworkers++ if $nonidlestate eq 'down';
+      $sumworkers++;
+      $downworkers++ if $workerstate eq 'down';
     }
-    $sumworkers += $oraresult;
   }
   # return if more than half of the workers satisfy the constraint
   return if $sumworkers - $downworkers > 5 && ($sumworkers - $downworkers) > scalar(@all_workers) / 2;
@@ -860,7 +860,7 @@ sub checkconstraints {
     my $hint = '';
     if ($BSConfig::dispatch_constraint) {
       if (!grep {$BSConfig::dispatch_constraint->($info, $_)} @all_workers) {
-        $hint .= " dispatch_constraints";
+        $hint .= " dispatch_constraint";
       }
     }
     for my $cpart (sort(keys(%{$constraints || {}}))) {
