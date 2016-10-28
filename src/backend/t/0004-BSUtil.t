@@ -179,6 +179,7 @@ ok(BSUtil::checkutf8($utf8_con) == 1, "Checking if BSUtil converts $latin1 to $u
 
 my $log_print = "";
 my $test_log_string = "This is the test log string";
+BSUtil::setdebuglevel($BSConfig::debuglevel) if $BSConfig::debuglevel;
 
 # Test the printlog function without loglevel for backwards compatibility.
 do {
