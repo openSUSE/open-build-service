@@ -125,14 +125,18 @@ $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
 
 # strip helpers from cando
 my %cando = %BSCando::cando;
-for my $hostarch (values %cando) {
-  $hostarch = [ @{$hostarch || []} ];	# make a copy so we can modify
-  s/:.*// for @$hostarch;
+for my $arch (values %cando) {
+  $arch = [ @{$arch || []} ];	# make a copy so we can modify
+  s/:.*// for @$arch;
 }
 my %harchcando;		# can the harch build an arch?
-for my $harch (keys %cando) {
-  for my $arch (@{$cando{$harch}}) {
-    $harchcando{"$harch/$arch"} = 1;
+for my $harch (keys %BSCando::cando) {
+  for my $arch (@{$BSCando::cando{$harch}}) {
+    if ($arch =~ /^([^:]+):(.+)$/) {
+      $harchcando{"$harch/$1"} = $2;
+    } else {
+      $harchcando{"$harch/$arch"} = '';
+    }
   }
 }
 
@@ -839,10 +843,12 @@ sub checkconstraints {
     for my $workername (@workernames) {
       next if $workerseen{$workername};
       my ($harch) = split(':', $workername, 2);
-      next unless $harchcando{"$harch/$buildarch"};
+      next unless exists($harchcando{"$harch/$buildarch"});
       my $worker = $workercache->{"$workerstate/$workername"} || readxml("$workersdir/$workerstate/$workername", $BSXML::worker, 1);
       next unless $worker;
       $workercache->{"$workerstate/$workername"} = $worker;
+      my $helper = $harchcando{"$harch/$buildarch"};
+      next if $helper && $worker->{hardware} && exists($worker->{hardware}->{nativeonly});
       $workerseen{$workername} = 1;
       push @all_workers, $worker;
       next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker);
