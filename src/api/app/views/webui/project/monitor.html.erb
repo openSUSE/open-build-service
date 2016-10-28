@@ -108,7 +108,7 @@
             </td>
             <% @repohash.sort.each do |repo, archlist| -%>
               <% archlist.sort.each do |arch| -%>
-                <%= arch_repo_table_cell(repo, arch, packname) %>
+                <%= arch_repo_table_cell(repo, arch, packname, false) %>
               <% end -%>
             <% end -%>
           </tr>

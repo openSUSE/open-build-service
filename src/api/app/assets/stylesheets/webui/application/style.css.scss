@@ -71,6 +71,15 @@ span.build_result_title {
   }
 }
 
+.status_scheduled_warning a {
+  color: #f30ac4;
+  background-color: #bbb;
+  &:visited, &:hover {
+    color: #f30ac4;
+    background-color: #bbb;
+  }
+}
+
 .status_building a {
   color: #00f;
   background-color: #bbb;
