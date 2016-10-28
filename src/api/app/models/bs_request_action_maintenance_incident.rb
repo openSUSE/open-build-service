@@ -79,9 +79,9 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       if Package.exists_by_project_and_name(incidentProject.name, source_package, follow_project_links: false)
         new_pkg = Package.get_by_project_and_name(incidentProject.name, source_package, use_source: false, follow_project_links: false)
       else
-        new_pkg = incidentProject.packages.create(:name => source_package, :title => pkg_title, :description => pkg_description)
-        new_pkg.flags.create(:status => 'enable', :flag => 'build')
-        new_pkg.flags.create(:status => 'enable', :flag => 'publish') unless incidentProject.flags.find_by_flag_and_status('access', 'disable')
+        new_pkg = incidentProject.packages.create(name: source_package, title: pkg_title, description: pkg_description)
+        new_pkg.flags.create(status: 'enable', flag: 'build')
+        new_pkg.flags.create(status: 'enable', flag: 'publish') unless incidentProject.flags.find_by_flag_and_status('access', 'disable')
         new_pkg.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
       end
 
@@ -90,12 +90,12 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       package_name = source_package
       package_name = linkinfo['package'] if linkinfo
 
-      branch_params = {:target_project => incidentProject.name,
-                       :olinkrev => 'base',
-                       :maintenance => 1,
-                       :force => 1,
-                       :comment => 'Initial new branch',
-                       :project => releaseproject, :package => package_name}
+      branch_params = {target_project: incidentProject.name,
+                       olinkrev: 'base',
+                       maintenance: 1,
+                       force: 1,
+                       comment: 'Initial new branch',
+                       project: releaseproject, package: package_name}
       branch_params[:requestid] = request.id if request
       # accept branching from former update incidents or GM (for kgraft case)
       linkprj = Project.find_by_name(linkinfo['project']) if linkinfo
@@ -118,11 +118,11 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       linked_project = linkinfo['project']
       linked_package = linkinfo['package']
 
-      branch_params = {:target_project => incidentProject.name,
-                       :olinkrev => 'base',
-                       :maintenance => 1,
-                       :force => 1,
-                       :project => linked_project, :package => linked_package}
+      branch_params = {target_project: incidentProject.name,
+                       olinkrev: 'base',
+                       maintenance: 1,
+                       force: 1,
+                       project: linked_project, package: linked_package}
       branch_params[:requestid] = request.id if request
       ret = BranchPackage.new(branch_params).branch
       new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
@@ -132,7 +132,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         if Package.exists_by_project_and_name(incidentProject.name, source_package, follow_project_links: false)
           new_pkg = Package.get_by_project_and_name(incidentProject.name, source_package, use_source: false, follow_project_links: false)
         else
-          new_pkg = Package.new(:name => source_package, :title => pkg.title, :description => pkg.description)
+          new_pkg = Package.new(name: source_package, title: pkg.title, description: pkg.description)
           incidentProject.packages << new_pkg
           new_pkg.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
         end

@@ -1,7 +1,7 @@
 class Webui::MonitorController < Webui::WebuiController
-  before_action :require_settings, :only => [:old, :index, :filtered_list, :update_building]
-  before_action :require_available_architectures, :only => [:index]
-  before_action :fetch_workerstatus, :only => [:old, :filtered_list, :update_building]
+  before_action :require_settings, only: [:old, :index, :filtered_list, :update_building]
+  before_action :require_available_architectures, only: [:index]
+  before_action :fetch_workerstatus, only: [:old, :filtered_list, :update_building]
 
   def fetch_workerstatus
     @workerstatus = WorkerStatus.hidden.to_hash
@@ -69,13 +69,13 @@ class Webui::MonitorController < Webui::WebuiController
                       'package' => b['package'], 'arch' => b['arch'], 'starttime' => b['starttime'] }
     end
     # logger.debug workers.inspect
-    render :json => workers
+    render json: workers
   end
 
   def gethistory(key, range, cache = 1)
     cachekey = key + "-#{range}"
-    Rails.cache.delete(cachekey, :shared => true) if !cache
-    return Rails.cache.fetch(cachekey, :expires_in => (range.to_i * 3600) / 150, :shared => true) do
+    Rails.cache.delete(cachekey, shared: true) if !cache
+    return Rails.cache.fetch(cachekey, expires_in: (range.to_i * 3600) / 150, shared: true) do
       hash = StatusHistory.history_by_key_and_hours(key, range)
       hash.sort { |a, b| a[0] <=> b[0] }
     end
@@ -107,7 +107,7 @@ class Webui::MonitorController < Webui::WebuiController
     max = Webui::MonitorController.addarrays(data['squeue_high'], data['squeue_med']).map { |_, value| value }.max || 0
     data['events_max'] = max * 2
     data['jobs_max'] = maximumvalue(data['waiting']) * 2
-    render :json => data
+    render json: data
   end
 
   private

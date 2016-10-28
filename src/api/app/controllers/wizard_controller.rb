@@ -63,22 +63,22 @@ class WizardController < ApplicationController
   end
 
   def create_service_file
-    node = Builder::XmlMarkup.new(:indent => 2)
+    node = Builder::XmlMarkup.new(indent: 2)
     node.services() do |s|
       # download file
       m = @wizard['sourcefile'].split('://')
       protocol = m.first()
       host = m[1].split('/').first()
       path = m[1].split('/', 2).last()
-      s.service(:name => 'download_url') do |d|
-        d.param(protocol, :name => 'protocol')
-        d.param(host, :name => 'host')
-        d.param(path, :name => 'path')
+      s.service(name: 'download_url') do |d|
+        d.param(protocol, name: 'protocol')
+        d.param(host, name: 'host')
+        d.param(path, name: 'path')
       end
 
       # run generator
       if @wizard['generator'] && @wizard['generator'] != '-'
-        s.service(:name => "generator_#{@wizard['generator']}")
+        s.service(name: "generator_#{@wizard['generator']}")
       end
 
       # run verification
@@ -91,7 +91,7 @@ class WizardController < ApplicationController
     if @wizard.dirty
       Suse::Backend.put(@wizard_xml + '?user=king', @wizard.serialize)
     end
-    render :template => 'wizard', :status => 200
+    render template: 'wizard', status: 200
   end
 end
 

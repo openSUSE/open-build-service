@@ -45,15 +45,15 @@ class BsRequest < ApplicationRecord
 
   before_save :assign_number
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
-  has_many :reviews, :dependent => :delete_all
+  has_many :reviews, dependent: :delete_all
   has_and_belongs_to_many :bs_request_action_groups, join_table: :group_request_requests
-  has_many :comments, :dependent => :delete_all, inverse_of: :bs_request, class_name: 'CommentRequest'
-  validates_inclusion_of :state, :in => VALID_REQUEST_STATES
-  validates :creator, :presence => true
+  has_many :comments, dependent: :delete_all, inverse_of: :bs_request, class_name: 'CommentRequest'
+  validates_inclusion_of :state, in: VALID_REQUEST_STATES
+  validates :creator, presence: true
   validate :check_supersede_state
-  validate :check_creator, :on => [ :create, :save! ]
-  validates_length_of :comment, :maximum => 300000
-  validates_length_of :description, :maximum => 300000
+  validate :check_creator, on: [ :create, :save! ]
+  validates_length_of :comment, maximum: 300000
+  validates_length_of :description, maximum: 300000
 
   after_update :send_state_change
 
@@ -298,7 +298,7 @@ class BsRequest < ApplicationRecord
       r.accept_at accept_at unless accept_at.nil?
       r.description description unless description.nil?
     end
-    builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
@@ -374,7 +374,7 @@ class BsRequest < ApplicationRecord
   end
 
   def permission_check_setincident!(incident)
-    checker = BsRequestPermissionCheck.new(self, {:incident => incident})
+    checker = BsRequestPermissionCheck.new(self, {incident: incident})
     checker.cmd_setincident_permissions
   end
 
@@ -902,13 +902,13 @@ class BsRequest < ApplicationRecord
       User.current ||= User.find_by_login creator
 
       begin
-        change_state({:newstate => 'accepted', :comment => 'Auto accept'})
+        change_state({newstate: 'accepted', comment: 'Auto accept'})
       rescue BsRequestPermissionCheck::NotExistingTarget
-        change_state({:newstate => 'revoked', :comment => 'Target disappeared'})
+        change_state({newstate: 'revoked', comment: 'Target disappeared'})
       rescue PostRequestNoPermission
-        change_state({:newstate => 'revoked', :comment => 'Permission problem'})
+        change_state({newstate: 'revoked', comment: 'Permission problem'})
       rescue APIException
-        change_state({:newstate => 'declined', :comment => 'Unhandled error during accept'})
+        change_state({newstate: 'declined', comment: 'Unhandled error during accept'})
       end
     end
   end
@@ -968,7 +968,7 @@ class BsRequest < ApplicationRecord
 
     # Autoapproval? Is the creator allowed to accept it?
     if accept_at
-      permission_check_change_state!({:newstate => 'accepted'})
+      permission_check_change_state!({newstate: 'accepted'})
     end
 
     apply_default_reviewers
@@ -976,7 +976,7 @@ class BsRequest < ApplicationRecord
 
   def set_accept_at!(time = nil)
     # Approve a request to be accepted when the reviews finished
-    permission_check_change_state!({:newstate => 'accepted'})
+    permission_check_change_state!({newstate: 'accepted'})
 
     self.accept_at = time || Time.now
     save!

@@ -1,12 +1,12 @@
 class GroupController < ApplicationController
   include ValidationHelper
 
-  validate_action :groupinfo => { :method => :get, :response => :group }
-  validate_action :groupinfo => { :method => :put, :request => :group, :response => :status }
-  validate_action :groupinfo => { :method => :delete, :response => :status }
+  validate_action groupinfo: { method: :get, response: :group }
+  validate_action groupinfo: { method: :put, request: :group, response: :status }
+  validate_action groupinfo: { method: :delete, response: :status }
 
   # raise an exception if authorize has not yet been called.
-  after_action :verify_authorized, :except => [:index, :show]
+  after_action :verify_authorized, except: [:index, :show]
 
   rescue_from Pundit::NotAuthorizedError do |exception|
     pundit_action = case exception.query.to_s
@@ -52,7 +52,7 @@ class GroupController < ApplicationController
     group = Group.find_by_title(params[:title])
     if group.nil?
       authorize Group, :create?
-      group = Group.create(:title => params[:title])
+      group = Group.create(title: params[:title])
     end
     authorize group, :update?
 

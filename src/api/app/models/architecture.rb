@@ -7,7 +7,7 @@ class Architecture < ApplicationRecord
 
   #### Associations macros (Belongs to, Has one, Has many)
   has_many :repository_architectures, inverse_of: :architecture
-  has_many :repositories, :through => :repository_architectures
+  has_many :repositories, through: :repository_architectures
   has_many :flags
 
   #### Callbacks macros: before_save, after_save, etc.

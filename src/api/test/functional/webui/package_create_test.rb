@@ -51,18 +51,18 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     login_Iggy to: project_show_path(project: 'home:Iggy')
     open_new_package
     create_package(
-      :name => 'HomePackage1',
-      :title => 'Title for HomePackage1',
-      :description => 'Empty home project package created')
+      name: 'HomePackage1',
+      title: 'Title for HomePackage1',
+      description: 'Empty home project package created')
 
     # now check duplicated name
     visit project_show_path(project: 'home:Iggy')
     open_new_package
     create_package(
-      :name => 'HomePackage1',
-      :title => 'Title for HomePackage1',
-      :description => 'Empty home project package created',
-      :expect => :already_exists)
+      name: 'HomePackage1',
+      title: 'Title for HomePackage1',
+      description: 'Empty home project package created',
+      expect: :already_exists)
 
     # tear down
     delete_package('home:Iggy', 'HomePackage1')
@@ -74,9 +74,9 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
     open_new_package
     create_package(
-      :name => 'PublicPackage1',
-      :title => 'Title for PublicPackage1',
-      :description => 'Empty public project package created')
+      name: 'PublicPackage1',
+      title: 'Title for PublicPackage1',
+      description: 'Empty public project package created')
     # tear down
     delete_package('LocalProject', 'PublicPackage1')
   end
@@ -86,10 +86,10 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
     open_new_package
     create_package(
-      :name => '',
-      :title => 'Title for HomePackage1',
-      :description => 'Empty home project package without name. Must fail.',
-      :expect => :invalid_name)
+      name: '',
+      title: 'Title for HomePackage1',
+      description: 'Empty home project package without name. Must fail.',
+      expect: :invalid_name)
   end
 
   def test_create_package_name_with_spaces # spec/features/webui/projects_spec.rb
@@ -97,9 +97,9 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
     open_new_package
     create_package(
-      :name => 'invalid package name',
-      :description => 'Empty home project package with invalid name. Must fail.',
-      :expect => :invalid_name)
+      name: 'invalid package name',
+      description: 'Empty home project package with invalid name. Must fail.',
+      expect: :invalid_name)
   end
 
   def test_create_package_with_only_name # spec/features/webui/projects_spec.rb
@@ -108,8 +108,8 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
     open_new_package
     create_package(
-      :name => 'HomePackage-OnlyName',
-      :description => '')
+      name: 'HomePackage-OnlyName',
+      description: '')
     # tear down
     delete_package('home:Iggy', 'HomePackage-OnlyName')
   end
@@ -121,9 +121,9 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
     open_new_package
     create_package(
-      :name => 'HomePackage-LongDesc',
-      :title => 'Title for HomePackage-LongDesc',
-      :description => LONG_DESCRIPTION)
+      name: 'HomePackage-LongDesc',
+      title: 'Title for HomePackage-LongDesc',
+      description: LONG_DESCRIPTION)
 
     # tear down
     delete_package('home:Iggy', 'HomePackage-LongDesc')

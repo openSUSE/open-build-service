@@ -17,7 +17,7 @@ class BsRequestActionAcceptInfo < ApplicationRecord
 
   #### Instance methods (public and then protected/private)
   def render_xml(builder)
-    attributes = { :rev => rev, :srcmd5 => srcmd5 }
+    attributes = { rev: rev, srcmd5: srcmd5 }
     attributes[:oproject] = oproject unless oproject.blank?
     attributes[:opackage] = opackage unless opackage.blank?
     attributes[:osrcmd5] = osrcmd5 unless osrcmd5.blank?

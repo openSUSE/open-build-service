@@ -59,7 +59,7 @@ class SearchController < ApplicationController
 
   def attribute
     unless params[:namespace] && params[:name]
-      render_error :status => 400, :message => "need namespace and name parameter"
+      render_error status: 400, message: "need namespace and name parameter"
       return
     end
     find_attribute(params[:namespace], params[:name])
@@ -82,8 +82,8 @@ class SearchController < ApplicationController
     obj = Project.get_by_name(params[:project]) if obj.nil? && params[:project].present?
 
     if obj.blank?
-      render_error :status => 400, :errorcode => "no_binary",
-                   :message => "The search needs at least a 'binary' or 'user' parameter"
+      render_error status: 400, errorcode: "no_binary",
+                   message: "The search needs at least a 'binary' or 'user' parameter"
       return
     end
 
@@ -159,8 +159,8 @@ class SearchController < ApplicationController
 
   def search(what, render_all)
     if render_all && params[:match].blank?
-      render_error :status => 400, :errorcode => "empty_match",
-                   :message => "No predicate found in match argument"
+      render_error status: 400, errorcode: "empty_match",
+                   message: "No predicate found in match argument"
       return
     end
 
@@ -245,7 +245,7 @@ class SearchController < ApplicationController
     end
 
     output << "</collection>"
-    render :text => output, :content_type => "text/xml"
+    render text: output, content_type: "text/xml"
   end
 
   # specification of this function:
@@ -298,13 +298,13 @@ class SearchController < ApplicationController
     end
     packages.sort! { |x, y| x[0] <=> y[0] }
     projects = Project.where(id: packages.collect { |p| p[2] }).distinct.pluck(:id, :name)
-    builder = Builder::XmlMarkup.new(:indent => 2)
-    xml = builder.attribute(:namespace => namespace, :name => name) do
+    builder = Builder::XmlMarkup.new(indent: 2)
+    xml = builder.attribute(namespace: namespace, name: name) do
       projects.each do |prj_id, prj_name|
-        builder.project(:name => prj_name) do
+        builder.project(name: prj_name) do
           packages.each do |pkg_id, pkg_name, pkg_prj|
             next if pkg_prj != prj_id
-            builder.package(:name => pkg_name) do
+            builder.package(name: pkg_name) do
               values = attribValues[pack2attrib[pkg_id]]
               unless values.nil?
                 builder.values do
@@ -316,6 +316,6 @@ class SearchController < ApplicationController
         end
       end
     end
-    render :text => xml, :content_type => "text/xml"
+    render text: xml, content_type: "text/xml"
   end
 end

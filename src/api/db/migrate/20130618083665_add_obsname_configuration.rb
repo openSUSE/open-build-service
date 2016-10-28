@@ -1,6 +1,6 @@
 class AddObsnameConfiguration < ActiveRecord::Migration
   def self.up
-    add_column :configurations, :name, :string, :default => ""
+    add_column :configurations, :name, :string, default: ""
     execute("alter table configurations modify title varchar(255) default '';")
   end
 

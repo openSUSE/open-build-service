@@ -50,7 +50,7 @@ class UserTest < ActiveSupport::TestCase
     assert @project
     assert @user
 
-    a = StaticPermission.new :title => 'this-one-should_go_through'
+    a = StaticPermission.new title: 'this-one-should_go_through'
     assert a.valid?
     a.delete
   end
@@ -95,9 +95,9 @@ class UserTest < ActiveSupport::TestCase
 
   def test_render_axml
     axml = users(:king).render_axml
-    assert_xml_tag axml, :tag => :globalrole, :content => 'Admin'
+    assert_xml_tag axml, tag: :globalrole, content: 'Admin'
     axml = users(:tom).render_axml
-    assert_no_xml_tag axml, :tag => :globalrole, :content => 'Admin'
+    assert_no_xml_tag axml, tag: :globalrole, content: 'Admin'
   end
 
   def test_deleted_user
@@ -140,7 +140,7 @@ class UserTest < ActiveSupport::TestCase
     f.save # of course just for this test
 
     stub_request(:get, 'http://www.gravatar.com/avatar/ef677ecd5e63faa5842d43bcdfca2f33?d=wavatar&s=20').
-        to_return(:status => 200, :body => 'Superpng', :headers => {})
+        to_return(status: 200, body: 'Superpng', headers: {})
     assert_equal 'Superpng', users(:tom).gravatar_image(20)
 
     stub_request(:get, 'http://www.gravatar.com/avatar/ef677ecd5e63faa5842d43bcdfca2f33?d=wavatar&s=200').to_timeout

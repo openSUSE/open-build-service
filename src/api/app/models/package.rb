@@ -51,28 +51,28 @@ class Package < ApplicationRecord
     @commit_opts = {}
   end
 
-  has_many :messages, :as => :db_object, dependent: :delete_all
+  has_many :messages, as: :db_object, dependent: :delete_all
 
-  has_many :taggings, :as => :taggable, dependent: :delete_all
-  has_many :tags, :through => :taggings
+  has_many :taggings, as: :taggable, dependent: :delete_all
+  has_many :tags, through: :taggings
 
   has_many :flags, -> { order(:position) }, dependent: :delete_all, inverse_of: :package
 
-  belongs_to :develpackage, :class_name => 'Package', :foreign_key => 'develpackage_id'
-  has_many :develpackages, :class_name => 'Package', :foreign_key => 'develpackage_id'
+  belongs_to :develpackage, class_name: 'Package', foreign_key: 'develpackage_id'
+  has_many :develpackages, class_name: 'Package', foreign_key: 'develpackage_id'
 
-  has_many :attribs, :dependent => :destroy, foreign_key: :package_id
+  has_many :attribs, dependent: :destroy, foreign_key: :package_id
 
   has_many :package_kinds, dependent: :delete_all
   has_many :package_issues, dependent: :delete_all # defined in sources
   has_many :issues, through: :package_issues
 
-  has_many :products, :dependent => :destroy
-  has_many :channels, :dependent => :destroy, foreign_key: :package_id
+  has_many :products, dependent: :destroy
+  has_many :channels, dependent: :destroy, foreign_key: :package_id
 
-  has_many :comments, :dependent => :destroy, inverse_of: :package, class_name: 'CommentPackage'
+  has_many :comments, dependent: :destroy, inverse_of: :package, class_name: 'CommentPackage'
 
-  has_many :binary_releases, dependent: :delete_all, :foreign_key => 'release_package_id'
+  has_many :binary_releases, dependent: :delete_all, foreign_key: 'release_package_id'
 
   before_destroy :delete_on_backend
   before_destroy :close_requests
@@ -300,7 +300,7 @@ class Package < ApplicationRecord
   def check_write_access(ignoreLock = nil)
     # test _product permissions if any other _product: subcontainer is used
     obj = self
-    obj = project.packages.where(:name => "_product").first if name =~ /\A_product:\w[-+\w\.]*\z/
+    obj = project.packages.where(name: "_product").first if name =~ /\A_product:\w[-+\w\.]*\z/
     return true if User.current.can_modify_package? obj, ignoreLock
     false
   end
@@ -373,7 +373,7 @@ class Package < ApplicationRecord
       end
     end
     kinds.each do |k|
-      package_kinds.create :kind => k
+      package_kinds.create kind: k
     end
   end
 
@@ -1106,7 +1106,7 @@ class Package < ApplicationRecord
       request.bs_request_actions.each do |action|
         if action.source_project == project.name && action.source_package == name
           begin
-            request.change_state({:newstate => 'revoked', :comment => "The source package '#{name}' has been removed"})
+            request.change_state({newstate: 'revoked', comment: "The source package '#{name}' has been removed"})
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to revoke request #{id} but had no permissions"
           end
@@ -1114,7 +1114,7 @@ class Package < ApplicationRecord
         end
         if action.target_project == project.name && action.target_package == name
           begin
-            request.change_state({:newstate => 'declined', :comment => "The target package '#{name}' has been removed"})
+            request.change_state({newstate: 'declined', comment: "The target package '#{name}' has been removed"})
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to decline request #{id} but had no permissions"
           end
@@ -1128,7 +1128,7 @@ class Package < ApplicationRecord
       # Don't alter the request that is the trigger of this close_requests run
       next if request.id == @commit_opts[:request]
 
-      request.obsolete_reviews(:by_project => project.name, :by_package => name)
+      request.obsolete_reviews(by_project: project.name, by_package: name)
     end
   end
 
@@ -1158,12 +1158,12 @@ class Package < ApplicationRecord
     update_needed = nil
     if project.flags.find_by_flag_and_status( 'build', 'disable' )
       # enable package builds if project default is disabled
-      flags.create( :position => 1, :flag => 'build', :status => 'enable', :repo => repoName )
+      flags.create( position: 1, flag: 'build', status: 'enable', repo: repoName )
       update_needed = true
     end
     if project.flags.find_by_flag_and_status( 'debuginfo', 'disable' )
       # take over debuginfo config from origin project
-      flags.create( :position => 1, :flag => 'debuginfo', :status => 'enable', :repo => repoName )
+      flags.create( position: 1, flag: 'debuginfo', status: 'enable', repo: repoName )
       update_needed = true
     end
     store if update_needed
@@ -1181,7 +1181,7 @@ class Package < ApplicationRecord
   def serviceinfo
     unless @serviceinfo
       begin
-        dir = Directory.find( project: project.name, :package => name)
+        dir = Directory.find( project: project.name, package: name)
         @serviceinfo = dir.find_first(:serviceinfo) if dir
       rescue ActiveXML::Transport::NotFoundError
       end

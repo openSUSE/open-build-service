@@ -4,9 +4,9 @@ require "rexml/streamlistener"
 class StatisticsController < ApplicationController
   include StatisticsCalculations
 
-  validate_action :redirect_stats => {:method => :get, :response => :redirect_stats}
+  validate_action redirect_stats: {method: :get, response: :redirect_stats}
 
-  before_action :get_limit, :only => [
+  before_action :get_limit, only: [
       :highest_rated, :most_active_packages, :most_active_projects, :latest_added, :latest_updated,
       :latest_built, :download_counter
   ]
@@ -14,7 +14,7 @@ class StatisticsController < ApplicationController
   def index
     text = "This is the statistics controller.<br />"
     text += "See the api documentation for details."
-    render :text => text
+    render text: text
   end
 
   def min_votes_for_rating
@@ -66,8 +66,8 @@ class StatisticsController < ApplicationController
           rating.user_id = @http_user.id
           rating.save
         rescue
-          render_error :status => 400, :errorcode => "error setting rating",
-                       :message => "rating not saved"
+          render_error status: 400, errorcode: "error setting rating",
+                       message: "rating not saved"
           return
         end
       end
@@ -75,17 +75,17 @@ class StatisticsController < ApplicationController
       return
     end
 
-    render_error :status => 400, :errorcode => "invalid_method",
-                 :message => "only GET or PUT method allowed for this action"
+    render_error status: 400, errorcode: "invalid_method",
+                 message: "only GET or PUT method allowed for this action"
   end
 
   def download_counter
     # FIXME: download stats are currently not supported and needs a re-implementation
-    render_error :status => 400, :errorcode => "not_supported", :message => "download stats need a re-implementation"
+    render_error status: 400, errorcode: "not_supported", message: "download stats need a re-implementation"
   end
 
   def newest_stats
-    render_error :status => 400, :errorcode => "not_supported", :message => "download stats need a re-implementation"
+    render_error status: 400, errorcode: "not_supported", message: "download stats need a re-implementation"
   end
 
   def most_active_projects
@@ -96,7 +96,7 @@ class StatisticsController < ApplicationController
     projects = {}
     @packages.each do |package|
       pro = package.project.name
-      projects[pro] ||= {:count => 0, :activity => 0}
+      projects[pro] ||= {count: 0, activity: 0}
       projects[pro][:count] += 1
       av = package.activity_value.to_f
       projects[pro][:activity] = av if av > projects[pro][:activity]

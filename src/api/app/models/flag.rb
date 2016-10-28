@@ -6,14 +6,14 @@ class Flag < ApplicationRecord
 
   scope :of_type, ->(type) { where(flag: type) }
 
-  validates :flag, :presence => true
-  validates :position, :presence => true
-  validates_numericality_of :position, :only_integer => true
+  validates :flag, presence: true
+  validates :position, presence: true
+  validates_numericality_of :position, only_integer: true
 
   after_save :discard_forbidden_project_cache
   after_destroy :discard_forbidden_project_cache
 
-  before_validation(:on => :create) do
+  before_validation(on: :create) do
     if project
       self.position = (project.flags.maximum(:position) || 0 ) + 1
     elsif package
@@ -30,7 +30,7 @@ class Flag < ApplicationRecord
     # rubocop:enable Metrics/LineLength
   end
 
-  validate :validate_duplicates, :on => :create
+  validate :validate_duplicates, on: :create
   def validate_duplicates
     # rubocop:disable Metrics/LineLength
     if Flag.where("status = ? AND repo = ? AND project_id = ? AND package_id = ? AND architecture_id = ? AND flag = ?", status, repo, project_id, package_id, architecture_id, flag).exists?

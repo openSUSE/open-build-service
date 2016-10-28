@@ -18,26 +18,26 @@ class BinaryReleaseTest < ActiveSupport::TestCase
                                             "BaseDistro3_repo")
     br = BinaryRelease.where(repository: r).first
     xml = br.render_xml
-    assert_xml_tag xml, :tag => 'binary',
-                        :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo",
-                                         :name => "package", :version => "1.0", :release => "1", :arch => "i586" }
-    assert_xml_tag xml, :tag => 'maintainer', :content => 'Iggy'
-    assert_xml_tag xml, :tag => 'operation', :content => 'added'
-    assert_xml_tag xml, :tag => 'supportstatus', :content => 'l3'
-    assert_xml_tag xml, :tag => 'updateinfo', :attributes => { :id => "OBS-2014-42", :version => "1" }
+    assert_xml_tag xml, tag: 'binary',
+                        attributes: { project: "BaseDistro3", repository: "BaseDistro3_repo",
+                                         name: "package", version: "1.0", release: "1", arch: "i586" }
+    assert_xml_tag xml, tag: 'maintainer', content: 'Iggy'
+    assert_xml_tag xml, tag: 'operation', content: 'added'
+    assert_xml_tag xml, tag: 'supportstatus', content: 'l3'
+    assert_xml_tag xml, tag: 'updateinfo', attributes: { id: "OBS-2014-42", version: "1" }
   end
 
   def test_create_and_find_entries
     project = Project.find_by_name("BaseDistro")
-    repository = project.repositories.build(:name => "Dummy")
+    repository = project.repositories.build(name: "Dummy")
     Timecop.freeze(2010, 7, 12)
-    binary_release = BinaryRelease.create(:repository => repository,
-                                          :binary_name => "package",
-                                          :binary_version => "1",
-                                          :binary_release => "2.3",
-                                          :binary_arch => "noarch",
-                                          :binary_supportstatus => "unsupported",
-                                          :binary_maintainer => "tom")
+    binary_release = BinaryRelease.create(repository: repository,
+                                          binary_name: "package",
+                                          binary_version: "1",
+                                          binary_release: "2.3",
+                                          binary_arch: "noarch",
+                                          binary_supportstatus: "unsupported",
+                                          binary_maintainer: "tom")
     binary_releases_of_package = BinaryRelease.where(repository: repository, binary_name: "package")
     assert_equal binary_releases_of_package.first, binary_release
     assert_equal binary_releases_of_package.first.binary_name, "package"

@@ -43,7 +43,7 @@ class TagTest < ActiveSupport::TestCase
     u = User.find_by_login('Iggy')
     assert_kind_of User, u
 
-    opt = {:scope => 'user', :user => u}
+    opt = {scope: 'user', user: u}
 
     t = Tag.find_by_name("TagA")
     assert_kind_of Tag, t
@@ -79,7 +79,7 @@ class TagTest < ActiveSupport::TestCase
 
     # calculate tag count
     tags.each do |tag|
-      tag.count(:scope => "by_given_tags", :tags => tags)
+      tag.count(scope: "by_given_tags", tags: tags)
     end
 
     tags.uniq!

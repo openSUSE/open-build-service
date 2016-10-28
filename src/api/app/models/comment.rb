@@ -15,7 +15,7 @@ class Comment < ApplicationRecord
 
   after_create :create_notification
 
-  has_many :children, dependent: :destroy, :class_name => 'Comment', :foreign_key => 'parent_id'
+  has_many :children, dependent: :destroy, class_name: 'Comment', foreign_key: 'parent_id'
 
   extend ActsAsTree::TreeWalker
   acts_as_tree order: "created_at"

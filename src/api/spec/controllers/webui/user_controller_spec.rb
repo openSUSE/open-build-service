@@ -118,7 +118,7 @@ RSpec.describe Webui::UserController do
     before { login non_admin_user }
 
     it 'renders the requests as json' do
-      get :requests, { :format => :json }
+      get :requests, { format: :json }
       expect(response.body).to eq({sEcho: 2, iTotalRecords: 1, iTotalDisplayRecords: 1, data: []}.to_json)
     end
   end

@@ -6,7 +6,7 @@ class DownloadRepository < ApplicationRecord
   validates :repository_id, presence: true
   validates :arch, uniqueness: { scope: :repository_id }, presence: true
   validate :architecture_inclusion
-  validates :url, presence: true, :format => { :with => /\A[a-zA-Z]+:.*\Z/ } # from backend/BSVerify.pm
+  validates :url, presence: true, format: { with: /\A[a-zA-Z]+:.*\Z/ } # from backend/BSVerify.pm
   validates :repotype, presence: true
   validates :repotype, inclusion: { in: REPOTYPES }
 

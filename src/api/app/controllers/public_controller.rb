@@ -30,8 +30,8 @@ class PublicController < ApplicationController
     @configuration = ::Configuration.first
 
     respond_to do |format|
-      format.xml  { render :xml => @configuration.render_xml }
-      format.json { render :json => @configuration.to_json }
+      format.xml  { render xml: @configuration.render_xml }
+      format.json { render json: @configuration.to_json }
     end
   end
 
@@ -51,7 +51,7 @@ class PublicController < ApplicationController
     if params[:view] == 'info'
       # nofilename since a package may have no source access
       if params[:nofilename] && params[:nofilename] != '1'
-        render_error :status => 400, :errorcode => 'parameter_error', :message => 'nofilename is not allowed as parameter'
+        render_error status: 400, errorcode: 'parameter_error', message: 'nofilename is not allowed as parameter'
         return
       end
       # path has multiple package= parameters
@@ -130,9 +130,9 @@ class PublicController < ApplicationController
     @pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     begin
-       binaries = Collection.find :id, :what => 'published/binary', :match => "@project='#{params[:project]}' and @package='#{params[:package]}'"
+       binaries = Collection.find :id, what: 'published/binary', match: "@project='#{params[:project]}' and @package='#{params[:package]}'"
     rescue
-      render_error :status => 400, :errorcode => 'search_failure', :message => "The search can't get executed."
+      render_error status: 400, errorcode: 'search_failure', message: "The search can't get executed."
       return
     end
 
@@ -146,7 +146,7 @@ class PublicController < ApplicationController
     end
 
     @binary_links = {}
-    @pkg.project.repositories.includes({:path_elements => {:link => :project}}).each do |repo|
+    @pkg.project.repositories.includes({path_elements: {link: :project}}).each do |repo|
       repo.path_elements.each do |pe|
         # NOTE: we do not follow indirect path elements here, since most installation handlers
         #       do not support it (exception zypp via ymp files)
@@ -157,7 +157,7 @@ class PublicController < ApplicationController
           @binary_links[dist_id] ||= {}
           binary = binary_map[repo.name].select {|bin| bin.value(:name) == @pkg.name}.first
           if binary && dist.vendor == 'openSUSE'
-            @binary_links[dist_id][:ymp] = { :url => ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name+'.ymp') ) }
+            @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name+'.ymp') ) }
           end
 
           @binary_links[dist_id][:binary] ||= []
@@ -170,10 +170,10 @@ class PublicController < ApplicationController
             filepath.gsub!(/:\//, ":")
             filepath.gsub!(/^[^\/]*\/[^\/]*\//, '')
 
-            @binary_links[dist_id][:binary] << {:type => binary_type, :arch => b.value(:arch), :url => repo.download_url(filepath)}
+            @binary_links[dist_id][:binary] << {type: binary_type, arch: b.value(:arch), url: repo.download_url(filepath)}
             if @binary_links[dist_id][:repository].blank?
               repo_filename = (binary_type == 'rpm') ? "#{@pkg.project.name}.repo" : ''
-              @binary_links[dist_id][:repository] ||= { :url => repo.download_url(repo_filename) }
+              @binary_links[dist_id][:repository] ||= { url: repo.download_url(repo_filename) }
             end
           end
           #
@@ -200,7 +200,7 @@ class PublicController < ApplicationController
       return true
     end
     logger.error 'No public access is configured'
-    render_error( :message => 'No public access is configured', :status => 401 )
+    render_error( message: 'No public access is configured', status: 401 )
     return false
   end
 
@@ -217,7 +217,7 @@ class PublicController < ApplicationController
 
     # generic access checks
     key = 'public_package:' + project + ':' + package
-    allowed = Rails.cache.fetch(key, :expires_in => 30.minutes) do
+    allowed = Rails.cache.fetch(key, expires_in: 30.minutes) do
       begin
         Package.get_by_project_and_name(project, package, use_source: false)
         true

@@ -1,7 +1,7 @@
 require "browser_helper"
 require "webmock/rspec"
 
-RSpec.feature "Packages", :type => :feature, :js => true do
+RSpec.feature "Packages", type: :feature, js: true do
   it_behaves_like 'user tab' do
     let(:package) {
       create(:package, name: "group_test_package",

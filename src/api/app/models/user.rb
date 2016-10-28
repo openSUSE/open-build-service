@@ -22,8 +22,8 @@ end
 class User < ApplicationRecord
   include CanRenderModel
 
-  has_many :taggings, :dependent => :destroy
-  has_many :tags, :through => :taggings
+  has_many :taggings, dependent: :destroy
+  has_many :tags, through: :taggings
 
   has_many :watched_projects, dependent: :destroy, inverse_of: :user
   has_many :groups_users, inverse_of: :user
@@ -33,7 +33,7 @@ class User < ApplicationRecord
   has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
   has_many :messages
-  has_many :tokens, :dependent => :destroy, inverse_of: :user
+  has_many :tokens, dependent: :destroy, inverse_of: :user
 
   has_many :event_subscriptions, inverse_of: :user
 
@@ -55,18 +55,18 @@ class User < ApplicationRecord
   attr_accessor :new_password
 
   validates_presence_of :login, :email, :password, :password_hash_type, :state,
-                        :message => 'must be given'
+                        message: 'must be given'
 
   validates_uniqueness_of :login,
-                          :message => 'is the name of an already existing user.'
+                          message: 'is the name of an already existing user.'
 
   validates_format_of :login,
-                      :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
-                      :message => 'must not contain invalid characters.'
+                      with: %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+                      message: 'must not contain invalid characters.'
   validates_length_of :login,
-                      :in => 2..100, :allow_nil => true,
-                      :too_long => 'must have less than 100 characters.',
-                      :too_short => 'must have more than two characters.'
+                      in: 2..100, allow_nil: true,
+                      too_long: 'must have less than 100 characters.',
+                      too_short: 'must have more than two characters.'
 
   # We want a valid email address. Note that the checking done here is very
   # rough. Email adresses are hard to validate now domain names may include
@@ -74,26 +74,26 @@ class User < ApplicationRecord
   # However, this is not *so* bad since users have to answer on their email
   # to confirm their registration.
   validates_format_of :email,
-                      :with => %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
-                      :message => 'must be a valid email address.'
+                      with: %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
+                      message: 'must be a valid email address.'
 
   # We want to validate the format of the password and only allow alphanumeric
   # and some punctiation characters.
   # The format must only be checked if the password has been set and the record
   # has not been stored yet.
   validates_format_of :password,
-                      :with => %r{\A[\w\.\- !?(){}|~*]+\z},
-                      :message => 'must not contain invalid characters.',
-                      :if => Proc.new { |user| user.new_password? && !user.password.nil? }
+                      with: %r{\A[\w\.\- !?(){}|~*]+\z},
+                      message: 'must not contain invalid characters.',
+                      if: Proc.new { |user| user.new_password? && !user.password.nil? }
 
   # We want the password to have between 6 and 64 characters.
   # The length must only be checked if the password has been set and the record
   # has not been stored yet.
   validates_length_of :password,
-                      :within => 6..64,
-                      :too_long => 'must have between 6 and 64 characters.',
-                      :too_short => 'must have between 6 and 64 characters.',
-                     :if => Proc.new { |user| user.new_password? && !user.password.nil? }
+                      within: 6..64,
+                      too_long: 'must have between 6 and 64 characters.',
+                      too_short: 'must have between 6 and 64 characters.',
+                     if: Proc.new { |user| user.new_password? && !user.password.nil? }
 
   after_create :create_home_project
   def create_home_project
@@ -124,7 +124,7 @@ class User < ApplicationRecord
   # hash type, indicator whether the password has freshly been set
   # (@new_password) and the login failure count to
   # unconfirmed/false/0 when it has not been set yet.
-  before_validation(:on => :create) do
+  before_validation(on: :create) do
     self.state ||= 'unconfirmed'
     self.password_hash_type = 'md5' if password_hash_type.to_s == ''
 
@@ -135,7 +135,7 @@ class User < ApplicationRecord
   end
 
   # After validation, the password should be encrypted
-  after_validation(:on => :create) do
+  after_validation(on: :create) do
     if errors.empty? && @new_password && !password.nil?
       # generate a new 10-char long hash only Base64 encoded so things are compatible
       self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9]
@@ -241,10 +241,10 @@ class User < ApplicationRecord
       logger.debug( "Name : #{ldap_info[1]}" )
       # Generate and store a 24 char fake pw in the OBS DB that no-one knows
       password = SecureRandom.base64
-      user = User.create( :login => login,
-                          :password => password,
-                          :email => ldap_info[0],
-                          :last_logged_in_at => Time.now)
+      user = User.create( login: login,
+                          password: password,
+                          email: ldap_info[0],
+                          last_logged_in_at: Time.now)
       unless user.errors.empty?
         logger.debug("Creating User failed with: ")
         all_errors = user.errors.full_messages.map do |msg|
@@ -703,9 +703,9 @@ class User < ApplicationRecord
   def has_local_role?( role, object )
     if object.is_a?(Package) || object.is_a?(Project)
       logger.debug "running local role package check: user #{login}, package #{object.name}, role '#{role.title}'"
-      rels = object.relationships.where(:role_id => role.id, :user_id => id)
+      rels = object.relationships.where(role_id: role.id, user_id: id)
       return true if rels.exists?
-      rels = object.relationships.joins(:groups_users).where(:groups_users => { user_id: id }).where(:role_id => role.id)
+      rels = object.relationships.joins(:groups_users).where(groups_users: { user_id: id }).where(role_id: role.id)
       return true if rels.exists?
 
       return true if lookup_strategy.local_role_check(role, object)
@@ -740,9 +740,9 @@ class User < ApplicationRecord
     else
       return false
     end
-    rel = object.relationships.where(:user_id => id).where('role_id in (?)', roles)
+    rel = object.relationships.where(user_id: id).where('role_id in (?)', roles)
     return true if rel.exists?
-    rel = object.relationships.joins(:groups_users).where(:groups_users => { user_id: id }).where('role_id in (?)', roles)
+    rel = object.relationships.joins(:groups_users).where(groups_users: { user_id: id }).where('role_id in (?)', roles)
     return true if rel.exists?
 
     return true if lookup_strategy.local_permission_check(roles, object)
@@ -868,7 +868,7 @@ class User < ApplicationRecord
     ids = rel.where('package_kinds.kind="patchinfo"').pluck('distinct package_issues.package_id')
 
     Package.where(id: ids).each do |p|
-      hash = {:package => {:project => p.project.name, :name => p.name}}
+      hash = {package: {project: p.project.name, name: p.name}}
       issues = Array.new
 
       p.issues.each do |is|

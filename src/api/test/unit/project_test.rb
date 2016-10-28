@@ -62,11 +62,11 @@ class ProjectTest < ActiveSupport::TestCase
     # puts xml_string
 
     # check the results
-    assert_xml_tag xml_string, :tag => :project, :children => { :count => 1, :only => { :tag => :build } }
-    assert_xml_tag xml_string, :parent => :project, :tag => :build, :children => { :count => 2 }
+    assert_xml_tag xml_string, tag: :project, children: { count: 1, only: { tag: :build } }
+    assert_xml_tag xml_string, parent: :project, tag: :build, children: { count: 2 }
 
-    assert_xml_tag xml_string, :tag => :project, :children => { :count => 1, :only => { :tag => :publish } }
-    assert_xml_tag xml_string, :parent => :project, :tag => :publish, :children => { :count => 2 }
+    assert_xml_tag xml_string, tag: :project, children: { count: 1, only: { tag: :publish } }
+    assert_xml_tag xml_string, parent: :project, tag: :publish, children: { count: 2 }
   end
 
   def test_add_new_flags_from_xml
@@ -197,8 +197,8 @@ class ProjectTest < ActiveSupport::TestCase
     xml = @project.render_xml
 
     # validate i586 is in the middle
-    assert_xml_tag xml, :tag => :arch, :content => 'i586', :after => { :tag => :arch, :content => 'local' }
-    assert_xml_tag xml, :tag => :arch, :content => 'i586', :before => { :tag => :arch, :content => 'x86_64' }
+    assert_xml_tag xml, tag: :arch, content: 'i586', after: { tag: :arch, content: 'local' }
+    assert_xml_tag xml, tag: :arch, content: 'i586', before: { tag: :arch, content: 'x86_64' }
 
     # now verify it's not happening randomly
     # project is given as axml
@@ -218,8 +218,8 @@ class ProjectTest < ActiveSupport::TestCase
     xml = @project.render_xml
 
     # validate x86_64 is in the middle
-    assert_xml_tag xml, :tag => :arch, :content => 'x86_64', :after => { :tag => :arch, :content => 'i586' }
-    assert_xml_tag xml, :tag => :arch, :content => 'x86_64', :before => { :tag => :arch, :content => 'local' }
+    assert_xml_tag xml, tag: :arch, content: 'x86_64', after: { tag: :arch, content: 'i586' }
+    assert_xml_tag xml, tag: :arch, content: 'x86_64', before: { tag: :arch, content: 'local' }
   end
 
   def test_maintains
@@ -238,7 +238,7 @@ class ProjectTest < ActiveSupport::TestCase
     @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
-    assert_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro" }
+    assert_xml_tag xml, tag: :maintains, attributes: { project: "BaseDistro" }
 
     # add one maintained project
     axml = Xmlhash.parse(
@@ -254,8 +254,8 @@ class ProjectTest < ActiveSupport::TestCase
     @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
-    assert_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro" }
-    assert_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro2.0" }
+    assert_xml_tag xml, tag: :maintains, attributes: { project: "BaseDistro" }
+    assert_xml_tag xml, tag: :maintains, attributes: { project: "BaseDistro2.0" }
 
     # remove one maintained project
     axml = Xmlhash.parse(
@@ -270,9 +270,9 @@ class ProjectTest < ActiveSupport::TestCase
     @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
-    assert_no_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro" }
-    assert_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro2.0" }
-    assert_xml_tag xml, :tag => :maintenance
+    assert_no_xml_tag xml, tag: :maintains, attributes: { project: "BaseDistro" }
+    assert_xml_tag xml, tag: :maintains, attributes: { project: "BaseDistro2.0" }
+    assert_xml_tag xml, tag: :maintenance
 
     # drop entire <maintenance> defs
     axml = Xmlhash.parse(
@@ -284,7 +284,7 @@ class ProjectTest < ActiveSupport::TestCase
     @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
-    assert_no_xml_tag xml, :tag => :maintenance
+    assert_no_xml_tag xml, tag: :maintenance
   end
 
   test "duplicated repos" do
@@ -378,7 +378,7 @@ END
         <link project='home:Iggy' />
       </project>"
       )
-    projectA = Project.create( :name => "home:Iggy:A" )
+    projectA = Project.create( name: "home:Iggy:A" )
     projectA.update_from_xml!(axml)
     projectA.store
 
@@ -390,20 +390,20 @@ END
         <link project='home:Iggy:A' />
       </project>"
       )
-    projectB = Project.create( :name => "home:Iggy:B" )
+    projectB = Project.create( name: "home:Iggy:B" )
     projectB.update_from_xml!(axml)
     projectB.store
 
     # validate xml
     xml_string = projectA.to_axml
-    assert_xml_tag xml_string, :tag => :link, :attributes => { :project => "home:Iggy" }
+    assert_xml_tag xml_string, tag: :link, attributes: { project: "home:Iggy" }
     xml_string = projectB.to_axml
-    assert_xml_tag xml_string, :tag => :link, :attributes => { :project => "home:Iggy:A" }
+    assert_xml_tag xml_string, tag: :link, attributes: { project: "home:Iggy:A" }
 
     projectA.destroy
     projectB.reload
     xml_string = projectB.to_axml
-    assert_no_xml_tag xml_string, :tag => :link
+    assert_no_xml_tag xml_string, tag: :link
     projectB.destroy
   end
 
@@ -428,10 +428,10 @@ END
     )
 
     xml = prj.to_axml
-    assert_xml_tag xml, :tag => :download, :attributes => {arch: "i586", url: "http://me.org", repotype: "rpmmd"}
-    assert_xml_tag xml, :tag => :archfilter, :content => "i686,i586,noarch"
-    assert_xml_tag xml, :tag => :master, :attributes => {url: "http://download.opensuse.org", sslfingerprint: "0815"}
-    assert_xml_tag xml, :tag => :pubkey, :content => "grfzl"
+    assert_xml_tag xml, tag: :download, attributes: {arch: "i586", url: "http://me.org", repotype: "rpmmd"}
+    assert_xml_tag xml, tag: :archfilter, content: "i686,i586,noarch"
+    assert_xml_tag xml, tag: :master, attributes: {url: "http://download.opensuse.org", sslfingerprint: "0815"}
+    assert_xml_tag xml, tag: :pubkey, content: "grfzl"
   end
 
   def test_validate_remote_permissions
@@ -549,21 +549,21 @@ END
     # be extended with later calls, we need to sync this always after finishing a
     # a setup of new branched packages with this sync function:
     xml = prj.to_axml
-    assert_xml_tag xml, :tag => :repository, :attributes => {name: "my_branch_sp1_update"},
-                        :children => { count: 1, :only => { :tag => :path } }
+    assert_xml_tag xml, tag: :repository, attributes: {name: "my_branch_sp1_update"},
+                        children: { count: 1, only: { tag: :path } }
 
-    assert_no_xml_tag xml, :tag => :path, :attributes => { project: "My:Branch", repository: "my_branch_sp0_update" }
+    assert_no_xml_tag xml, tag: :path, attributes: { project: "My:Branch", repository: "my_branch_sp0_update" }
     prj.reload
     prj.sync_repository_pathes
     xml = prj.to_axml
-    assert_xml_tag xml, :tag => :repository, :attributes => {name: "my_branch_sp1_update"},
-                        :children => { count: 2, :only => { :tag => :path } }
-    assert_xml_tag xml, :tag => :path, :attributes => { project: "My:Branch", repository: "my_branch_sp0_update" }
+    assert_xml_tag xml, tag: :repository, attributes: {name: "my_branch_sp1_update"},
+                        children: { count: 2, only: { tag: :path } }
+    assert_xml_tag xml, tag: :path, attributes: { project: "My:Branch", repository: "my_branch_sp0_update" }
     # untouched
-    assert_xml_tag xml, :tag => :repository, :attributes => {name: "my_branch_sp0_update"},
-                        :children => { count: 1, :only => { :tag => :path } }
-    assert_xml_tag xml, :parent => { :tag => :repository, :attributes => {name: "Channel_Server"} },
-                        :tag => :path, :attributes => {project: "Enterprise-SP1:Channel:Server", repository: "channel"}
+    assert_xml_tag xml, tag: :repository, attributes: {name: "my_branch_sp0_update"},
+                        children: { count: 1, only: { tag: :path } }
+    assert_xml_tag xml, parent: { tag: :repository, attributes: {name: "Channel_Server"} },
+                        tag: :path, attributes: {project: "Enterprise-SP1:Channel:Server", repository: "channel"}
 
     # must not change again anything
     prj.sync_repository_pathes

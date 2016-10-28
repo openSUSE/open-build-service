@@ -50,11 +50,11 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
 
     get "/public/request/1000"
     assert_response :success
-    assert_xml_tag :tag => 'request', attributes: {id: "1000"}
+    assert_xml_tag tag: 'request', attributes: {id: "1000"}
 
     get "/public/request/98766123"
     assert_response 404
-    assert_xml_tag :tag => 'status', attributes: {code: "not_found"}
+    assert_xml_tag tag: 'status', attributes: {code: "not_found"}
 
     # remote interconnect from scheduler for product building
     get "/public/build/home:Iggy/10.2/i586"
@@ -129,16 +129,16 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     # This URL is used by Frank Karlitschek's kde/gnome/qt-apps.org sites
     get "/public/binary_packages/home:Iggy/TestPack"
     assert_response :success
-    assert_xml_tag :tag => 'package'
-    assert_xml_tag :tag => 'list', :attributes => { :distribution => "1" }
-    assert_xml_tag :tag => 'repository', :attributes => { :url => "http://example.com/download/home:/Iggy/10.2/home:Iggy.repo" }
-    assert_xml_tag :tag => 'rpm', :attributes => { :arch => "i586",
-                                                   :url  => "http://example.com/download/home:/Iggy/10.2/i586/package-1.0-1.i586.rpm" }
+    assert_xml_tag tag: 'package'
+    assert_xml_tag tag: 'list', attributes: { distribution: "1" }
+    assert_xml_tag tag: 'repository', attributes: { url: "http://example.com/download/home:/Iggy/10.2/home:Iggy.repo" }
+    assert_xml_tag tag: 'rpm', attributes: { arch: "i586",
+                                             url:  "http://example.com/download/home:/Iggy/10.2/i586/package-1.0-1.i586.rpm" }
 
     # we can list the binaries, but not download to avoid direct links
     get "/public/build/home:Iggy/10.2/i586/TestPack"
     assert_response :success
-    assert_xml_tag :tag => "binary", :attributes => { :filename => "package-1.0-1.i586.rpm" }
+    assert_xml_tag tag: "binary", attributes: { filename: "package-1.0-1.i586.rpm" }
 
     get "/public/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm"
     assert_response 404

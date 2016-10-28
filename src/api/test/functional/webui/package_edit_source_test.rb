@@ -11,7 +11,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     @package_object = Package.get_by_project_and_name(@project, @package)
 
     use_js
-    login_Iggy to: package_show_path(:project => @project, :package => @package)
+    login_Iggy to: package_show_path(project: @project, package: @package)
   end
 
   def text_path(name)

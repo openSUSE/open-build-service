@@ -56,7 +56,7 @@ module FlagHelper
           repo = xmlflag['repository']
 
           # instantiate new flag object
-          flags.new(:status => status, :position => position, :flag => flagtype) do |flag|
+          flags.new(status: status, position: position, flag: flagtype) do |flag|
             # set the flag attributes
             flag.repo = repo
             flag.architecture = arch

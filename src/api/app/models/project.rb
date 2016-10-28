@@ -49,25 +49,25 @@ class Project < ApplicationRecord
       where(['lower(packages.name) like lower(?)', "#{search}%"])
     end
   end
-  has_many :attribs, :dependent => :destroy
+  has_many :attribs, dependent: :destroy
 
-  has_many :repositories, :dependent => :destroy, foreign_key: :db_project_id
+  has_many :repositories, dependent: :destroy, foreign_key: :db_project_id
   has_many :path_elements, through: :repositories
   has_many :linked_repositories, through: :path_elements, source: :link, foreign_key: :repository_id
   has_many :repository_architectures, -> { order("position") }, through: :repositories
-  has_many :architectures, -> { order("position").distinct }, :through => :repository_architectures
+  has_many :architectures, -> { order("position").distinct }, through: :repository_architectures
 
-  has_many :messages, :as => :db_object, :dependent => :delete_all
-  has_many :watched_projects, :dependent => :destroy, inverse_of: :project
+  has_many :messages, as: :db_object, dependent: :delete_all
+  has_many :watched_projects, dependent: :destroy, inverse_of: :project
 
   # Direct links between projects (not expanded ones)
-  has_many :linking_to, -> { order(:position) }, :class_name => 'LinkedProject', foreign_key: :db_project_id, :dependent => :delete_all
+  has_many :linking_to, -> { order(:position) }, class_name: 'LinkedProject', foreign_key: :db_project_id, dependent: :delete_all
   has_many :projects_linking_to, through: :linking_to, class_name: 'Project', source: :linked_db_project
-  has_many :linked_by, -> { order(:position) }, :class_name => 'LinkedProject', foreign_key: :linked_db_project_id, :dependent => :delete_all
+  has_many :linked_by, -> { order(:position) }, class_name: 'LinkedProject', foreign_key: :linked_db_project_id, dependent: :delete_all
   has_many :linked_by_projects, through: :linked_by, class_name: 'Project', source: :project
 
-  has_many :taggings, :as => :taggable, :dependent => :delete_all
-  has_many :tags, :through => :taggings
+  has_many :taggings, as: :taggable, dependent: :delete_all
+  has_many :tags, through: :taggings
 
   has_many :flags, dependent: :delete_all, inverse_of: :project
 
@@ -75,20 +75,20 @@ class Project < ApplicationRecord
   has_one :maintenance_incident, dependent: :delete, foreign_key: :db_project_id
 
   # projects can maintain other projects
-  has_many :maintained_projects, :class_name => 'MaintainedProject', foreign_key: :maintenance_project_id, :dependent => :delete_all
-  has_many :maintenance_projects, :class_name => 'MaintainedProject', foreign_key: :project_id, :dependent => :delete_all
+  has_many :maintained_projects, class_name: 'MaintainedProject', foreign_key: :maintenance_project_id, dependent: :delete_all
+  has_many :maintenance_projects, class_name: 'MaintainedProject', foreign_key: :project_id, dependent: :delete_all
 
-  has_many :incident_updateinfo_counter_values, foreign_key: :project_id, :dependent => :delete_all
-  has_many :maintenance_incidents, foreign_key: :project_id, :dependent => :delete_all
-  has_many :maintenance_incidents, foreign_key: :maintenance_db_project_id, :dependent => :delete_all
+  has_many :incident_updateinfo_counter_values, foreign_key: :project_id, dependent: :delete_all
+  has_many :maintenance_incidents, foreign_key: :project_id, dependent: :delete_all
+  has_many :maintenance_incidents, foreign_key: :maintenance_db_project_id, dependent: :delete_all
 
   # develproject is history, use develpackage instead. FIXME3.0: clean this up
-  has_many :develprojects, :class_name => 'Project', :foreign_key => 'develproject_id'
-  belongs_to :develproject, :class_name => 'Project'
+  has_many :develprojects, class_name: 'Project', foreign_key: 'develproject_id'
+  belongs_to :develproject, class_name: 'Project'
 
-  has_many :comments, :dependent => :destroy, inverse_of: :project, class_name: 'CommentProject'
+  has_many :comments, dependent: :destroy, inverse_of: :project, class_name: 'CommentProject'
 
-  has_many :project_log_entries, :dependent => :delete_all
+  has_many :project_log_entries, dependent: :delete_all
 
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
 
@@ -199,7 +199,7 @@ class Project < ApplicationRecord
       request.bs_request_actions.each do |action|
         if action.source_project == name
           begin
-            request.change_state({:newstate => 'revoked', :comment => "The source project '#{name}' has been removed"})
+            request.change_state({newstate: 'revoked', comment: "The source project '#{name}' has been removed"})
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to revoke request #{request.number} but had no permissions"
           end
@@ -207,7 +207,7 @@ class Project < ApplicationRecord
         end
         if action.target_project == name
           begin
-            request.change_state({:newstate => 'declined', :comment => "The target project '#{name}' has been removed"})
+            request.change_state({newstate: 'declined', comment: "The target project '#{name}' has been removed"})
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to decline request #{request.number} but had no permissions"
           end
@@ -222,7 +222,7 @@ class Project < ApplicationRecord
       # Don't alter the request that is the trigger of this revoke_requests run
       next if request == @commit_opts[:request]
 
-      request.obsolete_reviews(:by_project => name)
+      request.obsolete_reviews(by_project: name)
     end
   end
 
@@ -378,7 +378,7 @@ class Project < ApplicationRecord
   end
 
   def self.find_by_attribute_type( attrib_type )
-    Project.joins(:attribs).where(:attribs => { :attrib_type_id => attrib_type.id })
+    Project.joins(:attribs).where(attribs: { attrib_type_id: attrib_type.id })
   end
 
   def self.find_remote_project(name, skip_access = false)
@@ -555,7 +555,7 @@ class Project < ApplicationRecord
     if ::Configuration.default_access_disabled == true && new_record
       # write a default access disable flag by default in this mode for projects if not defined
       if xmlhash.elements('access').empty?
-        flags.new(:status => 'disable', :flag => 'access')
+        flags.new(status: 'disable', flag: 'access')
       end
     end
 
@@ -1171,7 +1171,7 @@ class Project < ApplicationRecord
 
   def add_repository_with_targets(repoName, source_repo, add_target_repos = [], opts = {})
     return if repositories.where(name: repoName).exists?
-    trepo = repositories.create :name => repoName
+    trepo = repositories.create name: repoName
 
     trepo.clone_repository_from(source_repo)
     trepo.rebuild = opts[:rebuild] if opts[:rebuild]
@@ -1183,7 +1183,7 @@ class Project < ApplicationRecord
     if add_target_repos.length > 0
       # add repository targets
       add_target_repos.each do |repo|
-        trepo.release_targets.create(:target_repository => repo, :trigger => trigger)
+        trepo.release_targets.create(target_repository: repo, trigger: trigger)
       end
     end
   end
@@ -1248,7 +1248,7 @@ class Project < ApplicationRecord
             next if repo.path_elements.where(link: my_repo).count > 0    # already exists
             repo.path_elements.where(position: ipe.position).delete_all  # avoid conflicting entries
             # add it at the same position
-            repo.path_elements.create(:link => my_repo, :position => ipe.position)
+            repo.path_elements.create(link: my_repo, position: ipe.position)
           end
         end
       end
@@ -1276,7 +1276,7 @@ class Project < ApplicationRecord
     end
 
     if disable_publish_for_branches
-      flags.create(:status => 'disable', :flag => 'publish') unless flags.find_by_flag_and_status( 'publish', 'disable' )
+      flags.create(status: 'disable', flag: 'publish') unless flags.find_by_flag_and_status( 'publish', 'disable' )
     end
   end
 
@@ -1329,7 +1329,7 @@ class Project < ApplicationRecord
     end
 
     # restore all package meta data objects in DB
-    backend_pkgs = Collection.find :package, :match => "@project='#{name}'"
+    backend_pkgs = Collection.find :package, match: "@project='#{name}'"
     backend_pkgs.each('package') do |package|
       pname = package.value('name')
       path = "/source/#{URI.escape(name)}/#{pname}/_meta"
@@ -1413,7 +1413,7 @@ class Project < ApplicationRecord
 
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
-    backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{name}' and starts-with(@name,'_product:')"
+    backend_pkgs = Collection.find :id, what: 'package', match: "@project='#{name}' and starts-with(@name,'_product:')"
     b_pkg_index = backend_pkgs.each(:package).inject(Hash.new) {|hash, elem| hash[elem.value(:name)] = elem; hash}
     frontend_pkgs = packages.where("`packages`.name LIKE '_product:%'")
     f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash, elem| hash[elem.name] = elem; hash}
@@ -1484,7 +1484,7 @@ class Project < ApplicationRecord
     transaction do
       delete_flag = flags.find_by_flag_and_status('lock', 'enable')
       flags.delete(delete_flag)
-      store({ :comment => comment })
+      store({ comment: comment })
 
       # maintenance incidents need special treatment when unlocking
       reopen_release_targets if is_maintenance_incident?
@@ -1531,7 +1531,7 @@ class Project < ApplicationRecord
     states = {}
     repository_states = {}
 
-    br = Buildresult.find(:project => name, :view => 'summary')
+    br = Buildresult.find(project: name, view: 'summary')
     # no longer there?
     return false unless br
 
@@ -1571,7 +1571,7 @@ class Project < ApplicationRecord
   def maintenance_incidents
     Project.where('projects.name like ?', "#{name}:%").distinct.
       where(kind: 'maintenance_incident').
-      joins(:repositories => :release_targets).
+      joins(repositories: :release_targets).
       where('release_targets.trigger = "maintenance"')
   end
 

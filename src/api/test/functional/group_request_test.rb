@@ -49,12 +49,12 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     # try to create a cycle
     post "/request/#{id}?cmd=addrequest&newid=#{id}&comment=been+there"
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => {:code => 'cant_group_in_groups'})
+    assert_xml_tag(tag: "status", attributes: {code: 'cant_group_in_groups'})
 
     # try to submit nonsense
     post "/request/#{id}?cmd=addrequest&newid=Foobar&comment=been+there"
     assert_response 400
-    assert_xml_tag(:tag => "status", :attributes => {:code => 'require_id'})
+    assert_xml_tag(tag: "status", attributes: {code: 'require_id'})
 
     # add another 'new' one
     adi = upload_request("group_1")
@@ -150,14 +150,14 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
+    assert_xml_tag(tag: "state", attributes: {name: "review"})
 
     post "/request/#{id}?cmd=removerequest&oldid=#{withr}&comment=remove+again"
     assert_response :success
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
+    assert_xml_tag(tag: "state", attributes: {name: "new"})
   end
 
   def test_accept_reviews_in_group
@@ -183,7 +183,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{withr2}"
     # now it would be new - but as #{withhr} is still in review, the group blocks it
-    assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
+    assert_xml_tag(tag: "state", attributes: {name: "review"})
 
     # now accept the same for withr
     post "/request/#{withr}?cmd=changereviewstate&by_user=adrian&newstate=accepted"
@@ -196,20 +196,20 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{withr}"
     # should be new as no other review in the group blocked it
-    assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
+    assert_xml_tag(tag: "state", attributes: {name: "new"})
 
     # withhr2 should be magically be new now too
     get "/request/#{withr2}"
-    assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
+    assert_xml_tag(tag: "state", attributes: {name: "new"})
 
     # now comes the ugly part - reopening review in withhr should put withhr2 back in review
     post "/request/#{withr}?cmd=changereviewstate&by_user=adrian&newstate=new"
     # withhr should be in review of course
     get "/request/#{withr}"
-    assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
+    assert_xml_tag(tag: "state", attributes: {name: "review"})
     # but also withhr2
     get "/request/#{withr2}"
-    assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
+    assert_xml_tag(tag: "state", attributes: {name: "review"})
   end
 
   def test_supersede_replaces_request
@@ -265,7 +265,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
     # it should be in review now
     get "/request/#{id}"
-    assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
+    assert_xml_tag(tag: "state", attributes: {name: "review"})
 
     # now accept a subrequest - it's automatically removed
     post "/request/#{withr}?cmd=changestate&newstate=accepted&force=1"
@@ -273,7 +273,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
     # and with that the group is in new again
     get "/request/#{id}"
-    assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
+    assert_xml_tag(tag: "state", attributes: {name: "new"})
   end
 
   def test_search_groups
@@ -282,10 +282,10 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
     get "/search/request?match=action/grouped/@id=1"
     assert_response :success
-    assert_xml_tag(:tag => "collection", :attributes => {:matches => "0"})
+    assert_xml_tag(tag: "collection", attributes: {matches: "0"})
 
     get "/search/request?match=action/grouped/@id=2"
     assert_response :success
-    assert_xml_tag(:tag => "collection", :attributes => {:matches => "1"})
+    assert_xml_tag(tag: "collection", attributes: {matches: "1"})
   end
 end

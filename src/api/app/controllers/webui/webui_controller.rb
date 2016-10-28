@@ -136,14 +136,14 @@ class Webui::WebuiController < ActionController::Base
 
   def require_login
     if User.current.nil? || User.current.is_nobody?
-      render(:text => 'Please login') && (return false) if request.xhr?
+      render(text: 'Please login') && (return false) if request.xhr?
 
       flash[:error] = 'Please login to access the requested page.'
       mode = CONFIG['proxy_auth_mode'] || :off
       if mode == :off
-        redirect_to :controller => :user, :action => :login
+        redirect_to controller: :user, action: :login
       else
-        redirect_to :controller => :main
+        redirect_to controller: :main
       end
       return false
     end

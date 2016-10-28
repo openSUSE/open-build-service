@@ -1,6 +1,6 @@
 require "browser_helper"
 
-RSpec.feature "Attributes", :type => :feature, :js => true do
+RSpec.feature "Attributes", type: :feature, js: true do
   let!(:user) { create(:confirmed_user) }
   let!(:attribute_type) { create(:attrib_type_with_namespace) }
   let!(:attribute) { create(:attrib, project_id: user.home_project.id) }
@@ -17,7 +17,7 @@ RSpec.feature "Attributes", :type => :feature, :js => true do
     click_link "add value"
     click_link "add value"
 
-    fill_in "Value", with: "test 1", :match => :first
+    fill_in "Value", with: "test 1", match: :first
     # Workaround to enter data into second textfield
     within("div.nested-fields:nth-of-type(2)") do
       fill_in "Value", with: "test 2"

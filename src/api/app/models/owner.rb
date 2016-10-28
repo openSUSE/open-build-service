@@ -157,15 +157,15 @@ class Owner
 
     # fast find packages with defintions
     # relationship in package object by user
-    defined_packages = Package.where(project_id: projects).joins(:relationships => :user).\
+    defined_packages = Package.where(project_id: projects).joins(relationships: :user).\
                                where(["relationships.role_id IN (?) AND users.state = 'confirmed'",
                                       roles]).pluck(:name)
     # relationship in package object by group
     defined_packages += Package.where(project_id: projects).joins(:relationships).where(["relationships.role_id IN (?) AND group_id IN (?)",
                                                                                          roles, maintained_groups]).pluck(:name)
     # relationship in project object by user
-    Project.joins(:relationships => :user).where("projects.id in (?) AND role_id in (?) AND users.state = 'confirmed'",
-                                                 projects, roles).each do |prj|
+    Project.joins(relationships: :user).where("projects.id in (?) AND role_id in (?) AND users.state = 'confirmed'",
+                                              projects, roles).each do |prj|
       defined_packages += prj.packages.pluck(:name)
     end
     # relationship in project object by group

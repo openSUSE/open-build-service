@@ -1,6 +1,6 @@
 require "browser_helper"
 
-RSpec.feature "OBS main page", :type => :feature, :js => true do
+RSpec.feature "OBS main page", type: :feature, js: true do
   let(:admin_user) { create(:admin_user) }
   let(:user) { create(:confirmed_user) }
 

@@ -1,6 +1,6 @@
 require "browser_helper"
 
-RSpec.feature "Login", :type => :feature, :js => true do
+RSpec.feature "Login", type: :feature, js: true do
   let!(:user) { create(:confirmed_user, login: "proxy_user") }
 
   context "In proxy mode" do

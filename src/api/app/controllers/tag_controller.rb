@@ -1,7 +1,7 @@
 class TagController < ApplicationController
-  validate_action :tags_by_user_and_object => {:method => :get, :response => :tags}
-  validate_action :project_tags => {:method => :get, :response => :tags}
-  validate_action :package_tags => {:method => :get, :response => :tags}
+  validate_action tags_by_user_and_object: {method: :get, response: :tags}
+  validate_action project_tags: {method: :get, response: :tags}
+  validate_action package_tags: {method: :get, response: :tags}
 
   class TagNotFoundError < APIException
     setup 'tag_not_found', 404, "Tag not found"
@@ -10,7 +10,7 @@ class TagController < ApplicationController
   # list all available tags as xml list
   def list_xml
     @taglist = Tag.all
-    render :partial => "listxml"
+    render partial: "listxml"
   end
 
   def get_tagged_projects_by_user
@@ -28,7 +28,7 @@ class TagController < ApplicationController
       @projects_tags[key].sort!{ |a, b| a.name.downcase <=> b.name.downcase }
     end
     @my_type = "project"
-    render :partial => "tagged_objects_with_tags"
+    render partial: "tagged_objects_with_tags"
   end
 
   def get_tagged_packages_by_user
@@ -45,7 +45,7 @@ class TagController < ApplicationController
       @packages_tags[key].sort!{ |a, b| a.name.downcase <=> b.name.downcase }
     end
     @my_type = "package"
-    render :partial => "tagged_objects_with_tags"
+    render partial: "tagged_objects_with_tags"
   end
 
   def get_tags_by_user
@@ -73,7 +73,7 @@ class TagController < ApplicationController
     end
 
     if do_render
-      render :partial => "objects_by_tag"
+      render partial: "objects_by_tag"
       return
     end
     return @projects
@@ -98,7 +98,7 @@ class TagController < ApplicationController
     end
 
     if do_render
-      render :partial => "objects_by_tag"
+      render partial: "objects_by_tag"
       return
     end
     return @packages
@@ -108,7 +108,7 @@ class TagController < ApplicationController
     @projects = get_projects_by_tag( false )
     @packages = get_packages_by_tag( false )
 
-    render :partial => "objects_by_tag"
+    render partial: "objects_by_tag"
   end
 
   def tags_by_user_and_object
@@ -131,7 +131,7 @@ class TagController < ApplicationController
 
     @tags = @project.tags.where("taggings.user_id = ?", user.id).order(:name)
     if do_render
-      render :partial => "tags"
+      render partial: "tags"
     else
       return @tags
     end
@@ -147,7 +147,7 @@ class TagController < ApplicationController
 
     @tags = @package.tags.where("taggings.user_id = ?", user.id).order(:name)
     if do_render
-      render :partial => "tags"
+      render partial: "tags"
     else
       return @tags
     end
@@ -174,7 +174,7 @@ class TagController < ApplicationController
       @type = "project"
       @name = params[:project]
       @tags = @project.tags.group(:name).order(:name)
-      render :partial => "tags"
+      render partial: "tags"
 
     elsif request.put?
 
@@ -185,7 +185,7 @@ class TagController < ApplicationController
 
       if !@http_user
         logger.debug "No user logged in."
-        render_error( :message => "No user logged in.", :status => 403 )
+        render_error( message: "No user logged in.", status: 403 )
         return
       else
         @tagCreator = @http_user
@@ -217,7 +217,7 @@ class TagController < ApplicationController
 
       @type = "package"
       @tags = @package.tags.group(:name)
-      render :partial => "tags"
+      render partial: "tags"
 
     elsif request.put?
       logger.debug "[TAG:] PUT REQUEST for package_tags."
@@ -228,7 +228,7 @@ class TagController < ApplicationController
 
       if !@http_user
         logger.debug "No user logged in."
-        render_error( :message => "No user logged in.", :status => 403 )
+        render_error( message: "No user logged in.", status: 403 )
         return
       else
         @tagCreator = @http_user
@@ -250,8 +250,8 @@ class TagController < ApplicationController
   def update_tags_by_object_and_user
     @user = User.find_by_login!(params[:user])
     unless @user == @http_user
-      render_error :status => 403, :errorcode => 'permission_denied',
-        :message => "Editing tags for another user than the logged on user is not allowed."
+      render_error status: 403, errorcode: 'permission_denied',
+        message: "Editing tags for another user than the logged on user is not allowed."
       return
     end
 
@@ -293,8 +293,8 @@ class TagController < ApplicationController
       error = "[TAG:] There are rejected Tags: #{unsaved_tags.inspect}"
       logger.debug "#{error}"
       # need exception handling in the tag client
-      render_error :status => 400, :errorcode => 'tagcreation_error',
-      :message => error
+      render_error status: 400, errorcode: 'tagcreation_error',
+      message: error
     end
   end
 
@@ -358,7 +358,7 @@ class TagController < ApplicationController
   end
 
   def tag_error(params)
-    render_error :status => 404, :errorcode => 'unknown_tag',
-    :message => "Unknown tag #{params[:tag]}"
+    render_error status: 404, errorcode: 'unknown_tag',
+    message: "Unknown tag #{params[:tag]}"
   end
 end

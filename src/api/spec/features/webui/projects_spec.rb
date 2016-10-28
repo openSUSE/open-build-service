@@ -1,6 +1,6 @@
 require "browser_helper"
 
-RSpec.feature "Projects", :type => :feature, :js => true do
+RSpec.feature "Projects", type: :feature, js: true do
   let!(:admin_user) { create(:admin_user) }
   let!(:user) { create(:confirmed_user, login: "Jane") }
   let(:project) { user.home_project }
@@ -44,9 +44,9 @@ RSpec.feature "Projects", :type => :feature, :js => true do
     end
 
     scenario "with valid data" do
-      fill_in "name", :with => "coolstuff"
-      fill_in "title", :with => "cool stuff everyone needs"
-      fill_in "description", :with => "some description"
+      fill_in "name", with: "coolstuff"
+      fill_in "title", with: "cool stuff everyone needs"
+      fill_in "description", with: "some description"
       click_button "Save changes"
 
       expect(page).to have_text("Package 'coolstuff' was created successfully")
@@ -56,7 +56,7 @@ RSpec.feature "Projects", :type => :feature, :js => true do
     end
 
     scenario "with invalid data (validation fails)" do
-      fill_in "name", :with => "cool stuff"
+      fill_in "name", with: "cool stuff"
       click_button "Save changes"
 
       expect(page).to have_text("Invalid package name: 'cool stuff'")
@@ -66,7 +66,7 @@ RSpec.feature "Projects", :type => :feature, :js => true do
     scenario "that already exists" do
       create(:package, name: "coolstuff", project: user.home_project)
 
-      fill_in "name", :with => "coolstuff"
+      fill_in "name", with: "coolstuff"
       click_button "Save changes"
 
       expect(page).to have_text("Package 'coolstuff' already exists in project '#{user.home_project_name}'")
@@ -86,7 +86,7 @@ RSpec.feature "Projects", :type => :feature, :js => true do
       # Use direct path instead
       visit "/project/new_package/#{global_project}"
 
-      fill_in "name", :with => "coolstuff"
+      fill_in "name", with: "coolstuff"
       click_button "Save changes"
 
       expect(page).to have_text("You can't create packages in #{global_project}")
@@ -98,7 +98,7 @@ RSpec.feature "Projects", :type => :feature, :js => true do
       visit project_show_path(project: global_project)
       click_link("Create package")
 
-      fill_in "name", :with => "coolstuff"
+      fill_in "name", with: "coolstuff"
       click_button "Save changes"
 
       expect(page).to have_text("Package 'coolstuff' was created successfully")
@@ -114,7 +114,7 @@ RSpec.feature "Projects", :type => :feature, :js => true do
 
       expect(page).to have_text("This project has no subprojects")
       click_link("create_subproject_link")
-      fill_in "project_name", :with => "coolstuff"
+      fill_in "project_name", with: "coolstuff"
       click_button "Create Project"
       expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
 

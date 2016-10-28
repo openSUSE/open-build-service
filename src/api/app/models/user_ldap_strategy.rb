@@ -485,7 +485,7 @@ class UserLdapStrategy
 
     Rails.cache.write(key,
                       [Digest::MD5.digest(password), ldap_info[0], ldap_info[1]],
-                      :expires_in => 2.minutes)
+                      expires_in: 2.minutes)
     Rails.logger.debug("login success for checking with ldap server")
     ldap_info
   end
@@ -534,7 +534,7 @@ class UserLdapStrategy
 
   def local_role_check_with_ldap (role, object)
     Rails.logger.debug "Checking role with ldap: object #{object.name}, role #{role.title}"
-    rels = object.relationships.groups.where(:role_id => role.id).includes(:group)
+    rels = object.relationships.groups.where(role_id: role.id).includes(:group)
     for rel in rels
       return false if rel.group.nil?
       # check whether current user is in this group

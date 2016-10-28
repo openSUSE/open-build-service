@@ -12,9 +12,9 @@ class AttribType < ApplicationRecord
   belongs_to :attrib_namespace
 
   has_many :attribs, dependent: :destroy
-  has_many :default_values, -> { order("position ASC") }, :class_name => 'AttribDefaultValue', dependent: :delete_all
-  has_many :allowed_values, :class_name => 'AttribAllowedValue', dependent: :delete_all
-  has_many :attrib_type_modifiable_bies, :class_name => 'AttribTypeModifiableBy', dependent: :delete_all
+  has_many :default_values, -> { order("position ASC") }, class_name: 'AttribDefaultValue', dependent: :delete_all
+  has_many :allowed_values, class_name: 'AttribAllowedValue', dependent: :delete_all
+  has_many :attrib_type_modifiable_bies, class_name: 'AttribTypeModifiableBy', dependent: :delete_all
 
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
@@ -114,7 +114,7 @@ class AttribType < ApplicationRecord
       allowed_values.delete_all
       xmlhash.elements("allowed") do |allowed_element|
         allowed_element.elements("value") do |value_element|
-          allowed_values.build(:value => value_element)
+          allowed_values.build(value: value_element)
         end
       end
 

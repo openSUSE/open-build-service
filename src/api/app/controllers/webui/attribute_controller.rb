@@ -1,11 +1,11 @@
 class Webui::AttributeController < Webui::WebuiController
   helper :all
-  before_action :set_container, :only => [:index, :new, :edit]
-  before_action :set_attribute, :only => [:update, :destroy]
-  before_action :set_attribute_by_name, :only => [:edit]
+  before_action :set_container, only: [:index, :new, :edit]
+  before_action :set_attribute, only: [:update, :destroy]
+  before_action :set_attribute_by_name, only: [:edit]
 
   # raise an exception if authorize has not yet been called.
-  after_action :verify_authorized, :except => :index
+  after_action :verify_authorized, except: :index
 
   helper 'webui/project'
 
@@ -45,11 +45,11 @@ class Webui::AttributeController < Webui::WebuiController
 
     if @attribute.save
       if @attribute.values_editable?
-        redirect_to edit_attribs_path(:project => @attribute.project.to_s, :package => @attribute.package.to_s,
-                                      :attribute => @attribute.fullname),
+        redirect_to edit_attribs_path(project: @attribute.project.to_s, package: @attribute.package.to_s,
+                                      attribute: @attribute.fullname),
                     notice: 'Attribute was successfully created.'
       else
-        redirect_to index_attribs_path(:project => @attribute.project.to_s, :package => @attribute.package.to_s),
+        redirect_to index_attribs_path(project: @attribute.project.to_s, package: @attribute.package.to_s),
                     notice: 'Attribute was successfully created.'
       end
     else
@@ -61,7 +61,7 @@ class Webui::AttributeController < Webui::WebuiController
     authorize @attribute
 
     if @attribute.update(attrib_params)
-      redirect_to edit_attribs_path(:project => @attribute.project.to_s, :package => @attribute.package.to_s, :attribute => @attribute.fullname),
+      redirect_to edit_attribs_path(project: @attribute.project.to_s, package: @attribute.package.to_s, attribute: @attribute.fullname),
                   notice: 'Attribute was successfully updated.'
     else
       redirect_back(fallback_location: root_path, error: "Updating attribute failed: #{@attribute.errors.full_messages.join(', ')}" )
@@ -83,7 +83,7 @@ class Webui::AttributeController < Webui::WebuiController
       @project = Project.get_by_name(params[:project])
     rescue APIException
       flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to(:controller => 'project') && return
+      redirect_to(controller: 'project') && return
     end
     if params[:package]
       begin

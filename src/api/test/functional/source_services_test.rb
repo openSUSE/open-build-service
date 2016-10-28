@@ -16,7 +16,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     login_tom
     get '/service'
     assert_response :success
-    assert_xml_tag :tag => 'servicelist'
+    assert_xml_tag tag: 'servicelist'
 
     # not using assert_xml_tag for doing a propper error message on missing
     # source service packages
@@ -33,9 +33,9 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
         set_version = 1
       end
     end
-    assert_xml_tag :tag => 'service', :attributes => { :name => 'set_version' }
-    assert_xml_tag :tag => 'service', :attributes => { :name => 'download_url' }
-    assert_xml_tag :tag => 'service', :attributes => { :name => 'download_files' }
+    assert_xml_tag tag: 'service', attributes: { name: 'set_version' }
+    assert_xml_tag tag: 'service', attributes: { name: 'download_url' }
+    assert_xml_tag tag: 'service', attributes: { name: 'download_files' }
   end
 
   def test_combine_project_service_list
@@ -48,19 +48,19 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     login_tom
-    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'branch'
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', cmd: 'branch'
     assert_response :success
     put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/_project/_service',
         '<services> <service name="download_url" > <param name="host">blahfasel</param> </service> </services>'
     assert_response :success
 
-    post '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'getprojectservices'
+    post '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2', cmd: 'getprojectservices'
     assert_response :success
-    assert_xml_tag( :tag => 'service', :attributes => { :name => 'download_files' } )
-    assert_xml_tag( :parent => { :tag => 'service', :attributes => { :name => 'download_url' } },
-                    :tag => 'param', :attributes => { :name => 'host' }, :content => 'blahfasel')
-    assert_xml_tag( :parent => { :tag => 'service', :attributes => { :name => 'set_version' } },
-                    :tag => 'param', :attributes => { :name => 'version' }, :content => '0815')
+    assert_xml_tag( tag: 'service', attributes: { name: 'download_files' } )
+    assert_xml_tag( parent: { tag: 'service', attributes: { name: 'download_url' } },
+                    tag: 'param', attributes: { name: 'host' }, content: 'blahfasel')
+    assert_xml_tag( parent: { tag: 'service', attributes: { name: 'set_version' } },
+                    tag: 'param', attributes: { name: 'version' }, content: '0815')
 
     # cleanup
     login_king
@@ -88,7 +88,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 400 # broken service
     get '/source/home:tom/service'
     assert_response :success
-    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
+    assert_xml_tag tag: 'serviceinfo', attributes: { code: 'failed' }
     UpdateNotificationEvents.new.perform
     get '/source/home:tom/service?expand=1'
     assert_response 400
@@ -106,8 +106,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:tom/service'
     assert_response :success
-    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
-    assert_no_xml_tag :parent => { :tag => 'serviceinfo' }, :tag => 'error'
+    assert_xml_tag tag: 'serviceinfo', attributes: { code: 'succeeded' }
+    assert_no_xml_tag parent: { tag: 'serviceinfo' }, tag: 'error'
     get '/source/home:tom/service/_service:download_url:file?expand=1'
     assert_response :success
     post '/source/home:tom/service?cmd=servicediff', nil
@@ -133,13 +133,13 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # same result as in source package
     get '/source/home:tom/new_package'
     assert_response :success
-    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
-    assert_no_xml_tag :parent => { :tag => 'serviceinfo' }, :tag => 'error'
+    assert_xml_tag tag: 'serviceinfo', attributes: { code: 'succeeded' }
+    assert_no_xml_tag parent: { tag: 'serviceinfo' }, tag: 'error'
     get '/source/home:tom/new_package/_service:download_url:file?expand=1'
     assert_response :success
 
     # branch and submit requsts
-    post '/source/home:tom/service', :cmd => 'branch'
+    post '/source/home:tom/service', cmd: 'branch'
     assert_response :success
     assert_nil Package.find_by_project_and_name("home:tom:branches:home:tom", "service").backend_package.error
     put '/source/home:tom:branches:home:tom/service/new_file', 'content'
@@ -176,19 +176,19 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     get '/source/home:tom/service/_service:download_url:file?expand=1'
     assert_response :success
     original_file = @response.body
-    post '/source/home:tom/copied_service', :cmd => 'copy', :noservice => '1', :opackage => 'service', :oproject => 'home:tom'
+    post '/source/home:tom/copied_service', cmd: 'copy', noservice: '1', opackage: 'service', oproject: 'home:tom'
     assert_response :success
     get '/source/home:tom/copied_service?expand=1'
     assert_response :success
-    assert_xml_tag :tag => "entry", :attributes => { :name => "_service:download_url:file" }
+    assert_xml_tag tag: "entry", attributes: { name: "_service:download_url:file" }
     get '/source/home:tom/copied_service/_service:download_url:file?expand=1'
     assert_response :success
     assert_equal(@response.body, original_file)
-    post '/source/home:tom/copied_service', :cmd => 'copy', :opackage => 'service', :oproject => 'home:tom'
+    post '/source/home:tom/copied_service', cmd: 'copy', opackage: 'service', oproject: 'home:tom'
     assert_response :success
     get '/source/home:tom/copied_service?expand=1'
     assert_response :success
-    assert_xml_tag :tag => "entry", :attributes => { :name => "_service:download_url:file" }
+    assert_xml_tag tag: "entry", attributes: { name: "_service:download_url:file" }
     get '/source/home:tom/copied_service/_service:download_url:file?expand=1'
     assert_response :success
     delete '/source/home:tom/copied_service'
@@ -196,19 +196,19 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_not_equal(@response.body, original_file)
 
     # project copy tests
-    post '/source/home:tom:COPY', :cmd => 'copy', :noservice => '1', :oproject => 'home:tom'
+    post '/source/home:tom:COPY', cmd: 'copy', noservice: '1', oproject: 'home:tom'
     assert_response :success
     get '/source/home:tom:COPY/service?expand=1'
     assert_response :success
-    assert_xml_tag :tag => "entry", :attributes => { :name => "_service:download_url:file" }
+    assert_xml_tag tag: "entry", attributes: { name: "_service:download_url:file" }
     get '/source/home:tom:COPY/service/_service:download_url:file?expand=1'
     assert_response :success
     assert_equal(@response.body, original_file)
-    post '/source/home:tom:COPY/service', :cmd => 'copy', :oproject => 'home:tom'
+    post '/source/home:tom:COPY/service', cmd: 'copy', oproject: 'home:tom'
     assert_response :success
     get '/source/home:tom:COPY/service?expand=1'
     assert_response :success
-    assert_xml_tag :tag => "entry", :attributes => { :name => "_service:download_url:file" }
+    assert_xml_tag tag: "entry", attributes: { name: "_service:download_url:file" }
     get '/source/home:tom:COPY/service/_service:download_url:file?expand=1'
     assert_response :success
     assert_not_equal(@response.body, original_file)
@@ -224,8 +224,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:tom/service'
     assert_response :success
-    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
-    assert_no_xml_tag :parent => { :tag => 'serviceinfo' }, :tag => 'error'
+    assert_xml_tag tag: 'serviceinfo', attributes: { code: 'succeeded' }
+    assert_no_xml_tag parent: { tag: 'serviceinfo' }, tag: 'error'
     get '/source/home:tom/service/_service:download_url:file?expand=1'
     assert_response 404
 
@@ -265,7 +265,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 400
     get '/source/home:tom/service'
     assert_response :success
-    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
+    assert_xml_tag tag: 'serviceinfo', attributes: { code: 'failed' }
     UpdateNotificationEvents.new.perform
     get '/source/home:tom/service?expand=1'
     assert_response 400
@@ -293,8 +293,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     get '/source/home:tom/service'
     assert_response :success
-    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
-    assert_no_xml_tag :parent => { :tag => 'serviceinfo' }, :tag => 'error'
+    assert_xml_tag tag: 'serviceinfo', attributes: { code: 'succeeded' }
+    assert_no_xml_tag parent: { tag: 'serviceinfo' }, tag: 'error'
     get '/source/home:tom/service/_service:download_url:file?expand=1'
     assert_response :success
     post '/source/home:tom/service?cmd=mergeservice', nil
@@ -336,17 +336,17 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     run_scheduler('i586')
     get '/build/home:Iggy/_result'
     assert_response :success
-    assert_xml_tag :tag => "details", :content => "nothing provides obs-service-set_version"
+    assert_xml_tag tag: "details", content: "nothing provides obs-service-set_version"
 
     # osc local package build call
     get "/build/home:Iggy/10.2/i586/service/_buildinfo"
     assert_response :success
-    assert_xml_tag :tag => "error", :content => "unresolvable: nothing provides obs-service-set_version"
+    assert_xml_tag tag: "error", content: "unresolvable: nothing provides obs-service-set_version"
     # osc local package build call sending own spec and _service file
     cpio=IO.popen("cd #{Rails.root}/test/fixtures/backend/source/buildtime_service_source/; exec ls -1 | cpio -H newc -o 2>/dev/null")
     raw_post "/build/home:Iggy/10.2/i586/service/_buildinfo", cpio.read
     assert_response :success
-    assert_xml_tag :tag => "error", :content => "unresolvable: nothing provides obs-service-recompresserator"
+    assert_xml_tag tag: "error", content: "unresolvable: nothing provides obs-service-recompresserator"
 
     delete '/source/home:Iggy/service'
     assert_response :success
@@ -400,16 +400,16 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:tom/service?rev=3&expand=1' # show service generated files
     assert_response :success
-    assert_xml_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
-    assert_xml_tag :tag => 'entry', :attributes => { :name => 'filename' }
+    assert_xml_tag tag: 'entry', attributes: { name: '_service:set_version:pack.spec' }
+    assert_xml_tag tag: 'entry', attributes: { name: 'filename' }
     get '/source/home:tom/service?rev=4' # second commit
     assert_response :success
-    assert_no_xml_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
-    assert_no_xml_tag :tag => 'entry', :attributes => { :name => 'filename' }                      # user file got removed
+    assert_no_xml_tag tag: 'entry', attributes: { name: '_service:set_version:pack.spec' }
+    assert_no_xml_tag tag: 'entry', attributes: { name: 'filename' }                      # user file got removed
     get '/source/home:tom/service?rev=4&expand=1' # with generated files
     assert_response :success
-    assert_xml_tag :tag => 'entry', :attributes => { :name => '_service:set_version:pack.spec' }
-    assert_no_xml_tag :tag => 'entry', :attributes => { :name => 'filename' }
+    assert_xml_tag tag: 'entry', attributes: { name: '_service:set_version:pack.spec' }
+    assert_no_xml_tag tag: 'entry', attributes: { name: 'filename' }
 
     # cleanup
     delete '/source/home:tom/service'
@@ -432,7 +432,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 400 # broken service
     get '/source/home:tom/service'
     assert_response :success
-    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
+    assert_xml_tag tag: 'serviceinfo', attributes: { code: 'failed' }
     assert_match(/not_existing.service  No such file or directory/, @response.body)
 
     # unknown parameter
@@ -444,7 +444,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 400 # broken service
     get '/source/home:tom/service'
     assert_response :success
-    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
+    assert_xml_tag tag: 'serviceinfo', attributes: { code: 'failed' }
     assert_match(/service parameter &quot;INVALID&quot; is not defined/, @response.body)
 
     # invalid names
@@ -473,8 +473,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:tom/service2'
     assert_response :success
-    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
-    assert_no_xml_tag :parent => { :tag => 'serviceinfo' }, :tag => 'error'
+    assert_xml_tag tag: 'serviceinfo', attributes: { code: 'succeeded' }
+    assert_no_xml_tag parent: { tag: 'serviceinfo' }, tag: 'error'
     get '/source/home:tom/service2/_service:set_version:pack.spec?expand=1'
     assert_response :success
 
@@ -514,13 +514,13 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 401
     post '/trigger/runservice'
     assert_response 403
-    assert_xml_tag :tag => 'status', :attributes => { :code => 'permission_denied' }
+    assert_xml_tag tag: 'status', attributes: { code: 'permission_denied' }
     assert_match(/No valid token found/, @response.body)
 
     # with wrong token
     post '/trigger/runservice', nil, { 'Authorization' => 'Token wrong' }
     assert_response 404
-    assert_xml_tag :tag => 'status', :attributes => { :code => 'not_found' }
+    assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
 
     # with right token
     post '/trigger/runservice', nil, { 'Authorization' => "Token #{token}" }
@@ -555,20 +555,20 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     login_tom
     get '/person/tom/token'
     assert_response :success
-    assert_xml_tag :tag => 'directory', :attributes => { :count => '2' }
-    assert_xml_tag :tag => 'entry', :attributes => { :project => 'home:tom', :package => 'service' }
+    assert_xml_tag tag: 'directory', attributes: { count: '2' }
+    assert_xml_tag tag: 'entry', attributes: { project: 'home:tom', package: 'service' }
     doc = REXML::Document.new(@response.body)
     id = doc.elements['//entry'].attributes['id']
     assert_not_nil id
     assert_not_nil doc.elements['//entry'].attributes['string']
     delete "/person/tom/token/#{id}"
     assert_response :success
-    assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
+    assert_xml_tag tag: 'status', attributes: { code: 'ok' }
     delete "/person/tom/token/#{id}"
     assert_response 404
     get '/person/tom/token'
     assert_response :success
-    assert_xml_tag :tag => 'directory', :attributes => { :count => '1' }
+    assert_xml_tag tag: 'directory', attributes: { count: '1' }
 
     # cleanup
     delete '/source/home:tom/service'

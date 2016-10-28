@@ -10,7 +10,7 @@ class Webui::CreateProjectTest < Webui::IntegrationTest
 
     click_link 'Create package'
     page.must_have_text 'Create New Package for home:tom'
-    fill_in 'name', :with => 'coolstuff'
+    fill_in 'name', with: 'coolstuff'
     click_button 'Save changes'
   end
 
@@ -20,7 +20,7 @@ class Webui::CreateProjectTest < Webui::IntegrationTest
 
     page.must_have_text 'This project has no subprojects'
     click_link 'create_subproject_link'
-    fill_in 'project_name', :with => 'coolstuff'
+    fill_in 'project_name', with: 'coolstuff'
     click_button 'Create Project'
     flash_message.must_equal "Project 'home:tom:coolstuff' was created successfully"
 

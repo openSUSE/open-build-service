@@ -5,17 +5,17 @@ class Issue < ApplicationRecord
     setup "issue_not_found", 404, "Issue not found"
   end
 
-  has_many :package_issues, :foreign_key => 'issue_id', dependent: :delete_all
+  has_many :package_issues, foreign_key: 'issue_id', dependent: :delete_all
 
   belongs_to :issue_tracker
-  belongs_to :owner, :class_name => "User"
+  belongs_to :owner, class_name: "User"
 
-  scope :stateless, -> { where(:state => nil) }
+  scope :stateless, -> { where(state: nil) }
 
   def self.find_or_create_by_name_and_tracker( name, issue_tracker_name, force_update = nil )
     find_by_name_and_tracker(name, issue_tracker_name, {
-      :force_update   => force_update,
-      :create_missing => true
+      force_update:   force_update,
+      create_missing: true
     })
   end
 
@@ -27,7 +27,7 @@ class Issue < ApplicationRecord
 
     issue = issue_tracker.issues.find_by_name(name)
     if issue.nil? && options[:create_missing]
-      issue = issue_tracker.issues.create(:name => name)
+      issue = issue_tracker.issues.create(name: name)
     end
 
     if options[:force_update] && issue
@@ -126,8 +126,8 @@ class Issue < ApplicationRecord
     builder = Nokogiri::XML::Builder.new do |node|
       render_body node
     end
-    builder.to_xml :indent => 2, :encoding => 'UTF-8',
-                               :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+    builder.to_xml indent: 2, encoding: 'UTF-8',
+                               save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                              Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 

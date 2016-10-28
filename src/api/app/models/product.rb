@@ -9,7 +9,7 @@ class Product < ApplicationRecord
     raise Product::NotFoundError.new( "Error: Package not valid." ) unless package.class == Package
     product = find_by_name_and_package name, package
 
-    product = create( :name => name, :package => package ) unless product.length > 0
+    product = create( name: name, package: package ) unless product.length > 0
 
     return product
   end

@@ -2,7 +2,7 @@
 module HasAttributes
   def self.included(base)
     base.class_eval do
-      has_many :ratings, :as => :db_object, :dependent => :delete_all
+      has_many :ratings, as: :db_object, dependent: :delete_all
     end
   end
 
@@ -78,9 +78,9 @@ module HasAttributes
         raise AttributeFindError, "binary packages are not allowed in project attributes"
       end
       # rubocop:disable Metrics/LineLength
-      a = attribs.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ? AND attribs.binary = ?", name, namespace, binary).first
+      a = attribs.joins(attrib_type: :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ? AND attribs.binary = ?", name, namespace, binary).first
     else
-      a = attribs.nobinary.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ?", name, namespace).first
+      a = attribs.nobinary.joins(attrib_type: :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ?", name, namespace).first
       # rubocop:enable Metrics/LineLength
     end
     if a && a.readonly? # FIXME: joins make things read only
@@ -100,8 +100,8 @@ module HasAttributes
         project.render_main_attributes(xml, params)
       end
     end
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
-                              :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+    return builder.doc.to_xml indent: 2, encoding: 'UTF-8',
+                              save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                   Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
@@ -121,7 +121,7 @@ module HasAttributes
       builder.attribute(p) do
         unless attr.issues.blank?
           attr.issues.each do |ai|
-            builder.issue(:name => ai.name, :tracker => ai.issue_tracker.name)
+            builder.issue(name: ai.name, tracker: ai.issue_tracker.name)
           end
         end
         render_single_attribute(attr, params[:with_default], builder)

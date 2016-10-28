@@ -1,6 +1,6 @@
 require "browser_helper"
 
-RSpec.feature 'Groups', :type => :feature, :js => true do
+RSpec.feature 'Groups', type: :feature, js: true do
   let(:admin) { create(:admin_user, login: 'king') }
   let(:user) { create(:confirmed_user, login: 'eisendieter') }
   let!(:group) { create(:group, title: 'test_group', users: [admin, user]) }

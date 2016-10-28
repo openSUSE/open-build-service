@@ -14,7 +14,7 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
   def test_messages
     get "/status/messages"
     assert_response :success
-    assert_xml_tag :tag => 'status_messages'
+    assert_xml_tag tag: 'status_messages'
   end
 
   def test_new_message
@@ -58,7 +58,7 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     get "/status/workerstatus"
     assert_response :success
     # just the publisher is running in the background during test suite run
-    assert_xml_tag(:tag => "daemon", :attributes => {:type => 'publisher', :state => 'dead'})
+    assert_xml_tag(tag: "daemon", attributes: {type: 'publisher', state: 'dead'})
   end
 
   def test_project_status
@@ -69,7 +69,7 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
 
   def test_bsrequest
     get "/status/bsrequest?id=1"
-    assert_xml_tag(:tag => "status", :attributes => {:code => 'not_found'})
+    assert_xml_tag(tag: "status", attributes: {code: 'not_found'})
     assert_response 404
   end
 

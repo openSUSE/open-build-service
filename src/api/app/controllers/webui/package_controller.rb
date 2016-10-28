@@ -13,35 +13,35 @@ class Webui::PackageController < Webui::WebuiController
 
   helper 'webui/comment'
 
-  before_action :set_project, :only => [:show, :users, :linking_packages, :dependency, :binary, :binaries,
-                                        :requests, :statistics, :commit, :revisions, :submit_request_dialog,
-                                        :add_person, :add_group, :rdiff, :wizard_new, :wizard, :save_new,
-                                        :branch_dialog, :branch, :save_new_link, :save, :delete_dialog,
-                                        :remove, :add_file, :save_file, :remove_file, :save_person,
-                                        :save_group, :remove_role, :view_file,
-                                        :abort_build, :trigger_rebuild, :trigger_services,
-                                        :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                        :save_meta, :attributes, :edit, :import_spec, :files, :comments]
+  before_action :set_project, only: [:show, :users, :linking_packages, :dependency, :binary, :binaries,
+                                     :requests, :statistics, :commit, :revisions, :submit_request_dialog,
+                                     :add_person, :add_group, :rdiff, :wizard_new, :wizard, :save_new,
+                                     :branch_dialog, :branch, :save_new_link, :save, :delete_dialog,
+                                     :remove, :add_file, :save_file, :remove_file, :save_person,
+                                     :save_group, :remove_role, :view_file,
+                                     :abort_build, :trigger_rebuild, :trigger_services,
+                                     :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
+                                     :save_meta, :attributes, :edit, :import_spec, :files, :comments]
 
-  before_action :require_package, :only => [:show, :linking_packages, :dependency, :binary, :binaries,
-                                            :requests, :statistics, :commit, :revisions, :submit_request_dialog,
-                                            :add_person, :add_group, :rdiff, :wizard_new, :wizard,
-                                            :branch_dialog, :branch, :save, :delete_dialog,
-                                            :remove, :add_file, :save_file, :remove_file, :save_person,
-                                            :save_group, :remove_role, :view_file,
-                                            :abort_build, :trigger_rebuild, :trigger_services,
-                                            :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                            :attributes, :edit, :import_spec, :files, :comments, :users,
-                                            :save_comment]
+  before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries,
+                                         :requests, :statistics, :commit, :revisions, :submit_request_dialog,
+                                         :add_person, :add_group, :rdiff, :wizard_new, :wizard,
+                                         :branch_dialog, :branch, :save, :delete_dialog,
+                                         :remove, :add_file, :save_file, :remove_file, :save_person,
+                                         :save_group, :remove_role, :view_file,
+                                         :abort_build, :trigger_rebuild, :trigger_services,
+                                         :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
+                                         :attributes, :edit, :import_spec, :files, :comments, :users,
+                                         :save_comment]
 
   # make sure it's after the require_, it requires both
-  before_action :require_login, :except => [:show, :linking_packages, :linking_packages, :dependency,
-                                            :binary, :binaries, :users, :requests, :statistics, :commit,
-                                            :revisions, :rdiff, :wizard_new, :view_file, :live_build_log,
-                                            :update_build_log, :devel_project, :buildresult, :rpmlint_result,
-                                            :rpmlint_log, :meta, :attributes, :files]
+  before_action :require_login, except: [:show, :linking_packages, :linking_packages, :dependency,
+                                         :binary, :binaries, :users, :requests, :statistics, :commit,
+                                         :revisions, :rdiff, :wizard_new, :view_file, :live_build_log,
+                                         :update_build_log, :devel_project, :buildresult, :rpmlint_result,
+                                         :rpmlint_log, :meta, :attributes, :files]
 
-  prepend_before_action :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
+  prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
     if lockout_spiders
@@ -126,8 +126,8 @@ class Webui::PackageController < Webui::WebuiController
     @dproject = params[:dproject]
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
-    @fileinfo = Fileinfo.find(:project => params[:dproject], :package => '_repository', :repository => params[:drepository], :arch => @arch,
-      :filename => params[:dname], :view => 'fileinfo_ext')
+    @fileinfo = Fileinfo.find(project: params[:dproject], package: '_repository', repository: params[:drepository], arch: @arch,
+      filename: params[:dname], view: 'fileinfo_ext')
     @durl = nil
     unless @fileinfo # avoid displaying an error for non-existing packages
       redirect_back(fallback_location: { action: :binary, project: params[:project], package: params[:package],
@@ -161,8 +161,8 @@ class Webui::PackageController < Webui::WebuiController
     @filename = File.basename(params[:filename])
 
     begin
-      @fileinfo = Fileinfo.find(:project => @project, :package => @package, :repository => @repository, :arch => @arch,
-        :filename => @filename, :view => 'fileinfo_ext')
+      @fileinfo = Fileinfo.find(project: @project, package: @package, repository: @repository, arch: @arch,
+        filename: @filename, view: 'fileinfo_ext')
     rescue ActiveXML::Transport::ForbiddenError => e
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
     end
@@ -192,8 +192,8 @@ class Webui::PackageController < Webui::WebuiController
     required_parameters :repository
     @repository = params[:repository]
     begin
-    @buildresult = Buildresult.find_hashed(:project => @project, :package => @package,
-      :repository => @repository, :view => %w(binarylist status))
+    @buildresult = Buildresult.find_hashed(project: @project, package: @package,
+      repository: @repository, view: %w(binarylist status))
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
       redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
@@ -686,7 +686,7 @@ class Webui::PackageController < Webui::WebuiController
       if file.present?
         # We are getting an uploaded file
         filename = file.original_filename if filename.blank?
-        @package.save_file(file: file, filename: filename, :comment => params[:comment])
+        @package.save_file(file: file, filename: filename, comment: params[:comment])
       elsif file_url.present?
         # we have a remote file URI, so we have to download and save it
         services = @package.services
@@ -781,7 +781,7 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
     if @spider_bot
-      render :template => 'webui/package/simple_file_view'
+      render template: 'webui/package/simple_file_view'
       return
     end
   end
@@ -968,13 +968,13 @@ class Webui::PackageController < Webui::WebuiController
   def buildresult
     check_ajax
     load_buildresults
-    render :partial => 'buildstatus'
+    render partial: 'buildstatus'
   end
 
   def rpmlint_result
     check_ajax
     @repo_list, @repo_arch_hash = [], {}
-    @buildresult = Buildresult.find_hashed(:project => @project.to_param, :package => @package.to_param, :view => 'status')
+    @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
     repos = [] # Temp var
     @buildresult.elements('result') do |result|
       hash_key = valid_xml_id(elide(result.value('repository'), 30))
@@ -1012,9 +1012,9 @@ class Webui::PackageController < Webui::WebuiController
           res += line
         end
       end
-      render :text => res, content_type: 'text/html'
+      render text: res, content_type: 'text/html'
     rescue ActiveXML::Transport::NotFoundError
-      render :text => 'No rpmlint log'
+      render text: 'No rpmlint log'
     end
   end
 
@@ -1104,7 +1104,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def load_buildresults
-    @buildresult = Buildresult.find_hashed( :project => @project, :package => @package.to_param, :view => 'status')
+    @buildresult = Buildresult.find_hashed( project: @project, package: @package.to_param, view: 'status')
     if @buildresult.blank?
       @buildresult = Array.new
       return

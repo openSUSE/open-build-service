@@ -19,10 +19,10 @@ RSpec.configure do |config|
     # the same server thread.
     if example.metadata[:type] == :feature
       # omit truncating what we have set up in db/seeds.rb
-      DatabaseCleaner.strategy = :truncation, { :except => %w(roles roles_static_permissions
-                                                              static_permissions configurations
-                                                              architectures attrib_types attrib_namespaces
-                                                              issue_trackers) }
+      DatabaseCleaner.strategy = :truncation, { except: %w(roles roles_static_permissions
+                                                           static_permissions configurations
+                                                           architectures attrib_types attrib_namespaces
+                                                           issue_trackers) }
     else
       DatabaseCleaner.strategy = :transaction
     end

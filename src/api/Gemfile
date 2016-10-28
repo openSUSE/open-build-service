@@ -46,7 +46,7 @@ gem 'acts_as_tree'
 # js plotting (OBS monitor)
 gem 'flot-rails'
 # colorize for scripts
-gem 'colorize', :require => false
+gem 'colorize', require: false
 # XML Serialization got moved here
 gem 'activemodel-serializers-xml'
 

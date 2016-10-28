@@ -57,15 +57,15 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/published/home:Iggy/10.2/TestPack?view=ymp"
     assert_response :success
-    assert_xml_tag :parent => {:tag => 'repository', :attributes => { :recommended => "true" }},
+    assert_xml_tag parent: {tag: 'repository', attributes: { recommended: "true" }},
                    tag: "url", content: "http://example.com/download/home:/Iggy/10.2/"
-    assert_xml_tag :parent => {:tag => 'repository', :attributes => { :recommended => "false" }},
+    assert_xml_tag parent: {tag: 'repository', attributes: { recommended: "false" }},
                    tag: "url", content: "http://example.com/download/BaseDistro/BaseDistro_repo/"
 
     # software description
-    assert_xml_tag :tag => 'name', :content => "TestPack"
-    assert_xml_tag :tag => 'summary', :content => "The TestPack package"
-    assert_xml_tag :tag => 'description', :content => "The TestPack package"
+    assert_xml_tag tag: 'name', content: "TestPack"
+    assert_xml_tag tag: 'summary', content: "The TestPack package"
+    assert_xml_tag tag: 'description', content: "The TestPack package"
   end
 
   def test_binary_view
@@ -84,20 +84,20 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     # default configured rpm-md
     get "/published/home:adrian:ProtectionTest/repo/repodata"
     assert_response :success
-    assert_no_xml_tag :tag => 'entry', :attributes => { :name => "filelists.xml.gz" }
-    assert_no_xml_tag :tag => 'entry', :attributes => { :name => "other.xml.gz" }
-    assert_no_xml_tag :tag => 'entry', :attributes => { :name => "primary.xml.gz" }
-    assert_xml_tag :tag => 'entry', :attributes => { :name => "repomd.xml" }
+    assert_no_xml_tag tag: 'entry', attributes: { name: "filelists.xml.gz" }
+    assert_no_xml_tag tag: 'entry', attributes: { name: "other.xml.gz" }
+    assert_no_xml_tag tag: 'entry', attributes: { name: "primary.xml.gz" }
+    assert_xml_tag tag: 'entry', attributes: { name: "repomd.xml" }
     assert_match(/-filelists.xml.gz"/, @response.body)
     assert_match(/-other.xml.gz"/, @response.body)
     assert_match(/-primary.xml.gz"/, @response.body)
     # legacy configured rpm-md
     get "/published/home:Iggy/10.2/repodata"
     assert_response :success
-    assert_xml_tag :tag => 'entry', :attributes => { :name => "filelists.xml.gz" }
-    assert_xml_tag :tag => 'entry', :attributes => { :name => "other.xml.gz" }
-    assert_xml_tag :tag => 'entry', :attributes => { :name => "primary.xml.gz" }
-    assert_xml_tag :tag => 'entry', :attributes => { :name => "repomd.xml" }
+    assert_xml_tag tag: 'entry', attributes: { name: "filelists.xml.gz" }
+    assert_xml_tag tag: 'entry', attributes: { name: "other.xml.gz" }
+    assert_xml_tag tag: 'entry', attributes: { name: "primary.xml.gz" }
+    assert_xml_tag tag: 'entry', attributes: { name: "repomd.xml" }
 
     # verify meta data created by create_package_descr
     package_seen = {}

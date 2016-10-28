@@ -1,11 +1,11 @@
 require 'xmlhash'
 
 class PersonController < ApplicationController
-  validate_action :userinfo => {:method => :get, :response => :user}
-  validate_action :userinfo => {:method => :put, :request => :user, :response => :status}
-  validate_action :grouplist => {:method => :get, :response => :directory}
-  validate_action :register => {:method => :put, :response => :status}
-  validate_action :register => {:method => :post, :response => :status}
+  validate_action userinfo: {method: :get, response: :user}
+  validate_action userinfo: {method: :put, request: :user, response: :status}
+  validate_action grouplist: {method: :get, response: :directory}
+  validate_action register: {method: :put, response: :status}
+  validate_action register: {method: :post, response: :status}
 
   skip_before_action :extract_user, only: [:command, :register]
   skip_before_action :require_login, only: [:command, :register]
@@ -36,10 +36,10 @@ class PersonController < ApplicationController
 
     if user.login != @http_user.login
       logger.debug "Generating for user from parameter #{user.login}"
-      render :text => user.render_axml(@http_user.is_admin?), :content_type => "text/xml"
+      render text: user.render_axml(@http_user.is_admin?), content_type: "text/xml"
     else
       logger.debug "Generating user info for logged in user #{@http_user.login}"
-      render :text => @http_user.render_axml(true), :content_type => "text/xml"
+      render text: @http_user.render_axml(true), content_type: "text/xml"
     end
   end
 
@@ -52,13 +52,13 @@ class PersonController < ApplicationController
       login ||= @http_user.login
       password = request.raw_post.to_s.chomp
       if login != @http_user.login && !@http_user.is_admin?
-        render_error :status => 403, :errorcode => "change_password_no_permission",
-                     :message => "No permission to change password for user #{login}"
+        render_error status: 403, errorcode: "change_password_no_permission",
+                     message: "No permission to change password for user #{login}"
         return
       end
       if password.blank?
-        render_error :status => 404, :errorcode => "password_empty",
-                     :message => "No new password given in first line of the body"
+        render_error status: 404, errorcode: "password_empty",
+                     message: "No new password given in first line of the body"
         return
       end
       change_password(login, password)
@@ -90,12 +90,12 @@ class PersonController < ApplicationController
     if user
       unless user.login == User.current.login || User.current.is_admin?
         logger.debug "User has no permission to change userinfo"
-        render_error(:status => 403, :errorcode => 'change_userinfo_no_permission',
-          :message => "no permission to change userinfo for user #{user.login}") && return
+        render_error(status: 403, errorcode: 'change_userinfo_no_permission',
+          message: "no permission to change userinfo for user #{user.login}") && return
       end
     else
       if User.current.is_admin?
-        user = User.create(:login => login, :password => "notset", :email => "TEMP")
+        user = User.create(login: login, password: "notset", email: "TEMP")
         user.state = "locked"
       else
         logger.debug "Tried to create non-existing user without admin rights"
@@ -118,8 +118,8 @@ class PersonController < ApplicationController
         user.state = :subaccount
         user.owner = User.find_by_login! xml['owner']['userid']
         if user.owner.owner
-          render_error(:status => 400, :errorcode => 'subaccount_chaining',
-            :message => "A subaccount can not be assigned to subaccount #{user.owner.login}") && return
+          render_error(status: 400, errorcode: 'subaccount_chaining',
+            message: "A subaccount can not be assigned to subaccount #{user.owner.login}") && return
         end
       end
     end
@@ -227,12 +227,12 @@ class PersonController < ApplicationController
       logger.debug "No user logged in, permission to changing password denied"
       @errorcode = 401
       @summary = "No user logged in, permission to changing password denied"
-      render :template => 'error', :status => 401
+      render template: 'error', status: 401
     end
 
     if login.blank? || password.blank?
-      render_error :status => 404, :errorcode => 'failed to change password',
-            :message => "Failed to change password: missing parameter"
+      render_error status: 404, errorcode: 'failed to change password',
+            message: "Failed to change password: missing parameter"
       return
     end
     user = User.get_by_login(login)
@@ -249,11 +249,11 @@ class PersonController < ApplicationController
           logger.debug "CONFIG['ldap_mode'] selected but 'ruby-ldap' module not installed."
         end
         if result
-          render_error :status => 404, :errorcode => 'change_passwd_failure', :message => "Failed to change password to ldap: #{result}"
+          render_error status: 404, errorcode: 'change_passwd_failure', message: "Failed to change password to ldap: #{result}"
           return
         end
       else
-        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only" +
+        render_error status: 404, errorcode: 'change_passwd_no_security', message: "LDAP mode enabled, the user password can only" +
                                                                                             " be changed with CONFIG['ldap_ssl'] enabling."
         return
       end

@@ -1,9 +1,9 @@
 class DistributionsController < ApplicationController
   # Distribution list is insensitive information, no login needed therefore
-  before_action :require_admin, :except => [:index, :show, :include_remotes]
+  before_action :require_admin, except: [:index, :show, :include_remotes]
 
-  validate_action :index => {:method => :get, :response => :distributions}
-  validate_action :upload => {:method => :put, :request => :distributions, :response => :status}
+  validate_action index: {method: :get, response: :distributions}
+  validate_action upload: {method: :put, request: :distributions, response: :status}
 
   respond_to :xml, :json
 
@@ -14,7 +14,7 @@ class DistributionsController < ApplicationController
 
     respond_to do |format|
       format.xml
-      format.json { render :json => @distributions }
+      format.json { render json: @distributions }
     end
   end
 
@@ -25,7 +25,7 @@ class DistributionsController < ApplicationController
 
     respond_to do |format|
       format.xml { render "index" }
-      format.json { render :json => @distributions }
+      format.json { render json: @distributions }
     end
   end
 
@@ -35,8 +35,8 @@ class DistributionsController < ApplicationController
     @distribution = Distribution.find(params[:id]).to_hash
 
     respond_to do |format|
-      format.xml  { render :xml => @distribution }
-      format.json { render :json => @distribution }
+      format.xml  { render xml: @distribution }
+      format.json { render json: @distribution }
     end
   end
 
@@ -45,8 +45,8 @@ class DistributionsController < ApplicationController
     raise 'routes broken' unless request.put?
     req = Xmlhash.parse(request.body.read)
     unless req
-      render_error :message => "Invalid XML",
-                   :status => 400, :errorcode => "invalid_xml"
+      render_error message: "Invalid XML",
+                   status: 400, errorcode: "invalid_xml"
       return
     end
     @distributions = Distribution.parse(req)
@@ -60,11 +60,11 @@ class DistributionsController < ApplicationController
 
     respond_to do |format|
       if @distribution.save
-        format.xml  { render xml: @distribution, :status => :created, :location => @distribution }
-        format.json { render json: @distribution, :status => :created, :location => @distribution }
+        format.xml  { render xml: @distribution, status: :created, location: @distribution }
+        format.json { render json: @distribution, status: :created, location: @distribution }
       else
-        format.xml  { render :xml => @distribution.errors, :status => :unprocessable_entity }
-        format.json { render :json => @distribution.errors, :status => :unprocessable_entity }
+        format.xml  { render xml: @distribution.errors, status: :unprocessable_entity }
+        format.json { render json: @distribution.errors, status: :unprocessable_entity }
       end
     end
   end

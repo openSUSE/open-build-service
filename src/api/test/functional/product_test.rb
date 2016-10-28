@@ -14,43 +14,43 @@ class ProductTests < ActionDispatch::IntegrationTest
     # verbose
     get "#{prefix}/source/home:tom:temporary?view=verboseproductlist"
     assert_response :success
-    assert_xml_tag :parent => {
-      :tag        => "product",
-      :attributes => { :name => "simple", :originproject => "home:tom:temporary" }
+    assert_xml_tag parent: {
+      tag:        "product",
+      attributes: { name: "simple", originproject: "home:tom:temporary" }
     },
-      :tag => "cpe", :content => "cpe:/o:obs_fuzzies:simple:13.1"
+      tag: "cpe", content: "cpe:/o:obs_fuzzies:simple:13.1"
     get "#{prefix}/source/home:tom:temporary?view=verboseproductlist&expand=1"
     assert_response :success
-    assert_xml_tag :parent => { :tag        => "product",
-                                :attributes => { :name => "simple", :originproject => "home:tom:temporary" } },
-                   :tag => "cpe", :content => "cpe:/o:obs_fuzzies:simple:13.1"
+    assert_xml_tag parent: { tag:        "product",
+                             attributes: { name: "simple", originproject: "home:tom:temporary" } },
+                   tag: "cpe", content: "cpe:/o:obs_fuzzies:simple:13.1"
 
     # product views via project links
     get "#{prefix}/source/home:tom:temporary:link?view=productlist"
     assert_response :success
-    assert_no_xml_tag :tag => "product"
+    assert_no_xml_tag tag: "product"
     get "#{prefix}/source/home:tom:temporary:link?view=productlist&expand=1"
     assert_response :success
-    assert_xml_tag :tag => "product",
-                   :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
+    assert_xml_tag tag: "product",
+                   attributes: { name: "simple", cpe: "cpe:/o:obs_fuzzies:simple:13.1", originproject: "home:tom:temporary" }
 
     # productrepositories
     get "#{prefix}/source/home:tom:temporary:link/_product?view=productrepositories"
     assert_response :success
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => 'BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
-                   :tag => "update"
-    assert_xml_tag :tag => "repository", :attributes => { :path => 'BaseDistro/BaseDistro_repo/repo/DVD' }
-    assert_xml_tag :tag => "repository", :attributes => { :url => 'http://external.url/to.some.one' }
+    assert_xml_tag parent: { tag: "repository", attributes: { path: 'BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
+                   tag: "update"
+    assert_xml_tag tag: "repository", attributes: { path: 'BaseDistro/BaseDistro_repo/repo/DVD' }
+    assert_xml_tag tag: "repository", attributes: { url: 'http://external.url/to.some.one' }
 
     # product views in a project
     get "#{prefix}/source/home:tom:temporary?view=productlist"
     assert_response :success
-    assert_xml_tag :tag => "product",
-                   :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
+    assert_xml_tag tag: "product",
+                   attributes: { name: "simple", cpe: "cpe:/o:obs_fuzzies:simple:13.1", originproject: "home:tom:temporary" }
     get "#{prefix}/source/home:tom:temporary?view=productlist&expand=1"
     assert_response :success
-    assert_xml_tag :tag => "product",
-                   :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
+    assert_xml_tag tag: "product",
+                   attributes: { name: "simple", cpe: "cpe:/o:obs_fuzzies:simple:13.1", originproject: "home:tom:temporary" }
   end
   private :_simple_product_file_calls
 
@@ -99,17 +99,17 @@ class ProductTests < ActionDispatch::IntegrationTest
     # product views in a package
     get "/source/home:tom:temporary/_product?view=issues"
     assert_response :success
-    assert_xml_tag :tag => "kind", :content => "product"
+    assert_xml_tag tag: "kind", content: "product"
     get "/source/home:tom:temporary/_product?view=products"
     assert_response :success
-    assert_xml_tag :parent => { :tag => "product" },
-                   :tag => "name", :content => "simple"
+    assert_xml_tag parent: { tag: "product" },
+                   tag: "name", content: "simple"
     get "/source/home:tom:temporary/_product?view=products&product=simple"
     assert_response :success
-    assert_xml_tag :tag => "name", :content => "simple"
+    assert_xml_tag tag: "name", content: "simple"
     get "/source/home:tom:temporary/_product?view=products&product=DOES_NOT_EXIST"
     assert_response :success
-    assert_no_xml_tag :tag => "name", :content => "simple"
+    assert_no_xml_tag tag: "name", content: "simple"
 
     product = Package.find_by_project_and_name("home:tom:temporary", "_product").products.first
     assert_equal "simple", product.name
@@ -121,12 +121,12 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/home:tom:temporary/_product:simple-cd-cd-i586_x86_64/simple-cd-cd-i586_x86_64.kiwi"
     assert_response :success
-    assert_xml_tag :tag => "source", :attributes => { :path => "obs://home:Iggy/10.2" },
-                   :parent => { :tag => "instrepo", :attributes => { :name => "repository_1", :priority => "1", :local => "true" } }
-    assert_xml_tag :tag => "repopackage", :attributes => { :name => "skelcd-obs", :medium => "0", :removearch => "src,nosrc", :onlyarch => "i586,x86_64" },
-                   :parent => { :tag => "metadata" }
-    assert_xml_tag :tag => "repopackage", :attributes => { :name => "patterns-obs", :medium => "0", :removearch => "src,nosrc", :onlyarch => "i586,x86_64" },
-                   :parent => { :tag => "metadata" }
+    assert_xml_tag tag: "source", attributes: { path: "obs://home:Iggy/10.2" },
+                   parent: { tag: "instrepo", attributes: { name: "repository_1", priority: "1", local: "true" } }
+    assert_xml_tag tag: "repopackage", attributes: { name: "skelcd-obs", medium: "0", removearch: "src,nosrc", onlyarch: "i586,x86_64" },
+                   parent: { tag: "metadata" }
+    assert_xml_tag tag: "repopackage", attributes: { name: "patterns-obs", medium: "0", removearch: "src,nosrc", onlyarch: "i586,x86_64" },
+                   parent: { tag: "metadata" }
     get "/source/home:tom:temporary/_product:simple-cd-cd-i586_x86_64/simple-cd-cd-i586_x86_64.kwd"
     assert_response :success
     assert_match(/^obs-server: \+Kwd:\\nsupport_l3\\n-Kwd:/, @response.body)
@@ -153,7 +153,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     put "/source/home:tom:temporary/_product/obs.group",
         File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group").read()
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => '400', :origin => 'backend' }
+    assert_xml_tag tag: "status", attributes: { code: '400', origin: 'backend' }
     assert_match(/Illegal support key ILLEGAL for obs-server/, @response.body)
 
     # check scheduling
@@ -166,12 +166,12 @@ class ProductTests < ActionDispatch::IntegrationTest
     run_scheduler('local')
     get "/build/home:Iggy/_result"
     assert_response :success
-    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:Iggy", repository:"10.2", arch:"i586"} },
-                   :tag => "status", :attributes => { :package => 'TestPack', :code => 'scheduled' }
+    assert_xml_tag parent: {tag: "result", attributes: {project:"home:Iggy", repository:"10.2", arch:"i586"} },
+                   tag: "status", attributes: { package: 'TestPack', code: 'scheduled' }
     get "/build/home:tom:temporary/_result"
     assert_response :success
-    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:tom:temporary", repository:"images", arch:"local"} },
-                   :tag => "status", :attributes => { :package => '_product:simple-cd-cd-i586_x86_64', :code => 'blocked' }
+    assert_xml_tag parent: {tag: "result", attributes: {project:"home:tom:temporary", repository:"images", arch:"local"} },
+                   tag: "status", attributes: { package: '_product:simple-cd-cd-i586_x86_64', code: 'blocked' }
 
     login_king
     inject_build_job( "home:Iggy", "TestPack", "10.2", "i586" )
@@ -179,21 +179,21 @@ class ProductTests < ActionDispatch::IntegrationTest
     run_scheduler('local') # run first, so the waiting_for are still there
     get "/build/home:tom:temporary/_result"
     assert_response :success
-    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:tom:temporary", repository:"images", arch:"local"} },
-                   :tag => "status", :attributes => { :package => '_product:simple-cd-cd-i586_x86_64', :code => 'blocked' }
+    assert_xml_tag parent: {tag: "result", attributes: {project:"home:tom:temporary", repository:"images", arch:"local"} },
+                   tag: "status", attributes: { package: '_product:simple-cd-cd-i586_x86_64', code: 'blocked' }
     run_scheduler('i586')  # but they get removed now ...
     run_scheduler('x86_64')
     run_scheduler('local') # check that i586 & x86_64 schedulers removed waiting_for
     get "/build/home:Iggy/_result"
     assert_response :success
-    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:Iggy", repository:"10.2", arch:"i586"} },
-                   :tag => "status", :attributes => { :package => 'TestPack', :code => 'succeeded' }
-    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:Iggy", repository:"10.2", arch:"x86_64"} },
-                   :tag => "status", :attributes => { :package => 'TestPack', :code => 'succeeded' }
+    assert_xml_tag parent: {tag: "result", attributes: {project:"home:Iggy", repository:"10.2", arch:"i586"} },
+                   tag: "status", attributes: { package: 'TestPack', code: 'succeeded' }
+    assert_xml_tag parent: {tag: "result", attributes: {project:"home:Iggy", repository:"10.2", arch:"x86_64"} },
+                   tag: "status", attributes: { package: 'TestPack', code: 'succeeded' }
     get "/build/home:tom:temporary/_result"
     assert_response :success
-    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:tom:temporary", repository:"images", arch:"local"} },
-                   :tag => "status", :attributes => { :package => '_product:simple-cd-cd-i586_x86_64', :code => 'scheduled' }
+    assert_xml_tag parent: {tag: "result", attributes: {project:"home:tom:temporary", repository:"images", arch:"local"} },
+                   tag: "status", attributes: { package: '_product:simple-cd-cd-i586_x86_64', code: 'scheduled' }
 
     delete "/source/home:Iggy/TestPack/DUMMY_CHANGE"
     assert_response :success
@@ -245,45 +245,45 @@ class ProductTests < ActionDispatch::IntegrationTest
     # product views in a project
     get "/source/home:tom:temporary?view=productlist"
     assert_response :success
-    assert_xml_tag :tag => "product",
-                   :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11:sp2", :originproject => "home:tom:temporary" }
+    assert_xml_tag tag: "product",
+                   attributes: { name: "SUSE_SLES", cpe: "cpe:/a:suse:suse_sles:11:sp2", originproject: "home:tom:temporary" }
     get "/source/home:tom:temporary?view=productlist&expand=1"
     assert_response :success
-    assert_xml_tag :tag => "product",
-                   :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11:sp2", :originproject => "home:tom:temporary" }
+    assert_xml_tag tag: "product",
+                   attributes: { name: "SUSE_SLES", cpe: "cpe:/a:suse:suse_sles:11:sp2", originproject: "home:tom:temporary" }
 
     # product views via project links
     get "/source/home:tom:temporary:link?view=productlist"
     assert_response :success
-    assert_no_xml_tag :tag => "product"
+    assert_no_xml_tag tag: "product"
     get "/source/home:tom:temporary:link?view=productlist&expand=1"
     assert_response :success
-    assert_xml_tag :tag => "product",
-                   :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11:sp2", :originproject => "home:tom:temporary" }
+    assert_xml_tag tag: "product",
+                   attributes: { name: "SUSE_SLES", cpe: "cpe:/a:suse:suse_sles:11:sp2", originproject: "home:tom:temporary" }
 
     # product views in a package
     get "/source/home:tom:temporary/_product?view=issues"
     assert_response :success
-    assert_xml_tag :tag => "kind", :content => "product"
+    assert_xml_tag tag: "kind", content: "product"
     get "/source/home:tom:temporary/_product?view=products"
     assert_response :success
-    assert_xml_tag :parent => { :tag => "product", :attributes => { :id => 'simple' } },
-                   :tag => "name", :content => "SUSE_SLES"
+    assert_xml_tag parent: { tag: "product", attributes: { id: 'simple' } },
+                   tag: "name", content: "SUSE_SLES"
     get "/source/home:tom:temporary/_product?view=products&product=SUSE_SLES"
     assert_response :success
-    assert_xml_tag :tag => "name", :content => "SUSE_SLES"
+    assert_xml_tag tag: "name", content: "SUSE_SLES"
     get "/source/home:tom:temporary/_product?view=products&product=DOES_NOT_EXIST"
     assert_response :success
-    assert_no_xml_tag :tag => "name"
+    assert_no_xml_tag tag: "name"
     # productrepositories
     get "/source/home:tom:temporary/_product?view=productrepositories"
     assert_response :success
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => 'BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
-                   :tag => "update"
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => 'BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
-                   :tag => "zypp", :attributes => { :name => "basedistro2 update distribution", :alias => "basedistro2_alias" }
-    assert_xml_tag :tag => "distrotarget", :attributes => { :arch => "x86_64" }, :content => "DiStroTarGet_x86"
-    assert_xml_tag :tag => "distrotarget", :content => "DiStroTarGet"
+    assert_xml_tag parent: { tag: "repository", attributes: { path: 'BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
+                   tag: "update"
+    assert_xml_tag parent: { tag: "repository", attributes: { path: 'BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
+                   tag: "zypp", attributes: { name: "basedistro2 update distribution", alias: "basedistro2_alias" }
+    assert_xml_tag tag: "distrotarget", attributes: { arch: "x86_64" }, content: "DiStroTarGet_x86"
+    assert_xml_tag tag: "distrotarget", content: "DiStroTarGet"
 
     product = Package.find_by_project_and_name("home:tom:temporary", "_product").products.first
     assert_equal "SUSE_SLES", product.name
@@ -297,12 +297,12 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/home:tom:temporary/_product:sle-obs-cd-cd-i586_x86_64/sle-obs-cd-cd-i586_x86_64.kiwi"
     assert_response :success
-    assert_xml_tag :tag => "source", :attributes => { :path => "obs://home:Iggy/10.2" },
-                   :parent => { :tag => "instrepo", :attributes => { :name => "repository_1", :priority => "1", :local => "true" } }
-    assert_xml_tag :tag => "repopackage", :attributes => { :name => "skelcd-obs", :medium => "0", :removearch => "src,nosrc", :onlyarch => "i586,x86_64" },
-                   :parent => { :tag => "metadata" }
-    assert_xml_tag :tag => "repopackage", :attributes => { :name => "patterns-obs", :medium => "0", :removearch => "src,nosrc", :onlyarch => "i586,x86_64" },
-                   :parent => { :tag => "metadata" }
+    assert_xml_tag tag: "source", attributes: { path: "obs://home:Iggy/10.2" },
+                   parent: { tag: "instrepo", attributes: { name: "repository_1", priority: "1", local: "true" } }
+    assert_xml_tag tag: "repopackage", attributes: { name: "skelcd-obs", medium: "0", removearch: "src,nosrc", onlyarch: "i586,x86_64" },
+                   parent: { tag: "metadata" }
+    assert_xml_tag tag: "repopackage", attributes: { name: "patterns-obs", medium: "0", removearch: "src,nosrc", onlyarch: "i586,x86_64" },
+                   parent: { tag: "metadata" }
     get "/source/home:tom:temporary/_product:sle-obs-cd-cd-i586_x86_64/sle-obs-cd-cd-i586_x86_64.kwd"
     assert_response :success
     assert_match(/^obs-server: \+Kwd:\\nsupport_l3\\n-Kwd:/, @response.body)
@@ -312,13 +312,13 @@ class ProductTests < ActionDispatch::IntegrationTest
     login_tom
     get "/source/home:tom:temporary:link"
     assert_response :success
-    assert_xml_tag :tag => "directory", :attributes => { :count => "0" }
+    assert_xml_tag tag: "directory", attributes: { count: "0" }
     post "/source/home:tom:temporary/_product:sle-obs-cd-cd-i586_x86_64?cmd=release"
     assert_response :success
     get "/source/home:tom:temporary:link"
     assert_response :success
-    assert_xml_tag :tag => "entry", :attributes => { :name => "_product:sle-obs-cd-cd-i586_x86_64" },
-                   :parent => { :tag => "directory", :attributes => { :count => "1" } }
+    assert_xml_tag tag: "entry", attributes: { name: "_product:sle-obs-cd-cd-i586_x86_64" },
+                   parent: { tag: "directory", attributes: { count: "1" } }
     # FIXME: add tests for release number handling with various products, requires product binaries and trees
 
     # remove product and check that _product: get removed as well.
@@ -352,7 +352,7 @@ class ProductTests < ActionDispatch::IntegrationTest
 
     # branch
     login_adrian
-    post '/source/home:tom:temporary/_product', :cmd => :branch
+    post '/source/home:tom:temporary/_product', cmd: :branch
     assert_response :success
 
     # upload sources in right order
@@ -372,7 +372,7 @@ class ProductTests < ActionDispatch::IntegrationTest
           </request>"
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)
     id = node['id']
     assert id.present?

@@ -6,7 +6,7 @@ class Review < ApplicationRecord
   end
 
   belongs_to :bs_request
-  validates_inclusion_of :state, :in => VALID_REVIEW_STATES
+  validates_inclusion_of :state, in: VALID_REVIEW_STATES
 
   validates :by_user, length: { maximum: 250 }
   validates :by_group, length: { maximum: 250 }
@@ -15,7 +15,7 @@ class Review < ApplicationRecord
   validates :reviewer, length: { maximum: 250 }
   validates :reason, length: { maximum: 65534 }
 
-  validate :check_initial, :on => [:create]
+  validate :check_initial, on: [:create]
 
   before_validation(on: :create) do
     if read_attribute(:state).nil?

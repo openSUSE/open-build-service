@@ -1,6 +1,6 @@
 namespace :db do
   desc 'Deletes sessions not running - run often'
-  task :cleanup_sessions => :environment do
+  task cleanup_sessions: :environment do
       abcs = ActiveRecord::Base.configurations
       case abcs[Rails.env]["adapter"]
       when "mysql2"

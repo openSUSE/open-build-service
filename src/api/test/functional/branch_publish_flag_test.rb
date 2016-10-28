@@ -30,7 +30,7 @@ class BranchPublishFlagTest < ActionDispatch::IntegrationTest
     tprj = "home:king:branches:#{sprj}"
 
     debug "branching #{sprj}/#{spkg} into #{tprj}"
-    post "/source/#{sprj}/#{spkg}", :cmd => :branch, :target_project => "#{tprj}"
+    post "/source/#{sprj}/#{spkg}", cmd: :branch, target_project: "#{tprj}"
     debug @response.body
     assert_response :success
     if @@verbose
@@ -45,10 +45,10 @@ class BranchPublishFlagTest < ActionDispatch::IntegrationTest
     if expected_publish_allowed
       # the XML says nothing about whether publishing is enabled, which means
       # it is
-      assert_no_xml_tag :tag => "publish"
+      assert_no_xml_tag tag: "publish"
     else
       # publishing is explicitly disabled
-      assert_xml_tag :tag => "publish", :child => { :tag => "disable" }
+      assert_xml_tag tag: "publish", child: { tag: "disable" }
     end
 
     # get rid of the branch so we can try again

@@ -13,27 +13,27 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     login_tom
 
     # try as non-admin
-    post "/source/home:tom:BaseDistro", :cmd => :move, :oproject => "BaseDistro"
+    post "/source/home:tom:BaseDistro", cmd: :move, oproject: "BaseDistro"
     assert_response 403
 
     login_king
-    post "/source/home:tom", :cmd => :move, :oproject => "BaseDistro"
+    post "/source/home:tom", cmd: :move, oproject: "BaseDistro"
     assert_response 400
 
     # real move
-    post "/source/TEMP:BaseDistro", :cmd => :move, :oproject => "BaseDistro"
+    post "/source/TEMP:BaseDistro", cmd: :move, oproject: "BaseDistro"
     assert_response :success
-    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
+    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
     get "/source/TEMP:BaseDistro"
     assert_response :success
     get "/source/TEMP:BaseDistro/_project"
     assert_response :success
     get "/source/TEMP:BaseDistro/_project/_history?meta=1"
     assert_response :success
-    assert_xml_tag :tag => "comment", :content => "Project move from BaseDistro to TEMP:BaseDistro"
+    assert_xml_tag tag: "comment", content: "Project move from BaseDistro to TEMP:BaseDistro"
     get "/source/TEMP:BaseDistro/pack2/_meta"
     assert_response :success
-    assert_xml_tag :tag => "package", :attributes => { :project => "TEMP:BaseDistro" }
+    assert_xml_tag tag: "package", attributes: { project: "TEMP:BaseDistro" }
     get "/build/TEMP:BaseDistro"
     assert_response :success
     get "/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
@@ -46,15 +46,15 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_response 404
 
     # move back
-    post "/source/BaseDistro", :cmd => :move, :oproject => "TEMP:BaseDistro"
+    post "/source/BaseDistro", cmd: :move, oproject: "TEMP:BaseDistro"
     assert_response :success
-    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
+    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
     get "/source/BaseDistro/pack2/_meta"
     assert_response :success
-    assert_xml_tag :tag => "package", :attributes => { :project => "BaseDistro" }
+    assert_xml_tag tag: "package", attributes: { project: "BaseDistro" }
     get "/source/BaseDistro/_project/_history?meta=1"
     assert_response :success
-    assert_xml_tag :tag => "comment", :content => "Project move from TEMP:BaseDistro to BaseDistro"
+    assert_xml_tag tag: "comment", content: "Project move from TEMP:BaseDistro to BaseDistro"
     get "/build/TEMP:BaseDistro"
     assert_response 404
     get "/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
@@ -69,21 +69,21 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     login_tom
 
     # inject a job for copy any entire project ... gets copied in testsuite but appears to be delayed
-    post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro"
+    post "/source/home:tom:BaseDistro", cmd: :copy, oproject: "BaseDistro"
     assert_response :success
-    assert_xml_tag( :tag => "status", :attributes => { :code => "invoked"} )
+    assert_xml_tag( tag: "status", attributes: { code: "invoked"} )
 
     # cleanup
     delete "/source/home:tom:BaseDistro"
     assert_response :success
 
     # copy any entire project NOW
-    post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :nodelay => 1
+    post "/source/home:tom:BaseDistro", cmd: :copy, oproject: "BaseDistro", nodelay: 1
     assert_response :success
-    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
+    assert_xml_tag( tag: "status", attributes: { code: "ok"} )
 
     # try a split
-    post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1
+    post "/source/home:tom:BaseDistro", cmd: :copy, oproject: "BaseDistro", makeolder: 1
     assert_response 403
 
     # cleanup
@@ -104,7 +104,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
 
     # make a full split as admin
     login_king
-    post "/source/TEST:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1, :nodelay => 1
+    post "/source/TEST:BaseDistro", cmd: :copy, oproject: "BaseDistro", makeolder: 1, nodelay: 1
     assert_response :success
 
     # the origin must got increased by 2
@@ -128,7 +128,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # test again with history copy
-    post "/source/TEST:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1, :nodelay => 1, :withhistory => 1
+    post "/source/TEST:BaseDistro", cmd: :copy, oproject: "BaseDistro", makeolder: 1, nodelay: 1, withhistory: 1
     assert_response :success
 
     # the origin must got increased by another 2
@@ -165,31 +165,31 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
 
     # prerequisite: is our source project setup correctly?
     get '/build/home:Iggy/10.2/i586/TestPack'
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag tag: 'binarylist', children: { count: 4 }
     get '/build/home:Iggy/10.2/x86_64/TestPack'
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 5 }
+    assert_xml_tag tag: 'binarylist', children: { count: 5 }
 
     # our source project is not building
     get '/build/home:Iggy/_result'
-    assert_xml_tag :parent => { tag: 'result',
-                                :attributes => { project:    'home:Iggy',
-                                                 repository: '10.2',
-                                                 arch:       'i586',
-                                                 code:       'published',
-                                                 state:      'published' }
+    assert_xml_tag parent: { tag:        'result',
+                             attributes: { project:    'home:Iggy',
+                                           repository: '10.2',
+                                           arch:       'i586',
+                                           code:       'published',
+                                           state:      'published' }
       },
       tag: 'status',
-      :attributes => { package: 'TestPack',
-                       code:    'succeeded' }
-    assert_xml_tag :parent => {
-        tag: 'result',
-        :attributes => { project:    'home:Iggy',
-                         repository: '10.2',
-                         arch:       'x86_64',
-                         code:       'published',
-                         state:      'published' } },
-      :tag => 'status', :attributes => { package: 'TestPack',
-                                         code:    'succeeded' }
+      attributes: { package: 'TestPack',
+                    code:    'succeeded' }
+    assert_xml_tag parent: {
+        tag:        'result',
+        attributes: { project:    'home:Iggy',
+                      repository: '10.2',
+                      arch:       'x86_64',
+                      code:       'published',
+                      state:      'published' } },
+      tag: 'status', attributes: { package: 'TestPack',
+                                   code:    'succeeded' }
 
     # copy project with binaries
     post '/source/IggyHomeCopy?cmd=copy&oproject=home:Iggy&noservice=1&withbinaries=1&nodelay=1'
@@ -204,50 +204,50 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     get '/source/IggyHomeCopy/_meta'
     assert_response :success
 
-    assert_xml_tag :parent => { :tag => 'project', :attributes => { :name => 'IggyHomeCopy' } },
-      :tag => 'repository', :attributes => { :name => '10.2' }
+    assert_xml_tag parent: { tag: 'project', attributes: { name: 'IggyHomeCopy' } },
+      tag: 'repository', attributes: { name: '10.2' }
 
-    assert_xml_tag :parent => { :tag => 'repository', :attributes => { :name => '10.2' } },
-      :tag => 'path', :attributes => { :project => 'BaseDistro', :repository => 'BaseDistro_repo' }
+    assert_xml_tag parent: { tag: 'repository', attributes: { name: '10.2' } },
+      tag: 'path', attributes: { project: 'BaseDistro', repository: 'BaseDistro_repo' }
 
-    assert_xml_tag :parent => { :tag => 'repository', :attributes => { :name => '10.2' } },
-      :tag => 'arch', :content => 'i586'
+    assert_xml_tag parent: { tag: 'repository', attributes: { name: '10.2' } },
+      tag: 'arch', content: 'i586'
 
-    assert_xml_tag :parent => { :tag => 'repository', :attributes => { :name => '10.2' } },
-      :tag => 'arch', :content => 'x86_64'
+    assert_xml_tag parent: { tag: 'repository', attributes: { name: '10.2' } },
+      tag: 'arch', content: 'x86_64'
 
     # check build results are copied correctly
     get '/build/IggyHomeCopy/_result'
-    assert_xml_tag :parent => {
-                   tag: 'result',
-                   :attributes => { project:    'IggyHomeCopy',
-                                    repository: '10.2',
-                                    arch:       'i586',
-                                    code:       'published',
-                                    state:      'published' } },
+    assert_xml_tag parent: {
+                   tag:        'result',
+                   attributes: { project:    'IggyHomeCopy',
+                                 repository: '10.2',
+                                 arch:       'i586',
+                                 code:       'published',
+                                 state:      'published' } },
       tag: 'status',
-      :attributes => { package: 'TestPack', code: 'succeeded' }
+      attributes: { package: 'TestPack', code: 'succeeded' }
 
-    assert_xml_tag :parent => {
-                                tag: 'result',
-                                :attributes => { project:    'IggyHomeCopy',
-                                                 repository: '10.2',
-                                                 arch:       'x86_64',
-                                                 code:       'published',
-                                                 state:      'published' }
+    assert_xml_tag parent: {
+                                tag:        'result',
+                                attributes: { project:    'IggyHomeCopy',
+                                              repository: '10.2',
+                                              arch:       'x86_64',
+                                              code:       'published',
+                                              state:      'published' }
         },
         tag: 'status',
-        :attributes => { package: 'TestPack', code: 'succeeded' }
+        attributes: { package: 'TestPack', code: 'succeeded' }
 
     # check that the same binaries are copied
     get '/build/home:Iggy/10.2/i586/TestPack'
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag tag: 'binarylist', children: { count: 4 }
     get '/build/IggyHomeCopy/10.2/i586/TestPack'
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag tag: 'binarylist', children: { count: 4 }
     get '/build/home:Iggy/10.2/x86_64/TestPack'
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 5 }
+    assert_xml_tag tag: 'binarylist', children: { count: 5 }
     get '/build/IggyHomeCopy/10.2/x86_64/TestPack'
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 5 }
+    assert_xml_tag tag: 'binarylist', children: { count: 5 }
 
     # cleanup
     delete '/source/IggyHomeCopy'

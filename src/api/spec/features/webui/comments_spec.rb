@@ -1,6 +1,6 @@
 require "browser_helper"
 
-RSpec.feature "Comments", :type => :feature, :js => true do
+RSpec.feature "Comments", type: :feature, js: true do
   let(:user) { create(:confirmed_user, login: "burdenski") }
 
   scenario 'can be created' do

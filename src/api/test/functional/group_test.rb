@@ -14,17 +14,17 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     prepare_request_valid_user
     get "/group"
     assert_response :success
-    assert_xml_tag :tag => 'directory', :child => {:tag => 'entry'}
-    assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
-    assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group_b'}
+    assert_xml_tag tag: 'directory', child: {tag: 'entry'}
+    assert_xml_tag tag: 'entry', attributes: {name: 'test_group'}
+    assert_xml_tag tag: 'entry', attributes: {name: 'test_group_b'}
 
     get "/group?login=adrian"
     assert_response :success
-    assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
+    assert_xml_tag tag: 'entry', attributes: {name: 'test_group'}
 
     get "/group?prefix=test"
     assert_response :success
-    assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
+    assert_xml_tag tag: 'entry', attributes: {name: 'test_group'}
   end
 
   def test_get_group
@@ -34,9 +34,9 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     prepare_request_valid_user
     get "/group/test_group"
     assert_response :success
-    assert_xml_tag :parent => { :tag => 'group' }, :tag => 'title', :content => "test_group"
-    assert_xml_tag :tag => 'person', :attributes => {:userid => 'adrian'}
-    assert_xml_tag :parent => { :tag => 'person' }, :tag => 'person', :attributes => {:userid => 'adrian'}
+    assert_xml_tag parent: { tag: 'group' }, tag: 'title', content: "test_group"
+    assert_xml_tag tag: 'person', attributes: {userid: 'adrian'}
+    assert_xml_tag parent: { tag: 'person' }, tag: 'person', attributes: {userid: 'adrian'}
 
     get "/group/does_not_exist"
     assert_response 404
@@ -62,12 +62,12 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     put "/group/test_group", xml
     assert_response 400
-    assert_xml_tag :tag => 'status', :attributes => {code: "invalid_parameter"}
-    assert_xml_tag :tag => 'summary', :content => "group name from path and xml mismatch"
+    assert_xml_tag tag: 'status', attributes: {code: "invalid_parameter"}
+    assert_xml_tag tag: 'summary', content: "group name from path and xml mismatch"
     put "/group/NOT_EXISTING_group", xml
     assert_response 400
-    assert_xml_tag :tag => 'status', :attributes => {code: "invalid_parameter"}
-    assert_xml_tag :tag => 'summary', :content => "group name from path and xml mismatch"
+    assert_xml_tag tag: 'status', attributes: {code: "invalid_parameter"}
+    assert_xml_tag tag: 'summary', content: "group name from path and xml mismatch"
     put "/group/new_group", xml
     assert_response :success
 
@@ -79,7 +79,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/group/new_group"
     assert_response :success
-    assert_xml_tag :tag => 'email', :content => "obs@obs.com"
+    assert_xml_tag tag: 'email', content: "obs@obs.com"
 
     login_Iggy # not a group maintainer (yet)
     put "/group/new_group", xml2
@@ -95,9 +95,9 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/group/new_group"
     assert_response :success
-    assert_xml_tag :tag => 'person', :attributes => {:userid => 'fred'}
-    assert_xml_tag :tag => 'maintainer', :attributes => {:userid => 'Iggy'}
-    assert_no_xml_tag :tag => 'email'
+    assert_xml_tag tag: 'person', attributes: {userid: 'fred'}
+    assert_xml_tag tag: 'maintainer', attributes: {userid: 'Iggy'}
+    assert_no_xml_tag tag: 'email'
 
     # check permissions
     login_adrian
@@ -112,7 +112,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/group/new_group"
     assert_response :success
-    assert_no_xml_tag :tag => 'person', :attributes => {:userid => 'fred'}
+    assert_no_xml_tag tag: 'person', attributes: {userid: 'fred'}
 
     # remove group
     login_king
@@ -124,37 +124,37 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
   def test_add_and_remove_users_from_group
     prepare_request_valid_user
-    post "/group/test_group", :cmd => "add_user", :userid => "Iggy"
+    post "/group/test_group", cmd: "add_user", userid: "Iggy"
     assert_response 403
-    post "/group/test_group", :cmd => "remove_user", :userid => "Iggy"
+    post "/group/test_group", cmd: "remove_user", userid: "Iggy"
     assert_response 403
-    post "/group/test_group", :cmd => "set_email", :email => "obs@obs.de"
+    post "/group/test_group", cmd: "set_email", email: "obs@obs.de"
     assert_response 403
     get "/group/test_group"
     assert_response :success
-    assert_no_xml_tag :tag => 'person', :attributes => {:userid => 'Iggy'}
+    assert_no_xml_tag tag: 'person', attributes: {userid: 'Iggy'}
 
     # as admin
     login_king
-    post "/group/test_group", :cmd => "add_user", :userid => "Iggy"
+    post "/group/test_group", cmd: "add_user", userid: "Iggy"
     assert_response :success
     # double add is a dummy operation, but needs to work for webui
-    post "/group/test_group", :cmd => "add_user", :userid => "Iggy"
+    post "/group/test_group", cmd: "add_user", userid: "Iggy"
     assert_response :success
-    post "/group/test_group", :cmd => "set_email", :email => "email@me"
-    assert_response :success
-    get "/group/test_group"
-    assert_response :success
-    assert_xml_tag :tag => 'person', :attributes => {:userid => 'Iggy'}
-    assert_xml_tag :tag => 'email', :content => "email@me"
-    post "/group/test_group", :cmd => "remove_user", :userid => "Iggy"
-    assert_response :success
-    post "/group/test_group", :cmd => "set_email"
+    post "/group/test_group", cmd: "set_email", email: "email@me"
     assert_response :success
     get "/group/test_group"
     assert_response :success
-    assert_no_xml_tag :tag => 'person', :attributes => {:userid => 'Iggy'}
-    assert_no_xml_tag :tag => 'email'
+    assert_xml_tag tag: 'person', attributes: {userid: 'Iggy'}
+    assert_xml_tag tag: 'email', content: "email@me"
+    post "/group/test_group", cmd: "remove_user", userid: "Iggy"
+    assert_response :success
+    post "/group/test_group", cmd: "set_email"
+    assert_response :success
+    get "/group/test_group"
+    assert_response :success
+    assert_no_xml_tag tag: 'person', attributes: {userid: 'Iggy'}
+    assert_no_xml_tag tag: 'email'
 
     # done, back at old state
   end
@@ -168,8 +168,8 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     get "/group/test_group"
     assert_response :success
-    assert_xml_tag :tag => 'group', :child => {:tag => 'title'}, :content => "test_group"
-    assert_xml_tag :tag => 'person', :attributes => {:userid => 'adrian'}
+    assert_xml_tag tag: 'group', child: {tag: 'title'}, content: "test_group"
+    assert_xml_tag tag: 'person', attributes: {userid: 'adrian'}
   end
 
   def test_groups_of_user
@@ -180,15 +180,15 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     # old way, obsolete with OBS 3
     get "/person/adrian/group"
     assert_response :success
-    assert_xml_tag :tag => 'directory', :child => {:tag => 'entry'}
-    assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
-    assert_no_xml_tag :tag => 'entry', :attributes => {:name => 'test_group_b'}
+    assert_xml_tag tag: 'directory', child: {tag: 'entry'}
+    assert_xml_tag tag: 'entry', attributes: {name: 'test_group'}
+    assert_no_xml_tag tag: 'entry', attributes: {name: 'test_group_b'}
 
     # new way, standard since OBS 2.3
     get "/group?login=adrian"
     assert_response :success
-    assert_xml_tag :tag => 'directory', :child => {:tag => 'entry'}
-    assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
-    assert_no_xml_tag :tag => 'entry', :attributes => {:name => 'test_group_b'}
+    assert_xml_tag tag: 'directory', child: {tag: 'entry'}
+    assert_xml_tag tag: 'entry', attributes: {name: 'test_group'}
+    assert_no_xml_tag tag: 'entry', attributes: {name: 'test_group_b'}
   end
 end
