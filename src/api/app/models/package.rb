@@ -121,7 +121,7 @@ class Package < ApplicationRecord
   end
 
   def self.check_cache(project, package, opts)
-    @key = { 'get_by_project_and_name' => 1, package: package, opts: opts }
+    @key = { 'get_by_project_and_name' => 1, :package => package, :opts => opts }
 
     @key[:user] = User.current.cache_key if User.current
 

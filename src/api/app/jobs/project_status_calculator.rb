@@ -76,7 +76,7 @@ class PackInfo
     return if arr.empty?
     builder.send(arrayname) do
       arr.each do |element, role_name|
-        builder.send(elementname, tag => element, role: role_name)
+        builder.send(elementname, tag => element, :role => role_name)
       end
     end
   end
