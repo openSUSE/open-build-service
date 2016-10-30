@@ -91,13 +91,13 @@ RSpec.describe User do
 
   describe 'home project creation' do
     it 'creates a home project by default if allow_user_to_create_home_project is enabled' do
-      Configuration.stubs(:allow_user_to_create_home_project).returns(true)
+      allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(true)
       user = create(:confirmed_user, login: 'random_name')
       expect(user.home_project).not_to be_nil
     end
 
     it "doesn't creates a home project if allow_user_to_create_home_project is disabled" do
-      Configuration.stubs(:allow_user_to_create_home_project).returns(false)
+      allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(false)
       user = create(:confirmed_user, login: 'another_random_name')
       expect(user.home_project).to be_nil
     end

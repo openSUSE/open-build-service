@@ -158,7 +158,7 @@ RSpec.feature "Projects", :type => :feature, :js => true do
     end
 
     scenario "unlock project" do
-      Project.any_instance.stubs(:can_be_unlocked?).returns(false)
+      allow_any_instance_of(Project).to receive(:can_be_unlocked?).and_return(false)
 
       click_link("Unlock project")
       fill_in "comment", with: "Freedom at last!"

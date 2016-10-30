@@ -62,7 +62,7 @@ RSpec.describe Webui::SearchController, vcr: true do
     context 'with search_text starting with obs://' do
       context 'and a package' do
         before do
-          Package.stubs(:exists_by_project_and_name).returns(true)
+          allow(Package).to receive(:exists_by_project_and_name).and_return(true)
           get :index, params: { search_text: "obs://build.opensuse.org/#{user.home_project.name}/i586/1-#{package.name}" }
         end
 
@@ -91,7 +91,7 @@ RSpec.describe Webui::SearchController, vcr: true do
 
     context 'with proper parameters but no results' do
       before do
-        ThinkingSphinx.stubs(:search).returns([])
+        allow(ThinkingSphinx).to receive(:search).and_return([])
         get :index, params: { search_text: 'whatever' }
       end
 
@@ -102,7 +102,7 @@ RSpec.describe Webui::SearchController, vcr: true do
 
     context 'with proper parameters and some results' do
       before do
-        ThinkingSphinx.stubs(:search).returns(["Fake result with #{package.name}"])
+        allow(ThinkingSphinx).to receive(:search).and_return(["Fake result with #{package.name}"])
         get :index, params: { search_text: package.name }
       end
 

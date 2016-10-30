@@ -329,8 +329,8 @@ RSpec.describe Project do
 
   describe "#store" do
     before do
-      project.stubs(:save!).returns(true)
-      project.stubs(:write_to_backend).returns(true)
+      allow(project).to receive(:save!).and_return(true)
+      allow(project).to receive(:write_to_backend).and_return(true)
       project.commit_opts = { comment: 'the comment' }
     end
 

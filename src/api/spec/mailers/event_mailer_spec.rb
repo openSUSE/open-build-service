@@ -2,7 +2,9 @@ require 'rails_helper'
 
 RSpec.describe EventMailer do
   # Needed for X-OBS-URL
-  before { Configuration.any_instance.stubs(:obs_url).returns('https://build.example.com') }
+  before do
+    allow_any_instance_of(Configuration).to receive(:obs_url).and_return('https://build.example.com')
+  end
 
   context 'comment mail' do
     let!(:receiver) { create(:confirmed_user) }
