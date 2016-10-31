@@ -72,13 +72,9 @@ if ($BSConfig::secure_sandboxes) {
   $secure_sandboxes{$_} = 1 for qw{xen kvm zvm};
 }
 
-my $testdir;
 my $testmode;
 while (@ARGV) {
-  if ($ARGV[0] eq '--test-directory') {
-    shift @ARGV;
-    $testdir = shift @ARGV;
-  } elsif ($ARGV[0] eq '--test-mode' || $ARGV[0] eq '--testmode') {
+  if ($ARGV[0] eq '--test-mode' || $ARGV[0] eq '--testmode') {
     shift @ARGV;
     $testmode = 1;
   } elsif ($ARGV[0] eq '--test-constraints') {
@@ -240,12 +236,6 @@ sub assignjob {
     $workercode = getcodemd5('worker', $workerdircache);
     $buildcode = getcodemd5('build', $builddircache);
     $lastcodechecktime = $now;
-  }
-
-  if ($testdir) {
-    mkdir("$testdir/$arch/$idlename");
-    touch("$testdir/$arch/$idlename/$job");
-    return undef;
   }
 
   # get the worker data
