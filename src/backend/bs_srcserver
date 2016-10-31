@@ -4201,8 +4201,9 @@ sub getworkerstatus {
 
     delete $_->{'uri'} for @{$ws->{'idle'} || []};
     delete $_->{'uri'} for @{$ws->{'building'} || []};
-    push @{$cws->{'idle'}}, @{$ws->{'idle'} || []};
-    push @{$cws->{'building'}}, @{$ws->{'building'} || []};
+    for my $workerstate (qw{idle building down dead away}) {
+      push @{$cws->{$workerstate}}, @{$ws->{$workerstate}} if $ws->{$workerstate};
+    }
     for my $b (@{$ws->{'waiting'} || []}) {
       my $ob = (grep {$_->{'arch'} eq $b->{'arch'}} @{$cws->{'waiting'} || []})[0];
       if (!$ob) {

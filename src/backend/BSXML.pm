@@ -832,6 +832,18 @@ our $workerstatus = [
 	    'arch',
 	    'starttime',
      ]],
+     [[ 'down' =>
+	    'workerid',
+	    'hostarch',
+     ]],
+     [[ 'dead' =>
+	    'workerid',
+	    'hostarch',
+     ]],
+     [[ 'away' =>
+	    'workerid',
+	    'hostarch',
+     ]],
      [[ 'waiting' =>
 	    'arch',
 	    'jobs',

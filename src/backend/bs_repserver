@@ -1475,12 +1475,21 @@ sub getschedulerstate {
 
 sub workerstatus {
   my ($cgi) = @_;
-  my @idle;
+  my %workerstates = ('idle' => []);
   if (!$cgi->{'daemonsonly'}) {
-    for my $w (ls("$workersdir/idle")) {
-      my $worker = readxml("$workersdir/idle/$w", $BSXML::worker, 1);
-      next unless $worker;
-      push @idle, {'hostarch' => $worker->{'hostarch'}, 'uri' => "http://$worker->{'ip'}:$worker->{'port'}", 'workerid' => $worker->{'workerid'}};
+    for my $workerstate (qw{idle down dead away}) {
+      my @w;
+      for my $w (ls("$workersdir/$workerstate")) {
+        my $worker = readxml("$workersdir/$workerstate/$w", $BSXML::worker, 1);
+        next unless $worker;
+        push @w, {'hostarch' => $worker->{'hostarch'}, 'uri' => "http://$worker->{'ip'}:$worker->{'port'}", 'workerid' => $worker->{'workerid'}};
+      }
+      next unless @w;
+      @w = sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @w;
+      if ($workerstate ne 'idle') {
+	delete $_->{'uri'} for @w;
+      }
+      $workerstates{$workerstate} = \@w;
     }
   }
   my @building;
@@ -1531,7 +1540,6 @@ sub workerstatus {
       push @buildaverage, {'arch' => $a, 'buildavg' => $si->{'buildavg'}};
     }
   }
-  @idle = sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @idle;
   @building = sort {$a->{'workerid'} cmp $b->{'workerid'} || $a->{'uri'} cmp $b->{'uri'} || $a cmp $b} @building;
   @waiting = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @waiting;
   @blocked = sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b} @blocked;
@@ -1600,12 +1608,12 @@ sub workerstatus {
 
   my $ret = {'partition' => \@partitions};
   if (!$cgi->{'daemonsonly'}) {
-    $ret->{'clients'} = @building + @idle;
+    $ret->{'clients'} = @building + @{$workerstates{'idle'}};
     $ret->{'building'} = \@building;
     $ret->{'waiting'} = \@waiting;
     $ret->{'blocked'} = \@blocked;
     $ret->{'buildavg'} = \@buildaverage;
-    $ret->{'idle'} = \@idle;
+    $ret->{$_} = $workerstates{$_} for keys %workerstates;
   }
   return ($ret, $BSXML::workerstatus);
 }
