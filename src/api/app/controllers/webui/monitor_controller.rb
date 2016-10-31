@@ -24,11 +24,10 @@ class Webui::MonitorController < Webui::WebuiController
 
       workers = Hash.new
       workers_list = Array.new
-      @workerstatus.elements('building') do |b|
-        workers_list << [b['workerid'], b['hostarch']]
-      end
-      @workerstatus.elements('idle') do |b|
-        workers_list << [b['workerid'], b['hostarch']]
+      %w{idle building away down dead}.each do |state|
+        @workerstatus.elements(state) do |b|
+          workers_list << [b['workerid'], b['hostarch']]
+        end
       end
       workers_list.each do |bid, barch|
         hostname, subid = bid.gsub(%r{[:]}, '/').split('/')
@@ -91,7 +90,7 @@ class Webui::MonitorController < Webui::WebuiController
     %w{waiting blocked squeue_high squeue_med}.each do |prefix|
       data[prefix] = gethistory(prefix + '_' + arch, range, !discard_cache?).map { |time, value| [time*1000, value] }
     end
-    %w{idle building}.each do |prefix|
+    %w{idle building away down dead}.each do |prefix|
       data[prefix] = gethistory(prefix + '_' + map_to_workers(arch), range, !discard_cache?).map { |time, value| [time*1000, value] }
     end
     low = Hash.new

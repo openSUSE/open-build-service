@@ -75,7 +75,7 @@ class WorkerStatus
   def parse_worker_infos(wdata)
     allworkers = Hash.new
     workers = Hash.new
-    %w(building idle).each do |state|
+    %w(building idle dead down away).each do |state|
       wdata.elements(state) do |e|
         id=e['workerid']
         if workers.has_key? id
@@ -86,6 +86,9 @@ class WorkerStatus
         key = state + '_' + e['hostarch']
         allworkers["building_#{e['hostarch']}"] ||= 0
         allworkers["idle_#{e['hostarch']}"] ||= 0
+        allworkers["dead_#{e['hostarch']}"] ||= 0
+        allworkers["down_#{e['hostarch']}"] ||= 0
+        allworkers["away_#{e['hostarch']}"] ||= 0
         allworkers[key] = allworkers[key] + 1
       end
     end
