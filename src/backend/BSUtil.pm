@@ -39,7 +39,11 @@ use IO::Handle;
 
 use strict;
 
+# should we do a slow fdatasync?
 our $fdatasync_before_rename;
+
+# the current debug level
+my $debuglevel;
 
 =head1 FUNCTIONS / METHODS
 
@@ -754,12 +758,18 @@ sub isotime {
   return sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
 }
 
-my $debuglevel;
+=head2 setdebuglevel - set the current debug level
+
+ BSUtil::setdebuglevel($newlevel);
+
+=cut
+
 sub setdebuglevel {
   my ($level) = @_;
+  my $oldlevel = $debuglevel;
   $debuglevel = $level;
+  return $oldlevel;
 }
-
 
 =head2 printlog - print unified log messages
 
