@@ -731,6 +731,18 @@ sub dispatchslave {
   return $synced;
 }
 
+# add a 30 second penalty for badhost events
+sub addbadhosttofinished {
+  my ($ev, $now) = @_;
+
+  return unless $ev->{'project'} && $ev->{'repository'} && $ev->{'arch'};
+  $now ||= time();
+  my ($hostarch, $workerid) = split(':', $ev->{'worker'}, 2);
+  my @l = ($ev->{'project'}, $ev->{'repository'}, $ev->{'arch'}, $ev->{'package'}, $now - 30,  $now, 'badhost', $workerid, $hostarch);
+  s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @l;
+  BSUtil::appendstr("$jobsdir/finished", join('|', @l)."\n");
+}
+
 sub forwardevents {
   for my $evname (ls("$eventdir/repository")) {
     next if $evname =~ /^\./;
@@ -763,6 +775,7 @@ sub forwardevents {
 	  $badhost{"$ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'worker'}"} = $now;
 	  $badhost{"$ev->{'arch'}/$ev->{'job'}"} = $now;
 	  $badhost{"$ev->{'arch'}/$ev->{'job'}/$ev->{'worker'}"} = $now;
+	  addbadhosttofinished($ev, $now);
 	}
       } else {
         sendeventtoserver($BSConfig::srcserver, $ev);
