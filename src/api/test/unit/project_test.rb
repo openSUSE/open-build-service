@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'json'
 # require '/usr/lib64/ruby/gems/1.9.1/gems/perftools.rb-2.0.0/lib/perftools.so'
@@ -16,6 +17,165 @@ class ProjectTest < ActiveSupport::TestCase
     end
 
     assert_equal ["A", "B", "C"], project.maintained_project_names
+  end
+
+  def test_flags_inheritance
+    User.current = users( :Iggy )
+
+    project = Project.create(name: "home:Iggy:flagtest")
+
+    # project is given as axml
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy:flagtest'>
+        <title>Iggy's Flag Testing Project</title>
+        <description>dummy</description>
+        <build>
+          <enable                repository='SLE_11_SP4'/>
+          <enable arch='i586'    />
+          <enable arch='x86_64'  repository='openSUSE_Leap_42.1'/>
+          <enable arch='i586'    repository='SLE_11_SP4'/>
+        </build>
+        <repository name='openSUSE_Leap_42.1'>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='openSUSE_Leap_42.2'>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='SLE_11_SP4'>
+          <arch>i586</arch>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='SLE_12_SP1'>
+          <arch>i586</arch>
+          <arch>x86_64</arch>
+        </repository>
+       </project>"
+      )
+
+    project.update_from_xml(axml)
+    project.store
+
+    # test if all project build flags are 'enable'
+    project.get_flags('build').each do |repo|
+      repo[1].each do |flag|
+        assert_equal 'enable', flag.status
+      end
+    end
+
+    package1 = project.packages.create(name: "test1")
+    # package is given as axml
+    axml = Xmlhash.parse(
+        "<package name='test1' project='home:Iggy:flagtest'>
+        <title>My Test package 1</title>
+        <description></description>
+        <build>
+          <enable                repository='SLE_11_SP4'/>
+          <enable arch='i586'    />
+          <disable/>
+        </build>
+      </package>"
+    )
+
+    package1.update_from_xml(axml)
+    package1.store
+    package1.reload
+
+    # check for the row and column which are 'enabled'
+    assert_equal 4, project.flags.of_type('build').size
+    assert_equal 'i586', project.flags.of_type('build')[1].architecture.name
+    package1.get_flags('build').each do |repo|
+      repo[1].each do |flag|
+        if flag.repo == 'SLE_11_SP4'
+          assert_equal 'enable', flag.status
+        elsif flag.architecture_id == project.flags.of_type('build')[1].architecture.id
+          assert_equal 'enable', flag.status
+        else
+          assert_equal 'disable', flag.status
+        end
+      end
+    end
+
+    package2 = project.packages.create(name: "test2")
+    # package is given as axml
+    axml = Xmlhash.parse(
+        "<package name='test2' project='home:Iggy:flagtest'>
+        <title>My Test package 2</title>
+        <description></description>
+        <build>
+          <disable/>
+        </build>
+      </package>"
+    )
+
+    package2.update_from_xml(axml)
+    package2.store
+
+    # the all 'disable' build flag shall overwrite the project setting
+    package2.get_flags('build').each do |repo|
+      repo[1].each do |flag|
+        assert_equal 'disable', flag.status
+      end
+    end
+
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy:flagtest'>
+        <title>Iggy's Flag Testing Project</title>
+        <description>dummy</description>
+        <build>
+          <disable/>
+        </build>
+        <repository name='openSUSE_Leap_42.1'>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='openSUSE_Leap_42.2'>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='SLE_11_SP4'>
+          <arch>i586</arch>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='SLE_12_SP1'>
+          <arch>i586</arch>
+          <arch>x86_64</arch>
+        </repository>
+       </project>"
+      )
+
+    project.update_from_xml!(axml)
+    project.store
+    project.reload
+
+    # test if all project build flags are 'disable' for the project
+    project.get_flags('build').each do |repo|
+      repo[1].each do |flag|
+        assert_equal 'disable', flag.status
+      end
+    end
+
+    # package is given as axml
+    axml = Xmlhash.parse(
+        "<package name='test2' project='home:Iggy:flagtest'>
+        <title>My Test package 2</title>
+        <description></description>
+        <build>
+          <enable/>
+        </build>
+      </package>"
+    )
+
+    package2.update_from_xml(axml)
+    package2.store
+    package2.reload
+
+    # the all build 'enable' for the package shall overwrite the project setting
+    package2.get_flags('build').each do |repo|
+      repo[1].each do |flag|
+        assert_equal 'enable', flag.status
+      end
+    end
+
+    # this is the end
+    project.destroy
   end
 
   def test_release_targets_ng
