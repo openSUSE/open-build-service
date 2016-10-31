@@ -83,7 +83,7 @@ class Comment < ApplicationRecord
   private
 
   def check_is_child
-    unless type.safe_constantize.try(:superclass) == Comment
+    if type && type.safe_constantize.try(:superclass) != Comment
       errors[:type] << "is reserved for storing the inheritance class which was not found"
     end
   end
