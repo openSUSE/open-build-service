@@ -1423,8 +1423,10 @@ sub publish {
 	eval {
 	  $appdata = XML::Simple::XMLin($appdataxml, 'ForceArray' => 1, 'KeepRoot' => 1);
 	};
+	warn("$bin: $@") if $@;
 	if ($appdata && !$appdata->{'component'} && !$appdata->{'application'}) {
 	  $appdata = $appdata->{'components'} || $appdata->{'applications'};
+	  $appdata = $appdata->[0] if $appdata && ref($appdata) eq 'ARRAY';
 	} elsif ($appdata && !$appdata->{'version'} && $appdata->{'component'}) {
 	  $appdata->{'version'} ||= '0.8';
 	}
