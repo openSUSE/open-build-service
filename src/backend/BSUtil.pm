@@ -219,7 +219,7 @@ sub drop_privs_to {
   my ($user, $group) = @_;
 
   if (defined($group)) {
-    BSUtil::printlog("Drop privileges to group '$group'");
+    BSUtil::printlog("Drop privileges to group '$group'", 1);
     $group = getgrnam($group) unless $group =~ /^\d+$/;
     die("unknown group\n") unless defined $group;
     if ($) != $group || $( != $group) {
@@ -228,7 +228,7 @@ sub drop_privs_to {
     }
   }
   if (defined($user)) {
-    BSUtil::printlog("Drop privileges to user '$user'");
+    BSUtil::printlog("Drop privileges to user '$user'", 1);
     $user = getpwnam($user) unless $user =~ /^\d+$/;
     die("unknown user\n") unless defined $user;
     if ($> != $user || $< != $user) {
