@@ -1,5 +1,7 @@
 #!/bin/bash
 
+trap clean_up SIGHUP SIGINT SIGTERM SIGKILL
+
 #function to help with the usage
 function _print_syntax() {
   me=`basename "$0"`
@@ -50,6 +52,7 @@ while getopts "l:d:w:r:h?" opt; do
   h|\?)
     _print_syntax
     exit 0
+    ;;
   esac
 done
 
@@ -170,7 +173,4 @@ if [ -n "$REDIR_LOG" ]; then
 fi
 echo "If you want to terminate the backend, just hit Ctrl-C"
 
-while true; do
-  trap clean_up SIGHUP SIGINT SIGTERM SIGKILL
-done
-
+wait
