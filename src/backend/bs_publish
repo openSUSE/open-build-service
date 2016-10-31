@@ -363,6 +363,55 @@ sub create_appdata_files {
   writestr("$dir/appdata.xml", undef, $appdatasxml);
 }
 
+sub merge_package_appdata {
+  my ($appdatas, $bin, $appdataxml) = @_;
+
+  my $appdata;
+  eval {
+    $appdata = XML::Simple::XMLin($appdataxml, 'ForceArray' => 1, 'KeepRoot' => 1);
+  };
+  warn("$bin: $@") if $@;
+  return $appdatas unless $appdata;
+
+  if ($appdata->{'components'} || $appdata->{'applications'}) {
+    # appstream data as it ought to be
+    $appdata = $appdata->{'components'} || $appdata->{'applications'};
+    $appdata = $appdata->[0] if ref($appdata) eq 'ARRAY';	# XML::Simple is weird
+  } elsif ($appdata->{'component'} || $appdata->{'application'}) {
+    # bad: just the appdata itself. no version info. assume 0.8 if we have components
+    $appdata->{'version'} ||= '0.8' if $appdata->{'component'};
+  } else {
+    return $appdatas;		# huh?
+  }
+
+  # do some basic checking
+  return $appdatas unless $appdata && ref($appdata) eq 'HASH';
+  return $appdatas unless $appdata->{'component'} || $appdata->{'application'};
+  return $appdatas if $appdata->{'component'} && ref($appdata->{'component'}) ne 'ARRAY';
+  return $appdatas if $appdata->{'application'} && ref($appdata->{'application'}) ne 'ARRAY';
+
+  # merge the applications/components
+  if ($appdatas) {
+    if ($appdata->{'version'}) {
+      my $v1 = $appdata->{'version'};
+      my $v2 = $appdatas->{'version'} || '';
+      $v1 =~ s/(\d+)/substr("00000000$1", -9)/ge;
+      $v2 =~ s/(\d+)/substr("00000000$1", -9)/ge;
+      $appdatas->{'version'} = $appdata->{'version'} if $v1 gt $v2; 
+    }
+    if ($appdata->{'component'} || $appdatas->{'component'}) {
+      $appdatas->{'component'} = delete $appdatas->{'application'} if $appdatas->{'application'};
+      push @{$appdatas->{'component'}}, @{$appdata->{'component'} || $appdata->{'application'} || []}; 
+    } else {
+      push @{$appdatas->{'application'}}, @{$appdata->{'application'} || []}; 
+    }
+  } else {
+    $appdatas = $appdata;
+  }
+  $appdatas->{'origin'} = 'appdata' if $appdatas->{'version'} && $appdatas->{'version'} >= 0.8; 
+  return $appdatas;
+}
+
 sub createrepo_rpmmd {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
@@ -1419,39 +1468,8 @@ sub publish {
 	next if $appdatas_seen{$appdatamd5};
 	$appdatas_seen{$appdatamd5} = 1;
 	$appdatas_state .= $appdatamd5;
-	my $appdata;
-	eval {
-	  $appdata = XML::Simple::XMLin($appdataxml, 'ForceArray' => 1, 'KeepRoot' => 1);
-	};
-	warn("$bin: $@") if $@;
-	if ($appdata && !$appdata->{'component'} && !$appdata->{'application'}) {
-	  $appdata = $appdata->{'components'} || $appdata->{'applications'};
-	  $appdata = $appdata->[0] if $appdata && ref($appdata) eq 'ARRAY';
-	} elsif ($appdata && !$appdata->{'version'} && $appdata->{'component'}) {
-	  $appdata->{'version'} ||= '0.8';
-	}
-	$appdata ||= {};
-	# merge the applications/components
-	if ($appdatas) {
-	  if ($appdata->{'version'}) {
-	    my $v1 = $appdata->{'version'};
-	    my $v2 = $appdatas->{'version'} || '';
-	    $v1 =~ s/(\d+)/substr("00000000$1", -9)/ge;
-	    $v2 =~ s/(\d+)/substr("00000000$1", -9)/ge;
-	    $appdatas->{'version'} = $appdata->{'version'} if $v1 gt $v2;
-	  }
-	  if ($appdata->{'component'} || $appdatas->{'component'}) {
-	    $appdatas->{'component'} = delete $appdatas->{'application'} if $appdatas->{'application'};
-	    push @{$appdatas->{'component'}}, @{$appdata->{'component'} || $appdata->{'application'} || []};
-	  } else {
-	    push @{$appdatas->{'application'}}, @{$appdata->{'application'} || []};
-	  }
-	} else {
-	  $appdatas = $appdata;
-	}
+        $appdatas = merge_package_appdata($appdatas, "$arch/:repo/$bin", $appdataxml);
       }
-      $appdatas->{'origin'} = 'appdata' if $appdatas->{'version'} && $appdatas->{'version'} >= 0.8;
-
       if ($bin =~ /^(.*\.rpm)::(.*\.drpm)$/) {
 	# special drpm handling: only take it if we took the corresponding rpm
         if ($bin =~ /^(.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm)::(.*\.drpm)$/) {
