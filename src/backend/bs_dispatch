@@ -258,6 +258,7 @@ sub assignjob {
   }
   $worker->{'hardware'}->{'nativeonly'} = undef if $worker->{'hardware'} && exists($worker->{'hardware'}->{'nativeonly'});
 
+  # assign job to worker
   my @args = ("port=$port", "workercode=$workercode", "buildcode=$buildcode");
   push @args, "registerserver=$worker->{'registerserver'}" if $worker->{'registerserver'};
   my $attempt = 0;
@@ -268,7 +269,6 @@ sub assignjob {
     my $msg = "gave up after $attempt failed build attempts...";
     push @args, "nobadhost=$msg" if checkbadhost(@attempts);
   }
-
   eval {
     BSRPC::rpc({
       'uri'     => "http://$worker->{'ip'}:$worker->{'port'}/build",
@@ -301,9 +301,8 @@ sub assignjob {
     rename("$workersdir/idle/$idlename", "$workersdir/down/$idlename");	# broken client or rebooting
     return undef;
   }
-  unlink("$workersdir/idle/$idlename");	# no longer idle
-  unlink("$workersdir/down/$idlename");
-  unlink("$workersdir/dead/$idlename");
+ 
+  # update jobstatus data
   $jobstatus->{'code'} = 'building';
   $jobstatus->{'uri'} = "http://$worker->{'ip'}:$worker->{'port'}";
   $jobstatus->{'workerid'} = $worker->{'workerid'} if defined $worker->{'workerid'};
@@ -312,24 +311,28 @@ sub assignjob {
   $jobstatus->{'jobid'} = $jobid;
   $jobstatus->{'attempt'} = $attempt if $attempt;
 
-  # put worker into building list
+  # update worker data with build job info 
   $worker->{'job'} = $job;
   $worker->{'jobid'} = $jobid;
   $worker->{'arch'} = $arch;
-  if ($info->{'masterdispatched'}) {
-    $worker->{'reposerver'} = $info->{'reposerver'};
-    push @{$masterdispatched{"$info->{'project'}/$info->{'repository'}/$info->{'arch'}"}}, $jobstatus->{'starttime'};
+  $worker->{'reposerver'} = $info->{'reposerver'} if $info->{'masterdispatched'};
+
+  # update worker dir
+  for my $oldstate (qw{idle down away dead}) {
+    unlink("$workersdir/$oldstate/$idlename");
   }
   mkdir_p("$workersdir/building");
   writexml("$workersdir/building/.$idlename", "$workersdir/building/$idlename", $worker, $BSXML::worker);
 
   if ($info->{'masterdispatched'}) {
     # we did out job. delete job
+    push @{$masterdispatched{"$info->{'project'}/$info->{'repository'}/$info->{'arch'}"}}, $jobstatus->{'starttime'};
     unlink("$jobsdir/$arch/$job");
     unlink("$jobsdir/$arch/$job:status");
     close F;
     return 'assigned';
   }
+
   # write new status and release lock
   writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
   close F;

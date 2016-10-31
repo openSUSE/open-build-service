@@ -1275,6 +1275,17 @@ sub delbinary {
   return $BSStdServer::return_ok;
 }
 
+sub updateworkerdata {
+  my ($idlename, $state, $worker) = @_;
+  mkdir_p("$workersdir/$state");
+  for my $oldstate (qw{building away down dead idle}) {
+    next if $state eq $oldstate;
+    rename("$workersdir/$oldstate/$idlename", "$workersdir/$state/$idlename") unless $worker;
+    unlink("$workersdir/$oldstate/$idlename");
+  }
+  writexml("$workersdir/$state/.$idlename", "$workersdir/$state/$idlename", $worker, $BSXML::worker) if $worker;
+}
+
 sub workerstate {
   my ($cgi, $harch, $peerport, $state) = @_;
   my $peerip = BSServer::getpeerdata();
@@ -1292,14 +1303,9 @@ sub workerstate {
   my $idlename = "$harch:$workerid";
   $idlename =~ s/\//_/g;
   if ($state eq 'building') {
-    mkdir_p("$workersdir/away");
-    rename("$workersdir/idle/$idlename", "$workersdir/away/$idlename");
-    unlink("$workersdir/down/$idlename");
-    unlink("$workersdir/dead/$idlename");
+    updateworkerdata($idlename, 'away');
   } elsif ($state eq 'exit') {
-    mkdir_p("$workersdir/down");
-    rename("$workersdir/idle/$idlename", "$workersdir/down/$idlename");
-    unlink("$workersdir/away/$idlename");
+    updateworkerdata($idlename, 'down');
   } elsif ($state eq 'idle') {
     if (-e "$workersdir/building/$idlename") {
       # worker must have crashed, discard old job...
@@ -1326,11 +1332,16 @@ sub workerstate {
 	  close F;
         }
       }
+      unlink("$workersdir/building/$idlename");
     }
-    unlink("$workersdir/building/$idlename");
-    unlink("$workersdir/away/$idlename");
-    unlink("$workersdir/down/$idlename");
-    unlink("$workersdir/dead/$idlename");
+    my $worker = {
+      'hostarch' => $harch,
+      'ip' => $peerip,
+      'port' => $peerport,
+      'workerid' => $workerid,
+    };
+    $worker = { %$workerskel, %$worker } if $workerskel;
+    $worker->{'tellnojob'} = $cgi->{'tellnojob'} if $cgi->{'tellnojob'};
 
     # make sure that we can connect to the client
     if ($BSConfig::checkclientconnectivity || $BSConfig::checkclientconnectivity) {
@@ -1346,28 +1357,21 @@ sub workerstate {
       };
       if ($@) {
 	warn($@);
+        updateworkerdata($idlename, 'down', $worker);
 	die("cannot reach you!\n");
       }
     }
     
-    my $worker = {
-      'hostarch' => $harch,
-      'ip' => $peerip,
-      'port' => $peerport,
-      'workerid' => $workerid,
-    };
-    $worker = { %$workerskel, %$worker } if $workerskel;
-    $worker->{'tellnojob'} = $cgi->{'tellnojob'} if $cgi->{'tellnojob'};
     if (-d "$workersdir/disable") {
       my @dis = ls("$workersdir/disable");
       for (@dis) {
         next unless $workerid =~ /^$_/;
         print "worker ip $peerip id $workerid is disabled\n";
+        updateworkerdata($idlename, 'down', $worker);
         return $BSStdServer::return_ok;
       }
     }
-    mkdir_p("$workersdir/idle");
-    writexml("$workersdir/idle/.$idlename", "$workersdir/idle/$idlename", $worker, $BSXML::worker);
+    updateworkerdata($idlename, 'idle', $worker);
   } else {
     die("unknown state: $state\n");
   }
