@@ -58,17 +58,14 @@ class Flag < ApplicationRecord
     all_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag).first
     repo_flag = main_object.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo).first
     arch_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id).first
-
+    same_flag = main_object.flags.where("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id).first
     # Package settings only override project settings...
     if main_object.kind_of? Package
+      # do the same_flag check first to see if all_flag or same_flag had been set on package level, they *both* overwrite the project level
+      same_flag = main_object.project.flags.where("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id).first unless all_flag || same_flag || repo_flag || arch_flag
+      repo_flag = main_object.project.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo).first unless all_flag || repo_flag || arch_flag
+      arch_flag = main_object.project.flags.where("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id).first unless all_flag || arch_flag
       all_flag = main_object.project.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag).first unless all_flag
-      repo_flag = main_object.project.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo).first unless repo_flag
-      arch_flag = main_object.project.flags.where("flag = ?
-                                                   AND repo IS NULL
-                                                   AND architecture_id = ?", flag, architecture_id).first unless arch_flag
-      same_flag = main_object.project.flags.where("flag = ?
-                                                   AND repo = ?
-                                                   AND architecture_id = ?", flag, repo, architecture_id).first
     end
 
     return same_flag.status if same_flag
