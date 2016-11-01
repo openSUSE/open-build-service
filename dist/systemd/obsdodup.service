@@ -1,0 +1,12 @@
+[Unit]
+Description=OBS dodup, updates download on demand metadata
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStart=/usr/lib/obs/server/bs_dodup
+ExecStop=/usr/lib/obs/server/bs_dodup --stop
+ExecReload=/usr/lib/obs/server/bs_dodup --restart
+
+[Install]
+WantedBy=multi-user.target
