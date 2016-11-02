@@ -1,0 +1,11 @@
+[Unit]
+Description=OBS warden, monitors the workers
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStart=/usr/lib/obs/server/bs_warden
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
