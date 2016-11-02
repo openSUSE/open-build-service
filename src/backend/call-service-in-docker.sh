@@ -51,6 +51,8 @@ while [ $# -gt 0 ]; do
      OUTDIR="$1"
   else
      COMMAND="$COMMAND '${1//\'/_}'"
+     shift
+     COMMAND="$COMMAND '${1//\'/_}'"
   fi
   shift
 done
