@@ -130,10 +130,10 @@ sub run_source_update {
   }
 
   # set environment
-  $::ENV{'OBS_SERVICE_APIURL'} = $BSConfig::api_url;
   $::ENV{'OBS_SERVICE_PROJECT'} = $projid;
   $::ENV{'OBS_SERVICE_PACKAGE'} = $packid;
-  $::ENV{'no_proxy'} = $noproxy;
+  $::ENV{'OBS_SERVICE_APIURL'} = $BSConfig::api_url if $BSConfig::api_url;
+  $::ENV{'no_proxy'} = $noproxy if $noproxy;
 
   # run all services
   my $error;
