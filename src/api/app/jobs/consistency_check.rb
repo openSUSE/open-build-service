@@ -173,7 +173,7 @@ class ConsistencyCheckJob < ApplicationJob
     package_list_api = project.packages.pluck(:name)
     plb = dir_to_array(Xmlhash.parse(Suse::Backend.get("/source/#{project.name}").body))
     # filter multibuild source container
-    package_list_backend = plb.map{ |e| (e.start_with?('_patchinfo:')||e.start_with?('_product:')) ? e : e.gsub(/:.*$/,'') }
+    package_list_backend = plb.map{ |e| e.start_with?('_patchinfo:', '_product:') ? e : e.gsub(/:.*$/, '') }
 
     diff = package_list_api - package_list_backend
     unless diff.empty?
