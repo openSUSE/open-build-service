@@ -1119,6 +1119,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     inject_build_job( incidentProject, 'packNew.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'x86_64')
     inject_build_job( incidentProject, 'packNew.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'i586')
     inject_build_job( incidentProject, 'pack2.BaseDistro3', 'BaseDistro3', 'i586')
+    inject_build_job( incidentProject, 'pack2.BaseDistro3:package_multibuild', 'BaseDistro3', 'i586')
     # block patchinfo build
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
@@ -1789,9 +1790,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     p = Package.find_by_project_and_name('BaseDistro3', 'pack2')
     Suse::Backend.put( '/source/BaseDistro3/pack2/_meta?user=king', p.to_axml)
-    raw_put '/source/BaseDistro3/pack2/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
+    raw_put '/source/BaseDistro3/pack2/pack2.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
-    inject_build_job('BaseDistro3', 'pack2', 'BaseDistro3_repo', 'i586', "package_newweaktags-1.0-1.x86_64.rpm")
+    inject_build_job('BaseDistro3', 'pack2.0', 'BaseDistro3_repo', 'i586', "package_newweaktags-1.0-1.x86_64.rpm")
+    inject_build_job('BaseDistro3', 'pack2.0:package_multibuild', 'BaseDistro3_repo', 'i586', "package_newweaktags-1.0-1.x86_64.rpm")
     run_scheduler('i586')
   end
 

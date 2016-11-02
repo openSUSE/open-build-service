@@ -89,7 +89,8 @@ end
 def inject_build_job(project, package, repo, arch, extrabinary = nil)
   job=IO.popen("find #{backend_data}/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
   jobfile=job.readlines.first
-  return unless jobfile
+  return if project == "BrokenPublishing"
+  raise unless jobfile
   jobfile.chomp!
   jobid=''
   IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|

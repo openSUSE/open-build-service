@@ -102,15 +102,15 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{id1}?cmd=diff&view=xml", nil
     assert_response :success
     # the diffed packages
-    assert_xml_tag( tag: 'old', attributes: { project: 'BaseDistro3', package: 'pack2', srcmd5: 'e4b3b98ad76a0fbcdbf888694842c149' } )
-    assert_xml_tag( tag: 'new', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: 'a645178fa01c5efa76cfba0a1e94f6ba', srcmd5: 'a645178fa01c5efa76cfba0a1e94f6ba' })
+    assert_xml_tag( tag: 'old', attributes: { project: 'BaseDistro3', package: 'pack2', srcmd5: 'eb6705ddf47af932b8332e16ab2ed8b3' } )
+    assert_xml_tag( tag: 'new', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '7da33eb2a263a2f91d019a42eb28dae9', srcmd5: '7da33eb2a263a2f91d019a42eb28dae9' })
     # the diffed files
     assert_xml_tag( tag: 'old', attributes: { name: 'file', md5: '722d122e81cbbe543bd5520bb8678c0e', size: '4' },
                     parent: { tag: 'file', attributes: { state: 'changed' } } )
     assert_xml_tag( tag: 'new', attributes: { name: 'file', md5: '6c7c49c0d7106a1198fb8f1b3523c971', size: '16' },
                     parent: { tag: 'file', attributes: { state: 'changed' } } )
     # the expected file transfer
-    assert_xml_tag( tag: 'source', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: 'a645178fa01c5efa76cfba0a1e94f6ba' } )
+    assert_xml_tag( tag: 'source', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '7da33eb2a263a2f91d019a42eb28dae9' } )
     assert_xml_tag( tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro3' } )
     # diff contains the critical lines
     assert_match( /^\-NOOP/, @response.body )
@@ -429,6 +429,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     run_scheduler('x86_64')
     run_scheduler('i586')
     inject_build_job( incidentProject, 'pack2.BaseDistro3', 'BaseDistro3', 'i586')
+    inject_build_job( incidentProject, 'pack2.BaseDistro3:package_multibuild', 'BaseDistro3', 'i586')
     inject_build_job( incidentProject, 'pack2.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'i586')
     inject_build_job( incidentProject, 'pack2.linked.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'i586')
     inject_build_job( incidentProject, 'pack2.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'x86_64')
@@ -623,7 +624,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'action', attributes: { type: 'maintenance_release'} },
                    tag: 'target', attributes: { project: 'BaseDistro3', package: 'pack2.0'}
     assert_xml_tag parent: { tag: 'action', attributes: { type: 'maintenance_release'} },
-                   tag: 'acceptinfo', attributes: { rev: '1', oproject: "BaseDistro3", opackage: "pack2", srcmd5: 'd2f2a0f4ae1faf4feea334851acac0a5', osrcmd5: "e4b3b98ad76a0fbcdbf888694842c149" }
+                   tag: 'acceptinfo', attributes: { rev: '1', oproject: "BaseDistro3", opackage: "pack2", oxsrcmd5: 'eb6705ddf47af932b8332e16ab2ed8b3', osrcmd5: "eb6705ddf47af932b8332e16ab2ed8b3" }
 
     # diffing works
     post "/request/#{reqid}?cmd=diff&view=xml", nil
