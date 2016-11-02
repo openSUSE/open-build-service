@@ -95,7 +95,7 @@ class Webui::UserController < Webui::WebuiController
           echo_next_count: params[:sEcho].to_i + 1,
           total_records_count: @displayed_user.requests.count,
           total_filtered_records_count: @requests_count,
-          records: @requests
+          records: @requests.includes(:bs_request_actions)
         ) do |request|
           render_to_string(partial: "shared/single_request.json", locals: { req: request, no_target: true, hide_state: true }).to_s.split(',')
         end
