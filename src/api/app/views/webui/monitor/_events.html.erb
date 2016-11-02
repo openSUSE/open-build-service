@@ -16,7 +16,7 @@
 
 <div class="grid_8 omega">
   <div id="building" style="height:250px; margin-right: 20px"></div>
-  <div class="centered">Active workers<span id="legend_building" class="flot_legend"></span></div>
+  <div class="centered">Workers<span id="legend_building" class="flot_legend"></span></div>
   <div class="plotspinner"><%= image_tag('ajax-loader.gif') %></div>
 </div>
 
@@ -57,8 +57,11 @@
       yaxis: { min: 0, max: data['events_max'], position: "left", labelWidth: 25 }
     });
 
-    $.plot($("#building"), [ { data: data['building'], label: "Currently building", color: 3},
-                             { data: data['idle'], label: "Idle workers", color: 4 } ],
+    $.plot($("#building"), [ { data: data['building'], label: "building", color: 3},
+                             { data: data['idle'], label: "idle", color: 4 },
+                             { data: data['away'], label: "away", color: 6 },
+                             { data: data['down'], label: "down", color: 5 },
+                             { data: data['dead'], label: "dead", color: 7 } ],
       {
             series: {
                 stack: true,
