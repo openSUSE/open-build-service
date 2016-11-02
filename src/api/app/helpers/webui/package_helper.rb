@@ -8,7 +8,7 @@ module Webui::PackageHelper
   end
 
   def rpm_url( project, package, repository, arch, filename )
-    get_frontend_url_for( :controller => 'build' ) +
+    get_frontend_url_for( controller: 'build' ) +
       "/#{project}/#{repository}/#{arch}/#{package}/#{filename}"
   end
 
@@ -47,8 +47,8 @@ module Webui::PackageHelper
 
   def package_bread_crumb( *args )
     args.insert(0, link_to_if(params['action'] != 'show', @package,
-                              :controller => :package, :action => :show,
-                              :project => @project, :package => @package ))
+                              controller: :package, action: :show,
+                              project: @project, package: @package ))
     project_bread_crumb( *args )
   end
 

@@ -60,24 +60,24 @@ class Webui::PackageEditTest < Webui::IntegrationTest
   end
 
   def test_change_home_project_package_title # src/api/spec/controllers/webui/package_controller_spec.rb
-    login_Iggy to: package_show_path(:project => @project, :package => @package)
+    login_Iggy to: package_show_path(project: @project, package: @package)
 
     change_package_info(
-      :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s)
+      title: 'My Title hopefully got changed ' + Time.now.to_i.to_s)
   end
 
   def test_change_home_project_package_description # src/api/spec/controllers/webui/package_controller_spec.rb
-    login_Iggy to: package_show_path(:project => @project, :package => @package)
+    login_Iggy to: package_show_path(project: @project, package: @package)
 
     change_package_info(
-      :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
+      description: 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
 
   def test_change_home_project_package_info # src/api/spec/controllers/webui/package_controller_spec.rb
-    login_Iggy to: package_show_path(:project => @project, :package => @package)
+    login_Iggy to: package_show_path(project: @project, package: @package)
 
     change_package_info(
-      :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s,
-      :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
+      title: 'My Title hopefully got changed ' + Time.now.to_i.to_s,
+      description: 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
 end

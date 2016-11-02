@@ -110,7 +110,7 @@ class CodeQualityTest < ActiveSupport::TestCase
 
   test 'code complexity' do
     require 'flog_cli'
-    flog = Flog.new :continue => true
+    flog = Flog.new continue: true
     dirs = %w(app/controllers app/views app/models
               app/mixins app/indices app/helpers
               app/jobs webui/app/controllers webui/app/models

@@ -9,20 +9,20 @@ OBSApi::Application.load_tasks
 require(File.join(File.dirname(__FILE__), 'config', 'boot'))
 
 require 'workers/update_issues'
-task(:updateissues => :environment) { Delayed::Job.enqueue UpdateIssuesJob.new }
+task(updateissues: :environment) { Delayed::Job.enqueue UpdateIssuesJob.new }
 
-task(:updatepackagemeta => :environment) { UpdatePackageMetaJob.new.perform }
+task(updatepackagemeta: :environment) { UpdatePackageMetaJob.new.perform }
 
 # write directly to backend, for initial bootup in obsapisetup
-task(:writeconfiguration => :environment) { ::Configuration.first.write_to_backend }
+task(writeconfiguration: :environment) { ::Configuration.first.write_to_backend }
 
 require 'workers/import_requests'
-task(:importrequests => :environment) { ImportRequestsDelayedJob.new.perform }
+task(importrequests: :environment) { ImportRequestsDelayedJob.new.perform }
 
 require(File.join(File.dirname(__FILE__), 'app/jobs/application_job.rb'))
 require(File.join(File.dirname(__FILE__), 'app/jobs/consistency_check.rb'))
-task(:check_project => :environment) { ConsistencyCheckJob.new.check_project }
-task(:fix_project => :environment) { ConsistencyCheckJob.new.fix_project }
+task(check_project: :environment) { ConsistencyCheckJob.new.check_project }
+task(fix_project: :environment) { ConsistencyCheckJob.new.fix_project }
 
 unless Rails.env.production?
   require 'rubocop/rake_task'

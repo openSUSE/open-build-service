@@ -55,3 +55,9 @@ Style/AndOr:
 
 Style/EmptyElse:
   EnforcedStyle: both
+
+Style/HashSyntax:
+  EnforcedStyle: ruby19_no_mixed_keys
+  Enabled: true
+  Exclude:
+    - 'config/routes.rb'

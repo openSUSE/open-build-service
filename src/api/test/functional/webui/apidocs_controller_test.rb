@@ -5,7 +5,7 @@ class Webui::ApidocsControllerTest < Webui::IntegrationTest
     return unless File.exist? '/var/adm/fillup-templates'
     # test relative links
     visit "/apidocs"
-    page.first('a', :text => 'Example').click
+    page.first('a', text: 'Example').click
     assert page.source =~ %r{<title>Open Build Service API</title>}
   end
 
@@ -15,7 +15,7 @@ class Webui::ApidocsControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text "File not found"
 
     visit apidocs_path
-    page.first('a', :href => 'architecture.xml').click
+    page.first('a', href: 'architecture.xml').click
     assert page.html =~ %r{architecture name="x86_64"}
   end
 

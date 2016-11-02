@@ -63,14 +63,14 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       case theclass
       when 'icons-project'
       when 'project'
-        { :type         => :project,
-          :project_name => row.find('a.project').text
+        { type:         :project,
+          project_name: row.find('a.project').text
         }
       when 'icons-package'
       when 'package'
-        { :type         => :package,
-          :project_name => row.find('a.project').text,
-          :package_name => row.find('a.package').text
+        { type:         :package,
+          project_name: row.find('a.project').text,
+          package_name: row.find('a.package').text
         }
       else
         fail "Unrecognized result icon. #{theclass}"
@@ -137,18 +137,18 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     visit search_path
 
     search(
-      :text => 'Home',
-      :for  => [:projects],
-      :in   => [:title])
+      text: 'Home',
+      for: [:projects],
+      in: [:title])
 
     results = search_results
     # tom set no description
-    assert !results.include?(:type => :project, :project_name => 'home:tom')
-    assert results.include? :type => :project, :project_name => 'home:Iggy'
-    assert results.include? :type => :project, :project_name => 'home:adrian'
+    assert !results.include?(type: :project, project_name: 'home:tom')
+    assert results.include? type: :project, project_name: 'home:Iggy'
+    assert results.include? type: :project, project_name: 'home:adrian'
     # important match as it's having "home" and not "Home"
-    assert results.include? :type => :project, :project_name => 'home:dmayr'
-    assert results.include? :type => :project, :project_name => 'home:Iggy:branches:kde4'
+    assert results.include? type: :project, project_name: 'home:dmayr'
+    assert results.include? type: :project, project_name: 'home:Iggy:branches:kde4'
     # the api fixtures add home dirs too
     assert results.count >= 4
   end
@@ -157,12 +157,12 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     visit search_path
 
     search(
-      :text => 'branches',
-      :for  => [:projects],
-      :in   => [:name])
+      text: 'branches',
+      for: [:projects],
+      in: [:name])
 
     results = search_results
-    assert results.include? :type => :project, :project_name => 'home:Iggy:branches:kde4'
+    assert results.include? type: :project, project_name: 'home:Iggy:branches:kde4'
     results.count.must_equal 1
   end
 
@@ -170,12 +170,12 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     visit search_path
 
     search(
-      :text => 'localproject',
-      :for  => [:projects],
-      :in   => [:name])
+      text: 'localproject',
+      for: [:projects],
+      in: [:name])
 
     results = search_results
-    assert results.include? :type => :project, :project_name => 'LocalProject'
+    assert results.include? type: :project, project_name: 'LocalProject'
     results.count.must_equal 1
   end
 
@@ -183,12 +183,12 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     visit search_path
 
     search(
-      :text => 'Test',
-      :for  => [:packages],
-      :in   => [:name])
+      text: 'Test',
+      for: [:packages],
+      in: [:name])
 
     results = search_results
-    assert results.include? :type => :package, :project_name => 'CopyTest', :package_name => 'test'
+    assert results.include? type: :package, project_name: 'CopyTest', package_name: 'test'
     # assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "TestPack"
     # assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "ToBeDeletedTestPack"
     results.count.must_equal 1
@@ -210,64 +210,64 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     visit search_path
 
     search(
-      :text => 'no such name, please!',
-      :for  => [:projects, :packages],
-      :in   => [:name],
-      :expect => :no_results)
+      text: 'no such name, please!',
+      for: [:projects, :packages],
+      in: [:name],
+      expect: :no_results)
   end
 
   def test_search_non_existing_by_title # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
-      :text => 'Perhaps a non-existing title.',
-      :for  => [:projects, :packages],
-      :in   => [:title],
-      :expect => :no_results)
+      text: 'Perhaps a non-existing title.',
+      for: [:projects, :packages],
+      in: [:title],
+      expect: :no_results)
   end
 
   def test_search_non_existing_by_description # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
-      :text => 'Some non-existing description I hope.',
-      :for  => [:projects, :packages],
-      :in   => [:description],
-      :expect => :no_results)
+      text: 'Some non-existing description I hope.',
+      for: [:projects, :packages],
+      in: [:description],
+      expect: :no_results)
   end
 
   def test_search_non_existing_by_attributes # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
-      :text => '',
-      :for  => [:projects, :packages],
-      :in   => [],
-      :attribute => 'OBS:RequestCloned',
-      :expect => :no_results)
+      text: '',
+      for: [:projects, :packages],
+      in: [],
+      attribute: 'OBS:RequestCloned',
+      expect: :no_results)
   end
 
   def test_search_for_nothing # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
-      :text => 'Some empty search.',
-      :for  => [:projects, :packages],
-      :in   => [:name, :title, :description],
-      :expect => :no_results)
+      text: 'Some empty search.',
+      for: [:projects, :packages],
+      in: [:name, :title, :description],
+      expect: :no_results)
   end
 
   def test_search_russian # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
-      :text => 'вокябюч',
-      :for  => [:projects, :packages],
-      :in   => [:name, :title, :description])
+      text: 'вокябюч',
+      for: [:projects, :packages],
+      in: [:name, :title, :description])
 
     results = search_results
     page.must_have_text '窞綆腤 埱娵徖 渮湸湤 殠 唲堔'
-    results.include?(:type => :project, :project_name => 'home:tom')
+    results.include?(type: :project, project_name: 'home:tom')
     results.count.must_equal 1
   end
 
@@ -275,41 +275,41 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     visit search_path
 
     search(
-      :text => 'Some empty search again.',
-      :for  => [:projects, :packages],
-      :in   => [],
-      :expect => :invalid_search_options)
+      text: 'Some empty search again.',
+      for: [:projects, :packages],
+      in: [],
+      expect: :invalid_search_options)
   end
 
   def test_search_with_empty_text # /src/api/spec/controllers/webui/search_controller_spec.rb
     visit search_path
     search(
-      :text => '',
-      :for  => [:projects, :packages],
-      :in   => [:name],
-      :expect => :invalid_search_text)
+      text: '',
+      for: [:projects, :packages],
+      in: [:name],
+      expect: :invalid_search_text)
   end
 
   def test_search_hidden_as_anonymous # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
-      :text => 'packcopy',
-      :for  => [:projects, :packages],
-      :in   => [:name, :title],
-      :expect => :no_results)
+      text: 'packcopy',
+      for: [:projects, :packages],
+      in: [:name, :title],
+      expect: :no_results)
   end
 
   def test_search_hidden_as_adrian # /src/api/spec/features/webui/search_spec.rb
     login_adrian to: search_path
 
     search(
-      :text => 'packcopy',
-      :for  => [:projects, :packages],
-      :in   => [:name, :title])
+      text: 'packcopy',
+      for: [:projects, :packages],
+      in: [:name, :title])
 
     results = search_results
-    assert results.include? :type => :package, :package_name => 'packCopy', :project_name=> 'HiddenProject'
+    assert results.include? type: :package, package_name: 'packCopy', project_name: 'HiddenProject'
     results.count.must_equal 1
   end
 end

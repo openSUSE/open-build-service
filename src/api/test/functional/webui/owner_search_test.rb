@@ -46,9 +46,9 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
     raw_results = page.all("div.search_result")
     raw_results.collect do |row|
       {
-        :project => (row.find("a.project").text rescue nil),
-        :package => (row.find("a.package").text rescue nil),
-        :owners  => (row.find("p").text rescue nil)
+        project: (row.find("a.project").text rescue nil),
+        package: (row.find("a.package").text rescue nil),
+        owners:  (row.find("p").text rescue nil)
       }
     end
   end

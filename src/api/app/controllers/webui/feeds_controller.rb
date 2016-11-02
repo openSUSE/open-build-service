@@ -17,7 +17,7 @@ class Webui::FeedsController < Webui::WebuiController
   def commits
     # The sourceaccess flag is checked for the project, but not for every package
     if !User.current.is_admin? && @project.disabled_for?('sourceaccess', nil, nil)
-      redirect_to '/403.html', :status => :forbidden
+      redirect_to '/403.html', status: :forbidden
       return
     end
     unless params[:starting_at].blank?

@@ -17,8 +17,8 @@ class BuildController < ApplicationController
       Package.get_by_project_and_name( params[:project], params[:package], use_source: false, follow_project_links: false )
       pass_to_backend
     else
-      render_error :status => 403, :errorcode => "execute_cmd_no_permission",
-        :message => "Upload of binaries is only permitted for administrators"
+      render_error status: 403, errorcode: "execute_cmd_no_permission",
+        message: "Upload of binaries is only permitted for administrators"
     end
   end
 
@@ -43,14 +43,14 @@ class BuildController < ApplicationController
       end
 
       unless %w(wipe restartbuild killbuild abortbuild rebuild).include? params[:cmd]
-        render_error :status => 400, :errorcode => "illegal_request",
-          :message => "unsupported POST command #{params[:cmd]} to #{request.url}"
+        render_error status: 400, errorcode: "illegal_request",
+          message: "unsupported POST command #{params[:cmd]} to #{request.url}"
         return
       end
 
       unless prj.class == Project
-        render_error :status => 403, :errorcode => "readonly_error",
-          :message => "The project #{params[:project]} is a remote project and therefore readonly."
+        render_error status: 403, errorcode: "readonly_error",
+          message: "The project #{params[:project]} is a remote project and therefore readonly."
         return
       end
 
@@ -66,15 +66,15 @@ class BuildController < ApplicationController
           if pkg.nil?
             allowed = permissions.project_change? prj
             unless allowed
-              render_error :status => 403, :errorcode => "execute_cmd_no_permission",
-                :message => "No permission to execute command on package #{pack_name} in project #{prj.name}"
+              render_error status: 403, errorcode: "execute_cmd_no_permission",
+                message: "No permission to execute command on package #{pack_name} in project #{prj.name}"
               return
             end
           else
             allowed = permissions.package_change? pkg
             unless allowed
-              render_error :status => 403, :errorcode => "execute_cmd_no_permission",
-                :message => "No permission to execute command on package #{pack_name}"
+              render_error status: 403, errorcode: "execute_cmd_no_permission",
+                message: "No permission to execute command on package #{pack_name}"
               return
             end
           end
@@ -82,8 +82,8 @@ class BuildController < ApplicationController
       end
 
       if !allowed
-        render_error :status => 403, :errorcode => "execute_cmd_no_permission",
-          :message => "No permission to execute command on project #{params[:project]}"
+        render_error status: 403, errorcode: "execute_cmd_no_permission",
+          message: "No permission to execute command on project #{params[:project]}"
         return
       end
 
@@ -93,13 +93,13 @@ class BuildController < ApplicationController
       if @http_user.is_admin?
         pass_to_backend
       else
-        render_error :status => 403, :errorcode => "execute_cmd_no_permission",
-          :message => "No permission to execute command on project #{params[:project]}"
+        render_error status: 403, errorcode: "execute_cmd_no_permission",
+          message: "No permission to execute command on project #{params[:project]}"
       end
       return
     else
-      render_error :status => 400, :errorcode => 'illegal_request',
-        :message => "Illegal request: #{request.method.to_s.upcase} #{request.path}"
+      render_error status: 400, errorcode: 'illegal_request',
+        message: "Illegal request: #{request.method.to_s.upcase} #{request.path}"
       return
     end
   end
@@ -151,8 +151,8 @@ class BuildController < ApplicationController
     end
 
     if prj.class == Project && prj.disabled_for?('binarydownload', params[:repository], params[:arch]) && !@http_user.can_download_binaries?(prj)
-      render_error :status => 403, :errorcode => "download_binary_no_permission",
-        :message => "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
+      render_error status: 403, errorcode: "download_binary_no_permission",
+        message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
     end
 
@@ -160,16 +160,16 @@ class BuildController < ApplicationController
 
     if request.delete?
       unless permissions.project_change? params[:project]
-        render_error :status => 403, :errorcode => "delete_binary_no_permission",
-          :message => "No permission to delete binaries from project #{params[:project]}"
+        render_error status: 403, errorcode: "delete_binary_no_permission",
+          message: "No permission to delete binaries from project #{params[:project]}"
         return
       end
 
       if params[:package] == "_repository"
         pass_to_backend
       else
-        render_error :status => 400, :errorcode => "invalid_operation",
-          :message => "Delete operation of build results is not allowed"
+        render_error status: 400, errorcode: "invalid_operation",
+          message: "Delete operation of build results is not allowed"
       end
 
       return
@@ -205,7 +205,7 @@ class BuildController < ApplicationController
         'Content-Length' => fsize
       )
 
-      render :status => 200, :text => Proc.new {|_, output|
+      render status: 200, text: Proc.new {|_, output|
         backend_request = Net::HTTP::Get.new(path)
         Net::HTTP.start(CONFIG['source_host'], CONFIG['source_port']) do |http|
           http.request(backend_request) do |response|
@@ -219,8 +219,8 @@ class BuildController < ApplicationController
       if request.put?
         unless @http_user.is_admin?
           # this route can be used publish binaries without history changes in sources
-          render_error :status => 403, :errorcode => "upload_binary_no_permission",
-            :message => "No permission to upload binaries."
+          render_error status: 403, errorcode: "upload_binary_no_permission",
+            message: "No permission to upload binaries."
           return
         end
       end

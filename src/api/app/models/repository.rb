@@ -3,18 +3,18 @@ class Repository < ApplicationRecord
 
   before_destroy :cleanup_before_destroy
 
-  has_many :channel_targets, :class_name => "ChannelTarget", :dependent => :delete_all, :foreign_key => 'repository_id'
-  has_many :release_targets, :class_name => "ReleaseTarget", :dependent => :delete_all, :foreign_key => 'repository_id'
+  has_many :channel_targets, class_name: "ChannelTarget", dependent: :delete_all, foreign_key: 'repository_id'
+  has_many :release_targets, class_name: "ReleaseTarget", dependent: :delete_all, foreign_key: 'repository_id'
   has_many :path_elements, -> { order("position") }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
-  has_many :download_repositories, :dependent => :delete_all, foreign_key: :repository_id
-  has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id', inverse_of: :link
-  has_many :targetlinks, :class_name => "ReleaseTarget", :foreign_key => 'target_repository_id'
-  has_one :hostsystem, :class_name => "Repository", :foreign_key => 'hostsystem_id'
-  has_many :binary_releases, :dependent => :destroy
+  has_many :download_repositories, dependent: :delete_all, foreign_key: :repository_id
+  has_many :links, class_name: "PathElement", foreign_key: 'repository_id', inverse_of: :link
+  has_many :targetlinks, class_name: "ReleaseTarget", foreign_key: 'target_repository_id'
+  has_one :hostsystem, class_name: "Repository", foreign_key: 'hostsystem_id'
+  has_many :binary_releases, dependent: :destroy
   has_many :product_update_repositories, dependent: :delete_all
   has_many :product_medium, dependent: :delete_all
-  has_many :repository_architectures, -> { order("position") }, :dependent => :destroy, inverse_of: :repository
-  has_many :architectures, -> { order("position") }, :through => :repository_architectures
+  has_many :repository_architectures, -> { order("position") }, dependent: :destroy, inverse_of: :repository
+  has_many :architectures, -> { order("position") }, through: :repository_architectures
 
   scope :not_remote, -> { where(remote_project_name: nil) }
   scope :remote, -> { where.not(remote_project_name: nil) }
@@ -42,7 +42,7 @@ class Repository < ApplicationRecord
 
   # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
   def self.find_by_project_and_name( project, repo )
-    result = not_remote.joins(:project).where(:projects => {:name => project}, :name => repo).first
+    result = not_remote.joins(:project).where(projects: {name: project}, name: repo).first
     return result unless result.nil?
 
     # no local repository found, check if remote repo possible
@@ -56,7 +56,7 @@ class Repository < ApplicationRecord
   end
 
   def self.find_by_project_and_path( project, path )
-    not_remote.joins(:path_elements).where(:project => project, :path_elements => {:link => path})
+    not_remote.joins(:path_elements).where(project: project, path_elements: {link: path})
   end
 
   def self.deleted_instance
@@ -81,7 +81,7 @@ class Repository < ApplicationRecord
           pe.save
         end
       end
-      lrep.project.store({:lowprio => true})
+      lrep.project.store({lowprio: true})
     end
     # target repos
     logger.debug "remove target repositories from repository #{project.name}/#{name}"
@@ -98,7 +98,7 @@ class Repository < ApplicationRecord
           rt.target_repository = Repository.deleted_instance
           rt.save
         end
-        repo.project.store({:lowprio => true})
+        repo.project.store({lowprio: true})
       end
     end
   end
@@ -164,13 +164,13 @@ class Repository < ApplicationRecord
 
   def clone_repository_from(source_repository)
     source_repository.repository_architectures.each do |ra|
-      repository_architectures.create :architecture => ra.architecture, :position => ra.position
+      repository_architectures.create architecture: ra.architecture, position: ra.position
     end
 
     if source_repository.is_kiwi_type?
       # kiwi builds need to copy path elements
       source_repository.path_elements.each do |pa|
-        path_elements.create(:link => pa.link, :position => pa.position)
+        path_elements.create(link: pa.link, position: pa.position)
       end
       # and set type in prjconf
       prjconf = project.source_file('_config')
@@ -182,7 +182,7 @@ class Repository < ApplicationRecord
     end
 
     # we build against the other repository by default
-    path_elements.create(:link => source_repository, :position => 1)
+    path_elements.create(link: source_repository, position: 1)
   end
 
   def download_medium_url(medium)

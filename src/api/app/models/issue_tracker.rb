@@ -2,7 +2,7 @@ require 'xmlrpc/client'
 require 'opensuse/backend'
 
 class IssueTracker < ApplicationRecord
-  has_many :issues, :dependent => :destroy
+  has_many :issues, dependent: :destroy
 
   class NotFoundError < APIException
     setup 'issue_tracker_not_found', 404, "Issue Tracker not found"
@@ -11,10 +11,10 @@ class IssueTracker < ApplicationRecord
 
   validates_presence_of :name, :regex, :url, :kind
   validates_uniqueness_of :name, :regex
-  validates_inclusion_of :kind, :in => %w(other bugzilla cve fate trac launchpad sourceforge github)
+  validates_inclusion_of :kind, in: %w(other bugzilla cve fate trac launchpad sourceforge github)
 
   # FIXME: issues_updated should not be hidden, but it should also not break our api
-  DEFAULT_RENDER_PARAMS = {:except => [:id, :password, :user, :issues_updated], :dasherize => true, :skip_types => true, :skip_instruct => true}
+  DEFAULT_RENDER_PARAMS = {except: [:id, :password, :user, :issues_updated], dasherize: true, skip_types: true, skip_instruct: true}
 
   def self.write_to_backend
     IssueTracker.first.delay.write_to_backend
@@ -29,7 +29,7 @@ class IssueTracker < ApplicationRecord
     UpdatePackageMetaJob.perform_later
   end
 
-  before_validation(:on => :create) do
+  before_validation(on: :create) do
     self.issues_updated ||= Time.now
   end
 
@@ -71,7 +71,7 @@ class IssueTracker < ApplicationRecord
     return unless enable_fetch
 
     begin
-      result = bugzilla_server.search(:last_change_time => self.issues_updated)
+      result = bugzilla_server.search(last_change_time: self.issues_updated)
     rescue Net::ReadTimeout
       if (self.issues_updated + 2.days).past?
          # failures since two days?
@@ -175,7 +175,7 @@ class IssueTracker < ApplicationRecord
   def self.update_all_issues
     IssueTracker.all.each do |t|
       next unless t.enable_fetch
-      t.delay(:queue => "issuetracking").update_issues
+      t.delay(queue: "issuetracking").update_issues
     end
   end
 
@@ -186,7 +186,7 @@ class IssueTracker < ApplicationRecord
     limit_per_slice=256
     while !ids.blank?
       begin
-        result = bugzilla_server.get({:ids => ids[0..limit_per_slice], :permissive => 1})
+        result = bugzilla_server.get({ids: ids[0..limit_per_slice], permissive: 1})
       rescue RuntimeError => e
         logger.error "Unable to fetch issue #{e.inspect}"
         return false

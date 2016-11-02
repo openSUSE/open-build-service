@@ -5,14 +5,14 @@ class AddAttribIssues < ActiveRecord::Migration
         t.integer :attrib_id, null: false
         t.integer :issue_id, null: false
       end
-      add_index :attrib_issues, [:attrib_id, :issue_id], :unique => true
+      add_index :attrib_issues, [:attrib_id, :issue_id], unique: true
 
       ActiveRecord::Base.connection().execute(
         "alter table attrib_issues add FOREIGN KEY (attrib_id) references attribs (id);")
       ActiveRecord::Base.connection().execute(
         "alter table attrib_issues add FOREIGN KEY (issue_id) references issues (id);")
 
-      add_column :attrib_types, :issue_list, :boolean, :default => false
+      add_column :attrib_types, :issue_list, :boolean, default: false
     end
   end
 

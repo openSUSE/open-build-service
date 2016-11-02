@@ -28,7 +28,7 @@ class Attrib < ApplicationRecord
   validates :attrib_type, presence: true
   # Either we belong to a project or to a package
   validates :package, presence: true, if: "project_id.nil?"
-  validates :package_id, :absence => {:message => "can't also be present"}, if: "project_id.present?"
+  validates :package_id, absence: {message: "can't also be present"}, if: "project_id.present?"
   validates :project, presence: true, if: "package_id.nil?"
 
   validate :validate_value_count,

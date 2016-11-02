@@ -1,10 +1,10 @@
 class IssueTrackersController < ApplicationController
-  before_action :require_admin, :only => [:create, :update, :destroy]
+  before_action :require_admin, only: [:create, :update, :destroy]
 
-  validate_action :index => {:method => :get, :response => :issue_trackers}
-  validate_action :show => {:method => :get, :response => :issue_tracker}
-  validate_action :create => {:method => :post, :request => :issue_tracker, :response => :issue_tracker}
-  validate_action :update => {:method => :put, :request => :issue_tracker}
+  validate_action index: {method: :get, response: :issue_trackers}
+  validate_action show: {method: :get, response: :issue_tracker}
+  validate_action create: {method: :post, request: :issue_tracker, response: :issue_tracker}
+  validate_action update: {method: :put, request: :issue_tracker}
 
   # GET /issue_trackers
   # GET /issue_trackers.json
@@ -13,8 +13,8 @@ class IssueTrackersController < ApplicationController
     @issue_trackers = IssueTracker.all()
 
     respond_to do |format|
-      format.xml  { render :xml => @issue_trackers.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS) }
-      format.json { render :json => @issue_trackers.to_json(IssueTracker::DEFAULT_RENDER_PARAMS) }
+      format.xml  { render xml: @issue_trackers.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS) }
+      format.json { render json: @issue_trackers.to_json(IssueTracker::DEFAULT_RENDER_PARAMS) }
     end
   end
 
@@ -24,12 +24,12 @@ class IssueTrackersController < ApplicationController
   def show
     @issue_tracker = IssueTracker.find_by_name(params[:id])
     unless @issue_tracker
-      render_error(:status => 404, :errorcode => "not_found", :message => "Unable to find issue tracker '#{params[:id]}'") && return
+      render_error(status: 404, errorcode: "not_found", message: "Unable to find issue tracker '#{params[:id]}'") && return
     end
 
     respond_to do |format|
-      format.xml  { render :xml => @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS) }
-      format.json { render :json => @issue_tracker.to_json(IssueTracker::DEFAULT_RENDER_PARAMS) }
+      format.xml  { render xml: @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS) }
+      format.json { render json: @issue_tracker.to_json(IssueTracker::DEFAULT_RENDER_PARAMS) }
     end
   end
 
@@ -42,25 +42,25 @@ class IssueTrackersController < ApplicationController
     rescue
       # User didn't really upload www-form-urlencoded data but raw XML, try to parse that
       xml = Nokogiri::XML(request.raw_post).root
-      @issue_tracker = IssueTracker.create(:name => xml.xpath('name[1]/text()').to_s,
-                                           :kind => xml.xpath('kind[1]/text()').to_s,
-                                           :description => xml.xpath('description[1]/text()').to_s,
-                                           :regex => xml.xpath('regex[1]/text()').to_s,
-                                           :label => xml.xpath('label[1]/text()').to_s,
-                                           :url => xml.xpath('url[1]/text()').to_s,
-                                           :enable_fetch => xml.xpath('enable-fetch[1]/text()').to_s,
-                                           :issues_updated => Time.now,
-                                           :show_url => xml.xpath('show-url[1]/text()').to_s)
+      @issue_tracker = IssueTracker.create(name: xml.xpath('name[1]/text()').to_s,
+                                           kind: xml.xpath('kind[1]/text()').to_s,
+                                           description: xml.xpath('description[1]/text()').to_s,
+                                           regex: xml.xpath('regex[1]/text()').to_s,
+                                           label: xml.xpath('label[1]/text()').to_s,
+                                           url: xml.xpath('url[1]/text()').to_s,
+                                           enable_fetch: xml.xpath('enable-fetch[1]/text()').to_s,
+                                           issues_updated: Time.now,
+                                           show_url: xml.xpath('show-url[1]/text()').to_s)
     end
 
     respond_to do |format|
       if @issue_tracker
         IssueTracker.write_to_backend
-        format.xml  { render :xml => @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS), :status => :created, :location => @issue_tracker }
-        format.json { render :json => @issue_tracker.to_json(IssueTracker::DEFAULT_RENDER_PARAMS), :status => :created, :location => @issue_tracker }
+        format.xml  { render xml: @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS), status: :created, location: @issue_tracker }
+        format.json { render json: @issue_tracker.to_json(IssueTracker::DEFAULT_RENDER_PARAMS), status: :created, location: @issue_tracker }
       else
-        format.xml  { render :xml => @issue_tracker.errors, :status => :unprocessable_entity }
-        format.json { render :json => @issue_tracker.errors, :status => :unprocessable_entity }
+        format.xml  { render xml: @issue_tracker.errors, status: :unprocessable_entity }
+        format.json { render json: @issue_tracker.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -71,7 +71,7 @@ class IssueTrackersController < ApplicationController
   def update
     @issue_tracker = IssueTracker.find_by_name(params[:id])
     unless @issue_tracker
-      render_error(:status => 404, :errorcode => "not_found", :message => "Unable to find issue tracker '#{params[:id]}'") && return
+      render_error(status: 404, errorcode: "not_found", message: "Unable to find issue tracker '#{params[:id]}'") && return
     end
 
     respond_to do |format|
@@ -98,8 +98,8 @@ class IssueTrackersController < ApplicationController
         format.xml  { head :ok }
         format.json { head :ok }
       else
-        format.xml  { render :xml => @issue_tracker.errors, :status => :unprocessable_entity }
-        format.json { render :json => @issue_tracker.errors, :status => :unprocessable_entity }
+        format.xml  { render xml: @issue_tracker.errors, status: :unprocessable_entity }
+        format.json { render json: @issue_tracker.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -110,7 +110,7 @@ class IssueTrackersController < ApplicationController
   def destroy
     @issue_tracker = IssueTracker.find_by_name(params[:id])
     unless @issue_tracker
-      render_error(:status => 404, :errorcode => "not_found", :message => "Unable to find issue tracker '#{params[:id]}'") && return
+      render_error(status: 404, errorcode: "not_found", message: "Unable to find issue tracker '#{params[:id]}'") && return
     end
     @issue_tracker.destroy
     IssueTracker.write_to_backend

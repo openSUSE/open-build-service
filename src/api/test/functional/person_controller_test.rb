@@ -86,11 +86,11 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
     get "/person/tom"
     # should see his watchlist
-    assert_xml_tag :tag => 'person', :child => {:tag => 'watchlist'}
+    assert_xml_tag tag: 'person', child: {tag: 'watchlist'}
 
     get "/person/fred"
     # should not see that watchlist
-    assert_no_xml_tag :tag => 'person', :child => {:tag => 'watchlist'}
+    assert_no_xml_tag tag: 'person', child: {tag: 'watchlist'}
   end
 
   def test_watchlist_with_admin_user
@@ -208,10 +208,10 @@ XML
     assert_response :success
     get "/person/tom"
     assert_response :success
-    assert_xml_tag :tag => "realname", :content => new_name
-    assert_xml_tag :tag => "project", :attributes => { :name => "home:tom" }
-    assert_xml_tag :tag => "state", :content => "confirmed"
-    assert_no_xml_tag :tag => "globalrole", :content => "Admin" # written as non-Admin
+    assert_xml_tag tag: "realname", content: new_name
+    assert_xml_tag tag: "project", attributes: { name: "home:tom" }
+    assert_xml_tag tag: "state", content: "confirmed"
+    assert_no_xml_tag tag: "globalrole", content: "Admin" # written as non-Admin
 
     # write as admin
     login_king
@@ -219,7 +219,7 @@ XML
     assert_response :success
     get "/person/tom"
     assert_response :success
-    assert_xml_tag :tag => "globalrole", :content => "Admin" # written as Admin
+    assert_xml_tag tag: "globalrole", content: "Admin" # written as Admin
 
     # revert
     doc.elements["/person"].delete_element "globalrole"
@@ -227,7 +227,7 @@ XML
     assert_response :success
     get "/person/tom"
     assert_response :success
-    assert_no_xml_tag :tag => "globalrole", :content => "Admin"
+    assert_no_xml_tag tag: "globalrole", content: "Admin"
 
     # remove watchlist item
     doc.elements["//watchlist"].delete_element "project"
@@ -235,7 +235,7 @@ XML
     assert_response :success
     get "/person/tom"
     assert_response :success
-    assert_no_xml_tag :tag => "project", :attributes => { :name => "home:tom" }
+    assert_no_xml_tag tag: "project", attributes: { name: "home:tom" }
 
     login_adrian
     put "/person/tom", doc.to_s
@@ -251,7 +251,7 @@ XML
     assert_response :success
     get "/person/tom"
     assert_response :success
-    assert_xml_tag :tag => "state", :content => "locked"
+    assert_xml_tag tag: "state", content: "locked"
     prepare_request_valid_user
     put "/person/tom", doc.to_s
     assert_response 403
@@ -275,13 +275,13 @@ XML
     # check global role
     get "/person/king"
     assert_response :success
-    assert_xml_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
+    assert_xml_tag tag: 'person', child: {tag: 'globalrole', content: "Admin"}
 
     # refetch the user info if the name has really change
     prepare_request_valid_user
     get "/person/tom"
-    assert_xml_tag :tag => 'person', :child => {:tag => 'realname', :content => new_name}
-    assert_no_xml_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
+    assert_xml_tag tag: 'person', child: {tag: 'realname', content: new_name}
+    assert_no_xml_tag tag: 'person', child: {tag: 'globalrole', content: "Admin"}
   end
 
   def test_create_subaccount
@@ -385,8 +385,8 @@ XML
            '
     post "/person?cmd=register", data
     assert_response 400
-    assert_xml_tag :tag => 'status', :attributes => {:code => "err_register_save"}
-    assert_xml_tag :tag => 'summary', :content => "Sorry, sign up is disabled"
+    assert_xml_tag tag: 'status', attributes: {code: "err_register_save"}
+    assert_xml_tag tag: 'summary', content: "Sorry, sign up is disabled"
   end
 
   def test_register_confirmation
@@ -403,14 +403,14 @@ XML
            '
     post "/person?cmd=register", data
     assert_response 400
-    assert_xml_tag :tag => 'status', :attributes => {:code => "err_register_save"}
-    assert_xml_tag :tag => 'summary', :content => "Thank you for signing up! An admin has to confirm your account now. Please be patient."
+    assert_xml_tag tag: 'status', attributes: {code: "err_register_save"}
+    assert_xml_tag tag: 'summary', content: "Thank you for signing up! An admin has to confirm your account now. Please be patient."
 
     # we tried to register as confirmed up there, ensure that we are not...
     login_king
     get "/person/adrianSuSE"
     assert_response :success
-    assert_xml_tag :tag => 'state', :content => "unconfirmed"
+    assert_xml_tag tag: 'state', content: "unconfirmed"
   end
 
   def test_register_and_change_password_new_way
@@ -441,13 +441,13 @@ XML
     login_adrian
     post "/person/adrianSuSE?cmd=change_password", data
     assert_response 403
-    assert_xml_tag :tag => 'status', :attributes => { :code => "change_password_no_permission" }
+    assert_xml_tag tag: 'status', attributes: { code: "change_password_no_permission" }
 
     # admin
     login_king
     post "/person/adrianSuSE?cmd=change_password", ""
     assert_response 404
-    assert_xml_tag :tag => 'status', :attributes => { :code => "password_empty" }
+    assert_xml_tag tag: 'status', attributes: { code: "password_empty" }
 
     post "/person/adrianSuSE?cmd=change_password", data
     assert_response :success

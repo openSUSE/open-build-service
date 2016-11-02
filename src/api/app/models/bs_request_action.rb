@@ -35,13 +35,13 @@ class BsRequestAction < ApplicationRecord
 
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :bs_request
-  has_one :bs_request_action_accept_info, :dependent => :delete
+  has_one :bs_request_action_accept_info, dependent: :delete
 
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
-  validates_inclusion_of :sourceupdate, :in => VALID_SOURCEUPDATE_OPTIONS, :allow_nil => true
+  validates_inclusion_of :sourceupdate, in: VALID_SOURCEUPDATE_OPTIONS, allow_nil: true
   validate :check_sanity
 
   #### Class methods using self. (public and then private)
@@ -247,7 +247,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def render_xml(builder)
-    builder.action :type => action_type do |action|
+    builder.action type: action_type do |action|
       render_xml_attributes(action)
       if sourceupdate || updatelink || makeoriginolder
         action.options do
@@ -867,7 +867,7 @@ class BsRequestAction < ApplicationRecord
 
     if [:submit, :maintenance_incident].include?(action_type)
       if target_package &&
-         Package.exists_by_project_and_name(target_project, target_package, { :follow_project_links => false })
+         Package.exists_by_project_and_name(target_project, target_package, { follow_project_links: false })
         raise MissingAction.new unless contains_change?
         return nil
       end

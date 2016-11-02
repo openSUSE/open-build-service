@@ -6,7 +6,7 @@ class AttribNamespace < ApplicationRecord
   #### Attributes
   #### Associations macros (Belongs to, Has one, Has many)
   has_many :attrib_types, dependent: :destroy
-  has_many :attrib_namespace_modifiable_bies, :class_name => 'AttribNamespaceModifiableBy', dependent: :delete_all
+  has_many :attrib_namespace_modifiable_bies, class_name: 'AttribNamespaceModifiableBy', dependent: :delete_all
 
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)

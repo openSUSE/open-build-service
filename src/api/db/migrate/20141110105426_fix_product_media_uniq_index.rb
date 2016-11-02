@@ -20,7 +20,7 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     add_index :product_media, :product_id
     add_index :product_media, :arch_filter_id
     add_index :product_media, :name
-    add_index :product_media, [:product_id, :repository_id, :name, :arch_filter_id], unique: true, :name => "index_unique"
+    add_index :product_media, [:product_id, :repository_id, :name, :arch_filter_id], unique: true, name: "index_unique"
     execute("alter table product_media add foreign key (product_id) references products(id)")
     execute("alter table product_media add foreign key (repository_id) references repositories(id)")
     execute("alter table product_media add foreign key (arch_filter_id) references architectures(id)")
@@ -33,7 +33,7 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     end
     add_index :product_update_repositories, :product_id
     add_index :product_update_repositories, :arch_filter_id
-    add_index :product_update_repositories, [:product_id, :repository_id, :arch_filter_id], unique: true, :name => "index_unique"
+    add_index :product_update_repositories, [:product_id, :repository_id, :arch_filter_id], unique: true, name: "index_unique"
     execute("alter table product_update_repositories add foreign key (product_id) references products(id)")
     execute("alter table product_update_repositories add foreign key (repository_id) references repositories(id)")
     execute("alter table product_update_repositories add foreign key (arch_filter_id) references architectures(id)")
@@ -50,7 +50,7 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
       t.string :name
     end
     add_index :product_media, :arch_filter_id
-    add_index :product_media, [:product_id, :repository_id, :name], unique: true, :name => "index_unique"
+    add_index :product_media, [:product_id, :repository_id, :name], unique: true, name: "index_unique"
     execute("alter table product_media add foreign key (product_id) references products(id)")
     execute("alter table product_media add foreign key (repository_id) references repositories(id)")
     execute("alter table product_media add foreign key (arch_filter_id) references architectures(id)")
@@ -62,7 +62,7 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
       t.integer :arch_filter_id
     end
     add_index :product_update_repositories, :arch_filter_id
-    add_index :product_update_repositories, [:product_id, :repository_id], unique: true, :name => "index_unique"
+    add_index :product_update_repositories, [:product_id, :repository_id], unique: true, name: "index_unique"
     execute("alter table product_update_repositories add foreign key (product_id) references products(id)")
     execute("alter table product_update_repositories add foreign key (repository_id) references repositories(id)")
     execute("alter table product_update_repositories add foreign key (arch_filter_id) references architectures(id)")

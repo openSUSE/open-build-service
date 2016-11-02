@@ -57,30 +57,30 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   end
 
   def test_branch_package_for_home_project # spec/features/webui/projects_spec.rb
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
 
     create_package_branch(
-      :name => 'TestPack_link',
-      :original_name => 'TestPack',
-      :original_project => 'home:Iggy')
+      name: 'TestPack_link',
+      original_name: 'TestPack',
+      original_project: 'home:Iggy')
   end
 
   def test_branch_package_double_and_submit_back
     use_js
 
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
 
     create_package_branch(
-      :name => 'TestPack_link',
-      :original_name => 'TestPack',
-      :original_project => 'home:Iggy')
+      name: 'TestPack_link',
+      original_name: 'TestPack',
+      original_project: 'home:Iggy')
     Suse::Backend.put('/source/home:Iggy/TestPack_link/new_file', "test 1")
 
-    visit project_show_path(:project => @project)
+    visit project_show_path(project: @project)
     create_package_branch(
-      :name => 'TestPack_double_branch',
-      :original_name => 'TestPack_link',
-      :original_project => 'home:Iggy')
+      name: 'TestPack_double_branch',
+      original_name: 'TestPack_link',
+      original_project: 'home:Iggy')
     Suse::Backend.put('/source/home:Iggy/TestPack_double_branch/new_file', "test 2")
 
     # submit
@@ -103,96 +103,96 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   end
 
   def test_branch_package_for_global_project # spec/features/webui/projects_spec.rb
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
 
     create_package_branch(
-      :name => 'PublicPackage1',
-      :original_name => 'kdelibs',
-      :original_project => 'kde4')
+      name: 'PublicPackage1',
+      original_name: 'kdelibs',
+      original_project: 'kde4')
   end
 
   def test_branch_package_twice_duplicate_name # spec/features/webui/projects_spec.rb
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
 
     create_package_branch(
-      :expect => :already_exists,
-      :name => 'TestPack',
-      :original_name => 'TestPack',
-      :original_project => 'home:Iggy')
+      expect: :already_exists,
+      name: 'TestPack',
+      original_name: 'TestPack',
+      original_project: 'home:Iggy')
   end
 
   def test_branch_package_twice # spec/features/webui/projects_spec.rb
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
 
     create_package_branch(
-      :name => 'TestPack2',
-      :original_name => 'kdelibs',
-      :original_project => 'kde4')
-    visit project_show_path(:project => @project)
+      name: 'TestPack2',
+      original_name: 'kdelibs',
+      original_project: 'kde4')
+    visit project_show_path(project: @project)
     create_package_branch(
-      :name => 'TestPack3',
-      :original_name => 'kdelibs',
-      :original_project => 'kde4')
+      name: 'TestPack3',
+      original_name: 'kdelibs',
+      original_project: 'kde4')
   end
 
   def test_branch_empty_package_name # spec/controllers/webui/package_controller_spec.rb
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
 
     create_package_branch(
-      :name => '',
-      :original_name => '',
-      :original_project => 'home:Iggy',
-      :expect => :invalid_package_name)
+      name: '',
+      original_name: '',
+      original_project: 'home:Iggy',
+      expect: :invalid_package_name)
   end
 
   def test_branch_empty_project_name # spec/controllers/webui/package_controller_spec.rb
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
 
     create_package_branch(
-      :name => 'TestPack',
-      :original_name => 'TestPack',
-      :original_project => '',
-      :expect => :invalid_project_name)
+      name: 'TestPack',
+      original_name: 'TestPack',
+      original_project: '',
+      expect: :invalid_project_name)
   end
 
   def test_branch_package_name_with_spaces # spec/controllers/webui/package_controller_spec.rb
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
 
     create_package_branch(
-      :name => 'BranchedPackage',
-      :original_name => 'invalid package name',
-      :original_project => 'home:Iggy',
-      :expect => :invalid_package_name)
+      name: 'BranchedPackage',
+      original_name: 'invalid package name',
+      original_project: 'home:Iggy',
+      expect: :invalid_package_name)
   end
 
   def test_branch_project_name_with_spaces # spec/controllers/webui/package_controller_spec.rb
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
 
     create_package_branch(
-      :name => 'BranchedPackage',
-      :original_name => 'SomePackage',
-      :original_project => 'invalid project name',
-      :expect => :invalid_project_name)
+      name: 'BranchedPackage',
+      original_name: 'SomePackage',
+      original_project: 'invalid project name',
+      expect: :invalid_project_name)
   end
 
   def test_branch_project_invalid_target # spec/features/webui/projects_spec.rb
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
 
     create_package_branch(
-      :name => 'something/illegal',
-      :original_name => 'apache2',
-      :original_project => 'Apache',
-      :expect => :invalid_target)
+      name: 'something/illegal',
+      original_name: 'apache2',
+      original_project: 'Apache',
+      expect: :invalid_target)
   end
 
   def test_branch_without_source_access # spec/features/webui/projects_spec.rb
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
 
     create_package_branch(
-      :name => '',
-      :original_name => 'pack',
-      :original_project => 'SourceprotectedProject',
-      :expect => :no_permission)
+      name: '',
+      original_name: 'pack',
+      original_project: 'SourceprotectedProject',
+      expect: :no_permission)
   end
 
   def test_branch_without_target_access
@@ -209,7 +209,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   def test_autocomplete_packages
     use_js
 
-    login_Iggy to: project_show_path(:project => @project)
+    login_Iggy to: project_show_path(project: @project)
     click_link 'Branch existing package'
 
     results = fill_autocomplete 'linked_project', with: 'home:d', select: 'home:dmayr'

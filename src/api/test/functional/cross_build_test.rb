@@ -22,8 +22,8 @@ class CrossBuildTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/home:tom:CrossBuild/_meta"
     assert_response :success
-    assert_xml_tag :tag => "path", :attributes => { :project => 'BaseDistro', :repository => 'BaseDistro_repo' }
-    assert_xml_tag :tag => "hostsystem", :attributes => { :project => 'BaseDistro2.0', :repository => 'BaseDistro2_repo' }
+    assert_xml_tag tag: "path", attributes: { project: 'BaseDistro', repository: 'BaseDistro_repo' }
+    assert_xml_tag tag: "hostsystem", attributes: { project: 'BaseDistro2.0', repository: 'BaseDistro2_repo' }
 
     put "/source/home:tom:CrossBuild/_meta", "<project name='home:tom:CrossBuild'> <title/> <description/>
             <repository name='standard'>
@@ -32,12 +32,12 @@ class CrossBuildTest < ActionDispatch::IntegrationTest
             </repository>
           </project>"
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag tag: "status", attributes: { code: "unknown_project" }
 
     delete "/source/home:tom:CrossBuild"
     assert_response :success
     get "/source/BaseDistro2.0:LinkedUpdateProject/_meta"
     assert_response :success
-    assert_no_xml_tag tag: "path", :attributes => { project: "deleted" }
+    assert_no_xml_tag tag: "path", attributes: { project: "deleted" }
   end
 end

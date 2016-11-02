@@ -131,13 +131,13 @@ eos
     # iggy is *not* target maintainer
     assert_equal false, wi['is_target_maintainer']
     assert_equal wi['actions'][0], {
-      :type => :submit,
-      :sprj => "home:Iggy",
-      :spkg => "TestPack",
-      :srev => "1",
-      :tprj => "kde4",
-      :tpkg => "mypackage",
-      :name => "Submit TestPack"
+      type: :submit,
+      sprj: "home:Iggy",
+      spkg: "TestPack",
+      srev: "1",
+      tprj: "kde4",
+      tpkg: "mypackage",
+      name: "Submit TestPack"
     }
   end
 

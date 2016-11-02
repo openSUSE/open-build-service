@@ -56,8 +56,8 @@ class MessageController < ApplicationController
       msg.save
       render_ok
     rescue ArgumentError => e
-      render_error :status => 400, :errorcode => 'error creating message',
-                   :message => e.message
+      render_error status: 400, errorcode: 'error creating message',
+                   message: e.message
     end
   end
 
@@ -66,8 +66,8 @@ class MessageController < ApplicationController
   def check_permissions
     if (@package && !permissions.package_change?(@package.name, @project.name)) ||
         (@project && !permissions.project_change?(@project.name))
-      render_error :status => 403, :errorcode => 'permission denied',
-                   :message => 'message cannot be created, insufficient permissions'
+      render_error status: 403, errorcode: 'permission denied',
+                   message: 'message cannot be created, insufficient permissions'
       return nil
     end
     return true

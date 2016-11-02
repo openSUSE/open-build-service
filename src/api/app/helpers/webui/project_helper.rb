@@ -10,7 +10,7 @@ module Webui::ProjectHelper
       status_comment_html = ERB::Util::h(comment)
       if !firstfail
         if User.current.can_modify_project?(@project.api_obj)
-          status_comment_html += ' '.html_safe + link_to(image_tag('comment_delete.png', :size => '16x16', :alt => 'Clear'),
+          status_comment_html += ' '.html_safe + link_to(image_tag('comment_delete.png', size: '16x16', alt: 'Clear'),
                                                          {action: :clear_failed_comment, project: @project,
                                                           package: package, update: valid_xml_id("comment_#{package}")},
                                                          remote: true)
@@ -18,7 +18,7 @@ module Webui::ProjectHelper
         end
       elsif User.current.can_modify_project?(@project.api_obj)
         status_comment_html += ' '.html_safe
-        status_comment_html += link_to(image_tag('comment_edit.png', :alt => 'Edit'),
+        status_comment_html += link_to(image_tag('comment_edit.png', alt: 'Edit'),
                                        {action: 'edit_comment_form', comment: comment,
                                         package: package, project: @project,
                                         update: valid_xml_id("comment_edit_#{package}")},
@@ -74,7 +74,7 @@ module Webui::ProjectHelper
   def rebuild_time_col(package)
     return '' if package.blank?
     btime = @timings[package][0]
-    link_to(h(package), :controller => :package, :action => :show, :project => @project, :package => package) + ' ' + format_seconds(btime)
+    link_to(h(package), controller: :package, action: :show, project: @project, package: package) + ' ' + format_seconds(btime)
   end
 
   def short_incident_name(incident)

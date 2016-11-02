@@ -50,7 +50,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     login_king
     post "/build/home:Iggy/10.2/i586/TestPack", nil
     assert_response 400 # actually a success, it reached the backend
-    assert_xml_tag :tag => "status", :attributes => { :code => "400", :origin => "backend" }
+    assert_xml_tag tag: "status", attributes: { code: "400", origin: "backend" }
 
     put "/build/home:Iggy/10.2/i586/_repository/rpm.rpm", "/dev/null"
     assert_response 200
@@ -58,7 +58,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     # check not supported methods
     post "/build/home:Iggy/10.2/i586/_repository", nil
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_package" }
+    assert_xml_tag tag: "status", attributes: { code: "unknown_package" }
     put "/build/home:Iggy/10.2/i586/TestPack", nil
     assert_response 404 # no such route
 
@@ -91,16 +91,16 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/build/home:Iggy/10.2/i586/TestPack/_status"
     assert_response :success
-    assert_xml_tag :tag => "status", :attributes => { :package => "TestPack", :code => "succeeded" }
+    assert_xml_tag tag: "status", attributes: { package: "TestPack", code: "succeeded" }
     get "/build/home:Iggy/10.2/i586/TestPack/_jobstatus"
     assert_response :success
-    assert_xml_tag :tag => "jobstatus"
+    assert_xml_tag tag: "jobstatus"
     get "/build/home:Iggy/10.2/i586/TestPack/_statistics"
     assert_response :success
     get "/build/home:Iggy/10.2/i586/_repository"
     assert_response :success
-    assert_xml_tag :tag => "binarylist", :child => { :tag => "binary" }
-    assert_xml_tag :tag => "binary", :attributes => { :filename => "package.rpm" }
+    assert_xml_tag tag: "binarylist", child: { tag: "binary" }
+    assert_xml_tag tag: "binary", attributes: { filename: "package.rpm" }
     get "/build/home:Iggy/10.2/i586/_repository/package.rpm"
     assert_response :success
     get "/build/home:Iggy/10.2/i586/_repository?binary=rpm&binary=package&view=cpio"
@@ -148,7 +148,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     # get source info to compare with
     get "/source/home:Iggy/TestPack"
     assert_response :success
-    assert_no_xml_tag :tag => "xsrcmd5" # is no link, srcmd5 is valid
+    assert_no_xml_tag tag: "xsrcmd5" # is no link, srcmd5 is valid
     node = ActiveXML::Node.new(@response.body)
     srcmd5 = node.value(:srcmd5)
 
@@ -168,15 +168,15 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     rev="2"
     b_cnt="2"
     ci_cnt="42"
-    assert_xml_tag :tag => "buildinfo"
-    assert_xml_tag :tag => "arch", :content => "i586"
-    assert_xml_tag :tag => "srcmd5", :content => srcmd5
-    assert_xml_tag :tag => "file", :content => "TestPack.spec"
-    assert_xml_tag :tag => "debuginfo", :content => "0"
-    assert_xml_tag :tag => "release", :content => "#{ci_cnt}.#{b_cnt}"
-    assert_xml_tag :tag => "versrel", :content => "1.0-#{ci_cnt}"
-    assert_xml_tag :tag => "rev", :content => rev
-    assert_xml_tag :tag => "path", :attributes => { :project => "home:Iggy", :repository => "10.2" }
+    assert_xml_tag tag: "buildinfo"
+    assert_xml_tag tag: "arch", content: "i586"
+    assert_xml_tag tag: "srcmd5", content: srcmd5
+    assert_xml_tag tag: "file", content: "TestPack.spec"
+    assert_xml_tag tag: "debuginfo", content: "0"
+    assert_xml_tag tag: "release", content: "#{ci_cnt}.#{b_cnt}"
+    assert_xml_tag tag: "versrel", content: "1.0-#{ci_cnt}"
+    assert_xml_tag tag: "rev", content: rev
+    assert_xml_tag tag: "path", attributes: { project: "home:Iggy", repository: "10.2" }
     # buildinfo = ActiveXML::Node.new(@response.body)
 
     # find scheduler job and compare it with buildinfo
@@ -191,12 +191,12 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
   def test_builddepinfo
     get "/build/home:Iggy/10.2/i586/_builddepinfo"
     assert_response :success
-    assert_xml_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "source", :content => "TestPack"
-    assert_xml_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "subpkg", :content => "TestPack"
+    assert_xml_tag parent: { tag: "package", attributes: { name: "TestPack" } }, tag: "source", content: "TestPack"
+    assert_xml_tag parent: { tag: "package", attributes: { name: "TestPack" } }, tag: "subpkg", content: "TestPack"
 
     get "/build/HiddenProject/nada/i586/_builddepinfo"
     assert_response 404
-    assert_xml_tag( :tag => "status", :attributes => { :code => "unknown_project" } )
+    assert_xml_tag( tag: "status", attributes: { code: "unknown_project" } )
 
     login_adrian
     get "/build/HiddenProject/nada/i586/_builddepinfo"
@@ -205,24 +205,24 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     # the webui is calling this with invalid package name to get the cycles only
     get "/build/home:Iggy/10.2/i586/_builddepinfo?package=-"
     assert_response :success
-    assert_no_xml_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "source"
-    assert_no_xml_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "subpkg"
+    assert_no_xml_tag parent: { tag: "package", attributes: { name: "TestPack" } }, tag: "source"
+    assert_no_xml_tag parent: { tag: "package", attributes: { name: "TestPack" } }, tag: "subpkg"
 
     # for osc project build feature
     get "/build/HiddenProject/nada/i586/_builddepinfo?view=order"
     assert_response :success
-    assert_xml_tag :parent => { tag: "builddepinfo" }, tag: "package", attributes: { name: "pack" }
+    assert_xml_tag parent: { tag: "builddepinfo" }, tag: "package", attributes: { name: "pack" }
     data = @response.body
 
     post "/build/HiddenProject/nada/i586/_builddepinfo?view=order", data
     assert_response :success
-    assert_xml_tag :parent => { tag: "builddepinfo" }, tag: "package", attributes: { name: "pack" }
+    assert_xml_tag parent: { tag: "builddepinfo" }, tag: "package", attributes: { name: "pack" }
   end
 
   def test_package_index
     get "/build/home:Iggy/10.2/i586/TestPack"
     assert_response :success
-    assert_xml_tag( :tag => "binarylist" )
+    assert_xml_tag( tag: "binarylist" )
   end
 
   def test_read_access_hidden_package_index
@@ -233,7 +233,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/build/HiddenProject/nada/i586/pack"
     assert_response :success
-    assert_xml_tag( :tag => "binarylist" )
+    assert_xml_tag( tag: "binarylist" )
     prepare_request_valid_user
   end
 
@@ -249,7 +249,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     prepare_request_valid_user
     get "/build/SourceprotectedProject/repo/i586/pack/_log"
     assert_response 403
-    assert_xml_tag( :tag => "status", :attributes => { :code => "source_access_no_permission" } )
+    assert_xml_tag( tag: "status", attributes: { code: "source_access_no_permission" } )
     # retry with maintainer
     prepare_request_with_user "sourceaccess_homer", "buildservice"
     get "/build/SourceprotectedProject/repo/i586/pack/_log"
@@ -283,11 +283,11 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
   def test_result
     get "/build/home:Iggy/_result"
     assert_response :success
-    assert_xml_tag :tag => "resultlist", :children =>  { :count => 2 }
+    assert_xml_tag tag: "resultlist", children: { count: 2 }
 
     get "/build/home:Iggy/_result?lastsuccess&pathproject=kde4&package=TestPack"
     assert_response 404
-    assert_xml_tag(:tag => "status", :attributes => { :code => 'no_repositories_found' })
+    assert_xml_tag(tag: "status", attributes: { code: 'no_repositories_found' })
   end
 
   def test_result_of_failed_publish
@@ -304,7 +304,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/build/HiddenProject/_result"
     assert_response :success
-    assert_xml_tag :tag => "resultlist"
+    assert_xml_tag tag: "resultlist"
     prepare_request_valid_user
   end
 
@@ -316,7 +316,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/build/HiddenProject/_result?package=pack"
     assert_response :success
-    assert_xml_tag :tag => "resultlist"
+    assert_xml_tag tag: "resultlist"
     prepare_request_valid_user
   end
 
@@ -334,10 +334,10 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     # 404 on invalid
     get "/build/HiddenProject/nada/i586/pack/package?view=fileinfo"
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag tag: "status", attributes: { code: "unknown_project" }
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm?view=fileinfo"
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag tag: "status", attributes: { code: "unknown_project" }
     # success on valid
     reset_auth
     login_adrian
@@ -381,13 +381,13 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
   def test_read_access_hidden_file
     get "/build/HiddenProject/nada/i586/pack/"
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag tag: "status", attributes: { code: "unknown_project" }
     get "/build/HiddenProject/nada/i586/pack/package-1.0-1.i586.rpm"
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag tag: "status", attributes: { code: "unknown_project" }
     get "/build/HiddenProject/nada/i586/pack/NOT_EXISTING"
     assert_response 404
-    assert_xml_tag :tag => "status", :attributes => { :code => "unknown_project" }
+    assert_xml_tag tag: "status", attributes: { code: "unknown_project" }
     # success on valid
     reset_auth
     login_adrian
@@ -404,13 +404,13 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
   def test_project_index
     get "/build/home:Iggy"
     assert_response :success
-    assert_xml_tag :tag => "directory", :children =>  { :count => 1 }
+    assert_xml_tag tag: "directory", children: { count: 1 }
 
-    put "/build/home:Iggy", :cmd => 'say_hallo'
+    put "/build/home:Iggy", cmd: 'say_hallo'
     assert_response 403
     assert_match(/No permission to execute command on project/, @response.body)
 
-    post "/build/home:Iggy", :cmd => 'say_hallo'
+    post "/build/home:Iggy", cmd: 'say_hallo'
     assert_response 400
     assert_match(/unsupported POST command/, @response.body)
 
@@ -471,11 +471,11 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_match(/unknown_project/, @response.body)
 
-    put "/build/HiddenProject", :cmd => 'say_hallo'
+    put "/build/HiddenProject", cmd: 'say_hallo'
     assert_response 404
     assert_match(/unknown_project/, @response.body)
 
-    post "/build/HiddenProject", :cmd => 'say_hallo'
+    post "/build/HiddenProject", cmd: 'say_hallo'
     assert_response 404
     assert_match(/unknown_project/, @response.body)
 
@@ -492,13 +492,13 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/build/HiddenProject"
     assert_response :success
-    assert_xml_tag :tag => "directory", :children =>  { :count => 1 }
+    assert_xml_tag tag: "directory", children: { count: 1 }
 
-    put "/build/HiddenProject", :cmd => 'say_hallo'
+    put "/build/HiddenProject", cmd: 'say_hallo'
     assert_response 403
     assert_match(/No permission to execute command on project/, @response.body)
 
-    post "/build/HiddenProject", :cmd => 'say_hallo'
+    post "/build/HiddenProject", cmd: 'say_hallo'
     assert_response 400
     assert_match(/illegal_request/, @response.body)
 

@@ -8,10 +8,10 @@ class Webui::ProjectController < Webui::WebuiController
 
   helper 'webui/comment'
 
-  before_action :lockout_spiders, :only => [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
+  before_action :lockout_spiders, only: [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
 
-  before_action :require_login, :only => [:create, :toggle_watch, :destroy, :new, :new_incident_request,
-                                          :new_release_request, :new_package_branch, :new_package]
+  before_action :require_login, only: [:create, :toggle_watch, :destroy, :new, :new_incident_request,
+                                       :new_release_request, :new_package_branch, :new_package]
 
   before_action :set_project, only: [:autocomplete_packages, :autocomplete_repositories, :users, :subprojects,
                                      :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
@@ -29,11 +29,11 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_action :set_project_by_id, only: [:update]
 
-  before_action :load_project_info, :only => [:show, :packages_simple, :rebuild_time,
-                                              :maintained_projects, :add_maintained_project_dialog,
-                                              :add_maintained_project, :remove_maintained_project]
+  before_action :load_project_info, only: [:show, :packages_simple, :rebuild_time,
+                                           :maintained_projects, :add_maintained_project_dialog,
+                                           :add_maintained_project, :remove_maintained_project]
 
-  before_action :load_releasetargets, :only => [:show, :incident_request_dialog]
+  before_action :load_releasetargets, only: [:show, :incident_request_dialog]
 
   before_action :require_maintenance_project, only: [:maintained_projects,
                                                      :add_maintained_project_dialog,
@@ -138,7 +138,7 @@ class Webui::ProjectController < Webui::WebuiController
       flash[:error] = e.message
       redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
     end
-    redirect_to :action => 'show', :project => params[:project]
+    redirect_to action: 'show', project: params[:project]
   end
 
   def release_request_dialog
@@ -162,7 +162,7 @@ class Webui::ProjectController < Webui::WebuiController
           req.save!
         end
         flash[:success] = "Created maintenance release request " +
-                          "<a href='#{url_for(:controller => 'request', :action => 'show', :number => req.number)}'>#{req.number}</a>"
+                          "<a href='#{url_for(controller: 'request', action: 'show', number: req.number)}'>#{req.number}</a>"
       rescue Patchinfo::IncompletePatchinfo,
              BsRequestAction::UnknownProject,
              BsRequestAction::BuildNotFinished,
@@ -179,7 +179,7 @@ class Webui::ProjectController < Webui::WebuiController
         redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
       end
     end
-    redirect_to :action => 'show', :project => params[:project]
+    redirect_to action: 'show', project: params[:project]
   end
 
   def show
@@ -215,7 +215,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def buildresult
     check_ajax
-    @buildresult = Buildresult.find_hashed(:project => params[:project], :view => 'summary')
+    @buildresult = Buildresult.find_hashed(project: params[:project], view: 'summary')
     fill_status_cache
     # convert build result
     myarray = []
@@ -248,7 +248,7 @@ class Webui::ProjectController < Webui::WebuiController
     archs << [oarch, counts] if oarch
     repos << [orepo, archs] if orepo
     @buildresult = repos
-    render :partial => 'buildstatus'
+    render partial: 'buildstatus'
   end
 
   def delete_dialog
@@ -279,15 +279,15 @@ class Webui::ProjectController < Webui::WebuiController
     @scheduler = params[:scheduler] || 'needed'
     unless %w(fifo lifo random btime needed neededb longest_data longested_triedread longest).include? @scheduler
       flash[:error] = 'Invalid scheduler type, check mkdiststats docu - aehm, source'
-      redirect_to :action => :show, :project => @project
+      redirect_to action: :show, project: @project
       return
     end
-    bdep = BuilddepInfo.find(:project => @project.name, :repository => @repository, :arch => @arch)
-    jobs = Jobhistory.find(:project => @project.name, :repository => @repository, :arch => @arch,
-            :limit => (@packages.size + @ipackages.size) * 3, :code => %w(succeeded unchanged))
+    bdep = BuilddepInfo.find(project: @project.name, repository: @repository, arch: @arch)
+    jobs = Jobhistory.find(project: @project.name, repository: @repository, arch: @arch,
+            limit: (@packages.size + @ipackages.size) * 3, code: %w(succeeded unchanged))
     unless bdep && jobs
       flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
-      redirect_to :action => :show, :project => @project
+      redirect_to action: :show, project: @project
       return
     end
     longest = call_diststats(bdep, jobs)
@@ -309,7 +309,7 @@ class Webui::ProjectController < Webui::WebuiController
     key = params[:key]
     png = Rails.cache.read("rebuild-#{key}.png")
     headers['Content-Type'] = 'image/png'
-    send_data(png, :type => 'image/png', :disposition => 'inline')
+    send_data(png, type: 'image/png', disposition: 'inline')
   end
 
   def requests
@@ -347,7 +347,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     if @project.valid? && @project.store
       flash[:notice] = "Project '#{@project}' was created successfully"
-      redirect_to :action => 'show', :project => @project.name
+      redirect_to action: 'show', project: @project.name
     else
       flash[:error] = "Failed to save project '#{@project}'. #{@project.errors.full_messages.to_sentence}."
       redirect_back(fallback_location: root_path)
@@ -385,15 +385,15 @@ class Webui::ProjectController < Webui::WebuiController
 
         req.save!
       end
-      flash[:success] = "Created <a href='#{url_for(:controller => 'request',
-                                                    :action => 'show',
-                                                    :number => req.number)}'>repository delete request #{req.number}</a>"
+      flash[:success] = "Created <a href='#{url_for(controller: 'request',
+                                                    action: 'show',
+                                                    number: req.number)}'>repository delete request #{req.number}</a>"
     rescue BsRequestAction::UnknownTargetProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = e.message
       redirect_to(action: :index, controller: :repositories, project: params[:project]) && return
     end
-    redirect_to :controller => :request, :action => :show, :number => req.number
+    redirect_to controller: :request, action: :show, number: req.number
   end
 
   def remove_path_from_target
@@ -446,14 +446,14 @@ class Webui::ProjectController < Webui::WebuiController
     params['expansionerror'] = 1 if params['unresolvable']
     monitor_set_filter(defaults)
 
-    find_opt = { :project => @project, :view => 'status', :code => @status_filter,
-      :arch => @arch_filter, :repo => @repo_filter }
+    find_opt = { project: @project, view: 'status', code: @status_filter,
+      arch: @arch_filter, repo: @repo_filter }
     find_opt[:lastbuild] = 1 unless @lastbuild_switch.blank?
 
     @buildresult = Buildresult.find( find_opt )
     unless @buildresult
       flash[:warning] = "No build results for project '#{@project}'"
-      redirect_to :action => :show, :project => params[:project]
+      redirect_to action: :show, project: params[:project]
       return
     end
 
@@ -499,7 +499,7 @@ class Webui::ProjectController < Webui::WebuiController
   def package_buildresult
     check_ajax
     begin
-      @buildresult = Buildresult.find_hashed(:project => params[:project], :package => params[:package], :view => 'status', :lastbuild => 1)
+      @buildresult = Buildresult.find_hashed(project: params[:project], package: params[:package], view: 'status', lastbuild: 1)
     rescue ActiveXML::Transport::Error # wild work around for backend bug (sends 400 for 'not found')
     end
     @repohash = Hash.new
@@ -521,7 +521,7 @@ class Webui::ProjectController < Webui::WebuiController
         stathash[status['package']] = status
       end
     end if @buildresult
-    render :layout => false
+    render layout: false
   end
 
   def toggle_watch
@@ -536,7 +536,7 @@ class Webui::ProjectController < Webui::WebuiController
     if request.env['HTTP_REFERER']
       redirect_back(fallback_location: root_path)
     else
-      redirect_to :action => :show, :project => @project
+      redirect_to action: :show, project: @project
     end
   end
 
@@ -622,7 +622,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     respond_to do |format|
-      format.html { redirect_to({ :action => :status, project: @project }, notice: 'Cleared comments for packages.') }
+      format.html { redirect_to({ action: :status, project: @project }, notice: 'Cleared comments for packages.') }
       format.js { render js: '<em>Cleared comments for packages</em>' }
     end
   end
@@ -714,7 +714,7 @@ class Webui::ProjectController < Webui::WebuiController
     maintained_project = MaintainedProject.find_by(project: @maintained_project)
     if maintained_project && @project.maintained_projects.destroy(maintained_project)
       @project.store
-      redirect_to({:action => 'maintained_projects', :project => @project}, notice: "Removed #{@maintained_project} from maintenance")
+      redirect_to({action: 'maintained_projects', project: @project}, notice: "Removed #{@maintained_project} from maintenance")
     else
       redirect_back(fallback_location: root_path, error: "Failed to remove #{@maintained_project} from maintenance")
     end
@@ -1142,8 +1142,8 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def filter_packages( project, filterstring )
-    result = Collection.find :id, :what => 'package',
-      :predicate => "@project='#{project}' and contains(@name,'#{filterstring}')"
+    result = Collection.find :id, what: 'package',
+      predicate: "@project='#{project}' and contains(@name,'#{filterstring}')"
     return result.each.map {|x| x.name}
   end
 

@@ -13,17 +13,17 @@ class Role < ApplicationRecord
   end
 
   validates_format_of :title,
-                      :with => %r{\A\w*\z},
-                      :message => 'must not contain invalid characters.'
+                      with: %r{\A\w*\z},
+                      message: 'must not contain invalid characters.'
   validates_length_of :title,
-                      :in => 2..100,
-                      :too_long => 'must have less than 100 characters.',
-                      :too_short => 'must have more than two characters.',
-                      :allow_nil => false
+                      in: 2..100,
+                      too_long: 'must have less than 100 characters.',
+                      too_short: 'must have more than two characters.',
+                      allow_nil: false
 
   # We want to validate a role's title pretty thoroughly.
   validates_uniqueness_of :title,
-                          :message => 'is the name of an already existing role.'
+                          message: 'is the name of an already existing role.'
 
   belongs_to :groups_roles
   belongs_to :attrib_type_modifiable_bies
@@ -78,7 +78,7 @@ class Role < ApplicationRecord
 
   def self.ids_with_permission(perm_string)
     RolesStaticPermission.joins(:static_permission).
-      where(:static_permissions => { :title => perm_string } ).
+      where(static_permissions: { title: perm_string } ).
       select('role_id').pluck(:role_id)
   end
 

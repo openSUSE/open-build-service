@@ -135,7 +135,7 @@ class Channel < ApplicationRecord
     cp = package
 
     # create a package container
-    tpkg = Package.new(:name => name, :title => cp.title, :description => cp.description)
+    tpkg = Package.new(name: name, title: cp.title, description: cp.description)
     project.packages << tpkg
     tpkg.store({comment: comment})
 

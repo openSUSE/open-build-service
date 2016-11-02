@@ -136,7 +136,7 @@ XML
     # we have a devel package definition in source
     get "/source/BaseDistro:Update/pack2/_meta"
     assert_response :success
-    assert_xml_tag(:tag => 'devel')
+    assert_xml_tag(tag: 'devel')
 
     post '/request?cmd=create', '<request>
                                    <action type="submit">
@@ -179,10 +179,10 @@ XML
 
     get "/source/home:Iggy/NEW_PACKAGE/_meta"
     assert_response :success
-    assert_no_xml_tag(:tag => 'devel')
+    assert_no_xml_tag(tag: 'devel')
     get "/source/home:Iggy/NEW_PACKAGE2/_meta"
     assert_response :success
-    assert_no_xml_tag(:tag => 'devel')
+    assert_no_xml_tag(tag: 'devel')
 
     login_king
     delete "/source/home:Iggy/NEW_PACKAGE"
@@ -195,17 +195,17 @@ XML
     wait_for_scheduler_start
 
     prepare_request_with_user 'Iggy', 'buildservice'
-    post '/source/home:Iggy/NEW_PACKAGE', :cmd => :branch
+    post '/source/home:Iggy/NEW_PACKAGE', cmd: :branch
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_package' })
-    post '/source/home:Iggy/TestPack', :cmd => :branch, :missingok => 'true'
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_package' })
+    post '/source/home:Iggy/TestPack', cmd: :branch, missingok: 'true'
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_missing' })
-    post '/source/home:Iggy/NEW_PACKAGE', :cmd => :branch, :missingok => 'true'
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_missing' })
+    post '/source/home:Iggy/NEW_PACKAGE', cmd: :branch, missingok: 'true'
     assert_response :success
     get '/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link'
     assert_response :success
-    assert_xml_tag(:tag => 'link', :attributes => { missingok: 'true', project: 'home:Iggy', package: nil })
+    assert_xml_tag(tag: 'link', attributes: { missingok: 'true', project: 'home:Iggy', package: nil })
     put '/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/new_file', 'my content'
     assert_response :success
 
@@ -243,8 +243,8 @@ XML
     # create more history entries prio change, decline, reopen and finally accept it
     post "/request/#{id}?cmd=setpriority&priority=ILLEGAL&comment=dontcare"
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'request_save_error' })
-    assert_xml_tag(:tag => 'summary', :content => "Illegal priority 'ILLEGAL'")
+    assert_xml_tag(tag: 'status', attributes: { code: 'request_save_error' })
+    assert_xml_tag(tag: 'summary', content: "Illegal priority 'ILLEGAL'")
     post "/request/#{id}?cmd=setpriority&priority=low&comment=dontcare"
     assert_response :success
     Timecop.freeze(1)
@@ -266,17 +266,17 @@ XML
     # validate history of new package
     get '/source/home:Iggy/NEW_PACKAGE/_history'
     assert_response :success
-    assert_xml_tag :tag => 'requestid', :content => id
-    assert_xml_tag :tag => 'comment', :content => 'DESCRIPTION IS HERE'
-    assert_xml_tag :tag => 'user', :content => 'Iggy'
+    assert_xml_tag tag: 'requestid', content: id
+    assert_xml_tag tag: 'comment', content: 'DESCRIPTION IS HERE'
+    assert_xml_tag tag: 'user', content: 'Iggy'
 
     # validate request
     get "/request/#{id}?withhistory=1"
     assert_response :success
     node = Xmlhash.parse(@response.body)
-    assert_xml_tag(:tag => 'acceptinfo', :attributes => { rev: '1', srcmd5: '1ded65e42c0f04bd08075dfd1fd08105', osrcmd5: 'd41d8cd98f00b204e9800998ecf8427e' })
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'accepted', who: 'Iggy' })
-    assert_xml_tag(:tag => 'history', :attributes => { who: 'Iggy' })
+    assert_xml_tag(tag: 'acceptinfo', attributes: { rev: '1', srcmd5: '1ded65e42c0f04bd08075dfd1fd08105', osrcmd5: 'd41d8cd98f00b204e9800998ecf8427e' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'accepted', who: 'Iggy' })
+    assert_xml_tag(tag: 'history', attributes: { who: 'Iggy' })
     assert_equal({
                    'id'          => id,
                    'creator'     => "Iggy",
@@ -311,11 +311,11 @@ XML
     end
 
     # missingok disapeared
-    post '/source/home:Iggy:branches:home:Iggy', :cmd => :undelete
+    post '/source/home:Iggy:branches:home:Iggy', cmd: :undelete
     assert_response :success
     get '/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link'
     assert_response :success
-    assert_no_xml_tag(:tag => 'link', :attributes => { missingok: 'true' })
+    assert_no_xml_tag(tag: 'link', attributes: { missingok: 'true' })
 
     # cleanup
     login_king
@@ -329,9 +329,9 @@ XML
 
   def test_request_autodecline_on_removal
     login_Iggy
-    post '/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE', :cmd => :branch
+    post '/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE', cmd: :branch
     assert_response :success
-    post '/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2', :cmd => :branch
+    post '/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2', cmd: :branch
     assert_response :success
     put '/source/home:Iggy/TestPack.DELETE2/file', 'some'
     assert_response :success
@@ -375,9 +375,9 @@ XML
 
   def test_submit_request_with_broken_source
     login_Iggy
-    post '/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE', :cmd => :branch
+    post '/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE', cmd: :branch
     assert_response :success
-    post '/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2', :cmd => :branch
+    post '/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2', cmd: :branch
     assert_response :success
 
     # create working requests
@@ -403,7 +403,7 @@ XML
     login_king
     post "/request/#{id1}?cmd=changestate&newstate=accepted&comment=review1&force=1"
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'expand_error' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'expand_error' })
 
     # new requests are not possible anymore
     login_Iggy
@@ -415,7 +415,7 @@ XML
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'expand_error' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'expand_error' })
     post '/request?cmd=create', '<request>
                                    <action type="submit">
                                      <source project="home:Iggy" package="TestPack.DELETE2" rev="2"/>
@@ -424,7 +424,7 @@ XML
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'expand_error' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'expand_error' })
 
     delete '/source/home:Iggy/TestPack.DELETE'
     assert_response :success
@@ -440,31 +440,31 @@ XML
     login_Iggy
     post '/request?cmd=create', load_backend_file('request/no_such_project')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_project' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_project' })
 
     post '/request?cmd=create', load_backend_file('request/no_such_package')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_package' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_package' })
 
     post '/request?cmd=create', load_backend_file('request/no_such_user')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' }, child: { content: %r{Couldn.t find User} })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' }, child: { content: %r{Couldn.t find User} })
 
     post '/request?cmd=create', load_backend_file('request/no_such_group')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' }, child: { content: %r{Couldn.t find Group} })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' }, child: { content: %r{Couldn.t find Group} })
 
     post '/request?cmd=create', load_backend_file('request/no_such_role')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' }, child: { content: %r{Couldn.t find Role} })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' }, child: { content: %r{Couldn.t find Role} })
 
     post '/request?cmd=create', load_backend_file('request/no_such_target_project')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_project' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_project' })
 
     post '/request?cmd=create', load_backend_file('request/no_such_target_package')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_package' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_package' })
 
     post '/request?cmd=create', load_backend_file('request/missing_role')
     assert_response 404
@@ -479,35 +479,35 @@ XML
     login_Iggy
     post '/request?cmd=create', load_backend_file('request/set_bugowner')
     assert_response :success
-    assert_xml_tag(:tag => 'person', :attributes => { name: 'Iggy' })
+    assert_xml_tag(tag: 'person', attributes: { name: 'Iggy' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'person', :attributes => { name: 'Iggy' })
+    assert_xml_tag(tag: 'person', attributes: { name: 'Iggy' })
 
     post '/request?cmd=create', load_backend_file('request/set_bugowner_group')
     assert_response :success
-    assert_xml_tag(:tag => 'group', :attributes => { name: 'test_group' })
+    assert_xml_tag(tag: 'group', attributes: { name: 'test_group' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value('id')
     get "/request/#{id2}"
     assert_response :success
-    assert_xml_tag(:tag => 'group', :attributes => { name: 'test_group' })
+    assert_xml_tag(tag: 'group', attributes: { name: 'test_group' })
 
     post '/request?cmd=create', load_backend_file('request/set_bugowner_fail')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_package' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_package' })
 
     post '/request?cmd=create', load_backend_file('request/set_bugowner_fail_unknown_user')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' })
 
     post '/request?cmd=create', load_backend_file('request/set_bugowner_fail_unknown_group')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' })
 
     # test direct put
     login_Iggy
@@ -526,26 +526,26 @@ XML
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
     meta = @response.body
-    assert_no_xml_tag(:tag => 'person', :attributes => { role: 'bugowner' })
-    assert_no_xml_tag(:tag => 'group', :attributes => { role: 'bugowner' })
+    assert_no_xml_tag(tag: 'person', attributes: { role: 'bugowner' })
+    assert_no_xml_tag(tag: 'group', attributes: { role: 'bugowner' })
     post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
-    assert_xml_tag(:tag => 'person', :attributes => {userid: 'Iggy',  role: 'bugowner' })
-    assert_no_xml_tag(:tag => 'group', :attributes => { role: 'bugowner' })
+    assert_xml_tag(tag: 'person', attributes: {userid: 'Iggy',  role: 'bugowner' })
+    assert_no_xml_tag(tag: 'group', attributes: { role: 'bugowner' })
     get "/source/kde4/kdelibs/_history?meta=1"
     assert_response :success
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
-    assert_no_xml_tag(:tag => 'person', :attributes => { role: 'bugowner' }) # reset
-    assert_xml_tag(:tag => 'group', :attributes => { groupid: 'test_group', role: 'bugowner' })
+    assert_no_xml_tag(tag: 'person', attributes: { role: 'bugowner' }) # reset
+    assert_xml_tag(tag: 'group', attributes: { groupid: 'test_group', role: 'bugowner' })
     get "/source/kde4/kdelibs/_history?meta=1"
     assert_response :success
-    assert_xml_tag(:tag => 'comment', :content => "set_bugowner request #{id2}")
-    assert_xml_tag(:tag => 'requestid', :content => id2)
+    assert_xml_tag(tag: 'comment', content: "set_bugowner request #{id2}")
+    assert_xml_tag(tag: 'requestid', content: id2)
 
     # cleanup
     put "/source/kde4/kdelibs/_meta", meta
@@ -565,7 +565,7 @@ XML
                                    <state name="new" />
                                  </request>'
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'invalid_record' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_record' })
 
     post '/request?cmd=create', '<request>
                                    <action type="set_bugowner">
@@ -575,7 +575,7 @@ XML
                                    <state name="new" />
                                  </request>'
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' })
 
     post '/request?cmd=create', '<request>
                                    <action type="set_bugowner">
@@ -585,7 +585,7 @@ XML
                                    <state name="new" />
                                  </request>'
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' })
 
     # cleanup
     login_Iggy
@@ -614,17 +614,17 @@ XML
     login_Iggy
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'post_request_no_permission' })
     get '/source/home:Iggy:Test/_meta'
     assert_response :success
-    assert_no_xml_tag(:tag => 'person', :attributes => { role: 'bugowner' })
+    assert_no_xml_tag(tag: 'person', attributes: { role: 'bugowner' })
 
     # works with force
     post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get '/source/home:Iggy:Test/_meta'
     assert_response :success
-    assert_xml_tag(:tag => 'person', :attributes => { role: 'bugowner' })
+    assert_xml_tag(tag: 'person', attributes: { role: 'bugowner' })
 
     # unlock and try with a locked package
     post '/source/home:Iggy:Test', { cmd: 'unlock', comment: 'cleanup' }
@@ -649,17 +649,17 @@ XML
     login_Iggy
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'post_request_no_permission' })
     get '/source/home:Iggy:Test/pack/_meta'
     assert_response :success
-    assert_no_xml_tag(:tag => 'person', :attributes => { role: 'bugowner' })
+    assert_no_xml_tag(tag: 'person', attributes: { role: 'bugowner' })
 
     # works with force
     post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get '/source/home:Iggy:Test/pack/_meta'
     assert_response :success
-    assert_xml_tag(:tag => 'person', :attributes => { role: 'bugowner' })
+    assert_xml_tag(tag: 'person', attributes: { role: 'bugowner' })
 
     # cleanup
     delete '/source/home:Iggy:Test'
@@ -691,7 +691,7 @@ XML
 
     post '/request?cmd=create', load_backend_file('request/add_role_fail')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_package' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_package' })
 
     post '/request?cmd=create', load_backend_file('request/add_role_fail')
     assert_response 404
@@ -702,7 +702,7 @@ XML
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -710,7 +710,7 @@ XML
     # do the real mbranch for default maintained packages
     reset_auth
     login_tom
-    post '/source', :cmd => 'branch', :request => id
+    post '/source', cmd: 'branch', request: id
     assert_response :success
 
     # got the correct package branched ?
@@ -720,11 +720,11 @@ XML
     assert_response :success
     get "/source/home:tom:branches:REQUEST_#{id}/TestPack.home_Iggy/_link"
     assert_response :success
-    assert_xml_tag(:tag => 'link', :attributes => { project: 'home:Iggy', package: 'TestPack' })
+    assert_xml_tag(tag: 'link', attributes: { project: 'home:Iggy', package: 'TestPack' })
     get "/source/home:tom:branches:REQUEST_#{id}/_attribute/OBS:RequestCloned"
     assert_response :success
-    assert_xml_tag(:tag => 'attribute', :attributes => { namespace: 'OBS', name: 'RequestCloned' },
-                   :child => { tag: 'value', content: id })
+    assert_xml_tag(tag: 'attribute', attributes: { namespace: 'OBS', name: 'RequestCloned' },
+                   child: { tag: 'value', content: id })
     # cleanup
     delete "/source/home:tom:branches:REQUEST_#{id}"
     assert_response :success
@@ -735,7 +735,7 @@ XML
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -746,7 +746,7 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_user: 'tom' })
+    assert_xml_tag(tag: 'review', attributes: { by_user: 'tom' })
     # try update comment
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=blahfasel"
     assert_response 403
@@ -759,7 +759,7 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:parent => { tag: 'review', attributes: { by_user: 'tom' } }, :tag => 'comment', :content => 'blahfasel')
+    assert_xml_tag(parent: { tag: 'review', attributes: { by_user: 'tom' } }, tag: 'comment', content: 'blahfasel')
     h2 = History.find_by_request(BsRequest.find_by_number(id))
     hr2 = History.find_by_request(BsRequest.find_by_number(id), { withreviews: 1 })
     assert_equal h2.length-h1.length, 0 # no change
@@ -768,7 +768,7 @@ XML
     # invalid state
     post "/request/#{id}?cmd=changereviewstate&newstate=INVALID&by_user=tom&comment=blahfasel"
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'request_not_modifiable' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'request_not_modifiable' })
 
     # superseded review
     post "/request/#{id}?cmd=changereviewstate&newstate=superseded&by_user=tom&superseded_by=1"
@@ -777,12 +777,12 @@ XML
     # another final state is not allowed
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=blahfasel"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'review_change_state_no_permission' })
-    assert_xml_tag(:tag => 'summary', :content => 'The request is neither in state review nor new')
+    assert_xml_tag(tag: 'status', attributes: { code: 'review_change_state_no_permission' })
+    assert_xml_tag(tag: 'summary', content: 'The request is neither in state review nor new')
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'superseded', superseded_by: '1' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'superseded', superseded_by: '1' })
   end
 
   def test_create_request_and_supersede
@@ -790,7 +790,7 @@ XML
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -798,7 +798,7 @@ XML
     login_tom
     post "/request/#{id}?cmd=changestate&newstate=superseded&superseded_by=1"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'post_request_no_permission' })
 
     # target says supersede it due to another existing request
     login_adrian
@@ -807,7 +807,7 @@ XML
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'superseded', superseded_by: '1' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'superseded', superseded_by: '1' })
   end
 
   def test_create_request_and_supersede_as_creator
@@ -815,7 +815,7 @@ XML
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -829,7 +829,7 @@ XML
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -840,26 +840,26 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_user: 'tom' })
+    assert_xml_tag(tag: 'review', attributes: { by_user: 'tom' })
 
     login_tom
     post "/request/#{id}?cmd=changereviewstate&newstate=declined"
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'review_not_specified' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'review_not_specified' })
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=tom"
     assert_response :success
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'review_change_state_no_permission' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'review_change_state_no_permission' })
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'declined' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'declined' })
 
     # add review not permitted anymore
     post "/request/#{id}?cmd=addreview&by_user=king"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'review_change_state_no_permission' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'review_change_state_no_permission' })
   end
 
   # MeeGo BOSS: is using multiple reviews by same user for each step
@@ -877,9 +877,9 @@ XML
 
     assert_response :success
 
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'new' })
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
@@ -890,7 +890,7 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_user: 'tom' })
+    assert_xml_tag(tag: 'review', attributes: { by_user: 'tom' })
 
     # accept review
     login_tom
@@ -899,7 +899,7 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'new' })
 
     # readd reviewer
     login_Iggy
@@ -908,7 +908,7 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_user: 'tom' })
+    assert_xml_tag(tag: 'review', attributes: { by_user: 'tom' })
 
     # accept review
     login_tom
@@ -919,8 +919,8 @@ XML
     # check review comments are the same
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:parent => { tag: 'review', attributes: { by_user: 'tom' } }, :tag => 'comment', :content => 'review1')
-    assert_xml_tag(:parent => { tag: 'review', attributes: { by_user: 'tom' } }, :tag => 'comment', :content => 'review2')
+    assert_xml_tag(parent: { tag: 'review', attributes: { by_user: 'tom' } }, tag: 'comment', content: 'review1')
+    assert_xml_tag(parent: { tag: 'review', attributes: { by_user: 'tom' } }, tag: 'comment', content: 'review2')
 
     # reopen a review
     login_tom
@@ -930,9 +930,9 @@ XML
     get "/request/#{id}?withhistory=1"
     assert_response :success
 
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'review' })
-    assert_xml_tag(:parent => { tag: 'review', attributes: { state: 'accepted', by_user: 'tom' } }, :tag => 'comment', :content => 'review1')
-    assert_xml_tag(:parent => { tag: 'review', attributes: { state: 'new', by_user: 'tom' } }, :tag => 'comment', :content => 'reopen2')
+    assert_xml_tag(tag: 'state', attributes: { name: 'review' })
+    assert_xml_tag(parent: { tag: 'review', attributes: { state: 'accepted', by_user: 'tom' } }, tag: 'comment', content: 'review1')
+    assert_xml_tag(parent: { tag: 'review', attributes: { state: 'new', by_user: 'tom' } }, tag: 'comment', content: 'reopen2')
     node = Xmlhash.parse(@response.body)
     assert_equal({ 'id'      => "#{id}",
                    'creator' => 'Iggy',
@@ -1000,7 +1000,7 @@ XML
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -1015,64 +1015,64 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
+    assert_xml_tag(tag: 'review', attributes: { by_group: 'test_group' })
 
     # adrian assigns to Iggy and reverts
     login_adrian
     get "/request/#{id}"
     assert_response :success
-    assert_no_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'Iggy' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_group: 'test_group' })
+    assert_no_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'Iggy' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'king' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_group: 'test_group' })
     post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=Iggy", 'Iggy, please have a look'
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'Iggy' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'Iggy' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'king' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'accepted', by_group: 'test_group' })
     # stealing the review of king is not working
     post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=king&revert=1", 'try to kill it'
     assert_response 404
-    assert_xml_tag :tag => 'summary', :content => "Not an assigned review"
+    assert_xml_tag tag: 'summary', content: "Not an assigned review"
     # Iggy went home without telling....
     post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=Iggy&revert=1", 'ups, drop it again'
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_no_xml_tag(:tag => 'review', :attributes => { by_user: 'Iggy' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_group: 'test_group' })
+    assert_no_xml_tag(tag: 'review', attributes: { by_user: 'Iggy' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'king' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_group: 'test_group' })
 
     # adrian assigns to adrian_downloader
     login_adrian
     get "/request/#{id}"
     assert_response :success
-    assert_no_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'adrian_downloader' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_group: 'test_group' })
+    assert_no_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'adrian_downloader' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'king' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_group: 'test_group' })
     post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=adrian_downloader", 'adrian_downloader, please have a look'
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'adrian_downloader' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'adrian_downloader' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'king' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'accepted', by_group: 'test_group' })
 
     login_adrian_downloader
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian_downloader"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_user: 'adrian_downloader' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'accepted', by_user: 'adrian_downloader' })
 
     # adrian_downloader assigns to himself
     post "/request/#{id}?by_group=test_group_b&cmd=assignreview&reviewer=adrian_downloader", 'I will work on it as well'
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'adrian_downloader' })
-    assert_no_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_user: 'adrian_downloader' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'adrian_downloader' })
+    assert_no_xml_tag(tag: 'review', attributes: { state: 'accepted', by_user: 'adrian_downloader' })
 
     # ah, no.....
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=adrian_downloader"
@@ -1081,10 +1081,10 @@ XML
     # validate
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'declined' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'declined', by_user: 'adrian_downloader' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group_b' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'declined' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'declined', by_user: 'adrian_downloader' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'accepted', by_group: 'test_group' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'accepted', by_group: 'test_group_b' })
   end
 
   def test_change_review_state_after_leaving_review_phase
@@ -1092,7 +1092,7 @@ XML
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -1103,14 +1103,14 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_user: 'tom' })
+    assert_xml_tag(tag: 'review', attributes: { by_user: 'tom' })
 
     # add reviewer group
     post "/request/#{id}?cmd=addreview&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
+    assert_xml_tag(tag: 'review', attributes: { by_group: 'test_group' })
 
     login_adrian
     post "/request/#{id}?newstate=new&by_group=test_group&cmd=changereviewstate", 'adrian is looking'
@@ -1124,32 +1124,32 @@ XML
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'declined' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'declined', by_user: 'tom' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_group: 'test_group' },
+    assert_xml_tag(tag: 'state', attributes: { name: 'declined' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'declined', by_user: 'tom' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_group: 'test_group' },
                    child: { tag: 'comment', content: 'adrian does not care' })
 
     # change review not permitted anymore
     login_tom
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_group=test_group"
     assert_response 403
-    assert_xml_tag :tag => 'status', :attributes => { code: 'review_change_state_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'review_change_state_no_permission' }
 
     # search this request and verify that all reviews got rendered.
-    get '/search/request', :match => "[@id=#{id}]"
+    get '/search/request', match: "[@id=#{id}]"
     assert_response :success
-    get '/search/request', :match => "[review/@by_user='adrian']"
+    get '/search/request', match: "[review/@by_user='adrian']"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_user: 'adrian' })
-    assert_xml_tag(:tag => 'review', :attributes => { by_user: 'tom' })
-    assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
+    assert_xml_tag(tag: 'review', attributes: { by_user: 'adrian' })
+    assert_xml_tag(tag: 'review', attributes: { by_user: 'tom' })
+    assert_xml_tag(tag: 'review', attributes: { by_group: 'test_group' })
   end
 
   def test_search_by_creator
     login_Iggy
-    get '/search/request', :match => "@creator='Iggy'"
+    get '/search/request', match: "@creator='Iggy'"
     assert_response :success
-    assert_xml_tag(tag: "request", :attributes => {id: "6", creator: "Iggy"})
+    assert_xml_tag(tag: "request", attributes: {id: "6", creator: "Iggy"})
   end
 
   def test_search_and_involved_requests
@@ -1159,8 +1159,8 @@ XML
     login_Iggy
     post '/request?cmd=create', req
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'request_save_error' })
-    assert_xml_tag(:tag => 'summary', :content => "Admin permissions required to set request creator to foreign user")
+    assert_xml_tag(tag: 'status', attributes: { code: 'request_save_error' })
+    assert_xml_tag(tag: 'summary', content: "Admin permissions required to set request creator to foreign user")
 
     # make sure there is at least one request
     login_tom
@@ -1173,41 +1173,41 @@ XML
     login_king
     put("/request/#{id}", load_backend_file('request/1'))
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { who: 'tom' })
+    assert_xml_tag(tag: 'state', attributes: { who: 'tom' })
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'request', :attributes => { id: id })
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new', who: 'tom' })
+    assert_xml_tag(tag: 'request', attributes: { id: id })
+    assert_xml_tag(tag: 'state', attributes: { name: 'new', who: 'tom' })
 
     # via GET
     login_Iggy
-    get '/search/request', :match => "(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')"
+    get '/search/request', match: "(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')"
     assert_response :success
-    assert_xml_tag(:tag => 'request', :attributes => { id: id })
+    assert_xml_tag(tag: 'request', attributes: { id: id })
 
     # via POST
     post '/search/request', URI.encode("match=(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')")
     assert_response :success
-    assert_xml_tag(:tag => 'request', :attributes => { id: id })
+    assert_xml_tag(tag: 'request', attributes: { id: id })
 
     # search history
-    get '/search/request', :match => "history/@who='Iggy'"
+    get '/search/request', match: "history/@who='Iggy'"
     assert_response :success
-    assert_no_xml_tag(:tag => 'history')
-    get '/search/request', :match => "history/@who='Iggy'", :withhistory => "1"
+    assert_no_xml_tag(tag: 'history')
+    get '/search/request', match: "history/@who='Iggy'", withhistory: "1"
     assert_response :success
-    assert_xml_tag(:tag => 'history', :attributes => { who: "Iggy" })
+    assert_xml_tag(tag: 'history', attributes: { who: "Iggy" })
 
     # test "osc rq"
-    get '/search/request', :match => "(state/@who='tom' or history/@who='tom')"
+    get '/search/request', match: "(state/@who='tom' or history/@who='tom')"
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 6 }
 
     # old style listing
     get '/request'
     assert_response :success
-    assert_xml_tag(:tag => 'directory', :child => { tag: 'entry' })
+    assert_xml_tag(tag: 'directory', child: { tag: 'entry' })
 
     # collection view
     get '/request?view=collection'
@@ -1216,41 +1216,41 @@ XML
     # collection of user involved requests
     get '/request?view=collection&user=Iggy&states=new,review'
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
     if $ENABLE_BROKEN_TEST
       # FIXME there is no code in this test creating request from HiddenProject
 
-      assert_xml_tag(:tag => 'source', :attributes => { project: 'HiddenProject', package: 'pack' })
+      assert_xml_tag(tag: 'source', attributes: { project: 'HiddenProject', package: 'pack' })
     end
 
     # collection for given package
     get '/request?view=collection&project=kde4&package=wpa_supplicant&states=new,review'
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-    assert_xml_tag(:tag => 'collection', :attributes => { matches: '1' })
-    assert_xml_tag(:tag => 'target', :attributes => { project: 'kde4', package: 'wpa_supplicant' })
-    assert_xml_tag(:tag => 'request', :attributes => { id: id })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: 'collection', attributes: { matches: '1' })
+    assert_xml_tag(tag: 'target', attributes: { project: 'kde4', package: 'wpa_supplicant' })
+    assert_xml_tag(tag: 'request', attributes: { id: id })
 
     # collection for given project
     get '/request?view=collection&project=kde4&states=new,review'
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-    assert_xml_tag(:tag => 'collection', :attributes => { matches: '4' })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: 'collection', attributes: { matches: '4' })
 
     # tom searches for all request of adrian, but adrian has one in a hidden project which must not be viewable ...
     login_tom
     get '/request?view=collection&user=adrian&states=new,review'
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-    assert_no_xml_tag(:tag => 'target', :attributes => { project: 'HiddenProject' })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_no_xml_tag(tag: 'target', attributes: { project: 'HiddenProject' })
 
     if $ENABLE_BROKEN_TEST
       # ... but adrian gets it
       login_adrian
       get '/request?view=collection&user=adrian&states=new,review'
       assert_response :success
-      assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-      assert_xml_tag(:tag => 'target', :attributes => { project: 'HiddenProject' })
+      assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+      assert_xml_tag(tag: 'target', attributes: { project: 'HiddenProject' })
     end
   end
 
@@ -1259,7 +1259,7 @@ XML
 
     get '/source/home:Iggy/TestPack/_meta'
     assert_response :success
-    assert_no_xml_tag :tag => 'devel', :attributes => { project: 'BaseDistro', package: 'pack1' }
+    assert_no_xml_tag tag: 'devel', attributes: { project: 'BaseDistro', package: 'pack1' }
     oldmeta=@response.body
 
     rq = '<request>
@@ -1301,7 +1301,7 @@ XML
 
     get '/source/home:Iggy/TestPack/_meta'
     assert_response :success
-    assert_xml_tag :tag => 'devel', :attributes => { project: 'BaseDistro', package: 'pack1' }
+    assert_xml_tag tag: 'devel', attributes: { project: 'BaseDistro', package: 'pack1' }
 
     # try to create delete request
     rq = '<request>
@@ -1343,7 +1343,7 @@ XML
     post '/request?cmd=create', rq
     assert_response 403
     assert_match(/Go Away/, @response.body)
-    assert_xml_tag :tag => 'status', :attributes => { code: 'request_rejected' }
+    assert_xml_tag tag: 'status', attributes: { code: 'request_rejected' }
 
     # just for submit actions
     post '/source/home:Iggy/_attribute', "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>No Submits</value> <value>submit</value> </attribute> </attributes>"
@@ -1351,7 +1351,7 @@ XML
     post '/request?cmd=create', rq
     assert_response 403
     assert_match(/No Submits/, @response.body)
-    assert_xml_tag :tag => 'status', :attributes => { code: 'request_rejected' }
+    assert_xml_tag tag: 'status', attributes: { code: 'request_rejected' }
     # but it works when blocking only for others
     post '/source/home:Iggy/_attribute', "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Submits welcome</value> <value>delete</value> <value>set_bugowner</value> </attribute> </attributes>"
     assert_response :success
@@ -1365,7 +1365,7 @@ XML
     post '/request?cmd=create', rq
     assert_response 403
     assert_match(/Package blocked/, @response.body)
-    assert_xml_tag :tag => 'status', :attributes => { code: 'request_rejected' }
+    assert_xml_tag tag: 'status', attributes: { code: 'request_rejected' }
     # remove project attribute lock
     delete '/source/home:Iggy/_attribute/OBS:RejectRequests'
     assert_response :success
@@ -1373,7 +1373,7 @@ XML
     post '/request?cmd=create', rq
     assert_response 403
     assert_match(/Package blocked/, @response.body)
-    assert_xml_tag :tag => 'status', :attributes => { code: 'request_rejected' }
+    assert_xml_tag tag: 'status', attributes: { code: 'request_rejected' }
 
     # just for submit actions
     post '/source/home:Iggy/TestPack/_attribute', "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>No Submits</value> <value>submit</value> </attribute> </attributes>"
@@ -1381,7 +1381,7 @@ XML
     post '/request?cmd=create', rq
     assert_response 403
     assert_match(/No Submits/, @response.body)
-    assert_xml_tag :tag => 'status', :attributes => { code: 'request_rejected' }
+    assert_xml_tag tag: 'status', attributes: { code: 'request_rejected' }
     # but it works when blocking only for others
     post '/source/home:Iggy/TestPack/_attribute', "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Submits welcome</value> <value>delete</value> <value>set_bugowner</value> </attribute> </attributes>"
     assert_response :success
@@ -1415,8 +1415,8 @@ XML
     # test that old style request got converted
     get "/request/#{id}"
     assert_response :success
-    assert_no_xml_tag :tag => 'submit'
-    assert_xml_tag :tag => 'action', :attributes => { type: 'submit' }
+    assert_no_xml_tag tag: 'submit'
+    assert_xml_tag tag: 'action', attributes: { type: 'submit' }
   end
 
   def test_submit_request_from_hidden_project_and_hidden_source
@@ -1471,7 +1471,7 @@ XML
 
   def test_auto_revoke_when_source_gets_removed_maintenance_incident
     login_tom
-    post '/source/kde4/kdebase', :cmd => :branch
+    post '/source/kde4/kdebase', cmd: :branch
     assert_response :success
     post '/request?cmd=create', '<request>
                                    <action type="maintenance_incident">
@@ -1497,7 +1497,7 @@ XML
     # request got automatically revoked
     get "/request/#{id1}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'revoked' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'revoked' })
 
     # test revoke
     login_adrian
@@ -1507,7 +1507,7 @@ XML
 
   def test_auto_revoke_when_source_gets_removed_submit
     login_tom
-    post '/source/kde4/kdebase', :cmd => :branch
+    post '/source/kde4/kdebase', cmd: :branch
     assert_response :success
     post '/request?cmd=create', '<request>
                                    <action type="submit">
@@ -1516,12 +1516,12 @@ XML
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_xml_tag(:tag => 'target', :attributes => { project: 'kde4', package: 'kdebase' })
+    assert_xml_tag(tag: 'target', attributes: { project: 'kde4', package: 'kdebase' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
 
-    post '/source/home:tom:branches:kde4/kdebase', :cmd => :branch
+    post '/source/home:tom:branches:kde4/kdebase', cmd: :branch
     assert_response :success
     post '/request?cmd=create', '<request>
                                    <action type="submit">
@@ -1530,7 +1530,7 @@ XML
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_xml_tag(:tag => 'target', :attributes => { project: 'home:tom:branches:kde4', package: 'kdebase' })
+    assert_xml_tag(tag: 'target', attributes: { project: 'home:tom:branches:kde4', package: 'kdebase' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     # id2 = node.value(:id)
@@ -1544,7 +1544,7 @@ XML
     # request got automatically revoked
     get "/request/#{id1}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'revoked' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'revoked' })
 
     # test decline and revoke
     login_adrian
@@ -1588,10 +1588,10 @@ XML
     login_tom
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
-    assert_xml_tag(:tag => 'review', :attributes => { by_project: 'home:Iggy', by_package: 'TestPack' })
-    assert_xml_tag(:tag => 'review', :attributes => { by_user: 'adrian' })
-    assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
+    assert_xml_tag(tag: 'request')
+    assert_xml_tag(tag: 'review', attributes: { by_project: 'home:Iggy', by_package: 'TestPack' })
+    assert_xml_tag(tag: 'review', attributes: { by_user: 'adrian' })
+    assert_xml_tag(tag: 'review', attributes: { by_group: 'test_group' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id_by_package = node.value(:id)
@@ -1599,31 +1599,31 @@ XML
     # find requests which are not in review
     get '/request?view=collection&user=Iggy&states=new'
     assert_response :success
-    assert_no_xml_tag(:tag => 'review', :attributes => { by_project: 'home:Iggy', by_package: 'TestPack' })
+    assert_no_xml_tag(tag: 'review', attributes: { by_project: 'home:Iggy', by_package: 'TestPack' })
     # find reviews
     get '/request?view=collection&user=Iggy&states=review&reviewstates=new&roles=reviewer'
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-    assert_xml_tag(:tag => 'review', :attributes => { by_project: 'home:Iggy', by_package: 'TestPack' })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: 'review', attributes: { by_project: 'home:Iggy', by_package: 'TestPack' })
 
     # test search via xpath as well
-    get '/search/request', :match => "state/@name='review' and review[@by_project='home:Iggy' and @state='new']"
+    get '/search/request', match: "state/@name='review' and review[@by_project='home:Iggy' and @state='new']"
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-    assert_xml_tag(:tag => 'review', :attributes => { by_project: 'home:Iggy', by_package: 'TestPack' })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: 'review', attributes: { by_project: 'home:Iggy', by_package: 'TestPack' })
 
     # create request by maintainer
     login_Iggy
     req = load_backend_file('request/submit_without_target')
     post '/request?cmd=create', req
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_target_project' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_target_project' })
 
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
-    assert_no_xml_tag(:tag => 'review', :attributes => { by_project: 'home:Iggy', by_package: 'TestPack' })
+    assert_xml_tag(tag: 'request')
+    assert_no_xml_tag(tag: 'review', attributes: { by_project: 'home:Iggy', by_package: 'TestPack' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -1632,27 +1632,27 @@ XML
     login_tom
     post "/request/#{id}?cmd=addreview&by_user=adrian"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'add_review_not_permitted' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'add_review_not_permitted' })
 
     login_Iggy
     post "/request/#{id}?cmd=addreview&by_user=tom"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_user: 'tom' })
+    assert_xml_tag(tag: 'review', attributes: { by_user: 'tom' })
 
     login_tom
     post "/request/#{id}?cmd=addreview&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
+    assert_xml_tag(tag: 'review', attributes: { by_group: 'test_group' })
 
     # test search via xpath as well
-    get '/search/request', :match => "state/@name='review' and review[@by_group='test_group' and @state='new']"
+    get '/search/request', match: "state/@name='review' and review[@by_group='test_group' and @state='new']"
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-    assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: 'review', attributes: { by_group: 'test_group' })
 
     # invalid review, by_project is missing
     post "/request/#{id}?cmd=addreview&by_package=kdelibs"
@@ -1662,13 +1662,13 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_project: 'kde4', by_package: 'kdelibs' })
+    assert_xml_tag(tag: 'review', attributes: { by_project: 'kde4', by_package: 'kdelibs' })
 
     post "/request/#{id}?cmd=addreview&by_project=home:tom"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { by_project: 'home:tom', by_package: nil })
+    assert_xml_tag(tag: 'review', attributes: { by_project: 'home:tom', by_package: nil })
 
     # and revoke it
     reset_auth
@@ -1689,7 +1689,7 @@ XML
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'revoked' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'revoked' })
 
     # decline by_package review
     reset_auth
@@ -1706,17 +1706,17 @@ XML
 
     get "/request/#{id_by_package}"
     assert_response :success
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'declined', by_project: 'home:Iggy', by_package: 'TestPack', who: 'Iggy' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'adrian' })
-    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_group: 'test_group' })
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'declined' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'declined', by_project: 'home:Iggy', by_package: 'TestPack', who: 'Iggy' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'adrian' })
+    assert_xml_tag(tag: 'review', attributes: { state: 'new', by_group: 'test_group' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'declined' })
 
     # reopen with new, but state should become review due to open review
     post "/request/#{id}?cmd=changestate&newstate=new"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'review' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'review' })
   end
 
   def test_submit_cleanup_in_not_writable_source
@@ -1734,7 +1734,7 @@ XML
             </request>"
       post '/request?cmd=create', req
       assert_response 403
-      assert_xml_tag(:tag => 'status', :attributes => { code: 'lacking_maintainership' })
+      assert_xml_tag(tag: 'status', attributes: { code: 'lacking_maintainership' })
     end
 
     req = "<request>
@@ -1749,7 +1749,7 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'lacking_maintainership' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'lacking_maintainership' })
   end
 
   def test_makeoriginolder_request
@@ -1791,10 +1791,10 @@ XML
     login_Iggy
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=But+I+want+it"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'post_request_no_permission' })
     post "/request/#{id}?cmd=changestate&newstate=accepted&force=1&comment=But+I+want+it"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'post_request_no_permission' })
 
     delete '/source/home:Iggy:Apache'
     assert_response :success
@@ -1803,7 +1803,7 @@ XML
   def test_reopen_a_review_declined_request
     %w(new review).each do |newstate|
       login_Iggy
-      post '/source/Apache/apache2', :cmd => :branch
+      post '/source/Apache/apache2', cmd: :branch
       assert_response :success
 
       # do a commit
@@ -1818,7 +1818,7 @@ XML
             </request>"
       post '/request?cmd=create', req
       assert_response :success
-      assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+      assert_xml_tag(tag: 'state', attributes: { name: 'new' })
       node = ActiveXML::Node.new(@response.body)
       assert node.has_attribute?(:id)
       id = node.value(:id)
@@ -1828,7 +1828,7 @@ XML
       assert_response :success
       get "/request/#{id}"
       assert_response :success
-      assert_xml_tag(:tag => 'review', :attributes => { by_user: 'fred' })
+      assert_xml_tag(tag: 'review', attributes: { by_user: 'fred' })
 
       # reviewer declines
       login_fred
@@ -1836,7 +1836,7 @@ XML
       assert_response :success
       get "/request/#{id}"
       assert_response :success
-      assert_xml_tag(:tag => 'review', :attributes => { state: 'declined', by_user: 'fred' })
+      assert_xml_tag(tag: 'review', attributes: { state: 'declined', by_user: 'fred' })
 
       # reopen it again and validate that the request opens the review as well
       login_Iggy
@@ -1844,8 +1844,8 @@ XML
       assert_response :success
       get "/request/#{id}"
       assert_response :success
-      assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'fred' })
-      assert_xml_tag(:tag => 'state', :attributes => { name: 'review' })
+      assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'fred' })
+      assert_xml_tag(tag: 'state', attributes: { name: 'review' })
 
       # cleanup
       delete '/source/home:Iggy:branches:Apache'
@@ -1855,7 +1855,7 @@ XML
 
   def test_reopen_revoked_and_declined_request
     login_Iggy
-    post '/source/Apache/apache2', :cmd => :branch
+    post '/source/Apache/apache2', cmd: :branch
     assert_response :success
 
     # do a commit
@@ -1870,7 +1870,7 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'new' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -1880,7 +1880,7 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'revoked' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'revoked' })
 
     # and reopen it as a non-maintainer is not working
     login_adrian
@@ -1897,7 +1897,7 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'new' })
 
     # target is declining it
     login_fred
@@ -1905,20 +1905,20 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'declined' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'declined' })
 
     # find it as I am the creator
     get '/request?view=collection&states=declined&roles=creator'
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-    assert_xml_tag(:tag => 'request', :attributes => { id: id })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: 'request', attributes: { id: id })
 
     # find it as another user
     login_adrian
     get '/request?view=collection&user=Iggy&states=declined&roles=creator'
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-    assert_xml_tag(:tag => 'request', :attributes => { id: id })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: 'request', attributes: { id: id })
 
     # and reopen it as a non-maintainer is not working
     post "/request/#{id}?cmd=changestate&newstate=new"
@@ -1930,7 +1930,7 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'new' })
 
     # cleanup
     login_Iggy
@@ -1943,7 +1943,7 @@ XML
     login_Iggy
 
     # create kdebase package
-    post '/source/kde4/kdebase', :cmd => :branch
+    post '/source/kde4/kdebase', cmd: :branch
     assert_response :success
     post '/request?cmd=create', req
     assert_response :success
@@ -1954,7 +1954,7 @@ XML
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
-    assert_xml_tag(:tag => 'review', :attributes => { by_user: 'adrian', state: 'new' })
+    assert_xml_tag(tag: 'review', attributes: { by_user: 'adrian', state: 'new' })
 
     # do not accept request in review state
     get "/request/#{id}"
@@ -1969,44 +1969,44 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'review' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'review' })
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'review' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'review' })
 
     # a review has been added because we are not maintainer of current devel package, accept it.
     login_king
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'review' })
-    assert_xml_tag(:tag => 'review', :attributes => { by_project: 'home:coolo:test', by_package: 'kdelibs_DEVEL_package' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'review' })
+    assert_xml_tag(tag: 'review', attributes: { by_project: 'home:coolo:test', by_package: 'kdelibs_DEVEL_package' })
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'new' })
 
     # reopen the review
     login_tom
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_group=INEXISTENT"
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' })
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=INEXISTENT"
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' })
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'review' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'review' })
     # and accept it again
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_project=home:coolo:test&by_package=kdelibs_DEVEL_package", nil
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'new' })
 
     # validate our existing test data and fixtures
     login_king
@@ -2018,15 +2018,15 @@ XML
     assert_response 404
     get '/source/kde4/_meta'
     assert_response :success
-    assert_no_xml_tag(:tag => 'person', :attributes => { userid: 'Iggy', role: 'bugowner' })
-    assert_no_xml_tag(:tag => 'person', :attributes => { userid: 'Iggy', role: 'maintainer' })
-    assert_no_xml_tag(:tag => 'group', :attributes => { groupid: 'test_group', role: 'reader' })
+    assert_no_xml_tag(tag: 'person', attributes: { userid: 'Iggy', role: 'bugowner' })
+    assert_no_xml_tag(tag: 'person', attributes: { userid: 'Iggy', role: 'maintainer' })
+    assert_no_xml_tag(tag: 'group', attributes: { groupid: 'test_group', role: 'reader' })
     get '/source/kde4/kdelibs/_meta'
     assert_response :success
-    assert_no_xml_tag(:tag => 'devel', :attributes => { project: 'home:Iggy', package: 'TestPack' })
-    assert_no_xml_tag(:tag => 'person', :attributes => { userid: 'Iggy', role: 'bugowner' })
-    assert_no_xml_tag(:tag => 'person', :attributes => { userid: 'Iggy', role: 'maintainer' })
-    assert_no_xml_tag(:tag => 'group', :attributes => { groupid: 'test_group', role: 'reader' })
+    assert_no_xml_tag(tag: 'devel', attributes: { project: 'home:Iggy', package: 'TestPack' })
+    assert_no_xml_tag(tag: 'person', attributes: { userid: 'Iggy', role: 'bugowner' })
+    assert_no_xml_tag(tag: 'person', attributes: { userid: 'Iggy', role: 'maintainer' })
+    assert_no_xml_tag(tag: 'group', attributes: { groupid: 'test_group', role: 'reader' })
 
     # Successful accept the request
     login_fred
@@ -2036,7 +2036,7 @@ XML
     # Validate the executed actions
     get '/source/home:Iggy:branches:kde4/BranchPack/_link'
     assert_response :success
-    assert_xml_tag :tag => 'link', :attributes => { project: 'kde4', package: 'Testing' }
+    assert_xml_tag tag: 'link', attributes: { project: 'kde4', package: 'Testing' }
     get '/source/home:Iggy/ToBeDeletedTestPack'
     assert_response 404
     get '/source/home:fred:DeleteProject'
@@ -2045,23 +2045,23 @@ XML
     assert_response :success
     get '/source/kde4/_meta'
     assert_response :success
-    assert_xml_tag(:tag => 'person', :attributes => { userid: 'Iggy', role: 'bugowner' })
-    assert_xml_tag(:tag => 'person', :attributes => { userid: 'Iggy', role: 'maintainer' })
-    assert_xml_tag(:tag => 'group', :attributes => { groupid: 'test_group', role: 'reader' })
+    assert_xml_tag(tag: 'person', attributes: { userid: 'Iggy', role: 'bugowner' })
+    assert_xml_tag(tag: 'person', attributes: { userid: 'Iggy', role: 'maintainer' })
+    assert_xml_tag(tag: 'group', attributes: { groupid: 'test_group', role: 'reader' })
     get '/source/kde4/kdelibs/_meta'
     assert_response :success
-    assert_xml_tag(:tag => 'devel', :attributes => { project: 'home:Iggy', package: 'TestPack' })
-    assert_xml_tag(:tag => 'person', :attributes => { userid: 'Iggy', role: 'bugowner' })
-    assert_xml_tag(:tag => 'person', :attributes => { userid: 'Iggy', role: 'maintainer' })
-    assert_xml_tag(:tag => 'group', :attributes => { groupid: 'test_group', role: 'reader' })
+    assert_xml_tag(tag: 'devel', attributes: { project: 'home:Iggy', package: 'TestPack' })
+    assert_xml_tag(tag: 'person', attributes: { userid: 'Iggy', role: 'bugowner' })
+    assert_xml_tag(tag: 'person', attributes: { userid: 'Iggy', role: 'maintainer' })
+    assert_xml_tag(tag: 'group', attributes: { groupid: 'test_group', role: 'reader' })
 
     # cleanup
     login_king
     delete '/source/kde4/Testing'
     assert_response :success
-    post '/source/home:fred:DeleteProject', :cmd => "undelete"
+    post '/source/home:fred:DeleteProject', cmd: "undelete"
     assert_response :success
-    post '/source/home:Iggy/ToBeDeletedTestPack', :cmd => "undelete"
+    post '/source/home:Iggy/ToBeDeletedTestPack', cmd: "undelete"
     assert_response :success
   end
 
@@ -2073,7 +2073,7 @@ XML
     assert_response :success
     # we upload 2 and 2 default reviewers are added
     assert_xml_tag(children: { only: { tag: 'review' }, count: 4 })
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'review' }, :parent => { tag: 'request' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'review' }, parent: { tag: 'request' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -2081,7 +2081,7 @@ XML
     # test search
     get '/request?view=collection&group=test_group&states=new,review'
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
     # be sure we have not 2 invalidating the limit test
     assert_no_xml_tag(tag: "collection", attributes: { matches: 2 })
 
@@ -2122,22 +2122,22 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'review' },
-                   :parent => { tag: 'request' }) # remains in review state
+    assert_xml_tag(tag: 'state', attributes: { name: 'review' },
+                   parent: { tag: 'request' }) # remains in review state
 
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'review' },
-                   :parent => { tag: 'request' }) # switch to new after last review
+    assert_xml_tag(tag: 'state', attributes: { name: 'review' },
+                   parent: { tag: 'request' }) # switch to new after last review
 
     # approve accepted and check initialized devel package
     post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get '/source/kde4/Testing/_meta'
     assert_response :success
-    assert_xml_tag(:tag => 'devel', :attributes => { project: 'home:Iggy', package: 'TestPack' })
+    assert_xml_tag(tag: 'devel', attributes: { project: 'home:Iggy', package: 'TestPack' })
 
     # cleanup
     login_king
@@ -2159,15 +2159,15 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'review' })
-    assert_xml_tag(:tag => 'review', :attributes => { by_project: 'BaseDistro2.0', by_package: 'pack2' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'review' })
+    assert_xml_tag(tag: 'review', attributes: { by_project: 'BaseDistro2.0', by_package: 'pack2' })
 
     # set project to approve it
     login_king
@@ -2185,15 +2185,15 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
-    assert_no_xml_tag(:tag => 'review', :attributes => { by_project: 'BaseDistro2.0', by_package: 'pack2' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'new' })
+    assert_no_xml_tag(tag: 'review', attributes: { by_project: 'BaseDistro2.0', by_package: 'pack2' })
 
     # cleanup attribute
     login_king
@@ -2209,7 +2209,7 @@ XML
 
     # branch a package which does not exist in project, but project is linked
     login_tom
-    post '/source/DummY/pack2', :cmd => :branch
+    post '/source/DummY/pack2', cmd: :branch
     assert_response :success
 
     # check source link
@@ -2249,7 +2249,7 @@ XML
 
     # now link package inside, so sources are unchanged
     login_king
-    post '/source/BaseDistro2.0/pack2', :cmd => :branch, :target_project => "DummY"
+    post '/source/BaseDistro2.0/pack2', cmd: :branch, target_project: "DummY"
     assert_response :success
     login_tom
     req = "<request>
@@ -2265,7 +2265,7 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { :code => "missing_action" })
+    assert_xml_tag(tag: 'status', attributes: { code: "missing_action" })
     req = "<request>
             <action type='submit'>
               <source project='RemoteInstance:home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
@@ -2279,7 +2279,7 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { :code => "missing_action" })
+    assert_xml_tag(tag: 'status', attributes: { code: "missing_action" })
 
     # create request to a different place works
     req = "<request>
@@ -2356,7 +2356,7 @@ XML
 
     # branch a package which does not exist in project, but project is linked
     login_tom
-    post '/source/DummY/pack2', :cmd => :branch
+    post '/source/DummY/pack2', cmd: :branch
     assert_response :success
 
     # check source link
@@ -2384,7 +2384,7 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)
     id = node['id']
     assert id.present?
@@ -2396,17 +2396,17 @@ XML
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'accepted' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'accepted' })
 
     get '/source/DummY/pack2/_history'
     assert_response :success
-    assert_xml_tag(:parent => { tag: 'revision' }, :tag => 'comment', :content => 'SUBMIT')
-    assert_xml_tag(:parent => { tag: 'revision' }, :tag => 'requestid', :content => id)
+    assert_xml_tag(parent: { tag: 'revision' }, tag: 'comment', content: 'SUBMIT')
+    assert_xml_tag(parent: { tag: 'revision' }, tag: 'requestid', content: id)
 
     # pack2 got created
     get '/source/DummY/pack2/_link'
     assert_response :success
-    assert_xml_tag(:tag => 'link', :attributes => { project: 'BaseDistro2.0', package: nil })
+    assert_xml_tag(tag: 'link', attributes: { project: 'BaseDistro2.0', package: nil })
 
     ### try again with update link
     # do some modification
@@ -2426,7 +2426,7 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)
     id = node['id']
     assert id.present?
@@ -2434,7 +2434,7 @@ XML
     # ensure that the diff shows the link change
     post "/request/#{id}?cmd=diff&view=xml", nil
     assert_response :success
-    assert_xml_tag(:parent => { tag: 'file', attributes: { state: 'changed' } }, :tag => 'old', :attributes => { name: '_link' })
+    assert_xml_tag(parent: { tag: 'file', attributes: { state: 'changed' } }, tag: 'old', attributes: { name: '_link' })
 
     # accept the request
     login_king
@@ -2444,18 +2444,18 @@ XML
     # the link in pack2 got changed
     get '/source/DummY/pack2/_link'
     assert_response :success
-    assert_xml_tag(:tag => 'link', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: nil })
+    assert_xml_tag(tag: 'link', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: nil })
 
     # the diff is still working due to acceptinfo
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:parent => { tag: 'action', attributes: { type: 'submit' } }, :tag => 'acceptinfo', :attributes => { rev: '3' })
+    assert_xml_tag(parent: { tag: 'action', attributes: { type: 'submit' } }, tag: 'acceptinfo', attributes: { rev: '3' })
     post "/request/#{id}?cmd=diff", nil
     assert_response :success
     assert_match 'NEW_FILE', @response.body
     post "/request/#{id}?cmd=diff&view=xml", nil
     assert_response :success
-    assert_xml_tag(:parent => { tag: 'file', attributes: { state: 'changed' } }, :tag => 'new', :attributes => { name: 'NEW_FILE' })
+    assert_xml_tag(parent: { tag: 'file', attributes: { state: 'changed' } }, tag: 'new', attributes: { name: 'NEW_FILE' })
 
     # create request
     req = "<request>
@@ -2472,7 +2472,7 @@ XML
           </request>"
     post '/request?cmd=create&addrevision=1', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)
     id = node['id']
     assert id.present?
@@ -2480,7 +2480,7 @@ XML
     # ensure that the diff shows the link change
     post "/request/#{id}?cmd=diff&view=xml", nil
     assert_response :success
-    assert_xml_tag(:parent => { tag: 'file', attributes: { state: 'added' } }, :tag => 'new', :attributes => { name: '_link' })
+    assert_xml_tag(parent: { tag: 'file', attributes: { state: 'added' } }, tag: 'new', attributes: { name: '_link' })
 
     # accept the request
     login_king
@@ -2490,7 +2490,7 @@ XML
     # the link got transfered
     get '/source/DummY/pack2.NEW/_link'
     assert_response :success
-    assert_xml_tag(:tag => 'link', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: nil })
+    assert_xml_tag(tag: 'link', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: nil })
 
     ###
     # create delete request two times
@@ -2507,19 +2507,19 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)
     id = node['id']
     assert id.present?
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)
     id2 = node['id']
     assert id2.present?
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)
     id3 = node['id']
     assert id3.present?
@@ -2530,36 +2530,36 @@ XML
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'accepted' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'accepted' })
 
     # validate result
     get '/source/DummY/pack2/_meta'
     assert_response :success
-    assert_xml_tag(:tag => 'package', :attributes => { project: 'BaseDistro2.0', name: 'pack2' })
+    assert_xml_tag(tag: 'package', attributes: { project: 'BaseDistro2.0', name: 'pack2' })
     get '/source/DummY/pack2/_history?deleted=1'
     assert_response :success
-    assert_xml_tag(:parent => { tag: 'revision' }, :tag => 'comment', :content => 'DELETE REQUEST')
-    assert_xml_tag(:parent => { tag: 'revision' }, :tag => 'requestid', :content => id)
+    assert_xml_tag(parent: { tag: 'revision' }, tag: 'comment', content: 'DELETE REQUEST')
+    assert_xml_tag(parent: { tag: 'revision' }, tag: 'requestid', content: id)
 
     login_king
     # you can only accept request in state new
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'post_request_no_permission' })
 
     # you can only accept request in state new and with an existing target
     post "/request/#{id2}?cmd=changestate&newstate=new&force=1"
     assert_response :success
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_existing_target' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_existing_target' })
 
     # decline the request
     post "/request/#{id2}?cmd=changestate&newstate=declined"
     assert_response :success
     get "/request/#{id2}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'declined' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'declined' })
 
     # submitter is accepting the decline => revoke
     login_tom
@@ -2567,7 +2567,7 @@ XML
     assert_response :success
     get "/request/#{id2}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'revoked' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'revoked' })
 
     # try to decline it again after revoke
     login_king
@@ -2580,7 +2580,7 @@ XML
     assert_response :success
     get "/request/#{id3}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'revoked' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'revoked' })
 
     # cleanup
     login_king
@@ -2607,20 +2607,20 @@ XML
     post '/request?cmd=create', req
     # user has no write permission in target
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'post_request_no_permission' })
 
     # works as user with write permission in target
     login_Iggy
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)
     id = node['id']
     assert id.present?
     # and a second request
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)
     id2 = node['id']
     assert id.present?
@@ -2628,7 +2628,7 @@ XML
     # correct rendered
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'accept_at', :content => '2010-07-13 14:00:21 UTC')
+    assert_xml_tag(tag: 'accept_at', content: '2010-07-13 14:00:21 UTC')
 
     # but not when the time is yesterday
     req = "<request>
@@ -2641,8 +2641,8 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'request_save_error' })
-    assert_xml_tag(:tag => 'summary', :content => "Auto accept time is in the past")
+    assert_xml_tag(tag: 'status', attributes: { code: 'request_save_error' })
+    assert_xml_tag(tag: 'summary', content: "Auto accept time is in the past")
 
     # now time travel and accept
     Timecop.freeze(2.days)
@@ -2652,7 +2652,7 @@ XML
 
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'accept_at', :content => '2010-07-13 14:00:21 UTC')
+    assert_xml_tag(tag: 'accept_at', content: '2010-07-13 14:00:21 UTC')
     assert_xml_tag(tag: 'state', attributes: { name: 'accepted', when: '2010-07-14T00:00:00', who: 'Iggy' })
 
     # and now check that the package is gone indeed
@@ -2663,7 +2663,7 @@ XML
     get "/request/#{id2}"
     assert_response :success
     assert_xml_tag(tag: 'state', attributes: { name: 'revoked', when: '2010-07-14T00:00:00', who: 'Iggy' })
-    assert_xml_tag(:tag => 'comment', :content => 'Permission problem')
+    assert_xml_tag(tag: 'comment', content: 'Permission problem')
 
     # good, now revive to fix the state of the union
     post '/source/home:Iggy/TestPack?cmd=undelete'
@@ -2687,7 +2687,7 @@ XML
     login_Iggy
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)
     id = node['id']
     assert id.present?
@@ -2699,7 +2699,7 @@ XML
     # correct rendered
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'accept_at', :content => '2010-07-12 00:00:00 UTC')
+    assert_xml_tag(tag: 'accept_at', content: '2010-07-12 00:00:00 UTC')
 
     # modify accept time
     post "/request/#{id}?cmd=setacceptat&time='2013-12-01%2000:00:00%20UTC'"
@@ -2708,13 +2708,13 @@ XML
     # correct rendered
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'accept_at', :content => '2013-12-01 00:00:00 UTC')
+    assert_xml_tag(tag: 'accept_at', content: '2013-12-01 00:00:00 UTC')
   end
 
   def test_branch_version_update_and_submit_request_back
     # branch a package which does not exist in project, but project is linked
     login_tom
-    post '/source/home:Iggy/TestPack', :cmd => :branch
+    post '/source/home:Iggy/TestPack', cmd: :branch
     assert_response :success
 
     # version update
@@ -2726,8 +2726,8 @@ XML
 
     get '/source/home:tom:branches:home:Iggy/TestPack?view=info&parse=1'
     assert_response :success
-    assert_xml_tag(:tag => 'version', :content => '2.42')
-    assert_xml_tag(:tag => 'release', :content => '1')
+    assert_xml_tag(tag: 'version', content: '2.42')
+    assert_xml_tag(tag: 'release', content: '1')
 
     get '/source/home:tom:branches:home:Iggy/TestPack?expand=1'
     assert_response :success
@@ -2748,7 +2748,7 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
@@ -2760,8 +2760,8 @@ XML
     assert_response :success
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
-    assert_xml_tag(:tag => 'summary', :content => 'Request is not in new state. You may reopen it by setting it to new.')
+    assert_xml_tag(tag: 'status', attributes: { code: 'post_request_no_permission' })
+    assert_xml_tag(tag: 'summary', content: 'Request is not in new state. You may reopen it by setting it to new.')
     # reopen and accept the request
     post "/request/#{id}?cmd=changestate&newstate=new"
     assert_response :success
@@ -2770,8 +2770,8 @@ XML
 
     get '/source/home:Iggy/TestPack?view=info&parse=1'
     assert_response :success
-    assert_xml_tag(:tag => 'version', :content => '2.42')
-    assert_xml_tag(:tag => 'release', :content => '1')
+    assert_xml_tag(tag: 'version', content: '2.42')
+    assert_xml_tag(tag: 'release', content: '1')
 
     # vrev must not get smaller after accept
     get '/source/home:tom:branches:home:Iggy/TestPack?expand=1'
@@ -2796,7 +2796,7 @@ XML
     prepare_request_with_user 'sourceaccess_homer', 'buildservice'
     post '/request?cmd=create', load_backend_file('request/from_source_protected_valid')
     assert_response :success
-    assert_xml_tag(:tag => 'request')
+    assert_xml_tag(tag: 'request')
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
@@ -2838,7 +2838,7 @@ XML
   def test_create_request_to_hidden_package_from_open_place_invalid_user
     request_hidden('Iggy', 'buildservice', 'request/to_hidden_from_open_invalid')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_project' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_project' })
   end
 
   ## create request to hidden package from hidden place - valid user - success
@@ -2848,14 +2848,14 @@ XML
     assert_response :success
     request_hidden('adrian', 'buildservice', 'request/to_hidden_from_hidden_valid')
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'new' })
   end
 
   ## create request to hidden package from hidden place - invalid user - fail
   def test_create_request_to_hidden_package_from_hidden_place_invalid_user
     request_hidden('Iggy', 'buildservice', 'request/to_hidden_from_hidden_invalid')
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_project' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_project' })
   end
 
   # requests from Hidden to external
@@ -2925,10 +2925,10 @@ XML
     # validate setup for this check
     get '/source/home:Iggy/_meta'
     assert_response :success
-    assert_no_xml_tag(:tag => 'person', :attributes => { userid: 'fred', role: 'maintainer' })
+    assert_no_xml_tag(tag: 'person', attributes: { userid: 'fred', role: 'maintainer' })
     get '/source/home:Iggy/TestPack/_meta'
     assert_response :success
-    assert_xml_tag(:tag => 'person', :attributes => { userid: 'fred', role: 'maintainer' })
+    assert_xml_tag(tag: 'person', attributes: { userid: 'fred', role: 'maintainer' })
 
     # create request for package, which is maintained by fred
     post '/request?cmd=create', '<request>
@@ -2981,7 +2981,7 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'invalid_record' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_record' })
 
     req = "<request>
             <action type='submit'>
@@ -2993,7 +2993,7 @@ XML
           </request>"
     post '/request?cmd=create', req
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'invalid_record' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_record' })
   end
 
   def test_invalid_cleanup_use
@@ -3011,7 +3011,7 @@ XML
             <state who='Iggy' name='new'/>
           </request>"
     post '/request?cmd=create', req
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'invalid_record' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_record' })
   end
 
   def test_special_chars
@@ -3032,22 +3032,22 @@ XML
     id = node.value :id
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'target', :attributes => { project: 'c++', package: 'TestPack' })
+    assert_xml_tag(tag: 'target', attributes: { project: 'c++', package: 'TestPack' })
 
     get '/request?view=collection&user=Iggy&states=new,review'
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-    assert_xml_tag(:tag => 'target', :attributes => { project: 'c++', package: 'TestPack' })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: 'target', attributes: { project: 'c++', package: 'TestPack' })
 
     get '/request?view=collection&project=c%2b%2b&states=new,review'
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-    assert_xml_tag(:tag => 'target', :attributes => { project: 'c++', package: 'TestPack' })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: 'target', attributes: { project: 'c++', package: 'TestPack' })
 
     get '/request?view=collection&project=c%2b%2b&package=TestPack&states=new,review'
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
-    assert_xml_tag(:tag => 'target', :attributes => { project: 'c++', package: 'TestPack' })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: 'target', attributes: { project: 'c++', package: 'TestPack' })
   end
 
   def test_project_delete_request_with_pending
@@ -3060,15 +3060,15 @@ XML
      </repository>
      </project>"
 
-    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:Iggy:todo'), meta
+    put url_for(controller: :source, action: :update_project_meta, project: 'home:Iggy:todo'), meta
     assert_response :success
 
     meta="<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
-    put url_for(:controller => :source, :action => :update_package_meta, :project => 'home:Iggy:todo', :package => 'realfun'), meta
+    put url_for(controller: :source, action: :update_package_meta, project: 'home:Iggy:todo', package: 'realfun'), meta
     assert_response :success
 
     login_tom
-    post '/source/home:Iggy:todo/realfun', :cmd => 'branch'
+    post '/source/home:Iggy:todo/realfun', cmd: 'branch'
     assert_response :success
 
     # verify
@@ -3097,7 +3097,7 @@ XML
     # verify request number loging
     login_king
     get '/source/home:Iggy:todo/_project/_history?meta=1&deleted=1'
-    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'requestid', :content => iddelete)
+    assert_xml_tag(parent: { tag: 'revision' }, tag: 'requestid', content: iddelete)
     assert_response :success
 
     # cleanup
@@ -3113,7 +3113,7 @@ XML
 
     get '/source/BaseDistro:Update/pack1/_meta'
     assert_response :success
-    assert_xml_tag(:tag => 'package', :attributes => { project: 'BaseDistro' }) # it appears via project link
+    assert_xml_tag(tag: 'package', attributes: { project: 'BaseDistro' }) # it appears via project link
 
     # and create a request to wrong target
     %w(delete set_bugowner add_role change_devel).each do |at|
@@ -3128,7 +3128,7 @@ XML
 
       post '/request?cmd=create', rq
       assert_response 404
-      assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' })
+      assert_xml_tag(tag: 'status', attributes: { code: 'not_found' })
     end
   end
 
@@ -3141,15 +3141,15 @@ XML
      </repository>
      </project>"
 
-    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:Iggy:todo'), meta
+    put url_for(controller: :source, action: :update_project_meta, project: 'home:Iggy:todo'), meta
     assert_response :success
 
     meta="<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
-    put url_for(:controller => :source, :action => :update_package_meta, :project => 'home:Iggy:todo', :package => 'realfun'), meta
+    put url_for(controller: :source, action: :update_package_meta, project: 'home:Iggy:todo', package: 'realfun'), meta
     assert_response :success
 
     login_tom
-    post '/source/home:Iggy:todo/realfun', :cmd => 'branch'
+    post '/source/home:Iggy:todo/realfun', cmd: 'branch'
     assert_response :success
 
     # verify
@@ -3182,17 +3182,17 @@ XML
     # verify
     get '/source/home:Iggy:todo/_meta'
     assert_response :success
-    assert_no_xml_tag :tag => 'repository', :attributes => { name: 'base' }
+    assert_no_xml_tag tag: 'repository', attributes: { name: 'base' }
     get '/source/home:tom:branches:home:Iggy:todo/_meta'
     assert_response :success
-    assert_xml_tag :parent => { tag: 'repository', attributes: { name: 'base' } },
-                   :tag => 'path', :attributes => { project: 'deleted', repository: 'deleted' }
+    assert_xml_tag parent: { tag: 'repository', attributes: { name: 'base' } },
+                   tag: 'path', attributes: { project: 'deleted', repository: 'deleted' }
 
     # try again and fail
     login_Iggy
     post "/request/#{iddelete2}?cmd=changestate&newstate=accepted"
     assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'repository_missing' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'repository_missing' })
 
     # cleanup
     delete '/source/home:Iggy:todo'
@@ -3216,7 +3216,7 @@ XML
     # old admins can do that
     delete "/request/#{id}"
     assert_response 403
-    assert_xml_tag :tag => 'summary', :content => 'Requires admin privileges'
+    assert_xml_tag tag: 'summary', content: 'Requires admin privileges'
 
     login_king
     delete "/request/#{id}"
@@ -3240,7 +3240,7 @@ XML
     login_fred
     post "/request/#{id}?cmd=changestate&newstate=declined&comment=not+you"
     get "/request/#{id}"
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'declined' })
+    assert_xml_tag(tag: 'state', attributes: { name: 'declined' })
 
     # fred should be able to reopen
     post "/request/#{id}?cmd=changestate&newstate=new&comment=oh"
@@ -3369,12 +3369,12 @@ XML
     sprj = 'Apache'
     bprj = "home:king:branches:#{sprj}"
 
-    post "/source/#{sprj}/apache2", :cmd => :branch, :target_project => "#{bprj}"
+    post "/source/#{sprj}/apache2", cmd: :branch, target_project: "#{bprj}"
     assert_response :success
     put "/source/#{bprj}/apache2/dummy", "dummy"
     assert_response :success
 
-    post "/source/#{sprj}/Tidy", :cmd => :branch, :target_project => "#{bprj}"
+    post "/source/#{sprj}/Tidy", cmd: :branch, target_project: "#{bprj}"
     assert_response :success
     put "/source/#{bprj}/Tidy/dummy", "dummy"
     assert_response :success
@@ -3504,10 +3504,10 @@ XML
     assert !important.blank?
     Timecop.freeze(1)
 
-    get '/search/request', :match => "target/@project = 'home:Iggy'"
+    get '/search/request', match: "target/@project = 'home:Iggy'"
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
-                   :attributes => { :matches => 6 })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' },
+                   attributes: { matches: 6 })
     node = Xmlhash.parse(@response.body)
     assert_equal node['request'][0]['priority'], 'critical'
     assert_equal node['request'][1]['priority'], 'important'
@@ -3520,10 +3520,10 @@ XML
               <value>100</value>
             </attribute></attributes>"
     assert_response :success
-    get '/search/request', :match => "target/@project = 'home:Iggy'"
+    get '/search/request', match: "target/@project = 'home:Iggy'"
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
-                   :attributes => { :matches => 6 })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' },
+                   attributes: { matches: 6 })
     node = Xmlhash.parse(@response.body)
     assert_equal 'important', node['request'][0]['priority']
 
@@ -3532,10 +3532,10 @@ XML
               <value>100</value>
             </attribute></attributes>"
     assert_response :success
-    get '/search/request', :match => "target/@project = 'home:Iggy'"
+    get '/search/request', match: "target/@project = 'home:Iggy'"
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
-                   :attributes => { :matches => 6 })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' },
+                   attributes: { matches: 6 })
     node = Xmlhash.parse(@response.body)
     # they are equal, so important wins
     assert_equal 'important', node['request'][0]['priority']
@@ -3546,10 +3546,10 @@ XML
               <value>101</value>
             </attribute></attributes>"
     assert_response :success
-    get '/search/request', :match => "target/@project = 'home:Iggy'"
+    get '/search/request', match: "target/@project = 'home:Iggy'"
     assert_response :success
-    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
-                   :attributes => { :matches => 6 })
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' },
+                   attributes: { matches: 6 })
     node = Xmlhash.parse(@response.body)
     assert_equal 'low', node['request'][0]['priority']
     assert_equal 'important', node['request'][1]['priority']

@@ -2,9 +2,9 @@ require 'base64'
 require 'event'
 
 class Webui::UserController < Webui::WebuiController
-  before_action :check_display_user, :only => [:show, :edit, :requests, :list_my, :delete, :save, :confirm, :admin, :lock]
-  before_action :require_login, :only => [:edit, :save, :notifications, :update_notifications, :index]
-  before_action :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin, :index]
+  before_action :check_display_user, only: [:show, :edit, :requests, :list_my, :delete, :save, :confirm, :admin, :lock]
+  before_action :require_login, only: [:edit, :save, :notifications, :update_notifications, :index]
+  before_action :require_admin, only: [:edit, :delete, :lock, :confirm, :admin, :index]
 
   skip_before_action :check_anonymous, only: [:do_login]
 
@@ -68,9 +68,9 @@ class Webui::UserController < Webui::WebuiController
 
   def home
     if params[:user].present?
-      redirect_to :action => :show, user: params[:user]
+      redirect_to action: :show, user: params[:user]
     else
-      redirect_to :action => :show, user: User.current
+      redirect_to action: :show, user: User.current
     end
   end
 
@@ -97,7 +97,7 @@ class Webui::UserController < Webui::WebuiController
           total_filtered_records_count: @requests_count,
           records: @requests
         ) do |request|
-          render_to_string(:partial => "shared/single_request.json", locals: { req: request, no_target: true, hide_state: true }).to_s.split(',')
+          render_to_string(partial: "shared/single_request.json", locals: { req: request, no_target: true, hide_state: true }).to_s.split(',')
         end
       }
     end
@@ -200,7 +200,7 @@ class Webui::UserController < Webui::WebuiController
     flash[:success] = "The account '#{params[:login]}' is now active."
 
     if User.current.is_admin?
-      redirect_to :controller => :user, :action => :index
+      redirect_to controller: :user, action: :index
     else
       session[:login] = opts[:login]
       User.current = User.find_by_login(session[:login])
@@ -232,7 +232,7 @@ class Webui::UserController < Webui::WebuiController
     end
     if errmsg
       flash[:error] = errmsg
-      redirect_to :action => :show, user: User.current
+      redirect_to action: :show, user: User.current
       return
     end
 
@@ -241,7 +241,7 @@ class Webui::UserController < Webui::WebuiController
     user.save!
 
     flash[:success] = 'Your password has been changed successfully.'
-    redirect_to :action => :show, user: User.current
+    redirect_to action: :show, user: User.current
   end
 
   def autocomplete

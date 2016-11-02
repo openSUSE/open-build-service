@@ -35,27 +35,27 @@ class Service < ActiveXML::Node
 
     # default for download_url and download_src_package
     service_content = [
-      {:name => "host", :value => uri.host},
-      {:name => "protocol", :value => uri.scheme},
-      {:name => "path", :value => uri.path}
+      {name: "host", value: uri.host},
+      {name: "protocol", value: uri.scheme},
+      {name: "path", value: uri.path}
     ]
     unless (uri.scheme == "http" && uri.port == 80) ||
            (uri.scheme == "https" && uri.port == 443) ||
            (uri.scheme == "ftp" && uri.port == 21)
-      service_content << {:name => "port", :value => uri.port} # be nice and skip it for simpler _service file
+      service_content << {name: "port", value: uri.port} # be nice and skip it for simpler _service file
     end
 
     if uri.path =~ /.src.rpm$/ || uri.path =~ /.spm$/ # download and extract source package
       addService("download_src_package", service_content)
     elsif uri.scheme == "git"
-      service_content = [{:name => "scm", :value => "git"}, {:name => "url", :value => url}]
+      service_content = [{name: "scm", value: "git"}, {name: "url", value: url}]
       addService("obs_scm", service_content)
       addService("tar", nil, "buildtime")
-      service_content = [{:name => "compression", :value => "xz"}, {:name => "file", :value => "*.tar"}]
+      service_content = [{name: "compression", value: "xz"}, {name: "file", value: "*.tar"}]
       addService("recompress", service_content, "buildtime")
       addService("set_version", nil, "buildtime")
     else # just download
-      service_content << {:name => "filename", :value => filename} unless filename.blank?
+      service_content << {name: "filename", value: filename} unless filename.blank?
       addService("download_url", service_content)
     end
     true
@@ -92,7 +92,7 @@ class Service < ActiveXML::Node
 
   def fill_params(element, parameters)
     parameters.each { |parameter|
-      param = element.add_element('param', :name => parameter[:name])
+      param = element.add_element('param', name: parameter[:name])
       param.text = parameter[:value]
     }
     true
@@ -100,7 +100,7 @@ class Service < ActiveXML::Node
 
   # parameters need to be given as an array with hash pairs :name and :value
   def addService(name, parameters = [], mode = nil)
-    attribs = { :name => name }
+    attribs = { name: name }
     attribs[:mode] =  mode if mode
     element = add_element('service', attribs)
     fill_params(element, parameters)

@@ -7,7 +7,7 @@ class BinaryRelease < ApplicationRecord
   #### Attributes
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :repository
-  belongs_to :release_package, :class_name => "Package", foreign_key: "release_package_id" # optional
+  belongs_to :release_package, class_name: "Package", foreign_key: "release_package_id" # optional
 
   #### Callbacks macros: before_save, after_save, etc.
   before_create :set_release_time
@@ -152,13 +152,13 @@ class BinaryRelease < ApplicationRecord
       node[:time] = self.binary_releasetime if self.binary_releasetime
       binary.publish(node) if node.length > 0
 
-      binary.build(:time => binary_buildtime) if binary_buildtime
-      binary.modify(:time => modify_time) if modify_time
-      binary.obsolete(:time => obsolete_time) if obsolete_time
+      binary.build(time: binary_buildtime) if binary_buildtime
+      binary.modify(time: modify_time) if modify_time
+      binary.obsolete(time: obsolete_time) if obsolete_time
 
       binary.supportstatus binary_supportstatus if binary_supportstatus
-      binary.updateinfo({:id      => binary_updateinfo,
-                         :version => binary_updateinfo_version}) if binary_updateinfo
+      binary.updateinfo({id:      binary_updateinfo,
+                         version: binary_updateinfo_version}) if binary_updateinfo
       binary.maintainer binary_maintainer if binary_maintainer
       binary.disturl binary_disturl if binary_disturl
 
@@ -170,14 +170,14 @@ class BinaryRelease < ApplicationRecord
         binary.product( product_medium.product.extend_id_hash({name: product_medium.product.name}) )
       end
     end
-    builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def to_axml_id
     builder = Nokogiri::XML::Builder.new
     builder.binary(render_attributes)
-    builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 

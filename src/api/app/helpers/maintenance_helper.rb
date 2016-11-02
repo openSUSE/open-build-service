@@ -74,7 +74,7 @@ module MaintenanceHelper
     if f
       unless targetProject.flags.find_by_flag_and_status( 'access', 'disable' )
         sourcePackage.project.flags.delete(f)
-        sourcePackage.project.store({:comment => 'project becomes public on release action'})
+        sourcePackage.project.store({comment: 'project becomes public on release action'})
         # patchinfos stay unpublished, it is anyway too late to test them now ...
       end
     end
@@ -112,7 +112,7 @@ module MaintenanceHelper
     if Package.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links: false)
       lpkg = Package.get_by_project_and_name(targetProject.name, basePackageName, use_source: false, follow_project_links: false)
     else
-      lpkg = Package.new(:name => basePackageName, :title => sourcePackage.title, :description => sourcePackage.description)
+      lpkg = Package.new(name: basePackageName, title: sourcePackage.title, description: sourcePackage.description)
       targetProject.packages << lpkg
       lpkg.store
     end
@@ -262,11 +262,11 @@ module MaintenanceHelper
     if Package.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links: false)
       tpkg = Package.get_by_project_and_name(targetProject.name, targetPackageName, use_source: false, follow_project_links: false)
     else
-      tpkg = Package.new(:name => targetPackageName, :title => sourcePackage.title, :description => sourcePackage.description)
+      tpkg = Package.new(name: targetPackageName, title: sourcePackage.title, description: sourcePackage.description)
       targetProject.packages << tpkg
       if sourcePackage.is_patchinfo?
         # publish patchinfos only
-        tpkg.flags.create(:flag => 'publish', :status => 'enable')
+        tpkg.flags.create(flag: 'publish', status: 'enable')
       end
       tpkg.store
     end
@@ -329,7 +329,7 @@ module MaintenanceHelper
       end
     end
 
-    pkg = project.packages.create(:name => pkg_name, :title => opkg.title, :description => opkg.description)
+    pkg = project.packages.create(name: pkg_name, title: opkg.title, description: opkg.description)
     pkg.store
 
     arguments="&noservice=1"
@@ -364,7 +364,7 @@ module MaintenanceHelper
       end
       # create container
       unless project.packages.where(name: lpkg_name).exists?
-        lpkg = project.packages.create(:name => lpkg_name, :title => p.title, :description => p.description)
+        lpkg = project.packages.create(name: lpkg_name, title: p.title, description: p.description)
         lpkg.store
       end
 

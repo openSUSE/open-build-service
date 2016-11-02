@@ -87,7 +87,7 @@ class ChannelBinary < ApplicationRecord
       end
     end
 
-    builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 

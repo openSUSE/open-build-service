@@ -29,7 +29,7 @@ end
 namespace :db do
   namespace :structure do
     desc "Dump the database structure to a SQL file"
-    task :dump => :environment do
+    task dump: :environment do
       structure = ''
       abcs = ActiveRecord::Base.configurations
       case abcs[Rails.env]["adapter"]
@@ -86,7 +86,7 @@ namespace :db do
   end
 
   desc 'Create the database, load the structure, and initialize with the seed data'
-  redefine_task :setup => :environment do
+  redefine_task setup: :environment do
     Rake::Task["db:structure:load"].invoke
     Rake::Task["db:seed"].invoke
   end

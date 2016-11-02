@@ -53,14 +53,14 @@ class Webui::AttributesTest < Webui::IntegrationTest
           if page.has_css?('.attrib-position-input')
             # If there is a select box for the value select that
             if page.has_css?('#attrib-default-select')
-              page.select values[i], :from => 'attrib-default-select'
+              page.select values[i], from: 'attrib-default-select'
             # If not fill the second input, the first (position) is irrelevant
             else
               find("input:nth-of-type(2)").set(values[i])
             end
           # If there is only a select box
           elsif page.has_css?('#attrib-default-select')
-            page.select values[i], :from => 'attrib-default-select'
+            page.select values[i], from: 'attrib-default-select'
           # If not just fill the first input
           else
             find("input:nth-of-type(1)").set(values[i])

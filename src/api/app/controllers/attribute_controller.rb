@@ -1,22 +1,22 @@
 class AttributeController < ApplicationController
   include ValidationHelper
 
-  validate_action :index => {:method => :get, :response => :directory}
-  validate_action :namespace_definition => {:method => :get, :response => :attribute_namespace_meta}
-  validate_action :namespace_definition => {:method => :delete, :response => :status}
-  validate_action :namespace_definition => {:method => :put, :request => :attribute_namespace_meta, :response => :status}
-  validate_action :namespace_definition => {:method => :post, :request => :attribute_namespace_meta, :response => :status}
-  validate_action :attribute_definition => {:method => :get, :response => :attrib_type}
-  validate_action :attribute_definition => {:method => :delete, :response => :status}
-  validate_action :attribute_definition => {:method => :put, :request => :attrib_type, :response => :status}
-  validate_action :attribute_definition => {:method => :post, :request => :attrib_type, :response => :status}
+  validate_action index: {method: :get, response: :directory}
+  validate_action namespace_definition: {method: :get, response: :attribute_namespace_meta}
+  validate_action namespace_definition: {method: :delete, response: :status}
+  validate_action namespace_definition: {method: :put, request: :attribute_namespace_meta, response: :status}
+  validate_action namespace_definition: {method: :post, request: :attribute_namespace_meta, response: :status}
+  validate_action attribute_definition: {method: :get, response: :attrib_type}
+  validate_action attribute_definition: {method: :delete, response: :status}
+  validate_action attribute_definition: {method: :put, request: :attrib_type, response: :status}
+  validate_action attribute_definition: {method: :post, request: :attrib_type, response: :status}
 
   def index
     if params[:namespace]
       an = AttribNamespace.where(name: params[:namespace] ).first
       unless an
-        render_error :status => 400, :errorcode => 'unknown_namespace',
-          :message => "Attribute namespace does not exist: #{params[:namespace]}"
+        render_error status: 400, errorcode: 'unknown_namespace',
+          message: "Attribute namespace does not exist: #{params[:namespace]}"
         return
       end
       list = an.attrib_types.pluck(:name)
@@ -24,14 +24,14 @@ class AttributeController < ApplicationController
       list = AttribNamespace.pluck(:name)
     end
 
-    builder = Builder::XmlMarkup.new( :indent => 2 )
-    xml = builder.directory( :count => list.length ) do |dir|
+    builder = Builder::XmlMarkup.new( indent: 2 )
+    xml = builder.directory( count: list.length ) do |dir|
       list.each do |a|
-        dir.entry( :name => a )
+        dir.entry( name: a )
       end
     end
 
-    render :text => xml, :content_type => "text/xml"
+    render text: xml, content_type: "text/xml"
   end
 
   # /attribute/:namespace/_meta
@@ -44,8 +44,8 @@ class AttributeController < ApplicationController
     if request.get?
       @an = AttribNamespace.where(name: namespace).select(:id, :name).first
       unless @an
-        render_error :message => "Unknown attribute namespace '#{namespace}'",
-          :status => 404, :errorcode => "unknown_attribute_namespace"
+        render_error message: "Unknown attribute namespace '#{namespace}'",
+          status: 404, errorcode: "unknown_attribute_namespace"
       end
       return
     end
@@ -53,8 +53,8 @@ class AttributeController < ApplicationController
     # namespace definitions must be managed by the admin
     return unless extract_user
     unless @http_user.is_admin?
-      render_error :status => 403, :errorcode => 'permissions denied',
-        :message => "Namespace changes are only permitted by the administrator"
+      render_error status: 403, errorcode: 'permissions denied',
+        message: "Namespace changes are only permitted by the administrator"
       return
     end
 
@@ -64,8 +64,8 @@ class AttributeController < ApplicationController
       xml_element = Xmlhash.parse( request.raw_post )
 
       unless xml_element['name'] == namespace
-        render_error :status => 400, :errorcode => 'illegal_request',
-          :message => "Illegal request: PUT/POST #{request.path}: path does not match content"
+        render_error status: 400, errorcode: 'illegal_request',
+          message: "Illegal request: PUT/POST #{request.path}: path does not match content"
         return
       end
 
@@ -75,7 +75,7 @@ class AttributeController < ApplicationController
           db.update_from_xml(xml_element)
       else
           logger.debug "* create new attribute namespace"
-          AttribNamespace.create(:name => namespace).update_from_xml(xml_element)
+          AttribNamespace.create(name: namespace).update_from_xml(xml_element)
       end
 
       logger.debug "--- finished updating attribute namespace definitions ---"
@@ -84,8 +84,8 @@ class AttributeController < ApplicationController
       AttribNamespace.where(name: namespace).destroy_all
       render_ok
     else
-      render_error :status => 400, :errorcode => 'illegal_request',
-        :message => "Illegal request: POST #{request.path}"
+      render_error status: 400, errorcode: 'illegal_request',
+        message: "Illegal request: POST #{request.path}"
     end
   end
 
@@ -101,16 +101,16 @@ class AttributeController < ApplicationController
     name = params[:name]
     ans = AttribNamespace.where(name: namespace).first
     unless ans
-       render_error :status => 400, :errorcode => 'unknown_attribute_namespace',
-         :message => "Specified attribute namespace does not exist: '#{namespace}'"
+       render_error status: 400, errorcode: 'unknown_attribute_namespace',
+         message: "Specified attribute namespace does not exist: '#{namespace}'"
        return
     end
 
     if request.get?
-      @at = ans.attrib_types.where(:name => name).first
+      @at = ans.attrib_types.where(name: name).first
       unless @at
-        render_error :message => "Unknown attribute '#{namespace}':'#{name}'",
-          :status => 404, :errorcode => "unknown_attribute"
+        render_error message: "Unknown attribute '#{namespace}':'#{name}'",
+          status: 404, errorcode: "unknown_attribute"
       end
       return
     end
@@ -118,8 +118,8 @@ class AttributeController < ApplicationController
     # permission check via User model
     return unless extract_user
     unless @http_user.can_modify_attribute_definition?(ans)
-      render_error :status => 403, :errorcode => 'permissions denied',
-        :message => "Attribute type changes are not permitted"
+      render_error status: 403, errorcode: 'permissions denied',
+        message: "Attribute type changes are not permitted"
       return
     end
 
@@ -129,8 +129,8 @@ class AttributeController < ApplicationController
       xml_element = Xmlhash.parse( request.raw_post )
 
       unless xml_element && xml_element['name'] == name && xml_element['namespace'] == namespace
-        render_error :status => 400, :errorcode => 'illegal_request',
-          :message => "Illegal request: PUT/POST #{request.path}: path does not match content"
+        render_error status: 400, errorcode: 'illegal_request',
+          message: "Illegal request: PUT/POST #{request.path}: path does not match content"
         return
       end
 
@@ -141,7 +141,7 @@ class AttributeController < ApplicationController
           db.update_from_xml(xml_element)
       else
           logger.debug "* create new attribute definition"
-          AttribType.new(:name => name, :attrib_namespace => ans ).update_from_xml(xml_element)
+          AttribType.new(name: name, attrib_namespace: ans ).update_from_xml(xml_element)
       end
 
       logger.debug "--- finished updating attribute namespace definitions ---"
@@ -153,8 +153,8 @@ class AttributeController < ApplicationController
       at.destroy if at
       render_ok
     else
-      render_error :status => 400, :errorcode => 'illegal_request',
-        :message => "Illegal request: POST #{request.path}"
+      render_error status: 400, errorcode: 'illegal_request',
+        message: "Illegal request: POST #{request.path}"
     end
   end
 
@@ -181,11 +181,11 @@ class AttributeController < ApplicationController
       path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package]||'_project')}/_attribute?meta=1"
       path += "&rev=#{CGI.escape(params[:rev])}" if params[:rev]
       answer = Suse::Backend.get(path)
-      render :text => answer.body.to_s, :content_type => 'text/xml'
+      render text: answer.body.to_s, content_type: 'text/xml'
       return
     end
 
-    render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
+    render text: @attribute_container.render_attribute_axml(params), content_type: 'text/xml'
   end
 
   # DELETE
@@ -198,21 +198,21 @@ class AttributeController < ApplicationController
 
     # init
     if params[:namespace].blank? || params[:name].blank?
-      render_error :status => 400, :errorcode => "missing_attribute",
-                   :message => "No attribute got specified for delete"
+      render_error status: 400, errorcode: "missing_attribute",
+                   message: "No attribute got specified for delete"
       return
     end
     ac = @attribute_container.find_attribute(params[:namespace], params[:name], @binary)
 
     # checks
     unless ac
-      render_error(:status => 404, :errorcode => "not_found",
-                   :message => "Attribute #{params[:attribute]} does not exist") && return
+      render_error(status: 404, errorcode: "not_found",
+                   message: "Attribute #{params[:attribute]} does not exist") && return
     end
     if params[:attribute]
       unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
-        render_error :status => 403, :errorcode => "change_attribute_no_permission",
-                     :message => "user #{user.login} has no permission to change attribute"
+        render_error status: 403, errorcode: "change_attribute_no_permission",
+                     message: "user #{user.login} has no permission to change attribute"
         return
       end
     end
@@ -237,8 +237,8 @@ class AttributeController < ApplicationController
     # checks
     if params[:attribute]
       unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
-        render_error :status => 403, :errorcode => "change_attribute_no_permission",
-                     :message => "user #{user.login} has no permission to change attribute"
+        render_error status: 403, errorcode: "change_attribute_no_permission",
+                     message: "user #{user.login} has no permission to change attribute"
         return
       end
     else
@@ -246,13 +246,13 @@ class AttributeController < ApplicationController
         begin
           can_create = User.current.can_create_attribute_in? @attribute_container, namespace: attr.value('namespace'), name: attr.value('name')
         rescue ArgumentError => e
-          render_error :status => 400, :errorcode => "change_attribute_attribute_error",
-                       :message => e.message
+          render_error status: 400, errorcode: "change_attribute_attribute_error",
+                       message: e.message
           return
         end
         unless can_create
-          render_error :status => 403, :errorcode => "change_attribute_no_permission",
-                       :message => "user #{user.login} has no permission to change attribute"
+          render_error status: 403, errorcode: "change_attribute_no_permission",
+                       message: "user #{user.login} has no permission to change attribute"
           return
         end
       end

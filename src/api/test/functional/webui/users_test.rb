@@ -19,33 +19,33 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     add_user 'user6', 'reviewer'
     add_user 'user6', 'downloader'
 
-    add_user 'sadasxsacxsacsa', 'reader', :expect => :unknown_user
-    add_user '~@$@#%#%@$0-=m,.,\/\/12`;.{{}}{}', 'maintainer', :expect => :unknown_user
+    add_user 'sadasxsacxsacsa', 'reader', expect: :unknown_user
+    add_user '~@$@#%#%@$0-=m,.,\/\/12`;.{{}}{}', 'maintainer', expect: :unknown_user
 
     # add_package_role_to_username_with_question_sign do
-    add_user 'still-buggy?', 'maintainer', :expect => :unknown_user
+    add_user 'still-buggy?', 'maintainer', expect: :unknown_user
 
-    edit_user :name => :user3,
-    :reviewer   => true,
-    :downloader => true
+    edit_user name: :user3,
+    reviewer: true,
+    downloader: true
 
-    edit_user :name => :user3,
-    :reviewer   => false,
-    :downloader => false
+    edit_user name: :user3,
+    reviewer: false,
+    downloader: false
 
-    edit_user :name => :user6,
-    :maintainer => false,
-    :bugowner   => false,
-    :reviewer   => false,
-    :downloader => false,
-    :reader     => false
+    edit_user name: :user6,
+    maintainer: false,
+    bugowner: false,
+    reviewer: false,
+    downloader: false,
+    reader: false
 
-    edit_user :name => :user4,
-    :maintainer => true,
-    :bugowner   => true,
-    :reviewer   => true,
-    :downloader => true,
-    :reader     => true
+    edit_user name: :user4,
+    maintainer: true,
+    bugowner: true,
+    reviewer: true,
+    downloader: true,
+    reader: true
 
     delete_user :user4
     page.wont_have_selector 'table#user_table tr#user-user4'
@@ -67,32 +67,32 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     add_user 'user6', 'downloader'
     add_user 'user6', 'downloader', expect: :already_exists
 
-    add_user 'sadasxsacxsacsa', 'reader', :expect => :unknown_user
-    add_user '', 'maintainer', :expect => :unknown_user
-    add_user '~@$@#%#%@$0-=m,.,\/\/12`;.{{}}{}', 'maintainer', :expect => :unknown_user
-    add_user 'still-buggy?', 'maintainer', :expect => :unknown_user
+    add_user 'sadasxsacxsacsa', 'reader', expect: :unknown_user
+    add_user '', 'maintainer', expect: :unknown_user
+    add_user '~@$@#%#%@$0-=m,.,\/\/12`;.{{}}{}', 'maintainer', expect: :unknown_user
+    add_user 'still-buggy?', 'maintainer', expect: :unknown_user
 
-    edit_user :name => :user3,
-      :reviewer   => true,
-      :downloader => true
+    edit_user name: :user3,
+      reviewer: true,
+      downloader: true
 
-    edit_user :name => :user3,
-      :reviewer   => false,
-      :downloader => false
+    edit_user name: :user3,
+      reviewer: false,
+      downloader: false
 
-    edit_user :name => :user6,
-      :maintainer => false,
-      :bugowner   => false,
-      :reviewer   => false,
-      :downloader => false,
-      :reader     => false
+    edit_user name: :user6,
+      maintainer: false,
+      bugowner: false,
+      reviewer: false,
+      downloader: false,
+      reader: false
 
-    edit_user :name => :user4,
-      :maintainer => true,
-      :bugowner   => true,
-      :reviewer   => true,
-      :downloader => true,
-      :reader     => true
+    edit_user name: :user4,
+      maintainer: true,
+      bugowner: true,
+      reviewer: true,
+      downloader: true,
+      reader: true
   end
 
   # Test Helpers

@@ -41,7 +41,7 @@ class PackInfo
   def to_xml(options = {})
     # return packages not having sources
     return if srcmd5.blank?
-    xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
+    xml = options[:builder] ||= Builder::XmlMarkup.new(indent: options[:indent])
     opts = { project:    project,
              name:       name,
              version:    version,
@@ -55,11 +55,11 @@ class PackInfo
     end
     xml.package(opts) do
       fails.each do |repo, tuple|
-        xml.failure(:repo => repo, :time => tuple[0], :srcmd5 => tuple[1])
+        xml.failure(repo: repo, time: tuple[0], srcmd5: tuple[1])
       end
       if develpack
-        xml.develpack(:proj => develpack.project, :pack => develpack.name) do
-          develpack.to_xml(:builder => xml)
+        xml.develpack(proj: develpack.project, pack: develpack.name) do
+          develpack.to_xml(builder: xml)
         end
       end
 
@@ -67,7 +67,7 @@ class PackInfo
       relationships_to_xml(xml, :groups, :group, :groupid)
 
       xml.error(error) if @error
-      xml.link(:project => @links_to.project, :package => @links_to.name) if @links_to
+      xml.link(project: @links_to.project, package: @links_to.name) if @links_to
     end
   end
 
@@ -76,7 +76,7 @@ class PackInfo
     return if arr.empty?
     builder.send(arrayname) do
       arr.each do |element, role_name|
-        builder.send(elementname, tag => element, role: role_name)
+        builder.send(elementname, tag => element, :role => role_name)
       end
     end
   end

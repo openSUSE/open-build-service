@@ -48,7 +48,7 @@ class BsRequestActionAddRole < BsRequestAction
       node.person name: person_name, role: role
     end
     if group_name
-      node.group :name => group_name, :role => role
+      node.group name: group_name, role: role
     end
   end
 

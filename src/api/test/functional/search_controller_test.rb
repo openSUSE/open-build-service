@@ -26,9 +26,9 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response :success
-    assert_xml_tag tag: 'attribute', :attributes => { :name => "Maintained", :namespace => "OBS" }, :children => { :count => 1 }
-    assert_xml_tag :child => { tag: 'project', :attributes => { :name => "Apache"}, :children => { :count => 1 } }
-    assert_xml_tag :child => { :child => { tag: 'package', :attributes => { :name => "apache2" }, :children => { :count => 0 } } }
+    assert_xml_tag tag: 'attribute', attributes: { name: "Maintained", namespace: "OBS" }, children: { count: 1 }
+    assert_xml_tag child: { tag: 'project', attributes: { name: "Apache"}, children: { count: 1 } }
+    assert_xml_tag child: { child: { tag: 'package', attributes: { name: "apache2" }, children: { count: 0 } } }
   end
 
   # there are 4 different code paths
@@ -59,49 +59,49 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     get "/search/package", match: '[@name="apache2"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 1 }
-    assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache"} }
 
     get "/search/package/id", match: '[contains(@name,"Test")]'
     assert_response :success
-    assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'TestPack', :project => "home:Iggy"} }
-    assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'ToBeDeletedTestPack', :project => "home:Iggy"} }
-    assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'test', :project => "CopyTest"} }
-    assert_xml_tag tag: 'collection', :children => { :count => 3 }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'TestPack', project: "home:Iggy"} }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'ToBeDeletedTestPack', project: "home:Iggy"} }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'test', project: "CopyTest"} }
+    assert_xml_tag tag: 'collection', children: { count: 3 }
   end
 
   def test_xpath_2
     login_Iggy
     get "/search/package", match: '[attribute/@name="OBS:Maintained"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 1 }
-    assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache"} }
   end
 
   def test_xpath_3
     login_Iggy
     get "/search/package", match: '[attribute/@name="OBS:Maintained" and @name="apache2"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :attributes => { :matches => 1 }
-    assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+    assert_xml_tag tag: 'collection', attributes: { matches: 1 }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache"} }
     get "/search/package/id", match: '[attribute/@name="OBS:Maintained" and @name="apache2"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :attributes => { :matches => 1 }
-    assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+    assert_xml_tag tag: 'collection', attributes: { matches: 1 }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache"} }
   end
 
   def test_xpath_4
     login_Iggy
     get "/search/package", match: '[attribute/@name="OBS:Maintained" and @name="Testpack"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 0 }
+    assert_xml_tag tag: 'collection', children: { count: 0 }
   end
 
   def test_xpath_5
     login_Iggy
     get "/search/package", match: '[devel/@project="kde4"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 0 }
+    assert_xml_tag tag: 'collection', children: { count: 0 }
   end
 
   def test_xpath_6
@@ -115,19 +115,19 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     get "/search/package", match: '[attribute/@name="OBS:Maintained"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 1 }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
 
     login_Iggy
     get "/search/package", match: 'attribute/@name="[OBS:Maintained]"'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 0 }
+    assert_xml_tag tag: 'collection', children: { count: 0 }
   end
 
   def test_xpath_8
     login_Iggy
     get "/search/package", match: 'attribute/@name="[OBS:Maintained"'
     assert_response 400
-    assert_xml_tag tag: 'status', :attributes => { :code => "illegal_xpath_error" }
+    assert_xml_tag tag: 'status', attributes: { code: "illegal_xpath_error" }
     # fun part
     assert_xml_tag content: "#&lt;NoMethodError: undefined method `[]' for nil:NilClass&gt;"
   end
@@ -156,7 +156,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # small typo, no equal ...
     get "/search/request?match(mistake)"
     assert_response 400
-    assert_xml_tag tag: 'status', :attributes => { :code => "empty_match" }
+    assert_xml_tag tag: 'status', attributes: { code: "empty_match" }
   end
 
   # do as the webui does
@@ -171,23 +171,23 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     get "/search/person", match: "(@login='Iggy')"
     assert_response :success
-    assert_xml_tag tag: 'collection', :attributes => { :matches => "1" }
-    assert_xml_tag :parent => { tag: 'person' }, tag: 'login', :content => "Iggy"
-    assert_xml_tag :parent => { tag: 'person' }, tag: 'email', :content => "Iggy@pop.org"
-    assert_xml_tag :parent => { tag: 'person' }, tag: 'realname', :content => "Iggy Pop"
-    assert_xml_tag :parent => { tag: 'person' }, tag: 'state', :content => "confirmed"
+    assert_xml_tag tag: 'collection', attributes: { matches: "1" }
+    assert_xml_tag parent: { tag: 'person' }, tag: 'login', content: "Iggy"
+    assert_xml_tag parent: { tag: 'person' }, tag: 'email', content: "Iggy@pop.org"
+    assert_xml_tag parent: { tag: 'person' }, tag: 'realname', content: "Iggy Pop"
+    assert_xml_tag parent: { tag: 'person' }, tag: 'state', content: "confirmed"
 
     get "/search/person", match: "(@login='Iggy' or @login='tom')"
     assert_response :success
-    assert_xml_tag tag: 'collection', :attributes => { :matches => "2" }
+    assert_xml_tag tag: 'collection', attributes: { matches: "2" }
 
     get "/search/person", match: "(@email='Iggy@pop.org')"
     assert_response :success
-    assert_xml_tag tag: 'collection', :attributes => { :matches => "1" }
+    assert_xml_tag tag: 'collection', attributes: { matches: "1" }
 
     get "/search/person", match: "(@realname='Iggy Pop')"
     assert_response :success
-    assert_xml_tag tag: 'collection', :attributes => { :matches => "1" }
+    assert_xml_tag tag: 'collection', attributes: { matches: "1" }
 
 # FIXME2.5: this will work when we turn to enums for the user state
 #    get "/search/person", match: "(@state='confirmed')"
@@ -201,12 +201,12 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     get "/search/package_id", match: '[attribute/@name="OBS:Maintained" and @name="apache2"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :attributes => { :matches => 1 }
-    assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'apache2', :project => "Apache"} }
+    assert_xml_tag tag: 'collection', attributes: { matches: 1 }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'apache2', project: "Apache"} }
     get "/search/project_id", match: '[@name="kde"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :attributes => { :matches => 1 }
-    assert_xml_tag :child => { tag: 'project', :attributes => { :name => 'kde' } }
+    assert_xml_tag tag: 'collection', attributes: { matches: 1 }
+    assert_xml_tag child: { tag: 'project', attributes: { name: 'kde' } }
   end
 
   # >>> Testing HiddenProject - flag "access" set to "disabled"
@@ -215,9 +215,9 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/search/project", match: '[@name="HiddenProject"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 1 }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
     # <project name="HiddenProject">
-    assert_xml_tag :child => { tag: 'project', :attributes => { :name => 'HiddenProject'} }
+    assert_xml_tag child: { tag: 'project', attributes: { name: 'HiddenProject'} }
   end
 
   def test_search_hidden_project_with_invalid_user
@@ -225,7 +225,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     get "/search/project", match: '[@name="HiddenProject"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 0 }
+    assert_xml_tag tag: 'collection', children: { count: 0 }
   end
   # <<< Testing HiddenProject - flag "access" set to "disabled"
 
@@ -235,8 +235,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/search/package", match: '[@name="pack" and @project="HiddenProject"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 1 }
-    assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'pack', :project => "HiddenProject"} }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'pack', project: "HiddenProject"} }
   end
 
   def test_search_package_in_hidden_project_as_non_maintainer
@@ -244,12 +244,12 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     get "/search/package", match: '[@name="pack" and @project="HiddenProject"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 0 }
+    assert_xml_tag tag: 'collection', children: { count: 0 }
 
     get "/search/package", match: '[@name="pack"]'
     assert_response :success
-    assert_xml_tag tag: 'package', :attributes => { :project => "SourceprotectedProject", :name => "pack" }
-    assert_no_xml_tag tag: 'package', :attributes => { :project => "HiddenProject", :name => "pack" }
+    assert_xml_tag tag: 'package', attributes: { project: "SourceprotectedProject", name: "pack" }
+    assert_no_xml_tag tag: 'package', attributes: { project: "HiddenProject", name: "pack" }
   end
   # <<< Testing package inside HiddenProject - flag "access" set to "disabled" in Project
 
@@ -266,20 +266,20 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     get "/search/issue", match: '[@name="123456"]'
     assert_response :success
-    assert_xml_tag :parent => { tag: 'issue'}, tag: 'name', :content => "123456"
-    assert_xml_tag :parent => { tag: 'issue'}, tag: 'tracker', :content => "bnc"
-    assert_xml_tag :parent => { tag: 'issue'}, tag: 'label', :content => "bnc#123456"
-    assert_xml_tag :parent => { tag: 'issue'}, tag: 'state', :content => "CLOSED"
-    assert_xml_tag :parent => { tag: 'owner'}, tag: 'login', :content => "fred"
+    assert_xml_tag parent: { tag: 'issue'}, tag: 'name', content: "123456"
+    assert_xml_tag parent: { tag: 'issue'}, tag: 'tracker', content: "bnc"
+    assert_xml_tag parent: { tag: 'issue'}, tag: 'label', content: "bnc#123456"
+    assert_xml_tag parent: { tag: 'issue'}, tag: 'state', content: "CLOSED"
+    assert_xml_tag parent: { tag: 'owner'}, tag: 'login', content: "fred"
 
     get "/search/issue", match: '[@name="123456" and @tracker="bnc"]'
     assert_response :success
-    assert_xml_tag :parent => { tag: 'issue'}, tag: 'label', :content => "bnc#123456"
+    assert_xml_tag parent: { tag: 'issue'}, tag: 'label', content: "bnc#123456"
 
     # opposite order to test database joins
     get "/search/issue", match: '[@tracker="bnc" and @name="123456"]'
     assert_response :success
-    assert_xml_tag :parent => { tag: 'issue'}, tag: 'label', :content => "bnc#123456"
+    assert_xml_tag parent: { tag: 'issue'}, tag: 'label', content: "bnc#123456"
 
     get "/search/issue", match: '[@name="0123456" and @tracker="bnc"]'
     assert_response :success
@@ -287,19 +287,19 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get "/search/issue", match: '[@tracker="bnc" and (@name="123456" or @name="1234")]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 2 }
+    assert_xml_tag tag: 'collection', children: { count: 2 }
 
     get "/search/issue", match: '[@tracker="bnc" and (@name="123456" or @name="1234") and @state="CLOSED"]'
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 1 }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
 
     get "/search/issue", match: '[owner/@login="fred"]'
     assert_response :success
-    assert_xml_tag :parent => { tag: 'issue'}, tag: 'label', :content => "bnc#123456"
+    assert_xml_tag parent: { tag: 'issue'}, tag: 'label', content: "bnc#123456"
 
     get "/search/issue", match: '[owner/@email="fred@feuerstein.de"]'
     assert_response :success
-    assert_xml_tag :parent => { tag: 'issue'}, tag: 'label', :content => "bnc#123456"
+    assert_xml_tag parent: { tag: 'issue'}, tag: 'label', content: "bnc#123456"
   end
 
   def test_search_repository
@@ -323,19 +323,19 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/repository/id?match=@project='home:Iggy'+and+@name='10.2'"
     assert_response :success
     assert_xml_tag tag: 'collection'
-    assert_xml_tag tag: 'repository', :attributes => { project: 'home:Iggy', name: '10.2' }
+    assert_xml_tag tag: 'repository', attributes: { project: 'home:Iggy', name: '10.2' }
     assert repos.count, 1
 
     get "/search/repository/id?match=path/@repository='BaseDistro_repo'"
     assert_response :success
     assert_xml_tag tag: 'collection'
-    assert_xml_tag tag: 'repository', :attributes => { project: 'home:Iggy', name: '10.2' }
+    assert_xml_tag tag: 'repository', attributes: { project: 'home:Iggy', name: '10.2' }
     assert repos.count, 1
 
     get "/search/repository/id?match=path/[@project='BaseDistro'+and+@repository='BaseDistro_repo']"
     assert_response :success
     assert_xml_tag tag: 'collection'
-    assert_xml_tag tag: 'repository', :attributes => { project: 'home:Iggy', name: '10.2' }
+    assert_xml_tag tag: 'repository', attributes: { project: 'home:Iggy', name: '10.2' }
     assert repos.count, 1
   end
 
@@ -344,8 +344,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get "/search/package", match: "([devel/[@project='Devel:BaseDistro:Update' and @package='pack2']])"
     assert_response :success
-    assert_xml_tag tag: 'collection', :attributes => { :matches => 1 }
-    assert_xml_tag tag: 'package', :attributes => { :project => "BaseDistro:Update", :name => "pack2" }
+    assert_xml_tag tag: 'collection', attributes: { matches: 1 }
+    assert_xml_tag tag: 'package', attributes: { project: "BaseDistro:Update", name: "pack2" }
   end
 
   def test_search_request
@@ -426,12 +426,12 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'collection'
     all_packages_count = get_package_count
 
-    get "/search/package?match=*", :limit => 3
+    get "/search/package?match=*", limit: 3
     assert_response :success
     assert_xml_tag tag: 'collection'
     assert get_package_count == 3
 
-    get "/search/package?match=*", :offset => 3
+    get "/search/package?match=*", offset: 3
     assert_response :success
     assert_xml_tag tag: 'collection'
     assert get_package_count == (all_packages_count - 3)
@@ -450,106 +450,106 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get "/search/owner"
     assert_response 400
-    assert_xml_tag tag: 'status', :attributes => { :code => "no_binary" }
+    assert_xml_tag tag: 'status', attributes: { code: "no_binary" }
 
     # must be after first search controller call or backend might not be started on single test case runs
     run_publisher()
 
     get "/search/owner?binary='package'"
     assert_response 400
-    assert_xml_tag tag: 'status', :attributes => { :code => "400", origin: "backend" }
+    assert_xml_tag tag: 'status', attributes: { code: "400", origin: "backend" }
 
     get "/search/owner?binary='package'&attribute='OBS:does_not_exist'"
     assert_response 404
-    assert_xml_tag tag: 'status', :attributes => { :code => "unknown_attribute_type" }
+    assert_xml_tag tag: 'status', attributes: { code: "unknown_attribute_type" }
 
     post "/source/home:Iggy/_attribute", "<attributes><attribute namespace='OBS' name='OwnerRootProject' /></attributes>"
     assert_response :success
 
     get "/search/owner?binary=DOES_NOT_EXIST"
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 0 }
+    assert_xml_tag tag: 'collection', children: { count: 0 }
 
     get "/search/owner?binary=package"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
-    assert_xml_tag tag: 'person', :attributes => { :name => "fred", :role => "maintainer" }
-    assert_xml_tag tag: 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
-    assert_xml_tag tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+    assert_xml_tag tag: 'owner', attributes: { rootproject: "home:Iggy", project: "home:Iggy", package: "TestPack" }
+    assert_xml_tag tag: 'person', attributes: { name: "fred", role: "maintainer" }
+    assert_xml_tag tag: 'person', attributes: { name: "Iggy", role: "maintainer" }
+    assert_xml_tag tag: 'person', attributes: { name: "Iggy", role: "bugowner" }
 
     get "/search/owner?binary=package&filter=bugowner"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
-    assert_no_xml_tag tag: 'person', :attributes => { :name => "fred", :role => "maintainer" }
-    assert_no_xml_tag tag: 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
-    assert_xml_tag tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+    assert_xml_tag tag: 'owner', attributes: { rootproject: "home:Iggy", project: "home:Iggy", package: "TestPack" }
+    assert_no_xml_tag tag: 'person', attributes: { name: "fred", role: "maintainer" }
+    assert_no_xml_tag tag: 'person', attributes: { name: "Iggy", role: "maintainer" }
+    assert_xml_tag tag: 'person', attributes: { name: "Iggy", role: "bugowner" }
 
     # disable filter
     get "/search/owner?binary=package&limit=0&filter="
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
+    assert_xml_tag tag: 'owner', attributes: { rootproject: "home:Iggy", project: "home:Iggy", package: "TestPack" }
 
     # search by user
     get "/search/owner?user=fred"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
+    assert_xml_tag tag: 'owner', attributes: { rootproject: "home:Iggy", project: "home:Iggy", package: "TestPack" }
 
     get "/search/owner?user=fred&filter=maintainer"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :rootproject => "home:Iggy", :project => "home:Iggy", :package => "TestPack" }
+    assert_xml_tag tag: 'owner', attributes: { rootproject: "home:Iggy", project: "home:Iggy", package: "TestPack" }
 
     get "/search/owner?user=fred&filter=reviewer"
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 0 }
+    assert_xml_tag tag: 'collection', children: { count: 0 }
 
     # lookup maintainers
     get "/search/owner?project=home:Iggy"
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 1 }
-    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 2 },
-                                :attributes => { :rootproject => "", :project => "home:Iggy" }},
-                   tag: 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
+    assert_xml_tag parent: { tag: 'owner', children: { count: 2 },
+                                attributes: { rootproject: "", project: "home:Iggy" }},
+                   tag: 'person', attributes: { name: "Iggy", role: "maintainer" }
 
     get "/search/owner?project=home:Iggy&package=TestPack"
-    assert_xml_tag tag: 'collection', :children => { :count => 2 }
-    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
-                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
-                   tag: 'person', :attributes => { :name => "fred", :role => "maintainer" }
-    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
-                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
-                   tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
-    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
-                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
-                   tag: 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
-    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
-                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
-                   tag: 'group', :attributes => { :name => "test_group_b", :role => "maintainer" }
-    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 2 },
-                                :attributes => { :project => "home:Iggy" } },
-                   tag: 'person', :attributes => { :name => "hidden_homer", :role => "maintainer" }
+    assert_xml_tag tag: 'collection', children: { count: 2 }
+    assert_xml_tag parent: { tag: 'owner', children: { count: 4 },
+                                attributes: { project: "home:Iggy", package: "TestPack" }},
+                   tag: 'person', attributes: { name: "fred", role: "maintainer" }
+    assert_xml_tag parent: { tag: 'owner', children: { count: 4 },
+                                attributes: { project: "home:Iggy", package: "TestPack" }},
+                   tag: 'person', attributes: { name: "Iggy", role: "bugowner" }
+    assert_xml_tag parent: { tag: 'owner', children: { count: 4 },
+                                attributes: { project: "home:Iggy", package: "TestPack" }},
+                   tag: 'person', attributes: { name: "Iggy", role: "maintainer" }
+    assert_xml_tag parent: { tag: 'owner', children: { count: 4 },
+                                attributes: { project: "home:Iggy", package: "TestPack" }},
+                   tag: 'group', attributes: { name: "test_group_b", role: "maintainer" }
+    assert_xml_tag parent: { tag: 'owner', children: { count: 2 },
+                                attributes: { project: "home:Iggy" } },
+                   tag: 'person', attributes: { name: "hidden_homer", role: "maintainer" }
 
     get "/search/owner?project=home:Iggy&package=TestPack&filter=bugowner"
     # no bugowner defined for the project => no owner node for the project
-    assert_xml_tag tag: 'collection', :children => { :count => 1 }
-    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 1 },
-                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
-                   tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
+    assert_xml_tag parent: { tag: 'owner', children: { count: 1 },
+                                attributes: { project: "home:Iggy", package: "TestPack" }},
+                   tag: 'person', attributes: { name: "Iggy", role: "bugowner" }
 
     get "/search/owner?project=home:coolo:test"
-    assert_xml_tag tag: 'collection', :children => { :count => 2 }
-    assert_xml_tag tag: 'owner', :children => { :count => 1 }, :attributes => { :project => "home:coolo:test" }
-    assert_xml_tag tag: 'owner', :children => { :count => 1 }, :attributes => { :project => "home:coolo" }
+    assert_xml_tag tag: 'collection', children: { count: 2 }
+    assert_xml_tag tag: 'owner', children: { count: 1 }, attributes: { project: "home:coolo:test" }
+    assert_xml_tag tag: 'owner', children: { count: 1 }, attributes: { project: "home:coolo" }
 
     # some illegal searches
     get "/search/owner?user=INVALID&filter=bugowner"
     assert_response 404
-    assert_xml_tag tag: 'status', :attributes => { :code => "not_found" }
+    assert_xml_tag tag: 'status', attributes: { code: "not_found" }
     get "/search/owner?user=fred&filter=INVALID"
     assert_response 404
-    assert_xml_tag tag: 'status', :attributes => { :code => "not_found" }
+    assert_xml_tag tag: 'status', attributes: { code: "not_found" }
     get "/search/owner?package=TestPack"
     assert_response 400
-    assert_xml_tag tag: 'status', :attributes => { :code => "no_binary" }
+    assert_xml_tag tag: 'status', attributes: { code: "no_binary" }
     get "/search/owner?project=DOESNOTEXIST"
     assert_response 404
 
@@ -562,22 +562,22 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/owner?binary=package"
     assert_response :success
 #    assert_no_xml_tag tag: 'owner', :attributes => { :package => nil }
-    assert_xml_tag tag: 'owner', :attributes => { :project => "home:coolo:test" }
-    assert_xml_tag tag: 'person', :attributes => { :name => "tom", :role => "maintainer" }
+    assert_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
+    assert_xml_tag tag: 'person', attributes: { name: "tom", role: "maintainer" }
 
     # search again, but ignore devel package
     get "/search/owner?binary=package&devel=false"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
-    assert_xml_tag tag: 'person', :attributes => { :name => "fred", :role => "maintainer" }
-    assert_xml_tag tag: 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
-    assert_xml_tag tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+    assert_xml_tag tag: 'owner', attributes: { project: "home:Iggy", package: "TestPack" }
+    assert_xml_tag tag: 'person', attributes: { name: "fred", role: "maintainer" }
+    assert_xml_tag tag: 'person', attributes: { name: "Iggy", role: "maintainer" }
+    assert_xml_tag tag: 'person', attributes: { name: "Iggy", role: "bugowner" }
 
     # find all instances
     get "/search/owner?binary=package&limit=-1&expand=1&devel=false"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:coolo:test" }
+    assert_xml_tag tag: 'owner', attributes: { project: "home:Iggy", package: "TestPack" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
 
     # search via project link
     put "/source/TEMPORARY/_meta", "<project name='TEMPORARY'><title/><description/><link project='home:Iggy'/>
@@ -591,13 +591,13 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get "/search/owner?project=TEMPORARY&binary=package&limit=-1&expand=1"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :project => "home:coolo:test" }
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:Iggy" }
+    assert_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "home:Iggy" }
 
     get "/search/owner?project=TEMPORARY&binary=package&limit=-1&expand=1&devel=false"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :project => "home:Iggy" }
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:coolo:test" }
+    assert_xml_tag tag: 'owner', attributes: { project: "home:Iggy" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
 
     # additional package
     put "/source/TEMPORARY/pack/_meta",
@@ -612,82 +612,82 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get "/search/owner?project=TEMPORARY&binary=package&limit=0&devel=false"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
-    assert_xml_tag tag: 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:coolo:test" }
-    assert_xml_tag tag: 'group', :attributes => { :name => "test_group", :role => "bugowner" }
+    assert_xml_tag tag: 'owner', attributes: { project: "home:Iggy", package: "TestPack" }
+    assert_xml_tag tag: 'owner', attributes: { project: "TEMPORARY", package: "pack" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
+    assert_xml_tag tag: 'group', attributes: { name: "test_group", role: "bugowner" }
 
     get "/search/owner?project=TEMPORARY&binary=package&devel=false"
     assert_response :success
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
-    assert_xml_tag tag: 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:coolo:test" }
-    assert_xml_tag tag: 'group', :attributes => { :name => "test_group", :role => "bugowner" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "home:Iggy", package: "TestPack" }
+    assert_xml_tag tag: 'owner', attributes: { project: "TEMPORARY", package: "pack" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
+    assert_xml_tag tag: 'group', attributes: { name: "test_group", role: "bugowner" }
 
     get "/search/owner?project=TEMPORARY&binary=package"
     assert_response :success
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
-    assert_xml_tag tag: 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:coolo:test" }
-    assert_xml_tag tag: 'group', :attributes => { :name => "test_group", :role => "bugowner" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "home:Iggy", package: "TestPack" }
+    assert_xml_tag tag: 'owner', attributes: { project: "TEMPORARY", package: "pack" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
+    assert_xml_tag tag: 'group', attributes: { name: "test_group", role: "bugowner" }
 
     get "/search/owner?project=TEMPORARY&binary=package&filter=reviewer&webui_mode=true"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" },
-                   :children => { :count => 0 }
-    assert_xml_tag tag: 'owner', :attributes => { :rootproject => "TEMPORARY", :project => "home:Iggy", :package => "TestPack" },
-                   :children => { :count => 0 }
+    assert_xml_tag tag: 'owner', attributes: { rootproject: "TEMPORARY", project: "TEMPORARY", package: "pack" },
+                   children: { count: 0 }
+    assert_xml_tag tag: 'owner', attributes: { rootproject: "TEMPORARY", project: "home:Iggy", package: "TestPack" },
+                   children: { count: 0 }
 
     # deepest package definition
     get "/search/owner?project=TEMPORARY&binary=package&limit=-1"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :project => "home:coolo:test" }
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
+    assert_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "home:Iggy", package: "TestPack" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "TEMPORARY", package: "pack" }
 
     # test fall through when higher project has the package, but no bugowner
     put "/source/TEMPORARY/pack/_meta", "<package name='pack' project='TEMPORARY'><title/><description/></package>"
     assert_response :success
     get "/search/owner?project=TEMPORARY&binary=package&filter=bugowner"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :project => "home:Iggy", :package => "TestPack" }
-    assert_xml_tag tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
-    assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:coolo:test" }
-    assert_no_xml_tag tag: 'group', :attributes => { :name => "test_group", :role => "bugowner" }
+    assert_xml_tag tag: 'owner', attributes: { project: "home:Iggy", package: "TestPack" }
+    assert_xml_tag tag: 'person', attributes: { name: "Iggy", role: "bugowner" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "TEMPORARY", package: "pack" }
+    assert_no_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
+    assert_no_xml_tag tag: 'group', attributes: { name: "test_group", role: "bugowner" }
     # disable a user and check that he disappears
     u=User.find_by_login "Iggy"
     u.state = 'unconfirmed'
     u.save!
     get "/search/owner?project=TEMPORARY&binary=package&filter=bugowner"
     assert_response :success
-    assert_no_xml_tag tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+    assert_no_xml_tag tag: 'person', attributes: { name: "Iggy", role: "bugowner" }
     u.state = 'confirmed'
     u.save
 
     # group in project meta
     get "/search/owner?project=TEMPORARY&binary=package&filter=maintainer"
     assert_response :success
-    assert_xml_tag tag: 'owner', :attributes => { :project => "TEMPORARY" }
-    assert_xml_tag tag: 'person', :attributes => { :name => "king", :role => "maintainer" }
-    assert_xml_tag tag: 'group', :attributes => { :name => "test_group", :role => "maintainer" }
+    assert_xml_tag tag: 'owner', attributes: { project: "TEMPORARY" }
+    assert_xml_tag tag: 'person', attributes: { name: "king", role: "maintainer" }
+    assert_xml_tag tag: 'group', attributes: { name: "test_group", role: "maintainer" }
 
     # search for not mantainer packages
     get "/search/missing_owner"
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 0 } # all defined
+    assert_xml_tag tag: 'collection', children: { count: 0 } # all defined
 
     get "/search/missing_owner?project=TEMPORARY"
     assert_response :success
-    assert_xml_tag tag: 'collection', :children => { :count => 0 } # all defined
+    assert_xml_tag tag: 'collection', children: { count: 0 } # all defined
 
     get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
     assert_response :success
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "TEMPORARY", project: "TEMPORARY", package: "pack" }
 
     get "/search/missing_owner?project=TEMPORARY&filter=reviewer"
     assert_response :success
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "TEMPORARY", project: "TEMPORARY", package: "pack" }
 
     # set an empty group
     put "/source/TEMPORARY/pack/_meta",
@@ -695,7 +695,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
     assert_response :success
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "TEMPORARY", project: "TEMPORARY", package: "pack" }
 
     # set an valid group
     put "/source/TEMPORARY/pack/_meta",
@@ -703,7 +703,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
     assert_response :success
-    assert_no_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_no_xml_tag tag: 'missing_owner', attributes: { rootproject: "TEMPORARY", project: "TEMPORARY", package: "pack" }
     assert_response :success
 
     # set an valid group via project
@@ -711,7 +711,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/search/missing_owner?project=TEMPORARY&filter=maintainer"
     assert_response :success
-    assert_no_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_no_xml_tag tag: 'missing_owner', attributes: { rootproject: "TEMPORARY", project: "TEMPORARY", package: "pack" }
     assert_response :success
     # empty group in project
     put "/source/TEMPORARY/_meta", "<project name='TEMPORARY'><title/><description/><link project='home:Iggy'/>
@@ -724,7 +724,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
     assert_response :success
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "TEMPORARY", project: "TEMPORARY", package: "pack" }
     assert_response :success
 
     # reset devel package setting again
@@ -743,14 +743,14 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/owner?project=BaseDistro3&filter=bugowner&binary=package&limit=1"
     assert_response :success
     # found project container
-    assert_xml_tag tag: 'owner', :attributes => { :rootproject => "BaseDistro3", :project => "BaseDistro3" }
-    assert_no_xml_tag tag: 'owner', :attributes => { :package => "pack2" }
+    assert_xml_tag tag: 'owner', attributes: { rootproject: "BaseDistro3", project: "BaseDistro3" }
+    assert_no_xml_tag tag: 'owner', attributes: { package: "pack2" }
 
     # search with empty filter just to find the container to be set
     get "/search/owner?project=BaseDistro3&filter=&binary=package&limit=1"
     assert_response :success
     # found package container
-    assert_xml_tag tag: 'owner', :attributes => { :rootproject => "BaseDistro3", :project => "BaseDistro3", :package => "pack2" }
+    assert_xml_tag tag: 'owner', attributes: { rootproject: "BaseDistro3", project: "BaseDistro3", package: "pack2" }
   end
 
   def test_search_for_missing_role_defintions_in_all_visible_packages
@@ -759,15 +759,15 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # search for not mantainer packages
     get "/search/missing_owner?project=BaseDistro&filter=bugowner"
     assert_response :success
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack1" }
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack2" }
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "Pack3" }
+    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "BaseDistro", project: "BaseDistro", package: "pack1" }
+    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "BaseDistro", project: "BaseDistro", package: "pack2" }
+    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "BaseDistro", project: "BaseDistro", package: "Pack3" }
 
     get "/search/missing_owner?project=BaseDistro&filter=reviewer"
     assert_response :success
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack1" }
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack2" }
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "Pack3" }
+    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "BaseDistro", project: "BaseDistro", package: "pack1" }
+    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "BaseDistro", project: "BaseDistro", package: "pack2" }
+    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "BaseDistro", project: "BaseDistro", package: "Pack3" }
   end
 
   def test_find_owner_when_binary_exist_in_Update_but_definition_is_in_GA_project
@@ -811,16 +811,16 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # search: upper hit
     get "/search/owner?binary=package&project=TEMPORARY:Update"
     assert_response :success
-    assert_xml_tag :parent => { tag: 'owner', :attributes => { :rootproject => "TEMPORARY:Update", :project => "TEMPORARY:Update" } },
-                   tag: "person", :attributes => { :name => "king", :role => "maintainer" }
+    assert_xml_tag parent: { tag: 'owner', attributes: { rootproject: "TEMPORARY:Update", project: "TEMPORARY:Update" } },
+                   tag: "person", attributes: { name: "king", role: "maintainer" }
     # search: find definition in package below without this binary
     get "/search/owner?binary=package&project=TEMPORARY:Update&filter=bugowner"
     assert_response :success
-    assert_xml_tag :parent => { tag: 'owner',
-                                :attributes => { :rootproject => "TEMPORARY:Update",
-                                                 :project     => "TEMPORARY:GA",
-                                                 :package     => "package" } },
-                   tag: "person", :attributes => { :name => "fred", :role => "bugowner" }
+    assert_xml_tag parent: { tag:        'owner',
+                             attributes: { rootproject: "TEMPORARY:Update",
+                                           project:     "TEMPORARY:GA",
+                                           package:     "package" } },
+                   tag: "person", attributes: { name: "fred", role: "bugowner" }
 
     # cleanup
     delete "/source/TEMPORARY:Update"

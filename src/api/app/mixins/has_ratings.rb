@@ -2,7 +2,7 @@
 module HasRatings
   def self.included(base)
     base.class_eval do
-      has_many :ratings, :as => :db_object, :dependent => :delete_all
+      has_many :ratings, as: :db_object, dependent: :delete_all
     end
   end
 
@@ -22,6 +22,6 @@ module HasRatings
     else
       user_score = 0
     end
-    return {:score => score, :count => count, :user_score => user_score}
+    return {score: score, count: count, user_score: user_score}
   end
 end

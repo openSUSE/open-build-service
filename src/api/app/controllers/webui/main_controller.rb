@@ -42,7 +42,7 @@ class Webui::MainController < Webui::WebuiController
   end
 
   def sitemap
-    render :layout => false, :content_type => 'application/xml'
+    render layout: false, content_type: 'application/xml'
   end
 
   def require_projects
@@ -51,7 +51,7 @@ class Webui::MainController < Webui::WebuiController
 
   def sitemap_projects
     require_projects
-    render :layout => false, :content_type => 'application/xml'
+    render layout: false, content_type: 'application/xml'
   end
 
   def sitemap_packages
@@ -76,9 +76,9 @@ class Webui::MainController < Webui::WebuiController
     result.each do |pid, name|
       @packages << [projects[pid], name]
     end
-    render :template => 'webui/main/sitemap_packages',
-           :layout => false, :locals => {:action => params[:listaction]},
-           :content_type => 'application/xml'
+    render template: 'webui/main/sitemap_packages',
+           layout: false, locals: {action: params[:listaction]},
+           content_type: 'application/xml'
   end
 
   def add_news_dialog
@@ -88,7 +88,7 @@ class Webui::MainController < Webui::WebuiController
   def add_news
     if params[:message].nil? || params[:severity].blank?
       flash[:error] = 'Please provide a message and severity'
-      redirect_to(:action => 'index') && return
+      redirect_to(action: 'index') && return
     end
     # TODO - make use of permissions.status_message_create
     status_message = StatusMessage.new(message: params[:message], severity: params[:severity], user: User.current)
@@ -97,7 +97,7 @@ class Webui::MainController < Webui::WebuiController
     else
       flash[:error] = "Could not create status message: #{status_message.errors.full_messages.to_sentence}"
     end
-    redirect_to(:action => "index")
+    redirect_to(action: "index")
   end
 
   def delete_message_dialog
@@ -107,6 +107,6 @@ class Webui::MainController < Webui::WebuiController
   def delete_message
     required_parameters :message_id
     StatusMessage.find(params[:message_id]).delete
-    redirect_to(:action => 'index')
+    redirect_to(action: 'index')
   end
 end

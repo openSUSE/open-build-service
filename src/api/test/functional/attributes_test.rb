@@ -20,9 +20,9 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
     # only one entry ATM - will have to be adopted, lists namespaces
     count = 2
-    assert_xml_tag :tag => 'directory', :attributes => { :count => count }
-    assert_xml_tag :children => { :count => count }
-    assert_xml_tag :child => { :tag => 'entry', :attributes => { :name => "NSTEST" } }
+    assert_xml_tag tag: 'directory', attributes: { count: count }
+    assert_xml_tag children: { count: count }
+    assert_xml_tag child: { tag: 'entry', attributes: { name: "NSTEST" } }
   end
 
   def test_namespace_index
@@ -34,19 +34,19 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     get "/attribute/OBS"
     assert_response :success
     count = 21
-    assert_xml_tag :tag => 'directory', :attributes => { :count => count }
-    assert_xml_tag :children => { :count => count }
-    assert_xml_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
+    assert_xml_tag tag: 'directory', attributes: { count: count }
+    assert_xml_tag children: { count: count }
+    assert_xml_tag child: { tag: 'entry', attributes: { name: "Maintained" } }
   end
 
   def test_namespace_meta
     login_Iggy
     get "/attribute/OBS/UpdateProject/_meta"
     assert_response :success
-    assert_xml_tag :tag => 'definition', :attributes => { :name => "UpdateProject", :namespace => "OBS" }
-    assert_xml_tag :child => { :tag => 'modifiable_by', :attributes => { :user => "maintenance_coord" } }
-    assert_xml_tag :child => { :tag => 'count', :content => "1" }
-    assert_xml_tag :child => { :tag => 'description', :content => "Project is frozen and updates are released via the other project" }
+    assert_xml_tag tag: 'definition', attributes: { name: "UpdateProject", namespace: "OBS" }
+    assert_xml_tag child: { tag: 'modifiable_by', attributes: { user: "maintenance_coord" } }
+    assert_xml_tag child: { tag: 'count', content: "1" }
+    assert_xml_tag child: { tag: 'description', content: "Project is frozen and updates are released via the other project" }
   end
 
   def test_create_namespace_old
@@ -218,10 +218,10 @@ ription</description>
 
     get "/source/home:adrian/_attribute/TEST:Dummy"
     assert_response :success
-    assert_xml_tag :parent => { :tag => 'attribute', :attributes => { :name => "Dummy", :namespace => "TEST" } },
-                   :tag => 'issue', :attributes => { :name => "123", :tracker => "bnc" }
-    assert_xml_tag :parent => { :tag => 'attribute', :attributes => { :name => "Dummy", :namespace => "TEST" } },
-                   :tag => 'issue', :attributes => { :name => "456", :tracker => "bnc" }
+    assert_xml_tag parent: { tag: 'attribute', attributes: { name: "Dummy", namespace: "TEST" } },
+                   tag: 'issue', attributes: { name: "123", tracker: "bnc" }
+    assert_xml_tag parent: { tag: 'attribute', attributes: { name: "Dummy", namespace: "TEST" } },
+                   tag: 'issue', attributes: { name: "456", tracker: "bnc" }
 
     # remove one
     data = "<attributes><attribute namespace='TEST' name='Dummy'>
@@ -231,10 +231,10 @@ ription</description>
     assert_response :success
     get "/source/home:adrian/_attribute/TEST:Dummy"
     assert_response :success
-    assert_no_xml_tag :parent => { :tag => 'attribute', :attributes => { :name => "Dummy", :namespace => "TEST" } },
-                   :tag => 'issue', :attributes => { :name => "123", :tracker => "bnc" }
-    assert_xml_tag :parent => { :tag => 'attribute', :attributes => { :name => "Dummy", :namespace => "TEST" } },
-                   :tag => 'issue', :attributes => { :name => "456", :tracker => "bnc" }
+    assert_no_xml_tag parent: { tag: 'attribute', attributes: { name: "Dummy", namespace: "TEST" } },
+                   tag: 'issue', attributes: { name: "123", tracker: "bnc" }
+    assert_xml_tag parent: { tag: 'attribute', attributes: { name: "Dummy", namespace: "TEST" } },
+                   tag: 'issue', attributes: { name: "456", tracker: "bnc" }
 
     # cleanup
     delete "/attribute/TEST/Dummy/_meta"
@@ -249,9 +249,9 @@ ription</description>
     get "/attribute/OBS"
     assert_response :success
     count = 21
-    assert_xml_tag :tag => 'directory', :attributes => { :count => count }
-    assert_xml_tag :children => { :count => count }
-    assert_xml_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
+    assert_xml_tag tag: 'directory', attributes: { count: count }
+    assert_xml_tag children: { count: count }
+    assert_xml_tag child: { tag: 'entry', attributes: { name: "Maintained" } }
   end
 
   def test_invalid_get
@@ -321,10 +321,10 @@ ription</description>
     # check history
     get "/source/home:tom/_project?meta=1"
     assert_response :success
-    assert_xml_tag :tag => "entry", :attributes => { :name => "_attribute" }
+    assert_xml_tag tag: "entry", attributes: { name: "_attribute" }
     get "/source/home:tom/_project/_history?meta=1"
     assert_response :success
-    assert_xml_tag( :tag => "revisionlist" )
+    assert_xml_tag( tag: "revisionlist" )
     revision = Xmlhash.parse(@response.body).elements('revision').last
     assert_equal 'tom', revision['user']
     srcmd5 = revision['srcmd5']
@@ -342,10 +342,10 @@ ription</description>
     # both ways need to work, first one for backward compatibility
     get "/source/home:tom/_attribute?rev=#{srcmd5}"
     assert_response :success
-    assert_xml_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "Maintained" } )
+    assert_xml_tag( tag: "attribute", attributes: { namespace: "OBS", name: "Maintained" } )
     get "/source/home:tom/_project/_attribute?meta=1&rev=#{srcmd5}"
     assert_response :success
-    assert_xml_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "Maintained" } )
+    assert_xml_tag( tag: "attribute", attributes: { namespace: "OBS", name: "Maintained" } )
 
     # get current
     get "/source/home:tom/_attribute/OBS:Maintained"
@@ -421,18 +421,18 @@ ription</description>
     # invalid operations
     delete "/source/kde4/kdelibs/kdelibs-devel/_attribute"
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "missing_attribute" }
+    assert_xml_tag tag: "status", attributes: { code: "missing_attribute" }
     delete "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS_Maintained"
     assert_response 400
-    assert_xml_tag :tag => "status", :attributes => { :code => "invalid_attribute" }
+    assert_xml_tag tag: "status", attributes: { code: "invalid_attribute" }
 
     # check history
     get "/source/kde4/kdelibs?meta=1"
     assert_response :success
-    assert_xml_tag :tag => "entry", :attributes => { :name => "_attribute" }
+    assert_xml_tag tag: "entry", attributes: { name: "_attribute" }
     get "/source/kde4/kdelibs/_history?meta=1"
     assert_response :success
-    assert_xml_tag( :tag => "revisionlist" )
+    assert_xml_tag( tag: "revisionlist" )
     revision = Xmlhash.parse(@response.body)['revision'].last
     assert_equal "fred", revision['user']
     srcmd5 = revision['srcmd5']
@@ -458,8 +458,8 @@ ription</description>
     # get old revision
     get "/source/kde4/kdelibs/_attribute?meta=1&rev=#{srcmd5}"
     assert_response :success
-    assert_xml_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "Maintained" } )
-    assert_xml_tag( :tag => "attribute", :attributes => { :namespace => "OBS", :name => "Maintained", :binary => "kdelibs-devel" } )
+    assert_xml_tag( tag: "attribute", attributes: { namespace: "OBS", name: "Maintained" } )
+    assert_xml_tag( tag: "attribute", attributes: { namespace: "OBS", name: "Maintained", binary: "kdelibs-devel" } )
   end
 
 # FIXME:

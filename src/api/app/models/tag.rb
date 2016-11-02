@@ -1,9 +1,9 @@
 class Tag < ApplicationRecord
-  has_many :taggings, :dependent => :destroy
+  has_many :taggings, dependent: :destroy
   has_many :projects, -> { where("taggings.taggable_type = 'Project'") }, through: :taggings
   has_many :packages, -> { where("taggings.taggable_type = 'Package'") }, through: :taggings
 
-  has_many :users, :through => :taggings
+  has_many :users, through: :taggings
 
   attr_accessor :cached_count
 
@@ -31,7 +31,7 @@ class Tag < ApplicationRecord
     @cached_count
   end
 
-  validates :name, :format => { :with => /\A[^:?]*\z/, :message => "no ? and : allowed!" }
+  validates :name, format: { with: /\A[^:?]*\z/, message: "no ? and : allowed!" }
   validate :not_blacklisted
 
   protected

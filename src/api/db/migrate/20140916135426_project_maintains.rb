@@ -10,7 +10,7 @@ class ProjectMaintains  < ActiveRecord::Migration
     end
     execute("alter table maintained_projects add foreign key (project_id) references projects(id)")
     execute("alter table maintained_projects add foreign key (maintenance_project_id) references projects(id)")
-    add_index :maintained_projects, [:project_id, :maintenance_project_id], :unique => true, :name => "uniq_index"
+    add_index :maintained_projects, [:project_id, :maintenance_project_id], unique: true, name: "uniq_index"
 
     s = OldProject.find_by_sql "SELECT id,maintenance_project_id FROM projects WHERE NOT ISNULL(maintenance_project_id)"
     s.each do |e|

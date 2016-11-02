@@ -319,8 +319,8 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     # check API too
     get '/source/home:tom:addrepo/_meta'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { name: "images" } },
-                   :tag => "arch", :content => "x86_64"
+    assert_xml_tag parent: { tag: "repository", attributes: { name: "images" } },
+                   tag: "arch", content: "x86_64"
   end
 
   def test_save_meta

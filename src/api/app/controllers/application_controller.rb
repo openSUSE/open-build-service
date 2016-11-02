@@ -64,7 +64,7 @@ class ApplicationController < ActionController::Base
     logger.debug "Checking for  Admin role for user #{@http_user.login}"
     unless @http_user.is_admin?
       logger.debug "not granted!"
-      render_error(:status => 403, :errorcode => "put_request_no_permission", :message => "Requires admin privileges") && (return false)
+      render_error(status: 403, errorcode: "put_request_no_permission", message: "Requires admin privileges") && (return false)
     end
     return true
   end
@@ -249,8 +249,8 @@ class ApplicationController < ActionController::Base
     # as the send_file function only references the path to it. So we keep it
     # for ourselves. And once the controller is garbage collected, it should
     # be fine to unlink the data
-    @volleyfile = Tempfile.new 'volley', :encoding => 'ascii-8bit'
-    opts = { :url_based_filename => true }
+    @volleyfile = Tempfile.new 'volley', encoding: 'ascii-8bit'
+    opts = { url_based_filename: true }
 
     backend_http.request_get(path) do |res|
       opts[:status] = res.code
@@ -269,7 +269,7 @@ class ApplicationController < ActionController::Base
   end
 
   def download_request
-    file = Tempfile.new 'volley', :encoding => 'ascii-8bit'
+    file = Tempfile.new 'volley', encoding: 'ascii-8bit'
     b = request.body
     buffer = String.new
     file.write(buffer) while b.read(40960, buffer)
@@ -316,8 +316,8 @@ class ApplicationController < ActionController::Base
     end
 
     text = response.body
-    send_data( text, :type => response.fetch( "content-type" ),
-      :disposition => "inline" )
+    send_data( text, type: response.fetch( "content-type" ),
+      disposition: "inline" )
     return text
   end
   public :pass_to_backend
@@ -364,11 +364,11 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from Project::WritePermissionError do |exception|
-    render_error :status => 403, :errorcode => "modify_project_no_permission", :message => exception.message
+    render_error status: 403, errorcode: "modify_project_no_permission", message: exception.message
   end
 
   rescue_from Package::WritePermissionError do |exception|
-    render_error :status => 403, :errorcode => "modify_package_no_permission", :message => exception.message
+    render_error status: 403, errorcode: "modify_package_no_permission", message: exception.message
   end
 
   rescue_from ActiveXML::Transport::NotFoundError, ActiveRecord::RecordNotFound do |exception|
@@ -453,14 +453,14 @@ class ApplicationController < ActionController::Base
     @errorcode = "ok"
     @summary = "Ok"
     @data = opt[:data] if opt[:data]
-    render :template => 'status', :status => 200
+    render template: 'status', status: 200
   end
 
   def render_invoked(opt = {})
     @errorcode = "invoked"
     @summary = "Job invoked"
     @data = opt[:data] if opt[:data]
-    render :template => 'status', :status => 200
+    render template: 'status', status: 200
   end
 
   def backend

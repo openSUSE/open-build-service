@@ -4,7 +4,7 @@ module BuildLogSupport
   def raw_log_chunk( project, package, repo, arch, start, theend )
     logger.debug "get log chunk #{start}-#{theend}"
     path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?nostream=1&start=#{start}&end=#{theend}"
-    ActiveXML::backend.direct_http URI("#{path}"), :timeout => 500
+    ActiveXML::backend.direct_http URI("#{path}"), timeout: 500
   end
 
   def get_log_chunk( project, package, repo, arch, start, theend )
@@ -30,7 +30,7 @@ module BuildLogSupport
   def get_size_of_log( project, package, repo, arch)
     logger.debug 'get log entry'
     path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?view=entry"
-    data = ActiveXML::backend.direct_http URI("#{path}"), :timeout => 500
+    data = ActiveXML::backend.direct_http URI("#{path}"), timeout: 500
     return 0 unless data
     doc = Xmlhash.parse(data)
     doc.elements('entry') do |e|
@@ -41,6 +41,6 @@ module BuildLogSupport
 
   def get_job_status( project, package, repo, arch)
     path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_jobstatus"
-    ActiveXML::backend.direct_http URI("#{path}"), :timeout => 500
+    ActiveXML::backend.direct_http URI("#{path}"), timeout: 500
   end
 end

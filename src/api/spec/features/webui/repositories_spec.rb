@@ -1,6 +1,6 @@
 require "browser_helper"
 
-RSpec.feature "Repositories", :type => :feature, :js => true do
+RSpec.feature "Repositories", type: :feature, js: true do
   let!(:user) { create(:confirmed_user) }
   let!(:project) { create(:project) }
   let!(:relationship) { create(:relationship_project_user, project: project, user: user) }

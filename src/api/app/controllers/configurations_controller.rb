@@ -2,10 +2,10 @@ require 'configuration'
 
 class ConfigurationsController < ApplicationController
   # Site-specific configuration is insensitive information, no login needed therefore
-  before_action :require_admin, :only => [:update]
-  skip_action_callback :validate_params, :only => [:update] # we use an array for archs here
+  before_action :require_admin, only: [:update]
+  skip_action_callback :validate_params, only: [:update] # we use an array for archs here
 
-  validate_action :show => {:method => :get, :response => :configuration}
+  validate_action show: {method: :get, response: :configuration}
 # webui is using this route with parameters instead of content
 #  validate_action :update => {:method => :put, :request => :configuration}
 
@@ -16,8 +16,8 @@ class ConfigurationsController < ApplicationController
     @configuration = ::Configuration.first
 
     respond_to do |format|
-      format.xml  { render :xml => @configuration.render_xml }
-      format.json { render :json => @configuration.to_json }
+      format.xml  { render xml: @configuration.render_xml }
+      format.json { render json: @configuration.to_json }
     end
   end
 
@@ -52,8 +52,8 @@ class ConfigurationsController < ApplicationController
         v = ::Configuration::map_value( key, value )
         ov = ::Configuration::map_value( key, ::Configuration::OPTIONS_YML[key] )
         if ov != v && ov.present?
-          render_error :status => 403, :errorcode => 'no_permission_to_change',
-                       :message => "The api has a different value for #{key} configured in options.yml file. Remove it there first."
+          render_error status: 403, errorcode: 'no_permission_to_change',
+                       message: "The api has a different value for #{key} configured in options.yml file. Remove it there first."
           return
         end
         attribs[key] = value
@@ -65,7 +65,7 @@ class ConfigurationsController < ApplicationController
       @configuration.save!
       head :ok
     else
-      render :xml => @configuration.errors, :status => :unprocessable_entity
+      render xml: @configuration.errors, status: :unprocessable_entity
     end
   end
 end

@@ -39,7 +39,7 @@ class FullTextSearch
              field_weights: FullTextSearch.field_weights,
              page:          options[:page],
              per_page:      options[:per_page] || FullTextSearch.per_page,
-             without:       {:project_id => Relationship.forbidden_project_ids} }
+             without:       {project_id: Relationship.forbidden_project_ids} }
 
     args[:select] = "*, (weight() + "\
                     "#{FullTextSearch.linked_count_weight} * linked_count + "\
@@ -117,7 +117,7 @@ class FullTextSearch
       # compat code for handling all writings of CVE id's
       issue_name.gsub!(/^CVE-/i, '') if issue_tracker_name == "cve"
       # Return 0 if the issue does not exist in order to force an empty result
-      Issue.joins(:issue_tracker).where("issue_trackers.name" => issue_tracker_name, name: issue_name).pluck(:id).first || 0
+      Issue.joins(:issue_tracker).where("issue_trackers.name" => issue_tracker_name, :name => issue_name).pluck(:id).first || 0
     end
   end
 end

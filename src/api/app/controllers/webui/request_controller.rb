@@ -6,7 +6,7 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/comment'
   helper 'webui/package'
 
-  before_action :require_login, :except => [:show, :sourcediff, :diff]
+  before_action :require_login, except: [:show, :sourcediff, :diff]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
 
@@ -43,7 +43,7 @@ class Webui::RequestController < Webui::WebuiController
     rescue ActiveRecord::RecordInvalid, APIException => e
       flash[:error] = "Unable add review to '#{params[:number]}': #{e.message}"
     end
-    redirect_to :controller => :request, :action => 'show', :number => params[:number]
+    redirect_to controller: :request, action: 'show', number: params[:number]
   end
 
   def modify_review
@@ -80,7 +80,7 @@ class Webui::RequestController < Webui::WebuiController
       end
     end
 
-    redirect_to :action => 'show', :number => req.number
+    redirect_to action: 'show', number: req.number
   end
 
   def show
@@ -140,10 +140,10 @@ class Webui::RequestController < Webui::WebuiController
 
   def sourcediff
     check_ajax
-    render :partial => 'shared/editor', :locals => {:text => params[:text],
-                                                    :mode => 'diff', :read_only => true,
-                                                    :height => 'auto', :width => '750px',
-                                                    :no_border => true, uid: params[:uid]}
+    render partial: 'shared/editor', locals: {text: params[:text],
+                                                    mode: 'diff', read_only: true,
+                                                    height: 'auto', width: '750px',
+                                                    no_border: true, uid: params[:uid]}
   end
 
   def require_request
@@ -195,7 +195,7 @@ class Webui::RequestController < Webui::WebuiController
       accept_request if changestate == 'accepted'
     end
 
-    redirect_to :action => 'show', :number => params[:number]
+    redirect_to action: 'show', number: params[:number]
   end
 
   def accept_request
@@ -250,7 +250,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def diff
     # just for compatibility. OBS 1.X used this route for show
-    redirect_to :action => :show, :number => params[:number]
+    redirect_to action: :show, number: params[:number]
   end
 
   def list
@@ -259,7 +259,7 @@ class Webui::RequestController < Webui::WebuiController
     elide_len = (params[:elide_len] || 44).to_i
     session[:request_numbers] = requests.map { |id| BsRequest.find(id).number }.uniq
     requests = BsRequest.collection(ids: requests)
-    render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len, :no_target => params[:no_target]}
+    render partial: 'shared/requests', locals: {requests: requests, elide_len: elide_len, no_target: params[:no_target]}
   end
 
   def list_small
@@ -339,10 +339,10 @@ class Webui::RequestController < Webui::WebuiController
       end
     rescue APIException => e
       flash[:error] = e.message
-      redirect_to(:controller => :package, :action => :show, :package => params[:package], :project => params[:project]) && return if params[:package]
-      redirect_to(:controller => :project, :action => :show, :project => params[:project]) && return
+      redirect_to(controller: :package, action: :show, package: params[:package], project: params[:project]) && return if params[:package]
+      redirect_to(controller: :project, action: :show, project: params[:project]) && return
     end
-    redirect_to :controller => :request, :action => :show, :number => req.number
+    redirect_to controller: :request, action: :show, number: req.number
   end
 
   def set_bugowner_request_dialog
@@ -370,10 +370,10 @@ class Webui::RequestController < Webui::WebuiController
       end
     rescue APIException => e
       flash[:error] = e.message
-      redirect_to(:controller => :package, :action => :show, :package => params[:package], :project => params[:project]) && return if params[:package]
-      redirect_to(:controller => :project, :action => :show, :project => params[:project]) && return
+      redirect_to(controller: :package, action: :show, package: params[:package], project: params[:project]) && return if params[:package]
+      redirect_to(controller: :project, action: :show, project: params[:project]) && return
     end
-    redirect_to :controller => :request, :action => :show, :number => req.number
+    redirect_to controller: :request, action: :show, number: req.number
   end
 
   def change_devel_request_dialog
@@ -438,7 +438,7 @@ class Webui::RequestController < Webui::WebuiController
       end
     end
 
-    redirect_to :action => 'show', :number => params[:number]
+    redirect_to action: 'show', number: params[:number]
   end
 
   # used by mixins

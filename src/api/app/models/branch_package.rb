@@ -115,10 +115,10 @@ class BranchPackage
         end
       else
         if pac.is_a? Package
-          tpkg = tprj.packages.new(:name => pack_name, :title => pac.title, :description => pac.description)
+          tpkg = tprj.packages.new(name: pack_name, title: pac.title, description: pac.description)
           tpkg.bcntsynctag = pac.bcntsynctag
         else
-          tpkg = tprj.packages.new(:name => pack_name)
+          tpkg = tprj.packages.new(name: pack_name)
         end
         if tpkg.bcntsynctag && @extend_names
           tpkg.bcntsynctag << '.' + p[:link_target_project].name.tr(':', '_')
@@ -221,20 +221,20 @@ class BranchPackage
       end
       @add_repositories = true # new projects shall get repositories
       Project.transaction do
-        tprj = Project.create :name => @target_project, :title => title, :description => description
+        tprj = Project.create name: @target_project, title: title, description: description
         tprj.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
-        tprj.flags.create(:flag => 'build', :status => 'disable') if @extend_names
-        tprj.flags.create(:flag => 'access', :status => 'disable') if @noaccess
+        tprj.flags.create(flag: 'build', status: 'disable') if @extend_names
+        tprj.flags.create(flag: 'access', status: 'disable') if @noaccess
         tprj.store
         add_autocleanup_attribute(tprj) if @auto_cleanup
       end
       if params[:request]
         ans = AttribNamespace.find_by_name 'OBS'
-        at = ans.attrib_types.where(:name => 'RequestCloned').first
+        at = ans.attrib_types.where(name: 'RequestCloned').first
 
         tprj = Project.get_by_name @target_project
-        a = Attrib.new(:project => tprj, :attrib_type => at)
-        a.values << AttribValue.new(:value => params[:request], :position => 1)
+        a = Attrib.new(project: tprj, attrib_type: at)
+        a.values << AttribValue.new(value: params[:request], position: 1)
         a.save
       end
     end
@@ -250,18 +250,18 @@ class BranchPackage
 
   def report_dryrun
     @packages.sort! { |x, y| x[:target_package] <=> y[:target_package] }
-    builder = Builder::XmlMarkup.new(:indent => 2)
+    builder = Builder::XmlMarkup.new(indent: 2)
     builder.collection do
       @packages.each do |p|
         if p[:package].is_a? Package
-          builder.package(:project => p[:link_target_project].name, :package => p[:package].name) do
-            builder.devel(:project => p[:copy_from_devel].project.name, :package => p[:copy_from_devel].name) if p[:copy_from_devel]
-            builder.target(:project => @target_project, :package => p[:target_package])
+          builder.package(project: p[:link_target_project].name, package: p[:package].name) do
+            builder.devel(project: p[:copy_from_devel].project.name, package: p[:copy_from_devel].name) if p[:copy_from_devel]
+            builder.target(project: @target_project, package: p[:target_package])
           end
         else
-          builder.package(:project => p[:link_target_project], :package => p[:package]) do
-            builder.devel(:project => p[:copy_from_devel].project.name, :package => p[:copy_from_devel].name) if p[:copy_from_devel]
-            builder.target(:project => @target_project, :package => p[:target_package])
+          builder.package(project: p[:link_target_project], package: p[:package]) do
+            builder.devel(project: p[:copy_from_devel].project.name, package: p[:copy_from_devel].name) if p[:copy_from_devel]
+            builder.target(project: @target_project, package: p[:target_package])
           end
         end
       end

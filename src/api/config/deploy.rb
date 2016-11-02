@@ -14,7 +14,7 @@ set :git_subdir, '/src/api'
 set :migrate_target, :current
 
 set :deploy_notification_to, %w(tschmidt@suse.de coolo@suse.de adrian@suse.de saschpe@suse.de mls@suse.de)
-server "buildserviceapi.suse.de", :app, :web, :db, :primary => true
+server "buildserviceapi.suse.de", :app, :web, :db, primary: true
 
 # If you aren't deploying to /u/apps/#{application} on the target
 # servers (which is the default), you can specify the actual location
@@ -85,7 +85,7 @@ namespace :deploy do
     set :latest_release, latest_release_bak
   end
 
-  task :create_symlink, :except => { :no_release => true } do
+  task :create_symlink, except: { no_release: true } do
     on_rollback do
       if previous_release
         run "rm -f #{current_path}; ln -s #{previous_release}#{git_subdir} #{current_path}; true"

@@ -4,6 +4,6 @@ class RemoveUniqueIndexFromAttribValues < ActiveRecord::Migration
   end
 
   def self.down
-    add_index :attrib_values, [:attrib_id, :position], :unique => true
+    add_index :attrib_values, [:attrib_id, :position], unique: true
   end
 end

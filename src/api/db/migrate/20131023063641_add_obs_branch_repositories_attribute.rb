@@ -5,7 +5,7 @@ class AddObsBranchRepositoriesAttribute  < ActiveRecord::Migration
     role = Role.find_by_title("maintainer")
     ans = AttribNamespace.find_by_name "OBS"
 
-    at=AttribType.create( :attrib_namespace => ans, :name => "BranchRepositoriesFromProject", :value_count=>1 )
+    at=AttribType.create( attrib_namespace: ans, name: "BranchRepositoriesFromProject", value_count: 1 )
     AttribTypeModifiableBy.create(bs_role_id: role.id, attrib_type_id: at.id)
   end
 
