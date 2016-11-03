@@ -1538,7 +1538,7 @@ sub failjob {
     'timeout' => 60,
   };
   eval {
-    BSRPC::rpc($param, undef, "cmd=failjob", "message=$message");
+    BSRPC::rpc($param, undef, "cmd=fail", "message=$message");
   };
   warn($@) if $@;
 }
