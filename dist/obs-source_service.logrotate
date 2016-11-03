@@ -1,4 +1,4 @@
-/srv/obs/log/*.log {
+/srv/obs/service/log/*.log {
     compress
     dateext
     rotate 2

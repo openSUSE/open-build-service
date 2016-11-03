@@ -580,6 +580,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %files -n obs-source_service
 %defattr(-,root,root)
 /etc/init.d/obsservice
+/etc/logrotate.d/obs-source_service
 /usr/sbin/rcobsservice
 /usr/lib/obs/server/bs_service
 /usr/lib/obs/server/call-service-in-lxc.sh
