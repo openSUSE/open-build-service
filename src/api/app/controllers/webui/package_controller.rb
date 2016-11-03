@@ -278,6 +278,7 @@ class Webui::PackageController < Webui::WebuiController
         elsif params[:project].include?(':branches:')
           opts[:sourceupdate] = 'update' # Avoid auto-removal of branch
         end
+        opts[:source_rev] = params[:rev] if params[:rev]
         action = BsRequestActionSubmit.new(opts)
         req.bs_request_actions << action
         action.bs_request = req
