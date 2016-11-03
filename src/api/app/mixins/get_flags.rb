@@ -19,7 +19,7 @@ module GetFlags
         # If there is no flag create a temporary one.
         unless flag
           flag = flags.new( flag: flag_type, repo: repository, architecture: architecture )
-          flag.status = flag.default_status
+          flag.status = flag.effective_status
         end
         the_flags[repository] << flag
       end
