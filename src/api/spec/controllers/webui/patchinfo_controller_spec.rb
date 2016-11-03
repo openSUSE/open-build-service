@@ -68,7 +68,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context 'when it fails to create the patchinfo package' do
       before do
-        Patchinfo.any_instance.stubs(:create_patchinfo).returns(false)
+        allow_any_instance_of(Patchinfo).to receive(:create_patchinfo).and_return(false)
         post :new_patchinfo, params: { project: user.home_project }
       end
 
@@ -78,7 +78,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context 'when the patchinfo package file is not found' do
       before do
-        Package.any_instance.stubs(:patchinfo).returns(nil)
+        allow_any_instance_of(Package).to receive(:patchinfo)
         post :new_patchinfo, params: { project: user.home_project }
       end
 
@@ -88,8 +88,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context 'when is successfull creating the patchinfo package' do
       before do
-        Buildresult.stubs(:find).returns(fake_build_results)
-        Package.any_instance.stubs(:patchinfo).returns(fake_patchinfo_with_binaries)
+        allow(Buildresult).to receive(:find).and_return(fake_build_results)
+        allow_any_instance_of(Package).to receive(:patchinfo).and_return(fake_patchinfo_with_binaries)
         post :new_patchinfo, params: { project: user.home_project }
       end
 
@@ -117,7 +117,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context 'with a valid patchinfo' do
       it 'updates and redirects to edit_patchinfo' do
-        Patchinfo.any_instance.expects(:cmd_update_patchinfo).with(user.home_project_name, patchinfo_package.name)
+        expect_any_instance_of(Patchinfo).to receive(:cmd_update_patchinfo).with(user.home_project_name, patchinfo_package.name)
         post :updatepatchinfo, params: { project: user.home_project_name, package: patchinfo_package.name }
         expect(response).to redirect_to(action: 'edit_patchinfo', project: user.home_project_name, package: patchinfo_package.name)
       end
@@ -218,7 +218,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context "without permission to edit the patchinfo-file" do
       before do
         patchinfo_package
-        Suse::Backend.stubs(:put).raises(ActiveXML::Transport::ForbiddenError)
+        allow(Suse::Backend).to receive(:put).and_raise(ActiveXML::Transport::ForbiddenError)
         do_proper_post_save
       end
 
@@ -229,7 +229,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context "putting the file is taking so long that will raise a timeout" do
       before do
         patchinfo_package
-        Suse::Backend.stubs(:put).raises(Timeout::Error)
+        allow(Suse::Backend).to receive(:put).and_raise(Timeout::Error)
         do_proper_post_save
       end
 
@@ -254,7 +254,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context "if package can't be removed" do
       before do
-        Package.any_instance.stubs(:check_weak_dependencies?).returns(false)
+        allow_any_instance_of(Package).to receive(:check_weak_dependencies?).and_return(false)
         post :remove, params: { project: user.home_project_name, package: patchinfo_package.name }
       end
 

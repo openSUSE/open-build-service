@@ -219,7 +219,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'with a failure in the backend' do
       before do
-        Buildresult.stubs(:find_hashed).raises(ActiveXML::Transport::Error, 'fake message')
+        allow(Buildresult).to receive(:find_hashed).and_raise(ActiveXML::Transport::Error, 'fake message')
         post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
       end
 
@@ -229,7 +229,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'without build results' do
       before do
-        Buildresult.stubs(:find_hashed).returns(nil)
+        allow(Buildresult).to receive(:find_hashed)
         post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
       end
 
@@ -241,7 +241,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       render_views
 
       before do
-        Buildresult.stubs(:find).returns(fake_build_results_without_binaries)
+        allow(Buildresult).to receive(:find).and_return(fake_build_results_without_binaries)
         post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
       end
 
@@ -253,7 +253,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       render_views
 
       before do
-        Buildresult.stubs(:find).returns(fake_build_results)
+        allow(Buildresult).to receive(:find).and_return(fake_build_results)
         post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
       end
 
@@ -417,7 +417,7 @@ EOT
   describe "DELETE #remove_file" do
     before do
       login(user)
-      Package.any_instance.stubs(:delete_file).returns(true)
+      allow_any_instance_of(Package).to receive(:delete_file).and_return(true)
     end
 
     def remove_file_post
@@ -437,7 +437,7 @@ EOT
 
     context "with not successful backend call" do
       before do
-        Package.any_instance.stubs(:delete_file).raises(ActiveXML::Transport::NotFoundError)
+        allow_any_instance_of(Package).to receive(:delete_file).and_raise(ActiveXML::Transport::NotFoundError)
         remove_file_post
       end
 
@@ -452,7 +452,7 @@ EOT
     end
 
     it "calls delete_file method" do
-      Package.any_instance.expects(:delete_file).with('the_file')
+      allow_any_instance_of(Package).to receive(:delete_file).with('the_file')
       remove_file_post
     end
   end

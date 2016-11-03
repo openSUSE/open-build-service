@@ -244,7 +244,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     context "with a distribution called images" do
       before do
         login user
-        Project.any_instance.stubs(:prepend_kiwi_config).returns(true)
+        allow_any_instance_of(Project).to receive(:prepend_kiwi_config).and_return(true)
         post :create_image_repository, params: { project: user.home_project }
       end
 

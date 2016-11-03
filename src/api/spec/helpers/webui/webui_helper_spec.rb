@@ -274,7 +274,7 @@ RSpec.describe Webui::WebuiHelper do
     context 'user is not registered' do
       before do
         User.current = create(:user)
-        UnregisteredUser.stubs(:can_register?).raises(APIException)
+        allow(UnregisteredUser).to receive(:can_register?).and_raise(APIException)
       end
 
       it { expect(can_register).to be(false) }

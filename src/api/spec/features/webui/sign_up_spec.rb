@@ -17,7 +17,7 @@ RSpec.feature "Sign up", type: :feature do
 
   scenario "User with confirmation" do
     # Configure confirmation for signups
-    ::Configuration.stubs(:registration).returns("confirmation")
+    allow_any_instance_of(::Configuration).to receive(:registration).and_return("confirmation")
 
     visit root_path
 
@@ -31,7 +31,7 @@ RSpec.feature "Sign up", type: :feature do
 
   scenario "User is denied" do
     # Deny signups
-    ::Configuration.stubs(:registration).returns("deny")
+    allow_any_instance_of(::Configuration).to receive(:registration).and_return("deny")
 
     visit user_register_user_path
 
