@@ -24,11 +24,9 @@ if ( @ARGV && $ARGV[0] =~ /--log=(.*)/ ) {
 
 }
 
-BSConfiguration::check_configuration_once();
-
 my $cachedir       = "$BSConfig::servicetempdir/scm-cache";
-my $high_watermark = 80; # in percent
-my $low_watermark  = 70; # in percent
+my $high_watermark = $BSConfig::scm_cache_high_watermark;
+my $low_watermark  = $BSConfig::scm_cache_low_watermark;
 
 if ( ! -d $cachedir ) {
   BSUtil::printlog("Could not find cachedir: $cachedir");
