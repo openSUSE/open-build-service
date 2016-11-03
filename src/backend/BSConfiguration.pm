@@ -63,6 +63,7 @@ sub update_from_configuration {
     $BSConfig::schedulerarchs = $xml->{'schedulers'}->{'arch'} if $xml->{'schedulers'} && $xml->{'schedulers'}->{'arch'};
   }
   $BSConfig::obsname = "build.some.where" unless defined $BSConfig::obsname;
+  $BSConfig::servicetempdir = $BSConfig::servicetempdir || "$BSConfig::bsdir/service";
 }
 
 sub check_configuration {
