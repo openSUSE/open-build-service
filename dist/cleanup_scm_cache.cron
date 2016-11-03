@@ -1,0 +1,2 @@
+# /etc/cron.d/cleanup_scm_cache
+33 * * * *   root /usr/lib/obs/server/cleanup_scm_cache --log=/srv/obs/service/log/cleanup_scm_cache.log

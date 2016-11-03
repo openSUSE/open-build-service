@@ -5,12 +5,24 @@ BEGIN {
   $wd ||= '.';
   unshift @INC,  "$wd/build";
   unshift @INC,  "$wd";
+
 }
 
 use strict;
 use Data::Dumper;
 use BSUtil;
 use BSConfiguration;
+use File::Basename;
+
+if ( @ARGV && $ARGV[0] =~ /--log=(.*)/ ) {
+  my $logfile = $1;
+  my $dirname = dirname($logfile);
+  -d $dirname || BSUtil::mkdir_p($dirname);
+
+  close STDOUT;
+  open(STDOUT,">> $logfile") || die "Cannot open $logfile\n";
+
+}
 
 BSConfiguration::check_configuration_once();
 
@@ -35,7 +47,10 @@ my $directory_list = create_directory_list($cachedir);
 
 cleanup_cache($directory_list);
 
-exit 0;
+BSUtil::printlog("Nothing left to cleanup. Please fix manually");
+BSUtil::printlog("Exiting ...");
+
+exit 1;
 
 sub cleanup_cache {
   my ($directory_list) = @_;
