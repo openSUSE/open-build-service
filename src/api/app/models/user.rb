@@ -299,11 +299,10 @@ class User < ApplicationRecord
   end
 
   def self.find_nobody!
-    Thread.current[:nobody_user] ||= User.create_with(email: "nobody@localhost",
-                                                      realname: "Anonymous User",
-                                                      state: 'locked',
-                                                      password: "123456").find_or_create_by(login: nobody_login)
-    Thread.current[:nobody_user]
+    User.create_with(email: "nobody@localhost",
+                     realname: "Anonymous User",
+                     state: 'locked',
+                     password: "123456").find_or_create_by(login: nobody_login)
   end
 
   def self.find_by_login!(login)
