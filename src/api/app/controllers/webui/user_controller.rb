@@ -60,7 +60,7 @@ class Webui::UserController < Webui::WebuiController
         @reviews = @displayed_user.involved_reviews
         @patchinfos = @displayed_user.involved_patchinfos
         @requests_in = @displayed_user.incoming_requests
-        @requests_out = @displayed_user.outgouing_requests
+        @requests_out = @displayed_user.outgoing_requests
         @declined_requests = @displayed_user.declined_requests
         @user_have_requests = @displayed_user.requests?
     end
@@ -81,19 +81,29 @@ class Webui::UserController < Webui::WebuiController
         3 => :creator,
         5 => :priority
       }
-    sorting_field = sortable_fields[params[:iSortCol_0].to_i]
+    sorting_field = sortable_fields[params['order[0][column]'].to_i]
     sorting_field ||= :created_at
-    sorting_dir = params[:sSortDir_0].try(:to_sym)
-    sorting_dir = :asc unless ["asc", "desc"].include?(params[:sSortDir_0])
-    @requests = @displayed_user.requests(params[:search])
+    sorting_dir = params['order[0][dir]'].try(:to_sym)
+    sorting_dir = :asc unless ["asc", "desc"].include?(params['order[0][dir]'])
+    search = params[:search] ? params[:search].permit![:value] : ""
+    request_methods = {
+      'all_requests_table'      => :requests,
+      'requests_out_table'      => :outgoing_requests,
+      'requests_declined_table' => :declined_requests,
+      'requests_in_table'       => :incoming_requests,
+      'reviews_in_table'        => :involved_reviews
+    }
+    # Depending on the table that is requesting we call the appropiate user method
+    request_method = request_methods[params[:dataTableId]] || :requests
+    @requests = @displayed_user.send(request_method, search)
     @requests_count = @requests.count
-    @requests = @requests.offset(params[:displayStart].to_i).limit(params[:pageLength].to_i).reorder(sorting_field => sorting_dir)
+    @requests = @requests.offset(params[:start].to_i).limit(params[:length].to_i).reorder(sorting_field => sorting_dir)
     respond_to do |format|
       # For jquery dataTable
       format.json {
         render_json_response_for_dataTable(
-          echo_next_count: params[:sEcho].to_i + 1,
-          total_records_count: @displayed_user.requests.count,
+          draw: params[:draw].to_i + 1,
+          total_records_count: @displayed_user.send(request_method).count,
           total_filtered_records_count: @requests_count,
           records: @requests.includes(:bs_request_actions)
         ) do |request|

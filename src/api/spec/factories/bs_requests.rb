@@ -6,6 +6,10 @@ FactoryGirl.define do
     transient do
       type nil
       source_project nil
+      source_package nil
+      target_project nil
+      target_package nil
+      reviewer nil
     end
 
     before(:create) do |request, evaluator|
@@ -24,5 +28,46 @@ FactoryGirl.define do
     end
 
     after(:create) { User.current = nil }
+
+    factory :bs_request_with_submit_action do
+      after(:create) do |request, evaluator|
+        request.bs_request_actions.delete_all
+        request.bs_request_actions << create(
+          :bs_request_action_submit,
+          target_project: evaluator.target_project,
+          target_package: evaluator.target_package,
+          source_project: evaluator.source_project,
+          source_package: evaluator.source_package)
+      end
+    end
+
+    factory :declined_bs_request do
+      after(:create) do |request, evaluator|
+        request.bs_request_actions.delete_all
+        request.bs_request_actions << create(
+          :bs_request_action_submit,
+          target_project: evaluator.target_project,
+          target_package: evaluator.target_package,
+          source_project: evaluator.source_project,
+          source_package: evaluator.source_package)
+        request.state = 'declined'
+        request.save!
+      end
+    end
+
+    factory :review_bs_request do
+      after(:create) do |request, evaluator|
+        request.bs_request_actions.delete_all
+        request.bs_request_actions << create(
+          :bs_request_action_submit,
+          target_project: evaluator.target_project,
+          target_package: evaluator.target_package,
+          source_project: evaluator.source_project,
+          source_package: evaluator.source_package)
+        request.reviews << Review.new(by_user: evaluator.reviewer)
+        request.state = 'review'
+        request.save!
+      end
+    end
   end
 end

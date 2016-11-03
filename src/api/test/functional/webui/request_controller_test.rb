@@ -23,10 +23,8 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     page.must_have_selector 'table#requests_in_table tr'
 
-    # walk over the table
-    rs = find('tr#tr_request_9991').find('.request_target')
-    rs.find(:xpath, '//a[@title="kde4"]').must_have_text 'kde4'
-    rs.find(:xpath, '//a[@title="kdelibs"]').must_have_text 'kdelibs'
+    find(:xpath, '//a[@title="kde4"]').must_have_text 'kde4'
+    find(:xpath, '//a[@title="kdelibs"]').must_have_text 'kdelibs'
   end
 
   def test_can_request_role_addition_for_projects # spec/features/webui/requests_spec.rb
@@ -160,7 +158,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   def test_tom_adds_invalid_project_reviewer # spec/features/webui/requests_spec.rb
     login_tom to: user_show_path(user: 'tom')
 
-    within('tr#tr_request_9994') do
+    within('table#reviews_in_table') do
       page.must_have_text '~:branches:kde4 / BranchPack'
       first(:css, 'a.request_link').click
     end
@@ -182,7 +180,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   def test_tom_adds_reviewer_Iggy # spec/features/webui/requests_spec.rb
     login_tom to: user_show_path(user: 'tom')
 
-    within('tr#tr_request_9994') do
+    within('table#reviews_in_table') do
       page.must_have_text '~:branches:kde4 / BranchPack'
       first(:css, 'a.request_link').click
     end
@@ -298,8 +296,8 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     get "/home/requests.json"
     assert_response :success
     result = ActiveSupport::JSON.decode(@response.body)
-    assert_equal 2, result["sEcho"]
-    assert_equal 0, result["iTotalRecords"]
+    assert_equal 1, result["draw"]
+    assert_equal 0, result["recordsTotal"]
     assert_equal [], result["data"]
   end
 

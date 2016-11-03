@@ -116,14 +116,14 @@ class Webui::WebuiController < ActionController::Base
 
   # Renders a json response for jquery dataTables
   def render_json_response_for_dataTable(options)
-    options[:echo_next_count] ||= 1
+    options[:draw] ||= 1
     options[:total_records_count] ||= 0
     options[:total_displayed_records] ||= 0
     response = {
-      sEcho:                options[:echo_next_count].to_i + 1,
-      iTotalRecords:        options[:total_records_count].to_i,
-      iTotalDisplayRecords: options[:total_filtered_records_count].to_i,
-      data:                 options[:records].map do |record|
+      draw:            options[:draw].to_i,
+      recordsTotal:    options[:total_records_count].to_i,
+      recordsFiltered: options[:total_filtered_records_count].to_i,
+      data:            options[:records].map do |record|
         if block_given?
           yield record
         else

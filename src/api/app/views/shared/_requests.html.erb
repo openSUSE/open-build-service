@@ -60,7 +60,10 @@
           <% if serverProcessing %>
           processing: true,
           serverSide: true,
-          ajax: '<%= user_requests_path %>',
+          ajax: {
+            url: '<%= user_requests_path %>',
+            data: { dataTableId: '<%= request_table_id %>' }
+          }
           <% end %>
         });
     <% end %>

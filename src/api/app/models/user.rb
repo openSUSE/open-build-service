@@ -827,26 +827,23 @@ class User < ApplicationRecord
   end
 
   # lists reviews involving this user
-  def involved_reviews
-    open_reviews = BsRequest.collection(user: login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review))
-    open_reviews.select do |review|
-      review['creator'] != login
-    end
+  def involved_reviews(search = nil)
+    BsRequest.collection(user: login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review), search: search).not_creator(login)
   end
 
   # list requests involving this user
-  def declined_requests
-    BsRequest.collection(user: login, states: %w(declined), roles: %w(creator))
+  def declined_requests(search = nil)
+    BsRequest.collection(user: login, states: %w(declined), roles: %w(creator), search: search)
   end
 
   # list incoming requests involving this user
-  def incoming_requests
-    BsRequest.collection(user: login, states: %w(new), roles: %w(maintainer))
+  def incoming_requests(search = nil)
+    BsRequest.collection(user: login, states: %w(new), roles: %w(maintainer), search: search)
   end
 
   # list outgoing requests involving this user
-  def outgouing_requests
-    BsRequest.collection(user: login, states: %w(new review), roles: %w(creator))
+  def outgoing_requests(search = nil)
+    BsRequest.collection(user: login, states: %w(new review), roles: %w(creator), search: search)
   end
 
   # finds if the user have any request

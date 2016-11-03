@@ -37,6 +37,7 @@ class BsRequest < ApplicationRecord
   scope :with_types, ->(types) { where('bs_request_actions.type in (?)', types).references(:bs_request_actions) }
   scope :from_source_project, ->(source_project) { where('bs_request_actions.source_project = ?', source_project).references(:bs_request_actions) }
   scope :in_ids, ->(ids) { where(id: ids) }
+  scope :not_creator, ->(login) { where.not(creator: login) }
   # Searching capabilities using dataTable (1.9)
   scope :do_search, lambda {|search|
     where([SEARCHABLE_FIELDS.map { |field| "#{field} like ?" }.join(' or '),

@@ -59,7 +59,7 @@ RSpec.describe Webui::UserController do
       describe "showing self" do
         it 'includes requests' do
           get :show, params: { user: non_admin_user }
-          expect(assigns(:requests_out)).to eq non_admin_user.outgouing_requests
+          expect(assigns(:requests_out)).to eq non_admin_user.outgoing_requests
         end
       end
       describe "showing someone else" do
@@ -119,7 +119,7 @@ RSpec.describe Webui::UserController do
 
     it 'renders the requests as json' do
       get :requests, { format: :json }
-      expect(response.body).to eq({sEcho: 2, iTotalRecords: 1, iTotalDisplayRecords: 1, data: []}.to_json)
+      expect(response.body).to eq({ draw: 1, recordsTotal: 1, recordsFiltered: 1, data: [] }.to_json)
     end
   end
 

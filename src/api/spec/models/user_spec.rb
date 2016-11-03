@@ -129,4 +129,77 @@ RSpec.describe User do
       expect(owned_packages[1]).to eq([project_with_package.packages.first.name, project_with_package.name])
     end
   end
+
+  describe 'requests' do
+    let(:creator) { create(:confirmed_user, login: 'tom') }
+    let(:receiver) { create(:confirmed_user, login: 'king') }
+    let(:reviewer) { create(:confirmed_user, login: 'alan') }
+
+    let(:source_project) { creator.home_project }
+    let(:source_package) { create(:package, project: source_project) }
+    let(:target_project) { receiver.home_project }
+    let(:target_package) { create(:package, project: target_project) }
+
+    let(:incoming_review) do
+      create(:review_bs_request,
+             creator: creator.login,
+             target_project: target_project.name,
+             target_package: target_package.name,
+             source_project: source_project.name,
+             source_package: source_package.name,
+             reviewer: reviewer.login)
+    end
+    let(:request) do
+      create(:bs_request_with_submit_action,
+             creator: creator.login,
+             target_project: target_project.name,
+             target_package: target_package.name,
+             source_project: source_project.name,
+             source_package: source_package.name)
+    end
+    let(:declined_request) do
+      create(:declined_bs_request,
+             creator: creator.login,
+             target_project: target_project.name,
+             target_package: target_package.name,
+             source_project: source_project.name,
+             source_package: source_package.name)
+    end
+
+    it 'returns incoming reviews' do
+      reviews = [incoming_review]
+      expect(reviewer.involved_reviews).to match_array(reviews)
+    end
+
+    it 'returns incoming reviews with search' do
+      expect(reviewer.involved_reviews('random_string')).to be_empty
+    end
+
+    it 'returns incoming requests' do
+      requests = [request]
+      expect(receiver.incoming_requests).to match_array(requests)
+    end
+
+    it 'returns incoming requests with search' do
+      expect(receiver.incoming_requests('random_string')).to be_empty
+    end
+
+    it 'returns outgoing requests' do
+      requests = [request]
+      expect(creator.outgoing_requests).to match_array(requests)
+    end
+
+    it 'returns outgoing requests with search' do
+      expect(creator.outgoing_requests('random_string')).to be_empty
+    end
+
+    it 'returns declined requests' do
+      requests = [declined_request]
+      expect(creator.declined_requests).to match_array(requests)
+    end
+
+    it 'returns declined requests with search' do
+      expect(creator.declined_requests('random_string')).to be_empty
+    end
+  end
 end
