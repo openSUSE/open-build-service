@@ -176,6 +176,7 @@ class ProjectTest < ActiveSupport::TestCase
         <title>My Test package 2</title>
         <description></description>
         <build>
+          <disable            repository='SLE_12_SP1' />
           <enable/>
         </build>
         <useforbuild>
@@ -191,6 +192,11 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 5, package2.get_flags('build').size
     assert_equal 3, package2.get_flags('build')["all"].size
 
+    flag_test = package2.get_flags('build')["SLE_12_SP1"][0]
+    assert_equal 'disable', flag_test.status
+    assert_equal 'disable', flag_test.effective_status
+    assert_equal 'enable', flag_test.default_status
+
     flag_build_all = package2.get_flags('build')["all"][0]
     assert_equal 'enable',  flag_build_all.status
     assert_equal 'enable',  flag_build_all.effective_status
@@ -204,7 +210,38 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 'enable', flag_useforbuild_all.effective_status
     assert_equal 'disable', flag_useforbuild_all.default_status
 
-    #
+    package3 = project.packages.create(name: "test3")
+    # package is given as axml
+    axml = Xmlhash.parse(
+        "<package name='test3' project='home:Iggy:flagtest'>
+        <title>My Test package 3</title>
+        <description></description>
+        <build>
+          <enable            repository='SLE_11_SP4' />
+          <disable           repository='SLE_12_SP1' />
+        </build>
+        <useforbuild>
+          <enable/>
+        </useforbuild>
+      </package>"
+    )
+
+    package3.update_from_xml(axml)
+    package3.store
+    package3.reload
+
+    assert_equal 5, package3.get_flags('build').size
+    assert_equal 3, package3.get_flags('build')["all"].size
+
+    flag_test = package3.get_flags('build')["SLE_11_SP4"][0]
+    assert_equal 'enable', flag_test.status
+    assert_equal 'enable', flag_test.effective_status
+    assert_equal 'disable', flag_test.default_status
+
+    flag_test = package3.get_flags('build')["all"][0]
+    assert_equal 'disable', flag_test.status
+    assert_equal 'disable', flag_test.effective_status
+    assert_equal 'disable', flag_test.default_status
 
     # this is the end
     project.destroy
