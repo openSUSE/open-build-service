@@ -4,7 +4,7 @@
 
 #FSDIR="/opt/obs/SourceServiceSystem"
 DOCKER_IMAGE=suse/sles12sp1-source-service:latest
-SERVICES_DIR="/srv/obs/service/"
+SERVICES_DIR=`obs_admin --query-config servicetempdir`
 
 SCM_COMMAND=0
 WITH_NET=0
@@ -20,10 +20,10 @@ function printlog {
 
 shift
 case "$COMMAND" in
-  */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom)
+  */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom|*/snapcraft)
     WITH_NET="1"
     ;;
-  */tar_scm|*/obs_scm|*/snapcraft)
+  */tar_scm|*/obs_scm)
     SCM_COMMAND=1
     WITH_NET="1"
   ;;
@@ -72,7 +72,6 @@ INNERSRCDIR="$INNERBASEDIR/src"
 OUTERSRCDIR="$MOUNTDIR/src"
 INNERSCRIPTDIR="$INNERBASEDIR/scripts"
 INNERSCRIPT="$INNERSCRIPTDIR/inner.sh"
-INNERGITCACHE="$INNERBASEDIR/git-cache"
 
 [ -d $OUTEROUTDIR ] || mkdir -p $OUTEROUTDIR
 [ -d $OUTERSRCDIR ] || mkdir -p $OUTERSRCDIR
@@ -98,13 +97,14 @@ fi
 DOCKER_VOLUMES="-v $OUTEROUTDIR:$INNEROUTDIR -v $OUTERSRCDIR:$INNERSRCDIR -v $MOUNTDIR$INNERSCRIPTDIR:$INNERSCRIPTDIR"
 JAILED=""
 
-if [ $SCM_COMMAND -eq 1 -a "$PARAM_SCM" == "git" ];then
+if [ $SCM_COMMAND -eq 1 ];then
   URL_HASH=`echo $PARAM_URL|sha256sum|cut -f1 -d\ `
-  OUTERGITCACHE="$SERVICES_DIR/git-cache/$URL_HASH"
-  [ -d $OUTERGITCACHE ] || mkdir -p $OUTERGITCACHE
+  OUTERSCMCACHE="$SERVICES_DIR/scm-cache/$URL_HASH"
+  INNERSCMCACHE="$INNERBASEDIR/scm-cache"
+  [ -d $OUTERSCMCACHE ] || mkdir -p $OUTERSCMCACHE
 
-  DOCKER_VOLUMES="$DOCKER_VOLUMES -v $OUTERGITCACHE:$INNERGITCACHE"
-  echo "export CACHEDIRECTORY='$INNERGITCACHE'" 	>> "$MOUNTDIR/${INNERSCRIPT}.command"
+  DOCKER_VOLUMES="$DOCKER_VOLUMES -v $OUTERSCMCACHE:$INNERSCMCACHE"
+  echo "export CACHEDIRECTORY='$INNERSCMCACHE'" 	>> "$MOUNTDIR/${INNERSCRIPT}.command"
 fi
 FULL_COMMAND="${COMMAND[@]} --outdir $INNEROUTDIR"
 printlog "FULL_COMMAND: '$FULL_COMMAND'"

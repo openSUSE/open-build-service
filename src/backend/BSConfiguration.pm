@@ -62,7 +62,7 @@ sub update_from_configuration {
   if (!$bsconfigvalues{'schedulerarchs'}) {
     $BSConfig::schedulerarchs = $xml->{'schedulers'}->{'arch'} if $xml->{'schedulers'} && $xml->{'schedulers'}->{'arch'};
   }
-  $BSConfig::obsname = "build.some.where" unless defined $BSConfig::obsname;
+  $BSConfig::obsname                  = "build.some.where" unless defined $BSConfig::obsname;
 }
 
 sub check_configuration {
@@ -80,4 +80,9 @@ sub check_configuration_once {
 
 update_from_configuration();
 BSUtil::setdebuglevel($BSConfig::debuglevel) if $BSConfig::debuglevel;
+
+$BSConfig::servicetempdir           = $BSConfig::servicetempdir           || "$BSConfig::bsdir/service";
+$BSConfig::scm_cache_high_watermark = $BSConfig::scm_cache_high_watermark || 80;
+$BSConfig::scm_cache_low_watermark  = $BSConfig::scm_cache_low_watermark  || 70;
+
 1;

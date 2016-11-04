@@ -1,11 +1,11 @@
 include ../Makefile.include
 
 INIT_SCRIPTS 			:= obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obssigner obswarden obsapidelayed obsapisetup obsstoragesetup obsservice obsdodup obsdeltastore obsservicedispatch
-LOGROTATE_CONFIGS := obs-api obs-server
+LOGROTATE_CONFIGS := obs-api obs-server obs-source_service
 OBS_BIN_SCRIPTS 	:= obs_productconvert
 OBS_SBIN_SCRIPTS 	:= obs_admin obs_serverstatus
 
-install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs install_overview install_tests_appliance
+install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs install_overview install_tests_appliance install_crontabs
 
 #install_overview
 
@@ -39,11 +39,15 @@ install_obs_bin: system_dirs
 	$(foreach script,$(OBS_BIN_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/usr/bin/$(script)) )
 	$(foreach script,$(OBS_SBIN_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/usr/sbin/$(script)) )
 
+install_crontabs:
+	$(INSTALL) -m 644 cleanup_scm_cache.cron $(DESTDIR)/etc/cron.d/cleanup_scm_cache
+
 system_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_PREFIX)
 	$(INSTALL) -d -m 755 $(DESTDIR)/etc/init.d/
 	$(INSTALL) -d -m 755 $(DESTDIR)/etc/logrotate.d/
 	$(INSTALL) -d -m 755 $(DESTDIR)/etc/slp.reg.d/
+	$(INSTALL) -d -m 755 $(DESTDIR)/etc/cron.d/
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/bin/
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/sbin/
 	$(INSTALL) -d -m 755 $(DESTDIR)/var/adm/fillup-templates

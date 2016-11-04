@@ -47,12 +47,17 @@ use BSBuild;
 
 use strict;
 
+BSConfiguration::check_configuration_once();
+
+no warnings "once";
+
 $BSConfig::bsuser = $BSConfig::bsserviceuser;
 $BSConfig::bsgroup = $BSConfig::bsservicegroup;
 
 BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
-my $tempdir = $BSConfig::servicetempdir || $BSConfig::servicetempdir || "$BSConfig::bsdir/service";
+
+my $tempdir = $BSConfig::servicetempdir;
 my $verbose;
 my $port = 5152;
 $port = $1 if $BSConfig::serviceserver =~ /:(\d+)$/;
@@ -63,6 +68,8 @@ my $uploaddir = "$BSConfig::bsdir/upload";
 
 my $noproxy = $BSConfig::noproxy;
 my $maxchild = $BSConfig::service_maxchild;
+
+use warnings;
 
 sub usage {
   my ($ret) = @_;
