@@ -469,6 +469,7 @@ case "$1" in
 			curl $OBS_WORKER_SCRIPT_URL > /tmp/osbworkerscript.$$
 			chmod 0755 /tmp/osbworkerscript.$$
 			export OBS_WORKER_DIRECTORY
+			export OBS_WORKER_DISK
 			/tmp/osbworkerscript.$$
 			rm /tmp/osbworkerscript.$$
 		fi
