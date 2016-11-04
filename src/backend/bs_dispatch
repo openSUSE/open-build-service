@@ -857,7 +857,7 @@ sub checkconstraints {
       next if $helper && $worker->{hardware} && exists($worker->{hardware}->{nativeonly});
       $workerseen{$workername} = 1;
       push @all_workers, $worker;
-      next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker);
+      next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker, $constraints);
       next unless !$constraints || oracle($worker, $constraints) > 0;
       $sumworkers++;
       $downworkers++ if $workerstate eq 'down';
@@ -871,7 +871,7 @@ sub checkconstraints {
     $details = "no compliant workers";
     my $hint = '';
     if ($BSConfig::dispatch_constraint) {
-      if (!grep {$BSConfig::dispatch_constraint->($info, $_)} @all_workers) {
+      if (!grep {$BSConfig::dispatch_constraint->($info, $_, $constraints)} @all_workers) {
         $hint .= " dispatch_constraint";
       }
     }
@@ -1408,7 +1408,7 @@ while (1) {
 	  $workerinfo_mtime{$idle} = $s[7];
 	}
 	if ($BSConfig::dispatch_constraint) {
-	  next if !$BSConfig::dispatch_constraint->($info, $workerinfo{$idle});
+	  next if !$BSConfig::dispatch_constraint->($info, $workerinfo{$idle}, $constraints);
 	}
         # a helper is needed for personality change?
         my $helper;
