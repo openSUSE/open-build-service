@@ -124,6 +124,9 @@ class ProjectTest < ActiveSupport::TestCase
         <build>
           <disable/>
         </build>
+        <useforbuild>
+          <disable/>
+        </useforbuild>
         <repository name='openSUSE_Leap_42.1'>
           <arch>x86_64</arch>
         </repository>
@@ -145,12 +148,20 @@ class ProjectTest < ActiveSupport::TestCase
     project.store
     project.reload
 
-    # test if all project build flags are 'disable' for the project
-    project.get_flags('build').each do |repo|
-      repo[1].each do |flag|
-        assert_equal 'disable', flag.status
-      end
-    end
+    assert_equal 5, project.get_flags('build').size
+    assert_equal 3, project.get_flags('build')["all"].size
+
+    flag_all = project.get_flags('build')["all"][0]
+    assert_equal 'disable', flag_all.status
+    assert_equal 'disable', flag_all.effective_status
+    assert_equal 'enable', flag_all.default_status
+
+    assert_equal 5, project.get_flags('useforbuild').size
+    assert_equal 3, project.get_flags('useforbuild')["all"].size
+    flag_useforbuild_all = project.get_flags('useforbuild')["all"][0]
+    assert_equal 'disable', flag_useforbuild_all.status
+    assert_equal 'disable', flag_useforbuild_all.effective_status
+    assert_equal 'enable', flag_useforbuild_all.default_status
 
     # package is given as axml
     axml = Xmlhash.parse(
@@ -160,6 +171,9 @@ class ProjectTest < ActiveSupport::TestCase
         <build>
           <enable/>
         </build>
+        <useforbuild>
+          <enable/>
+        </useforbuild>
       </package>"
     )
 
@@ -167,12 +181,21 @@ class ProjectTest < ActiveSupport::TestCase
     package2.store
     package2.reload
 
-    # the all build 'enable' for the package shall overwrite the project setting
-    package2.get_flags('build').each do |repo|
-      repo[1].each do |flag|
-        assert_equal 'enable', flag.status
-      end
-    end
+    assert_equal 5, package2.get_flags('build').size
+    assert_equal 3, package2.get_flags('build')["all"].size
+    flag_build_all = package2.get_flags('build')["all"][0]
+    assert_equal 'enable',  flag_build_all.status
+    assert_equal 'enable',  flag_build_all.effective_status
+    assert_equal 'disable', flag_build_all.default_status
+
+    assert_equal 5, package2.get_flags('useforbuild').size
+    assert_equal 3, package2.get_flags('useforbuild')["all"].size
+    flag_useforbuild_all = package2.get_flags('useforbuild')["all"][0]
+    assert_equal 'enable', flag_useforbuild_all.status
+    assert_equal 'enable', flag_useforbuild_all.effective_status
+    assert_equal 'disable', flag_useforbuild_all.default_status
+
+    #
 
     # this is the end
     project.destroy

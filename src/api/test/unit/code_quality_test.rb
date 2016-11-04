@@ -87,7 +87,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'PersonController#internal_register'                                      => 112.01,
       'Package#find_changed_issues'                                             => 93.74,
       'Package#close_requests'                                                  => 84.82,
-      'Flag#default_status'                                                     => 93.79,
+      'Flag#default_status'                                                     => 105.27,
       'Flag#effective_status'                                                   => 90.56,
       'PublicController#binary_packages'                                        => 126.16,
       'Repository#cleanup_before_destroy'                                       => 82.98,

@@ -79,6 +79,7 @@ class Flag < ApplicationRecord
       return all_flag.status if all_flag
     end
     if main_object.kind_of? Package
+      all_flag = main_object.project.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag).first
       return all_flag.status if all_flag
     end
     return Flag.default_status(flag)
