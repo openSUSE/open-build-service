@@ -47,8 +47,6 @@ use BSBuild;
 
 use strict;
 
-BSConfiguration::check_configuration_once();
-
 no warnings "once";
 
 $BSConfig::bsuser = $BSConfig::bsserviceuser;
