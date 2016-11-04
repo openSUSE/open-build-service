@@ -1120,7 +1120,6 @@ while (@ARGV) {
       printf "\nDeleted %d files, Freed  %.3f KB.\n", $deleted, $deletedbytes/1024;
     }
   } elsif ( $arg eq "--query-config" ) {
-    BSConfiguration::check_configuration_once();
     my $var=shift @ARGV;
     my $val;
     eval "\$val = \$BSConfig::$var";
