@@ -62,7 +62,7 @@ sub update_from_configuration {
   if (!$bsconfigvalues{'schedulerarchs'}) {
     $BSConfig::schedulerarchs = $xml->{'schedulers'}->{'arch'} if $xml->{'schedulers'} && $xml->{'schedulers'}->{'arch'};
   }
-  $BSConfig::obsname                  = "build.some.where" unless defined $BSConfig::obsname;
+  $BSConfig::obsname = "build.some.where" unless defined $BSConfig::obsname;
 }
 
 sub check_configuration {
