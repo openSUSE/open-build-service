@@ -217,8 +217,10 @@ class ProjectTest < ActiveSupport::TestCase
         <title>My Test package 3</title>
         <description></description>
         <build>
-          <enable            repository='SLE_11_SP4' />
-          <disable           repository='SLE_12_SP1' />
+          <enable               repository='SLE_11_SP4' />
+          <enable               repository='SLE_12_SP1' />
+          <disable arch='i586'  repository='SLE_12_SP1' />
+          <disable arch='i586'  />
         </build>
         <useforbuild>
           <enable/>
@@ -232,6 +234,12 @@ class ProjectTest < ActiveSupport::TestCase
 
     assert_equal 5, package3.get_flags('build').size
     assert_equal 3, package3.get_flags('build')["all"].size
+
+    flag_test = package3.get_flags('build')["SLE_12_SP1"][1]
+    assert_equal 'i586',    flag_test.architecture.name
+    assert_equal 'disable', flag_test.status
+    assert_equal 'disable', flag_test.effective_status
+    assert_equal 'enable',  flag_test.default_status
 
     flag_test = package3.get_flags('build')["SLE_11_SP4"][0]
     assert_equal 'enable', flag_test.status
