@@ -1261,7 +1261,7 @@ while (1) {
 	$ic->{$job} = $info;
       }
       # clean up job a bit
-      for (qw{bdep subpack imagetype}) {
+      for (qw{bdep subpack}) {
         delete $info->{$_};
       }
       if (!$info->{'readytime'}) {
