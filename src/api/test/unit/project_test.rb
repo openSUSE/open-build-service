@@ -122,6 +122,7 @@ class ProjectTest < ActiveSupport::TestCase
         <title>Iggy's Flag Testing Project</title>
         <description>dummy</description>
         <build>
+          <enable             repository='SLE_11_SP4' />
           <disable/>
         </build>
         <useforbuild>
@@ -151,6 +152,11 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 5, project.get_flags('build').size
     assert_equal 3, project.get_flags('build')["all"].size
 
+    flag_test = project.get_flags('build')["SLE_11_SP4"][0]
+    assert_equal 'enable', flag_test.status
+    assert_equal 'enable', flag_test.effective_status
+    assert_equal 'disable', flag_test.default_status
+
     flag_all = project.get_flags('build')["all"][0]
     assert_equal 'disable', flag_all.status
     assert_equal 'disable', flag_all.effective_status
@@ -158,6 +164,7 @@ class ProjectTest < ActiveSupport::TestCase
 
     assert_equal 5, project.get_flags('useforbuild').size
     assert_equal 3, project.get_flags('useforbuild')["all"].size
+
     flag_useforbuild_all = project.get_flags('useforbuild')["all"][0]
     assert_equal 'disable', flag_useforbuild_all.status
     assert_equal 'disable', flag_useforbuild_all.effective_status
@@ -183,6 +190,7 @@ class ProjectTest < ActiveSupport::TestCase
 
     assert_equal 5, package2.get_flags('build').size
     assert_equal 3, package2.get_flags('build')["all"].size
+
     flag_build_all = package2.get_flags('build')["all"][0]
     assert_equal 'enable',  flag_build_all.status
     assert_equal 'enable',  flag_build_all.effective_status
@@ -190,6 +198,7 @@ class ProjectTest < ActiveSupport::TestCase
 
     assert_equal 5, package2.get_flags('useforbuild').size
     assert_equal 3, package2.get_flags('useforbuild')["all"].size
+
     flag_useforbuild_all = package2.get_flags('useforbuild')["all"][0]
     assert_equal 'enable', flag_useforbuild_all.status
     assert_equal 'enable', flag_useforbuild_all.effective_status
