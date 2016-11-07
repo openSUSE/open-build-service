@@ -230,7 +230,7 @@ class BranchPackage
       end
       if params[:request]
         ans = AttribNamespace.find_by_name 'OBS'
-        at = ans.attrib_types.where(name: 'RequestCloned').first
+        at = ans.attrib_types.find_by(name: 'RequestCloned')
 
         tprj = Project.get_by_name @target_project
         a = Attrib.new(project: tprj, attrib_type: at)
@@ -389,7 +389,7 @@ class BranchPackage
     update_project = update_project_for_project(prj)
     return unless update_project
 
-    pa = update_project.packages.where(name: pkg_name).first
+    pa = update_project.packages.find_by(name: pkg_name)
     if pa
       # We have a package in the update project already, take that
       p[:package] = pa

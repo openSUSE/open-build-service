@@ -216,13 +216,6 @@ Rails/Exit:
     - 'config/deploy.rb'
     - 'lib/memory_dumper.rb'
 
-# Offense count: 25
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/FindBy:
-  Enabled: false
-
 # Offense count: 18
 # Cop supports --auto-correct.
 # Configuration parameters: Include.

@@ -310,7 +310,7 @@ class Package < ApplicationRecord
   def check_write_access(ignoreLock = nil)
     # test _product permissions if any other _product: subcontainer is used
     obj = self
-    obj = project.packages.where(name: "_product").first if name =~ /\A_product:\w[-+\w\.]*\z/
+    obj = project.packages.find_by(name: "_product") if name =~ /\A_product:\w[-+\w\.]*\z/
     return true if User.current.can_modify_package? obj, ignoreLock
     false
   end

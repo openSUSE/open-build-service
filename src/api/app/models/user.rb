@@ -542,7 +542,7 @@ class User < ApplicationRecord
   def has_global_permission?(perm_string)
     logger.debug "has_global_permission? #{perm_string}"
     roles.detect do |role|
-      return true if role.static_permissions.where('static_permissions.title = ?', perm_string).first
+      return true if role.static_permissions.find_by(title: perm_string)
     end
   end
 

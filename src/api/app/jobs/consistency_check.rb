@@ -162,7 +162,7 @@ class ConsistencyCheckJob < ApplicationJob
           errors << "Invalid package name #{name} in project #{project.name}\n"
           if fix
             # just remove it, the backend won't accept it anyway
-            project.packages.where(name: name).first.destroy
+            project.packages.find_by(name: name).destroy
             next
           end
         end

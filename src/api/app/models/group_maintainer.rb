@@ -10,7 +10,7 @@ class GroupMaintainer < ApplicationRecord
 
   validate :validate_duplicates, on: :create
   def validate_duplicates
-    if GroupMaintainer.where("user_id = ? AND group_id = ?", user, group).first
+    if GroupMaintainer.find_by(user: user, group: group)
       errors.add(:user, "Maintainer already has this group")
     end
   end

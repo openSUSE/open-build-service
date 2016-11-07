@@ -42,7 +42,7 @@ class Repository < ApplicationRecord
 
   # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
   def self.find_by_project_and_name( project, repo )
-    result = not_remote.joins(:project).where(projects: {name: project}, name: repo).first
+    result = not_remote.joins(:project).find_by(projects: {name: project}, name: repo)
     return result unless result.nil?
 
     # no local repository found, check if remote repo possible

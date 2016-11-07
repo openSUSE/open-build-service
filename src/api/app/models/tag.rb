@@ -37,7 +37,7 @@ class Tag < ApplicationRecord
   protected
 
   def not_blacklisted
-    blacklist = BlacklistTag.where("name = ?", name).first
+    blacklist = BlacklistTag.find_by(name: name)
     errors.add(:name, "The tag is blacklisted!") if blacklist
   end
 end

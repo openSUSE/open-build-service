@@ -6,7 +6,7 @@ class UpdateinfoCounter < ApplicationRecord
     month = time.month if template =~ /%M/
     day   = time.day   if template =~ /%D/
 
-    r = UpdateinfoCounter.where(year: year, month: month, day: day).first
+    r = UpdateinfoCounter.find_by(year: year, month: month, day: day)
     r = UpdateinfoCounter.create(year: year, month: month, day: day) unless r
 
     r
