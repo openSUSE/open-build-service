@@ -864,7 +864,7 @@ sub checkconstraints {
     }
   }
   # return if more than half of the workers satisfy the constraint
-  return if $sumworkers - $downworkers > 5 && ($sumworkers - $downworkers) > scalar(@all_workers) / 2;
+  return 0 if $sumworkers - $downworkers > 5 && ($sumworkers - $downworkers) > scalar(@all_workers) / 2;
   my $details = "waiting for $sumworkers compliant workers";
   $details .= " ($downworkers of them down)" if $downworkers;
   if (!$sumworkers) {
@@ -901,6 +901,7 @@ sub checkconstraints {
       failjob($info, $arch, $job, "package build was not possible:\n\n$details\n\nPlease adapt your constraints.\n");
     }
   }
+  return 1;
 }
 
 $| = 1;
@@ -1467,7 +1468,9 @@ while (1) {
         if ($info->{'allworkercheck'}++ % 5 == 0) {
 	  if (!$info->{'allworkerchecktime'} || $now - $info->{'allworkerchecktime'} > 300) {
 	    $info->{'allworkerchecktime'} = $now;
-	    checkconstraints($info, $arch, $job, $constraints, \%checkconstraintscache);
+	    my $r = checkconstraints($info, $arch, $job, $constraints, \%checkconstraintscache);
+	    # disable check for a day if all is well
+	    $info->{'allworkerchecktime'} = $now + 3600 * 24 unless $r;
 	  }
         }
       }
