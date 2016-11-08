@@ -32,11 +32,11 @@ class Role < ApplicationRecord
   belongs_to :roles_users
 
   # roles have n:m relations for users
-  has_and_belongs_to_many :users, -> { uniq() }
+  has_and_belongs_to_many :users, -> { distinct }
   # roles have n:m relations to groups
-  has_and_belongs_to_many :groups, -> { uniq() }
+  has_and_belongs_to_many :groups, -> { distinct }
   # roles have n:m relations to permissions
-  has_and_belongs_to_many :static_permissions, -> { uniq() }
+  has_and_belongs_to_many :static_permissions, -> { distinct }
 
   scope :global, -> { where(global: true) }
 

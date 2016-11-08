@@ -6,7 +6,7 @@
 class StaticPermission < ApplicationRecord
   has_many :roles_static_permissions
 
-  has_and_belongs_to_many :roles, -> { uniq() }
+  has_and_belongs_to_many :roles, -> { distinct }
 
   # We want to validate a static permission's title pretty thoroughly.
   validates_uniqueness_of :title,
