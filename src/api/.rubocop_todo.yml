@@ -23,14 +23,6 @@ Lint/Eval:
 Lint/HandleExceptions:
   Enabled: false
 
-# Offense count: 4
-Lint/IneffectiveAccessModifier:
-  Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/controllers/webui/monitor_controller.rb'
-    - 'lib/wizard.rb'
-    - 'test/activexml_matcher.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.

@@ -3,11 +3,24 @@ class Webui::MonitorController < Webui::WebuiController
   before_action :require_available_architectures, only: [:index]
   before_action :fetch_workerstatus, only: [:old, :filtered_list, :update_building]
 
-  def fetch_workerstatus
-    @workerstatus = WorkerStatus.hidden.to_hash
+  class << self
+    private_class_method
+    def addarrays(arr1, arr2)
+      # we assert that both have the same size
+      ret = Array.new
+      arr1.length.times do |i|
+        time1, value1 = arr1[i]
+        time2, value2 = arr2[i]
+        value2 ||= 0
+        value1 ||= 0
+        time1 ||= 0
+        time2 ||= 0
+        ret << [(time1+time2)/2, value1 + value2]
+      end if arr1
+      ret << 0 if ret.length.zero?
+      return ret
+    end
   end
-
-  private :fetch_workerstatus
 
   def old
   end
@@ -111,24 +124,12 @@ class Webui::MonitorController < Webui::WebuiController
 
   private
 
-  def maximumvalue(arr)
-    arr.map { |_, value| value }.max || 0
+  def fetch_workerstatus
+    @workerstatus = WorkerStatus.hidden.to_hash
   end
 
-  def self.addarrays(arr1, arr2)
-    # we assert that both have the same size
-    ret = Array.new
-    arr1.length.times do |i|
-      time1, value1 = arr1[i]
-      time2, value2 = arr2[i]
-      value2 ||= 0
-      value1 ||= 0
-      time1 ||= 0
-      time2 ||= 0
-      ret << [(time1+time2)/2, value1 + value2]
-    end if arr1
-    ret << 0 if ret.length.zero?
-    return ret
+  def maximumvalue(arr)
+    arr.map { |_, value| value }.max || 0
   end
 
   def require_settings

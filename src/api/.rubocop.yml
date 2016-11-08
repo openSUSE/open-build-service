@@ -78,3 +78,6 @@ Style/InfiniteLoop:
 
 Lint/UselessAccessModifier:
   Enabled: true
+
+Lint/IneffectiveAccessModifier:
+  Enabled: true
