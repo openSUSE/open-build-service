@@ -270,7 +270,7 @@ module Webui
       load_fixture("backend/#{path}")
     end
 
-    self.use_transactional_fixtures = true
+    self.use_transactional_tests = true
     fixtures :all
 
     setup do
