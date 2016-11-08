@@ -734,11 +734,6 @@ Style/NegatedWhile:
 Style/Next:
   Enabled: false
 
-# Offense count: 126
-# Cop supports --auto-correct.
-Style/Not:
-  Enabled: true
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedOctalStyle, SupportedOctalStyles.
@@ -894,11 +889,6 @@ Style/RedundantParentheses:
 # Configuration parameters: AllowMultipleReturnValues.
 Style/RedundantReturn:
   Enabled: false
-
-# Offense count: 1283
-# Cop supports --auto-correct.
-Style/RedundantSelf:
-  Enabled: true
 
 # Offense count: 115
 # Cop supports --auto-correct.

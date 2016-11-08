@@ -42,7 +42,6 @@ Style/AlignHash:
 Style/AlignParameters:
   EnforcedStyle: with_first_parameter
 
-# Moisés
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
   Enabled: true
@@ -67,3 +66,9 @@ Style/HashSyntax:
   Enabled: true
   Exclude:
     - 'config/routes.rb'
+
+Style/Not:
+  Enabled: true
+
+Style/RedundantSelf:
+  Enabled: true
