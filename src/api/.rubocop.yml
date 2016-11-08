@@ -75,3 +75,6 @@ Style/RedundantSelf:
 
 Style/InfiniteLoop:
   Enabled: true
+
+Lint/UselessAccessModifier:
+  Enabled: true
