@@ -11,6 +11,7 @@ def update_all_attrib_type_descriptions
     "MaintenanceProject"              => "Mark this project as central maintenance project, which is used to coordinate all official updates.",
     "MaintenanceIdTemplate"           => "Released maintenance updates get an ID on first release. This attribute can be used to modify the default scheme.",
 #    "ScreenShots" => "", # to be dropped?
+    "ImageTemplates"                  => "Mark this project as source for image templates.",
     "OwnerRootProject"                => "Mark this project as starting point for the package ownership search. Optional values: \"DisableDevel\": don't follow devel project links. \"BugownerOnly\": limit the result to bugowners (ignoring the maintainer role).",
     "RequestCloned"                   => "Use this attribute to reference a request which will get superseded when a new submit request from this project gets created.",
     "ProjectStatusPackageFailComment" => "Use this attribute to explain why this package is failing. This is displayed on the project status page for instance.",
