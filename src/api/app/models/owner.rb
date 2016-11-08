@@ -51,7 +51,7 @@ class Owner
     # search in each marked project
     owners = []
     projects.each do |project|
-      attrib = project.attribs.where(attrib_type_id: at.id).first
+      attrib = project.attribs.find_by(attrib_type: at)
       filter = %w(maintainer bugowner)
       devel  = true
       if params[:filter]

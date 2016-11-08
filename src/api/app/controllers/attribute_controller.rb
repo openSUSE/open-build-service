@@ -107,7 +107,7 @@ class AttributeController < ApplicationController
     end
 
     if request.get?
-      @at = ans.attrib_types.where(name: name).first
+      @at = ans.attrib_types.find_by(name: name)
       unless @at
         render_error message: "Unknown attribute '#{namespace}':'#{name}'",
           status: 404, errorcode: "unknown_attribute"

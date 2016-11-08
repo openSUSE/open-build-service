@@ -370,7 +370,7 @@ class Project < ApplicationRecord
   # FIXME: to be obsoleted, this function is not throwing exceptions on problems
   # use get_by_name or exists_by_name instead
   def self.find_by_name(name, opts = {})
-    dbp = where(name: name).first
+    dbp = find_by(name: name)
 
     return if dbp.nil?
     return if !opts[:skip_check_access] && !check_access?(dbp)
