@@ -3,7 +3,7 @@ class IncidentUpdateinfoCounterValue < ApplicationRecord
   belongs_to :project
 
   def self.find_or_create(time, updateinfo_counter, project)
-    icv = IncidentUpdateinfoCounterValue.where(updateinfo_counter:updateinfo_counter, project: project).first
+    icv = IncidentUpdateinfoCounterValue.find_by(updateinfo_counter: updateinfo_counter, project: project)
     return icv if icv
 
     # not yet released, get an uniq counter value for this incident and scheme

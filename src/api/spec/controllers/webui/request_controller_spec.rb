@@ -85,7 +85,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
     context "a request causing a APIException" do
       before do
-        BsRequest.any_instance.stubs(:save!).raises(APIException, "something happened")
+        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(APIException, "something happened")
         post :delete_request, params: { project: target_project, package: target_package, description: "delete it!" }
       end
 

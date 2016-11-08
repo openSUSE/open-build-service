@@ -25,7 +25,6 @@ RSpec.configure do |config|
     expectations.syntax = :expect
   end
 
-  config.mock_framework = :mocha
   # rspec-mocks config goes here.
 
   # Allows RSpec to persist some state between runs in order to support

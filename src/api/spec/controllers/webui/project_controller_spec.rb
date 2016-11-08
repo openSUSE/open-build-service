@@ -223,7 +223,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #show' do
     before do
       # To not ask backend for build status
-      Project.any_instance.stubs(:number_of_build_problems).returns(0)
+      allow_any_instance_of(Project).to receive(:number_of_build_problems).and_return(0)
     end
 
     context 'without nextstatus param' do
@@ -254,9 +254,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
       before do
         login admin_user
         # Avoid fetching from backend directly
-        Directory.stubs(:hashed).returns(Xmlhash::XMLHash.new('entry' => {'name' => '_patchinfo'}))
+        allow(Directory).to receive(:hashed).and_return(Xmlhash::XMLHash.new('entry' => {'name' => '_patchinfo'}))
         # Avoid writing to the backend
-        Package.any_instance.stubs(:sources_changed).returns(nil)
+        allow_any_instance_of(Package).to receive(:sources_changed)
         Patchinfo.new.create_patchinfo(apache_project.name, nil, comment: 'Fake comment', force: false)
         get :show, params: { project: apache_project }
       end
@@ -360,7 +360,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it 'assigns the buildresult' do
       summary = Xmlhash::XMLHash.new({'statuscount' => {'code' => 'succeeded', 'count' => 1} })
       build_result  = { 'result' => Xmlhash::XMLHash.new({'repository' => 'openSUSE', 'arch' => 'x86_64', 'summary' => summary }) }
-      Buildresult.stubs(:find_hashed).returns(Xmlhash::XMLHash.new(build_result))
+      allow(Buildresult).to receive(:find_hashed).and_return(Xmlhash::XMLHash.new(build_result))
       get :buildresult, params: { project: project_with_package }, xhr: true
       expect(assigns(:buildresult)).to match_array([["openSUSE", [["x86_64", [[:succeeded, 1]]]]]])
     end
@@ -382,7 +382,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with check_weak_dependencies enabled' do
       before do
-        Project.any_instance.stubs(:check_weak_dependencies?).returns(true)
+        allow_any_instance_of(Project).to receive(:check_weak_dependencies?).and_return(true)
       end
 
       context 'having a parent project' do
@@ -409,7 +409,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with check_weak_dependencies disabled' do
       before do
-        Project.any_instance.stubs(:check_weak_dependencies?).returns(false)
+        allow_any_instance_of(Project).to receive(:check_weak_dependencies?).and_return(false)
         delete :destroy, params: { project: user.home_project }
       end
 
@@ -422,7 +422,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #rebuild_time' do
     before do
       # To not ask backend for build status
-      Project.any_instance.stubs(:number_of_build_problems).returns(0)
+      allow_any_instance_of(Project).to receive(:number_of_build_problems).and_return(0)
     end
 
     context 'with an invalid scheduler' do
@@ -436,8 +436,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'without build dependency info or jobs history' do
       before do
-        BuilddepInfo.stubs(:find).returns(nil)
-        Jobhistory.stubs(:find).returns(nil)
+        allow(BuilddepInfo).to receive(:find)
+        allow(Jobhistory).to receive(:find)
         get :rebuild_time, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
       end
 
@@ -447,15 +447,15 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'normal flow' do
       before do
-        BuilddepInfo.stubs(:find).returns([])
-        Jobhistory.stubs(:find).returns([])
+        allow(BuilddepInfo).to receive(:find).and_return([])
+        allow(Jobhistory).to receive(:find).and_return([])
       end
 
       context 'with diststats generated' do
         before do
           path = Xmlhash::XMLHash.new({'package' => 'package_name' })
           longestpaths_xml = Xmlhash::XMLHash.new({ 'longestpath' => Xmlhash::XMLHash.new({'path' => path }) })
-          Webui::ProjectController.any_instance.stubs(:call_diststats).returns(longestpaths_xml)
+          allow_any_instance_of(Webui::ProjectController).to receive(:call_diststats).and_return(longestpaths_xml)
           get :rebuild_time, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
 
@@ -464,7 +464,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context 'with diststats not generated' do
         before do
-          Webui::ProjectController.any_instance.stubs(:call_diststats).returns(nil)
+          allow_any_instance_of(Webui::ProjectController).to receive(:call_diststats)
           get :rebuild_time, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
 
@@ -594,7 +594,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "without target project" do
       before do
-        BsRequestActionDelete.expects(:new).raises(BsRequestAction::UnknownTargetProject)
+        expect(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::UnknownTargetProject)
         post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
 
@@ -604,7 +604,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "without target package" do
       before do
-        BsRequestActionDelete.expects(:new).raises(BsRequestAction::UnknownTargetPackage)
+        expect(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::UnknownTargetPackage)
         post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
 
@@ -654,7 +654,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       before do
         request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
         path_element # Needed before stubbing Project#valid? to false
-        Project.any_instance.stubs(:valid?).returns(false)
+        allow_any_instance_of(Project).to receive(:valid?).and_return(false)
         post :remove_path_from_target, params: { project: user.home_project, repository: repo_for_user_home, path: path_element }
       end
 
@@ -852,7 +852,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "with the proper params" do
       before do
-        BsRequest.any_instance.stubs(:save!).returns(true)
+        allow_any_instance_of(BsRequest).to receive(:save!).and_return(true)
         post :new_incident_request, params: { project: maintenance_project, description: "Fake description for a request" }
       end
 

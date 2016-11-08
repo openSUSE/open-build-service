@@ -889,9 +889,9 @@ sub create {
     $searchpath = path2buildinfopath($gctx, [ expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
   }
 
-  # calculate sysdeps (cannot cache in the kiwi case)
   my $expanddebug = $ctx->{'expanddebug'};
 
+  # calculate sysdeps (cannot cache in the kiwi case)
   my @sysdeps;
   if ($buildtype eq 'kiwi') {
     my $kiwitype = '';
@@ -930,8 +930,20 @@ sub create {
     }
     return ('unresolvable', join(', ', @sysdeps));
   }
+
+  my $pool = $ctx->{'pool'};
+  my @pdeps = Build::get_preinstalls($bconf);
+  my @vmdeps = Build::get_vminstalls($bconf);
+
+  # do DoD checking
   if (!$ctx->{'isreposerver'} && $BSConfig::enable_download_on_demand) {
-    my $dods = BSSched::DoD::dodcheck($ctx, $ctx->{'pool'}, $myarch, Build::get_preinstalls($bconf), Build::get_vminstalls($bconf), @bdeps, @sysdeps);
+    my $dods;
+    if ($buildtype eq 'kiwi') {
+      # for kiwi the image packages are already checked (they come from a different pool anyway)
+      $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @pdeps, @vmdeps, @sysdeps);
+    } else {
+      $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @pdeps, @vmdeps, @bdeps, @sysdeps);
+    }
     if ($dods) {
       print "        blocked: $dods\n" if $ctx->{'verbose'};
       return ('blocked', $dods);
@@ -947,8 +959,7 @@ sub create {
     }
   }
 
-  my @pdeps = Build::get_preinstalls($bconf);
-  my @vmdeps = Build::get_vminstalls($bconf);
+  # create bdep section
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
   my %bdeps = map {$_ => 1} @bdeps;
   my %pdeps = map {$_ => 1} @pdeps;
@@ -971,9 +982,9 @@ sub create {
     }
     if ($dobuildinfo) {
       my $p = $ctx->{'dep2pkg'}->{$n};
-      my $prp = $ctx->{'pool'}->pkg2reponame($p);
+      my $prp = $pool->pkg2reponame($p);
       ($_->{'project'}, $_->{'repository'}) = split('/', $prp, 2) if $prp;
-      my $d = $ctx->{'pool'}->pkg2data($p);
+      my $d = $pool->pkg2data($p);
       $_->{'epoch'}      = $d->{'epoch'} if $d->{'epoch'};
       $_->{'version'}    = $d->{'version'};
       $_->{'release'}    = $d->{'release'} if defined $d->{'release'};
@@ -989,6 +1000,7 @@ sub create {
   }
   unshift @bdeps, @{$ctx->{'extrabdeps'}} if $ctx->{'extrabdeps'};
 
+  # fill job data
   my $binfo = create_jobdata($ctx, $packid, $pdata, $info, $subpacks);
   $binfo->{'bdep'} = \@bdeps;
   $binfo->{'path'} = $searchpath;

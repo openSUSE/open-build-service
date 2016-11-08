@@ -503,6 +503,11 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
         '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
     assert_response 403
     assert_xml_tag tag: "status", attributes: { code: "change_package_protection_level" }
+    # but works as admin
+    login_king
+    put url_for(controller: :source, action: :update_package_meta, project: "home:adrian:PublicProject", package: "pack"),
+        '<package name="pack" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
+    assert_response :success
     delete "/source/home:adrian:Project"
     assert_response :success
     delete "/source/home:adrian:PublicProject"
@@ -519,6 +524,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
         '<project name="home:adrian:Project"> <title/> <description/> <access><disable/></access> </project>'
     assert_response 403
     assert_xml_tag tag: "status", attributes: { code: "change_project_protection_level" }
+    login_king
+    put url_for(controller: :source, action: :update_project_meta, project: "home:adrian:Project"),
+        '<project name="home:adrian:Project"> <title/> <description/> <access><disable/></access> </project>'
+    assert_response :success
     delete "/source/home:adrian:Project"
     assert_response :success
   end

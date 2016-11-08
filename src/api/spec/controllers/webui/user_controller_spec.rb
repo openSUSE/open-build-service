@@ -222,7 +222,7 @@ RSpec.describe Webui::UserController do
 
     context "when home project creation enabled" do
       before do
-        Configuration.stubs(:allow_user_to_create_home_project).returns(true)
+        allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(true)
         post :register, params: { login: new_user.login, email: new_user.email, password: 'buildservice' }
       end
 
@@ -232,7 +232,7 @@ RSpec.describe Webui::UserController do
 
     context "when home project creation disabled" do
       before do
-        Configuration.stubs(:allow_user_to_create_home_project).returns(false)
+        allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(false)
         post :register, params: { login: new_user.login, email: new_user.email, password: 'buildservice' }
       end
 

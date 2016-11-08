@@ -6,12 +6,12 @@ RSpec.describe DB::Checker do
 
   describe '#warn_for_rerun' do
     it 'shows a warning message if failed' do
-      checker.stubs(:failed).returns(true)
+      allow(checker).to receive(:failed).and_return(true)
       expect { checker.warn_for_rerun }.to output(/WARNING/).to_stdout
     end
 
     it 'shows a greeting message if worked' do
-      checker.stubs(:failed).returns(false)
+      allow(checker).to receive(:failed).and_return(false)
       expect { checker.warn_for_rerun }.to output(/All checks passed/).to_stdout
     end
   end
@@ -52,7 +52,7 @@ RSpec.describe DB::Checker do
   describe "#check_foreign_keys" do
     context "without inconsistent records" do
       before do
-        checker.stubs(:check_foreign_key).returns([])
+        allow(checker).to receive(:check_foreign_key).and_return([])
       end
 
       it { expect { checker.check_foreign_keys }.to output(/OK/).to_stdout }
@@ -61,8 +61,8 @@ RSpec.describe DB::Checker do
 
     context "with inconsistent records" do
       before do
-        checker.stubs(:check_foreign_key).returns([1, 2, 3])
-        checker.stubs(:ask_for_fixing).returns(nil)
+        allow(checker).to receive(:check_foreign_key).and_return([1, 2, 3])
+        allow(checker).to receive(:ask_for_fixing)
       end
 
       it { expect { checker.check_foreign_keys }.to output(/FAIL/).to_stdout }

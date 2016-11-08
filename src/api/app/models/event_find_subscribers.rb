@@ -83,7 +83,7 @@ class EventFindSubscribers
   end
 
   def user_subscribed_to_group_email?(group, user)
-    GroupsUser.where(group: group, user: user).first.email
+    GroupsUser.find_by(group: group, user: user).email
   end
 
   def filter_toconsider

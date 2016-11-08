@@ -466,11 +466,12 @@ case "$1" in
 		# offer hook to make random special things in your setup
 		if [ -n "$OBS_WORKER_SCRIPT_URL" ]; then
 			echo "Running special script for this worker from $OBS_WORKER_SCRIPT_URL"
-			curl $OBS_WORKER_SCRIPT_URL > /tmp/osbworkerscript.$$
-			chmod 0755 /tmp/osbworkerscript.$$
+			curl $OBS_WORKER_SCRIPT_URL > /tmp/obsworkerscript.$$
+			chmod 0755 /tmp/obsworkerscript.$$
 			export OBS_WORKER_DIRECTORY
-			/tmp/osbworkerscript.$$
-			rm /tmp/osbworkerscript.$$
+			export OBS_WORKER_DISK
+			/tmp/obsworkerscript.$$
+			rm /tmp/obsworkerscript.$$
 		fi
 		rc_status -v
 	;;

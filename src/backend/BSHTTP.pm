@@ -25,6 +25,7 @@ package BSHTTP;
 use POSIX;
 use Digest::MD5 ();
 use Fcntl qw(:DEFAULT);
+BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 
 use strict;
 

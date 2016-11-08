@@ -80,4 +80,9 @@ sub check_configuration_once {
 
 update_from_configuration();
 BSUtil::setdebuglevel($BSConfig::debuglevel) if $BSConfig::debuglevel;
+
+$BSConfig::servicetempdir           = $BSConfig::servicetempdir           || "$BSConfig::bsdir/service";
+$BSConfig::scm_cache_high_watermark = $BSConfig::scm_cache_high_watermark || 80;
+$BSConfig::scm_cache_low_watermark  = $BSConfig::scm_cache_low_watermark  || 70;
+
 1;

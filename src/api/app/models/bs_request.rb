@@ -419,7 +419,7 @@ class BsRequest < ApplicationRecord
       if action.source_project && action.is_maintenance_release?
         if source_project.kind_of?(Project)
           at = AttribType.find_by_namespace_and_name!('OBS', 'EmbargoDate')
-          attrib = source_project.attribs.where(attrib_type_id: at.id).first
+          attrib = source_project.attribs.find_by(attrib_type: at)
           v = attrib.values.first if attrib
           if defined?(v) && v
             begin

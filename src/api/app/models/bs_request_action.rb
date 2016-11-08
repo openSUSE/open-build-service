@@ -808,7 +808,7 @@ class BsRequestAction < ApplicationRecord
       end
       if action_type == :submit && tprj.kind_of?(Project)
         at = AttribType.find_by_namespace_and_name!("OBS", "MakeOriginOlder")
-        self.makeoriginolder = true if tprj.attribs.where(attrib_type_id: at.id).first
+        self.makeoriginolder = true if tprj.attribs.find_by(attrib_type: at)
       end
       # allow cleanup only, if no devel package reference
       if sourceupdate == 'cleanup' && sprj.class != Project && !skip_source

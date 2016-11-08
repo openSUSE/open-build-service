@@ -210,6 +210,8 @@ Debug Options
    Show delta store statistics
 
  --dump-memstats <architecture> [what]
+
+ --query-config <variable>
 ";
 }
 my $emptymd5 = 'd41d8cd98f00b204e9800998ecf8427e';
@@ -1117,6 +1119,11 @@ while (@ARGV) {
       # some checking needed to reread everything?
       printf "\nDeleted %d files, Freed  %.3f KB.\n", $deleted, $deletedbytes/1024;
     }
+  } elsif ( $arg eq "--query-config" ) {
+    my $var=shift @ARGV;
+    my $val;
+    eval "\$val = \$BSConfig::$var";
+    print "$val\n";
   } else {
     echo_help();
     exit(1)

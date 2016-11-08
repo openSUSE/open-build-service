@@ -127,7 +127,7 @@ class BinaryRelease < ApplicationRecord
   end
 
   def product_medium
-    repository.product_medium.where(name: medium).first
+    repository.product_medium.find_by(name: medium)
   end
 
   # renders all values, which are used as identifier of a binary entry.

@@ -857,21 +857,21 @@ sub checkconstraints {
       next if $helper && $worker->{hardware} && exists($worker->{hardware}->{nativeonly});
       $workerseen{$workername} = 1;
       push @all_workers, $worker;
-      next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker);
+      next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker, $constraints);
       next unless !$constraints || oracle($worker, $constraints) > 0;
       $sumworkers++;
       $downworkers++ if $workerstate eq 'down';
     }
   }
   # return if more than half of the workers satisfy the constraint
-  return if $sumworkers - $downworkers > 5 && ($sumworkers - $downworkers) > scalar(@all_workers) / 2;
+  return 0 if $sumworkers - $downworkers > 5 && ($sumworkers - $downworkers) > scalar(@all_workers) / 2;
   my $details = "waiting for $sumworkers compliant workers";
   $details .= " ($downworkers of them down)" if $downworkers;
   if (!$sumworkers) {
     $details = "no compliant workers";
     my $hint = '';
     if ($BSConfig::dispatch_constraint) {
-      if (!grep {$BSConfig::dispatch_constraint->($info, $_)} @all_workers) {
+      if (!grep {$BSConfig::dispatch_constraint->($info, $_, $constraints)} @all_workers) {
         $hint .= " dispatch_constraint";
       }
     }
@@ -901,6 +901,7 @@ sub checkconstraints {
       failjob($info, $arch, $job, "package build was not possible:\n\n$details\n\nPlease adapt your constraints.\n");
     }
   }
+  return 1;
 }
 
 $| = 1;
@@ -1261,7 +1262,7 @@ while (1) {
 	$ic->{$job} = $info;
       }
       # clean up job a bit
-      for (qw{bdep subpack imagetype}) {
+      for (qw{bdep subpack}) {
         delete $info->{$_};
       }
       if (!$info->{'readytime'}) {
@@ -1408,7 +1409,7 @@ while (1) {
 	  $workerinfo_mtime{$idle} = $s[7];
 	}
 	if ($BSConfig::dispatch_constraint) {
-	  next if !$BSConfig::dispatch_constraint->($info, $workerinfo{$idle});
+	  next if !$BSConfig::dispatch_constraint->($info, $workerinfo{$idle}, $constraints);
 	}
         # a helper is needed for personality change?
         my $helper;
@@ -1467,7 +1468,9 @@ while (1) {
         if ($info->{'allworkercheck'}++ % 5 == 0) {
 	  if (!$info->{'allworkerchecktime'} || $now - $info->{'allworkerchecktime'} > 300) {
 	    $info->{'allworkerchecktime'} = $now;
-	    checkconstraints($info, $arch, $job, $constraints, \%checkconstraintscache);
+	    my $r = checkconstraints($info, $arch, $job, $constraints, \%checkconstraintscache);
+	    # disable check for a day if all is well
+	    $info->{'allworkerchecktime'} = $now + 3600 * 24 unless $r;
 	  }
         }
       }
@@ -1538,7 +1541,7 @@ sub failjob {
     'timeout' => 60,
   };
   eval {
-    BSRPC::rpc($param, undef, "cmd=failjob", "message=$message");
+    BSRPC::rpc($param, undef, "cmd=fail", "message=$message");
   };
   warn($@) if $@;
 }

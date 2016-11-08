@@ -7,6 +7,9 @@ AllCops:
     - 'lib/templates/**/*'
     - 'vendor/bundle/**/*'
 
+Rails/FindBy:
+  Enabled: true
+
 # Someday we should add copyrights
 Style/Copyright:
   Enabled: false

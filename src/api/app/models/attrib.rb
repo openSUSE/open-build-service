@@ -37,7 +37,7 @@ class Attrib < ApplicationRecord
 
   #### Class methods using self. (public and then private)
   def self.find_by_container_and_fullname( container, fullname )
-    container.attribs.where(attrib_type: AttribType.find_by_name!(fullname)).first
+    container.attribs.find_by(attrib_type: AttribType.find_by_name!(fullname))
   end
 
   #### To define class methods as private use private_class_method

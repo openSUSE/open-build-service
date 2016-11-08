@@ -128,6 +128,7 @@ sub clean_obsolete_dodpackages {
 
 sub dodcheck {
   my ($ctx, $pool, $arch, @pkgs) = @_;
+  $ctx = $ctx->{'realctx'} if $ctx->{'realctx'};	# we need the real one to add entries
   my %names;
   if (defined &BSSolv::repo::dodcookie) {
     %names = (%names, $_->pkgnames()) for grep {$_->dodurl() || $_->dodcookie()} $pool->repos();

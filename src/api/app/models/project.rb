@@ -370,7 +370,7 @@ class Project < ApplicationRecord
   # FIXME: to be obsoleted, this function is not throwing exceptions on problems
   # use get_by_name or exists_by_name instead
   def self.find_by_name(name, opts = {})
-    dbp = where(name: name).first
+    dbp = find_by(name: name)
 
     return if dbp.nil?
     return if !opts[:skip_check_access] && !check_access?(dbp)
@@ -517,18 +517,18 @@ class Project < ApplicationRecord
 
     # check for raising read access permissions, which can't get ensured atm
     unless new_record? || disabled_for?('access', nil, nil)
-      if FlagHelper.xml_disabled_for?(xmlhash, 'access')
+      if FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.current.is_admin?
         raise ForbiddenError.new
       end
     end
     unless new_record? || disabled_for?('sourceaccess', nil, nil)
-      if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess')
+      if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.current.is_admin?
         raise ForbiddenError.new
       end
     end
     new_record = new_record?
     if ::Configuration.default_access_disabled == true && !new_record
-      if disabled_for?('access', nil, nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access')
+      if disabled_for?('access', nil, nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.current.is_admin?
         raise ForbiddenError.new
       end
     end
