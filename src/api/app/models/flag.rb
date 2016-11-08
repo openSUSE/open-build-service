@@ -61,10 +61,10 @@ class Flag < ApplicationRecord
     same_flag = main_object.flags.find_by("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id)
     # Package settings only override project settings...
     if main_object.kind_of? Package
-      same_flag = main_object.project.flags.where("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id).first unless same_flag
-      repo_flag = main_object.project.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo).first unless repo_flag
-      arch_flag = main_object.project.flags.where("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id).first unless arch_flag
-      all_flag = main_object.project.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag).first unless all_flag
+      same_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id) unless same_flag
+      repo_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo) unless repo_flag
+      arch_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id) unless arch_flag
+      all_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag) unless all_flag
     end
 
     if same_flag
@@ -79,20 +79,20 @@ class Flag < ApplicationRecord
       return all_flag.status if all_flag
     end
     if main_object.kind_of? Package
-      all_flag = main_object.project.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag).first
+      all_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag)
       return all_flag.status if all_flag
     end
     return Flag.default_status(flag)
   end
 
   def effective_status
-    all_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag).first
-    repo_flag = main_object.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo).first
-    arch_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id).first
-    same_flag = main_object.flags.where("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id).first
+    all_flag = main_object.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag)
+    repo_flag = main_object.flags.find_by("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo)
+    arch_flag = main_object.flags.find_by("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id)
+    same_flag = main_object.flags.find_by("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id)
     # Package settings only override project settings...
     if main_object.kind_of? Package
-      same_flag = main_object.project.flags.where("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id).first unless
+      same_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id) unless
         all_flag || same_flag || repo_flag || arch_flag
       repo_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo) unless
         all_flag || repo_flag || arch_flag
