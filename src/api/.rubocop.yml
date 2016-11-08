@@ -67,3 +67,6 @@ Style/HashSyntax:
 
 Lint/UselessAccessModifier:
   Enabled: true
+
+Lint/IneffectiveAccessModifier:
+  Enabled: true
