@@ -612,12 +612,6 @@ Style/IndentationConsistency:
 Style/IndentationWidth:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/InfiniteLoop:
-  Exclude:
-    - 'lib/opensuse/backend.rb'
-
 # Offense count: 45
 # Cop supports --auto-correct.
 Style/LineEndConcatenation:
