@@ -52,6 +52,34 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # Method for mapping actions in a controller to (XML) schemas based on request
+  # method (GET, PUT, POST, etc.). Example:
+  #
+  # class UserController < ActionController::Base
+  #   # Validation on request data is performed based on the request type and the
+  #   # provided schema name. Validation for a GET request only checks the XML response,
+  #   # whereas a POST request may want to check the (user-supplied) request as well as the
+  #   # own response to the request.
+  #
+  #   validate_action :index => {:method => :get, :response => :users}
+  #   validate_action :edit =>  {:method => :put, :request => :user, :response => :status}
+  #
+  #   def index
+  #     # return all users ...
+  #   end
+  #
+  #   def edit
+  #     if @request.put?
+  #       # request data has already been validated here
+  #     end
+  #   end
+  # end
+  def self.validate_action(opt)
+    opt.each do |action, action_opt|
+      Suse::Validator.add_schema_mapping(controller_path, action, action_opt)
+    end
+  end
+
   protected
 
   def load_nobody
@@ -490,34 +518,6 @@ class ApplicationController < ActionController::Base
 
   def build_query_from_hash(hash, key_list = nil)
     Suse::Backend.build_query_from_hash(hash, key_list)
-  end
-
-  # Method for mapping actions in a controller to (XML) schemas based on request
-  # method (GET, PUT, POST, etc.). Example:
-  #
-  # class UserController < ActionController::Base
-  #   # Validation on request data is performed based on the request type and the
-  #   # provided schema name. Validation for a GET request only checks the XML response,
-  #   # whereas a POST request may want to check the (user-supplied) request as well as the
-  #   # own response to the request.
-  #
-  #   validate_action :index => {:method => :get, :response => :users}
-  #   validate_action :edit =>  {:method => :put, :request => :user, :response => :status}
-  #
-  #   def index
-  #     # return all users ...
-  #   end
-  #
-  #   def edit
-  #     if @request.put?
-  #       # request data has already been validated here
-  #     end
-  #   end
-  # end
-  def self.validate_action(opt)
-    opt.each do |action, action_opt|
-      Suse::Validator.add_schema_mapping(controller_path, action, action_opt)
-    end
   end
 
   class LazyRequestReader

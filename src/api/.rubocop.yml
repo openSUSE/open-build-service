@@ -64,3 +64,9 @@ Style/HashSyntax:
   Enabled: true
   Exclude:
     - 'config/routes.rb'
+
+Lint/UselessAccessModifier:
+  Enabled: true
+
+Lint/IneffectiveAccessModifier:
+  Enabled: true
