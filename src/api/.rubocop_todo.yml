@@ -472,11 +472,6 @@ Style/Documentation:
 Style/DotPosition:
   Enabled: false
 
-# Offense count: 1
-Style/DoubleNegation:
-  Exclude:
-    - 'app/models/project.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Style/EachWithObject:
