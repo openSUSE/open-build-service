@@ -112,13 +112,6 @@ Lint/UnusedBlockArgument:
   Exclude:
     - 'lib/activexml/transport.rb'
 
-# Offense count: 2
-# Configuration parameters: ContextCreatingMethods.
-Lint/UselessAccessModifier:
-  Exclude:
-    - 'app/models/user.rb'
-    - 'test/activexml_matcher.rb'
-
 # Offense count: 47
 Lint/UselessAssignment:
   Enabled: false

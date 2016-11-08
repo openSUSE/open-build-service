@@ -255,8 +255,6 @@ module NodeMatcher #:nodoc:
     true
   end
 
-  private
-
   # Match the given value to the given condition.
   def self.match_condition(value, condition)
     case condition
