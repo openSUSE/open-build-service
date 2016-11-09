@@ -2,21 +2,39 @@
 
 #set -x
 
-#FSDIR="/opt/obs/SourceServiceSystem"
-DOCKER_IMAGE=suse/sles12sp1-source-service:latest
-SERVICES_DIR=`obs_admin --query-config servicetempdir`
+function printlog {
+  printf "%s %s %7s %s\n" `date +"%Y-%m-%d %H:%M:%S"` "[$$]" "$@" >> $LOGFILE
+}
 
+function create_dir {
+  DIR=$1
+  if [ ! -d $DIR ];then
+    printlog "Creating directory '$DIR'"
+    mkdir -p $DIR || exit 1
+  else
+    printlog "Directory '$DIR' already exists"
+  fi
+}
+
+#FSDIR="/opt/obs/SourceServiceSystem"
+DOCKER_IMAGE=`obs_admin --query-config docker_image`
+SERVICES_DIR=`obs_admin --query-config servicetempdir`
 SCM_COMMAND=0
 WITH_NET=0
 COMMAND="$1"
 LOGDIR=/srv/obs/service/log/
 LOGFILE=$LOGDIR/`basename $0`.log
 
-function printlog {
-  printf "%s %s %7s %s\n" `date +"%Y-%m-%d %H:%M:%S"` "[$$]" "$@" >> $LOGFILE
-}
+if [[ ! $DOCKER_IMAGE ]];then
+  DOCKER_IMAGE=suse/sles12sp2-source-service:latest
+fi
 
-[ -d $LOGDIR ] || mkdir -p $LOGDIR
+
+
+printlog "$0 called:"
+printlog "$@"
+
+create_dir "$LOGDIR"
 
 shift
 case "$COMMAND" in
@@ -62,7 +80,8 @@ fi
 
 MOUNTDIR=`dirname $OUTDIR`
 RETURN="0"
-[ -d $MOUNTDIR ] || mkdir -p $MOUNTDIR
+create_dir "$MOUNTDIR"
+
 # set -x
 INNERBASEDIR=`mktemp -u /var/cache/obs/XXXXXXXXXXXX`
 CONTAINER_ID=src-service-`basename $INNERBASEDIR`
@@ -73,25 +92,31 @@ OUTERSRCDIR="$MOUNTDIR/src"
 INNERSCRIPTDIR="$INNERBASEDIR/scripts"
 INNERSCRIPT="$INNERSCRIPTDIR/inner.sh"
 
-[ -d $OUTEROUTDIR ] || mkdir -p $OUTEROUTDIR
-[ -d $OUTERSRCDIR ] || mkdir -p $OUTERSRCDIR
-[ -d $MOUNTDIR$INNERSCRIPTDIR ] || mkdir -p $MOUNTDIR$INNERSCRIPTDIR
+create_dir "$OUTEROUTDIR"
+create_dir "$OUTERSRCDIR"
+create_dir "$MOUNTDIR$INNERSCRIPTDIR"
 
 # Create inner.sh which is just a wrapper for
 # su nobody -s inner.sh.command
-echo "#!/bin/bash" > "$MOUNTDIR/$INNERSCRIPT"
-echo "cd $INNERSRCDIR" >> "$MOUNTDIR/$INNERSCRIPT"
-echo -n "${INNERSCRIPT}.command" >> "$MOUNTDIR/$INNERSCRIPT"
+
+printlog "Creating INNERSCRIPT '$MOUNTDIR/$INNERSCRIPT'"
+echo "#!/bin/bash" 					> "$MOUNTDIR/$INNERSCRIPT"
+echo "cd $INNERSRCDIR" 					>> "$MOUNTDIR/$INNERSCRIPT"
+echo -n "${INNERSCRIPT}.command" 			>> "$MOUNTDIR/$INNERSCRIPT"
 
 # Create inner.sh.command
 # dirname /srv/obs/service/11875/out/
+printlog "Creating INNERSCRIPT.command '$MOUNTDIR/${INNERSCRIPT}.command'"
 echo "#!/bin/bash"               			>  "$MOUNTDIR/${INNERSCRIPT}.command"
 echo "set -x" 						>> "$MOUNTDIR/${INNERSCRIPT}.command"
 echo "echo Running ${COMMAND[@]} --outdir $INNEROUTDIR" >> "$MOUNTDIR/${INNERSCRIPT}.command"
 
 DOCKER_OPTS_NET="--net=bridge"
 if [ "$WITH_NET" != "1" ] ; then
+  printlog "Using docker without network"
   DOCKER_OPTS_NET="--net=none"
+else
+  printlog "Using docker with network"
 fi
 
 DOCKER_VOLUMES="-v $OUTEROUTDIR:$INNEROUTDIR -v $OUTERSRCDIR:$INNERSRCDIR -v $MOUNTDIR$INNERSCRIPTDIR:$INNERSCRIPTDIR"
@@ -101,7 +126,7 @@ if [ $SCM_COMMAND -eq 1 ];then
   URL_HASH=`echo $PARAM_URL|sha256sum|cut -f1 -d\ `
   OUTERSCMCACHE="$SERVICES_DIR/scm-cache/$URL_HASH"
   INNERSCMCACHE="$INNERBASEDIR/scm-cache"
-  [ -d $OUTERSCMCACHE ] || mkdir -p $OUTERSCMCACHE
+  create_dir "$OUTERSCMCACHE"
 
   DOCKER_VOLUMES="$DOCKER_VOLUMES -v $OUTERSCMCACHE:$INNERSCMCACHE"
   echo "export CACHEDIRECTORY='$INNERSCMCACHE'" 	>> "$MOUNTDIR/${INNERSCRIPT}.command"
@@ -110,7 +135,10 @@ FULL_COMMAND="${COMMAND[@]} --outdir $INNEROUTDIR"
 printlog "FULL_COMMAND: '$FULL_COMMAND'"
 echo "export HOME=/home/daemon" 			>> "$MOUNTDIR/${INNERSCRIPT}.command"
 echo "$FULL_COMMAND" 					>> "$MOUNTDIR/${INNERSCRIPT}.command"
-chmod 0755 "$MOUNTDIR/$INNERSCRIPT" "$MOUNTDIR/${INNERSCRIPT}.command"
+
+
+chmod 0755 "$MOUNTDIR/$INNERSCRIPT"
+chmod 0755 "$MOUNTDIR/${INNERSCRIPT}.command"
 
 # useful for debugging purposes
 if [[ $DEBUG_DOCKER ]];then
@@ -118,6 +146,7 @@ if [[ $DEBUG_DOCKER ]];then
 	INNERSCRIPT=/bin/bash
 fi
 
+find $MOUNTDIR
 # run jailed process
 DOCKER_RUN_CMD="docker run -u 2:2 $DOCKER_OPTS_NET --rm --name $CONTAINER_ID $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
 printlog "DOCKER_RUN_CMD: '$DOCKER_RUN_CMD'"
@@ -137,14 +166,18 @@ else
  RETURN="2"
 fi
 
+if [[ $DEBUG_DOCKER ]];then
+  printlog "DEBUG_DOCKER is set. Skipping cleanup"
+else
+  printlog "Starting cleanup"
+  [ -d "$MOUNTDIR/$INNERSRCDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNERSRCDIR"
+  [ -d "$MOUNTDIR/$INNEROUTDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNEROUTDIR"
+  rm -f "$MOUNTDIR/${INNERSCRIPT}.command" 2> /dev/null
+  rm -f "$MOUNTDIR/$INNERSCRIPT" 2> /dev/null
+  rmdir --ignore-fail-on-non-empty "$MOUNTDIR$INNERSCRIPTDIR" 2> /dev/null
+  rmdir --ignore-fail-on-non-empty "$MOUNTDIR" 2> /dev/null
 
-[ -d "$MOUNTDIR/$INNERSRCDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNERSRCDIR"
-[ -d "$MOUNTDIR/$INNEROUTDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNEROUTDIR"
-rm -f "$MOUNTDIR/${INNERSCRIPT}.command" 2> /dev/null
-rm -f "$MOUNTDIR/$INNERSCRIPT" 2> /dev/null
-rmdir --ignore-fail-on-non-empty "$MOUNTDIR$INNERSCRIPTDIR" 2> /dev/null
-rmdir --ignore-fail-on-non-empty "$MOUNTDIR" 2> /dev/null
-
-docker inspect $CONTAINER_ID > /dev/null 2>&1 && docker rm --force --volumes $CONTAINER_ID
+  docker inspect $CONTAINER_ID > /dev/null 2>&1 && docker rm --force --volumes $CONTAINER_ID
+fi
 
 exit $RETURN
