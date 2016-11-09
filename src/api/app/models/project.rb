@@ -361,7 +361,7 @@ class Project < ApplicationRecord
   def self.exists_by_name(name)
     local_project = find_by_name(name, skip_check_access: true)
     if local_project.nil?
-      !!find_remote_project(name)
+      find_remote_project(name).present?
     else
       check_access?(local_project)
     end
