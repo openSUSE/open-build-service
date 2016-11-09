@@ -23,14 +23,6 @@ Lint/Eval:
 Lint/HandleExceptions:
   Enabled: false
 
-# Offense count: 4
-Lint/IneffectiveAccessModifier:
-  Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/controllers/webui/monitor_controller.rb'
-    - 'lib/wizard.rb'
-    - 'test/activexml_matcher.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
@@ -111,13 +103,6 @@ Lint/UnderscorePrefixedVariableName:
 Lint/UnusedBlockArgument:
   Exclude:
     - 'lib/activexml/transport.rb'
-
-# Offense count: 2
-# Configuration parameters: ContextCreatingMethods.
-Lint/UselessAccessModifier:
-  Exclude:
-    - 'app/models/user.rb'
-    - 'test/activexml_matcher.rb'
 
 # Offense count: 47
 Lint/UselessAssignment:
@@ -611,12 +596,6 @@ Style/IndentationConsistency:
 # Configuration parameters: Width.
 Style/IndentationWidth:
   Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/InfiniteLoop:
-  Exclude:
-    - 'lib/opensuse/backend.rb'
 
 # Offense count: 45
 # Cop supports --auto-correct.

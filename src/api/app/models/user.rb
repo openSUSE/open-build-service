@@ -328,8 +328,6 @@ class User < ApplicationRecord
     ""
   end
 
-  public
-
   # Overriding this method to do some more validation:
   # state an password hash type being in the range of allowed values.
   def validate

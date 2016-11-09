@@ -72,3 +72,12 @@ Style/Not:
 
 Style/RedundantSelf:
   Enabled: true
+
+Style/InfiniteLoop:
+  Enabled: true
+
+Lint/UselessAccessModifier:
+  Enabled: true
+
+Lint/IneffectiveAccessModifier:
+  Enabled: true
