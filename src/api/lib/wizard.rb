@@ -1,15 +1,6 @@
 require 'rexml/document'
 
 class Wizard
-  def self.guess_version(name, tarball)
-      if tarball =~ /^#{name}-(.*)\.tar\.(gz|bz2)$/i
-        return $1
-      elsif tarball =~ /.*-([0-9\.]*)\.tar\.(gz|bz2)$/
-        return $1
-      end
-      return nil
-  end
-
   def initialize(text = nil)
     if !text || text.empty?
       @data = DirtyHash.new
