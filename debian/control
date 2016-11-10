@@ -87,9 +87,9 @@ Depends: apt-utils,
          adduser,
          diffutils,
          git,
-         libbssolv-perl (>= 0.02),
+         libbssolv-perl,
          libcompress-raw-zlib-perl,
-         libfile-sync-perl (>= 0.10),
+         libfile-sync-perl,
          libjson-xs-perl,
          libnet-ssleay-perl,
          libsocket-msghdr-perl,
@@ -103,7 +103,7 @@ Depends: apt-utils,
          sysvinit-utils (>= 2.88dsf-59),
          ${misc:Depends},
          ${shlibs:Depends}
-Recommends: createrepo (>= 0.9.8),
+Recommends: createrepo,
             lvm2,
             obs-signd,
             slpd,
@@ -152,7 +152,7 @@ Depends: apache2,
          libjs-bootstrap,
          lsb-base (>= 3.0-6),
          memcached,
-         default-mysql-client,
+         default-mysql-client | mysql-client,
          ruby | ruby-interpreter,
          ruby-acts-as-list,
          ruby-acts-as-tree,
@@ -224,9 +224,10 @@ Depends: apache2,
          unicorn,
          ${misc:Depends},
          ${shlibs:Depends}
-Recommends: default-mysql-server
+Recommends: default-mysql-server | mysql-server
 Suggests: obs-server
-Breaks: obs-server (<= 2.7.1-3)
+Breaks: obs-webui, obs-server (<= 2.7.1-3)
+Provides: obs-webui
 Description: Open Build Service (api)
  This is the API server instance for the OBS.
 
