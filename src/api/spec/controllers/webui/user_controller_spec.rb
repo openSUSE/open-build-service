@@ -22,12 +22,12 @@ RSpec.describe Webui::UserController do
   describe "GET #show" do
     shared_examples "a non existent account" do
       before do
-        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to(root_url)
         get :show, params: { user: user }
       end
 
       it { expect(controller).to set_flash[:error].to("User not found #{user}") }
-      it { expect(response).to redirect_to :back }
+      it { expect(response).to redirect_to(root_url) }
     end
 
     context "when the current user is admin" do
@@ -82,7 +82,7 @@ RSpec.describe Webui::UserController do
 
   describe "POST #do_login" do
     before do
-      request.env["HTTP_REFERER"] = search_url # Needed for the redirect_to :back
+      request.env["HTTP_REFERER"] = search_url # Needed for the redirect_to(root_url)
     end
 
     it 'logs in users with correct credentials' do
@@ -155,7 +155,7 @@ RSpec.describe Webui::UserController do
     context "when user is trying to update another user's profile" do
       before do
         login user
-        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to(root_url)
         post :save, params: { user: non_admin_user, realname: 'another real name', email: 'new_valid@email.es' }
         non_admin_user.reload
       end
@@ -163,7 +163,7 @@ RSpec.describe Webui::UserController do
       it { expect(non_admin_user.realname).not_to eq('another real name') }
       it { expect(non_admin_user.email).not_to eq('new_valid@email.es') }
       it { expect(flash[:error]).to eq("Can't edit #{non_admin_user.login}") }
-      it { is_expected.to redirect_to :back }
+      it { is_expected.to redirect_to(root_url) }
     end
 
     context "when admin is updating another user's profile" do

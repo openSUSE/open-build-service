@@ -76,7 +76,7 @@ RSpec.describe Webui::SearchController, vcr: true do
         end
 
         it { expect(flash[:notice]).to eq('Sorry, this disturl does not compute...') }
-        it { is_expected.to redirect_to(:back) }
+        it { is_expected.to redirect_to(root_url) }
       end
     end
 

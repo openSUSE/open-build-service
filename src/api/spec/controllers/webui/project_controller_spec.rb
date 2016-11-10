@@ -557,7 +557,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(flash[:error]).to start_with('Failed to save project') }
-      it { is_expected.to redirect_to(:back) }
+      it { is_expected.to redirect_to(root_url) }
     end
   end
 
@@ -659,7 +659,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(flash[:error]).to eq("Can not remove path: ") }
-      it { is_expected.to redirect_to(:back) }
+      it { is_expected.to redirect_to(root_url) }
       it { expect(assigns(:project).repositories.count).to eq(1)}
     end
   end
@@ -683,7 +683,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it "redirects to back if a referer is there" do
       request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
       get :toggle_watch, params: { project: user.home_project }
-      is_expected.to redirect_to(:back)
+      is_expected.to redirect_to(root_url)
     end
 
     it "redirects to project#show" do
@@ -768,7 +768,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         it { expect(flash[:error]).to eq("Failed to remove #{user.home_project.name} from maintenance") }
-        it { is_expected.to redirect_to(:back) }
+        it { is_expected.to redirect_to(root_url) }
       end
 
       # raise the exception in the before_action set_maintained_project
@@ -847,7 +847,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(flash[:error]).to eq("MaintenanceHelper::MissingAction") }
-      it { is_expected.to redirect_to(:back) }
+      it { is_expected.to redirect_to(root_url) }
     end
 
     context "with the proper params" do
