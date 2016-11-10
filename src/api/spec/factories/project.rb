@@ -46,7 +46,7 @@ FactoryGirl.define do
         create(:lock_flag, status: 'enable', project: project)
       end
 
-      factory :gold_master_project do
+      factory :project_with_repository do
         after(:create) do |project|
           create(:repository, project: project, architectures: ['i586'])
         end
