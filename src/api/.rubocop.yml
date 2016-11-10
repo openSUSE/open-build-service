@@ -61,6 +61,10 @@ Style/Not:
 # Checks for redundant uses of `self`
 Style/RedundantSelf:
   Enabled: true
+  
+# Checks for the presence of parentheses around ternary conditions
+Style/TernaryParentheses:
+  Enabled: true
 
 ##################### Metrics ##################################
 

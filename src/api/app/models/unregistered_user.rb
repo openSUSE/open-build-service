@@ -45,7 +45,7 @@ class UnregisteredUser < User
     can_register?
 
     opts[:note] = nil unless User.current && User.current.is_admin?
-    state = (::Configuration.registration == 'allow') ? "confirmed" : "unconfirmed"
+    state = ::Configuration.registration == 'allow' ? "confirmed" : "unconfirmed"
 
     newuser = User.create(
         login: opts[:login],
