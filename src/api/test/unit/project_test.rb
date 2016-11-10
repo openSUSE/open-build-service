@@ -251,8 +251,88 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 'disable', flag_test.effective_status
     assert_equal 'disable', flag_test.default_status
 
+    # now the final test: check all flags default in project and package
+    project2 = Project.create(name: "home:Iggy:flagtest2")
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy:flagtest2'>
+        <title>Iggy's Flag Testing Project 2</title>
+        <description>project to test all flag defaults</description>
+        <build>
+        </build>
+        <publish>
+        </publish>
+        <useforbuild>
+        </useforbuild>
+        <debuginfo>
+        </debuginfo>
+        <repository name='openSUSE_Leap_42.1'>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='openSUSE_Leap_42.2'>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='SLE_11_SP4'>
+          <arch>i586</arch>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='SLE_12_SP1'>
+          <arch>i586</arch>
+          <arch>x86_64</arch>
+        </repository>
+       </project>"
+      )
+
+    project2.update_from_xml(axml)
+    project2.store
+    project2.reload
+
+    # test if all project flags are default for a new project
+    allflags=['build', 'publish', 'useforbuild', 'binarydownload', 'access', 'lock', 'debuginfo']
+    allflags.each do |flagtype|
+      project2.get_flags(flagtype).each do |repo|
+        repo[1].each do |flag|
+          assert_equal Flag.default_status(flagtype), flag.effective_status
+          assert_equal Flag.default_status(flagtype), flag.default_status
+          assert_equal Flag.default_status(flagtype), flag.status
+        end
+      end
+    end
+
+    package4 = project2.packages.create(name: "test4")
+    axml = Xmlhash.parse(
+        "<package name='test4' project='home:Iggy:flagtest2'>
+           <title>My Test package 4</title>
+           <description>package to test all default flags</description>
+           <build>
+           </build>
+           <publish>
+           </publish>
+           <useforbuild>
+           </useforbuild>
+           <debuginfo>
+           </debuginfo>
+        </package>"
+    )
+
+    package4.update_from_xml(axml)
+    package4.store
+    package4.reload
+
+    # test if all package flags are default for a new package
+    allflags.each do |flagtype|
+      assert_equal 5, package4.get_flags(flagtype).size
+      package4.get_flags(flagtype).each do |repo|
+        repo[1].each do |flag|
+          assert_equal Flag.default_status(flagtype), flag.status
+          assert_equal Flag.default_status(flagtype), flag.effective_status
+          assert_equal Flag.default_status(flagtype), flag.default_status
+        end
+      end
+    end
+
     # this is the end
     project.destroy
+    project2.destroy
   end
 
   def test_release_targets_ng
