@@ -29,12 +29,12 @@ class RequestController < ApplicationController
     raise RequireFilter.new if [:project, :user, :states, :types, :reviewstates, :ids].all? { |f| params[f].blank? }
 
     # convert comma seperated values into arrays
-    roles = params[:roles].split(',') if params[:roles]
-    types = params[:types].split(',') if params[:types]
-    states = params[:states].split(',') if params[:states]
-    review_states = params[:reviewstates].split(',') if params[:reviewstates]
-    ids = params[:ids].split(',').map { |i| i.to_i } if params[:ids]
-    params.merge!({states: states, types: types, review_states: review_states, roles: roles, ids: ids})
+    params[:roles] = params[:roles].split(',') if params[:roles]
+    params[:types] = params[:types].split(',') if params[:types]
+    params[:states] = params[:states].split(',') if params[:states]
+    params[:review_states] = params[:reviewstates].split(',') if params[:reviewstates]
+    params[:ids] = params[:ids].split(',').map { |i| i.to_i } if params[:ids]
+
     rel = BsRequest.collection(params).includes([:reviews]).
           includes({bs_request_actions: :bs_request_action_accept_info}).
           order('bs_requests.id').references(:bs_requests)
