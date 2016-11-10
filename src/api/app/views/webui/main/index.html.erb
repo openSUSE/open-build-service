@@ -22,6 +22,7 @@
       <% unless @spider_bot -%>
           <%= proceed_link 'utilities-system-monitor', 'Status Monitor', :controller => 'monitor', :action => 'index' %>
       <% end -%>
+      <%= proceed_link 'distributions-kiwi', 'New Image', image_templates_path unless User.current.is_nobody? %>
     </ul>
   </div>
 

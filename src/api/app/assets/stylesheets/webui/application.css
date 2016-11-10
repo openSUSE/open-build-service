@@ -26,6 +26,7 @@
  *= require webui/application/notifications.css.scss
  *= require webui/application/attribute.css.scss
  *= require webui/application/request.css.scss
+ *= require webui/application/image_templates.css.sass
 */
 
 table.dataTable tbody tr {

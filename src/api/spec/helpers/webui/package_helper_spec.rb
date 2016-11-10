@@ -24,6 +24,23 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     end
   end
 
+  describe '#title_or_name' do
+    it 'returns package name when title is empty' do
+      package = create(:package, name: 'openSUSE', title: '')
+      expect(title_or_name(package)).to eq('openSUSE')
+    end
+
+    it 'returns package name when title is nil' do
+      package = create(:package, name: 'openSUSE', title: nil)
+      expect(title_or_name(package)).to eq('openSUSE')
+    end
+
+    it 'returns package title when title is set' do
+      package = create(:package, name: 'openSUSE', title: 'Leap')
+      expect(title_or_name(package)).to eq('Leap')
+    end
+  end
+
   describe '#file_url' do
     skip
   end
