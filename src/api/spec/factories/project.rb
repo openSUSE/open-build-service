@@ -74,7 +74,7 @@ FactoryGirl.define do
       kind 'maintenance_release'
 
       transient do
-        target_project nil
+        target_project { create(:project_with_repository) }
       end
 
       after(:create) do |update_project, evaluator|
