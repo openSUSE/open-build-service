@@ -38,7 +38,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
 
       it { expect(assigns(:repocycles)).to be_a(Hash) }
       it { expect(assigns(:repository)).to be_falsey }
-      it { is_expected.to redirect_to(:back) }
+      it { is_expected.to redirect_to(root_url) }
     end
   end
 
@@ -132,7 +132,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
         expect(flash[:error]).to eq("Can not add repository: Name must not start with '_' or contain any of these characters ':/'")
       end
 
-      it { expect(action).to redirect_to(:back) }
+      it { expect(action).to redirect_to(root_url) }
       it { expect{ action }.to_not change(Repository, :count) }
     end
 
@@ -142,7 +142,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
       end
 
       it { expect(flash[:error]).to eq("Can not add repository: Path elements is invalid and Path Element: Link can't be blank") }
-      it { is_expected.to redirect_to(:back) }
+      it { is_expected.to redirect_to(root_url) }
     end
 
     context "with a valid repository but with a non valid architecture" do
@@ -152,7 +152,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
       end
 
       it { expect(flash[:error]).to start_with("Can not add repository: Repository ") }
-      it { is_expected.to redirect_to(:back) }
+      it { is_expected.to redirect_to(root_url) }
     end
 
     context "with a valid repository" do
@@ -179,7 +179,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
           "Name is too short (minimum is 1 character) and " \
           "Name must not start with '_' or contain any of these characters ':/'")
       }
-      it { is_expected.to redirect_to(:back) }
+      it { is_expected.to redirect_to(root_url) }
       it { expect(assigns(:project).repositories.count).to eq(0) }
     end
   end
