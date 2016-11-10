@@ -3,7 +3,7 @@ require 'configuration'
 class ConfigurationsController < ApplicationController
   # Site-specific configuration is insensitive information, no login needed therefore
   before_action :require_admin, only: [:update]
-  skip_action_callback :validate_params, only: [:update] # we use an array for archs here
+  skip_before_action :validate_params, only: [:update] # we use an array for archs here
 
   validate_action show: {method: :get, response: :configuration}
 # webui is using this route with parameters instead of content
