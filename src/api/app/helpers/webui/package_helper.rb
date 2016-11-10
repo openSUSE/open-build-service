@@ -16,6 +16,10 @@ module Webui::PackageHelper
     number_to_human_size bytes
   end
 
+  def title_or_name(package)
+    package.title.blank? ? package.name : package.title
+  end
+
   def guess_code_class( filename )
     return 'xml' if %w(_aggregate _link _patchinfo _service).include?(filename) || filename.match(/.*\.service/)
     return 'shell' if filename.match(/^rc[\w-]+$/) # rc-scripts are shell
