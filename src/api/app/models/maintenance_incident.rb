@@ -4,6 +4,11 @@ class MaintenanceIncident < ApplicationRecord
   belongs_to :project, class_name: "Project", foreign_key: :db_project_id
   belongs_to :maintenance_db_project, class_name: "Project"
 
+  # <project> - The maintenance project
+  # target_project - The maintenance incident project
+  #
+  # Creates a maintenance incident project (target_project), belonging to <project>
+  # and a MaintenanceIncident instance that connects both.
   def self.build_maintenance_incident(project, no_access = false, request = nil)
     result = nil
     return result unless project && project.kind == 'maintenance'
