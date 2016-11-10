@@ -588,6 +588,11 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/call-service-in-lxc.sh
 /usr/lib/obs/server/cleanup_scm_cache
 
+# add obsservicerun user into docker group if docker
+# gets installed
+%triggerin -n obs-source_service -- docker
+usermod -a -G docker obsservicerun
+
 %files -n obs-worker
 %defattr(-,root,root)
 /etc/init.d/obsworker
