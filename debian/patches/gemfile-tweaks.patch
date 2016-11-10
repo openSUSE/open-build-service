@@ -406,6 +406,15 @@
 +## Nothing here
 --- a/src/api/Gemfile
 +++ b/src/api/Gemfile
+@@ -134,7 +134,7 @@
+   # to use sass in the asset pipeline
+   gem 'sass-rails', '~> 5.0.1'
+   # assets for jQuery DataTables
+-  gem 'jquery-datatables-rails'
++  gem 'jquery-datatables-rails', '1.12.2', path: "vendor/gems/jquery-datatables-rails-1.12.2"
+   # assets for the text editor
+   gem 'codemirror-rails'
+   # assets for jQuery tokeninput
 @@ -146,7 +146,7 @@
    # assets for jQuery and jQuery-ujs
    gem 'jquery-rails'

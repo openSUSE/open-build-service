@@ -7,6 +7,15 @@ export BUILD_ROOT=$(CURDIR)/debian/tmp
 %:
 	dh $@ --parallel --with=systemd
 
+override_dh_auto_build:
+	# Place localgem
+	cp -a debian/localgem src/api/vendor/gems
+	dh_auto_build
+
+override_dh_auto_clean:
+	rm -rf src/api/vendor/gems
+	dh_auto_clean
+
 override_dh_install:
 	# Drop useless files.
 	rm -f debian/tmp/etc/apache2/vhosts.d/obs.conf

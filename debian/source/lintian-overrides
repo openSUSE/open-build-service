@@ -1,0 +1,1 @@
+open-build-service source: source-is-missing debian/localgem/jquery-datatables-rails-1.12.2/app/assets/javascripts/dataTables/extras/ZeroClipboard.js line length is 656 characters (>512)

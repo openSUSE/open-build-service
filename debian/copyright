@@ -68,6 +68,10 @@ Files: src/backend/worker/Structured.pm
 Copyright:  2006 Michael Schroeder <mls@suse.de>
 License: Artistic
 
+Files: debian/localgem/jquery-datatables-rails-1.12.2/*
+Copyright: 2013 Robin Wenglewski <robin@wenglewski.de>
+License: Expat
+
 Files: debian/missing-sources/jquery.expander.js
        src/api/vendor/assets/javascripts/jquery.expander.min.js
 Copyright:  2016 Karl Swedberg
