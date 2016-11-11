@@ -180,7 +180,7 @@ class Webui::WebuiController < ActionController::Base
   # Needed to hide/render some views to well known spider bots
   # FIXME: We should get rid of it
   def check_spiders
-    @spider_bot = request.env.has_key?('HTTP_OBS_SPIDER')
+    @spider_bot = request.bot?
   end
   private :check_spiders
 

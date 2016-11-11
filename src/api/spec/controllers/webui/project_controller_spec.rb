@@ -61,7 +61,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'showing projects being a spider bot' do
       before do
-        request.env['HTTP_OBS_SPIDER'] = true
+        # be a fake google bot
+        request.env['HTTP_USER_AGENT'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         get :index
       end
 
