@@ -59,12 +59,3 @@ CONFIG['response_schema_validation'] = true
 
 CONFIG['frontend_host'] = "localhost"
 CONFIG['frontend_protocol'] = "http"
-
-require 'socket'
-fname = "#{Rails.root}/config/environments/development.#{Socket.gethostname}.rb"
-if File.exist? fname
-  STDERR.puts "Using local environment #{fname}"
-  eval File.read(fname)
-else
-  STDERR.puts "Custom development.#{Socket.gethostname}.rb not found - using defaults"
-end
