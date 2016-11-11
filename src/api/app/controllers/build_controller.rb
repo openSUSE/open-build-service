@@ -187,6 +187,7 @@ class BuildController < ApplicationController
       fsize = regexp[1]
       logger.info "streaming #{path}"
 
+      # rubocop:disable Lint/EndAlignment
       c_type = case params[:filename].split(/\./)[-1]
                when "rpm"
                  "application/x-rpm"
@@ -197,6 +198,7 @@ class BuildController < ApplicationController
                else
                  "application/octet-stream"
                end
+      # rubocop:enable Lint/EndAlignment
 
       headers.update(
         'Content-Disposition' => %(attachment; filename="#{params[:filename]}"),
