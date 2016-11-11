@@ -200,7 +200,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/"+incidentProject+"/kgraft-incident-0.My_Maintenance_0/_meta"
     assert_response :success
-    assert_xml_tag :tag => "releasename", :content => "kgraft-incident-0"
+    assert_xml_tag tag: "releasename", content: "kgraft-incident-0"
 
     # validate repos
     get "/source/"+incidentProject+"/_meta"
