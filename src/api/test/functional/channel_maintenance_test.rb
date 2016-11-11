@@ -248,10 +248,10 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # validate releasename
     get "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
-    assert_xml_tag :tag => "releasename", :content => "pack2"
+    assert_xml_tag tag: "releasename", content: "pack2"
     get "/source/"+incidentProject+"/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
-    assert_xml_tag :tag => "releasename", :content => "pack2.linked"
+    assert_xml_tag tag: "releasename", content: "pack2.linked"
 
     # no patchinfo was part in source project, got it created ?
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
