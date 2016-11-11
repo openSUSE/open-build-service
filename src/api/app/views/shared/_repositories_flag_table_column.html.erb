@@ -9,7 +9,7 @@
     <div class="hidden flagtoggle">
       <% if flag.new_record? %>
         <% if flag.status == 'enable' %>
-          <div class="iconwrapper"><div class="icons-<%= flag.flag %>_disable_grey icon_24"></div></div>
+          <div class="iconwrapper"><div class="icons-<%= flag.flag %>_disable_blue icon_24"></div></div>
           <%= link_to 'Disable', { action: :create_flag,
                                    project: @project,
                                    package: @package,
@@ -19,7 +19,7 @@
                                    architecture: flag.arch },
                                  id: "#{flag.fullname}_disable", class: "flag_spinner_trigger_#{flag.flag}", method: :post, remote: remote %>
         <% else %>
-          <div class="iconwrapper"><div class="icons-<%= flag.flag %>_enable_grey icon_24"></div></div>
+          <div class="iconwrapper"><div class="icons-<%= flag.flag %>_enable_blue icon_24"></div></div>
           <%= link_to 'Enable', { action: :create_flag,
                                   project: @project,
                                   package: @package,
@@ -37,8 +37,8 @@
           <div class="iconwrapper"><div class="icons-<%= flag.flag %>_enable_blue icon_24"></div></div>
             <%= link_to 'Enable', { action: :toggle_flag, project: @project, package: @package, flag: flag }, id: "#{flag.fullname}_enable", class: "flag_spinner_trigger_#{flag.flag}", method: :put, remote: remote %>
         <% end %>
-        <div class="iconwrapper"><div class="icons-<%= flag.flag %>_<%= Flag.default_status(flag.flag) %>_blue icon_24"></div></div>
-        <%= link_to "Take default (#{Flag.default_status(flag.flag)})", { action: :remove_flag, project: @project, package: @package, flag: flag }, id: "#{flag.fullname}_remove", class: "flag_spinner_trigger_#{flag.flag}", method: :delete, remote: remote %>
+        <div class="iconwrapper"><div class="icons-<%= flag.flag %>_<%= flag.default_status %>_grey icon_24"></div></div>
+        <%= link_to "Take default (#{flag.default_status})", { action: :remove_flag, project: @project, package: @package, flag: flag }, id: "#{flag.fullname}_remove", class: "flag_spinner_trigger_#{flag.flag}", method: :delete, remote: remote %>
       <% end %>
     </div>
   </div>

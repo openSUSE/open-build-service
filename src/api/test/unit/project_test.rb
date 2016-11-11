@@ -122,8 +122,12 @@ class ProjectTest < ActiveSupport::TestCase
         <title>Iggy's Flag Testing Project</title>
         <description>dummy</description>
         <build>
+          <enable             repository='SLE_11_SP4' />
           <disable/>
         </build>
+        <useforbuild>
+          <disable/>
+        </useforbuild>
         <repository name='openSUSE_Leap_42.1'>
           <arch>x86_64</arch>
         </repository>
@@ -145,12 +149,26 @@ class ProjectTest < ActiveSupport::TestCase
     project.store
     project.reload
 
-    # test if all project build flags are 'disable' for the project
-    project.get_flags('build').each do |repo|
-      repo[1].each do |flag|
-        assert_equal 'disable', flag.status
-      end
-    end
+    assert_equal 5, project.get_flags('build').size
+    assert_equal 3, project.get_flags('build')["all"].size
+
+    flag_test = project.get_flags('build')["SLE_11_SP4"][0]
+    assert_equal 'enable', flag_test.status
+    assert_equal 'enable', flag_test.effective_status
+    assert_equal 'disable', flag_test.default_status
+
+    flag_all = project.get_flags('build')["all"][0]
+    assert_equal 'disable', flag_all.status
+    assert_equal 'disable', flag_all.effective_status
+    assert_equal 'enable', flag_all.default_status
+
+    assert_equal 5, project.get_flags('useforbuild').size
+    assert_equal 3, project.get_flags('useforbuild')["all"].size
+
+    flag_useforbuild_all = project.get_flags('useforbuild')["all"][0]
+    assert_equal 'disable', flag_useforbuild_all.status
+    assert_equal 'disable', flag_useforbuild_all.effective_status
+    assert_equal 'enable', flag_useforbuild_all.default_status
 
     # package is given as axml
     axml = Xmlhash.parse(
@@ -158,8 +176,12 @@ class ProjectTest < ActiveSupport::TestCase
         <title>My Test package 2</title>
         <description></description>
         <build>
+          <disable            repository='SLE_12_SP1' />
           <enable/>
         </build>
+        <useforbuild>
+          <enable/>
+        </useforbuild>
       </package>"
     )
 
@@ -167,15 +189,150 @@ class ProjectTest < ActiveSupport::TestCase
     package2.store
     package2.reload
 
-    # the all build 'enable' for the package shall overwrite the project setting
-    package2.get_flags('build').each do |repo|
-      repo[1].each do |flag|
-        assert_equal 'enable', flag.status
+    assert_equal 5, package2.get_flags('build').size
+    assert_equal 3, package2.get_flags('build')["all"].size
+
+    flag_test = package2.get_flags('build')["SLE_12_SP1"][0]
+    assert_equal 'disable', flag_test.status
+    assert_equal 'disable', flag_test.effective_status
+    assert_equal 'enable', flag_test.default_status
+
+    flag_build_all = package2.get_flags('build')["all"][0]
+    assert_equal 'enable',  flag_build_all.status
+    assert_equal 'enable',  flag_build_all.effective_status
+    assert_equal 'disable', flag_build_all.default_status
+
+    assert_equal 5, package2.get_flags('useforbuild').size
+    assert_equal 3, package2.get_flags('useforbuild')["all"].size
+
+    flag_useforbuild_all = package2.get_flags('useforbuild')["all"][0]
+    assert_equal 'enable', flag_useforbuild_all.status
+    assert_equal 'enable', flag_useforbuild_all.effective_status
+    assert_equal 'disable', flag_useforbuild_all.default_status
+
+    package3 = project.packages.create(name: "test3")
+    # package is given as axml
+    axml = Xmlhash.parse(
+        "<package name='test3' project='home:Iggy:flagtest'>
+        <title>My Test package 3</title>
+        <description></description>
+        <build>
+          <enable               repository='SLE_11_SP4' />
+          <enable               repository='SLE_12_SP1' />
+          <disable arch='i586'  repository='SLE_12_SP1' />
+          <disable arch='i586'  />
+        </build>
+        <useforbuild>
+          <enable/>
+        </useforbuild>
+      </package>"
+    )
+
+    package3.update_from_xml(axml)
+    package3.store
+    package3.reload
+
+    assert_equal 5, package3.get_flags('build').size
+    assert_equal 3, package3.get_flags('build')["all"].size
+
+    flag_test = package3.get_flags('build')["SLE_12_SP1"][1]
+    assert_equal 'i586',    flag_test.architecture.name
+    assert_equal 'disable', flag_test.status
+    assert_equal 'disable', flag_test.effective_status
+    assert_equal 'enable',  flag_test.default_status
+
+    flag_test = package3.get_flags('build')["SLE_11_SP4"][0]
+    assert_equal 'enable', flag_test.status
+    assert_equal 'enable', flag_test.effective_status
+    assert_equal 'disable', flag_test.default_status
+
+    flag_test = package3.get_flags('build')["all"][0]
+    assert_equal 'disable', flag_test.status
+    assert_equal 'disable', flag_test.effective_status
+    assert_equal 'disable', flag_test.default_status
+
+    # now the final test: check all flags default in project and package
+    project2 = Project.create(name: "home:Iggy:flagtest2")
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy:flagtest2'>
+        <title>Iggy's Flag Testing Project 2</title>
+        <description>project to test all flag defaults</description>
+        <build>
+        </build>
+        <publish>
+        </publish>
+        <useforbuild>
+        </useforbuild>
+        <debuginfo>
+        </debuginfo>
+        <repository name='openSUSE_Leap_42.1'>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='openSUSE_Leap_42.2'>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='SLE_11_SP4'>
+          <arch>i586</arch>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='SLE_12_SP1'>
+          <arch>i586</arch>
+          <arch>x86_64</arch>
+        </repository>
+       </project>"
+      )
+
+    project2.update_from_xml(axml)
+    project2.store
+    project2.reload
+
+    # test if all project flags are default for a new project
+    allflags=['build', 'publish', 'useforbuild', 'binarydownload', 'access', 'lock', 'debuginfo']
+    allflags.each do |flagtype|
+      project2.get_flags(flagtype).each do |repo|
+        repo[1].each do |flag|
+          assert_equal Flag.default_status(flagtype), flag.effective_status
+          assert_equal Flag.default_status(flagtype), flag.default_status
+          assert_equal Flag.default_status(flagtype), flag.status
+        end
+      end
+    end
+
+    package4 = project2.packages.create(name: "test4")
+    axml = Xmlhash.parse(
+        "<package name='test4' project='home:Iggy:flagtest2'>
+           <title>My Test package 4</title>
+           <description>package to test all default flags</description>
+           <build>
+           </build>
+           <publish>
+           </publish>
+           <useforbuild>
+           </useforbuild>
+           <debuginfo>
+           </debuginfo>
+        </package>"
+    )
+
+    package4.update_from_xml(axml)
+    package4.store
+    package4.reload
+
+    # test if all package flags are default for a new package
+    allflags.each do |flagtype|
+      assert_equal 5, package4.get_flags(flagtype).size
+      package4.get_flags(flagtype).each do |repo|
+        repo[1].each do |flag|
+          assert_equal Flag.default_status(flagtype), flag.status
+          assert_equal Flag.default_status(flagtype), flag.effective_status
+          assert_equal Flag.default_status(flagtype), flag.default_status
+        end
       end
     end
 
     # this is the end
     project.destroy
+    project2.destroy
   end
 
   def test_release_targets_ng
