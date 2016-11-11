@@ -496,6 +496,8 @@ class BsRequestAction < ApplicationRecord
     end
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable Metrics/PerceivedComplexity
   def create_expand_package(packages, opts = {})
     newactions = Array.new
     incident_suffix = ''
@@ -537,11 +539,16 @@ class BsRequestAction < ApplicationRecord
         end
       end
 
-      if tprj.try(:is_maintenance_incident?) && is_maintenance_release?
+      if pkg.releasename && is_maintenance_release?
+        # incidents created since OBS 2.8 should have this information already.
+        tpkg = pkg.releasename
+      elsif tprj.try(:is_maintenance_incident?) && is_maintenance_release?
+        # fallback, how can we get rid of it?
         data = Directory.hashed(project: tprj.name, package: ltpkg)
         e = data['linkinfo']
         tpkg = e['package'] if e
       else
+        # we need to get rid of it again ...
         tpkg = tpkg.gsub(/#{Regexp.escape(suffix)}$/, '') # strip distro specific extension
       end
       tpkg = target_package if target_package # already given
@@ -727,6 +734,8 @@ class BsRequestAction < ApplicationRecord
 
     return newactions
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
+  # rubocop:enable Metrics/PerceivedComplexity
 
   def check_action_permission_source!
     return nil unless source_project

@@ -95,7 +95,7 @@ module MaintenanceHelper
       user:      User.current.login,
       cmd:       "commitfilelist",
       noservice: "1",
-      comment:   "Set link to #{targetPackageName} via maintenance_release request"
+      comment:   "Set local link to #{targetPackageName} via maintenance_release request"
     }
     upload_params[:requestid] = action.bs_request.number if action
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"

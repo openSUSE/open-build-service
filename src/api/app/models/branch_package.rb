@@ -123,6 +123,7 @@ class BranchPackage
         if tpkg.bcntsynctag && @extend_names
           tpkg.bcntsynctag << '.' + p[:link_target_project].name.tr(':', '_')
         end
+        tpkg.releasename = p[:release_name]
         tprj.packages << tpkg
       end
       tpkg.store
@@ -141,7 +142,6 @@ class BranchPackage
         linked_package += '.' + p[:link_target_project].name.tr(':', '_') if @extend_names
         ret.set_attribute('package', linked_package)
         Suse::Backend.put tpkg.source_path('_link', user: User.current.login), ret.dump_xml
-        tpkg.sources_changed
       else
         opackage = p[:package]
         opackage = p[:package].name if p[:package].is_a? Package
@@ -170,9 +170,8 @@ class BranchPackage
           Suse::Backend.post tpkg.source_path + "?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(User.current.login)}&comment=#{msg}"
           # rubocop:enable Metrics/LineLength
         end
-
-        tpkg.sources_changed
       end
+      tpkg.sources_changed
 
       # create repositories, if missing
       if @add_repositories
@@ -330,6 +329,9 @@ class BranchPackage
       p[:target_package] = p[:package].name
       p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
     end
+    if @extend_names
+      p[:release_name] = p[:package].kind_of?(String) ? p[:package] : p[:package].name
+    end
 
     # validate and resolve devel package or devel project definitions
     unless params[:ignoredevel] || p[:copy_from_devel]
@@ -469,6 +471,7 @@ class BranchPackage
 
       target_package = ap.name
       target_package += '.' + p[:target_package].gsub(/^[^\.]*\./, '') if @extend_names
+      release_name = ap.name if @extend_names
 
       # avoid double entries and therefore endless loops
       found = false
@@ -481,7 +484,8 @@ class BranchPackage
         @packages.push({ base_project: p[:base_project],
                          link_target_project: p[:link_target_project],
                          link_target_package: p[:package].name,
-                         package: ap, target_package: target_package, local_link: 1 })
+                         package: ap, target_package: target_package,
+                         release_name: release_name, local_link: 1 })
       end
     end
   end

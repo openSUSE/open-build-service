@@ -1231,7 +1231,7 @@ sub getprojpack {
 	$pinfo->{'error'} = 'no metadata';
 	next;
       }
-      for (qw{build publish debuginfo useforbuild bcntsynctag sourceaccess privacy access lock}) {
+      for (qw{build publish debuginfo useforbuild bcntsynctag sourceaccess privacy access lock releasename}) {
 	$pinfo->{$_} = $pack->{$_} if $pack->{$_};
       }
       if (!$pinfo->{'build'}) {

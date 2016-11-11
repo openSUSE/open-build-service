@@ -162,6 +162,7 @@ our $pack = [
 	[],
         'title',
         'description',
+        'releasename',
       [ 'devel' =>
 	    'project',
 	    'package',

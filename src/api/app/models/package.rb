@@ -106,6 +106,7 @@ class Package < ApplicationRecord
   # rubocop:enable Metrics/LineLength
 
   validates :name, presence: true, length: { maximum: 200 }
+  validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
   validate :valid_name
 
@@ -674,6 +675,7 @@ class Package < ApplicationRecord
       self.title = xmlhash.value('title')
       self.description = xmlhash.value('description')
       self.bcntsynctag = xmlhash.value('bcntsynctag')
+      self.releasename = xmlhash.value('releasename')
 
       #--- devel project ---#
       self.develpackage = nil
@@ -889,7 +891,7 @@ class Package < ApplicationRecord
     # local link, go one step deeper
     prj = Project.get_by_name(linkinfo['project'])
     pkg = prj.find_package(linkinfo['package'])
-    if !options[:local] && project != prj
+    if !options[:local] && project != prj && !prj.is_maintenance_incident?
       return pkg
     end
 
