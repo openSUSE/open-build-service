@@ -172,7 +172,7 @@ class PublicController < ApplicationController
 
             @binary_links[dist_id][:binary] << {type: binary_type, arch: b.value(:arch), url: repo.download_url(filepath)}
             if @binary_links[dist_id][:repository].blank?
-              repo_filename = (binary_type == 'rpm') ? "#{@pkg.project.name}.repo" : ''
+              repo_filename = binary_type == 'rpm' ? "#{@pkg.project.name}.repo" : ''
               @binary_links[dist_id][:repository] ||= { url: repo.download_url(repo_filename) }
             end
           end

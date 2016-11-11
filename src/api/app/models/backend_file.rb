@@ -57,7 +57,7 @@ class BackendFile
   # Converts file into a String if it's valid
   def to_s(query = {})
     file(query)
-    (!@file.nil? && valid?) ? File.open(@file.path).read : nil
+    !@file.nil? && valid? ? File.open(@file.path).read : nil
   end
 
   # Reloads from Backend the file content

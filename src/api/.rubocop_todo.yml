@@ -1082,18 +1082,6 @@ Style/Tab:
     - 'lib/memory_debugger.rb'
     - 'lib/tasks/sprites.rake'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, AllowSafeAssignment.
-# SupportedStyles: require_parentheses, require_no_parentheses
-Style/TernaryParentheses:
-  Exclude:
-    - 'app/controllers/public_controller.rb'
-    - 'app/helpers/public_helper.rb'
-    - 'app/models/backend_file.rb'
-    - 'app/models/project_log_entry.rb'
-    - 'app/models/unregistered_user.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, IgnoreClassMethods, Whitelist.
