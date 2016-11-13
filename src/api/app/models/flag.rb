@@ -126,11 +126,11 @@ class Flag < ApplicationRecord
 
     arch = architecture ? architecture.name : nil
 
-    return false if arch.nil? && !in_arch.nil?
-    return false if !arch.nil? && in_arch.nil?
+    return false if arch.nil? && in_arch
+    return false if arch && in_arch.nil?
 
-    return false if repo.nil? && !in_repo.nil?
-    return false if !repo.nil? && in_repo.nil?
+    return false if repo.nil? && in_repo
+    return false if repo && in_repo.nil?
 
     return true
   end
@@ -143,7 +143,7 @@ class Flag < ApplicationRecord
       return true
     elsif arch.nil? && !repo.nil?
       return true if in_repo == repo
-    elsif !arch.nil? && repo.nil?
+    elsif arch && repo.nil?
       return true if in_arch == arch
     else
       return true if in_arch == arch && in_repo == repo
@@ -155,8 +155,8 @@ class Flag < ApplicationRecord
   def specifics
     count = 0
     count += 1 if status == 'disable'
-    count += 2 unless architecture.nil?
-    count += 4 unless repo.nil?
+    count += 2 if architecture
+    count += 4 if repo
     count
   end
 
