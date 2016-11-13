@@ -14,11 +14,7 @@ class Flag < ApplicationRecord
   after_destroy :discard_forbidden_project_cache
 
   before_validation(on: :create) do
-    if project
-      self.position = (project.flags.maximum(:position) || 0 ) + 1
-    elsif package
-      self.position = (package.flags.maximum(:position) || 0 ) + 1
-    end
+    self.position = main_object.flags.maximum(:position).to_i + 1
   end
 
   validate :validate_custom_save
