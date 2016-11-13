@@ -168,7 +168,7 @@ class Flag < ApplicationRecord
   end
 
   def arch
-    architecture_id.blank? ? '' : architecture.name
+    architecture.try(:name).to_s
   end
 
   def main_object
