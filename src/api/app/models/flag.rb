@@ -107,10 +107,7 @@ class Flag < ApplicationRecord
   end
 
   def has_children
-    return true if repo.blank? && architecture.blank?
-    return true if !repo.blank? && architecture.blank?
-    return true if repo.blank? && !architecture.blank?
-    return false
+    repo.blank? || architecture.blank?
   end
 
   def to_xml(builder)
