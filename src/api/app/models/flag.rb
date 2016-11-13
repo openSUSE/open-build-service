@@ -27,7 +27,6 @@ class Flag < ApplicationRecord
     errors.add(:name, 'Please set either project or package.') unless project.nil? || package.nil?
     errors.add(:flag, 'There needs to be a valid flag.') unless FlagHelper::TYPES.has_key?(flag.to_s)
     errors.add(:status, 'Status needs to be enable or disable') unless (status && (status.to_sym == :enable || status.to_sym == :disable))
-    # rubocop:enable Metrics/LineLength
   end
 
   validate :validate_duplicates, on: :create
