@@ -1914,6 +1914,7 @@ sub getpackagelist {
   for (@packages) {
     $_ = {'name' => $_};
     $_->{'originproject'} = $origins->{$_->{'name'}} if $origins && $origins->{$_->{'name'}} ne $projid;
+    $_->{'originpackage'} = $1 if $_->{'name'} =~ /^(.*?)(?<!^_product)(?<!^_patchinfo):./;
   }
   return ({'entry' => \@packages}, $BSXML::dir);
 }
@@ -3565,8 +3566,23 @@ sub getresult {
   my $proj = checkprojrepoarch($projid, undef, undef, 1);
   if ($proj->{'remoteurl'}) {
     die("oldstate not supported for remote projects\n") if $cgi->{'oldstate'};
-    my @args = BSRPC::args($cgi, 'lastbuild', 'view', 'repository', 'arch', 'package', 'code');
+    my @args = BSRPC::args($cgi, 'lastbuild', 'view', 'repository', 'arch', 'package', 'code', 'multibuild', 'locallink');
     return (BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/_result", 'proxy' => $proxy}, $BSXML::resultlist, @args), $BSXML::resultlist);
+  }
+  if ($cgi->{'multibuild'} && $cgi->{'package'} && !$BSStdServer::isajax) {
+    $cgi->{'package'} = [ BSSrcServer::Multibuild::addmultibuildpackages($projid, undef, @{$cgi->{'package'}}) ];
+  }
+  if ($cgi->{'locallink'} && $cgi->{'package'} && !$BSStdServer::isajax) {
+    my @packages;
+    # find all packages that are links
+    my $db = BSDB::opendb($sourcedb, '');
+    for my $packid (@{$cgi->{'package'}}) {
+      push @packages, $packid;
+      my @l = grep {s/^\Q$projid\///} BSDBIndex::getvalues($db, 'linkinfo/package', $packid);
+      push @packages, @l;
+    }
+    @packages = BSUtil::unify(@packages);
+    $cgi->{'package'} = \@packages;
   }
   if ($cgi->{'oldstate'} && !$BSStdServer::isajax) {
     my @args = BSRPC::args($cgi, 'oldstate', 'lastbuild', 'view', 'repository', 'arch', 'package', 'code');
@@ -5264,6 +5280,7 @@ sub sourceinfo {
     die("source update failed\n") if $files->{'_service_error'};
   };
   $r->{'originproject'} = $rev->{'originproject'} if $rev && $rev->{'originproject'};
+  $r->{'originpackage'} = $rev->{'package'} if $rev && $rev->{'originpackage'};
   $r->{'linked'} = $linked if @$linked;
   if ($@) {
     $r->{'error'} = $@;
@@ -5729,7 +5746,7 @@ my $dispatches = [
   '/build/_dispatchprios' => \&getdispatchprios,
   'POST:/build/$project cmd: repository* arch* package* code:* wipe:*' => \&docommand,
   '/build/$project' => \&getrepositorylist,
-  '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:*' => \&getresult,
+  '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:* multibuild:bool? locallink:bool?' => \&getresult,
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig path:prp*' => \&getbuildconfig,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
