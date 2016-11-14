@@ -26,7 +26,7 @@ use BSSrcrep;
 use BSXML;
 use BSVerify;
 
-our %multibuildcache;
+our $multibuildcache = {};
 
 my $projectsdir = "$BSConfig::bsdir/projects";
 
@@ -42,11 +42,15 @@ sub globalenabled {
 }
 
 sub getcache {
-  my ($projid) = @_;
-  my $mc = $multibuildcache{$projid};
+  my ($projid, $ignorecache) = @_;
+  if ($BSServerEvents::gev) {
+    $BSServerEvents::gev->{'multibuildcache'} ||= {};
+    $multibuildcache = $BSServerEvents::gev->{'multibuildcache'};
+  }
+  my $mc;
+  $mc = $multibuildcache->{$projid} unless $ignorecache;
   if (!$mc) {
-    $mc = BSUtil::retrieve("$projectsdir/$projid.pkg/:multibuild", 1) || {};
-    $multibuildcache{$projid} = $mc;
+    $multibuildcache->{$projid} = $mc = BSUtil::retrieve("$projectsdir/$projid.pkg/:multibuild", 1) || {};
   }
   return $mc;
 }
@@ -76,8 +80,7 @@ sub updatemultibuild {
   # need to update, lock
   local *F;
   BSUtil::lockopen(\*F, '>>', "$projectsdir/$projid.pkg/:multibuild");
-  $mc = BSUtil::retrieve("$projectsdir/$projid.pkg/:multibuild", 1) || {};
-  $multibuildcache{$projid} = $mc;
+  $mc = getcache($projid, 1);
 
   # now update
   my $mb;
@@ -113,8 +116,7 @@ sub prunemultibuild {
   # need to update, lock
   local *F;
   BSUtil::lockopen(\*F, '>>', "$projectsdir/$projid.pkg/:multibuild");
-  $mc = BSUtil::retrieve("$projectsdir/$projid.pkg/:multibuild", 1) || {};
-  $multibuildcache{$projid} = $mc;
+  $mc = getcache($projid, 1);
   for my $packid (keys %$mc) {
     delete $mc->{$packid} unless $p{$packid};
   }
