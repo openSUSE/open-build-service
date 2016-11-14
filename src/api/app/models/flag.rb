@@ -14,11 +14,7 @@ class Flag < ApplicationRecord
   after_destroy :discard_forbidden_project_cache
 
   before_validation(on: :create) do
-    if project
-      self.position = (project.flags.maximum(:position) || 0 ) + 1
-    elsif package
-      self.position = (package.flags.maximum(:position) || 0 ) + 1
-    end
+    self.position = main_object.flags.maximum(:position).to_i + 1
   end
 
   validate :validate_custom_save
@@ -27,7 +23,6 @@ class Flag < ApplicationRecord
     errors.add(:name, 'Please set either project or package.') unless project.nil? || package.nil?
     errors.add(:flag, 'There needs to be a valid flag.') unless FlagHelper::TYPES.has_key?(flag.to_s)
     errors.add(:status, 'Status needs to be enable or disable') unless (status && (status.to_sym == :enable || status.to_sym == :disable))
-    # rubocop:enable Metrics/LineLength
   end
 
   validate :validate_duplicates, on: :create
@@ -108,10 +103,7 @@ class Flag < ApplicationRecord
   end
 
   def has_children
-    return true if repo.blank? && architecture.blank?
-    return true if !repo.blank? && architecture.blank?
-    return true if repo.blank? && !architecture.blank?
-    return false
+    repo.blank? || architecture.blank?
   end
 
   def to_xml(builder)
@@ -127,11 +119,11 @@ class Flag < ApplicationRecord
 
     arch = architecture ? architecture.name : nil
 
-    return false if arch.nil? && !in_arch.nil?
-    return false if !arch.nil? && in_arch.nil?
+    return false if arch.nil? && in_arch
+    return false if arch && in_arch.nil?
 
-    return false if repo.nil? && !in_repo.nil?
-    return false if !repo.nil? && in_repo.nil?
+    return false if repo.nil? && in_repo
+    return false if repo && in_repo.nil?
 
     return true
   end
@@ -144,7 +136,7 @@ class Flag < ApplicationRecord
       return true
     elsif arch.nil? && !repo.nil?
       return true if in_repo == repo
-    elsif !arch.nil? && repo.nil?
+    elsif arch && repo.nil?
       return true if in_arch == arch
     else
       return true if in_arch == arch && in_repo == repo
@@ -156,8 +148,8 @@ class Flag < ApplicationRecord
   def specifics
     count = 0
     count += 1 if status == 'disable'
-    count += 2 unless architecture.nil?
-    count += 4 unless repo.nil?
+    count += 2 if architecture
+    count += 4 if repo
     count
   end
 
@@ -176,7 +168,7 @@ class Flag < ApplicationRecord
   end
 
   def arch
-    architecture_id.blank? ? '' : architecture.name
+    architecture.try(:name).to_s
   end
 
   def main_object
