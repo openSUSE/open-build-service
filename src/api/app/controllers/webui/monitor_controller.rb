@@ -51,7 +51,7 @@ class Webui::MonitorController < Webui::WebuiController
       end
       @workers_sorted = {}
       @workers_sorted = workers.sort { |a, b| a[0] <=> b[0] } if workers
-      @available_arch_list = @available_architectures.each.map { |arch| arch.name }
+      @available_arch_list = @available_architectures.pluck(:name).sort
     end
   end
 
