@@ -396,6 +396,7 @@ our $dir = [
 	    'error',
 	    'id',
 	    'originproject',	# for package listing
+	    'originpackage',	# for package listing
      ]]
 ];
 
@@ -461,6 +462,7 @@ our $sourceinfo = [
 	'filename',
 	'error',
 	'originproject',
+	'originpackage',
        [ $linked ],
 	'revtime',
 	'changesmd5',
