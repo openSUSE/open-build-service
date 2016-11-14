@@ -1,7 +1,6 @@
 class Webui::DriverUpdateController < Webui::PackageController
   before_action :set_project
   before_action :require_package
-  before_action :require_available_architectures, only: [:create, :edit]
   before_action :check_images_repo, only: [:create, :edit]
   before_action :require_login
 
@@ -68,7 +67,6 @@ class Webui::DriverUpdateController < Webui::PackageController
     errors << "Please select at least one binary package." if params[:binaries].blank?
     unless errors.blank?
       flash.now[:error] = errors.join("\n")
-      require_available_architectures
       render :create
       return
     end

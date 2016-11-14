@@ -296,10 +296,6 @@ class Webui::WebuiController < ActionController::Base
   def clean_cache
   end
 
-  def require_available_architectures
-    @available_architectures = Architecture.available
-  end
-
   def setup_view_path
     if CONFIG['theme']
       theme_path = Rails.root.join('app', 'views', 'webui', 'theme', CONFIG['theme'])

@@ -162,8 +162,8 @@
     <tr>
       <td><strong>Architectures: </strong></td>
       <td>
-        <% @available_architectures.each do |arch| %>
-          <%= check_box_tag "arch[#{arch.name}]", "", (@architectures.include? arch.name ) %><%= arch.name %>
+        <% Architecture.available.pluck(:name).sort do |arch| %>
+          <%= check_box_tag "arch[#{arch}]", "", (@architectures.include? arch ) %><%= arch %>
         <% end %>
       </td>
     </tr>

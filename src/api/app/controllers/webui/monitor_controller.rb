@@ -1,6 +1,5 @@
 class Webui::MonitorController < Webui::WebuiController
   before_action :require_settings, only: [:old, :index, :filtered_list, :update_building]
-  before_action :require_available_architectures, only: [:index]
   before_action :fetch_workerstatus, only: [:old, :filtered_list, :update_building]
 
   class << self
@@ -51,7 +50,7 @@ class Webui::MonitorController < Webui::WebuiController
       end
       @workers_sorted = {}
       @workers_sorted = workers.sort { |a, b| a[0] <=> b[0] } if workers
-      @available_arch_list = @available_architectures.pluck(:name).sort
+      @available_arch_list = Architecture.available.pluck(:name).sort
     end
   end
 
