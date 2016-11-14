@@ -97,6 +97,10 @@ Lint/EndAlignment:
 Lint/IneffectiveAccessModifier:
   Enabled: true
 
+# checks for unused block arguments.
+Lint/UnusedBlockArgument:
+  Enabled: true
+
 # Checks for access modifiers without any code
 Lint/UselessAccessModifier:
   Enabled: true

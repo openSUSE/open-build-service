@@ -97,12 +97,6 @@ Lint/UnderscorePrefixedVariableName:
     - 'app/models/event/base.rb'
     - 'lib/api_exception.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.
-Lint/UnusedBlockArgument:
-  Exclude:
-    - 'lib/activexml/transport.rb'
 
 # Offense count: 47
 Lint/UselessAssignment:
