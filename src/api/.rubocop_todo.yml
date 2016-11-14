@@ -30,13 +30,6 @@ Lint/InheritException:
     - 'app/controllers/webui/webui_controller.rb'
     - 'lib/api_exception.rb'
 
-# Offense count: 3
-Lint/LiteralInCondition:
-  Exclude:
-    - 'lib/opensuse/backend.rb'
-    - 'test/test_helper.rb'
-    - 'test_helper.rb'
-
 # Offense count: 4
 Lint/Loop:
   Exclude:

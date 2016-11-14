@@ -101,6 +101,10 @@ Lint/Eval:
 Lint/IneffectiveAccessModifier:
   Enabled: true
 
+# checks for literals used as the conditions or as operands in and/or expressions serving as the conditions of if/while/until.
+Lint/LiteralInCondition:
+  Enabled: true
+
 # checks for unused block arguments.
 Lint/UnusedBlockArgument:
   Enabled: true
