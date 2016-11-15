@@ -26,7 +26,6 @@ RSpec.describe Project do
     it { expect(Project.image_templates).to eq([leap_project]) }
   end
 
-
   describe "#update_repositories" do
     let!(:repository_1) { create(:repository, name: 'repo_1', rebuild: "direct", project: project) }
     let!(:repository_2) { create(:repository, name: 'repo_2', project: project) }
@@ -396,5 +395,15 @@ RSpec.describe Project do
         it { expect(project.has_distribution("BaseDistro4.0", "BaseDistro3_repo")).to be(false) }
       end
     end
+  end
+
+  describe '#image_template?' do
+    let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
+    let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
+    let!(:image_templates_attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
+    let!(:tumbleweed_project) { create(:project, name: 'openSUSE_Tumbleweed') }
+
+    it { expect(leap_project.image_template?).to be(true) }
+    it { expect(tumbleweed_project.image_template?).to be(false) }
   end
 end
