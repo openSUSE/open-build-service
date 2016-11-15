@@ -1270,7 +1270,7 @@ class Project < ApplicationRecord
     # - disable 'publish' to save space and bandwidth
     #   (can be turned off for small installations)
     # - omit 'lock' or we cannot create packages
-    disable_publish_for_branches = ::Configuration.disable_publish_for_branches
+    disable_publish_for_branches = ::Configuration.disable_publish_for_branches || project.image_template?
     project.flags.each do |f|
       next if %w(build lock).include?(f.flag)
       next if f.flag == 'publish' && disable_publish_for_branches
@@ -1820,6 +1820,11 @@ class Project < ApplicationRecord
 
   def to_param
     name
+  end
+
+  def image_template?
+    attribs.joins(attrib_type: :attrib_namespace).
+      where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' }).exists?
   end
 
   private
