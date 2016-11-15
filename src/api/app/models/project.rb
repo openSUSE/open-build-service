@@ -1822,6 +1822,11 @@ class Project < ApplicationRecord
     name
   end
 
+  def image_template?
+    attribs.joins(attrib_type: :attrib_namespace).
+      where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' }).exists?
+  end
+
   private
 
   def discard_cache

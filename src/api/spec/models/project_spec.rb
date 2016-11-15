@@ -397,4 +397,14 @@ RSpec.describe Project do
       end
     end
   end
+
+  describe '#image_template?' do
+    let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
+    let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
+    let!(:image_templates_attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
+    let!(:tumbleweed_project) { create(:project, name: 'openSUSE_Tumbleweed') }
+
+    it { expect(leap_project.image_template?).to be(true) }
+    it { expect(tumbleweed_project.image_template?).to be(false) }
+  end
 end
