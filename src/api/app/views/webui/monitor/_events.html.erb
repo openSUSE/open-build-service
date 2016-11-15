@@ -6,7 +6,7 @@
     <%= form_tag(:controller => "main", :action => "index") do %>
       <p>
         <strong>Architecture:</strong>
-        <%= select_tag(:architecture_display, options_for_select(@available_arch_list)) %><br/>
+        <%= select_tag(:architecture_display, options_for_select(@available_arch_list, @default_architecture)) %><br/>
         <strong>Timeframe:</strong>
         <%= select_tag(:time_display, options_for_select([["1 day", "24"], ["1 hour", 1], ["1 week", "168"], ["1 month", "720"], ["1 year", "8760"]], "24")) %>
       </p> 
@@ -39,7 +39,7 @@
 
 <%= content_for :head_javascript do %>
 
-   var arch_to_show = "x86_64"
+   var arch_to_show = @default_architecture;
    var time_to_show = "24";
    
    function plotValues(data) {    
