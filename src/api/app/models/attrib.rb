@@ -77,7 +77,7 @@ class Attrib < ApplicationRecord
 
   def cachekey
     key = "#{attrib_type.attrib_namespace.name}|#{attrib_type.name}"
-    key += "|#{binary}" if binary
+    key + "|#{binary}" if binary
   end
 
   def update_with_associations(values = [], issues = [])

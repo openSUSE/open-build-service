@@ -759,7 +759,6 @@ class BsRequestAction < ApplicationRecord
     # find objects if specified or report error
     role=nil
     sprj=nil
-    tprj=nil
     if person_name
       # validate user object
       User.find_by_login!(person_name)

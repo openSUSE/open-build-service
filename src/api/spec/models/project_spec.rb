@@ -33,7 +33,7 @@ RSpec.describe Project do
             </project>
           EOF
         )
-        project.update_repositories(xml_hash, force = false)
+        project.update_repositories(xml_hash, false)
       end
 
       it "updates repositories association of a project" do
@@ -75,7 +75,7 @@ RSpec.describe Project do
             </project>
           EOF
         )
-        project.update_repositories(xml_hash, force = false)
+        project.update_repositories(xml_hash, false)
 
         expect(repository_1.release_targets.count).to eq 1
         expect(repository_1.release_targets.first.trigger).to eq "manual"
@@ -91,7 +91,7 @@ RSpec.describe Project do
             </project>
           EOF
         )
-        expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+        expect { project.update_repositories(xml_hash, false) }.to raise_error(
           Project::SaveError, "Unknown target repository 'target_project/nonexistant_repo'"
         )
       end
@@ -106,7 +106,7 @@ RSpec.describe Project do
             </project>
           EOF
         )
-        expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+        expect { project.update_repositories(xml_hash,  false) }.to raise_error(
           Project::SaveError, "Can not use remote repository as release target '#{remote_project.name}/remote_repo'"
         )
       end
@@ -133,7 +133,7 @@ RSpec.describe Project do
       end
 
       it "updates the hostsystem of a repository" do
-        project.update_repositories(@xml_hash, force = false)
+        project.update_repositories(@xml_hash, false)
         expect(repository_1.reload.hostsystem).to be nil
         expect(repository_2.reload.hostsystem).to eq target_repository
       end
@@ -148,14 +148,14 @@ RSpec.describe Project do
             </project>
           EOF
         )
-        expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+        expect { project.update_repositories(xml_hash, false) }.to raise_error(
           Project::SaveError, "Using same repository as hostsystem element is not allowed"
         )
       end
 
       it "raises an error if target repository does not exist" do
         target_repository.destroy
-        expect { project.update_repositories(@xml_hash, force = false) }.to raise_error(
+        expect { project.update_repositories(@xml_hash, false) }.to raise_error(
           Project::SaveError, "Unknown target repository 'target_project/target_repo'"
         )
       end
@@ -173,7 +173,7 @@ RSpec.describe Project do
             </project>
           EOF
         )
-        project.update_repositories(xml_hash, force = false)
+        project.update_repositories(xml_hash, false)
 
         expect(repository_1.architectures.map(&:name).sort).to eq ["i586", "x86_64"]
         expect(repository_1.repository_architectures.where(position: 1).first.architecture.name).to eq "x86_64"
@@ -190,7 +190,7 @@ RSpec.describe Project do
             </project>
           EOF
         )
-        expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+        expect { project.update_repositories(xml_hash, false) }.to raise_error(
           Project::SaveError, "unknown architecture: 'foo'"
         )
       end
@@ -206,7 +206,7 @@ RSpec.describe Project do
             </project>
           EOF
         )
-        expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+        expect { project.update_repositories(xml_hash, false) }.to raise_error(
           Project::SaveError, "double use of architecture: 'i586'"
         )
       end
@@ -229,7 +229,7 @@ RSpec.describe Project do
             </project>
           EOF
         )
-        project.update_repositories(xml_hash, force = false)
+        project.update_repositories(xml_hash, false)
       end
 
       it "updates download repositories of a repository" do
@@ -273,7 +273,7 @@ RSpec.describe Project do
               </project>
             EOF
           )
-          project.update_repositories(xml_hash, force = false)
+          project.update_repositories(xml_hash, false)
         end
 
         it "updates path elements" do
@@ -304,7 +304,7 @@ RSpec.describe Project do
               </project>
             EOF
           )
-          expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+          expect { project.update_repositories(xml_hash, false) }.to raise_error(
             Project::SaveError, "Using same repository as path element is not allowed"
           )
         end
@@ -319,7 +319,7 @@ RSpec.describe Project do
               </project>
             EOF
           )
-          expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+          expect { project.update_repositories(xml_hash, false) }.to raise_error(
             Project::SaveError, "unable to walk on path 'other_project/nonexistant'"
           )
         end

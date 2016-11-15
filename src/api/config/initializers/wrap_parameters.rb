@@ -60,7 +60,7 @@ class MyParamsParser
       data = Xmlhash.parse(request.body.read)
       request.body.rewind if request.body.respond_to?(:rewind)
       if data
-        data = {xmlhash: data}.with_indifferent_access
+        {xmlhash: data}.with_indifferent_access
       else
         false
       end

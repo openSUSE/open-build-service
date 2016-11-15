@@ -104,10 +104,6 @@ Lint/UnusedBlockArgument:
   Exclude:
     - 'lib/activexml/transport.rb'
 
-# Offense count: 47
-Lint/UselessAssignment:
-  Enabled: false
-
 # Offense count: 1049
 Metrics/AbcSize:
   Max: 284

@@ -92,15 +92,6 @@ class BranchPackage
     response = nil
     @packages.each do |p|
       pac = p[:package]
-      if pac.is_a? Package
-        prj = pac.project
-      elsif p[:link_target_project].is_a? Project
-        # new package for local project
-        prj = p[:link_target_project]
-      else
-        # package in remote project
-        prj = p[:project]
-      end
 
       # find origin package to be branched
       branch_target_package = p[:target_package]
@@ -507,14 +498,8 @@ class BranchPackage
       req = BsRequest.find_by_number(params[:request])
 
       req.bs_request_actions.each do |action|
-        prj=nil
-        pkg=nil
-        if action.source_project || action.source_package
-          if action.source_package
-            pkg = Package.get_by_project_and_name action.source_project, action.source_package
-          elsif action.source_project
-            prj = Project.get_by_name action.source_project
-          end
+        if action.source_package
+          pkg = Package.get_by_project_and_name action.source_project, action.source_package
         end
 
         @packages.push({ link_target_project: action.source_project, package: pkg, target_package: "#{pkg.name}.#{pkg.project.name}" })

@@ -179,10 +179,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
       xml.root.add_element(element)
     end
 
-    # saves an initializes the tag objects
-    tags = Array.new
-    unsaved_tags = Array.new
-
     # testing
     assert_nothing_raised ActiveRecord::StatementInvalid do
       tags, unsaved_tags = @controller.private_taglistXML_to_tags(xml.to_s)

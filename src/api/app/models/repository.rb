@@ -202,7 +202,7 @@ class Repository < ApplicationRecord
       xml = Xmlhash.parse(Suse::Backend.get(path).body)
       xml.elements('url').last.to_s
     end
-    url += "/" + file unless file.blank?
+    url + "/" + file unless file.blank?
   end
 
   def download_url_for_package(package, architecture, filename)

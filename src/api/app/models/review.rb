@@ -125,7 +125,6 @@ class Review < ApplicationRecord
     if by_group
       return [Group.find_by_title!(by_group)]
     end
-    obj = nil
     if by_package
       obj = Package.find_by_project_and_name(by_project, by_package)
       return [] unless obj

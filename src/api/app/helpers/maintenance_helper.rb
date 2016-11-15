@@ -87,10 +87,10 @@ module MaintenanceHelper
     link.set_attribute('package', link.value(:package).gsub(/\..*/, '') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
     link_xml = link.dump_xml
     # rubocop:disable Metrics/LineLength
-    answer = Suse::Backend.put "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
+    Suse::Backend.put "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
     # rubocop:enable Metrics/LineLength
     md5 = Digest::MD5.hexdigest(link_xml)
-                                     # commit with noservice parameneter
+    # commit with noservice parameneter
     upload_params = {
       user:      User.current.login,
       cmd:       "commitfilelist",
@@ -125,7 +125,7 @@ module MaintenanceHelper
     upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :rev])
     link = "<link package='#{targetPackageName}' cicount='copy' />\n"
     md5 = Digest::MD5.hexdigest(link)
-    answer = Suse::Backend.put upload_path, link
+    Suse::Backend.put upload_path, link
     # commit
     upload_params[:cmd] = 'commitfilelist'
     upload_params[:noservice] = '1'
