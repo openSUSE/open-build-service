@@ -35,10 +35,12 @@ RSpec.describe BranchPackage, vcr: true do
 
     context 'project with ImageTemplates attribute' do
       let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
+      let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
+      let(:apache) { create(:package, name: 'apache2', project: leap_project) }
+      let!(:image_templates_attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
+      let(:branch_package) { BranchPackage.new(project: leap_project.name, package: apache.name) }
 
       context 'auto cleanup attribute' do
-        let!(:image_templates_attrib) { create(:attrib, attrib_type: attribute_type, project: leap_project) }
-
         it 'is set to 14 if there is no default' do
           branch_apache_package.branch
           project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
@@ -50,6 +52,15 @@ RSpec.describe BranchPackage, vcr: true do
           branch_apache_package.branch
           project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
           expect(42.days.from_now - Time.zone.parse(project.attribs.first.values.first.value)).to be < 1.minute
+        end
+      end
+
+      context 'publish flag' do
+        it 'is disabled' do
+          allow(Configuration).to receive(:disable_publish_for_branches).and_return(false)
+          branch_package.branch
+          project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
+          expect(project.flags.where(status: "disable", flag: "publish")).to exist
         end
       end
     end
@@ -67,6 +78,21 @@ RSpec.describe BranchPackage, vcr: true do
           branch_apache_package.branch
           project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
           expect(project.attribs.length).to be(0)
+        end
+      end
+
+      context 'publish flag' do
+        it 'is disabled when Configuration.disable_publish_for_branches is false' do
+          allow(Configuration).to receive(:disable_publish_for_branches).and_return(false)
+          branch_apache_package.branch
+          project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
+          expect(project.flags.where(status: "disable", flag: "publish")).to_not exist
+        end
+
+        it 'is enabled by default' do
+          branch_apache_package.branch
+          project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
+          expect(project.flags.where(status: "disable", flag: "publish")).to exist
         end
       end
     end
