@@ -1167,7 +1167,9 @@ Parameters:
   arch: architecture, optional, multiple
   repository: name of repository, optional, multiple
   view: summary | status | binarylist
-  lastbuild: bool, optional
+  lastbuild: bool, show last build result (avoiding current building job state)
+  localbuild: bool, include build results from packages with project local links
+  multibuild: bool, include build results from _multibuild definitions
 
 XmlResult: buildresult
 
