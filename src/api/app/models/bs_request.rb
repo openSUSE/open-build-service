@@ -48,7 +48,7 @@ class BsRequest < ApplicationRecord
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
   has_many :reviews, dependent: :delete_all
   has_and_belongs_to_many :bs_request_action_groups, join_table: :group_request_requests
-  has_many :comments, dependent: :delete_all, inverse_of: :bs_request, class_name: 'CommentRequest'
+  has_many :comments, as: :commentable, dependent: :delete_all
   validates_inclusion_of :state, in: VALID_REQUEST_STATES
   validates :creator, presence: true
   validate :check_supersede_state

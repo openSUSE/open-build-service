@@ -2,16 +2,10 @@ require 'event'
 require 'set'
 
 class Comment < ApplicationRecord
-  belongs_to :bs_request, inverse_of: :comments
-  belongs_to :project, inverse_of: :comments
-  belongs_to :package, inverse_of: :comments
+  belongs_to :commentable, polymorphic: true # belongs to a Project, Package or BsRequest
   belongs_to :user, inverse_of: :comments
 
-  validates :body, :user, :type, presence: true
-
-  # Only instances of Comment's children can be created, not directly from Comment.
-  # So the type attribute, which is reserved for storing the inheritance class, must be the name of a child class.
-  validate :check_is_child
+  validates :body, :commentable, :user, presence: true
 
   after_create :create_notification
 
@@ -27,14 +21,30 @@ class Comment < ApplicationRecord
   def create_notification(params = {})
     params[:commenter] = user.id
     params[:comment_body] = body
+    params[:commenters] = involved_users
+
+    case commentable_type
+    when "Package"
+      params[:package] = commentable.name
+      params[:project] = commentable.project.name
+      # call the action
+      Event::CommentForPackage.create params
+    when "Project"
+      params[:project] = commentable.name
+      # call the action
+      Event::CommentForProject.create params
+    when "BsRequest"
+      params = commentable.notify_parameters(params)
+      # call the action
+      Event::CommentForRequest.create params
+    end
   end
 
-  # build an array of users, commenting on a specific object type
-  def involved_users(object_field, object_value)
-    record = Comment.where(object_field => object_value)
+  # build an array of users, commenting or being mentioned on the commentable of this comment
+  def involved_users
     users = Set.new
     users_mentioned = Set.new
-    record.each do |comment|
+    Comment.where(commentable: commentable).find_each do |comment|
       # take the one making the comment
       users << comment.user_id
       # check if users are mentioned
@@ -53,7 +63,16 @@ class Comment < ApplicationRecord
     return true if User.current.is_admin?
 
     # Users can always delete their own comments - or if the comments are deleted
-    User.current == user || user.is_nobody?
+    return true if User.current == user || user.is_nobody?
+
+    case commentable_type
+    when "Package"
+      User.current.has_local_permission?('change_package', commentable)
+    when "Project"
+      User.current.has_local_permission?('change_project', commentable)
+    when "BsRequest"
+      commentable.is_target_maintainer?(User.current)
+    end
   end
 
   def to_xml(builder)
@@ -78,13 +97,5 @@ class Comment < ApplicationRecord
   # FIXME: This is to work around https://github.com/rails/rails/pull/12450/files
   def destroy
     super
-  end
-
-  private
-
-  def check_is_child
-    if type && type.safe_constantize.try(:superclass) != Comment
-      errors[:type] << "is reserved for storing the inheritance class which was not found"
-    end
   end
 end

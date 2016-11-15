@@ -70,7 +70,7 @@ class Package < ApplicationRecord
   has_many :products, dependent: :destroy
   has_many :channels, dependent: :destroy, foreign_key: :package_id
 
-  has_many :comments, dependent: :destroy, inverse_of: :package, class_name: 'CommentPackage'
+  has_many :comments, as: :commentable, dependent: :destroy
 
   has_many :binary_releases, dependent: :delete_all, foreign_key: 'release_package_id'
 
