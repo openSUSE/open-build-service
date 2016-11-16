@@ -10,6 +10,7 @@ Rakefile-fix.patch
 ruby-interpreter.patch
 fix-embedded-js.patch
 fix-privacy-breach-piwik.patch
-jquery.ui.widget.patch
+jquery-ui.patch
 missing-codemirror-js.patch
 Do-not-ship-database.yml.patch
+localgem.patch

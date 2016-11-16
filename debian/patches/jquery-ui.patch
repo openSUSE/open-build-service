@@ -1,0 +1,25 @@
+Description: Added missing jquery.ui.widget
+Author: Bob Ham <bob.ham@collabora.com>
+Origin: Debian
+Bug-Debian: https://bugs.debian.org/839144
+Bug-Debian: https://bugs.debian.org/839143
+Reviewed-By: Andrew Lee (李健秋) <ajqlee@debian.org>
+Last-Update: 2016-10-20
+
+--- a/src/api/app/assets/javascripts/webui/application.js
++++ b/src/api/app/assets/javascripts/webui/application.js
+@@ -11,10 +11,10 @@
+ // GO AFTER THE REQUIRES BELOW.
+ //
+ //= require jquery
+-//= require jquery.ui.menu
+-//= require jquery.ui.autocomplete
+-//= require jquery.ui.tabs
+-//= require jquery.ui.tooltip
++//= require jquery-ui/menu
++//= require jquery-ui/autocomplete
++//= require jquery-ui/tabs
++//= require jquery-ui/tooltip
+ //= require jquery.tokeninput
+ //= require jquery.flot
+ //= require jquery.flot.resize
