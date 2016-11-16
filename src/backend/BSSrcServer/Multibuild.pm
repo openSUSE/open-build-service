@@ -55,6 +55,15 @@ sub getcache {
   return $mc;
 }
 
+sub putcache {
+  my ($projid, $mc) = @_;
+  if (%$mc) {
+    BSUtil::store("$projectsdir/$projid.pkg/.:multibuild.$$", "$projectsdir/$projid.pkg/:multibuild", $mc);
+  } else {
+    unlink("$projectsdir/$projid.pkg/:multibuild");
+  }
+}
+
 sub updatemultibuild {
   my ($projid, $packid, $files, $isprojpack) = @_;
   return undef if $packid eq '_product';	# no multibuilds for those
@@ -97,11 +106,7 @@ sub updatemultibuild {
   }
   delete $mc->{$packid};
   $mc->{$packid} = $mb if $mb;
-  if (%$mc) {
-    BSUtil::store("$projectsdir/$projid.pkg/.:multibuild.$$", "$projectsdir/$projid.pkg/:multibuild", $mc);
-  } else {
-    unlink("$projectsdir/$projid.pkg/:multibuild");
-  }
+  putcache($projid, $mc);
   close(F);	# release lock
   return $mc->{$packid};
 }
@@ -120,11 +125,7 @@ sub prunemultibuild {
   for my $packid (keys %$mc) {
     delete $mc->{$packid} unless $p{$packid};
   }
-  if (%$mc) {
-    BSUtil::store("$projectsdir/$projid.pkg/.:multibuild.$$", "$projectsdir/$projid.pkg/:multibuild", $mc);
-  } else {
-    unlink("$projectsdir/$projid.pkg/:multibuild");
-  }
+  putcache($projid, $mc);
   close(F);	# release lock
 }
 
@@ -133,6 +134,17 @@ sub getmultibuild {
   return undef if $packid =~ /:/;		# master packages only
   my $mc = getcache($projid);
   return $mc->{$packid};
+}
+
+sub setmultibuild {
+  my ($projid, $packid, $mb) = @_;
+  local *F;
+  BSUtil::lockopen(\*F, '>>', "$projectsdir/$projid.pkg/:multibuild");
+  my $mc = getcache($projid, 1);
+  delete $mc->{$packid};
+  $mc->{$packid} = $mb if $mb;
+  putcache($projid, $mc);
+  close(F);	# release lock
 }
 
 sub addmultibuildpackages {

@@ -3222,6 +3222,12 @@ sub sourcecopy {
 
   BSSrcrep::copyfiles($projid, $packid, $oprojid, $opackid, $files);
 
+  # copy multibuild data
+  if ($cgi->{'expand'} && $cgi->{'noservice'} && $packid ne '_product') {
+    my $mb = BSSrcServer::Multibuild::getmultibuild($oprojid, $opackid);
+    BSSrcServer::Multibuild::setmultibuild($projid, $packid, $mb);
+  }
+
   if ($cgi->{'withvrev'} && !$cgi->{'vrev'} && defined($oldvrev)) {
     $cgi->{'vrev'} = $oldvrev;
     # bump vrev so that new builds will have a bigger release number
@@ -3964,20 +3970,27 @@ sub copybuild {
   if ($reposerver ne $oreposerver) {
     die("cannot copy binaries between different reposiory servers yet\n");
   }
-  my @args;
-  push @args, "cmd=copy";
-  push @args, "oproject=$oprojid";
-  push @args, "opackage=$opackid";
-  push @args, "orepository=$orepoid";
-  push @args, "setupdateinfoid=$cgi->{'setupdateinfoid'}" if $cgi->{'setupdateinfoid'};
-  push @args, "setrelease=$cgi->{'setrelease'}" if $cgi->{'setrelease'};
-  push @args, 'resign=1' if $cgi->{'resign'};
-  my $param = {
-    'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid",
-    'request' => 'POST',
-  };
-  # XXX add return type checking
-  return BSWatcher::rpc($param, undef, @args);
+  my %tocopy = ($opackid => $packid);
+  if ($cgi->{'multibuild'}) {
+    my $mb = BSSrcServer::Multibuild::getmultibuild($oprojid, $opackid) || {};
+    $tocopy{"$opackid:$_"} = "$packid:$_" for @{$mb->{'package'} || []};
+  }
+  for $opackid (sort keys %tocopy) {
+    my @args;
+    push @args, "cmd=copy";
+    push @args, "oproject=$oprojid";
+    push @args, "opackage=$opackid";
+    push @args, "orepository=$orepoid";
+    push @args, "setupdateinfoid=$cgi->{'setupdateinfoid'}" if $cgi->{'setupdateinfoid'};
+    push @args, "setrelease=$cgi->{'setrelease'}" if $cgi->{'setrelease'};
+    push @args, 'resign=1' if $cgi->{'resign'};
+    my $param = {
+      'uri' => "$reposerver/build/$projid/$repoid/$arch/$tocopy{$opackid}",
+      'request' => 'POST',
+    };
+    BSWatcher::rpc($param, undef, @args);
+  }
+  return $BSStdServer::return_ok;
 }
 
 sub uploadbuild {
@@ -5753,7 +5766,7 @@ my $dispatches = [
   '!- /build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
-  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
+  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:? multibuild:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* debug:bool?' => \&getbuildinfo_post,
