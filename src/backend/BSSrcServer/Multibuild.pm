@@ -80,10 +80,18 @@ sub updatemultibuild {
     return $mc->{$packid} if globalenabled($proj->{'lock'}, 0) && !$pack->{'lock'};
     return $mc->{$packid} unless globalenabled($pack->{'build'}, globalenabled($proj->{'build'}, 1));
   }
-  if (!$files->{'_multibuild'}) {
+  my $mbname = '_multibuild';
+  # see findfile
+  if ($files->{'_service'}) {
+    for (sort keys %$files) {
+      next unless /^_service:.*:(.*?)$/s;
+      $mbname = $_ if $1 eq '_multibuild';
+    }
+  }
+  if (!$files->{$mbname}) {
     return undef if !$mc->{$packid};
   } else {
-    return $mc->{$packid} if $mc->{$packid} && $mc->{$packid}->{'_md5'} eq $files->{'_multibuild'};
+    return $mc->{$packid} if $mc->{$packid} && $mc->{$packid}->{'_md5'} eq $files->{$mbname};
   }
 
   # need to update, lock
@@ -93,16 +101,16 @@ sub updatemultibuild {
 
   # now update
   my $mb;
-  if ($files->{'_multibuild'}) {
-    $mb = BSSrcrep::filereadxml($projid, $packid, '_multibuild', $files->{'_multibuild'}, $BSXML::multibuild, 1);
+  if ($files->{$mbname}) {
+    $mb = BSSrcrep::filereadxml($projid, $packid, $mbname, $files->{$mbname}, $BSXML::multibuild, 1);
     eval {
       BSVerify::verify_multibuild($mb);
     };
     if ($@) {
-      warn("$projid/$packid/_multibuild: $@");
+      warn("$projid/$packid/$mbname: $@");
       $mb = undef;
     }
-    $mb->{'_md5'} = $files->{'_multibuild'} if $mb;
+    $mb->{'_md5'} = $files->{$mbname} if $mb;
   }
   delete $mc->{$packid};
   $mc->{$packid} = $mb if $mb;
