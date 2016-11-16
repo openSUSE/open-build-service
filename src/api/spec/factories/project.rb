@@ -55,6 +55,21 @@ FactoryGirl.define do
 
     factory :maintenance_incident_project do
       kind 'maintenance_incident'
+
+      transient do
+        maintenance_project { create(:maintenance_project) }
+      end
+
+      before(:create) do |project, evaluator|
+        create(:build_flag, project: project, status: "disable")
+        create(:publish_flag, project: project, status: "disable")
+
+        if evaluator.maintenance_project
+          evaluator.maintenance_project.relationships.each do |role|
+            project.relationships.create(user: role.user, role: role.role, group: role.group)
+          end
+        end
+      end
     end
 
     factory :maintenance_project do
