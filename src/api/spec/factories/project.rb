@@ -83,6 +83,10 @@ FactoryGirl.define do
         create(:maintainance_project_attrib, project: project)
         create(:maintained_project, project: evaluator.target_project, maintenance_project: project) if evaluator.target_project
       end
+
+      factory :maintenance_project_with_packages do
+        packages { [create(:package_with_file)] }
+      end
     end
 
     factory :update_project do
