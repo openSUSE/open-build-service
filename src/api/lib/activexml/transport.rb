@@ -79,7 +79,7 @@ module ActiveXML
     end
 
     def connect(model, target, opt = {})
-      opt.each do |key, value|
+      opt.keys.each do |key|
         opt[key] = URI(opt[key])
         replace_server_if_needed( opt[key] )
       end
