@@ -45,7 +45,7 @@
 
         %span#sourceupdate_display
           = check_box_tag(:sourceupdate, 'cleanup', @cleanup_source)
-          Remove local package if request is accepted
+          = label_tag(:sourceupdate, 'Remove local package if request is accepted')
 
       %p#devel_project_warning.hidden
         You are about to bypass the devel project, please submit to
