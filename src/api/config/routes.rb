@@ -622,7 +622,19 @@ OBSApi::Application.routes.draw do
       get 'public/build/:project(/:repository(/:arch(/:package(/:file))))' => 'public#build', constraints: cons, as: :public_build
     end
 
-    get 'public/status/:action' => 'status#index'
+    get 'public/status/list_messages' => 'status#list_messages'
+    get 'public/status/show_message' => 'status#show_message'
+    get 'public/status/update_messages' => 'status#update_messages'
+    get 'public/status/save_new_message' => 'status#save_new_message'
+    get 'public/status/delete_message' => 'status#delete_message'
+    get 'public/status/workerstatus' => 'status#workerstatus'
+    get 'public/status/history' => 'status#history'
+    get 'public/status/role_from_cache' => 'status#role_from_cache'
+    get 'public/status/user_from_cache' => 'status#user_from_cache'
+    get 'public/status/group_from_cache' => 'status#group_from_cache'
+    get 'public/status/find_relationships_for_packages' => 'status#find_relationships_for_packages'
+    get 'public/status/project' => 'status#project'
+    get 'public/status/bsrequest' => 'status#bsrequest'
 
     get '/404' => 'main#notfound'
   end
