@@ -29,6 +29,16 @@
   </p>
 </div>
 
+<% if @project_filters %>
+  <div id='filters' style='margin-bottom: 10px; margin-left: 10px'>
+    <b>Excluded:</b><br/>
+    <% for filter in @project_filters -%>
+      <%= check_box_tag filter[0], filter[1], true  %>
+      <%= filter[1] %> <br/>
+    <% end %>
+  </div>
+<% end %>
+
 <% cachekey = Digest::MD5.hexdigest(@projects.join)
    projecturl = url_for(controller: 'project', action: 'show', project: 'REPLACEIT')
 %>
@@ -46,7 +56,19 @@
             <% end %>
         <% end %>
         <% content_for :ready_function do %>
-            renderProjectsTable();
+            function getFilters() {
+                var filters = [];
+                $('input[type=checkbox]').each(function () {
+                    if (this.checked) {
+                        filters.push($(this).attr('name'));
+                    }
+                });
+                return filters;
+            }
+            renderProjectsTable(25, getFilters());
+            $(':checkbox').change(function() {
+                renderProjectsTable(25, getFilters());
+            });
         <% end %>
       </div>
   <% end %>

@@ -49,6 +49,7 @@ class Webui::ProjectController < Webui::WebuiController
     projects = Project.all
     projects = projects.not_home unless @show_all
     @projects = projects.pluck(:name, :title)
+    @project_filters = CONFIG['exclude_project_filters']
 
     atype = AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject')
     @important_projects = Project.find_by_attribute_type(atype).where('name <> ?', 'deleted').pluck(:name, :title)

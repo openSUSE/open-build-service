@@ -58,6 +58,10 @@ proxy_auth_test_email: coolguy@example.com
 #errbit_api_key: api_key_of_your_app
 #errbit_host: installation.of.errbit.com
 
+# project filters for excluding projects in webui
+#exclude_project_filters:
+# - ["Gerrit:", "Gerrit projects"]
+
 ##################
 # LDAP options
 ##################
