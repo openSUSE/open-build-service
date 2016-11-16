@@ -17,6 +17,10 @@ RSpec.describe BranchPackage, vcr: true do
       User.current = user
     end
 
+    after(:each) do
+      Project.where('name LIKE ?', "#{user.home_project}:branches:%").destroy_all
+    end
+
     context 'package with UpdateProject attribute' do
       it 'should increase Package by one' do
         expect { branch_package.branch }.to change{ Package.count }.by(1)
