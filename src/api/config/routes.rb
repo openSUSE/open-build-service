@@ -534,6 +534,20 @@ OBSApi::Application.routes.draw do
       get 'status/history' => :history
       get 'status/project/:project' => :project, constraints: cons
       get 'status/bsrequest' => :bsrequest
+
+      get 'public/status/list_messages' => :list_messages
+      get 'public/status/show_message' => :show_message
+      get 'public/status/update_messages' => :update_messages
+      get 'public/status/save_new_message' => :save_new_message
+      get 'public/status/delete_message' => :delete_message
+      get 'public/status/workerstatus' => :workerstatus
+      get 'public/status/history' => :history
+      get 'public/status/role_from_cache' => :role_from_cache
+      get 'public/status/user_from_cache' => :user_from_cache
+      get 'public/status/group_from_cache' => :group_from_cache
+      get 'public/status/find_relationships_for_packages' => :find_relationships_for_packages
+      get 'public/status/project' => :project
+      get 'public/status/bsrequest' => :bsrequest
     end
 
     ### /message
@@ -621,8 +635,6 @@ OBSApi::Application.routes.draw do
       get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
       get 'public/build/:project(/:repository(/:arch(/:package(/:file))))' => 'public#build', constraints: cons, as: :public_build
     end
-
-    get 'public/status/:action' => 'status#index'
 
     get '/404' => 'main#notfound'
   end
