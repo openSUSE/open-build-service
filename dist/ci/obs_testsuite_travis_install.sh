@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script installs dependencies for the CI build 
+# This script installs dependencies for the CI build
 
 # Be verbose and fail script on the first error
 set -xe
@@ -17,3 +17,8 @@ sudo apt-get update
 
 # Install the dependencies of the backend
 sudo apt-get install --force-yes travis-deps libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2 createrepo libbssolv-perl sphinxsearch libjson-xs-perl libxml-simple-perl libgd-gd2-perl
+
+# Install Node.js and jshint
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+sudo apt-get install -y nodejs
+npm install -g jshint
