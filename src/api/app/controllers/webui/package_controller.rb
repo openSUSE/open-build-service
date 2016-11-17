@@ -825,8 +825,11 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     begin
-      @package = Package.get_by_project_and_name(@project, params[:package],
-                                                 use_source: false, follow_project_links: true)
+      @package = Package.get_by_project_and_name(@project,
+                                                 params[:package],
+                                                 {use_source:           false,
+                                                  follow_multibuild:    true,
+                                                  follow_project_links: true})
     rescue Package::UnknownObjectError
       flash[:error] = "Couldn't find package '#{params[:package]}' in project '#{@project.to_param}'. Are you sure it exists?"
       redirect_to project_show_path(@project.to_param)
@@ -839,7 +842,8 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    @package ||= params[:package] # for remote package
+    @build_container = params[:package] # for remote and multibuild package
+    @package ||= params[:package] # for remote case
     @arch = params[:arch]
     @repo = params[:repository]
     @offset = 0
@@ -874,7 +878,7 @@ class Webui::PackageController < Webui::WebuiController
     set_initial_offset if @offset.zero?
 
     begin
-      @log_chunk = get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + @maxsize)
+      @log_chunk = get_log_chunk(@project, @package, @repo, @arch, @offset, @offset + @maxsize)
 
       if @log_chunk.length.zero?
         @finished = true
