@@ -282,7 +282,7 @@ IssueTracker.where(name: 'sf').first_or_create(description: 'SourceForge.net Tra
                                                show_url: 'http://sf.net/support/tracker.php?aid=@@@')
 IssueTracker.where(name: 'Xamarin').first_or_create(description: 'Xamarin Bugzilla',
                                                     kind: 'bugzilla',
-                                                    regex: 'Xamarin#(\d+)',
+                                                    regex: '(?:bxc|Xamarin)#(\d+)',
                                                     url: 'http://bugzilla.xamarin.com/index.cgi',
                                                     label: 'Xamarin#@@@',
                                                     show_url: 'http://bugzilla.xamarin.com/show_bug.cgi?id=@@@')
