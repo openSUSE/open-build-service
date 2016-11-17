@@ -1,6 +1,7 @@
 ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
 
 ENV['RAILS_ENV'] = 'test'
+
 require 'simplecov'
 require 'coveralls'
 require "minitest/reporters"
@@ -138,23 +139,21 @@ class ActionDispatch::IntegrationTest
   # but for debugging or for deep testing the check can be run after each test case
   def after_teardown
     super
-    if false
-      begin
-        # something else is going wrong in some random test and you do not know where?
-        # add the specific test for it here:
-        # login_king
-        # get "/source/home:Iggy/TestPack/_link"
-        # assert_response 404
-
-        # simple test that the objects itself or the same in backend and api.
-        # it does not check the content (eg. repository list in project meta)
-        compare_project_and_package_lists
-      rescue MiniTest::Assertion => e
-        puts "Backend became out of sync in #{name}"
-        puts e.inspect
-        exit
-      end
-    end
+    # begin
+    #   # something else is going wrong in some random test and you do not know where?
+    #   # add the specific test for it here:
+    #   # login_king
+    #   # get "/source/home:Iggy/TestPack/_link"
+    #   # assert_response 404
+    #
+    #   # simple test that the objects itself or the same in backend and api.
+    #   # it does not check the content (eg. repository list in project meta)
+    #   compare_project_and_package_lists
+    # rescue MiniTest::Assertion => e
+    #   puts "Backend became out of sync in #{name}"
+    #   puts e.inspect
+    #   exit
+    # end
   end
 end
 
