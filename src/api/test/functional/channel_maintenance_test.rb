@@ -680,6 +680,13 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # our operations take way more then 1 second so far
     assert old_release_date < node['update']['issued']['date']
 
+    # multibuild results got released as well
+    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2.#{incidentID}:package_multibuild"
+    assert_response :success
+    get "/build/BaseDistro3Channel/channel_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
+    assert_response :success
+    # we should have a special rpm to test backend behaviour here
+
     # channel search tests
     get '/search/channel/binary?match=@name="package"'
     assert_response :success
