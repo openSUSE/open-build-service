@@ -209,11 +209,11 @@ end
 
 puts 'Writing config data...'
 Project.all.each do |p|
-  Suse::Backend.put("/source/#{CGI.escape(p.name)}/_meta?user=king", p.to_axml)
+  Suse::Backend.put("/source/#{CGI.escape(p.name)}/_meta?user=king&comment=fixtures", p.to_axml)
 end
 Package.all.each do |p|
   next if p.name.starts_with? "_product:"
-  Suse::Backend.put("/source/#{CGI.escape(p.project.name)}/#{CGI.escape(p.name)}/_meta?user=king", p.to_axml)
+  Suse::Backend.put("/source/#{CGI.escape(p.project.name)}/#{CGI.escape(p.name)}/_meta?user=king&comment=fixtures", p.to_axml)
 end
 Suse::Backend.put('/issue_trackers', IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
 Suse::Backend.put('/source/BaseDistro/_config?user=king', 'Repotype: rpm-md-legacy')
