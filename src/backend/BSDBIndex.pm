@@ -104,6 +104,7 @@ sub modify {
     $usedfiles{$file} = undef;
     push @{$addbyfile{$file}}, $rel;
   }
+  delete $usedfiles{$_} for @{$db->{'blocked'} || []};
 
   # sort so we do not run into deadlocks
   my @usedfiles = sort keys %usedfiles;
