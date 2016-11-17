@@ -14,8 +14,6 @@ Lint/EndAlignment:
   Exclude:
     - 'app/controllers/build_controller.rb'
 
-# Offense count: 1
-Lint/Eval:
   Exclude:
     - 'config/environments/development.rb'
 
