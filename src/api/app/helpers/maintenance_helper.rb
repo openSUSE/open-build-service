@@ -206,6 +206,7 @@ module MaintenanceHelper
       opackage:    sourcePackage.name,
       orepository: sourceRepo.name,
       user:        User.current.login,
+      multibuild:  "1",
       resign:      "1"
     }
     cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
@@ -215,7 +216,7 @@ module MaintenanceHelper
     # rubocop:enable Metrics/LineLength
     cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage,
                                                                :orepository, :setupdateinfoid,
-                                                               :resign, :setrelease])
+                                                               :resign, :setrelease, :multibuild])
     Suse::Backend.post cp_path
   end
 
