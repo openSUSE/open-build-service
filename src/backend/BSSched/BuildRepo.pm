@@ -256,7 +256,7 @@ sets packid and filename as side effect
 =cut
 
 sub fctx_gbininfo2full {
-  my ($fctx, $gbininfo, $oldpackid, $old, $useforbuildoverride) = @_;
+  my ($fctx, $gbininfo, $oldpackid, $old, $useforbuild) = @_;
   my $hadoldpackid;
   if (defined($oldpackid)) {
     $hadoldpackid = $gbininfo->{$oldpackid};
@@ -266,25 +266,35 @@ sub fctx_gbininfo2full {
   my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
   my ($projid, $repoid) = split('/', $fctx->{'prp'}, 2);
-  my $proj = $projpacks->{$projid} || {},
-  my $prjuseforbuildenabled = 1;
-  $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
-  my $pdatas = $proj->{'package'} || {};
+  my $proj = $projpacks->{$projid} || {};
   my @packids = BSSched::ProjPacks::orderpackids($proj, keys %$gbininfo);
+
+  # generate useforbuild from package data if not specified
+  if (!$useforbuild) {
+    $useforbuild = {};
+    my $prjuseforbuildenabled = 1;
+    $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
+    my $pdatas = $proj->{'package'} || {};
+    for my $packid (@packids) {
+      next if $packid eq '_volatile';
+      my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
+      my $useforbuildenabled = $prjuseforbuildenabled;
+      $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
+      $useforbuild->{$packid} = 1 if $useforbuildenabled;
+    }
+
+    if ($proj->{'missingpackages'}) {
+      # packages missing from pdatas, use old data
+      for my $packid (@{BSUtil::retrieve("$fctx->{'gdst'}/:full.useforbuild", 1) || []}) {
+        $useforbuild->{$packid} = 1 unless $pdatas->{$packid};
+      }
+    }
+  }
+
   # construct new full
   my %full;
   for my $packid (@packids) {
-    if ($packid ne '_volatile') {
-      if ($useforbuildoverride) {
-        next unless $useforbuildoverride->{$packid};
-      } else {
-        my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
-        my $useforbuildenabled = $prjuseforbuildenabled;
-        $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
-        $useforbuildenabled = 1 if $packid eq '_volatile';
-        next unless $useforbuildenabled;
-      }
-    }
+    next unless $packid eq '_volatile' || $useforbuild->{$packid};
     my $bininfo = $gbininfo->{$packid};
     next if $bininfo->{'.nouseforbuild'};               # channels/patchinfos don't go into the full tree
     $bininfo = $old if defined($oldpackid) && $oldpackid eq $packid;
@@ -822,6 +832,13 @@ sub checkuseforbuild {
   my $olduseforbuild = BSUtil::retrieve("$gdst/:full.useforbuild", 1);
   if (!$olduseforbuild) {
     $olduseforbuild = [] unless -d "$gdst/:full";
+  }
+  if ($olduseforbuild && $proj->{'missingpackages'}) {
+    # our pdatas are incomplete. Add missing entries from old data.
+    for my $packid (@$olduseforbuild) {
+      push @$newuseforbuild, $packid unless $pdatas->{$packid};
+    }
+    @$newuseforbuild = sort(@$newuseforbuild);
   }
   $olduseforbuild = undef if $forcerebuild;
   if ($olduseforbuild) {
