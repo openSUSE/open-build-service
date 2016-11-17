@@ -319,7 +319,7 @@ sub updatelinkinfodb {
   return if $packid eq '_project';	# no links allowed
   mkdir_p($sourcedb) unless -d $sourcedb;
   my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
-  $linkdb->{'blocked'} = 'linkinfo';
+  $linkdb->{'blocked'} = [ 'linkinfo' ];
   my $linkinfo;
   if ($files && $files->{'_link'}) {
     my $l = revreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
