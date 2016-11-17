@@ -260,6 +260,13 @@ EOF
     get '/source/kde4/kdelibs/_meta'
     assert_response :success
     assert_xml_tag tag: 'package', attributes: { name: 'kdelibs' }
+
+    # check history
+    get '/source/kde4/kdelibs/_history?meta=1'
+    assert_response :success
+    assert_xml_tag(tag: 'revisionlist')
+    assert_xml_tag(tag: 'user', content: 'king')
+    assert_xml_tag(tag: 'comment', content: 'fixtures')
   end
 
   def test_get_package_meta_from_hidden_project
