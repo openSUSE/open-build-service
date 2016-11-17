@@ -2030,7 +2030,7 @@ sub getpackagehistory {
   if (!$cgi->{'deleted'}) {
     my $proj = checkprojrepoarch($projid, undef, undef, 1);
     if ($proj->{'remoteurl'}) {
-      my @args = BSRPC::args($cgi, 'rev');
+      my @args = BSRPC::args($cgi, 'rev', 'meta', 'limit');
       my $h = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_history", 'proxy' => $proxy}, $BSXML::revisionlist, @args);
       return ($h, $BSXML::revisionlist);
     }
