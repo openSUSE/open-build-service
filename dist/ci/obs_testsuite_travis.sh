@@ -35,11 +35,15 @@ if test -z "$SUBTEST"; then
     rspec)
       bundle exec rspec
       ;;
+    jshint)
+      jshint .
+      ;;
     *)
       bundle exec rails rubocop
       bundle exec rails test:api
       bundle exec rails test:webui
       bundle exec rspec
+      jshint .
       unset DO_COVERAGE
       bundle exec rails test:spider
       ;;
