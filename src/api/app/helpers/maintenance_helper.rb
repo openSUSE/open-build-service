@@ -90,7 +90,7 @@ module MaintenanceHelper
     Suse::Backend.put "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
     # rubocop:enable Metrics/LineLength
     md5 = Digest::MD5.hexdigest(link_xml)
-    # commit with noservice parameneter
+    # commit with noservice parameter
     upload_params = {
       user:      User.current.login,
       cmd:       "commitfilelist",
