@@ -21,3 +21,6 @@
                   = title_or_name(template)
                 %span.description.grey
                   = template.description
+  - if @projects.empty?
+    %p
+      There are no templates yet, sorry.
