@@ -92,9 +92,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_kind_of Tag, t
 
     # create the relationship and store it in the join table
-    assert_nothing_raised ActiveRecord::StatementInvalid do
-      @controller.private_create_relationship(p, u, t)
-    end
+    @controller.private_create_relationship(p, u, t)
 
     # reload the user, seems to be necessary
     u = User.find_by_login("Iggy")
@@ -141,9 +139,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     t << tx
     t << ty
 
-    assert_nothing_raised ActiveRecord::StatementInvalid do
-      @controller.private_save_tags(p, u, t)
-    end
+    @controller.private_save_tags(p, u, t)
 
     assert_kind_of Tag, u.tags.find_by_name("TagX")
     assert_kind_of Tag, u.tags.find_by_name("TagY")
@@ -184,9 +180,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     unsaved_tags = Array.new
 
     # testing
-    assert_nothing_raised ActiveRecord::StatementInvalid do
-      tags, unsaved_tags = @controller.private_taglistXML_to_tags(xml.to_s)
-    end
+    tags, unsaved_tags = @controller.private_taglistXML_to_tags(xml.to_s)
 
     assert_kind_of Array, tags
     assert_kind_of Array, unsaved_tags
