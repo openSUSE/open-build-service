@@ -13,7 +13,7 @@ package.</p>
 <% unless @remote_projects.empty? %>
   <p>
     Branches also work across interconnected OBS instances. This OBS has
-    <%= pluralize(@remote_projects.count, 'interconnect.', 'interconnects.') %>
+    <%= pluralize(@remote_projects.count, 'interconnect.', plural: 'interconnects.') %>
   </p>
   <ul>
   <% @remote_projects.each do |id,name,title| %>
