@@ -90,7 +90,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Flag#default_status'                                                     => 90.56,
       'PublicController#binary_packages'                                        => 126.16,
       'Repository#cleanup_before_destroy'                                       => 82.98,
-      'RequestController#render_request_collection'                             => 82.38,
+      'RequestController#render_request_collection'                             => 85.91,
       'SearchController#find_attribute'                                         => 97.33,
       'SearchController#search'                                                 => 81.15,
       'SourceController#project_command_copy'                                   => 140.04,
