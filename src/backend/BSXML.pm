@@ -304,6 +304,7 @@ our $projpack = [
 	  [ $repo ],
 	 [[ 'package' =>
 		'name',
+		'releasename',
 		'rev',
 		'srcmd5',	# commit id
 		'versrel',
