@@ -157,4 +157,6 @@ group :assets do
   # gem 'bootstrap-sass-rails'
   # assets for font-awesome vector icons
   gem "font-awesome-rails"
+  # assets for formatting dates
+  gem 'momentjs-rails'
 end

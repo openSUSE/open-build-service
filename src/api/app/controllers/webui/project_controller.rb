@@ -187,7 +187,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
     @has_patchinfo = false
-    if @packages.include? 'patchinfo'
+    if @packages.map {|p| p[0]}.include? 'patchinfo'
       Directory.hashed(project: @project.name, package: 'patchinfo').elements('entry') do |e|
         @has_patchinfo = true if e['name'] == '_patchinfo'
       end
@@ -765,8 +765,11 @@ class Webui::ProjectController < Webui::WebuiController
 
   def load_project_info
     find_maintenance_infos
-    @packages = @project.packages.order_by_name.pluck(:name)
-    @ipackages = @project.expand_all_packages.find_all{ |p| !@packages.include?(p[0]) }
+    @packages = Array.new
+    @project.packages.order_by_name.pluck(:name, :updated_at).each do |p|
+      @packages << [p[0], p[1].to_i.to_s]  # convert Time to epoch ts and then to string
+    end
+    @ipackages = @project.expand_all_packages.find_all{ |ip| !@packages.map{|p| p[0]}.include?(ip[0]) }
     @linking_projects = @project.linked_by_projects.pluck(:name)
 
     reqs = @project.open_requests
