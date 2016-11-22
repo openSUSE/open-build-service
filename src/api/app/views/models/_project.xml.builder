@@ -14,6 +14,7 @@ xml.project(project_attributes) do
     end
   end
 
+  xml.url(my_model.url) unless my_model.url.blank?
   xml.remoteurl(my_model.remoteurl) unless my_model.remoteurl.blank?
   xml.remoteproject(my_model.remoteproject) unless my_model.remoteproject.blank?
   xml.devel(project: my_model.develproject.name) unless my_model.develproject.nil?

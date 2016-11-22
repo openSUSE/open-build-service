@@ -11,6 +11,9 @@
   <div class="grid_10 alpha">
     <h3 id="project_title"><%= @project.title %><%= @project if @project.title.blank? -%></h3>
     <%= description_wrapper(@project.description) %>
+    <% if @project.url.present? %>
+      <%= link_to(@project.url, @project.url) %>
+    <% end %>
   </div>
   <div class="grid_6 omega" id="infos_list">
     <%= possibly_empty_ul class: :clean_list do %>
