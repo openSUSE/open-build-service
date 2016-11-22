@@ -45,17 +45,64 @@ FactoryGirl.define do
       after(:create) do |project|
         create(:lock_flag, status: 'enable', project: project)
       end
+
+      factory :project_with_repository do
+        after(:create) do |project|
+          create(:repository, project: project, architectures: ['i586'])
+        end
+      end
     end
 
     factory :maintenance_incident_project do
       kind 'maintenance_incident'
+
+      transient do
+        maintenance_project { create(:maintenance_project) }
+      end
+
+      before(:create) do |project, evaluator|
+        project.flags << create(:build_flag, status: "disable")
+        project.flags << create(:publish_flag, status: "disable")
+
+        evaluator.maintenance_project.relationships.each do |role|
+          project.relationships.create(user: role.user, role: role.role, group: role.group)
+        end
+      end
     end
 
     factory :maintenance_project do
       kind 'maintenance'
 
-      after(:create) do |project|
-        create(:attrib, project_id: project.id, attrib_type: AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject'))
+      transient do
+        target_project nil
+      end
+
+      after(:create) do |project, evaluator|
+        create(:maintainance_project_attrib, project: project)
+        create(:maintained_project, project: evaluator.target_project, maintenance_project: project) if evaluator.target_project
+      end
+
+      factory :maintenance_project_with_packages do
+        packages { [create(:package_with_file)] }
+      end
+    end
+
+    factory :update_project do
+      kind 'maintenance_release'
+
+      transient do
+        target_project { create(:project_with_repository) }
+      end
+
+      after(:create) do |update_project, evaluator|
+        create(:update_project_attrib, project: evaluator.target_project, update_project: update_project)
+        if evaluator.target_project
+          create(:build_flag, status: 'disable', project: evaluator.target_project)
+          create(:publish_flag, status: 'disable', project: evaluator.target_project)
+          update_project.projects_linking_to << evaluator.target_project
+          new_repository = create(:repository, project: update_project, architectures: ['i586'])
+          create(:path_element, repository: new_repository, link: evaluator.target_project.repositories.first)
+        end
       end
     end
   end
