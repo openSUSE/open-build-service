@@ -1,4 +1,8 @@
 require 'rails_helper'
+# WARNING: If you change tests make sure you uncomment this line
+# and start a test backend. Some of the actions
+# require real backend answers for projects/packages.
+# CONFIG['global_write_through'] = true
 
 RSpec.describe BranchPackage, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
@@ -52,6 +56,16 @@ RSpec.describe BranchPackage, vcr: true do
           branch_apache_package.branch
           project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
           expect(42.days.from_now - Time.zone.parse(project.attribs.first.values.first.value)).to be < 1.minute
+        end
+      end
+
+      context 'repository rebuild flag' do
+        let!(:repository) { create(:repository, rebuild: "transitive", project: leap_project) }
+
+        it 'is set to local' do
+          branch_package.branch
+          project = Project.find_by_name(user.branch_project_name("openSUSE_Leap"))
+          expect(project.repositories.first.rebuild).to eq("local")
         end
       end
 

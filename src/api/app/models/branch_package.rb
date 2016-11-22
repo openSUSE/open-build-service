@@ -352,11 +352,18 @@ class BranchPackage
     unless @target_project
       @target_project = User.current.branch_project_name(p[:link_target_project])
       @auto_cleanup = ::Configuration.cleanup_after_days
-      @auto_cleanup ||= 14 if p[:base_project].try(:image_template?)
+      set_image_template_configuration(p[:base_project])
     end
 
     # link against srcmd5 instead of plain revision
     expand_rev_to_srcmd5(p) if p[:rev]
+  end
+
+  def set_image_template_configuration(project)
+    if project.try(:image_template?)
+      @auto_cleanup ||= 14
+      @rebuild_policy ||= "local"
+    end
   end
 
   def expand_rev_to_srcmd5(p)
