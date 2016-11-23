@@ -49,6 +49,8 @@ gem 'flot-rails'
 gem 'colorize', require: false
 # XML Serialization got moved here
 gem 'activemodel-serializers-xml'
+# Spider Identification
+gem 'voight_kampff'
 
 group :development, :production do
   # to have the delayed job daemon
