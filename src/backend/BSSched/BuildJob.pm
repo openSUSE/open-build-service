@@ -314,6 +314,14 @@ sub writejob {
   add_crossmarker($ctx->{gctx}, $binfo->{'hostarch'}, $job) if $binfo->{'hostarch'};
   $ourjobs{$1}->{$job} = 1 if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
   push @{$ctx->{'otherjobscache'}}, $job;
+
+  BSSymlinkForLinkedPackages::make_symlink_rpms(
+    $ctx->{gctx}->{'projpacks'},
+    $ctx->{gctx}->{'reporoot'},
+    $binfo->{'project'},
+    $binfo->{'repository'},
+    $binfo->{'arch'},
+    $binfo->{'package'});
 }
 
 =head2 find_otherjobs - find all jobs for the same build
