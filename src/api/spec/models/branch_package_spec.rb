@@ -9,9 +9,7 @@ RSpec.describe BranchPackage, vcr: true do
   context '#branch' do
     let(:branch_package) { BranchPackage.new(project: project.name, package: package.name) }
     let!(:update_project) { create(:project, name: 'BaseDistro:Update') }
-    let(:update_attrib_type) { AttribType.find_by_namespace_and_name!('OBS', 'UpdateProject') }
-    let(:attrib_value) { build(:attrib_value, value: 'BaseDistro:Update') }
-    let!(:update_attrib) { create(:attrib, project: project, attrib_type: update_attrib_type, values: [attrib_value]) }
+    let!(:update_project_attrib) { create(:update_project_attrib, project: project, update_project: update_project) }
 
     before(:each) do
       User.current = user

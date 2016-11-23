@@ -11,7 +11,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   let(:another_project) { create(:project, name: 'Another_Project') }
   let(:apache2_project) { create(:project, name: 'Apache2') }
   let(:openSUSE_project) { create(:project, name: 'openSUSE') }
-  let(:apache_maintenance_incident_project) { create(:maintenance_incident_project, name: 'ApacheMI') }
+  let(:apache_maintenance_incident_project) { create(:maintenance_incident_project, name: 'ApacheMI', maintenance_project: nil) }
   let(:home_moi_project) { create(:project, name: 'home:moi') }
   let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
   let(:project_with_package) { create(:project_with_package, name: 'NewProject', package_name: 'PackageExample') }

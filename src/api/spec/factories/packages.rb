@@ -34,10 +34,7 @@ FactoryGirl.define do
 
     factory :package_with_failed_comment_attribute do
       after(:create) do |package|
-        attribute_type = AttribType.find_by_name("OBS:ProjectStatusPackageFailComment")
-        attrib = build(:attrib, attrib_type: attribute_type, package: package)
-        attrib.values << build(:attrib_value, value: Faker::Lorem.sentence)
-        attrib.save!
+        create(:project_status_package_fail_comment_attrib, package: package)
       end
     end
   end
