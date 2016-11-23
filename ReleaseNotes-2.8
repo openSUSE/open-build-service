@@ -39,10 +39,6 @@ Features
  * /about route is now independent from request format
  * workers are now also tracked when they went away (new states "down", "away" and "dead")
 
-Other changes
-=============
- * Server side pagination on user show page for improving the performance.
-
 Wanted changes:
 ===============
 
@@ -54,6 +50,13 @@ Wanted changes:
    now.
 
  * service wrapper script for LXC got replaced by a docker alternative
+
+Other changes
+=============
+ * Server side pagination on user show page for improving the performance.
+
+ * The way to identify spiders got changed. A separate configuration via
+   apache is no longer required. See the Administration Guide.
 
 Notes for systems using systemd:
 ================================
