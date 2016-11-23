@@ -64,6 +64,8 @@ OBSApi::Application.routes.draw do
       end
     end
 
+    resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
+
     resources :download_repositories, constraints: cons, only: [:create, :update, :destroy], controller: 'webui/download_on_demand'
 
     controller 'webui/configuration' do

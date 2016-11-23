@@ -1,0 +1,75 @@
+// Place all the styles related to the image_templates controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+dl.templateslist
+  display: block
+  clear: both
+  list-style-type: none
+  padding: 8px 12px 6px
+  margin: 10px 0 2em
+
+  dt
+    display: block
+    font-size: medium
+    margin: 12px 0 6px
+    color: #555
+
+  dd
+    border-radius: 5px
+    border: 1px solid white
+    float: left
+    width: 18em
+    min-width: 25%
+    overflow: hidden
+    position: relative
+    padding: 6px 12px
+    margin: 2px 0
+    min-height: 48px
+      
+  label
+    overflow: hidden
+
+    .group
+      position: absolute
+      top: 0
+      right: 3px
+      left: 0
+      padding: 15px 6px 12px 90px
+
+      span
+        display: block
+
+      .name
+        color: #204a87
+        font-weight: bold
+        font-size: 1.1em
+        line-height: 1
+
+      .description
+        color: #888a85
+        font-size: 0.8em
+        line-height: 1.3em
+        height: 2.6em
+        margin-top: 3px
+
+    img
+      width: 48px
+      height: 48px
+      vertical-align: middle
+
+  input:checked + dd
+    background-color: #fefad2
+    border-color: #fff57d
+
+  span.form-radio
+    background: rgba(0, 0, 0, 0) image-url('radiobutton.png') no-repeat scroll left top
+    border: 0 none
+    min-height: 16px
+    width: 16px
+    display: inline-block
+
+  input:checked + dd span.form-radio
+    background: rgba(0, 0, 0, 0) image-url('radiobutton-checked.png') no-repeat scroll left top
+    border: 0 none
+    min-height: 16x

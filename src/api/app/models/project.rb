@@ -99,6 +99,12 @@ class Project < ApplicationRecord
   scope :home, -> { where("name like 'home:%'") }
   scope :not_home, -> { where.not("name like 'home:%'") }
 
+  # will return all projects with attribute 'OBS:ImageTemplates'
+  scope :image_templates, lambda {
+    joins(attribs: { attrib_type: :attrib_namespace }).
+      where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' })
+  }
+
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: true
   validates :title, length: { maximum: 250 }
   validate :valid_name
@@ -1814,6 +1820,11 @@ class Project < ApplicationRecord
 
   def to_param
     name
+  end
+
+  def image_template?
+    attribs.joins(attrib_type: :attrib_namespace).
+      where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' }).exists?
   end
 
   private

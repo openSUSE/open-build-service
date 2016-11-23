@@ -224,6 +224,10 @@ class BranchPackage
         tprj.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
         tprj.flags.create(flag: 'build', status: 'disable') if @extend_names
         tprj.flags.create(flag: 'access', status: 'disable') if @noaccess
+        if params[:project]
+          project = Project.get_by_name(params[:project])
+          tprj.flags.create(flag: 'publish', status: 'disable') if project.try(:image_template?)
+        end
         tprj.store
         add_autocleanup_attribute(tprj) if @auto_cleanup
       end
@@ -361,6 +365,7 @@ class BranchPackage
     unless @target_project
       @target_project = User.current.branch_project_name(p[:link_target_project])
       @auto_cleanup = ::Configuration.cleanup_after_days
+      @auto_cleanup ||= 14 if p[:base_project].try(:image_template?)
     end
 
     # link against srcmd5 instead of plain revision

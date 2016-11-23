@@ -1,0 +1,23 @@
+.grid_16
+  %h1
+    Choose a base template
+
+  %fieldset.templateslist
+    - @projects.each do |project|
+      %dl.templateslist
+        %dt
+          = title_or_name(project)
+        - project.packages.each do |template|
+          %label
+            %input{ name: 'image', type: 'radio', class: 'hidden' }
+            %dd
+              %span.form-radio
+              - if template.has_icon?
+                %img{ alt: template.title, src: template.source_path('_icon'), width: 64, height: 64 }
+              - else
+                = image_tag('distributions/kiwi.png', width: 64, height: 64)
+              %span.group
+                %span.name
+                  = title_or_name(template)
+                %span.description.grey
+                  = template.description
