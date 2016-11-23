@@ -49,8 +49,8 @@ class Comment < ApplicationRecord
       users << comment.user_id
       # check if users are mentioned
       comment.body.split.each do |word|
-        if word =~ /^@/
-          users_mentioned << word.gsub(%r{^@}, '')
+        if /^@(?<user>.+)/ =~ word
+          users_mentioned << user
         end
       end
     end
