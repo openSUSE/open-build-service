@@ -1,6 +1,9 @@
 inherit_from: .rubocop_todo.yml
 
 AllCops:
+  UseCache: true
+  CacheRootDirectory: tmp/rubocop_cache
+  MaxFilesInCache: 2000
   Exclude:
     - 'tmp/**/*'
     - 'lib/templates/**/*'
@@ -61,7 +64,7 @@ Style/Not:
 # Checks for redundant uses of `self`
 Style/RedundantSelf:
   Enabled: true
-  
+
 # Checks for the presence of parentheses around ternary conditions
 Style/TernaryParentheses:
   Enabled: true
@@ -112,7 +115,7 @@ Lint/UnusedBlockArgument:
 # Checks for access modifiers without any code
 Lint/UselessAccessModifier:
   Enabled: true
-  
+
 # Checks for every useless assignment to local variable in every scope
 Lint/UselessAssignment:
   Enabled: true

@@ -20,6 +20,10 @@ matrix:
     install: ''
     before_script: ''
   - env: TEST_SUITE=rubocop
+    cache:
+      bundler: true
+      directories:
+        - tmp/rubocop_cache
     before_install: ''
     before_script: ''
 notifications:
