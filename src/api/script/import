@@ -119,7 +119,6 @@ projects = Xproject.find(:all)
 
 # maps project name to an array: [project_object, {packagename => package_object, ...}]
 cache = Hash.new
-restart = false
 
 STDERR.puts "--> storing projects"
 projects.each_entry do |entry|

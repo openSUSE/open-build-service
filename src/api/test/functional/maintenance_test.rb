@@ -113,7 +113,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # check source link
     get '/source/home:tom:branches:Devel:BaseDistro:Update/pack2/_link'
     assert_response :success
-    ret = Xmlhash.parse @response.body
     assert_project 'Devel:BaseDistro:Update'
 
     # branch a package which does exist in update project and a stage project is defined via project wide devel project

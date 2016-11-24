@@ -420,8 +420,7 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     # check source service state
-    serviceerror = nil
-    serviceerror = @package.serviceinfo.value(:error) if @package.serviceinfo
+    @package.serviceinfo.value(:error) if @package.serviceinfo
 
     return true
   end
@@ -564,7 +563,7 @@ class Webui::PackageController < Webui::WebuiController
                                 user: User.current.login)
     redirect_to(package_show_path(project: created_project_name, package: created_package_name),
                 notice: "Successfully branched package")
-  rescue BranchPackage::DoubleBranchPackageError => e
+  rescue BranchPackage::DoubleBranchPackageError
       redirect_to(package_show_path(project: User.current.branch_project_name(@project), package: @package),
                   notice: 'You have already branched this package')
   rescue APIException => e
@@ -615,7 +614,7 @@ class Webui::PackageController < Webui::WebuiController
                                   user: User.current.login)
       redirect_to(package_show_path(project: @project, package: params[:target_package]),
                   notice: "Successfully branched package")
-    rescue BranchPackage::DoubleBranchPackageError => e
+    rescue BranchPackage::DoubleBranchPackageError
       redirect_to(package_show_path(project: @project, package: params[:target_package]),
                   notice: 'You have already branched this package')
     rescue => e
@@ -760,7 +759,7 @@ class Webui::PackageController < Webui::WebuiController
     if User.current.can_modify_package?(@package) && @rev.blank?
       begin
         files = package_files(@rev, @expand)
-      rescue ActiveXML::Transport::Error => e
+      rescue ActiveXML::Transport::Error
         files = []
       end
       files.each do |file|
@@ -772,7 +771,7 @@ class Webui::PackageController < Webui::WebuiController
     end
     begin
       @file = @package.source_file(@filename, fetch_from_params(:rev, :expand))
-    rescue ActiveXML::Transport::NotFoundError => e
+    rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "File not found: #{@filename}"
       redirect_to action: :show, package: @package, project: @project
       return

@@ -1691,13 +1691,13 @@ EOF
     origstring = @response.body.to_s
     teststring = '&;'
     put url_for(controller: :source, action: :get_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff'), teststring
-    assert_response(403, message='Was able to write a package file without permission')
+    assert_response(403, 'Was able to write a package file without permission')
     assert_xml_tag(tag: 'status')
 
     # check that content is unchanged:
     get url_for(controller: :source, action: :get_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff')
     assert_response :success
-    assert_equal(@response.body.to_s, origstring, message='Package file was changed without permissions')
+    assert_equal(@response.body.to_s, origstring, 'Package file was changed without permissions')
 
     # invalid permission
     reset_auth
@@ -3763,7 +3763,7 @@ EOF
     # make sure never to erase ourselves
     xml += "<person userid='Iggy' role='maintainer'/>"
     xml += yield
-    xml += "</#{package_or_project}>"
+    xml + "</#{package_or_project}>"
   end
 
   def duplicated_user_test(package_or_project, user_or_group, url)

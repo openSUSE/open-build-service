@@ -112,6 +112,10 @@ Lint/UnusedBlockArgument:
 # Checks for access modifiers without any code
 Lint/UselessAccessModifier:
   Enabled: true
+  
+# Checks for every useless assignment to local variable in every scope
+Lint/UselessAssignment:
+  Enabled: true
 
 ##################### Rails ##################################
 

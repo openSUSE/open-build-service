@@ -209,10 +209,6 @@ class Webui::RequestController < Webui::WebuiController
 
   def forward_request_to(fwd)
     tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
-    description = @req.description
-    description ||= ""
-    who = @req.creator
-    description += ' (forwarded request %d from %s)' % [params[:number], who]
 
     req = nil
     begin

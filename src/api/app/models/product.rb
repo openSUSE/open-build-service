@@ -88,7 +88,6 @@ class Product < ApplicationRecord
       medium = {}
       product_media.each do |pm|
         key = "#{pm.repository.id}/#{pm.name}"
-        arch = nil
         if pm.arch_filter_id
           arch = pm.arch_filter.name
           key += "/#{arch}"

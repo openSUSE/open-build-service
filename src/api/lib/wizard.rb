@@ -87,7 +87,7 @@ class Wizard
   def generate_spec(template)
     erb = ERB.new(template)
     hb = HashBinding.new(@guess.merge(@data))
-    template = erb.result(hb.getBinding)
+    erb.result(hb.getBinding)
   end
 
   private

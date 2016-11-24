@@ -175,10 +175,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
       xml.root.add_element(element)
     end
 
-    # saves an initializes the tag objects
-    tags = Array.new
-    unsaved_tags = Array.new
-
     # testing
     tags, unsaved_tags = @controller.private_taglistXML_to_tags(xml.to_s)
 

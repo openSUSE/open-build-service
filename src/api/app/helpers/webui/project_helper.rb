@@ -36,7 +36,7 @@ module Webui::ProjectHelper
         status_comment_html += "<span class='unknown_failure'>Unknown build failure</span>".html_safe
       end
     end
-    status_comment_html += "<span id='".html_safe + valid_xml_id("comment_edit_#{package}") + "'></span>".html_safe
+    status_comment_html + "<span id='".html_safe + valid_xml_id("comment_edit_#{package}") + "'></span>".html_safe
   end
 
   def project_bread_crumb(*args)
