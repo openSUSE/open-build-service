@@ -333,4 +333,125 @@ http_interactions:
         </status>
     http_version: 
   recorded_at: Tue, 23 Aug 2016 12:26:07 GMT
-recorded_with: VCR 3.0.1
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 10:58:32 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_files/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '114'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 10:58:32 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_files/_config
+    body:
+      encoding: UTF-8
+      string: Laboriosam et dolorem error. Iste totam est nostrum consequatur. Occaecati
+        veniam est. Placeat voluptatibus iusto. Necessitatibus reiciendis velit cum
+        debitis ad et.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="11" vrev="11">
+          <srcmd5>457ea6f533a2adc6d2fd0dc0989f9936</srcmd5>
+          <version>unknown</version>
+          <time>1479293912</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 10:58:32 GMT
+recorded_with: VCR 3.0.3

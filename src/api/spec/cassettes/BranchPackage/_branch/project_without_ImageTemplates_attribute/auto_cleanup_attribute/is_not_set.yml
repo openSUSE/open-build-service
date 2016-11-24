@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="BaseDistro">
-          <title>Clouds of Witness</title>
+          <title>The Sun Also Rises</title>
           <description/>
         </project>
     headers:
@@ -29,24 +29,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '105'
     body:
       encoding: UTF-8
       string: |
         <project name="BaseDistro">
-          <title>Clouds of Witness</title>
+          <title>The Sun Also Rises</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:43 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/BaseDistro/_config
     body:
       encoding: UTF-8
-      string: Sit nam eum ea error repellat cumque sed. Autem quia placeat harum accusamus
-        itaque possimus commodi. Eum aspernatur dolorem. Dolores reiciendis est voluptatum
-        asperiores voluptatem.
+      string: Dolor fugit et sapiente error quibusdam vero sunt. Provident eius voluptatem
+        qui eveniet. Modi et voluptas.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -73,7 +72,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:43 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/BaseDistro/test_package/_meta?user=tom
@@ -112,7 +111,7 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:43 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/BaseDistro/test_package/_meta
@@ -151,7 +150,7 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:43 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/BaseDistro:Update/_meta
@@ -159,7 +158,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="BaseDistro:Update">
-          <title>The Other Side of Silence</title>
+          <title>A Scanner Darkly</title>
           <description/>
         </project>
     headers:
@@ -181,23 +180,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '119'
+      - '110'
     body:
       encoding: UTF-8
       string: |
         <project name="BaseDistro:Update">
-          <title>The Other Side of Silence</title>
+          <title>A Scanner Darkly</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/BaseDistro:Update/_config
     body:
       encoding: UTF-8
-      string: Officiis nihil ipsa. Eligendi sed et enim voluptatem magni et iste.
-        Adipisci et tempore ea aspernatur asperiores maxime sunt.
+      string: Reprehenderit eius est aliquam rerum libero aut sit. Voluptatibus et
+        consequuntur consequatur quia itaque. Inventore enim modi non. Ut est ab ex
+        omnis reprehenderit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -224,7 +224,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/_meta?user=tom
@@ -265,16 +265,202 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/_meta?user=tom
+    uri: http://localhost:3200/source/openSUSE_Leap/_meta
     body:
       encoding: UTF-8
       string: |
-        <project name="home:tom:branches:BaseDistro:Update">
-          <title>Branch project for package test_package</title>
-          <description>This project was created for package test_package via attribute OBS:Maintained</description>
+        <project name="openSUSE_Leap">
+          <title>The Wings of the Dove</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE_Leap">
+          <title>The Wings of the Dove</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_Leap/_config
+    body:
+      encoding: UTF-8
+      string: Molestiae error asperiores ab nisi. Blanditiis molestiae quas aspernatur
+        quia. Eum dignissimos in commodi.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_Leap/apache2/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="openSUSE_Leap">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="openSUSE_Leap">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_Leap/apache2/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="openSUSE_Leap">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="openSUSE_Leap">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22apache2%22%20and%20linkinfo/@project=%22openSUSE_Leap%22%20and%20@project=%22openSUSE_Leap%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:openSUSE_Leap">
+          <title>Branch project for package apache2</title>
+          <description>This project was created for package apache2 via attribute OBS:Maintained</description>
           <person userid="tom" role="maintainer"/>
         </project>
     headers:
@@ -296,24 +482,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '273'
+      - '259'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:tom:branches:BaseDistro:Update">
-          <title>Branch project for package test_package</title>
-          <description>This project was created for package test_package via attribute OBS:Maintained</description>
+        <project name="home:tom:branches:openSUSE_Leap">
+          <title>Branch project for package apache2</title>
+          <description>This project was created for package apache2 via attribute OBS:Maintained</description>
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package/_meta?user=tom
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="test_package" project="home:tom:branches:BaseDistro:Update">
+        <package name="apache2" project="home:tom:branches:openSUSE_Leap">
           <title/>
           <description/>
         </package>
@@ -336,23 +522,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '135'
+      - '126'
     body:
       encoding: UTF-8
       string: |
-        <package name="test_package" project="home:tom:branches:BaseDistro:Update">
+        <package name="apache2" project="home:tom:branches:openSUSE_Leap">
           <title></title>
           <description></description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package/_meta?user=tom
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="test_package" project="home:tom:branches:BaseDistro:Update">
+        <package name="apache2" project="home:tom:branches:openSUSE_Leap">
           <title/>
           <description/>
         </package>
@@ -375,19 +561,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '135'
+      - '126'
     body:
       encoding: UTF-8
       string: |
-        <package name="test_package" project="home:tom:branches:BaseDistro:Update">
+        <package name="apache2" project="home:tom:branches:openSUSE_Leap">
           <title></title>
           <description></description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?cmd=branch&missingok=1&opackage=test_package&oproject=BaseDistro:Update&user=tom
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2?cmd=branch&opackage=apache2&oproject=openSUSE_Leap&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -417,18 +603,18 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>e3adf4aab58a4a6f27974d4a9fb88e5f</srcmd5>
+          <srcmd5>f2b6eaf02987245b9003bcf47e0222dc</srcmd5>
           <version>unknown</version>
-          <time>1479312646</time>
+          <time>1479312644</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2
     body:
       encoding: US-ASCII
       string: ''
@@ -451,19 +637,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '452'
+      - '421'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="1" vrev="1" srcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f">
-          <linkinfo project="BaseDistro:Update" package="test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="add4a945697eee927c39061d8a0ab589" lsrcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f" />
-          <entry name="_link" md5="463447c51c7a017092296988331b6862" size="142" mtime="1479305351" />
+        <directory name="apache2" rev="1" vrev="1" srcmd5="f2b6eaf02987245b9003bcf47e0222dc">
+          <linkinfo project="openSUSE_Leap" package="apache2" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="2fbc15ae60271e3fe13b837e014a17ea" lsrcmd5="f2b6eaf02987245b9003bcf47e0222dc" />
+          <entry name="_link" md5="42ab2fdb360424b79deaaaec3dcd12ff" size="121" mtime="1479304500" />
         </directory>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -486,19 +672,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '293'
+      - '279'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test_package" rev="1" vrev="1" srcmd5="add4a945697eee927c39061d8a0ab589" lsrcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
-          <linked project="BaseDistro:Update" package="test_package" />
-          <revtime>1479312646</revtime>
+        <sourceinfo package="apache2" rev="1" vrev="1" srcmd5="2fbc15ae60271e3fe13b837e014a17ea" lsrcmd5="f2b6eaf02987245b9003bcf47e0222dc" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <linked project="openSUSE_Leap" package="apache2" />
+          <revtime>1479312644</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2
     body:
       encoding: US-ASCII
       string: ''
@@ -521,19 +707,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '452'
+      - '421'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="1" vrev="1" srcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f">
-          <linkinfo project="BaseDistro:Update" package="test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="add4a945697eee927c39061d8a0ab589" lsrcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f" />
-          <entry name="_link" md5="463447c51c7a017092296988331b6862" size="142" mtime="1479305351" />
+        <directory name="apache2" rev="1" vrev="1" srcmd5="f2b6eaf02987245b9003bcf47e0222dc">
+          <linkinfo project="openSUSE_Leap" package="apache2" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="2fbc15ae60271e3fe13b837e014a17ea" lsrcmd5="f2b6eaf02987245b9003bcf47e0222dc" />
+          <entry name="_link" md5="42ab2fdb360424b79deaaaec3dcd12ff" size="121" mtime="1479304500" />
         </directory>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -554,7 +740,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '359'
+      - '341'
       Cache-Control:
       - no-cache
       Connection:
@@ -562,18 +748,18 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="c9e41755ae4b8728a8c5f3fd11f9ba0c">
-          <old project="home:tom:branches:BaseDistro:Update" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom:branches:BaseDistro:Update" package="test_package" rev="1" srcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f" />
+        <sourcediff key="b4eb9aa75778707a23b6f6a8cfd9aced">
+          <old project="home:tom:branches:openSUSE_Leap" package="apache2" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:openSUSE_Leap" package="apache2" rev="1" srcmd5="f2b6eaf02987245b9003bcf47e0222dc" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -598,26 +784,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '349'
+      - '362'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="47efa601923a1c54fa652f20c4ccf8b7">
-          <old project="BaseDistro:Update" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom:branches:BaseDistro:Update" package="test_package" rev="add4a945697eee927c39061d8a0ab589" srcmd5="add4a945697eee927c39061d8a0ab589" />
+        <sourcediff key="1c6621e539f5863fcf3a10f8baf9b790">
+          <old project="openSUSE_Leap" package="apache2" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:openSUSE_Leap" package="apache2" rev="2fbc15ae60271e3fe13b837e014a17ea" srcmd5="2fbc15ae60271e3fe13b837e014a17ea" />
           <files />
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/_meta?user=tom
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="home:tom:branches:BaseDistro:Update">
-          <title>Branch project for package test_package</title>
-          <description>This project was created for package test_package via attribute OBS:Maintained</description>
+        <project name="home:tom:branches:openSUSE_Leap">
+          <title>Branch project for package apache2</title>
+          <description>This project was created for package apache2 via attribute OBS:Maintained</description>
           <person userid="tom" role="maintainer"/>
           <publish>
             <disable/>
@@ -642,23 +828,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '314'
+      - '300'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:tom:branches:BaseDistro:Update">
-          <title>Branch project for package test_package</title>
-          <description>This project was created for package test_package via attribute OBS:Maintained</description>
+        <project name="home:tom:branches:openSUSE_Leap">
+          <title>Branch project for package apache2</title>
+          <description>This project was created for package apache2 via attribute OBS:Maintained</description>
           <person userid="tom" role="maintainer" />
           <publish>
             <disable />
           </publish>
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
 - request:
     method: delete
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update?comment&user=tom
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap?comment&user=tom
     body:
       encoding: US-ASCII
       string: ''
@@ -686,5 +872,44 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
+  recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/BaseDistro/test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 16:11:13 GMT
 recorded_with: VCR 3.0.3

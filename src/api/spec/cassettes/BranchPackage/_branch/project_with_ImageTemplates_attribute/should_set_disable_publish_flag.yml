@@ -1,0 +1,1004 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/BaseDistro/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="BaseDistro">
+          <title>The Golden Apples of the Sun</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '115'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="BaseDistro">
+          <title>The Golden Apples of the Sun</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:16 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/BaseDistro/_config
+    body:
+      encoding: UTF-8
+      string: Temporibus tempore sunt. Unde sed blanditiis sed et molestias odit.
+        Id numquam ut sapiente repudiandae consequatur sunt voluptas. Ut dolore omnis
+        voluptatum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:16 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/BaseDistro/test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:16 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/BaseDistro/test_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:17 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/BaseDistro:Update/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="BaseDistro:Update">
+          <title>Ring of Bright Water</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '114'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="BaseDistro:Update">
+          <title>Ring of Bright Water</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:17 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/BaseDistro:Update/_config
+    body:
+      encoding: UTF-8
+      string: Nisi voluptatem optio sunt mollitia itaque et. Consequatur aperiam repellendus
+        ut. Voluptas dolorum aperiam animi. Reiciendis non corporis. Id ipsum eos
+        sed hic consequatur beatae commodi.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:17 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:17 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_Leap/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE_Leap">
+          <title>Unweaving the Rainbow</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE_Leap">
+          <title>Unweaving the Rainbow</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:17 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_Leap/_config
+    body:
+      encoding: UTF-8
+      string: Ut harum porro unde quasi. Rem blanditiis dolores impedit. Sit neque
+        corrupti autem necessitatibus eum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:17 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_Leap/apache2/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="openSUSE_Leap">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="openSUSE_Leap">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:17 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_Leap/apache2/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="openSUSE_Leap">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="openSUSE_Leap">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:17 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_tw/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE_tw">
+          <title>To a God Unknown</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE_tw">
+          <title>To a God Unknown</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:17 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_tw/_config
+    body:
+      encoding: UTF-8
+      string: Magnam quos nihil ut numquam rerum esse. Voluptas sit eaque rerum voluptate
+        quidem aliquid. Provident et excepturi eius aut accusamus quam quo. Quod magnam
+        ex et et dolorem non. Odit omnis fugit adipisci.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:17 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_tw/foo/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="openSUSE_tw">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="openSUSE_tw">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:18 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_tw/foo/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="openSUSE_tw">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="openSUSE_tw">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:18 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22foo%22%20and%20linkinfo/@project=%22openSUSE_tw%22%20and%20@project=%22openSUSE_tw%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:18 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_tw/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:openSUSE_tw">
+          <title>Branch project for package foo</title>
+          <description>This project was created for package foo via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '290'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:openSUSE_tw">
+          <title>Branch project for package foo</title>
+          <description>This project was created for package foo via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer" />
+          <publish>
+            <disable />
+          </publish>
+        </project>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:18 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_tw/foo/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="home:tom:branches:openSUSE_tw">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '120'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="home:tom:branches:openSUSE_tw">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:18 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_tw/foo/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="home:tom:branches:openSUSE_tw">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '120'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="home:tom:branches:openSUSE_tw">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:18 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_tw/foo?cmd=branch&opackage=foo&oproject=openSUSE_tw&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>758b5c98e244a423d8cced9119759c74</srcmd5>
+          <version>unknown</version>
+          <time>1479303198</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:18 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_tw/foo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '411'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="foo" rev="2" vrev="2" srcmd5="758b5c98e244a423d8cced9119759c74">
+          <linkinfo project="openSUSE_tw" package="foo" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="2ff7ebca03c33454e5b27f2fd9fd3b7e" lsrcmd5="758b5c98e244a423d8cced9119759c74" />
+          <entry name="_link" md5="dd77ca022ead3d84e2e42f7345da573c" size="119" mtime="1479301675" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:19 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_tw/foo?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '269'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="foo" rev="2" vrev="2" srcmd5="2ff7ebca03c33454e5b27f2fd9fd3b7e" lsrcmd5="758b5c98e244a423d8cced9119759c74" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <linked project="openSUSE_tw" package="foo" />
+          <revtime>1479303198</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:19 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_tw/foo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '411'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="foo" rev="2" vrev="2" srcmd5="758b5c98e244a423d8cced9119759c74">
+          <linkinfo project="openSUSE_tw" package="foo" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="2ff7ebca03c33454e5b27f2fd9fd3b7e" lsrcmd5="758b5c98e244a423d8cced9119759c74" />
+          <entry name="_link" md5="dd77ca022ead3d84e2e42f7345da573c" size="119" mtime="1479301675" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:19 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_tw/foo?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '329'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="1799be1abc19d158f6c2773e2f5b43c7">
+          <old project="home:tom:branches:openSUSE_tw" package="foo" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:openSUSE_tw" package="foo" rev="1" srcmd5="758b5c98e244a423d8cced9119759c74" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:19 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_tw/foo?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '350'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="f2c16ffe7a480e924e71f2b23e5aace6">
+          <old project="openSUSE_tw" package="foo" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:openSUSE_tw" package="foo" rev="2ff7ebca03c33454e5b27f2fd9fd3b7e" srcmd5="2ff7ebca03c33454e5b27f2fd9fd3b7e" />
+          <files />
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:19 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:openSUSE_tw/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:openSUSE_tw">
+          <title>Branch project for package foo</title>
+          <description>This project was created for package foo via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '290'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:openSUSE_tw">
+          <title>Branch project for package foo</title>
+          <description>This project was created for package foo via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer" />
+          <publish>
+            <disable />
+          </publish>
+        </project>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 13:33:19 GMT
+recorded_with: VCR 3.0.3
