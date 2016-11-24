@@ -1,11 +1,6 @@
 #!/bin/bash
 # This script prepares the CI build for running
 
-# No need to do those steps for rubocop or jshint
-if [ "$1" = "rubocop" ] || [ "$1" = "jshint" ]; then
-  exit 0
-fi
-
 echo "Configuring backend"
 sed -i -e "s|my \$hostname = .*$|my \$hostname = 'localhost';|" \
        -e "s|our \$bsuser = 'obsrun';|our \$bsuser = 'jenkins';|" \

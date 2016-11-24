@@ -15,12 +15,5 @@ echo 'deb http://download.opensuse.org/repositories/OBS:/Server:/Unstable/xUbunt
 # sudo apt-get update -o APT::Get::List-Cleanup "false" -o Dir::Etc::sourcelist "/etc/apt/sources.list.d/opensuse.list" -o Dir::Etc::sourceparts "";
 sudo apt-get update
 
-if [ "$1" != "rubocop" ] && [ "$1" != "jshint" ]; then
-  # Install the dependencies of the backend
-  sudo apt-get install --force-yes travis-deps libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2 createrepo libbssolv-perl sphinxsearch libjson-xs-perl libxml-simple-perl libgd-gd2-perl
-fi
-
-if [ "$1" = "jshint" ]; then
-  # Install jshint
-  npm install -g jshint
-fi
+# Install the dependencies of the backend
+sudo apt-get install --force-yes travis-deps libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2 createrepo libbssolv-perl sphinxsearch libjson-xs-perl libxml-simple-perl libgd-gd2-perl
