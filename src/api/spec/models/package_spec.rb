@@ -1,11 +1,15 @@
 require 'rails_helper'
 require 'webmock/rspec'
+# WARNING: If you change #file_exists or #has_file test make sure
+# you uncomment the next line and start a test backend.
+# CONFIG['global_write_through'] = true
 
 RSpec.describe Package, vcr: true do
   let(:admin) { create(:admin_user) }
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
+  let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: home_project) }
   let(:services) { package.services }
   let(:group_bugowner) { create(:group, title: 'senseless_group') }
   let(:group) { create(:group, title: 'my_test_group') }
@@ -40,7 +44,6 @@ RSpec.describe Package, vcr: true do
   end
 
   context '#delete_file' do
-    let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: home_project)}
     let(:url) { "#{CONFIG['source_url']}/source/#{home_project.name}/#{package_with_file.name}" }
 
     before do
@@ -157,6 +160,43 @@ RSpec.describe Package, vcr: true do
       create(:relationship_package_user, user: other_user2, package: package)
 
       expect(package.maintainers).to match_array([user, other_user, other_user2])
+    end
+  end
+
+  context '#file_exists?' do
+    context 'with more than one file' do
+      it 'returns true if the file exist' do
+        expect(package_with_file.file_exists?('somefile.txt')).to eq(true)
+      end
+
+      it 'returns false if the file does not exist' do
+        expect(package_with_file.file_exists?('not_existent.txt')).to eq(false)
+      end
+    end
+
+    context 'with one file' do
+      let(:package_with_one_file) { create(:package_with_service, name: 'package_with_one_file', project: home_project) }
+
+      it 'returns true if the file exist' do
+        expect(package_with_one_file.file_exists?('_service')).to eq(true)
+      end
+
+      it 'returns false if the file does not exist' do
+        expect(package_with_one_file.file_exists?('not_existent.txt')).to eq(false)
+      end
+    end
+  end
+
+  context '#has_icon?' do
+    it 'returns true if the icon exist' do
+      if CONFIG['global_write_through']
+        Suse::Backend.put("/source/#{CGI.escape(package_with_file.project.name)}/#{CGI.escape(package_with_file.name)}/_icon", Faker::Lorem.paragraph)
+      end
+      expect(package_with_file.has_icon?).to eq(true)
+    end
+
+    it 'returns false if the icon does not exist' do
+      expect(package.has_icon?).to eq(false)
     end
   end
 end

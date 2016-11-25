@@ -1,0 +1,233 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_one_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_file" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '117'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_file" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_one_file/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_file" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '117'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_file" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_one_file/_service
+    body:
+      encoding: UTF-8
+      string: "<service/>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>1b5e732162384f7004249782bb25553b</srcmd5>
+          <version>unknown</version>
+          <time>1479294157</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_one_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '242'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="1b5e732162384f7004249782bb25553b">
+          <serviceinfo code="running" />
+          <entry name="_service" md5="1d2c8d7ebd4aba94dd22a1418c257977" size="10" mtime="1479294157" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_one_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '388'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="1b5e732162384f7004249782bb25553b">
+          <serviceinfo code="failed" xsrcmd5="c8ccf19d498db7143f14b25517ff5919">
+            <error> 400 remote error: document element must be 'services', was 'service'</error>
+          </serviceinfo>
+          <entry name="_service" md5="1d2c8d7ebd4aba94dd22a1418c257977" size="10" mtime="1479294157" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+recorded_with: VCR 3.0.3
