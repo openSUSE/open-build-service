@@ -2,6 +2,23 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+.break-words
+  /* These are technically the same, but use both */
+  overflow-wrap: break-word
+  word-wrap: break-word
+
+  /* Warning: Needed for oldIE support, but words are broken up letter-by-letter */
+  -ms-word-break: break-all
+  word-break: break-all
+
+  /* Non standard for webkit */
+  word-break: break-word
+
+  -ms-hyphens: auto
+  -moz-hyphens: auto
+  -webkit-hyphens: auto
+  hyphens: auto
+
 dl.templateslist
   display: block
   clear: both
@@ -11,6 +28,7 @@ dl.templateslist
 
   dt
     display: block
+    font-weight: bold
     font-size: medium
     margin: 12px 0 6px
     color: #555
@@ -19,7 +37,7 @@ dl.templateslist
     border-radius: 5px
     border: 1px solid white
     float: left
-    width: 18em
+    width: 21em
     min-width: 25%
     overflow: hidden
     position: relative
@@ -35,7 +53,7 @@ dl.templateslist
       top: 0
       right: 3px
       left: 0
-      padding: 15px 6px 12px 90px
+      padding: 12px 6px 12px 90px
 
       span
         display: block
@@ -44,14 +62,26 @@ dl.templateslist
         color: #204a87
         font-weight: bold
         font-size: 1.1em
-        line-height: 1
+        max-height: 3.3em
+        line-height: 1.1em
+        overflow: hidden
+        text-overflow: ellipsis
+        display: -webkit-box
+        -webkit-box-orient: vertical
+        -webkit-line-clamp: 3
+        padding-bottom: 1px
 
       .description
         color: #888a85
         font-size: 0.8em
-        line-height: 1.3em
-        height: 2.6em
-        margin-top: 3px
+        line-height: 1.4em
+        max-height: 2.6em
+        overflow: hidden
+        text-overflow: ellipsis
+        display: -webkit-box
+        -webkit-box-orient: vertical
+        -webkit-line-clamp: 2
+        padding-bottom: 1px
 
     img
       width: 48px
