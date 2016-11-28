@@ -6,8 +6,8 @@
     margin-right: 0.5em;
     border: 1px solid #cccccc;
   }
-  margin-bottom: 2em;
-  border-bottom: 1px solid #cccccc;
+  margin-bottom: 0em;
+  border-bottom: none;
   padding: 0.5em 0 0.5em 1em;
   overflow: hidden;
   height: 2em;
@@ -42,6 +42,7 @@
   background: #eee;
   border: 1px solid black;
   margin-top: 0.5em;
+  z-index: 75;
 }
 
 .filterbox_close {

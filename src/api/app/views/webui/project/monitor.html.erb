@@ -1,84 +1,55 @@
 <% @pagetitle = "Project #{@project} Status Monitor"
    @metarobots = 'noindex,nofollow'
+   @layoutstyle = 'custom'
+   @layouttype = 'custom'
    project_bread_crumb( 'Status Monitor' ) -%>
 
 <%= content_for :ready_function do %>
   project_monitor_ready();
+
+  function adjust_monitor_box() {
+    var monitor_w = parseInt($("#monitor-table").width());
+    if (monitor_w > 940) {
+      var ww = $(window).width();
+      $("#monitor-content").removeClass().addClass("content-wrapper");
+      // +22 magic number is because of the 960 grid layout
+      $("#monitor-wrapper").css("margin-left", ((ww - (monitor_w + 22)) > 0 ? (ww - (monitor_w + 22)) / 2 : 0) + "px");
+    }
+    else {
+      $("#monitor-content").removeClass().addClass("container_16").addClass("content-wrapper");
+      $("#monitor-wrapper").css("margin-left", "");
+    }
+  };
+
+  $("#monitor-wrapper").show(function() {
+    adjust_monitor_box();
+  });
+
+  $(window).resize(function() {
+    adjust_monitor_box();
+  });
+
 <% end %>
 
+<!-- Render tabs and filter to the same box -->
+<div class="container_16 content-wrapper">
+  <div class="grid_16 box box-shadow alpha omega">
+  <%= render :partial => "tabs" %>
+  <%= render :partial => "filter" %>
+  </div>
+</div>
 
-<%= render :partial => "tabs" %>
+<!-- Do not let the monitor box float -->
+<div style="clear: both;"></div>
 
-<div id="monitor-wrapper">
-
-  <!-- Filter Settings -->
-  <%= form_tag({:controller => 'project', :action => 'monitor'}, :method => :get) do %>
-    <div id='filter_settings'>
-      <%= submit_tag 'Filter:'%>
-      <span class="strong filterlink" id="statuslink">Status <%= image_tag 'arrow.png' %></span>
-      <div id="statusbox" class="filterbox hidden">
-        <a class="filterbox_close" href="#" id="statusbox_close">[x]</a>
-        <% unless @avail_status_values.empty? -%>
-        <ul>
-          <% @avail_status_values.each do |s| %>
-            <% id=s.gsub(' ', '') -%>
-            <li class="nowrap filteritem" id="li_<%= id %>">
-              <%= check_box_tag id, 1, @status_filter.include?(s), :class => "statusitem" %>
-              <label for="<%= id %>" class="strong"><%= s %></label>
-            </li>
-          <% end %>
-        </ul>
-        <% end -%>
-        <a href="#" id="statusbox_all" class="filterbox_all">Select all</a><a href="#" id="statusbox_none" class="filterbox_none">Select none</a>
-      </div>
-      <label for="pkgname" class="strong">Packagename: </label><%= text_field_tag "pkgname", @name_filter %>
-
-      <span class="strong filterlink" id="repolink">Repository <%= image_tag 'arrow.png' %></span>
-      <div id="repobox" class="hidden filterbox">
-        <a class="filterbox_close" href="#" id="repobox_close">[x]</a>
-        <% unless @avail_repo_values.empty? -%>
-        <ul>
-          <% @avail_repo_values.each do |s| %>
-            <li class="nowrap filteritem">
-              <% sname = valid_xml_id('repo_' + s) %>
-              <%= check_box_tag s, 1, @repo_filter.include?(s), :class => "repoitem", :id => sname, :name => sname %>
-              <label for="<%= sname %>" class="strong"><%= s %></label>
-            </li>
-          <% end %>
-        </ul>
-        <% end -%>
-        <a href="#" id="repobox_all" class="filterbox_all">Select all</a><a href="#" id="repobox_none" class="filterbox_none">Select none</a>
-      </div>
-
-      <span class="strong filterlink" id="archlink">Architecture <%= image_tag 'arrow.png' %></span>
-      <div id="archbox" class="hidden filterbox">
-        <a class="filterbox_close" href="#" id="archbox_close">[x]</a>
-        <% unless @avail_arch_values.empty? -%>
-        <ul>
-          <% @avail_arch_values.each do |s| %>
-            <li class="nowrap filteritem">
-              <% sname = valid_xml_id('arch_' + s) %>
-              <%= check_box_tag s, 1, @arch_filter.include?(s), :class => "architem", :id => sname, :name => sname %>
-              <label for="<%= sname %>" class="strong"><%= s %></label>
-            </li>
-          <% end %>
-        </ul>
-        <% end -%>
-        <a href="#" id="archbox_all" class="filterbox_all">Select all</a><a href="#" id="archbox_none" class="filterbox_none">Select none</a>
-      </div>
-      <label for="lastbuild" class="strong">Last time results: </label><%= check_box_tag "lastbuild", 1, @lastbuild_switch %>
-      <%= hidden_field_tag 'project', @project %>
-      <%= hidden_field_tag 'defaults', '0' %>
-    </div>
-  <% end %>
-
-
+<div id="monitor-content" class="container_16 content-wrapper">
+  <div id="monitor-wrapper" class="grid_16 box box-shadow alpha omega">
   <% if @buildresult_unavailable -%>
     <h3>Buildstatus unavailable</h3>
   <% elsif @packagenames.empty? -%>
     <h3>No Results</h3>
   <% else -%>
-    <table class="buildstatus">
+    <table id="monitor-table" class="buildstatus">
       <!-- repo row -->
       <thead class="header">
         <tr>
@@ -117,18 +88,24 @@
     </table>
   <% end -%>
   <div id="refresh_date"><p>Updated at: <%= DateTime.now.to_s.sub(/T/, " ") %></p></div>
-  <div id="legend">
-    <h3>Legend</h3>
-    <ul>
-      <% Buildresult::STATUS_DESCRIPTION.each do |status, description| %>
-        <li><strong><%= status %>: </strong><span class="descr"><%= description %></span></li>
-      <% end %>
-    </ul>
   </div>
+</div>
 
-  <div id="start_link">
+<!-- Legend goes into its own box -->
+<div class="container_16 content-wrapper">
+  <div class="grid_16 box box-shadow alpha omega">
+    <div id="legend">
+      <h3>Legend</h3>
+      <ul>
+        <% Buildresult::STATUS_DESCRIPTION.each do |status, description| %>
+          <li><strong><%= status %>: </strong><span class="descr"><%= description %></span></li>
+        <% end %>
+      </ul>
+    </div>
   </div>
+</div>
 
+<div id="start_link">
 </div>
 
 <% content_for :ready_function do %>
