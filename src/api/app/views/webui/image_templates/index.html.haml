@@ -17,9 +17,9 @@
               - else
                 = image_tag('distributions/kiwi.png', width: 64, height: 64)
               %span.group
-                %span.name
+                %span.name.break-words
                   = link_to(title_or_name(template), package_show_path(project: project, package: template))
-                %span.description.grey
+                %span.description.grey.break-words
                   = template.description
         - if project.packages.empty?
           %p
