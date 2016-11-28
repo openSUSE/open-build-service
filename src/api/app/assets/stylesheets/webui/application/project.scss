@@ -92,7 +92,8 @@ td.buildstatus {
 }
 
 table.buildstatus {
-  width: 1%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 /* move the image back into the line */
@@ -100,3 +101,12 @@ table.buildstatus {
 th.buildstatus img {
   margin-bottom: -3px;
 }
+
+.packages {
+  width: 1%;
+  text-align: left;
+  margin-left: 10px;
+  margin-right: 0;
+  border-right: 1px dotted #ccc;
+}
+
