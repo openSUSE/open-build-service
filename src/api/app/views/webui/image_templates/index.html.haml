@@ -13,9 +13,9 @@
             %dd
               %span.form-radio
               - if template.has_icon?
-                %img{ alt: template.title, src: template.source_path('_icon'), width: 64, height: 64 }
+                %img{ alt: template.title, src: template.source_path('_icon') }
               - else
-                = image_tag('distributions/kiwi.png', width: 64, height: 64)
+                = sprite_tag('drive-optical-48')
               %span.group
                 %span.name.break-words
                   = link_to(title_or_name(template), package_show_path(project: project, package: template))
