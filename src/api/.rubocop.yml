@@ -9,6 +9,10 @@ AllCops:
     - 'lib/templates/**/*'
     - 'vendor/bundle/**/*'
 
+# Use yield instead of having a &block parameter and block.call
+Performance/RedundantBlockCall:
+  Enabled: true
+
 # Align the elements of a hash literal if they span more than one line.
 Style/AlignHash:
   # Alignment of entries using hash rocket as separator.

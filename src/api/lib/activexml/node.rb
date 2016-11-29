@@ -450,10 +450,10 @@ module ActiveXML
       return @value_cache[symbols] = nil
     end
 
-    def find( symbol, &block )
+    def find( symbol )
       symbols = symbol.to_s
       _data.xpath(symbols).each do |e|
-        block.call(create_node_with_relations(e))
+        yield create_node_with_relations(e)
       end
     end
 
