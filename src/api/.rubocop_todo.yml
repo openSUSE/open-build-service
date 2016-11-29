@@ -298,11 +298,6 @@ Style/AlignArray:
     - 'lib/xpath_engine.rb'
     - 'test/functional/source_controller_test.rb'
 
-# Offense count: 1
-Style/AsciiComments:
-  Exclude:
-    - 'test/functional/webui/package_controller_test.rb'
-
 # Offense count: 41
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, ProceduralMethods, FunctionalMethods, IgnoredMethods.

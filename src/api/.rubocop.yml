@@ -28,6 +28,10 @@ Style/AndOr:
   Enabled: true
   EnforcedStyle: always
 
+# Only allow comments written in ASCII
+Style/AsciiComments:
+  Enabled: true
+
 # Use ` or %x around command literals.
 Style/CommandLiteral:
   EnforcedStyle: percent_x
