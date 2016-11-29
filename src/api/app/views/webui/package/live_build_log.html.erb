@@ -11,7 +11,7 @@
   live_build_log_ready();
 <% end -%>
 
-<h2>Build Log for Package <%= @package %> (Project <%= @project %>)</h2>
+<h2>Build Log for Package <%= @build_container %> (Project <%= @project %>)</h2>
 
 <%= render :partial => "job_status" if @workerid %>
 
@@ -22,7 +22,7 @@
 <div id="log_space_wrapper" 
      data-offset="<%= @offset %>"
      data-url="<%= url_for(action: :update_build_log,
-		   package: @package, project: @project,
+		   package: @build_container, project: @project,
 		   arch: @arch, repository: @repo) %>">
   <pre id="log_space"></pre>
 </div>
