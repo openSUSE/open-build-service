@@ -4,136 +4,124 @@ package_comment_parent:
     This package rules!
 
     I am making a comment on a package.
-  type: CommentPackage
   created_at: 2013-07-25 14:05:30.000000000 Z
   updated_at: 2014-01-13 11:07:04.000000000 Z
   user: Admin
-  package: BaseDistro3_pack2
+  commentable: BaseDistro3_pack2 (Package)
 package_comment_reply_1:
   id: 201
   body: And I like that comment.
   parent_id: 200
-  type: CommentPackage
   created_at: 2013-07-25 14:07:00.000000000 Z
   updated_at: 2014-01-13 11:07:04.000000000 Z
   user: tom
-  package: BaseDistro3_pack2
+  commentable: BaseDistro3_pack2 (Package)
 package_comment_reply_2:
   id: 202
   body: While I don't!
   parent_id: 201
-  type: CommentPackage
   created_at: 2013-07-25 14:38:44.000000000 Z
   updated_at: 2014-01-13 11:07:04.000000000 Z
   user: adrian
-  package: BaseDistro3_pack2
+  commentable: BaseDistro3_pack2 (Package)
 project_comment_parent:
   id: 100
   body: |-
     This project rules!
 
     I am making a comment on a project.
-  type: CommentProject
   created_at: 2013-07-25 14:00:21.000000000 Z
   updated_at: 2014-01-13 11:07:04.000000000 Z
   user: Admin
-  project: BaseDistro
+  commentable: BaseDistro (Project)
 project_comment_reply_1:
   id: 101
   body: And I like that comment.
   parent_id: 100
-  type: CommentProject
   created_at: 2013-07-25 15:00:21.000000000 Z
   updated_at: 2014-01-13 11:07:04.000000000 Z
   user: tom
-  project: BaseDistro
+  commentable: BaseDistro (Project)
 project_comment_reply_2:
   id: 102
   body: While I don't!
   parent_id: 101
-  type: CommentProject
   created_at: 2013-07-25 15:47:21.000000000 Z
   updated_at: 2014-01-13 11:07:04.000000000 Z
   user: adrian
-  project: BaseDistro
+  commentable: BaseDistro (Project)
 request_comment_parent:
   id: 300
-  bs_request_id: 9994
+  commentable_id: 9994
+  commentable_type: 'BsRequest'
   body: |-
     This request rules!
 
     I am making a comment on a request.
-  type: CommentRequest
   created_at: 2013-07-25 16:00:21.000000000 Z
   updated_at: 2014-01-13 11:07:04.000000000 Z
   user: Admin
 request_comment_reply_1:
   id: 301
-  bs_request_id: 9994
+  commentable_id: 9994
+  commentable_type: 'BsRequest'
   body: And I like that comment.
   parent_id: 300
-  type: CommentRequest
   created_at: 2013-07-25 17:00:21.000000000 Z
   updated_at: 2014-01-13 11:07:05.000000000 Z
   user: tom
 request_comment_reply_2:
   id: 302
-  bs_request_id: 9994
+  commentable_id: 9994
+  commentable_type: 'BsRequest'
   body: While I don't!
   parent_id: 301
-  type: CommentRequest
   created_at: 2013-07-25 18:00:21.000000000 Z
   updated_at: 2014-01-13 11:07:05.000000000 Z
   user: adrian
 king_package_comment_parent:
   id: 400
   body: This is the start of a comment thread on a package
-  type: CommentPackage
   created_at: 2014-02-14 12:00:00.000000000 Z
   updated_at: 2014-02-14 12:00:04.000000000 Z
   user: Admin
-  package: home_king_commentpack
+  commentable: home_king_commentpack (Package)
 king_package_comment_reply_1:
   id: 401
   body: This is the first reply
   parent_id: 400
-  type: CommentPackage
   created_at: 2014-02-14 12:01:00.000000000 Z
   updated_at: 2014-02-14 12:01:04.000000000 Z
   user: tom
-  package: home_king_commentpack
+  commentable: home_king_commentpack (Package)
 king_package_comment_reply_2:
   id: 402
   body: This is a reply to the first reply
   parent_id: 401
-  type: CommentPackage
   created_at: 2014-02-14 12:02:00.000000000 Z
   updated_at: 2014-02-14 12:02:04.000000000 Z
   user: adrian
-  package: home_king_commentpack
+  commentable: home_king_commentpack (Package)
 king_project_comment_parent:
   id: 500
   body: This is the start of a comment thread on a project
-  type: CommentProject
   created_at: 2014-02-14 12:00:00.000000000 Z
   updated_at: 2014-02-14 12:00:04.000000000 Z
   user: Admin
-  project: home_king
+  commentable: home_king (Project)
 king_project_comment_reply_1:
   id: 501
   body: This is the first reply
   parent_id: 500
-  type: CommentProject
   created_at: 2014-02-14 12:01:00.000000000 Z
   updated_at: 2014-02-14 12:01:04.000000000 Z
   user: tom
-  project: home_king
+  commentable: home_king (Project)
 king_project_comment_reply_2:
   id: 502
   body: This is a reply to the first reply
   parent_id: 501
-  type: CommentProject
   created_at: 2014-02-14 12:02:00.000000000 Z
   updated_at: 2014-02-14 12:02:04.000000000 Z
   user: adrian
-  project: home_king
+  commentable: home_king (Project)
