@@ -15,7 +15,7 @@ RSpec.feature "Comments", type: :feature, js: true do
 
   scenario 'can be answered' do
     login user
-    comment = create(:comment_project, project: Project.first, user: user)
+    comment = create(:comment_project, commentable: Project.first, user: user)
     visit project_show_path(user.home_project)
     # reply link contains an img element. Thus the regex
     find("a", text: /.*Reply/).click
