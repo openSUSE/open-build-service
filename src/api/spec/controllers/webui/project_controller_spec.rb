@@ -918,4 +918,63 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(package.attribs.where(attrib_type: attribute_type)).to be_empty }
     end
   end
+
+  describe 'POST #new_release_request' do
+    before do
+      login user
+    end
+
+    context 'with skiprequest param' do
+      before do
+        post :new_release_request, params: { project: apache_maintenance_incident_project, skiprequest: true }
+      end
+
+      it { expect(response).to redirect_to(project_show_path(apache_maintenance_incident_project)) }
+    end
+
+    context 'when raises an APIException' do
+      before do
+        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(APIException)
+        post :new_release_request, params: { project: apache_maintenance_incident_project }
+      end
+
+      it { expect(flash[:error]).to eq 'Internal problem while release request creation' }
+      it { expect(response).to redirect_to(project_show_path(apache_maintenance_incident_project)) }
+    end
+
+    shared_examples 'a non APIException' do |exception_class|
+      before do
+        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(exception_class, "boom #{exception_class}")
+        post :new_release_request, params: { project: apache_maintenance_incident_project }
+      end
+
+      it { expect(flash[:error]).to eq "boom #{exception_class}" }
+      it { expect(response).to redirect_to(project_show_path(apache_maintenance_incident_project)) }
+    end
+
+    context 'when raises a non APIException' do
+      [Patchinfo::IncompletePatchinfo,
+       BsRequestAction::UnknownProject,
+       BsRequestAction::BuildNotFinished,
+       BsRequestActionMaintenanceRelease::RepositoryWithoutReleaseTarget,
+       BsRequestActionMaintenanceRelease::RepositoryWithoutArchitecture,
+       BsRequestActionMaintenanceRelease::ArchitectureOrderMissmatch,
+       BsRequestAction::VersionReleaseDiffers,
+       BsRequestAction::UnknownTargetProject,
+       BsRequestAction::UnknownTargetPackage].each do |exception_class|
+        it_behaves_like 'a non APIException', exception_class
+      end
+    end
+
+    context 'when is successful' do
+      before do
+        allow_any_instance_of(BsRequest).to receive(:save!).and_return(true)
+        allow_any_instance_of(BsRequest).to receive(:number).and_return(1)
+        post :new_release_request, params: { project: apache_maintenance_incident_project }
+      end
+
+      it { expect(flash[:success]).to eq "Created maintenance release request <a href='http://test.host/request/show/1'>1</a>" }
+      it { expect(response).to redirect_to(project_show_path(apache_maintenance_incident_project)) }
+    end
+  end
 end
