@@ -5,7 +5,7 @@ class Review < ApplicationRecord
     setup 'review_not_found', 404, 'Review not found'
   end
 
-  belongs_to :bs_request
+  belongs_to :bs_request, touch: true
   validates_inclusion_of :state, in: VALID_REVIEW_STATES
 
   validates :by_user, length: { maximum: 250 }

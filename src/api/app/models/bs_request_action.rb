@@ -34,7 +34,7 @@ class BsRequestAction < ApplicationRecord
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
-  belongs_to :bs_request
+  belongs_to :bs_request, touch: true
   has_one :bs_request_action_accept_info, dependent: :delete
 
   #### Callbacks macros: before_save, after_save, etc.

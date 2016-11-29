@@ -121,6 +121,10 @@ class BsRequest < ApplicationRecord
     end
   end
 
+  def updated_when
+    self[:updated_when] || self[:updated_at]
+  end
+
   def superseding
     BsRequest.where(superseded_by: number)
   end
@@ -197,7 +201,7 @@ class BsRequest < ApplicationRecord
       end if actions
 
       str = state.delete('when')
-      request.updated_at = Time.zone.parse(str) if str
+      request.updated_when = Time.zone.parse(str) if str
       str = state.delete('superseded_by') || ''
       request.superseded_by = Integer(str) unless str.blank?
       raise ArgumentError, "too much information #{state.inspect}" unless state.blank?
@@ -261,7 +265,7 @@ class BsRequest < ApplicationRecord
       bs_request_actions.each do |action|
         action.render_xml(r)
       end
-      attributes = {name: state, who: commenter, when: updated_at.strftime('%Y-%m-%dT%H:%M:%S')}
+      attributes = {name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S')}
       attributes[:superseded_by] = superseded_by if superseded_by
 
       r.priority priority unless priority == "moderate"
@@ -814,7 +818,7 @@ class BsRequest < ApplicationRecord
     ret[:state] = state
     ret[:oldstate] = state_was if state_changed?
     ret[:who] = commenter if commenter.present?
-    ret[:when] = updated_at.strftime('%Y-%m-%dT%H:%M:%S')
+    ret[:when] = updated_when.strftime('%Y-%m-%dT%H:%M:%S')
     ret[:comment] = comment
     ret[:author] = creator
 
