@@ -27,7 +27,7 @@ class Webui::WebuiController < ActionController::Base
   add_flash_types :success, :error
 
   rescue_from Pundit::NotAuthorizedError do |exception|
-    pundit_action = case exception.query.to_s
+    pundit_action = case exception.try(:query).to_s
        when "index?" then "list"
        when "show?" then "view"
        when "create?" then "create"
@@ -36,7 +36,7 @@ class Webui::WebuiController < ActionController::Base
        when "edit?" then "edit"
        when "destroy?" then "delete"
        when "branch?" then "branch"
-       else exception.query
+       else exception.try(:query)
     end
     if pundit_action && exception.record
       message = "Sorry, you are not authorized to #{pundit_action} this #{exception.record.class}."
