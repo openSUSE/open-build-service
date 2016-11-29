@@ -1,5 +1,6 @@
 class CommentsController < ApplicationController
   before_action :find_obj, only: [:show_comments, :create]
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   def show_comments
     @comments = @obj.comments.order(:id)
@@ -13,14 +14,16 @@ class CommentsController < ApplicationController
 
   def destroy
     comment = Comment.find params[:id]
-    unless comment.check_delete_permissions
-      raise NoPermission.new "No permission to delete #{params[:id]}"
-    end
+    authorize comment
     comment.blank_or_destroy
     render_ok
   end
 
   protected
+
+  def not_authorized
+    raise NoPermission.new "No permission to delete #{params[:id]}"
+  end
 
   def find_obj
     if params[:project]
