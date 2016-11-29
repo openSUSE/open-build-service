@@ -15,7 +15,7 @@
               - if template.has_icon?
                 %img{ alt: template.title, src: template.source_path('_icon'), width: 64, height: 64 }
               - else
-                = image_tag('distributions/kiwi.png', width: 64, height: 64)
+                = image_tag('image-template.png', width: 64, height: 64)
               %span.group
                 %span.name.break-words
                   = link_to(title_or_name(template), package_show_path(project: project, package: template))
