@@ -125,12 +125,6 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Max: 73
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/RedundantBlockCall:
-  Exclude:
-    - 'lib/activexml/node.rb'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 Performance/RedundantMatch:
