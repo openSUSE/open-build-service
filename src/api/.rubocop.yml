@@ -50,6 +50,10 @@ Style/Copyright:
 Style/DoubleNegation:
   Enabled: true
 
+# Replace inject with each_with_object
+Style/EachWithObject:
+  Enabled: true
+
 # Avoid empty else statements.
 Style/EmptyElse:
   EnforcedStyle: both
