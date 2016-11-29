@@ -10,7 +10,7 @@ FactoryGirl.define do
       role { Role.find_by_title('bugowner') }
       person_name { create(:user).login }
     end
-    factory :bs_request_action_submit do
+    factory :bs_request_action_submit, class: BsRequestActionSubmit do
       type 'submit'
     end
   end
