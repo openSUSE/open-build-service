@@ -445,7 +445,7 @@ class Webui::RequestController < Webui::WebuiController
   private
 
   def get_target_package_maintainers(actions)
-    actions.uniq!{ |action| action[:tpkg] }
+    actions = actions.uniq{ |action| action[:tpkg] }
     actions.flat_map { |action| Package.find_by_project_and_name(action[:tprj], action[:tpkg]).try(:maintainers) }.compact.uniq
   end
 
