@@ -116,12 +116,12 @@ Git log:
 
   task :test_suite do
     Dir.glob('**/*.rb').each do |f|
-      if !system("ruby -c -d #{f} > /dev/null")
+      unless system("ruby -c -d #{f} > /dev/null")
          puts "syntax error in #{f} - will not deploy"
          exit 1
       end
     end
-    if !system("rails test")
+    unless system("rails test")
       puts "Error on rails test - will not deploy"
       exit 1
     end

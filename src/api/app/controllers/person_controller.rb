@@ -223,7 +223,7 @@ class PersonController < ApplicationController
   end
 
   def change_password(login, password)
-    if !User.current
+    unless User.current
       logger.debug "No user logged in, permission to changing password denied"
       @errorcode = 401
       @summary = "No user logged in, permission to changing password denied"

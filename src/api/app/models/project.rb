@@ -458,7 +458,7 @@ class Project < ApplicationRecord
 
   def can_free_repositories?
     expand_all_repositories.each do |repository|
-      if !User.current.can_modify_project?(repository.project)
+      unless User.current.can_modify_project?(repository.project)
         errors.add(:base, "a repository in project #{repository.project.name} depends on this")
         return false
       end

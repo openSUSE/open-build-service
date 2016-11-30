@@ -654,11 +654,6 @@ Style/MultilineOperationIndentation:
 Style/MutableConstant:
   Enabled: false
 
-# Offense count: 49
-# Cop supports --auto-correct.
-Style/NegatedIf:
-  Enabled: false
-
 # Offense count: 11
 # Cop supports --auto-correct.
 Style/NegatedWhile:

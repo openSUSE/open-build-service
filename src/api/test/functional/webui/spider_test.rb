@@ -119,7 +119,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       end
       next unless body
       flashes = body.css('div#flash-messages div.ui-state-error')
-      if !flashes.empty?
+      unless flashes.empty?
         raiseit("flash alert #{flashes.first.content.strip}", theone)
       end
       body.css('h1').each do |h|

@@ -122,7 +122,7 @@ class Webui::SearchController < Webui::WebuiController
 
     @owner_limit = nil
     @owner_limit = '1' if params[:limit].nil?
-    @owner_limit = params[:limit] if !params[:limit].nil?
+    @owner_limit = params[:limit] unless params[:limit].nil?
 
     @owner_devel = nil
     @owner_devel = '0' if params[:devel] == 'off'

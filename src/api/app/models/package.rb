@@ -297,7 +297,7 @@ class Package < ApplicationRecord
   end
 
   def check_source_access!
-    if !check_source_access?
+    unless check_source_access?
       be_not_nobody!
       raise ReadSourceAccessError, "#{project.name}/#{name}"
     end
