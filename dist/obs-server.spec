@@ -61,6 +61,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 # Sources are retrieved using script which is attached as Source2
 Source0:        open-build-service-%version.tar.xz
 Source1:        find-requires.sh
+Source2:        crawler-user-agents.json
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
@@ -310,6 +311,9 @@ export DESTDIR=$RPM_BUILD_ROOT
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
 
+# Run the test suite with current config version
+cp %{SOURCE2} src/api/config/
+
 %build
 export DESTDIR=$RPM_BUILD_ROOT
 # we need it for the test suite or it may silently succeed 
@@ -357,6 +361,10 @@ DESTDIR=%{buildroot} make install
 touch %{buildroot}/%{secret_key_file}
 chmod 0640 %{buildroot}/%{secret_key_file}
 %endif
+
+# To get the most current user agent list we need i-net access. Thus we fetch
+# the file via an OBS service and install it here.
+install -m 0644 %{SOURCE2} %{buildroot}/srv/www/obs/api/config
 
 # drop testcases for now
 rm -rf %{buildroot}/srv/www/obs/api/spec
@@ -613,6 +621,7 @@ usermod -a -G docker obsservicerun
 %config(noreplace) /srv/www/obs/api/config/puma.rb
 %config(noreplace) /srv/www/obs/api/config/secrets.yml
 %config(noreplace) /srv/www/obs/api/config/spring.rb
+%config(noreplace) /srv/www/obs/api/config/crawler-user-agents.json
 /srv/www/obs/api/config/initializers
 %dir /srv/www/obs/api/config/environments
 %dir /srv/www/obs/api/files
