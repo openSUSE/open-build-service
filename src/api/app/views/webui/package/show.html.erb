@@ -38,6 +38,13 @@
               at <%= link_to(elide(dpackage.project.name, 44), :action => :show, :controller => :package, :project => dpackage.project.name, :package => dpackage.name) %>
             </li>
         <% end %>
+        <% if @package.project != @project %>
+            <li>
+              <%= sprite_tag 'information', title: '' %>
+              Sources inherited from project
+              <%= link_to("#{elide(@package.project.name, 40)}", :action => 'show', :project => @package.project.name, :package => @package.name) %>
+            </li>
+        <% end %>
         <% if @package.developed_packages.present? %>
             <li>
               <%= sprite_tag 'information', title: '' %>
