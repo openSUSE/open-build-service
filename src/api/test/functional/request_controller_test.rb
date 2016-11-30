@@ -2593,7 +2593,7 @@ XML
   def test_auto_accept_request
     login_tom
 
-    Timecop.freeze(2010, 07, 12)
+    Timecop.freeze(2010, 7, 12)
 
     # create request with auto accept tomorrow
     req = "<request>
@@ -2673,7 +2673,7 @@ XML
   def test_set_auto_accept
     login_tom
 
-    Timecop.freeze(2010, 07, 12)
+    Timecop.freeze(2010, 7, 12)
 
     req = "<request>
             <action type='delete'>
@@ -3252,7 +3252,7 @@ XML
   def test_revoke_autodeclined_submit_requests
     login_Iggy
 
-    Timecop.freeze(2010, 07, 12)
+    Timecop.freeze(2010, 7, 12)
     put '/source/home:Iggy:fordecline/_meta', "<project name='home:Iggy:fordecline'><title></title><description></description></project>"
     assert_response :success
 
@@ -3438,7 +3438,7 @@ XML
   def test_ordering_of_requests
     prepare_request_with_user 'Iggy', 'buildservice'
 
-    Timecop.freeze(2010, 07, 12)
+    Timecop.freeze(2010, 7, 12)
     post '/request?cmd=create', '<request>
                                    <action type="submit">
                                      <source project="BaseDistro:Update" package="pack2"/>

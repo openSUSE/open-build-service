@@ -672,14 +672,6 @@ Style/NegatedWhile:
 Style/Next:
   Enabled: false
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedOctalStyle, SupportedOctalStyles.
-# SupportedOctalStyles: zero_with_o, zero_only
-Style/NumericLiteralPrefix:
-  Exclude:
-    - 'test/functional/request_controller_test.rb'
-
 # Offense count: 22
 # Cop supports --auto-correct.
 Style/NumericLiterals:

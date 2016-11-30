@@ -77,6 +77,10 @@ Style/NegatedIf:
 Style/Not:
   Enabled: true
 
+# Use 0o for octal literals
+Style/NumericLiteralPrefix:
+  Enabled: true
+
 # Checks for redundant uses of `self`
 Style/RedundantSelf:
   Enabled: true
