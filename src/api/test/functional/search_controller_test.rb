@@ -259,7 +259,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     col.elements('repository') do |r|
       ret << "#{r['project']}/#{r['name']}"
     end
-    return ret
+    ret
   end
 
   def test_search_issues
@@ -416,7 +416,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def get_package_count
-    return Xmlhash.parse(@response.body).elements('package').length
+    Xmlhash.parse(@response.body).elements('package').length
   end
 
   def test_pagination

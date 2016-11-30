@@ -296,7 +296,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
   # in the case of controller-internal usage of this function.
   def test_get_tags_by_user_and_project_internal_use
     def @controller.params
-      return {user: "Iggy", project: "home:Iggy"}
+      {user: "Iggy", project: "home:Iggy"}
     end
 
     tags = @controller.get_tags_by_user_and_project( false )
@@ -311,7 +311,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
   # in the case of controller-internal usage of this function.
   def test_get_tags_by_user_and_package_internal_use
     def @controller.params
-      return {user: "Iggy", project: "home:Iggy",
+      {user: "Iggy", project: "home:Iggy",
       package: "TestPack"}
     end
 

@@ -8,7 +8,7 @@ module ValidationHelper
   end
 
   def valid_project_name? name
-    return Project.valid_name? name
+    Project.valid_name? name
   end
 
   def valid_project_name! project_name
@@ -18,7 +18,7 @@ module ValidationHelper
   end
 
   def valid_package_name? name
-    return Package.valid_name? name
+    Package.valid_name? name
   end
 
   def valid_package_name! package_name
@@ -53,7 +53,7 @@ module ValidationHelper
     if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'sourceaccess')
       raise Package::ReadSourceAccessError, "#{project}/#{name}"
     end
-    return true
+    true
   end
 
   def validate_visibility_of_deleted_project(project)

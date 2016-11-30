@@ -70,6 +70,6 @@ class MessageController < ApplicationController
                    message: 'message cannot be created, insufficient permissions'
       return nil
     end
-    return true
+    true
   end
 end

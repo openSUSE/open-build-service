@@ -3797,7 +3797,7 @@ EOF
     assert_response :success
 
     get url
-    return Xmlhash.parse(@response.body)
+    Xmlhash.parse(@response.body)
   end
 
   def test_have_the_same_user_role_twice_in_package_meta

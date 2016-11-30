@@ -83,7 +83,7 @@ class Owner
       end
     end
 
-    return owners
+    owners
   end
 
   def self.find_assignees(rootproject, binary_name, limit = 1, devel = true, filter = %w(maintainer bugowner), webui_mode = false)
@@ -142,7 +142,7 @@ class Owner
 
     maintainers << deepest_match if deepest_match
 
-    return maintainers
+    maintainers
   end
 
   def self.find_containers_without_definition(rootproject, devel = true, filter = %w(maintainer bugowner))
@@ -200,7 +200,7 @@ class Owner
       maintainers << m
     end
 
-    return maintainers
+    maintainers
   end
 
   def self.find_containers(rootproject, owner, devel = true, filter = %w(maintainer bugowner))
@@ -242,7 +242,7 @@ class Owner
       maintainers << Owner.new(rootproject: rootproject.name, project: pkg.project.name, package: pkg.name)
     end
 
-    return maintainers
+    maintainers
   end
 
   def self.find_maintainers(container, filter)
@@ -301,7 +301,7 @@ class Owner
     end
 
     # found entry
-    return m, (limit-1), already_checked
+    [m, (limit-1), already_checked]
   end
 
   def self.extract_maintainer(rootproject, pkg, rolefilter, objfilter = nil)
@@ -328,7 +328,7 @@ class Owner
     # still not matched? Ignore it
     return nil unless m.users || m.groups
 
-    return m
+    m
   end
 
   def self._extract_from_container(m, r, sql, objfilter)
@@ -349,7 +349,7 @@ class Owner
       m.groups[p.role.title] ||= []
       m.groups[p.role.title] << p.group.title
     end unless objfilter.class == User
-    return m
+    m
   end
 
   def self._build_rolefilter_sql(rolefilter)

@@ -33,7 +33,7 @@ module ActiveXML
 
       def api_exception
         parse!
-        return @xml['exception']
+        @xml['exception']
       end
 
       def details
@@ -55,7 +55,7 @@ module ActiveXML
 
       def code
         parse!
-        return @xml['code']
+        @xml['code']
       end
     end
 
@@ -181,7 +181,7 @@ module ActiveXML
         raise RuntimeError, "POST to #{url} returned no data" if objdata.empty?
       end
       objdata = objdata.force_encoding("UTF-8")
-      return [objdata, params]
+      [objdata, params]
     end
 
     def create(object, opt = {})
@@ -275,7 +275,7 @@ module ActiveXML
         u.query = new_pairs.join("&")
       end
       u.path.gsub!(/\/+/, '/')
-      return u
+      u
     end
 
     def substituted_uri_for( object, path_id = nil, opt = {} )
@@ -386,7 +386,7 @@ module ActiveXML
         end
       end
 
-      return handle_response( http_response )
+      handle_response( http_response )
     end
 
     def load_external_url(uri)
@@ -424,7 +424,7 @@ module ActiveXML
         http = nil
       end
       http.finish if http && http.started?
-      return content
+      content
     end
 
     # small helper function to avoid having to hardcode the content_type all around
@@ -438,7 +438,7 @@ module ActiveXML
 
     # needed for streaming data - to avoid the conversion to UTF-8 and similiar to change what "length" is
     def last_body_length
-      return @last_body_length || 0
+      @last_body_length || 0
     end
 
     def handle_response( http_response )

@@ -18,7 +18,7 @@ class StatisticsController < ApplicationController
   end
 
   def min_votes_for_rating
-    return CONFIG["min_votes_for_rating"]
+    CONFIG["min_votes_for_rating"]
   end
 
   def highest_rated
@@ -107,14 +107,14 @@ class StatisticsController < ApplicationController
       b[1][:activity] <=> a[1][:activity]
     end
 
-    return @projects
+    @projects
   end
 
   def most_active_packages
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}").
         limit(@limit).order('activity_value DESC')
-    return @packages
+    @packages
   end
 
   # FIXME3.0: remove route - activity is a completely useless value and only stored for sorting

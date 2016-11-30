@@ -94,7 +94,7 @@ class ApplicationController < ActionController::Base
       logger.debug "not granted!"
       render_error(status: 403, errorcode: "put_request_no_permission", message: "Requires admin privileges") && (return false)
     end
-    return true
+    true
   end
 
   def validate_params
@@ -105,7 +105,7 @@ class ApplicationController < ActionController::Base
         raise InvalidParameterError, "Parameter #{key} has non String class #{value.class}"
       end
     end
-    return true
+    true
   end
 
   class InactiveUserError < APIException
@@ -253,7 +253,7 @@ class ApplicationController < ActionController::Base
     required_parameters :project
     valid_project_name!(params[:project])
     # important because otherwise the filter chain is stopped
-    return true
+    true
   end
 
   def setup_backend
@@ -346,7 +346,7 @@ class ApplicationController < ActionController::Base
     text = response.body
     send_data( text, type: response.fetch( "content-type" ),
       disposition: "inline" )
-    return text
+    text
   end
   public :pass_to_backend
 
@@ -408,11 +408,11 @@ class ApplicationController < ActionController::Base
   end
 
   def permissions
-    return @user_permissions
+    @user_permissions
   end
 
   def user
-    return @http_user
+    @http_user
   end
 
   def require_parameter!(parameter)

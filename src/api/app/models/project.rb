@@ -327,7 +327,7 @@ class Project < ApplicationRecord
       return true if ret > 0
     end
 
-    return false
+    false
   end
 
   # returns an object of project(local or remote) or raises an exception
@@ -350,7 +350,7 @@ class Project < ApplicationRecord
     unless check_access?(dbp)
       raise ReadAccessError, name
     end
-    return dbp
+    dbp
   end
 
   def self.get_maintenance_project(at = nil)
@@ -380,7 +380,7 @@ class Project < ApplicationRecord
 
     return if dbp.nil?
     return if !opts[:skip_check_access] && !check_access?(dbp)
-    return dbp
+    dbp
   end
 
   def self.find_by_attribute_type( attrib_type )
@@ -463,7 +463,7 @@ class Project < ApplicationRecord
         return false
       end
     end
-    return true
+    true
   end
 
   def check_weak_dependencies?
@@ -943,7 +943,7 @@ class Project < ApplicationRecord
   end
 
   def to_axml_id
-    return "<project name='#{::Builder::XChar.encode(name)}'/>\n"
+    "<project name='#{::Builder::XChar.encode(name)}'/>\n"
   end
 
   # calculate enabled/disabled per repo/arch
@@ -984,7 +984,7 @@ class Project < ApplicationRecord
     ret = 'enable' if ret == :enabled
     ret = 'disable' if ret == :disabled
     # we allow to only check the return value
-    return ret, opts
+    [ret, opts]
   end
 
   # give out the XML for all repos/arch combos
@@ -1114,7 +1114,7 @@ class Project < ApplicationRecord
       end
     end
 
-    return projects
+    projects
   end
 
   def expand_maintained_projects
@@ -1126,7 +1126,7 @@ class Project < ApplicationRecord
       end
     end
 
-    return projects
+    projects
   end
 
   # return array of [:name, :project_id] tuples
@@ -1173,7 +1173,7 @@ class Project < ApplicationRecord
       end
     end
 
-    return products
+    products
   end
 
   def add_repository_with_targets(repoName, source_repo, add_target_repos = [], opts = {})
@@ -1291,14 +1291,14 @@ class Project < ApplicationRecord
     # Includes also requests for packages contained in this project
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where('bs_request_actions.source_project = ? or bs_request_actions.target_project = ?', name, name)
-    return BsRequest.where(id: rel.pluck('bs_requests.id'))
+    BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 
   def open_requests_with_by_project_review
     # Includes also by_package reviews for packages contained in this project
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? ", name)
-    return BsRequest.where(id: rel.pluck('bs_requests.id'))
+    BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 
   # list only the repositories that have a target project in the build path
@@ -1411,7 +1411,7 @@ class Project < ApplicationRecord
     return false if name =~ %r{::}
     return false if name.end_with?(':')
     return true if name =~ /\A\w[-+\w\.:]*\z/
-    return false
+    false
   end
 
   def valid_name
@@ -1571,7 +1571,7 @@ class Project < ApplicationRecord
         return false if %w(broken failed unresolvable).include?(state)
       end
     end
-    return true
+    true
   end
 
   # Returns maintenance incidents by type for current project (if any)
@@ -1628,7 +1628,7 @@ class Project < ApplicationRecord
       end
     end
 
-    return release_targets_ng
+    release_targets_ng
   end
 
   def self.source_path(project, file = nil, opts = {})

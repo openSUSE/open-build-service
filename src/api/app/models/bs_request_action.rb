@@ -396,7 +396,7 @@ class BsRequestAction < ApplicationRecord
       reviews += find_reviewers(tprj)
     end
 
-    return reviews.uniq
+    reviews.uniq
   end
 
   #
@@ -426,7 +426,7 @@ class BsRequestAction < ApplicationRecord
       reviewers += find_reviewers(obj.project)
     end
 
-    return reviewers
+    reviewers
   end
 
   def request_changes_state(_state)
@@ -472,7 +472,7 @@ class BsRequestAction < ApplicationRecord
     source_package = source_project.packages.find_by_name!(self.source_package)
     source_package.commit_opts = { comment: bs_request.description, request: bs_request }
     source_package.destroy
-    return Package.source_path(self.source_project, self.source_package)
+    Package.source_path(self.source_project, self.source_package)
   end
 
   def check_maintenance_release(pkg, repo, arch)
@@ -732,7 +732,7 @@ class BsRequestAction < ApplicationRecord
       end
     end
 
-    return newactions
+    newactions
   end
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity

@@ -44,15 +44,15 @@ class Wizard
     end
     res = ""
     xml.write(res)
-    return res
+    res
   end
 
   def dirty
-    return @dirty || @data.dirty || @guess.dirty
+    @dirty || @data.dirty || @guess.dirty
   end
 
   def [](name)
-    return @data[name] || @guess[name]
+    @data[name] || @guess[name]
   end
 
   def []=(name, value)

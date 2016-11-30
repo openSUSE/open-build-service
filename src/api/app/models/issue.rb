@@ -68,7 +68,7 @@ class Issue < ApplicationRecord
   end
 
   def label
-    return issue_tracker.label.gsub('@@@', name)
+    issue_tracker.label.gsub('@@@', name)
   end
 
   def webui_infos

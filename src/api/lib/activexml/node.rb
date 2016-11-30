@@ -23,7 +23,7 @@ module ActiveXML
         if @@elements.include? element_name
           return @@elements[element_name]
         end
-        return ActiveXML::Node
+        ActiveXML::Node
       end
 
       def handles_xml_element (*elements)
@@ -92,7 +92,7 @@ module ActiveXML
         end
 
         # Rails.logger.debug "prepared find args: #{args.inspect}"
-        return args
+        args
       end
 
       def transport
@@ -250,7 +250,7 @@ module ActiveXML
         result << node
         yield node if block_given?
       end
-      return result
+      result
     end
 
     def each_with_index(symbol = nil)
@@ -379,7 +379,7 @@ module ActiveXML
     end
 
     def has_elements?
-      return !_data.element_children.empty?
+      !_data.element_children.empty?
     end
 
     def has_attribute?( query )
@@ -426,7 +426,7 @@ module ActiveXML
       node = nil
       node ||= klass.new(element)
       # Rails.logger.debug "created node: #{node.inspect}"
-      return node
+      node
     end
 
     def value( symbol )
@@ -447,7 +447,7 @@ module ActiveXML
         return @value_cache[symbols] = elem.first.inner_text
       end
 
-      return @value_cache[symbols] = nil
+      @value_cache[symbols] = nil
     end
 
     def find( symbol )
@@ -505,14 +505,14 @@ module ActiveXML
         self.class.transport.save self, opt
       end
       free_cache
-      return true
+      true
     end
 
     def delete(opt = {})
       # Rails.logger.debug "Delete #{self.class}, opt: #{opt.inspect}"
       self.class.transport.delete self, opt
       free_cache
-      return true
+      true
     end
 
     def free_cache

@@ -6,7 +6,7 @@ class BsRequestActionSubmit < BsRequestAction
 
   #### Self config
   def self.sti_name
-    return :submit
+    :submit
   end
 
   #### Attributes

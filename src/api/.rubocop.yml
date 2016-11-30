@@ -76,6 +76,10 @@ Style/NegatedIf:
 # Use ! instead not
 Style/Not:
   Enabled: true
+  
+# Checks for redundant `return` expressions
+Style/RedundantReturn:
+  Enabled: false
 
 # Use 0o for octal literals
 Style/NumericLiteralPrefix:

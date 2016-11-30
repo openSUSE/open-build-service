@@ -11,7 +11,7 @@ class BsRequestActionChangeDevel < BsRequestAction
 
   #### Class methods using self. (public and then private)
   def self.sti_name
-    return :change_devel
+    :change_devel
   end
 
   #### To define class methods as private use private_class_method
