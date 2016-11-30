@@ -141,6 +141,7 @@ our $proj = [
 	 [],
         'title',
         'description',
+        'url',
      [[	'link' =>
 	    'project',
      ]],
