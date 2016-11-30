@@ -147,7 +147,7 @@ class Webui::WebuiController < ActionController::Base
       end
       return false
     end
-    return true
+    true
   end
 
   def required_parameters(*parameters)
@@ -163,7 +163,7 @@ class Webui::WebuiController < ActionController::Base
     return false if cc.blank?
     return true if cc == 'max-age=0'
     return false unless cc == 'no-cache'
-    return !request.xhr?
+    !request.xhr?
   end
 
   def find_hashed(classname, *args)
@@ -190,7 +190,7 @@ class Webui::WebuiController < ActionController::Base
       head :ok
       return true
     end
-    return false
+    false
   end
 
   def check_user
@@ -263,7 +263,7 @@ class Webui::WebuiController < ActionController::Base
     file = File.open(file + '.xml', 'w')
     file.write(xmlbody)
     file.close
-    return file.path
+    file.path
   end
   private :put_body_to_tempfile
 

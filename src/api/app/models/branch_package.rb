@@ -84,7 +84,7 @@ class BranchPackage
     end
 
     # all that worked ? :)
-    return { data: create_branch_packages(tprj) }
+    { data: create_branch_packages(tprj) }
   end
 
   def create_branch_packages(tprj)

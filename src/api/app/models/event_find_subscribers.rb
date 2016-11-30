@@ -73,13 +73,13 @@ class EventFindSubscribers
     return -1 if x.receive && !y.receive
     return 1 if y.receive && !x.receive
 
-    return -1
+    -1
   end
 
   def check_rules?(rules)
     rules.sort! { |x, y| compare_two_rules(x, y) }
     return false if !rules[0].receive
-    return true
+    true
   end
 
   def user_subscribed_to_group_email?(group, user)

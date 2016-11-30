@@ -21,7 +21,7 @@ class BsRequestActionGroup < BsRequestAction
 
   #### Class methods using self. (public and then private)
   def self.sti_name
-    return :group
+    :group
   end
 
   #### To define class methods as private use private_class_method
@@ -182,7 +182,7 @@ class BsRequestActionGroup < BsRequestAction
         return :review if rev.state != :accepted
       end
     end
-    return :new
+    :new
   end
 
   #### Alias of methods

@@ -10,7 +10,7 @@ class Token < ApplicationRecord
     return nil unless token && token.user_id
 
     # package found and user has write access
-    return token
+    token
   end
 
   def update_token

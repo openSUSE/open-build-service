@@ -81,7 +81,7 @@ module Webui::ProjectHelper
     re = Regexp.new("#{@project.name}\:(.*)")
     match = incident.name.match(re)
     return match[1] if match.length > 1
-    return match[0]
+    match[0]
   end
 
   def patchinfo_rating_color(rating)

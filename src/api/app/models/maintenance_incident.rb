@@ -90,7 +90,7 @@ class MaintenanceIncident < ApplicationRecord
     my_id.gsub!( /%i/, incident_id.to_s )
     my_id.gsub!( /%g/, id.to_s )
 
-    return my_id
+    my_id
   end
 
   # execute a sql query + escaped string

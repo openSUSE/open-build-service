@@ -51,7 +51,7 @@ class IssueTracker < ApplicationRecord
     return nil unless issue
     url = show_url.gsub('@@@', issue)
     return "<a href=\"#{url}\">#{CGI::escapeHTML(show_label_for(issue))}</a>" if html
-    return url
+    url
   end
 
   def show_label_for(issue)
@@ -143,7 +143,7 @@ class IssueTracker < ApplicationRecord
     return update_issues_bugzilla if kind == "bugzilla"
     return update_issues_github if kind == "github"
     return update_issues_cve if kind == "cve"
-    return false
+    false
   end
 
   # this function is for debugging and disaster recovery
@@ -159,7 +159,7 @@ class IssueTracker < ApplicationRecord
       save!
       return true
     end
-    return false
+    false
   end
 
   def fetch_issues(issues = nil)
@@ -170,7 +170,7 @@ class IssueTracker < ApplicationRecord
 
     ids = issues.map { |x| x.name.to_s }
 
-    return private_fetch_issues(ids)
+    private_fetch_issues(ids)
   end
 
   def self.update_all_issues
@@ -198,7 +198,7 @@ class IssueTracker < ApplicationRecord
       result["bugs"].each { |r| parse_single_bugzilla_issue(r) }
       ids=ids[limit_per_slice..-1]
     end
-    return true
+    true
   end
 
   def parse_single_bugzilla_issue(r)
@@ -270,7 +270,7 @@ class IssueTracker < ApplicationRecord
       return fetch_fate_issues
     end
     # everything succeeded
-    return true
+    true
   end
 
   def fetch_fate_issues
@@ -283,7 +283,7 @@ class IssueTracker < ApplicationRecord
       url = URI.parse(resp.header['location']) if resp.header['location']
     end while resp.header['location']
     # TODO: Parse returned XML and return proper JSON
-    return false
+    false
   end
 
   def fetch_github_issues(ids)
@@ -307,7 +307,7 @@ class IssueTracker < ApplicationRecord
     server.timeout = 300 # 5 minutes timeout
     server.user=user if user
     server.password=password if password
-    return server.proxy('Bug')
+    server.proxy('Bug')
   end
 end
 

@@ -471,6 +471,6 @@ class Webui::RequestController < Webui::WebuiController
       end
     end
 
-    return false
+    false
   end
 end

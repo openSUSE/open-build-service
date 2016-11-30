@@ -11,11 +11,11 @@ class Product < ApplicationRecord
 
     product = create( name: name, package: package ) unless product.length > 0
 
-    return product
+    product
   end
 
   def self.find_by_name_and_package( name, package )
-    return where(name: name, package: package).load
+    where(name: name, package: package).load
   end
 
   def self.all_products( project, expand = nil )

@@ -32,6 +32,6 @@ module StatusHelper
       lastvalue = value
     end
 
-    return result
+    result
   end
 end

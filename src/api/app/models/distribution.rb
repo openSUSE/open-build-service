@@ -67,6 +67,6 @@ class Distribution < ApplicationRecord
           "reponame" => d['reponame'], "repository" => d['repository'], "link" => d['link']}
       end
     end
-    return list
+    list
   end
 end

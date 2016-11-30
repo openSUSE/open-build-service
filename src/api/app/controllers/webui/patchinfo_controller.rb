@@ -299,7 +299,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     else
       return nil
     end
-    return ''
+    ''
   end
 
   private

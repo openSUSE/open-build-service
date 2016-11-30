@@ -76,7 +76,7 @@ class TagController < ApplicationController
       render partial: "objects_by_tag"
       return
     end
-    return @projects
+    @projects
   end
 
   def get_packages_by_tag( do_render = true )
@@ -101,7 +101,7 @@ class TagController < ApplicationController
       render partial: "objects_by_tag"
       return
     end
-    return @packages
+    @packages
   end
 
   def get_objects_by_tag
@@ -162,7 +162,7 @@ class TagController < ApplicationController
   # TODO helper function, delete me
   def get_taglist
     tags = Tag.order(:name)
-    return tags
+    tags
   end
 
   def project_tags
@@ -320,7 +320,7 @@ class TagController < ApplicationController
       end
     end
 
-    return tags, @unsaved_tags
+    [tags, @unsaved_tags]
   end
 
   def save_tags(object, tagCreator, tags)
@@ -354,7 +354,7 @@ class TagController < ApplicationController
       tag = Tag.create(name: tagname)
     end
     raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) unless tag.valid?
-    return tag
+    tag
   end
 
   def tag_error(params)

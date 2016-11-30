@@ -165,7 +165,7 @@ module ActionDispatch
         if !headers.has_key?("HTTP_AUTHORIZATION") && IntegrationTest.basic_auth
           headers["HTTP_AUTHORIZATION"] = IntegrationTest.basic_auth
         end
-        return headers
+        headers
       end
 
       alias real_process process_with_kwargs
@@ -358,7 +358,7 @@ module Webui
       results = all(:css, 'div#flash-messages p')
       ret = []
       results.each { |r| ret << r.text }
-      return ret
+      ret
     end
 
     # ============================================================================
@@ -406,11 +406,11 @@ module ActionDispatch
     end
 
     def self.basic_auth
-      return @@auth
+      @@auth
     end
 
     def basic_auth
-      return @@auth
+      @@auth
     end
 
     def prepare_request_with_user(user, passwd)

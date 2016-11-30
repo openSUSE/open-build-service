@@ -14,7 +14,7 @@ module FlagHelper
     'access'         => :enable
   }
   def self.default_for(flag_type)
-    return TYPES[flag_type.to_s].to_s
+    TYPES[flag_type.to_s].to_s
   end
 
   def self.flag_types
@@ -66,7 +66,7 @@ module FlagHelper
       end
     end
 
-    return position
+    position
   end
 
   def remove_flag(flag, repository, arch = nil)
@@ -130,13 +130,13 @@ module FlagHelper
   def enabled_for?(flag_type, repo, arch)
     state = find_flag_state(flag_type, repo, arch)
     logger.debug "enabled_for #{flag_type} repo:#{repo} arch:#{arch} state:#{state}"
-    return state.to_sym == :enable ? true : false
+    state.to_sym == :enable ? true : false
   end
 
   def disabled_for?(flag_type, repo, arch)
     state = find_flag_state(flag_type, repo, arch)
     logger.debug "disabled_for #{flag_type} repo:#{repo} arch:#{arch} state:#{state}"
-    return state.to_sym == :disable ? true : false
+    state.to_sym == :disable ? true : false
   end
 
   def find_flag_state(flag_type, repo, arch)
@@ -156,7 +156,7 @@ module FlagHelper
       end
     end
 
-    return state
+    state
   end
 
   def self.xml_disabled_for?(xmlhash, flagtype)
@@ -168,6 +168,6 @@ module FlagHelper
         return false if status == 'enable'
       end
     end
-    return disabled
+    disabled
   end
 end

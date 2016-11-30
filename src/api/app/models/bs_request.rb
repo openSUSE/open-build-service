@@ -873,7 +873,7 @@ class BsRequest < ApplicationRecord
         other_open_reviews << review.webui_infos
       end
     end
-    return user_reviews, other_open_reviews
+    [user_reviews, other_open_reviews]
   end
 
   def webui_infos(opts = {})

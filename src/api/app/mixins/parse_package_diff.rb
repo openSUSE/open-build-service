@@ -56,6 +56,6 @@ module ParsePackageDiff
     Xmlhash.parse(sd).elements('sourcediff').each do |sourcediff|
       parsed_sourcediff << parse_one_diff(sourcediff)
     end
-    return parsed_sourcediff
+    parsed_sourcediff
   end
 end
