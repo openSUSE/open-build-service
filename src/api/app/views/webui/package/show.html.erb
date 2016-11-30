@@ -48,7 +48,7 @@
               <% end %>
             </li>
         <% end %>
-        <% if @package.name =~ %r{^_patchinfo} %>
+        <% if @package.is_patchinfo? %>
             <li>
               <%= sprite_tag 'information', title: '' %>
               Has
