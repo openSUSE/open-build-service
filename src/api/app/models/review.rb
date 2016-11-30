@@ -18,9 +18,7 @@ class Review < ApplicationRecord
   validate :check_initial, on: [:create]
 
   before_validation(on: :create) do
-    if read_attribute(:state).nil?
-      self.state = :new
-    end
+    self.state = :new if read_attribute(:state).nil?
   end
 
   def state
@@ -119,12 +117,8 @@ class Review < ApplicationRecord
   end
 
   def users_and_groups_for_review
-    if by_user
-       return [User.find_by_login!(by_user)]
-    end
-    if by_group
-      return [Group.find_by_title!(by_group)]
-    end
+    return [User.find_by_login!(by_user)] if by_user
+    return [Group.find_by_title!(by_group)] if by_group
     if by_package
       obj = Package.find_by_project_and_name(by_project, by_package)
       return [] unless obj

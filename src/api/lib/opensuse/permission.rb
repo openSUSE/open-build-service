@@ -53,9 +53,7 @@ module Suse
           raise RuntimeError, "autofetch of project only works with objects of class Package"
         end
 
-        if project.kind_of? String
-           project = project
-        end
+        project = project if project.kind_of? String
 
         pkg = Package.find_by_project_and_name( project, package )
         if pkg.nil?

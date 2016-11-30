@@ -57,9 +57,7 @@ module Webui::WebuiHelper
       else
         prjname = '~' + splitted[1]
       end
-      if splitted.length > 2
-        prjname += ':' + splitted[-1]
-      end
+      prjname += ':' + splitted[-1] if splitted.length > 2
     end
     prjname
   end
@@ -211,18 +209,14 @@ module Webui::WebuiHelper
   end
 
   def setup_codemirror_editor(opts = {})
-    if @codemirror_editor_setup
-      return next_codemirror_uid
-    end
+    return next_codemirror_uid if @codemirror_editor_setup
     @codemirror_editor_setup = 0
     opts.reverse_merge!({ read_only: false, no_border: false, width: 'auto' })
 
     content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index'))
     style = ''
     style += ".CodeMirror {\n"
-    if opts[:no_border] || opts[:read_only]
-      style += "border-width: 0 0 0 0;\n"
-    end
+    style += "border-width: 0 0 0 0;\n" if opts[:no_border] || opts[:read_only]
     style += "height: #{opts[:height]};\n" unless opts[:height] == 'auto'
     style += "width: #{opts[:width]}; \n" unless opts[:width] == 'auto'
     style += "}\n"

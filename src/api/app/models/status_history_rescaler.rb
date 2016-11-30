@@ -2,9 +2,7 @@ class StatusHistoryRescaler
   # this is called from a delayed job triggered by clockwork
   def rescale
     maxtime = StatusHistory.maximum(:time)
-    if maxtime
-      StatusHistory.where("time < ?", maxtime-365*24*3600).delete_all
-    end
+    StatusHistory.where("time < ?", maxtime-365*24*3600).delete_all if maxtime
 
     keys = StatusHistory.pluck('DISTINCT `key`')
     keys.each do |key|

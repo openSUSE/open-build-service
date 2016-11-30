@@ -50,9 +50,7 @@ class PackInfo
              maxmtime:   maxmtime,
              release:    release
            }
-    unless verifymd5.blank? || verifymd5 == srcmd5
-      opts[:verifymd5] = verifymd5
-    end
+    opts[:verifymd5] = verifymd5 unless verifymd5.blank? || verifymd5 == srcmd5
     xml.package(opts) do
       fails.each do |repo, tuple|
         xml.failure(repo: repo, time: tuple[0], srcmd5: tuple[1])
@@ -91,9 +89,7 @@ class PackInfo
 
   def failure(repo, arch, time, md5)
     # we only track the first failure time but latest md5 returned
-    if @failed.has_key? repo
-      time = [@failed[repo][0], time].min
-    end
+    time = [@failed[repo][0], time].min if @failed.has_key? repo
     @failed[repo] = [time, arch, md5]
   end
 
@@ -160,9 +156,7 @@ class ProjectStatusCalculator
     prjpacks = Hash.new
     dname = proj.name
     mypackages.each_value do |package|
-      if package.project == dname
-        prjpacks[package.name] = package
-      end
+      prjpacks[package.name] = package if package.project == dname
     end
 
     proj.repositories_linking_project(@dbproj).each do |r|
@@ -201,9 +195,7 @@ class ProjectStatusCalculator
   def calc_status(opts = {})
     mypackages = Hash.new
 
-    if !@dbproj
-      return mypackages
-    end
+    return mypackages if !@dbproj
 
     @dbproj.packages.select([:id, :name, :project_id, :develpackage_id]).includes(:develpackage).load.each do |dbpack|
       add_recursively(mypackages, dbpack)
@@ -234,9 +226,7 @@ class ProjectStatusCalculator
     list.each do |pid, pname, id|
       obj = mypackages[id]
       obj.project = pname
-      if obj.links_to
-        obj.links_to = mypackages[obj.links_to]
-      end
+      obj.links_to = mypackages[obj.links_to] if obj.links_to
       projects[pid] = pname
     end
 

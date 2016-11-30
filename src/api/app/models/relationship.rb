@@ -61,17 +61,13 @@ class Relationship < ApplicationRecord
 
   def self.add_user(obj, user, role, ignoreLock = nil, check = nil)
     obj.check_write_access!(ignoreLock)
-    unless role.kind_of? Role
-      role = Role.find_by_title!(role)
-    end
+    role = Role.find_by_title!(role) unless role.kind_of? Role
     if role.global
       # only nonglobal roles may be set in an object
       raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in #{obj.class} '#{name}'"
     end
 
-    unless user.kind_of? User
-      user = User.find_by_login!(user)
-    end
+    user = User.find_by_login!(user) unless user.kind_of? User
 
     if obj.relationships.where(user: user, role: role).exists?
       raise SaveError, "Relationship already exists" if check
@@ -90,18 +86,14 @@ class Relationship < ApplicationRecord
   def self.add_group(obj, group, role, ignoreLock = nil, check = nil)
     obj.check_write_access!(ignoreLock)
 
-    unless role.kind_of? Role
-      role = Role.find_by_title!(role)
-    end
+    role = Role.find_by_title!(role) unless role.kind_of? Role
 
     if role.global
       # only nonglobal roles may be set in an object
       raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in #{obj.class} '#{name}'"
     end
 
-    unless group.kind_of? Group
-      group = Group.find_by_title(group.to_s)
-    end
+    group = Group.find_by_title(group.to_s) unless group.kind_of? Group
 
     obj.relationships.each do |r|
       if r.group_id == group.id && r.role_id == role.id

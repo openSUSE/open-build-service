@@ -602,9 +602,7 @@ class User < ApplicationRecord
   end
 
   def can_create_attribute_definition?(object)
-    if object.kind_of? AttribType
-      object = object.attrib_namespace
-    end
+    object = object.attrib_namespace if object.kind_of? AttribType
     unless object.kind_of? AttribNamespace
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
@@ -625,12 +623,8 @@ class User < ApplicationRecord
     if !object.kind_of?(Project) && !object.kind_of?(Package)
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
-    unless opts[:namespace]
-      raise ArgumentError, 'no namespace given'
-    end
-    unless opts[:name]
-      raise ArgumentError, 'no name given'
-    end
+    raise ArgumentError, 'no namespace given' unless opts[:namespace]
+    raise ArgumentError, 'no name given' unless opts[:name]
 
     # find attribute type definition
     atype = AttribType.find_by_namespace_and_name!(opts[:namespace], opts[:name])
@@ -708,9 +702,7 @@ class User < ApplicationRecord
       return true if lookup_strategy.local_role_check(role, object)
     end
 
-    if object.is_a? Package
-      return has_local_role?(role, object.project)
-    end
+    return has_local_role?(role, object.project) if object.is_a? Package
 
     false
   end
@@ -1007,9 +999,7 @@ class User < ApplicationRecord
   # Hashes the given parameter by the selected hashing method. It uses the
   # "password_salt" property's value to make the hashing more secure.
   def hash_string(value)
-    if password_hash_type == "md5"
-      Digest::MD5.hexdigest(value + password_salt)
-    end
+    Digest::MD5.hexdigest(value + password_salt) if password_hash_type == "md5"
   end
 
   cattr_accessor :lookup_strategy do

@@ -324,9 +324,7 @@ class TagController < ApplicationController
   end
 
   def save_tags(object, tagCreator, tags)
-    if tags.kind_of? Tag
-      tags = [tags]
-    end
+    tags = [tags] if tags.kind_of? Tag
     tags.each do |tag|
       begin
         create_relationship(object, tagCreator, tag)
@@ -350,9 +348,7 @@ class TagController < ApplicationController
   # get the tag as object
   def s_to_tag(tagname)
     tag = Tag.find_by_name(tagname)
-    unless tag
-      tag = Tag.create(name: tagname)
-    end
+    tag = Tag.create(name: tagname) unless tag
     raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) unless tag.valid?
     return tag
   end

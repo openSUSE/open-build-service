@@ -39,9 +39,7 @@ class Comment < ApplicationRecord
       users << comment.user_id
       # check if users are mentioned
       comment.body.split.each do |word|
-        if word =~ /^@/
-          users_mentioned << word.gsub(%r{^@}, '')
-        end
+        users_mentioned << word.gsub(%r{^@}, '') if word =~ /^@/
       end
     end
     users += User.where(login: users_mentioned.to_a).pluck(:id)

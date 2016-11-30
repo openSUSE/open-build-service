@@ -27,9 +27,7 @@ class WizardController < ApplicationController
     loop do
       questions = @wizard.run
       logger.debug("questions: #{questions.inspect}")
-      if !questions || questions.empty?
-        break
-      end
+      break if !questions || questions.empty?
       @wizard_form = WizardForm.new("Creating package #{pkg_name} in project #{prj_name}")
       questions.each do |question|
         name = question.keys[0]
@@ -41,9 +39,7 @@ class WizardController < ApplicationController
         @wizard_form.add_entry(name, attrs['type'], attrs['label'],
                                attrs['legend'], attrs['options'], @wizard[name])
       end
-      unless @wizard_form.entries.empty?
-        return render_wizard
-      end
+      return render_wizard unless @wizard_form.entries.empty?
     end
 
     # create package container

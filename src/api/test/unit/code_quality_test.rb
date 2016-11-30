@@ -47,9 +47,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       end
       IO.popen("ruby -cv #{failedfile} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
         line = io.read
-        unless line.empty?
-          assert(false, "ruby -cv gave output\n#{line}")
-        end
+        assert(false, "ruby -cv gave output\n#{line}") unless line.empty?
       end
     end
   end
