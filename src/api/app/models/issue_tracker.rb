@@ -326,9 +326,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
     if name == "item"
       cve=nil
       attrs.each_index do |i|
-        if attrs[i][0] == "name"
-          cve = attrs[i][1]
-        end
+        cve = attrs[i][1] if attrs[i][0] == "name"
       end
 
       @@myIssue = Issue.find_or_create_by_name_and_tracker(cve.gsub(/^CVE-/, ''), @@myTracker.name)
@@ -343,9 +341,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
   end
 
   def characters(content)
-    if @@isDesc
-      @@mySummary += content.chomp
-    end
+    @@mySummary += content.chomp if @@isDesc
   end
 
   def end_element(name)

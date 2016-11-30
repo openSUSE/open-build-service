@@ -22,9 +22,7 @@ RSpec.configure do |config|
       save_page(example_filename)
     else
       # remove the file if the test starts working again
-      if File.exist?(example_filename)
-        File.unlink(example_filename)
-      end
+      File.unlink(example_filename) if File.exist?(example_filename)
     end
   end
 end

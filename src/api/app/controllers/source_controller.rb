@@ -227,9 +227,7 @@ class SourceController < ApplicationController
       end
     end
 
-    if params[:view] == 'issues'
-       show_package_issues && return
-    end
+    show_package_issues && return if params[:view] == 'issues'
 
     # exec
     path = request.path_info
@@ -339,9 +337,7 @@ class SourceController < ApplicationController
       valid_package_name! origin_package_name
     end
 
-    if origin_package_name
-      required_parameters :oproject
-    end
+    required_parameters :oproject if origin_package_name
 
     valid_project_name! params[:target_project] if params[:target_project]
     valid_package_name! params[:target_package] if params[:target_package]
@@ -482,19 +478,13 @@ class SourceController < ApplicationController
     end
 
     error = Project.validate_link_xml_attribute(request_data, project_name)
-    if error[:error]
-      raise ProjectReadAccessFailure, error[:error]
-    end
+    raise ProjectReadAccessFailure, error[:error] if error[:error]
 
     error = Project.validate_maintenance_xml_attribute(request_data)
-    if error[:error]
-      raise ModifyProjectNoPermission, error[:error]
-    end
+    raise ModifyProjectNoPermission, error[:error] if error[:error]
 
     error = Project.validate_repository_xml_attribute(request_data, project_name)
-    if error[:error]
-      raise RepositoryAccessFailure, error[:error]
-    end
+    raise RepositoryAccessFailure, error[:error] if error[:error]
 
     if project
       remove_repositories = project.get_removed_repositories(request_data)
@@ -522,9 +512,7 @@ class SourceController < ApplicationController
       raise RepoDependency, error[:error]
     else
       error = Project.remove_repositories(repositories, full_remove)
-      if !force && error[:error]
-        raise ChangeProjectNoPermission, error[:error]
-      end
+      raise ChangeProjectNoPermission, error[:error] if !force && error[:error]
     end
   end
 
@@ -1367,9 +1355,7 @@ class SourceController < ApplicationController
       end
       path += "&repository=#{repo_name}"
     end
-    if arch_name
-      path += "&arch=#{arch_name}"
-    end
+    path += "&arch=#{arch_name}" if arch_name
 
     backend.direct_http( URI(path), method: 'POST', data: '')
 
@@ -1382,9 +1368,7 @@ class SourceController < ApplicationController
     path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
 
-    if @package # except in case of _project package
-      @package.sources_changed
-    end
+    @package.sources_changed if @package # except in case of _project package
   end
 
   # POST /source/<project>/<package>?cmd=commitfilelist
@@ -1393,9 +1377,7 @@ class SourceController < ApplicationController
     path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     answer = pass_to_backend path
 
-    if @package # except in case of _project package
-      @package.sources_changed(dir_xml: answer)
-    end
+    @package.sources_changed(dir_xml: answer) if @package # except in case of _project package
   end
 
   # POST /source/<project>/<package>?cmd=diff
@@ -1596,9 +1578,7 @@ class SourceController < ApplicationController
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
 
     # The branch command may be used just for simulation
-    if !params[:dryrun] && @target_project_name
-      verify_can_modify_target!
-    end
+    verify_can_modify_target! if !params[:dryrun] && @target_project_name
 
     private_branch_command
   end

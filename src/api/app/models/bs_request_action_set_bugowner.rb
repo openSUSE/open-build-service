@@ -28,9 +28,7 @@ class BsRequestActionSetBugowner < BsRequestAction
   def execute_accept(_opts)
     object = Project.find_by_name!(target_project)
     bugowner = Role.find_by_title!("bugowner")
-    if target_package
-      object = object.packages.find_by_name!(target_package)
-    end
+    object = object.packages.find_by_name!(target_package) if target_package
     object.relationships.where("role_id = ?", bugowner).each do |r|
       r.destroy
     end

@@ -323,9 +323,7 @@ at_exit do
   Process.kill 'TERM', reposrv_out.pid
   Process.kill 'TERM', servicesrv_out.pid
 
-  if memcached_npid.to_i > 0
-    Process.kill 'TERM', memcached_npid
-  end
+  Process.kill 'TERM', memcached_npid if memcached_npid.to_i > 0
 
   srcsrv_out.close
   srcsrv_out = nil

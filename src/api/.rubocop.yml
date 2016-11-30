@@ -65,6 +65,10 @@ Style/HashSyntax:
   Exclude:
     - 'config/routes.rb'
 
+# Checks for if/unless statements that fit on one line as modifier if/unless
+Style/IfUnlessModifier:
+  Enabled: true
+
 # Use Kernel#loop for infinite loops
 Style/InfiniteLoop:
   Enabled: true

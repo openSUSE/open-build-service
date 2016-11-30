@@ -11,9 +11,7 @@ module Webui::RequestHelper
 
   def merge_opt(res, opt, value)
     res[opt] ||= value
-    if value != res[opt]
-      res[opt] = :multiple
-    end
+    res[opt] = :multiple if value != res[opt]
   end
 
   def common_parts(req)

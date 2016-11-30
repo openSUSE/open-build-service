@@ -89,13 +89,9 @@ class BsRequest < ApplicationRecord
   end
 
   def check_creator
-    unless creator
-      errors.add(:creator, 'No creator defined')
-    end
+    errors.add(:creator, 'No creator defined') unless creator
     user = User.get_by_login creator
-    unless user
-      errors.add(:creator, "Invalid creator specified #{creator}")
-    end
+    errors.add(:creator, "Invalid creator specified #{creator}") unless user
     unless user.is_active?
       errors.add(:creator, "Login #{user.login} is not an active user")
     end
@@ -171,9 +167,7 @@ class BsRequest < ApplicationRecord
       request.number = theid if theid
 
       actions = hashed.delete('action')
-      if actions.kind_of? Hash
-        actions = [actions]
-      end
+      actions = [actions] if actions.kind_of? Hash
 
       request.priority = hashed.delete('priority') || 'moderate'
 
@@ -220,9 +214,7 @@ class BsRequest < ApplicationRecord
       hashed.delete('history')
 
       reviews = hashed.delete('review')
-      if reviews.kind_of? Hash
-        reviews = [reviews]
-      end
+      reviews = [reviews] if reviews.kind_of? Hash
       reviews.each do |r|
         request.reviews << Review.new_from_xml_hash(r)
       end if reviews
@@ -843,12 +835,8 @@ class BsRequest < ApplicationRecord
 
   def review_matches_user?(review, user)
     return false unless user
-    if review.by_user
-      return user.login == review.by_user
-    end
-    if review.by_group
-      return user.is_in_group?(review.by_group)
-    end
+    return user.login == review.by_user if review.by_user
+    return user.is_in_group?(review.by_group) if review.by_group
     if review.by_project
       p = nil
       m = 'change_project'
@@ -972,9 +960,7 @@ class BsRequest < ApplicationRecord
     end
 
     # Autoapproval? Is the creator allowed to accept it?
-    if accept_at
-      permission_check_change_state!({newstate: 'accepted'})
-    end
+    permission_check_change_state!({newstate: 'accepted'}) if accept_at
 
     apply_default_reviewers
   end

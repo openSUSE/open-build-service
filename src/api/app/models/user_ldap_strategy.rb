@@ -241,12 +241,8 @@ class UserLdapStrategy
     group_dn = String.new
     group_member_attr = String.new
     grouplist.each do |eachgroup|
-      if eachgroup.kind_of? String
-        group = eachgroup
-      end
-      if eachgroup.kind_of? Group
-        group = eachgroup.title
-      end
+      group = eachgroup if eachgroup.kind_of? String
+      group = eachgroup.title if eachgroup.kind_of? Group
 
       unless group.kind_of? String
         raise ArgumentError, "illegal parameter type to UserLdapStrategy#render_grouplist_ldap?: #{eachgroup.class.name}"
@@ -350,9 +346,7 @@ class UserLdapStrategy
 
     case CONFIG['ldap_auth_mech']
     when :cleartext then
-      if ldap_password == password
-        authenticated = true
-      end
+      authenticated = true if ldap_password == password
     when :md5 then
       require 'digest/md5'
       require 'base64'
@@ -591,9 +585,7 @@ class UserLdapStrategy
       end
       conn.bind(user_name, password)
     rescue LDAP::ResultError
-      if !conn.nil? && conn.bound?
-        conn.unbind()
-      end
+      conn.unbind() if !conn.nil? && conn.bound?
       Rails.logger.debug("Not bound as #{user_name}: #{conn.err2string(conn.err)}")
       return nil
     end

@@ -244,9 +244,7 @@ class Webui::RepositoriesController < Webui::WebuiController
         current_cycles = Array.new
         cycle.each(:package) do |p|
           p = p.text
-          if packages.has_key? p
-            current_cycles << packages[p]
-          end
+          current_cycles << packages[p] if packages.has_key? p
         end
         current_cycles.uniq!
         if current_cycles.empty?

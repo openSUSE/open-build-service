@@ -41,9 +41,7 @@ class MyParamsParser
   def parse_parameters(env)
     request = ActionDispatch::Request.new(env)
 
-    if request.content_length.zero?
-      return false
-    end
+    return false if request.content_length.zero?
 
     case request.content_mime_type
     when Mime[:json]

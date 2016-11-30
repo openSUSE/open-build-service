@@ -82,9 +82,7 @@ class BinaryRelease < ApplicationRecord
           hash[:binary_updateinfo_version] = binary["updateinfoversion"]
         end
         rp = Package.find_by_project_and_name(binary["project"], binary["package"])
-        if binary["project"] && rp
-          hash[:release_package_id] = rp.id
-        end
+        hash[:release_package_id] = rp.id if binary["project"] && rp
         if binary["patchinforef"]
           begin
             pi = Patchinfo.new(Suse::Backend.get("/source/#{binary["patchinforef"]}/_patchinfo").body)

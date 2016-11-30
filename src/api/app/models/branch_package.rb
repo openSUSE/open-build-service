@@ -180,9 +180,7 @@ class BranchPackage
         # rubocop:enable Style/EmptyElse
       end
 
-      if tprj.is_maintenance_incident?
-        tpkg.add_channels
-      end
+      tpkg.add_channels if tprj.is_maintenance_incident?
     end
     tprj.sync_repository_pathes if @update_path_elements
 
@@ -363,9 +361,7 @@ class BranchPackage
     dir = Directory.find(project: params[:project], package: params[:package], rev: params[:rev])
     raise InvalidFilelistError.new 'no such revision' unless dir
     p[:rev] = dir.value(:srcmd5)
-    unless p[:rev]
-      raise InvalidFilelistError.new 'no srcmd5 revision found'
-    end
+    raise InvalidFilelistError.new 'no srcmd5 revision found' unless p[:rev]
   end
 
   def check_for_update_project(p)
@@ -457,9 +453,7 @@ class BranchPackage
       ap = llp
       # release projects have a second iteration, pointing to .$ID, use packages with original names instead
       innerp = llp.find_project_local_linking_packages
-      if innerp.length == 1
-        ap = innerp.first
-      end
+      ap = innerp.first if innerp.length == 1
 
       target_package = ap.name
       target_package += '.' + p[:target_package].gsub(/^[^\.]*\./, '') if @extend_names

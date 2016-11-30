@@ -32,6 +32,4 @@ unless Rails.env.production?
   end
 end
 
-if Rails.env.test?
-  require 'single_test/tasks'
-end
+require 'single_test/tasks' if Rails.env.test?
