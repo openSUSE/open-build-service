@@ -115,7 +115,6 @@ class BranchPackage
           tpkg.bcntsynctag << '.' + p[:link_target_project].name.tr(':', '_')
         end
         tpkg.releasename = p[:release_name]
-        tprj.packages << tpkg
       end
       tpkg.store
 
