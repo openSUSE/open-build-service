@@ -77,6 +77,10 @@ Style/Not:
 Style/RedundantSelf:
   Enabled: true
 
+# checks for space after `!`  
+Style/SpaceAfterNot:
+  Enabled: true
+
 # Checks for the presence of parentheses around ternary conditions
 Style/TernaryParentheses:
   Enabled: true

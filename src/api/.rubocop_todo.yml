@@ -900,12 +900,6 @@ Style/SpaceAfterMethodName:
     - 'test/functional/read_permission_test.rb'
     - 'test/functional/source_controller_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/SpaceAfterNot:
-  Exclude:
-    - 'lib/wizard.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleInsidePipes, SupportedStyles.
