@@ -125,9 +125,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         }
         xml = node.patchinfo(attrs) do
           params[:selected_binaries].to_a.each do |binary|
-            unless binary.blank?
-              node.binary(binary)
-            end
+            node.binary(binary) unless binary.blank?
           end
           node.name params[:name] unless params[:name].blank?
           node.packager params[:packager]
@@ -148,9 +146,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           node.reboot_needed if params[:reboot]
           node.relogin_needed if params[:relogin]
           node.zypp_restart_needed if params[:zypp_restart_needed]
-          if params[:block] == 'true'
-            node.stopped params[:block_reason]
-          end
+          node.stopped params[:block_reason] if params[:block] == 'true'
         end
         begin
           authorize @package, :update?
@@ -290,12 +286,8 @@ class Webui::PatchinfoController < Webui::WebuiController
 
     if bug.match(/^#{issue_tracker.regex}$/)
       issue = Issue.find_or_create_by_name_and_tracker( issueid, issue_tracker.name )
-      if issue && issue.summary.blank?
-        issue.fetch_updates
-      end
-      if issue.summary
-        return issue.summary.gsub(/\\|'/) { '' }
-      end
+      issue.fetch_updates if issue && issue.summary.blank?
+      return issue.summary.gsub(/\\|'/) { '' } if issue.summary
     else
       return nil
     end

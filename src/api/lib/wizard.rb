@@ -93,12 +93,8 @@ class Wizard
   private
 
   def ask(databit)
-    if @data[databit]
-      return
-    end
-    unless @questions
-      @questions = []
-    end
+    return if @data[databit]
+    @questions = [] unless @questions
     @questions << { databit => @@databits[databit] }
   end
 

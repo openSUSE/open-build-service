@@ -32,9 +32,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     page.find(:id, 'title').set(options[:in].include?(:title))
     page.find(:id, 'description').set(options[:in].include?(:description))
 
-    if options[:attribute]
-      select(options[:attribute], from: 'attribute_list')
-    end
+    select(options[:attribute], from: 'attribute_list') if options[:attribute]
     click_button 'search_button'
 
     if options[:expect] == :success

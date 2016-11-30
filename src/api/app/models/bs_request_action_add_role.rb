@@ -28,9 +28,7 @@ class BsRequestActionAddRole < BsRequestAction
 
   def execute_accept(_opts)
     object = Project.find_by_name(target_project)
-    if target_package
-      object = object.packages.find_by_name(target_package)
-    end
+    object = object.packages.find_by_name(target_package) if target_package
     if person_name
       role = Role.find_by_title!(self.role)
       object.add_user( person_name, role )
@@ -44,12 +42,8 @@ class BsRequestActionAddRole < BsRequestAction
 
   def render_xml_attributes(node)
     render_xml_target(node)
-    if person_name
-      node.person name: person_name, role: role
-    end
-    if group_name
-      node.group name: group_name, role: role
-    end
+    node.person name: person_name, role: role if person_name
+    node.group name: group_name, role: role if group_name
   end
 
   #### Alias of methods

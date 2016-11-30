@@ -98,9 +98,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
     visit index_attribs_path(project: attribute[:project], package: attribute[:package] )
 
     delete = find_button("#{attribute[:id]}-delete")
-    unless delete
-      raise "No such attribute #{attribute[:name]}"
-    end
+    raise "No such attribute #{attribute[:name]}" unless delete
 
     # avoid the javascript popup
     page.evaluate_script('window.confirm = function() { return true; }')

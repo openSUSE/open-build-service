@@ -16,9 +16,7 @@ class EventFindSubscribers
   end
 
   def expand_one_rule(r)
-    if r.receiver_role == :all
-      return [r]
-    end
+    return [r] if r.receiver_role == :all
 
     receivers = @event.send("#{r.receiver_role}s")
     receivers.each do |u|
@@ -65,9 +63,7 @@ class EventFindSubscribers
     return 1 if !x.id && y.id
 
     # if both are in database, they may be the same
-    if x.id && y.id && x.id == y.id
-      return 0
-    end
+    return 0 if x.id && y.id && x.id == y.id
 
     # without further information, we prefer those that want mail
     return -1 if x.receive && !y.receive
@@ -106,9 +102,7 @@ class EventFindSubscribers
 
     ret=[]
     receivers.each do |rcv, rules|
-      if check_rules? rules
-        ret << rcv
-      end
+      ret << rcv if check_rules? rules
     end
 
     ret

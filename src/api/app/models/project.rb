@@ -347,9 +347,7 @@ class Project < ApplicationRecord
       end
     end
 
-    unless check_access?(dbp)
-      raise ReadAccessError, name
-    end
+    raise ReadAccessError, name unless check_access?(dbp)
     return dbp
   end
 
@@ -512,9 +510,7 @@ class Project < ApplicationRecord
         errors.add(:base, 'is not locked')
       end
     end
-    if errors.any?
-      return false
-    end
+    return false if errors.any?
     true
   end
 
@@ -687,9 +683,7 @@ class Project < ApplicationRecord
       repository = release_target['repository']
       trigger    = release_target['trigger']
 
-      unless project
-        raise SaveError, "Project '#{project}' does not exist."
-      end
+      raise SaveError, "Project '#{project}' does not exist." unless project
 
       if project.defines_remote_instance?
         raise SaveError, "Can not use remote repository as release target '#{project}/#{repository}'"
@@ -794,9 +788,7 @@ class Project < ApplicationRecord
           raise SaveError, "unable to link against project '#{l['project']}'"
         end
       else
-        if link == self
-          raise SaveError, 'unable to link against myself'
-        end
+        raise SaveError, 'unable to link against myself' if link == self
         linking_to.create!(project: self,
                                     linked_db_project: link,
                                     position: position)
@@ -1103,9 +1095,7 @@ class Project < ApplicationRecord
     # add all linked and indirect linked projects
     linking_to.each do |lp|
       if lp.linked_db_project.nil?
-        if allow_remote_projects
-          projects << lp.linked_remote_project_name
-        end
+        projects << lp.linked_remote_project_name if allow_remote_projects
       else
         lp.linked_db_project.expand_all_projects(project_map, allow_remote_projects).each do |p|
           projects << p
@@ -1308,9 +1298,7 @@ class Project < ApplicationRecord
     targets = bsrequest_repos_map(tproj.name)
     sources = bsrequest_repos_map(name)
     sources.each do |key, _|
-      if targets.has_key?(key)
-        tocheck_repos << sources[key]
-      end
+      tocheck_repos << sources[key] if targets.has_key?(key)
     end
 
     tocheck_repos.flatten!

@@ -33,9 +33,7 @@ class BsRequestActionGroup < BsRequestAction
 
     # Creators can group their own creations
     creator = User.current
-    if bs_request # bootstrap?
-      creator = bs_request.creator
-    end
+    creator = bs_request.creator if bs_request # bootstrap?
     return if creator == req.creator
 
     # a single request is always fine
@@ -152,16 +150,12 @@ class BsRequestActionGroup < BsRequestAction
     end
     check_and_add_request(newid)
     group_state = find_review_state_of_group
-    if group_state == :review
-      set_group_to_review
-    end
+    set_group_to_review if group_state == :review
   end
 
   def check_for_group_in_new
     group_state = find_review_state_of_group
-    if group_state == :new && bs_request.state == :review
-      set_group_to_new
-    end
+    set_group_to_new if group_state == :new && bs_request.state == :review
   end
 
   def removerequest(opts)

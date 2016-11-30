@@ -12,12 +12,8 @@ class EventSubscription < ApplicationRecord
   def self._get_role_rule(relation, role)
     all_rule = nil
     relation.each do |r|
-      if r.receiver_role == role
-        return r
-      end
-      if r.receiver_role == :all
-        all_rule = r
-      end
+      return r if r.receiver_role == role
+      all_rule = r if r.receiver_role == :all
     end
     return all_rule
   end

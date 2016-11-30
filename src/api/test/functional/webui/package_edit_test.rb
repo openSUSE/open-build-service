@@ -35,9 +35,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
     page.must_have_text 'Title:'
     page.must_have_text 'Description:'
 
-    unless new_info[:title].nil?
-      fill_in 'title', with: new_info[:title]
-    end
+    fill_in 'title', with: new_info[:title] unless new_info[:title].nil?
 
     unless new_info[:description].nil?
       new_info[:description].squeeze!(' ')
@@ -51,9 +49,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
     page.must_have_text 'Source Files'
     page.must_have_text 'Build Results'
 
-    unless new_info[:title].nil?
-      assert_equal package_title, new_info[:title]
-    end
+    assert_equal package_title, new_info[:title] unless new_info[:title].nil?
     unless new_info[:description].nil?
       assert_equal package_description, new_info[:description]
     end

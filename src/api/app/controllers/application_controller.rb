@@ -123,9 +123,7 @@ class ApplicationController < ActionController::Base
   def extract_proxy_user
     @auth_method = :proxy
     proxy_user = request.env['HTTP_X_USERNAME']
-    if proxy_user
-      logger.info "iChain user extracted from header: #{proxy_user}"
-    end
+    logger.info "iChain user extracted from header: #{proxy_user}" if proxy_user
 
     # we're using a login proxy, there is no need to authenticate the user from the credentials
     # However we have to care for the status of the user that must not be unconfirmed or proxy requested
@@ -161,9 +159,7 @@ class ApplicationController < ActionController::Base
     # 2. for Apace/mod_fastcgi with -pass-header Authorization
     # 3. regular location
     %w{X-HTTP_AUTHORIZATION Authorization HTTP_AUTHORIZATION}.each do |header|
-      if request.env.has_key? header
-        return request.env[header].to_s.split
-      end
+      return request.env[header].to_s.split if request.env.has_key? header
     end
     return nil
   end
@@ -382,9 +378,7 @@ class ApplicationController < ActionController::Base
     begin
       xml = ActiveXML::Node.new( text )
       http_status = xml.value('code')
-      unless xml.has_attribute? 'origin'
-        xml.set_attribute "origin", "backend"
-      end
+      xml.set_attribute "origin", "backend" unless xml.has_attribute? 'origin'
       text = xml.dump_xml
     rescue ActiveXML::ParseError
     end

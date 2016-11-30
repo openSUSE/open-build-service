@@ -30,14 +30,10 @@ class AttribValue < ApplicationRecord
   # This defines the default for AttribValue.value to ""...
   def get_default_value
     value = ""
-    if read_attribute(:position).blank?
-      self.position = 1
-    end
+    self.position = 1 if read_attribute(:position).blank?
     if attrib
       default = attrib.attrib_type.default_values.find_by position: position
-      if default
-        value = default.value
-      end
+      value = default.value if default
     end
     value
   end
