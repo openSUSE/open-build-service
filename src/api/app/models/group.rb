@@ -127,7 +127,7 @@ class Group < ApplicationRecord
 
   def involved_projects
     # now filter the projects that are not visible
-    return Project.where(id: involved_projects_ids)
+    Project.where(id: involved_projects_ids)
   end
 
   # lists packages maintained by this user and are not in maintained projects

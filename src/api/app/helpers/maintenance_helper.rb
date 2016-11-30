@@ -255,7 +255,7 @@ module MaintenanceHelper
     id_template = cts.first.id_template if cts.first && cts.first.id_template
 
     uID = mi.getUpdateinfoId(id_template, patchName)
-    return uID
+    uID
   end
 
   def create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)

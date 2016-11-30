@@ -33,7 +33,7 @@ class StatusHistoryRescaler
     items = []
 
     items << allitems.shift while allitems.length > 0 && allitems[0].time < max
-    return items
+    items
   end
 
   def cleanup(key, offset, maxtimeoffset)

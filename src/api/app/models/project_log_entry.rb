@@ -66,6 +66,6 @@ class ProjectLogEntry < ApplicationRecord
       username = payload[key]
       return username unless username.blank? || username == "unknown"
     end
-    return nil
+    nil
   end
 end

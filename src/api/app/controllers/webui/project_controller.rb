@@ -792,7 +792,7 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_back(fallback_location: { action: 'show', project: @project })
       return false
     end
-    return true
+    true
   end
 
   ################################### Helper methods ###################################
@@ -922,7 +922,7 @@ class Webui::ProjectController < Webui::WebuiController
         result = input.include?(no_invert[2]) ? true : result
       end
     }
-    return result
+    result
   end
 
   def calc_status(project_name)
@@ -945,7 +945,7 @@ class Webui::ProjectController < Webui::WebuiController
       status_check_package(p)
     end
 
-    return {packages: @packages, projects: @develprojects.keys}
+    {packages: @packages, projects: @develprojects.keys}
   end
 
   def status_check_package(p)
@@ -1144,7 +1144,7 @@ class Webui::ProjectController < Webui::WebuiController
   def filter_packages( project, filterstring )
     result = Collection.find :id, what: 'package',
       predicate: "@project='#{project}' and contains(@name,'#{filterstring}')"
-    return result.each.map {|x| x.name}
+    result.each.map {|x| x.name}
   end
 
   def users_path

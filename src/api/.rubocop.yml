@@ -72,6 +72,10 @@ Style/InfiniteLoop:
 # Use ! instead not
 Style/Not:
   Enabled: true
+  
+# Checks for redundant `return` expressions
+Style/RedundantReturn:
+  Enabled: true
 
 # Checks for redundant uses of `self`
 Style/RedundantSelf:

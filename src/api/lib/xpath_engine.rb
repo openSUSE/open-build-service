@@ -492,7 +492,7 @@ class XpathEngine
     if @attribs[table][key][:split]
       @split = @attribs[table][key][:split]
     end
-    return @attribs[table][key][:cpart]
+    @attribs[table][key][:cpart]
   end
 
   def escape_for_like(str)

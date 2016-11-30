@@ -49,7 +49,7 @@ class Issue < ApplicationRecord
   def self.bugzilla_state( string )
     return 'OPEN' if %w(NEW NEEDINFO REOPENED ASSIGNED).include? string
     return 'CLOSED' if %w(RESOLVED CLOSED VERIFIED).include? string
-    return 'UNKNOWN'
+    'UNKNOWN'
   end
 
   def self.valid_name?(tracker, name)
@@ -71,7 +71,7 @@ class Issue < ApplicationRecord
   end
 
   def label
-    return issue_tracker.label.gsub('@@@', name)
+    issue_tracker.label.gsub('@@@', name)
   end
 
   def webui_infos

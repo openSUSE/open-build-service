@@ -16,6 +16,6 @@ class UpdateinfoCounter < ApplicationRecord
       counter = self.counter
       save!
     end
-    return counter
+    counter
   end
 end

@@ -26,7 +26,7 @@ class UserLdapStrategy
     result.flatten!
     result.uniq!
 
-    return result
+    result
   end
 
   def groups(user)
@@ -87,7 +87,7 @@ class UserLdapStrategy
       end
     end
 
-    return
+    nil
   end
 
   # This static method tries to add the new entry with the given name/password/mail info in the
@@ -128,7 +128,7 @@ class UserLdapStrategy
       Rails.logger.debug("Error #{ldap_con.err} for #{login}")
       return "Failed to add a new entry for #{login}: error #{ldap_con.err}"
     end
-    return
+    nil
   end
 
   # This static method tries to delete the entry with the given login in the
@@ -158,7 +158,7 @@ class UserLdapStrategy
       Rails.logger.debug("Failed to delete: error #{ldap_con.err} for #{login}")
       return "Failed to delete the entry #{login}: error #{ldap_con.err}"
     end
-    return
+    nil
   end
 
   # This static method tries to find a group with the given gorup_title to check whether the group is in the LDAP server.
@@ -294,7 +294,7 @@ class UserLdapStrategy
       Rails.logger.debug("#{user} is not in #{group}")
     end
 
-    return result
+    result
   end
 
   # This static method tries to update the password with the given login in the
@@ -336,7 +336,7 @@ class UserLdapStrategy
       return "#{ldap_con.err}"
     end
 
-    return
+    nil
   end
 
   def self.authenticate_with_local(password, entry)
@@ -363,7 +363,7 @@ class UserLdapStrategy
       Rails.logger.error("Unknown ldap_auth_mech setting: #{CONFIG['ldap_auth_mech']}")
     end
 
-    return authenticated
+    authenticated
   end
 
   # convert distinguished name to user principal name
@@ -380,7 +380,7 @@ class UserLdapStrategy
     rescue
       # if we run into unexpected input just return an empty string
     end
-    return upn
+    upn
   end
 
   # This static method tries to find a user with the given login and
@@ -502,7 +502,7 @@ class UserLdapStrategy
         Rails.logger.debug "Error occurred in searching user_group in ldap."
       end
     end
-    return ldapgroups
+    ldapgroups
   end
 
   def user_in_group_ldap?(user, group)
@@ -519,7 +519,7 @@ class UserLdapStrategy
       Rails.logger.debug "Error occurred in searching user_group in ldap."
     end
 
-    return false
+    false
   end
 
   def local_permission_check_with_ldap (group_relationships)
@@ -529,7 +529,7 @@ class UserLdapStrategy
       return true if user_in_group_ldap?(login, r.group)
     end
     Rails.logger.debug "Failed with local_permission_check_with_ldap"
-    return false
+    false
   end
 
   def local_role_check_with_ldap (role, object)
@@ -541,7 +541,7 @@ class UserLdapStrategy
       return true if user_in_group_ldap?(login, rel.group)
     end
     Rails.logger.debug "Failed with local_role_check_with_ldap"
-    return false
+    false
   end
 
   # this method returns a ldap object using the provided user name
@@ -598,6 +598,6 @@ class UserLdapStrategy
       return nil
     end
     Rails.logger.debug("Bound as #{user_name}")
-    return conn
+    conn
   end
 end

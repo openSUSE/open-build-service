@@ -20,6 +20,6 @@ class Webui::ApidocsController < Webui::WebuiController
       flash[:error] = "File not found: #{params[:filename]}"
       redirect_back(fallback_location: {controller: 'apidocs', action: 'index'})
     end
-    return
+    nil
   end
 end

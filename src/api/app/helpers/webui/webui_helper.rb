@@ -16,7 +16,7 @@ module Webui::WebuiHelper
       return
     end
 
-    return "#{opt[:protocol]}://#{opt[:host]}:#{opt[:port]}/#{opt[:controller]}"
+    "#{opt[:protocol]}://#{opt[:host]}:#{opt[:port]}/#{opt[:controller]}"
   end
 
   def bugzilla_url(email_list = '', desc = '')
@@ -117,7 +117,7 @@ module Webui::WebuiHelper
     if @current_action.to_s == opts[:action].to_s && @current_controller.to_s == opts[:controller].to_s
       link_opts[:class] = 'selected'
     end
-    return content_tag('li', link_to(h(text), opts), link_opts)
+    content_tag('li', link_to(h(text), opts), link_opts)
   end
 
   # Shortens a text if it longer than 'length'.
@@ -142,7 +142,7 @@ module Webui::WebuiHelper
         shortened_text = text[0 .. length - 4] + '...'
       end
     end
-    return shortened_text
+    shortened_text
   end
 
   def elide_two(text1, text2, overall_length = 40, mode = :middle)
@@ -151,7 +151,7 @@ module Webui::WebuiHelper
     text1_free = 0 if text1_free < 0
     text2_free = half_length - text2.length
     text2_free = 0 if text2_free < 0
-    return [elide(text1, half_length + text2_free, mode), elide(text2, half_length + text1_free, mode)]
+    [elide(text1, half_length + text2_free, mode), elide(text2, half_length + text1_free, mode)]
   end
 
   def force_utf8_and_transform_nonprintables(text)
@@ -160,7 +160,7 @@ module Webui::WebuiHelper
       text = 'The file you look at is not valid UTF-8 text. Please convert the file.'
     end
     # Ged rid of stuff that shouldn't be part of PCDATA:
-    return text.gsub(/([^a-zA-Z0-9&;<>\/\n \t()])/) do
+    text.gsub(/([^a-zA-Z0-9&;<>\/\n \t()])/) do
       if $1[0].getbyte(0) < 32
         ''
       else
@@ -207,7 +207,7 @@ module Webui::WebuiHelper
 
   def next_codemirror_uid
     @codemirror_editor_setup = @codemirror_editor_setup + 1
-    return @codemirror_editor_setup
+    @codemirror_editor_setup
   end
 
   def setup_codemirror_editor(opts = {})
@@ -227,7 +227,7 @@ module Webui::WebuiHelper
     style += "width: #{opts[:width]}; \n" unless opts[:width] == 'auto'
     style += "}\n"
     content_for(:head_style, style)
-    return @codemirror_editor_setup
+    @codemirror_editor_setup
   end
 
   def remove_dialog_tag(text)
@@ -374,7 +374,7 @@ module Webui::WebuiHelper
     rescue APIException
       return false
     end
-    return true
+    true
   end
 
   def escape_nested_list(list)

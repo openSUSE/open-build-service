@@ -86,7 +86,7 @@ module HasAttributes
     if a && a.readonly? # FIXME: joins make things read only
       a = attribs.find a.id
     end
-    return a
+    a
   end
 
   def render_attribute_axml(params = {})
@@ -100,7 +100,7 @@ module HasAttributes
         project.render_main_attributes(xml, params)
       end
     end
-    return builder.doc.to_xml indent: 2, encoding: 'UTF-8',
+    builder.doc.to_xml indent: 2, encoding: 'UTF-8',
                               save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                   Nokogiri::XML::Node::SaveOptions::FORMAT
   end

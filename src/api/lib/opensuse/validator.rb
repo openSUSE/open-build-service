@@ -65,7 +65,7 @@ module Suse
         # logger.debug "checking schema map for controller '#{c}', key: '#{key}'"
         return nil if @schema_map.nil?
         return nil unless @schema_map.has_key? c
-        return @schema_map[c][key] || @schema_map[c][key2]
+        @schema_map[c][key] || @schema_map[c][key2]
       end
 
       # validate ('schema.xsd', '<foo>bar</foo>")
@@ -113,7 +113,7 @@ module Suse
         rescue Nokogiri::XML::SyntaxError => error
           raise ValidationError, "#{schema_file} validation error: #{error}"
         end
-        return true
+        true
       end
     end
   end

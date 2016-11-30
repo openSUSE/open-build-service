@@ -44,7 +44,7 @@ module Webui::PackageHelper
     end
     ext = ext[1..-1]
     return ext if %w(diff php html xml css perl).include? ext
-    return ''
+    ''
   end
 
   include Webui::ProjectHelper

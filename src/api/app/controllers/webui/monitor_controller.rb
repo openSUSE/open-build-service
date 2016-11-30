@@ -17,7 +17,7 @@ class Webui::MonitorController < Webui::WebuiController
         ret << [(time1+time2)/2, value1 + value2]
       end if arr1
       ret << 0 if ret.length.zero?
-      return ret
+      ret
     end
   end
 
@@ -88,7 +88,7 @@ class Webui::MonitorController < Webui::WebuiController
   def gethistory(key, range, cache = 1)
     cachekey = key + "-#{range}"
     Rails.cache.delete(cachekey, shared: true) if !cache
-    return Rails.cache.fetch(cachekey, expires_in: (range.to_i * 3600) / 150, shared: true) do
+    Rails.cache.fetch(cachekey, expires_in: (range.to_i * 3600) / 150, shared: true) do
       hash = StatusHistory.history_by_key_and_hours(key, range)
       hash.sort { |a, b| a[0] <=> b[0] }
     end

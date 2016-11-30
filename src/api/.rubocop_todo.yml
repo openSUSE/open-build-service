@@ -827,12 +827,6 @@ Style/RedundantParentheses:
     - 'test/functional/source_controller_test.rb'
     - 'test/functional/webui/maintenance_workflow_test.rb'
 
-# Offense count: 233
-# Cop supports --auto-correct.
-# Configuration parameters: AllowMultipleReturnValues.
-Style/RedundantReturn:
-  Enabled: false
-
 # Offense count: 115
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, AllowInnerSlashes.

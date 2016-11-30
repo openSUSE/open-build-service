@@ -19,7 +19,7 @@ class MemoryDebugger
     def check_up(line)
       return false if self == line
       return true unless parent
-      return parent.check_up(line)
+      parent.check_up(line)
     end
   end
 

@@ -201,7 +201,7 @@ class PublicController < ApplicationController
     end
     logger.error 'No public access is configured'
     render_error( message: 'No public access is configured', status: 401 )
-    return false
+    false
   end
 
   def check_package_access(project, package, use_source = true)
