@@ -19,7 +19,7 @@ RSpec.describe EventMailer do
       expect(mail.to).to eq Event::CommentForProject.last.subscribers.map(&:email)
     end
     it 'has a subject' do
-      expect(mail.subject).to eq "New comment in project #{comment.project.name} by #{comment.user.login}"
+      expect(mail.subject).to eq "New comment in project #{comment.commentable.name} by #{comment.user.login}"
     end
   end
 end

@@ -86,7 +86,7 @@ class Project < ApplicationRecord
   has_many :develprojects, class_name: 'Project', foreign_key: 'develproject_id'
   belongs_to :develproject, class_name: 'Project'
 
-  has_many :comments, dependent: :destroy, inverse_of: :project, class_name: 'CommentProject'
+  has_many :comments, as: :commentable, dependent: :destroy
 
   has_many :project_log_entries, dependent: :delete_all
 
