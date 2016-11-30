@@ -96,7 +96,7 @@ class Wizard
     if @data[databit]
       return
     end
-    if !@questions
+    unless @questions
       @questions = []
     end
     @questions << { databit => @@databits[databit] }

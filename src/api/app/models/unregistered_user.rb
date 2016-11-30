@@ -58,7 +58,7 @@ class UnregisteredUser < User
     logger.debug("Saving new user #{newuser.login}")
     newuser.save
 
-    if !newuser.errors.empty?
+    unless newuser.errors.empty?
       details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(', ')
       raise ErrRegisterSave.new "Could not save the registration, details: #{details}"
     end

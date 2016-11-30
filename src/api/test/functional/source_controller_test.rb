@@ -634,7 +634,7 @@ EOF
     # Get meta file
     get url_for(controller: :source, action: :show_project_meta, project: project)
     assert_response response1
-    if !(response2 && tag2)
+    unless response2 && tag2
       # dummy write to check blocking
       put url_for(controller: :source, action: :update_project_meta, project: project), "<project name=\"#{project}\"><title></title><description></description></project>"
       assert_response 403 # 4
@@ -959,7 +959,7 @@ EOF
     get url_for(controller: :source, action: :show_package_meta, project: project, package: package)
     assert_response response1
 
-    if !(response2 && tag2)
+    unless response2 && tag2
       # dummy write to check blocking
       put url_for(controller: :source, action: :update_package_meta, project: project, package: package), '<package><title></title><description></description></package>'
       assert_response 404
@@ -1356,7 +1356,7 @@ EOF
   def do_test_change_package_meta (project, package, response1, response2, tag2, response3, select3)
     get url_for(controller: :source, action: :show_package_meta, project: project, package: package)
     assert_response response1
-    if !(response2 || tag2 || response3 || select3)
+    unless response2 || tag2 || response3 || select3
       # dummy write to check blocking
       put url_for(controller: :source, action: :update_package_meta, project: project, package: package),
           "<package name=\"#{package}\"><title></title><description></description></package>"

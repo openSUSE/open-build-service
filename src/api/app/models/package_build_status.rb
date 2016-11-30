@@ -67,7 +67,7 @@ class PackageBuildStatus
     missingdeps = check_missingdeps(srep, arch)
 
     # if the package does not appear in build history, check flags
-    if !@everbuilt
+    unless @everbuilt
       buildflag=@pkg.find_flag_state("build", srep['name'], arch)
       if buildflag == 'disable'
         @buildcode='disabled'
@@ -164,7 +164,7 @@ class PackageBuildStatus
       end
     end
 
-    if !@everbuilt
+    unless @everbuilt
       hist = Jobhistory.find_hashed(project: @pkg.project.name,
                                     repository: srep['name'],
                                     package: @pkg.name,

@@ -77,13 +77,13 @@ class Webui::AttributesTest < Webui::IntegrationTest
     unless attribute[:expect] == :no_permission
       # Check the existence and correct value
       visit index_attribs_path(project: attribute[:project], package: attribute[:package] )
-      if !find(:css, "td.#{attribute[:id]}")
+      unless find(:css, "td.#{attribute[:id]}")
         raise "Did not find attribute \"#{attribute[:name]}\" after saving."
       end
     end
     unless attribute[:value].blank?
       values.each do |value|
-        if !find(:css, "td.#{attribute[:id]}-values").has_text?(value)
+        unless find(:css, "td.#{attribute[:id]}-values").has_text?(value)
           raise "Did not find value \"#{value}\" for \"#{attribute[:name]}\" after saving"
         end
       end
@@ -98,7 +98,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
     visit index_attribs_path(project: attribute[:project], package: attribute[:package] )
 
     delete = find_button("#{attribute[:id]}-delete")
-    if !delete
+    unless delete
       raise "No such attribute #{attribute[:name]}"
     end
 

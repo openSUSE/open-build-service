@@ -68,6 +68,10 @@ Style/HashSyntax:
 # Use Kernel#loop for infinite loops
 Style/InfiniteLoop:
   Enabled: true
+  
+# Checks for uses of if with a negated condition (only ifs without else)
+Style/NegatedIf:
+  Enabled: true
 
 # Use ! instead not
 Style/Not:

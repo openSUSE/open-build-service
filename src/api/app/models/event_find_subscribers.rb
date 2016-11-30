@@ -78,7 +78,7 @@ class EventFindSubscribers
 
   def check_rules?(rules)
     rules.sort! { |x, y| compare_two_rules(x, y) }
-    return false if !rules[0].receive
+    return false unless rules[0].receive
     return true
   end
 

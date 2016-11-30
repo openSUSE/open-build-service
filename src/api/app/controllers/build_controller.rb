@@ -81,7 +81,7 @@ class BuildController < ApplicationController
         end
       end
 
-      if !allowed
+      unless allowed
         render_error status: 403, errorcode: "execute_cmd_no_permission",
           message: "No permission to execute command on project #{params[:project]}"
         return

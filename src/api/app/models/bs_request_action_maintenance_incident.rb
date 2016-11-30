@@ -34,7 +34,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     if target_releaseproject
       releaseproject = Project.get_by_name target_releaseproject
     else
-      if !tprj
+      unless tprj
         raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains no defined release target project for package #{pkg.name}"
       end
       releaseproject = tprj

@@ -201,7 +201,7 @@ class ProjectStatusCalculator
   def calc_status(opts = {})
     mypackages = Hash.new
 
-    if !@dbproj
+    unless @dbproj
       return mypackages
     end
 

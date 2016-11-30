@@ -118,7 +118,7 @@ class BsRequestAction < ApplicationRecord
   def check_sanity
     if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? action_type
       errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
-      if !is_maintenance_incident?
+      unless is_maintenance_incident?
         errors.add(:source_package, "should not be empty for #{action_type} requests") if source_package.blank?
       end
       errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
@@ -355,7 +355,7 @@ class BsRequestAction < ApplicationRecord
         reviews.push(tpkg.develpackage)
       end
 
-      if !is_maintenance_release?
+      unless is_maintenance_release?
         # Creating requests from packages where no maintainer right exists will enforce a maintainer review
         # to avoid that random people can submit versions without talking to the maintainers
         # projects may skip this by setting OBS:ApprovedRequestSource attributes
