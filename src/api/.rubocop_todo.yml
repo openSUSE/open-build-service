@@ -125,12 +125,6 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Max: 73
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/RedundantBlockCall:
-  Exclude:
-    - 'lib/activexml/node.rb'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 Performance/RedundantMatch:
@@ -298,11 +292,6 @@ Style/AlignArray:
     - 'lib/xpath_engine.rb'
     - 'test/functional/source_controller_test.rb'
 
-# Offense count: 1
-Style/AsciiComments:
-  Exclude:
-    - 'test/functional/webui/package_controller_test.rb'
-
 # Offense count: 41
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, ProceduralMethods, FunctionalMethods, IgnoredMethods.
@@ -437,12 +426,6 @@ Style/Documentation:
 # SupportedStyles: leading, trailing
 Style/DotPosition:
   Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/EachWithObject:
-  Exclude:
-    - 'app/models/project.rb'
 
 # Offense count: 174
 # Cop supports --auto-correct.

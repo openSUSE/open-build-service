@@ -267,7 +267,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     click_link 'succeeded'
     find(:id, 'log_space').must_have_text '[1] this is my dummy logfile -> ümlaut'
     first(:link, 'Download logfile').click
-    # don't bother with the ümlaut
+    # don't bother with german umlauts
     assert_match %r{this is my dummy}, page.source
   end
 

@@ -9,6 +9,10 @@ AllCops:
     - 'lib/templates/**/*'
     - 'vendor/bundle/**/*'
 
+# Use yield instead of having a &block parameter and block.call
+Performance/RedundantBlockCall:
+  Enabled: true
+
 # Align the elements of a hash literal if they span more than one line.
 Style/AlignHash:
   # Alignment of entries using hash rocket as separator.
@@ -28,6 +32,10 @@ Style/AndOr:
   Enabled: true
   EnforcedStyle: always
 
+# Only allow comments written in ASCII
+Style/AsciiComments:
+  Enabled: true
+
 # Use ` or %x around command literals.
 Style/CommandLiteral:
   EnforcedStyle: percent_x
@@ -40,6 +48,10 @@ Style/Copyright:
 
 # Avoid using double negation (!!) to convert something to a boolean value
 Style/DoubleNegation:
+  Enabled: true
+
+# Replace inject with each_with_object
+Style/EachWithObject:
   Enabled: true
 
 # Avoid empty else statements.
