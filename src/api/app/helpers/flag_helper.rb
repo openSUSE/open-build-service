@@ -130,13 +130,13 @@ module FlagHelper
   def enabled_for?(flag_type, repo, arch)
     state = find_flag_state(flag_type, repo, arch)
     logger.debug "enabled_for #{flag_type} repo:#{repo} arch:#{arch} state:#{state}"
-    state.to_sym == :enable ? true : false
+    state.to_sym == :enable
   end
 
   def disabled_for?(flag_type, repo, arch)
     state = find_flag_state(flag_type, repo, arch)
     logger.debug "disabled_for #{flag_type} repo:#{repo} arch:#{arch} state:#{state}"
-    state.to_sym == :disable ? true : false
+    state.to_sym == :disable
   end
 
   def find_flag_state(flag_type, repo, arch)

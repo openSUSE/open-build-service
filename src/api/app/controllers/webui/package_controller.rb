@@ -1083,7 +1083,7 @@ class Webui::PackageController < Webui::WebuiController
       if response.code.to_i == 302 && response['location'] && max_redirects > 0
         return file_available? response['location'], (max_redirects - 1)
       end
-      return response.code.to_i == 200 ? true : false
+      return response.code.to_i == 200
     rescue Object => e
       logger.error "Error in checking for file #{url}: #{e.message}"
       return false
