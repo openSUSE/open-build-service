@@ -102,6 +102,7 @@ FactoryGirl.define do
           create(:build_flag, status: 'disable', project: evaluator.target_project)
           create(:publish_flag, status: 'disable', project: evaluator.target_project)
           update_project.projects_linking_to << evaluator.target_project
+          update_project.store
           new_repository = create(:repository, project: update_project, architectures: ['i586'])
           create(:path_element, repository: new_repository, link: evaluator.target_project.repositories.first)
         end
