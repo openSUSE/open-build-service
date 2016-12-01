@@ -171,6 +171,11 @@ function setupActionLink() {
         $('.action_display').hide();
         index = event.target.id.split('action_select_link_')[1];
         $('#action_display_' + index).show();
+        // It is necessary to refresh the CodeMirror editors after switching tabs to initialise the dimensions again.
+        // Otherwise the editors are empty after calling show().
+        $.each(editors, function() {
+          if (!!this) this.refresh();
+        });
         return false;
     });
 }
