@@ -46,10 +46,15 @@ class Issue < ApplicationRecord
     }
   end
 
-  def self.bugzilla_state( string )
-    return 'OPEN' if %w(NEW NEEDINFO REOPENED ASSIGNED).include? string
-    return 'CLOSED' if %w(RESOLVED CLOSED VERIFIED).include? string
-    return 'UNKNOWN'
+  def self.bugzilla_state(string)
+    case string
+    when "NEW", "NEEDINFO", "REOPENED", "ASSIGNED"
+      "OPEN"
+    when "RESOLVED", "CLOSED", "VERIFIED"
+      "CLOSED"
+    else
+      "UNKNOWN"
+    end
   end
 
   def self.valid_name?(tracker, name)
