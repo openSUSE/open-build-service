@@ -72,6 +72,12 @@
       </element>
 
       <interleave>
+        <optional>
+          <element ns="" name="url">
+            <text/>
+          </element>
+        </optional>
+
         <zeroOrMore>
           <ref name="project-link-element"/>
         </zeroOrMore>

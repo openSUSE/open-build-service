@@ -545,6 +545,7 @@ class Project < ApplicationRecord
 
     self.title = xmlhash.value('title')
     self.description = xmlhash.value('description')
+    self.url = xmlhash.value('url')
     self.remoteurl = xmlhash.value('remoteurl')
     self.remoteproject = xmlhash.value('remoteproject')
     self.kind = xmlhash.value('kind') unless xmlhash.value('kind').blank?

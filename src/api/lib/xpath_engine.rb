@@ -64,6 +64,7 @@ class XpathEngine
         '@kind' => {cpart: 'projects.kind'},
         'title' => {cpart: 'projects.title'},
         'description' => {cpart: 'projects.description'},
+        'url' => {cpart: 'projects.url'},
         'maintenance/maintains/@project' => {cpart: 'maintains_prj.name', joins: [
           'LEFT JOIN maintained_projects AS maintained_prj ON projects.id = maintained_prj.maintenance_project_id',
           'LEFT JOIN projects AS maintains_prj ON maintained_prj.project_id = maintains_prj.id']},
