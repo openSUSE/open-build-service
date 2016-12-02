@@ -19,28 +19,38 @@ RSpec.describe Relationship do
   end
 
   describe '.forbidden_project_ids' do
-    it 'always returns 0 for admins' do
-      login(create(:admin_user))
+    let(:confirmed_user) { create(:confirmed_user) }
+    let(:project) { create(:forbidden_project) }
 
-      expect(Relationship.forbidden_project_ids).to eq([0])
+    context 'for admins' do
+      let(:admin_user) { create(:admin_user) }
+
+      before do
+        login(admin_user)
+      end
+
+      it { expect(Relationship.forbidden_project_ids).to eq([0]) }
     end
 
-    it 'hides projects for users' do
-      login(create(:confirmed_user))
-      project = create(:forbidden_project)
-      create(:relationship_project_user, project: project, user: User.current)
+    context 'for users' do
+      let(:confirmed_user2) { create(:confirmed_user) }
 
-      login(create(:confirmed_user))
-      expect(Relationship.forbidden_project_ids).to include(project.id)
+      before do
+        login(confirmed_user)
+        create(:relationship_project_user, project: project, user: confirmed_user)
+        login(confirmed_user2)
+      end
+
+      it { expect(Relationship.forbidden_project_ids).to include(project.id) }
     end
 
-    it 'shows projects for whitelisted users' do
-      project = create(:forbidden_project)
-      user = create(:confirmed_user)
-      create(:relationship_project_user, project: project, user: user)
+    context 'for whitelisted users' do
+      before do
+        login(confirmed_user)
+        create(:relationship_project_user, project: project, user: confirmed_user)
+      end
 
-      login(user)
-      expect(Relationship.forbidden_project_ids).not_to include(project.id)
+      it { expect(Relationship.forbidden_project_ids).not_to include(project.id) }
     end
   end
 
