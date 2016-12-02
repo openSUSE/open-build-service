@@ -761,6 +761,7 @@ sub findsim {
       }
       $fc =~ s/\.bz2$//;
       $fc =~ s/\.gz$//;
+      $fc =~ s/\.xz$//;
       next if $fc =~ /\.(?:spec|dsc|changes)$/;	# no compression here!
       if ($fc =~ /^(.*)\.([^\/]+)$/) {
 	$fc{$f} = $1;
