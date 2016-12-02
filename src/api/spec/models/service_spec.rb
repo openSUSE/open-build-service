@@ -10,7 +10,7 @@ RSpec.describe Service, vcr: true do
 
   context '#addKiwiImport' do
     before do
-      User.current = user
+      login(user)
       service.addKiwiImport
     end
 

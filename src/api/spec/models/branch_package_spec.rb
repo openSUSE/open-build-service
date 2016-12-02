@@ -15,7 +15,7 @@ RSpec.describe BranchPackage, vcr: true do
     let(:branch_apache_package) { BranchPackage.new(project: leap_project.name, package: apache.name) }
 
     before(:each) do
-      User.current = user
+      login(user)
     end
 
     after(:each) do

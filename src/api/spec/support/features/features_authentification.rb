@@ -6,11 +6,13 @@ module FeaturesAuthentification
     fill_in 'user_password', with: password
     click_button 'Log In »'
     expect(page).to have_link 'link-to-user-home'
+    User.current = user
   end
 
   def logout
     visit user_logout_path
     expect(page).to have_no_link('link-to-user-home')
+    User.current = nil
   end
 end
 
