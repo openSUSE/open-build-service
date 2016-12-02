@@ -91,6 +91,7 @@ $BSSrcServer::Service::notify_repservers = \&notify_repservers;
 $BSSrcServer::Product::notify_repservers = \&notify_repservers;
 
 $Build::Rpm::unfilteredprereqs = 1 if defined $Build::Rpm::unfilteredprereqs;
+$Build::Rpm::conflictdeps = 1 if defined $Build::Rpm::conflictdeps;
 
 use strict;
 
