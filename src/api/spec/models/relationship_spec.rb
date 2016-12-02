@@ -20,17 +20,17 @@ RSpec.describe Relationship do
 
   describe '.forbidden_project_ids' do
     it 'always returns 0 for admins' do
-      User.current = create(:admin_user)
+      login(create(:admin_user))
 
       expect(Relationship.forbidden_project_ids).to eq([0])
     end
 
     it 'hides projects for users' do
-      User.current = create(:confirmed_user)
+      login(create(:confirmed_user))
       project = create(:forbidden_project)
       create(:relationship_project_user, project: project, user: User.current)
 
-      User.current = create(:confirmed_user)
+      login(create(:confirmed_user))
       expect(Relationship.forbidden_project_ids).to include(project.id)
     end
 
@@ -39,7 +39,7 @@ RSpec.describe Relationship do
       user = create(:confirmed_user)
       create(:relationship_project_user, project: project, user: user)
 
-      User.current = user
+      login(user)
       expect(Relationship.forbidden_project_ids).not_to include(project.id)
     end
   end

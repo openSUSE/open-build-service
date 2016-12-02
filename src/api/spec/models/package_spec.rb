@@ -19,7 +19,7 @@ RSpec.describe Package, vcr: true do
 
   context '#save_file' do
     before do
-      User.current = user
+      login(user)
     end
 
     it 'calls #addKiwiImport if filename ends with kiwi.txz' do
@@ -47,7 +47,7 @@ RSpec.describe Package, vcr: true do
     let(:url) { "#{CONFIG['source_url']}/source/#{home_project.name}/#{package_with_file.name}" }
 
     before do
-      User.current = user
+      login(user)
     end
 
     context 'with delete permission' do
@@ -82,7 +82,7 @@ RSpec.describe Package, vcr: true do
       let(:other_user) { create(:user) }
 
       before do
-        User.current = other_user
+        login(other_user)
       end
 
       it 'raises DeleteFileNoPermission exception' do
@@ -109,7 +109,7 @@ RSpec.describe Package, vcr: true do
 
   context '#maintainers' do
     before do
-      User.current = user
+      login(user)
     end
 
     it 'returns an array with user objects to all maintainers for a package' do
