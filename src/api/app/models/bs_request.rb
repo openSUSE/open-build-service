@@ -1176,9 +1176,9 @@ class BsRequest < ApplicationRecord
 
     # it's wiser to split the queries
     if opts[:project] && roles.empty? && (states.empty? || states.include?("review"))
-      collection(opts.merge(roles: ["reviewer"])) + collection(opts.merge(roles: ["target", "source"]))
+      (collection(opts.merge(roles: ["reviewer"])) + collection(opts.merge(roles: ["target", "source"]))).uniq
     else
-      collection(opts)
+      collection(opts).uniq
     end
   end
 
