@@ -3553,8 +3553,10 @@ sub getajaxstatus {
 
 sub hello {
   my ($cgi) = @_;
-  return "<hello name=\"Package Repository Ajax Server\" />\n" if $BSStdServer::isajax;
-  return "<hello name=\"Package Repository Server\" />\n";
+  my $part = "";
+  $part = "partition=\"$BSConfig::partition\" " if $BSConfig::partition;
+  return "<hello name=\"Package Repository Ajax Server\" $part/>\n" if $BSStdServer::isajax;
+  return "<hello name=\"Package Repository Server\" $part/>\n";
 }
 
 my $dispatches = [
