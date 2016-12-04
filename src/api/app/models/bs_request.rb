@@ -1182,10 +1182,6 @@ class BsRequest < ApplicationRecord
     end
   end
 
-  def self.list_ids(opts)
-    list(opts).pluck(:id)
-  end
-
   def self.list_numbers(opts)
     list(opts).pluck(:number)
   end

@@ -39,10 +39,10 @@
                     <% end %>
                     <%= link_to(sprite_tag('exclamation', title: pluralize(rqs_in.count, "open request")), path) %>
                 <% end %>
-                <% rqs_out = BsRequest.list_ids(roles: %w(source), states: %w(new review declined),
+                <% requests_out = BsRequest.list(roles: %w(source), states: %w(new review declined),
                                                           types: %w(maintenance_release), project: incident.name) %>
-                <% if rqs_out.present? %>
-                    <% BsRequest.where(id: rqs_out).order('bs_requests.number').each do |rq_out| %>
+                <% if requests_out.present? %>
+                    <% requests_out.order('bs_requests.number').each do |rq_out| %>
                         <% text = "Release request in state '#{rq_out['state']}'" %>
                         <%= link_to(sprite_tag(map_request_state_to_flag(rq_out['state'].to_s), title: text),
                               request_show_path(rq_out["number"])) %>
