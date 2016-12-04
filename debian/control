@@ -4,7 +4,6 @@ Priority: optional
 Maintainer: Debian Ruby Extras Maintainers <pkg-ruby-extras-maintainers@lists.alioth.debian.org>
 Uploaders: Andrew Lee (李健秋) <ajqlee@debian.org>,
            Héctor Orón Martínez <zumbi@debian.org>,
-           Antonio Terceiro <terceiro@debian.org>
 Build-Depends: debhelper (>= 9),
                dh-systemd,
                bundler,
