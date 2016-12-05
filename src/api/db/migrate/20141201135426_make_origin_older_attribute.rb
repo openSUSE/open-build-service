@@ -1,7 +1,7 @@
 
 require_relative '../attribute_descriptions'
 
-class MakeOriginOlderAttribute  < ActiveRecord::Migration
+class MakeOriginOlderAttribute < ActiveRecord::Migration
   class AttribTypeModifiableBy < ActiveRecord::Base; end
 
   def self.up

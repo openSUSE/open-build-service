@@ -2,11 +2,11 @@ class AddGenericOperationHistory < ActiveRecord::Migration
   def self.up
     create_table :history_elements do |t|
       t.string :type, null: false
-      t.integer :op_object_id, null: false      # id of request/project/...
+      t.integer :op_object_id, null: false # id of request/project/...
       t.datetime :created_at, null: false
       t.references :user, null: false
-      t.string :description_extension       # by code
-      t.text :comment                     # by user
+      t.string :description_extension # by code
+      t.text :comment # by user
     end
 
     add_index :history_elements, :created_at

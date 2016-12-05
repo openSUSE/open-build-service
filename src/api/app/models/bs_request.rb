@@ -417,7 +417,7 @@ class BsRequest < ApplicationRecord
 
   def changestate_accepted(opts)
     # all maintenance_incident actions go into the same incident project
-    incident_project = nil  # .where(type: 'maintenance_incident')
+    incident_project = nil # .where(type: 'maintenance_incident')
     bs_request_actions.each do |action|
       source_project = Project.find_by_name(action.source_project)
       if action.source_project && action.is_maintenance_release?

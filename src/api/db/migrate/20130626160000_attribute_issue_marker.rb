@@ -1,8 +1,8 @@
-class AttributeIssueMarker  < ActiveRecord::Migration
+class AttributeIssueMarker < ActiveRecord::Migration
   def self.up
     ans = AttribNamespace.find_by_name "OBS"
 
-    at=AttribType.create( attrib_namespace: ans, name: "Issues",  value_count: 0 )
+    at=AttribType.create( attrib_namespace: ans, name: "Issues", value_count: 0 )
     p={}
     p[:bs_role_id] = Role.find_by_title("maintainer").id
     at.attrib_type_modifiable_bies.create(p)

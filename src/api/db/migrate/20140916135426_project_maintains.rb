@@ -1,4 +1,4 @@
-class ProjectMaintains  < ActiveRecord::Migration
+class ProjectMaintains < ActiveRecord::Migration
   class OldProject < ActiveRecord::Base
      self.table_name = 'projects'
   end

@@ -1,7 +1,7 @@
 
 require_relative '../attribute_descriptions'
 
-class EmbargoAttribute  < ActiveRecord::Migration
+class EmbargoAttribute < ActiveRecord::Migration
   class AttribTypeModifiableBy < ActiveRecord::Base; end
 
   def self.up

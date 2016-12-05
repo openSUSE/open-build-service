@@ -26,7 +26,7 @@ class NyanUnicornFormatter < NyanCatFormatter
     [
       nyan_trail.split("\n").each_with_index.inject([]) do |result, (trail, index)|
         last_length = format("%s", "#{scoreboard[index]}/#{@example_count}:").length unless scoreboard[index].nil?
-        value =  scoreboard[index].nil? ? ' ' * (last_length / 2) : "#{scoreboard[index]}/#{@example_count}:"
+        value = scoreboard[index].nil? ? ' ' * (last_length / 2) : "#{scoreboard[index]}/#{@example_count}:"
         result << format("%s %s", value, trail)
       end
     ].flatten

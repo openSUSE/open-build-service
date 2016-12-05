@@ -126,7 +126,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
            assert_equal "package_newweaktags", p["format"]["rpm:provides"]['rpm:entry'][1]['name']
            assert_equal "package_newweaktags(x86-64)", p["format"]["rpm:provides"]['rpm:entry'][2]['name']
          else
-           assert nil  # unhandled src rpm
+           assert nil # unhandled src rpm
          end
          if File.exist? "/var/adm/fillup-templates"
            # seems to be a SUSE system

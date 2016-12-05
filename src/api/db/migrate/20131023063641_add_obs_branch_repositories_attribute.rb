@@ -1,4 +1,4 @@
-class AddObsBranchRepositoriesAttribute  < ActiveRecord::Migration
+class AddObsBranchRepositoriesAttribute < ActiveRecord::Migration
   class AttribTypeModifiableBy < ActiveRecord::Base; end
 
   def self.up

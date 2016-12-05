@@ -767,7 +767,7 @@ class SourceController < ApplicationController
     if @package_name == '_project' || @package_name == '_pattern'
       @allowed = permissions.project_change? @prj
 
-      if @file == '_attribute' &&  @package_name == '_project'
+      if @file == '_attribute' && @package_name == '_project'
         raise WrongRouteForAttribute.new "Attributes need to be changed through #{change_attribute_path(project: params[:project])}"
       end
     else

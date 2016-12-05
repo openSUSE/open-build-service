@@ -410,7 +410,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     # this is not a good test - as the actual test is that didn't create bizar SQL queries, but this requires human eyes
     # rubocop:disable Metrics/LineLength
-    get "/search/request",  match: 'action/@type="submit" and (action/target/@project="Apache" or submit/target/@project="Apache") and (action/target/@package="apache2" or submit/target/@package="apache2")'
+    get "/search/request", match: 'action/@type="submit" and (action/target/@project="Apache" or submit/target/@project="Apache") and (action/target/@package="apache2" or submit/target/@package="apache2")'
     # rubocop:enable Metrics/LineLength
     assert_response :success
   end

@@ -7,8 +7,8 @@ class MultipleIncidentCounters < ActiveRecord::Migration
   def self.up
     create_table :incident_updateinfo_counter_values do |t|
       t.references :updateinfo_counter, null: false
-      t.references :project,     null: false
-      t.integer :value,       null: false
+      t.references :project, null: false
+      t.integer :value, null: false
       t.datetime :released_at, null: false
     end
     add_index :incident_updateinfo_counter_values, [:updateinfo_counter_id, :project_id], name: "uniq_id_index"

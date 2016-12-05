@@ -4,7 +4,7 @@ namespace :assets do
     require 'sprite_factory'
     SpriteFactory.library = 'chunkypng'
     SpriteFactory.layout = 'packed'
-    SpriteFactory.cssurl = "image-url('$IMAGE')"    # use a sass-rails helper method to be evaluated by the rails asset pipeline
+    SpriteFactory.cssurl = "image-url('$IMAGE')" # use a sass-rails helper method to be evaluated by the rails asset pipeline
     ## run it once for the md5sum
     # SpriteFactory.run!('app/assets/icons', output_image: 'tmp/sprite.tmp.png', margin: 2, nocss: true)
     # md5=Digest::MD5.hexdigest(File.open('tmp/sprite.tmp.png').read)

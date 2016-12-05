@@ -52,7 +52,7 @@ class XpathEngine
         'attribute/@name' => {cpart: 'attrib_namespaces.name = ? AND attrib_types.name',
           split: ':', joins:           ['LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
-           'LEFT JOIN attribs AS attribsprj ON attribsprj.project_id = packages.project_id',   # include also, when set in project
+           'LEFT JOIN attribs AS attribsprj ON attribsprj.project_id = packages.project_id', # include also, when set in project
            'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id',
            'LEFT JOIN attrib_namespaces AS attrib_namespacesprj ON attrib_typesprj.attrib_namespace_id = attrib_namespacesprj.id']},
         'project/attribute/@name' => {cpart: 'attrib_namespaces_proj.name = ? AND attrib_types_proj.name', split: ':', joins:           ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.project_id = packages.project_id',

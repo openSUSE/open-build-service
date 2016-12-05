@@ -568,9 +568,9 @@ class Webui::ProjectController < Webui::WebuiController
         end
       end
 
-    rescue Suse::ValidationError  => exception
+    rescue Suse::ValidationError => exception
       errors << exception.message
-    rescue Project::UnknownObjectError  => exception
+    rescue Project::UnknownObjectError => exception
       errors << "Project with name '#{exception.message}' not found"
     end
 
@@ -589,7 +589,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     @content = @project.config.to_s(sliced_params.to_h)
     unless @content
-      flash[:error] =  @project.config.errors.full_messages.to_sentence
+      flash[:error] = @project.config.errors.full_messages.to_sentence
       redirect_to controller: 'project', nextstatus: 404
       return
     end
@@ -856,7 +856,7 @@ class Webui::ProjectController < Webui::WebuiController
     f=File.open(outdir + '/longest.xml')
     longest = Xmlhash.parse(f.read)
     longest['timings'].elements('package') do |p|
-      @timings[p['name']] = [p['buildtime'], p['finished']    ]
+      @timings[p['name']] = [p['buildtime'], p['finished'] ]
     end
     @rebuildtime = Integer(longest['rebuildtime'])
     f.close

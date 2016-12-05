@@ -1,13 +1,13 @@
 class AddPackageTracking < ActiveRecord::Migration
   def up
     create_table :binary_releases do |t|
-      t.references :repository, null: false  # this destroys the entry when it gets removed
+      t.references :repository, null: false # this destroys the entry when it gets removed
       t.integer :operation, null: false
-      t.datetime :obsolete_time            # set when binary gets deleted or modified later
+      t.datetime :obsolete_time # set when binary gets deleted or modified later
 
       t.integer :release_package_id
 
-      t.string :binary_name,        null: false
+      t.string :binary_name, null: false
       t.string :binary_epoch,                    limit: 64
       t.string :binary_version,     null: false, limit: 64
       t.string :binary_release,     null: false, limit: 64

@@ -22,7 +22,7 @@ class TagController < ApplicationController
       project = Project.find(tagging.taggable_id)
       tag = Tag.find(tagging.tag_id)
       @projects_tags[project] = [] if @projects_tags[project].nil?
-      @projects_tags[project] <<  tag
+      @projects_tags[project] << tag
     end
     @projects_tags.keys.each do |key|
       @projects_tags[key].sort!{ |a, b| a.name.downcase <=> b.name.downcase }
@@ -39,7 +39,7 @@ class TagController < ApplicationController
       package = Package.find(tagging.taggable_id)
       tag = Tag.find(tagging.tag_id)
       @packages_tags[package] = [] if @packages_tags[package].nil?
-      @packages_tags[package] <<  tag
+      @packages_tags[package] << tag
     end
     @packages_tags.keys.each do |key|
       @packages_tags[key].sort!{ |a, b| a.name.downcase <=> b.name.downcase }
@@ -137,7 +137,7 @@ class TagController < ApplicationController
     end
   end
 
-  def get_tags_by_user_and_package( do_render = true  )
+  def get_tags_by_user_and_package( do_render = true )
     user = User.find_by_login!(params[:user])
     @type = "package"
 
@@ -197,7 +197,7 @@ class TagController < ApplicationController
 
       # update_tags_by_project_and_user(request_data)
 
-      @tags =  taglistXML_to_tags(request_data)
+      @tags = taglistXML_to_tags(request_data)
 
       save_tags(@project, @tagCreator, @tags)
 
@@ -238,7 +238,7 @@ class TagController < ApplicationController
       # taglistXML = "<the whole xml/>"
       @taglistXML = request_data
 
-      @tags =  taglistXML_to_tags(request_data)
+      @tags = taglistXML_to_tags(request_data)
 
       save_tags(@package, @tagCreator, @tags)
 
@@ -303,7 +303,7 @@ class TagController < ApplicationController
 
     xml = Xmlhash.parse(taglistXML)
 
-    xml.elements("tag") do  |tag|
+    xml.elements("tag") do |tag|
       taglist << tag["name"]
     end
 

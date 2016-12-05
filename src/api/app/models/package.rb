@@ -602,7 +602,7 @@ class Package < ApplicationRecord
   end
 
   def self.detect_package_kinds(directory)
-    raise ArgumentError.new 'neh!' if  directory.has_key? 'time'
+    raise ArgumentError.new 'neh!' if directory.has_key? 'time'
     ret = []
     directory.elements('entry') do |e|
       %w{patchinfo aggregate link channel}.each do |kind|

@@ -53,7 +53,7 @@ RSpec.describe 'APIMatcher' do
     }
     it {
       expect(get("/public/binary_packages/project/package?format=#{format}")).
-        to route_to(controller: 'public', action: 'binary_packages',  project: 'project', package: 'package', format: format)
+        to route_to(controller: 'public', action: 'binary_packages', project: 'project', package: 'package', format: format)
     }
   end
 

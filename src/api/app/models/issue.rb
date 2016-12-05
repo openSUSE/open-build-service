@@ -99,12 +99,12 @@ class Issue < ApplicationRecord
     p[:change] = change if change
     node.issue(p) do |issue|
       issue.created_at(created_at)
-      issue.updated_at(updated_at)   if updated_at
+      issue.updated_at(updated_at) if updated_at
       issue.name(name)
       issue.tracker(issue_tracker.name)
       issue.label(label)
       issue.url(url)
-      issue.state(state)             if state
+      issue.state(state) if state
       issue.summary(summary) if summary
 
       if owner_id

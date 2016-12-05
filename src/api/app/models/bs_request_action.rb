@@ -8,7 +8,7 @@ class BsRequestAction < ApplicationRecord
   VALID_SOURCEUPDATE_OPTIONS = ['update', 'noupdate', 'cleanup']
 
   #### Self config
-  class DiffError < APIException; setup 404; end  # a diff error can have many reasons, but most likely something within us
+  class DiffError < APIException; setup 404; end # a diff error can have many reasons, but most likely something within us
   class RemoteSource < APIException; end
   class RemoteTarget < APIException; end
   class InvalidReleaseTarget < APIException; end

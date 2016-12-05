@@ -84,12 +84,12 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
     visit_owner_search
 
     # Search including devel projects
-    search text: "package", flags: [:devel],  expect: "success"
+    search text: "package", flags: [:devel], expect: "success"
     result = search_results.first
     assert result[:project] == "home:coolo:test"
 
     # search again, but ignore devel package
-    search text: "package", flags: [:nodevel],  expect: "success"
+    search text: "package", flags: [:nodevel], expect: "success"
     result = search_results.first
     assert result[:project] == "home:Iggy"
     assert result[:package] == "TestPack"

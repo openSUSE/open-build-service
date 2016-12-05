@@ -1,4 +1,4 @@
-class AddReleaseTargetConstraints  < ActiveRecord::Migration
+class AddReleaseTargetConstraints < ActiveRecord::Migration
   def self.up
     sql =<<-END_SQL
 alter table release_targets add FOREIGN KEY (repository_id) references repositories (id);

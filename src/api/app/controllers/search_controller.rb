@@ -92,7 +92,7 @@ class SearchController < ApplicationController
 
   def predicate_from_match_parameter(p)
     pred = case p
-      when  /^\(\[(.*)\]\)$/
+      when /^\(\[(.*)\]\)$/
            $1
       when /^\[(.*)\]$/
            $1

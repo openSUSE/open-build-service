@@ -60,7 +60,7 @@ OBSApi::Application.routes.draw do
       collection do
         get ':project(/:package)/new' => :new, constraints: cons, as: 'new'
         get ':project(/:package)/:attribute/edit' => :edit, constraints: cons, as: 'edit'
-        get ':project(/:package)' => :index, constraints: cons,  as: 'index'
+        get ':project(/:package)' => :index, constraints: cons, as: 'index'
       end
     end
 

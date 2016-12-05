@@ -50,7 +50,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text("User not found INVALID")
   end
 
-  def test_show_user_tables  # spec/models/users_spec.rb
+  def test_show_user_tables # spec/models/users_spec.rb
     use_js
     visit user_show_path(user: 'fred')
 
@@ -101,7 +101,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_text "Manage users."
   end
 
-  def test_show_icons  # spec/features/webui/users/users_icons_spec.rb
+  def test_show_icons # spec/features/webui/users/users_icons_spec.rb
     visit '/user/icon/Iggy.png'
     page.status_code.must_equal 200
     visit '/user/icon/Iggy.png?size=20'

@@ -15,7 +15,7 @@ class Webui::ProjectHelperTest < ActiveSupport::TestCase
 
   def test_request_state_icon # spec/helpers/webui/project_helper_spec.rb
     assert_equal map_request_state_to_flag('new'), 'flag_green'
-    assert_equal map_request_state_to_flag(nil),  ''
+    assert_equal map_request_state_to_flag(nil), ''
   end
 
   def test_escape_list_escapes_forbidden_chars # spec/helpers/webui/project_helper_spec.rb

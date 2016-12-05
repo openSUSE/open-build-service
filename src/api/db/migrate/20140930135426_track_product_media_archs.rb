@@ -1,4 +1,4 @@
-class TrackProductMediaArchs  < ActiveRecord::Migration
+class TrackProductMediaArchs < ActiveRecord::Migration
   def self.up
     add_column :product_media, :arch_filter_id, :integer
     add_column :product_update_repositories, :arch_filter_id, :integer

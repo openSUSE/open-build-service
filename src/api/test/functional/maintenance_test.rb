@@ -975,7 +975,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # search will find this new and not yet processed incident now.
     get '/search/project', match: '[repository/releasetarget/@trigger="maintenance"]'
     assert_response :success
-    assert_xml_tag parent: { tag: 'collection' },  tag: 'project', attributes: { name: incidentProject }
+    assert_xml_tag parent: { tag: 'collection' }, tag: 'project', attributes: { name: incidentProject }
 
     # Create patchinfo informations
     Timecop.freeze(1)
@@ -1484,7 +1484,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # check :full tree
     get '/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository'
     assert_response :success
-    assert_xml_tag parent: { tag: 'binarylist' },  tag: 'binary', attributes: { filename: 'package.rpm' }
+    assert_xml_tag parent: { tag: 'binarylist' }, tag: 'binary', attributes: { filename: 'package.rpm' }
     get '/source/BaseDistro2.0:LinkedUpdateProject/_project/_history'
     assert_response :success
     assert_xml_tag parent: { tag: 'revision' },  tag: 'comment', content: "Releasing from project My:Maintenance:#{incidentID} the update My-oldname-2010-1"
@@ -1509,7 +1509,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # search will find this incident not anymore
     get '/search/project', match: '[repository/releasetarget/@trigger="maintenance"]'
     assert_response :success
-    assert_no_xml_tag parent: { tag: 'collection' },  tag: 'project', attributes: { name: incidentProject }
+    assert_no_xml_tag parent: { tag: 'collection' }, tag: 'project', attributes: { name: incidentProject }
 
     # check released data
     run_publisher
@@ -1633,7 +1633,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     run_scheduler('i586')
     get '/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository'
     assert_response :success
-    assert_no_xml_tag parent: { tag: 'binarylist' },  tag: 'binary'
+    assert_no_xml_tag parent: { tag: 'binarylist' }, tag: 'binary'
     # publish repo got cleaned
     run_publisher
     get '/build/BaseDistro2.0:LinkedUpdateProject/_result'
@@ -2289,7 +2289,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # copyrev = last_revision(copyhistory).rev
     copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal srcmd5, copysrcmd5
-    assert_equal vrev.to_i, copyvrev.to_i - 1  # the copy gets always an additional commit
+    assert_equal vrev.to_i, copyvrev.to_i - 1 # the copy gets always an additional commit
     assert_equal version, copyversion
     assert_not_equal time, copytime
     assert_equal last_revision(copyhistory).value(:user), 'king'
@@ -2354,7 +2354,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # copyrev = last_revision(copyhistory).rev
     copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal srcmd5, copysrcmd5
-    assert_equal vrev.to_i + 1, copyvrev.to_i  # the copy gets always a higher vrev
+    assert_equal vrev.to_i + 1, copyvrev.to_i # the copy gets always a higher vrev
     assert_equal version, copyversion
     assert_not_equal time, copytime # the timestamp got not copied
     assert_equal last_revision(copyhistory).value(:user), 'king'
@@ -2425,7 +2425,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     vrev = last_revision(history).value(:vrev)
     assert_not_nil srcmd5
     assert_equal originsrcmd5, srcmd5
-    assert_equal originvrev.to_i + 2, vrev.to_i  # vrev jumps two numbers
+    assert_equal originvrev.to_i + 2, vrev.to_i # vrev jumps two numbers
     assert_equal version, originversion
     assert_not_equal time, origintime
     assert_equal 'king', last_revision(history).value(:user)
@@ -2441,7 +2441,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal originsrcmd5, copysrcmd5
     expectedvrev="#{(originvrev.to_i+1)}.1" # the copy gets incremented by one, but also extended to avoid that it can become
-    assert_equal expectedvrev, copyvrev    # newer than the origin project at any time later.
+    assert_equal expectedvrev, copyvrev # newer than the origin project at any time later.
     assert_equal originversion, copyversion
     assert_not_equal origintime, copytime
     assert_equal 'king', last_revision(copyhistory).value(:user)

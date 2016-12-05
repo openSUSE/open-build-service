@@ -1,4 +1,4 @@
-class AutoCleanupAttribute  < ActiveRecord::Migration
+class AutoCleanupAttribute < ActiveRecord::Migration
   class AttribTypeModifiableBy < ActiveRecord::Base; end
 
   def self.up

@@ -1,4 +1,4 @@
-class GroupSubscriptions  < ActiveRecord::Migration
+class GroupSubscriptions < ActiveRecord::Migration
   def self.up
     add_column :event_subscriptions, :group_id, :integer
     add_index :event_subscriptions, :group_id

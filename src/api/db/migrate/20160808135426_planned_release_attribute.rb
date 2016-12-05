@@ -1,6 +1,6 @@
 require_relative '../attribute_descriptions'
 
-class PlannedReleaseAttribute  < ActiveRecord::Migration
+class PlannedReleaseAttribute < ActiveRecord::Migration
   def self.up
     ans = AttribNamespace.find_by_name "OBS"
 
