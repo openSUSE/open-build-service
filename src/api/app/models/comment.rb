@@ -59,6 +59,7 @@ class Comment < ApplicationRecord
   end
 
   def check_delete_permissions
+    return false if User.current.blank?
     # Admins can always delete all comments
     return true if User.current.is_admin?
 
