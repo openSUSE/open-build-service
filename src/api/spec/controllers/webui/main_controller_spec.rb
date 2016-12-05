@@ -64,7 +64,7 @@ RSpec.describe Webui::MainController do
   end
 
   describe "POST delete_message" do
-    let(:message)  { create(:status_message, user: admin_user) }
+    let(:message) { create(:status_message, user: admin_user) }
 
     it "marks a message as deleted" do
       login(admin_user)

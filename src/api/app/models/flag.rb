@@ -62,7 +62,7 @@ class Flag < ApplicationRecord
         arch_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id) unless
           all_flag || arch_flag
         all_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag) unless all_flag
-      elsif  variant == 'default'
+      elsif variant == 'default'
         same_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id) unless same_flag
         repo_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo) unless repo_flag
         arch_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id) unless arch_flag
@@ -75,7 +75,7 @@ class Flag < ApplicationRecord
       return repo_flag.status if repo_flag
       return arch_flag.status if arch_flag
       return all_flag.status if all_flag
-    elsif  variant == 'default'
+    elsif variant == 'default'
       if same_flag
         return repo_flag.status if repo_flag
         return arch_flag.status if arch_flag

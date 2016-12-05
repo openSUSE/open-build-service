@@ -142,7 +142,7 @@ end
 
 run_count = 0
 
-while  cache.length > 0
+while cache.length > 0
   STDERR.puts "--> trying to store previously unsaved projects, run [#{run_count += 1}]"
   tmp = cache.values.clone
   tmp.each do |p|

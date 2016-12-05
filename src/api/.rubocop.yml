@@ -57,6 +57,10 @@ Style/EachWithObject:
 # Avoid empty else statements.
 Style/EmptyElse:
   EnforcedStyle: both
+  
+# Checks for extra/unnecessary whitespace
+Style/ExtraSpacing:
+  Enabled: true
 
 # Checks hash literal syntax
 Style/HashSyntax:

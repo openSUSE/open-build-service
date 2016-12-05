@@ -29,7 +29,7 @@ class Owner
     params[:attribute] ||= "OBS:OwnerRootProject"
     at = AttribType.find_by_name!(params[:attribute])
 
-    limit  = params[:limit] || 1
+    limit = params[:limit] || 1
 
     projects = []
     if obj.is_a? Project

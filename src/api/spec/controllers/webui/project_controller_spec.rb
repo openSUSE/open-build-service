@@ -360,7 +360,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #buildresult' do
     it 'assigns the buildresult' do
       summary = Xmlhash::XMLHash.new({'statuscount' => {'code' => 'succeeded', 'count' => 1} })
-      build_result  = { 'result' => Xmlhash::XMLHash.new({'repository' => 'openSUSE', 'arch' => 'x86_64', 'summary' => summary }) }
+      build_result = { 'result' => Xmlhash::XMLHash.new({'repository' => 'openSUSE', 'arch' => 'x86_64', 'summary' => summary }) }
       allow(Buildresult).to receive(:find_hashed).and_return(Xmlhash::XMLHash.new(build_result))
       get :buildresult, params: { project: project_with_package }, xhr: true
       expect(assigns(:buildresult)).to match_array([["openSUSE", [["x86_64", [[:succeeded, 1]]]]]])

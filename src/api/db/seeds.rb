@@ -48,7 +48,7 @@ downloader_role = Role.where(title: 'downloader').first_or_create
 reader_role     = Role.where(title: 'reader').first_or_create
 
 puts "Seeding users table..."
-admin  = User.where(login: 'Admin').first_or_create(login: 'Admin', email: "root@localhost",
+admin = User.where(login: 'Admin').first_or_create(login: 'Admin', email: "root@localhost",
                                                     realname: "OBS Instance Superuser", state: "2",
                                                     password: "opensuse")
 User.where(login: '_nobody_').first_or_create(login: "_nobody_", email: "nobody@localhost",

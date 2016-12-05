@@ -609,7 +609,7 @@ class User < ApplicationRecord
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
 
-    return true  if is_admin?
+    return true if is_admin?
 
     abies = object.attrib_namespace_modifiable_bies.includes([:user, :group])
     abies.each do |mod_rule|

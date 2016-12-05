@@ -53,7 +53,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 401
     get "/source/SourceprotectedProject/_meta", nil, { 'HTTP_USER_AGENT' => 'osc-something' }
     assert_response 401
-    get "/source/SourceprotectedProject/pack",  nil, { 'HTTP_USER_AGENT' => 'osc-something' }
+    get "/source/SourceprotectedProject/pack", nil, { 'HTTP_USER_AGENT' => 'osc-something' }
     assert_response 401
 
     # user access
@@ -81,7 +81,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 401
 
     # anonymous access with user-agent set
-    get "/build/SourceprotectedProject/repo/i586/pack",  nil, { 'HTTP_USER_AGENT' => 'osc-something' }
+    get "/build/SourceprotectedProject/repo/i586/pack", nil, { 'HTTP_USER_AGENT' => 'osc-something' }
     assert_response 401
 
     srcrpm="package-1.0-1.src.rpm"
@@ -567,7 +567,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 403
     get "/source/home:tom:temp/ProtectedPackage/dummy_file"
     assert_response 403
-    assert_no_match(/<summary>source access denied<\/summary>/, @response.body)  # api is talking
+    assert_no_match(/<summary>source access denied<\/summary>/, @response.body) # api is talking
     get "/source/home:tom:temp/ProtectedPackage/_result"
     assert_response 403
     assert_xml_tag tag: "status", attributes: { code: "source_access_no_permission" } # api is talking

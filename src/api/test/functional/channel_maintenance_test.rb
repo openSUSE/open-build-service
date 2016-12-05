@@ -543,7 +543,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_xml_tag tag: "review", attributes: { by_user: "adrian_reader", state: "new" }     # from channel
+    assert_xml_tag tag: "review", attributes: { by_user: "adrian_reader", state: "new" } # from channel
     assert_xml_tag tag: "review", attributes: { by_user: "fred", state: "new" }
     assert_xml_tag tag: "review", attributes: { by_group: "test_group", state: "new" }
     # no submit action

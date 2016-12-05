@@ -1,4 +1,4 @@
-class AddOwnerRootProjectAttribType  < ActiveRecord::Migration
+class AddOwnerRootProjectAttribType < ActiveRecord::Migration
   def self.up
     p={}
     p[:role] = Role.find_by_title("Admin")

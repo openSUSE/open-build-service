@@ -6,7 +6,7 @@ set :application, "obs-api"
 
 # git settings
 set :scm, :git
-set :repository,  "git://github.com/openSUSE/open-build-service.git"
+set :repository, "git://github.com/openSUSE/open-build-service.git"
 set :branch, "2.3"
 set :deploy_via, :remote_cache
 set :git_enable_submodules, 1

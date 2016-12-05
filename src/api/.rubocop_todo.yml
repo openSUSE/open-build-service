@@ -432,12 +432,6 @@ Style/DotPosition:
 Style/EmptyLiteral:
   Enabled: false
 
-# Offense count: 85
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.
-Style/ExtraSpacing:
-  Enabled: false
-
 # Offense count: 22
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.

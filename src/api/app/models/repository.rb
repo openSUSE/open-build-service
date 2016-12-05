@@ -104,7 +104,7 @@ class Repository < ApplicationRecord
   end
 
   def project_name
-    return project.name  if project
+    return project.name if project
     remote_project_name
   end
 

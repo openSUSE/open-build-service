@@ -15,7 +15,7 @@ module Webui::PatchinfoHelper
     if issue[0] == "CVE"
       content_tag(:li, link_to("#{issue[1]}", issue[2]) + ": #{issue[3]}")
     else
-      content_tag(:li, link_to("#{issue[0]}##{issue[1]}", issue[2]) +  ": #{issue[3]}")
+      content_tag(:li, link_to("#{issue[0]}##{issue[1]}", issue[2]) + ": #{issue[3]}")
     end
   end
 end

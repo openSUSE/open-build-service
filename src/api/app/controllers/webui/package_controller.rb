@@ -49,7 +49,7 @@ class Webui::PackageController < Webui::WebuiController
       params.delete(:srcmd5)
     end
 
-    @srcmd5   = params[:srcmd5]
+    @srcmd5 = params[:srcmd5]
     @revision_parameter = params[:rev]
 
     @bugowners_mail = (@package.bugowner_emails + @project.api_obj.bugowner_emails).uniq
@@ -373,7 +373,7 @@ class Webui::PackageController < Webui::WebuiController
     @serviceinfo = dir.find_first(:serviceinfo)
     dir.each(:entry) do |entry|
       file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.value(x.to_s)]}.flatten]
-      file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20  # max. 1 MB
+      file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
       file[:editable] = file[:viewable] && !file[:name].match(/^_service[_:]/)
       file[:srcmd5] = dir.value(:srcmd5)
       files << file
@@ -1079,7 +1079,7 @@ class Webui::PackageController < Webui::WebuiController
       http = Net::HTTP.new(uri.host, uri.port)
       http.open_timeout = 15
       http.read_timeout = 15
-      response =  http.head uri.path
+      response = http.head uri.path
       if response.code.to_i == 302 && response['location'] && max_redirects > 0
         return file_available? response['location'], (max_redirects - 1)
       end

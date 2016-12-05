@@ -1,4 +1,4 @@
-class MakeObsRejectrequestsConfigurable  < ActiveRecord::Migration
+class MakeObsRejectrequestsConfigurable < ActiveRecord::Migration
   def self.up
     a = AttribType.find_by_id(AttribType.find_by_name("OBS:RejectRequests"))
     a.value_count = nil

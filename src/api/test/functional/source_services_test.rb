@@ -405,7 +405,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     get '/source/home:tom/service?rev=4' # second commit
     assert_response :success
     assert_no_xml_tag tag: 'entry', attributes: { name: '_service:set_version:pack.spec' }
-    assert_no_xml_tag tag: 'entry', attributes: { name: 'filename' }                      # user file got removed
+    assert_no_xml_tag tag: 'entry', attributes: { name: 'filename' } # user file got removed
     get '/source/home:tom/service?rev=4&expand=1' # with generated files
     assert_response :success
     assert_xml_tag tag: 'entry', attributes: { name: '_service:set_version:pack.spec' }

@@ -114,7 +114,7 @@ RSpec.describe Project do
             </project>
           EOF
         )
-        expect { project.update_repositories(xml_hash,  false) }.to raise_error(
+        expect { project.update_repositories(xml_hash, false) }.to raise_error(
           Project::SaveError, "Can not use remote repository as release target '#{remote_project.name}/remote_repo'"
         )
       end
