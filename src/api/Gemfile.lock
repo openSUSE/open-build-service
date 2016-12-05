@@ -231,6 +231,7 @@ GEM
     rainbow (2.1.0)
     raindrops (0.17.0)
     rake (10.4.2)
+    rantly (1.0.0)
     rdoc (4.2.2)
       json (~> 1.4)
     redcarpet (3.3.4)
@@ -392,6 +393,7 @@ DEPENDENCIES
   rails (~> 5.0.0)
   rails-controller-testing
   rails_tokeninput (>= 1.6.1.rc1)
+  rantly
   rdoc
   redcarpet
   responders (~> 2.0)
