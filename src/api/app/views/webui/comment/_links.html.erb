@@ -6,7 +6,7 @@
     </a>
    </li>
   <% end %>
-  <% if User.current == comment.user || User.current.is_admin? %>
+  <% if comment.check_delete_permissions %>
       <!-- editing is missing and as such broken
          <li class="togglable_comment" data-toggle="edit_form_of_<%= comment.id %>">
             <%= link_to(sprited_text('comment_edit', 'Edit'), '#') %>
