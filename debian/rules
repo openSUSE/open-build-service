@@ -27,6 +27,18 @@ override_dh_install:
 
 	dh_installdebconf
 
+	# Move config files under /etc/obs/api/config/. And links with dh_link.
+	mv debian/obs-api/usr/share/obs/api/config/options.yml \
+			debian/obs-api/etc/obs/api/config/
+	mv debian/obs-api/usr/share/obs/api/config/production.sphinx.conf \
+			debian/obs-api/etc/obs/api/config/
+	mv debian/obs-api/usr/share/obs/api/config/thinking_sphinx.yml \
+			debian/obs-api/etc/obs/api/config/
+
+	# Remove log and tmp and create links under /var with dh_link.
+	rm -rf debian/obs-api/usr/share/obs/api/log
+	rm -rf debian/obs-api/usr/share/obs/api/tmp
+
 	# Rename dh_install installed web service config files.
 	# (new default since OBS 2.3)
 	mkdir -p debian/obs-api/etc/apache2/sites-available/
@@ -42,10 +54,6 @@ override_dh_install:
 	mv debian/obs-server/etc/default/sysconfig.obs-server \
 		debian/obs-server/etc/default/obs-server
 
-	# these config files must not be hard linked
-	install debian/options.yml.example \
-		debian/obs-api/usr/share/obs/api/config/options.yml
-
 	# turn duplicates into hard links
 	fdupes debian/obs-api/usr/share/obs/
 
@@ -53,7 +61,6 @@ override_dh_install:
 	find debian/obs-api -name '.gitignore' -type f | xargs rm -f
 
 	# fix permissions
-	chmod a-x debian/obs-api/usr/share/obs/api/config/options.yml
 	chmod a-x debian/obs-api/usr/share/obs/api/script/update_bento.sh
 	chmod a-x debian/obs-api/usr/share/obs/api/Rakefile
 	# Clean up "extra" license

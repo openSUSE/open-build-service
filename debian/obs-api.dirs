@@ -1,8 +1,7 @@
-/usr/share/obs
-/usr/share/obs/api
-/usr/share/obs/api/config
-/usr/share/obs/api/config/environments
-/usr/share/obs/api/config/initializers
-/usr/share/obs/api/files
-/usr/share/obs/overview
-/usr/share/obs/api/public/css
+/etc/obs/api/config
+/var/log/obs
+/var/cache/obs/tmp/cache
+/var/cache/obs/tmp/pids
+/var/cache/obs/tmp/sessions
+/var/cache/obs/tmp/sockets
+

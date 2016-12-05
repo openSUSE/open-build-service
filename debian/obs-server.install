@@ -7,7 +7,7 @@ dist/sysconfig.obs-server      /etc/default/
 # Config files
 etc/logrotate.d/obs-server
 etc/slp.reg.d/
-usr/lib/obs/server/BSConfig.pm
+usr/lib/obs/server/BSConfig.pm /etc/obs/
 
 usr/lib/obs/tests/appliance/
 usr/sbin/obs_admin

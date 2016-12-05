@@ -1,3 +1,9 @@
-usr/share/obs/api/config			/etc/obs/api/config
+etc/obs/api/config/options.yml		/usr/share/obs/api/config/options.yml
+etc/obs/api/config/database.yml		/usr/share/obs/api/config/database.yml
+etc/obs/api/config/production.sphinx.conf /usr/share/obs/api/config/production.sphinx.conf
+etc/obs/api/config/thinking_sphinx.yml	/usr/share/obs/api/config/thinking_sphinx.yml
+etc/obs/api/config/secret.key		/usr/share/obs/api/config/secret.key
 usr/share/obs/docs/api                    /usr/share/obs/api/public/schema
 usr/share/javascript/bootstrap/css/bootstrap.min.css /usr/share/obs/api/public/css/bootstrap.min.css
+var/log/obs				/usr/share/obs/api/log
+var/cache/obs/tmp			/usr/share/obs/api/tmp

@@ -1,7 +1,6 @@
 # Install all web and api parts. (Remove parts in rules file)
 # install apidocs
 # the html dir was not found in source.
-src/api                                /usr/share/obs/
 docs/api/api/*.rng        /usr/share/obs/docs/api/
 docs/api/api/*.xsd        /usr/share/obs/docs/api/
 etc/logrotate.d/obs-api

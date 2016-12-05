@@ -1,21 +1,17 @@
 #!/bin/sh -e
 
-. /usr/share/debconf/confmodule
-. /usr/share/dbconfig-common/dpkg/postinst.mysql
-dbc_generate_include=template:/etc/obs/api/config/database.yml
-dbc_generate_include_args="-o template_infile=/etc/obs/api/config/database.yml.example"
-dbc_generate_include_owner=www-data
-dbc_go obs-api $@
-
-chown www-data:root /etc/obs/api/config/environment.rb
-
-if [ ! -f /var/log/obs ] ; then
-  ln -fs /usr/share/obs/api/log /var/log/obs
+# Config secret.key
+if [ ! -e "/usr/share/obs/api/config/secret.key" ]; then
+  rm -f /usr/share/obs/api/config/secret.key
 fi
-if [ ! -f /var/cache/obs/tmp ] ; then
-  mkdir -p /var/cache/obs
-  ln -fs /usr/share/obs/api/tmp /var/cache/obs/tmp
+SECRET_KEY="/etc/obs/api/config/secret.key"
+if [ ! -e "$SECRET_KEY" ]; then
+    ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )
+    ln -s $SECRET_KEY /usr/share/obs/api/config/secret.key
 fi
+  chmod 0640 $SECRET_KEY
+  chown nobody:www-data $SECRET_KEY
+
 # Generate log files
   touch /var/log/obs/access.log
   touch /var/log/obs/backend_access.log
@@ -27,21 +23,27 @@ fi
   touch /var/log/obs/production.searchd.query.log
   touch /var/log/obs/production.sphinx.pid
   touch /var/log/obs/clockworkd.clock.output
-  chown -R www-data:www-data /var/log/obs/ /var/cache/obs/tmp/
+
+# Config Database with dbconfig-common
+. /usr/share/debconf/confmodule
+. /usr/share/dbconfig-common/dpkg/postinst.mysql
+dbc_generate_include=template:/etc/obs/api/config/database.yml
+dbc_generate_include_args="-o template_infile=/usr/share/obs/api/config/database.yml.example"
+dbc_generate_include_owner=www-data
+dbc_go obs-api $@
+
+# Refine permissions for rails app.
+  chown www-data:root /usr/share/obs/api/config/environment.rb
+  chown -R www-data:www-data /var/log/obs/
+  chown -R www-data:www-data /var/cache/obs/tmp/
   chown -R www-data:www-data /usr/share/obs/api/db
   chown -R www-data:www-data /usr/share/obs/api/public
-  chown www-data:www-data /usr/share/obs/api/config/production.sphinx.conf
+  chown www-data:www-data /etc/obs/api/config/production.sphinx.conf
   chmod 664 /var/log/obs/*.log
   chown nobody:www-data /etc/obs/api/config/database.yml
   chmod 660 /etc/obs/api/config/database.yml
   chown nobody:www-data /var/log/obs/backend_access.log
-
-SECRET_KEY="/usr/share/obs/api/config/secret.key"
-if [ ! -e "$SECRET_KEY" ]; then
-    ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )
-fi
-  chmod 0640 $SECRET_KEY
-  chown nobody:www-data $SECRET_KEY
+  chown nobody:www-data /var/log/obs/production.log
 
 # Generate Gemfile.lock file.
 cd /usr/share/obs/api
