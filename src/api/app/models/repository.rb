@@ -116,7 +116,7 @@ class Repository < ApplicationRecord
         repositories << repo
       end
     end
-    return repositories.uniq
+    repositories.uniq
   end
 
   # returns a list of repositories that include path_elements linking to this one
@@ -146,11 +146,11 @@ class Repository < ApplicationRecord
       # keep short names if project has just one repo
       longName += '_'+name unless name == 'standard'
     end
-    return longName
+    longName
   end
 
   def to_axml_id
-    return "<repository project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>\n"
+    "<repository project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>\n"
   end
 
   def to_s

@@ -11,7 +11,7 @@ class BsRequestActionDelete < BsRequestAction
 
   #### Class methods using self. (public and then private)
   def self.sti_name
-    return :delete
+    :delete
   end
 
   #### To define class methods as private use private_class_method
@@ -51,7 +51,7 @@ class BsRequestActionDelete < BsRequestAction
     else
       raise DiffError.new("Project diff isn't implemented yet")
     end
-    return ''
+    ''
   end
 
   def execute_accept(opts)

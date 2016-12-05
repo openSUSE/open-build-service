@@ -18,7 +18,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
   #### Class methods using self. (public and then private)
   def self.sti_name
-    return :maintenance_incident
+    :maintenance_incident
   end
 
   #### To define class methods as private use private_class_method
@@ -46,7 +46,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                                            "project #{releaseproject.name} with invalid project" +
                                            "kind \"#{releaseproject.kind}\" for package #{pkg.name}"
     end
-    return releaseproject
+    releaseproject
   end
 
   def sourcediff(opts = {})

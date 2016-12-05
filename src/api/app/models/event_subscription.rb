@@ -19,7 +19,7 @@ class EventSubscription < ApplicationRecord
         all_rule = r
       end
     end
-    return all_rule
+    all_rule
   end
 
   def self._get_rel(eventtype)

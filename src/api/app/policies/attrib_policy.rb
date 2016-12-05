@@ -32,7 +32,7 @@ class AttribPolicy < ApplicationPolicy
         return true
       end
     end
-    return false
+    false
   end
 
   def update?

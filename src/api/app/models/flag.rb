@@ -89,16 +89,16 @@ class Flag < ApplicationRecord
       end
     end
 
-    return Flag.default_status(flag)
+    Flag.default_status(flag)
   end
   private :compute_status
 
   def default_status
-    return compute_status('default')
+    compute_status('default')
   end
 
   def effective_status
-    return compute_status('effective')
+    compute_status('effective')
   end
 
   def has_children
@@ -124,7 +124,7 @@ class Flag < ApplicationRecord
     return false if repo.nil? && in_repo
     return false if repo && in_repo.nil?
 
-    return true
+    true
   end
 
   # returns true when flag is relevant for the given repo/arch combination
@@ -141,7 +141,7 @@ class Flag < ApplicationRecord
       return true if in_arch == arch && in_repo == repo
     end
 
-    return false
+    false
   end
 
   def specifics

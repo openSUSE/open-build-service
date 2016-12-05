@@ -378,7 +378,7 @@ class Webui::PackageController < Webui::WebuiController
       file[:srcmd5] = dir.value(:srcmd5)
       files << file
     end
-    return files
+    files
   end
 
   def set_file_details
@@ -422,7 +422,7 @@ class Webui::PackageController < Webui::WebuiController
     # check source service state
     @package.serviceinfo.value(:error) if @package.serviceinfo
 
-    return true
+    true
   end
   private :set_file_details
 
@@ -471,7 +471,7 @@ class Webui::PackageController < Webui::WebuiController
         return false
       end
     end
-    return true
+    true
   end
 
   def rdiff
@@ -1083,7 +1083,7 @@ class Webui::PackageController < Webui::WebuiController
       if response.code.to_i == 302 && response['location'] && max_redirects > 0
         return file_available? response['location'], (max_redirects - 1)
       end
-      return response.code.to_i == 200 ? true : false
+      return response.code.to_i == 200
     rescue Object => e
       logger.error "Error in checking for file #{url}: #{e.message}"
       return false

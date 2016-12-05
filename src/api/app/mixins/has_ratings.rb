@@ -22,6 +22,6 @@ module HasRatings
     else
       user_score = 0
     end
-    return {score: score, count: count, user_score: user_score}
+    {score: score, count: count, user_score: user_score}
   end
 end

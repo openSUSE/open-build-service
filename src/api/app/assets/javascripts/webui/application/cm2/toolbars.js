@@ -444,7 +444,7 @@
     function Wrap(cm, elt) {
 	this.cm = cm;
 	elt.value = elt.value == 'on' ? 'off' : 'on' ;
-	this.value = elt.value == 'on' ? true : false ;
+	this.value = elt.value == 'on' ;
 	this.cm.setOption('lineWrapping', this.value);
     }
     

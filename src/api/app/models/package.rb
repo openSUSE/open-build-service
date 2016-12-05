@@ -118,7 +118,7 @@ class Package < ApplicationRecord
   def self.check_access?(dbpkg = self)
     return false if dbpkg.nil?
     return false unless dbpkg.class == Package
-    return Project.check_access?(dbpkg.project)
+    Project.check_access?(dbpkg.project)
   end
 
   def self.check_cache(project, package, opts)
@@ -293,7 +293,7 @@ class Package < ApplicationRecord
         return false
       end
     end
-    return true
+    true
   end
 
   def check_source_access!
@@ -305,7 +305,7 @@ class Package < ApplicationRecord
 
   def is_locked?
     return true if flags.find_by_flag_and_status 'lock', 'enable'
-    return project.is_locked?
+    project.is_locked?
   end
 
   def check_write_access(ignoreLock = nil)
@@ -665,7 +665,7 @@ class Package < ApplicationRecord
       end
     end
     # logger.debug "WORKED - #{pkg.inspect}"
-    return pkg
+    pkg
   end
 
   def update_from_xml(xmlhash, ignoreLock = nil)
@@ -786,7 +786,7 @@ class Package < ApplicationRecord
   end
 
   def to_axml_id
-    return "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>\n"
+    "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>\n"
   end
 
   def to_axml(_opts = {})
@@ -812,7 +812,7 @@ class Package < ApplicationRecord
   def activity
     package = Package.find_by_sql("SELECT packages.*, #{Package.activity_algorithm} " +
                                       "FROM `packages` WHERE id = #{id} LIMIT 1")
-    return package.shift.activity_value.to_f
+    package.shift.activity_value.to_f
   end
 
   # is called before_update
@@ -832,7 +832,7 @@ class Package < ApplicationRecord
   end
 
   def expand_flags
-    return project.expand_flags(self)
+    project.expand_flags(self)
   end
 
   define_method :get_flags, GetFlags.instance_method(:get_flags)
@@ -842,13 +842,13 @@ class Package < ApplicationRecord
     # rubocop:disable Metrics/LineLength
     rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', project.name, name, project.name, name)
     # rubocop:enable Metrics/LineLength
-    return BsRequest.where(id: rel.pluck('bs_requests.id'))
+    BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 
   def open_requests_with_by_package_review
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", project.name, name)
-    return BsRequest.where(id: rel.pluck('bs_requests.id'))
+    BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 
   def linkinfo
@@ -897,7 +897,7 @@ class Package < ApplicationRecord
 
     # If package is nil it's either broken or a remote one.
     # Otherwise we continue
-    return pkg.try(:origin_container, options)
+    pkg.try(:origin_container, options)
   end
 
   def is_local_link?
@@ -975,7 +975,7 @@ class Package < ApplicationRecord
     candidates.each do |candidate|
       packages << candidate unless candidate.linkinfo
     end
-    return packages
+    packages
   end
 
   def self.valid_name?(name)
@@ -990,7 +990,7 @@ class Package < ApplicationRecord
     if name =~ %r{^[_\.]} && !%w(_product _pattern _project _patchinfo).include?(name)
       return false
     end
-    return name =~ /\A\w[-+\w\.]*\z/
+    name =~ /\A\w[-+\w\.]*\z/
   end
 
   def valid_name

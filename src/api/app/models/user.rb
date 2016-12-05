@@ -295,7 +295,7 @@ class User < ApplicationRecord
     admin = CONFIG['default_admin'] || 'Admin'
     user = find_by_login(admin)
     raise NotFoundError.new("Admin not found, user #{admin} has not admin permissions") unless user.is_admin?
-    return user
+    user
   end
 
   def self.find_nobody!
@@ -310,7 +310,7 @@ class User < ApplicationRecord
     if user.nil? || user.state == 'deleted'
       raise NotFoundError.new("Couldn't find User with login = #{login}")
     end
-    return user
+    user
   end
 
   def self.get_by_login(login)
@@ -319,7 +319,7 @@ class User < ApplicationRecord
     unless User.current.is_admin? || user == User.current
       raise NoPermission.new "User #{login} can not be accessed by #{User.current.login}"
     end
-    return user
+    user
   end
 
   def self.realname_for_login(login)
@@ -387,7 +387,7 @@ class User < ApplicationRecord
       role_titles.include?(role.title)
     end
 
-    return !obj.nil?
+    !obj.nil?
   end
 
   # This method creates a new registration token for the current user. Raises
@@ -416,7 +416,7 @@ class User < ApplicationRecord
     save!
     user_registration.destroy
 
-    return true
+    true
   end
 
   # Overwrite the state setting so it backs up the initial state from
@@ -568,7 +568,7 @@ class User < ApplicationRecord
     return true if is_admin?
     return true if has_global_permission? 'change_package'
     return true if has_local_permission? 'change_package', package
-    return false
+    false
   end
 
   # project is instance of Project
@@ -581,7 +581,7 @@ class User < ApplicationRecord
     return true if is_admin?
     return true if has_global_permission? 'create_package'
     return true if has_local_permission? 'create_package', project
-    return false
+    false
   end
 
   # project_name is name of the project
@@ -594,11 +594,11 @@ class User < ApplicationRecord
     parent_project = Project.new(name: project_name).parent
     return false if parent_project.nil?
     return true  if is_admin?
-    return has_local_permission?('create_project', parent_project)
+    has_local_permission?('create_project', parent_project)
   end
 
   def can_modify_attribute_definition?(object)
-    return can_create_attribute_definition?(object)
+    can_create_attribute_definition?(object)
   end
 
   def can_create_attribute_definition?(object)
@@ -618,7 +618,7 @@ class User < ApplicationRecord
       return true
     end
 
-    return false
+    false
   end
 
   def can_create_attribute_in?(object, opts)
@@ -655,28 +655,28 @@ class User < ApplicationRecord
       end
     end
     # never reached
-    return false
+    false
   end
 
   def can_download_binaries?(package)
     return true if is_admin?
     return true if has_global_permission? 'download_binaries'
     return true if has_local_permission?('download_binaries', package)
-    return false
+    false
   end
 
   def can_source_access?(package)
     return true if is_admin?
     return true if has_global_permission? 'source_access'
     return true if has_local_permission?('source_access', package)
-    return false
+    false
   end
 
   def can_access?(parm)
     return true if is_admin?
     return true if has_global_permission? 'access'
     return true if has_local_permission?('access', parm)
-    return false
+    false
   end
 
   def can_access_downloadbinany?(parm)
@@ -887,7 +887,7 @@ class User < ApplicationRecord
       array << hash
     end
 
-    return array
+    array
   end
 
   def user_relevant_packages_for_status

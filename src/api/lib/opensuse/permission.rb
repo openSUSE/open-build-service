@@ -8,7 +8,7 @@
 module Suse
   class Permission
     def to_s
-      return "OpenSUSE Permissions for user #{@user.login}"
+      "OpenSUSE Permissions for user #{@user.login}"
     end
 
     def initialize( u )
@@ -64,7 +64,7 @@ module Suse
       end
 
       return true if @user.can_modify_package?( pkg )
-      return false
+      false
     end
 
     def method_missing( perm, *_args, &_block)

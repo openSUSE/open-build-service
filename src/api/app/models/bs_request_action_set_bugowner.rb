@@ -5,7 +5,7 @@ class BsRequestActionSetBugowner < BsRequestAction
 
   #### Self config
   def self.sti_name
-    return :set_bugowner
+    :set_bugowner
   end
 
   #### Attributes

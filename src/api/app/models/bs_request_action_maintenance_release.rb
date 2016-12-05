@@ -23,7 +23,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   #### Class methods using self. (public and then private)
   def self.sti_name
-    return :maintenance_release
+    :maintenance_release
   end
 
   #### To define class methods as private use private_class_method
