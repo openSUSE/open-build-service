@@ -262,7 +262,7 @@ sub all_my_tests {
     eval {
       $got = XMLin($tc_e1->{dtd},$tc_e1->{xml});
     };
-    like($@,qr/duplicate attribute/,"Checking duplicate attribute");
+    like($@,qr/(duplicate attribute|Attribute.*redefined)/,"Checking duplicate attribute");
 
     ####
     $tc_e1 = {
@@ -273,7 +273,7 @@ sub all_my_tests {
     eval {
       $got = XMLin($tc_e1->{dtd},$tc_e1->{xml});
     };
-    like($@,qr/mismatched tag/,"Checking mismatched tag");
+    like($@,qr/(mismatched tag|tag mismatch)/,"Checking mismatched tag");
 
     ####
     $tc_e1 = {
