@@ -843,8 +843,9 @@ class Webui::PackageController < Webui::WebuiController
 
     @build_container = params[:package] # for remote and multibuild package
     @package ||= params[:package] # for remote case
-    @arch = params[:arch]
-    @repo = params[:repository]
+    # Make sure objects don't contain invalid chars (eg. '../')
+    @arch = Architecture.find_by(name: params[:arch]).try(:name)
+    @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     @offset = 0
 
     set_job_status
@@ -865,10 +866,11 @@ class Webui::PackageController < Webui::WebuiController
   def update_build_log
     check_ajax
 
-    @project = params[:project]
-    @package = params[:package]
-    @arch = params[:arch]
-    @repo = params[:repository]
+    # Make sure objects don't contain invalid chars (eg. '../')
+    @project = Project.find_by(name: params[:project]).try(:name)
+    @package = Package.find_by(name: params[:package]).try(:name)
+    @arch = Architecture.find_by(name: params[:arch]).try(:name)
+    @repo = @project.repositories.find_by(name: params[:repository]).try(:name) if @project
     @initial = params[:initial]
     @offset = params[:offset].to_i
     @finished = false
