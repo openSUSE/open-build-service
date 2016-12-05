@@ -6,12 +6,7 @@
     </a>
    </li>
   <% end %>
-  <% if User.current == comment.user || User.current.is_admin? %>
-      <!-- editing is missing and as such broken
-         <li class="togglable_comment" data-toggle="edit_form_of_<%= comment.id %>">
-            <%= link_to(sprited_text('comment_edit', 'Edit'), '#') %>
-        </li>
-      -->
+  <% if !User.current.is_nobody? && policy(comment).destroy? %>
       <li>
         <%= link_to(sprited_text('comment_delete', 'Delete'),
                     {controller: :comments, action: :destroy,
