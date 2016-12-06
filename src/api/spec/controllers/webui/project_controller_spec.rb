@@ -184,7 +184,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #users' do
     before do
       create(:relationship_project_user, project: apache_project, user: create(:confirmed_user))
-      create(:relationship_project_user, project: apache_project, user: create(:confirmed_user))
       create(:relationship_project_group, project: apache_project, group: create(:group))
 
       create(:relationship_project_user, project: another_project, user: create(:confirmed_user))
