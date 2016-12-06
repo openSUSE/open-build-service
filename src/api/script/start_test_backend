@@ -28,7 +28,7 @@ ENV['PERL5LIB']="#{Rails.root}/../backend:#{Rails.root}/../backend/build"
 
 if File.exist?(backend_config)
   puts 'Old backend data is there. checking if we can stop it'
-  %w{bs_srcserver bs_repserver bs_service bs_sched bs_publish bs_mergechanges}.each do |srv|
+  %w{bs_srcserver bs_repserver bs_service bs_sched bs_publish}.each do |srv|
     system("cd #{backend_config} && exec ./#{srv} --stop 2>&1 && sleep 2")
   end
 end
