@@ -1162,28 +1162,28 @@ class BsRequest < ApplicationRecord
     requests
   end
 
-  def self.list_ids(opts)
+  def self.list(opts)
     # All types means don't pass 'type'
     if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?('all'))
       opts.delete(:types)
     end
     # Do not allow a full collection to avoid server load
-    if opts[:project].blank? && opts[:user].blank? && opts[:package].blank?
+    if [:project, :user, :package].all? { |filter| opts[filter].blank? }
       raise RuntimeError, 'This call requires at least one filter, either by user, project or package'
     end
     roles = opts[:roles] || []
     states = opts[:states] || []
 
     # it's wiser to split the queries
-    if opts[:project] && roles.empty? && (states.empty? || states.include?('review'))
-      rel = collection(opts.merge(roles: %w(reviewer)))
-      ids = rel.ids
-      rel = collection(opts.merge(roles: %w(target source)))
+    if opts[:project] && roles.empty? && (states.empty? || states.include?("review"))
+      collection(opts.merge(roles: ["reviewer"])) + collection(opts.merge(roles: ["target", "source"])).uniq
     else
-      rel = collection(opts)
-      ids = []
+      collection(opts).uniq
     end
-    ids.concat(rel.ids)
+  end
+
+  def self.list_numbers(opts)
+    list(opts).pluck(:number)
   end
 
   def self.extend_query_for_group(group, requests, roles, review_states)
