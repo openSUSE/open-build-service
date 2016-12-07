@@ -39,6 +39,7 @@
 //= require webui/application/attribute
 //= require webui/application/main
 //= require webui/application/repository_tab
+//= require webui/application/image_templates
 
 function remove_dialog() {
     $(".dialog").remove();

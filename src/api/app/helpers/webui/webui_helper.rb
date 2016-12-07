@@ -94,6 +94,10 @@ module Webui::WebuiHelper
     'scheduling'  => 'The repository state is being calculated right now'
   }
 
+  def check_first(index)
+    index == 1 ? true : nil
+  end
+
   def repo_status_icon(status, details = nil)
     icon = REPO_STATUS_ICONS[status] || 'eye'
 
