@@ -57,7 +57,7 @@ Style/EachWithObject:
 # Avoid empty else statements.
 Style/EmptyElse:
   EnforcedStyle: both
-  
+
 # Checks for extra/unnecessary whitespace
 Style/ExtraSpacing:
   Enabled: true
@@ -72,7 +72,7 @@ Style/HashSyntax:
 # Use Kernel#loop for infinite loops
 Style/InfiniteLoop:
   Enabled: true
-  
+
 # Checks for uses of if with a negated condition (only ifs without else)
 Style/NegatedIf:
   Enabled: true
@@ -80,7 +80,7 @@ Style/NegatedIf:
 # Use ! instead not
 Style/Not:
   Enabled: true
-  
+
 # Checks for redundant `return` expressions
 Style/RedundantReturn:
   Enabled: false
@@ -93,12 +93,16 @@ Style/NumericLiteralPrefix:
 Style/RedundantSelf:
   Enabled: true
 
-# checks for space after `!`  
+# Checks for space after `!`
 Style/SpaceAfterNot:
   Enabled: true
 
 # Checks for the presence of parentheses around ternary conditions
 Style/TernaryParentheses:
+  Enabled: true
+
+# Checks for unwanted parentheses in parameterless method calls
+Style/MethodCallParentheses:
   Enabled: true
 
 ##################### Metrics ##################################

@@ -23,7 +23,7 @@ class OptionsYmlToConfiguration < ActiveRecord::Migration
       # update database from file
       old = CONFIG['global_write_through']
       CONFIG['global_write_through'] = false
-      ::Configuration.first.update_from_options_yml()
+      ::Configuration.first.update_from_options_yml
       CONFIG['global_write_through'] = old
   end
 

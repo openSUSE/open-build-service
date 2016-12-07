@@ -12,6 +12,6 @@ class IncidentPriorityAttribute  < ActiveRecord::Migration
   end
 
   def self.down
-    AttribType.find_by_namespace_and_name("OBS", "IncidentPriority").delete()
+    AttribType.find_by_namespace_and_name("OBS", "IncidentPriority").delete
   end
 end

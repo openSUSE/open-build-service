@@ -12,6 +12,6 @@ class ImageTemplatesAttribute < ActiveRecord::Migration[5.0]
   end
 
   def self.down
-    AttribType.find_by_namespace_and_name("OBS", "ImageTemplates").delete()
+    AttribType.find_by_namespace_and_name("OBS", "ImageTemplates").delete
   end
 end

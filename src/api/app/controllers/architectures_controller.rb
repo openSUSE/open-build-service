@@ -7,7 +7,7 @@ class ArchitecturesController < ApplicationController
   # GET /architecture
   # GET /architecture.xml
   def index
-    @architectures = Architecture.all()
+    @architectures = Architecture.all
 
     respond_to do |format|
       format.xml do

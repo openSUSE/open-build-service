@@ -10,6 +10,6 @@ class AddObsBranchRepositoriesAttribute < ActiveRecord::Migration
   end
 
   def self.down
-    AttribType.find_by_namespace_and_name("OBS", "BranchRepositoriesFromProject").destroy()
+    AttribType.find_by_namespace_and_name("OBS", "BranchRepositoriesFromProject").destroy
   end
 end

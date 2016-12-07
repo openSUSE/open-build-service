@@ -1548,14 +1548,14 @@ class Project < ApplicationRecord
         result.each('summary') do |summary|
           summary.each('statuscount') do |statuscount|
             repository_states[repository][statuscount.value('code')] ||= 0
-            repository_states[repository][statuscount.value('code')] += statuscount.value('count').to_i()
+            repository_states[repository][statuscount.value('code')] += statuscount.value('count').to_i
           end
         end
       else
         result.each('summary') do |summary|
           summary.each('statuscount') do |statuscount|
             states[statuscount.value('code')] ||= 0
-            states[statuscount.value('code')] += statuscount.value('count').to_i()
+            states[statuscount.value('code')] += statuscount.value('count').to_i
           end
         end
       end

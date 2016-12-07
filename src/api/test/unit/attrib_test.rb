@@ -8,7 +8,7 @@ class AttribTest < ActiveSupport::TestCase
   end
 
   test 'should have an attrib_type' do
-    attrib = Attrib.new()
+    attrib = Attrib.new
     assert_not attrib.valid?
     assert_equal ["can't be blank"], attrib.errors.messages[:attrib_type]
   end

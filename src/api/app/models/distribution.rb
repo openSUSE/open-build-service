@@ -1,8 +1,8 @@
 class Distribution < ApplicationRecord
   validates_presence_of :vendor, :version, :name, :reponame, :repository, :project
 
-  has_and_belongs_to_many :icons, -> { distinct() }, class_name: 'DistributionIcon'
-  has_and_belongs_to_many :architectures, -> { distinct() }, class_name: 'Architecture'
+  has_and_belongs_to_many :icons, -> { distinct }, class_name: 'DistributionIcon'
+  has_and_belongs_to_many :architectures, -> { distinct }, class_name: 'Architecture'
 
   def self.parse(xmlhash)
     Distribution.transaction do

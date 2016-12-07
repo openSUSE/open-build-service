@@ -335,7 +335,7 @@ module ActiveXML
           opt[:data] = opt[:data].read
         end
         if opt[:data].respond_to?(:length)
-          clength["Content-Length"] = opt[:data].length().to_s()
+          clength["Content-Length"] = opt[:data].length.to_s
         end
         clength["Content-Type"] = opt[:content_type] unless opt[:content_type].nil?
 

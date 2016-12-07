@@ -121,7 +121,7 @@ class PublicController < ApplicationController
   def show_request
     required_parameters :number
     req = BsRequest.find_by_number!(params[:number])
-    render xml: req.render_xml()
+    render xml: req.render_xml
   end
 
   # GET /public/binary_packages/:project/:package

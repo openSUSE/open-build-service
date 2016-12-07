@@ -64,12 +64,12 @@ class WizardController < ApplicationController
 
   def create_service_file
     node = Builder::XmlMarkup.new(indent: 2)
-    node.services() do |s|
+    node.services do |s|
       # download file
       m = @wizard['sourcefile'].split('://')
-      protocol = m.first()
-      host = m[1].split('/').first()
-      path = m[1].split('/', 2).last()
+      protocol = m.first
+      host = m[1].split('/').first
+      path = m[1].split('/', 2).last
       s.service(name: 'download_url') do |d|
         d.param(protocol, name: 'protocol')
         d.param(host, name: 'host')

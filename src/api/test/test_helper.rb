@@ -262,7 +262,7 @@ module Webui
     end
 
     def self.load_fixture(path)
-      File.open(File.join(ActionController::TestCase.fixture_path, path)).read()
+      File.open(File.join(ActionController::TestCase.fixture_path, path)).read
     end
 
     def self.load_backend_file(path)
@@ -427,7 +427,7 @@ module ActionDispatch
     end
 
     def load_fixture(path)
-      File.open(File.join(ActionController::TestCase.fixture_path, path)).read()
+      File.open(File.join(ActionController::TestCase.fixture_path, path)).read
     end
 
     def load_backend_file(path)
@@ -505,7 +505,7 @@ class ActiveSupport::TestCase
   end
 
   def load_fixture(path)
-    File.open(File.join(ActionController::TestCase.fixture_path, path)).read()
+    File.open(File.join(ActionController::TestCase.fixture_path, path)).read
   end
 
   def load_backend_file(path)

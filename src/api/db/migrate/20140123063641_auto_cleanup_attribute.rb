@@ -14,7 +14,7 @@ class AutoCleanupAttribute < ActiveRecord::Migration
   end
 
   def self.down
-    AttribType.find_by_namespace_and_name("OBS", "AutoCleanup").delete()
+    AttribType.find_by_namespace_and_name("OBS", "AutoCleanup").delete
     remove_column :configurations, :cleanup_after_days
   end
 end

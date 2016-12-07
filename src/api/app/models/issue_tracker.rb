@@ -124,7 +124,7 @@ class IssueTracker < ApplicationRecord
       # new file exists
       h = http.get("/data/downloads/allitems.xml.gz")
       unzipedio = StringIO.new(h.body) # Net::HTTP is decompressing already
-      listener = CVEparser.new()
+      listener = CVEparser.new
       listener.set_tracker(self)
       parser = Nokogiri::XML::SAX::Parser.new(listener)
       parser.parse_io(unzipedio)

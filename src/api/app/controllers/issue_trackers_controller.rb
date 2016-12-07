@@ -10,7 +10,7 @@ class IssueTrackersController < ApplicationController
   # GET /issue_trackers.json
   # GET /issue_trackers.xml
   def index
-    @issue_trackers = IssueTracker.all()
+    @issue_trackers = IssueTracker.all
 
     respond_to do |format|
       format.xml  { render xml: @issue_trackers.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS) }
