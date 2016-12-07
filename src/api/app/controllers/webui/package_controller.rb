@@ -554,7 +554,15 @@ class Webui::PackageController < Webui::WebuiController
     #        project might differ from the one we check here.
     authorize Project.new(name: User.current.branch_project_name(@project)), :create?
 
-    branched_package = BranchPackage.new(project: @project.name, package: @package.name).branch
+    # The package/project name can not be an empty string, but it is set to the source name by default when it is `nil`
+    target_project = params[:target_project] unless params[:target_project].blank?
+    target_package = params[:target_package] unless params[:target_package].blank?
+
+    branched_package = BranchPackage.new(project: @project.name,
+                                         package: @package.name,
+                                         target_project: target_project,
+                                         target_package: target_package).branch
+
     created_project_name = branched_package[:data][:targetproject]
     created_package_name = branched_package[:data][:targetpackage]
 
