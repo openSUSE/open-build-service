@@ -171,7 +171,7 @@ class BsRequestPermissionCheck
     end
   end
 
-  def set_permissions_for_action(action)
+  def set_permissions_for_action(action, new_state = nil)
     # general write permission check on the target on accept
     @write_permission_in_this_action = false
 
@@ -192,6 +192,12 @@ class BsRequestPermissionCheck
       end
     end
 
+    if action.action_type == :maintenance_incident
+      # this action type is always branching using extended names
+      target_package_name = Package.extended_name(action.source_project, action.source_package)
+      @target_package = @target_project.packages.find_by_name(target_package_name)
+    end
+
     # general source write permission check (for revoke)
     if (@source_package and User.current.can_modify_package?(@source_package, true)) or
         (not @source_package and @source_project and User.current.can_modify_project?(@source_project, true))
@@ -201,7 +207,8 @@ class BsRequestPermissionCheck
     # general write permission check on the target on accept
     @write_permission_in_this_action = false
     # meta data change shall also be allowed after freezing a project using force:
-    ignoreLock = opts[:force] and [:set_bugowner].include? action.action_type
+    ignoreLock = (new_state == "declined") ||
+        (opts[:force] && action.action_type == :set_bugowner)
     if @target_package
       if User.current.can_modify_package?(@target_package, ignoreLock)
         @write_permission_in_target = true
@@ -349,7 +356,7 @@ class BsRequestPermissionCheck
 
     # permission and validation check for each action inside
     req.bs_request_actions.each do |action|
-      set_permissions_for_action(action)
+      set_permissions_for_action(action, opts[:newstate])
 
       check_newstate_action! action, opts
 
