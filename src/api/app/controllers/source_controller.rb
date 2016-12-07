@@ -894,7 +894,7 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=showlinked
   def project_command_showlinked
     builder = Builder::XmlMarkup.new( indent: 2 )
-    xml = builder.collection() do |c|
+    xml = builder.collection do |c|
       @project.linked_by_projects.each do |l|
         p={}
         p[:name] = l.name
@@ -1253,7 +1253,7 @@ class SourceController < ApplicationController
     end
 
     builder = Builder::XmlMarkup.new( indent: 2 )
-    xml = builder.collection() do |c|
+    xml = builder.collection do |c|
       @package.find_linking_packages.each do |l|
         p={}
         p[:project] = l.project.name

@@ -5,7 +5,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
 
   def setup
     wait_for_scheduler_start
-    run_publisher()
+    run_publisher
     reset_auth
   end
 

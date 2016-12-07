@@ -453,7 +453,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: "no_binary" }
 
     # must be after first search controller call or backend might not be started on single test case runs
-    run_publisher()
+    run_publisher
 
     get "/search/owner?binary='package'"
     assert_response 400
@@ -603,12 +603,12 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     put "/source/TEMPORARY/pack/_meta",
         "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
     assert_response :success
-    raw_put '/source/TEMPORARY/pack/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read()
+    raw_put '/source/TEMPORARY/pack/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
     run_scheduler("i586")
     inject_build_job( "TEMPORARY", "pack", "standard", "i586" )
     run_scheduler("i586")
-    run_publisher()
+    run_publisher
 
     get "/search/owner?project=TEMPORARY&binary=package&limit=0&devel=false"
     assert_response :success
@@ -774,7 +774,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_king
 
     # must be after first search controller call or backend might not be started on single test case runs
-    run_publisher()
+    run_publisher
 
     # setup projects and packages
     put "/source/TEMPORARY:GA/_meta", "<project name='TEMPORARY:GA'><title/><description/>
@@ -797,16 +797,16 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
                                                  <person userid='fred' role='bugowner' />
                                                </package>"
     assert_response :success
-    raw_put '/source/TEMPORARY:GA/package/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read()
+    raw_put '/source/TEMPORARY:GA/package/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
-    raw_put '/source/TEMPORARY:Update/package/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read()
+    raw_put '/source/TEMPORARY:Update/package/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
 
     # package exists only in Update
     run_scheduler("i586")
     inject_build_job( "TEMPORARY:Update", "package", "standard", "i586" )
     run_scheduler("i586")
-    run_publisher()
+    run_publisher
 
     # search: upper hit
     get "/search/owner?binary=package&project=TEMPORARY:Update"

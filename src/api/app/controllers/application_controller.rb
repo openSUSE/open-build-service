@@ -542,12 +542,12 @@ class ApplicationController < ActionController::Base
     return if @skip_validation
     # rubocop:disable Metrics/LineLength
     if request.format != 'json' && response.status.to_s[0..2] == '200' && response.headers['Content-Type'] !~ /.*\/json/i && response.headers['Content-Disposition'] != 'attachment'
-      opt = params()
+      opt = params
       opt[:method] = request.method.to_s
       opt[:type] = 'response'
       ms = Benchmark.ms do
         if response.body.respond_to? :call
-          sio = StringIO.new()
+          sio = StringIO.new
           response.body.call(nil, sio) # send_file can return a block that takes |response, output|
           str = sio.string
         else

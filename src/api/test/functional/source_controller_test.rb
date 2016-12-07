@@ -1085,7 +1085,7 @@ EOF
     assert_response :success
     newdoc = REXML::Document.new(@response.body)
     d = newdoc.elements['/package']
-    assert_equal(d.attribute('name').value(), 'kdelibs2', 'Project name was not set to kdelibs2')
+    assert_equal(d.attribute('name').value, 'kdelibs2', 'Project name was not set to kdelibs2')
 
     # check for lacking permission to create a package
     login_tom
@@ -3912,7 +3912,7 @@ EOF
     deltastore = "#{Rails.root}/tmp/backend_data/sources/deltapack/deltastore"
 
     assert_not File.exist?(deltastore)
-    run_deltastore()
+    run_deltastore
     assert File.exist?(deltastore)
 
     get '/source/home:tom:deltastore/deltapack'

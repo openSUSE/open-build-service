@@ -292,7 +292,7 @@ class BsRequestAction < ApplicationRecord
 
   def contains_change?
     begin
-      return !sourcediff().blank?
+      return !sourcediff.blank?
     rescue BsRequestAction::DiffError
       # if the diff can'be created we can't say
       # but let's assume the reason for the problem lies in the change

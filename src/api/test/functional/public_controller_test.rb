@@ -124,7 +124,7 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_binaries
-    run_publisher()
+    run_publisher
 
     # This URL is used by Frank Karlitschek's kde/gnome/qt-apps.org sites
     get "/public/binary_packages/home:Iggy/TestPack"

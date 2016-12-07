@@ -339,7 +339,7 @@ class TagController < ApplicationController
   # create an entry in the join table (taggings) if necessary
   def create_relationship(object, tagCreator, tag)
     Tagging.transaction do
-        @jointable = Tagging.new()
+        @jointable = Tagging.new
         object.taggings << @jointable
         tagCreator.taggings << @jointable
         tag.taggings << @jointable

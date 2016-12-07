@@ -18,6 +18,6 @@ class EmbargoAttribute < ActiveRecord::Migration
   end
 
   def self.down
-    AttribType.find_by_namespace_and_name("OBS", "EmbargoDate").delete()
+    AttribType.find_by_namespace_and_name("OBS", "EmbargoDate").delete
   end
 end

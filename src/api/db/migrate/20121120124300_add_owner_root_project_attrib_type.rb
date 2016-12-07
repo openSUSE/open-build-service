@@ -13,6 +13,6 @@ class AddOwnerRootProjectAttribType < ActiveRecord::Migration
   end
 
   def self.down
-    AttribType.find_by_namespace_and_name("OBS", "OwnerRootProject").destroy()
+    AttribType.find_by_namespace_and_name("OBS", "OwnerRootProject").destroy
   end
 end

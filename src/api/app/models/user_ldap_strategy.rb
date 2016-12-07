@@ -373,7 +373,7 @@ class UserLdapStrategy
     # implicitly convert array to string
     dn = [ dn ].flatten.join(',')
     begin
-      dn_components = dn.split(',').map{ |n| n.strip().split('=') }
+      dn_components = dn.split(',').map{ |n| n.strip.split('=') }
       dn_uid = dn_components.select { |x, _| x == 'uid' }.map { |_, y| y }
       dn_path = dn_components.select { |x, _| x == 'dc' }.map { |_, y| y }
       upn = "#{dn_uid.fetch(0)}@#{dn_path.join('.')}"
@@ -431,7 +431,7 @@ class UserLdapStrategy
         end
       rescue
         Rails.logger.debug("Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}")
-        @@ldap_search_con.unbind()
+        @@ldap_search_con.unbind
         @@ldap_search_con = nil
         if ldap_first_try
           ldap_first_try = false
@@ -460,9 +460,9 @@ class UserLdapStrategy
       else
         # Redo the search as the user for situations where the anon search may not be able to see attributes
         user_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
-          user.replace(entry.to_hash())
+          user.replace(entry.to_hash)
         end
-        user_con.unbind()
+        user_con.unbind
       end
     else # If no CONFIG['ldap_authenticate'] is given do not return the ldap_info !
       Rails.logger.error("Unknown ldap_authenticate setting: '#{CONFIG['ldap_authenticate']}' " +
@@ -592,7 +592,7 @@ class UserLdapStrategy
       conn.bind(user_name, password)
     rescue LDAP::ResultError
       if !conn.nil? && conn.bound?
-        conn.unbind()
+        conn.unbind
       end
       Rails.logger.debug("Not bound as #{user_name}: #{conn.err2string(conn.err)}")
       return nil

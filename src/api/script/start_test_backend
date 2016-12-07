@@ -222,19 +222,19 @@ Suse::Backend.put('/source/BaseDistro/pack2/my_file?user=king', 'different conte
 Suse::Backend.put('/source/BaseDistro/pack2/my_file?user=king', 'second commit')
 Suse::Backend.put('/source/BaseDistro/Pack3/my_file?user=king', 'just a file')
 Suse::Backend.put('/source/BaseDistro/_product/fixed.product?user=king',
-                  File.open("#{Rails.root}/test/fixtures/backend/source/fixed_product/fixed.product").read())
-Suse::Backend.put('/source/BaseDistro/patchinfo/_patchinfo?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/_patchinfo").read())
+                  File.open("#{Rails.root}/test/fixtures/backend/source/fixed_product/fixed.product").read)
+Suse::Backend.put('/source/BaseDistro/patchinfo/_patchinfo?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/_patchinfo").read)
 Suse::Backend.put('/source/BaseDistro2.0/_config?user=king', "Type: spec")
 # set vrev like it get created with makeolder=1
 Suse::Backend.post('/source/BaseDistro2.0/pack2?cmd=commitfilelist&vrev=2.3&version=1.0&user=king', '<directory/>')
 Suse::Backend.put('/source/BaseDistro2.0/pack2/myfile?user=king', 'DummyContent of BaseDistro2.0/pack2')
-Suse::Backend.put('/source/BaseDistro2.0/pack2/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put('/source/BaseDistro2.0/pack2/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 Suse::Backend.put('/source/BaseDistro2.0/pack2.linked/_link?user=king', "<link package=\"pack2\" cicount='copy' />")
 Suse::Backend.put('/source/BaseDistro3/_config?user=king', "Type: spec\nRepotype: rpm-md suse")
-Suse::Backend.put('/source/BaseDistro3/pack2/pack2.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put('/source/BaseDistro3/pack2/pack2.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 Suse::Backend.put('/source/BaseDistro3/pack2/_multibuild?user=king', '<multibuild><package>package_multibuild</package></multibuild>')
 Suse::Backend.put('/source/BaseDistro3/pack2/package_multibuild.spec?user=king',
-                  File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+                  File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 Suse::Backend.put('/source/BaseDistro:Update/pack2/_link?user=king', "<link project=\"BaseDistro\" package=\"pack2\" />")
 Suse::Backend.put('/source/Devel:BaseDistro:Update/pack2/_link?user=king', "<link project=\"BaseDistro:Update\" package=\"pack2\" />")
 Suse::Backend.put('/source/Devel:BaseDistro:Update/pack2/from_devel_project?user=king', 'no content')
@@ -243,23 +243,23 @@ Suse::Backend.put('/source/Devel:BaseDistro:Update/Pack3/from_devel_project?user
 # HiddenProject (access flag)
 Suse::Backend.put('/source/HiddenProject/_config?user=king', 'Type: spec')
 Suse::Backend.put('/source/HiddenProject/pack/my_file?user=king', 'Protected Content')
-Suse::Backend.put('/source/HiddenProject/pack/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put('/source/HiddenProject/pack/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 Suse::Backend.put('/source/HiddenProject/target/my_file?user=king', 'Protected Content target')
 # BinaryprotectedProject
 Suse::Backend.put('/source/BinaryprotectedProject/_config?user=king', 'Type: spec')
 Suse::Backend.put('/source/BinaryprotectedProject/bdpack/my_file?user=king', 'Protected Content')
 Suse::Backend.put('/source/BinaryprotectedProject/bdpack/package.spec?user=king',
-                  File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+                  File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 # SourceaccessProject (sourceaccess flag)
 Suse::Backend.put('/source/SourceprotectedProject/_config?user=king', 'Type: spec')
 Suse::Backend.put('/source/SourceprotectedProject/pack/my_file?user=king', 'Protected Content')
 Suse::Backend.put('/source/SourceprotectedProject/pack/package.spec?user=king',
-                  File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+                  File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 Suse::Backend.put('/source/SourceprotectedProject/target/my_file?user=king', 'Protected Content target')
 # Copytest
 Suse::Backend.put('/source/CopyTest/_config?user=king', 'Type: spec')
 Suse::Backend.put('/source/CopyTest/test/my_file?user=king', 'CopyTest content')
-Suse::Backend.put('/source/CopyTest/test/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put('/source/CopyTest/test/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 # Apache, gets wipe binaries and similar calls
 Suse::Backend.put('/source/Apache/apache2/my_file?user=king', 'just a file')
 Suse::Backend.put('/source/Apache/libapr-util1/onefile?user=king', 'just another file')
@@ -272,7 +272,7 @@ Suse::Backend.put('/source/home:Iggy/_config?user=king',
                   "Type: spec\nSubstitute: kiwi package\nSubstitute: kiwi-packagemanager:instsource package\nIgnore: package:bash")
 Suse::Backend.put('/source/home:Iggy/TestPack/myfile?user=king', 'DummyContent')
 Suse::Backend.put('/source/home:Iggy/TestPack/TestPack.spec?user=king',
-                  File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read())
+                  File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read)
 Suse::Backend.put('/source/home:Iggy:branches:kde4/BranchPack/myfile?user=king', 'DummyContent')
 Suse::Backend.put('/source/kde4/kdebase/myfile2?user=king', 'DummyContent')
 Suse::Backend.put('/source/kde4/kdelibs/my_patch.diff?user=king', 'argl')
@@ -284,7 +284,7 @@ Suse::Backend.put('/source/BrokenPublishing/_config?user=king', "Type: spec\nRep
 Suse::Backend.post('/source/BrokenPublishing/pack_broken_publish?cmd=commitfilelist&vrev=2.3&version=1.0&user=king', '<directory/>')
 Suse::Backend.put('/source/BrokenPublishing/pack_broken_publish/myfile?user=king', 'DummyContent of BrokenPublishing/pack_broken_publish')
 Suse::Backend.put('/source/BrokenPublishing/pack_broken_publish/package.spec?user=king',
-                  File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+                  File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 
 # manual placing of files
 FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_pubkey", "#{backend_data}/projects/BaseDistro.pkg/_pubkey")
@@ -363,7 +363,7 @@ scheduler_thread = Thread.new do
 
   # upload a binary file to repository directly
   Suse::Backend.put('/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1',
-                    File.open("#{Rails.root}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read())
+                    File.open("#{Rails.root}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read)
 
   # run scheduler again to handle the build result
   TestBackendTasks.run_scheduler('i586')
