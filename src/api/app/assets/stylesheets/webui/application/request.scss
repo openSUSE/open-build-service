@@ -9,3 +9,13 @@
 .request-critical {
   color: #d80000;
 }
+
+.review_descision_display {
+  input[type=submit] {
+    margin-right: 1em;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
