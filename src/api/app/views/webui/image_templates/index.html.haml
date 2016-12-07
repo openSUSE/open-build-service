@@ -3,13 +3,15 @@
     Choose a base template
 
   %fieldset.templateslist
+    - first = true
     - @projects.each do |project|
       %dl.templateslist
         %dt
           = link_to(title_or_name(project), project_show_path(project))
         - project.packages.each do |template|
           %label
-            %input{ name: 'image', type: 'radio', class: 'hidden' }
+            %input{ name: 'image', type: 'radio', class: 'hidden', checked: first ? true : nil }
+            - first = false
             %dd
               %span.form-radio
               - if template.has_icon?
