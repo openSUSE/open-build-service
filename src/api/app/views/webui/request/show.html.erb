@@ -39,7 +39,7 @@
           state <%= link_to @state, { :anchor => 'request_history' }, { :style => "color: #{request_state_color(@state)};" } %></li>
         <% unless @package_maintainers.empty? %>
         <li><%= sprite_tag('eye') %> <%= pluralize(@package_maintainers.size, "package maintainer") %>
-          (<%= link_to('show who', { :action => :package_maintainers_dialog, :actions => @actions }, :remote => true) %>)</li>
+          (<%= link_to('show who', '#', class: 'show_dialog', data: { target: '#maintainers_dialog' }) %>)</li>
         <% end %>
         <% if @superseding %>
             <li><%= sprite_tag('information', title: '') %> Supersedes
@@ -309,3 +309,5 @@
   <h2 class="box-header">Comments for request <%= @number %> (<%= @comments.length %>)</h2>
   <%= render :partial => 'webui/comment/show' %>
 </div>
+
+ <%= render :partial => 'webui/request/package_maintainers_dialog' %>
