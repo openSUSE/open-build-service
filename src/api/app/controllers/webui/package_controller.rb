@@ -819,7 +819,7 @@ class Webui::PackageController < Webui::WebuiController
 
     @build_container = params[:package] # for remote and multibuild package
     # Make sure objects don't contain invalid chars (eg. '../')
-    @arch = Architecture.find_by(name: params[:arch]).try(:name)
+    @arch = params[:arch] if Architecture.archcache[params[:arch]]
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     @offset = 0
 
@@ -844,7 +844,7 @@ class Webui::PackageController < Webui::WebuiController
     check_ajax
 
     # Make sure objects don't contain invalid chars (eg. '../')
-    @arch = Architecture.find_by(name: params[:arch]).try(:name)
+    @arch = params[:arch] if Architecture.archcache[params[:arch]]
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     @initial = params[:initial]
     @offset = params[:offset].to_i
