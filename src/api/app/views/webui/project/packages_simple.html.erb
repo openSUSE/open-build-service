@@ -3,7 +3,7 @@
   <% packageurl = url_for(controller: 'package', action: 'show', project: @project, package: 'REPLACEPKG') %>
   <% @packages.each do |p| %>
       <tr>
-        <td><%= link_to p, packageurl.sub('REPLACEPKG', p) %></td>
+        <td><%= link_to p[0], packageurl.sub('REPLACEPKG', p[0]) %></td>
       </tr>
   <% end %>
   <% @ipackages.each do |p| %>

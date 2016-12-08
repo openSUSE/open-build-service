@@ -24,6 +24,7 @@
 //= require jquery_ujs
 //= require dataTables/jquery.dataTables
 //= require cocoon
+//= require moment
 //
 //= require webui/application/bento/script.js
 //= require webui/application/bento/global-navigation.js

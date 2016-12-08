@@ -24,7 +24,7 @@
           <% cache [packageurl, Digest::MD5.hexdigest(@packages.join)] do %>
               <div id="packages_table_wrapper" data-url="<%= packageurl %>">
                 <%= javascript_tag do %>
-                    var packages = [ <%= escape_list(@packages) %> ];
+                    var packages = [ <%= escape_nested_list(@packages) %> ];
                     renderPackagesTable("packages_table_wrapper", packages);
                 <% end %>
               </div>

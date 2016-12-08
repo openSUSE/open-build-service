@@ -162,6 +162,8 @@ GEM
       ruby-progressbar
     mocha (1.1.0)
       metaclass (~> 0.0.1)
+    momentjs-rails (2.15.1)
+      railties (>= 3.1)
     mysql2 (0.4.4)
     nio4r (1.2.1)
     nokogiri (1.6.8.1)
@@ -370,6 +372,7 @@ DEPENDENCIES
   minitest-fail-fast
   minitest-reporters
   mocha (> 0.13.0)
+  momentjs-rails
   mysql2
   nokogiri (~> 1.6.7)
   nyan-cat-formatter

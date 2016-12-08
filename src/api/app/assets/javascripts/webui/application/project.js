@@ -4,14 +4,28 @@ function renderPackagesTable(wrapper, packages, length) {
     $("#" + wrapper).html('<table cellpadding="0" cellspacing="0" border="0" class="compact stripe" id="' + wrapper + '_table"></table>');
     $("#" + wrapper + "_table").dataTable({
         "data": packages,
-        "ordering": false,
+        "ordering": true,
         "paging": packages.length > 12,
+        "autoWidth": false,
         "pagingType": "simple",
         "columns": [
             {
+                "title": "Name",
+                "width": "70%",
                 "render": function (obj) {
                     var url = packageurl.replace(/REPLACEIT/, obj);
                     return '<a href="' + url + '">' + obj + '</a>';
+                }
+            },
+            {
+                "title": "Changed",
+                "width": "30%",
+                "render": function (obj) {
+                    var fromnow = moment.unix(parseInt(obj)).fromNow();
+                    if (fromnow.match(/^in\s/)) {
+                        fromnow = "now"; // in case server time is ahead of client
+                    }
+                    return '<span class="hidden">' + obj + '</span>' + fromnow;
                 }
             }
         ],
