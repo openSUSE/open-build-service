@@ -98,6 +98,7 @@ class Project < ApplicationRecord
   scope :maintenance_release, -> { where("kind = 'maintenance_release'") }
   scope :home, -> { where("name like 'home:%'") }
   scope :not_home, -> { where.not("name like 'home:%'") }
+  scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
 
   # will return all projects with attribute 'OBS:ImageTemplates'
   scope :local_image_templates, lambda {
@@ -115,9 +116,8 @@ class Project < ApplicationRecord
   end
 
   def self.remote_image_templates
-    remote_projects = Project.where('NOT ISNULL(projects.remoteurl)')
     result = []
-    remote_projects.each do |project|
+    Project.remote.each do |project|
       body = load_from_remote(project, '/image_templates.xml')
       next if body.blank?
 
