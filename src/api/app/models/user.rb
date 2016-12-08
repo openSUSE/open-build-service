@@ -78,11 +78,11 @@ class User < ApplicationRecord
                       message: 'must be a valid email address.'
 
   # We want to validate the format of the password and only allow alphanumeric
-  # and some punctiation characters.
+  # and some punctiation/base64 characters.
   # The format must only be checked if the password has been set and the record
   # has not been stored yet.
   validates_format_of :password,
-                      with: %r{\A[\w\.\- !?(){}|~*]+\z},
+                      with: %r{\A[\w\.\- /+=!?(){}|~*]+\z},
                       message: 'must not contain invalid characters.',
                       if: Proc.new { |user| user.new_password? && !user.password.nil? }
 
