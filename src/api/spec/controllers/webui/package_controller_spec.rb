@@ -662,6 +662,14 @@ EOT
     RSpec.shared_examples "build log" do
       context "successfully" do
         before do
+          path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status" \
+                 "&package=#{source_package}&arch=i586&repository=10.2"
+          stub_request(:get, path).and_return(body:
+            %(<resultlist state='123'>
+               <result project='#{user.home_project.name}' repository='10.2' arch='i586'>
+                 <binarylist/>
+               </result>
+              </resultlist>))
           do_request project: source_project, package: source_package, repository: '10.2', arch: 'i586', format: 'js'
         end
 

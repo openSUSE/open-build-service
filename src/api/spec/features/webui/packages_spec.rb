@@ -114,6 +114,8 @@ RSpec.feature "Packages", type: :feature, js: true do
     before do
       user.home_project.repositories << repository
       login(user)
+      path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status&package=#{package}&arch=x86_64&repository=#{repository.name}"
+      stub_request(:get, path).and_return(body: fake_buildresult)
     end
 
     scenario "via live build log" do
@@ -141,14 +143,17 @@ RSpec.feature "Packages", type: :feature, js: true do
       login(user)
       stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?nostream=1&start=0&end=65536")
         .and_return(body: '[1] this is my dummy logfile -> ümlaut')
-      stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status&package=#{package}")
-        .and_return(body: %(<resultlist state="8da2ae1e32481175f43dc30b811ad9b5">
+      result = %(<resultlist state="8da2ae1e32481175f43dc30b811ad9b5">
                               <result project="#{user.home_project}" repository="#{repository.name}" arch="i586" code="published" state="published">
-                                <status package="#{package}" code="success" />
+                                <status package="#{package}" code="succeeded" />
                               </result>
                             </resultlist>
                             )
-                   )
+      result_path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status&package=#{package}"
+      stub_request(:get, result_path)
+        .and_return(body: result)
+      stub_request(:get, result_path + "&arch=i586&repository=#{repository.name}")
+        .and_return(body: result)
       stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log")
         .and_return(headers: {'Content-Type'=> 'text/plain'}, body: '[1] this is my dummy logfile -> ümlaut')
     end
