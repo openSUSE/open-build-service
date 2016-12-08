@@ -49,6 +49,7 @@ use BSRPC;
 use BSUtil;
 use BSXML;
 use BSCando;
+use BSDispatch::Constraints;
 
 use strict;
 
@@ -101,7 +102,7 @@ while (@ARGV) {
     }
     die("No parseable workerinfo\n") unless keys %$workerinfo;
     die("No parseable constraints\n") unless keys %$constraints;
-    my $o = oracle($workerinfo, $constraints);
+    my $o = BSDispatch::Constraints::oracle($workerinfo, $constraints);
     exit 0 if defined($o) && $o > 0;
     exit 1;
   } else {
@@ -537,65 +538,6 @@ sub list2struct {
 }
 
 # normalizes an xml size element to mega bytes
-sub getmbsize {
-  my ($se) = @_;
-  my $size = $se->{'size'}->{'_content'};
-  my $unit = $se->{'size'}->{'unit'} || 'B';
-  $size /= (1024*1024) if $unit eq 'B';
-  $size /= 1024 if $unit eq 'K';
-  # already MegaBytes
-  $size *= 1024 if $unit eq 'G';
-  $size *= 1024 * 1024 if $unit eq 'T';
-  $size *= 1024 * 1024 * 1024 if $unit eq 'P';
-  return $size;
-}
-
-sub oracle {
-  my ($worker, $constraints) = @_;
-  for my $l (@{$constraints->{'hostlabel'} || []}) {
-    if ($l->{'exclude'} && $l->{'exclude'} eq 'true') {
-      return 0 if grep {$_ eq $l->{'_content'}} @{$worker->{'hostlabel'} || []};
-    } else {
-      return 0 unless grep {$_ eq $l->{'_content'}} @{$worker->{'hostlabel'} || []};
-    }
-  }
-  if ($constraints->{'sandbox'} && $constraints->{'sandbox'}->{'_content'}) {
-    if ($constraints->{'sandbox'}->{'exclude'} && $constraints->{'sandbox'}->{'exclude'} eq 'true') {
-      return 0 if $constraints->{'sandbox'}->{'_content'} eq ($worker->{'sandbox'} || '');
-    } else {
-      if ($constraints->{'sandbox'}->{'_content'} eq 'secure') {
-        return 0 unless $secure_sandboxes{$worker->{'sandbox'} || ''};
-      } else {
-        return 0 unless $constraints->{'sandbox'}->{'_content'} eq ($worker->{'sandbox'} || '');
-      }
-    }
-  }
-  if ($constraints->{'linux'}) {
-    return 0 unless $worker->{'linux'};
-    return 0 if $constraints->{'linux'}->{'flavor'} && $constraints->{'linux'}->{'flavor'} ne ($worker->{'linux'}->{'flavor'} || '');
-    if ($constraints->{'linux'}->{'version'}) {
-      return 0 unless defined $worker->{'linux'}->{'version'};
-      return 0 if $constraints->{'linux'}->{'version'}->{'min'} && Build::Rpm::verscmp($constraints->{'linux'}->{'version'}->{'min'}, $worker->{'linux'}->{'version'}) > 0;
-      return 0 if $constraints->{'linux'}->{'version'}->{'max'} && Build::Rpm::verscmp($constraints->{'linux'}->{'version'}->{'max'}, $worker->{'linux'}->{'version'}) < 0;
-    }
-  }
-  if ($constraints->{'hardware'}) {
-    return 0 unless $worker->{'hardware'};
-    return 0 if $constraints->{'hardware'}->{'processors'} && $constraints->{'hardware'}->{'processors'} > ($worker->{'hardware'}->{'processors'} || 0);
-    return 0 if $constraints->{'hardware'}->{'jobs'} && $constraints->{'hardware'}->{'jobs'} > ($worker->{'hardware'}->{'jobs'} || 0);
-    return 0 if $constraints->{'hardware'}->{'disk'} && getmbsize($constraints->{'hardware'}->{'disk'}) > ($worker->{'hardware'}->{'disk'} || 0);
-    my $memory = ($worker->{'hardware'}->{'memory'} || 0);
-    my $swap = ($worker->{'hardware'}->{'swap'} || 0);
-    return 0 if $constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) > ( $memory + $swap );
-    return 0 if $constraints->{'hardware'}->{'physicalmemory'} && getmbsize($constraints->{'hardware'}->{'physicalmemory'}) > $memory;
-    if ($constraints->{'hardware'}->{'cpu'}) {
-      return 0 unless $worker->{'hardware'}->{'cpu'};
-      my %workerflags = map {$_ => 1} @{$worker->{'hardware'}->{'cpu'}->{'flag'} || []};
-      return 0 unless grep {$workerflags{$_}} @{$constraints->{'hardware'}->{'cpu'}->{'flag'} || []};
-    }
-  }
-  return 1;
-}
 
 my %syncedjobs;
 my %lastmastersync;
@@ -858,7 +800,7 @@ sub checkconstraints {
       $workerseen{$workername} = 1;
       push @all_workers, $worker;
       next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker, $constraints);
-      next unless !$constraints || oracle($worker, $constraints) > 0;
+      next unless !$constraints || BSDispatch::Constraints::oracle($worker, $constraints) > 0;
       $sumworkers++;
       $downworkers++ if $workerstate eq 'down';
     }
@@ -877,12 +819,12 @@ sub checkconstraints {
     }
     for my $cpart (sort(keys(%{$constraints || {}}))) {
       my $cconstraint = { $cpart => $constraints->{$cpart} };
-      next if (grep {oracle($_, $cconstraint) > 0} @all_workers);
+      next if (grep {BSDispatch::Constraints::oracle($_, $cconstraint) > 0} @all_workers);
       if ($cpart eq 'hardware' || $cpart eq 'linux') {
 	my $hhint = '';
 	for my $ccpart (sort(keys(%{$constraints->{$cpart} || {}}))) {
           my $ccconstraint = { $cpart => { $ccpart => $constraints->{$cpart}->{$ccpart} } };
-          next if (grep {oracle($_, $ccconstraint) > 0} @all_workers);
+          next if (grep {BSDispatch::Constraints::oracle($_, $ccconstraint) > 0} @all_workers);
           $hhint .= " $cpart:$ccpart";
 	}
 	$hint .= $hhint ? $hhint : " $cpart";
@@ -1418,7 +1360,7 @@ while (1) {
            next; # worker is not supporting the needed personality change
         }
 	if ($constraints) {
-	  my $ora = oracle($workerinfo{$idle}, $constraints);
+	  my $ora = BSDispatch::Constraints::oracle($workerinfo{$idle}, $constraints);
 	  next unless defined($ora) && $ora > 0;
 	  if ($ora < 1) {
 	    if ($lastoracleidle && $lastoracleidle eq '__lastoracle') {
