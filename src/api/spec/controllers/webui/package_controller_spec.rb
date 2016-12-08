@@ -658,43 +658,60 @@ EOT
     end
   end
 
-  describe 'GET #package_live_build_log' do
-    context "successfully" do
-      before do
-        get :live_build_log, project: source_project, package: source_package, repository: '10.2', arch: 'i586', format: 'js'
+  context "build logs" do
+    RSpec.shared_examples "build log" do
+      context "successfully" do
+        before do
+          do_request project: source_project, package: source_package, repository: '10.2', arch: 'i586', format: 'js'
+        end
+
+        it { expect(response).to have_http_status(:ok) }
       end
 
-      it { expect(response).to have_http_status(:ok) }
+      context "with a protected package" do
+        let!(:flag) { create(:sourceaccess_flag, project: source_project) }
+
+        before do
+          do_request project: source_project, package: source_package, repository: '10.2', arch: 'i586', format: 'js'
+        end
+
+        it { expect(flash[:error]).to eq('Could not access build log') }
+        it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+      end
+
+      context "with a non existant package" do
+        before do
+          do_request project: source_project, package: 'nonexistant', repository: '10.2', arch: 'i586'
+        end
+
+        it { expect(flash[:error]).to eq("Couldn't find package 'nonexistant' in project '#{source_project}'. Are you sure it exists?") }
+        it { expect(response).to redirect_to(project_show_path(project: source_project)) }
+      end
+
+      context "with a non existant project" do
+        before do
+          do_request project: 'home:foo', package: 'nonexistant', repository: '10.2', arch: 'i586'
+        end
+
+        it { expect(flash[:error]).to eq("Couldn't find project 'home:foo'. Are you sure it still exists?") }
+        it { expect(response).to redirect_to(root_path) }
+      end
     end
 
-    context "with a protected package" do
-      let(:flag) { create(:sourceaccess_flag, project: source_project) }
-
-      before do
-        flag
-        get :live_build_log, project: source_project, package: source_package, repository: '10.2', arch: 'i586', format: 'js'
+    describe 'GET #package_live_build_log' do
+      def do_request(params)
+        get :live_build_log, params
       end
 
-      it { expect(flash[:error]).to eq('Could not access build log') }
-      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+      it_should_behave_like "build log"
     end
 
-    context "with a non existant package" do
-      before do
-        get :live_build_log, project: source_project, package: 'nonexistant', repository: '10.2', arch: 'i586'
+    describe "GET #update_build_log" do
+      def do_request(params)
+        xhr :get, :update_build_log, params
       end
 
-      it { expect(flash[:error]).to eq("Couldn't find package 'nonexistant' in project '#{source_project}'. Are you sure it exists?") }
-      it { expect(response).to redirect_to(project_show_path(project: source_project)) }
-    end
-
-    context "with a non existant project" do
-      before do
-        get :live_build_log, project: 'home:foo', package: 'nonexistant', repository: '10.2', arch: 'i586'
-      end
-
-      it { expect(flash[:error]).to eq("Couldn't find project 'home:foo'. Are you sure it still exists?") }
-      it { expect(response).to redirect_to(root_path) }
+      it_should_behave_like "build log"
     end
   end
 end

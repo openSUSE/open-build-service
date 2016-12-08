@@ -41,6 +41,8 @@ class Webui::PackageController < Webui::WebuiController
                                          :update_build_log, :devel_project, :buildresult, :rpmlint_result,
                                          :rpmlint_log, :meta, :attributes, :files]
 
+  before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
+
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
@@ -815,36 +817,10 @@ class Webui::PackageController < Webui::WebuiController
   def live_build_log
     required_parameters :arch, :repository
 
-    if Project.exists_by_name(params[:project])
-      @project = Project.get_by_name(params[:project])
-    else
-      flash[:error] = "Couldn't find project '#{params[:project]}'. Are you sure it still exists?"
-      redirect_back(fallback_location: root_path)
-      return
-    end
-
-    begin
-      @package = Package.get_by_project_and_name(@project,
-                                                 params[:package],
-                                                 {use_source:           false,
-                                                  follow_multibuild:    true,
-                                                  follow_project_links: true})
-    rescue Package::UnknownObjectError
-      flash[:error] = "Couldn't find package '#{params[:package]}' in project '#{@project.to_param}'. Are you sure it exists?"
-      redirect_to project_show_path(@project.to_param)
-      return
-    end
-
-    if @package && !@package.check_source_access?
-      flash[:error] = 'Could not access build log'
-      redirect_to action: :show, project: @project.name, package: @package.name
-      return
-    end
-
     @build_container = params[:package] # for remote and multibuild package
-    @package ||= params[:package] # for remote case
-    @arch = params[:arch]
-    @repo = params[:repository]
+    # Make sure objects don't contain invalid chars (eg. '../')
+    @arch = Architecture.find_by(name: params[:arch]).try(:name)
+    @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     @offset = 0
 
     set_job_status
@@ -863,12 +839,13 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def update_build_log
+    params.require([:project, :package, :arch, :repository])
+
     check_ajax
 
-    @project = params[:project]
-    @package = params[:package]
-    @arch = params[:arch]
-    @repo = params[:repository]
+    # Make sure objects don't contain invalid chars (eg. '../')
+    @arch = Architecture.find_by(name: params[:arch]).try(:name)
+    @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     @initial = params[:initial]
     @offset = params[:offset].to_i
     @finished = false
@@ -876,6 +853,14 @@ class Webui::PackageController < Webui::WebuiController
 
     set_initial_offset if @offset.zero?
 
+    package_object = Package.find_by(name: params[:package])
+    if package_object.nil? || !package_object.check_source_access?
+      flash[:error] = "Could not access revisions"
+      redirect_back(fallback_location: package_show_path(project: @project, package: package_object.name))
+      return
+    end
+
+    @package = package_object.name
     begin
       @log_chunk = get_log_chunk(@project, @package, @repo, @arch, @offset, @offset + @maxsize)
 
@@ -1137,5 +1122,46 @@ class Webui::PackageController < Webui::WebuiController
 
   def add_path(action)
     url_for(action: action, project: @project, role: params[:role], userid: params[:userid], package: @package)
+  end
+
+  # Basically backend stores date in /source (package sources) and /build (package
+  # build related). Logically build logs are stored in /build. Though build logs also
+  # contain information related to source packages.
+  # Thus before giving access to the build log, we need to ensure user has source access
+  # rights.
+  #
+  # This before_filter checks source permissions for packages that belong to remote projects,
+  # to local projects and local projects that link to other project's packages.
+  #
+  # If the check succeeds it sets @project and @package variables.
+  def check_build_log_access
+    if Project.exists_by_name(params[:project])
+      @project = Project.get_by_name(params[:project])
+    else
+      redirect_to root_path, error: "Couldn't find project '#{params[:project]}'. Are you sure it still exists?"
+      return false
+    end
+
+    begin
+      @package = Package.get_by_project_and_name(@project, params[:package], { use_source:           false,
+                                                                               follow_multibuild:    true,
+                                                                               follow_project_links: true })
+    rescue Package::UnknownObjectError
+      redirect_to project_show_path(@project.to_param),
+                  error: "Couldn't find package '#{params[:package]}' in " +
+                         "project '#{@project.to_param}'. Are you sure it exists?"
+      return false
+    end
+
+    # package is nil for remote projects
+    if @package && !@package.check_source_access?
+      redirect_to package_show_path(project: @project.name, package: @package.name),
+                  error: "Could not access build log"
+      return false
+    end
+
+    @package ||= params[:package] # for remote case
+
+    true
   end
 end
