@@ -1286,6 +1286,7 @@ our $schedulerinfo = [
 	'time',
 	[],
 	'slept',
+	'booting',
 	'notready',
       [ 'queue' =>
 	    'high',
