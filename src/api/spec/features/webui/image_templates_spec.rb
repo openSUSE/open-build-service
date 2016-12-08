@@ -7,8 +7,8 @@ RSpec.feature "ImageTemplates", type: :feature, js: true do
   let(:admin) { create(:admin_user, login: 'admin') }
   let(:project) { create(:project, name: "my_project") }
   let!(:attrib) { create(:template_attrib, project: project) }
-  let!(:package1) { create(:package, project: project, name: "first_package") }
-  let!(:package2) { create(:package, project: project, name: "second_package") }
+  let!(:package1) { create(:package_with_file, project: project, name: "first_package") }
+  let!(:package2) { create(:package_with_file, project: project, name: "second_package") }
 
   scenario "branch image template" do
     login(admin)
@@ -27,6 +27,6 @@ RSpec.feature "ImageTemplates", type: :feature, js: true do
 
     click_button("Create appliance")
     expect(page).to have_text("Successfully branched package")
-    expect(page).to have_text("home:admin > custom_name")
+    expect(page).to have_text("home:admin:branches:my_project > custom_name")
   end
 end

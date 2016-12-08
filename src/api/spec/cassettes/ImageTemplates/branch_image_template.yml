@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="my_project">
-          <title>The Man Within</title>
+          <title>Jacob Have I Loved</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '101'
+      - '105'
     body:
       encoding: UTF-8
       string: |
         <project name="my_project">
-          <title>The Man Within</title>
+          <title>Jacob Have I Loved</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:13 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/my_project/_config
     body:
       encoding: UTF-8
-      string: At sit sit aliquid sunt culpa maxime quae. Repellat ut ipsa. Id et accusantium
-        voluptate odit qui cum. Ea ipsa non enim sed hic voluptates dolores.
+      string: Minus saepe est. Ut aut quas. Voluptatem veniam repellendus cumque fugiat.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,7 +71,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:13 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/my_project/first_package/_meta?user=_nobody_
@@ -111,7 +110,7 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:14 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/my_project/first_package/_meta
@@ -150,7 +149,87 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:14 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/my_project/first_package/_config
+    body:
+      encoding: UTF-8
+      string: Autem qui aspernatur. Saepe inventore dolor. Nostrum ut quis aut. Laudantium
+        voluptas qui excepturi rem doloribus. Dolore doloribus rerum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="5" vrev="5">
+          <srcmd5>c8179c9bf46d02ddc63764ce9d3f5b30</srcmd5>
+          <version>unknown</version>
+          <time>1482921494</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 28 Dec 2016 10:38:14 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/my_project/first_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Ullam tempore neque et voluptate. Qui rem aliquid non cumque. Vel vero
+        est ipsam. Commodi suscipit quis dolor in non.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>0a568aff1247527f7177a0632c9dd4c4</srcmd5>
+          <version>unknown</version>
+          <time>1482921494</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 28 Dec 2016 10:38:14 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/my_project/second_package/_meta?user=_nobody_
@@ -189,7 +268,7 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:14 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/my_project/second_package/_meta
@@ -228,7 +307,89 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:14 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/my_project/second_package/_config
+    body:
+      encoding: UTF-8
+      string: Ex earum libero error accusamus cumque ullam. Sit labore praesentium
+        modi laboriosam. Alias fuga aspernatur ea perferendis. Quaerat ducimus asperiores
+        suscipit hic magnam. Aut repudiandae sed mollitia consequuntur omnis voluptas
+        corporis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="5" vrev="5">
+          <srcmd5>3bf6e76c431a3189e7135e2288e84826</srcmd5>
+          <version>unknown</version>
+          <time>1482921494</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 28 Dec 2016 10:38:14 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/my_project/second_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Quod et eos in at. Sequi est soluta voluptatem voluptatibus nemo. Est
+        aspernatur enim. Odio facere et voluptatem sit dicta eius mollitia.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>84680511846603e5a8fe4ecc34434be7</srcmd5>
+          <version>unknown</version>
+          <time>1482921494</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 28 Dec 2016 10:38:14 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:admin/_meta?user=admin
@@ -269,7 +430,7 @@ http_interactions:
           <person userid="admin" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:48 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:14 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/_workerstatus
@@ -309,20 +470,20 @@ http_interactions:
           <buildavg arch="i586" buildavg="1200" />
           <buildavg arch="x86_64" buildavg="1200" />
           <partition>
-            <daemon type="srcserver" state="running" starttime="1482398657" />
-            <daemon type="service" state="running" starttime="1482398657" />
+            <daemon type="srcserver" state="running" starttime="1482850144" />
+            <daemon type="service" state="running" starttime="1482850145" />
             <daemon type="scheduler" arch="i586" state="dead">
               <queue high="0" med="0" low="3" next="0" />
             </daemon>
             <daemon type="scheduler" arch="x86_64" state="dead">
               <queue high="39" med="0" low="7" next="0" />
             </daemon>
-            <daemon type="repserver" state="running" starttime="1482398657" />
+            <daemon type="repserver" state="running" starttime="1482850143" />
             <daemon type="publisher" state="dead" />
           </partition>
         </workerstatus>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:52 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:20 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/my_project/first_package
@@ -348,14 +509,51 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '88'
+      - '302'
     body:
       encoding: UTF-8
       string: |
-        <directory name="first_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="first_package" rev="6" vrev="6" srcmd5="0a568aff1247527f7177a0632c9dd4c4">
+          <entry name="_config" md5="ced8ca354de7e0528c426af7dd0d43a9" size="138" mtime="1482921494" />
+          <entry name="somefile.txt" md5="bcd185a57b68350b41bd07b75bb88f3f" size="117" mtime="1482921494" />
         </directory>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:20 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/first_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="first_package" rev="6" vrev="6" srcmd5="0a568aff1247527f7177a0632c9dd4c4">
+          <entry name="_config" md5="ced8ca354de7e0528c426af7dd0d43a9" size="138" mtime="1482921494" />
+          <entry name="somefile.txt" md5="bcd185a57b68350b41bd07b75bb88f3f" size="117" mtime="1482921494" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 28 Dec 2016 10:38:20 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/my_project/second_package
@@ -381,14 +579,123 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '89'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="second_package" rev="6" vrev="6" srcmd5="84680511846603e5a8fe4ecc34434be7">
+          <entry name="_config" md5="4630a1ba31fa6bd492a1196d8fab61b9" size="238" mtime="1482921494" />
+          <entry name="somefile.txt" md5="487f055b57035e339464da780dadfdbf" size="137" mtime="1482921494" />
         </directory>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:20 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/second_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '303'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" rev="6" vrev="6" srcmd5="84680511846603e5a8fe4ecc34434be7">
+          <entry name="_config" md5="4630a1ba31fa6bd492a1196d8fab61b9" size="238" mtime="1482921494" />
+          <entry name="somefile.txt" md5="487f055b57035e339464da780dadfdbf" size="137" mtime="1482921494" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 28 Dec 2016 10:38:20 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/second_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '303'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" rev="6" vrev="6" srcmd5="84680511846603e5a8fe4ecc34434be7">
+          <entry name="_config" md5="4630a1ba31fa6bd492a1196d8fab61b9" size="238" mtime="1482921494" />
+          <entry name="somefile.txt" md5="487f055b57035e339464da780dadfdbf" size="137" mtime="1482921494" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 28 Dec 2016 10:38:21 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/second_package?rev=6
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '303'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" rev="6" vrev="6" srcmd5="84680511846603e5a8fe4ecc34434be7">
+          <entry name="_config" md5="4630a1ba31fa6bd492a1196d8fab61b9" size="238" mtime="1482921494" />
+          <entry name="somefile.txt" md5="487f055b57035e339464da780dadfdbf" size="137" mtime="1482921494" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 28 Dec 2016 10:38:21 GMT
 - request:
     method: post
     uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22second_package%22%20and%20linkinfo/@project=%22my_project%22%20and%20@project=%22my_project%22)
@@ -423,14 +730,55 @@ http_interactions:
         <collection>
         </collection>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:21 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:admin/custom_name/_meta?user=admin
+    uri: http://localhost:3200/source/home:admin:branches:my_project/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
-        <package name="custom_name" project="home:admin">
+        <project name="home:admin:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
+          <person userid="admin" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '274'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:admin:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
+          <person userid="admin" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 28 Dec 2016 10:38:21 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name/_meta?user=admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="custom_name" project="home:admin:branches:my_project">
           <title/>
           <description/>
         </package>
@@ -453,19 +801,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '129'
     body:
       encoding: UTF-8
       string: |
-        <package name="custom_name" project="home:admin">
+        <package name="custom_name" project="home:admin:branches:my_project">
           <title></title>
           <description></description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:21 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:admin/custom_name?cmd=branch&opackage=second_package&oproject=my_project&user=admin
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name?cmd=branch&opackage=second_package&oproject=my_project&orev=84680511846603e5a8fe4ecc34434be7&user=admin
     body:
       encoding: UTF-8
       string: ''
@@ -494,19 +842,19 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>5f0cee3037f0c78cb1fb3137bdf7b5ea</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>34f14d12a08ec3867304db7dc7c69892</srcmd5>
           <version>unknown</version>
-          <time>1482398753</time>
+          <time>1482921501</time>
           <user>admin</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:admin/custom_name
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name
     body:
       encoding: US-ASCII
       string: ''
@@ -529,19 +877,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '429'
+      - '665'
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="1" vrev="1" srcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea">
-          <linkinfo project="my_project" package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c046daec625352820e5e8fc21011b57b" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
-          <entry name="_link" md5="0c9cbc4a9e085711a1dddaf16dc97862" size="143" mtime="1482398753" />
+        <directory name="custom_name" rev="2" vrev="2" srcmd5="34f14d12a08ec3867304db7dc7c69892">
+          <linkinfo project="my_project" package="second_package" rev="84680511846603e5a8fe4ecc34434be7" srcmd5="84680511846603e5a8fe4ecc34434be7" baserev="84680511846603e5a8fe4ecc34434be7" xsrcmd5="ae7fc55590518cfe4be1c379b27f83a9" lsrcmd5="34f14d12a08ec3867304db7dc7c69892" />
+          <entry name="_config" md5="4630a1ba31fa6bd492a1196d8fab61b9" size="238" mtime="1482921494" />
+          <entry name="_link" md5="99d73fb6f76200fef384c96a2c9d61ce" size="182" mtime="1482921501" />
+          <entry name="somefile.txt" md5="487f055b57035e339464da780dadfdbf" size="137" mtime="1482921494" />
         </directory>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:admin/custom_name?nofilename=1&view=info&withchangesmd5=1
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -568,15 +918,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="custom_name" rev="1" vrev="1" srcmd5="c046daec625352820e5e8fc21011b57b" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="custom_name" rev="2" vrev="2" srcmd5="ae7fc55590518cfe4be1c379b27f83a9" lsrcmd5="34f14d12a08ec3867304db7dc7c69892" verifymd5="84680511846603e5a8fe4ecc34434be7">
           <linked project="my_project" package="second_package" />
-          <revtime>1482398753</revtime>
+          <revtime>1482921501</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:admin/custom_name
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name
     body:
       encoding: US-ASCII
       string: ''
@@ -599,19 +949,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '429'
+      - '665'
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="1" vrev="1" srcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea">
-          <linkinfo project="my_project" package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c046daec625352820e5e8fc21011b57b" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
-          <entry name="_link" md5="0c9cbc4a9e085711a1dddaf16dc97862" size="143" mtime="1482398753" />
+        <directory name="custom_name" rev="2" vrev="2" srcmd5="34f14d12a08ec3867304db7dc7c69892">
+          <linkinfo project="my_project" package="second_package" rev="84680511846603e5a8fe4ecc34434be7" srcmd5="84680511846603e5a8fe4ecc34434be7" baserev="84680511846603e5a8fe4ecc34434be7" xsrcmd5="ae7fc55590518cfe4be1c379b27f83a9" lsrcmd5="34f14d12a08ec3867304db7dc7c69892" />
+          <entry name="_config" md5="4630a1ba31fa6bd492a1196d8fab61b9" size="238" mtime="1482921494" />
+          <entry name="_link" md5="99d73fb6f76200fef384c96a2c9d61ce" size="182" mtime="1482921501" />
+          <entry name="somefile.txt" md5="487f055b57035e339464da780dadfdbf" size="137" mtime="1482921494" />
         </directory>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:admin/custom_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -636,22 +988,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '307'
+      - '347'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="c5fd0d8192601d011adfcf656ce5950e">
-          <old project="home:admin" package="custom_name" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:admin" package="custom_name" rev="1" srcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
+        <sourcediff key="22d623c5959149c4fa9ff96776c9074c">
+          <old project="home:admin:branches:my_project" package="custom_name" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:admin:branches:my_project" package="custom_name" rev="2" srcmd5="34f14d12a08ec3867304db7dc7c69892" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:admin/custom_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -676,27 +1028,30 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '349'
+      - '369'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="88496cb459b217f0419a60b9147e599e">
-          <old project="my_project" package="second_package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:admin" package="custom_name" rev="c046daec625352820e5e8fc21011b57b" srcmd5="c046daec625352820e5e8fc21011b57b" />
+        <sourcediff key="219da849c550d9098075a88e9563454f">
+          <old project="my_project" package="second_package" rev="84680511846603e5a8fe4ecc34434be7" srcmd5="84680511846603e5a8fe4ecc34434be7" />
+          <new project="home:admin:branches:my_project" package="custom_name" rev="ae7fc55590518cfe4be1c379b27f83a9" srcmd5="ae7fc55590518cfe4be1c379b27f83a9" />
           <files />
         </sourcediff>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:admin/_meta?user=admin
+    uri: http://localhost:3200/source/home:admin:branches:my_project/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
-        <project name="home:admin">
-          <title/>
-          <description/>
+        <project name="home:admin:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
           <person userid="admin" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
         </project>
     headers:
       Accept-Encoding:
@@ -717,20 +1072,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '133'
+      - '315'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:admin">
-          <title></title>
-          <description></description>
+        <project name="home:admin:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
           <person userid="admin" role="maintainer" />
+          <publish>
+            <disable />
+          </publish>
         </project>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:admin/_result?package=custom_name&view=status
+    uri: http://localhost:3200/build/home:admin:branches:my_project/_result?package=custom_name&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -762,7 +1120,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/my_project/second_package?nofilename=1&view=info&withchangesmd5=1
@@ -788,15 +1146,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '188'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
-          <revtime/>
+        <sourceinfo package="second_package" rev="6" vrev="6" srcmd5="84680511846603e5a8fe4ecc34434be7" verifymd5="84680511846603e5a8fe4ecc34434be7">
+          <revtime>1482921494</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/my_project/second_package
@@ -822,14 +1180,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '89'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <directory name="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="second_package" rev="6" vrev="6" srcmd5="84680511846603e5a8fe4ecc34434be7">
+          <entry name="_config" md5="4630a1ba31fa6bd492a1196d8fab61b9" size="238" mtime="1482921494" />
+          <entry name="somefile.txt" md5="487f055b57035e339464da780dadfdbf" size="137" mtime="1482921494" />
         </directory>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/my_project/second_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -857,20 +1217,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '290'
+      - '313'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="9b7ef071fc7cca9acfc766e5f6862c61">
+        <sourcediff key="8279a18dd40ba41881b16ea7674c2954">
           <old project="my_project" package="second_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="my_project" package="second_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="my_project" package="second_package" rev="6" srcmd5="84680511846603e5a8fe4ecc34434be7" />
           <files />
+          <issues>
+          </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:admin/custom_name
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name
     body:
       encoding: US-ASCII
       string: ''
@@ -893,19 +1255,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '429'
+      - '665'
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="1" vrev="1" srcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea">
-          <linkinfo project="my_project" package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c046daec625352820e5e8fc21011b57b" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
-          <entry name="_link" md5="0c9cbc4a9e085711a1dddaf16dc97862" size="143" mtime="1482398753" />
+        <directory name="custom_name" rev="2" vrev="2" srcmd5="34f14d12a08ec3867304db7dc7c69892">
+          <linkinfo project="my_project" package="second_package" rev="84680511846603e5a8fe4ecc34434be7" srcmd5="84680511846603e5a8fe4ecc34434be7" baserev="84680511846603e5a8fe4ecc34434be7" xsrcmd5="ae7fc55590518cfe4be1c379b27f83a9" lsrcmd5="34f14d12a08ec3867304db7dc7c69892" />
+          <entry name="_config" md5="4630a1ba31fa6bd492a1196d8fab61b9" size="238" mtime="1482921494" />
+          <entry name="_link" md5="99d73fb6f76200fef384c96a2c9d61ce" size="182" mtime="1482921501" />
+          <entry name="somefile.txt" md5="487f055b57035e339464da780dadfdbf" size="137" mtime="1482921494" />
         </directory>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:admin/custom_name?expand=1&rev=1
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -930,18 +1294,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '323'
+      - '559'
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="c046daec625352820e5e8fc21011b57b" vrev="1" srcmd5="c046daec625352820e5e8fc21011b57b">
-          <linkinfo project="my_project" package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
+        <directory name="custom_name" rev="ae7fc55590518cfe4be1c379b27f83a9" vrev="2" srcmd5="ae7fc55590518cfe4be1c379b27f83a9">
+          <linkinfo project="my_project" package="second_package" rev="84680511846603e5a8fe4ecc34434be7" srcmd5="84680511846603e5a8fe4ecc34434be7" baserev="84680511846603e5a8fe4ecc34434be7" lsrcmd5="34f14d12a08ec3867304db7dc7c69892" />
+          <entry name="_config" md5="4630a1ba31fa6bd492a1196d8fab61b9" size="238" mtime="1482921494" />
+          <entry name="somefile.txt" md5="487f055b57035e339464da780dadfdbf" size="137" mtime="1482921494" />
         </directory>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:admin/custom_name
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name
     body:
       encoding: US-ASCII
       string: ''
@@ -966,19 +1332,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '429'
+      - '665'
     body:
       encoding: UTF-8
       string: |
-        <directory name="custom_name" rev="1" vrev="1" srcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea">
-          <linkinfo project="my_project" package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c046daec625352820e5e8fc21011b57b" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
-          <entry name="_link" md5="0c9cbc4a9e085711a1dddaf16dc97862" size="143" mtime="1482398753" />
+        <directory name="custom_name" rev="2" vrev="2" srcmd5="34f14d12a08ec3867304db7dc7c69892">
+          <linkinfo project="my_project" package="second_package" rev="84680511846603e5a8fe4ecc34434be7" srcmd5="84680511846603e5a8fe4ecc34434be7" baserev="84680511846603e5a8fe4ecc34434be7" xsrcmd5="ae7fc55590518cfe4be1c379b27f83a9" lsrcmd5="34f14d12a08ec3867304db7dc7c69892" />
+          <entry name="_config" md5="4630a1ba31fa6bd492a1196d8fab61b9" size="238" mtime="1482921494" />
+          <entry name="_link" md5="99d73fb6f76200fef384c96a2c9d61ce" size="182" mtime="1482921501" />
+          <entry name="somefile.txt" md5="487f055b57035e339464da780dadfdbf" size="137" mtime="1482921494" />
         </directory>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:admin/custom_name/_service
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -1012,10 +1380,55 @@ http_interactions:
           <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:admin/_result?package=custom_name&view=status
+    uri: http://localhost:3200/source/home:admin:branches:my_project/custom_name/_history
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '391'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>22a756c72179ca83a445b41751400fc9</srcmd5>
+            <version>unknown</version>
+            <time>1482921386</time>
+            <user>admin</user>
+          </revision>
+          <revision rev="2" vrev="2">
+            <srcmd5>34f14d12a08ec3867304db7dc7c69892</srcmd5>
+            <version>unknown</version>
+            <time>1482921501</time>
+            <user>admin</user>
+          </revision>
+        </revisionlist>
+    http_version: 
+  recorded_at: Wed, 28 Dec 2016 10:38:22 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:admin:branches:my_project/_result?package=custom_name&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -1047,10 +1460,10 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:admin/_result?package=custom_name&view=status
+    uri: http://localhost:3200/build/home:admin:branches:my_project/_result?package=custom_name&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -1082,5 +1495,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+  recorded_at: Wed, 28 Dec 2016 10:38:23 GMT
 recorded_with: VCR 3.0.3
