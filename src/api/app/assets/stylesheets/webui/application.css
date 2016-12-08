@@ -12,6 +12,7 @@
  *= require token-input
  *= require token-input-facebook
  *= require codemirror
+ *= require mousetrap
  *= require webui/application/bento.css.scss
  *= require webui/application/cm2.css.scss
  *= require webui/application/icons.css.scss

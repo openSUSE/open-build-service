@@ -71,6 +71,13 @@ GEM
     codemirror-rails (5.16.0)
       railties (>= 3.0, < 6.0)
     coderay (1.1.1)
+    coffee-rails (4.2.1)
+      coffee-script (>= 2.2.0)
+      railties (>= 4.0.0, < 5.2.x)
+    coffee-script (2.4.1)
+      coffee-script-source
+      execjs
+    coffee-script-source (1.11.1)
     colorize (0.8.1)
     concurrent-ruby (1.0.2)
     coveralls (0.8.15)
@@ -164,6 +171,7 @@ GEM
       metaclass (~> 0.0.1)
     momentjs-rails (2.15.1)
       railties (>= 3.1)
+    mousetrap-rails (1.4.6)
     mysql2 (0.4.4)
     nio4r (1.2.1)
     nokogiri (1.6.8.1)
@@ -348,6 +356,7 @@ DEPENDENCIES
   clockwork (>= 0.7)
   cocoon
   codemirror-rails
+  coffee-rails
   colorize
   coveralls
   cssmin (>= 1.0.2)
@@ -373,6 +382,7 @@ DEPENDENCIES
   minitest-reporters
   mocha (> 0.13.0)
   momentjs-rails
+  mousetrap-rails
   mysql2
   nokogiri (~> 1.6.7)
   nyan-cat-formatter
@@ -407,4 +417,4 @@ DEPENDENCIES
   yajl-ruby
 
 BUNDLED WITH
-   1.12.5
+   1.13.6

@@ -51,6 +51,10 @@ gem 'colorize', require: false
 gem 'activemodel-serializers-xml'
 # Spider Identification
 gem 'voight_kampff'
+# support coffeescript
+gem 'coffee-rails'
+# bind keyboard shortcuts to actions
+gem 'mousetrap-rails'
 
 group :development, :production do
   # to have the delayed job daemon
