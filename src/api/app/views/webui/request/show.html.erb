@@ -34,7 +34,7 @@
   <div class="grid_6 omega">
     <%= possibly_empty_ul class: 'clean_list' do %>
         <li><%= sprite_tag('user_green') %> Created
-          by <%= user_with_realname_and_icon(@req['creator'], no_icon: true, short: true) %> <%= fuzzy_time(@req['created_at']) %></li>
+          by <%= user_with_realname_and_icon(@req['creator'], no_icon: true, short: true) %> <%= fuzzy_time(@req['created_at'], :with_fulltime) %></li>
         <li><%= sprite_tag('information') %> In
           state <%= link_to @state, { :anchor => 'request_history' }, { :style => "color: #{request_state_color(@state)};" } %></li>
         <% unless @package_maintainers.empty? %>

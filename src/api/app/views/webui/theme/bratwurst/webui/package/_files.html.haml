@@ -24,7 +24,7 @@
               %td
                 %span.hidden
                   #{file[:mtime]}
-                = fuzzy_time_string(Time.at(file[:mtime].to_i).to_s)
+                = fuzzy_time_string(Time.at(file[:mtime].to_i).to_s, :with_fulltime)
               / limit download for anonymous user to avoid getting killed by crawlers
     - else
       %p

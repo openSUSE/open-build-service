@@ -3,6 +3,21 @@ require 'rails_helper'
 RSpec.describe Webui::WebuiHelper do
   let(:input) { 'Rocking the Open Build Service' }
 
+  describe '#fuzzy_time' do
+    it 'returns "now" as fuzzy time' do
+      expect(fuzzy_time(Time.now)).to eq('now')
+    end
+
+    it 'makes sure that "now" will not be returned as fuzzy time after 60 seconds' do
+      expect(fuzzy_time(Time.now-61)).not_to eq('now')
+    end
+
+    it 'returns a fuzzy time with an html tag' do
+      time = Time.now
+      expect(fuzzy_time(time, :with_fulltime)).to eq("<span title='#{time}'>now</span>")
+    end
+  end
+
   describe '#elide' do
     it 'does not elide' do
       expect(input).to eq(elide(input, input.length))

@@ -20,7 +20,7 @@
             </td>
             <td><span class="hidden"><%= file[:size].rjust(10, '0') %></span><%= human_readable_fsize(file[:size]) %>
             </td>
-            <td><span class="hidden"><%= file[:mtime] %></span><%= fuzzy_time_string(Time.at(file[:mtime].to_i).to_s) %>
+            <td><span class="hidden"><%= file[:mtime] %></span><%= fuzzy_time_string(Time.at(file[:mtime].to_i).to_s, :with_fulltime) %>
             </td>
             <!-- limit download for anonymous user to avoid getting killed by crawlers -->
             <td><%= if !User.current.is_nobody? || file[:size].to_i < (4 * 1024 * 1024)

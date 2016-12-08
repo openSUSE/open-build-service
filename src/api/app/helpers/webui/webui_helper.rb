@@ -38,15 +38,24 @@ module Webui::WebuiHelper
               width: size, height: size, alt: alt, class: css_class)
   end
 
-  def fuzzy_time(time)
+  def fuzzy_time(time, opts = {})
+    output = nil
+
     if Time.now - time < 60
-      return 'now' # rails' 'less than a minute' is a bit long
+      output = 'now' # rails' 'less than a minute' is a bit long
+    else
+      output = time_ago_in_words(time) + ' ago'
     end
-    time_ago_in_words(time) + ' ago'
+
+    if opts["with_fulltime"]
+      output = safe_join(["<span title='#{Time.at(time).to_s}'>".html_safe, "</span>".html_safe], output)
+    end
+
+    output
   end
 
-  def fuzzy_time_string(timestring)
-    fuzzy_time(Time.parse(timestring))
+  def fuzzy_time_string(timestring, opts = {})
+    fuzzy_time(Time.parse(timestring), opts)
   end
 
   def format_projectname(prjname, login)

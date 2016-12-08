@@ -21,7 +21,7 @@
             committed
         <% end %>
     <% end %>
-    <%= fuzzy_time(Time.at(commit['time'].to_i)) %> (revision <%= commit['rev'] %>)
+    <%= fuzzy_time(Time.at(commit['time'].to_i), :with_fulltime) %> (revision <%= commit['rev'] %>)
     <% unless commit['user'] == '_service' || commit['comment'].blank? %>
         <pre class="plain"><%= commit['comment'] %></pre>
     <% end %>
