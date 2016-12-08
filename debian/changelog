@@ -1,3 +1,9 @@
+open-build-service (2.7.1-6) experimental; urgency=medium
+
+  * Move log, tmp and config files out of /usr and creates links instead.
+
+ -- Andrew Lee (李健秋) <ajqlee@debian.org>  Thu, 08 Dec 2016 19:13:53 +0800
+
 open-build-service (2.7.1-5) experimental; urgency=medium
 
   * Adjust postrm and prerm scripts to remove users, group and data when
