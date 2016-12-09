@@ -60,6 +60,9 @@ GEM
     ast (2.3.0)
     atomic (1.1.99)
     builder (3.2.3)
+    bullet (5.5.1)
+      activesupport (>= 3.0.0)
+      uniform_notifier (~> 1.10.0)
     capybara (2.14.3)
       addressable
       mime-types (>= 1.16)
@@ -368,6 +371,7 @@ GEM
     unicorn-rails (2.2.1)
       rack
       unicorn
+    uniform_notifier (1.10.0)
     url (0.3.2)
     vcr (3.0.3)
     voight_kampff (1.1.1)
@@ -395,6 +399,7 @@ DEPENDENCIES
   acts_as_tree
   airbrake
   annotate
+  bullet
   bundler
   capybara
   capybara_minitest_spec

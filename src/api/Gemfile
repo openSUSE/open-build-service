@@ -150,6 +150,8 @@ group :development, :test do
   gem 'launchy'
   # for calling single testd
   gem 'single_test'
+  # to find n+1 queries
+  gem 'bullet'
 end
 
 # Gems used only for assets and not required in production environments by default.

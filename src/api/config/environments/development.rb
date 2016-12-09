@@ -54,6 +54,13 @@ OBSApi::Application.configure do
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
   config.peek.adapter = :memcache
+  # Bullet configuration
+  config.after_initialize do
+    Bullet.enable = true
+    Bullet.bullet_logger = true
+    Bullet.console = true
+    Bullet.add_footer = true
+  end
 end
 
 CONFIG['extended_backend_log'] = true
