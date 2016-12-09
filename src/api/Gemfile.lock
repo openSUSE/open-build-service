@@ -52,6 +52,9 @@ GEM
     arel (7.1.1)
     ast (2.3.0)
     builder (3.2.2)
+    bullet (5.4.2)
+      activesupport (>= 3.0.0)
+      uniform_notifier (~> 1.10.0)
     capybara (2.10.1)
       addressable
       mime-types (>= 1.16)
@@ -326,6 +329,7 @@ GEM
     unicorn-rails (2.2.1)
       rack
       unicorn
+    uniform_notifier (1.10.0)
     vcr (3.0.3)
     voight_kampff (1.1.1)
       rack (>= 1.4, < 3.0)
@@ -350,6 +354,7 @@ DEPENDENCIES
   activemodel-serializers-xml
   acts_as_list
   acts_as_tree
+  bullet
   bundler
   capybara_minitest_spec
   chunky_png
