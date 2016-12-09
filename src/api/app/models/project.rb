@@ -1404,13 +1404,10 @@ class Project < ApplicationRecord
 
   def self.valid_name?(name)
     return false unless name.kind_of? String
-    # this length check is duplicated but useful for other uses for this function
-    return false if name.length > 200 || name.blank?
     return false if name == "0";
-    return false if name =~ %r{^[_\.]}
-    return false if name =~ %r{::}
+    return false if name =~ /::/
     return false if name.end_with?(':')
-    return true if name =~ /\A\w[-+\w\.:]*\z/
+    return true if name =~ /\A[a-zA-Z0-9][-+\w\.:]{0,199}\z/
     false
   end
 
