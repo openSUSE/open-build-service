@@ -898,7 +898,7 @@ END
     end
   end
 
-  test 'invalid names' do
+  test 'invalid names' do # spec/models/project_spec.rb
     # no ::
     assert !Project.valid_name?('home:M0ses:raspi::qtdesktop')
     assert !Project.valid_name?(10)
@@ -907,7 +907,7 @@ END
     assert !Project.valid_name?("4" * 250)
   end
 
-  test 'valid name' do
+  test 'valid name' do # spec/models/project_spec.rb
     assert Project.valid_name?("foobar")
     assert Project.valid_name?("Foobar_")
     assert Project.valid_name?("foo1234")

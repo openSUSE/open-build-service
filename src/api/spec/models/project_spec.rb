@@ -404,4 +404,24 @@ RSpec.describe Project do
     it { expect(leap_project.image_template?).to be(true) }
     it { expect(tumbleweed_project.image_template?).to be(false) }
   end
+
+  describe '#self.valid_name?' do
+    context "invalid" do
+      it{ expect(Project.valid_name?(10)).to be(false) }
+      it{ expect(Project.valid_name?('home:M0ses:raspi::qtdesktop')).to be(false) }
+      it{ expect(Project.valid_name?('0')).to be(false) }
+      it{ expect(Project.valid_name?('home:M0ses:')).to be(false) }
+      it{ expect(Project.valid_name?('_foobar')).to be(false) }
+      it{ expect(Project.valid_name?("4" * 201)).to be(false) }
+      it{ expect(Project.valid_name?('')).to be(false) }
+    end
+
+    context "valid" do
+      it{ expect(Project.valid_name?('home:M0ses:raspi:qtdesktop')).to be(true) }
+      it{ expect(Project.valid_name?("foobar")).to be(true) }
+      it{ expect(Project.valid_name?("Foobar_")).to be(true) }
+      it{ expect(Project.valid_name?("foo1234")).to be(true) }
+      it{ expect(Project.valid_name?("4" * 200)).to be(true) }
+    end
+  end
 end
