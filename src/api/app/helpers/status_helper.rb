@@ -22,10 +22,10 @@ module StatusHelper
         index += 1
         count += 1
       end
-      if count > 0
-        value = value / count
+      value = if count > 0
+        value / count
       else
-        value = lastvalue
+        lastvalue
       end
       result << [now, value]
       now += samplerate

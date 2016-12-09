@@ -1032,10 +1032,10 @@ class Project < ApplicationRecord
 
   def exists_package?(name, opts = {})
     CacheLine.fetch([self, 'exists_package', name, opts], project: self.name, package: name) do
-      if opts[:follow_project_links]
-        pkg = find_package(name)
+      pkg = if opts[:follow_project_links]
+        find_package(name)
       else
-        pkg = packages.find_by_name(name)
+        packages.find_by_name(name)
       end
       if pkg.nil?
         # local project, but package may be in a linked remote one
@@ -1070,11 +1070,11 @@ class Project < ApplicationRecord
         raise CycleError, 'project links against itself, this is not allowed'
       end
 
-      if lp.linked_db_project.nil?
+      pkg = if lp.linked_db_project.nil?
         # We can't get a package object from a remote instance ... how shall we handle this ?
-        pkg = nil
+        nil
       else
-        pkg = lp.linked_db_project.find_package(package_name, check_update_project, processed)
+        lp.linked_db_project.find_package(package_name, check_update_project, processed)
       end
       unless pkg.nil?
         return pkg if Package.check_access?(pkg)

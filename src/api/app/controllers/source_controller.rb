@@ -115,19 +115,18 @@ class SourceController < ApplicationController
   end
 
   def render_project_packages
-    packages=nil
-    if params.has_key? :expand
-      packages = @project.expand_all_packages
+    packages = if params.has_key? :expand
+      @project.expand_all_packages
     else
-      packages = @project.packages.pluck(:name)
+      @project.packages.pluck(:name)
     end
     output = String.new
     output << "<directory count='#{packages.length}'>\n"
-    if params.has_key? :expand
-      output << packages.map { |p| "  <entry name=\"#{p[0]}\" originproject=\"#{p[1]}\"/>\n" }.join
-    else
-      output << packages.map { |p| "  <entry name=\"#{p}\"/>\n" }.join
-    end
+    output << if params.has_key? :expand
+                packages.map { |p| "  <entry name=\"#{p[0]}\" originproject=\"#{p[1]}\"/>\n" }.join
+              else
+                packages.map { |p| "  <entry name=\"#{p}\"/>\n" }.join
+              end
     output << "</directory>\n"
     output
   end

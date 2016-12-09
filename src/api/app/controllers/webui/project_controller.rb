@@ -438,10 +438,10 @@ class Webui::ProjectController < Webui::WebuiController
   def monitor
     @name_filter = params[:pkgname]
     @lastbuild_switch = params[:lastbuild]
-    if params[:defaults]
-      defaults = (Integer(params[:defaults]) rescue 1) > 0
+    defaults = if params[:defaults]
+      (Integer(params[:defaults]) rescue 1) > 0
     else
-      defaults = true
+      true
     end
     params['expansionerror'] = 1 if params['unresolvable']
     monitor_set_filter(defaults)
@@ -919,10 +919,10 @@ class Webui::ProjectController < Webui::WebuiController
     filter_string.gsub!(/\s*/, '')
     filter_string.split(',').each { |filter|
       no_invert = filter.match(/(^!?)(.+)/)
-      if no_invert[1] == '!'
-        result = input.include?(no_invert[2]) ? result : true
+      result = if no_invert[1] == '!'
+        input.include?(no_invert[2]) ? result : true
       else
-        result = input.include?(no_invert[2]) ? true : result
+        input.include?(no_invert[2]) ? true : result
       end
     }
     result
@@ -1034,11 +1034,11 @@ class Webui::ProjectController < Webui::WebuiController
         end
       end
       if currentpack['currently_declined'].nil?
-        if p.changesmd5 != dp.changesmd5
-          currentpack['problems'] << 'different_changes'
-        else
-          currentpack['problems'] << 'different_sources'
-        end
+        currentpack['problems'] << if p.changesmd5 != dp.changesmd5
+                                     'different_changes'
+                                   else
+                                     'different_sources'
+                                   end
       end
     end
   end

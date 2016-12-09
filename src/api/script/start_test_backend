@@ -40,10 +40,10 @@ if memcached_pid.to_i > 0
   puts "memcached already started (pid=#{memcached_pid})\."
 else
   puts "memcached not started.\nTrying to start it ..."
-  if Etc.getpwuid(Process::Sys.geteuid).name == 'root'
-    success = system('/usr/sbin/memcached', '-d', '-u', 'wwwrun')
+  success = if Etc.getpwuid(Process::Sys.geteuid).name == 'root'
+    system('/usr/sbin/memcached', '-d', '-u', 'wwwrun')
   else
-    success = system('/usr/sbin/memcached', '-d')
+    system('/usr/sbin/memcached', '-d')
   end
   if success
     memcached_npid = %x(ps -C memcached -o pid=).strip

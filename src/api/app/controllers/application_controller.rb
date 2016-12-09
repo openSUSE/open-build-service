@@ -435,10 +435,10 @@ class ApplicationController < ActionController::Base
     @exception = opt[:exception]
     @errorcode = opt[:errorcode]
 
-    if opt[:status]
-      @status = opt[:status].to_i
+    @status = if opt[:status]
+      opt[:status].to_i
     else
-      @status = 400
+      400
     end
 
     if @status == 401
@@ -451,10 +451,10 @@ class ApplicationController < ActionController::Base
 
     @summary ||= "Internal Server Error"
 
-    if @exception
-      @errorcode ||= 'uncaught_exception'
+    @errorcode ||= if @exception
+      'uncaught_exception'
     else
-      @errorcode ||= 'unknown'
+      'unknown'
     end
   end
 

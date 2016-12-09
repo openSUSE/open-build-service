@@ -44,12 +44,11 @@ module Webui::ProjectHelper
     return if @spider_bot
     # FIXME: should also work for remote
     if @project && @project.kind_of?(Project) && !@project.new_record?
-      prj_parents = nil
-      if @namespace # corner case where no project object is available
-        prj_parents = Project.parent_projects(@namespace)
+      prj_parents = if @namespace # corner case where no project object is available
+        Project.parent_projects(@namespace)
       else
         # FIXME: Some controller's @project is a Project object whereas other's @project is a String object.
-        prj_parents = Project.parent_projects(@project.to_s)
+        Project.parent_projects(@project.to_s)
       end
       project_list = []
       prj_parents.each do |name, short_name|

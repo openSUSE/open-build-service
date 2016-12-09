@@ -127,10 +127,10 @@ class Package < ApplicationRecord
     @key[:user] = User.current.cache_key if User.current
 
     # the cache is only valid if the user, prj and pkg didn't change
-    if project.is_a? Project
-      @key[:project] = project.id
+    @key[:project] = if project.is_a? Project
+      project.id
     else
-      @key[:project] = project
+      project
     end
     pid, old_pkg_time, old_prj_time = Rails.cache.read(@key)
     if pid
@@ -401,10 +401,10 @@ class Package < ApplicationRecord
     update_activity
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: id).delete_all
-    if dir_xml.is_a? Net::HTTPSuccess
-      dir_xml = dir_xml.body
+    dir_xml = if dir_xml.is_a? Net::HTTPSuccess
+      dir_xml.body
     else
-      dir_xml = source_file(nil)
+      source_file(nil)
     end
     private_set_package_kind Xmlhash.parse(dir_xml)
     update_project_for_product
@@ -1045,10 +1045,10 @@ class Package < ApplicationRecord
     bp.verifymd5 = dir['verifymd5']
     bp.changesmd5 = dir['changesmd5']
     bp.expandedmd5 = dir['srcmd5']
-    if dir['revtime'].blank? # no commit, no revtime
-      bp.maxmtime = nil
+    bp.maxmtime = if dir['revtime'].blank? # no commit, no revtime
+      nil
     else
-      bp.maxmtime = Time.at(Integer(dir['revtime']))
+      Time.at(Integer(dir['revtime']))
     end
 
     # now check the unexpanded sources

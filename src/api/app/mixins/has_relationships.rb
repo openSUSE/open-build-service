@@ -51,10 +51,10 @@ module HasRelationships
   def remove_role(what, role)
     check_write_access!
 
-    if what.kind_of? Group
-      rel = relationships.where(group_id: what.id)
+    rel = if what.kind_of? Group
+      relationships.where(group_id: what.id)
     else
-      rel = relationships.where(user_id: what.id)
+      relationships.where(user_id: what.id)
     end
     rel = rel.where(role_id: role.id) if role
     transaction do

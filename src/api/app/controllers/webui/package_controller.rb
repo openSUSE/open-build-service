@@ -60,12 +60,12 @@ class Webui::PackageController < Webui::WebuiController
     load_buildresults
     set_linking_packages
 
-    if @spider_bot
-      @expand = 0
+    @expand = if @spider_bot
+      0
     elsif params[:expand]
-      @expand = params[:expand].to_i
+      params[:expand].to_i
     else
-      @expand = 1
+      1
     end
 
     @is_current_rev = false
@@ -240,10 +240,10 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def submit_request_dialog
-    if params[:revision]
-      @revision = params[:revision]
+    @revision = if params[:revision]
+      params[:revision]
     else
-      @revision = @package.rev
+      @package.rev
     end
     @cleanup_source = @project.name.include?(':branches:') # Rather ugly decision finding...
     @tprj = ''
@@ -266,10 +266,10 @@ class Webui::PackageController < Webui::WebuiController
     package_name = params[:package].strip
     project_name = params[:project].strip
 
-    if params[:targetpackage].blank?
-      target_package_name = package_name
+    target_package_name = if params[:targetpackage].blank?
+      package_name
     else
-      target_package_name = params[:targetpackage].try(:strip)
+      params[:targetpackage].try(:strip)
     end
 
     if target_project_name.blank?
@@ -395,10 +395,10 @@ class Webui::PackageController < Webui::WebuiController
       @current_rev = @package.rev
       @revision = @current_rev if !@revision && !@srcmd5 # on very first page load only
 
-      if @srcmd5
-        @files = package_files(@srcmd5, @expand)
+      @files = if @srcmd5
+        package_files(@srcmd5, @expand)
       else
-        @files = package_files(@revision, @expand)
+        package_files(@revision, @expand)
       end
     rescue ActiveXML::Transport::Error => e
       # TODO crudest hack ever!
@@ -631,10 +631,10 @@ class Webui::PackageController < Webui::WebuiController
     end
     @package.title = params[:title]
     @package.description = params[:description]
-    if @package.save
-      flash[:notice] = "Package data for '#{@package.name}' was saved successfully"
+    flash[:notice] = if @package.save
+      "Package data for '#{@package.name}' was saved successfully"
     else
-      flash[:notice] = "Failed to save package '#{@package.name}'"
+      "Failed to save package '#{@package.name}'"
     end
     redirect_to action: :show, project: params[:project], package: params[:package]
   end
@@ -993,12 +993,12 @@ class Webui::PackageController < Webui::WebuiController
       rpmlint_log.encode!(xml: :text)
       res = ''
       rpmlint_log.lines.each do |line|
-        if line.match(/\w+(?:\.\w+)+: W: /)
-          res += "<span style=\"color: olive;\">#{line}</span>"
+        res += if line.match(/\w+(?:\.\w+)+: W: /)
+          "<span style=\"color: olive;\">#{line}</span>"
         elsif line.match(/\w+(?:\.\w+)+: E: /)
-          res += "<span style=\"color: red;\">#{line}</span>"
+          "<span style=\"color: red;\">#{line}</span>"
         else
-          res += line
+          line
         end
       end
       render text: res, content_type: 'text/html'

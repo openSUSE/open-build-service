@@ -38,10 +38,10 @@ class Webui::WebuiController < ActionController::Base
        when "branch?" then "branch"
        else exception.try(:query)
     end
-    if pundit_action && exception.record
-      message = "Sorry, you are not authorized to #{pundit_action} this #{exception.record.class}."
+    message = if pundit_action && exception.record
+      "Sorry, you are not authorized to #{pundit_action} this #{exception.record.class}."
     else
-      message = "Sorry, you are not authorized to perform this action."
+      "Sorry, you are not authorized to perform this action."
     end
     if request.xhr?
       render json: { error: message }, status: 400

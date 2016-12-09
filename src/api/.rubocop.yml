@@ -105,6 +105,10 @@ Style/TernaryParentheses:
 Style/MethodCallParentheses:
   Enabled: true
 
+# Check for if and case statements where each branch is used for assignment
+# to the same variable when using the return of the condition can be used instead.
+Style/ConditionalAssignment:
+  Enabled: true
 ##################### Metrics ##################################
 
 # Checks if the length a class exceeds some maximum value

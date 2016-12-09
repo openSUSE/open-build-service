@@ -55,11 +55,10 @@ class BuildController < ApplicationController
       end
 
       if !allowed && !params[:package].nil?
-        package_names = nil
-        if params[:package].kind_of? Array
-          package_names = params[:package]
+        package_names = if params[:package].kind_of? Array
+          params[:package]
         else
-          package_names = [params[:package]]
+          [params[:package]]
         end
         package_names.each do |pack_name|
           pkg = Package.find_by_project_and_name( prj.name, pack_name )
@@ -272,11 +271,11 @@ class BuildController < ApplicationController
       archs = []
       status.each do |arch, archstat|
         oneline = [arch, archstat[:result]]
-        if archstat[:missing].blank?
-          oneline << nil
-        else
-          oneline << archstat[:missing].join(",")
-        end
+        oneline << if archstat[:missing].blank?
+                     nil
+                   else
+                     archstat[:missing].join(",")
+                   end
         archs << oneline
       end
       @result << [repo, archs]

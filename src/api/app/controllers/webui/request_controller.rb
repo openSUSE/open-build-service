@@ -177,10 +177,10 @@ class Webui::RequestController < Webui::WebuiController
           flash[:error] = 'Will not add maintainer for not accepted requests'
         else
           tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # split into project and package
-          if tpkg
-            target = Package.find_by_project_and_name(tprj, tpkg)
+          target = if tpkg
+            Package.find_by_project_and_name(tprj, tpkg)
           else
-            target = Project.find_by_name tprj
+            Project.find_by_name tprj
           end
           if target.check_write_access
             # the request action type might be permitted in future, but that doesn't mean we

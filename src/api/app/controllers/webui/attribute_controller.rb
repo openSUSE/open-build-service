@@ -14,10 +14,10 @@ class Webui::AttributeController < Webui::WebuiController
   end
 
   def new
-    if @package
-      @attribute = Attrib.new(package_id: @package.id)
+    @attribute = if @package
+      Attrib.new(package_id: @package.id)
     else
-      @attribute = Attrib.new(project_id: @project.id)
+      Attrib.new(project_id: @project.id)
     end
     authorize @attribute, :create?
   end

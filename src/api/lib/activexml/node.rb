@@ -82,10 +82,10 @@ module ActiveXML
               Rails.logger.debug "nil value given #{args.inspect}"
               next
             end
-            if value.kind_of? Array
-              hash[key.to_sym] = value
+            hash[key.to_sym] = if value.kind_of? Array
+              value
             else
-              hash[key.to_sym] = value.to_s
+              value.to_s
             end
           end
           args[0] = hash
@@ -258,10 +258,10 @@ module ActiveXML
         raise 'use each instead'
       end
       index = 0
-      if symbol.nil?
-        nodes = _data.element_children
+      nodes = if symbol.nil?
+        _data.element_children
       else
-        nodes = _data.xpath(symbol.to_s)
+        _data.xpath(symbol.to_s)
       end
       nodes.each do |e|
         yield create_node_with_relations(e), index

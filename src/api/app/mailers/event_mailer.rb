@@ -40,10 +40,10 @@ class EventMailer < ActionMailer::Base
 
     tos = subscribers.map { |u| u.display_name }
 
-    if orig
-      orig = orig.display_name
+    orig = if orig
+      orig.display_name
     else
-      orig = mail_sender
+      mail_sender
     end
 
     mail(to: tos.sort,

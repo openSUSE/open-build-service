@@ -71,15 +71,15 @@ class Owner
         end
       end
 
-      if obj.nil?
-        owners += find_containers_without_definition(project, devel, filter)
+      owners += if obj.nil?
+        find_containers_without_definition(project, devel, filter)
       elsif obj.is_a? String
-        owners += find_assignees(project, obj, limit.to_i, devel,
-                                 filter, (true unless params[:webui_mode].blank?))
+        find_assignees(project, obj, limit.to_i, devel,
+                       filter, (true unless params[:webui_mode].blank?))
       elsif obj.is_a?(Project) || obj.is_a?(Package)
-        owners += find_maintainers(obj, filter)
+        find_maintainers(obj, filter)
       else
-        owners += find_containers(project, obj, devel, filter)
+        find_containers(project, obj, devel, filter)
       end
     end
 

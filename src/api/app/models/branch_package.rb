@@ -140,20 +140,20 @@ class BranchPackage
 
         # branch sources in backend
         tpkg.branch_from(oproject, opackage, p[:rev], params[:missingok], nil, params[:linkrev])
-        if response
+        response = if response
           # multiple package transfers, just tell the target project
-          response = { targetproject: tpkg.project.name }
+          { targetproject: tpkg.project.name }
         else
           # just a single package transfer, detailed answer
-          response = { targetproject: tpkg.project.name, targetpackage: tpkg.name, sourceproject: oproject, sourcepackage: opackage }
+          { targetproject: tpkg.project.name, targetpackage: tpkg.name, sourceproject: oproject, sourcepackage: opackage }
         end
 
         # fetch newer sources from devel package, if defined
         if p[:copy_from_devel] && p[:copy_from_devel].project != tpkg.project && !p[:rev]
-          if p[:copy_from_devel].project.is_maintenance_incident?
-            msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}"
+          msg = if p[:copy_from_devel].project.is_maintenance_incident?
+            "fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}"
           else
-            msg="fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
+            "fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
           end
           # TODO: make this a query hash
           # rubocop:disable Metrics/LineLength

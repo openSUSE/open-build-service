@@ -17,12 +17,12 @@ class MessageController < ApplicationController
   end
 
   def list
-    if @package
-      @messages = @package.messages
+    @messages = if @package
+      @package.messages
     elsif @project
-      @messages = @project.messages
+      @project.messages
     else
-      @messages = Message.limit(params[:limit]).order('created_at DESC')
+      Message.limit(params[:limit]).order('created_at DESC')
     end
     render partial: 'messages'
   end

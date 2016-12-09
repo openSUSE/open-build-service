@@ -46,10 +46,10 @@ class BsRequestActionSubmit < BsRequestAction
 
     # create package unless it exists already
     target_project = Project.get_by_name(self.target_project)
-    if target_package
-      target_package = target_project.packages.find_by_name(self.target_package)
+    target_package = if self.target_package
+      target_project.packages.find_by_name(self.target_package)
     else
-      target_package = target_project.packages.find_by_name(source_package)
+      target_project.packages.find_by_name(source_package)
     end
 
     relinkSource=false

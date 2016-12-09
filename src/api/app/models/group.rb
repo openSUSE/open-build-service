@@ -33,10 +33,10 @@ class Group < ApplicationRecord
 
   def update_from_xml( xmlhash )
     with_lock do
-      if xmlhash.value('email')
-        self.email = xmlhash.value('email')
+      self.email = if !xmlhash.value('email')
+        nil
       else
-        self.email = nil
+        xmlhash.value('email')
       end
     end
     save!

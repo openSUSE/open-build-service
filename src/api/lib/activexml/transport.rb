@@ -281,10 +281,10 @@ module ActiveXML
     def substituted_uri_for( object, path_id = nil, opt = {} )
       symbolified_model = object.class.name.downcase.split('::').last.to_sym
       options = options_for(symbolified_model)
-      if path_id && options.has_key?(path_id)
-        uri = options[path_id]
+      uri = if path_id && options.has_key?(path_id)
+        options[path_id]
       else
-        uri = target_for( symbolified_model )
+        target_for( symbolified_model )
       end
       substitute_uri( uri, object.instance_variable_get("@init_options").merge(opt) )
     end

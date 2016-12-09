@@ -55,10 +55,10 @@ module Webui::ManageRelationships
     respond_to do |format|
       format.js { render json: 'ok' }
       format.html do
-        if params[:userid]
-          flash[:notice] = "Removed user #{params[:userid]}"
+        flash[:notice] = if params[:userid]
+          "Removed user #{params[:userid]}"
         else
-          flash[:notice] = "Removed group '#{params[:groupid]}'"
+          "Removed group '#{params[:groupid]}'"
         end
         redirect_to users_path
       end

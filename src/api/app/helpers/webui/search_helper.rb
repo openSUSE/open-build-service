@@ -7,10 +7,10 @@ module Webui::SearchHelper
     return [] if names.nil? || names.empty?
     output = []
     names.each do |role, list|
-      if type == :group
-        output += list.map {|name| "#{name} as #{role}" }
+      output += if type == :group
+        list.map {|name| "#{name} as #{role}" }
       else
-        output += list.map {|user| user_and_role(user, role)}
+        list.map {|user| user_and_role(user, role)}
       end
     end
     output

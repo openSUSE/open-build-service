@@ -1086,12 +1086,12 @@ class BsRequest < ApplicationRecord
           end
 
         when :delete then
-          if action[:tpkg]
-            action[:name] = "Delete #{action[:tpkg]}"
+          action[:name] = if action[:tpkg]
+            "Delete #{action[:tpkg]}"
           elsif action[:trepo]
-            action[:name] = "Delete #{action[:trepo]}"
+            "Delete #{action[:trepo]}"
           else
-            action[:name] = "Delete #{action[:tprj]}"
+            "Delete #{action[:tprj]}"
           end
 
           if action[:tpkg] # API / Backend don't support whole project diff currently
@@ -1264,11 +1264,11 @@ class BsRequest < ApplicationRecord
     if roles.empty? || roles.include?(source_or_target)
       requests = requests.references(:bs_request_actions)
       if package.blank?
-        if subprojects.blank?
-          inner_or << "bs_request_actions.#{source_or_target}_project=#{quote(project)}"
-        else
-          inner_or << "(bs_request_actions.#{source_or_target}_project like #{quote(project + ':%')})"
-        end
+        inner_or << if subprojects.blank?
+                      "bs_request_actions.#{source_or_target}_project=#{quote(project)}"
+                    else
+                      "(bs_request_actions.#{source_or_target}_project like #{quote(project + ':%')})"
+                    end
       else
         inner_or << "(bs_request_actions.#{source_or_target}_project=#{quote(project)} and " +
           "bs_request_actions.#{source_or_target}_package=#{quote(package)})"
