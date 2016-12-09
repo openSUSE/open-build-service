@@ -42,7 +42,6 @@ use List::Util;
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Storable;
-use Build::Rpm;	# for verscmp
 
 use BSConfiguration;
 use BSRPC;
