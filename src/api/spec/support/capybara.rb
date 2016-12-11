@@ -1,5 +1,5 @@
 Capybara.default_max_wait_time = 6
-Capybara.save_and_open_page_path = Rails.root.join('tmp', 'capybara')
+Capybara.save_path = Rails.root.join('tmp', 'capybara')
 
 Capybara.register_driver :poltergeist do |app|
   Capybara::Poltergeist::Driver.new(app, debug: false, timeout: 30)
@@ -17,7 +17,7 @@ RSpec.configure do |config|
     example_filename = RSpec.current_example.full_description
     example_filename = example_filename.tr(' ', '_')
     example_filename = example_filename + '.html'
-    example_filename = File.expand_path(example_filename, Capybara.save_and_open_page_path)
+    example_filename = File.expand_path(example_filename, Capybara.save_path)
     if RSpec.current_example.exception.present?
       save_page(example_filename)
     else
