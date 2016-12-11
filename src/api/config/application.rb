@@ -74,9 +74,6 @@ module OBSApi
 
     config.cache_store = :dalli_store, 'localhost:11211', {namespace: 'obs-api', compress: true }
 
-    # will become default
-    config.active_record.raise_in_transactional_callbacks = true
-
     # required since rails 4.2
     config.active_job.queue_adapter = :delayed_job
 
