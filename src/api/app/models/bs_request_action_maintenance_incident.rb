@@ -30,15 +30,13 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
   def get_releaseproject(pkg, tprj)
     return nil if pkg.is_patchinfo?
-    releaseproject = nil
-    if target_releaseproject
-      releaseproject = Project.get_by_name target_releaseproject
-    else
-      unless tprj
-        raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains no defined release target project for package #{pkg.name}"
-      end
-      releaseproject = tprj
+
+    releaseproject = target_releaseproject ? Project.get_by_name(target_releaseproject) : tprj
+    if releaseproject.try(:name).blank?
+      raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains no defined release" +
+                                           " target project for package #{pkg.name}"
     end
+
     # Automatically switch to update project
     releaseproject = releaseproject.update_instance
     unless releaseproject.is_maintenance_release?
