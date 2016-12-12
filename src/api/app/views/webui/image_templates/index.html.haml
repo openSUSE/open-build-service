@@ -3,13 +3,15 @@
     Choose a base template
 
   %fieldset.templateslist
+    - first = nil
     - @projects.each do |project|
       %dl.templateslist
         %dt
           = link_to(title_or_name(project), project_show_path(project))
         - project.packages.each do |template|
           %label
-            %input{ name: 'image', type: 'radio', class: 'hidden' }
+            %input{ name: 'image', type: 'radio', class: 'hidden image_template', "data-project": project, "data-package": template, checked: first ? nil : true }
+            - first = template unless first
             %dd
               %span.form-radio
               - if template.has_icon?
@@ -24,6 +26,12 @@
         - if project.packages.empty?
           %p
             There are currently no base image templates available for project <strong>#{title_or_name(project)}</strong>.
-  - if @projects.empty?
+  - if first
+    .templates_form
+      = form_tag({ controller: :package, :action => :branch, project: "placeholder", package: "placeholder"}, :method => :post, id: "appliance_form") do
+        = label_tag(:target_package, 'Name your appliance', class: "name_appliance")
+        = text_field_tag(:target_package, first, class: "name_appliance_form")
+        = submit_tag('Create appliance', class: "create_appliance")
+  - elsif @projects.empty?
     %p
       There are no templates yet, sorry.
