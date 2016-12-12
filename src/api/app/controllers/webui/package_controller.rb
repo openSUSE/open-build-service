@@ -573,7 +573,7 @@ class Webui::PackageController < Webui::WebuiController
 
     # Set the branch to the current revision if revision is present
     if params[:current_revision].present?
-      dirhash = Directory.hashed(project: source_project_name, package: source_package_name)
+      dirhash = Directory.hashed(project: source_project_name, package: source_package_name, expand: 1)
       branch_params[:rev] = dirhash['xsrcmd5'] || dirhash['rev']
 
       unless branch_params[:rev]
