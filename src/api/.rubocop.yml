@@ -9,10 +9,6 @@ AllCops:
     - 'lib/templates/**/*'
     - 'vendor/bundle/**/*'
 
-# Use yield instead of having a &block parameter and block.call
-Performance/RedundantBlockCall:
-  Enabled: true
-
 # Align the elements of a hash literal if they span more than one line.
 Style/AlignHash:
   # Alignment of entries using hash rocket as separator.
@@ -39,6 +35,10 @@ Style/AsciiComments:
 # Use ` or %x around command literals.
 Style/CommandLiteral:
   EnforcedStyle: percent_x
+
+# Check for if and case statements where each branch is used for assignment to the same variable.
+Style/ConditionalAssignment:
+  Enabled: true
 
 # TODO: Someday we should add copyrights
 Style/Copyright:
@@ -73,6 +73,10 @@ Style/HashSyntax:
 Style/InfiniteLoop:
   Enabled: true
 
+# Checks for unwanted parentheses in parameterless method calls
+Style/MethodCallParentheses:
+  Enabled: true
+
 # Checks for uses of if with a negated condition (only ifs without else)
 Style/NegatedIf:
   Enabled: true
@@ -81,13 +85,17 @@ Style/NegatedIf:
 Style/Not:
   Enabled: true
 
-# Checks for redundant `return` expressions
-Style/RedundantReturn:
-  Enabled: false
-
 # Use 0o for octal literals
 Style/NumericLiteralPrefix:
   Enabled: true
+
+# Use yield instead of having a &block parameter and block.call
+Performance/RedundantBlockCall:
+  Enabled: true
+
+# Checks for redundant `return` expressions
+Style/RedundantReturn:
+  Enabled: false
 
 # Checks for redundant uses of `self`
 Style/RedundantSelf:
@@ -101,14 +109,6 @@ Style/SpaceAfterNot:
 Style/TernaryParentheses:
   Enabled: true
 
-# Checks for unwanted parentheses in parameterless method calls
-Style/MethodCallParentheses:
-  Enabled: true
-
-# Check for if and case statements where each branch is used for assignment
-# to the same variable when using the return of the condition can be used instead.
-Style/ConditionalAssignment:
-  Enabled: true
 ##################### Metrics ##################################
 
 # Checks if the length a class exceeds some maximum value
