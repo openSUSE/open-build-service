@@ -9,10 +9,6 @@ AllCops:
     - 'lib/templates/**/*'
     - 'vendor/bundle/**/*'
 
-# Use yield instead of having a &block parameter and block.call
-Performance/RedundantBlockCall:
-  Enabled: true
-
 # Align the elements of a hash literal if they span more than one line.
 Style/AlignHash:
   # Alignment of entries using hash rocket as separator.
@@ -72,6 +68,10 @@ Style/HashSyntax:
 # Use Kernel#loop for infinite loops
 Style/InfiniteLoop:
   Enabled: true
+  
+# Checks for unwanted parentheses in parameterless method calls
+Style/MethodCallParentheses:
+  Enabled: true
 
 # Checks for uses of if with a negated condition (only ifs without else)
 Style/NegatedIf:
@@ -81,13 +81,17 @@ Style/NegatedIf:
 Style/Not:
   Enabled: true
 
-# Checks for redundant `return` expressions
-Style/RedundantReturn:
-  Enabled: false
-
 # Use 0o for octal literals
 Style/NumericLiteralPrefix:
   Enabled: true
+
+# Use yield instead of having a &block parameter and block.call
+Performance/RedundantBlockCall:
+  Enabled: true
+
+# Checks for redundant `return` expressions
+Style/RedundantReturn:
+  Enabled: false
 
 # Checks for redundant uses of `self`
 Style/RedundantSelf:
@@ -99,10 +103,6 @@ Style/SpaceAfterNot:
 
 # Checks for the presence of parentheses around ternary conditions
 Style/TernaryParentheses:
-  Enabled: true
-
-# Checks for unwanted parentheses in parameterless method calls
-Style/MethodCallParentheses:
   Enabled: true
 
 ##################### Metrics ##################################
