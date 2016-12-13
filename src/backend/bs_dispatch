@@ -684,9 +684,16 @@ sub addbadhosttofinished {
   BSUtil::appendstr("$jobsdir/finished", join('|', @l)."\n");
 }
 
+my %lastrepoeventsent;
+
 sub forwardevents {
+  if (%lastrepoeventsent) {
+    my $now = time();
+    delete $lastrepoeventsent{$_} for grep {$lastrepoeventsent{$_} + 180 < $now} keys(%lastrepoeventsent);
+  }
   for my $evname (ls("$eventdir/repository")) {
     next if $evname =~ /^\./;
+    next if $lastrepoeventsent{$evname};
     my $ev = readxml("$eventdir/repository/$evname", $BSXML::event, 1);
     next unless $ev;
     eval {
@@ -696,6 +703,7 @@ sub forwardevents {
       warn($@);
     } else {
       unlink("$eventdir/repository/$evname");
+      $lastrepoeventsent{$evname} = time();
     }
   }
   for my $evname (ls("$eventdir/dispatch")) {
