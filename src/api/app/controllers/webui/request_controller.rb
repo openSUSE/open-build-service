@@ -134,8 +134,15 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def package_maintainers_dialog
-    @maintainers = get_target_package_maintainers(params[:actions])
-    render_dialog unless @maintainers.empty?
+    bs_request = BsRequest.find_by_number(params[:request_number])
+
+    if bs_request
+      request = bs_request.webui_infos
+      actions = request['actions']
+
+      @maintainers = get_target_package_maintainers(actions)
+      render_dialog unless @maintainers.empty?
+    end
   end
 
   def sourcediff
