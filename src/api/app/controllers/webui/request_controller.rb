@@ -133,11 +133,6 @@ class Webui::RequestController < Webui::WebuiController
     @comments = @bsreq.comments
   end
 
-  def package_maintainers_dialog
-    @maintainers = get_target_package_maintainers(params[:actions])
-    render_dialog unless @maintainers.empty?
-  end
-
   def sourcediff
     check_ajax
     render partial: 'shared/editor', locals: {text: params[:text],

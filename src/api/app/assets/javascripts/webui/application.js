@@ -250,3 +250,13 @@ function select_from_autocomplete(toselect) {
         if ($(this).text() == toselect) { $(this).trigger('mouseenter').click(); }
     });
 }
+
+$(function() {
+  $('.show_dialog').on('click', function() {
+    $($(this).data('target')).removeClass('hidden');
+  });
+
+  $('.close_dialog').on('click', function() {
+    $($(this).data('target')).addClass('hidden');
+  });
+});
