@@ -3,17 +3,12 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 .break-words
-  /* These are technically the same, but use both */
+  // These three make it work in different browsers
   overflow-wrap: break-word
   word-wrap: break-word
-
-  /* Warning: Needed for oldIE support, but words are broken up letter-by-letter */
-  -ms-word-break: break-all
-  word-break: break-all
-
-  /* Non standard for webkit */
   word-break: break-word
 
+  // These four make it work in different browsers
   -ms-hyphens: auto
   -moz-hyphens: auto
   -webkit-hyphens: auto
@@ -43,7 +38,7 @@ dl.templateslist
     position: relative
     padding: 6px 12px
     margin: 2px 0
-    min-height: 48px
+    height: 48px
       
   label
     overflow: hidden
@@ -77,10 +72,6 @@ dl.templateslist
         line-height: 1.4em
         max-height: 2.6em
         overflow: hidden
-        text-overflow: ellipsis
-        display: -webkit-box
-        -webkit-box-orient: vertical
-        -webkit-line-clamp: 2
         padding-bottom: 1px
 
     img
