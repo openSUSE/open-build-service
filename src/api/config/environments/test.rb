@@ -51,13 +51,6 @@ OBSApi::Application.configure do
   config.secret_key_base = '92b2ed725cb4d68cc5fbf86d6ba204f1dec4172086ee7eac8f083fb62ef34057f1b770e0722ade7b298837be7399c6152938627e7d15aca5fcda7a4faef91fc7'
   # rubocop:enable Metrics/LineLength
 
-  # Bullet configuration
-  config.after_initialize do
-    Bullet.enable = true
-    Bullet.bullet_logger = true
-    Bullet.raise = false # raise an error if n+1 query occurs
-  end
-
   # TODO: This shouldn't be needed when we switch to RSpec completely
   config.action_dispatch.rescue_responses.merge!('ActionController::InvalidAuthenticityToken' => 950 )
 end
