@@ -151,9 +151,9 @@ RSpec.describe Webui::WebuiHelper do
   describe '#remove_dialog_tag' do
     it "generates a link element and uses it's parameter as text field" do
       expect(remove_dialog_tag('Some text')).to eq(
-        '<a title="Close" id="remove_dialog" href="#">Some text</a>')
+        '<a title="Close" id="remove_dialog" class="close-dialog" href="#">Some text</a>')
       expect(remove_dialog_tag('Some other text')).to eq(
-        '<a title="Close" id="remove_dialog" href="#">Some other text</a>')
+        '<a title="Close" id="remove_dialog" class="close-dialog" href="#">Some other text</a>')
     end
   end
 

@@ -233,7 +233,7 @@ module Webui::WebuiHelper
   end
 
   def remove_dialog_tag(text)
-    link_to(text, '#', title: 'Close', id: 'remove_dialog')
+    link_to(text, '#', title: 'Close', id: 'remove_dialog', class: "close-dialog")
   end
 
   # @param [String] user login of the user

@@ -252,7 +252,7 @@ $(function() {
     $($(this).data('target')).removeClass('hidden');
   });
 
-  $('.close_dialog').on('click', function() {
+  $('.close-dialog').on('click', function() {
     $($(this).data('target')).addClass('hidden');
   });
 });
