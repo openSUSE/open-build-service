@@ -133,6 +133,8 @@ group :development, :test do
   gem 'poltergeist'
   # to launch browser in test
   gem 'launchy'
+  # to find n+1 queries
+  gem 'bullet'
 end
 
 # Gems used only for assets and not required in production environments by default.
