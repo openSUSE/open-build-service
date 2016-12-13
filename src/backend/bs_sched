@@ -988,7 +988,7 @@ eval {
     if (!$repounchanged->{$prp} || (!%$unfinished && !$gctx->{'prpfinished'}->{$prp})) {
       BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
       $repounchanged->{$prp} = 1;
-    } elsif ($repounchanged->{$prp} == 2) {
+    } elsif ($repounchanged->{$prp} == 2 || $repounchanged->{$prp} == 3) {
       BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp, 'repoinfo');
       $repounchanged->{$prp} = 1;
     }
