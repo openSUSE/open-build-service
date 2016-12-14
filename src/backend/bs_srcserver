@@ -5119,7 +5119,7 @@ sub lastevents {
         next unless $filter{"package/$ev->{'project'}/$ev->{'package'}"} || $filter{"package/$ev->{'project'}"};
       } elsif ($ev->{'type'} eq 'project') {
         next unless $filter{"project/$ev->{'project'}"};
-      } elsif ($ev->{'type'} eq 'repository') {
+      } elsif ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'repoinfo') {
         next unless $filter{"repository/$ev->{'project'}/$ev->{'repository'}/$ev->{'arch'}"};
       } else {
 	next;

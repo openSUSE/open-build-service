@@ -177,7 +177,7 @@ sub getevents {
       $watch = "package/$ev->{'project'}/$ev->{'package'}";
       $watch = "package/$ev->{'project'}" unless defined $watchremote->{$watch};
     } elsif ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'repoinfo') {
-      $watch = "$ev->{'type'}/$ev->{'project'}/$ev->{'repository'}/$myarch";
+      $watch = "repository/$ev->{'project'}/$ev->{'repository'}/$myarch";
     } else {
       next;
     }
