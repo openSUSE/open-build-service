@@ -849,15 +849,17 @@ sub checkpkgs {
 
   # write blocked data into a file so that remote servers can fetch it
   # we don't put it into :packstatus to make retrival fast
+  # if we changed the blocked data we also delete the repounchanged flag
+  # as remote instances get the blocked data with the repo data.
   my $repounchanged = $gctx->{'repounchanged'}->{$prp} || 0;
   if (%$notready) {
     my $oldstate;
-    $oldstate = readxml("$gdst/:repostate", $BSXML::repositorystate, 1) if $repounchanged == 1;
+    $oldstate = readxml("$gdst/:repostate", $BSXML::repositorystate, 1) if $repounchanged;
     my @blocked = sort keys %$notready;
     writexml("$gdst/.:repostate", "$gdst/:repostate", {'blocked' => \@blocked}, $BSXML::repositorystate);
-    $gctx->{'repounchanged'}->{$prp} = 3 if $oldstate && join(',', @{$oldstate->{'blocked'} || []}) ne join(',', @blocked);
+    delete $gctx->{'repounchanged'}->{$prp} if $oldstate && join(',', @{$oldstate->{'blocked'} || []}) ne join(',', @blocked);
   } else {
-    $gctx->{'repounchanged'}->{$prp} = 3 if $repounchanged == 1 && -e "$gdst/:repostate";
+    delete $gctx->{'repounchanged'}->{$prp} if $repounchanged && -e "$gdst/:repostate";
     unlink("$gdst/:repostate");
   }
 
