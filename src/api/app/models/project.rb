@@ -214,6 +214,18 @@ class Project < ApplicationRecord
     Project.where("name like ?", "#{name}:%")
   end
 
+  def siblingprojects
+    parent_name = parent.try(:name)
+    siblings = Array.new
+    if parent_name
+      Project.where("name like (?) and name != (?)", "#{parent_name}:%", name).order(:name).each do |sib|
+        sib_parent = sib.possible_ancestor_names.first
+        siblings << sib if sib_parent == parent_name
+      end
+    end
+    siblings
+  end
+
   def maintained_project_names
     maintained_projects.includes(:project).pluck("projects.name")
   end
