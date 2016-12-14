@@ -206,7 +206,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_incident">
                                      <source project="RemoteInstance:kde4" package="kdelibs" />
                                      <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
@@ -219,6 +219,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
+
+    # modify source afterwards, must not appear in target after accept
+    login_king
+    put "/source/kde4/kdelibs/TEMP_FILE", "dummy"
+    assert_response :success
+    login_tom
 
     # validate that request is diffable (not broken)
     post "/request/#{id1}?cmd=diff&view=xml", nil
@@ -245,7 +251,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     get "/source/#{incidentProject}/kdelibs.BaseDistro2.0_LinkedUpdateProject"
     assert_response :success
-    assert_xml_tag( :tag => 'linkinfo', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kdelibs' } )
+    assert_xml_tag( tag: 'linkinfo', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kdelibs' } )
+    get "/source/#{incidentProject}/kdelibs.BaseDistro2.0_LinkedUpdateProject/TEMP_FILE"
+    assert_response 404
 
     # no patchinfo was part in source project, got it created ?
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
@@ -337,6 +345,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     delete "/source/#{incidentProject}"
     assert_response :success
     delete '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs'
+    assert_response :success
+    delete "/source/kde4/kdelibs/TEMP_FILE"
     assert_response :success
   end
 
