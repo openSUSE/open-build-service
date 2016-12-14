@@ -54,6 +54,15 @@ XML
     end
   end
 
+  def test_invalid_command
+    post '/request?cmd=INVALID'
+    assert_response 401
+    login_king
+    post '/request?cmd=INVALID'
+    assert_response 400
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_command' })
+  end
+
   def test_get_requests_collection
     login_king
     get '/request', view: 'collection', reviewstates: 'accepted'

@@ -60,7 +60,7 @@ class RequestController < ApplicationController
   # POST /request?cmd=create
   def global_command
     unless %w(create).include? params[:cmd]
-      raise UnknownCommandError.new "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
+      raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
 
     # refuse request creation for anonymous users
