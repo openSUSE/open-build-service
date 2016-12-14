@@ -549,7 +549,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/sbin/rcobsservicedispatch
 /usr/sbin/rcobssigner
 /usr/lib/obs/server/plugins
-/usr/lib/obs/server/BSDispatch
+/usr/lib/obs/server/BSDispatcher
 /usr/lib/obs/server/BSRepServer
 /usr/lib/obs/server/BSSched
 /usr/lib/obs/server/BSSrcServer

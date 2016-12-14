@@ -48,7 +48,7 @@ use BSRPC;
 use BSUtil;
 use BSXML;
 use BSCando;
-use BSDispatch::Constraints;
+use BSDispatcher::Constraints;
 
 use strict;
 
@@ -101,7 +101,7 @@ while (@ARGV) {
     }
     die("No parseable workerinfo\n") unless keys %$workerinfo;
     die("No parseable constraints\n") unless keys %$constraints;
-    my $o = BSDispatch::Constraints::oracle($workerinfo, $constraints);
+    my $o = BSDispatcher::Constraints::oracle($workerinfo, $constraints);
     exit 0 if defined($o) && $o > 0;
     exit 1;
   } else {
@@ -807,7 +807,7 @@ sub checkconstraints {
       $workerseen{$workername} = 1;
       push @all_workers, $worker;
       next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker, $constraints);
-      next unless !$constraints || BSDispatch::Constraints::oracle($worker, $constraints) > 0;
+      next unless !$constraints || BSDispatcher::Constraints::oracle($worker, $constraints) > 0;
       $sumworkers++;
       $downworkers++ if $workerstate eq 'down';
     }
@@ -826,12 +826,12 @@ sub checkconstraints {
     }
     for my $cpart (sort(keys(%{$constraints || {}}))) {
       my $cconstraint = { $cpart => $constraints->{$cpart} };
-      next if (grep {BSDispatch::Constraints::oracle($_, $cconstraint) > 0} @all_workers);
+      next if (grep {BSDispatcher::Constraints::oracle($_, $cconstraint) > 0} @all_workers);
       if ($cpart eq 'hardware' || $cpart eq 'linux') {
 	my $hhint = '';
 	for my $ccpart (sort(keys(%{$constraints->{$cpart} || {}}))) {
           my $ccconstraint = { $cpart => { $ccpart => $constraints->{$cpart}->{$ccpart} } };
-          next if (grep {BSDispatch::Constraints::oracle($_, $ccconstraint) > 0} @all_workers);
+          next if (grep {BSDispatcher::Constraints::oracle($_, $ccconstraint) > 0} @all_workers);
           $hhint .= " $cpart:$ccpart";
 	}
 	$hint .= $hhint ? $hhint : " $cpart";
@@ -1366,7 +1366,7 @@ while (1) {
            next;	# worker is not supporting the needed personality change
         }
 	if ($constraints) {
-	  my $ora = BSDispatch::Constraints::oracle($worker, $constraints);
+	  my $ora = BSDispatcher::Constraints::oracle($worker, $constraints);
 	  next unless defined($ora) && $ora > 0;
 	  if ($ora < 1) {
 	    if ($lastoracleidle && $lastoracleidle eq '__lastoracle') {
