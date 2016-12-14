@@ -33,6 +33,19 @@
   %p
     %i This project has no subprojects
 
+- if @siblings.present?
+  %h3 Sibling projects of #{@project}
+  %table.compact.fit.stripe.no-footer#siblingprojects_table
+    %thead
+      %tr
+        %th Sibling project
+        %th Title
+    %tbody
+      - @siblings.each do |project|
+        %tr
+          %td.project_name= link_to(remove_parent_name(project.name, @parent_name), {:action => 'show', :project => project.name})
+          %td.project_title= project.title
+
 - if User.current.can_modify_project?(@project)
   %p
     = link_to sprite_tag('brick_add', title: 'New subproject') + ' New subproject', '#', id: 'create_subproject_link'

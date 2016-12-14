@@ -149,6 +149,14 @@ function setup_subprojects_tables() {
         'info': false,
         "autoWidth": false
     });
+    if ($('#siblingprojects_table').length) {
+        $('#siblingprojects_table').dataTable({
+        'paging': false,
+        'searching': false,
+        'info': false,
+        "autoWidth": false
+        });
+    }
     $('#subprojects_table').dataTable({
         'paging': false,
         'searching': false,
