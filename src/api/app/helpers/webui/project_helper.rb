@@ -103,6 +103,10 @@ module Webui::ProjectHelper
     end
   end
 
+  def remove_parent_name(project_name, parent_name)
+    project_name.slice(parent_name.length + 1, project_name.length)
+  end
+
   STATE_ICONS = {
       'new'      => 'flag_green',
       'review'   => 'flag_yellow',
