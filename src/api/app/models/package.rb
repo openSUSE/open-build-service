@@ -841,9 +841,10 @@ class Package < ActiveRecord::Base
 
   def self.extended_name(project, package)
     # the package name which will be used on a branch with extended or maintenance option
-    li = Directory.hashed(project: project, package: package)["linkinfo"]
-    project = li.try(:[], 'project') || project
-    "#{package}.#{project}"
+    directory_hash = Directory.hashed(project: project, package: package)
+    linkinfo = directory_hash["linkinfo"] || {}
+
+    "#{package}.#{linkinfo['project'] || project}"
   end
 
   def linkinfo
