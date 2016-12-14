@@ -6,30 +6,29 @@
 
 - if @parentprojects.present?
   %h3 Parent projects of #{@project}
-  %table.compact.stripe.no-footer#parentprojects_table
+  %table.compact.fit.stripe.no-footer#parentprojects_table
     %thead
       %tr
         %th Parent project
-        %th Description
+        %th Title
     %tbody
       - @parentprojects.each do |project|
         %tr
-          %td= link_to project.name, :action => 'show', :project => project.name
-          %td= project.title
+          %td.project_name= link_to(project.name, {:action => 'show', :project => project.name})
+          %td.project_title= project.title
 
 %h3= @pagetitle
-- prjlen = @project.name.length
 - if @subprojects.present?
-  %table.compact.stripe.no-footer#subprojects_table
+  %table.compact.fit.stripe.no-footer#subprojects_table
     %thead
       %tr
         %th Subproject
-        %th Description
+        %th Title
     %tbody
       - @subprojects.each do |project|
         %tr
-          %td= link_to project.name.slice(prjlen + 1, project.name.length), :action => 'show', :project => project.name
-          %td= project.title
+          %td.project_name= link_to(remove_parent_name(project.name, @project.name), {:action => 'show', :project => project.name})
+          %td.project_title= project.title
 - else
   %p
     %i This project has no subprojects
