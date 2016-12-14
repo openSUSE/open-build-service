@@ -851,6 +851,14 @@ class Package < ApplicationRecord
     BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 
+  def self.extended_name(project, package)
+    # the package name which will be used on a branch with extended or maintenance option
+    directory_hash = Directory.hashed(project: project, package: package)
+    linkinfo = directory_hash["linkinfo"] || {}
+
+    "#{package}.#{linkinfo['project'] || project}"
+  end
+
   def linkinfo
     dir_hash['linkinfo']
   end
