@@ -1344,10 +1344,11 @@ while (1) {
 	next if $badhost{"$project/$info->{'package'}/$arch/$idle"};
 	next if $badhost{"$project/:repo:$info->{'repository'}/$arch/$idle"};
 	my ($harch, $hname) = split(':', $idle, 2);
-	if (!$workerinfo{$idle}) {
+        my $worker = $workerinfo{$idle};
+	if (!$worker) {
 	  my @s = stat("$workersdir/idle/$idle");
 	  next unless @s;
-	  my $worker = readxml("$workersdir/idle/$idle", $BSXML::worker, 1);
+	  $worker = readxml("$workersdir/idle/$idle", $BSXML::worker, 1);
 	  if (!$worker) {
 	    for (@{$cando{$harch} || []}) { 
 	       $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
@@ -1358,16 +1359,14 @@ while (1) {
 	  $workerinfo_mtime{$idle} = $s[7];
 	}
 	if ($BSConfig::dispatch_constraint) {
-	  next if !$BSConfig::dispatch_constraint->($info, $workerinfo{$idle}, $constraints);
+	  next if !$BSConfig::dispatch_constraint->($info, $worker, $constraints);
 	}
-        # a helper is needed for personality change?
-        my $helper;
-        /^\Q$arch\E:(.*)$/ && ($helper = $1) for @{$BSCando::cando{$harch}};
-        if ($helper && $workerinfo{$idle} && $workerinfo{$idle}->{hardware} && exists($workerinfo{$idle}->{hardware}->{nativeonly})) {
-           next; # worker is not supporting the needed personality change
+        # is a helper needed for personality change?
+        if ($harchcando{"$harch/$arch"} && $worker->{hardware} && exists($worker->{hardware}->{nativeonly})) {
+           next;	# worker is not supporting the needed personality change
         }
 	if ($constraints) {
-	  my $ora = BSDispatch::Constraints::oracle($workerinfo{$idle}, $constraints);
+	  my $ora = BSDispatch::Constraints::oracle($worker, $constraints);
 	  next unless defined($ora) && $ora > 0;
 	  if ($ora < 1) {
 	    if ($lastoracleidle && $lastoracleidle eq '__lastoracle') {
@@ -1437,10 +1436,12 @@ while (1) {
       }
     }
     if ($rerun) {
-      # our load was changed so much that the order was changed. put us back
-      # on the queue and re-sort.
-      unshift @jobprpas, $prpa;
-      @jobprpas = sort {$scales{$a} * $load->{$a} <=> $scales{$b} * $load->{$b}} @jobprpas;
+      # our load was changed so much that the order has changed. put us back
+      # on the queue in the correct position.
+      my $newload = $scales{$prpa} * $load->{$prpa};
+      my @front;
+      push @front, shift(@jobprpas) while @jobprpas && $scales{$jobprpas[0]} * $load->{$jobprpas[0]} < $newload;
+      unshift @jobprpas, @front, $prpa;
     }
     last if $assigned >= 50;
   }
