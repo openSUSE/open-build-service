@@ -24,10 +24,14 @@ package BSSrcdiff;
 
 use Digest::MD5;
 use Fcntl;
+eval { require Diff::LibXDiff };
 
 use strict;
 
 use BSUtil;
+
+my $havelibxdiff;
+$havelibxdiff = 1 if defined(&Diff::LibXDiff::diff);
 
 #
 # batcher support: if we need to do lots of diffs for a bif tar archive,
@@ -246,7 +250,15 @@ sub extracttar {
       $skipgemdata = 1;
     }
     next if $skipgemdata && $c->{'type'} ne 'gemdata' && $c->{'name'} =~ /^data\//;
-    if (exists $c->{'extract'}) {
+    if (exists $c->{'content'}) {
+      my $s = $c->{'size'};
+      while ($s > 0) {
+	my $l = $s > 16384 ? 16384 : $s;
+	$l = sysread(F, $c->{'content'}, $l, length($c->{'content'}));
+	die("tar read error\n") unless $l;
+	$s -= $l;
+      }
+    } elsif (exists $c->{'extract'}) {
       open(G, '>', $c->{'extract'}) || die("$c->{'extract'}: $!\n");
       my $s = $c->{'size'};
       while ($s > 0) {
@@ -354,7 +366,8 @@ sub listextractcpio {
     my $fsizepad = 0;
     $fsizepad = 4 - ($fsize & 3) if $fsize & 3;
     my $info = $type eq 'l' ? '' : 'd41d8cd98f00b204e9800998ecf8427e';
-    if ($x) {
+    my $tomem = $x && exists($x->{'content'});
+    if ($x && !$tomem) {
       open(G, '>', $x->{'extract'}) || die("$x->{'extract'}: $!\n");
     }
     if ($fsize > 0) {
@@ -365,12 +378,16 @@ sub listextractcpio {
 	die("cpio read error body\n") unless (read(F, $data, $chunk) || 0) == $chunk;
 	$ctx->add($data);
 	$info .= $data if $type eq 'l';
-	print G $data if $x;
+	if ($tomem) {
+	  $x->{'content'} .= $data;
+	} elsif ($x) {
+	  print G $data;
+	}
 	$fsize -= $chunk;
       }
       $info = $ctx->hexdigest() unless $type eq 'l';
     }
-    close(G) if $x;
+    close(G) if $x && !$tomem;
     $c[-1]->{'info'} = $info if $type eq '-' || $type eq 'l';
     die("cpio read error bodypad\n") unless (read(F, $name, $fsizepad) || 0) == $fsizepad;
   }
@@ -379,11 +396,99 @@ sub listextractcpio {
 }
 
 
+sub filediff_libxdiff_check {
+  my ($f, $content) = @_;
+  return '' unless defined($f);
+  return $f if ref($f);
+  return undef if $f =~ /\.(?:gz|bz2|xz)$/;
+  if (!defined($content)) {
+    return undef unless -e $f;
+    return undef if -s _ > 65536;
+    $content = readstr($f, 1);
+    return undef unless defined $content;
+  }
+  return undef if $content =~ /\0/s;	# can't handle
+  my $ff = substr($content, 0, 4096);
+  my $bcnt = $ff =~ tr/\000-\007\016-\037/\000-\007\016-\037/;
+  return undef if $bcnt * 40 > length($ff);
+  return $content;
+}
+
+#
+# diff file f1 against file f2 using libxdiff
+#
+sub filediff_libxdiff {
+  my ($f1, $f2, %opts) = @_;
+
+  my $arg = $opts{'diffarg'} || '-u';
+  my $max = $opts{'fmax'};
+  my $maxc = defined($max) ? $max * 80 : undef;
+  $maxc = $opts{'fmaxc'} if exists $opts{'fmaxc'};
+
+  my $d = Diff::LibXDiff->diff(ref($f1) ? '' : $f1, ref($f2) ? '' : $f2);
+  my $lcnt = $d =~ tr/\n/\n/;
+  my $ccnt = 0;
+  if (defined($max)) {
+    if ($max <= 0) {
+      $d = '';
+    } elsif ($max < $lcnt) {
+      my @tmp = split("\n", $d, $max + 1);
+      pop(@tmp);
+      $d = join("\n", @tmp)."\n";
+    }
+  }
+  if (defined($maxc)) {
+    if ($maxc <= 0) {
+      $ccnt = $d =~ tr/\n/\n/;
+    } elsif (length($d) > $maxc) {
+      my $out = substr($d, $maxc);
+      $d = substr($d, 0, $maxc);
+      $d =~ s/[^\n]*\Z//s;
+      $ccnt = $out =~ tr/\n/\n/;
+    }
+  }
+  if (defined($f1) && ref($f1) && @$f1) {
+    $d = "-".join("\n-", @$f1)."\n$d";
+    $lcnt += @$f1;
+  }
+  if (defined($f2) && ref($f2) && @$f2) {
+    $d .= "+".join("\n+", @$f2)."\n";
+    $lcnt += @$f2;
+  }
+  my $ret = {};
+  if (!defined($f1)) {
+    $ret->{'state'} = 'added';
+  } elsif (!defined($f2)) {
+    $ret->{'state'} = 'deleted';
+  } else {
+    $ret->{'state'} = 'changed';
+  }
+  $ret->{'lines'} = $lcnt;
+  $ret->{'shown'} = $max if defined($max) && $lcnt > $max;
+  $ret->{'shown'} = ($ret->{'shown'} || $ret->{'lines'}) - $ccnt if $ccnt;
+  $ret->{'_content'} = $d;
+  return $ret;
+}
+
 #
 # diff file f1 against file f2
 #
 sub filediff {
   my ($f1, $f2, %opts) = @_;
+
+  if (!defined($f1) && !defined($f2)) {
+    return { 'lines' => 0 , '_content' => ''};
+  }
+
+  if ($havelibxdiff) {
+    my $c1 = filediff_libxdiff_check($f1);
+    if (defined($c1)) {
+      my $c2 = filediff_libxdiff_check($f2);
+      if (defined($c2)) {
+        return filediff_libxdiff($c1, $c2, %opts);
+      }
+    }
+  }
 
   return filediff_batcher(@_) if $batcherpid;
 
@@ -393,9 +498,6 @@ sub filediff {
   my $maxc = defined($max) ? $max * 80 : undef;
   $maxc = $opts{'fmaxc'} if exists $opts{'fmaxc'};
 
-  if (!defined($f1) && !defined($f2)) {
-    return { 'lines' => 0 , '_content' => ''};
-  }
 
   local *D;
   my $pid = open(D, '-|');
@@ -473,7 +575,7 @@ sub filediff {
       $ccnt = 0;
     }
   }
-  if ($d eq '' && !$havediff && ((defined($f1) && ref($f1)) || defined($f2) && ref($f2))) {
+  if (!$havediff && ((defined($f1) && ref($f1)) || defined($f2) && ref($f2))) {
     $havediff = 1;
     if (defined($f1) && ref($f1)) {
       $d .= "-$_\n" for @$f1;
@@ -501,7 +603,7 @@ sub filediff {
 }
 
 sub fixup {
-  my ($e) = @_;
+  my ($e, $nowrite) = @_;
   return undef unless defined $e;
   if ($e->{'type'} eq 'd') {
     return [ '(directory)' ];
@@ -512,10 +614,27 @@ sub fixup {
   } elsif ($e->{'type'} eq 'l') {
     return [ "(symlink to $e->{info})" ];
   } elsif ($e->{'type'} eq '-') {
+    writestr($e->{'extract'}, undef, $e->{'content'}) if !$nowrite && exists $e->{'content'};
     return $e->{'size'} ? $e->{'extract'} : undef;
   } else {
     return [ "(unknown type $e->{type})" ];
   }
+}
+
+sub filediff_fixup {
+  my ($f1, $f2, %opts) = @_;
+  if ($havelibxdiff) {
+    my $c1 = '';
+    $c1 = filediff_libxdiff_check(fixup($f1, 1), $f1->{'content'}) if $f1;
+    if (defined($c1)) {
+      my $c2 = '';
+      $c2 = filediff_libxdiff_check(fixup($f2, 1), $f2->{'content'}) if $f2;
+      if (defined($c2)) {
+        return filediff_libxdiff($c1, $c2, %opts);
+      }
+    }
+  }
+  return filediff(fixup($f1), fixup($f2), %opts);
 }
 
 sub adddiffheader {
@@ -634,33 +753,37 @@ sub tardiff {
   my $e2cnt = 0;
 
   my @efiles;
+  my $memsize = 50000000;
   for my $f (@f) {
     next if $f eq '';
     next if $ren{$f};
     my $l1 = $l1{$f};
     my $l2 = $l2{$f};
-    my $suf1 = '';
-    $suf1 = ".$1" if $l1 && $l1->{'name'} =~ /\.(gz|xz|bz2)$/;
-    my $suf2 = '';
-    $suf2 = ".$1" if $l2 && $l2->{'name'} =~ /\.(gz|xz|bz2)$/;
-    if ($l1 && $l2) {
-      next if $l1->{'type'} ne $l2->{'type'};
-      next if $l1->{'type'} ne '-';
-      next if $l1->{'info'} eq $l2->{'info'};
+    next if $l1 && $l2 && $l1->{'type'} eq $l2->{'type'} && $l1->{'info'} eq $l2->{'info'};
+    if ($l1 && $l1->{'size'} && $l1->{'type'} eq '-') {
+      my $suf1 = '';
+      $suf1 = ".$1" if $l1->{'name'} =~ /\.(gz|xz|bz2)$/;
       $l1->{'extract'} = "$edir/a$e1cnt$suf1";
       push @efiles, "$edir/a$e1cnt$suf1";
       $e1cnt++;
+    }
+    if ($l2 && $l2->{'size'} && $l2->{'type'} eq '-') {
+      my $suf2 = '';
+      $suf2 = ".$1" if $l2->{'name'} =~ /\.(gz|xz|bz2)$/;
       $l2->{'extract'} = "$edir/b$e2cnt$suf2";
       push @efiles, "$edir/b$e2cnt$suf2";
       $e2cnt++;
-    } elsif ($l1 && $l1->{'size'}) {
-      $l1->{'extract'} = "$edir/a$e1cnt$suf1";
-      push @efiles, "$edir/a$e1cnt$suf1";
-      $e1cnt++;
-    } elsif ($l2 && $l2->{'size'}) {
-      $l2->{'extract'} = "$edir/b$e2cnt$suf2";
-      push @efiles, "$edir/b$e2cnt$suf2";
-      $e2cnt++;
+    }
+    if ($havelibxdiff) {
+      # extract small files to memory
+      if ($l1 && $l1->{'extract'} && $l1->{'size'} < 100000 && $memsize > 0) {
+	$l1->{'content'} = '';
+	$memsize -= $l1->{'size'};
+      }
+      if ($l2 && $l2->{'extract'} && $l2->{'size'} < 100000 && $memsize > 0) {
+	$l2->{'content'} = '';
+	$memsize -= $l2->{'size'};
+      }
     }
   }
 
@@ -704,7 +827,7 @@ sub tardiff {
     my $fmax;
     $fmax = $max > $lcnt ? $max - $lcnt : 0 if defined $max;
     $fmax = $tfmax if defined($tfmax) && (!defined($fmax) || $fmax > $tfmax);
-    my $r = filediff(fixup($l1), fixup($l2), %opts, 'fmax' => $fmax, 'fmaxc' => $tfmaxc);
+    my $r = filediff_fixup($l1, $l2, %opts, 'fmax' => $fmax, 'fmaxc' => $tfmaxc);
     $r->{'name'} = $f;
     $r->{'old'} = {'name' => $f, 'md5' => $l1->{'info'}, 'size' => $l1->{'size'}} if $l1;
     $r->{'new'} = {'name' => $f, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}} if $l2;
