@@ -10,34 +10,34 @@
 <tr id="tr_request_<%= "#{req.id}" %>" class="request-<%= req.priority %>">
   <td class="nowrap">
     <span class="hidden"><%= req.created_at.to_i %> - <%= req.number %></span>
-    <span title="<%= req.created_at %>"><%= fuzzy_time(req.created_at) %></span>
+    <%= fuzzy_time(req.created_at) %>
   </td>
   <td class="request_source">
     <%= project_or_package_link(project: source_project, package: source_package, creator: req.creator, trim_to: elide_len, short: true) %>
   </td>
   <% unless no_target %>
-      <td class="request_target">
-        <% if target_project %>
-            <% if !@project || @project.name != target_project %><!-- <%= target_project %>  -->
-                <% if target_package && source_package != target_package %> <!-- /<%= target_package %> -->
-			<%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) -%>
-                <% else %>
-	           <%= project_or_package_link(project: target_project, trim_to: elide_len, short: true) %>
-                <% end %>
-            <% else %>
-                <% if target_package %> <!-- <%= target_package %> -->
-   		  <%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) %>
-                <% elsif request_type == :delete %>
-                    This project
-                <% end %>
-            <% end %>
+    <td class="request_target">
+      <% if target_project %>
+        <% if !@project || @project.name != target_project %><!-- <%= target_project %>  -->
+          <% if target_package && source_package != target_package %> <!-- /<%= target_package %> -->
+            <%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) -%>
+          <% else %>
+            <%= project_or_package_link(project: target_project, trim_to: elide_len, short: true) %>
+          <% end %>
+        <% else %>
+          <% if target_package %> <!-- <%= target_package %> -->
+            <%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) %>
+          <% elsif request_type == :delete %>
+            This project
+          <% end %>
         <% end %>
-      </td>
+      <% end %>
+    </td>
   <% end %>
   <td class="nowrap"><%= user_with_realname_and_icon(req['creator'], short: true) %></td>
   <td class="nowrap"><%= request_type %></td>
   <% if !hide_state %>
-      <td class="nowrap"><%= req.state %></td>
+    <td class="nowrap"><%= req.state %></td>
   <% end %>
   <td class="nowrap">
     <span class="hidden"><%= priority_number(req.priority) %></span>

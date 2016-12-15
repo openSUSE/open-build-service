@@ -40,15 +40,22 @@ module Webui::WebuiHelper
               width: size, height: size, alt: alt, class: css_class)
   end
 
-  def fuzzy_time(time)
+  def fuzzy_time(time, with_fulltime = true)
     if Time.now - time < 60
       return 'now' # rails' 'less than a minute' is a bit long
     end
-    time_ago_in_words(time) + ' ago'
+
+    human_time_ago = time_ago_in_words(time) + ' ago'
+
+    if with_fulltime
+      raw("<span title='#{time.utc.strftime('%Y-%m-%d %H:%M UTC')}' class='fuzzy-time'>#{human_time_ago}</span>")
+    else
+      human_time_ago
+    end
   end
 
   def fuzzy_time_string(timestring)
-    fuzzy_time(Time.parse(timestring))
+    fuzzy_time(Time.parse(timestring), false)
   end
 
   def format_projectname(prjname, login)
