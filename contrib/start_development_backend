@@ -101,6 +101,7 @@ if [ ! -f $GIT_HOME/src/backend/BSConfig.pm ]; then
   cp $GIT_HOME/src/backend/BSConfig.pm.template $GIT_HOME/src/backend/BSConfig.pm
 fi
 perl -pi -e 's/our \$bsserviceuser.*/our \$bsserviceuser="obsrun";/' $GIT_HOME/src/backend/BSConfig.pm
+perl -pi -e 's/my \$hostname.*/my \$hostname="localhost";/' $GIT_HOME/src/backend/BSConfig.pm
 
 
 #start backend services (the minimum needed) with two arch(i586/x86_64) schedulers and one worker
