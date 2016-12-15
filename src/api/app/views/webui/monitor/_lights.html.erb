@@ -17,10 +17,8 @@
             state="green"
             if daemon["state"] == "dead"
               state="red"
-            else
-              if !daemon.has_key? "starttime"
-                state="yellow"
-              end
+            elsif daemon["state"] == "booting"
+              state="yellow"
             end
           %>
             <div class="statuslight <%= "status_" + state %>" style="margin: auto"></div>

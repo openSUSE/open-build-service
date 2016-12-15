@@ -186,6 +186,7 @@ sub writeschedulerinfo {
     $sum += $t;
     $sum2 += $t * $t;
   }
+  $n ||= 1;
   $sinfo->{'avg'} = $sum / $n;
   $sinfo->{'variance'} = sqrt(abs(($sum2 - $sum * $sum / $n) / $n));
   for my $prp (splice(@{[sort {$prpchecktimes->{$b} <=> $prpchecktimes->{$a}} keys %$prpchecktimes]}, 0, 10)) {
@@ -591,12 +592,18 @@ if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
   }
 }
 
+my $infodir = $gctx->{'infodir'};
+my $sinfo = readxml("$infodir/schedulerinfo.$_myarch", $BSXML::schedulerinfo, 1) || {};
+$sinfo->{'booting'} = undef;
+writexml("$infodir/.schedulerinfo.$_myarch", "$infodir/schedulerinfo.$_myarch", $sinfo, $BSXML::schedulerinfo);
+
 if (!$gctx->{'projpacks'} && $startupmode) {
   if ($startupmode == 1) {
     print "cold start, scanning all non-remote projects\n";
   } else {
     print "cold start, initializing all projects\n";
   }
+
   my $param = {
     'uri' => "$BSConfig::srcserver/getprojpack",
   };
@@ -668,6 +675,9 @@ if (!$gctx->{'projpacks'}) {
   @{$gctx->{'lookat_low'}} = sort keys %{$gctx->{'projpacks'}};
   push @{$gctx->{'lookat_low'}}, @{$gctx->{'prps'}};
 }
+
+# reset booting flag
+writeschedulerinfo($gctx);
 
 # bring dods in sync with projpacks
 if ($BSConfig::enable_download_on_demand) {

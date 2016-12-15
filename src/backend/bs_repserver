@@ -1561,6 +1561,7 @@ sub workerstatus {
     local *F;
     my $daemondata = {'state' => 'dead'};
     my $lock;
+    my $state = "running";
     if ($arch eq 'dispatcher') {
       $lock = 'bs_dispatch.lock';
       $daemondata->{'type'} = 'dispatcher';
@@ -1588,12 +1589,13 @@ sub workerstatus {
       $daemondata->{'arch'} = $arch;
       my $si = readxml("$infodir/schedulerinfo.$arch", $BSXML::schedulerinfo, 1);
       $daemondata->{'queue'} = $si->{'queue'} if $si && $si->{'queue'};
+      $state = "booting" if defined($si->{'booting'});
     }
     next if %types && !$types{$daemondata->{'type'}};
     if ($lock && open(F, '<', "$rundir/$lock")) {
       if (!flock(F, LOCK_EX | LOCK_NB)) {
         my @s = stat(F);
-        $daemondata->{'state'} = 'running';
+        $daemondata->{'state'} = $state;
         $daemondata->{'starttime'} = $s[9] if @s;
       }
       close F;
