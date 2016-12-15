@@ -1,3 +1,13 @@
+open-build-service (2.7.1-7) unstable; urgency=medium
+
+  [ Antonio Terceiro ]
+  * remove myself from Uploaders:
+
+  [ Andrew Lee (李健秋) ]
+  * Run commands when purge instead of remove. (Closes: #847688)
+
+ -- Andrew Lee (李健秋) <ajqlee@debian.org>  Thu, 15 Dec 2016 18:05:03 +0800
+
 open-build-service (2.7.1-6) experimental; urgency=medium
 
   * Move log, tmp and config files out of /usr and creates links instead.
