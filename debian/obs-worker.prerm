@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-if [ "$1" = "remove" ]; then
+if [ "$1" = "purge" ]; then
     invoke-rc.d obsworker stop || true
     deluser --system --quiet obsworker
     delgroup --system --quiet obsworker
