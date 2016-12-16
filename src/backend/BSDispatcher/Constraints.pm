@@ -16,11 +16,11 @@
 #
 ################################################################
 
-package BSDispatch::Constraints;
+package BSDispatcher::Constraints;
 
 =head1 NAME
 
-BSDispatch::Constraints - function to check and calculate constraints 
+BSDispatcher::Constraints - function to check and calculate constraints 
 
 =cut
 
