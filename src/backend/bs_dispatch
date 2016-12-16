@@ -94,9 +94,9 @@ while (@ARGV) {
     }
     if ($constraintsprj_file) {
       my @lines = map { [ split(' ', $_) ] } split("\n", readstr($constraintsprj_file));
-      my $prjconfconstraint = list2struct($BSXML::constraints, \@lines);
+      my $prjconfconstraint = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@lines);
       if ($prjconfconstraint) {
-        $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
+        $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
       }
     }
     die("No parseable workerinfo\n") unless keys %$workerinfo;
@@ -417,123 +417,6 @@ sub getconstraints {
   }
   return undef unless $constraintsxml;
   return BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
-}
-
-# last one wins
-sub mergeconstraints {
-  my ($con, @xmlcons) = @_;
-  $con = Storable::dclone($con);
-  # merge constraints
-  for my $con2 (@xmlcons) {
-    if ($con2->{'hostlabel'}) {
-      $con->{'hostlabel'} = [ @{$con->{'hostlabel'} || []},  @{$con2->{'hostlabel'}} ];
-    }
-    if ($con2->{'sandbox'}) {
-      $con->{'sandbox'} = $con2->{'sandbox'};
-    }
-    if ($con2->{'linux'}) {
-      $con->{'linux'}->{'flavor'} = $con2->{'linux'}->{'flavor'} if $con2->{'linux'}->{'flavor'};
-      for ('min', 'max') {
-        $con->{'linux'}->{'version'}->{$_} = $con2->{'linux'}->{'version'}->{$_} if $con2->{'linux'}->{'version'} && $con2->{'linux'}->{'version'}->{$_};
-      }
-    }
-    if ($con2->{'hardware'}) {
-      for my $el (qw{processors jobs disk memory physicalmemory}) {
-        next unless defined $con2->{'hardware'}->{$el};
-        $con->{'hardware'}->{$el} = ref($con2->{'hardware'}->{$el}) ? Storable::dclone($con2->{'hardware'}->{$el}) : $con2->{'hardware'}->{$el};
-      }
-      if ($con2->{'hardware'}->{'cpu'} && $con2->{'hardware'}->{'cpu'}->{'flag'}) {
-	my %oldflags = map {$_ => 1} @{$con->{'hardware'}->{'cpu'}->{'flag'} || []};
-	for (@{$con2->{'hardware'}->{'cpu'}->{'flag'}}) {
-	  push @{$con->{'hardware'}->{'cpu'}->{'flag'}}, $_ unless $oldflags{$_};
-	}
-      }
-    }
-  }
-  return $con;
-}
-
-# constructs a data object from a list and a XML::Structured dtd
-sub list2struct {
-  my ($dtd, $list, $job) = @_;
-  my $top = {};
-  for my $l (@{$list || []}) {
-    my @l = @$l;
-    next unless @l;
-    eval {
-      my @loc = split(':', shift @l);
-      my @how = @$dtd;
-      my $out = $top;
-      while (@loc) {
-	my $am = shift @how;
-	my $e = shift @loc;
-	my $addit;
-	my $delit;
-	$addit = 1 if $e =~ s/\+$//;
-	$delit = 1 if !$addit && $e =~ s/=$//;
-	my %known = map {ref($_) ? (!@$_ ? () : (ref($_->[0]) ? $_->[0]->[0] : $_->[0] => $_)) : ($_=> $_)} @how;
-	my $ke = $known{$e};
-	die("unknown element: $e\n") unless $ke;
-	delete $out->{$e} if $delit;
-	if ($delit && !@loc && !@l) {
-	  @how = ();
-	  last;
-	}
-	if (!ref($ke) || (@$ke == 1 && !ref($ke->[0]))) {
-	  die("element '$e' has subelements\n") if @loc;
-	  die("element '$e' contains attributes\n") if @l && $l[0] =~ /=/;
-	  delete $out->{$e} unless $addit;
-	  if (!ref($ke)) {
-	    die("element '$e' must be singleton\n") if exists $out->{$e};
-	    $out->{$e} = join(' ', @l);
-	  } else {
-	    push @{$out->{$e}}, @l;
-	  }
-	  @how = ();
-	} else {
-	  my $nout = {};
-	  if (@$ke == 1) {
-	    $nout = pop @{$out->{$e}} if exists $out->{$e} && !$addit;
-	    push @{$out->{$e}}, $nout;
-	    @how = @{$ke->[0]};
-	  } else {
-	    $nout = delete $out->{$e} if exists $out->{$e} && !$addit;
-	    die("element '$e' must be singleton\n") if exists $out->{$e};
-	    $out->{$e} = $nout;
-	    @how = @$ke;
-	  }
-	  $out = $nout;
-	}
-      }
-      if (@how) {
-	my $am = shift @how;
-	my %known = map {ref($_) ? (!@$_ ? () : (ref($_->[0]) ? $_->[0]->[0] : $_->[0] => $_)) : ($_=> $_)} @how;
-	# clean old attribs
-	for (@how) {
-	  last if ref($_) || $_ eq '_content';
-	  delete $out->{$_};
-	}
-	while (@l && $l[0] =~ /^(.*?)=(.*)$/) {
-	  my ($a, $av) = ($1, $2);
-	  die("element '$am' contains unknown attribute '$a'\n") unless $known{$a};
-	  if (ref($known{$a})) {
-	    die("attribute '$a' in '$am' must be element\n") if @{$known{$a}} > 1 || ref($known{$a}->[0]);
-	    push @{$out->{$a}}, $av;
-	  } else {
-	    die("attribute '$a' in '$am' must be singleton\n") if exists $out->{$a};
-	    $out->{$a} = $av;
-	  }
-	  shift @l;
-	}
-	if (@l) {
-	  die("element '$am' contains content\n") unless $known{'_content'};
-	  $out->{'_content'} = join(' ', @l);
-	}
-      }
-    };
-    warn("list2struct: $job: @$l: $@") if $@;
-  }
-  return $top;
 }
 
 # normalizes an xml size element to mega bytes
@@ -1328,9 +1211,9 @@ while (1) {
       }
       if ($info->{'prjconfconstraint'}) {
 	my @l = map { [ split(' ', $_) ] } @{$info->{'prjconfconstraint'}};
-	my $prjconfconstraint = list2struct($BSXML::constraints, \@l, "$arch/$job");
+	my $prjconfconstraint = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@l, "$arch/$job");
 	if ($prjconfconstraint) {
-	  $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
+	  $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
 	}
       }
       undef $constraints if $constraints && !%$constraints;
@@ -1495,4 +1378,3 @@ sub failjob {
   };
   warn($@) if $@;
 }
-
