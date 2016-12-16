@@ -1535,9 +1535,9 @@ XML
     # id2 = node.value(:id)
 
     # delete projects
-    delete '/source/home:tom:branches:kde4'
-    assert_response :success
     delete '/source/home:tom:branches:home:tom:branches:kde4'
+    assert_response :success
+    delete '/source/home:tom:branches:kde4'
     assert_response :success
 
     # request got automatically revoked

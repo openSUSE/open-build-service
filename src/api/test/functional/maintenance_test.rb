@@ -609,7 +609,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag :parent => { tag: 'issue' }, :tag => 'issue', :attributes => { change: '' }
     assert_xml_tag :parent => { tag: 'issue', attributes: { change: 'added' } }, :tag => 'name', :content => '1042'
 
-    post '/source', :cmd => 'branch', :package => 'kdelibs', :target_project => 'home:tom:branches:OBS_Maintained:pack2'
+    get '/source/home:tom:branches:OBS_Maintained:pack2/_meta'
+    assert_response :success
+    oldmeta = @response.body
+    post '/source', cmd: 'branch', package: 'kdelibs', target_project: 'home:tom:branches:OBS_Maintained:pack2'
     assert_response :success
     get '/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/_link'
     assert_response :success
@@ -668,6 +671,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # delete kdelibs package again or incident creation will fail since it does not point to a maintained project.
     delete '/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4'
     assert_response :success
+    put '/source/home:tom:branches:OBS_Maintained:pack2/_meta', oldmeta
+    assert_response :success
 
     # create maintenance request
     # without specifing target, the default target must get found via attribute
@@ -699,8 +704,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # store data for later checks
     get '/source/home:tom:branches:OBS_Maintained:pack2/_meta'
-    oprojectmeta = ActiveXML::Node.new(@response.body)
     assert_response :success
+    oprojectmeta = ActiveXML::Node.new(@response.body)
 
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
     assert_response :success
