@@ -552,12 +552,14 @@ class Webui::ProjectController < Webui::WebuiController
       Suse::Validator.validate('project', params[:meta])
       request_data = Xmlhash.parse(params[:meta])
 
+      remove_repositories = @project.get_removed_repositories(request_data)
+      error = Project.check_repositories(remove_repositories)
+      errors << error[:error] if error[:error]
       errors << Project.validate_remote_permissions(request_data)[:error]
       errors << Project.validate_link_xml_attribute(request_data, @project.name)[:error]
       errors << Project.validate_maintenance_xml_attribute(request_data)[:error]
       errors << Project.validate_repository_xml_attribute(request_data, @project.name)[:error]
 
-      errors << @project.check_and_remove_repositories(request_data, !params[:remove_linking_repositories].blank?)[:error]
       errors = errors.compact
 
       if errors.empty?
@@ -567,6 +569,10 @@ class Webui::ProjectController < Webui::WebuiController
           @project.store if errors.empty?
         end
       end
+
+      opts = {no_write_to_backend: true}
+      opts[:recursive_remove] = params[:remove_linking_repositories].present?
+      Project.remove_repositories(remove_repositories, opts)
 
     rescue Suse::ValidationError => exception
       errors << exception.message

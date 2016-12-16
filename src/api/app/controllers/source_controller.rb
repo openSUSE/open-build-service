@@ -144,7 +144,11 @@ class SourceController < ApplicationController
       return
     end
     project.check_weak_dependencies!
-    check_and_remove_repositories!(project.repositories, !params[:remove_linking_repositories].blank?, !params[:force].blank?)
+    opts = { no_write_to_backend: true,
+             force:               params[:force].present?,
+             recursive_remove:    params[:remove_linking_repositories].present?
+           }
+    check_and_remove_repositories!(project.repositories, opts)
 
     logger.info "destroying project object #{project.name}"
     project.commit_opts = { comment: params[:comment] }
@@ -498,7 +502,11 @@ class SourceController < ApplicationController
 
     if project
       remove_repositories = project.get_removed_repositories(request_data)
-      check_and_remove_repositories!(remove_repositories, !params[:remove_linking_repositories].blank?, !params[:force].blank?)
+      opts = { no_write_to_backend: true,
+               force:               params[:force].present?,
+               recursive_remove:    params[:remove_linking_repositories].present?
+             }
+      check_and_remove_repositories!(remove_repositories, opts)
     end
 
     Project.transaction do
@@ -516,13 +524,14 @@ class SourceController < ApplicationController
     render_ok
   end
 
-  def check_and_remove_repositories!(repositories, full_remove, force = false)
-    error = Project.check_repositories(repositories) unless force
-    if !force && error[:error]
+  def check_and_remove_repositories!(repositories, opts)
+    error = Project.check_repositories(repositories) unless opts[:force]
+    if !opts[:force] && error[:error]
       raise RepoDependency, error[:error]
     else
-      error = Project.remove_repositories(repositories, full_remove)
-      if !force && error[:error]
+      error = Project.remove_repositories(repositories, opts)
+
+      if !opts[:force] && error[:error]
         raise ChangeProjectNoPermission, error[:error]
       end
     end
