@@ -255,8 +255,8 @@ $(function() {
   $('.show_dialog').on('click', function() {
     $($(this).data('target')).removeClass('hidden');
   });
+});
 
-  $('.close-dialog').on('click', function() {
-    $($(this).data('target')).addClass('hidden');
-  });
+$(document).on('click','.close-dialog', function() {
+  $($(this).data('target')).addClass('hidden');
 });
