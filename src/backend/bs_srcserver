@@ -2803,21 +2803,23 @@ sub sourcediff {
   my %opts = ('edir' => $tmpdir, 'fmax' => $fmax, 'tmax' => $tmax, 'tfmax' => $fmax, 'doarchive' => 1, 'similar' => 1);
   if ($view eq 'xml') {
     if (!$cgi->{'onlyissues'}) {
-      $xmlret->{'files'} = { 'file' => BSSrcdiff::datadiff($ofn, $ofiles, $orev, $fn, $files, $rev, %opts) };
+      $xmlret->{'files'} = { 'file' => BSSrcdiff::datadiff($ofn, $ofiles, $fn, $files, %opts) };
     }
     if ($cgi->{'withissues'}) {
       my $trackers = readxml("$BSConfig::bsdir/issuetrackers.xml", $BSXML::issue_trackers, 1) || {};
       $opts{'trackers'} = $trackers->{'issue-tracker'} || [];
-      $xmlret->{'issues'} = { 'issue' => BSSrcdiff::issuediff($ofn, $ofiles, $orev, $fn, $files, $rev, %opts) };
+      $xmlret->{'issues'} = { 'issue' => BSSrcdiff::issuediff($ofn, $ofiles, $fn, $files, %opts) };
     }
     BSUtil::data2utf8xml($xmlret);
     $d = XMLout($BSXML::sourcediff, $xmlret);
   } elsif ($view eq 'unified') {
     delete $opts{'doarchive'};
     delete $opts{'similar'};
-    $d = BSSrcdiff::unifieddiff($ofn, $ofiles, $orev, $fn, $files, $rev, %opts);
+    $opts{'oldrevision'} = $orev->{'rev'} if defined $orev->{'rev'};
+    $opts{'newrevision'} = $rev->{'rev'} if defined $rev->{'rev'};
+    $d = BSSrcdiff::unifieddiff($ofn, $ofiles, $fn, $files, %opts);
   } else {
-    $d = BSSrcdiff::srcdiff($ofn, $ofiles, $orev, $fn, $files, $rev, %opts);
+    $d = BSSrcdiff::srcdiff($ofn, $ofiles, $fn, $files, %opts);
   }
   unlink($_) for keys %xobscpio;
   mkdir_p("$diffcache/".substr($cacheid, 0, 2));

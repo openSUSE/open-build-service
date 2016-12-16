@@ -973,7 +973,7 @@ sub fn {
 }
 
 sub srcdiff {
-  my ($pold, $old, $orev, $pnew, $new, $rev, %opts) = @_;
+  my ($pold, $old, $pnew, $new, %opts) = @_;
 
   my $d = '';
   my $fmax = $opts{'fmax'};
@@ -1070,7 +1070,7 @@ sub srcdiff {
 }
 
 sub unifieddiff {
-  my ($pold, $old, $orev, $pnew, $new, $rev, %opts) = @_;
+  my ($pold, $old, $pnew, $new, %opts) = @_;
 
   $opts{'nodecomp'} = 1;
   my @changed;
@@ -1085,8 +1085,8 @@ sub unifieddiff {
       push @changed, $_;
     }
   }
-  my $orevb = $orev && defined($orev->{'rev'}) ? " (revision $orev->{'rev'})" : '';
-  my $revb = $rev && defined($rev->{'rev'}) ? " (revision $rev->{'rev'})" : '';
+  my $orevb = defined($opts{'oldrevision'}) ? " (revision $opts{'oldrevision'})" : '';
+  my $revb = defined($opts{'newrevision'}) ? " (revision $opts{'newrevision'})" : '';
   my $d = '';
   for my $f (@changed) {
     $d .= "Index: $f\n" . ("=" x 67) . "\n";
@@ -1107,7 +1107,7 @@ sub unifieddiff {
 }
 
 sub datadiff {
-  my ($pold, $old, $orev, $pnew, $new, $rev, %opts) = @_;
+  my ($pold, $old, $pnew, $new, %opts) = @_;
 
   my @changed;
   my @added;
@@ -1193,7 +1193,7 @@ sub issues {
 }
 
 sub issuediff {
-  my ($pold, $old, $orev, $pnew, $new, $rev, %opts) = @_;
+  my ($pold, $old, $pnew, $new, %opts) = @_;
 
   my $trackers = $opts{'trackers'};
   return [] unless @{$trackers || []};
