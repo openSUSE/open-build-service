@@ -806,20 +806,25 @@ sub tardiff {
     next if $f eq '';
     my $l1 = $l1{$f};
     my $l2 = $l2{$f};
-    if ($ren{$f}) {
-      my $r = {'lines' => 1, 'name' => $f};
-      if ($l1) {
-	$r->{'_content'} = "(renamed to $ren{$f})\n";
-	$r->{'new'} = {'name' => $ren{$f}, 'md5' => $l1->{'info'}, 'size' => $l1->{'size'}};
-      } else {
-	$r->{'_content'} = "(renamed from $ren{$f})\n";
-	$r->{'new'} = {'name' => $f, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}};
-      }
-      push @ret, $r;
-      $lcnt += $r->{'lines'};
-      next;
-    }
     next unless $l1 || $l2;
+    if ($ren{$f}) {
+      if (!$l1) {
+	my $r = {'name' => $f, 'lines' => 1, '_content' => "(renamed from $ren{$f})\n"};
+	$r->{'new'} = {'name' => $f, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}};
+	push @ret, $r;
+	$lcnt += $r->{'lines'};
+	next;
+      }
+      $l2 = $l2{$ren{$f}};
+      # no need to diff if identical
+      if ($l1->{'type'} eq $l2->{'type'} && $l1->{'info'} eq $l2->{'info'}) {
+	my $r = {'name' => $f, 'lines' => 1, '_content' => "(renamed to $ren{$f})\n"};
+	$r->{'old'} = {'name' => $f, 'md5' => $l1->{'info'}, 'size' => $l1->{'size'}};
+	$r->{'new'} = {'name' => $ren{$f}, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}};
+	$lcnt += $r->{'lines'};
+	next;
+      }
+    }
     if ($l1 && $l2) {
       next if $l1->{'type'} eq $l2->{'type'} && (!defined($l1->{'info'}) || $l1->{'info'} eq $l2->{'info'});
       next if $l1->{'type'} eq 'gemdata' && $l2->{'type'} eq 'gemdata';
@@ -831,6 +836,11 @@ sub tardiff {
     $r->{'name'} = $f;
     $r->{'old'} = {'name' => $f, 'md5' => $l1->{'info'}, 'size' => $l1->{'size'}} if $l1;
     $r->{'new'} = {'name' => $f, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}} if $l2;
+    if ($ren{$f}) {
+      $r->{'new'}->{'name'} = $ren{$f};
+      $r->{'_content'} = "(renamed to $ren{$f})\n" . ($r->{'content'} || '');
+      $r->{'lines'} = ($r->{'lines'} || 0) + 1;
+    }
     push @ret, $r;
     $lcnt += $r->{'shown'} || $r->{'lines'};
     $ccnt += length($r->{'_content'}) if exists $r->{'_content'};
@@ -855,9 +865,12 @@ my @simclasses = (
 );
 
 sub findsim {
-  my ($of, @f) = @_;
+  my ($old, $new) = @_;
 
-  my %s = map {$_ => 1} @$of;	# old file pool
+  my @of = sort keys %$old;
+  my @f = sort keys %$new;
+
+  my %s = map {$_ => 1} @of;	# old file pool
   my %sim;
 
   my %fc;	# file base name
@@ -871,7 +884,7 @@ sub findsim {
   }
 
   # classify all files
-  for my $f (@f, @$of) {
+  for my $f (@f, @of) {
     next if $sim{$f};	# trivial mapped
     next unless $f =~ /\./;
     next if exists $fc{$f};
@@ -900,12 +913,29 @@ sub findsim {
     next unless defined $fc;
     my @s = grep {defined($fc{$_}) && $fc{$_} eq $fc && $ft{$_} eq $ft} sort keys %s;
     if (@s) {
+      unshift @s, grep {$old->{$_} eq $new->{$f}} @s if @s > 1;
       $sim{$f} = $s[0];
       delete $s{$s[0]};
     }
   }
 
-  # second pass: ignore version
+  # second pass: ignore version, but same content
+  for my $f (grep {!exists($sim{$_})} @f) {
+    my $fc = $fc{$f};
+    my $ft = $ft{$f};
+    next unless defined $fc;
+    my @s = grep {defined($ft{$_}) && $ft{$_} eq $ft} sort keys %s;
+    my $fq = "\Q$fc\E";
+    $fq =~ s/\\\././g;
+    $fq =~ s/[0-9.]+/.*/g;
+    @s = grep {/^$fq$/ && $old->{$_} eq $new->{$f}} @s;
+    if (@s) {
+      $sim{$f} = $s[0];
+      delete $s{$s[0]};
+    }
+  }
+
+  # third pass: ignore version
   for my $f (grep {!exists($sim{$_})} @f) {
     my $fc = $fc{$f};
     my $ft = $ft{$f};
@@ -916,6 +946,7 @@ sub findsim {
     $fq =~ s/[0-9.]+/.*/g;
     @s = grep {/^$fq$/} @s;
     if (@s) {
+      unshift @s, grep {$old->{$_} eq $new->{$f}} @s if @s > 1;
       $sim{$f} = $s[0];
       delete $s{$s[0]};
     }
@@ -942,7 +973,7 @@ sub srcdiff {
 
   my @old = sort keys %$old;
   my @new = sort keys %$new;
-  my $sim = findsim(\@old, @new);
+  my $sim = findsim($old, $new);
 
   for my $extra ('changes', 'filelist', 'spec', 'dsc') {
     if ($extra eq 'filelist') {
@@ -1088,9 +1119,7 @@ sub datadiff {
   my @deleted;
 
   my $sim;
-  if ($opts{'similar'}) {
-    $sim = findsim([ keys %$old ], keys %$new);
-  }
+  $sim = findsim($old, $new) if $opts{'similar'};
 
   my %done;
   for my $f (sort(keys %$new)) {
