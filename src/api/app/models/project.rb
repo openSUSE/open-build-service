@@ -98,10 +98,11 @@ class Project < ApplicationRecord
   scope :maintenance_release, -> { where("kind = 'maintenance_release'") }
   scope :home, -> { where("name like 'home:%'") }
   scope :not_home, -> { where.not("name like 'home:%'") }
+  scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
 
   # will return all projects with attribute 'OBS:ImageTemplates'
-  scope :image_templates, lambda {
-    joins(attribs: { attrib_type: :attrib_namespace }).
+  scope :local_image_templates, lambda {
+    includes(:packages).joins(attribs: { attrib_type: :attrib_namespace }).
       where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' })
   }
 
@@ -109,6 +110,44 @@ class Project < ApplicationRecord
   validates :title, length: { maximum: 250 }
   validate :valid_name
   validates :kind, inclusion: { in: %w(standard maintenance maintenance_incident maintenance_release) }
+
+  def self.image_templates
+    Project.local_image_templates + remote_image_templates
+  end
+
+  def self.remote_image_templates
+    result = []
+    Project.remote.each do |project|
+      body = load_from_remote(project, '/image_templates.xml')
+      next if body.blank?
+
+      Xmlhash.parse(body).elements('image_template_project').each do |image_template_project|
+        result << remote_image_template_from_xml(project, image_template_project)
+      end
+    end
+    result
+  end
+
+  def self.load_from_remote(project, path)
+    Rails.cache.fetch("remote_image_templates_#{project.cache_key}", expires_in: 1.hour) do
+      begin
+        return ActiveXML.backend.load_external_url("#{project.remoteurl}#{path}")
+      rescue OpenSSL::SSL::SSLError
+        Rails.logger.error "Remote instance #{project.remoteurl} has no valid SSL certificate"
+      end
+    end
+  end
+
+  def self.remote_image_template_from_xml(remote_project, image_template_project)
+    # We don't store the project and packages objects because they're fetched from remote instances and stored in cache
+    project = Project.new(name: "#{remote_project.name}:#{image_template_project['name']}")
+    image_template_project.elements('image_template_package').each do |image_template_package|
+      project.packages.new(name: image_template_package['name'],
+                           title: image_template_package['title'],
+                           description: image_template_package['description'])
+    end
+    project
+  end
 
   def init
     # We often use select in a query which would raise a MissingAttributeError

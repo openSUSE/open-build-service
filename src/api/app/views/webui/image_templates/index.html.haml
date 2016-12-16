@@ -26,7 +26,7 @@
         - if project.packages.empty?
           %p
             There are currently no base image templates available for project <strong>#{title_or_name(project)}</strong>.
-  - if first_template
+  - if first_template && User.current
     .templates_form
       = form_tag({ controller: :package, action: :save_new_link, project: User.current.home_project_name }, method: :post, id: 'appliance_form') do
         = hidden_field_tag 'linked_project', first_template.project

@@ -638,6 +638,12 @@ OBSApi::Application.routes.draw do
     end
 
     get '/404' => 'main#notfound'
+
+    scope 'public' do
+      resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
+    end
+
+    resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
   end
 
   controller :source do
