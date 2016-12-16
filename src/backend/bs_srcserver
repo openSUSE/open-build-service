@@ -2800,20 +2800,24 @@ sub sourcediff {
   };
   my $ofn = sub { $xobscpio->($orev, $_[0], $_[1]) };
   my $fn  = sub { $xobscpio->($rev, $_[0], $_[1]) };
+  my %opts = ('edir' => $tmpdir, 'fmax' => $fmax, 'tmax' => $tmax, 'tfmax' => $fmax, 'doarchive' => 1, 'similar' => 1);
   if ($view eq 'xml') {
-    my %opts = ('edir' => $tmpdir, 'similar' => 1, 'doarchive' => 1, 'fmax' => $fmax, 'tmax' => $tmax, 'tfmax' => $fmax);
     if (!$cgi->{'onlyissues'}) {
       $xmlret->{'files'} = { 'file' => BSSrcdiff::datadiff($ofn, $ofiles, $orev, $fn, $files, $rev, %opts) };
     }
     if ($cgi->{'withissues'}) {
       my $trackers = readxml("$BSConfig::bsdir/issuetrackers.xml", $BSXML::issue_trackers, 1) || {};
-      $trackers = $trackers->{'issue-tracker'} || [];
-      $xmlret->{'issues'} = { 'issue' => BSSrcdiff::issuediff($ofn, $ofiles, $orev, $fn, $files, $rev, $trackers, %opts) };
+      $opts{'trackers'} = $trackers->{'issue-tracker'} || [];
+      $xmlret->{'issues'} = { 'issue' => BSSrcdiff::issuediff($ofn, $ofiles, $orev, $fn, $files, $rev, %opts) };
     }
     BSUtil::data2utf8xml($xmlret);
     $d = XMLout($BSXML::sourcediff, $xmlret);
+  } elsif ($view eq 'unified') {
+    delete $opts{'doarchive'};
+    delete $opts{'similar'};
+    $d = BSSrcdiff::unifieddiff($ofn, $ofiles, $orev, $fn, $files, $rev, %opts);
   } else {
-    $d = BSSrcdiff::diff($ofn, $ofiles, $orev, $fn, $files, $rev, $fmax, $tmax, $tmpdir, $view eq 'unified' ? 1 : 0);
+    $d = BSSrcdiff::srcdiff($ofn, $ofiles, $orev, $fn, $files, $rev, %opts);
   }
   unlink($_) for keys %xobscpio;
   mkdir_p("$diffcache/".substr($cacheid, 0, 2));
