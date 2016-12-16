@@ -4906,6 +4906,24 @@ sub getsignkey {
   return ('', 'Content-Type: text/plain');
 }
 
+sub projid2sslcert {
+  my ($projid, $origprojid, $sk) = @_;
+  my $rev = BSRevision::getrev_meta($projid, undef);
+  my $files = BSRevision::lsrev($rev);
+  if (!$files->{'_sslcert'}) {
+    # length(signkey) <= 2 means special handling, don't commit it
+    if (!$sk || length($sk) <= 2) {
+      return pubkey2sslcert($origprojid || $projid, "$projectsdir/$projid.pkg/_pubkey");
+    }
+    my $cert = pubkey2sslcert($projid);
+    mkdir_p($uploaddir);
+    writestr("$uploaddir/sslcert.$$", undef, $cert);
+    BSRevision::addrev_meta_replace({'comment' => 'automatic cert creation'}, $projid, undef, [ "$uploaddir/sslcert.$$", undef, '_sslcert']);
+    return $cert;
+  }
+  return BSRevision::revreadstr($rev, '_sslcert', $files->{'_sslcert'});
+}
+
 sub getsslcert {
   my ($cgi, $projid) = @_;
 
@@ -4919,22 +4937,7 @@ sub getsslcert {
     }
     my $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
     $pk = autoextend_check($projid, $pk) if $cgi->{'autoextend'};
-    my $rev = BSRevision::getrev_meta($projid, undef);
-    my $files = BSRevision::lsrev($rev);
-    my $cert;
-    if (!$files->{'_sslcert'}) {
-      # length(signkey) <= 2 means special handling, don't commit it
-      if (length($sk) <= 2) {
-        $cert = pubkey2sslcert($origprojid, "$projectsdir/$projid.pkg/_pubkey");
-        return ($cert, 'Content-Type: text/plain');
-      }
-      $cert = pubkey2sslcert($projid);
-      mkdir_p($uploaddir);
-      writestr("$uploaddir/sslcert.$$", undef, $cert);
-      BSRevision::addrev_meta_replace({'comment' => 'automatic cert creation'}, $projid, undef, [ "$uploaddir/sslcert.$$", undef, '_sslcert']);
-    } else {
-      $cert = BSRevision::revreadstr($rev, '_sslcert', $files->{'_sslcert'});
-    }
+    my $cert = projid2sslcert($projid, $origprojid, $sk);
     return ($cert, 'Content-Type: text/plain');
   }
   if ($BSConfig::sign_project && $BSConfig::sign) {
@@ -4947,6 +4950,55 @@ sub getsslcert {
     return ($cert, 'Content-Type: text/plain');
   }
   return ('', 'Content-Type: text/plain');
+}
+
+sub getkeyinfo {
+  my ($cgi, $projid) = @_;
+
+  my $origprojid = $projid;
+  my ($sk, $pk, $cert);
+  while ($projid ne '') {
+    $sk = readstr("$projectsdir/$projid.pkg/_signkey", 1);
+    last if $sk;
+    $projid =~ s/[^:]*$//;
+    $projid =~ s/:$//;
+  }
+  if ($projid) {
+    $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+    undef $pk if $pk && length($pk) <= 2;
+    $pk = autoextend_check($projid, $pk) if $cgi->{'autoextend'};
+  }
+  if ($cgi->{'withsslcert'} && $projid && $pk) {
+    $cert = projid2sslcert($projid, $origprojid, $sk);
+  }
+  if ($cgi->{'withsslcert'} && !$projid && $BSConfig::sign_project && $BSConfig::sign) {
+    local *S;
+    open(S, '-|', $BSConfig::sign, '--project', $origprojid, '-C') || die("$BSConfig::sign: $!\n");
+    $cert = '';
+    1 while sysread(S, $cert, 4096, length($cert));
+    $cert = undef unless close(S);
+  }
+  if (!$pk && $BSConfig::sign_project && $BSConfig::sign) {
+    local *S;
+    open(S, '-|', $BSConfig::sign, '--project', $origprojid, '-p') || die("$BSConfig::sign: $!\n");
+    $pk = '';
+    1 while sysread(S, $pk, 4096, length($pk));
+    $pk = undef unless close(S);
+  } elsif (!$pk && $BSConfig::keyfile) {
+    $pk = readstr($BSConfig::keyfile, 1);
+  }
+  my $keyinfo = {};
+  $keyinfo->{'project'} = $projid if $projid;
+  if ($pk) {
+    my $algo;
+    eval { $algo = BSPgp::pk2algo(BSPgp::unarmor($pk)) };
+    $keyinfo->{'pubkey'} = { '_content' => $pk };
+    $keyinfo->{'pubkey'}->{'algo'} = $algo if $algo;
+  }
+  if ($cert) {
+    $keyinfo->{'sslcert'} = $cert;
+  }
+  return ($keyinfo, $BSXML::keyinfo);
 }
 
 ####################################################################
@@ -5669,6 +5721,7 @@ my $dispatches = [
   'DELETE:/source/$project/_config user:? comment:?' => \&delprojectconfig,
 
   '/source/$project/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
+  '/source/$project/_keyinfo withsslcert:bool? autoextend:bool?' => \&getkeyinfo,
 
   'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&linkdiff,

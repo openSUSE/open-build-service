@@ -1795,4 +1795,14 @@ our $multibuild = [
 	  [ 'package' ],
 ];
 
+our $keyinfo = [
+    'keyinfo' =>
+	'project',
+      [ 'pubkey' =>
+	    'algo',
+	    '_content',
+      ],
+	'sslcert',
+];
+
 1;
