@@ -80,7 +80,7 @@ override_dh_systemd_enable:
 		obssigner.service
 
 override_dh_installinit:
-	dh_installinit --restart-after-upgrade --name obsapidelayed
+	dh_installinit --name obsapidelayed --no-start
 	dh_installinit --name obsworker --no-start
 
 override_dh_systemd_start:

@@ -1,5 +1,14 @@
 #!/bin/sh -e
 
+# Place api and repo url on index page
+if [ ! -f /usr/share/obs/overview/index.html ] ; then
+  FQHOSTNAME=`hostname -f`
+
+  sed -e "s,___API_URL___,https://$FQHOSTNAME,g" \
+      -e "s,___REPO_URL___,http://$FQHOSTNAME:82,g" \
+        /usr/share/obs/overview/overview.html.TEMPLATE > /usr/share/obs/overview/index.html
+fi
+
 # Config secret.key
 if [ ! -e "/usr/share/obs/api/config/secret.key" ]; then
   rm -f /usr/share/obs/api/config/secret.key
@@ -32,97 +41,6 @@ dbc_generate_include_args="-o template_infile=/usr/share/obs/api/config/database
 dbc_generate_include_owner=www-data
 dbc_go obs-api $@
 
-# Refine permissions for rails app.
-  chown www-data:root /usr/share/obs/api/config/environment.rb
-  chown -R www-data:www-data /var/log/obs/
-  chown -R www-data:www-data /var/cache/obs/tmp/
-  chown -R www-data:www-data /usr/share/obs/api/db
-  chown -R www-data:www-data /usr/share/obs/api/public
-  chown www-data:www-data /etc/obs/api/config/production.sphinx.conf
-  chmod 664 /var/log/obs/*.log
-  chown nobody:www-data /etc/obs/api/config/database.yml
-  chmod 660 /etc/obs/api/config/database.yml
-  chown nobody:www-data /var/log/obs/backend_access.log
-  chown nobody:www-data /var/log/obs/production.log
-
-# Generate Gemfile.lock file.
-cd /usr/share/obs/api
-rm -f Gemfile.lock
-rm -f .bundle/config
-bundle --local --quiet
-
-export BUNDLE_WITHOUT=test:assets:development
-export BUNDLE_FROZEN=1
-bundle config --local frozen 1
-bundle config --local without test:assets:development
-
-if [ -z "$2" ]; then
-    RAILS_ENV=production bundle exec rake db:create >> log/db_setup.log
-    RAILS_ENV=production bundle exec rake db:setup >> log/db_setup.log
-else
-    RAILS_ENV=production bundle exec rake db:migrate >> log/db_migrate.log
-fi
-
-API_ROOT=/usr/share/obs/api
-
-run_in_api () {
-  export RAILS_ENV="production"
-  # startproc only works for classical daemons
-  chroot --userspec=www-data:www-data / /bin/bash -c "cd $API_ROOT && bundle exec $*"
-}
-
-run_in_api rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
-run_in_api rake ts:index
-
-pathfind() {
-    OLDIFS="$IFS"
-    IFS=:
-    for p in $PATH; do
-        if [ -x "$p/$*" ]; then
-            IFS="$OLDIFS"
-            return 0
-        fi
-    done
-    IFS="$OLDIFS"
-    return 1
-}
-
-if [ ! -f /usr/share/obs/overview/index.html ] ; then
-  FQHOSTNAME=`hostname -f`
-
-  sed -e "s,___API_URL___,https://$FQHOSTNAME,g" \
-      -e "s,___REPO_URL___,http://$FQHOSTNAME:82,g" \
-        /usr/share/obs/overview/overview.html.TEMPLATE > /usr/share/obs/overview/index.html
-fi
-
-# Test whether a2enmod is available (and thus also apache2ctl).
-if `pathfind a2enmod`; then
-        # Enable the Apache2 modules if not already enabled
-        a2enmod ssl     > /dev/null || true
-        a2enmod rewrite > /dev/null || true
-        a2enmod proxy   > /dev/null || true
-        a2enmod proxy_http      > /dev/null || true
-        a2enmod xforward        > /dev/null || true
-        a2enmod headers > /dev/null || true
-        a2enmod expires > /dev/null || true
-        a2dissite 000-default   > /dev/null || true
-	a2ensite obs.conf	> /dev/null || true
-fi
-
-reload_apache()
-{
-    if apache2ctl configtest 2>/dev/null; then
-        if `pathfind defoma-font`; then
-            invoke-rc.d apache2 $1 3>/dev/null || true
-        else
-            /etc/init.d/apache2 $1 3>/dev/null || true
-        fi
-    else
-        echo "Your Apache 2 configuration is broken, so we're not restarting it for you."
-    fi
-}
-
-# Restart Apache to really enable the module and load obs.conf
-reload_apache restart
+echo "OBS api installed. Please see /usr/share/doc/obs-api/README.Debian for the rest of setup."
 
 #DEBHELPER#

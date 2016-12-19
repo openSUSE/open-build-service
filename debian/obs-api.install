@@ -10,3 +10,5 @@ usr/share/obs/docs/api/
 usr/share/obs/overview/overview.html.TEMPLATE
 
 debian/localgem/*	/usr/share/obs/api/vendor/gems
+
+debian/rake-tasks.sh	/usr/share/obs/api/script/
