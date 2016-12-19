@@ -254,6 +254,11 @@ OBSApi::Application.routes.draw do
       post 'project/comments/:project' => :save_comment, constraints: cons, as: 'save_project_comment'
     end
 
+    resources :project, only: [], param: :name do
+      resource :public_key, controller: 'webui/project/public_key', only: [:show]
+      resource :ssl_certificate, controller: 'webui/project/ssl_certificate', only: [:show]
+    end
+
     controller 'webui/request' do
       get 'request/add_reviewer_dialog' => :add_reviewer_dialog
       post 'request/add_reviewer' => :add_reviewer
@@ -698,6 +703,10 @@ OBSApi::Application.routes.draw do
   get 'main/sitemap' => 'webui/main#sitemap'
   get 'main/sitemap_projects' => 'webui/main#sitemap_projects'
   get 'main/sitemap_packages/:listaction' => 'webui/main#sitemap_packages'
+
+  resources :project, only: [], param: :name do
+    resource :public_key, controller: 'project/public_key', only: [:show]
+  end
 end
 
 OBSEngine::Base.subclasses.each do |engine|
