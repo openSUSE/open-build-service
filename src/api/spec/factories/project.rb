@@ -77,11 +77,22 @@ FactoryGirl.define do
 
       transient do
         target_project nil
+        create_patchinfo false
+        maintainer nil
       end
 
       after(:create) do |project, evaluator|
         create(:maintainance_project_attrib, project: project)
-        create(:maintained_project, project: evaluator.target_project, maintenance_project: project) if evaluator.target_project
+        if evaluator.target_project
+          create(:maintained_project, project: evaluator.target_project, maintenance_project: project)
+          CONFIG['global_write_through'] ? project.store : project.save!
+        end
+        if evaluator.create_patchinfo
+          create(:relationship_project_user, project: project, user: evaluator.maintainer)
+          User.current = evaluator.maintainer
+          Patchinfo.new.create_patchinfo(project.name, nil, comment: 'Fake comment', force: true)
+          User.current = nil
+        end
       end
 
       factory :maintenance_project_with_packages do
