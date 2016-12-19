@@ -395,31 +395,18 @@ rm -rf build
 ln -sf /usr/lib/build build
 popd
 
+####
+# start backend testing
 make -C src/backend test
 
 #### 
 # start api testing
 #
-# disable_api_tests is needed to make roundtrip shorter
-# while developing and testing init scripts, package deployment
-# etc. Simply define a macro in your prjconf in obs and set
-# 
-# %disable_api_tests 1
-#
-#
-# setup mysqld
-%if 0%{?disable_api_tests} < 1
-
 make -C src/api test
 
-%endif
-# end api testing
 #### 
-
+# misc tests
 make -C dist test
-
-# TODO - clarify if test suite is needed as extra package (M0ses)
-rm -rf $RPM_BUILD_ROOT/srv/www/obs/api/spec
 
 # create user and group in advance of obs-server
 %pre -n obs-common
