@@ -5,3 +5,4 @@ dist/README.SETUP
 dist/README.devel
 docs/openSUSE.org.xml
 src/backend/README
+debian/README.Debian

@@ -3,3 +3,4 @@ ReleaseNotes-*
 dist/README.SETUP
 dist/README.UPDATERS
 src/backend/README
+debian/README.Debian

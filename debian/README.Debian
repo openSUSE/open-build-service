@@ -1,0 +1,87 @@
+Open Build Service
+------------------
+
+Setup obs-api
+-------------
+If you have database configured via dbconfig-common during installation.
+You may run this command as root to have obs-api setup:
+    # /usr/share/obs/api/script/rake-tasks.sh setup
+
+If you select not to config database via dbconfig-common during
+installation. You may want to create a user in mysql and grant
+permissions manually.
+
+    In mysql prompt:
+    > CREATE USER 'obs-api'@'localhost' IDENTIFIED BY 'password';
+    > GRANT ALL PRIVILEGES ON * . * TO 'obs-api'@'localhost';
+    > FLUSH PRIVILEGES;
+
+Configure the database password you have set previously:
+    In /etc/obs/api/config/database.yml
+    '''
+    production:
+    adapter: mysql2
+    database: obsapi
+    username: obs-api
+    password: YOUR_PASSWORD
+    encoding: utf8
+    '''
+And then you may run this command as root to have obs-api setup:
+    # /usr/share/obs/api/script/rake-tasks.sh setup
+Or you may refer to the steps in rake-tasks.sh and do the rake setup
+manually to fit your configuration.
+
+
+OBS frontend
+------------
+By default, you can see the HTML views on port 443 (e.g: https://localhost)
+and the repos on port 82 (once some packages are built).
+
+
+Default Admin password
+----------------------
+The default admin user is "Admin" with the password "opensuse".
+
+
+Managing scheduler
+-------------------
+We have armv7hl, i586 and x86_64 schedulers setup by default.
+If you want to add scheduler for specific architecture. You may run
+    # systemctl enable obsscheduler@*ARCH*.service
+    # systemctl start obsscheduler@*ARCH*.service
+If you want to disable scheduler for specific architecture. You may run
+    # systemctl stop obsscheduler@*ARCH*.service
+    # systemctl disable obsscheduler@*ARCH*.service
+
+
+Distributed OBS worker
+----------------------
+You may want to install obs-worker on distributed machine(not run on
+the same host as the obs-server runs) to prevent unpredictable load
+while monstrous package build that burden your OBS backend daemons.
+
+
+Worker setup
+------------
+After you installed obs-worker package. You may edit the file
+/etc/default/obsworker to set the hostname of the machine where your
+obs-server is running.
+
+We have the default hostname "obs" that you may want to change to fits
+your setup:
+    '''
+    OBS_SRC_SERVER="obs:5352"
+    OBS_REPO_SERVERS="obs:5252"
+    '''
+You may also set the number of build instances. (0 will automatically use the number of CPU's)
+    '''
+    OBS_WORKER_INSTANCES="0"
+    '''
+After you placed the correct settings. Start the obsworker daemons:
+    # invoke-rc.d obsworker start
+You may verify if the worker daemons starts correctly or not:
+    # invoke-rc.d obsworker status
+
+
+
+-- Andrew Lee (李健秋) <ajqlee@debian.org>  Sun, 18 Dec 2016 22:00:11 +0800
