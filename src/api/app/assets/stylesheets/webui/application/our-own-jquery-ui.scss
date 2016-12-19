@@ -4,6 +4,7 @@
 .ui-corner-all {
   border-radius: 0px; /* Bento's round corners look ugly */
 }
+
 .ui-autocomplete {
   position: absolute;
   cursor: default;
@@ -13,25 +14,20 @@
   overflow: auto; /* We want a vertical scrollbar... */
   max-height: 180px;
 }
+
 .ui-menu-item {
   margin: 0px;
   padding: 2px 5px;
   cursor: default;
   display: block;
-  /*
-  if width will be 100% horizontal scrollbar will apear
-  when scroll mode will be used
-  */
-  /*width: 100%;*/
   font: menu;
   font-size: 12px;
-  /*
-  it is very important, if line-height not setted or setted
-  in relative units scroll will be broken in firefox
-  */
+  /* it is very important, if line-height not setted or setted
+  in relative units scroll will be broken in firefox */
   line-height: 16px;
   overflow: hidden;
 }
+
 .ui-menu-item > a {
   color: #444444;
 }
@@ -52,9 +48,11 @@
   display:block;
   float: left;
 }
+
 .ui-menu .ui-menu {
   margin-top: -3px;
 }
+
 .ui-menu .ui-menu-item {
   margin:0;
   padding: 0;
@@ -63,6 +61,7 @@
   clear: left;
   width: 100%;
 }
+
 .ui-menu .ui-menu-item a.ui-state-hover,
 .ui-menu .ui-menu-item a.ui-state-active {
   font-weight: normal;
@@ -71,13 +70,14 @@
 
 /* jquery tooltip */
 .ui-tooltip {
-        padding: 8px;
-        position: absolute;
-        z-index: 9999;
-        max-width: 300px;
-        -webkit-box-shadow: 0 0 5px #aaa;
-        box-shadow: 0 0 5px #aaa;
+  padding: 8px;
+  position: absolute;
+  z-index: 9999;
+  max-width: 300px;
+  -webkit-box-shadow: 0 0 5px #aaa;
+  box-shadow: 0 0 5px #aaa;
 }
+
 body .ui-tooltip {
         border-width: 2px;
 }

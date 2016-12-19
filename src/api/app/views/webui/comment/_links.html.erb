@@ -1,4 +1,4 @@
-<%= possibly_empty_ul class: 'horizontal-list comment-actions' do %>
+<%= possibly_empty_ul class: 'horizontal-list' do %>
   <% unless User.current.is_nobody? %>
    <li class="togglable_comment" data-toggle="reply_form_of_<%= comment.id %>">
     <a id="reply_link_id_<%= comment.id %>">
