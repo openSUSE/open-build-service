@@ -71,6 +71,7 @@ BuildRequires:  build >= 20151130
 BuildRequires:  inst-source-utils
 BuildRequires:  perl-BSSolv >= 0.28
 BuildRequires:  perl-Compress-Zlib
+BuildRequires:  perl-Diff-LibXDiff
 BuildRequires:  perl-File-Sync >= 0.10
 BuildRequires:  perl-JSON-XS
 BuildRequires:  perl-Net-SSLeay
@@ -110,6 +111,7 @@ Recommends:     lvm2
 Recommends:     openslp-server
 Recommends:     obs-signd
 Recommends:     inst-source-utils
+Recommends:     perl-Diff-LibXDiff
 %else
 Requires:       dpkg
 Requires:       yum
