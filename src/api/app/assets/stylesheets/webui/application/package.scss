@@ -8,7 +8,8 @@ table.repostatus td {
   }
   &.arch {
     width: 1%;
-    margin: 1ex 0;
+    margin: 0 0.5ex;
+    white-space: nowrap;
   }
   &.repo {
     max-width: 5em;
