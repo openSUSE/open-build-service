@@ -127,26 +127,4 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     find(:id, 'flash-messages').must_have_text("Download on Demand can't be updated: Validation failed: Url can't be blank")
     page.must_have_link 'http://somerandomurl_2.es'
   end
-
-  def test_destroying_download_on_demand # spec/features/webui/projects_spec.rb
-    use_js
-
-    # Login as admin
-    login_king
-    visit(project_show_path(project: "home:user5"))
-
-    # Updating via meta
-    click_link("Advanced")
-    click_link("Meta")
-    page.evaluate_script("editors[0].setValue(\"#{PROJECT_WITH_SEVERAL_DOWNLOAD_ON_DEMAND.gsub("\n", '\n')}\");")
-    click_button("Save")
-    find(:id, 'flash-messages').must_have_text('Config successfully saved!')
-
-    click_link("Repositories")
-    first(:xpath, "//a[text()='Delete']").click
-
-    page.wont_have_text 'Download on demand repositories'
-    page.wont_have_link 'http://mola.org2'
-    page.wont_have_text 'rpmmd'
-  end
 end

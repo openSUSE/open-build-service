@@ -71,14 +71,16 @@ bundle exec rake db:migrate db:drop || exit 1
 # entire test suite
 export RAILS_ENV=test
 bundle exec rake db:create db:setup || exit 1
-mv log/test.log{,.old}
-if ! bundle exec rake test:api test:webui test:spider ; then
-  # NO_CAT_LOG is used in vagrant to avoid tons of useless
-  # lines transfered to host. cat is usefull in debugging in obs
-  [[ ! $NO_CAT_LOG ]] && cat log/test.log
-  kill_memcached
-  exit 1
-fi
+
+for suite in "rake test:api" "rake test:webui" "rake test:spider" "rspec"; do
+  rm -f log/test.log
+  if ! bundle exec $suite; then
+    # dump log only in package builds
+    [[ -n "$RPM_BUILD_ROOT" ]] && cat log/test.log
+    kill_memcached
+    exit 1
+  fi
+done
 
 kill_memcached
 
