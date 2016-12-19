@@ -1,10 +1,11 @@
-Description: Added missing jquery.ui.widget
-Author: Bob Ham <bob.ham@collabora.com>
+Description: Migrate jquery-ui-rails from 5.0.5 to 6.0.1.
+Author: Andrew Lee (李健秋) <ajqlee@debian.org>
 Origin: Debian
 Bug-Debian: https://bugs.debian.org/839144
 Bug-Debian: https://bugs.debian.org/839143
+Bug-Debian: https://bugs.debian.org/848510
 Reviewed-By: Andrew Lee (李健秋) <ajqlee@debian.org>
-Last-Update: 2016-10-20
+Last-Update: 2016-12-19
 
 --- a/src/api/app/assets/javascripts/webui/application.js
 +++ b/src/api/app/assets/javascripts/webui/application.js
@@ -16,10 +17,10 @@ Last-Update: 2016-10-20
 -//= require jquery.ui.autocomplete
 -//= require jquery.ui.tabs
 -//= require jquery.ui.tooltip
-+//= require jquery-ui/menu
-+//= require jquery-ui/autocomplete
-+//= require jquery-ui/tabs
-+//= require jquery-ui/tooltip
++//= require jquery-ui/widgets/menu
++//= require jquery-ui/widgets/autocomplete
++//= require jquery-ui/widgets/tabs
++//= require jquery-ui/widgets/tooltip
  //= require jquery.tokeninput
  //= require jquery.flot
  //= require jquery.flot.resize
