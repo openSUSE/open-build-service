@@ -8,6 +8,7 @@ class Comment < ApplicationRecord
   validates :body, :commentable, :user, presence: true
 
   after_create :create_notification
+  after_destroy :delete_parent_if_unused
 
   has_many :children, dependent: :destroy, class_name: 'Comment', foreign_key: 'parent_id'
 
@@ -98,5 +99,11 @@ class Comment < ApplicationRecord
   # FIXME: This is to work around https://github.com/rails/rails/pull/12450/files
   def destroy
     super
+  end
+
+  private
+
+  def delete_parent_if_unused
+    parent.destroy if parent && parent.user == User.find_nobody! && parent.children.length.zero?
   end
 end
