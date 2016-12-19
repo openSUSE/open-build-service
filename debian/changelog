@@ -1,3 +1,16 @@
+open-build-service (2.7.1-8) unstable; urgency=medium
+
+  * jquery-ui.patch: migrate jquery-ui-rails from 5.0.5 to 6.0.1.
+    (Closes: #848510)
+  * debian/control: build-deps on the metapackage default-mysql-*.
+    (Closes: #848460)
+  * Refine postinst script to avoid modifies files it has shipped. And
+    also not fails during installation without setup database via
+    dbconfig-common. (Closes: #847687)
+  * Added README.Debian.
+
+ -- Andrew Lee (李健秋) <ajqlee@debian.org>  Mon, 19 Dec 2016 15:19:40 +0800
+
 open-build-service (2.7.1-7) unstable; urgency=medium
 
   [ Antonio Terceiro ]
