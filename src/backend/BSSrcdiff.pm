@@ -965,11 +965,9 @@ sub findsim {
 
 # return the filename of a resource
 sub fn {
-  my ($dir, $f, $f2md5) = @_;
+  my ($dir, $f) = @_;
   return undef unless defined $f;
-  my $md5 = $f2md5->{$f};
-  return $dir->($f, $md5) if ref($dir);
-  return "$dir/$md5-$f";
+  return ref($dir) ? $dir->($f) : "$dir/$f";
 }
 
 sub srcdiff {
@@ -984,7 +982,7 @@ sub srcdiff {
   if ($opts{'similar'}) {
     $sim = findsim($old, $new);
   } else {
-    $sim = { map {$_ => $_} grep {$old->{$_}} @new };
+    $sim = { map {$_ => $_} grep {exists $old->{$_}} @new };
   }
 
   for my $extra ('changes', 'filelist', 'spec', 'dsc') {
@@ -1023,7 +1021,7 @@ sub srcdiff {
 	next if $old->{$of} eq $new->{$f};
       }
       $d .= "\n++++++ new $extra file:\n" unless defined $of;
-      my $r = filediff(fn($pold, $of, $old), fn($pnew, $f, $new), %opts, 'diffarg' => $diffarg, 'fmax' => undef);
+      my $r = filediff(fn($pold, $of), fn($pnew, $f), %opts, 'diffarg' => $diffarg, 'fmax' => undef);
       $d .= adddiffheader($r, $of, $f);
     }
     if (%xold) {
@@ -1052,14 +1050,14 @@ sub srcdiff {
     }
     if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio)$/) {
       if (defined $of) {
-	my @r = tardiff(fn($pold, $of, $old), fn($pnew, $f, $new), %opts);
+	my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
 	for my $r (@r) {
 	  $d .= adddiffheader($r, $r->{'name'}, $r->{'name'});
 	}
       }
       next;
     }
-    my $r = filediff(fn($pold, $of, $old), fn($pnew, $f, $new), %opts);
+    my $r = filediff(fn($pold, $of), fn($pnew, $f), %opts);
     $d .= adddiffheader($r, $of, $f);
   }
   if (%oold) {
@@ -1090,17 +1088,17 @@ sub unifieddiff {
   my $d = '';
   for my $f (@changed) {
     $d .= "Index: $f\n" . ("=" x 67) . "\n";
-    my $r = filediff(fn($pold, $f, $old), fn($pnew, $f, $new), %opts);
+    my $r = filediff(fn($pold, $f), fn($pnew, $f), %opts);
     $d .= adddiffheader($r, "$f$orevb", "$f$revb");
   }
   for my $f (@added) {
     $d .= "Index: $f\n" . ("=" x 67) . "\n";
-    my $r = filediff(undef, fn($pnew, $f, $new), %opts);
+    my $r = filediff(undef, fn($pnew, $f), %opts);
     $d .= adddiffheader($r, "$f (added)", "$f$revb");
   }
   for my $f (@deleted) {
     $d .= "Index: $f\n" . ("=" x 67) . "\n";
-    my $r = filediff(fn($pold, $f, $old), undef, %opts);
+    my $r = filediff(fn($pold, $f), undef, %opts);
     $d .= adddiffheader($r, "$f$orevb", "$f (deleted)");
   }
   return $d;
@@ -1121,23 +1119,23 @@ sub datadiff {
     my $of = defined($sim->{$f}) ? $sim->{$f} : $f;
     $done{$of} = 1;
     if (!defined($old->{$of})) {
-      my @s = stat(fn($pnew, $f, $new));
-      my $r = filediff(undef, fn($pnew, $f, $new), %opts);
+      my @s = stat(fn($pnew, $f));
+      my $r = filediff(undef, fn($pnew, $f), %opts);
       delete $r->{'state'};
       push @added, {'state' => 'added', 'diff' => $r, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
     } elsif ($old->{$of} ne $new->{$f}) {
       if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio)$/) {
-	my @r = tardiff(fn($pold, $of, $old), fn($pnew, $f, $new), %opts);
+	my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
         if (@r == 0 && $f ne $of) {
 	  # (almost) identical tars but renamed
-	  my @os = stat(fn($pold, $of, $old));
-          my @s = stat(fn($pnew, $f, $new));
+	  my @os = stat(fn($pold, $of));
+          my @s = stat(fn($pnew, $f));
           push @changed, {'state' => 'renamed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
         }
         if (@r == 1 && !$r[0]->{'old'} && !$r[0]->{'new'}) {
 	  # tardiff was too big
-	  my @os = stat(fn($pold, $of, $old));
-          my @s = stat(fn($pnew, $f, $new));
+	  my @os = stat(fn($pold, $of));
+          my @s = stat(fn($pnew, $f));
           push @changed, {'state' => 'changed', 'diff' => $r[0], 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
           @r = ();
         }
@@ -1153,21 +1151,21 @@ sub datadiff {
 	  delete $r->{'new'};
 	}
       } else {
-	my @os = stat(fn($pold, $of, $old));
-        my @s = stat(fn($pnew, $f, $new));
-	my $r = filediff(fn($pold, $of, $old), fn($pnew, $f, $new), %opts);
+	my @os = stat(fn($pold, $of));
+        my @s = stat(fn($pnew, $f));
+	my $r = filediff(fn($pold, $of), fn($pnew, $f), %opts);
 	delete $r->{'state'};
 	push @changed, {'state' => 'changed', 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
       }
     } elsif ($f ne $of) {
-      my @os = stat(fn($pold, $of, $old));
-      my @s = stat(fn($pnew, $f, $new));
+      my @os = stat(fn($pold, $of));
+      my @s = stat(fn($pnew, $f));
       push @changed, {'state' => 'renamed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
     }
   }
   for my $of (grep {!$done{$_}} sort(keys %$old)) {
-    my @os = stat(fn($pold, $of, $old));
-    my $r = filediff(fn($pold, $of, $old), undef, %opts);
+    my @os = stat(fn($pold, $of));
+    my $r = filediff(fn($pold, $of), undef, %opts);
     delete $r->{'state'};
     push @added, {'state' => 'deleted', 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}};
   }
@@ -1180,7 +1178,7 @@ sub issues {
     my @issues = $entry =~ /$tracker->{'regex'}/g;
     pop @issues if @issues & 1;	# hmm
     my %issues = @issues;
-    for (keys %issues) {
+    for (sort keys %issues) {
       my $label = $tracker->{'label'};
       $label =~ s/\@\@\@/$issues{$_}/g;
       $ret->{$label} = {
@@ -1215,12 +1213,12 @@ sub issuediff {
   my %oldchanges;
   my %newchanges;
   for my $f (grep {/\.changes$/} sort(keys %$old)) {
-    for (split(/------------------------------------------+/, readstr(fn($pold, $f, $old)))) {
+    for (split(/------------------------------------------+/, readstr(fn($pold, $f)))) {
       $oldchanges{Digest::MD5::md5_hex($_)} = $_;
     }
   }
   for my $f (grep {/\.changes$/} sort(keys %$new)) {
-    for (split(/------------------------------------------+/, readstr(fn($pnew, $f, $new)))) {
+    for (split(/------------------------------------------+/, readstr(fn($pnew, $f)))) {
       $newchanges{Digest::MD5::md5_hex($_)} = $_;
     }
   }

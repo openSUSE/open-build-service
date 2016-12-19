@@ -2798,8 +2798,8 @@ sub sourcediff {
     $xobscpio{$tmp} = 1;
     return $tmp;
   };
-  my $ofn = sub { $xobscpio->($orev, $_[0], $_[1]) };
-  my $fn  = sub { $xobscpio->($rev, $_[0], $_[1]) };
+  my $ofn = sub { $xobscpio->($orev, $_[0], $ofiles->{$_[0]}) };
+  my $fn  = sub { $xobscpio->($rev, $_[0], $files->{$_[0]}) };
   my %opts = ('edir' => $tmpdir, 'fmax' => $fmax, 'tmax' => $tmax, 'tfmax' => $fmax, 'doarchive' => 1, 'similar' => 1);
   if ($view eq 'xml') {
     if (!$cgi->{'onlyissues'}) {
