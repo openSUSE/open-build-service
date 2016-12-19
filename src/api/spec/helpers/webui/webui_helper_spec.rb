@@ -285,6 +285,23 @@ RSpec.describe Webui::WebuiHelper do
     end
   end
 
+  describe '#fuzzy_time' do
+    context 'with time less than 1 minute' do
+      it { expect(fuzzy_time(Time.now)).to eq('now') }
+    end
+
+    context 'with_fulltime' do
+      time = Time.now - 3.hours
+      output = "<span title='#{time.utc.strftime('%Y-%m-%d %H:%M UTC')}' class='fuzzy-time'>about 3 hours ago</span>"
+      it { expect(fuzzy_time(time)).to eq(output) }
+    end
+
+    context 'without_fulltime' do
+      time = Time.now - 1.month
+      it { expect(fuzzy_time(time, false)).to eq('about 1 month ago') }
+    end
+  end
+
   describe '#repo_status_icon' do
     skip('Please add some tests')
   end

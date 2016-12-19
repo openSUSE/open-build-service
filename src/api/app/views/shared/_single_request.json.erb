@@ -6,20 +6,20 @@
    target_package = cp[:target_package]
    target_project = cp[:target_project]
 -%>
-<%= fuzzy_time(req.created_at) %>,
+<%= fuzzy_time(req.created_at, false) %>,
 <%= project_or_package_link(project: source_project, package: source_package, creator: req.creator, trim_to: elide_len, short: true) %>,
 <% if target_project %>
   <% if !@project || @project.name != target_project %><!-- <%= target_project %>  -->
     <% if target_package && source_package != target_package %> <!-- /<%= target_package %> -->
-  <%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) -%>
+      <%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) %>
     <% else %>
-  <%= project_or_package_link(project: target_project, trim_to: elide_len, short: true) %>
+      <%= project_or_package_link(project: target_project, trim_to: elide_len, short: true) %>
     <% end %>
   <% else %>
     <% if target_package %> <!-- <%= target_package %> -->
-  <%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) %>
+      <%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) %>
     <% elsif request_type == :delete %>
-        This project
+      This project
     <% end %>
   <% end %>
 <% end %>,
@@ -30,4 +30,4 @@
   <% end %>
 <%= req.priority %>,
 <%= link_to(sprite_tag('req-showdiff', title: "Show request ##{req.number}"),
-            { :controller => :request, :action => :show, :number => req.number }, { :class => 'request_link' }) -%>
+            { :controller => :request, :action => :show, :number => req.number }, { :class => 'request_link' }) %>

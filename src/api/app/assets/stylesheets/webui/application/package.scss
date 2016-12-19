@@ -33,5 +33,13 @@ table.repostatus td {
 }
 
 .commit_item {
-  margin: 12px 0px; 
+  margin: 12px 0;
+}
+
+.fuzzy-time {
+  text-decoration: underline dashed #069;
+
+  &:hover {
+    text-decoration-color: #690;
+  }
 }
