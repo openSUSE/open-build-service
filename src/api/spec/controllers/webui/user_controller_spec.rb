@@ -59,7 +59,7 @@ RSpec.describe Webui::UserController do
       describe "showing self" do
         it 'includes requests' do
           get :show, params: { user: non_admin_user }
-          expect(assigns(:requests_out)).to eq non_admin_user.outgoing_requests
+          expect(assigns(:requests_out).pluck(:id)).to eq non_admin_user.outgoing_requests.pluck(:id)
         end
       end
       describe "showing someone else" do
