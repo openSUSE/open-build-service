@@ -3579,7 +3579,7 @@ sub checkconstraints {
     $constraints = readxml("$uploaddir/$$", $BSXML::constraints);
     unlink("$uploaddir/$$");
   }
-  my $pconf = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid ", "repository=$repoid");
+  my $pconf = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   my $bconf = Build::read_config($arch, [ split("\n", $pconf)] );
   my @list = map { [ split(' ', $_) ] } @{$bconf->{'constraint'}};
   my $prjconfconstraint = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@list);
