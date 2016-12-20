@@ -69,6 +69,7 @@ use BSSched::ProjPacks;
 use BSRepServer;
 use BSRepServer::BuildInfo;
 use BSDispatcher::Constraints;
+use BSCando;
 use Build;
 
 use strict;
@@ -3585,6 +3586,17 @@ sub checkconstraintsfile {
   my $prjconfconstraint = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@list);
   $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
 
+  my %harchcando;         # can the harch build an arch?
+  for my $harch (keys %BSCando::cando) {
+    for my $arch (@{$BSCando::cando{$harch}}) {
+      if ($arch =~ /^([^:]+):(.+)$/) {
+        $harchcando{"$harch/$1"} = $2;
+      } else {
+        $harchcando{"$harch/$arch"} = '';
+      }
+    }
+  }
+
   my $dispatch_constraints_info = {
     'project' => $project,
     'arch' => $arch,
@@ -3595,6 +3607,8 @@ sub checkconstraintsfile {
   for my $workerstate (qw{idle building away dead down}) {
     my @workernames = sort(BSUtil::ls("$workersdir/$workerstate"));
     for my $workername (@workernames) {
+      my ($harch) = split(':', $workername, 2);
+      next unless exists($harchcando{"$harch/$arch"});
       my $worker = readxml("$workersdir/$workerstate/$workername", $BSXML::worker, 1);
       next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($dispatch_constraints_info, $worker, $constraints);
       push(@comp_workers, $workername) if BSDispatcher::Constraints::oracle($worker, $constraints) > 0;
