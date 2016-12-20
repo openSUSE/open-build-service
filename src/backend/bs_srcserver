@@ -5695,15 +5695,14 @@ sub hello {
 ####################################################################
 
 sub getworkercap {
-  my ($cgi) = @_;
+  my ($cgi, $workerid) = @_;
   my $reposerver = $BSConfig::masterdispatcher || $BSConfig::reposerver; # no need to look for partitioning here
-  my @args = BSRPC::args($cgi, 'workerid');
   my $param = {
-    'uri' => "$reposerver/getworkercapabilities",
+    'uri' => "$reposerver/worker/$workerid",
     'timeout' => 60,
   };
 
-  my $worker_cap = BSWatcher::rpc($param, $BSXML::worker, @args);
+  my $worker_cap = BSWatcher::rpc($param, $BSXML::worker);
 
   return($worker_cap, $BSXML::worker);
 }
