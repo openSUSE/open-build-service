@@ -35,6 +35,7 @@
 
 :javascript
   $(function() {
-    if ("#{@users.count}" !== "0")
+    // We use count(:all) because of a bug: https://github.com/rails/rails/pull/27561
+    if ("#{@users.count(:all)}" !== "0")
       $('#user_table').dataTable();
   });
