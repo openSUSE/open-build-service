@@ -5708,7 +5708,7 @@ sub getworkercap {
   return($worker_cap, $BSXML::worker);
 }
 
-sub checkconstraintsfile {
+sub checkconstraints {
   my ($cgi) = @_;
   checkprojrepoarch($cgi->{'project'}, $cgi->{'repository'}, $cgi->{'arch'});
 
@@ -5720,9 +5720,11 @@ sub checkconstraintsfile {
   my $param = {
     'uri' => "$reposerver/worker",
     'request' => 'POST',
-    'data' => \&BSServer::forward_sender,
-    'chunked' => 1,
   };
+  if (BSServer::have_content()) {
+    $param->{'data'} = \&BSServer::forward_sender;
+    $param->{'chunked'} = 1;
+  }
 
   my $ret = BSWatcher::rpc($param, $BSXML::dir, "cmd=checkconstraints", @args);
   return ($ret, $BSXML::dir);
@@ -5812,7 +5814,7 @@ my $dispatches = [
 
   # worker capabilities
   '/worker/$workerid' => \&getworkercap,
-  'POST:/worker cmd=checkconstraints $project $repository $arch $package' => \&checkconstraintsfile,
+  'POST:/worker cmd=checkconstraints $project $repository $arch $package' => \&checkconstraints,
 
   # worker calls
   '/getsources $project $package $srcmd5:md5' => \&getsources,
