@@ -919,6 +919,7 @@ sub findsim {
     if (@s) {
       unshift @s, grep {$old->{$_} eq $new->{$f}} @s if @s > 1;
       $sim{$f} = $s[0];
+      $sim{$s[0]} = $f;
       delete $s{$s[0]};
     }
   }
@@ -935,6 +936,7 @@ sub findsim {
     @s = grep {/^$fq$/ && $old->{$_} eq $new->{$f}} @s;
     if (@s) {
       $sim{$f} = $s[0];
+      $sim{$s[0]} = $f;
       delete $s{$s[0]};
     }
   }
@@ -952,6 +954,7 @@ sub findsim {
     if (@s) {
       unshift @s, grep {$old->{$_} eq $new->{$f}} @s if @s > 1;
       $sim{$f} = $s[0];
+      $sim{$s[0]} = $f;
       delete $s{$s[0]};
     }
   }
@@ -1070,12 +1073,14 @@ sub srcdiff {
 sub unifieddiff {
   my ($pold, $old, $pnew, $new, %opts) = @_;
 
-  $opts{'nodecomp'} = 1;
+  my $sim = $opts{'similar'} ? findsim($old, $new) : {};
   my @changed;
   my @added;
   my @deleted;
   for (sort(keys %{ { %$old, %$new } })) {
-    if (!defined($old->{$_})) {
+    if (defined($sim->{$_}) && $sim->{$_} ne $_) {
+      push @changed, $_ if $new->{$_};
+    } elsif (!defined($old->{$_})) {
       push @added, $_;
     } elsif (!defined($new->{$_})) {
       push @deleted, $_;
@@ -1087,12 +1092,31 @@ sub unifieddiff {
   my $revb = defined($opts{'newrevision'}) ? " (revision $opts{'newrevision'})" : '';
   my $d = '';
   for my $f (@changed) {
-    $d .= "Index: $f\n" . ("=" x 67) . "\n";
-    my $r = filediff(fn($pold, $f), fn($pnew, $f), %opts);
-    $d .= adddiffheader($r, "$f$orevb", "$f$revb");
+    my $of = defined($sim->{$f}) ? $sim->{$f} : $f;
+    if ($f ne $of) {
+      $d .= "Index: $of -> $f\n" . ("=" x 67) . "\n";
+    } else {
+      $d .= "Index: $f\n" . ("=" x 67) . "\n";
+    }
+    if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio)$/) {
+      my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
+      for my $r (@r) {
+        $d .= adddiffheader($r, "$r->{'name'}$orevb", "$r->{'name'}$revb");
+      }
+      next;
+    }
+    my $r = filediff(fn($pold, $of), fn($pnew, $f), %opts);
+    $d .= adddiffheader($r, "$of$orevb", "$f$revb");
   }
   for my $f (@added) {
     $d .= "Index: $f\n" . ("=" x 67) . "\n";
+    if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio)$/) {
+      my @r = tardiff(undef, fn($pnew, $f), %opts);
+      for my $r (@r) {
+        $d .= adddiffheader($r, "$r->{'name'} (added)", "$r->{'name'}$revb");
+      }
+      next;
+    }
     my $r = filediff(undef, fn($pnew, $f), %opts);
     $d .= adddiffheader($r, "$f (added)", "$f$revb");
   }
@@ -1111,8 +1135,7 @@ sub datadiff {
   my @added;
   my @deleted;
 
-  my $sim = {};
-  $sim = findsim($old, $new) if $opts{'similar'};
+  my $sim = $opts{'similar'} ? findsim($old, $new) : {};
 
   my %done;
   for my $f (sort(keys %$new)) {

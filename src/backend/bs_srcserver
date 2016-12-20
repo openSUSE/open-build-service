@@ -2815,6 +2815,7 @@ sub sourcediff {
   } elsif ($view eq 'unified') {
     delete $opts{'doarchive'};
     delete $opts{'similar'};
+    $opts{'nodecomp'} = 1;
     $opts{'oldrevision'} = $orev->{'rev'} if defined $orev->{'rev'};
     $opts{'newrevision'} = $rev->{'rev'} if defined $rev->{'rev'};
     $d = BSSrcdiff::unifieddiff($ofn, $ofiles, $fn, $files, %opts);
