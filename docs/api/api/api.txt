@@ -1041,13 +1041,6 @@ GET /build/
 XmlResult: directory
 
 
-GET /build/_workerstatus
-
-  Lists all running jobs, waiting jobs, status of the backend services and general statistics.
-
-XmlResult: workerstatus
-
-
 GET /build/<project>
 
   List all repositories of the specified project
@@ -1218,6 +1211,37 @@ Parameters:
   view: special view instead of plain logfile. "entry" shows the size and mtime of logfile.
 
 Result: Build log as text file.
+
+=== Worker
+
+GET /worker/_status
+
+  Lists all running jobs, waiting jobs, status of the backend services and general statistics.
+
+XmlResult: workerstatus
+
+
+GET /worker/<workerid>
+
+  Lists all capabilities of the worker. Can be used for constraints
+
+XmlResult: workercapability
+
+
+POST /worker?cmd=checkconstraints
+
+  Calculates the possible workers with a given contraints rule. Further required parameters
+  are:
+
+Parameters:
+  
+  project: project name
+  package: package name
+  arch: architecture
+  repository: name of repository
+
+XmlResult: directory
+
 
 === Control
 
