@@ -68,6 +68,8 @@ use BSSolv;
 use BSSched::ProjPacks;
 use BSRepServer;
 use BSRepServer::BuildInfo;
+use BSDispatcher::Constraints;
+use Build;
 
 use strict;
 
@@ -3553,6 +3555,56 @@ sub getajaxstatus {
   return ($r, $BSXML::ajaxstatus);
 }
 
+sub getworkercap {
+  my ($cgi, $workerid) = @_;
+
+  my $worker_cap;
+  for my $workerstate (qw{idle building away dead down}) {
+    $worker_cap ||= readxml("$workersdir/$workerstate/$workerid", $BSXML::worker, 1);
+  }
+  die("404 unknown worker\n") unless $worker_cap;
+  delete $worker_cap->{$_} for qw{port ip};
+  return ($worker_cap, $BSXML::worker);
+}
+
+sub checkconstraintsfile {
+  my ($cgi) = @_;
+  my $project = $cgi->{'project'};
+  my $repository = $cgi->{'repository'};
+  my $arch = $cgi->{'arch'};
+  my $package = $cgi->{'package'};
+  mkdir_p($uploaddir);
+  my @comp_workers;
+  my $uploaded = BSServer::read_file("$uploaddir/$$");
+  die("upload failed\n") unless $uploaded;
+  my $constraints = readxml("$uploaddir/$$", $BSXML::constraints);
+  unlink("$uploaddir/$$");
+  my $pconf = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$project", "repository=$repository");
+  my $prjconf = Build::read_config($arch, [ split("\n", $pconf)] );
+  my @list = map { [ split(' ', $_) ] } @{$prjconf->{'constraint'}};
+  my $prjconfconstraint = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@list);
+  $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
+
+  my $dispatch_constraints_info = {
+    'project' => $project,
+    'arch' => $arch,
+    'package' => $package,
+    'repository' => $repository,
+  };
+
+  for my $workerstate (qw{idle building away dead down}) {
+    my @workernames = sort(BSUtil::ls("$workersdir/$workerstate"));
+    for my $workername (@workernames) {
+      my $worker = readxml("$workersdir/$workerstate/$workername", $BSXML::worker, 1);
+      next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($dispatch_constraints_info, $worker, $constraints);
+      push(@comp_workers, $workername) if BSDispatcher::Constraints::oracle($worker, $constraints) > 0;
+    }
+  }
+  @comp_workers = sort @comp_workers;
+  @comp_workers = map {{'name' => $_}} @comp_workers;
+  return ({'entry' => \@comp_workers}, $BSXML::dir);
+}
+
 sub hello {
   my ($cgi) = @_;
   my $part = "";
@@ -3595,6 +3647,10 @@ my $dispatches = [
 
   # src server calls
   'POST:/event $type: $project $package? repository? arch? job? worker:job?' => \&forwardevent,
+
+  # worker capabilities
+  '/worker/$workerid' => \&getworkercap,
+  'POST:/worker cmd=checkconstraints $project $repository $arch $package' => \&checkconstraintsfile,
 
   # worker calls
   '!worker /worker $arch $port $state: workerid? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,

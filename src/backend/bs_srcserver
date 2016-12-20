@@ -5693,6 +5693,42 @@ sub hello {
 
 ####################################################################
 
+sub getworkercap {
+  my ($cgi) = @_;
+  my $reposerver = $BSConfig::masterdispatcher || $BSConfig::reposerver; # no need to look for partitioning here
+  my @args = BSRPC::args($cgi, 'workerid');
+  my $param = {
+    'uri' => "$reposerver/getworkercapabilities",
+    'timeout' => 60,
+  };
+
+  my $worker_cap = BSWatcher::rpc($param, $BSXML::worker, @args);
+
+  return($worker_cap, $BSXML::worker);
+}
+
+sub checkconstraintsfile {
+  my ($cgi) = @_;
+  checkprojrepoarch($cgi->{'project'}, $cgi->{'repository'}, $cgi->{'arch'});
+
+  my $reposerver = $BSConfig::masterdispatcher;
+  $reposerver ||= $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($cgi->{'project'}) : $BSConfig::reposerver;
+
+  my @args = BSRPC::args($cgi, 'project', 'repository', 'arch', 'package');
+
+  my $param = {
+    'uri' => "$reposerver/worker",
+    'request' => 'POST',
+    'data' => \&BSServer::forward_sender,
+    'chunked' => 1,
+  };
+
+  my $ret = BSWatcher::rpc($param, $BSXML::dir, "cmd=checkconstraints", @args);
+  return ($ret, $BSXML::dir);
+}
+
+####################################################################
+
 my $dispatches = [
   '/' => \&hello,
 
@@ -5772,6 +5808,10 @@ my $dispatches = [
   '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool? parseremote:bool? buildinfo:bool? partition:? view:?' => \&getprojpack,
   'POST:/relsync $project $repository $arch' => \&postrelsync,
   '/relsync $project $repository $arch' => \&getrelsync,
+
+  # worker capabilities
+  '/worker/$workerid' => \&getworkercap,
+  'POST:/worker cmd=checkconstraints $project $repository $arch $package' => \&checkconstraintsfile,
 
   # worker calls
   '/getsources $project $package $srcmd5:md5' => \&getsources,
