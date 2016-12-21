@@ -991,12 +991,8 @@ sub srcdiff {
 
   for my $extra ('changes', 'filelist', 'spec', 'dsc') {
     if ($extra eq 'filelist') {
-      my @xold = sort keys %$old;
-      my @xnew = sort keys %$new;
-      my %xold = map {$_ => 1} @xold;
-      my %xnew = map {$_ => 1} @xnew;
-      @xnew = grep {!$xold{$_}} @xnew;
-      @xold = grep {!$xnew{$_}} @xold;
+      my @xold = grep {!exists($new->{$_})} sort keys %$old;
+      my @xnew = grep {!exists($old->{$_})} sort keys %$new;
       if (@xold) {
 	$d .= "\nold:\n----\n";
 	$d .= "  $_\n" for @xold;
