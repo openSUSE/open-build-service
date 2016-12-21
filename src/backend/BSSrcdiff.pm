@@ -698,6 +698,7 @@ sub extractit {
   return extracttar($f, $cp);
 }
 
+# find renamed files. currently only looks for same content
 sub findren {
   my ($old, $new) = @_;
 
@@ -753,7 +754,7 @@ sub tardiff {
   my $tfmax = $opts{'tfmax'};
   my $tfmaxc = $opts{'tfmaxc'};
   my $edir = $opts{'edir'};
-  die("doarchive needs an edir option\n") unless $edir;
+  die("doarchive needs the edir option\n") unless $edir;
 
   my @l1 = listit($f1);
   my @l2 = listit($f2);
@@ -887,25 +888,14 @@ my @simclasses = (
 sub findsim {
   my ($old, $new) = @_;
 
-  my @of = sort keys %$old;
-  my @f = sort keys %$new;
+  # find free files
+  my @f = grep {!exists($old->{$_})} sort keys %$new;
+  my @of = grep {!exists($new->{$_})} sort keys %$old;
 
-  my %s = map {$_ => 1} @of;	# old file pool
-  my %sim;
-
+  # classify them
   my %fc;	# file base name
   my %ft;	# file class
-
-  for my $f (@f) {
-    if ($s{$f}) {
-      $sim{$f} = $f;	# trivial mapped
-      delete $s{$f};
-    }
-  }
-
-  # classify all files
   for my $f (@f, @of) {
-    next if $sim{$f};	# trivial mapped
     next unless $f =~ /\./;
     next if exists $fc{$f};
     for my $sc (@simclasses) {
@@ -925,6 +915,9 @@ sub findsim {
       }
     }
   }
+
+  my %sim;
+  my %s = map {$_ => 1} @of;	# old file pool
 
   # first pass: exact matches
   for my $f (grep {!exists($sim{$_})} @f) {
@@ -975,9 +968,6 @@ sub findsim {
     }
   }
 
-  #for my $f (@f) {
-  #  print "$f -> $sim{$f}\n";
-  #}
   return \%sim;
 }
 
@@ -997,12 +987,7 @@ sub srcdiff {
 
   my @old = sort keys %$old;
   my @new = sort keys %$new;
-  my $sim;
-  if ($opts{'similar'}) {
-    $sim = findsim($old, $new);
-  } else {
-    $sim = { map {$_ => $_} grep {exists $old->{$_}} @new };
-  }
+  my $sim = $opts{'similar'} ? findsim($old, $new) : {};
 
   for my $extra ('changes', 'filelist', 'spec', 'dsc') {
     if ($extra eq 'filelist') {
@@ -1058,7 +1043,7 @@ sub srcdiff {
     $d .= "--------------\n";
   }
   for my $f (@new) {
-    my $of = $sim->{$f};
+    my $of = exists($sim->{$f}) ? $sim->{$f} : defined($old->{$f}) ? $f : undef;
     if (defined $of) {
       delete $oold{$of};
       $d .= "\n++++++ $of -> $f\n" if $of ne $f;
