@@ -862,9 +862,7 @@ class User < ApplicationRecord
   def involved_patchinfos
     array = Array.new
 
-    rel = PackageIssue.joins(:issue).where(issues: { state: 'OPEN', owner_id: id})
-    rel = rel.joins('LEFT JOIN package_kinds ON package_kinds.package_id = package_issues.package_id')
-    ids = rel.where('package_kinds.kind="patchinfo"').pluck('distinct package_issues.package_id')
+    ids = PackageIssue.open_issues_of_owner(id).with_patchinfo.distinct.pluck(:package_id)
 
     Package.where(id: ids).each do |p|
       hash = {package: {project: p.project.name, name: p.name}}
