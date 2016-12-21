@@ -844,7 +844,7 @@ class Package < ActiveRecord::Base
     directory_hash = Directory.hashed(project: project, package: package)
     linkinfo = directory_hash["linkinfo"] || {}
 
-    "#{package}.#{linkinfo['project'] || project}"
+    "#{linkinfo['package'] || package}.#{linkinfo['project'] || project}".gsub(/:/, '_')
   end
 
   def linkinfo
