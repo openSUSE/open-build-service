@@ -709,6 +709,28 @@ sub extractit {
   return extracttar($f, $cp);
 }
 
+sub findren {
+  my ($old, $new) = @_;
+
+  my %l1md5;
+  for my $f (grep {!$new->{$_}} sort keys %$old) {
+    my $l = $old->{$f};
+    next unless $l->{'type'} eq '-' && $l->{'size'};
+    $l1md5{$l->{'info'}} = $f;
+  }
+  my %ren;
+  for my $f (grep {!$old->{$_}} sort keys %$new) {
+    my $l = $new->{$f};
+    next unless $l->{'type'} eq '-' && $l->{'size'};
+    next unless exists $l1md5{$l->{'info'}};
+    my $of = $l1md5{$l->{'info'}};
+    $ren{$of} = $f;
+    $ren{$f} = $of;
+    delete $l1md5{$l->{'info'}};	# used up
+  }
+  return \%ren;
+}
+
 sub tardiff {
   my ($f1, $f2, %opts) = @_;
 
@@ -736,50 +758,41 @@ sub tardiff {
 
   my %l1 = map {$_->{'sname'} => $_} @l1;
   my %l2 = map {$_->{'sname'} => $_} @l2;
-  my @f = sort keys %{ { %l1, %l2 } };
-
+  # get rid of excluded files
+  delete $l1{''};
+  delete $l2{''};
+  
   # find renamed files
-  my %l1md5;
-  for (@l1) {
-    next unless $_->{'type'} eq '-' && $_->{'size'} && $_->{'sname'} ne '';
-    $l1md5{$_->{'info'}} = $_;
-  }
-  my %ren;
-  for my $l2 (@l2) {
-    next unless $l2->{'type'} eq '-' && $l2->{'size'};
-    my $f = $l2->{'sname'};
-    next if $f eq '' || $l1{$f};
-    my $l1 = $l1md5{$l2->{'info'}};
-    next unless $l1 && !$l2{$l1->{'sname'}};
-    $ren{$l1->{'sname'}} = $f;
-    $ren{$f} = $l1->{'sname'};
-    delete $l1md5{$l2->{'info'}};	# used up
-  }
-  %l1md5 = (); 	# free mem
+  my $ren = findren(\%l1, \%l2);
+
+  my @f = sort keys %{ { %l1, %l2 } };
 
   my $e1cnt = 0;
   my $e2cnt = 0;
-
   my @efiles;
   my $memsize = 50000000;
   for my $f (@f) {
-    next if $f eq '';
-    next if $ren{$f};
     my $l1 = $l1{$f};
     my $l2 = $l2{$f};
+    if (exists $ren->{$f}) {
+      next unless $l2;
+      $l1 = $l1{$ren->{$f}};
+    }
     next if $l1 && $l2 && $l1->{'type'} eq $l2->{'type'} && $l1->{'info'} eq $l2->{'info'};
     if ($l1 && $l1->{'size'} && $l1->{'type'} eq '-') {
       my $suf1 = '';
       $suf1 = ".$1" if $l1->{'name'} =~ /\.(gz|xz|bz2)$/;
-      $l1->{'extract'} = "$edir/a$e1cnt$suf1";
-      push @efiles, "$edir/a$e1cnt$suf1";
+      my $exfile = "$edir/a$e1cnt$suf1";
+      $l1->{'extract'} = $exfile;
+      push @efiles, $exfile;
       $e1cnt++;
     }
     if ($l2 && $l2->{'size'} && $l2->{'type'} eq '-') {
       my $suf2 = '';
       $suf2 = ".$1" if $l2->{'name'} =~ /\.(gz|xz|bz2)$/;
-      $l2->{'extract'} = "$edir/b$e2cnt$suf2";
-      push @efiles, "$edir/b$e2cnt$suf2";
+      my $exfile = "$edir/b$e2cnt$suf2";
+      $l2->{'extract'} = $exfile;
+      push @efiles, $exfile;
       $e2cnt++;
     }
     if ($havelibxdiff) {
@@ -811,24 +824,23 @@ sub tardiff {
   my @ret;
   my $ccnt = 0;
   for my $f (@f) {
-    next if $f eq '';
     my $l1 = $l1{$f};
     my $l2 = $l2{$f};
     next unless $l1 || $l2;
-    if ($ren{$f}) {
+    if ($ren->{$f}) {
       if (!$l1) {
-	my $r = {'name' => $f, 'lines' => 1, '_content' => "(renamed from $ren{$f})\n"};
+	my $r = {'name' => $f, 'lines' => 1, '_content' => "(renamed from $ren->{$f})\n"};
 	$r->{'new'} = {'name' => $f, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}};
 	push @ret, $r;
 	$lcnt += $r->{'lines'};
 	next;
       }
-      $l2 = $l2{$ren{$f}};
+      $l2 = $l2{$ren->{$f}};
       # no need to diff if identical
       if ($l1->{'type'} eq $l2->{'type'} && $l1->{'info'} eq $l2->{'info'}) {
-	my $r = {'name' => $f, 'lines' => 1, '_content' => "(renamed to $ren{$f})\n"};
+	my $r = {'name' => $f, 'lines' => 1, '_content' => "(renamed to $ren->{$f})\n"};
 	$r->{'old'} = {'name' => $f, 'md5' => $l1->{'info'}, 'size' => $l1->{'size'}};
-	$r->{'new'} = {'name' => $ren{$f}, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}};
+	$r->{'new'} = {'name' => $ren->{$f}, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}};
 	$lcnt += $r->{'lines'};
 	next;
       }
@@ -844,9 +856,9 @@ sub tardiff {
     $r->{'name'} = $f;
     $r->{'old'} = {'name' => $f, 'md5' => $l1->{'info'}, 'size' => $l1->{'size'}} if $l1;
     $r->{'new'} = {'name' => $f, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}} if $l2;
-    if ($ren{$f}) {
-      $r->{'new'}->{'name'} = $ren{$f};
-      $r->{'_content'} = "(renamed to $ren{$f})\n" . ($r->{'content'} || '');
+    if ($ren->{$f}) {
+      $r->{'new'}->{'name'} = $ren->{$f};
+      $r->{'_content'} = "(renamed to $ren->{$f})\n" . ($r->{'content'} || '');
       $r->{'lines'} = ($r->{'lines'} || 0) + 1;
     }
     push @ret, $r;
