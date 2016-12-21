@@ -14,3 +14,4 @@ jquery-ui.patch
 missing-codemirror-js.patch
 Do-not-ship-database.yml.patch
 localgem.patch
+disable-slp.patch

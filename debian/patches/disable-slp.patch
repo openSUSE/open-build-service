@@ -1,0 +1,16 @@
+Description: disable SLP in obs-server conf as debian drop slptool from archive
+Author: Andrew Lee (李健秋) <ajqlee@debian.org>
+Bug-Debian: https://bugs.debian.org/848855
+Last-Update: 2016-12-21
+
+--- open-build-service-2.7.1.orig/dist/sysconfig.obs-server
++++ open-build-service-2.7.1/dist/sysconfig.obs-server
+@@ -154,7 +154,7 @@ OBS_WORKER_HOSTLABELS=""
+ ## Config:      OBS
+ #
+ #
+-OBS_USE_SLP="yes"
++OBS_USE_SLP="no"
+ 
+ ## Path:        Applications/OBS
+ ## Description: Use a common cache directory for downloaded packages
