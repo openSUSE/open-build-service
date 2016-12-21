@@ -129,21 +129,17 @@
 
 <div class="clear"></div>
 
- <% if @reviews.present? %>
+<% if @reviews %>
   <div class="grid_16 alpha omega box box-shadow">
     <div id="reviews">
       <div class="box-header header-tabs">
         <ul>
-          <% if @reviews.count > 0 %>
-            <li><a href="#reviews_in" title="Requests that <%= @displayed_user.login %> has to review">Incoming Reviews</a></li>
-          <% end %>
+          <li><a href="#reviews_in" title="Requests that <%= @displayed_user.login %> has to review">Incoming Reviews</a></li>
         </ul>
       </div>
-      <% if @reviews.count > 0 %>
-        <div id="reviews_in" class="tab">
-          <%= render(:partial => 'shared/requests', :locals => { :requests => @reviews, :request_table_id => 'reviews_in_table', :hide_state => true, :serverProcessing => true }) %>
-        </div>
-      <% end %>
+      <div id="reviews_in" class="tab">
+        <%= render(:partial => 'shared/requests', :locals => { :request_table_id => 'reviews_in_table', :hide_state => true, :serverProcessing => true }) %>
+      </div>
    </div>
   </div>
 <% end %>
@@ -159,13 +155,13 @@
       </ul>
     </div>
       <div id="requests_in" class="tab">
-        <%= render(:partial => 'shared/requests', :locals => { :requests => @requests_in, :request_table_id => 'requests_in_table', :hide_state => true, :serverProcessing => true }) %>
+        <%= render(:partial => 'shared/requests', :locals => { :request_table_id => 'requests_in_table', :hide_state => true, :serverProcessing => true }) %>
       </div>
       <div id="requests_out" class="tab">
-        <%= render(:partial => 'shared/requests', :locals => { :requests => @requests_out, :request_table_id => 'requests_out_table', :hide_state => true, :serverProcessing => true }) %>
+        <%= render(:partial => 'shared/requests', :locals => { :request_table_id => 'requests_out_table', :hide_state => true, :serverProcessing => true }) %>
       </div>
       <div id="requests_declined" class="tab">
-        <%= render(:partial => 'shared/requests', :locals => { :requests => @declined_requests, :request_table_id => 'requests_declined_table', :hide_state => true, :serverProcessing => true }) %>
+        <%= render(:partial => 'shared/requests', :locals => { :request_table_id => 'requests_declined_table', :hide_state => true, :serverProcessing => true }) %>
       </div>
       <div id="all_requests" class="tab">
         <%= render(:partial => 'shared/requests', :locals => { :request_table_id => 'all_requests_table', :hide_state => true, :serverProcessing => true }) %>

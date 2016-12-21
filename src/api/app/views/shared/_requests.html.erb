@@ -3,6 +3,7 @@
   request_table_id ||= 'request_table'
   hide_state ||= false
   no_target ||= false
+  requests ||= nil
   paginate = serverProcessing || (!requests.nil? && requests.count > 25)
   if serverProcessing
     sort_columns = ['null', "{'orderable': false}", '{\'orderable\': false}']
