@@ -315,9 +315,9 @@ sub cpiomode {
     $mm .= $m & $b ? $_ : '-';
     $b >>= 1;
   }
-  substr($mm, 2, 1) = substr($mm, 2, 1) eq 'x' ? 'S' : 's' if $m & 0x800;
-  substr($mm, 5, 1) = substr($mm, 5, 1) eq 'x' ? 'S' : 's' if $m & 0x400;
-  substr($mm, 8, 1) = substr($mm, 8, 1) eq 'x' ? 'T' : 'T' if $m & 0x200;
+  substr($mm, 2, 1) = substr($mm, 2, 1) eq 'x' ? 's' : 'S' if $m & 0x800;
+  substr($mm, 5, 1) = substr($mm, 5, 1) eq 'x' ? 's' : 'S' if $m & 0x400;
+  substr($mm, 8, 1) = substr($mm, 8, 1) eq 'x' ? 't' : 'T' if $m & 0x200;
   return $mm;
 }
 
@@ -344,16 +344,20 @@ sub listextractcpio {
     $name = substr($name, 0, $nsize);
     $name =~ s/\0.*//s;
     my $type = $mode & 0xf000;
-    if ($type == 0x4000) {
-      $type = 'd';
+    if ($type == 0x1000) {
+      $type = 'p';
     } elsif ($type == 0x2000) {
       $type = 'c';
     } elsif ($type == 0x4000) {
+      $type = 'd';
+    } elsif ($type == 0x6000) {
       $type = 'b';
     } elsif ($type == 0x8000) {
       $type = '-';
     } elsif ($type == 0xa000) {
       $type = 'l';
+    } elsif ($type == 0xc000) {
+      $type = 's';
     } else {
       $type = '?';
     }
