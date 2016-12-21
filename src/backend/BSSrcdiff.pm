@@ -172,7 +172,6 @@ sub opentar {
 #
 # entries have the following attributes:
 #
-#  sname: name we are using for diffing
 #   name: name in tar file
 #   type: [-dlbcp] type of file
 #   size: size in bytes
@@ -686,16 +685,6 @@ sub adddiffheader {
   return $r->{'_content'};
 }
 
-# strip first dir if it is the same for all files
-sub stripfirstdir {
-  my ($l) = @_;
-  return unless @$l;
-  my $l1 = $l->[0]->{'sname'};
-  $l1 =~ s/\/.*//s;
-  return if grep {!($_->{'sname'} eq $l1 || $_->{'sname'} =~ /^\Q$l1\E\//)} @$l;
-  $_->{'sname'} =~ s/^[^\/]*\/?// for @$l;
-}
-
 sub listit {
   my ($f) = @_;
   return listgem($f) if $f =~ /\.gem$/;
@@ -731,6 +720,30 @@ sub findren {
   return \%ren;
 }
 
+sub findtarfiles {
+  my ($files) = @_;
+
+  my @names = map {$_->{'name'}} @$files;
+  # strip ./ prefix
+  s/^\.\/// for @names;
+  if (@names) {
+    # strip first dir if it is the same for all files
+    my $l1 = $names[0];
+    $l1 =~ s/\/.*//s;
+    if (!grep {!($_ eq $l1 || $_ =~ /^\Q$l1\E\//)} @names) {
+      s/^[^\/]*\/?// for @names;
+    }
+  }
+  # exclude some files
+  for (@names) {
+    $_ = '' if "/$_/" =~ /\/(?:CVS|\.cvsignore|\.svn|\.svnignore)\//;
+  }
+  my %l;
+  $l{shift @names} = $_ for @$files;
+  delete $l{''};
+  return \%l;
+}
+
 sub tardiff {
   my ($f1, $f2, %opts) = @_;
 
@@ -740,43 +753,30 @@ sub tardiff {
   my $tfmax = $opts{'tfmax'};
   my $tfmaxc = $opts{'tfmaxc'};
   my $edir = $opts{'edir'};
+  die("doarchive needs an edir option\n") unless $edir;
 
   my @l1 = listit($f1);
   my @l2 = listit($f2);
 
-  die("doarchive needs an edir option\n") unless $edir;
-  for (@l1, @l2) {
-    $_->{'sname'} = $_->{'name'};
-    $_->{'sname'} =~ s/^\.\///;
-  }
-  stripfirstdir(\@l1);
-  stripfirstdir(\@l2);
+  # find the files we want to diff
+  my $t1 = findtarfiles(\@l1);
+  my $t2 = findtarfiles(\@l2);
 
-  for (@l1, @l2) {
-    $_->{'sname'} = '' if "/$_->{'sname'}/" =~ /\/(?:CVS|\.cvsignore|\.svn|\.svnignore)\//;
-  }
-
-  my %l1 = map {$_->{'sname'} => $_} @l1;
-  my %l2 = map {$_->{'sname'} => $_} @l2;
-  # get rid of excluded files
-  delete $l1{''};
-  delete $l2{''};
-  
   # find renamed files
-  my $ren = findren(\%l1, \%l2);
+  my $ren = findren($t1, $t2);
 
-  my @f = sort keys %{ { %l1, %l2 } };
+  my @f = sort keys %{ { %$t1, %$t2 } };
 
   my $e1cnt = 0;
   my $e2cnt = 0;
   my @efiles;
   my $memsize = 50000000;
   for my $f (@f) {
-    my $l1 = $l1{$f};
-    my $l2 = $l2{$f};
+    my $l1 = $t1->{$f};
+    my $l2 = $t2->{$f};
     if (exists $ren->{$f}) {
       next unless $l2;
-      $l1 = $l1{$ren->{$f}};
+      $l1 = $t1->{$ren->{$f}};
     }
     next if $l1 && $l2 && $l1->{'type'} eq $l2->{'type'} && $l1->{'info'} eq $l2->{'info'};
     if ($l1 && $l1->{'size'} && $l1->{'type'} eq '-') {
@@ -824,8 +824,8 @@ sub tardiff {
   my @ret;
   my $ccnt = 0;
   for my $f (@f) {
-    my $l1 = $l1{$f};
-    my $l2 = $l2{$f};
+    my $l1 = $t1->{$f};
+    my $l2 = $t2->{$f};
     next unless $l1 || $l2;
     if ($ren->{$f}) {
       if (!$l1) {
@@ -835,7 +835,7 @@ sub tardiff {
 	$lcnt += $r->{'lines'};
 	next;
       }
-      $l2 = $l2{$ren->{$f}};
+      $l2 = $t2->{$ren->{$f}};
       # no need to diff if identical
       if ($l1->{'type'} eq $l2->{'type'} && $l1->{'info'} eq $l2->{'info'}) {
 	my $r = {'name' => $f, 'lines' => 1, '_content' => "(renamed to $ren->{$f})\n"};
