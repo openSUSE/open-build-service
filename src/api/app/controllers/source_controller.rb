@@ -480,24 +480,24 @@ class SourceController < ApplicationController
     end
 
     # projects using remote resources must be edited by the admin
-    error = Project.validate_remote_permissions(request_data)
-    if error[:error]
+    result = Project.validate_remote_permissions(request_data)
+    if result[:error]
       raise ChangeProjectNoPermission, 'admin rights are required to change projects using remote resources'
     end
 
-    error = Project.validate_link_xml_attribute(request_data, project_name)
-    if error[:error]
-      raise ProjectReadAccessFailure, error[:error]
+    result = Project.validate_link_xml_attribute(request_data, project_name)
+    if result[:error]
+      raise ProjectReadAccessFailure, result[:error]
     end
 
-    error = Project.validate_maintenance_xml_attribute(request_data)
-    if error[:error]
-      raise ModifyProjectNoPermission, error[:error]
+    result = Project.validate_maintenance_xml_attribute(request_data)
+    if result[:error]
+      raise ModifyProjectNoPermission, result[:error]
     end
 
-    error = Project.validate_repository_xml_attribute(request_data, project_name)
-    if error[:error]
-      raise RepositoryAccessFailure, error[:error]
+    result = Project.validate_repository_xml_attribute(request_data, project_name)
+    if result[:error]
+      raise RepositoryAccessFailure, result[:error]
     end
 
     if project
@@ -525,14 +525,14 @@ class SourceController < ApplicationController
   end
 
   def check_and_remove_repositories!(repositories, opts)
-    error = Project.check_repositories(repositories) unless opts[:force]
-    if !opts[:force] && error[:error]
-      raise RepoDependency, error[:error]
+    result = Project.check_repositories(repositories) unless opts[:force]
+    if !opts[:force] && result[:error]
+      raise RepoDependency, result[:error]
     else
-      error = Project.remove_repositories(repositories, opts)
+      result = Project.remove_repositories(repositories, opts)
 
-      if !opts[:force] && error[:error]
-        raise ChangeProjectNoPermission, error[:error]
+      if !opts[:force] && result[:error]
+        raise ChangeProjectNoPermission, result[:error]
       end
     end
   end
