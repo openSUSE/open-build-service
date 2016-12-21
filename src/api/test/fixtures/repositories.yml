@@ -84,3 +84,7 @@ repositories_97:
   id: 97
   name: BrokenPublishing_repo
   project: BrokenPublishing
+kde4_standard:
+  id: 98
+  name: kde4_standard
+  project: kde4

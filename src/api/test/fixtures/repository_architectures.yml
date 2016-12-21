@@ -122,3 +122,8 @@ repository_architectures_broken_publishing:
   position: 0
   id: 940713216
   architecture: i586
+kde4_repo_arch:
+  repository_id: 98
+  position: 0
+  id: 940713217
+  architecture: s390
