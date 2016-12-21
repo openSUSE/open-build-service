@@ -1,7 +1,7 @@
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 # Prevent database truncation if the environment is production
-abort("The Rails environment is running in production mode!") if Rails.env.production?
+abort('The Rails environment is running in production mode!') if Rails.env.production?
 # as our base helper
 require 'spec_helper'
 # for rails
@@ -11,6 +11,8 @@ require 'simplecov'
 # for tracking test coverage on
 # https://coveralls.io/github/openSUSE/open-build-service
 require 'coveralls'
+# for pundit policy
+require 'pundit/rspec'
 
 # check for pending migration and apply them before tests are run.
 ActiveRecord::Migration.maintain_test_schema!
