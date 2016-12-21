@@ -6,11 +6,12 @@
     </a>
    </li>
   <% end %>
-  <% if comment.check_delete_permissions %>
+  <% if policy(comment).destroy? %>
       <li>
         <%= link_to(sprited_text('comment_delete', 'Delete'),
-                    {controller: :comments, action: :destroy,
-                     id: comment.id}, method: :delete) %>
+                    {controller: :comments, action: :destroy, id: comment.id},
+                    method: :delete, id: "delete_link_id_#{comment.id}",
+                    'data-confirm': 'Do you really want delete this comment?') %>
       </li>
   <% end %>
 <% end %>

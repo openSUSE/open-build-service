@@ -1,11 +1,7 @@
 class Webui::CommentsController < Webui::WebuiController
   def destroy
     comment = Comment.find(params[:id])
-    unless comment.check_delete_permissions
-      flash[:error] = 'No permissions to delete comment'
-      redirect_back(fallback_location: root_path)
-      return
-    end
+    authorize comment, :destroy?
     comment.blank_or_destroy
 
     respond_to do |format|
