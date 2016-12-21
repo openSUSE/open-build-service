@@ -130,7 +130,6 @@ Depends: apt-utils,
          psmisc,
          rpm,
          screen,
-         slptool,
          util-linux (>= 2.16),
          ${misc:Depends},
          ${shlibs:Depends}
