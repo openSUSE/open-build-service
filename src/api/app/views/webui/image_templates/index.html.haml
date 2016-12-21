@@ -8,10 +8,10 @@
       %dl.templateslist
         %dt
           = link_to(title_or_name(project), project_show_path(project))
-        - project.packages.each.with_index(1) do |template, index|
+        - project.packages.each do |template|
           %label
-            %input{ name: 'image', type: 'radio', class: 'hidden image_template', checked: check_first(index), data: { project: project, package: template } }
-            - first_template = template if index == 1
+            %input{ name: 'image', type: 'radio', class: 'hidden image_template', checked: check_first(first_template), data: { project: project, package: template } }
+            - first_template ||= template
             %dd
               %span.form-radio
               - if template.has_icon?
@@ -25,7 +25,9 @@
                   = template.description
         - if project.packages.empty?
           %p
-            There are currently no base image templates available for project <strong>#{title_or_name(project)}</strong>.
+            There are currently no base image templates available for project
+            = succeed '.' do
+              %strong= title_or_name(project)
   - if first_template && User.current
     .templates_form
       = form_tag({ controller: :package, action: :save_new_link, project: User.current.home_project_name }, method: :post, id: 'appliance_form') do
