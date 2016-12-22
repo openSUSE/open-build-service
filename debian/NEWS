@@ -1,0 +1,8 @@
+open-build-service (2.7.1-9) unstable; urgency=medium
+
+    SLP is no longer supported in open-build-service package: if you
+    have previous version installed. Please set OBS_USE_SLP="no" in
+    your /etc/default/obs-server conf file as slptool is sechduled to be
+    drop from debian. See more details on #848855.
+
+ -- Andrew Lee (李健秋) <andrew.lee@collabora.co.uk>  Thu, 22 Dec 2016 14:33:17 +0800
