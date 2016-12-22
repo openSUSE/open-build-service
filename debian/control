@@ -80,7 +80,7 @@ Standards-Version: 3.9.8
 Homepage: http://en.opensuse.org/Build_Service
 
 Package: obs-server
-Architecture: any
+Architecture: all
 Depends: apt-utils,
          adduser,
          diffutils,
@@ -112,7 +112,7 @@ Description: Open Build Service (server component)
  it.
 
 Package: obs-worker
-Architecture: any
+Architecture: all
 Depends: apt-utils,
          adduser,
          binutils,
@@ -139,7 +139,7 @@ Description: Open Build Service (build host component)
  run a local playground test installation.
 
 Package: obs-api
-Architecture: any
+Architecture: all
 Depends: apache2,
          dbconfig-common,
          gsfonts,
@@ -228,7 +228,7 @@ Description: Open Build Service (api)
  This is the API server instance for the OBS.
 
 Package: obs-productconverter
-Architecture: any
+Architecture: all
 Depends: ${misc:Depends},
          ${shlibs:Depends}
 Description: Open Build Service (product definition utility)
@@ -236,7 +236,7 @@ Description: Open Build Service (product definition utility)
  from a product definition.
 
 Package: obs-utils
-Architecture: any
+Architecture: all
 Depends: osc,
          ruby,
          ${misc:Depends},
