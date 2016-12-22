@@ -222,7 +222,7 @@ Depends: apache2,
          ${shlibs:Depends}
 Recommends: default-mysql-server | mysql-server
 Suggests: obs-server
-Breaks: obs-webui, obs-server (<= 2.7.1-3)
+Breaks: obs-server (<= 2.7.1-3)
 Provides: obs-webui
 Description: Open Build Service (api)
  This is the API server instance for the OBS.
