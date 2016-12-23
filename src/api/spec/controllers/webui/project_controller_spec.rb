@@ -543,7 +543,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           get :create, params: { :project => { name: 'my_project' }, :ns => user.home_project_name, param_name.to_sym => true }
         end
 
-        it { expect(assigns(:project).flags.pluck(:flag)).to include(flag_name) }
+        it { expect(assigns(:project).flags.first.flag).to eq(flag_name) }
         it { expect(assigns(:project).flags.find_by(flag: flag_name).status).to eq('disable') }
         it_should_behave_like "a valid project saved"
       end
