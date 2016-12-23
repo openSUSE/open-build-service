@@ -407,6 +407,11 @@ class ApplicationController < ActionController::Base
     render_error message: exception.message, status: 404, errorcode: 'not_route'
   end
 
+  rescue_from Pundit::NotAuthorizedError do
+    message = "You are not authorized to perform this action."
+    render_error status: 403, errorcode: 'not_authorized', message: message
+  end
+
   def permissions
     @user_permissions
   end

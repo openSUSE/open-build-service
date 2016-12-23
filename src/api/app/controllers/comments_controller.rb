@@ -13,9 +13,7 @@ class CommentsController < ApplicationController
 
   def destroy
     comment = Comment.find params[:id]
-    unless comment.check_delete_permissions
-      raise NoPermission.new "No permission to delete #{params[:id]}"
-    end
+    authorize comment, :destroy?
     comment.blank_or_destroy
     render_ok
   end
