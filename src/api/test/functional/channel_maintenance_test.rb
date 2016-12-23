@@ -210,22 +210,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert node.has_attribute?(:id)
     id3 = node.value(:id)
 
-    # second one for failing permission test on lock
-    put "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/dummy", "dummy change"
-    assert_response :success
-    post '/request?cmd=create&addrevision=1', '<request>
-                                   <action type="maintenance_incident">
-                                     <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
-                                   </action>
-                                   <state name="new" />
-                                   <description>To fix my other bug</description>
-                                 </request>'
-    assert_response :success
-    assert_xml_tag( tag: 'target', attributes: { project: 'My:Maintenance' } )
-    node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:id)
-    id4 = node.value(:id)
-
     # validate that request is diffable and that the linked package is not double diffed
     post "/request/#{id2}?cmd=diff&view=xml", nil
     assert_response :success
@@ -557,13 +541,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
-
-    # we are not allowed to modify the target anymore, because packages are locked now
-    post "/request/#{id4}?cmd=setincident&incident=#{incidentProject.gsub(/.*:/, '')}"
-    assert_response :success
-    post "/request/#{id4}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
-    assert_response 403
-    assert_xml_tag tag: "status", attributes: { code: "post_request_no_permission" }
 
     # revoke the release request request
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
