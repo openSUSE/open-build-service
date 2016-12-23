@@ -1,5 +1,6 @@
 # encoding: UTF-8
 # rubocop:disable Metrics/LineLength
+# rubocop:disable Metrics/ClassLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'request_controller'
 
@@ -51,6 +52,15 @@ XML
     assert_select "request", id: new_request_id do
       assert_select "state", name: "new"
     end
+  end
+
+  def test_invalid_command
+    post '/request?cmd=INVALID'
+    assert_response 401
+    login_king
+    post '/request?cmd=INVALID'
+    assert_response 400
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_command' })
   end
 
   def test_get_requests_collection
@@ -1526,9 +1536,9 @@ XML
     # id2 = node.value(:id)
 
     # delete projects
-    delete '/source/home:tom:branches:kde4'
-    assert_response :success
     delete '/source/home:tom:branches:home:tom:branches:kde4'
+    assert_response :success
+    delete '/source/home:tom:branches:kde4'
     assert_response :success
 
     # request got automatically revoked

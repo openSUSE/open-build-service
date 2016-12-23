@@ -74,7 +74,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequestAction#create_expand_package'                                   => 443.16,
       'BsRequestAction#default_reviewers'                                       => 141.02,
       'BsRequestAction#store_from_xml'                                          => 88.01,
-      'BsRequestActionMaintenanceIncident#_merge_pkg_into_maintenance_incident' => 130.81,
+      'BsRequestActionMaintenanceIncident#_merge_pkg_into_maintenance_incident' => 153.15,
       'BsRequestActionMaintenanceRelease#sanity_check!'                         => 81.82,
       'BsRequestActionSubmit#execute_accept'                                    => 126.42,
       'BsRequestPermissionCheck#cmd_changestate_permissions'                    => 117.09,
@@ -101,6 +101,8 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::PackageController#submit_request'                                 => 101.98,
       'Webui::PatchinfoController#save'                                         => 240.1,
       'Webui::ProjectController#check_devel_package_status'                     => 81.95,
+      'Webui::ProjectController#save_meta'                                      => 83.61,
+      'Webui::RequestController#show'                                           => 91.96,
       'Webui::SearchController#set_parameters'                                  => 98.04,
       'WizardController#package_wizard'                                         => 97.46
   }

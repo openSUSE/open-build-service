@@ -1728,16 +1728,6 @@ class Project < ActiveRecord::Base
     {}
   end
 
-  def check_and_remove_repositories(request_data, full_remove = false)
-    remove_repositories = get_removed_repositories(request_data)
-    error = Project.check_repositories(remove_repositories)
-
-    return error if error[:error]
-
-    error = Project.remove_repositories(remove_repositories, full_remove)
-    error[:error] ? error : {}
-  end
-
   def get_removed_repositories(request_data)
     new_repositories = request_data.elements('repository').map(&:values).flatten
     old_repositories = repositories.all.map(&:name)
@@ -1773,7 +1763,8 @@ class Project < ActiveRecord::Base
     {}
   end
 
-  def self.remove_repositories(repositories, full_remove = false)
+  # opts: recursive_remove no_write_to_backend
+  def self.remove_repositories(repositories, opts = {})
     deleted_repository = Repository.deleted_instance
 
     repositories.each do |repo|
@@ -1781,10 +1772,13 @@ class Project < ActiveRecord::Base
       project = repo.project
 
       # full remove, otherwise the model will take care of the cleanup
-      if full_remove
+      if opts[:recursive_remove]
         # recursive for INDIRECT linked repositories
         unless linking_repositories.length < 1
-          Project.remove_repositories(linking_repositories, true)
+          # FIXME: we would actually need to check for :no_write_to_backend here as well
+          #        but the calling code is currently broken and would need the starting
+          #        project different
+          Project.remove_repositories(linking_repositories, {recursive_remove: true})
         end
 
         # try to remove the repository
@@ -1802,7 +1796,7 @@ class Project < ActiveRecord::Base
       if Repository.exists?(repo.id) && repository
         logger.info "destroy repo #{repository.name} in '#{project.name}'"
         repository.destroy
-        project.store({ lowprio: true }) # low prio storage
+        project.store({ lowprio: true }) unless opts[:no_write_to_backend]
       end
     end
     {}
