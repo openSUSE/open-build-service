@@ -3,7 +3,6 @@ require 'project'
 
 class Webui::PackageController < Webui::WebuiController
   require_dependency 'opensuse/validator'
-  include Webui::HasComments
   include ParsePackageDiff
   include Webui::PackageHelper
   include Escaper
@@ -31,8 +30,7 @@ class Webui::PackageController < Webui::WebuiController
                                          :save_group, :remove_role, :view_file,
                                          :abort_build, :trigger_rebuild, :trigger_services,
                                          :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                         :attributes, :edit, :import_spec, :files, :comments, :users,
-                                         :save_comment]
+                                         :attributes, :edit, :import_spec, :files, :comments, :users]
 
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :linking_packages, :linking_packages, :dependency,

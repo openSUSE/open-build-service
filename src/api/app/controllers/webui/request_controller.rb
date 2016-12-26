@@ -1,8 +1,6 @@
 require 'base64'
 
 class Webui::RequestController < Webui::WebuiController
-  include Webui::HasComments
-
   helper 'webui/comment'
   helper 'webui/package'
 
