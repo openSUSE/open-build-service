@@ -10,6 +10,10 @@ FactoryGirl.define do
       attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject') }
     end
 
+    factory :template_attrib do
+      attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
+    end
+
     factory :update_project_attrib do
       transient do
         update_project nil

@@ -1,0 +1,1086 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/my_project/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>The Man Within</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '101'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>The Man Within</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/my_project/_config
+    body:
+      encoding: UTF-8
+      string: At sit sit aliquid sunt culpa maxime quae. Repellat ut ipsa. Id et accusantium
+        voluptate odit qui cum. Ea ipsa non enim sed hic voluptates dolores.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/my_project/first_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="first_package" project="my_project">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="first_package" project="my_project">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/my_project/first_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="first_package" project="my_project">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="first_package" project="my_project">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/my_project/second_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="second_package" project="my_project">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="second_package" project="my_project">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/my_project/second_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="second_package" project="my_project">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="second_package" project="my_project">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:47 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:admin/_meta?user=admin
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:admin">
+          <title/>
+          <description/>
+          <person userid="admin" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '133'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:admin">
+          <title></title>
+          <description></description>
+          <person userid="admin" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:48 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/_workerstatus
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '801'
+    body:
+      encoding: UTF-8
+      string: |
+        <workerstatus clients="0">
+          <waiting arch="i586" jobs="1" />
+          <waiting arch="x86_64" jobs="0" />
+          <blocked arch="i586" jobs="0" />
+          <blocked arch="x86_64" jobs="0" />
+          <buildavg arch="i586" buildavg="1200" />
+          <buildavg arch="x86_64" buildavg="1200" />
+          <partition>
+            <daemon type="srcserver" state="running" starttime="1482398657" />
+            <daemon type="service" state="running" starttime="1482398657" />
+            <daemon type="scheduler" arch="i586" state="dead">
+              <queue high="0" med="0" low="3" next="0" />
+            </daemon>
+            <daemon type="scheduler" arch="x86_64" state="dead">
+              <queue high="39" med="0" low="7" next="0" />
+            </daemon>
+            <daemon type="repserver" state="running" starttime="1482398657" />
+            <daemon type="publisher" state="dead" />
+          </partition>
+        </workerstatus>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:52 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/first_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="first_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/second_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22second_package%22%20and%20linkinfo/@project=%22my_project%22%20and%20@project=%22my_project%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:admin/custom_name/_meta?user=admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="custom_name" project="home:admin">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="custom_name" project="home:admin">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:admin/custom_name?cmd=branch&opackage=second_package&oproject=my_project&user=admin
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>5f0cee3037f0c78cb1fb3137bdf7b5ea</srcmd5>
+          <version>unknown</version>
+          <time>1482398753</time>
+          <user>admin</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:admin/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '429'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="1" vrev="1" srcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea">
+          <linkinfo project="my_project" package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c046daec625352820e5e8fc21011b57b" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
+          <entry name="_link" md5="0c9cbc4a9e085711a1dddaf16dc97862" size="143" mtime="1482398753" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:admin/custom_name?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '287'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="custom_name" rev="1" vrev="1" srcmd5="c046daec625352820e5e8fc21011b57b" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <linked project="my_project" package="second_package" />
+          <revtime>1482398753</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:admin/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '429'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="1" vrev="1" srcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea">
+          <linkinfo project="my_project" package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c046daec625352820e5e8fc21011b57b" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
+          <entry name="_link" md5="0c9cbc4a9e085711a1dddaf16dc97862" size="143" mtime="1482398753" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:admin/custom_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '307'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="c5fd0d8192601d011adfcf656ce5950e">
+          <old project="home:admin" package="custom_name" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:admin" package="custom_name" rev="1" srcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:admin/custom_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '349'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="88496cb459b217f0419a60b9147e599e">
+          <old project="my_project" package="second_package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:admin" package="custom_name" rev="c046daec625352820e5e8fc21011b57b" srcmd5="c046daec625352820e5e8fc21011b57b" />
+          <files />
+        </sourcediff>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:admin/_meta?user=admin
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:admin">
+          <title/>
+          <description/>
+          <person userid="admin" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '133'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:admin">
+          <title></title>
+          <description></description>
+          <person userid="admin" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:53 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:admin/_result?package=custom_name&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/second_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <revtime/>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/my_project/second_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/my_project/second_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '290'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="9b7ef071fc7cca9acfc766e5f6862c61">
+          <old project="my_project" package="second_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="my_project" package="second_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <files />
+        </sourcediff>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:admin/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '429'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="1" vrev="1" srcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea">
+          <linkinfo project="my_project" package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c046daec625352820e5e8fc21011b57b" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
+          <entry name="_link" md5="0c9cbc4a9e085711a1dddaf16dc97862" size="143" mtime="1482398753" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:admin/custom_name?expand=1&rev=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '323'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="c046daec625352820e5e8fc21011b57b" vrev="1" srcmd5="c046daec625352820e5e8fc21011b57b">
+          <linkinfo project="my_project" package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:admin/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '429'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="1" vrev="1" srcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea">
+          <linkinfo project="my_project" package="second_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c046daec625352820e5e8fc21011b57b" lsrcmd5="5f0cee3037f0c78cb1fb3137bdf7b5ea" />
+          <entry name="_link" md5="0c9cbc4a9e085711a1dddaf16dc97862" size="143" mtime="1482398753" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:admin/custom_name/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: _service  no such file
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '122'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>_service: no such file</summary>
+          <details>404 _service: no such file</details>
+        </status>
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:admin/_result?package=custom_name&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:admin/_result?package=custom_name&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 22 Dec 2016 09:25:54 GMT
+recorded_with: VCR 3.0.3
