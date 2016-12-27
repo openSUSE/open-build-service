@@ -58,24 +58,6 @@ class Comment < ApplicationRecord
     users.to_a
   end
 
-  def check_delete_permissions
-    return false if User.current.blank?
-    # Admins can always delete all comments
-    return true if User.current.is_admin?
-
-    # Users can always delete their own comments - or if the comments are deleted
-    return true if User.current == user || user.is_nobody?
-
-    case commentable_type
-    when "Package"
-      User.current.has_local_permission?('change_package', commentable)
-    when "Project"
-      User.current.has_local_permission?('change_project', commentable)
-    when "BsRequest"
-      commentable.is_target_maintainer?(User.current)
-    end
-  end
-
   def to_xml(builder)
     attrs = { who: user, when: created_at, id: id }
     attrs[:parent] = parent_id if parent_id
