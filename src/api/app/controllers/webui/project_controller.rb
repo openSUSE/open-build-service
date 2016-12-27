@@ -5,8 +5,6 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::LoadBuildresults
   include Webui::ManageRelationships
 
-  helper 'webui/comment'
-
   before_action :lockout_spiders, only: [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
 
   before_action :require_login, only: [:create, :toggle_watch, :destroy, :new, :new_incident_request,
@@ -192,6 +190,7 @@ class Webui::ProjectController < Webui::WebuiController
       end
     end
     @comments = @project.comments
+    @comment = Comment.new
     render :show, status: params[:nextstatus] if params[:nextstatus]
   end
 
