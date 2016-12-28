@@ -55,6 +55,10 @@ class Review < ApplicationRecord
     end
   end
 
+  def assigned_reviewer
+    self[:reviewer] || by_user || by_group || by_project || by_package
+  end
+
   def check_initial
     # Validates the existence of references.
     # NOTE: they can disappear later and the review should be still

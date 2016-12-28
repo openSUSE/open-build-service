@@ -521,6 +521,7 @@ OBSApi::Application.routes.draw do
       get 'statistics/latest_built' => :latest_built
 
       get 'statistics/active_request_creators/:project' => :active_request_creators, constraints: cons
+      get 'statistics/maintenance_incidents/:project' => 'statistics/maintenance_incidents#show', constraints: cons
     end
 
     ### /status_message
