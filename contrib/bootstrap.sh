@@ -27,4 +27,6 @@ setup_data_dir
 
 chown_vagrant_owned_dirs
 
+setup_kerberos_server
+
 exit 0

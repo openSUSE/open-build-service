@@ -2,6 +2,8 @@ ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
 
 ENV['RAILS_ENV'] = 'test'
 
+require 'gssapi'
+require 'base64'
 require 'simplecov'
 require 'coveralls'
 require "minitest/reporters"
@@ -155,6 +157,33 @@ class ActionDispatch::IntegrationTest
     #   exit
     # end
   end
+
+  def get(*args)
+    super
+    if @@krbauth
+      while @response.status == 401
+        wwwauth = @response.headers['WWW-Authenticate'][/Negotiate( [^ ,]*)?/].split(' ')
+        if wwwauth.length > 0
+          begin
+            cli = GSSAPI::Simple.new(@request.env['HTTP_HOST'], "HTTP")
+            if wwwauth.length > 1
+              tok = cli.init_context Base64.strict_decode64(wwwauth[1])
+            else
+              tok = cli.init_context
+              @@auth = 'Negotiate ' + Base64.strict_encode64(tok)
+            end
+            super
+            next
+          # rescue GSSAPI::GssApiError => err
+          #   print "GSSAPI Error: #{err.message}"
+          rescue GSSAPI::GssApiError
+          end
+        end
+        break
+      end
+      @@auth = nil
+    end
+  end
 end
 
 module ActionDispatch
@@ -162,8 +191,8 @@ module ActionDispatch
     class Session
       def add_auth(headers)
         headers = {} if headers.nil?
-        if !headers.has_key?("HTTP_AUTHORIZATION") && IntegrationTest.basic_auth
-          headers["HTTP_AUTHORIZATION"] = IntegrationTest.basic_auth
+        if !headers.has_key?("HTTP_AUTHORIZATION") && IntegrationTest.auth_header
+          headers["HTTP_AUTHORIZATION"] = IntegrationTest.auth_header
         end
         headers
       end
@@ -399,22 +428,32 @@ module ActionDispatch
     end
 
     @@auth = nil
+    @@krbauth = nil
 
     def reset_auth
       User.current = nil
       @@auth = nil
+      if @@krbauth
+        system "kdestroy", err: File::NULL, out: File::NULL
+        @@krbauth = false
+      end
     end
 
-    def self.basic_auth
+    def self.auth_header
       @@auth
     end
 
-    def basic_auth
+    def auth_header
       @@auth
     end
 
     def prepare_request_with_user(user, passwd)
       @@auth = 'Basic ' + Base64.encode64(user + ':' + passwd)
+    end
+
+    def prepare_request_with_krb_user(user, passwd)
+      system "echo \"#{passwd}\" | kinit \"#{user}\"", err: File::NULL, out: File::NULL
+      @@krbauth = true
     end
 
     # will provide a user without special permissions
@@ -480,6 +519,10 @@ module ActionDispatch
 
     def login_tom
       prepare_request_with_user 'tom', 'buildservice'
+    end
+
+    def login_trent
+      prepare_request_with_krb_user 'trent', 'tnert'
     end
 
     def login_dmayr
