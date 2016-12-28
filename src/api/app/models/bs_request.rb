@@ -1314,4 +1314,11 @@ class BsRequest < ApplicationRecord
   def self.quote(str)
     connection.quote(str)
   end
+
+  def accepted_at
+    history_element = request_history_elements.last
+    if history_element.type == 'HistoryElement::RequestAccepted'
+      history_element.created_at
+    end
+  end
 end

@@ -73,7 +73,4 @@ RSpec.describe BsRequestAction do
         it { expect(review.review_assigned_to).to eq(request.reviews.last) }
         it { expect(review.history_elements.last.type).to eq('HistoryElement::ReviewAccepted')}
       end
-
-    end
-  end
 end
