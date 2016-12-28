@@ -36,3 +36,5 @@ echo "Build apidocs"
 pushd docs/api
 make
 popd
+
+sudo dist/ci/setup_test_kerberos.sh

@@ -16,4 +16,4 @@ echo 'deb http://download.opensuse.org/repositories/OBS:/Server:/Unstable/xUbunt
 sudo apt-get update
 
 # Install the dependencies of the backend
-sudo apt-get install --force-yes travis-deps libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2 createrepo libbssolv-perl sphinxsearch libjson-xs-perl libxml-simple-perl libgd-gd2-perl libdevel-cover-perl
+sudo apt-get install --force-yes travis-deps libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2 createrepo libbssolv-perl sphinxsearch libjson-xs-perl libxml-simple-perl libgd-gd2-perl libdevel-cover-perl krb5-kdc krb5-user krb5-admin-server

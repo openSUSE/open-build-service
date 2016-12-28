@@ -294,3 +294,14 @@ unconfirmed_user:
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
   state: "unconfirmed"
+trent:
+  created_at: 2016-07-29 14:00:21.000000000 Z
+  updated_at: 2016-07-29 14:00:21.000000000 Z
+  login_failure_count: 0
+  login: trent
+  email: trent@invalid
+  realname: Trent
+  password: f87b5927666b030262c826e304d796e7
+  password_hash_type: md5
+  password_salt: ''
+  state: "confirmed"
