@@ -761,16 +761,18 @@ XML
     assert_response 403
 
     # update comment for real
-    h1 = History.find_by_request(BsRequest.find_by_number(id))
-    hr1 = History.find_by_request(BsRequest.find_by_number(id), { withreviews: 1 })
+    request = BsRequest.find_by_number(id)
+    h1 = request.request_history_elements
+    hr1 = request.history_elements
     login_tom
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=blahfasel"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(parent: { tag: 'review', attributes: { by_user: 'tom' } }, tag: 'comment', content: 'blahfasel')
-    h2 = History.find_by_request(BsRequest.find_by_number(id))
-    hr2 = History.find_by_request(BsRequest.find_by_number(id), { withreviews: 1 })
+    request = BsRequest.find_by_number(id)
+    h2 = request.request_history_elements
+    hr2 = request.history_elements
     assert_equal h2.length-h1.length, 0 # no change
     assert_equal hr2.length-hr1.length, 1 # review accepted
 

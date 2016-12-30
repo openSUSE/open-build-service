@@ -6,6 +6,7 @@ class Review < ApplicationRecord
   end
 
   belongs_to :bs_request, touch: true
+  has_many :history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Review', foreign_key: :op_object_id
   validates_inclusion_of :state, in: VALID_REVIEW_STATES
 
   validates :by_user, length: { maximum: 250 }
@@ -98,7 +99,7 @@ class Review < ApplicationRecord
   def render_xml(builder)
     builder.review(_get_attributes) do
       builder.comment! reason if reason
-      History.find_by_review(self).each do |history|
+      history_elements.each do |history|
         history.render_xml(builder)
       end
     end

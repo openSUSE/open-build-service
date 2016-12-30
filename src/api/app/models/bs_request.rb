@@ -49,6 +49,9 @@ class BsRequest < ApplicationRecord
   has_many :reviews, dependent: :delete_all
   has_and_belongs_to_many :bs_request_action_groups, join_table: :group_request_requests
   has_many :comments, as: :commentable, dependent: :delete_all
+  has_many :request_history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
+  has_many :review_history_elements, through: :reviews, source: :history_elements
+
   validates_inclusion_of :state, in: VALID_REQUEST_STATES
   validates :creator, presence: true
   validate :check_supersede_state
@@ -74,6 +77,10 @@ class BsRequest < ApplicationRecord
       raise NotFoundError.new("Couldn't find request with id '#{number}'")
     end
     r
+  end
+
+  def history_elements
+    HistoryElement::Base.where(id: request_history_elements.pluck(:id) + review_history_elements.pluck(:id)).order(:created_at)
   end
 
   def set_add_revision
@@ -289,12 +296,12 @@ class BsRequest < ApplicationRecord
         end
       end
       if opts[:withfullhistory]
-        History.find_by_request(self, {withreviews: 1}).each do |history|
+        history_elements.each do |history|
           # we do ignore the review history here on purpose to stay compatible
           history.render_xml(r)
         end
       elsif opts[:withhistory]
-        History.find_by_request(self).each do |history|
+        request_history_elements.each do |history|
           # we do ignore the review history here on purpose to stay compatible
           history.render_xml(r)
         end

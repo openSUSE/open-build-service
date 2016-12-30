@@ -17,7 +17,7 @@ class HistoryTest < ActionMailer::TestCase
     assert_equal s.description, "Request got superseded by request 42" # overwrite must not work
     assert_equal s.comment, "I like it better"
 
-    list = History.find_by_request(req)
+    list = req.request_history_elements
     assert_equal list.length, 2
   end
 end

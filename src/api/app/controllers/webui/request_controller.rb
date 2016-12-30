@@ -107,7 +107,7 @@ class Webui::RequestController < Webui::WebuiController
     # rubocop:enable Metrics/LineLength
     @can_handle_request = %w(new review declined).include?(@state) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
 
-    @history = History.find_by_request(@bsreq, {withreviews: 1})
+    @history = @bsreq.history_elements
     @actions = @req['actions']
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
