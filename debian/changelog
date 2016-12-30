@@ -1,3 +1,16 @@
+open-build-service (2.7.1-9) unstable; urgency=medium
+
+  * obs-worker: drop slptool from depends as it's scheduled for removal
+    from Debian. (Closes: #848855)
+  * disable-slp.patch: do not use SLP in obs-serverconf as Debian drop
+    slptool from archive. (Closes: #848855)
+  * Added debian/NEWS.
+  * drop ruby-interpreter from depends as it's not exist.
+  * Set Architecture: all.
+  * Drop breaks on obs-webui.
+
+ -- Andrew Lee (李健秋) <ajqlee@debian.org>  Thu, 22 Dec 2016 14:35:54 +0800
+
 open-build-service (2.7.1-8) unstable; urgency=medium
 
   * jquery-ui.patch: migrate jquery-ui-rails from 5.0.5 to 6.0.1.
