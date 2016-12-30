@@ -17,6 +17,10 @@ class Review < ApplicationRecord
   validates :reason, length: { maximum: 65534 }
 
   validate :check_initial, on: [:create]
+  validate :validate_recursive
+
+  belongs_to :review_assigned_from, class_name: 'Review', foreign_key: :review_id
+  has_one :review_assigned_to, class_name: 'Review', foreign_key: :review_id
 
   HISTORY_ELEMENTS_ASSIGNED_SUB_QUERY = <<-SQL
     SELECT COUNT(history_elements.id) FROM history_elements
@@ -33,8 +37,22 @@ class Review < ApplicationRecord
     end
   end
 
+  def validate_recursive
+    if review_assigned_from && review_assigned_from == review_assigned_to
+      errors.add(:review_id, "recursive assignment")
+    end
+  end
+
   def state
     read_attribute(:state).to_sym
+  end
+
+  def accepted_at
+    if review_assigned_to && review_assigned_to.state == :accepted
+      review_assigned_to.updated_at
+    elsif state == :accepted && !review_assigned_to
+      updated_at
+    end
   end
 
   def check_initial
