@@ -18,6 +18,15 @@ class Review < ApplicationRecord
 
   validate :check_initial, on: [:create]
 
+  HISTORY_ELEMENTS_ASSIGNED_SUB_QUERY = <<-SQL
+    SELECT COUNT(history_elements.id) FROM history_elements
+    WHERE history_elements.op_object_id = reviews.id
+    AND history_elements.type = 'HistoryElement::ReviewAssigned'
+  SQL
+
+  scope :assigned, -> { where("(#{HISTORY_ELEMENTS_ASSIGNED_SUB_QUERY}) > 0") }
+  scope :unassigned, -> { where("(#{HISTORY_ELEMENTS_ASSIGNED_SUB_QUERY}) = 0") }
+
   before_validation(on: :create) do
     if read_attribute(:state).nil?
       self.state = :new
