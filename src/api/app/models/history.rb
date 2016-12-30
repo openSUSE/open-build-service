@@ -14,8 +14,4 @@ class History
 
      HistoryElement::Request.where(op_object_id: request.id).order(:created_at)
   end
-
-  def self.find_by_review(review)
-     HistoryElement::Review.where(op_object_id: review.id).order(:created_at)
-  end
 end
