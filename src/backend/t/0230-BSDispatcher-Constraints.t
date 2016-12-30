@@ -31,5 +31,38 @@ my $expected_real_size = 4096;
 my $real_size = BSDispatcher::Constraints::getmbsize($disk_constraint->{'hardware'}->{'disk'});
 ok($real_size == $expected_real_size, "Testing real MB size calculation");
 
+# test the conversion from list to struct based on BSXML
+my @input_list = ['hardware:disk:size', 'unit=G', '4'];
+my $expected = {
+    'hardware' => {
+          'disk' => {
+              'size' => {
+                  '_content' => '4',
+                  'unit' => 'G',
+              }
+          }
+    }
+};
+
+my $got = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@input_list);
+is_deeply($got, $expected, "Checking list2struct conversion");
+
+# test the constraint merging
+$expected = {
+    'hardware' => {
+          'processors' => '2',
+          'disk' => {
+              'size' => {
+                  '_content' => '4',
+                  'unit' => 'G',
+              }
+          }
+    }
+};
+
+$got = BSDispatcher::Constraints::mergeconstraints($got, $constraints);
+is_deeply($got, $expected, "Checking constraint merging");
+
+
 exit 0;
 
