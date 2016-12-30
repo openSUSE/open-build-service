@@ -220,7 +220,6 @@ module ActiveXML
       _data.name = name
     end
 
-    # remember: this function does not exist!
     def _data # nodoc
       if !@data && @raw_data
         parse(@raw_data)
