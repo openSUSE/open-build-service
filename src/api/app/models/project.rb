@@ -49,6 +49,8 @@ class Project < ApplicationRecord
       where(['lower(packages.name) like lower(?)', "#{search}%"])
     end
   end
+
+  has_many :issues, through: :packages
   has_many :attribs, dependent: :destroy
 
   has_many :repositories, dependent: :destroy, foreign_key: :db_project_id
