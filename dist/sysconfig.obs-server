@@ -380,3 +380,12 @@ OBS_WORKER_SCRIPT_URL=""
 #
 #
 OBS_WORKER_CLEANUP_CHROOT=""
+
+##Path:         Application/OBS
+## Description: wipes the build environment of the worker after the build
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+#
+OBS_WORKER_WIPE_AFTER_BUILD=""
