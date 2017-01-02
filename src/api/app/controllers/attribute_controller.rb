@@ -31,7 +31,7 @@ class AttributeController < ApplicationController
       end
     end
 
-    render text: xml, content_type: "text/xml"
+    render xml: xml
   end
 
   # /attribute/:namespace/_meta
@@ -181,11 +181,11 @@ class AttributeController < ApplicationController
       path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package]||'_project')}/_attribute?meta=1"
       path += "&rev=#{CGI.escape(params[:rev])}" if params[:rev]
       answer = Suse::Backend.get(path)
-      render text: answer.body.to_s, content_type: 'text/xml'
+      render xml: answer.body.to_s
       return
     end
 
-    render text: @attribute_container.render_attribute_axml(params), content_type: 'text/xml'
+    render xml: @attribute_container.render_attribute_axml(params)
   end
 
   # DELETE
