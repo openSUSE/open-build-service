@@ -33,6 +33,7 @@
       = form_tag({ controller: :package, action: :save_new_link, project: User.current.home_project_name }, method: :post, id: 'appliance_form') do
         = hidden_field_tag 'linked_project', first_template.project
         = hidden_field_tag 'linked_package', first_template.name
+        = hidden_field_tag 'add_repositories_rebuild', 'copy'
         = label_tag(:target_package, 'Name your appliance', class: 'name_appliance')
         %span
           (Maximum of 200 characters, no blank, /, :, - or ; characters)
