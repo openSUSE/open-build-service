@@ -2340,10 +2340,10 @@ EOF
   def test_branch_repository_with_extra_policy
     login_adrian
     put '/source/home:adrian:TEMP/_meta', "<project name='home:adrian:TEMP'> <title/> <description/>
-          <repository name='repo1'>
+          <repository name='repo1' rebuild='local'>
             <arch>x86_64</arch>
           </repository>
-          <repository name='repo2'>
+          <repository name='repo2' rebuild='transitive'>
             <arch>x86_64</arch>
           </repository>
           <repository name='repo3'>
@@ -2362,6 +2362,17 @@ EOF
     assert_xml_tag(tag: 'repository', attributes: {name:"repo1", rebuild: "local", block: "never"})
     assert_xml_tag(tag: 'repository', attributes: {name:"repo2", rebuild: "local", block: "never"})
     assert_xml_tag(tag: 'repository', attributes: {name:"repo3", rebuild: "local", block: "never"})
+    delete '/source/home:adrian:branches:home:adrian:TEMP'
+    assert_response :success
+
+    # copy rebuild strategy when branching
+    post '/source/home:adrian:TEMP/dummy', cmd: 'branch', add_repositories: 1, add_repositories_rebuild: :copy
+    assert_response :success
+    get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
+    assert_response :success
+    assert_xml_tag(tag: 'repository', attributes: {name:"repo1", rebuild: "local"})
+    assert_xml_tag(tag: 'repository', attributes: {name:"repo2", rebuild: "transitive"})
+    assert_xml_tag(tag: 'repository', attributes: {name:"repo3"})
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
