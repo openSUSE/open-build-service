@@ -525,7 +525,7 @@ class User < ApplicationRecord
     case group
     when String
       group = Group.find_by_title(group)
-    when Fixnum
+    when Integer
       group = Group.find(group)
     when Group, nil
     else
