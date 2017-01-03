@@ -5,7 +5,7 @@ class Webui::GroupsController < Webui::WebuiController
 
   def index
     authorize Group, :index?
-    @groups = Group.all
+    @groups = Group.all.includes(:groups_users)
   end
 
   def show; end
