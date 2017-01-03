@@ -976,4 +976,91 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(response).to redirect_to(project_show_path(apache_maintenance_incident_project)) }
     end
   end
+
+  describe 'POST #move_path' do
+    context 'valid project' do
+      let(:repository) { create(:repository, project: apache_project) }
+      let(:path_element) { create(:path_element, repository: repository) }
+
+      context 'without direction' do
+        it { expect { post :move_path, params: { project: apache_project } }.to raise_error ActionController::ParameterMissing }
+      end
+
+      context 'only one path_element' do
+        let(:position) { path_element.position}
+
+        context 'direction up' do
+          before do
+            post :move_path, params: { project: apache_project, repository: repository.id, direction: 'up', path: path_element }
+          end
+
+          it { expect(path_element.reload.position).to eq(position) }
+          it { expect(flash[:notice]).to eq("Path moved up successfully") }
+          it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
+        end
+
+        context 'direction down' do
+          before do
+            post :move_path, params: { project: apache_project, repository: repository.id, direction: 'down', path: path_element }
+          end
+
+          it { expect(path_element.reload.position).to eq(position) }
+          it { expect(flash[:notice]).to eq("Path moved down successfully") }
+          it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
+        end
+      end
+
+      context 'three path elements' do
+        let(:path_element_2) { create(:path_element, repository: repository) }
+        let(:path_element_3) { create(:path_element, repository: repository) }
+        let(:path_elements) { [path_element, path_element_2, path_element_3] }
+
+        context 'direction up' do
+          let(:move) {
+            post :move_path, params: { project: apache_project, repository: repository.id, direction: 'up', path: path_elements[1] }
+          }
+
+          context 'response' do
+            before do
+              move
+            end
+
+            it { expect(flash[:notice]).to eq("Path moved up successfully") }
+            it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
+          end
+
+          context 'elements position' do
+            it { expect { move }.to change { path_elements[0].reload.position }.by(1) }
+            it { expect { move }.to change { path_elements[1].reload.position }.by(-1) }
+            it { expect { move }.not_to change { path_elements[2].reload.position } }
+          end
+        end
+
+        context 'direction down' do
+          let(:move) {
+            post :move_path, params: { project: apache_project, repository: repository.id, direction: 'down', path: path_elements[1] }
+          }
+
+          context 'response' do
+            before do
+              move
+            end
+
+            it { expect(flash[:notice]).to eq("Path moved down successfully") }
+            it { expect(response).to redirect_to({ action: :index, controller: :repositories, project: apache_project }) }
+          end
+
+          context 'elements position' do
+            it { expect { move }.not_to change { path_elements[0].reload.position } }
+            it { expect { move }.to change { path_elements[1].reload.position }.by(1) }
+            it { expect { move }.to change { path_elements[2].reload.position }.by(-1) }
+          end
+        end
+      end
+    end
+
+    context 'with non existing project' do
+      it { expect { post :move_path, params: { project: 'non:existent:project' } }.to raise_error ActiveRecord::RecordNotFound }
+    end
+  end
 end

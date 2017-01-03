@@ -1,0 +1,345 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>The Lathe of Heaven</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>The Lathe of Heaven</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:54 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_config
+    body:
+      encoding: UTF-8
+      string: Optio vitae qui dolores minus magnam sint. Praesentium omnis sunt cumque.
+        Asperiores illo accusamus fuga.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:54 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_13/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_13">
+          <title>The World, the Flesh and the Devil</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '121'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_13">
+          <title>The World, the Flesh and the Devil</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:54 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_13/_config
+    body:
+      encoding: UTF-8
+      string: Vitae ut cumque in. Fugit quam dolor. Totam qui dolorum dolorem nesciunt.
+        Dolores similique ullam dignissimos.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:54 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_14/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_14">
+          <title>Recalled to Life</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_14">
+          <title>Recalled to Life</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:54 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_14/_config
+    body:
+      encoding: UTF-8
+      string: Eos est rerum unde voluptate sit eaque. Possimus repellendus magnam
+        quas aut et error. Omnis harum aut voluptate sed sunt dolorem. Ut et a sunt
+        id dolorem ea.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:54 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_15/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_15">
+          <title>Consider Phlebas</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_15">
+          <title>Consider Phlebas</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:54 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_15/_config
+    body:
+      encoding: UTF-8
+      string: Dolorem beatae et. Dolorum dolorem eaque est similique dolor qui. In
+        vel magni qui unde. Iste optio eius quae eos in ipsum pariatur.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:54 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>The Lathe of Heaven</title>
+          <description/>
+          <repository name="repository_17">
+            <path project="project_13" repository="repository_18"/>
+            <path project="project_15" repository="repository_20"/>
+            <path project="project_14" repository="repository_19"/>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '337'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>The Lathe of Heaven</title>
+          <description></description>
+          <repository name="repository_17">
+            <path project="project_13" repository="repository_18" />
+            <path project="project_15" repository="repository_20" />
+            <path project="project_14" repository="repository_19" />
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:54 GMT
+recorded_with: VCR 3.0.3

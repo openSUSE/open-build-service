@@ -1,0 +1,348 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Great Work of Time</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '101'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Great Work of Time</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:55 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_config
+    body:
+      encoding: UTF-8
+      string: Facere molestias nihil doloribus. Illum cum iusto occaecati quia ducimus.
+        Fugit officiis asperiores nihil cupiditate magnam. Aut fugiat sit ab quia
+        velit repellendus repellat. Suscipit ipsa voluptatem dolores facilis repellat
+        nihil.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:55 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_22/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_22">
+          <title>Terrible Swift Sword</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_22">
+          <title>Terrible Swift Sword</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_22/_config
+    body:
+      encoding: UTF-8
+      string: Voluptas molestias iusto eum repellendus. Qui eos dignissimos velit
+        molestias. Sint non aut ab velit quam saepe. Omnis neque a. Deserunt suscipit
+        qui aut.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_23/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_23">
+          <title>Recalled to Life</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_23">
+          <title>Recalled to Life</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_23/_config
+    body:
+      encoding: UTF-8
+      string: Eos provident labore reprehenderit. Totam sed sunt. Earum fuga ea nesciunt
+        eum rerum quasi tempora. Aut sed ea aut eligendi qui. Nemo et minima animi
+        cum quis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_24/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_24">
+          <title>Noli Me Tangere</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_24">
+          <title>Noli Me Tangere</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_24/_config
+    body:
+      encoding: UTF-8
+      string: Quam est culpa nihil neque unde repudiandae ullam. Error assumenda fugiat
+        enim. Dolores dolorem nulla tempora amet sed. Id perferendis aut quod tempora.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Great Work of Time</title>
+          <description/>
+          <repository name="repository_29">
+            <path project="project_22" repository="repository_30"/>
+            <path project="project_24" repository="repository_32"/>
+            <path project="project_23" repository="repository_31"/>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '336'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Great Work of Time</title>
+          <description></description>
+          <repository name="repository_29">
+            <path project="project_22" repository="repository_30" />
+            <path project="project_24" repository="repository_32" />
+            <path project="project_23" repository="repository_31" />
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+recorded_with: VCR 3.0.3
