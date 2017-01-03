@@ -914,6 +914,49 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
   end
 
+  describe 'POST #save_prjconf' do
+    before do
+      login user
+    end
+
+    context 'can save a project config' do
+      before do
+        post :save_prjconf, params: { project: user.home_project.name, config: 'save config' }
+      end
+
+      it { expect(flash[:success]).to eq('Config successfully saved!') }
+      it { expect(response.status).to eq(200) }
+    end
+
+    context 'cannot save a project config' do
+      before do
+        allow_any_instance_of(ProjectConfigFile).to receive(:save).and_return(nil)
+        post :save_prjconf, params: { project: user.home_project.name, config: '' }
+      end
+
+      it { expect(flash[:error]).not_to be_nil }
+      it { expect(response.status).to eq(400) }
+    end
+
+    context 'cannot save with an unauthorized user' do
+      before do
+        post :save_prjconf, params: { project: another_project.name, config: 'save config' }
+      end
+
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Project.') }
+      it { expect(response.status).to eq(302) }
+      it { expect(response).to redirect_to(root_path) }
+    end
+
+    context 'with a non existing project' do
+      let(:post_save_prjconf) { post :save_prjconf, params: { project: 'non:existing:project', config: 'save config' } }
+
+      it 'raise a RecordNotFound Exception' do
+        expect{ post_save_prjconf }.to raise_error ActiveRecord::RecordNotFound
+      end
+    end
+  end
+
   describe 'GET #clear_failed_comment' do
     let(:package) { create(:package_with_failed_comment_attribute, name: 'my_package', project: user.home_project) }
     let(:attribute_type) { AttribType.find_by_name("OBS:ProjectStatusPackageFailComment") }
