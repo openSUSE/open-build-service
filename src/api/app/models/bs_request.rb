@@ -314,7 +314,7 @@ class BsRequest < ApplicationRecord
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
-  def is_reviewer? (user)
+  def is_reviewer?(user)
     return false if reviews.blank?
 
     reviews.each do |r|

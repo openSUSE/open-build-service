@@ -26,7 +26,7 @@ module ActiveXML
         ActiveXML::Node
       end
 
-      def handles_xml_element (*elements)
+      def handles_xml_element(*elements)
         elements.each do |elem|
           @@elements[elem] = self
         end
@@ -239,7 +239,7 @@ module ActiveXML
       _data.content
     end
 
-    def text= (what)
+    def text=(what)
       _data.content = what
     end
 
@@ -338,7 +338,7 @@ module ActiveXML
       Node.new(xmlnode)
     end
 
-    def add_element ( element, attrs = nil )
+    def add_element(element, attrs = nil)
       raise 'First argument must be an element name' if element.nil?
       el = _data.document.create_element(element)
       _data.add_child(el)

@@ -522,7 +522,7 @@ class UserLdapStrategy
     false
   end
 
-  def local_permission_check_with_ldap (group_relationships)
+  def local_permission_check_with_ldap(group_relationships)
     group_relationships.each do |r|
       return false if r.group.nil?
       # check whether current user is in this group
@@ -532,7 +532,7 @@ class UserLdapStrategy
     false
   end
 
-  def local_role_check_with_ldap (role, object)
+  def local_role_check_with_ldap(role, object)
     Rails.logger.debug "Checking role with ldap: object #{object.name}, role #{role.title}"
     rels = object.relationships.groups.where(role_id: role.id).includes(:group)
     for rel in rels

@@ -255,7 +255,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def do_branch_package_test (sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+  def do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     post "/source/#{sprj}/#{spkg}", cmd: :branch, target_project: "#{tprj}"
     puts @response.body if debug
     assert_response resp if resp

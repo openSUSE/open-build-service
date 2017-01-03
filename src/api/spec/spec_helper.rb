@@ -73,7 +73,10 @@ RSpec.configure do |config|
 
   # Custom formatter, but not in Travis-CI and neither during package build
   unless ENV['TRAVIS'] || ENV['RPM_BUILD_ROOT']
-    config.formatter = 'NyanUnicornFormatter'
+    # users who tend to run test cases manually and may need to debug travis issues
+    unless ['adrian', 'mls'].include? ENV['USER']
+      config.formatter = 'NyanUnicornFormatter'
+    end
   end
 end
 

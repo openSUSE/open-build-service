@@ -21,7 +21,7 @@ class CodeQualityTest < ActiveSupport::TestCase
     tmpfile.close
     linenr = 1
     linenrs = []
-    IO.popen("ruby -cv - 2>&1 > /dev/null | grep '^-' > #{tmpfile.path}", 'w') do |io|
+    IO.popen("ruby.ruby2.4 -cv - 2>&1 > /dev/null | grep '^-' > #{tmpfile.path}", 'w') do |io|
       io.write("# encoding: utf-8\n")
       @ruby_files.each do |ruby_file|
         lines = File.open(ruby_file).readlines
@@ -45,7 +45,7 @@ class CodeQualityTest < ActiveSupport::TestCase
         break if line > failed
         failedfile = ruby_file
       end
-      IO.popen("ruby -cv #{failedfile} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
+      IO.popen("ruby.ruby2.4 -cv #{failedfile} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
         line = io.read
         unless line.empty?
           assert(false, "ruby -cv gave output\n#{line}")

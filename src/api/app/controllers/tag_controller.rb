@@ -54,7 +54,7 @@ class TagController < ApplicationController
     @tags
   end
 
-  def get_projects_by_tag ( do_render = true )
+  def get_projects_by_tag(do_render = true)
     @tag = params[:tag]
     @projects = Array.new
 
@@ -79,7 +79,7 @@ class TagController < ApplicationController
     @projects
   end
 
-  def get_packages_by_tag( do_render = true )
+  def get_packages_by_tag(do_render = true)
     @tag = params[:tag]
     @packages = Array.new
 

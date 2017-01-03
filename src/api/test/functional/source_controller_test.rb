@@ -630,7 +630,7 @@ EOF
     assert_response :success
   end
 
-  def do_change_project_meta_test (project, response1, response2, tag2, doesmatch)
+  def do_change_project_meta_test(project, response1, response2, tag2, doesmatch)
     # Get meta file
     get url_for(controller: :source, action: :show_project_meta, project: project)
     assert_response response1
@@ -953,7 +953,7 @@ EOF
     assert_response 404
   end
 
-  def do_change_package_meta_test (project, package, response1, response2, tag2, match)
+  def do_change_package_meta_test(project, package, response1, response2, tag2, match)
     # Get meta file
     get url_for(controller: :source, action: :show_package_meta, project: project, package: package)
     assert_response response1
@@ -1352,7 +1352,7 @@ EOF
     assert_response :success
   end
 
-  def do_test_change_package_meta (project, package, response1, response2, tag2, response3, select3)
+  def do_test_change_package_meta(project, package, response1, response2, tag2, response3, select3)
     get url_for(controller: :source, action: :show_package_meta, project: project, package: package)
     assert_response response1
     unless response2 || tag2 || response3 || select3
@@ -1559,9 +1559,9 @@ EOF
     assert_equal(@response.body.to_s, 'Protected Content')
   end
 
-  def add_file_to_package (url1, asserttag1, url2, assertresp2,
-                           assertselect2, assertselect2rev,
-                           assertresp3, asserteq3, assertresp4)
+  def add_file_to_package(url1, asserttag1, url2, assertresp2,
+                          assertselect2, assertselect2rev,
+                          assertresp3, asserteq3, assertresp4)
     get url1
     # before md5
     assert_xml_tag asserttag1 if asserttag1
