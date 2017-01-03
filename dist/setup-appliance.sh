@@ -229,7 +229,7 @@ function adapt_worker_jobs {
 function prepare_database_setup {
  
   cd /srv/www/obs/api 
-  RAILS_ENV=production rails.ruby2.3 db:migrate:status > /dev/null
+  RAILS_ENV=production rails.ruby2.4 db:migrate:status > /dev/null
 
   if [[ $? > 0 ]];then
     echo "Initialize MySQL databases (first time only)"
@@ -261,8 +261,8 @@ function prepare_database_setup {
   logline "Setting up rails environment"
   for cmd in $RAKE_COMMANDS
   do
-    logline " - Doing 'rails.ruby2.3 $cmd'"
-    RAILS_ENV=production bundle exec rails.ruby2.3 $cmd >> $apidir/log/db_migrate.log
+    logline " - Doing 'rails.ruby2.4 $cmd'"
+    RAILS_ENV=production bundle exec rails.ruby2.4 $cmd >> $apidir/log/db_migrate.log
     if [[ $? > 0 ]];then
       (>&2 echo "Command $cmd FAILED")
       exit 1  
@@ -500,7 +500,7 @@ function prepare_apache2 {
 function prepare_passenger {
 
   perl -p -i -e \
-    's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby2.3"#' \
+    's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby2.4"#' \
       /etc/apache2/conf.d/mod_passenger.conf
  
 

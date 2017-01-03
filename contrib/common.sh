@@ -18,14 +18,14 @@ function install_common_packages() {
     libmysqld-devel libxml2-devel zlib-devel libxslt-devel nodejs mariadb memcached \
     sphinx phantomjs \
     screen \
-    ruby2.3-devel \
-    ruby2.3-rubygem-bundler \
-    ruby2.3-rubygem-mysql2 \
-    ruby2.3-rubygem-nokogiri \
-    ruby2.3-rubygem-multi_json \
-    ruby2.3-rubygem-ruby-ldap \
-    ruby2.3-rubygem-xmlhash \
-    ruby2.3-rubygem-thinking-sphinx\
+    ruby2.4-devel \
+    ruby2.4-rubygem-bundler \
+    ruby2.4-rubygem-mysql2 \
+    ruby2.4-rubygem-nokogiri \
+    ruby2.4-rubygem-multi_json \
+    ruby2.4-rubygem-ruby-ldap \
+    ruby2.4-rubygem-xmlhash \
+    ruby2.4-rubygem-thinking-sphinx\
     perl-GD \
     perl-XML-Parser \
     perl-Devel-Cover \
@@ -49,9 +49,9 @@ function install_common_packages() {
 
 function setup_ruby() {
   echo -e "\nsetup ruby binaries...\n"
-  [ -f /usr/bin/ruby ] ||ln -s /usr/bin/ruby.ruby2.3 /usr/bin/ruby
+  [ -f /usr/bin/ruby ] ||ln -s /usr/bin/ruby.ruby2.4 /usr/bin/ruby
   for bin in rake rdoc ri; do
-     /usr/sbin/update-alternatives --set $bin /usr/bin/$bin.ruby.ruby2.3
+     /usr/sbin/update-alternatives --set $bin /usr/bin/$bin.ruby.ruby2.4
   done
 }
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby.ruby2.3
+#!/usr/bin/env ruby.ruby2.4
 ENV['RAILS_ENV'] ||= 'test'
 ENV['origin_RAILS_ENV'] ||= ENV['RAILS_ENV']
 ENV['LC_ALL'] = 'C'

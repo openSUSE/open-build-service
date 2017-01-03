@@ -141,7 +141,7 @@ GEM
       thor (>= 0.14, < 2.0)
     jquery-ui-rails (4.2.1)
       railties (>= 3.2.16)
-    json (1.8.3)
+    json (2.0.2)
     kaminari (0.17.0)
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
@@ -188,7 +188,7 @@ GEM
       capybara (~> 2.1)
       cliver (~> 0.3.1)
       websocket-driver (>= 0.2.0)
-    power_assert (0.3.0)
+    power_assert (0.4.1)
     powerpack (0.1.1)
     pry (0.10.4)
       coderay (~> 1.1.0)
@@ -230,10 +230,9 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rainbow (2.1.0)
     raindrops (0.17.0)
-    rake (10.4.2)
+    rake (12.0.0)
     rantly (1.0.0)
-    rdoc (4.2.2)
-      json (~> 1.4)
+    rdoc (5.0.0)
     redcarpet (3.3.4)
     responders (2.2.0)
       railties (>= 4.2.0, < 5.1)
@@ -302,7 +301,7 @@ GEM
       sprockets (>= 3.0.0)
     term-ansicolor (1.3.2)
       tins (~> 1.0)
-    test-unit (3.2.1)
+    test-unit (3.2.3)
       power_assert
     thinking-sphinx (3.2.0)
       activerecord (>= 3.1.0)
@@ -330,7 +329,7 @@ GEM
     vcr (3.0.3)
     voight_kampff (1.1.1)
       rack (>= 1.4, < 3.0)
-    webmock (2.1.0)
+    webmock (2.3.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
@@ -339,6 +338,7 @@ GEM
     websocket-extensions (0.1.2)
     xmlhash (1.3.7)
       pkg-config
+    xmlrpc (0.2.1)
     xpath (2.0.0)
       nokogiri (~> 1.3)
     yajl-ruby (1.3.0)
@@ -414,8 +414,9 @@ DEPENDENCIES
   unicorn-rails
   vcr
   voight_kampff
-  webmock (>= 1.18.0)
+  webmock (>= 2.3.0)
   xmlhash (>= 1.3.6)
+  xmlrpc
   yajl-ruby
 
 BUNDLED WITH

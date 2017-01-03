@@ -188,7 +188,7 @@ Requires(pre):  obs-common
 %endif
 
 #For apache
-Requires:       apache2 apache2-mod_xforward rubygem-passenger-apache2 ruby2.3-rubygem-passenger
+Requires:       apache2 apache2-mod_xforward rubygem-passenger-apache2 ruby2.4-rubygem-passenger
 
 # memcache is required for session data
 Requires:       memcached
@@ -218,7 +218,7 @@ BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
 # write down dependencies for production
 BuildRequires:  rubygem(bundler)
-Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.3.0" "production"`)
+Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.4.0" "production"`)
 # for rebuild_time
 Requires:       perl(GD)
 
@@ -491,7 +491,7 @@ for i in production.rb ; do
 done
 
 if [ ! -e %{secret_key_file} ]; then
-  ( umask 0077; RAILS_ENV=production bundle exec rails.ruby2.3 secret > %{secret_key_file} )
+  ( umask 0077; RAILS_ENV=production bundle exec rails.ruby2.4 secret > %{secret_key_file} )
 fi
 chmod 0640 %{secret_key_file}
 chown root.www %{secret_key_file}

@@ -55,6 +55,8 @@ gem 'voight_kampff'
 gem 'coffee-rails'
 # bind keyboard shortcuts to actions
 gem 'mousetrap-rails'
+# for issue tracker communication
+gem 'xmlrpc'
 
 group :development, :production do
   # to have the delayed job daemon
@@ -95,7 +97,7 @@ group :test do
   # to freeze time
   gem 'timecop'
   # to fake backend replies
-  gem 'webmock', '>= 1.18.0'
+  gem 'webmock', '>= 2.3.0'
   # for code quality checks
   gem 'flog', '> 4.1.0'
   # for mocking and stubbing
@@ -162,7 +164,7 @@ group :assets do
   # assets for the bootstrap front-end framework. Used by the bratwurst theme
   # gem 'bootstrap-sass-rails'
   # assets for font-awesome vector icons
-  gem "font-awesome-rails"
+  gem 'font-awesome-rails'
   # assets for formatting dates
   gem 'momentjs-rails'
 end
