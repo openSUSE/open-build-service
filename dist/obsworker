@@ -314,10 +314,13 @@ case "$1" in
             fi
 	    I_INDEX=$I
             I=$(( $I + 1 ))
+	    if [ "$OBS_USE_MULTIPLE_WORKERS" = 'no' ]; then WORKERNAME='localhost'
+	    else WORKERNAME=${HOSTNAME}
+            fi 
 	    if [ "$OBS_VM_TYPE" = 'zvm' ]; then
-		WORKERID="${HOSTNAME}:${WORKERS[$I_INDEX]}"
+		WORKERID="${WORKERNAME}:${WORKERS[$I_INDEX]}"
 	    else
-                WORKERID="${HOSTNAME}:$I"
+                WORKERID="${WORKERNAME}:$I"
 	    fi
             R=$OBS_WORKER_DIRECTORY/root_$I
             # prepare obsworker startup in screen...
