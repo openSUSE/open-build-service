@@ -36,10 +36,10 @@ class PersonController < ApplicationController
 
     if user.login != @http_user.login
       logger.debug "Generating for user from parameter #{user.login}"
-      render text: user.render_axml(@http_user.is_admin?), content_type: "text/xml"
+      render xml: user.render_axml(@http_user.is_admin?)
     else
       logger.debug "Generating user info for logged in user #{@http_user.login}"
-      render text: @http_user.render_axml(true), content_type: "text/xml"
+      render xml: @http_user.render_axml(true)
     end
   end
 

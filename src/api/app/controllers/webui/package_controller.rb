@@ -1001,9 +1001,9 @@ class Webui::PackageController < Webui::WebuiController
           res += line
         end
       end
-      render text: res, content_type: 'text/html'
+      render html: res
     rescue ActiveXML::Transport::NotFoundError
-      render text: 'No rpmlint log'
+      render plain: 'No rpmlint log'
     end
   end
 

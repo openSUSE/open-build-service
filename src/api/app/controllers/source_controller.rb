@@ -659,7 +659,7 @@ class SourceController < ApplicationController
                                           # or if rev it specified we need to fetch the meta from the backend
       answer = Suse::Backend.get(request.path_info)
       if answer
-        render text: answer.body.to_s, content_type: 'text/xml'
+        render xml: answer.body.to_s
       else
         render_error status: 404, errorcode: 'unknown_package',
                      message: "Unknown package '#{@package_name}'"
@@ -910,7 +910,7 @@ class SourceController < ApplicationController
         c.project(p)
       end
     end
-    render text: xml, content_type: 'text/xml'
+    render xml: xml
   end
 
   # lock a project
@@ -1257,7 +1257,7 @@ class SourceController < ApplicationController
 #      path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(package_name)}\"+and+@linkinfo/project=\"#{CGI.escape(project_name)}\")"
 #      answer = Suse::Backend.post path
 #      render :text => answer.body, :content_type => 'text/xml'
-      render text: '<collection/>', content_type: 'text/xml'
+      render xml: '<collection/>'
       return
     end
 
@@ -1270,7 +1270,7 @@ class SourceController < ApplicationController
         c.package(p)
       end
     end
-    render text: xml, content_type: 'text/xml'
+    render xml: xml
   end
 
   # POST /source/<project>/<package>?cmd=collectbuildenv

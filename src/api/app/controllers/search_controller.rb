@@ -245,7 +245,7 @@ class SearchController < ApplicationController
     end
 
     output << "</collection>"
-    render text: output, content_type: "text/xml"
+    render xml: output
   end
 
   # specification of this function:
@@ -316,6 +316,6 @@ class SearchController < ApplicationController
         end
       end
     end
-    render text: xml, content_type: "text/xml"
+    render xml: xml
   end
 end

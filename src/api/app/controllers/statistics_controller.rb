@@ -12,9 +12,7 @@ class StatisticsController < ApplicationController
   ]
 
   def index
-    text = "This is the statistics controller.<br />"
-    text += "See the api documentation for details."
-    render text: text
+    render plain: "This is the statistics controller.<br/>See the api documentation for details."
   end
 
   def min_votes_for_rating
