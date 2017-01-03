@@ -68,9 +68,13 @@ Style/HashSyntax:
 # Use Kernel#loop for infinite loops
 Style/InfiniteLoop:
   Enabled: true
-  
+
 # Checks for unwanted parentheses in parameterless method calls
 Style/MethodCallParentheses:
+  Enabled: true
+
+# Checks for chaining of a block after another block that spans multiple lines.
+Style/MultilineBlockChain:
   Enabled: true
 
 # Checks for uses of if with a negated condition (only ifs without else)

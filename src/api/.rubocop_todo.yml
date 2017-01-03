@@ -592,11 +592,6 @@ Style/MultilineArrayBraceLayout:
     - 'test/functional/attributes_test.rb'
     - 'test/functional/request_controller_test.rb'
 
-# Offense count: 1
-Style/MultilineBlockChain:
-  Exclude:
-    - 'app/controllers/webui/driver_update_controller.rb'
-
 # Offense count: 125
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
