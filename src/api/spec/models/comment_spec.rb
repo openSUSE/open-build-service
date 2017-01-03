@@ -3,6 +3,8 @@ require "rails_helper"
 RSpec.describe Comment do
   let(:comment_package) { create(:comment_package) }
   let(:comment_package_with_parent) { create(:comment_package, parent: comment_package) }
+  let(:comment_package_with_parent_2) { create(:comment_package, parent: comment_package) }
+  let(:comment_package_with_grandparent) { create(:comment_package, parent: comment_package_with_parent) }
 
   describe "has a valid Factory" do
     it { expect(comment_package).to be_valid }
@@ -63,6 +65,30 @@ RSpec.describe Comment do
 
       it 'should be destroyed' do
         expect { comment_package.blank_or_destroy }.to change { Comment.count }.by(-1)
+      end
+    end
+
+    context "with nobody parent and a brother" do
+      before do
+        comment_package_with_parent
+        comment_package_with_parent_2
+        comment_package.blank_or_destroy
+      end
+
+      it 'should be destroyed' do
+        expect { comment_package_with_parent.blank_or_destroy }.to change { Comment.count }.by(-1)
+      end
+    end
+
+    context "with nobody parent, nobody grandparent and no brother" do
+      before do
+        comment_package_with_grandparent
+        comment_package_with_parent.blank_or_destroy
+        comment_package.blank_or_destroy
+      end
+
+      it 'should be destroyed' do
+        expect { comment_package_with_grandparent.blank_or_destroy }.to change { Comment.count }.by(-3)
       end
     end
 
