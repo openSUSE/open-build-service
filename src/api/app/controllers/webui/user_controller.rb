@@ -9,7 +9,7 @@ class Webui::UserController < Webui::WebuiController
   skip_before_action :check_anonymous, only: [:do_login]
 
   def index
-    @users = User.all_without_nobody
+    @users = User.all_without_nobody.includes(:owner)
   end
 
   def logout
