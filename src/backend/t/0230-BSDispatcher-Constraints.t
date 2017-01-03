@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;                      # last test to print
+use Test::More tests => 8;                      # last test to print
 use Data::Dumper;
 use Build;
 
