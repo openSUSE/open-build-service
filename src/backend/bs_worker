@@ -95,6 +95,7 @@ my $threads;
 my $cachedir;
 my $cachesize;
 my $cleanup_chroot;
+my $wipeafterbuild;
 
 # current XEN has no xenstore anymore
 my $xenstore_maxsize = 20 * 1000000;
@@ -218,6 +219,18 @@ sub kill_job {
   return 1;
 }
 
+sub wipe_all {
+  my @args;
+  if ($vm =~ /(xen|kvm|zvm|emulator)/) {
+    push @args, '--root', "$buildroot/.mount";
+  } else {
+    push @args, '--root', $buildroot;
+  }
+  if (system("$statedir/build/build", @args, "--wipe")) {
+    return 0;
+  }
+  return 1;
+}
 sub usage {
   my ($ret) = @_;
 
@@ -561,6 +574,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--cleanup-chroot') {
     shift @ARGV;
     $cleanup_chroot = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--wipeafterbuild') {
+    shift @ARGV;
+    $wipeafterbuild = 1;
     next;
   }
   last;
@@ -3353,6 +3371,7 @@ my ($state, $buildinfo, $registerserver) = BSServer::server($conf);
 print "got job, run build...\n";
 BSServer::done(1);
 
+mkdir_p($buildroot) if ( ! -e $buildroot);
 unlink("$buildroot/.build.meta");
 unlink("$buildroot/.build.packages");
 unlink("$buildroot/.build.log");
@@ -3590,6 +3609,8 @@ if (!$testmode) {
     sleep(60);
   } else {
     print "sent, all done...\n";
+    # do the wipe
+    wipe_all() if $wipeafterbuild;
   }
 } else {
   print "testmode, not sending anything\n";

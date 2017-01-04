@@ -83,6 +83,9 @@ fi
 if [ -n "$OBS_WORKER_CLEANUP_CHROOT" ]; then
     OBS_CLEANUP_CHROOT="--cleanup-chroot"
 fi
+if [ -n "$OBS_WORKER_WIPE_AFTER_BUILD" ]; then
+    OBS_WIPE_AFTER_BUILD="--wipeafterbuild"
+fi
 
 if [ -n "OBS_WORKER_SECURITY_LEVEL" ]; then
     OBS_WORKER_HOSTLABELS="OBS_WORKER_SECURITY_LEVEL_${OBS_WORKER_SECURITY_LEVEL} $OBS_WORKER_HOSTLABELS"
@@ -356,7 +359,7 @@ case "$1" in
 	    echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker --hardstatus $vmopt $port --root $R" \
                 "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
                 "$HOSTOWNER $OBS_JOBS $OBS_THREADS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
-                "$OBS_CLEANUP_CHROOT $ARCH $EMULATOR" \
+                "$OBS_CLEANUP_CHROOT $OBS_WIPE_AFTER_BUILD $ARCH $EMULATOR" \
                 >> $screenrc
 	    mkdir -p $workerdir/$I
         done
