@@ -48,7 +48,7 @@ class IssueTracker < ApplicationRecord
 
   # Generates a URL to display a given issue in the upstream issue tracker
   def show_url_for(issue, html = nil)
-    return nil unless issue
+    return unless issue
     url = show_url.gsub('@@@', issue)
     return "<a href=\"#{url}\">#{CGI::escapeHTML(show_label_for(issue))}</a>" if html
     url
@@ -104,7 +104,7 @@ class IssueTracker < ApplicationRecord
       response = http.start { |h| h.request(request) }
       url = URI.parse(response.header['location']) if response.header['location']
     end while response.header['location']
-    return nil if response.blank?
+    return if response.blank?
     parse_github_issues(ActiveSupport::JSON.decode(response.body))
 
     # done

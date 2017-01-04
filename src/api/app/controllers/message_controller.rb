@@ -68,7 +68,7 @@ class MessageController < ApplicationController
         (@project && !permissions.project_change?(@project.name))
       render_error status: 403, errorcode: 'permission denied',
                    message: 'message cannot be created, insufficient permissions'
-      return nil
+      return
     end
     true
   end

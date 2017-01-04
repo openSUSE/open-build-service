@@ -29,7 +29,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   end
 
   def get_releaseproject(pkg, tprj)
-    return nil if pkg.is_patchinfo?
+    return if pkg.is_patchinfo?
 
     releaseproject = target_releaseproject ? Project.get_by_name(target_releaseproject) : tprj
     if releaseproject.try(:name).blank?
@@ -136,7 +136,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         end
       else
         # no link and not a patchinfo
-        return nil # error out instead ?
+        return # error out instead ?
       end
     end
 

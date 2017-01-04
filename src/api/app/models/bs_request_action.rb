@@ -462,7 +462,7 @@ class BsRequestAction < ApplicationRecord
 
       # remove source project, if this is the only package and not a user's home project
       splits = self.source_project.split(':')
-      return nil if splits.count == 2 && splits[0] == 'home'
+      return if splits.count == 2 && splits[0] == 'home'
 
       source_project.commit_opts = { comment: bs_request.description, request: bs_request }
       source_project.destroy
@@ -738,7 +738,7 @@ class BsRequestAction < ApplicationRecord
   # rubocop:enable Metrics/PerceivedComplexity
 
   def check_action_permission_source!
-    return nil unless source_project
+    return unless source_project
 
     sprj = Project.get_by_name source_project
     unless sprj
@@ -834,7 +834,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_action_permission_target!
-    return nil unless target_project
+    return unless target_project
 
     tprj = Project.get_by_name target_project
     if tprj.is_a? Project
@@ -877,19 +877,19 @@ class BsRequestAction < ApplicationRecord
       if target_package &&
          Package.exists_by_project_and_name(target_project, target_package, { follow_project_links: false })
         raise MissingAction.new unless contains_change?
-        return nil
+        return
       end
     end
 
     # complete in formation available already?
-    return nil if action_type == :submit && target_package
-    return nil if action_type == :maintenance_release && target_package
+    return if action_type == :submit && target_package
+    return if action_type == :maintenance_release && target_package
     if action_type == :maintenance_incident && target_releaseproject && source_package
       pkg = Package.get_by_project_and_name(source_project, source_package)
       prj = Project.get_by_name(target_releaseproject).update_instance
       self.target_releaseproject = prj.name
       get_releaseproject(pkg, prj) if pkg
-      return nil
+      return
     end
 
     if [:submit, :maintenance_release, :maintenance_incident].include?(action_type)
@@ -907,7 +907,7 @@ class BsRequestAction < ApplicationRecord
              per_package_locking
     end
 
-    return nil
+    return
   end
 
   def source_access_check!

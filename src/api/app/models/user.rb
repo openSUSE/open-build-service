@@ -234,7 +234,7 @@ class User < ApplicationRecord
       # still in LDAP mode, user authentificated, but not existing in OBS yet
       if ::Configuration.registration == "deny"
         logger.debug( "No user found in database, creation disabled" )
-        return nil
+        return
       end
       logger.debug( "No user found in database, creating" )
       logger.debug( "Email: #{ldap_info[0]}" )
@@ -252,7 +252,7 @@ class User < ApplicationRecord
           msg
         end
         logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{all_errors.join(', ')}")
-        return nil
+        return
       end
       user.realname = ldap_info[1]
       user.state = User.default_user_state
@@ -276,7 +276,7 @@ class User < ApplicationRecord
       execute_without_timestamps { user.save! }
     end
 
-    return nil
+    return
   end
 
   def self.current

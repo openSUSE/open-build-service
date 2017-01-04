@@ -131,7 +131,7 @@ module ActiveXML
           return obj
         rescue ActiveXML::Transport::NotFoundError
           Rails.logger.debug "#{name}.find( #{args.map {|a| a.inspect}.join(', ')} ) did not find anything, return nil"
-          return nil
+          return
         end
       end
 
@@ -363,7 +363,7 @@ module ActiveXML
     end
 
     def parent
-      return nil unless _data.parent && _data.parent.element?
+      return unless _data.parent && _data.parent.element?
       Node.new(_data.parent)
     end
 
@@ -479,7 +479,7 @@ module ActiveXML
         ret = c.find_matching(conds)
         return ret if ret
       end
-      return nil
+      return
     end
 
     # stay away from this

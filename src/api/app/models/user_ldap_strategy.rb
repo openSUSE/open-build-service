@@ -186,7 +186,7 @@ class UserLdapStrategy
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
       Rails.logger.debug("Unable to connect to LDAP server")
-      return nil
+      return
     end
     Rails.logger.debug("Search: #{filter}")
     result = Array.new
@@ -198,7 +198,7 @@ class UserLdapStrategy
       end
     end
     if result.empty?
-      return nil
+      return
     else
       return result
     end
@@ -416,7 +416,7 @@ class UserLdapStrategy
       ldap_con = @@ldap_search_con
       if ldap_con.nil?
         Rails.logger.debug("Unable to connect to LDAP server")
-        return nil
+        return
       end
 
       if CONFIG.has_key?('ldap_user_filter')
@@ -437,26 +437,26 @@ class UserLdapStrategy
           ldap_first_try = false
           redo
         end
-        return nil
+        return
       end
     end
     if user.nil?
       Rails.logger.debug("User not found in ldap")
-      return nil
+      return
     end
     # Attempt to authenticate user
     case CONFIG['ldap_authenticate']
     when :local then
       unless authenticate_with_local(password, user)
         Rails.logger.debug("Unable to local authenticate #{user['dn']}")
-        return nil
+        return
       end
     when :ldap then
       # Don't match the passwd locally, try to bind to the ldap server
       user_con= initialize_ldap_con(user['dn'], password)
       if user_con.nil?
         Rails.logger.debug("Unable to connect to LDAP server as #{user['dn']} using credentials supplied")
-        return nil
+        return
       else
         # Redo the search as the user for situations where the anon search may not be able to see attributes
         user_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
@@ -467,7 +467,7 @@ class UserLdapStrategy
     else # If no CONFIG['ldap_authenticate'] is given do not return the ldap_info !
       Rails.logger.error("Unknown ldap_authenticate setting: '#{CONFIG['ldap_authenticate']}' " +
                          "so #{user['dn']} not authenticated. Ensure ldap_authenticate uses a valid symbol")
-      return nil
+      return
     end
 
     # Only collect the required user information *AFTER* we successfully
@@ -547,7 +547,7 @@ class UserLdapStrategy
   # this method returns a ldap object using the provided user name
   # and password
   def self.initialize_ldap_con(user_name, password)
-    return nil unless defined?(CONFIG['ldap_servers'])
+    return unless defined?(CONFIG['ldap_servers'])
     require 'ldap'
     ldap_servers = CONFIG['ldap_servers'].split(":")
     ping = false
@@ -565,7 +565,7 @@ class UserLdapStrategy
 
     if count == max_ldap_attempts
       Rails.logger.debug("Unable to ping to any LDAP server: #{CONFIG['ldap_servers']}")
-      return nil
+      return
     end
 
     # implicitly turn array into string
@@ -595,7 +595,7 @@ class UserLdapStrategy
         conn.unbind
       end
       Rails.logger.debug("Not bound as #{user_name}: #{conn.err2string(conn.err)}")
-      return nil
+      return
     end
     Rails.logger.debug("Bound as #{user_name}")
     conn

@@ -309,7 +309,7 @@ class Webui::WebuiController < ActionController::Base
 
   def pundit_user
     if User.current.is_nobody?
-      return nil
+      return
     else
       return User.current
     end

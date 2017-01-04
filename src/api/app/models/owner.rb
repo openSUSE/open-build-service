@@ -305,8 +305,8 @@ class Owner
   end
 
   def self.extract_maintainer(rootproject, pkg, rolefilter, objfilter = nil)
-    return nil unless pkg
-    return nil unless Package.check_access?(pkg)
+    return unless pkg
+    return unless Package.check_access?(pkg)
     m = Owner.new
 
     m.rootproject = rootproject.name
@@ -326,7 +326,7 @@ class Owner
       m = _extract_from_container(m, pkg.project.relationships, sql, objfilter)
     end
     # still not matched? Ignore it
-    return nil unless m.users || m.groups
+    return unless m.users || m.groups
 
     m
   end

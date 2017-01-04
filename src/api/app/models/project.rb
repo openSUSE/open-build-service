@@ -445,7 +445,7 @@ class Project < ApplicationRecord
         return project, remote_project
       end
     end
-    return nil
+    return
   end
 
   def check_write_access!(ignoreLock = nil)
@@ -1124,7 +1124,7 @@ class Project < ApplicationRecord
 
     # no package found
     processed.delete(self)
-    return nil
+    return
   end
 
   def expand_all_repositories

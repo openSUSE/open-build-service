@@ -286,7 +286,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
 
     issue_tracker = IssueTracker.find_by(name: tracker)
-    return nil unless issue_tracker
+    return unless issue_tracker
 
     if bug.match(/^#{issue_tracker.regex}$/)
       issue = Issue.find_or_create_by_name_and_tracker( issueid, issue_tracker.name )
@@ -297,7 +297,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         return issue.summary.gsub(/\\|'/) { '' }
       end
     else
-      return nil
+      return
     end
     ''
   end

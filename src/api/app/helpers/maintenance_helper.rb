@@ -221,7 +221,7 @@ module MaintenanceHelper
   end
 
   def get_updateinfo_id(sourcePackage, targetRepo)
-    return nil unless sourcePackage.is_patchinfo?
+    return unless sourcePackage.is_patchinfo?
 
     # check for patch name inside of _patchinfo file
     xml = Patchinfo.new.read_patchinfo_xmlhash(sourcePackage)
@@ -229,7 +229,7 @@ module MaintenanceHelper
     patchName = e ? e.first : ""
 
     mi = MaintenanceIncident.find_by_db_project_id(sourcePackage.project_id)
-    return nil unless mi
+    return unless mi
 
     id_template = "%Y-%C"
     # check for a definition in maintenance project

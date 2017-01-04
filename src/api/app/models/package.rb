@@ -138,14 +138,14 @@ class Package < ApplicationRecord
       return pkg if pkg && pkg.updated_at == old_pkg_time && pkg.project.updated_at == old_prj_time
       Rails.cache.delete(@key) # outdated anyway
     end
-    return nil
+    return
   end
 
   def self.internal_get_project(project)
     if project.is_a? Project
       prj = project
     else
-      return nil if Project.is_remote_project?(project)
+      return if Project.is_remote_project?(project)
       prj = Project.get_by_name(project)
     end
     raise UnknownObjectError, "#{project}/#{package}" unless prj
@@ -174,7 +174,7 @@ class Package < ApplicationRecord
     return pkg if pkg
 
     prj = internal_get_project(project)
-    return nil unless prj # remote prjs
+    return unless prj # remote prjs
 
     if pkg.nil? && opts[:follow_project_links]
       pkg = prj.find_package(package, opts[:check_update_project])
@@ -621,7 +621,7 @@ class Package < ApplicationRecord
   # delivers only a defined devel package
   def find_devel_package
      pkg = resolve_devel_package
-     return nil if pkg == self
+     return if pkg == self
      pkg
   end
 
@@ -657,7 +657,7 @@ class Package < ApplicationRecord
         prj_name = prj.name
         pkg = prj.packages.get_by_name(pkg.name)
         if pkg.nil?
-          return nil
+          return
         end
       end
       if pkg.id == id
@@ -1223,7 +1223,7 @@ class Package < ApplicationRecord
       # going backward from not yet known current revision, find out ...
       r = self.rev.to_i + rev.to_i + 1
       rev = r.to_s
-      return nil if rev.to_i < 1
+      return if rev.to_i < 1
     end
     rev ||= self.rev
 

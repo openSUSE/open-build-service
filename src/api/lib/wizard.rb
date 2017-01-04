@@ -81,7 +81,7 @@ class Wizard
 #    ask "license"
 #    ask "group"
 #    return @questions if @questions
-    return nil
+    return
   end
 
   def generate_spec(template)

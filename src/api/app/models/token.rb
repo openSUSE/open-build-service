@@ -7,7 +7,7 @@ class Token < ApplicationRecord
 
   def self.find_by_string(token)
     token = Token.where(string: token.to_s).includes(:package, :user).first
-    return nil unless token && token.user_id
+    return unless token && token.user_id
 
     # package found and user has write access
     token
