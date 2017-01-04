@@ -42,7 +42,7 @@ class BuildController < ApplicationController
         raise MissingParameterError.new "Missing parameter 'cmd'"
       end
 
-      unless %w(wipe restartbuild killbuild abortbuild rebuild).include? params[:cmd]
+      unless %w(wipe restartbuild killbuild abortbuild rebuild unpublish).include? params[:cmd]
         render_error status: 400, errorcode: "illegal_request",
           message: "unsupported POST command #{params[:cmd]} to #{request.url}"
         return
