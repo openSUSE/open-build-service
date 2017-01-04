@@ -24,16 +24,14 @@ module ParsePackageDiff
       end
       if filename.include?('/')
         other_file_keys << filename
+      elsif filename.ends_with?('.spec')
+        spec_file_keys << filename
+      elsif filename.ends_with?('.changes')
+        changes_file_keys << filename
+      elsif filename.match(/.*.(patch|diff|dif)/)
+        patch_file_keys << filename
       else
-        if filename.ends_with?('.spec')
-          spec_file_keys << filename
-        elsif filename.ends_with?('.changes')
-          changes_file_keys << filename
-        elsif filename.match(/.*.(patch|diff|dif)/)
-          patch_file_keys << filename
-        else
-          other_file_keys << filename
-        end
+        other_file_keys << filename
       end
       files_hash[filename] = file
     end

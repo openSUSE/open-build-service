@@ -223,12 +223,10 @@ class SourceController < ApplicationController
       else
         validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
       end
+    elsif %w(_project _pattern).include? @target_package_name
+      Project.get_by_name @target_project_name
     else
-      if %w(_project _pattern).include? @target_package_name
-        Project.get_by_name @target_project_name
-      else
-        @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name, use_source: true, follow_project_links: true)
-      end
+      @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name, use_source: true, follow_project_links: true)
     end
 
     if params[:view] == 'issues'

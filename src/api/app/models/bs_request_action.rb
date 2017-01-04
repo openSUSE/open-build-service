@@ -343,10 +343,8 @@ class BsRequestAction < ApplicationRecord
         # just the direct affected target
         tpkg = tprj.packages.find_by_name target_package
       end
-    else
-      if source_package
-        tpkg = tprj.packages.find_by_name source_package
-      end
+    elsif source_package
+      tpkg = tprj.packages.find_by_name source_package
     end
 
     if source_project

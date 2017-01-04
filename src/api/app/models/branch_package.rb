@@ -294,13 +294,10 @@ class BranchPackage
         if ipkg.nil?
           logger.error "read permission or data inconsistency, backend delivered package " +
                        "as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
-        else
-          # is incident ?
-          if ipkg.project.is_maintenance_incident? && ipkg.project.is_unreleased?
-            # is a newer incident ?
-            if incident_pkg.nil? || ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
-              incident_pkg = ipkg
-            end
+        elsif ipkg.project.is_maintenance_incident? && ipkg.project.is_unreleased? # is incident ?
+          # is a newer incident ?
+          if incident_pkg.nil? || ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
+            incident_pkg = ipkg
           end
         end
       end
@@ -515,8 +512,8 @@ class BranchPackage
         pkg = Package.get_by_project_and_name params[:project], params[:package], {check_update_project: true}
         if prj.is_a?(Project) && prj.find_attribute('OBS', 'BranchTarget')
           @copy_from_devel = true
-        else
-          prj = pkg.project if pkg
+        elsif pkg
+          prj = pkg.project
         end
       end
       tpkg_name = params[:target_package]

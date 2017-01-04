@@ -740,12 +740,10 @@ class Package < ApplicationRecord
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
       Suse::Backend.put_source(source_path('_meta', query), to_axml)
       logger.tagged('backend_sync') { logger.debug "Saved Package #{project.name}/#{name}" }
+    elsif @commit_opts[:no_backend_write]
+      logger.tagged('backend_sync') { logger.warn "Not saving Package #{project.name}/#{name}, backend_write is off " }
     else
-      if @commit_opts[:no_backend_write]
-        logger.tagged('backend_sync') { logger.warn "Not saving Package #{project.name}/#{name}, backend_write is off " }
-      else
-        logger.tagged('backend_sync') { logger.warn "Not saving Package #{project.name}/#{name}, global_write_through is off" }
-      end
+      logger.tagged('backend_sync') { logger.warn "Not saving Package #{project.name}/#{name}, global_write_through is off" }
     end
     true
   end
@@ -773,14 +771,12 @@ class Package < ApplicationRecord
         logger.tagged('backend_sync') { logger.warn("Package #{project.name}/#{name} was already missing on backend on removal") }
       end
       logger.tagged('backend_sync') { logger.warn("Deleted Package #{project.name}/#{name}") }
-    else
-      if @commit_opts[:no_backend_write]
-        unless @commit_opts[:project_destroy_transaction]
-          logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, backend_write is off " }
-        end
-      else
-        logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, global_write_through is off" }
+    elsif @commit_opts[:no_backend_write]
+      unless @commit_opts[:project_destroy_transaction]
+        logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, backend_write is off " }
       end
+    else
+      logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, global_write_through is off" }
     end
     true
   end

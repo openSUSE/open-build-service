@@ -699,13 +699,10 @@ class Webui::PackageController < Webui::WebuiController
         unless services.save
           errors << "Failed to add file from URL '#{file_url}'"
         end
+      elsif filename.present? # No file is provided so we just create an empty new file (touch)
+        @package.save_file(filename: filename)
       else
-        # No file is provided so we just create an empty new file (touch)
-        if filename.present?
-          @package.save_file(filename: filename)
-        else
-          errors << 'No file or URI given'
-        end
+        errors << 'No file or URI given'
       end
     rescue ActiveXML::Transport::Error => e
       errors << Xmlhash::XMLHash.new(error: e.summary)[:error]
