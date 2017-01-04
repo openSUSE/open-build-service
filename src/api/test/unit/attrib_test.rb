@@ -48,12 +48,13 @@ class AttribTest < ActiveSupport::TestCase
   test 'should have one value' do
     attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribValueCount1')
     attrib_value = AttribValue.new(value: 'xxx')
+    attrib_value_second = AttribValue.new(value: 'yyy')
     attrib = Attrib.new(attrib_type: attrib_type, package: Package.first)
 
     attrib_type.value_count = 1
     attrib.values << attrib_value
     assert attrib.valid?, "attrib should be valid: #{attrib.errors.messages}"
-    attrib.values << attrib_value
+    attrib.values << attrib_value_second
     assert_not attrib.valid?
     assert_equal ["has 2 values, but only 1 are allowed"], attrib.errors.messages[:values]
     attrib.values.delete_all
