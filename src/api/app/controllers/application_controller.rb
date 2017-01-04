@@ -46,7 +46,7 @@ class ApplicationController < ActionController::Base
 
   def pundit_user
     if User.current.is_nobody?
-      return nil
+      return
     else
       return User.current
     end
@@ -165,7 +165,7 @@ class ApplicationController < ActionController::Base
         return request.env[header].to_s.split
       end
     end
-    return nil
+    return
   end
 
   def extract_basic_auth_user

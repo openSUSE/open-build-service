@@ -63,8 +63,8 @@ module Suse
         key2 = opt[:action].to_s + '-' + opt[:type].to_s
 
         # logger.debug "checking schema map for controller '#{c}', key: '#{key}'"
-        return nil if @schema_map.nil?
-        return nil unless @schema_map.has_key? c
+        return if @schema_map.nil?
+        return unless @schema_map.has_key? c
         @schema_map[c][key] || @schema_map[c][key2]
       end
 

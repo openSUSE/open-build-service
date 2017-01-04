@@ -850,7 +850,7 @@ class Webui::ProjectController < Webui::WebuiController
                   '--outfmt=xml', "#{@project.name}/#{@repository}/#{@arch}", '--width=910',
                   "--buildhosts=#{@hosts}", "--scheduler=#{@scheduler}")
       Dir.chdir(oldpwd)
-      return nil
+      return
     end
     Dir.chdir(oldpwd)
     begin
@@ -858,7 +858,7 @@ class Webui::ProjectController < Webui::WebuiController
       png=f.read
       f.close
     rescue
-      return nil
+      return
     end
 
     Rails.cache.write("rebuild-#{@pngkey}.png", png)

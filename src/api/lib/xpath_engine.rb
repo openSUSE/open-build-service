@@ -485,7 +485,7 @@ class XpathEngine
     raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] && @attribs[table].has_key?(key)
     # logger.debug "-- found key: #{key} --"
     if @attribs[table][key][:empty]
-      return nil
+      return
     end
     if @attribs[table][key][:joins]
       @joins << @attribs[table][key][:joins]

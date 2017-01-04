@@ -368,7 +368,7 @@ module Webui
     #
     def flash_message_type
       result = first(:css, 'div#flash-messages span')
-      return nil unless result
+      return unless result
       return :info if result['class'].include? 'info'
       return :alert if result['class'].include? 'alert'
     end

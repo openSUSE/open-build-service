@@ -273,7 +273,7 @@ class BranchPackage
   end
 
   def lookup_incident_pkg(p)
-    return nil unless p[:package].kind_of? Package
+    return unless p[:package].kind_of? Package
     @obs_maintenanceproject ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
     @maintenanceProjects ||= Project.find_by_attribute_type(@obs_maintenanceproject)
     incident_pkg=nil

@@ -41,7 +41,7 @@ module ActiveXML
         if @xml.has_key? 'details'
           return @xml['details']
         end
-        return nil
+        return
       end
 
       def summary

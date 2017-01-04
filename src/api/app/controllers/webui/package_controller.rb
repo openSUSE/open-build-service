@@ -442,10 +442,10 @@ class Webui::PackageController < Webui::WebuiController
                                        target_package: @opackage,
                                        source_project: @package.project,
                                        source_package: @package.name).order(:bs_request_id).last
-      return nil unless last_req
+      return unless last_req
       last_req = last_req.bs_request
       if last_req.state != :declined
-        return nil # ignore all !declined
+        return # ignore all !declined
       end
       return {
         id:       last_req.number,
@@ -454,7 +454,7 @@ class Webui::PackageController < Webui::WebuiController
         comment:  last_req.comment
       }
     end
-    return nil
+    return
   end
 
   class DiffError < APIException
