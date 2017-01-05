@@ -318,9 +318,9 @@ class PackageTest < ActiveSupport::TestCase
 
   test 'is_binary_file?' do
     file_paths = [
-        '/tmp/some/file',
-        '/srv/www/another_file_',
-        '/var/lib/cache/file with spaces'
+      '/tmp/some/file',
+      '/srv/www/another_file_',
+      '/var/lib/cache/file with spaces'
     ]
 
     filename = ''
