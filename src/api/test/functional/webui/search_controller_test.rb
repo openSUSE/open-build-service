@@ -14,7 +14,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     page.must_have_text 'Advanced'
   end
 
-  def search options
+  def search(options)
     validate_search_page
     # avoid the animation that happens when you press the button
     page.execute_script('$("#advanced_container").show()')

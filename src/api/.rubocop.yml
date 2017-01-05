@@ -73,6 +73,10 @@ Style/InfiniteLoop:
 Style/MethodCallParentheses:
   Enabled: true
 
+# Checks for parentheses around the arguments in method definitions
+Style/MethodDefParentheses:
+  Enabled: true
+
 # Checks for chaining of a block after another block that spans multiple lines.
 Style/MultilineBlockChain:
   Enabled: true
