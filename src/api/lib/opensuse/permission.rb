@@ -54,7 +54,7 @@ module Suse
         end
 
         if project.kind_of? String
-           project = project
+          project = project
         end
 
         pkg = Package.find_by_project_and_name( project, package )

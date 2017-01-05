@@ -194,8 +194,8 @@ class Webui::PackageController < Webui::WebuiController
     required_parameters :repository
     @repository = params[:repository]
     begin
-    @buildresult = Buildresult.find_hashed(project: @project, package: @package,
-      repository: @repository, view: %w(binarylist status))
+      @buildresult = Buildresult.find_hashed(project: @project, package: @package,
+        repository: @repository, view: %w(binarylist status))
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
       redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
@@ -566,10 +566,10 @@ class Webui::PackageController < Webui::WebuiController
     redirect_to(package_show_path(project: created_project_name, package: created_package_name),
                 notice: "Successfully branched package")
   rescue BranchPackage::DoubleBranchPackageError
-      redirect_to(package_show_path(project: User.current.branch_project_name(@project), package: @package),
-                  notice: 'You have already branched this package')
+    redirect_to(package_show_path(project: User.current.branch_project_name(@project), package: @package),
+                notice: 'You have already branched this package')
   rescue APIException => e
-      redirect_back(fallback_location: root_path, error: e.message)
+    redirect_back(fallback_location: root_path, error: e.message)
   end
 
   def save_new_link

@@ -1,6 +1,6 @@
 class ProjectMaintains < ActiveRecord::Migration
   class OldProject < ActiveRecord::Base
-     self.table_name = 'projects'
+    self.table_name = 'projects'
   end
 
   def self.up

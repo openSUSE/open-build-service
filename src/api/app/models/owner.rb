@@ -357,13 +357,13 @@ class Owner
     sql = nil
     if rolefilter.length > 0
       rolefilter.each do |rf|
-       if sql.nil?
-         sql = "( "
-       else
-         sql << " OR "
-       end
-       role = Role.find_by_title!(rf)
-       sql << "role_id = " << role.id.to_s
+        if sql.nil?
+          sql = "( "
+        else
+          sql << " OR "
+        end
+        role = Role.find_by_title!(rf)
+        sql << "role_id = " << role.id.to_s
       end
     else
       # match all roles

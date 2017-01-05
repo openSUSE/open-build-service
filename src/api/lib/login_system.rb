@@ -12,7 +12,7 @@ module LoginSystem
   #    user.login != "bob"
   #  end
   def authorize?(_user)
-     true
+    true
   end
 
   # overwrite this method if you only want to protect certain actions of the controller

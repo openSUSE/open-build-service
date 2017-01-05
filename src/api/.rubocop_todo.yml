@@ -541,12 +541,6 @@ Style/IndentationConsistency:
     - 'test/unit/ichain_notifier_test.rb'
     - 'test/unit/validator_test.rb'
 
-# Offense count: 106
-# Cop supports --auto-correct.
-# Configuration parameters: Width.
-Style/IndentationWidth:
-  Enabled: false
-
 # Offense count: 45
 # Cop supports --auto-correct.
 Style/LineEndConcatenation:

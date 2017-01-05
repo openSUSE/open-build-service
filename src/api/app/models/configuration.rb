@@ -52,7 +52,7 @@ class Configuration < ApplicationRecord
     # the data from the first instance
     def method_missing(method_name, *args, &block)
       unless first
-       Configuration.create(name: 'private', title: 'Open Build Service', description: 'Private OBS Instance')
+        Configuration.create(name: 'private', title: 'Open Build Service', description: 'Private OBS Instance')
       end
       if first.respond_to?(method_name)
         first.send(method_name, *args, &block)

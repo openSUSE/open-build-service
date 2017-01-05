@@ -57,12 +57,12 @@ class Webui::UserController < Webui::WebuiController
     @owned = @displayed_user.owned_packages
 
     if User.current == @displayed_user
-        @reviews = @displayed_user.involved_reviews
-        @patchinfos = @displayed_user.involved_patchinfos
-        @requests_in = @displayed_user.incoming_requests
-        @requests_out = @displayed_user.outgoing_requests
-        @declined_requests = @displayed_user.declined_requests
-        @user_have_requests = @displayed_user.requests?
+      @reviews = @displayed_user.involved_reviews
+      @patchinfos = @displayed_user.involved_patchinfos
+      @requests_in = @displayed_user.incoming_requests
+      @requests_out = @displayed_user.outgoing_requests
+      @declined_requests = @displayed_user.declined_requests
+      @user_have_requests = @displayed_user.requests?
     end
   end
 

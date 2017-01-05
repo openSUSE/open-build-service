@@ -17,7 +17,7 @@ end
 
 # set default configuration settings if no settings exist
 Configuration.first_or_create(name: "private", title: "Open Build Service") do |conf|
-conf.description = <<-EOT
+  conf.description = <<-EOT
   <p class="description">
     The <a href="http://openbuildservice.org">Open Build Service (OBS)</a>
     is an open and complete distribution development platform that provides a transparent

@@ -639,15 +639,15 @@ class XpathEngine
     # capabilities of your DBMS is neeed :-)
 
     if [:child, :attribute].include? expr.first
-       # for incorrect writings of not(@name) as existens check
-       # we used to support it :/
-       @condition_values_needed = 2 if expr.first == :attribute
-       cond = evaluate_expr(expr, root)
-       condition = "(NOT #{cond} OR ISNULL(#{cond}))"
-       @condition_values_needed = 1
+      # for incorrect writings of not(@name) as existens check
+      # we used to support it :/
+      @condition_values_needed = 2 if expr.first == :attribute
+      cond = evaluate_expr(expr, root)
+      condition = "(NOT #{cond} OR ISNULL(#{cond}))"
+      @condition_values_needed = 1
     else
-       parse_predicate(root, expr)
-       condition = "(#{@conditions.pop})"
+      parse_predicate(root, expr)
+      condition = "(#{@conditions.pop})"
     end
     # logger.debug "-- condition : [#{condition}]"
     @conditions << condition

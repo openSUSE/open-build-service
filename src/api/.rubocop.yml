@@ -70,6 +70,10 @@ Style/IndentAssignment:
   Enabled: true
   IndentationWidth: 2
 
+# Checks for indentation that doesn't use two spaces.
+Style/IndentationWidth:
+  Enabled: true
+
 # Use Kernel#loop for infinite loops
 Style/InfiniteLoop:
   Enabled: true

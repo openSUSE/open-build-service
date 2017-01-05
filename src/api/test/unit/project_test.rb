@@ -605,35 +605,35 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "duplicated repos" do
-     User.current = users( :king )
-     orig = @project.render_xml
+    User.current = users( :king )
+    orig = @project.render_xml
 
-     axml = Xmlhash.parse(
-      "<project name='home:Iggy'>
-        <title>Iggy's Home Project</title>
-        <description>dummy</description>
-        <repository name='10.2'>
-          <arch>x86_64</arch>
-        </repository>
-        <repository name='10.2'>
-          <arch>i586</arch>
-        </repository>
-      </project>"
-      )
-     assert_raise(ActiveRecord::RecordInvalid) do
-       Project.transaction do
-         @project.update_from_xml!(axml)
-       end
-     end
-     @project.reload
-     assert_equal orig, @project.render_xml
+    axml = Xmlhash.parse(
+     "<project name='home:Iggy'>
+       <title>Iggy's Home Project</title>
+       <description>dummy</description>
+       <repository name='10.2'>
+         <arch>x86_64</arch>
+       </repository>
+       <repository name='10.2'>
+         <arch>i586</arch>
+       </repository>
+     </project>"
+     )
+    assert_raise(ActiveRecord::RecordInvalid) do
+      Project.transaction do
+        @project.update_from_xml!(axml)
+      end
+    end
+    @project.reload
+    assert_equal orig, @project.render_xml
   end
 
   test "duplicated repos with remote" do
-     User.current = users( :Iggy )
-     orig = @project.render_xml
+    User.current = users( :Iggy )
+    orig = @project.render_xml
 
-     xml = <<END
+    xml = <<END
 <project name="home:Iggy">
   <title>Iggy"s Home Project</title>
   <description>dummy</description>
@@ -647,19 +647,19 @@ class ProjectTest < ActiveSupport::TestCase
   </repository>
 </project>
 END
-     axml = Xmlhash.parse(xml)
-     assert_raise(ActiveRecord::RecordInvalid) do
-       Project.transaction do
-         @project.update_from_xml!(axml)
-       end
-     end
-     @project.reload
-     assert_equal orig, @project.render_xml
+    axml = Xmlhash.parse(xml)
+    assert_raise(ActiveRecord::RecordInvalid) do
+      Project.transaction do
+        @project.update_from_xml!(axml)
+      end
+    end
+    @project.reload
+    assert_equal orig, @project.render_xml
   end
 
   test "not duplicated repos with remote" do
-     User.current = users( :Iggy )
-     xml = <<END
+    User.current = users( :Iggy )
+    xml = <<END
 <project name="home:Iggy">
   <title>Iggy"s Home Project</title>
   <description>dummy</description>
@@ -675,12 +675,12 @@ END
   </repository>
 </project>
 END
-     axml = Xmlhash.parse(xml)
-     Project.transaction do
-       @project.update_from_xml!(axml)
-     end
-     @project.reload
-     assert_equal xml, @project.render_xml
+    axml = Xmlhash.parse(xml)
+    Project.transaction do
+      @project.update_from_xml!(axml)
+    end
+    @project.reload
+    assert_equal xml, @project.render_xml
   end
 
   def test_handle_project_links

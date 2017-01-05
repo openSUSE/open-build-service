@@ -1,5 +1,5 @@
 class RenameDbProjects < ActiveRecord::Migration
   def change
-     rename_table :db_projects, :projects
+    rename_table :db_projects, :projects
   end
 end

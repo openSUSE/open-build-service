@@ -24,14 +24,14 @@ class TestController < ApplicationController
 
   # we need a way so the API uprises fully
   def startme
-     if @@started
-       render_ok
-       return
-     end
-     @@started = true
-     WebMock.disable_net_connect!(allow_localhost: true)
-     CONFIG['global_write_through'] = true
-     backend.direct_http(URI("/"))
-     render_ok
+    if @@started
+      render_ok
+      return
+    end
+    @@started = true
+    WebMock.disable_net_connect!(allow_localhost: true)
+    CONFIG['global_write_through'] = true
+    backend.direct_http(URI("/"))
+    render_ok
   end
 end

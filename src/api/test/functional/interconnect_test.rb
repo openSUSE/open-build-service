@@ -302,11 +302,11 @@ class InterConnectTests < ActionDispatch::IntegrationTest
       assert_xml_tag( tag: 'directory', attributes: { count: '0' } )
       get "/source/#{project}?expand=1"
       assert_response :success
-if $ENABLE_BROKEN_TEST
-# FIXME2.4: remote packages get not added yet.
-      assert_xml_tag( tag: 'directory', attributes: { count: '1' } )
-      assert_xml_tag( tag: 'entry', attributes: { name: 'pack1', originproject: 'BaseDistro2.0' } )
-end
+      if $ENABLE_BROKEN_TEST
+        # FIXME2.4: remote packages get not added yet.
+        assert_xml_tag( tag: 'directory', attributes: { count: '1' } )
+        assert_xml_tag( tag: 'entry', attributes: { name: 'pack1', originproject: 'BaseDistro2.0' } )
+      end
     end
 
     # check access to binaries of remote instance
@@ -473,9 +473,9 @@ end
   def test_diff_package
     login_tom
 
-# FIXME: not supported in api atm
-#    post "/source/RemoteInstance:BaseDistro/pack1", :cmd => :branch, :target_project => "LocalProject", :target_package => "branchedpackage"
-#    assert_response :success
+    # FIXME: not supported in api atm
+    # post "/source/RemoteInstance:BaseDistro/pack1", :cmd => :branch, :target_project => "LocalProject", :target_package => "branchedpackage"
+    # assert_response :success
 
     Suse::Backend.put( '/source/LocalProject/newpackage/_meta?user=king', Package.find_by_project_and_name('LocalProject', 'newpackage').to_axml)
     Suse::Backend.put( '/source/LocalProject/newpackage/new_file?user=king', 'adding stuff')
@@ -483,18 +483,18 @@ end
     assert_response :success
   end
 
-# FIXME: backend does not support project copy from remote
-# def test_copy_project
-#   login_tom
-#   get "/source/RemoteInstance:BaseDistro"
-#   assert_response :success
-#   post "/source/home:tom:TEMPORARY?cmd=copy&oproject=RemoteInstance:BaseDistro&nodelay=1"
-#   assert_response :success
-#   get "/source/home:tom:TEMPORARY"
-#   assert_response :success
-#   delete "/source/home:tom:TEMPORARY"
-#   assert_response :success
-# end
+  # FIXME: backend does not support project copy from remote
+  # def test_copy_project
+  #   login_tom
+  #   get "/source/RemoteInstance:BaseDistro"
+  #   assert_response :success
+  #   post "/source/home:tom:TEMPORARY?cmd=copy&oproject=RemoteInstance:BaseDistro&nodelay=1"
+  #   assert_response :success
+  #   get "/source/home:tom:TEMPORARY"
+  #   assert_response :success
+  #   delete "/source/home:tom:TEMPORARY"
+  #   assert_response :success
+  # end
 
   def test_get_packagelist_with_hidden_remoteurlproject
     login_tom

@@ -44,7 +44,7 @@ class WorkerStatus
       end
       parse_worker_infos(wdata)
       @squeues.each_pair do |key, value|
-         StatusHistory.create time: @mytime, key: key, value: value
+        StatusHistory.create time: @mytime, key: key, value: value
       end
     end
     ret

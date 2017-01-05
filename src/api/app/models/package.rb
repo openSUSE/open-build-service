@@ -620,9 +620,9 @@ class Package < ApplicationRecord
 
   # delivers only a defined devel package
   def find_devel_package
-     pkg = resolve_devel_package
-     return if pkg == self
-     pkg
+    pkg = resolve_devel_package
+    return if pkg == self
+    pkg
   end
 
   # delivers always a package

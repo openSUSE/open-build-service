@@ -71,11 +71,11 @@ class AttributeController < ApplicationController
 
       db = AttribNamespace.where(name: namespace).first
       if db
-          logger.debug "* updating existing attribute namespace"
-          db.update_from_xml(xml_element)
+        logger.debug "* updating existing attribute namespace"
+        db.update_from_xml(xml_element)
       else
-          logger.debug "* create new attribute namespace"
-          AttribNamespace.create(name: namespace).update_from_xml(xml_element)
+        logger.debug "* create new attribute namespace"
+        AttribNamespace.create(name: namespace).update_from_xml(xml_element)
       end
 
       logger.debug "--- finished updating attribute namespace definitions ---"
@@ -101,9 +101,9 @@ class AttributeController < ApplicationController
     name = params[:name]
     ans = AttribNamespace.where(name: namespace).first
     unless ans
-       render_error status: 400, errorcode: 'unknown_attribute_namespace',
-         message: "Specified attribute namespace does not exist: '#{namespace}'"
-       return
+      render_error status: 400, errorcode: 'unknown_attribute_namespace',
+        message: "Specified attribute namespace does not exist: '#{namespace}'"
+      return
     end
 
     if request.get?
@@ -136,12 +136,12 @@ class AttributeController < ApplicationController
 
       entry = ans.attrib_types.where("name = ?", name ).first
       if entry
-          db = AttribType.find( entry.id ) # get a writable object
-          logger.debug "* updating existing attribute definitions"
-          db.update_from_xml(xml_element)
+        db = AttribType.find( entry.id ) # get a writable object
+        logger.debug "* updating existing attribute definitions"
+        db.update_from_xml(xml_element)
       else
-          logger.debug "* create new attribute definition"
-          AttribType.new(name: name, attrib_namespace: ans ).update_from_xml(xml_element)
+        logger.debug "* create new attribute definition"
+        AttribType.new(name: name, attrib_namespace: ans ).update_from_xml(xml_element)
       end
 
       logger.debug "--- finished updating attribute namespace definitions ---"

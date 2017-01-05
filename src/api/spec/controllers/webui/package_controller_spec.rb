@@ -19,26 +19,26 @@ RSpec.describe Webui::PackageController, vcr: true do
     repo
   end
   let(:fake_build_results) do
-      Buildresult.new(
-        '<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
-          <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
-           <binarylist>
-              <binary filename="fake_binary_001"/>
-              <binary filename="fake_binary_002"/>
-              <binary filename="updateinfo.xml"/>
-              <binary filename="rpmlint.log"/>
-            </binarylist>
-          </result>
-        </resultlist>')
+    Buildresult.new(
+      '<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
+        <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
+         <binarylist>
+            <binary filename="fake_binary_001"/>
+            <binary filename="fake_binary_002"/>
+            <binary filename="updateinfo.xml"/>
+            <binary filename="rpmlint.log"/>
+          </binarylist>
+        </result>
+      </resultlist>')
   end
   let(:fake_build_results_without_binaries) do
-      Buildresult.new(
-        '<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
-          <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
-           <binarylist>
-            </binarylist>
-          </result>
-        </resultlist>')
+    Buildresult.new(
+      '<resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
+        <result project="home:tom" repository="fake_repo_name" arch="i586" code="unknown" state="unknown" dirty="true">
+         <binarylist>
+          </binarylist>
+        </result>
+      </resultlist>')
   end
 
   describe "POST #submit_request" do

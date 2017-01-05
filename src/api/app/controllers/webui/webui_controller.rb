@@ -242,8 +242,8 @@ class Webui::WebuiController < ActionController::Base
         redirect_back(fallback_location: root_path, error: "User not found #{params['user']}") unless @displayed_user
       end
     else
-        @displayed_user = User.current
-        @displayed_user ||= User.find_nobody!
+      @displayed_user = User.current
+      @displayed_user ||= User.find_nobody!
     end
   end
 

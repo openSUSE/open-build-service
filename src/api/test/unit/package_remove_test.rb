@@ -9,7 +9,7 @@ class PackageRemoveTest < ActiveSupport::TestCase
   end
 
   def test_delete_on_backend
-     skip "Removing a package should remove the package on the backend"
+    skip "Removing a package should remove the package on the backend"
   end
 
   def test_delete_on_backend_no_backend_write
