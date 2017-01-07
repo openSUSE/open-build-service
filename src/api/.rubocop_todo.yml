@@ -517,14 +517,6 @@ Style/IndentArray:
     - 'config/initializers/hoptoad.rb'
     - 'test/unit/package_test.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: IndentationWidth.
-Style/IndentAssignment:
-  Exclude:
-    - 'app/helpers/webui/webui_helper.rb'
-    - 'app/models/bs_request_permission_check.rb'
-
 # Offense count: 40
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.

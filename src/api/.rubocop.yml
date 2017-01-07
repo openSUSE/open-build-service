@@ -65,6 +65,11 @@ Style/HashSyntax:
   Exclude:
     - 'config/routes.rb'
 
+# Checks the indentation of the first line of the right-hand-side of a multi-line assignment.
+Style/IndentAssignment:
+  Enabled: true
+  IndentationWidth: 2
+
 # Use Kernel#loop for infinite loops
 Style/InfiniteLoop:
   Enabled: true
