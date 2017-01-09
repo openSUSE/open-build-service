@@ -628,7 +628,7 @@ Parameters:
   add_repositories: bool, optional, adds repositories base on source project (default for new projects)
   update_path_elements: bool, optional, update all path elements if needed (used repositories depend on each other)
   extend_package_names: bool, optional, extends package and repository names to allow multiple instances of same package
-  add_repositories_rebuild: use defined rebuild policy for new repos
+  add_repositories_rebuild: use defined rebuild policy for new repos ("transitive", "direct" or "local") or copy it from the source project ("copy")
   add_repositories_block: use defined block policy for new repos
 
 XmlResult: status

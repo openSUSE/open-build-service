@@ -610,6 +610,7 @@ class Webui::PackageController < Webui::WebuiController
                         package: source_package_name,
                         target_project: @project.name,
                         target_package: params[:target_package],
+                        add_repositories_rebuild: params[:add_repositories_rebuild],
                         rev: revision).branch
       Event::BranchCommand.create(project: source_project_name, package: source_package_name,
                                   targetproject: @project.name, targetpackage: params[:target_package],

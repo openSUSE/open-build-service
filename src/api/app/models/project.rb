@@ -1223,7 +1223,8 @@ class Project < ApplicationRecord
 
     trepo.clone_repository_from(source_repo)
     trepo.rebuild = opts[:rebuild] if opts[:rebuild]
-    trepo.block   = opts[:block]   if opts[:block]
+    trepo.rebuild = source_repo.rebuild if opts[:rebuild] == "copy"
+    trepo.block   = opts[:block] if opts[:block]
     trepo.save
 
     trigger = nil # no trigger is set by default

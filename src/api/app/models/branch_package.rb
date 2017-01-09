@@ -23,7 +23,7 @@ class BranchPackage
     @rebuild_policy = params[:add_repositories_rebuild]
     @block_policy = params[:add_repositories_block]
     raise InvalidArgument.new unless [nil, "all", "local", "never"].include? @block_policy
-    raise InvalidArgument.new unless [nil, "transitive", "direct", "local"].include? @rebuild_policy
+    raise InvalidArgument.new unless [nil, "transitive", "direct", "local", "copy"].include? @rebuild_policy
     # copy from devel package instead branching ?
     @copy_from_devel = false
     @copy_from_devel = true if params[:newinstance]
