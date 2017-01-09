@@ -872,10 +872,10 @@ class User < ApplicationRecord
 
       p.issues.each do |is|
         i = {}
-        i[:name]= is.name
-        i[:tracker]= is.issue_tracker.name
-        i[:label]= is.label
-        i[:url]= is.url
+        i[:name] = is.name
+        i[:tracker] = is.issue_tracker.name
+        i[:label] = is.label
+        i[:url] = is.url
         i[:summary] = is.summary
         i[:state] = is.state
         i[:login] = is.owner.login if is.owner

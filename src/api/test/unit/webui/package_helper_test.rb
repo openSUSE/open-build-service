@@ -14,7 +14,7 @@ class Webui::PackageHelperTest < ActiveSupport::TestCase
     assert_equal "my&nbsp;file", sanitized_string
     assert sanitized_string.is_a?(ActiveSupport::SafeBuffer)
 
-    long_file_name = "a"*50 + "b"*50 + "c"*10
+    long_file_name = "a" * 50 + "b" * 50 + "c" * 10
     sanitized_string = nbsp(long_file_name)
     assert_equal long_file_name.scan(/.{1,50}/).join("<wbr>"), sanitized_string
     assert sanitized_string.is_a?(ActiveSupport::SafeBuffer)

@@ -156,7 +156,7 @@ class BuildController < ApplicationController
       return
     end
 
-    path = request.path_info+"?"+request.query_string
+    path = request.path_info + "?" + request.query_string
 
     if request.delete?
       unless permissions.project_change? params[:project]
@@ -179,7 +179,7 @@ class BuildController < ApplicationController
     # if there is a query, we can't assume it's a simple download, so better leave out the logic (e.g. view=fileinfo)
     unless request.query_string
       # check if binary exists and for size
-      fpath = "/build/"+[:project, :repository, :arch, :package].map {|x| params[x]}.join("/")
+      fpath = "/build/" + [:project, :repository, :arch, :package].map {|x| params[x]}.join("/")
       file_list = Suse::Backend.get(fpath)
       regexp = file_list.body.match(/name=["']#{Regexp.quote params[:filename]}["'].*size=["']([^"']*)["']/)
     end

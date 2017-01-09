@@ -65,7 +65,7 @@ class ConsistencyCheckJob < ApplicationJob
   end
 
   def project_meta_check(project, fix = nil)
-    errors=""
+    errors = ""
     # WARNING: this is using the memcache content. should maybe dropped before
     api_meta = project.to_axml
     begin
@@ -94,7 +94,7 @@ class ConsistencyCheckJob < ApplicationJob
   end
 
   def project_existence_consistency_check(fix = nil)
-    errors=""
+    errors = ""
     # compare projects
     project_list_api = Project.all.pluck(:name).sort
     begin
@@ -146,7 +146,7 @@ class ConsistencyCheckJob < ApplicationJob
   end
 
   def package_existence_consistency_check(project, fix = nil)
-    errors=""
+    errors = ""
     begin
       project.reload
     rescue ActiveRecord::RecordNotFound
@@ -213,7 +213,7 @@ class ConsistencyCheckJob < ApplicationJob
   end
 
   def dir_to_array(xmlhash)
-    array=[]
+    array = []
     xmlhash.elements('entry') do |e|
       array << e['name']
     end

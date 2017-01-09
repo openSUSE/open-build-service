@@ -104,7 +104,7 @@ class EventFindSubscribers
       receivers[u] << r
     end
 
-    ret=[]
+    ret = []
     receivers.each do |rcv, rules|
       if check_rules? rules
         ret << rcv

@@ -437,11 +437,11 @@ EOF
   end
 
   def test_put_project_meta
-    prj='kde4' # project
-    resp1=:success # expected response 1 & 2
-    resp2=:success # \/ expected assert
-    aresp={ tag: 'status', attributes: { code: 'ok' } }
-    match=true # value written matches 2nd read
+    prj = 'kde4' # project
+    resp1 = :success # expected response 1 & 2
+    resp2 = :success # \/ expected assert
+    aresp = { tag: 'status', attributes: { code: 'ok' } }
+    match = true # value written matches 2nd read
                # admin
     login_king
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
@@ -460,7 +460,7 @@ EOF
   end
 
   def test_create_subproject
-    subprojectmeta="<project name='kde4:subproject'><title></title><description/></project>"
+    subprojectmeta = "<project name='kde4:subproject'><title></title><description/></project>"
 
     # nobody
     put url_for(controller: :source, action: :update_project_meta, project: 'kde4:subproject'), subprojectmeta
@@ -490,7 +490,7 @@ EOF
 
     # create illegal project
     login_fred
-    subprojectmeta="<project name='kde4_subproject'><title></title><description/></project>"
+    subprojectmeta = "<project name='kde4_subproject'><title></title><description/></project>"
     put url_for(controller: :source, action: :update_project_meta, project: 'kde4:subproject'), subprojectmeta
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'project_name_mismatch' }
@@ -503,19 +503,19 @@ EOF
   end
 
   def test_put_project_meta_hidden_project
-    prj='HiddenProject'
+    prj = 'HiddenProject'
     # uninvolved user
-    resp1=404
-    resp2=nil
-    aresp=nil
-    match=nil
+    resp1 = 404
+    resp2 = nil
+    aresp = nil
+    match = nil
     login_tom
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # admin
-    resp1=:success
-    resp2=:success
-    aresp={ tag: 'status', attributes: { code: 'ok' } }
-    match=true
+    resp1 = :success
+    resp2 = :success
+    aresp = { tag: 'status', attributes: { code: 'ok' } }
+    match = true
     login_king
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer
@@ -525,12 +525,12 @@ EOF
   end
 
   def test_put_project_meta_sourceaccess_protected_project
-    prj='SourceprotectedProject'
+    prj = 'SourceprotectedProject'
     # uninvolved user - can't change meta
-    resp1=:success
-    resp2=403
-    aresp={ tag: 'status', attributes: { code: 'change_project_no_permission' } }
-    match=nil
+    resp1 = :success
+    resp2 = 403
+    aresp = { tag: 'status', attributes: { code: 'change_project_no_permission' } }
+    match = nil
     login_tom
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # same with set_flag command ?
@@ -538,10 +538,10 @@ EOF
     assert_response 403
     assert_match(/no permission to execute command/, @response.body)
     # admin
-    resp1=:success
-    resp2=:success
-    aresp={ tag: 'status', attributes: { code: 'ok' } }
-    match=true
+    resp1 = :success
+    resp2 = :success
+    aresp = { tag: 'status', attributes: { code: 'ok' } }
+    match = true
     login_king
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
     # maintainer
@@ -550,7 +550,7 @@ EOF
   end
 
   def test_create_and_remove_release_targets
-    rel_target_meta="<project name='TEMPORARY:rel_target'><title></title><description/>
+    rel_target_meta = "<project name='TEMPORARY:rel_target'><title></title><description/>
                       <repository name='rel_target1'>
                         <path project='BaseDistro' repository='BaseDistro_repo'/>
                         <arch>x86_64</arch>
@@ -560,7 +560,7 @@ EOF
                         <arch>x86_64</arch>
                       </repository>
                    </project>"
-    build_meta="<project name='TEMPORARY:build'><title></title><description/>
+    build_meta = "<project name='TEMPORARY:build'><title></title><description/>
                       <repository name='repo1'>
                         <releasetarget project='TEMPORARY:rel_target' repository='rel_target1'/>
                         <path project='BaseDistro' repository='BaseDistro_repo'/>
@@ -589,7 +589,7 @@ EOF
                    tag: 'releasetarget', attributes: { project: 'TEMPORARY:rel_target', repository: 'rel_target2' }
 
     # delete one repository where a release target defintion points to
-    rel_target_meta="<project name='TEMPORARY:rel_target'><title></title><description/>
+    rel_target_meta = "<project name='TEMPORARY:rel_target'><title></title><description/>
                       <repository name='rel_target2'>
                         <path project='BaseDistro' repository='BaseDistro_repo'/>
                         <arch>x86_64</arch>
@@ -992,12 +992,12 @@ EOF
 
   # admins, project-maintainer and package maintainer can edit package data
   def test_put_package_meta
-    prj='kde4'
-    pkg='kdelibs'
-    resp1=:success
-    resp2=:success
-    aresp={ tag: 'status', attributes: { code: 'ok' } }
-    match=true
+    prj = 'kde4'
+    pkg = 'kdelibs'
+    resp1 = :success
+    resp2 = :success
+    aresp = { tag: 'status', attributes: { code: 'ok' } }
+    match = true
     # admin
     login_king
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
@@ -1018,20 +1018,20 @@ EOF
   end
 
   def test_put_package_meta_hidden_package
-    prj='HiddenProject'
-    pkg='pack'
-    resp1=404
-    resp2=nil
-    aresp=nil
-    match=false
+    prj = 'HiddenProject'
+    pkg = 'pack'
+    resp1 = 404
+    resp2 = nil
+    aresp = nil
+    match = false
     # uninvolved user
     login_fred
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
     # admin
-    resp1=:success
-    resp2=:success
-    aresp={ tag: 'status', attributes: { code: 'ok' } }
-    match=true
+    resp1 = :success
+    resp2 = :success
+    aresp = { tag: 'status', attributes: { code: 'ok' } }
+    match = true
     login_king
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
     # maintainer
@@ -1040,20 +1040,20 @@ EOF
   end
 
   def test_put_package_meta_sourceaccess_protected_package
-    prj='SourceprotectedProject'
-    pkg='pack'
-    resp1=:success
-    resp2=403
-    aresp={ tag: 'status', attributes: { code: 'change_package_no_permission' } }
-    match=nil
+    prj = 'SourceprotectedProject'
+    pkg = 'pack'
+    resp1 = :success
+    resp2 = 403
+    aresp = { tag: 'status', attributes: { code: 'change_package_no_permission' } }
+    match = nil
     # uninvolved user
     login_fred
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
     # admin
-    resp1=:success
-    resp2=:success
-    aresp={ tag: 'status', attributes: { code: 'ok' } }
-    match=true
+    resp1 = :success
+    resp2 = :success
+    aresp = { tag: 'status', attributes: { code: 'ok' } }
+    match = true
     login_king
     do_change_package_meta_test(prj, pkg, resp1, resp2, aresp, match)
     # maintainer
@@ -1379,57 +1379,57 @@ EOF
   end
 
   def test_change_package_meta
-    prj='kde4' # project
-    pkg='kdelibs' # package
-    resp1=:success # assert response #1
-    resp2=:success # assert response #2
-    atag2={ tag: 'status', attributes: { code: 'ok' } } # assert_xml_tag after response #2
-    resp3=:success # assert respons #3
-    asel3='package > build > enable' # assert_select after response #3
+    prj = 'kde4' # project
+    pkg = 'kdelibs' # package
+    resp1 = :success # assert response #1
+    resp2 = :success # assert response #2
+    atag2 = { tag: 'status', attributes: { code: 'ok' } } # assert_xml_tag after response #2
+    resp3 = :success # assert respons #3
+    asel3 = 'package > build > enable' # assert_select after response #3
                # user without any special roles
     login_fred
     do_test_change_package_meta(prj, pkg, resp1, resp2, atag2, resp3, asel3)
   end
 
   def test_change_package_meta_hidden
-    prj='HiddenProject'
-    pkg='pack'
+    prj = 'HiddenProject'
+    pkg = 'pack'
     # uninvolved user
-    resp1=404
-    resp2=nil
-    atag2=nil
-    resp3=nil
-    asel3=nil
+    resp1 = 404
+    resp2 = nil
+    atag2 = nil
+    resp3 = nil
+    asel3 = nil
     login_fred
     do_test_change_package_meta(prj, pkg, resp1, resp2, atag2, resp3, asel3)
-    resp1=:success
-    resp2=:success
-    atag2={ tag: 'status', attributes: { code: 'ok' } }
-    resp3=:success
-    asel3='package > build > enable'
+    resp1 = :success
+    resp2 = :success
+    atag2 = { tag: 'status', attributes: { code: 'ok' } }
+    resp3 = :success
+    asel3 = 'package > build > enable'
     # maintainer
     login_adrian
     do_test_change_package_meta(prj, pkg, resp1, resp2, atag2, resp3, asel3)
   end
 
   def test_change_package_meta_sourceaccess_protect
-    prj='SourceprotectedProject'
-    pkg='pack'
+    prj = 'SourceprotectedProject'
+    pkg = 'pack'
     # uninvolved user
-    resp1=:success
-    resp2=403
-    atag2={ tag: 'status', attributes: { code: 'change_package_no_permission' } }
-    resp3=:success
-    asel3=nil
+    resp1 = :success
+    resp2 = 403
+    atag2 = { tag: 'status', attributes: { code: 'change_package_no_permission' } }
+    resp3 = :success
+    asel3 = nil
     login_fred
     do_test_change_package_meta(prj, pkg, resp1, resp2, atag2, resp3, asel3)
 
     # maintainer
-    resp1=:success
-    resp2=:success
-    atag2={ tag: 'status', attributes: { code: 'ok' } }
-    resp3=:success
-    asel3='package > build > enable'
+    resp1 = :success
+    resp2 = :success
+    atag2 = { tag: 'status', attributes: { code: 'ok' } }
+    resp3 = :success
+    asel3 = 'package > build > enable'
     prepare_request_with_user 'sourceaccess_homer', 'buildservice'
     do_test_change_package_meta(prj, pkg, resp1, resp2, atag2, resp3, asel3)
   end
@@ -1587,15 +1587,15 @@ EOF
   def test_add_file_to_package_hidden
     # uninvolved user
     prepare_request_with_user 'fredlibs', 'buildservice'
-    url1='/source/HiddenProject/pack'
-    asserttag1={ tag: 'status', attributes: { code: 'unknown_project' } }
-    url2='/source/HiddenProject/pack/testfile'
-    assertresp2=404
-    assertselect2=nil
-    assertselect2rev=nil
-    assertresp3=404
-    asserteq3=nil
-    assertresp4=404
+    url1 = '/source/HiddenProject/pack'
+    asserttag1 = { tag: 'status', attributes: { code: 'unknown_project' } }
+    url2 = '/source/HiddenProject/pack/testfile'
+    assertresp2 = 404
+    assertselect2 = nil
+    assertselect2rev = nil
+    assertresp3 = 404
+    asserteq3 = nil
+    assertresp4 = 404
     add_file_to_package(url1, asserttag1, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
@@ -1606,13 +1606,13 @@ EOF
                         assertresp3, asserteq3, assertresp4)
     # maintainer
     prepare_request_with_user 'hidden_homer', 'buildservice'
-    asserttag1={ tag: 'directory', attributes: { srcmd5: 'b47be8b05a188d62b40c9d65cf490618' } }
-    assertresp2=:success
-    assertselect2='revision > srcmd5'
-    assertselect2rev='dbb12bebdbbcb83be4225f07d93f940d'
-    assertresp3=:success
-    asserteq3=true
-    assertresp4=:success
+    asserttag1 = { tag: 'directory', attributes: { srcmd5: 'b47be8b05a188d62b40c9d65cf490618' } }
+    assertresp2 = :success
+    assertselect2 = 'revision > srcmd5'
+    assertselect2rev = 'dbb12bebdbbcb83be4225f07d93f940d'
+    assertresp3 = :success
+    asserteq3 = true
+    assertresp4 = :success
     add_file_to_package(url1, asserttag1, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
@@ -1626,14 +1626,14 @@ EOF
   def test_add_file_to_package_sourceaccess_protect
     # uninvolved user
     prepare_request_with_user 'fredlibs', 'buildservice'
-    url1='/source/SourceprotectedProject/pack'
-    url2='/source/SourceprotectedProject/pack/testfile'
-    assertresp2=403
-    assertselect2=nil
-    assertselect2rev=nil
-    assertresp3=403
-    asserteq3=nil
-    assertresp4=403
+    url1 = '/source/SourceprotectedProject/pack'
+    url2 = '/source/SourceprotectedProject/pack/testfile'
+    assertresp2 = 403
+    assertselect2 = nil
+    assertselect2rev = nil
+    assertresp3 = 403
+    asserteq3 = nil
+    assertresp4 = 403
     add_file_to_package(url1, nil, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
@@ -1644,13 +1644,13 @@ EOF
                         assertresp3, asserteq3, assertresp4)
     # maintainer
     prepare_request_with_user 'sourceaccess_homer', 'buildservice'
-    asserttag1={ tag: 'directory', attributes: { srcmd5: 'b47be8b05a188d62b40c9d65cf490618' } }
-    assertresp2=:success
-    assertselect2='revision > srcmd5'
-    assertselect2rev='dbb12bebdbbcb83be4225f07d93f940d'
-    assertresp3=:success
-    asserteq3=true
-    assertresp4=:success
+    asserttag1 = { tag: 'directory', attributes: { srcmd5: 'b47be8b05a188d62b40c9d65cf490618' } }
+    assertresp2 = :success
+    assertselect2 = 'revision > srcmd5'
+    assertselect2rev = 'dbb12bebdbbcb83be4225f07d93f940d'
+    assertresp3 = :success
+    asserteq3 = true
+    assertresp4 = :success
     add_file_to_package(url1, asserttag1, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
@@ -1662,15 +1662,15 @@ EOF
   end
 
   def test_add_file_to_package
-    url1='/source/kde4/kdelibs'
-    asserttag1={ tag: 'directory', attributes: { srcmd5: '1636661d96a88cd985d82dc611ebd723' } }
-    url2='/source/kde4/kdelibs/testfile'
-    assertresp2=:success
-    assertselect2='revision > srcmd5'
-    assertselect2rev='bc1d31b2403fa8925b257101b96196ec'
-    assertresp3=:success
-    asserteq3=true
-    assertresp4=:success
+    url1 = '/source/kde4/kdelibs'
+    asserttag1 = { tag: 'directory', attributes: { srcmd5: '1636661d96a88cd985d82dc611ebd723' } }
+    url2 = '/source/kde4/kdelibs/testfile'
+    assertresp2 = :success
+    assertselect2 = 'revision > srcmd5'
+    assertselect2rev = 'bc1d31b2403fa8925b257101b96196ec'
+    assertresp3 = :success
+    asserteq3 = true
+    assertresp4 = :success
     prepare_request_with_user 'fredlibs', 'buildservice'
     add_file_to_package(url1, asserttag1, url2, assertresp2,
                         assertselect2, assertselect2rev,
@@ -2161,7 +2161,7 @@ EOF
     assert_response 403
 
     login_king
-    subprojectmeta="<project name='DoesNotExist:subproject'><title></title><description/></project>"
+    subprojectmeta = "<project name='DoesNotExist:subproject'><title></title><description/></project>"
     put url_for(controller: :source, action: :update_project_meta, project: 'DoesNotExist:subproject'), subprojectmeta
     assert_response :success
 
@@ -3478,7 +3478,7 @@ EOF
     assert_response :success
 
     get '/source/home:tom:branches:home:Iggy/_meta'
-    assert_equal({'name' => '10.2', 'path' =>{'project' => 'home:Iggy', 'repository' => '10.2'}, 'arch' => %w(i586 x86_64)}, Xmlhash.parse(@response.body)['repository'])
+    assert_equal({'name' => '10.2', 'path' => {'project' => 'home:Iggy', 'repository' => '10.2'}, 'arch' => %w(i586 x86_64)}, Xmlhash.parse(@response.body)['repository'])
 
     # check source link
     get '/source/home:tom:branches:home:Iggy/TestPack/_link'

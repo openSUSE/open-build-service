@@ -144,7 +144,7 @@ class Repository < ApplicationRecord
     longName = project.name.gsub(':', '_')
     if project.repositories.count > 1
       # keep short names if project has just one repo
-      longName += '_'+name unless name == 'standard'
+      longName += '_' + name unless name == 'standard'
     end
     longName
   end

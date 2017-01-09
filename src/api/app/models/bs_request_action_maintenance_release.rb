@@ -91,7 +91,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
                                                "'#{rt.target_repository.name}' have different architectures"
         end
         for i in 1..(repo.architectures.size)
-          unless repo.architectures[i-1] == rt.target_repository.architectures[i-1]
+          unless repo.architectures[i - 1] == rt.target_repository.architectures[i - 1]
             raise ArchitectureOrderMissmatch.new "Repository and releasetarget don't have the same architecture " +
                                                  "on position #{i}: #{prj.name} / #{repo.name}"
           end

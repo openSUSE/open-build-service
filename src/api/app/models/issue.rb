@@ -95,7 +95,7 @@ class Issue < ApplicationRecord
   end
 
   def render_body(node, change = nil)
-    p={}
+    p = {}
     p[:change] = change if change
     node.issue(p) do |issue|
       issue.created_at(created_at)

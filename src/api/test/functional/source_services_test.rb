@@ -343,7 +343,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: "error", content: "unresolvable: nothing provides obs-service-set_version"
     # osc local package build call sending own spec and _service file
-    cpio=IO.popen("cd #{Rails.root}/test/fixtures/backend/source/buildtime_service_source/; exec ls -1 | cpio -H newc -o 2>/dev/null")
+    cpio = IO.popen("cd #{Rails.root}/test/fixtures/backend/source/buildtime_service_source/; exec ls -1 | cpio -H newc -o 2>/dev/null")
     raw_post "/build/home:Iggy/10.2/i586/service/_buildinfo", cpio.read
     assert_response :success
     assert_xml_tag tag: "error", content: "unresolvable: nothing provides obs-service-recompresserator"

@@ -125,9 +125,9 @@ class Webui::RequestController < Webui::WebuiController
     @request_after = nil
     index = session[:request_numbers].try(:index, @number)
     if index
-      @request_before = session[:request_numbers][index-1] if index > 0
+      @request_before = session[:request_numbers][index - 1] if index > 0
       # will be nil for after end
-      @request_after = session[:request_numbers][index+1]
+      @request_after = session[:request_numbers][index + 1]
     end
 
     @comments = @bsreq.comments
@@ -308,7 +308,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def add_role_request
     required_parameters :project, :role
-    req=nil
+    req = nil
     begin
       BsRequest.transaction do
         req = BsRequest.new
@@ -341,7 +341,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def set_bugowner_request
     required_parameters :project, :user, :group
-    req=nil
+    req = nil
     begin
       BsRequest.transaction do
         req = BsRequest.new

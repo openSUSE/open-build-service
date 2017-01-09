@@ -375,7 +375,7 @@ class BsRequest < ApplicationRecord
       self.state = :new
       save
 
-      p={request: self, comment: "Reopened by removing from group #{group.bs_request.number}", user_id: User.current.id}
+      p = {request: self, comment: "Reopened by removing from group #{group.bs_request.number}", user_id: User.current.id}
       HistoryElement::RequestReopened.create(p)
     end
   end
@@ -525,7 +525,7 @@ class BsRequest < ApplicationRecord
       end
       save!
 
-      params={request: self, comment: opts[:comment], user_id: User.current.id}
+      params = {request: self, comment: opts[:comment], user_id: User.current.id}
       case opts[:newstate]
         when "accepted" then
           history = HistoryElement::RequestAccepted
@@ -666,8 +666,8 @@ class BsRequest < ApplicationRecord
         end
       end
       raise Review::NotFoundError.new unless found
-      history=nil
-      p={request: self, comment: opts[:comment], user_id: User.current.id}
+      history = nil
+      p = {request: self, comment: opts[:comment], user_id: User.current.id}
       if new_review_state == :superseded
         self.state = :superseded
         self.superseded_by = opts[:superseded_by]
@@ -760,7 +760,7 @@ class BsRequest < ApplicationRecord
       raise SaveError, "Illegal priority '#{opts[:priority]}'"
     end
 
-    p={request: self, user_id: User.current.id, description_extension: "#{priority} => #{opts[:priority]}"}
+    p = {request: self, user_id: User.current.id, description_extension: "#{priority} => #{opts[:priority]}"}
     p[:comment] = opts[:comment] if opts[:comment]
 
     self.priority = opts[:priority]
@@ -786,7 +786,7 @@ class BsRequest < ApplicationRecord
 
     touched = false
     # all maintenance_incident actions go into the same incident project
-    p={request: self, user_id: User.current.id}
+    p = {request: self, user_id: User.current.id}
     bs_request_actions.where(type: 'maintenance_incident').each do |action|
       tprj = Project.get_by_name action.target_project
 
@@ -815,7 +815,7 @@ class BsRequest < ApplicationRecord
     Event::RequestStatechange.create(notify_parameters)
   end
 
-  ActionNotifyLimit=50
+  ActionNotifyLimit = 50
 
   def notify_parameters(ret = {})
     ret[:number] = number

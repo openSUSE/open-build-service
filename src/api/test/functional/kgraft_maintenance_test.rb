@@ -75,8 +75,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( tag: 'data', attributes: { name: 'targetproject' } )
     data = REXML::Document.new(@response.body)
-    kernelIncidentProject=data.elements['/status/data'].text
-    kernelIncidentID=kernelIncidentProject.gsub( /^My:Maintenance:/, '')
+    kernelIncidentProject = data.elements['/status/data'].text
+    kernelIncidentID = kernelIncidentProject.gsub( /^My:Maintenance:/, '')
     # submit packages via mbranch
     Timecop.freeze(1)
     post '/source', cmd: 'branch', package: 'pack2', target_project: kernelIncidentProject, add_repositories: 1
@@ -136,7 +136,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     ### Here starts the kgraft team
     # create a update patch based on former kernel incident
     Timecop.freeze(1)
-    post '/source/'+kernelIncidentProject+'/kgraft-incident-'+kernelIncidentID,
+    post '/source/' + kernelIncidentProject + '/kgraft-incident-' + kernelIncidentID,
          cmd: 'branch', target_project: "home:king:branches:BaseDistro2.0",
          maintenance: 1
     assert_response :success
@@ -185,25 +185,25 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/request/#{id1}"
     assert_response :success
     data = REXML::Document.new(@response.body)
-    incidentProject=data.elements['/request/action/target'].attributes.get_attribute('project').to_s
-    incidentID=incidentProject.gsub( /^My:Maintenance:/, '')
+    incidentProject = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    incidentID = incidentProject.gsub( /^My:Maintenance:/, '')
 
     # validate sources
-    get "/source/"+incidentProject
+    get "/source/" + incidentProject
     assert_response :success
     assert_xml_tag tag: "directory", attributes: {count: 4}
     assert_xml_tag tag: "entry", attributes: {name: "BaseDistro2.Channel"}
     assert_xml_tag tag: "entry", attributes: {name: "kgraft-GA.BaseDistro2.0"}
     assert_xml_tag tag: "entry", attributes: {name: "kgraft-incident-0.My_Maintenance_0"}
     assert_xml_tag tag: "entry", attributes: {name: "patchinfo"}
-    get "/source/"+incidentProject+"/kgraft-incident-0.My_Maintenance_0/_link"
+    get "/source/" + incidentProject + "/kgraft-incident-0.My_Maintenance_0/_link"
     assert_response :success
-    get "/source/"+incidentProject+"/kgraft-incident-0.My_Maintenance_0/_meta"
+    get "/source/" + incidentProject + "/kgraft-incident-0.My_Maintenance_0/_meta"
     assert_response :success
     assert_xml_tag tag: "releasename", content: "kgraft-incident-0"
 
     # validate repos
-    get "/source/"+incidentProject+"/_meta"
+    get "/source/" + incidentProject + "/_meta"
     assert_response :success
     assert_xml_tag parent: { tag: "repository", attributes: { name: kernelIncidentProject.gsub(/:/, "_") } },
                    tag: "path", attributes: { project: kernelIncidentProject, repository: "BaseDistro2.0_LinkedUpdateProject" }
@@ -214,7 +214,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # add disabled target repo
     post "/source/#{incidentProject}?cmd=modifychannels&mode=enable_all", nil
     assert_response :success
-    get "/source/"+incidentProject+"/_meta"
+    get "/source/" + incidentProject + "/_meta"
     assert_response :success
 
     assert_xml_tag parent: { tag: "repository", attributes: { name: "BaseDistro2Channel" } },
@@ -293,13 +293,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     inject_build_job( incidentProject, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'x86_64')
 
     # lock kernelIncident to be sure that nothing can be released to
-    get '/source/'+kernelIncidentProject+'/_meta'
+    get '/source/' + kernelIncidentProject + '/_meta'
     assert_response :success
     assert_no_xml_tag tag: "lock" # or our fixtures have changed
     doc = REXML::Document.new(@response.body)
     doc.elements['/project'].add_element 'lock'
     doc.elements['/project/lock'].add_element 'enable'
-    put '/source/'+kernelIncidentProject+'/_meta', doc.to_s
+    put '/source/' + kernelIncidentProject + '/_meta', doc.to_s
     assert_response :success
 
     # collect the job results

@@ -132,9 +132,9 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_match(/^obs-server: \+Kwd:\\nsupport_l3\\n-Kwd:/, @response.body)
 
     # indexed data
-    pkg=Package.find_by_project_and_name("home:tom:temporary", "_product")
+    pkg = Package.find_by_project_and_name("home:tom:temporary", "_product")
     assert_not_nil pkg
-    product=Product.find_by_name_and_package("simple", pkg)
+    product = Product.find_by_name_and_package("simple", pkg)
     assert_not_nil product
     assert_equal product.count, 1
     product = product.first

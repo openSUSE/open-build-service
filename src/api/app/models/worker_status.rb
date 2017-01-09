@@ -2,7 +2,7 @@ class WorkerStatus
   def self.hidden
     mydata = Rails.cache.read('workerstatus')
     ws = ActiveXML::Node.new(mydata || ActiveXML.backend.direct_http('/build/_workerstatus'))
-    prjs=Hash.new
+    prjs = Hash.new
     ws.each('building') do |b|
       prjs[b.value(:project)] = 1
     end
@@ -25,8 +25,8 @@ class WorkerStatus
 
   def update_workerstatus_cache
     # do not add hiding in here - this is purely for statistics
-    ret=ActiveXML.backend.direct_http('/build/_workerstatus')
-    wdata=Xmlhash.parse(ret)
+    ret = ActiveXML.backend.direct_http('/build/_workerstatus')
+    wdata = Xmlhash.parse(ret)
     @mytime = Time.now.to_i
     @squeues = Hash.new
     Rails.cache.write('workerstatus', ret, expires_in: 3.minutes)
@@ -62,9 +62,9 @@ class WorkerStatus
     arch = daemon['arch']
     # FIXME2.5: The current architecture model is a gross hack, not connected at all
     #           to the backend config.
-    a=Architecture.find_by_name(arch)
+    a = Architecture.find_by_name(arch)
     if a
-      a.available=true
+      a.available = true
       a.save
     end
     queue = daemon.get('queue')
@@ -77,7 +77,7 @@ class WorkerStatus
     workers = Hash.new
     %w(building idle dead down away).each do |state|
       wdata.elements(state) do |e|
-        id=e['workerid']
+        id = e['workerid']
         if workers.has_key? id
           Rails.logger.debug 'building+idle worker'
           next

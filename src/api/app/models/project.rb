@@ -851,7 +851,7 @@ class Project < ApplicationRecord
   def update_maintained_prjs_from_xml(xmlhash)
     # First check all current maintained project relations
     olds = {}
-    maintained_projects.each{|mp| olds[mp.project.name]=mp}
+    maintained_projects.each{|mp| olds[mp.project.name] = mp}
 
     # Set this project as the maintenance project for all maintained projects found in the XML
     xmlhash.get('maintenance').elements('maintains') do |maintains|
@@ -866,7 +866,7 @@ class Project < ApplicationRecord
 
   def check_for_empty_repo_list(list, error_prefix)
     return if list.empty?
-    linking_repos = list.map { |x| x.repository.project.name+'/'+x.repository.name }.join "\n"
+    linking_repos = list.map { |x| x.repository.project.name + '/' + x.repository.name }.join "\n"
     raise SaveError.new (error_prefix + "\n" + linking_repos)
   end
 
@@ -1093,7 +1093,7 @@ class Project < ApplicationRecord
       end
       raise CycleError, "There is a cycle in project link defintion at #{str}"
     end
-    processed[self]=1
+    processed[self] = 1
 
     # package exists in this project
     pkg = nil
@@ -1236,7 +1236,7 @@ class Project < ApplicationRecord
   def branch_to_repositories_from(project, pkg_to_enable, opts = {})
     # shall we use the repositories from a different project?
     project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
-    skip_repos=[]
+    skip_repos = []
     a = project.find_attribute('OBS', 'BranchSkipRepositories')
     skip_repos = a.values.map{|v| v.value} if a
     project.repositories.each do |repo|
@@ -1786,12 +1786,12 @@ class Project < ApplicationRecord
     end
 
     unless linking_repositories.empty?
-      str = linking_repositories.map { |l| l.project.name+'/'+l.name }.join "\n"
+      str = linking_repositories.map { |l| l.project.name + '/' + l.name }.join "\n"
       return { error: "Unable to delete repository; following repositories depend on this project:\n#{str}"}
     end
 
     unless linking_target_repositories.empty?
-      str = linking_target_repositories.map { |l| l.project.name+'/'+l.name }.join "\n"
+      str = linking_target_repositories.map { |l| l.project.name + '/' + l.name }.join "\n"
       return { error: "Unable to delete repository; following target repositories depend on this project:\n#{str}"}
     end
     {}

@@ -8,7 +8,7 @@ class UpdateNotificationEvents
   end
 
   def create_events
-    retries=10
+    retries = 10
     data = type = nil
     begin
       Event::Base.transaction do
@@ -49,7 +49,7 @@ class UpdateNotificationEvents
     # pick first admin so we can see all projects - as this function is called from delayed job
     User.current ||= User.get_default_admin
 
-    limit_reached=false
+    limit_reached = false
     begin
       semaphore.synchronize do
         nr = BackendInfo.lastnotification_nr

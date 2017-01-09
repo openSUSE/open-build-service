@@ -115,7 +115,7 @@ class SourceController < ApplicationController
   end
 
   def render_project_packages
-    packages=nil
+    packages = nil
     if params.has_key? :expand
       packages = @project.expand_all_packages
     else
@@ -323,11 +323,11 @@ class SourceController < ApplicationController
     end
 
     # valid post commands
-    valid_commands=%w(diff branch servicediff linkdiff showlinked copy remove_flag set_flag
-                      undelete runservice waitservice mergeservice commit commitfilelist
-                      createSpecFileTemplate deleteuploadrev linktobranch updatepatchinfo
-                      getprojectservices unlock release importchannel wipe rebuild
-                      collectbuildenv instantiate addchannels enablechannel)
+    valid_commands = %w(diff branch servicediff linkdiff showlinked copy remove_flag set_flag
+                        undelete runservice waitservice mergeservice commit commitfilelist
+                        createSpecFileTemplate deleteuploadrev linktobranch updatepatchinfo
+                        getprojectservices unlock release importchannel wipe rebuild
+                        collectbuildenv instantiate addchannels enablechannel)
 
     @command = params[:cmd]
     raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(@command)
@@ -903,7 +903,7 @@ class SourceController < ApplicationController
     builder = Builder::XmlMarkup.new( indent: 2 )
     xml = builder.collection do |c|
       @project.linked_by_projects.each do |l|
-        p={}
+        p = {}
         p[:name] = l.name
         c.project(p)
       end
@@ -934,9 +934,9 @@ class SourceController < ApplicationController
   # add channel packages and extend repository list
   # POST /source/<project>?cmd=addchannels
   def project_command_addchannels
-    mode=:add_disabled
-    mode=:skip_disabled if params[:mode] == "skip_disabled"
-    mode=:enable_all    if params[:mode] == "enable_all"
+    mode = :add_disabled
+    mode = :skip_disabled if params[:mode] == "skip_disabled"
+    mode = :enable_all    if params[:mode] == "enable_all"
 
     @project.packages.each do |pkg|
       pkg.add_channels(mode)
@@ -948,9 +948,9 @@ class SourceController < ApplicationController
   # add repositories and/or enable them for all existing channel instances
   # POST /source/<project>?cmd=modifychannels
   def project_command_modifychannels
-    mode=nil
-    mode=:add_disabled  if params[:mode] == "add_disabled"
-    mode=:enable_all    if params[:mode] == "enable_all"
+    mode = nil
+    mode = :add_disabled  if params[:mode] == "add_disabled"
+    mode = :enable_all    if params[:mode] == "enable_all"
 
     @project.packages.each do |pkg|
       pkg.modify_channel(mode)
@@ -1039,7 +1039,7 @@ class SourceController < ApplicationController
   end
 
   def verify_repos_match!(pro)
-    repo_matches=nil
+    repo_matches = nil
     pro.repositories.each do |repo|
       next if params[:repository] && params[:repository] != repo.name
       repo.release_targets.each do |releasetarget|
@@ -1050,7 +1050,7 @@ class SourceController < ApplicationController
           raise CmdExecutionNoPermission.new "Trigger is not set to manual in repository" +
                                              " #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
         end
-        repo_matches=true
+        repo_matches = true
       end
     end
     unless repo_matches
@@ -1189,8 +1189,8 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=importchannel
   def package_command_importchannel
-    repo=nil
-    repo=Repository.find_by_project_and_name(params[:target_project], params[:target_repository]) if params[:target_project]
+    repo = nil
+    repo = Repository.find_by_project_and_name(params[:target_project], params[:target_repository]) if params[:target_project]
 
     import_channel(request.raw_post, @package, repo)
 
@@ -1217,9 +1217,9 @@ class SourceController < ApplicationController
   # add channel packages and extend repository list
   # POST /source/<project>?cmd=addchannels
   def package_command_addchannels
-    mode=:add_disabled
-    mode=:skip_disabled if params[:mode] == "skip_disabled"
-    mode=:enable_all    if params[:mode] == "enable_all"
+    mode = :add_disabled
+    mode = :skip_disabled if params[:mode] == "skip_disabled"
+    mode = :enable_all    if params[:mode] == "enable_all"
 
     @package.add_channels(mode)
 
@@ -1262,7 +1262,7 @@ class SourceController < ApplicationController
     builder = Builder::XmlMarkup.new( indent: 2 )
     xml = builder.collection do |c|
       @package.find_linking_packages.each do |l|
-        p={}
+        p = {}
         p[:project] = l.project.name
         p[:name] = l.name
         c.package(p)
@@ -1299,10 +1299,10 @@ class SourceController < ApplicationController
       raise CmdExecutionNoPermission.new "no permission to modify source package"
     end
 
-    opts={}
-    at=AttribType.find_by_namespace_and_name!("OBS", "MakeOriginOlder")
-    opts[:makeoriginolder]=true if project.attribs.find_by(attrib_type: at) # object or nil
-    opts[:makeoriginolder]=true if params[:makeoriginolder]
+    opts = {}
+    at = AttribType.find_by_namespace_and_name!("OBS", "MakeOriginOlder")
+    opts[:makeoriginolder] = true if project.attribs.find_by(attrib_type: at) # object or nil
+    opts[:makeoriginolder] = true if params[:makeoriginolder]
     instantiate_container(project, opackage.update_instance, opts)
     render_ok
   end
@@ -1509,12 +1509,12 @@ class SourceController < ApplicationController
     if params[:target_repository].blank? || params[:repository].blank?
       raise MissingParameterError.new 'release action with specified target project needs also "repository" and "target_repository" parameter'
     end
-    targetrepo=Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
+    targetrepo = Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
     raise UnknownRepository.new "Repository does not exist #{params[:target_repository]}" unless targetrepo
 
-    repo=pkg.project.repositories.where(name: params[:repository])
+    repo = pkg.project.repositories.where(name: params[:repository])
     raise UnknownRepository.new "Repository does not exist #{params[:repository]}" unless repo.count > 0
-    repo=repo.first
+    repo = repo.first
 
     release_package(pkg, targetrepo, pkg.name, repo, nil, params[:setrelease], true)
   end

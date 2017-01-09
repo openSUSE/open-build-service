@@ -537,7 +537,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
   end
 
   def test_setup_remote_propject
-    p='<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost</remoteurl> </project>'
+    p = '<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost</remoteurl> </project>'
 
     login_tom
     put '/source/home:tom:remote/_meta', p
@@ -546,13 +546,13 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     login_king
     put '/source/home:tom:remote/_meta', p
     assert_response :success
-    p='<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost2</remoteurl> </project>'
+    p = '<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost2</remoteurl> </project>'
     put '/source/home:tom:remote/_meta', p
     assert_response :success
     get '/source/home:tom:remote/_meta'
     assert_response :success
     assert_xml_tag tag: 'remoteurl', content: 'http://localhost2'
-    p='<project name="home:tom:remote"> <title/> <description/>  </project>'
+    p = '<project name="home:tom:remote"> <title/> <description/>  </project>'
     put '/source/home:tom:remote/_meta', p
     assert_response :success
 

@@ -150,7 +150,7 @@ module ActiveXML
         free_args = args.dup
         options = free_args.last if free_args.last.kind_of?(Hash)
         if options && options[:expires_in]
-          free_args[free_args.length-1] = free_args.last.dup
+          free_args[free_args.length - 1] = free_args.last.dup
           free_args.last.delete :expires_in
         end
 	free_args = prepare_args( free_args )
@@ -343,7 +343,7 @@ module ActiveXML
       el = _data.document.create_element(element)
       _data.add_child(el)
       attrs.each do |key, value|
-        el[key.to_s]=value.to_s
+        el[key.to_s] = value.to_s
       end if attrs.kind_of? Hash
       # you never know
       cleanup_cache

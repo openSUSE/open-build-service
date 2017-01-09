@@ -24,7 +24,7 @@ require 'opensuse/backend'
 
 Suse::Backend.do_not_start_test_backend
 
-ENV['PERL5LIB']="#{Rails.root}/../backend:#{Rails.root}/../backend/build"
+ENV['PERL5LIB'] = "#{Rails.root}/../backend:#{Rails.root}/../backend/build"
 
 if File.exist?(backend_config)
   puts 'Old backend data is there. checking if we can stop it'

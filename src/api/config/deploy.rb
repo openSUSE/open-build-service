@@ -58,7 +58,7 @@ namespace :config do
     run "ln -s #{shared_path}/distributions.xml #{release_path}#{git_subdir}/files"
     run "rm #{release_path}#{git_subdir}/config/environments/production.rb"
     run "ln -s #{shared_path}/production.rb #{release_path}#{git_subdir}/config/environments/production.rb"
-    date=%x(date +%Y%m%d%H%M)
+    date = %x(date +%Y%m%d%H%M)
     run "sed -i 's,^API_DATE.*,API_DATE = \"#{date.chomp}\",' #{release_path}#{git_subdir}/config/environments/production.rb"
   end
 

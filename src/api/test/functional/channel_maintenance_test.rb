@@ -129,7 +129,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/request/#{id1}"
     assert_response :success
     data = REXML::Document.new(@response.body)
-    incidentProject=data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    incidentProject = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
     assert_not_equal incidentProject, 'My:Maintenance'
 
     # test build and publish flags
@@ -167,7 +167,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
-                                     <target project="'+incidentProject+'" />
+                                     <target project="' + incidentProject + '" />
                                    </action>
                                  </request>'
     assert_response :success
@@ -242,7 +242,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/request/#{id2}"
     assert_response :success
     data = REXML::Document.new(@response.body)
-    maintenanceNotNewProject=data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    maintenanceNotNewProject = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
     assert_equal incidentProject, maintenanceNotNewProject
 
     # try to do it again
@@ -259,14 +259,14 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/request/#{id2}"
     assert_response :success
     data = REXML::Document.new(@response.body)
-    maintenanceNotNewProject=data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    maintenanceNotNewProject = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
     assert_equal incidentProject, maintenanceNotNewProject
 
     # validate releasename
-    get "/source/"+incidentProject+"/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
+    get "/source/" + incidentProject + "/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
     assert_xml_tag tag: "releasename", content: "pack2"
-    get "/source/"+incidentProject+"/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta"
+    get "/source/" + incidentProject + "/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
     assert_xml_tag tag: "releasename", content: "pack2.linked"
 
@@ -373,7 +373,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/request/#{id3}"
     assert_response :success
     data = REXML::Document.new(@response.body)
-    maintenanceYetAnotherProject=data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    maintenanceYetAnotherProject = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
     # no cleanup
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.linked.BaseDistro2.0_LinkedUpdateProject'
     assert_response :success
@@ -539,7 +539,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, tag: 'id', content: "UpdateInfoTag-#{Time.now.utc.year}-My_Maintenance_0"
 
     # check published search db
-    get "/search/published/binary/id?match=project='"+incidentProject+"'"
+    get "/search/published/binary/id?match=project='" + incidentProject + "'"
     assert_response :success
     assert_xml_tag tag: "binary", attributes: { name: "package", project: incidentProject, package: "patchinfo",
                                                       repository: "BaseDistro3", version: "1.0", release: "1", arch: "i586",
@@ -555,7 +555,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # create release request
     post '/request?cmd=create', '<request>
                                    <action type="maintenance_release">
-                                     <source project="'+incidentProject+'" />
+                                     <source project="' + incidentProject + '" />
                                    </action>
                                    <state name="new" />
                                  </request>'
@@ -617,7 +617,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     post '/request?cmd=create', '<request>
                                    <action type="maintenance_release">
-                                     <source project="'+incidentProject+'" />
+                                     <source project="' + incidentProject + '" />
                                    </action>
                                    <state name="new" />
                                  </request>'
@@ -675,7 +675,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro3Channel', arch: 'i586', state: 'published' } }, tag: 'status', attributes: { package: 'patchinfo', code: 'locked' }
 
     # validate update info channel tag
-    incidentID=incidentProject.gsub(/.*:/, '')
+    incidentID = incidentProject.gsub(/.*:/, '')
     get "/build/BaseDistro3Channel/channel_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
     # check for changed updateinfoid.
@@ -843,7 +843,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/request/#{reqid2}"
     assert_response :success
     data = REXML::Document.new(@response.body)
-    ontopofUpdateIncidentProject=data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    ontopofUpdateIncidentProject = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
     get "/source/#{ontopofUpdateIncidentProject}"
     assert_response :success
     assert_xml_tag( tag: 'entry', attributes: { name: 'pack2.BaseDistro2.0_LinkedUpdateProject' } )

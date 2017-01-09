@@ -68,9 +68,9 @@ class PackageBuildStatus
 
     # if the package does not appear in build history, check flags
     unless @everbuilt
-      buildflag=@pkg.find_flag_state("build", srep['name'], arch)
+      buildflag = @pkg.find_flag_state("build", srep['name'], arch)
       if buildflag == 'disable'
-        @buildcode='disabled'
+        @buildcode = 'disabled'
       end
     end
 
@@ -88,7 +88,7 @@ class PackageBuildStatus
   end
 
   def gather_current_buildcode(srep, arch)
-    @buildcode="unknown"
+    @buildcode = "unknown"
     begin
       # rubocop:disable Metrics/LineLength
       uri = URI("/build/#{CGI.escape(@pkg.project.name)}/_result?package=#{CGI.escape(@pkg.name)}&repository=#{CGI.escape(srep['name'])}&arch=#{CGI.escape(arch)}")
@@ -102,27 +102,27 @@ class PackageBuildStatus
       currentcode = nil
     end
     if %w(unresolvable failed broken).include?(currentcode)
-      @buildcode='failed'
+      @buildcode = 'failed'
     end
     if %w(building scheduled finished signing blocked).include?(currentcode)
-      @buildcode='building'
+      @buildcode = 'building'
     end
     if currentcode == 'excluded'
-      @buildcode='excluded'
+      @buildcode = 'excluded'
     end
     # if it's currently succeeded but !@everbuilt, it's different sources
     if currentcode == 'succeeded'
       dir = current_dir
       if @srcmd5 == dir['srcmd5'] || @srcmd5 == dir['verifymd5']
-        @buildcode='building' # guesssing
+        @buildcode = 'building' # guesssing
       else
-        @buildcode='outdated'
+        @buildcode = 'outdated'
       end
     end
   end
 
   def check_missingdeps(srep, arch)
-    missingdeps=[]
+    missingdeps = []
     # if
     if @eversucceeded
       # rubocop:disable Metrics/LineLength
@@ -178,7 +178,7 @@ class PackageBuildStatus
       next unless jh['verifymd5'] == @verifymd5 || jh['srcmd5'] == @srcmd5
       @everbuilt = true
       if jh['code'] == 'succeeded' || jh['code'] == 'unchanged'
-        @buildcode ='succeeded'
+        @buildcode = 'succeeded'
         @eversucceeded = true
       end
     end

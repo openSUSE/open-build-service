@@ -27,7 +27,7 @@ class StatisticsController < ApplicationController
                                 'sum(score)/count(score) as score_calculated').group('db_object_id, db_object_type').order('score_calculated DESC')
     ratings = ratings.to_a.delete_if { |r| r.count.to_i < min_votes_for_rating }
     if @limit
-      @ratings = ratings[0..@limit-1]
+      @ratings = ratings[0..@limit - 1]
     else
       @ratings = ratings
     end
@@ -130,7 +130,7 @@ class StatisticsController < ApplicationController
     list.sort! { |a, b| b.created_at <=> a.created_at }
 
     if @limit
-      @list = list[0..@limit-1]
+      @list = list[0..@limit - 1]
     else
       @list = list
     end

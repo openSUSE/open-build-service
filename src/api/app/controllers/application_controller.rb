@@ -142,7 +142,7 @@ class ApplicationController < ActionController::Base
         # Generate and store a fake pw in the OBS DB that no-one knows
         # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
         chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
-        fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a"*24)
+        fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a" * 24)
         @http_user = User.new(
             login: proxy_user,
             state: User.default_user_state,

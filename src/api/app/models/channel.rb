@@ -45,7 +45,7 @@ class Channel < ApplicationRecord
 
   def _update_from_xml_targets(xmlhash)
     # sync channel targets
-    hasharray=[]
+    hasharray = []
     xmlhash.elements('target').each { |p|
       prj = Project.find_by_name(p['project'])
       next unless prj
@@ -61,7 +61,7 @@ class Channel < ApplicationRecord
 
   def _update_from_xml_binary_lists(xmlhash)
     # sync binary lists
-    hasharray=[]
+    hasharray = []
     xmlhash.elements('binaries').each { |p|
       repository = nil
       project = p['project']
@@ -80,7 +80,7 @@ class Channel < ApplicationRecord
   end
 
   def _update_from_xml_binaries(cbl, xmlhash)
-    hasharray=[]
+    hasharray = []
     xmlhash.each do |b|
       arch = nil
       arch = Architecture.find_by_name!(b['arch']) if b['arch']

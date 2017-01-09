@@ -79,7 +79,7 @@ class Event::Request < ::Event::Base
       dl = diff.length
       if dl > DiffLimit
         diff = diff[0..DiffLimit]
-        diff << "[cut #{dl-DiffLimit} lines to limit mail size]"
+        diff << "[cut #{dl - DiffLimit} lines to limit mail size]"
       end
       a['diff'] = diff.join
     end

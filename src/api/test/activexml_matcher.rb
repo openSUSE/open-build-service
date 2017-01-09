@@ -240,7 +240,7 @@ module NodeMatcher #:nodoc:
       end
 
       if conditions[:before]
-        return false unless siblings[self_index+1..-1].detect do |s|
+        return false unless siblings[self_index + 1..-1].detect do |s|
           s != node && match(s, conditions[:before])
         end
       end

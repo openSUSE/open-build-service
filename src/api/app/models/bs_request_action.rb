@@ -566,7 +566,7 @@ class BsRequestAction < ApplicationRecord
         unless results
           raise BuildNotFinished.new "The project'#{pkg.project.name}' has no building repositories"
         end
-        versrel={}
+        versrel = {}
         results.each do |result|
           repo = result.attributes['repository']
           arch = result.attributes['arch']
@@ -598,12 +598,12 @@ class BsRequestAction < ApplicationRecord
 
         pkg.project.repositories.each do |repo|
           next unless repo
-          firstarch=repo.architectures.first
+          firstarch = repo.architectures.first
           next unless firstarch
 
           # skip excluded patchinfos
           status = state.get_elements("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
-          next if status && (s=status.get_elements("status[@package='#{pkg.name}']").first) && s.attributes['code'] == 'excluded'
+          next if status && (s = status.get_elements("status[@package='#{pkg.name}']").first) && s.attributes['code'] == 'excluded'
           raise BuildNotFinished.new "patchinfo #{pkg.name} is broken" if s.attributes['code'] == 'broken'
 
           check_maintenance_release(pkg, repo, firstarch)
@@ -699,16 +699,16 @@ class BsRequestAction < ApplicationRecord
     newTargets.uniq!
     newPackages.uniq!
     newPackages.each do |pkg|
-      releaseTargets=nil
+      releaseTargets = nil
       if pkg.is_patchinfo?
         releaseTargets = Patchinfo.new.fetch_release_targets(pkg)
       end
       newTargets.each do |p|
         unless releaseTargets.blank?
-          found=false
+          found = false
           releaseTargets.each do |rt|
             if rt['project'] == p
-              found=true
+              found = true
               break
             end
           end
@@ -755,8 +755,8 @@ class BsRequestAction < ApplicationRecord
 
   def check_action_permission!(skip_source = nil)
     # find objects if specified or report error
-    role=nil
-    sprj=nil
+    role = nil
+    sprj = nil
     if person_name
       # validate user object
       User.find_by_login!(person_name)

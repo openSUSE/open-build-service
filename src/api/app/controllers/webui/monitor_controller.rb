@@ -14,7 +14,7 @@ class Webui::MonitorController < Webui::WebuiController
         value1 ||= 0
         time1 ||= 0
         time2 ||= 0
-        ret << [(time1+time2)/2, value1 + value2]
+        ret << [(time1 + time2) / 2, value1 + value2]
       end if arr1
       ret << 0 if ret.length.zero?
       ret
@@ -45,7 +45,7 @@ class Webui::MonitorController < Webui::WebuiController
       end
       workers_list.each do |bid, barch|
         hostname, subid = bid.gsub(%r{[:]}, '/').split('/')
-        id=bid.gsub(%r{[:./]}, '_')
+        id = bid.gsub(%r{[:./]}, '_')
         workers[hostname] ||= Hash.new
         workers[hostname]['_arch'] = barch
         workers[hostname][subid] = id
@@ -61,12 +61,12 @@ class Webui::MonitorController < Webui::WebuiController
     workers = Hash.new
     max_time = 4 * 3600
     @workerstatus.elements('idle') do |b|
-      id=b['workerid'].gsub(%r{[:./]}, '_')
+      id = b['workerid'].gsub(%r{[:./]}, '_')
       workers[id] = Hash.new
     end
 
     @workerstatus.elements('building') do |b|
-      id=b['workerid'].gsub(%r{[:./]}, '_')
+      id = b['workerid'].gsub(%r{[:./]}, '_')
       delta = (Time.now - Time.at(b['starttime'].to_i)).round
       if delta < 5
         delta = 5
@@ -74,7 +74,7 @@ class Webui::MonitorController < Webui::WebuiController
       if delta > max_time
         delta = max_time
       end
-      delta = (100*Math.sin(Math.acos(1-(Float(delta)/max_time)))).round
+      delta = (100 * Math.sin(Math.acos(1 - (Float(delta) / max_time)))).round
       if (delta > 100)
         delta = 100
       end
@@ -102,10 +102,10 @@ class Webui::MonitorController < Webui::WebuiController
     arch = params[:arch]
     range = params[:range]
     %w{waiting blocked squeue_high squeue_med}.each do |prefix|
-      data[prefix] = gethistory(prefix + '_' + arch, range, !discard_cache?).map { |time, value| [time*1000, value] }
+      data[prefix] = gethistory(prefix + '_' + arch, range, !discard_cache?).map { |time, value| [time * 1000, value] }
     end
     %w{idle building away down dead}.each do |prefix|
-      data[prefix] = gethistory(prefix + '_' + map_to_workers(arch), range, !discard_cache?).map { |time, value| [time*1000, value] }
+      data[prefix] = gethistory(prefix + '_' + map_to_workers(arch), range, !discard_cache?).map { |time, value| [time * 1000, value] }
     end
     low = Hash.new
     gethistory("squeue_low_#{arch}", range).each do |time, value|
@@ -114,7 +114,7 @@ class Webui::MonitorController < Webui::WebuiController
     comb = Array.new
     gethistory("squeue_next_#{arch}", range).each do |time, value|
       clow = low[time] || 0
-      comb << [1000*time, clow + value]
+      comb << [1000 * time, clow + value]
     end
     data['squeue_low'] = comb
     max = Webui::MonitorController.addarrays(data['squeue_high'], data['squeue_med']).map { |_, value| value }.max || 0

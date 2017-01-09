@@ -125,7 +125,7 @@ class Patchinfo < ActiveXML::Node
       xml.set_attribute('incident', @pkg.project.name.gsub(/.*:/, ''))
     end
     xml.add_element('category').text = 'recommended'
-    xml.add_element('rating').text ='low'
+    xml.add_element('rating').text = 'low'
     xml
   end
 

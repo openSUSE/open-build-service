@@ -854,12 +854,6 @@ Style/SpaceAroundKeyword:
   Exclude:
     - 'spec/models/user_spec.rb'
 
-# Offense count: 898
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment.
-Style/SpaceAroundOperators:
-  Enabled: false
-
 # Offense count: 50
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.

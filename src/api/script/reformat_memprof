@@ -32,7 +32,7 @@ def log_line(file, d, prefix = '')
   end
 end
 
-filename=ARGV[0]
+filename = ARGV[0]
 file = File.new(filename, "r")
 ids = Hash.new
 file.each_line do |line|

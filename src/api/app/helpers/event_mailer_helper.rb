@@ -1,9 +1,9 @@
 module EventMailerHelper
   def project_or_package_text(project, package, opts = {})
     if package.present?
-      text="#{project}/#{package}"
+      text = "#{project}/#{package}"
     else
-      text=project
+      text = project
     end
     if opts[:short].nil?
       if package.present?

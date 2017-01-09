@@ -12,7 +12,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     get distribution_path(id: distributions(:two).to_param)
     assert_response :success
     # the default XML renderer just s***s
-    assert_equal({ "id"            => {"type"=>"integer", "_content"=>"2"},
+    assert_equal({ "id"            => {"type" => "integer", "_content" => "2"},
                    "link"          => "http://www.openbuildservice.org/",
                    "name"          => "OBS Base 2.0",
                    "project"       => "BaseDistro2.0",
@@ -26,16 +26,16 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
                    "icons"         =>
                                       {"type" => "array",
                                        "icon" =>
-                                                 [{"id"     => {"type"=>"integer", "_content"=>"72"},
+                                                 [{"id"     => {"type" => "integer", "_content" => "72"},
                                                    "url"    =>
                                                                "https://static.opensuse.org/distributions/logos/opensuse-Factory-8.png",
-                                                   "width"  => {"type"=>"integer", "_content"=>"8"},
-                                                   "height" => {"type"=>"integer", "_content"=>"8"}},
-                                                  {"id"     => {"type"=>"integer", "_content"=>"73"},
+                                                   "width"  => {"type" => "integer", "_content" => "8"},
+                                                   "height" => {"type" => "integer", "_content" => "8"}},
+                                                  {"id"     => {"type" => "integer", "_content" => "73"},
                                                    "url"    =>
                                                                "https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png",
-                                                   "width"  => {"type"=>"integer", "_content"=>"16"},
-                                                   "height" => {"type"=>"integer", "_content"=>"16"}}]}
+                                                   "width"  => {"type" => "integer", "_content" => "16"},
+                                                   "height" => {"type" => "integer", "_content" => "16"}}]}
                }, Xmlhash.parse(@response.body))
   end
 
@@ -94,7 +94,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     # Distribution.stubs(:load_distributions_from_remote).returns(fake_distribution_body)
 
     stub_request(:get, "http://localhost:#{CONFIG['source_port']}/distributions.xml").
-      with(headers: {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}).
+      with(headers: {'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent' => 'Ruby'}).
       to_return(status: 200, body: fake_distribution_body, headers: {})
 
     get "/distributions/include_remotes"
