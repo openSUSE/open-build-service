@@ -593,17 +593,15 @@ class BsRequest < ApplicationRecord
         raise InvalidStateError.new "review is not in new state" unless user_review.state == :new
         raise Review::NotFoundError.new "Not an assigned review" unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
         user_review.destroy
+      elsif user_review
+        user_review.state = :new
+        user_review.save!
+        HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.current)
       else
-        if user_review
-          user_review.state = :new
-          user_review.save!
-          HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.current)
-        else
-          user_review = reviews.create(by_user: reviewer.login, creator: User.current.login)
-          user_review.state = :new
-          user_review.save!
-          HistoryElement::ReviewAssigned.create(review: user_review, comment: review_comment, user: User.current)
-        end
+        user_review = reviews.create(by_user: reviewer.login, creator: User.current.login)
+        user_review.state = :new
+        user_review.save!
+        HistoryElement::ReviewAssigned.create(review: user_review, comment: review_comment, user: User.current)
       end
       save!
     end
@@ -661,10 +659,10 @@ class BsRequest < ApplicationRecord
             # no new history entry
             go_new_state = nil
           end
-        else
+        elsif review.state == :new && go_new_state != :declined && go_new_state != :superseded
           # don't touch the request state if a review is still open, except the review
           # got declined or superseded or reopened.
-          go_new_state = nil if review.state == :new && go_new_state != :declined && go_new_state != :superseded
+          go_new_state = nil
         end
       end
       raise Review::NotFoundError.new unless found

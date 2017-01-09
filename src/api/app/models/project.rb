@@ -884,12 +884,10 @@ class Project < ApplicationRecord
       logger.debug "Writing #{name} to backend"
       Suse::Backend.put_source(source_path('_meta', query), to_axml)
       logger.tagged('backend_sync') { logger.debug "Saved Project #{name}" }
+    elsif @commit_opts[:no_backend_write]
+      logger.tagged('backend_sync') { logger.warn "Not saving Project #{name}, backend_write is off " }
     else
-      if @commit_opts[:no_backend_write]
-        logger.tagged('backend_sync') { logger.warn "Not saving Project #{name}, backend_write is off " }
-      else
-        logger.tagged('backend_sync') { logger.warn "Not saving Project #{name}, global_write_through is off" }
-      end
+      logger.tagged('backend_sync') { logger.warn "Not saving Project #{name}, global_write_through is off" }
     end
     self.commit_opts = {}
     true
@@ -908,14 +906,12 @@ class Project < ApplicationRecord
         logger.warn("Project #{name} was already missing on backend on removal")
       end
       logger.tagged('backend_sync') { logger.warn "Deleted Project #{name}" }
+    elsif @commit_opts[:no_backend_write]
+      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, backend_write is off " }
     else
-      if @commit_opts[:no_backend_write]
-        logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, backend_write is off " }
-      else
-        logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, global_write_through is off" }
-      end
-
+      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, global_write_through is off" }
     end
+
     self.commit_opts = {}
     true
   end

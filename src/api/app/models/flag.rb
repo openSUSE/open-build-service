@@ -137,8 +137,8 @@ class Flag < ApplicationRecord
       return true if in_repo == repo
     elsif arch && repo.nil?
       return true if in_arch == arch
-    else
-      return true if in_arch == arch && in_repo == repo
+    elsif in_arch == arch && in_repo == repo
+      return true
     end
 
     false

@@ -1064,8 +1064,8 @@ class Webui::ProjectController < Webui::WebuiController
         if (current_develproject != dproject || current_develproject == @no_project) && current_develproject != @all_projects
           next
         end
-      else
-        next if @current_develproject == @no_project
+      elsif @current_develproject == @no_project
+        next
       end
       if filter_for_user
         if value.develpack

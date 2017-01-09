@@ -268,18 +268,14 @@ class SearchController < ApplicationController
     attrib = AttribType.find_by_namespace_and_name!(namespace, name)
 
     # gather the relation for attributes depending on project/package combination
-    if params[:package]
-      if params[:project]
-        attribs = Package.get_by_project_and_name(params[:project], params[:package]).attribs
-      else
-        attribs = attrib.attribs.where(package_id: Package.where(name: params[:package]))
-      end
+    if params[:package] && params[:project]
+      attribs = Package.get_by_project_and_name(params[:project], params[:package]).attribs
+    elsif params[:package]
+      attribs = attrib.attribs.where(package_id: Package.where(name: params[:package]))
+    elsif params[:project]
+      attribs = attrib.attribs.where(package_id: Project.get_by_name(params[:project]).packages)
     else
-      if params[:project]
-        attribs = attrib.attribs.where(package_id: Project.get_by_name(params[:project]).packages)
-      else
-        attribs = attrib.attribs
-      end
+      attribs = attrib.attribs
     end
 
     # get the values associated with the attributes and store them

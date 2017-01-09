@@ -93,16 +93,14 @@ class PersonController < ApplicationController
         render_error(status: 403, errorcode: 'change_userinfo_no_permission',
           message: "no permission to change userinfo for user #{user.login}") && return
       end
+    elsif User.current.is_admin?
+      user = User.create(login: login, password: "notset", email: "TEMP")
+      user.state = "locked"
     else
-      if User.current.is_admin?
-        user = User.create(login: login, password: "notset", email: "TEMP")
-        user.state = "locked"
-      else
-        logger.debug "Tried to create non-existing user without admin rights"
-        @errorcode = 404
-        @summary = "Requested non-existing user"
-        render_error(status: @errorcode) && return
-      end
+      logger.debug "Tried to create non-existing user without admin rights"
+      @errorcode = 404
+      @summary = "Requested non-existing user"
+      render_error(status: @errorcode) && return
     end
 
     xml = Xmlhash.parse(request.raw_post)

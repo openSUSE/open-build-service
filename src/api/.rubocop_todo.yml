@@ -495,10 +495,6 @@ Style/IdenticalConditionalBranches:
     - 'app/models/branch_package.rb'
     - 'app/models/tagcloud.rb'
 
-# Offense count: 20
-Style/IfInsideElse:
-  Enabled: false
-
 # Offense count: 191
 # Cop supports --auto-correct.
 # Configuration parameters: MaxLineLength.

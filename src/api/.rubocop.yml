@@ -65,6 +65,10 @@ Style/HashSyntax:
   Exclude:
     - 'config/routes.rb'
 
+# Use `elsif` instead of `else` with only an `if` node inside
+Style/IfInsideElse:
+  Enabled: true
+
 # Checks the indentation of the first line of the right-hand-side of a multi-line assignment.
 Style/IndentAssignment:
   Enabled: true

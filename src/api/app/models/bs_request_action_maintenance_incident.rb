@@ -124,20 +124,17 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                        project: linked_project, package: linked_package}
       ret = BranchPackage.new(branch_params).branch
       new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
-    else
-      # a new package for all targets
-      if linkinfo && linkinfo['package']
-        if Package.exists_by_project_and_name(incidentProject.name, source_package, follow_project_links: false)
-          new_pkg = Package.get_by_project_and_name(incidentProject.name, source_package, use_source: false, follow_project_links: false)
-        else
-          new_pkg = Package.new(name: source_package, title: pkg.title, description: pkg.description)
-          incidentProject.packages << new_pkg
-          new_pkg.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
-        end
+    elsif linkinfo && linkinfo['package'] # a new package for all targets
+      if Package.exists_by_project_and_name(incidentProject.name, source_package, follow_project_links: false)
+        new_pkg = Package.get_by_project_and_name(incidentProject.name, source_package, use_source: false, follow_project_links: false)
       else
-        # no link and not a patchinfo
-        return # error out instead ?
+        new_pkg = Package.new(name: source_package, title: pkg.title, description: pkg.description)
+        incidentProject.packages << new_pkg
+        new_pkg.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
       end
+    else
+      # no link and not a patchinfo
+      return # error out instead ?
     end
 
     # backend copy of submitted sources, but keep link
