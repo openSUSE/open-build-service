@@ -888,7 +888,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # test retracting of released updates
     # cleans up the backend and validates that DB constraints get a cleanup
-    [ 'pack2', 'pack2.0', 'pack2.linked', 'pack2.linked.0', 'patchinfo.0' ].each do |p|
+    ['pack2', 'pack2.0', 'pack2.linked', 'pack2.linked.0', 'patchinfo.0'].each do |p|
       delete "/source/BaseDistro2.0:LinkedUpdateProject/#{p}"
       assert_response :success
     end

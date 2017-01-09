@@ -55,7 +55,7 @@ class BsRequest < ApplicationRecord
   validates_inclusion_of :state, in: VALID_REQUEST_STATES
   validates :creator, presence: true
   validate :check_supersede_state
-  validate :check_creator, on: [ :create, :save! ]
+  validate :check_creator, on: [:create, :save!]
   validates_length_of :comment, maximum: 300000
   validates_length_of :description, maximum: 300000
 
@@ -756,7 +756,7 @@ class BsRequest < ApplicationRecord
   def setpriority(opts)
     permission_check_setpriority!
 
-    unless [ 'low', 'moderate', 'important', 'critical' ].include? opts[:priority]
+    unless ['low', 'moderate', 'important', 'critical'].include? opts[:priority]
       raise SaveError, "Illegal priority '#{opts[:priority]}'"
     end
 
@@ -774,7 +774,7 @@ class BsRequest < ApplicationRecord
     # rails enums do not support compare and break db constraints :/
     if new == "critical"
       self.priority = new
-    elsif new == "important" && [ "moderate", "low" ].include?(priority)
+    elsif new == "important" && ["moderate", "low"].include?(priority)
       self.priority = new
     elsif new == "moderate" && "low" == priority
       self.priority = new

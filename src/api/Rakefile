@@ -28,7 +28,7 @@ unless Rails.env.production?
   require 'rubocop/rake_task'
 
   RuboCop::RakeTask.new(:rubocop) do |task|
-    task.options = [ '-D', '-F', '--fail-level', 'convention' ]
+    task.options = ['-D', '-F', '--fail-level', 'convention']
   end
 end
 

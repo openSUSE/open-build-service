@@ -98,7 +98,7 @@ class User < ApplicationRecord
   after_create :create_home_project
   def create_home_project
     # avoid errors during seeding
-    return if [ "_nobody_", "Admin" ].include? login
+    return if ["_nobody_", "Admin"].include? login
     # may be disabled via Configuration setting
     return unless can_create_project?(home_project_name)
     # find or create the project
