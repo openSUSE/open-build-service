@@ -3,9 +3,9 @@ require 'webmock/rspec'
 
 RSpec.describe Webui::Project::PublicKeyController, type: :controller, vcr: true do
   describe 'GET #show' do
-    let(:project) do 
+    let(:project) do
       create(
-        :project, 
+        :project,
         name: "test_project",
         title: "Test Project"
       )
@@ -21,8 +21,8 @@ RSpec.describe Webui::Project::PublicKeyController, type: :controller, vcr: true
 
     context 'with a project that has a public key' do
       let(:gpg_public_key) { Faker::Lorem.characters(1024) }
-      let(:keyinfo_response) do     
-        %Q{<keyinfo project="Test"><pubkey algo="rsa">#{gpg_public_key}</pubkey></keyinfo>}
+      let(:keyinfo_response) do
+        %(<keyinfo project="Test"><pubkey algo="rsa">#{gpg_public_key}</pubkey></keyinfo>)
       end
 
       it { expect(response.header['Content-Disposition']).to include('attachment') }
@@ -31,7 +31,7 @@ RSpec.describe Webui::Project::PublicKeyController, type: :controller, vcr: true
 
     context 'with a project that has no public key' do
       let(:keyinfo_response) { '<keyinfo />' }
-      
+
       it { expect(response.status).to eq(404) }
     end
   end
