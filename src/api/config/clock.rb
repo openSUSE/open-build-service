@@ -7,6 +7,8 @@ require 'event'
 require 'clockwork'
 
 module Clockwork
+  update_backend_infos = nil
+
   every(30.seconds, 'status.refresh') do
     # this should be fast, so don't delay
     WorkerStatus.new.update_workerstatus_cache
@@ -48,9 +50,17 @@ module Clockwork
     FullTextSearch.new.delay.index_and_start
   end
 
-  every(1.day, 'refresh dirties') do
-    # inject a delayed job for every dirty project
-    BackendPackage.refresh_dirty
+  every(1.hour, 'refresh dirties', thread: true) do
+    unless update_backend_infos && update_backend_infos.running?
+      update_backend_infos = Daemons.call do
+        loop do
+          Package.dirty_backend_packages.each do |pkg|
+            pkg.backend_package
+          end
+          sleep(30) # check for dirty packages every 30 seconds
+        end
+      end
+    end
   end
 
   every(10.minutes, 'project log rotates') do

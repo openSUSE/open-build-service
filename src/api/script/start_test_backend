@@ -304,8 +304,7 @@ hri.store
 
 # reindex all sources
 ActiveRecord::Base.transaction(requires_new: true) do
-  Package.all.each{ |pkg| pkg.sources_changed }
-  UpdatePackageMetaJob.new.perform
+  Package.all.each{ |pkg| pkg.sources_changed({wait_for_update: 1}) }
 end
 
 @http_user = nil

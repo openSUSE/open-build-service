@@ -589,6 +589,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
           </binaries>
         </channel>'
     assert_response :success
+    pkg = Package.find_by_project_and_name("My:Maintenance:0", "BaseDistro3.Channel")
+    assert_equal "UpdateInfoTagNew-%N-%Y-%C", pkg.channels.first.channel_targets.first.id_template
+
     run_scheduler('x86_64')
     run_scheduler('i586')
     run_publisher

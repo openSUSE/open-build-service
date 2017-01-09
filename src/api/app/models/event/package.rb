@@ -29,7 +29,8 @@ module Event
       attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
       super(attribs, keys)
     end
-    create_jobs :cleanup_cache_lines, :update_backend_infos
+
+    create_jobs :cleanup_cache_lines
   end
 
   class DeletePackage < Package
@@ -71,8 +72,6 @@ module Event
     self.description = 'New revision of a package was commited'
     payload_keys :project, :package, :comment, :user, :files, :rev, :requestid
 
-    create_jobs :update_backend_infos
-
     def subject
       "#{payload['project']}/#{payload['package']} r#{payload['rev']} commited"
     end
@@ -95,7 +94,6 @@ module Event
     self.description = 'Package source service has succeeded'
     payload_keys :comment, :package, :project, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
-    create_jobs :update_backend_infos
 
     def subject
       "Source service succeeded of #{payload['project']}/#{payload['package']}"
@@ -113,7 +111,6 @@ module Event
     self.description = 'Package source service has failed'
     payload_keys :comment, :error, :package, :project, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
-    create_jobs :update_backend_infos
 
     def subject
       "Source service failure of #{payload['project']}/#{payload['package']}"

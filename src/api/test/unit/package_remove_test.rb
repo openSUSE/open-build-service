@@ -73,7 +73,7 @@ class PackageRemoveTest < ActiveSupport::TestCase
     assert_equal "The target package 'pack' has been removed", @request.comment
     assert_equal 1, HistoryElement::RequestDeclined.where(op_object_id: @request.id).count
 
-    @package.project.destroy
+    project.destroy
   end
 
   def test_update_project_for_product

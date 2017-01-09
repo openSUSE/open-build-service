@@ -16,14 +16,6 @@ class BackendPackage < ApplicationRecord
 
   #### Validations macros
   #### Class methods using self. (public and then private)
-
-  # this is called from the UpdatePackageMetaJob and clockwork
-  def self.refresh_dirty
-    Package.dirty_backend_package.pluck(:project_id).uniq.each do |project_id|
-      Project.find(project_id).delay(priority: 10).update_packages_if_dirty
-    end
-  end
-
   #### To define class methods as private use private_class_method
   #### private
   #### Instance methods (public and then protected/private)

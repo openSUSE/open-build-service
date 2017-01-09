@@ -925,8 +925,9 @@ class Project < ApplicationRecord
   end
 
   # The backend takes care of deleting the packages,
-  # when we delete ourself. No need to delete packages
-  # individually on backend
+  # when we delete ourself. We must not delete packages
+  # individually on backend or the undelete can't restore
+  # the entire project
   def cleanup_packages
     packages.each do |package|
       package.commit_opts = { no_backend_write: 1,
@@ -1489,13 +1490,6 @@ class Project < ApplicationRecord
     { reviews: reviews, targets: targets, incidents: incidents, maintenance_release: maintenance_release }
   end
 
-  # for the clockworkd - called delayed
-  def update_packages_if_dirty
-    packages.dirty_backend_package.each do |p|
-      p.update_if_dirty
-    end
-  end
-
   # Returns a list of pairs (full name, short name) for each parent
   def self.parent_projects(project_name)
     atoms = project_name.split(':')
@@ -1531,7 +1525,6 @@ class Project < ApplicationRecord
       # maintenance incidents need special treatment when unlocking
       reopen_release_targets if is_maintenance_incident?
     end
-    update_packages_if_dirty
   end
 
   def unlock!(comment = nil)
@@ -1542,6 +1535,7 @@ class Project < ApplicationRecord
   def unlock(comment = nil)
     if can_be_unlocked?(false)
       do_unlock(comment)
+      true
     else
       false
     end

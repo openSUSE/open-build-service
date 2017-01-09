@@ -101,10 +101,6 @@ class Package < ApplicationRecord
 
   scope :order_by_name, -> { order('LOWER(name)') }
 
-  # rubocop:disable Metrics/LineLength
-  scope :dirty_backend_package, -> { joins('left outer join backend_packages on backend_packages.package_id = packages.id').where('backend_packages.package_id is null') }
-  # rubocop:enable Metrics/LineLength
-
   validates :name, presence: true, length: { maximum: 200 }
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
@@ -119,6 +115,23 @@ class Package < ApplicationRecord
     return false if dbpkg.nil?
     return false unless dbpkg.class == Package
     Project.check_access?(dbpkg.project)
+  end
+
+  def self.dirty_backend_packages
+    # avoid scope here, it will turn objects readonly
+    sql =<<-END_SQL
+    SELECT packages.*
+    FROM packages
+    LEFT OUTER JOIN backend_packages on backend_packages.package_id = packages.id
+    WHERE backend_packages.package_id is null
+    END_SQL
+    Package.find_by_sql [sql]
+  end
+
+  def self.update_all_dirty_backend_packages
+    dirty_backend_packages.each do |pkg|
+      pkg.backend_package
+    end
   end
 
   def self.check_cache(project, package, opts)
@@ -370,6 +383,7 @@ class Package < ApplicationRecord
   def update_project_for_product
     if name == '_product'
       project.update_product_autopackages
+      update_if_dirty
     end
   end
 
@@ -402,24 +416,18 @@ class Package < ApplicationRecord
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: id).delete_all
     if dir_xml.is_a? Net::HTTPSuccess
-      dir_xml = dir_xml.body
+      dir_xml = Xmlhash.parse(dir_xml.body)
     else
-      dir_xml = source_file(nil)
+      dir_xml = Xmlhash.parse(source_file(nil))
     end
-    private_set_package_kind Xmlhash.parse(dir_xml)
+    files = []
+    files = dir_xml["entry"]["name"] if dir_xml["entry"].kind_of? Hash
+    files = dir_xml["entry"].map{|e| e["name"]} if dir_xml["entry"].kind_of? Array
+    opts[:wait_for_update] = 1 if ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(files)
+    opts[:wait_for_update] = 1 if name == "_product"
+    private_set_package_kind dir_xml
     update_project_for_product
-    if opts[:wait_for_update]
-      update_if_dirty
-    else
-      retries=10
-      begin
-        delay.update_if_dirty
-      rescue ActiveRecord::StatementInvalid
-        # mysql lock errors in delayed job handling... we need to retry
-        retries = retries - 1
-        retry if retries > 0
-      end
-    end
+    update_if_dirty if opts[:wait_for_update]
   end
 
   def self.source_path(project, package, file = nil, opts = {})
@@ -606,14 +614,12 @@ class Package < ApplicationRecord
     ret = []
     directory.elements('entry') do |e|
       %w{patchinfo aggregate link channel}.each do |kind|
-        if e['name'] == '_' + kind
-          ret << kind
-        end
+        ret << kind if e['name'] == '_' + kind
       end
+      # further types my be spec, dsc, kiwi in future
       if e['name'] =~ /.product$/
         ret << 'product'
       end
-      # further types my be spec, dsc, kiwi in future
     end
     ret.uniq
   end
@@ -749,16 +755,16 @@ class Package < ApplicationRecord
   end
 
   def delete_on_backend
-    # lock this package object to avoid that dependend objects get created in parallel
-    # for example a backend_package
-    reload(lock: true)
-
     # not really packages...
     # everything below _product:
     return true if name =~ /\A_product:\w[-+\w\.]*\z/
     return true if name == '_project'
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
+      # lock this package object to avoid that dependend objects get created in parallel
+      # for example a backend_package
+      reload(lock: true)
+
       path = source_path
 
       h = { user: User.current.login, comment: commit_opts[:comment] }
@@ -1309,9 +1315,7 @@ class Package < ApplicationRecord
     end
 
     # update package timestamp and reindex sources
-    unless opt[:rev] == 'repository' || %w(_project _pattern).include?(name)
-      sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))
-    end
+    sources_changed unless opt[:rev] == 'repository' || %w(_project _pattern).include?(name)
   end
 
   def to_param
