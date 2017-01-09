@@ -121,7 +121,7 @@ class Review < ApplicationRecord
 
   def users_and_groups_for_review
     if by_user
-       return [User.find_by_login!(by_user)]
+      return [User.find_by_login!(by_user)]
     end
     if by_group
       return [Group.find_by_title!(by_group)]

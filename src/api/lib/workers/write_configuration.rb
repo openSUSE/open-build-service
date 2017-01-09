@@ -3,7 +3,7 @@ class WriteConfigurationJob
   end
 
   def perform
-      @configuration = ::Configuration.first
-      @configuration.save!
+    @configuration = ::Configuration.first
+    @configuration.save!
   end
 end

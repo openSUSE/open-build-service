@@ -2,29 +2,29 @@ require 'memprof'
 
 class MemoryDumper
   def initialize(app)
-   @app = app
-   @toexit = 0
+    @app = app
+    @toexit = 0
 
-   Memprof.start
-   old_handler = trap('URG'){
-     @toexit = 1
-     old_handler.call if old_handler
-   }
+    Memprof.start
+    old_handler = trap('URG'){
+      @toexit = 1
+      old_handler.call if old_handler
+    }
   end
 
   def call(env)
-   ret = @app.call(env)
-   if @toexit == 1
-     pid = Process.pid
-     fork{
-       GC.start
-       Memprof.dump_all("/tmp/memprof-#{pid}.json")
-       exit!
-     }
-     # in case it did not work
-     Process.kill('USR1', $$)
-     @toexit = 0
-   end
-   ret
+    ret = @app.call(env)
+    if @toexit == 1
+      pid = Process.pid
+      fork{
+        GC.start
+        Memprof.dump_all("/tmp/memprof-#{pid}.json")
+        exit!
+      }
+      # in case it did not work
+      Process.kill('USR1', $$)
+      @toexit = 0
+    end
+    ret
   end
 end

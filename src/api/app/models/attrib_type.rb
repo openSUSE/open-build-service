@@ -23,7 +23,7 @@ class AttribType < ApplicationRecord
 
   #### Class methods using self. (public and then private)
   def self.find_by_name!(name)
-     find_by_name(name, true)
+    find_by_name(name, true)
   end
 
   def self.find_by_name(name, or_fail = false)
@@ -35,7 +35,7 @@ class AttribType < ApplicationRecord
   end
 
   def self.find_by_namespace_and_name!(namespace, name)
-     find_by_namespace_and_name(namespace, name, true)
+    find_by_namespace_and_name(namespace, name, true)
   end
 
   def self.find_by_namespace_and_name(namespace, name, or_fail = false)

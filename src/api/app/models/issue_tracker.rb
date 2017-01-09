@@ -74,10 +74,10 @@ class IssueTracker < ApplicationRecord
       result = bugzilla_server.search(last_change_time: self.issues_updated)
     rescue Net::ReadTimeout
       if (self.issues_updated + 2.days).past?
-         # failures since two days?
-         # => enforce a full update in small steps to avoid over load at bugzilla side
-         enforced_update_all_issues
-         return true
+        # failures since two days?
+        # => enforce a full update in small steps to avoid over load at bugzilla side
+        enforced_update_all_issues
+        return true
       end
       return false
     end
@@ -236,23 +236,23 @@ class IssueTracker < ApplicationRecord
   end
 
   def parse_github_issue(js, create = nil)
-      issue = nil
-      if create
-        issue = Issue.find_or_create_by_name_and_tracker(js["number"].to_s, name)
-      else
-        issue = Issue.find_by_name_and_tracker(js["number"].to_s, name)
-        return if issue.nil?
-      end
+    issue = nil
+    if create
+      issue = Issue.find_or_create_by_name_and_tracker(js["number"].to_s, name)
+    else
+      issue = Issue.find_by_name_and_tracker(js["number"].to_s, name)
+      return if issue.nil?
+    end
 
-      if js["state"] == "open"
-        issue.state = "OPEN"
-      else
-        issue.state = "CLOSED"
-      end
+    if js["state"] == "open"
+      issue.state = "OPEN"
+    else
+      issue.state = "CLOSED"
+    end
 #      u = User.find_by_email(js["assignee"]["login"].to_s)
-      issue.updated_at = @update_time_stamp
-      issue.summary = js["title"]
-      issue.save
+    issue.updated_at = @update_time_stamp
+    issue.summary = js["title"]
+    issue.save
   end
 
   def private_fetch_issues(ids)

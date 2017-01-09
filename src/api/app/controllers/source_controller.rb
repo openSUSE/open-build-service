@@ -230,7 +230,7 @@ class SourceController < ApplicationController
     end
 
     if params[:view] == 'issues'
-       show_package_issues && return
+      show_package_issues && return
     end
 
     # exec
@@ -1504,19 +1504,19 @@ class SourceController < ApplicationController
   end
 
   def _package_command_release_manual_target(pkg)
-      verify_can_modify_target!
+    verify_can_modify_target!
 
-      if params[:target_repository].blank? || params[:repository].blank?
-        raise MissingParameterError.new 'release action with specified target project needs also "repository" and "target_repository" parameter'
-      end
-      targetrepo=Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
-      raise UnknownRepository.new "Repository does not exist #{params[:target_repository]}" unless targetrepo
+    if params[:target_repository].blank? || params[:repository].blank?
+      raise MissingParameterError.new 'release action with specified target project needs also "repository" and "target_repository" parameter'
+    end
+    targetrepo=Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
+    raise UnknownRepository.new "Repository does not exist #{params[:target_repository]}" unless targetrepo
 
-      repo=pkg.project.repositories.where(name: params[:repository])
-      raise UnknownRepository.new "Repository does not exist #{params[:repository]}" unless repo.count > 0
-      repo=repo.first
+    repo=pkg.project.repositories.where(name: params[:repository])
+    raise UnknownRepository.new "Repository does not exist #{params[:repository]}" unless repo.count > 0
+    repo=repo.first
 
-      release_package(pkg, targetrepo, pkg.name, repo, nil, params[:setrelease], true)
+    release_package(pkg, targetrepo, pkg.name, repo, nil, params[:setrelease], true)
   end
   private :_package_command_release_manual_target
 

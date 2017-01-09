@@ -1549,12 +1549,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'mtime'
     hashed=node=nil
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-updateinfo.xml.gz") do |io|
-       node = REXML::Document.new( io.read )
+      node = REXML::Document.new( io.read )
     end
     assert_equal "My-oldname-#{Time.now.year}-1", node.elements['/updates/update/id'].first.to_s
     # verify meta data created by createrepo
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-primary.xml.gz") do |io|
-       hashed = Xmlhash.parse(io.read)
+      hashed = Xmlhash.parse(io.read)
     end
     pac = nil
     hashed.elements('package') do |p|
@@ -1588,13 +1588,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     end
     # file lists
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-filelists.xml.gz") do |io|
-       hashed = Xmlhash.parse(io.read)
+      hashed = Xmlhash.parse(io.read)
     end
     # STDERR.puts JSON.pretty_generate(hashed)
     assert hashed['package'].map{|f| f['file']}.include? '/my_packaged_file'
     # master tags
     IO.popen("cat #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/repomd.xml") do |io|
-       hashed = Xmlhash.parse(io.read)
+      hashed = Xmlhash.parse(io.read)
     end
     found=nil
     hashed["data"].each do |d|

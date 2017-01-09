@@ -93,8 +93,8 @@ RSpec.describe Webui::MainController do
     before do
       get :sitemap
       @paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map do |url|
-          uri = URI.parse(url.content)
-          "#{uri.path}?#{uri.query}"
+        uri = URI.parse(url.content)
+        "#{uri.path}?#{uri.query}"
       end
     end
 
@@ -119,7 +119,7 @@ RSpec.describe Webui::MainController do
 
     it "have all project's urls" do
       @projects.map(&:name).each do |project_name|
-          expect(@project_paths).to include("/project/show/#{project_name}")
+        expect(@project_paths).to include("/project/show/#{project_name}")
       end
     end
   end
@@ -135,7 +135,7 @@ RSpec.describe Webui::MainController do
 
     it "have all packages's urls" do
       Package.all.each do |package|
-          expect(@package_paths).to include("/package/show/#{package.project.name}/#{package.name}")
+        expect(@package_paths).to include("/package/show/#{package.project.name}/#{package.name}")
       end
     end
   end

@@ -102,43 +102,43 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     # verify meta data created by create_package_descr
     package_seen = {}
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro3/BaseDistro3_repo/repodata/*-primary.xml.gz") do |io|
-       hashed = Xmlhash.parse(io.read)
-       hashed.elements("package").each do |p|
-         next unless (p["name"] == "package" && p["arch"] == "i586") || (p["name"] == "package_newweaktags" && p["arch"] == "x86_64")
-         package_seen[p["name"]] = true
+      hashed = Xmlhash.parse(io.read)
+      hashed.elements("package").each do |p|
+        next unless (p["name"] == "package" && p["arch"] == "i586") || (p["name"] == "package_newweaktags" && p["arch"] == "x86_64")
+        package_seen[p["name"]] = true
 
-         assert_not_nil p
-         assert_equal "GPLv2+", p["format"]["rpm:license"]
-         assert_equal "Development/Tools/Building", p["format"]["rpm:group"]
-         assert_equal "280", p["format"]["rpm:header-range"]['start']
-         assert_equal "bash", p["format"]["rpm:requires"]['rpm:entry']['name']
-         assert_equal "myself", p["format"]["rpm:provides"]['rpm:entry'][0]['name']
-         assert_equal "something", p["format"]["rpm:conflicts"]['rpm:entry']['name']
-         assert_equal "old_crap", p["format"]["rpm:obsoletes"]['rpm:entry']['name']
-         if p["name"] == "package"
-           assert_equal "package-1.0-1.src.rpm", p["format"]["rpm:sourcerpm"]
-           assert_equal "2156", p["format"]["rpm:header-range"]['end']
-           assert_equal "package", p["format"]["rpm:provides"]['rpm:entry'][1]['name']
-           assert_equal "package(x86-32)", p["format"]["rpm:provides"]['rpm:entry'][2]['name']
-         elsif p["name"] == "package_newweaktags"
-           assert_equal "package_newweaktags-1.0-1.src.rpm", p["format"]["rpm:sourcerpm"]
-           assert_equal "2300", p["format"]["rpm:header-range"]['end']
-           assert_equal "package_newweaktags", p["format"]["rpm:provides"]['rpm:entry'][1]['name']
-           assert_equal "package_newweaktags(x86-64)", p["format"]["rpm:provides"]['rpm:entry'][2]['name']
-         else
-           assert nil # unhandled src rpm
-         end
-         if File.exist? "/var/adm/fillup-templates"
-           # seems to be a SUSE system
-           if p["format"]["rpm:suggests"].nil?
-             print "createrepo seems not to create week dependencies, we need this at least on SUSE systems"
-           end
-           assert_equal "pure_optional", p["format"]["rpm:suggests"]['rpm:entry']['name']
-           assert_equal "would_be_nice", p["format"]["rpm:recommends"]['rpm:entry']['name']
-           assert_equal "other_package_likes_it", p["format"]["rpm:supplements"]['rpm:entry']['name']
-           assert_equal "other_package", p["format"]["rpm:enhances"]['rpm:entry']['name']
-         end
-       end
+        assert_not_nil p
+        assert_equal "GPLv2+", p["format"]["rpm:license"]
+        assert_equal "Development/Tools/Building", p["format"]["rpm:group"]
+        assert_equal "280", p["format"]["rpm:header-range"]['start']
+        assert_equal "bash", p["format"]["rpm:requires"]['rpm:entry']['name']
+        assert_equal "myself", p["format"]["rpm:provides"]['rpm:entry'][0]['name']
+        assert_equal "something", p["format"]["rpm:conflicts"]['rpm:entry']['name']
+        assert_equal "old_crap", p["format"]["rpm:obsoletes"]['rpm:entry']['name']
+        if p["name"] == "package"
+          assert_equal "package-1.0-1.src.rpm", p["format"]["rpm:sourcerpm"]
+          assert_equal "2156", p["format"]["rpm:header-range"]['end']
+          assert_equal "package", p["format"]["rpm:provides"]['rpm:entry'][1]['name']
+          assert_equal "package(x86-32)", p["format"]["rpm:provides"]['rpm:entry'][2]['name']
+        elsif p["name"] == "package_newweaktags"
+          assert_equal "package_newweaktags-1.0-1.src.rpm", p["format"]["rpm:sourcerpm"]
+          assert_equal "2300", p["format"]["rpm:header-range"]['end']
+          assert_equal "package_newweaktags", p["format"]["rpm:provides"]['rpm:entry'][1]['name']
+          assert_equal "package_newweaktags(x86-64)", p["format"]["rpm:provides"]['rpm:entry'][2]['name']
+        else
+          assert nil # unhandled src rpm
+        end
+        if File.exist? "/var/adm/fillup-templates"
+          # seems to be a SUSE system
+          if p["format"]["rpm:suggests"].nil?
+            print "createrepo seems not to create week dependencies, we need this at least on SUSE systems"
+          end
+          assert_equal "pure_optional", p["format"]["rpm:suggests"]['rpm:entry']['name']
+          assert_equal "would_be_nice", p["format"]["rpm:recommends"]['rpm:entry']['name']
+          assert_equal "other_package_likes_it", p["format"]["rpm:supplements"]['rpm:entry']['name']
+          assert_equal "other_package", p["format"]["rpm:enhances"]['rpm:entry']['name']
+        end
+      end
     end
     assert package_seen["package"]
     assert package_seen["package_newweaktags"]
@@ -146,7 +146,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     # master tags
     hashed = nil
     IO.popen("cat #{Rails.root}/tmp/backend_data/repos/BaseDistro3/BaseDistro3_repo/repodata/repomd.xml") do |io|
-       hashed = Xmlhash.parse(io.read)
+      hashed = Xmlhash.parse(io.read)
     end
     if File.exist? '/var/adm/fillup-templates'
       # seems to be a SUSE system

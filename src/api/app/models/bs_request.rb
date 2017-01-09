@@ -109,14 +109,14 @@ class BsRequest < ApplicationRecord
   end
 
   def assign_number
-     return if number
-     # to assign a unique and steady incremental number.
-     # Using MySQL auto-increment mechanism is not working on clusters.
-     BsRequest.transaction do
-       request_counter = BsRequestCounter.lock(true).first_or_create
-       self.number = request_counter.counter
-       request_counter.increment!(:counter)
-     end
+    return if number
+    # to assign a unique and steady incremental number.
+    # Using MySQL auto-increment mechanism is not working on clusters.
+    BsRequest.transaction do
+      request_counter = BsRequestCounter.lock(true).first_or_create
+      self.number = request_counter.counter
+      request_counter.increment!(:counter)
+    end
   end
 
   def check_supersede_state

@@ -61,8 +61,8 @@ class BinaryRelease < ApplicationRecord
              entry.binary_supportstatus             == binary["supportstatus"] &&
              entry.binary_buildtime.to_datetime.utc == ::Time.at(binary["buildtime"].to_i).to_datetime.utc
              # same binary, don't touch
-             processed_item[entry.id] = true
-             next
+            processed_item[entry.id] = true
+            next
           end
           # same binary name and location, but updated content or meta data
           entry.modify_time = time

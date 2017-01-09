@@ -135,23 +135,23 @@ class ProjectStatusCalculator
     data = Xmlhash.parse(d)
 
     data.elements('jobhist') do |p|
-        line = {
-          'name'      => p['package'],
-          'code'      => p['code'],
-          'versrel'   => p['versrel'],
-          'verifymd5' => p['verifymd5']
-        }
+      line = {
+        'name'      => p['package'],
+        'code'      => p['code'],
+        'versrel'   => p['versrel'],
+        'verifymd5' => p['verifymd5']
+      }
 
-        if p.has_key?('readytime')
-            if p['readytime'].respond_to?(:to_i)
-                line['readytime'] = p['readytime'].to_i
-            else
-                line['readytime'] = 0
-            end
+      if p.has_key?('readytime')
+        if p['readytime'].respond_to?(:to_i)
+          line['readytime'] = p['readytime'].to_i
         else
-            line['readytime'] = 0
+          line['readytime'] = 0
         end
-        ret << line
+      else
+        line['readytime'] = 0
+      end
+      ret << line
     end
     ret
   end

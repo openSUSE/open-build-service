@@ -51,26 +51,26 @@ class UpdateNotificationEvents
 
     limit_reached=false
     begin
-    semaphore.synchronize do
-      nr = BackendInfo.lastnotification_nr
-      # 0 is a bad start
-      nr = 1 if nr.zero?
+      semaphore.synchronize do
+        nr = BackendInfo.lastnotification_nr
+        # 0 is a bad start
+        nr = 1 if nr.zero?
 
-      begin
-        @last = Xmlhash.parse(Suse::Backend.get("/lastnotifications?start=#{nr}&block=1").body)
-      rescue Net::ReadTimeout, EOFError, ActiveXML::Transport::Error
-        return
+        begin
+          @last = Xmlhash.parse(Suse::Backend.get("/lastnotifications?start=#{nr}&block=1").body)
+        rescue Net::ReadTimeout, EOFError, ActiveXML::Transport::Error
+          return
+        end
+
+        if @last['sync'] == 'lost'
+          # we're doomed, but we can't help - it's not supposed to happen
+          BackendInfo.lastnotification_nr = Integer(@last['next'])
+          return
+        end
+        limit_reached = @last['limit_reached'].present?
+
+        create_events
       end
-
-      if @last['sync'] == 'lost'
-        # we're doomed, but we can't help - it's not supposed to happen
-        BackendInfo.lastnotification_nr = Integer(@last['next'])
-        return
-      end
-      limit_reached = @last['limit_reached'].present?
-
-      create_events
-    end
     end while limit_reached
   end
 end

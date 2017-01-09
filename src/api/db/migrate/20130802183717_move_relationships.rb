@@ -17,7 +17,7 @@ class MoveRelationships < ActiveRecord::Migration
         Relationship.create(role_id: r.role_id, user_id: r.bs_user_id, project_id: r.db_project_id)
       end
       ProjectGroupRoleRelationship.all.each do |r|
-	Relationship.create(role_id: r.role_id, group_id: r.bs_group_id, project_id: r.db_project_id)
+        Relationship.create(role_id: r.role_id, group_id: r.bs_group_id, project_id: r.db_project_id)
       end
     end
   end

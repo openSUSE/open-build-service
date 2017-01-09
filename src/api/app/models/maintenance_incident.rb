@@ -47,24 +47,24 @@ class MaintenanceIncident < ApplicationRecord
   end
 
   def project_name
-      unless incident_id
+    unless incident_id
+      r = MaintenanceIncident.exec_query(["SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE",
+                                          maintenance_db_project_id]).first
+      if r.nil?
+        # no counter exists, initialize it and select again
+        MaintenanceIncident.exec_query ["INSERT INTO incident_counter(maintenance_db_project_id) VALUES('?')", maintenance_db_project_id]
+
         r = MaintenanceIncident.exec_query(["SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE",
                                             maintenance_db_project_id]).first
-        if r.nil?
-          # no counter exists, initialize it and select again
-          MaintenanceIncident.exec_query ["INSERT INTO incident_counter(maintenance_db_project_id) VALUES('?')", maintenance_db_project_id]
-
-          r = MaintenanceIncident.exec_query(["SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE",
-                                              maintenance_db_project_id]).first
-        end
-
-        # do an atomic increase of counter
-        MaintenanceIncident.exec_query ["UPDATE incident_counter SET counter = counter+1 WHERE maintenance_db_project_id = ?",
-                                        maintenance_db_project_id]
-        self.incident_id = r[0]
       end
-      name = maintenance_db_project.name + ":" + incident_id.to_s
-      name
+
+      # do an atomic increase of counter
+      MaintenanceIncident.exec_query ["UPDATE incident_counter SET counter = counter+1 WHERE maintenance_db_project_id = ?",
+                                      maintenance_db_project_id]
+      self.incident_id = r[0]
+    end
+    name = maintenance_db_project.name + ":" + incident_id.to_s
+    name
   end
 
   def getUpdateinfoCounter(time, template = "%Y-%C")

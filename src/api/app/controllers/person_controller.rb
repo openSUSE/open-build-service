@@ -12,9 +12,9 @@ class PersonController < ApplicationController
 
   def show
     if params[:prefix]
-        @list = User.where("login LIKE ?", params[:prefix] + '%')
+      @list = User.where("login LIKE ?", params[:prefix] + '%')
     else
-        @list = User.all
+      @list = User.all
     end
   end
 

@@ -117,8 +117,8 @@ Git log:
   task :test_suite do
     Dir.glob('**/*.rb').each do |f|
       unless system("ruby -c -d #{f} > /dev/null")
-         puts "syntax error in #{f} - will not deploy"
-         exit 1
+        puts "syntax error in #{f} - will not deploy"
+        exit 1
       end
     end
     unless system("rails test")

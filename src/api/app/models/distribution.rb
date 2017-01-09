@@ -9,16 +9,16 @@ class Distribution < ApplicationRecord
       Distribution.destroy_all
       DistributionIcon.delete_all
       xmlhash.elements('distribution') do |d|
-	db = Distribution.create(vendor: d['vendor'], version: d['version'], name: d['name'], project: d['project'],
-				 reponame: d['reponame'], repository: d['repository'], link: d['link'])
-	d.elements('architecture') do |a|
+        db = Distribution.create(vendor: d['vendor'], version: d['version'], name: d['name'], project: d['project'],
+                                 reponame: d['reponame'], repository: d['repository'], link: d['link'])
+        d.elements('architecture') do |a|
           dba = Architecture.find_by_name!(a.to_s)
-	  db.architectures << dba
-	end
-	d.elements('icon') do |i|
+          db.architectures << dba
+        end
+        d.elements('icon') do |i|
           dbi = DistributionIcon.find_or_create_by(width: i['width'], height: i['height'], url: i['url'])
-	  db.icons << dbi
-	end
+          db.icons << dbi
+        end
       end
     end
   end

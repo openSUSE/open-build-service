@@ -23,8 +23,8 @@ module HasRelationships
   def bugowner_emails
     ret = []
     relationships.where(role: Role.rolecache['bugowner']).joins(:user).each do |bugowner|
-     mail = bugowner.user.email
-     ret.push(mail.to_s) if mail
+      mail = bugowner.user.email
+      ret.push(mail.to_s) if mail
     end
     ret
   end

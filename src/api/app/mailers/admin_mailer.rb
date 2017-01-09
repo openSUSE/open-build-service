@@ -18,7 +18,7 @@ class AdminMailer < ActionMailer::Base
   end
 
   def error(message)
-     warning(message, "ERROR")
+    warning(message, "ERROR")
   end
 
   def warning(message, level = "Warning")
