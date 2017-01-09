@@ -9,8 +9,8 @@ class PublicKey
 
     if parsed_response['pubkey'].present?
       public_key_params = {
-        content: parsed_response['pubkey']['_content'],
-        algorithm: parsed_response['pubkey']['algo']        
+        content:   parsed_response['pubkey']['_content'],
+        algorithm: parsed_response['pubkey']['algo']
       }
 
       if parsed_response['sslcert'].present?
@@ -20,8 +20,6 @@ class PublicKey
       new(public_key_params)
     end
   end
-
-  private
 
   def self.backend_url(project_name)
     "/source/#{project_name}/_keyinfo?withsslcert=1"

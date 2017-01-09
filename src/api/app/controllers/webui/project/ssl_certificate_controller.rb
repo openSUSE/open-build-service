@@ -6,8 +6,8 @@ module Webui
 
         if project.public_key.present? && project.public_key.ssl_certificate.present?
           send_data(
-            project.public_key.ssl_certificate, 
-            disposition: 'attachment', 
+            project.public_key.ssl_certificate,
+            disposition: 'attachment',
             filename: "#{project.title}_ssl.cert"
           )
         else

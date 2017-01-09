@@ -6,8 +6,8 @@ module Webui
 
         if project.public_key.present?
           send_data(
-            project.public_key.content, 
-            disposition: 'attachment', 
+            project.public_key.content,
+            disposition: 'attachment',
             filename: "#{project.title}_key.pub"
           )
         else
