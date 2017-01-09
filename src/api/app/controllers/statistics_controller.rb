@@ -7,8 +7,8 @@ class StatisticsController < ApplicationController
   validate_action redirect_stats: {method: :get, response: :redirect_stats}
 
   before_action :get_limit, only: [
-      :highest_rated, :most_active_packages, :most_active_projects, :latest_added, :latest_updated,
-      :latest_built, :download_counter
+    :highest_rated, :most_active_packages, :most_active_projects, :latest_added, :latest_updated,
+    :latest_built, :download_counter
   ]
 
   def index

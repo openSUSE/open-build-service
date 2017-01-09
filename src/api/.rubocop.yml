@@ -69,6 +69,10 @@ Style/HashSyntax:
 Style/IfInsideElse:
   Enabled: true
 
+# Checks the indentation of the first element in an array
+Style/IndentArray:
+  Enabled: true
+
 # Checks the indentation of the first line of the right-hand-side of a multi-line assignment.
 Style/IndentAssignment:
   Enabled: true

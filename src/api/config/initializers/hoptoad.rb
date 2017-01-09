@@ -9,17 +9,17 @@ HoptoadNotifier.configure do |config|
   end
 
   config.ignore_only = %w{
-  ActiveRecord::RecordNotFound
-  ActionController::InvalidAuthenticityToken
-  CGI::Session::CookieStore::TamperedWithCookie
-  ActionController::UnknownAction
-  AbstractController::ActionNotFound
-  ActionView::MissingTemplate
-  Timeout::Error
-  Net::HTTPBadResponse
-  WebuiMatcher::InvalidRequestFormat
-  ActionController::UnknownFormat
-  ActivXML::Transport::NotFoundError
+    ActiveRecord::RecordNotFound
+    ActionController::InvalidAuthenticityToken
+    CGI::Session::CookieStore::TamperedWithCookie
+    ActionController::UnknownAction
+    AbstractController::ActionNotFound
+    ActionView::MissingTemplate
+    Timeout::Error
+    Net::HTTPBadResponse
+    WebuiMatcher::InvalidRequestFormat
+    ActionController::UnknownFormat
+    ActiveXML::Transport::NotFoundError
   }
 
   config.ignore_by_filter do |exception_data|

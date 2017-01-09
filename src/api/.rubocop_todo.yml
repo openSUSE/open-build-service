@@ -501,18 +501,6 @@ Style/IdenticalConditionalBranches:
 Style/IfUnlessModifier:
   Enabled: false
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
-# SupportedStyles: special_inside_parentheses, consistent, align_brackets
-Style/IndentArray:
-  Exclude:
-    - 'app/controllers/statistics_controller.rb'
-    - 'app/models/user.rb'
-    - 'app/models/user_ldap_strategy.rb'
-    - 'config/initializers/hoptoad.rb'
-    - 'test/unit/package_test.rb'
-
 # Offense count: 40
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
