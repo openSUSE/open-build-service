@@ -11,7 +11,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     page.must_have_text 'Create New Package for '
   end
 
-  def create_package new_package
+  def create_package(new_package)
     new_package[:expect]      ||= :success
     new_package[:name]        ||= ''
     new_package[:title]       ||= ''

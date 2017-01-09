@@ -118,7 +118,7 @@ def inject_build_job(project, package, repo, arch, extrabinary = nil)
 end
 
 module Minitest
-  def self.__run reporter, options
+  def self.__run(reporter, options)
     # there is no way to avoid the randomization of used suites, so we overload this method.
     suites = Runnable.runnables # .shuffle <- disabled here
     parallel, serial = suites.partition { |s| s.test_order == :parallel }
@@ -374,7 +374,7 @@ module Webui
     end
 
     # helper function for teardown
-    def delete_package project, package
+    def delete_package(project, package)
       visit package_show_path(package: package, project: project)
       find(:id, 'delete-package').click
       find(:id, 'del_dialog').must_have_text 'Do you really want to delete this package?'

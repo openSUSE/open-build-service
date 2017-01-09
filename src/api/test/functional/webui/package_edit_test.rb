@@ -26,7 +26,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
 
   # ============================================================================
   #
-  def change_package_info new_info # src/api/spec/controllers/webui/package_controller_spec.rb
+  def change_package_info(new_info) # src/api/spec/controllers/webui/package_controller_spec.rb
     assert !new_info[:title].blank? || !new_info[:description].blank?
 
     click_link('Edit description')

@@ -184,7 +184,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     click_button("Save Patchinfo") # FIXME: This doesn't have any effect here
   end
 
-  def delete_patchinfo project # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
+  def delete_patchinfo(project) # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
     visit patchinfo_show_path(package: 'patchinfo', project: project)
     if page.has_link?('delete-patchinfo')
       find(:id, 'delete-patchinfo').click

@@ -11,7 +11,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
     use_js
   end
 
-  def add attribute # spec/features/webui/attributes_spec.rb
+  def add(attribute) # spec/features/webui/attributes_spec.rb
     attribute[:value] ||= ''
     attribute[:expect] ||= :success
     attribute[:id] = attribute[:name].split(':').join('-')
@@ -90,7 +90,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
     end
   end
 
-  def delete attribute # spec/features/webui/attributes_spec.rb
+  def delete(attribute) # spec/features/webui/attributes_spec.rb
     attribute[:value] ||= ''
     attribute[:expect] ||= :success
     attribute[:id] = attribute[:name].split(':').join('-')

@@ -20,7 +20,7 @@ class Webui::LoginTest < Webui::IntegrationTest
   end
 
   #
-  def change_user_real_name new_name
+  def change_user_real_name(new_name)
     find(:id, 'save_dialog').click
 
     fill_in "realname", with: new_name

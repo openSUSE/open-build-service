@@ -7,7 +7,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   uses_transaction :test_branch_package_for_home_project
   uses_transaction :test_branch_package_twice
 
-  def create_package_branch new_branch
+  def create_package_branch(new_branch)
     click_link 'Branch existing package'
 
     page.must_have_text "Add New Package Branch to #{@project}"

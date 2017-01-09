@@ -462,7 +462,7 @@ class Package < ApplicationRecord
     is_of_kind? :product
   end
 
-  def is_of_kind? kind
+  def is_of_kind?(kind)
     package_kinds.where(kind: kind).exists?
   end
 
@@ -1170,7 +1170,7 @@ class Package < ApplicationRecord
     sources_changed
   end
 
-  def enable_for_repository repoName
+  def enable_for_repository(repoName)
     update_needed = nil
     if project.flags.find_by_flag_and_status( 'build', 'disable' )
       # enable package builds if project default is disabled

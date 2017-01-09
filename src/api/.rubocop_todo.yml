@@ -548,13 +548,6 @@ Style/IndentationWidth:
 Style/LineEndConcatenation:
   Enabled: false
 
-# Offense count: 29
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: require_parentheses, require_no_parentheses, require_no_parentheses_except_multiline
-Style/MethodDefParentheses:
-  Enabled: false
-
 # Offense count: 2
 Style/MethodMissing:
   Exclude:

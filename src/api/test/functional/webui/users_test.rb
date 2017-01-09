@@ -97,14 +97,14 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
 
   # Test Helpers
 
-  def edit_role cell, new_value
+  def edit_role(cell, new_value)
     unless new_value.nil?
       input = cell.first(:css, 'input')
       input.click unless input.selected? == new_value
     end
   end
 
-  def edit_user options
+  def edit_user(options)
     assert !options[:name].blank?
 
     row = find(:css, "tr#user-#{options[:name]}")
@@ -117,7 +117,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     edit_role cell[5], options[:reader]
   end
 
-  def add_user user, role, options = {}
+  def add_user(user, role, options = {})
     find(:id, 'add-user').click
 
     page.must_have_text %r{Add New User to}
@@ -150,7 +150,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     end
   end
 
-  def delete_user user
+  def delete_user(user)
     # overwrite confirm function to avoid the dialog - they are very racy with selenium
     page.evaluate_script('window.confirm = function() { return true; }')
     find(:css, "table#user_table tr#user-#{user} a.remove-user").click

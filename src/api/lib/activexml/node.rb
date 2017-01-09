@@ -456,18 +456,18 @@ module ActiveXML
       end
     end
 
-    def == other
+    def ==(other)
       return false unless other
       _data == other.internal_data
     end
 
-    def move_after other
+    def move_after(other)
       raise 'NO GOOD IDEA!' unless _data.document == other.internal_data.document
       # the naming of the API is a bit strange IMO
       _data.before(other.internal_data)
     end
 
-    def move_before other
+    def move_before(other)
       raise 'NO GOOD IDEA!' unless _data.document == other.internal_data.document
       # the naming of the API is a bit strange IMO
       _data.after(other.internal_data)

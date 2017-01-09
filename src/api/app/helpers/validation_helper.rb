@@ -7,21 +7,21 @@ module ValidationHelper
   class InvalidPackageNameError < APIException
   end
 
-  def valid_project_name? name
+  def valid_project_name?(name)
     Project.valid_name? name
   end
 
-  def valid_project_name! project_name
+  def valid_project_name!(project_name)
     unless valid_project_name? project_name
       raise InvalidProjectNameError, "invalid project name '#{project_name}'"
     end
   end
 
-  def valid_package_name? name
+  def valid_package_name?(name)
     Package.valid_name? name
   end
 
-  def valid_package_name! package_name
+  def valid_package_name!(package_name)
     unless valid_package_name? package_name
       raise InvalidPackageNameError, "invalid package name '#{package_name}'"
     end

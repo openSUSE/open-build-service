@@ -1,7 +1,7 @@
 require_relative '../../test_helper'
 
 class Webui::SignupTest < Webui::IntegrationTest
-  def signup_user page
+  def signup_user(page)
     # Signup a user
     visit page
     fill_in 'login', with: 'eisendieter'

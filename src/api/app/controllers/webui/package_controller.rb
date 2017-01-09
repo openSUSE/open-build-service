@@ -1056,7 +1056,7 @@ class Webui::PackageController < Webui::WebuiController
 
   private
 
-  def file_available? url, max_redirects = 5
+  def file_available?(url, max_redirects = 5)
     begin
       logger.debug "Checking url: #{url}"
       uri = URI.parse( url )

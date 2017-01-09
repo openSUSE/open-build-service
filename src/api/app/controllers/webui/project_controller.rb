@@ -874,7 +874,7 @@ class Webui::ProjectController < Webui::WebuiController
     longest
   end
 
-  def valid_target_name? name
+  def valid_target_name?(name)
     name =~ /^\w[-\.\w&]*$/
   end
 
