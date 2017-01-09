@@ -889,6 +889,31 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
   end
 
+  describe 'GET #prjconf' do
+    before do
+      login user
+    end
+
+    context 'Can load project config' do
+      before do
+        get :prjconf, params: { project: apache_project }
+      end
+
+      it { expect(flash[:error]).to eq(nil) }
+      it { expect(response).not_to redirect_to(controller: :project, nextstatus: 404) }
+    end
+
+    context 'Can not load project config' do
+      before do
+        allow_any_instance_of(ProjectConfigFile).to receive(:to_s).and_return(nil)
+        get :prjconf, params: { project: apache_project }
+      end
+
+      it { expect(flash[:error]).not_to eq(nil) }
+      it { expect(response).to redirect_to(controller: 'project', nextstatus: 404) }
+    end
+  end
+
   describe 'GET #clear_failed_comment' do
     let(:package) { create(:package_with_failed_comment_attribute, name: 'my_package', project: user.home_project) }
     let(:attribute_type) { AttribType.find_by_name("OBS:ProjectStatusPackageFailComment") }
