@@ -1,0 +1,6 @@
+- unless User.current.is_nobody?
+  = form_for @comment, method: :post do |f|
+    = hidden_field_tag :commentable_type, commentable.class
+    = hidden_field_tag :commentable_id, commentable.id
+    = f.text_area :body, size: '80x4', onkeyup: 'sz(this);', onclick: 'sz(this);', style: 'width: 90%;', placeholder: 'Add a new comment (markdown markup supported)', required: 'required'
+    = f.submit 'Add comment'

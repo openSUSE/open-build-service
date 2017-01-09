@@ -1,9 +1,6 @@
 require 'base64'
 
 class Webui::RequestController < Webui::WebuiController
-  include Webui::HasComments
-
-  helper 'webui/comment'
   helper 'webui/package'
 
   before_action :require_login, except: [:show, :sourcediff, :diff]
@@ -131,6 +128,7 @@ class Webui::RequestController < Webui::WebuiController
     end
 
     @comments = @bsreq.comments
+    @comment = Comment.new
   end
 
   def sourcediff

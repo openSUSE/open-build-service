@@ -151,7 +151,6 @@ OBSApi::Application.routes.draw do
       get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
       # compat route
       get 'package/files/:project/:package' => :show, constraints: cons
-      post 'package/comments/:project/:package' => :save_comment, constraints: cons
     end
 
     controller 'webui/patchinfo' do
@@ -251,7 +250,6 @@ OBSApi::Application.routes.draw do
       get 'project/list_incidents/:project' => :list_incidents, constraints: cons
       get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
-      post 'project/comments/:project' => :save_comment, constraints: cons, as: 'save_project_comment'
     end
 
     controller 'webui/request' do
@@ -274,7 +272,6 @@ OBSApi::Application.routes.draw do
       post 'request/change_devel_request' => :change_devel_request
       get 'request/set_incident_dialog' => :set_incident_dialog
       post 'request/set_incident' => :set_incident
-      post 'request/comments/:number' => :save_comment
     end
 
     controller 'webui/search' do
@@ -335,9 +332,7 @@ OBSApi::Application.routes.draw do
       get 'group/tokens' => :tokens
     end
 
-    namespace :webui do
-      resource :comment, only: [:destroy]
-    end
+    resources :comments, constraints: cons, only: [:create, :destroy], controller: 'webui/comments'
 
     ### /apidocs
     get 'apidocs(/index)' => 'webui/apidocs#index'

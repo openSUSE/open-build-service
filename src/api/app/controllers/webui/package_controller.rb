@@ -3,15 +3,12 @@ require 'project'
 
 class Webui::PackageController < Webui::WebuiController
   require_dependency 'opensuse/validator'
-  include Webui::HasComments
   include ParsePackageDiff
   include Webui::PackageHelper
   include Escaper
   include Webui::LoadBuildresults
   include Webui::ManageRelationships
   include BuildLogSupport
-
-  helper 'webui/comment'
 
   before_action :set_project, only: [:show, :users, :linking_packages, :dependency, :binary, :binaries,
                                      :requests, :statistics, :commit, :revisions, :submit_request_dialog,
@@ -21,7 +18,7 @@ class Webui::PackageController < Webui::WebuiController
                                      :save_group, :remove_role, :view_file,
                                      :abort_build, :trigger_rebuild, :trigger_services,
                                      :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                     :save_meta, :attributes, :edit, :import_spec, :files, :comments]
+                                     :save_meta, :attributes, :edit, :import_spec, :files]
 
   before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries,
                                          :requests, :statistics, :commit, :revisions, :submit_request_dialog,
@@ -31,8 +28,7 @@ class Webui::PackageController < Webui::WebuiController
                                          :save_group, :remove_role, :view_file,
                                          :abort_build, :trigger_rebuild, :trigger_services,
                                          :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                         :attributes, :edit, :import_spec, :files, :comments, :users,
-                                         :save_comment]
+                                         :attributes, :edit, :import_spec, :files, :users]
 
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :linking_packages, :linking_packages, :dependency,
@@ -82,6 +78,7 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     @comments = @package.comments
+    @comment = Comment.new
     @requests = []
     @services = Service.find(project: @project.name, package: @package.name)
   end

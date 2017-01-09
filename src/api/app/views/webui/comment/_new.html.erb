@@ -1,6 +1,0 @@
-<% unless User.current.is_nobody? %>
-  <%= save_comment_form do %>
-    <%= text_area_tag 'body', nil, :size => '80x4', :onkeyup => 'sz(this);', :onclick => 'sz(this);', :style => 'width: 90%;', :placeholder => 'Add a new comment (markdown markup supported)', :required => 'required' %>
-    <%= submit_tag 'Add comment'%>
-  <%end%>
-<% end %>

@@ -1,12 +1,9 @@
 class Webui::ProjectController < Webui::WebuiController
   require_dependency 'opensuse/validator'
-  include Webui::HasComments
   include Webui::RequestHelper
   include Webui::ProjectHelper
   include Webui::LoadBuildresults
   include Webui::ManageRelationships
-
-  helper 'webui/comment'
 
   before_action :lockout_spiders, only: [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
 
@@ -18,7 +15,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :show, :linking_projects, :add_person, :add_group, :buildresult, :delete_dialog,
                                      :destroy, :remove_path_from_target, :rebuild_time, :packages_simple,
                                      :requests, :save, :monitor, :toggle_watch, :meta,
-                                     :prjconf, :edit, :save_comment, :edit_comment,
+                                     :prjconf, :edit, :edit_comment,
                                      :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
@@ -193,6 +190,7 @@ class Webui::ProjectController < Webui::WebuiController
       end
     end
     @comments = @project.comments
+    @comment = Comment.new
     render :show, status: params[:nextstatus] if params[:nextstatus]
   end
 

@@ -330,7 +330,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
   def test_succesful_comment_creation # spec/features/webui/comments_spec.rb
     login_Iggy to: request_show_path(1)
-    fill_in 'body', with: 'Comment Body'
+    fill_in 'comment_body', with: 'Comment Body'
     find_button('Add comment').click
     find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
@@ -379,7 +379,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     # tom is commenter *and* author, so doesn't get mail
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      fill_in 'body', with: 'Comment Body'
+      fill_in 'comment_body', with: 'Comment Body'
       find_button('Add comment').click
       page.must_have_text 'Comment Body'
       SendEventEmails.new.perform
@@ -396,7 +396,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     # adrian is reviewer, Iggy creator, Admin (fixture) commenter
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      fill_in 'body', with: 'Another Body'
+      fill_in 'comment_body', with: 'Another Body'
       find_button('Add comment').click
       page.must_have_text 'Another Body'
       SendEventEmails.new.perform
