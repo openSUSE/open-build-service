@@ -142,14 +142,14 @@ class ProjectStatusCalculator
           'verifymd5' => p['verifymd5']
         }
 
-        if p.has_key?('readytime')
+        line['readytime'] = if p.has_key?('readytime')
             if p['readytime'].respond_to?(:to_i)
-                line['readytime'] = p['readytime'].to_i
+                p['readytime'].to_i
             else
-                line['readytime'] = 0
+                0
             end
         else
-            line['readytime'] = 0
+            0
         end
         ret << line
     end

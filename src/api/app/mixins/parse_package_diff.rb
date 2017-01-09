@@ -17,10 +17,10 @@ module ParsePackageDiff
     files_hash = {}
 
     sourcediff.get('files').elements('file') do |file|
-      if file['new']
-        filename = file['new']['name']
+      filename = if file['new']
+        file['new']['name']
       else # in case of deleted files
-        filename = file['old']['name']
+        file['old']['name']
       end
       if filename.include?('/')
         other_file_keys << filename

@@ -40,10 +40,10 @@ module Suse
         controller = controller.to_s
         @schema_map ||= Hash.new
         @schema_map[controller] ||= Hash.new
-        if opt.has_key? :method
-          key = action.to_s + '-' + opt[:method].to_s
+        key = if opt.has_key? :method
+          action.to_s + '-' + opt[:method].to_s
         else
-          key = action.to_s
+          action.to_s
         end
         if opt[:request] # have a request validation schema?
           @schema_map[controller][key + '-request'] = opt[:request].to_s

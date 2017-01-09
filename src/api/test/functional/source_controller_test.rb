@@ -3779,10 +3779,10 @@ EOF
 
   def draft_xml_for_duplicate_test(package_or_project)
     # first we add a bugowner
-    if package_or_project == 'package'
-      xml = "<package project='home:Iggy' name='TestPack'>"
+    xml = if package_or_project == 'package'
+      "<package project='home:Iggy' name='TestPack'>"
     else
-      xml = "<project name='home:Iggy'>"
+      "<project name='home:Iggy'>"
     end
     xml += '<title>Strange XML</title><description></description>'
     # make sure never to erase ourselves

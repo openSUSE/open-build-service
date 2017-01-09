@@ -16,10 +16,10 @@ class UnregisteredUser < User
     # No registering if we use an authentification proxy
     if CONFIG['proxy_auth_mode'] == :on || CONFIG['ichain_mode'] == :on
       logger.debug 'Someone tried to register with "proxy_auth_mode" turned on'
-      if CONFIG['proxy_auth_register_page'].blank?
-        err_msg = "Sorry, please sign up using the authentification proxy"
+      err_msg = if CONFIG['proxy_auth_register_page'].blank?
+        "Sorry, please sign up using the authentification proxy"
       else
-        err_msg = "Sorry, please sign up using #{CONFIG['proxy_auth_register_page']}"
+        "Sorry, please sign up using #{CONFIG['proxy_auth_register_page']}"
       end
       raise ErrRegisterSave, err_msg
     end

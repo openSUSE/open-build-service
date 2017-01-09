@@ -79,10 +79,10 @@ namespace :db do
         data.each do |record|
           record = force_hash record
           id=i.succ!
-          if classname
-            primary = classname.primary_key
+          primary = if classname
+            classname.primary_key
           else
-            primary = 'id'
+            'id'
           end
           if record.has_key? primary
             id=Integer(record[primary])

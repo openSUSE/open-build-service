@@ -400,13 +400,6 @@ Style/CommentAnnotation:
 Style/CommentIndentation:
   Enabled: false
 
-# Offense count: 97
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, SingleLineConditionsOnly.
-# SupportedStyles: assign_to_condition, assign_inside_condition
-Style/ConditionalAssignment:
-  Enabled: false
-
 # Offense count: 10
 Style/ConstantName:
   Exclude:

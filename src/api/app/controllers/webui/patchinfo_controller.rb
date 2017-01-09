@@ -279,10 +279,10 @@ class Webui::PatchinfoController < Webui::WebuiController
   # returns empty string in case of ActiveXML::Transport::Error exception
   # returns nil in case of error (bug mismatches tracker result regex)
   def get_issue_sum(tracker, issueid)
-    if !issueid.starts_with? 'CVE-'
-      bug = tracker + '#' + issueid
+    bug = if !issueid.starts_with? 'CVE-'
+      tracker + '#' + issueid
     else
-      bug = issueid
+      issueid
     end
 
     issue_tracker = IssueTracker.find_by(name: tracker)

@@ -1013,10 +1013,10 @@ class User < ApplicationRecord
   end
 
   cattr_accessor :lookup_strategy do
-    if Configuration.ldapgroup_enabled?
-      @@lstrategy = UserLdapStrategy.new
+    @@lstrategy = if Configuration.ldapgroup_enabled?
+      UserLdapStrategy.new
     else
-      @@lstrategy = UserBasicStrategy.new
+      UserBasicStrategy.new
     end
   end
 end

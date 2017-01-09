@@ -163,10 +163,10 @@ class UserLdapStrategy
 
   # This static method tries to find a group with the given gorup_title to check whether the group is in the LDAP server.
   def self.find_group_with_ldap(group)
-    if CONFIG.has_key?('ldap_group_objectclass_attr')
-      filter = "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
+    filter = if CONFIG.has_key?('ldap_group_objectclass_attr')
+      "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
     else
-      filter = "(#{CONFIG['ldap_group_title_attr']}=#{group})"
+      "(#{CONFIG['ldap_group_title_attr']}=#{group})"
     end
     result = search_ldap(CONFIG['ldap_group_search_base'], filter)
     if result.nil?
@@ -218,10 +218,10 @@ class UserLdapStrategy
 
     if user
       # search user
-      if CONFIG.has_key?('ldap_user_filter')
-        filter = "(&(#{CONFIG['ldap_search_attr']}=#{user})#{CONFIG['ldap_user_filter']})"
+      filter = if CONFIG.has_key?('ldap_user_filter')
+        "(&(#{CONFIG['ldap_search_attr']}=#{user})#{CONFIG['ldap_user_filter']})"
       else
-        filter = "(#{CONFIG['ldap_search_attr']}=#{user})"
+        "(#{CONFIG['ldap_search_attr']}=#{user})"
       end
       user_dn = String.new
       user_memberof_attr = String.new
@@ -253,10 +253,10 @@ class UserLdapStrategy
       end
 
       # search group
-      if CONFIG.has_key?('ldap_group_objectclass_attr')
-        filter = "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
+      filter = if CONFIG.has_key?('ldap_group_objectclass_attr')
+        "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
       else
-        filter = "(#{CONFIG['ldap_group_title_attr']}=#{group})"
+        "(#{CONFIG['ldap_group_title_attr']}=#{group})"
       end
 
       # clean group_dn, group_member_attr
@@ -419,10 +419,10 @@ class UserLdapStrategy
         return
       end
 
-      if CONFIG.has_key?('ldap_user_filter')
-        user_filter = "(&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
+      user_filter = if CONFIG.has_key?('ldap_user_filter')
+        "(&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
       else
-        user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
+        "(#{CONFIG['ldap_search_attr']}=#{login})"
       end
       Rails.logger.debug("Search for #{CONFIG['ldap_search_base']} #{user_filter}")
       begin
@@ -472,15 +472,15 @@ class UserLdapStrategy
 
     # Only collect the required user information *AFTER* we successfully
     # completed the authentication!
-    if user[CONFIG['ldap_mail_attr']]
-      ldap_info[0] = String.new(user[CONFIG['ldap_mail_attr']][0])
+    ldap_info[0] = if user[CONFIG['ldap_mail_attr']]
+      String.new(user[CONFIG['ldap_mail_attr']][0])
     else
-      ldap_info[0] = dn2user_principal_name(user['dn'])
+      dn2user_principal_name(user['dn'])
     end
-    if user[CONFIG['ldap_name_attr']]
-      ldap_info[1] = String.new(user[CONFIG['ldap_name_attr']][0])
+    ldap_info[1] = if user[CONFIG['ldap_name_attr']]
+      String.new(user[CONFIG['ldap_name_attr']][0])
     else
-      ldap_info[1] = login
+      login
     end
 
     Rails.cache.write(key,
@@ -579,10 +579,10 @@ class UserLdapStrategy
       else
         port = CONFIG.has_key?('ldap_port') ? CONFIG['ldap_port'] : 389
         # Use LDAP StartTLS. By default start_tls is off.
-        if CONFIG.has_key?('ldap_start_tls') && CONFIG['ldap_start_tls'] == :on
-          conn = LDAP::SSLConn.new(server, port, true)
+        conn = if CONFIG.has_key?('ldap_start_tls') && CONFIG['ldap_start_tls'] == :on
+          LDAP::SSLConn.new(server, port, true)
         else
-          conn = LDAP::Conn.new(server, port)
+          LDAP::Conn.new(server, port)
         end
       end
       conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)

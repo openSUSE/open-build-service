@@ -64,10 +64,10 @@ module Suse
         @start_of_last = Time.now
         logger.debug "[backend] #{method}: #{path}"
         timeout = in_headers.delete('Timeout')
-        if method == "PUT"
-          backend_request = Net::HTTP::Put.new(path, in_headers)
+        backend_request = if method == "PUT"
+          Net::HTTP::Put.new(path, in_headers)
         else
-          backend_request = Net::HTTP::Post.new(path, in_headers)
+          Net::HTTP::Post.new(path, in_headers)
         end
         if data.respond_to?('read')
           backend_request.content_length = data.size
@@ -76,11 +76,11 @@ module Suse
           backend_request.body = data
         end
         response = Net::HTTP.start(host, port) do |http|
-          if method == "POST"
+          http.read_timeout = if method == "POST"
             # POST requests can be quite complicate and take some time ..
-            http.read_timeout = timeout || 100000
+            timeout || 100000
           else
-            http.read_timeout = timeout || 1000
+            timeout || 1000
           end
           begin
             http.request backend_request

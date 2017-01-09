@@ -47,10 +47,10 @@ class CacheLine < ApplicationRecord
 
     case key
       when Array
-        if key.size > 1
-          key = key.collect { |element| expanded_key(element) }
+        key = if key.size > 1
+          key.collect { |element| expanded_key(element) }
         else
-          key = key.first
+          key.first
         end
       when Hash
         key = key.sort_by { |k, _| k.to_s }.collect { |k, v| "#{k}=#{v}" }

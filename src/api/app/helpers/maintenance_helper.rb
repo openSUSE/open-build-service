@@ -42,11 +42,11 @@ module MaintenanceHelper
 
   def release_package(sourcePackage, target, targetPackageName,
                       filterSourceRepository = nil, action = nil, setrelease = nil, manual = nil)
-    if target.kind_of? Repository
-      targetProject = target.project
+    targetProject = if target.kind_of? Repository
+      target.project
     else
       # project
-      targetProject = target
+      target
     end
     targetProject.check_write_access!
 
@@ -58,10 +58,10 @@ module MaintenanceHelper
     end
 
     # copy binaries
-    if target.kind_of? Repository
-      uIDs = copy_binaries_to_repository(filterSourceRepository, sourcePackage, target, targetPackageName, setrelease)
+    uIDs = if target.kind_of? Repository
+      copy_binaries_to_repository(filterSourceRepository, sourcePackage, target, targetPackageName, setrelease)
     else
-      uIDs = copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
+      copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
     end
 
     # create or update main package linking to incident package

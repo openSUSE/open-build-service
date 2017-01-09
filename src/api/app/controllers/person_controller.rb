@@ -11,10 +11,10 @@ class PersonController < ApplicationController
   skip_before_action :require_login, only: [:command, :register]
 
   def show
-    if params[:prefix]
-        @list = User.where("login LIKE ?", params[:prefix] + '%')
+    @list = if params[:prefix]
+        User.where("login LIKE ?", params[:prefix] + '%')
     else
-        @list = User.all
+        User.all
     end
   end
 

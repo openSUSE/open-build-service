@@ -237,10 +237,10 @@ class ConsistencyCheckJob < ApplicationJob
         b_ = b_.map{ |i| "#{i['groupid']}/#{i['role']}" }.sort
       end
       if a_ != b_
-        if a[k].class == Hash && b[k].class == Hash
-          diff[k] = hash_diff(a[k], b[k])
+        diff[k] = if a[k].class == Hash && b[k].class == Hash
+          hash_diff(a[k], b[k])
         else
-          diff[k] = [a[k], b[k]]
+          [a[k], b[k]]
         end
       end
       diff

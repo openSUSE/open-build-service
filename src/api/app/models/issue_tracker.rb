@@ -204,15 +204,15 @@ class IssueTracker < ApplicationRecord
   def parse_single_bugzilla_issue(r)
     issue = Issue.find_by_name_and_tracker r["id"].to_s, name
     if issue
-      if r["is_open"]
+      issue.state = if r["is_open"]
         # bugzilla sees it as open
-        issue.state = "OPEN"
+        "OPEN"
       elsif r["is_open"] == false
         # bugzilla sees it as closed
-        issue.state = "CLOSED"
+        "CLOSED"
       else
         # bugzilla does not tell a state
-        issue.state = Issue.bugzilla_state(r["status"])
+        Issue.bugzilla_state(r["status"])
       end
       u = User.find_by_email(r["assigned_to"].to_s)
       logger.info "Bugzilla user #{r["assigned_to"]} is not found in OBS user database" unless u
@@ -220,10 +220,10 @@ class IssueTracker < ApplicationRecord
       issue.created_at = r["creation_time"]
       # this is our update_at, not the one bugzilla logged in last_change_time
       issue.updated_at = @update_time_stamp
-      if r["is_private"]
-        issue.summary = nil
+      issue.summary = if r["is_private"]
+        nil
       else
-        issue.summary = r["summary"]
+        r["summary"]
       end
       issue.save
     end
@@ -244,10 +244,10 @@ class IssueTracker < ApplicationRecord
         return if issue.nil?
       end
 
-      if js["state"] == "open"
-        issue.state = "OPEN"
+      issue.state = if js["state"] == "open"
+        "OPEN"
       else
-        issue.state = "CLOSED"
+        "CLOSED"
       end
 #      u = User.find_by_email(js["assignee"]["login"].to_s)
       issue.updated_at = @update_time_stamp
@@ -335,10 +335,10 @@ class CVEparser < Nokogiri::XML::SAX::Document
       @@mySummary = ""
       @@isDesc = false
     end
-    if @@myIssue && name == "desc"
-      @@isDesc=true
+    @@isDesc = if @@myIssue && name == "desc"
+      true
     else
-      @@isDesc=false
+      false
     end
   end
 

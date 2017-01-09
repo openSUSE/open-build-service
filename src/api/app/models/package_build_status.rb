@@ -113,10 +113,10 @@ class PackageBuildStatus
     # if it's currently succeeded but !@everbuilt, it's different sources
     if currentcode == 'succeeded'
       dir = current_dir
-      if @srcmd5 == dir['srcmd5'] || @srcmd5 == dir['verifymd5']
-        @buildcode='building' # guesssing
+      @buildcode = if @srcmd5 == dir['srcmd5'] || @srcmd5 == dir['verifymd5']
+        'building' # guesssing
       else
-        @buildcode='outdated'
+        'outdated'
       end
     end
   end

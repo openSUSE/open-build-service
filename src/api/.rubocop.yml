@@ -36,6 +36,10 @@ Style/AsciiComments:
 Style/CommandLiteral:
   EnforcedStyle: percent_x
 
+# Check for if and case statements where each branch is used for assignment to the same variable.
+Style/ConditionalAssignment:
+  Enabled: true
+
 # TODO: Someday we should add copyrights
 Style/Copyright:
   Enabled: false

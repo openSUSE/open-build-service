@@ -61,10 +61,10 @@ module Webui::WebuiHelper
   def format_projectname(prjname, login)
     splitted = prjname.split(':', 3)
     if splitted[0] == 'home'
-      if login && splitted[1] == login
-        prjname = '~'
+      prjname = if login && splitted[1] == login
+        '~'
       else
-        prjname = '~' + splitted[1]
+        '~' + splitted[1]
       end
       if splitted.length > 2
         prjname += ':' + splitted[-1]
@@ -254,17 +254,17 @@ module Webui::WebuiHelper
     opt = { short: false, no_icon: false, no_link: false }.merge(options)
     real_name = User.realname_for_login(user)
 
-    if opt[:no_icon]
-      icon = ''
+    icon = if opt[:no_icon]
+      ''
     else
       # user_icon returns an ActiveSupport::SafeBuffer and not a String
-      icon = user_icon(user)
+      user_icon(user)
     end
 
-    if !(real_name.empty? || opt[:short])
-      printed_name = "#{real_name} (#{user})"
+    printed_name = if !(real_name.empty? || opt[:short])
+      "#{real_name} (#{user})"
     else
-      printed_name = user
+      user
     end
 
     printed_name << " as #{role}" if role
@@ -291,10 +291,10 @@ module Webui::WebuiHelper
     opts[:project_text], opts[:package_text] =
       elide_two(opts[:project_text], opts[:package_text], opts[:trim_to]) unless opts[:trim_to].nil?
 
-    if opts[:short]
-      out = ''.html_safe
+    out = if opts[:short]
+      ''.html_safe
     else
-      out = 'package '.html_safe
+      'package '.html_safe
     end
 
     opts[:short] = true # for project
@@ -315,10 +315,10 @@ module Webui::WebuiHelper
 
   def link_to_project(prj, opts)
     opts[:project_text] ||= opts[:project]
-    if opts[:short]
-      out = ''.html_safe
+    out = if opts[:short]
+      ''.html_safe
     else
-      out = 'project '.html_safe
+      'project '.html_safe
     end
     project_text = opts[:trim_to].nil? ? opts[:project_text] : elide(opts[:project_text], opts[:trim_to])
     out + link_to_if(prj, project_text,
@@ -357,10 +357,10 @@ module Webui::WebuiHelper
     Rails.cache.fetch([user, 'realname_and_icon', opts, ::Configuration.first]) do
       realname = user.realname
 
-      if opts[:short] || realname.empty?
-        printed_name = user.login
+      printed_name = if opts[:short] || realname.empty?
+        user.login
       else
-        printed_name = "#{realname} (#{user.login})"
+        "#{realname} (#{user.login})"
       end
 
       user_icon(user) + ' ' + link_to_if(!opts[:no_link], printed_name,

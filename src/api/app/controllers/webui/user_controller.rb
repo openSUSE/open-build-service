@@ -288,11 +288,11 @@ class Webui::UserController < Webui::WebuiController
     names = []
     users = User.arel_table
     User.where(users[:login].matches("#{prefix}%")).pluck(:login).each do |user|
-      if hash
-        names << { 'name' => user }
-      else
-        names << user
-      end
+      names << if hash
+                 { 'name' => user }
+               else
+                 user
+               end
     end
     names
   end

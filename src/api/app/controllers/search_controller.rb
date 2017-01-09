@@ -185,10 +185,10 @@ class SearchController < ApplicationController
     output = "<collection matches=\"#{matches}\">\n"
 
     xml = Hash.new # filled by filter
-    if render_all
-      key_template = "xml_#{what}_%d"
+    key_template = if render_all
+      "xml_#{what}_%d"
     else
-      key_template = "xml_id_#{what}_%d"
+      "xml_id_#{what}_%d"
     end
     search_items = filter_items_from_cache(items, xml, key_template)
 
@@ -269,16 +269,16 @@ class SearchController < ApplicationController
 
     # gather the relation for attributes depending on project/package combination
     if params[:package]
-      if params[:project]
-        attribs = Package.get_by_project_and_name(params[:project], params[:package]).attribs
+      attribs = if params[:project]
+        Package.get_by_project_and_name(params[:project], params[:package]).attribs
       else
-        attribs = attrib.attribs.where(package_id: Package.where(name: params[:package]))
+        attrib.attribs.where(package_id: Package.where(name: params[:package]))
       end
     else
-      if params[:project]
-        attribs = attrib.attribs.where(package_id: Project.get_by_name(params[:project]).packages)
+      attribs = if params[:project]
+        attrib.attribs.where(package_id: Project.get_by_name(params[:project]).packages)
       else
-        attribs = attrib.attribs
+        attrib.attribs
       end
     end
 
