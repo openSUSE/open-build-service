@@ -528,7 +528,7 @@ XML
 
     visit project_show_path(project: 'home:Iggy')
     # test reload and wait for the build to finish
-    starttime=Time.now
+    starttime = Time.now
     while Time.now - starttime < 10
       page.must_have_selector '.icons-reload'
       first('.icons-reload').click

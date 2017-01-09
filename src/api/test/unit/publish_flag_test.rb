@@ -18,7 +18,7 @@ class PublishFlagTest < ActiveSupport::TestCase
 
     # create two new flags and save it.
     for i in 1..2 do
-      @project.flags.create(repo: "10.#{i}", status: "enable", position: i+2, flag: 'publish', architecture: @arch)
+      @project.flags.create(repo: "10.#{i}", status: "enable", position: i + 2, flag: 'publish', architecture: @arch)
     end
 
     @project.reload
@@ -53,7 +53,7 @@ class PublishFlagTest < ActiveSupport::TestCase
 
     # create two new flags and save it.
     for i in 1..2 do
-      @package.flags.create(repo: "10.#{i}", status: "disable", position: i+1, flag: 'publish', architecture: @arch)
+      @package.flags.create(repo: "10.#{i}", status: "disable", position: i + 1, flag: 'publish', architecture: @arch)
     end
 
     @package.reload

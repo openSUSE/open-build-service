@@ -41,9 +41,9 @@ class RequestController < ApplicationController
     rel = rel.limit(params[:limit].to_i) if params[:limit].to_i > 0
 
     xml = ActiveXML::Node.new '<collection/>'
-    matches=0
+    matches = 0
     rel.each do |r|
-      matches = matches+1
+      matches = matches + 1
       xml.add_node(r.render_xml(params))
     end
     xml.set_attribute('matches', matches.to_s)

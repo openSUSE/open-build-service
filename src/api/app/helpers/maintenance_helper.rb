@@ -50,7 +50,7 @@ module MaintenanceHelper
     end
     targetProject.check_write_access!
 
-    if sourcePackage.name.starts_with?("_product:") && targetProject.packages.where(name: "_product").count>0
+    if sourcePackage.name.starts_with?("_product:") && targetProject.packages.where(name: "_product").count > 0
       # a master _product container exists, so we need to copy all sources
       _release_product(sourcePackage, targetProject, action)
     else
@@ -170,7 +170,7 @@ module MaintenanceHelper
   end
 
   def copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
-    updateIDs=[]
+    updateIDs = []
     sourcePackage.project.repositories.each do |sourceRepo|
       next if filterSourceRepository && filterSourceRepository != sourceRepo
       sourceRepo.release_targets.each do |releasetarget|
@@ -333,7 +333,7 @@ module MaintenanceHelper
     pkg = project.packages.create(name: pkg_name, title: opkg.title, description: opkg.description)
     pkg.store
 
-    arguments="&noservice=1"
+    arguments = "&noservice=1"
     arguments << "&requestid=" << opts[:request].number.to_s if opts[:request]
     arguments << "&comment=" << CGI.escape(opts[:comment]) if opts[:comment]
     if opts[:makeoriginolder]

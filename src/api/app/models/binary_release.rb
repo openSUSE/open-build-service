@@ -147,7 +147,7 @@ class BinaryRelease < ApplicationRecord
     builder.binary(render_attributes) do |binary|
       binary.operation operation
 
-      node={}
+      node = {}
       node[:package] = release_package.name if release_package
       node[:time] = self.binary_releasetime if self.binary_releasetime
       binary.publish(node) if node.length > 0

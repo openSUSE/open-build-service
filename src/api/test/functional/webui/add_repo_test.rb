@@ -29,10 +29,10 @@ class Webui::AddRepoTest < Webui::IntegrationTest
     visit project_meta_path(project: 'home:Iggy')
     page.must_have_selector('.editor', visible: false)
     xml = Xmlhash.parse(first('.editor', visible: false).value)
-    assert_equal([{"name"=>"images", "arch"=> %w(x86_64 i586) },
-                  {"name"=>"Base_repo", "path"=>{"project"=>"BaseDistro2.0", "repository"=>"BaseDistro2_repo"},
-                   "arch"=> %w(i586 x86_64) },
-                  {"name"=>"10.2", "path"=>{"project"=>"BaseDistro", "repository"=>"BaseDistro_repo"},
-                   "arch"=> %w(i586 x86_64) }], xml['repository'])
+    assert_equal([{"name" => "images", "arch" => %w(x86_64 i586) },
+                  {"name" => "Base_repo", "path" => {"project" => "BaseDistro2.0", "repository" => "BaseDistro2_repo"},
+                   "arch" => %w(i586 x86_64) },
+                  {"name" => "10.2", "path" => {"project" => "BaseDistro", "repository" => "BaseDistro_repo"},
+                   "arch" => %w(i586 x86_64) }], xml['repository'])
   end
 end

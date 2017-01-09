@@ -112,7 +112,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       get "/source/BaseDistro/#{k}"
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i+2}", files.value(:vrev)
+      assert_equal "#{vrevs[k].to_i + 2}", files.value(:vrev)
     end
 
     # the copy must have a vrev by one higher and an extended .1
@@ -120,7 +120,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       get "/source/TEST:BaseDistro/#{k}"
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i+1}.1", files.value(:vrev)
+      assert_equal "#{vrevs[k].to_i + 1}.1", files.value(:vrev)
     end
 
     # cleanup
@@ -136,7 +136,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       get "/source/BaseDistro/#{k}"
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i+4}", files.value(:vrev)
+      assert_equal "#{vrevs[k].to_i + 4}", files.value(:vrev)
     end
 
     # the copy must have a vrev by 3 higher and an extended .1
@@ -144,7 +144,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       get "/source/TEST:BaseDistro/#{k}"
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i+3}.1", files.value(:vrev)
+      assert_equal "#{vrevs[k].to_i + 3}.1", files.value(:vrev)
     end
 
     # cleanup

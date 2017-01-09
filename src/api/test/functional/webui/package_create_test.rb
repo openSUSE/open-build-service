@@ -141,10 +141,10 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     visit project_show_path( project: 'home:Iggy')
 
     baseuri = URI.parse(page.current_url)
-    foundcplus=nil
+    foundcplus = nil
     page.all('#raw_packages a').each do |link|
       next unless link.text == 'Cplus+'
-      foundcplus=baseuri.merge(link['href']).to_s
+      foundcplus = baseuri.merge(link['href']).to_s
       break
     end
     assert !foundcplus.nil?

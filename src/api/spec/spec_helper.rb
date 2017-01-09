@@ -78,7 +78,7 @@ RSpec.configure do |config|
 end
 
 # We never want the backend to autostart itself...
-ENV['BACKEND_STARTED']='1'
+ENV['BACKEND_STARTED'] = '1'
 
 # support logging
 require 'support/logging'

@@ -136,7 +136,7 @@ class CodeQualityTest < ActiveSupport::TestCase
         next
       end
       # don't want to be too strict here
-      next if (oldscore-score).abs < 2
+      next if (oldscore - score).abs < 2
       error = "  '#{class_method}' => #{score}, # oldscore=#{oldscore}"
       if score > oldscore
         mismatches << error

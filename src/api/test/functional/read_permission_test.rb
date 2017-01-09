@@ -23,7 +23,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     get "/public/build/SourceprotectedProject/repo/i586/pack"
     assert_response 200
 
-    srcrpm="package-1.0-1.src.rpm"
+    srcrpm = "package-1.0-1.src.rpm"
 
     get "/public/build/SourceprotectedProject/repo/i586/pack"
     assert_response :success
@@ -84,7 +84,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     get "/build/SourceprotectedProject/repo/i586/pack", nil, { 'HTTP_USER_AGENT' => 'osc-something' }
     assert_response 401
 
-    srcrpm="package-1.0-1.src.rpm"
+    srcrpm = "package-1.0-1.src.rpm"
 
     # user access
     login_tom
@@ -156,30 +156,30 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
   def test_branch_package_hidden_project_new
     # unauthorized
-    sprj="HiddenProject"  # source project
-    spkg="pack"           # source package
-    tprj="home:tom"       # target project
-    resp=401              # response
-    match=/Authentication required/
-    testflag=nil          # test for flag in target meta
-    delresp=401           # delete again
-    debug=false
+    sprj = "HiddenProject"  # source project
+    spkg = "pack"           # source package
+    tprj = "home:tom"       # target project
+    resp = 401              # response
+    match = /Authentication required/
+    testflag = nil          # test for flag in target meta
+    delresp = 401           # delete again
+    debug = false
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # tom/thunder
     login_tom
-    resp=404
-    match=/unknown_project/
-    delresp=404
+    resp = 404
+    match = /unknown_project/
+    delresp = 404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
     prepare_request_with_user "hidden_homer", "buildservice"
-    tprj="home:hidden_homer:tmp"
+    tprj = "home:hidden_homer:tmp"
     get "/source/#{tprj}"
     assert_response 404
-    resp=:success
-    delresp=:success
-    match=/>HiddenProject</
-    testflag=/<access>/
+    resp = :success
+    delresp = :success
+    match = />HiddenProject</
+    testflag = /<access>/
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     delete "/source/#{tprj}"
     assert_response :success
@@ -192,30 +192,30 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # open -> hidden
     # unauthorized
     reset_auth
-    sprj="home:coolo:test"       # source project
-    spkg="kdelibs_DEVEL_package" # source package
-    tprj="HiddenProject"         # target project
-    resp=401                     # response
-    match=/Authentication required/
-    testflag=nil          # test for flag in target meta
-    delresp=401           # delete again
-    debug=false
+    sprj = "home:coolo:test"       # source project
+    spkg = "kdelibs_DEVEL_package" # source package
+    tprj = "HiddenProject"         # target project
+    resp = 401                     # response
+    match = /Authentication required/
+    testflag = nil          # test for flag in target meta
+    delresp = 401           # delete again
+    debug = false
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # tom/thunder
     login_tom
-    resp=403
-    match=/create_project_no_permission/ # tom can't see it so it appears like a project creation
-    delresp=404
+    resp = 403
+    match = /create_project_no_permission/ # tom can't see it so it appears like a project creation
+    delresp = 404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
 
     prepare_request_with_user "hidden_homer", "buildservice"
     get "/source/#{tprj}/_meta"
     assert :success
-    resp=:success
-    delresp=:success
-    match=/>HiddenProject</
-    testflag=/<access>/
+    resp = :success
+    delresp = :success
+    match = />HiddenProject</
+    testflag = /<access>/
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # admin
     login_king
@@ -225,28 +225,28 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   def test_branch_package_sourceaccess_protected_project_new
     # viewprotected -> open
     # unauthorized
-    sprj="SourceprotectedProject" # source project
-    spkg="pack"                   # source package
-    tprj="home:tom"               # target project
-    resp=401                      # response
-    match=/Authentication required/
-    testflag=nil          # test for flag in target meta
-    delresp=401           # delete again
-    debug=false
+    sprj = "SourceprotectedProject" # source project
+    spkg = "pack"                   # source package
+    tprj = "home:tom"               # target project
+    resp = 401                      # response
+    match = /Authentication required/
+    testflag = nil          # test for flag in target meta
+    delresp = 401           # delete again
+    debug = false
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # tom/thunder
     login_tom
-    resp=403
-    match=/source_access_no_permission/
-    delresp=404
+    resp = 403
+    match = /source_access_no_permission/
+    delresp = 404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
     prepare_request_with_user "sourceaccess_homer", "buildservice"
-    tprj="home:sourceaccess_homer"
-    resp=:success
-    match="SourceprotectedProject"
-    testflag=/sourceaccess/
-    delresp=:success
+    tprj = "home:sourceaccess_homer"
+    resp = :success
+    match = "SourceprotectedProject"
+    testflag = /sourceaccess/
+    delresp = :success
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # admin
     login_king
@@ -275,7 +275,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
   def do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     get "/source/#{destprj}/#{destpkg}/_meta"
-    orig=@response.body
+    orig = @response.body
     post "/source/#{destprj}/#{destpkg}", cmd: "copy", oproject: "#{srcprj}", opackage: "#{srcpkg}"
     assert_response resp if resp
     # ret destination package meta
@@ -291,24 +291,24 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
   def test_copy_hidden_project
     # invalid
-    srcprj="HiddenProject"
-    srcpkg="pack"
-    destprj="CopyTest"
-    destpkg="target"
-    resp=401
-    flag=nil
-    delresp=401
+    srcprj = "HiddenProject"
+    srcpkg = "pack"
+    destprj = "CopyTest"
+    destpkg = "target"
+    resp = 401
+    flag = nil
+    delresp = 401
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
-    resp=404
-    delresp=200
+    resp = 404
+    delresp = 200
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
     prepare_request_with_user "hidden_homer", "buildservice"
     # flag not inherited
-    resp=:success
-    delresp=:success
+    resp = :success
+    delresp = :success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # admin has special permission
     login_king
@@ -318,24 +318,24 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     #
     # invalid
     reset_auth
-    srcprj="CopyTest"
-    srcpkg="test"
-    destprj="HiddenProject"
-    destpkg="target"
-    resp=401
-    flag=nil
-    delresp=401
+    srcprj = "CopyTest"
+    srcpkg = "test"
+    destprj = "HiddenProject"
+    destpkg = "target"
+    resp = 401
+    flag = nil
+    delresp = 401
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
-    resp=403       # not allowed to create project, which looks to be not existing
-    delresp=404    # project does not exist, it seems ...
+    resp = 403       # not allowed to create project, which looks to be not existing
+    delresp = 404    # project does not exist, it seems ...
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
     prepare_request_with_user "hidden_homer", "buildservice"
     # flag not inherited - should we inherit in any case to be on the safe side ?
-    resp=:success
-    delresp=:success
+    resp = :success
+    delresp = :success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # admin
     login_king
@@ -344,23 +344,23 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
   def test_copy_sourceaccess_protected_project
     # invalid
-    srcprj="SourceprotectedProject"
-    srcpkg="pack"
-    destprj="CopyTest"
-    destpkg="target"
-    resp=401
-    flag=nil
-    delresp=401
+    srcprj = "SourceprotectedProject"
+    srcpkg = "pack"
+    destprj = "CopyTest"
+    destpkg = "target"
+    resp = 401
+    flag = nil
+    delresp = 401
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
-    resp=403
-    delresp=200
+    resp = 403
+    delresp = 200
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
     prepare_request_with_user "sourceaccess_homer", "buildservice"
-    resp=:success
-    delresp=:success
+    resp = :success
+    delresp = :success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # admin
     login_king
@@ -370,23 +370,23 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     #
     # invalid
     reset_auth
-    srcprj="CopyTest"
-    srcpkg="test"
-    destprj="SourceprotectedProject"
-    destpkg="target"
-    resp=401
-    flag=nil
-    delresp=401
+    srcprj = "CopyTest"
+    srcpkg = "test"
+    destprj = "SourceprotectedProject"
+    destpkg = "target"
+    resp = 401
+    flag = nil
+    delresp = 401
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
-    resp=403
-    delresp=403
+    resp = 403
+    delresp = 403
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
     prepare_request_with_user "sourceaccess_homer", "buildservice"
-    resp=:success
-    delresp=:success
+    resp = :success
+    delresp = :success
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
     login_king

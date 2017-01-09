@@ -287,7 +287,7 @@ class ProjectTest < ActiveSupport::TestCase
     project2.reload
 
     # test if all project flags are default for a new project
-    allflags=['build', 'publish', 'useforbuild', 'binarydownload', 'access', 'lock', 'debuginfo']
+    allflags = ['build', 'publish', 'useforbuild', 'binarydownload', 'access', 'lock', 'debuginfo']
     allflags.each do |flagtype|
       project2.get_flags(flagtype).each do |repo|
         repo[1].each do |flag|

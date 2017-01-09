@@ -151,9 +151,9 @@ class BranchPackage
         # fetch newer sources from devel package, if defined
         if p[:copy_from_devel] && p[:copy_from_devel].project != tpkg.project && !p[:rev]
           if p[:copy_from_devel].project.is_maintenance_incident?
-            msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}"
+            msg = "fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}"
           else
-            msg="fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
+            msg = "fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
           end
           # TODO: make this a query hash
           # rubocop:disable Metrics/LineLength
@@ -265,10 +265,10 @@ class BranchPackage
     @packages.each { |p| extend_packages_to_link(p) }
 
     # avoid double hits eg, when the same update project is used by multiple GA projects
-    seen={}
+    seen = {}
     @packages.each do |p|
       @packages.delete(p) if seen[p[:package]]
-      seen[p[:package]]=true
+      seen[p[:package]] = true
     end
   end
 
@@ -276,7 +276,7 @@ class BranchPackage
     return unless p[:package].kind_of? Package
     @obs_maintenanceproject ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
     @maintenanceProjects ||= Project.find_by_attribute_type(@obs_maintenanceproject)
-    incident_pkg=nil
+    incident_pkg = nil
     p[:link_target_project].maintenance_projects.each do |mp|
       # no defined devel area or no package inside, but we branch from a release are: check in open incidents
 
@@ -525,7 +525,7 @@ class BranchPackage
       else
         # remote or not existing package
         @packages.push({ base_project: prj,
-                         link_target_project: (prj||params[:project]),
+                         link_target_project: (prj || params[:project]),
                          package: params[:package], rev: params[:rev], target_package: tpkg_name })
       end
     else

@@ -235,7 +235,7 @@ class Webui::PackageController < Webui::WebuiController
       @revisions = (1..@lastrev).to_a.reverse
     else
       @revisions = []
-      @lastrev.downto(@lastrev-19) { |n| @revisions << n }
+      @lastrev.downto(@lastrev - 19) { |n| @revisions << n }
     end
   end
 

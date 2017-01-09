@@ -10,8 +10,8 @@ puts "Seeding architectures table..."
 end
 # following our default config
 %w(armv7l i586 x86_64).each do |arch_name|
-  a=Architecture.find_by_name(arch_name)
-  a.available=true
+  a = Architecture.find_by_name(arch_name)
+  a.available = true
   a.save
 end
 

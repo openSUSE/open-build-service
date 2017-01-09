@@ -88,12 +88,12 @@ def backend_data
 end
 
 def inject_build_job(project, package, repo, arch, extrabinary = nil)
-  job=IO.popen("find #{backend_data}/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
-  jobfile=job.readlines.first
+  job = IO.popen("find #{backend_data}/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
+  jobfile = job.readlines.first
   return if project == "BrokenPublishing"
   raise unless jobfile
   jobfile.chomp!
-  jobid=''
+  jobid = ''
   IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|
     jobid = io.readlines.first.chomp
   end
@@ -110,7 +110,7 @@ def inject_build_job(project, package, repo, arch, extrabinary = nil)
 
   f.write(output)
   f.close
-  extrabinary=" -o -name #{extrabinary}" if extrabinary
+  extrabinary = " -o -name #{extrabinary}" if extrabinary
   # rubocop:disable Metrics/LineLength
   system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile -o -name _statistics #{extrabinary} | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
   # rubocop:enable Metrics/LineLength

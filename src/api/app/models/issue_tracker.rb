@@ -184,7 +184,7 @@ class IssueTracker < ApplicationRecord
 
   def fetch_bugzilla_issues(ids)
     # limit to 256 ids to avoid too much load and timeouts on bugzilla side
-    limit_per_slice=256
+    limit_per_slice = 256
     while !ids.blank?
       begin
         result = bugzilla_server.get({ids: ids[0..limit_per_slice], permissive: 1})
@@ -196,7 +196,7 @@ class IssueTracker < ApplicationRecord
         return false
       end
       result["bugs"].each { |r| parse_single_bugzilla_issue(r) }
-      ids=ids[limit_per_slice..-1]
+      ids = ids[limit_per_slice..-1]
     end
     true
   end
@@ -305,8 +305,8 @@ class IssueTracker < ApplicationRecord
   def bugzilla_server
     server = XMLRPC::Client.new2("#{url}/xmlrpc.cgi")
     server.timeout = 300 # 5 minutes timeout
-    server.user=user if user
-    server.password=password if password
+    server.user = user if user
+    server.password = password if password
     server.proxy('Bug')
   end
 end
@@ -324,7 +324,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
 
   def start_element(name, attrs = [])
     if name == "item"
-      cve=nil
+      cve = nil
       attrs.each_index do |i|
         if attrs[i][0] == "name"
           cve = attrs[i][1]
@@ -336,9 +336,9 @@ class CVEparser < Nokogiri::XML::SAX::Document
       @@isDesc = false
     end
     if @@myIssue && name == "desc"
-      @@isDesc=true
+      @@isDesc = true
     else
-      @@isDesc=false
+      @@isDesc = false
     end
   end
 

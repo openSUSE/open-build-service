@@ -12,7 +12,7 @@ rescue Exception
   CONFIG = Hash.new
 end
 
-CONFIG['schema_location'] ||= File.expand_path("public/schema")+"/"
+CONFIG['schema_location'] ||= File.expand_path("public/schema") + "/"
 CONFIG['apidocs_location'] ||= File.expand_path("../docs/api/html/")
 CONFIG['global_write_through'] ||= true
 CONFIG['proxy_auth_mode'] ||= :off

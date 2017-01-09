@@ -31,7 +31,7 @@ RSpec.feature "Requests", type: :feature, js: true do
         expect(page).not_to have_text("a long text - " * invalid_word_count)
 
         click_link("[+]")
-        expect(page).to have_text("a long text - "* 200)
+        expect(page).to have_text("a long text - " * 200)
 
         click_link("[-]")
         expect(page).to have_text("a long text - " * valid_word_count)

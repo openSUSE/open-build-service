@@ -656,7 +656,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
     assert_no_xml_tag tag: 'group', attributes: { name: "test_group", role: "bugowner" }
     # disable a user and check that he disappears
-    u=User.find_by_login "Iggy"
+    u = User.find_by_login "Iggy"
     u.state = 'unconfirmed'
     u.save!
     get "/search/owner?project=TEMPORARY&binary=package&filter=bugowner"

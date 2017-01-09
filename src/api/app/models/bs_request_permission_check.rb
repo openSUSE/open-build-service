@@ -91,7 +91,7 @@ class BsRequestPermissionCheck
     if @target_package
       @target_package.check_weak_dependencies!
     elsif action.target_repository
-      r=Repository.find_by_project_and_name(@target_project.name, action.target_repository)
+      r = Repository.find_by_project_and_name(@target_project.name, action.target_repository)
       unless r
         raise RepositoryMissing.new "The repository #{@target_project} / #{action.target_repository} does not exist"
       end
@@ -312,7 +312,7 @@ class BsRequestPermissionCheck
     # enforce state to "review" if going to "new", when review tasks are open
     if opts[:newstate] == 'new' && req.reviews
       req.reviews.each do |r|
-        opts[:newstate]= 'review' if r.state == :new
+        opts[:newstate] = 'review' if r.state == :new
       end
     end
     # Do not accept to skip the review, except force argument is given

@@ -224,7 +224,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal({"id"          => id,
                   "creator"     => "king",
-                  "action"      => {"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr}]},
+                  "action"      => {"type" => "group", "grouped" => [{"id"=>"2"}, {"id"=>withr}]},
                   "state"       => {
                     "name"    => "review",
                     "who"     => "king",
@@ -244,7 +244,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal({"id"          => id,
                   "creator"     => "king",
-                  "action"      => {"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr2}]},
+                  "action"      => {"type" => "group", "grouped" => [{"id"=>"2"}, {"id"=>withr2}]},
                   "state"       => {
                     "name"    => "review",
                     "who"     => "king",

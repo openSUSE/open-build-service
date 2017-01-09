@@ -56,7 +56,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
     # create two new flags and save it.
     for i in 1..2 do
-      f = Flag.new(repo: "10.#{i}", status: "disable", position: i+1, flag: 'debuginfo')
+      f = Flag.new(repo: "10.#{i}", status: "disable", position: i + 1, flag: 'debuginfo')
       f.architecture = @arch
       @package.flags << f
     end

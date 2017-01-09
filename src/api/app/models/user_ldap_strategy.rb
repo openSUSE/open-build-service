@@ -67,7 +67,7 @@ class UserLdapStrategy
         when :md5 then
           require 'digest/md5'
           require 'base64'
-          entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], ["{MD5}"+Base64.b64encode(Digest::MD5.digest(newpassword)).chomp])
+          entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], ["{MD5}" + Base64.b64encode(Digest::MD5.digest(newpassword)).chomp])
       end
     end
     begin
@@ -109,7 +109,7 @@ class UserLdapStrategy
       when :md5 then
         require 'digest/md5'
         require 'base64'
-        ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
+        ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
     entry = [
         LDAP.mod(LDAP::LDAP_MOD_ADD, 'objectclass', CONFIG['ldap_object_class']),
@@ -228,7 +228,7 @@ class UserLdapStrategy
       ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         user_dn = entry.dn
         if CONFIG.has_key?('ldap_user_memberof_attr') && entry.attrs.include?(CONFIG['ldap_user_memberof_attr'])
-          user_memberof_attr=entry.vals(CONFIG['ldap_user_memberof_attr'])
+          user_memberof_attr = entry.vals(CONFIG['ldap_user_memberof_attr'])
         end
       end
       if user_dn.empty?
@@ -324,7 +324,7 @@ class UserLdapStrategy
       when :md5 then
         require 'digest/md5'
         require 'base64'
-        ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
+        ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
     entry = [
         LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [ldap_password])
@@ -356,7 +356,7 @@ class UserLdapStrategy
     when :md5 then
       require 'digest/md5'
       require 'base64'
-      if ldap_password == "{MD5}"+Base64.encode64(Digest::MD5.digest(password))
+      if ldap_password == "{MD5}" + Base64.encode64(Digest::MD5.digest(password))
         authenticated = true
       end
     else
@@ -390,7 +390,7 @@ class UserLdapStrategy
     Rails.logger.debug("Looking for #{login} using ldap")
     ldap_info = Array.new
     # use cache to check the password firstly
-    key="ldap_cache_userpasswd:" + login
+    key = "ldap_cache_userpasswd:" + login
     require 'digest/md5'
     if Rails.cache.exist?(key)
       ar = Rails.cache.read(key)
@@ -453,7 +453,7 @@ class UserLdapStrategy
       end
     when :ldap then
       # Don't match the passwd locally, try to bind to the ldap server
-      user_con= initialize_ldap_con(user['dn'], password)
+      user_con = initialize_ldap_con(user['dn'], password)
       if user_con.nil?
         Rails.logger.debug("Unable to connect to LDAP server as #{user['dn']} using credentials supplied")
         return

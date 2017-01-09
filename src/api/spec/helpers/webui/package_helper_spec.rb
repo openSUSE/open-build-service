@@ -18,7 +18,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     end
 
     it 'breaks up long strings' do
-      long_string = "a"*50 + "b"*50 + "c"*10
+      long_string = "a" * 50 + "b" * 50 + "c" * 10
       sanitized_string = nbsp(long_string)
       expect(long_string.scan(/.{1,50}/).join("<wbr>")).to eq(sanitized_string)
     end

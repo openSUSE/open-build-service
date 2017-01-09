@@ -89,7 +89,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context "with invalid data" do
       before do
         login user
-        patch :update, params: { id: project.id, project: { description: "My projects description", title: "My projects title"*200 } }
+        patch :update, params: { id: project.id, project: { description: "My projects description", title: "My projects title" * 200 } }
         project.reload
       end
 

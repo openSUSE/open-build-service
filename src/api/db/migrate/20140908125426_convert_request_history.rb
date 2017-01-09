@@ -5,7 +5,7 @@ class ConvertRequestHistory < ActiveRecord::Migration
   end
 
   def self.up
-    user={}
+    user = {}
 
     # one big transaction to improve speed
     ActiveRecord::Base.transaction do
@@ -13,11 +13,11 @@ class ConvertRequestHistory < ActiveRecord::Migration
       puts "This can take some time..." if BsRequest.count > 1000
       BsRequest.all.each do |request|
         next if request.state == :new # nothing happend yet
-        user[request.commenter]||=User.find_by_login request.commenter
+        user[request.commenter] ||= User.find_by_login request.commenter
         next unless user[request.commenter]
-        p={created_at: request.updated_at, user: user[request.commenter], op_object_id: request.id}
+        p = {created_at: request.updated_at, user: user[request.commenter], op_object_id: request.id}
         p[:comment] = request.comment unless request.comment.blank?
-        history=nil
+        history = nil
         case request.state
           when :accepted then
             history = HistoryElement::RequestAccepted
@@ -35,11 +35,11 @@ class ConvertRequestHistory < ActiveRecord::Migration
       puts "Creating some history elements based on #{Review.count} reviews..."
       Review.all.each do |review|
         next if review.state == :new # nothing happend yet
-        user[review.reviewer]||=User.find_by_login review.reviewer
+        user[review.reviewer] ||= User.find_by_login review.reviewer
         next unless user[review.reviewer]
-        p={created_at: review.updated_at, user: user[review.reviewer], op_object_id: review.id}
+        p = {created_at: review.updated_at, user: user[review.reviewer], op_object_id: review.id}
         p[:comment] = review.reason unless review.reason.blank?
-        history=nil
+        history = nil
         case review.state
           when :accepted then
             history = HistoryElement::ReviewAccepted
@@ -50,21 +50,21 @@ class ConvertRequestHistory < ActiveRecord::Migration
       end
 
       s = OldHistory.find_by_sql "SELECT id,bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, created_at ASC"
-      oldid=nil
+      oldid = nil
       puts "Converting #{s.length} request history elements into new structure"
       puts "This can take some time..." if s.length > 1000
       s.each do |e|
-        user[e.commenter]||=User.find_by_login e.commenter
+        user[e.commenter] ||= User.find_by_login e.commenter
         next unless user[e.commenter]
-        p={created_at: e.created_at, user: user[e.commenter], op_object_id: e.bs_request_id}
+        p = {created_at: e.created_at, user: user[e.commenter], op_object_id: e.bs_request_id}
         p[:comment] = e.comment unless e.comment.blank?
 
-        firstentry = (oldid!=e.bs_request_id)
+        firstentry = (oldid != e.bs_request_id)
         oldid = e.bs_request_id
-        firstreviews=true if firstentry
-        firstreviews=nil unless e.state == "review"
+        firstreviews = true if firstentry
+        firstreviews = nil unless e.state == "review"
 
-        history=nil
+        history = nil
         case e.state
           when "accepted" then
             history = HistoryElement::RequestAccepted

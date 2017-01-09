@@ -134,7 +134,7 @@ class Package < ApplicationRecord
     end
     pid, old_pkg_time, old_prj_time = Rails.cache.read(@key)
     if pid
-      pkg=Package.where(id: pid).includes(:project).first
+      pkg = Package.where(id: pid).includes(:project).first
       return pkg if pkg && pkg.updated_at == old_pkg_time && pkg.project.updated_at == old_prj_time
       Rails.cache.delete(@key) # outdated anyway
     end
@@ -237,7 +237,7 @@ class Package < ApplicationRecord
   def self.find_by_attribute_type(attrib_type, package = nil)
     # One sql statement is faster than a ruby loop
     # attribute match in package or project
-    sql =<<-END_SQL
+    sql = <<-END_SQL
     SELECT pack.*
     FROM packages pack
     LEFT OUTER JOIN attribs attr ON pack.id = attr.package_id
@@ -263,7 +263,7 @@ class Package < ApplicationRecord
 
   def self.find_by_attribute_type_and_value(attrib_type, value, package = nil)
     # One sql statement is faster than a ruby loop
-    sql =<<-END_SQL
+    sql = <<-END_SQL
     SELECT pack.*
     FROM packages pack
     LEFT OUTER JOIN attribs attr ON pack.id = attr.package_id
@@ -411,7 +411,7 @@ class Package < ApplicationRecord
     if opts[:wait_for_update]
       update_if_dirty
     else
-      retries=10
+      retries = 10
       begin
         delay.update_if_dirty
       rescue ActiveRecord::StatementInvalid
@@ -535,7 +535,7 @@ class Package < ApplicationRecord
       end
 
       issue_change.keys.each do |tracker|
-        t=IssueTracker.find_by_name tracker
+        t = IssueTracker.find_by_name tracker
 
         # create new issues
         issue_change[tracker].keys.each do |name|
@@ -638,7 +638,7 @@ class Package < ApplicationRecord
       # logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
-      str = prj_name+'/'+pkg.name
+      str = prj_name + '/' + pkg.name
       if processed[str]
         processed.keys.each do |key|
           str = str + ' -- ' + key

@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class BackendTests < ActionDispatch::IntegrationTest
   def test_validate_bsxml
-    perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
+    perlopts = "-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
     dir = "#{Rails.root}/../../docs/api/api/"
 
     Dir.entries(dir).each do |f|

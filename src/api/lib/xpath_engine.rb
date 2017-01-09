@@ -400,7 +400,7 @@ class XpathEngine
       case token
       when :function
         fname = stack.shift
-        fname_int = "xpath_func_"+fname.gsub(/-/, "_")
+        fname_int = "xpath_func_" + fname.gsub(/-/, "_")
         unless respond_to? fname_int
           raise IllegalXpathError, "unknown xpath function '#{fname}'"
         end
@@ -428,7 +428,7 @@ class XpathEngine
         end
       when *@operators
         opname = token.to_s
-        opname_int = "xpath_op_"+opname
+        opname_int = "xpath_op_" + opname
         unless respond_to? opname_int
           raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
         end
@@ -455,7 +455,7 @@ class XpathEngine
       when :attribute
         expr.shift #:qname token
         expr.shift # namespace
-        a << "@"+expr.shift
+        a << "@" + expr.shift
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
         if @last_key && @attribs[table][@last_key][:empty]
@@ -478,7 +478,7 @@ class XpathEngine
         raise IllegalXpathError, "illegal token: '#{token.inspect}'"
       end
     end
-    key = (root+a).join "/"
+    key = (root + a).join "/"
     # this is a wild hack - we need to save the key, so we can possibly split the next
     # literal. The real fix is to translate the xpath into SQL directly
     @last_key = key

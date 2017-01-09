@@ -87,17 +87,17 @@ class Owner
   end
 
   def self.find_assignees(rootproject, binary_name, limit = 1, devel = true, filter = %w(maintainer bugowner), webui_mode = false)
-    projects=rootproject.expand_all_projects
-    instances_without_definition=[]
-    maintainers=[]
-    pkg=nil
+    projects = rootproject.expand_all_projects
+    instances_without_definition = []
+    maintainers = []
+    pkg = nil
 
     match_all = (limit.zero?)
     deepest = (limit < 0)
 
     # binary search via all projects
     prjlist = projects.map { |p| "@project='#{CGI.escape(p.name)}'" }
-    path = "/search/published/binary/id?match=(@name='"+CGI.escape(binary_name)+"'"
+    path = "/search/published/binary/id?match=(@name='" + CGI.escape(binary_name) + "'"
     path += "+and+("
     path += prjlist.join("+or+")
     path += "))"
@@ -146,8 +146,8 @@ class Owner
   end
 
   def self.find_containers_without_definition(rootproject, devel = true, filter = %w(maintainer bugowner))
-    projects=rootproject.expand_all_projects
-    roles=[]
+    projects = rootproject.expand_all_projects
+    roles = []
     filter.each do |f|
       roles << Role.find_by_title!(f)
     end
@@ -185,7 +185,7 @@ class Owner
     all_packages = Package.where(project_id: projects).pluck(:name)
 
     undefined_packages = all_packages - defined_packages
-    maintainers=[]
+    maintainers = []
 
     undefined_packages.each do |p|
       next if p =~ /\A_product:\w[-+\w\.]*\z/
@@ -204,9 +204,9 @@ class Owner
   end
 
   def self.find_containers(rootproject, owner, devel = true, filter = %w(maintainer bugowner))
-    projects=rootproject.expand_all_projects
+    projects = rootproject.expand_all_projects
 
-    roles=[]
+    roles = []
     filter.each do |f|
       roles << Role.find_by_title!(f)
     end
@@ -233,7 +233,7 @@ class Owner
     found_packages = found_packages.pluck(:package_id).uniq
     found_projects = found_projects.pluck(:project_id).uniq
 
-    maintainers=[]
+    maintainers = []
 
     Project.where(id: found_projects).pluck(:name).each do |prj|
       maintainers << Owner.new(rootproject: rootproject.name, project: prj)
@@ -285,7 +285,7 @@ class Owner
     already_checked[pkg.id] = 1
 
     # found entry
-    return m, (limit-1), already_checked if m
+    return m, (limit - 1), already_checked if m
 
     # no match, loop about projects below with this package container name
     pkg.project.expand_all_projects.each do |prj|
@@ -301,7 +301,7 @@ class Owner
     end
 
     # found entry
-    [m, (limit-1), already_checked]
+    [m, (limit - 1), already_checked]
   end
 
   def self.extract_maintainer(rootproject, pkg, rolefilter, objfilter = nil)

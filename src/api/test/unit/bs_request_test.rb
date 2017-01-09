@@ -44,8 +44,8 @@ class BsRequestTest < ActiveSupport::TestCase
     req3 = BsRequest.new_from_xml(load_backend_file('request/add_role'))
     req3.save!
 
-    assert_equal req.number+1, req2.number
-    assert_equal req.number+2, req3.number
+    assert_equal req.number + 1, req2.number
+    assert_equal req.number + 2, req3.number
   end
 
   def test_add_role

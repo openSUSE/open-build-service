@@ -93,7 +93,7 @@ def xmldebug(str)
   STDERR.puts caller
   return if @xmldebug_called
   @xmldebug_called = true
-  STDERR.puts "\n\n>>> Exception caused by this xml:\n"+str+"\n\n"
+  STDERR.puts "\n\n>>> Exception caused by this xml:\n" + str + "\n\n"
 end
 
 def create_missing_users_for( meta )

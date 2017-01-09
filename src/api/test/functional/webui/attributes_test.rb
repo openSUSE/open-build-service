@@ -48,7 +48,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
       inputs.count.must_equal values.count
 
       values.each_index do |i|
-        within("div.nested-fields:nth-of-type(#{i+1})") do
+        within("div.nested-fields:nth-of-type(#{i + 1})") do
           # If there is a position input we have multiple values
           if page.has_css?('.attrib-position-input')
             # If there is a select box for the value select that

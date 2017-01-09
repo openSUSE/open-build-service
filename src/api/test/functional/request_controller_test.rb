@@ -299,11 +299,11 @@ XML
                    'priority'    => 'low',
                    'state'       => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'comment' => 'approved' },
                    'history'     => [
-                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:00", "description"=>"Request created", "comment"=>"DESCRIPTION IS HERE"},
-                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01", "description"=>"Request got a new priority: critical => low", "comment"=>"dontcare"},
-                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02", "description"=>"Request got declined", "comment"=>"notgood"},
-                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:03", "description"=>"Request got reopened", "comment"=>"oops"},
-                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:04", "description"=>"Request got accepted", "comment"=>"approved"}
+                     {"who" => "Iggy", "when" => "2010-07-12T00:00:00", "description" => "Request created", "comment" => "DESCRIPTION IS HERE"},
+                     {"who" => "Iggy", "when" => "2010-07-12T00:00:01", "description" => "Request got a new priority: critical => low", "comment" => "dontcare"},
+                     {"who" => "Iggy", "when" => "2010-07-12T00:00:02", "description" => "Request got declined", "comment" => "notgood"},
+                     {"who" => "Iggy", "when" => "2010-07-12T00:00:03", "description" => "Request got reopened", "comment" => "oops"},
+                     {"who" => "Iggy", "when" => "2010-07-12T00:00:04", "description" => "Request got accepted", "comment" => "approved"}
                    ],
                    'description' => 'DESCRIPTION IS HERE'
                  }, node)
@@ -311,12 +311,12 @@ XML
     # compare times
     node = ActiveXML::Node.new(@response.body)
     assert((node.find_first('state').value('when') == node.each(:history).last.value('when')), 'Current state is has NOT same time as last history item')
-    oldhistory=nil
+    oldhistory = nil
     node.each(:history) do |h|
       unless h
         assert((h.value('when') > oldhistory.value('when')), 'Current history is not newer than the former history')
       end
-      oldhistory=h
+      oldhistory = h
     end
 
     # missingok disapeared
@@ -773,8 +773,8 @@ XML
     request = BsRequest.find_by_number(id)
     h2 = request.request_history_elements
     hr2 = request.history_elements
-    assert_equal h2.length-h1.length, 0 # no change
-    assert_equal hr2.length-hr1.length, 1 # review accepted
+    assert_equal h2.length - h1.length, 0 # no change
+    assert_equal hr2.length - hr1.length, 1 # review accepted
 
     # invalid state
     post "/request/#{id}?cmd=changereviewstate&newstate=INVALID&by_user=tom&comment=blahfasel"
@@ -976,12 +976,12 @@ XML
                      'who'     => 'tom',
                      'by_user' => 'tom',
                      'comment' => 'reopen2',
-                     "history" => [{"who"=>"tom", "when"=>"2010-07-12T00:00:04",
-                                    "description"=>"Review got accepted",
-                                    "comment"=>"review2"},
-                                   {"who"=>"tom", "when"=>"2010-07-12T00:00:05",
-                                    "description"=>"Review got reopened",
-                                    "comment"=>"reopen2"}]
+                     "history" => [{"who" => "tom", "when" => "2010-07-12T00:00:04",
+                                    "description" => "Review got accepted",
+                                    "comment" => "review2"},
+                                   {"who" => "tom", "when" => "2010-07-12T00:00:05",
+                                    "description" => "Review got reopened",
+                                    "comment" => "reopen2"}]
                    }],
                    'history' => [
                      { "who"         => "Iggy",
@@ -1271,7 +1271,7 @@ XML
     get '/source/home:Iggy/TestPack/_meta'
     assert_response :success
     assert_no_xml_tag tag: 'devel', attributes: { project: 'BaseDistro', package: 'pack1' }
-    oldmeta=@response.body
+    oldmeta = @response.body
 
     rq = '<request>
            <action type="change_devel">
@@ -3064,7 +3064,7 @@ XML
   def test_project_delete_request_with_pending
     # try to replay rq 74774
     login_Iggy
-    meta="<project name='home:Iggy:todo'><title></title><description/><repository name='base'>
+    meta = "<project name='home:Iggy:todo'><title></title><description/><repository name='base'>
       <path repository='BaseDistroUpdateProject_repo' project='BaseDistro:Update'/>
         <arch>i586</arch>
         <arch>x86_64</arch>
@@ -3074,7 +3074,7 @@ XML
     put url_for(controller: :source, action: :update_project_meta, project: 'home:Iggy:todo'), meta
     assert_response :success
 
-    meta="<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
+    meta = "<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
     put url_for(controller: :source, action: :update_package_meta, project: 'home:Iggy:todo', package: 'realfun'), meta
     assert_response :success
 
@@ -3129,7 +3129,7 @@ XML
     # and create a request to wrong target
     %w(delete set_bugowner add_role change_devel).each do |at|
       rq = '<request>
-             <action type="'+at+'">'
+             <action type="' + at + '">'
       rq += "  <source project='BaseDistro' package='pack1'/>" if at == 'change_devel'
       rq += '  <target project="BaseDistro:Update" package="pack1"/>'
       rq += "  <person name='Iggy' role='reviewer' />" if at == 'add_role'
@@ -3145,7 +3145,7 @@ XML
 
   def test_repository_delete_request
     login_Iggy
-    meta="<project name='home:Iggy:todo'><title></title><description/><repository name='base'>
+    meta = "<project name='home:Iggy:todo'><title></title><description/><repository name='base'>
       <path repository='BaseDistroUpdateProject_repo' project='BaseDistro:Update'/>
         <arch>i586</arch>
         <arch>x86_64</arch>
@@ -3155,7 +3155,7 @@ XML
     put url_for(controller: :source, action: :update_project_meta, project: 'home:Iggy:todo'), meta
     assert_response :success
 
-    meta="<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
+    meta = "<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
     put url_for(controller: :source, action: :update_package_meta, project: 'home:Iggy:todo', package: 'realfun'), meta
     assert_response :success
 
@@ -3312,13 +3312,13 @@ XML
                                   'when'    => '2010-07-12T00:00:02',
                                   'comment' => {} },
                    'history' =>
-                                [{"who"=>"Iggy", "when"=>"2010-07-12T00:00:00",
-                         "description"=>"Request created"},
-                                 {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01",
-                                  "description"=>"Request got declined",
-                                  "comment"=>"The target project 'home:Iggy:fordecline' has been removed"},
-                                 {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02",
-                                  "description"=>"Request got revoked"}] }, node)
+                                [{"who" => "Iggy", "when" => "2010-07-12T00:00:00",
+                         "description" => "Request created"},
+                                 {"who" => "Iggy", "when" => "2010-07-12T00:00:01",
+                                  "description" => "Request got declined",
+                                  "comment" => "The target project 'home:Iggy:fordecline' has been removed"},
+                                 {"who" => "Iggy", "when" => "2010-07-12T00:00:02",
+                                  "description" => "Request got revoked"}] }, node)
   end
 
   def test_check_target_maintainer

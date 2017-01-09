@@ -150,7 +150,7 @@ class Webui::ProjectController < Webui::WebuiController
       # FIXME2.3: do it directly here, api function missing
     else
       begin
-        req=nil
+        req = nil
         BsRequest.transaction do
           req = BsRequest.new
           req.description = params[:description]
@@ -371,7 +371,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def remove_target_request
-    req=nil
+    req = nil
     begin
       BsRequest.transaction do
         req = BsRequest.new
@@ -854,15 +854,15 @@ class Webui::ProjectController < Webui::WebuiController
     end
     Dir.chdir(oldpwd)
     begin
-      f=File.open(outdir + '/rebuild.png')
-      png=f.read
+      f = File.open(outdir + '/rebuild.png')
+      png = f.read
       f.close
     rescue
       return
     end
 
     Rails.cache.write("rebuild-#{@pngkey}.png", png)
-    f=File.open(outdir + '/longest.xml')
+    f = File.open(outdir + '/longest.xml')
     longest = Xmlhash.parse(f.read)
     longest['timings'].elements('package') do |p|
       @timings[p['name']] = [p['buildtime'], p['finished'] ]
@@ -883,7 +883,7 @@ class Webui::ProjectController < Webui::WebuiController
     @filter_out = %w(disabled excluded unknown)
     @status_filter = []
     @avail_status_values.each { |s|
-      id=s.gsub(' ', '')
+      id = s.gsub(' ', '')
       if params.has_key?(id)
         next unless (Integer(params[id]) rescue 1) > 0
       else
@@ -1115,7 +1115,7 @@ class Webui::ProjectController < Webui::WebuiController
         @status[package].upstream_version = value
       end
       project_status_attributes(@status.keys, 'openSUSE', 'UpstreamTarballURL') do |package, value|
-        @status[package].upstream_url= value
+        @status[package].upstream_url = value
       end
     end
   end

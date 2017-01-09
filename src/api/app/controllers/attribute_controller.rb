@@ -178,7 +178,7 @@ class AttributeController < ApplicationController
     # exec
     if params[:rev] || @attribute_container.nil?
       # old or remote instance entry
-      path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package]||'_project')}/_attribute?meta=1"
+      path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package] || '_project')}/_attribute?meta=1"
       path += "&rev=#{CGI.escape(params[:rev])}" if params[:rev]
       answer = Suse::Backend.get(path)
       render xml: answer.body.to_s
@@ -276,8 +276,8 @@ class AttributeController < ApplicationController
     # init and validation
     #--------------------
     params[:user] = User.current.login if User.current
-    @binary=nil
-    @binary=params[:binary] if params[:binary]
+    @binary = nil
+    @binary = params[:binary] if params[:binary]
     # valid post commands
     if params[:package] && params[:package] != "_project"
       @attribute_container = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)

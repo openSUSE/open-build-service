@@ -157,7 +157,7 @@ class PublicController < ApplicationController
           @binary_links[dist_id] ||= {}
           binary = binary_map[repo.name].select {|bin| bin.value(:name) == @pkg.name}.first
           if binary && dist.vendor == 'openSUSE'
-            @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name+'.ymp') ) }
+            @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name + '.ymp') ) }
           end
 
           @binary_links[dist_id][:binary] ||= []
@@ -165,7 +165,7 @@ class PublicController < ApplicationController
             binary_type = b.value(:type)
             # filepath is historic and contains unfortunatly the old repo mapping already.
             # So we have to revert this here...
-            filepath=b.value(:filepath)
+            filepath = b.value(:filepath)
             # having both gsub! in one line can crash with some ruby builds
             filepath.gsub!(/:\//, ":")
             filepath.gsub!(/^[^\/]*\/[^\/]*\//, '')

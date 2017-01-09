@@ -20,7 +20,7 @@ class StatusHelperTest < ActiveSupport::TestCase
                   [9955.0, 3.5], [9973.0, 1.5]], StatusHelper.resample(testarray, 5))
 
     # now increase the last sequence
-    testarray << [now+1, 1000]
+    testarray << [now + 1, 1000]
     assert_equal([[9900.9, 9.0], [9919.1, 7.5], [9937.300000000001, 5.5],
                   [9955.500000000002, 3.5], [9973.700000000003, 1.5]],
                  StatusHelper.resample(testarray, 5))

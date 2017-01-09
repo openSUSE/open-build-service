@@ -57,7 +57,7 @@ class Webui::MainController < Webui::WebuiController
   def sitemap_packages
     category = params[:category].to_s
 
-    projects=Project.arel_table
+    projects = Project.arel_table
     if category =~ %r{home}
       rel = Project.where(projects[:name].matches("#{category}%"))
     elsif category == 'opensuse'

@@ -106,15 +106,15 @@ module HasAttributes
   end
 
   def render_main_attributes(builder, params)
-    done={}
+    done = {}
     attribs.each do |attr|
-      type_name = attr.attrib_type.attrib_namespace.name+":"+attr.attrib_type.name
+      type_name = attr.attrib_type.attrib_namespace.name + ":" + attr.attrib_type.name
       next if params[:name] && !(attr.attrib_type.name == params[:name])
       next if params[:namespace] && !(attr.attrib_type.attrib_namespace.name == params[:namespace])
       next if params[:binary] && attr.binary != params[:binary]
       next if params[:binary] == "" && attr.binary != "" # switch between all and NULL binary
       done[type_name] = 1 unless attr.binary
-      p={}
+      p = {}
       p[:name] = attr.attrib_type.name
       p[:namespace] = attr.attrib_type.attrib_namespace.name
       p[:binary] = attr.binary if attr.binary

@@ -33,10 +33,10 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
   end
 
   def test_fsck_backend
-    perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
+    perlopts = "-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
 
-    progress=nil
-    failed=nil
+    progress = nil
+    failed = nil
     # rubocop:disable Metrics/LineLength
     IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_check_consistency --check-all --do-check-meta --do-check-signatures 2>&1") do |io|
       io.each do |line|
@@ -45,7 +45,7 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
 
         # catch progress lines
         if line.starts_with? "PROGRESS:"
-          progress=line
+          progress = line
           next
         end
         next if line.starts_with? "DBPROGRESS:"
@@ -60,9 +60,9 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
         next if line =~ /broken signature/;
 
         # unhandled line, dump a failure
-        failed=true
+        failed = true
         puts progress if progress
-        progress=nil
+        progress = nil
         puts line
       end
     # rubocop:enable Metrics/LineLength

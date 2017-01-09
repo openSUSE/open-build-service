@@ -9,7 +9,7 @@ class MakeOriginOlderAttribute < ActiveRecord::Migration
 
     AttribTypeModifiableBy.reset_column_information
 
-    at=AttribType.create( attrib_namespace: ans, name: "MakeOriginOlder", value_count: 0 )
+    at = AttribType.create( attrib_namespace: ans, name: "MakeOriginOlder", value_count: 0 )
 
     role = Role.find_by_title("maintainer")
     AttribTypeModifiableBy.create(role_id: role.id, attrib_type_id: at.id)
