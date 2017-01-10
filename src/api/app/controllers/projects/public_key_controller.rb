@@ -1,4 +1,4 @@
-class Project
+module Projects
   class PublicKeyController < ApplicationController
     before_action :extract_user_public
     skip_before_action :extract_user

@@ -704,8 +704,8 @@ OBSApi::Application.routes.draw do
   get 'main/sitemap_projects' => 'webui/main#sitemap_projects'
   get 'main/sitemap_packages/:listaction' => 'webui/main#sitemap_packages'
 
-  resources :project, only: [], param: :name do
-    resource :public_key, controller: 'project/public_key', only: [:show]
+  resources :projects, only: [], param: :name do
+    resource :public_key, controller: 'projects/public_key', only: [:show]
   end
 end
 
