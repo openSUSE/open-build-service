@@ -166,6 +166,7 @@ run a local playground test installation.
 
 %package -n obs-common
 Summary:        The Open Build Service -- base configuration files
+Requires(pre):  shadow
 %if 0%{?suse_version} && 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
 %endif
@@ -412,7 +413,7 @@ make -C dist test
 
 # create user and group in advance of obs-server
 %pre -n obs-common
-getent group obsrun >/dev/null || groupadd -r obsrun
+getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
 getent passwd obsrun >/dev/null || \
     /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
     -c "User for build service backend" obsrun
@@ -431,13 +432,6 @@ exit 0
 %restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsdeltastore obsservicedispatch
 %endif
 %restart_on_update obsscheduler
-
-%pre -n obs-source_service
-getent group obsrun >/dev/null || groupadd -r obsrun
-getent passwd obsservicerun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
-    -c "User for the build service source service" obsservicerun
-exit 0
 
 %preun -n obs-source_service
 %stop_on_removal obsservice
