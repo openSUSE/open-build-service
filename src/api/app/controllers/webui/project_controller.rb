@@ -863,7 +863,7 @@ class Webui::ProjectController < Webui::WebuiController
     f = File.open(outdir + '/longest.xml')
     longest = Xmlhash.parse(f.read)
     longest['timings'].elements('package') do |p|
-      @timings[p['name']] = [p['buildtime'], p['finished'] ]
+      @timings[p['name']] = [p['buildtime'], p['finished']]
     end
     @rebuildtime = Integer(longest['rebuildtime'])
     f.close

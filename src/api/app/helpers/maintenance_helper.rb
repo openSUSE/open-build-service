@@ -285,7 +285,7 @@ module MaintenanceHelper
     end
 
     # replace all project definitions with update projects, if they are defined
-    [ '//binaries', '//binary' ].each do |bin|
+    ['//binaries', '//binary'].each do |bin|
       channel.get_elements(bin).each do |b|
         attrib = b.attributes.get_attribute('project')
         prj = Project.get_by_name(attrib.to_s) if attrib

@@ -371,7 +371,7 @@ class UserLdapStrategy
   def self.dn2user_principal_name(dn)
     upn = String.new
     # implicitly convert array to string
-    dn = [ dn ].flatten.join(',')
+    dn = [dn].flatten.join(',')
     begin
       dn_components = dn.split(',').map{ |n| n.strip.split('=') }
       dn_uid = dn_components.select { |x, _| x == 'uid' }.map { |_, y| y }
@@ -569,7 +569,7 @@ class UserLdapStrategy
     end
 
     # implicitly turn array into string
-    user_name = [ user_name ].flatten.join('')
+    user_name = [user_name].flatten.join('')
 
     Rails.logger.debug("Connecting to #{server} as '#{user_name}'")
     begin

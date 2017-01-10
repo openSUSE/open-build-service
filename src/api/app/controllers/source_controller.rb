@@ -22,9 +22,9 @@ class SourceController < ApplicationController
   skip_before_action :extract_user, only: [:lastevents_public, :global_command_orderkiwirepos]
   skip_before_action :require_login, only: [:lastevents_public, :global_command_orderkiwirepos]
 
-  before_action :require_valid_project_name, except: [ :index, :lastevents, :lastevents_public,
-                                                       :global_command_orderkiwirepos, :global_command_branch,
-                                                       :global_command_createmaintenanceincident ]
+  before_action :require_valid_project_name, except: [:index, :lastevents, :lastevents_public,
+                                                      :global_command_orderkiwirepos, :global_command_branch,
+                                                      :global_command_createmaintenanceincident]
 
   class NoPermissionForDeleted < APIException
     setup 403, 'only admins can see deleted projects'
@@ -352,7 +352,7 @@ class SourceController < ApplicationController
     @spkg = nil
     Project.get_by_name origin_project_name if origin_project_name
     # rubocop:disable Metrics/LineLength
-    if origin_package_name && !%w(_project _pattern).include?(origin_package_name) && !(params[:missingok] && [ 'branch', 'release' ].include?(@command))
+    if origin_package_name && !%w(_project _pattern).include?(origin_package_name) && !(params[:missingok] && ['branch', 'release'].include?(@command))
       @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name)
     end
     # rubocop:enable Metrics/LineLength

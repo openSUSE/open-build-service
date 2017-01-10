@@ -14,7 +14,7 @@ require "activexml/activexml"
 
 ### boot rails ###
 Rails::Initializer.run do |config|
-  config.frameworks -= [ :action_web_service, :active_resource ]
+  config.frameworks -= [:action_web_service, :active_resource]
 
   config.action_controller.session = {
     session_key: "_frontend_session",

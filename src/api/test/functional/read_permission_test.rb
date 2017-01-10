@@ -558,7 +558,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/home:tom:temp/ProtectedPackage"
     assert_response 403
-    [ :branch, :diff, :linkdiff ].each do |c|
+    [:branch, :diff, :linkdiff].each do |c|
       # would not work, but needs to return with 403 in any case
       post "/source/home:tom:temp/ProtectedPackage", cmd: c
       assert_response 403
@@ -636,7 +636,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 403
     get "/source/home:tom:temp/Package/my_file"
     assert_response 403
-    [ :branch, :diff, :linkdiff, :copy ].each do |c|
+    [:branch, :diff, :linkdiff, :copy].each do |c|
       # would not work, but needs to return with 403 in any case
       post "/source/home:tom:temp/Package", cmd: c, oproject: "home:tom:temp", opackage: "Package"
       assert_response 403
