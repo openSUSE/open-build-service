@@ -254,9 +254,9 @@ OBSApi::Application.routes.draw do
       post 'project/comments/:project' => :save_comment, constraints: cons, as: 'save_project_comment'
     end
 
-    resources :project, only: [], param: :name do
-      resource :public_key, controller: 'webui/project/public_key', only: [:show]
-      resource :ssl_certificate, controller: 'webui/project/ssl_certificate', only: [:show]
+    resources :projects, only: [], param: :name do
+      resource :public_key, controller: 'webui/projects/public_key', only: [:show]
+      resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show]
     end
 
     controller 'webui/request' do
