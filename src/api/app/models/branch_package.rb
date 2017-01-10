@@ -1,7 +1,15 @@
 class BranchPackage
   class InvalidArgument < APIException; end
   class InvalidFilelistError < APIException; end
-  class DoubleBranchPackageError < APIException; end
+  class DoubleBranchPackageError < APIException
+    attr_reader :project, :package
+
+    def initialize(project, package)
+      super(message)
+      @project = project
+      @package = package
+    end
+  end
 
   attr_accessor :params
 
@@ -102,7 +110,7 @@ class BranchPackage
       tpkg = tprj.packages.find_by_name(pack_name)
       if tpkg
         unless params[:force]
-          raise DoubleBranchPackageError.new "branch target package already exists: #{tprj.name}/#{tpkg.name}"
+          raise DoubleBranchPackageError.new(tprj.name, tpkg.name), "branch target package already exists: #{tprj.name}/#{tpkg.name}"
         end
       else
         if pac.is_a? Package

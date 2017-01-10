@@ -126,20 +126,32 @@ RSpec.describe Webui::PackageController, vcr: true do
     it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
   end
 
-  describe "POST #save_new_link" do
+  describe "POST #branch" do
     before do
       login(user)
     end
 
-    it "shows an error if source package doesn't exist" do
-      post :save_new_link, params: { project: user.home_project, linked_project: source_project }
+    it "shows an error if source package does not exist" do
+      post :branch, params: { linked_project: source_project, linked_package: "does_not_exist" }
       expect(flash[:error]).to eq("Failed to branch: Package does not exist.")
       expect(response).to redirect_to(root_path)
     end
 
-    it "shows an error if source project doesn't exist" do
-      post :save_new_link, params: { project: user.home_project }
+    it "shows an error if source package parameter not provided" do
+      post :branch, params: { linked_project: source_project }
+      expect(flash[:error]).to eq("Failed to branch: Linked Package parameter missing")
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "shows an error if source project does not exist" do
+      post :branch, params: { linked_project: "does_not_exist", linked_package: source_package }
       expect(flash[:error]).to eq("Failed to branch: Package does not exist.")
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "shows an error if source project parameter not provided" do
+      post :branch, params: { linked_package: source_package }
+      expect(flash[:error]).to eq("Failed to branch: Linked Project parameter missing")
       expect(response).to redirect_to(root_path)
     end
   end

@@ -13,7 +13,7 @@ class Webui::PackageController < Webui::WebuiController
   before_action :set_project, only: [:show, :users, :linking_packages, :dependency, :binary, :binaries,
                                      :requests, :statistics, :commit, :revisions, :submit_request_dialog,
                                      :add_person, :add_group, :rdiff, :wizard_new, :wizard, :save_new,
-                                     :branch_dialog, :branch, :save_new_link, :save, :delete_dialog,
+                                     :branch_dialog, :save, :delete_dialog,
                                      :remove, :add_file, :save_file, :remove_file, :save_person,
                                      :save_group, :remove_role, :view_file,
                                      :abort_build, :trigger_rebuild, :trigger_services,
@@ -23,7 +23,7 @@ class Webui::PackageController < Webui::WebuiController
   before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries,
                                          :requests, :statistics, :commit, :revisions, :submit_request_dialog,
                                          :add_person, :add_group, :rdiff, :wizard_new, :wizard,
-                                         :branch_dialog, :branch, :save, :delete_dialog,
+                                         :branch_dialog, :save, :delete_dialog,
                                          :remove, :add_file, :save_file, :remove_file, :save_person,
                                          :save_group, :remove_role, :view_file,
                                          :abort_build, :trigger_rebuild, :trigger_services,
@@ -548,78 +548,71 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def branch
-    authorize @package, :branch?
-    # FIXME: This authorize isn't in sync with the permission checks of BranchPackage. And the created
-    #        project might differ from the one we check here.
-    authorize Project.new(name: User.current.branch_project_name(@project)), :create?
+    params.fetch(:linked_project) { raise ArgumentError.new('Linked Project parameter missing') }
+    params.fetch(:linked_package) { raise ArgumentError.new('Linked Package parameter missing') }
 
-    branched_package = BranchPackage.new(project: @project.name, package: @package.name).branch
-    created_project_name = branched_package[:data][:targetproject]
-    created_package_name = branched_package[:data][:targetpackage]
-
-    Event::BranchCommand.create(project: @project.name, package: @package.name,
-                                targetproject: created_project_name, targetpackage: created_package_name,
-                                user: User.current.login)
-    redirect_to(package_show_path(project: created_project_name, package: created_package_name),
-                notice: "Successfully branched package")
-  rescue BranchPackage::DoubleBranchPackageError
-    redirect_to(package_show_path(project: User.current.branch_project_name(@project), package: @package),
-                notice: 'You have already branched this package')
-  rescue APIException => e
-    redirect_back(fallback_location: root_path, error: e.message)
-  end
-
-  def save_new_link
+    # Full permission check happens in BranchPackage.new(branch_params).branch command
     # Are we linking a package from a remote instance?
-    # Then just try, the remote instance will handle checking for existence
-    # authorization etc.
+    # Then just try, the remote instance will handle checking for existence authorization etc.
     if Project.find_remote_project(params[:linked_project])
       source_project_name = params[:linked_project]
       source_package_name = params[:linked_package]
-    # If we are linking a local package we have to do it ourselves
     else
-      source_package = Package.find_by_project_and_name(params[:linked_project], params[:linked_package])
-      unless source_package
-        redirect_back(fallback_location: root_path, error: "Failed to branch: Package does not exist.")
-        return
-      end
-      authorize source_package, :branch?
+      options = { use_source: false, follow_project_links: true, follow_multibuild: true }
+      source_package = Package.get_by_project_and_name(params[:linked_project], params[:linked_package], options)
+
       source_project_name = source_package.project.name
       source_package_name = source_package.name
+      authorize source_package, :branch?
     end
-    revision = nil
-    unless params[:current_revision].blank?
-      dirhash = Directory.hashed(project: source_project_name, package: source_package_name)
-      if dirhash['error']
-        redirect_back(fallback_location: root_path, error: dirhash['error'])
-      end
-      revision = dirhash['xsrcmd5'] || dirhash['rev']
-      unless revision
-        redirect_back(fallback_location: root_path, error: "Failed to branch: Package has no source revision yet")
+
+    branch_params = {
+        project: source_project_name,
+        package: source_package_name
+    }
+
+    # Set the branch to the current revision if revision is present
+    if params[:current_revision].present?
+      dirhash = Directory.hashed(project: source_project_name, package: source_package_name, expand: 1)
+      branch_params[:rev] = dirhash['xsrcmd5'] || dirhash['rev']
+
+      unless branch_params[:rev]
+        flash[:error] = dirhash['error'] || 'Package has no source revision yet'
+        redirect_back(fallback_location: root_path)
         return
       end
     end
 
-    params[:target_package] = source_package_name if params[:target_package].blank?
+    branch_params[:target_project] = params[:target_project] if params[:target_project].present?
+    branch_params[:target_package] = params[:target_package] if params[:target_package].present?
+    branch_params[:add_repositories_rebuild] = params[:add_repositories_rebuild] if params[:add_repositories_rebuild].present?
 
-    begin
-      BranchPackage.new(project: source_project_name,
-                        package: source_package_name,
-                        target_project: @project.name,
-                        target_package: params[:target_package],
-                        add_repositories_rebuild: params[:add_repositories_rebuild],
-                        rev: revision).branch
-      Event::BranchCommand.create(project: source_project_name, package: source_package_name,
-                                  targetproject: @project.name, targetpackage: params[:target_package],
-                                  user: User.current.login)
-      redirect_to(package_show_path(project: @project, package: params[:target_package]),
-                  notice: "Successfully branched package")
-    rescue BranchPackage::DoubleBranchPackageError
-      redirect_to(package_show_path(project: @project, package: params[:target_package]),
-                  notice: 'You have already branched this package')
-    rescue => e
-      redirect_back(fallback_location: root_path, error: "Failed to branch: #{e.message}")
-    end
+    branched_package = BranchPackage.new(branch_params).branch
+    created_project_name = branched_package[:data][:targetproject]
+    created_package_name = branched_package[:data][:targetpackage]
+
+    Event::BranchCommand.create(project: source_project_name, package: source_package_name,
+                                targetproject: created_project_name, targetpackage: created_package_name,
+                                user: User.current.login)
+
+    flash[:notice] = 'Successfully branched package'
+    redirect_to(package_show_path(project: created_project_name, package: created_package_name))
+
+  rescue BranchPackage::DoubleBranchPackageError => exception
+    flash[:notice] = 'You have already branched this package'
+    redirect_to(package_show_path(project: exception.project, package: exception.package))
+  rescue Package::UnknownObjectError, Project::UnknownObjectError
+    flash[:error] = 'Failed to branch: Package does not exist.'
+    redirect_back(fallback_location: root_path)
+  rescue ArgumentError => exception
+    flash[:error] = "Failed to branch: #{exception.message}"
+    redirect_back(fallback_location: root_path)
+  rescue CreateProjectNoPermission
+    flash[:error] = 'Sorry, you are not authorized to create this Project.'
+    redirect_back(fallback_location: root_path)
+  rescue APIException, ActiveRecord::RecordInvalid => exception
+    flash[:error] = "Failed to branch: #{exception.message}"
+    redirect_back(fallback_location: root_path)
   end
 
   def save
