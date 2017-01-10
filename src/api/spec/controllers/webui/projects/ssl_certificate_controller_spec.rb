@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Webui::Project::SslCertificateController, type: :controller, vcr: true do
+RSpec.describe Webui::Projects::SslCertificateController, type: :controller, vcr: true do
   describe 'GET #show' do
     let(:project) do
       create(

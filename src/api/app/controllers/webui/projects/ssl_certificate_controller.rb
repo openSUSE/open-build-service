@@ -1,5 +1,5 @@
 module Webui
-  module Project
+  module Projects
     class SslCertificateController < WebuiController
       def show
         project = ::Project.find_by_name!(params[:project_name])
