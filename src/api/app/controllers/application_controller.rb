@@ -570,14 +570,12 @@ class ApplicationController < ActionController::Base
   end
 
   def extract_user_public
-    # to become _public_ special user
     if ::Configuration.anonymous
-      load_nobody
-      return true
+      load_nobody # to become _public_ special user
+    else
+      logger.error 'No public access is configured'
+      render_error( message: 'No public access is configured', status: 401 )
     end
-    logger.error 'No public access is configured'
-    render_error( message: 'No public access is configured', status: 401 )
-    false
   end
 
   private
