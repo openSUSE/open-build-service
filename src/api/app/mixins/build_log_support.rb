@@ -50,12 +50,8 @@ module BuildLogSupport
     data = ActiveXML::backend.direct_http URI("#{path}"), timeout: 500
     return code unless data
     doc = Xmlhash.parse(data)
-    if doc['result']
-      result = doc['result']
-      if result['status']
-        status = result['status']
-        code = status['code'] if status['code']
-      end
+    if doc['result'] && doc['result']['status'] && doc['result']['status']['code']
+      code = doc['result']['status']['code']
     end
     code
   end
