@@ -433,6 +433,13 @@ exit 0
 %endif
 %restart_on_update obsscheduler
 
+%pre -n obs-source_service
+
+getent passwd obsservicerun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
+    -c "User for the build service source service" obsservicerun
+exit 0
+
 %preun -n obs-source_service
 %stop_on_removal obsservice
 
