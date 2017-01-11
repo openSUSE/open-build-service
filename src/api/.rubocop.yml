@@ -130,6 +130,10 @@ Style/SpaceAfterNot:
 Style/SpaceAroundOperators:
   Enabled: true
 
+# Checks for spaces inside square brackets
+Style/SpaceInsideBrackets:
+  Enabled: true
+
 # Checks for the presence of parentheses around ternary conditions
 Style/TernaryParentheses:
   Enabled: true

@@ -498,7 +498,7 @@ XML
     login_tom to: '/project/show/home:Iggy'
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      fill_in 'body', with: 'Comment Body'
+      fill_in 'comment_body', with: 'Comment Body'
       find_button('Add comment').click
       find('#flash-messages').must_have_text 'Comment was successfully created.'
       SendEventEmails.new.perform

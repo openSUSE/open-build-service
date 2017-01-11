@@ -38,17 +38,17 @@ class XpathEngine
         'issue/@name' => {cpart: 'issues.name'},
         'issue/@tracker' => {cpart: 'issue_trackers.name'},
         'issue/@change' => {cpart: 'package_issues.change'},
-        'issue/owner/@email' => {cpart: 'users.email', joins:           [ 'LEFT JOIN users ON users.id = issues.owner_id' ]},
-        'issue/owner/@login' => {cpart: 'users.login', joins:           [ 'LEFT JOIN users ON users.id = issues.owner_id' ]},
+        'issue/owner/@email' => {cpart: 'users.email', joins:           ['LEFT JOIN users ON users.id = issues.owner_id']},
+        'issue/owner/@login' => {cpart: 'users.login', joins:           ['LEFT JOIN users ON users.id = issues.owner_id']},
         'attribute_issue/@state' => {cpart: 'attribissues.state'},
         'attribute_issue/@name' => {cpart: 'attribissues.name'},
         'attribute_issue/@tracker' => {cpart: 'attribissue_trackers.name'},
-        'attribute_issue/owner/@email' => {cpart: 'users.email', joins:           [ 'LEFT JOIN users ON users.id = attribissues.owner_id' ]},
-        'attribute_issue/owner/@login' => {cpart: 'users.login', joins:           [ 'LEFT JOIN users ON users.id = attribissues.owner_id' ]},
-        'person/@userid' => {cpart: 'users.login', joins:           [ 'LEFT JOIN users ON users.id = user_relation.user_id']},
-        'person/@role' => {cpart: 'ppr.title', joins:           [ 'LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id']},
-        'group/@groupid' => {cpart: 'groups.title', joins:           [ 'LEFT JOIN groups ON groups.id = group_relation.group_id']},
-        'group/@role' => {cpart: 'gpr.title', joins:           [ 'LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
+        'attribute_issue/owner/@email' => {cpart: 'users.email', joins:           ['LEFT JOIN users ON users.id = attribissues.owner_id']},
+        'attribute_issue/owner/@login' => {cpart: 'users.login', joins:           ['LEFT JOIN users ON users.id = attribissues.owner_id']},
+        'person/@userid' => {cpart: 'users.login', joins:           ['LEFT JOIN users ON users.id = user_relation.user_id']},
+        'person/@role' => {cpart: 'ppr.title', joins:           ['LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id']},
+        'group/@groupid' => {cpart: 'groups.title', joins:           ['LEFT JOIN groups ON groups.id = group_relation.group_id']},
+        'group/@role' => {cpart: 'gpr.title', joins:           ['LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
         'attribute/@name' => {cpart: 'attrib_namespaces.name = ? AND attrib_types.name',
           split: ':', joins:           ['LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
@@ -72,8 +72,8 @@ class XpathEngine
           'LEFT JOIN users ON users.id = user_relation.user_id']},
         'person/@role' => {cpart: 'ppr.title', joins: [
           'LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id']},
-        'group/@groupid' => {cpart: 'groups.title', joins:           [ 'LEFT JOIN groups ON groups.id = group_relation.group_id']},
-        'group/@role' => {cpart: 'gpr.title', joins:           [ 'LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
+        'group/@groupid' => {cpart: 'groups.title', joins:           ['LEFT JOIN groups ON groups.id = group_relation.group_id']},
+        'group/@role' => {cpart: 'gpr.title', joins:           ['LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
         'repository/@name' => {cpart: 'repositories.name'},
         'repository/path/@project' => {cpart: 'childs.name', joins: [
           'join repositories r on r.db_project_id=projects.id',
@@ -227,8 +227,8 @@ class XpathEngine
         'review/@by_project' => { cpart: 'r.by_project', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
         'review/@by_package' => { cpart: 'r.by_package', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
         'review/@state' => { cpart: 'r.state', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'history/@who' => { cpart: 'husers.login', joins: [ "LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
-                            "LEFT JOIN users husers ON he.user_id = husers.id" ] },
+        'history/@who' => { cpart: 'husers.login', joins: ["LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
+                            "LEFT JOIN users husers ON he.user_id = husers.id"] },
 
         'submit/target/@project' => { empty: true },
         'submit/target/@package' => { empty: true },
@@ -342,10 +342,10 @@ class XpathEngine
       relation = BsRequest.all
       attrib = AttribType.find_by_namespace_and_name('OBS', 'IncidentPriority')
       # this join is only for ordering by the OBS:IncidentPriority attribute, possibly existing in source project
-      @joins = [ "LEFT JOIN bs_request_actions req_order_action ON req_order_action.bs_request_id = bs_requests.id",
+      @joins = ["LEFT JOIN bs_request_actions req_order_action ON req_order_action.bs_request_id = bs_requests.id",
                  "LEFT JOIN projects req_order_project ON req_order_action.source_project = req_order_project.name",
                  "LEFT JOIN attribs req_order_attrib ON (req_order_attrib.attrib_type_id = '#{attrib.id}' AND req_order_attrib.project_id = req_order_project.id)",
-                 "LEFT JOIN attrib_values req_order_attrib_value ON req_order_attrib.id = req_order_attrib_value.attrib_id" ] << @joins
+                 "LEFT JOIN attrib_values req_order_attrib_value ON req_order_attrib.id = req_order_attrib_value.attrib_id"] << @joins
       order = ["req_order_attrib_value.value DESC", :priority, :created_at]
     when 'users'
       relation = User.all
@@ -353,14 +353,14 @@ class XpathEngine
       relation = Issue.all
     when 'channels'
       relation = ChannelBinary.all
-      @joins = [ 'LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
+      @joins = ['LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
                  'LEFT join channels channel on channel.id=channel_binary_list.channel_id',
                  'LEFT join packages cpkg on cpkg.id=channel.package_id',
                  'LEFT join projects cprj on cprj.id=cpkg.project_id'
                ] << @joins
     when 'channel_binaries'
       relation = ChannelBinary.all
-      @joins = [ 'LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
+      @joins = ['LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
                  'LEFT join channels channel on channel.id=channel_binary_list.channel_id'
                ] << @joins
     when 'released_binaries'

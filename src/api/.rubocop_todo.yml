@@ -856,25 +856,6 @@ Style/SpaceBeforeBlockBraces:
 Style/SpaceInsideBlockBraces:
   Enabled: false
 
-# Offense count: 53
-# Cop supports --auto-correct.
-Style/SpaceInsideBrackets:
-  Exclude:
-    - 'Rakefile'
-    - 'app/controllers/source_controller.rb'
-    - 'app/controllers/webui/project_controller.rb'
-    - 'app/helpers/maintenance_helper.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/channel_binary.rb'
-    - 'app/models/channel_binary_list.rb'
-    - 'app/models/channel_target.rb'
-    - 'app/models/user.rb'
-    - 'app/models/user_ldap_strategy.rb'
-    - 'lib/xpath_engine.rb'
-    - 'script/import'
-    - 'test/functional/channel_maintenance_test.rb'
-    - 'test/functional/read_permission_test.rb'
-
 # Offense count: 1886
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces, SupportedStyles.

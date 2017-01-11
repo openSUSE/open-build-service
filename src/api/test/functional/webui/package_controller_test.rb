@@ -151,7 +151,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   def fill_comment(body = 'Comment Body')
-    fill_in 'body', with: body
+    fill_in 'comment_body', with: body
     find_button('Add comment').click
     find('#flash-messages').must_have_text 'Comment was successfully created.'
   end

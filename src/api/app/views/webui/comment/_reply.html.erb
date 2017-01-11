@@ -1,9 +1,0 @@
-<div class="comment_new" id="<%="reply_form_of_#{comment.id}"%>" style="display: none;">
-  <%= save_comment_form do %>
-    <p>
-      <%= text_area_tag 'body', nil, size: '80x1', onkeyup: 'sz(this);', onclick: 'sz(this);', id: "reply_body_#{comment.id}", placeholder: 'Comment Text', required: true %>
-      <%= hidden_field_tag 'parent_id', comment.id, id: "reply_parent_id_#{comment.id}" %>
-    </p>
-    <p><%= submit_tag 'Add reply', id: "add_reply_#{comment.id}"%></p>
-  <% end %>
-</div>

@@ -13,7 +13,7 @@
 # Provides:          obssigner
 # Required-Start:    $time $syslog
 # Required-Stop:     $null
-# Should-Start:      obsstoragesetup
+# Should-Start:      obsstoragesetup signd
 # Should-Stop:       $none
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6

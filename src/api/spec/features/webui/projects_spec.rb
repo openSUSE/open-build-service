@@ -322,11 +322,12 @@ RSpec.feature "Projects", type: :feature, js: true do
 
     scenario "an existing package to an invalid target package or project" do
       fill_in("Name of original project:", with: other_user.home_project_name)
-      fill_in("Name of package in original project:", with: "non-existing_ project_target")
+      fill_in("Name of package in original project:", with: package_of_another_project.name)
+      fill_in("Name of branched package in target project:", with: "something/illegal")
       # This needs global write through
       click_button("Create Branch")
 
-      expect(page).to have_text("Failed to branch: Package does not exist.")
+      expect(page).to have_text("Failed to branch: Validation failed: Name is illegal")
       expect(page.current_path).to eq("/project/new_package_branch/home:Jane")
     end
 
@@ -376,6 +377,24 @@ RSpec.feature "Projects", type: :feature, js: true do
 
       expect(page).to have_text("Sorry, you are not authorized to branch this Package.")
       expect(page.current_path).to eq("/project/new_package_branch/home:Jane")
+    end
+
+    scenario "a package and select current revision" do
+      fill_in("Name of original project:", with: other_user.home_project_name)
+      fill_in("Name of package in original project:", with: package_of_another_project.name)
+
+      find("input[id='current_revision']").set(:true)
+
+      # This needs global write through
+      click_button("Create Branch")
+
+      expect(page).to have_text("Successfully branched package")
+      expect(page.current_path).to eq("/package/show/home:Jane/branch_test_package")
+
+      visit package_show_path('home:Jane', 'branch_test_package', expand: 0)
+      click_link('_link')
+
+      expect(page).to have_xpath(".//span[@class='cm-attribute' and text()='rev']")
     end
   end
 
