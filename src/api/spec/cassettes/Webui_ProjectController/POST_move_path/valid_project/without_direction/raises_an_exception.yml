@@ -1,0 +1,76 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>An Acceptable Time</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '101'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>An Acceptable Time</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:52 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_config
+    body:
+      encoding: UTF-8
+      string: Officiis enim vel. Aut et veritatis consequatur soluta. Doloribus et
+        doloremque et consequuntur.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:52 GMT
+recorded_with: VCR 3.0.3

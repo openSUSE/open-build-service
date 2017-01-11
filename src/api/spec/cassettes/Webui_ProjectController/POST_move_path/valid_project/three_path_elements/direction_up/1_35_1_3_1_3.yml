@@ -1,0 +1,347 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>The Golden Bowl</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '98'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>The Golden Bowl</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:52 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_config
+    body:
+      encoding: UTF-8
+      string: Temporibus recusandae minus voluptas. Laudantium sed rem qui veritatis
+        minus nobis. Dolorem omnis eum repellat. Unde ipsum consectetur. Id esse voluptatem
+        dolor voluptas est.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:52 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_4/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>Blue Remembered Earth</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>Blue Remembered Earth</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:53 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_4/_config
+    body:
+      encoding: UTF-8
+      string: In exercitationem ut nihil repudiandae nihil similique ab. Sit corrupti
+        nam iusto placeat repellendus quis dolore. Aliquam veritatis nemo occaecati
+        quisquam quod. Autem voluptatum libero neque aliquam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:53 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_5/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>The Other Side of Silence</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>The Other Side of Silence</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:53 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_5/_config
+    body:
+      encoding: UTF-8
+      string: Minima fugiat doloribus pariatur blanditiis nesciunt voluptatem ex.
+        Fugit maxime itaque consequatur. Aut quod quia iusto in.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:53 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_6/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>The Moon by Night</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>The Moon by Night</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:53 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_6/_config
+    body:
+      encoding: UTF-8
+      string: Quo quia at praesentium tempore. Laborum perspiciatis cupiditate quos
+        eos labore. Dolores porro quaerat iure fugit et et ut. Qui est enim dolor
+        praesentium fuga rerum sed.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:53 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>The Golden Bowl</title>
+          <description/>
+          <repository name="repository_5">
+            <path project="project_5" repository="repository_7"/>
+            <path project="project_4" repository="repository_6"/>
+            <path project="project_6" repository="repository_8"/>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '326'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>The Golden Bowl</title>
+          <description></description>
+          <repository name="repository_5">
+            <path project="project_5" repository="repository_7" />
+            <path project="project_4" repository="repository_6" />
+            <path project="project_6" repository="repository_8" />
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:53 GMT
+recorded_with: VCR 3.0.3

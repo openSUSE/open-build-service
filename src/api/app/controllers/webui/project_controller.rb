@@ -424,13 +424,8 @@ class Webui::ProjectController < Webui::WebuiController
       end
     end
 
-    if @project.valid?
-      @project.store
-      redirect_to({ action: :index, controller: :repositories, project: @project}, notice: "Path moved #{params[:direction]} successfully")
-    else
-      redirect_to({ action: :index, controller: :repositories, project: @project },
-                  notice: "Path can't be moved: #{@project.errors.full_messages.to_sentence}")
-    end
+    @project.store
+    redirect_to({ action: :index, controller: :repositories, project: @project}, notice: "Path moved #{params[:direction]} successfully")
   end
 
   def monitor

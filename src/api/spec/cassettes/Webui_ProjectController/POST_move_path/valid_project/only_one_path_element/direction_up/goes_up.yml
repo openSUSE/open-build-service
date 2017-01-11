@@ -1,0 +1,195 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Cabbages and Kings</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '101'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Cabbages and Kings</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_config
+    body:
+      encoding: UTF-8
+      string: Reiciendis in laudantium eos ducimus ullam natus. Temporibus nisi dolor
+        fugiat rerum. Voluptas consectetur ipsum non est dolores non et. Enim amet
+        labore aut. Magnam velit eligendi reiciendis eveniet explicabo.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_26/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_26">
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '136'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_26">
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_26/_config
+    body:
+      encoding: UTF-8
+      string: Corrupti eos nesciunt et ea consequatur accusamus. Modi tempore necessitatibus
+        molestias asperiores laboriosam magni et. Sed ut sapiente culpa neque non.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/Apache/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Cabbages and Kings</title>
+          <description/>
+          <repository name="repository_35">
+            <path project="project_26" repository="repository_36"/>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '214'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Cabbages and Kings</title>
+          <description></description>
+          <repository name="repository_35">
+            <path project="project_26" repository="repository_36" />
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Thu, 05 Jan 2017 16:11:56 GMT
+recorded_with: VCR 3.0.3
