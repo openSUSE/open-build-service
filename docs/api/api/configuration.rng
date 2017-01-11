@@ -198,6 +198,18 @@
             </choice>
           </element>
         </optional>
+        <optional>
+          <element name="unlisted_projects_filter">
+            <!-- The exclusion filter itself. Is a Regular Expression (eg: ^home:.*) -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="unlisted_projects_filter_description">
+            <!-- The description that will appear in projects list for explaining the exclusion filter. -->
+            <text/>
+          </element>
+        </optional>
 
         <!-- active schedulers -->
         <element name="schedulers">
