@@ -838,10 +838,9 @@ class Webui::PackageController < Webui::WebuiController
     @initial = params[:initial]
     @offset = params[:offset].to_i
     @status = params[:status]
-    @finished = false
     @maxsize = 1024 * 64
 
-    @finished = Buildresult.final_status? @status
+    @finished = Buildresult.final_status?(@status)
     @offset = 0 if @finished
 
     set_initial_offset if @offset.zero?
