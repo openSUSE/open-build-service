@@ -4,9 +4,9 @@ module Webui
       def show
         project = ::Project.find_by_name!(params[:project_name])
 
-        if project.public_key.present?
+        if project.key_info.present?
           send_data(
-            project.public_key.content,
+            project.key_info.pubkey,
             disposition: 'attachment',
             filename: "#{project.title}_key.pub"
           )

@@ -1,4 +1,4 @@
-xml.public_key algorithm: public_key.algorithm  do
-  xml.content public_key.content
-  xml.ssl_certificate public_key.ssl_certificate
+xml.pubkey algorithm: key_info.algorithm  do
+  xml.content key_info.pubkey
+  xml.ssl_certificate key_info.ssl_certificate
 end

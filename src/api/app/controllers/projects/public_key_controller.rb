@@ -8,7 +8,7 @@ module Projects
       project = Project.find_by_name!(params[:project_name])
 
       if project.key_info.present?
-        render :show, locals: { public_key: project.key_info }
+        render :show, locals: { key_info: project.key_info }
       else
         render_error message: "No public key exists", status: 404, errorcode: "not_found"
       end
