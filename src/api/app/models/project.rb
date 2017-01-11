@@ -100,6 +100,9 @@ class Project < ApplicationRecord
   scope :maintenance_release, -> { where("kind = 'maintenance_release'") }
   scope :home, -> { where("name like 'home:%'") }
   scope :not_home, -> { where.not("name like 'home:%'") }
+  scope :filtered_for_list, lambda {
+    where.not("name rlike ?", ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
+  }
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
 
   # will return all projects with attribute 'OBS:ImageTemplates'
