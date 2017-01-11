@@ -28,6 +28,16 @@
       <%= f.text_field :name %>
       The instance name which gets generated into each package. Short string only, no white spaces recommended.
     </p>
+    <p>
+      <%= f.label :unlisted_projects_filter_description %><br>
+      <%= f.text_field :unlisted_projects_filter_description %>
+      The description that will appear in projects list for explaining the exclusion filter.
+    </p>
+    <p>
+      <%= f.label :unlisted_projects_filter %><br>
+      <%= f.text_field :unlisted_projects_filter %>
+      The exclusion filter itself. Is a Regular Expression (eg: ^home:.*)
+    </p>
     <p><%= f.submit "Update" %></p>
   <% end %>
   </div>
