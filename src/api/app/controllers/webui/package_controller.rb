@@ -810,6 +810,7 @@ class Webui::PackageController < Webui::WebuiController
     @arch = params[:arch] if Architecture.archcache[params[:arch]]
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     @offset = 0
+    @status = get_status(@project, @package, @repo, @arch) if @project && @package && @repo && @arch
 
     set_job_status
   end
@@ -836,8 +837,12 @@ class Webui::PackageController < Webui::WebuiController
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     @initial = params[:initial]
     @offset = params[:offset].to_i
+    @status = params[:status]
     @finished = false
     @maxsize = 1024 * 64
+
+    @finished = Buildresult.final_status? @status
+    @offset = 0 if @finished
 
     set_initial_offset if @offset.zero?
 
@@ -851,11 +856,15 @@ class Webui::PackageController < Webui::WebuiController
 
     @package = params[:package]
     begin
-      @log_chunk = get_log_chunk(@project, @package, @repo, @arch, @offset, @offset + @maxsize)
+      chunk = get_log_chunk(@project, @package, @repo, @arch, @offset, @offset + @maxsize)
 
-      if @log_chunk.length.zero?
+      if chunk.length.zero? && @initial == '0' && !@finished
+        # reset offset and fetch the last chunk again, because build compare overwrites last log lines
+        set_initial_offset
+        @log_chunk = get_log_chunk(@project, @package, @repo, @arch, @offset, @offset + @maxsize)
         @finished = true
       else
+        @log_chunk = chunk
         @offset += ActiveXML::backend.last_body_length
       end
 
@@ -865,6 +874,10 @@ class Webui::PackageController < Webui::WebuiController
     rescue ActiveXML::Transport::Error => e
       if e.summary =~ %r{Logfile is not that big}
         @log_chunk = ''
+      elsif e.summary =~ /start out of range/
+        # probably build compare has cut log and offset is wrong, reset offset
+        @log_chunk = ''
+        @offset = 0
       else
         @log_chunk = "No live log available: #{e.summary}\n"
         @finished = true

@@ -23,7 +23,8 @@
      data-offset="<%= @offset %>"
      data-url="<%= url_for(action: :update_build_log,
 		   package: @build_container, project: @project,
-		   arch: @arch, repository: @repo) %>">
+                   status: @status,
+                   arch: @arch, repository: @repo) %>">
   <pre id="log_space"></pre>
 </div>
 

@@ -60,4 +60,8 @@ class Buildresult < ActiveXML::Node
   def self.index2code(index)
     AVAIL_STATUS_VALUES.key(index)
   end
+
+  def self.final_status?(status)
+    %w(succeeded failed unresolvable broken disabled excluded).include? status
+  end
 end
