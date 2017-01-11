@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Projects::PublicKeyController, type: :controller do
+RSpec.describe Projects::KeyInfoController, type: :controller do
   describe 'GET #show' do
     let(:project) { create(:project, name: "test_project", title: "Test Project") }
     let(:backend_url) { CONFIG['source_url'] + Project::KeyInfo.send(:backend_url, project.name) }

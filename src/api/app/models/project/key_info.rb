@@ -10,7 +10,7 @@ class Project
 
       if parsed_response['pubkey'].present?
         key_info_params = {
-          pubkey:   parsed_response['pubkey']['_content'],
+          pubkey:    parsed_response['pubkey']['_content'],
           algorithm: parsed_response['pubkey']['algo']
         }
 
