@@ -7,10 +7,10 @@ module Projects
     def show
       project = Project.find_by_name!(params[:project_name])
 
-      if project.public_key.present?
-        render :show, locals: { public_key: project.public_key }
+      if project.key_info.present?
+        render :show, locals: { public_key: project.key_info }
       else
-        render nothing: true, status: :not_found
+        render_error message: "No public key exists", status: 404, errorcode: "not_found"
       end
     end
   end

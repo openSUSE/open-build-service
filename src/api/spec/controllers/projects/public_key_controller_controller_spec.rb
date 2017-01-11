@@ -4,7 +4,7 @@ require 'webmock/rspec'
 RSpec.describe Projects::PublicKeyController, type: :controller do
   describe 'GET #show' do
     let(:project) { create(:project, name: "test_project", title: "Test Project") }
-    let(:backend_url) { CONFIG['source_url'] + PublicKey.send(:backend_url, project.name) }
+    let(:backend_url) { CONFIG['source_url'] + Project::KeyInfo.send(:backend_url, project.name) }
     let(:gpg_public_key) { Faker::Lorem.characters(1024) }
 
     before do
