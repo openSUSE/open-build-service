@@ -6,7 +6,19 @@
     <%= form_tag(:controller => "main", :action => "index") do %>
       <p>
         <strong>Architecture:</strong>
-        <%= select_tag(:architecture_display, options_for_select(@available_arch_list, @default_architecture)) %><br/>
+        <% wcount = 0 %>
+        <% @workerstatus.elements("partition") do |part|
+            part.elements("daemon") do |daemon|
+              if daemon["type"] == "scheduler" and daemon["state"] == "running"
+                 wcount = wcount + 1 %>
+                 <%= select_tag(:architecture_display, options_for_select(@available_arch_list, daemon["arch"])) %><br/>
+                 <% break %>
+              <% end -%>
+            <% end -%>
+        <% end -%>
+        <% if wcount < 1 %>
+            <%= select_tag(:architecture_display, options_for_select(@available_arch_list, @default_architecture)) %><br/>
+        <% end -%>
         <strong>Timeframe:</strong>
         <%= select_tag(:time_display, options_for_select([["1 day", "24"], ["1 hour", 1], ["1 week", "168"], ["1 month", "720"], ["1 year", "8760"]], "24")) %>
       </p> 
