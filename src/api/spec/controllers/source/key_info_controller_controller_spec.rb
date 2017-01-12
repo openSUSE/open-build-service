@@ -13,6 +13,7 @@ RSpec.describe Source::KeyInfoController, type: :controller do
     end
 
     before do
+      Rails.cache.clear
       stub_request(:get, backend_url).and_return(body: keyinfo_response)
       login(user)
 

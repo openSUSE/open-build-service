@@ -4,8 +4,13 @@ class Project
 
     attr_accessor :pubkey, :algorithm, :ssl_certificate
 
+    CACHE_EXPIRY_TIME = 5.minutes
+
     def self.find_by_project_name(project_name)
-      response = Suse::Backend.get(backend_url(project_name)).body
+      cache_key = "key_info_project_#{project_name}"
+      response = Rails.cache.fetch(cache_key, expires_in: CACHE_EXPIRY_TIME) do
+          Suse::Backend.get(backend_url(project_name)).body
+      end
       parsed_response = Xmlhash.parse(response)
 
       if parsed_response['pubkey'].present?

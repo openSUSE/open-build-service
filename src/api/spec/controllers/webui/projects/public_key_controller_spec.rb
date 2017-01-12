@@ -7,6 +7,7 @@ RSpec.describe Webui::Projects::PublicKeyController, type: :controller do
     let(:backend_url) { CONFIG['source_url'] + Project::KeyInfo.send(:backend_url, project.name) }
 
     before do
+      Rails.cache.clear
       stub_request(:get, backend_url).and_return(body: keyinfo_response)
 
       get :show, params: { project_name: project.name }

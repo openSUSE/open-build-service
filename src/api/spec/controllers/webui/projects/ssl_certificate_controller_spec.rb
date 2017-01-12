@@ -8,6 +8,7 @@ RSpec.describe Webui::Projects::SslCertificateController, type: :controller do
     let(:gpg_public_key) { Faker::Lorem.characters(1024) }
 
     before do
+      Rails.cache.clear
       stub_request(:get, backend_url).and_return(body: keyinfo_response)
 
       get :show, params: { project_name: project.name }
