@@ -2390,6 +2390,39 @@ sub wipepublishedlocked {
   }
   close F;
   forwardevent({}, 'publish', $projid, undef, $repoid, undef);
+} 
+
+# call that deletes packages from publishing stage and triggers a scanrepo and
+# publish event for the prp.
+sub unpublish {
+  my ($projid, $repoid, $prparchs, $packids) = @_;
+  my $repoinfo;
+  my $prp = "$projid/$repoid";
+  my %packid = map {$_ => 1} @{$packids};
+
+  local *F;
+  BSUtil::lockopen(\*F, '>', "$reporoot/$prp/.finishedlock");
+  for my $arch (@{$prparchs}) {
+    if (-s "$reporoot/$prp/$arch/:repoinfo") {
+      $repoinfo = BSUtil::retrieve("$reporoot/$prp/$arch/:repoinfo");
+      for my $rpm_in_repo (keys ($repoinfo->{'binaryorigins'})) {
+        if (@{$packids}) {
+          unlink("$reporoot/$prp/$arch/:repo/$rpm_in_repo") if $packid{$repoinfo->{'binaryorigins'}->{$rpm_in_repo}};
+        } else {
+          unlink("$reporoot/$prp/$arch/:repo/$rpm_in_repo");
+        }
+      }
+    }
+    if (-d "$eventdir/$arch") {
+      my $ev = { type => 'recheck', 'project' => $projid, 'repository' => $repoid };
+      my $evname = "recheck:${projid}::$repoid";
+      $evname = "recheck:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
+      writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+      BSUtil::ping("$eventdir/$arch/.ping");
+    }
+  }
+  close *F;
+  forwardevent({}, 'publish', $projid, undef, $repoid, undef);
 }
 
 sub docommand {
@@ -2397,6 +2430,21 @@ sub docommand {
   my %code = map {$_ => 1} @{$cgi->{'code'} || []};
   my %buildingjobs;
   my %wipepublishedlockeddone;
+
+  if ($cmd eq 'unpublish') {
+    die "No package codes witch cmd unpublish" if $cgi->{'code'};
+    my %prparchs;
+    for my $prpa (@$prpas) {
+      my ($projid, $repoid, $arch) = split('/', $prpa);
+      push @{$prparchs{"$projid/$repoid"}}, $arch;
+    }
+    for my $prp (sort keys %prparchs) {
+      my ($projid, $repoid) = split('/', $prp);
+      unpublish($projid, $repoid, $prparchs{$prp}, $cgi->{'package'} || []);
+    }
+    return $BSSTDServer::return_ok;
+  }
+
   for my $prpa (@$prpas) {
     my ($projid, $repoid, $arch) = split('/', $prpa);
     my @packids = @{$cgi->{'package'} || []};
@@ -3707,7 +3755,7 @@ my $dispatches = [
   '/configuration' => \&getconfiguration,
 
   '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
-  'POST:/_command $cmd: $prpa+ package* code:* wipe:*' => \&docommand,
+  'POST:/_command $cmd: $prpa+ package* code:*' => \&docommand,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
   '/ajaxstatus' => \&getajaxstatus,

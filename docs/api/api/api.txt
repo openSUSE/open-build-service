@@ -1266,9 +1266,18 @@ Parameters:
   see cmd=rebuild
 
 
+POST /build/<project>?cmd=unpublish
+
+  Delete all binary packages from publish area
+
+Parameters:
+
+  see cmd=rebuild
+
+
 POST /build/<project>?cmd=wipe
 
-  Delete all binary packages from the packages
+  Delete all binary packages from build area
 
 Parameters:
 
