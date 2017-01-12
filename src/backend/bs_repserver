@@ -2396,22 +2396,35 @@ sub wipepublishedlocked {
 # publish event for the prp.
 sub unpublish {
   my ($projid, $repoid, $prparchs, $packids) = @_;
-  my $repoinfo;
   my $prp = "$projid/$repoid";
-  my %packid = map {$_ => 1} @{$packids};
+  my %packids = map {$_ => 1} @{$packids};
 
   local *F;
   BSUtil::lockopen(\*F, '>', "$reporoot/$prp/.finishedlock");
   for my $arch (@{$prparchs}) {
-    if (-s "$reporoot/$prp/$arch/:repoinfo") {
-      $repoinfo = BSUtil::retrieve("$reporoot/$prp/$arch/:repoinfo");
-      for my $rpm_in_repo (keys ($repoinfo->{'binaryorigins'})) {
-        if (@{$packids}) {
-          unlink("$reporoot/$prp/$arch/:repo/$rpm_in_repo") if $packid{$repoinfo->{'binaryorigins'}->{$rpm_in_repo}};
+    my $rpath = "$reporoot/$prp/$arch/:repo";
+    if (%packids) {
+      # just wipe some packages, need the repoinfo
+      my $repoinfo = BSUtil::retrieve("$reporoot/$prp/$arch/:repoinfo");
+      my $binaryorigins = $repoinfo->{'binaryorigins'} || {};
+      my $dirty;
+      for my $bin (sort keys %$binaryorigins) {
+        next unless $packids{$binaryorigins->{$bin}};
+        if (-d "$rpath/$bin") {
+          BSUtil::cleandir("$rpath/$bin");
+          rmdir("$rpath/$bin");
         } else {
-          unlink("$reporoot/$prp/$arch/:repo/$rpm_in_repo");
+          unlink("$rpath/$bin");
         }
+        delete $binaryorigins->{$bin};
+        $dirty = 1;
       }
+      BSUtil::store("${rpath}info.new", "${rpath}info", $repoinfo) if $dirty;
+    } else {
+      # wipe all packages
+      unlink("${rpath}info");
+      BSUtil::cleandir($rpath);
+      rmdir($rpath);
     }
     if (-d "$eventdir/$arch") {
       my $ev = { type => 'recheck', 'project' => $projid, 'repository' => $repoid };
@@ -2421,7 +2434,7 @@ sub unpublish {
       BSUtil::ping("$eventdir/$arch/.ping");
     }
   }
-  close *F;
+  close F;
   forwardevent({}, 'publish', $projid, undef, $repoid, undef);
 }
 
@@ -2432,7 +2445,7 @@ sub docommand {
   my %wipepublishedlockeddone;
 
   if ($cmd eq 'unpublish') {
-    die "No package codes witch cmd unpublish" if $cgi->{'code'};
+    die("code filter not supported for unpublish\n") if $cgi->{'code'};
     my %prparchs;
     for my $prpa (@$prpas) {
       my ($projid, $repoid, $arch) = split('/', $prpa);
@@ -2442,7 +2455,7 @@ sub docommand {
       my ($projid, $repoid) = split('/', $prp);
       unpublish($projid, $repoid, $prparchs{$prp}, $cgi->{'package'} || []);
     }
-    return $BSSTDServer::return_ok;
+    return $BSStdServer::return_ok;
   }
 
   for my $prpa (@$prpas) {
