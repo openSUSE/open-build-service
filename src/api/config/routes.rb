@@ -409,6 +409,7 @@ OBSApi::Application.routes.draw do
     get 'source/:project/:package/_wizard' => 'wizard#package_wizard', constraints: cons
     get 'source/:project/:package/_tags' => 'tag#package_tags', constraints: cons
     get 'source/:project/_tags' => 'tag#project_tags', constraints: cons
+    get 'source/:project/_keyinfo' => 'source/key_info#show', constraints: cons
 
     get 'about' => 'about#index'
 # you may enable this to test erbit setups
@@ -701,10 +702,6 @@ OBSApi::Application.routes.draw do
   get 'main/sitemap' => 'webui/main#sitemap'
   get 'main/sitemap_projects' => 'webui/main#sitemap_projects'
   get 'main/sitemap_packages/:listaction' => 'webui/main#sitemap_packages'
-
-  resources :projects, only: [], param: :name do
-    resource :key_info, controller: 'projects/key_info', only: [:show]
-  end
 end
 
 OBSEngine::Base.subclasses.each do |engine|
