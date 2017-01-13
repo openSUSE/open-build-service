@@ -211,7 +211,7 @@ RSpec.describe Package, vcr: true do
           guard string !~ /^(_product|_product:\w|_patchinfo|_patchinfo:\w|_pattern|_project)/
           string
         }.check { |string|
-          expect(Package.valid_name?(string)).to be_in([nil, false])
+          expect(Package.valid_name?(string)).to be(false)
         }
       end
 
@@ -234,7 +234,7 @@ RSpec.describe Package, vcr: true do
           guard string != '0'
           string
         }.check { |string|
-          expect(Package.valid_name?(string)).to eq(0)
+          expect(Package.valid_name?(string)).to be(true)
         }
       end
 
@@ -258,10 +258,10 @@ RSpec.describe Package, vcr: true do
         }
       end
 
-      it{ expect(Package.valid_name?('_product')).to eq(0) }
-      it{ expect(Package.valid_name?('_pattern')).to eq(0) }
-      it{ expect(Package.valid_name?('_project')).to eq(0) }
-      it{ expect(Package.valid_name?('_patchinfo')).to eq(0) }
+      it{ expect(Package.valid_name?('_product')).to be(true) }
+      it{ expect(Package.valid_name?('_pattern')).to be(true) }
+      it{ expect(Package.valid_name?('_project')).to be(true) }
+      it{ expect(Package.valid_name?('_patchinfo')).to be(true) }
     end
   end
 end

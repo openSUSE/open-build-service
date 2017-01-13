@@ -998,7 +998,7 @@ class Package < ApplicationRecord
     if name =~ %r{^[_\.]} && !%w(_product _pattern _project _patchinfo).include?(name)
       return false
     end
-    name =~ /\A\w[-+\w\.]*\z/
+    name =~ /\A\w[-+\w\.]*\z/ ? true : false
   end
 
   def valid_name
