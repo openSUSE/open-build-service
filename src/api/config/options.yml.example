@@ -63,7 +63,9 @@ auto_cleanup_after_days: 30
 # LDAP options
 ##################
 
+#### WARNING: LDAP mode is not official supported by OBS!
 ldap_mode: :off
+#### WARNING: LDAP mode is not official supported by OBS!
 
 # LDAP Servers separated by ':'.
 # OVERRIDE with your company's ldap servers. Servers are picked randomly for
