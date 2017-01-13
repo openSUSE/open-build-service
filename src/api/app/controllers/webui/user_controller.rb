@@ -14,6 +14,7 @@ class Webui::UserController < Webui::WebuiController
 
   def logout
     logger.info "Logging out: #{session[:login]}"
+    Rails.cache.delete("ldap_cache_userpasswd:#{session[:login]}")
     reset_session
     User.current = nil
     if CONFIG['proxy_auth_mode'] == :on
