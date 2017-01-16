@@ -106,6 +106,8 @@ group :test do
   gem 'nyan-cat-formatter'
   # assigns has been extracted to a gem
   gem 'rails-controller-testing'
+  # To generate random data
+  gem 'rantly'
 end
 
 # Gems used only during development not required in production environments by default.

@@ -97,6 +97,8 @@ Style/MethodDefParentheses:
 # Checks for chaining of a block after another block that spans multiple lines.
 Style/MultilineBlockChain:
   Enabled: true
+  Exclude:
+    - 'spec/models/project_spec.rb'
 
 # Checks for uses of if with a negated condition (only ifs without else)
 Style/NegatedIf:

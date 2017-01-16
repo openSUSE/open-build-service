@@ -1,4 +1,5 @@
 require "rails_helper"
+require 'rantly/rspec_extensions'
 
 RSpec.describe Project do
   let!(:project) { create(:project) }
@@ -408,20 +409,60 @@ RSpec.describe Project do
   describe '#self.valid_name?' do
     context "invalid" do
       it{ expect(Project.valid_name?(10)).to be(false) }
-      it{ expect(Project.valid_name?('home:M0ses:raspi::qtdesktop')).to be(false) }
+
+      it "has ::" do
+        property_of {
+          string = sized(1){ string(/[a-zA-Z0-9]/) } + sized(range(1, 199)){ string(/[-+\w\.]/) }
+          index = range(0, (string.length - 2))
+          string[index] = string[index + 1] = ':'
+          string
+        }.check { |string|
+          expect(Project.valid_name?(string)).to be(false)
+        }
+      end
+
+      it "end with :" do
+        property_of {
+          string = sized(1){ string(/[a-zA-Z0-9]/) } + sized(range(0, 198)){ string(/[-+\w\.:]/) } + ':'
+          guard string !~ /::/
+          string
+        }.check { |string|
+          expect(Project.valid_name?(string)).to be(false)
+        }
+      end
+
+      it "has an invalid character in first position" do
+        property_of {
+          string = sized(1){ string(/[-+\.:_]/) } + sized(range(0, 199)){ string(/[-+\w\.:]/) }
+          guard !(string[-1] == ':' && string.length > 1) && string !~ /::/
+          string
+        }.check { |string|
+          expect(Project.valid_name?(string)).to be(false)
+        }
+      end
+
+      it "has more than 200 characters" do
+        property_of {
+          string = sized(1){ string(/[a-zA-Z0-9]/) } + sized(200) { string(/[-+\w\.:]/) }
+          guard string[-1] != ':' && string !~ /::/
+          string
+        }.check(3) { |string|
+          expect(Project.valid_name?(string)).to be(false)
+        }
+      end
+
       it{ expect(Project.valid_name?('0')).to be(false) }
-      it{ expect(Project.valid_name?('home:M0ses:')).to be(false) }
-      it{ expect(Project.valid_name?('_foobar')).to be(false) }
-      it{ expect(Project.valid_name?("4" * 201)).to be(false) }
       it{ expect(Project.valid_name?('')).to be(false) }
     end
 
-    context "valid" do
-      it{ expect(Project.valid_name?('home:M0ses:raspi:qtdesktop')).to be(true) }
-      it{ expect(Project.valid_name?("foobar")).to be(true) }
-      it{ expect(Project.valid_name?("Foobar_")).to be(true) }
-      it{ expect(Project.valid_name?("foo1234")).to be(true) }
-      it{ expect(Project.valid_name?("4" * 200)).to be(true) }
+    it "valid" do
+      property_of {
+        string = sized(1){ string(/[a-zA-Z0-9]/) } + sized(range(0, 199)){ string(/[-+\w\.:]/) }
+        guard string != '0' && string[-1] != ':' && !(/::/ =~ string)
+        string
+      }.check { |string|
+        expect(Project.valid_name?(string)).to be(true)
+      }
     end
   end
 end

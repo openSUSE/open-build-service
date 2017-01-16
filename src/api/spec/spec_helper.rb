@@ -80,5 +80,11 @@ end
 # We never want the backend to autostart itself...
 ENV['BACKEND_STARTED'] = '1'
 
+# Generate 30 tests for every property test
+ENV['RANTLY_COUNT'] = '30'
+
+# To have quiet output from Rantly, it looks horrible with the Unicorn
+ENV['RANTLY_VERBOSE'] = '0' unless ENV['TRAVIS'] || ENV['RPM_BUILD_ROOT']
+
 # support logging
 require 'support/logging'
