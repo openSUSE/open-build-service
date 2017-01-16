@@ -277,7 +277,7 @@ class ApplicationController < ActionController::Base
     # as the send_file function only references the path to it. So we keep it
     # for ourselves. And once the controller is garbage collected, it should
     # be fine to unlink the data
-    @volleyfile = Tempfile.new 'volley', encoding: 'ascii-8bit'
+    @volleyfile = Tempfile.new('volley', "#{Rails.root}/tmp", encoding: 'ascii-8bit')
     opts = { url_based_filename: true }
 
     backend_http.request_get(path) do |res|
@@ -297,7 +297,7 @@ class ApplicationController < ActionController::Base
   end
 
   def download_request
-    file = Tempfile.new 'volley', encoding: 'ascii-8bit'
+    file = Tempfile.new('volley', "#{Rails.root}/tmp", encoding: 'ascii-8bit')
     b = request.body
     buffer = String.new
     file.write(buffer) while b.read(40960, buffer)

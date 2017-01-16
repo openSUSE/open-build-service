@@ -259,7 +259,7 @@ class Webui::WebuiController < ActionController::Base
   private
 
   def put_body_to_tempfile(xmlbody)
-    file = Tempfile.new('xml').path
+    file = Tempfile.new('xml', "#{Rails.root}/tmp").path
     file = File.open(file + '.xml', 'w')
     file.write(xmlbody)
     file.close
