@@ -294,6 +294,11 @@ FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_sslcert", "#{backend_d
 FileUtils.rm("#{backend_data}/projects/BaseDistro.pkg/_project.mrev")
 Suse::Backend.put('/source/BaseDistro/_meta?user=king', Project.find_by_name('BaseDistro').to_axml)
 
+# have an idle worker
+FileUtils.mkdir "#{backend_data}/workers"
+FileUtils.mkdir "#{backend_data}/workers/idle"
+FileUtils.cp("#{Rails.root}/test/fixtures/backend/x86_64:build33:1", "#{backend_data}/workers/idle/")
+
 # fix port number in remote projects
 ri = Project.find_by_name "RemoteInstance"
 ri.remoteurl = "http://localhost:#{port_src_server}"

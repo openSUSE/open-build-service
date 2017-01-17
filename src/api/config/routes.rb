@@ -337,6 +337,12 @@ OBSApi::Application.routes.draw do
     get 'apidocs(/index)' => 'webui/apidocs#index'
   end
 
+  ### /worker
+  get 'worker/_status' => 'status#workerstatus'
+  get 'build/_workerstatus' => 'status#workerstatus' # FIXME3.0: drop this compat route
+  get 'worker/:worker' => 'status#workercapability'
+  post 'worker' => 'status#workercommand'
+
   ### /build
   get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile
   match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: [:get, :post]
@@ -348,8 +354,6 @@ OBSApi::Application.routes.draw do
   match 'build/:project/:repository/:arch(/:package)' => 'build#index', constraints: cons, via: [:get, :post]
   get 'build/:project/_result' => 'build#result', constraints: cons
   match 'build/:project/:repository' => 'build#index', constraints: cons, via: [:get, :post]
-  # the web client does no longer use that route, but we keep it for backward compat
-  get 'build/_workerstatus' => 'status#workerstatus'
   match 'build/:project' => 'build#project_index', constraints: cons, via: [:get, :post, :put]
   get 'build' => 'source#index'
 
