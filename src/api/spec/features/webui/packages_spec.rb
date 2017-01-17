@@ -120,7 +120,7 @@ RSpec.feature "Packages", type: :feature, js: true do
 
     scenario "via live build log" do
       visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: "x86_64")
-      first(:link, "Trigger Rebuild").click
+      click_link("Trigger Rebuild", match: :first)
       expect(a_request(:post, rebuild_url)).to have_been_made.once
     end
 
