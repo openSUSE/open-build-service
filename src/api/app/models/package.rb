@@ -985,16 +985,11 @@ class Package < ApplicationRecord
   def self.valid_name?(name)
     return false unless name.kind_of? String
     # this length check is duplicated but useful for other uses for this function
-    return false if name.length > 200 || name.blank?
+    return false if name.length > 200
     return false if name == "0"
-    return true if name =~ /\A_product:\w[-+\w\.]*\z/
-    # obsolete, just for backward compatibility
-    return true if name =~ /\A_patchinfo:\w[-+\w\.]*\z/
-    return false if name =~ %r{[ \/:\000-\037]}
-    if name =~ %r{^[_\.]} && !%w(_product _pattern _project _patchinfo).include?(name)
-      return false
-    end
-    name =~ /\A\w[-+\w\.]*\z/
+    return true if %w(_product _pattern _project _patchinfo).include?(name)
+    # _patchinfo: is obsolete, just for backward compatibility
+    name =~ /\A([a-zA-Z0-9]|(_product:|_patchinfo:)\w)[-+\w\.]*\z/ ? true : false
   end
 
   def valid_name

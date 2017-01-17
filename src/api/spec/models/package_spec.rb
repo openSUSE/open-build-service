@@ -1,5 +1,6 @@
 require 'rails_helper'
 require 'webmock/rspec'
+require 'rantly/rspec_extensions'
 # WARNING: If you change #file_exists or #has_file test make sure
 # you uncomment the next line and start a test backend.
 # CONFIG['global_write_through'] = true
@@ -197,6 +198,70 @@ RSpec.describe Package, vcr: true do
 
     it 'returns false if the icon does not exist' do
       expect(package.has_icon?).to eq(false)
+    end
+  end
+
+  describe '#self.valid_name?' do
+    context "invalid" do
+      it{ expect(Package.valid_name?(10)).to be(false) }
+
+      it "has an invalid character in first position" do
+        property_of {
+          string = sized(1){ string(/[-+_\.]/) } + sized(range(0, 199)){ string(/[-+\w\.]/) }
+          guard string !~ /^(_product|_product:\w|_patchinfo|_patchinfo:\w|_pattern|_project)/
+          string
+        }.check { |string|
+          expect(Package.valid_name?(string)).to be(false)
+        }
+      end
+
+      it "has more than 200 characters" do
+        property_of {
+          sized(1){ string(/[a-zA-Z0-9]/) } + sized(200) { string(/[-+\w\.:]/) }
+        }.check(3) { |string|
+          expect(Package.valid_name?(string)).to be(false)
+        }
+      end
+
+      it{ expect(Package.valid_name?('0')).to be(false) }
+      it{ expect(Package.valid_name?('')).to be(false) }
+    end
+
+    context "valid" do
+      it "general case" do
+        property_of {
+          string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 199)) { string(/[-+\w\.]/) }
+          guard string != '0'
+          string
+        }.check { |string|
+          expect(Package.valid_name?(string)).to be(true)
+        }
+      end
+
+      it "starts with '_product:'" do
+        property_of {
+          string = '_product:' + sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 190)) { string(/[-+\w\.]/) }
+          guard string != '0'
+          string
+        }.check(3) { |string|
+          expect(Package.valid_name?(string)).to be(true)
+        }
+      end
+
+      it "starts with '_patchinfo:'" do
+        property_of {
+          string = '_patchinfo:' + sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 188)) { string(/[-+\w\.]/) }
+          guard string != '0'
+          string
+        }.check(3) { |string|
+          expect(Package.valid_name?(string)).to be(true)
+        }
+      end
+
+      it{ expect(Package.valid_name?('_product')).to be(true) }
+      it{ expect(Package.valid_name?('_pattern')).to be(true) }
+      it{ expect(Package.valid_name?('_project')).to be(true) }
+      it{ expect(Package.valid_name?('_patchinfo')).to be(true) }
     end
   end
 end
