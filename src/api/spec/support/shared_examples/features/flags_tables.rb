@@ -50,7 +50,7 @@ RSpec.shared_examples "a flag table" do
   end
 
   scenario "toggle flags per repository" do
-    query_attributes.merge!(repo: repository.name)
+    query_attributes[:repo] = repository.name
 
     disable_flag_field_for(repository: repository.name, architecture: "All")
     expect(project.flags.reload.where(query_attributes.merge(status: :disable))).to exist
@@ -60,7 +60,7 @@ RSpec.shared_examples "a flag table" do
   end
 
   scenario "toggle flags per arch" do
-    query_attributes.merge!(architecture_id: Architecture.find_by_name("i586"))
+    query_attributes[:architecture_id] = Architecture.find_by_name("i586")
 
     disable_flag_field_for(repository: "All", architecture: "i586")
     expect(project.flags.reload.where(query_attributes.merge(status: :disable))).to exist
@@ -70,7 +70,7 @@ RSpec.shared_examples "a flag table" do
   end
 
   scenario "toggle all flags at once" do
-    query_attributes.merge!(flag: flag_type)
+    query_attributes[:flag] = flag_type
 
     disable_flag_field_for(repository: "All", architecture: "All")
     expect(project.flags.reload.where(query_attributes.merge(status: :disable))).to exist
