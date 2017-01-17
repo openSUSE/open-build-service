@@ -39,11 +39,13 @@ sub verify_projkind {
   die("projkind '$projkind' is illegal\n") if $projkind ne 'standard' && $projkind ne 'maintenance' && $projkind ne 'maintenance_incident' && $projkind ne 'maintenance_release'
 }
 
-# keep in sync with src/api/app/model/package.rb
+# NOTE: this method is used for source and build container names
 sub verify_packid {
   my $packid = $_[0];
   die("packid is empty\n") unless defined($packid) && $packid ne '';
+  die("packid '$packid' is too long\n") if length($packid) > 200;
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+    # multibuild case: both parts need to be a valid source package name
     die("packid '$packid' is illegal\n") unless $packid =~ /^([^:]+):([^:]+)$/s;
     my ($p1, $p2) = ($1, $2);
     die("packid '$packid' is illegal\n") if $p1 eq '_project' || $p1 eq '_pattern';
@@ -56,7 +58,6 @@ sub verify_packid {
   die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
   die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ && $packid ne '_product' && $packid ne '_pattern' && $packid ne '_project' && $packid ne '_patchinfo';
   die("projid '$packid' is illegal\n") unless $packid;
-  die("packid '$packid' is too long\n") if length($packid) > 200;
 }
 
 sub verify_repoid {
