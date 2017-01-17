@@ -82,7 +82,7 @@ class ConsistencyCheckJob < ApplicationJob
     backend_hash['description'] = api_hash['description'] = nil
 
     diff = hash_diff(api_hash, backend_hash)
-    if diff.size > 0
+    unless diff.empty?
       errors << "Project meta is different in backend for #{project.name}\n#{diff}\n"
       if fix
         # Assume that api is right

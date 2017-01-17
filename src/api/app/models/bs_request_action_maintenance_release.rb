@@ -79,10 +79,10 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # get sure that the releasetarget definition exists or we release without binaries
     prj = Project.get_by_name(source_project)
     prj.repositories.includes(:release_targets).each do |repo|
-      unless repo.release_targets.size > 0
+      if repo.release_targets.empty?
         raise RepositoryWithoutReleaseTarget.new "Release target definition is missing in #{prj.name} / #{repo.name}"
       end
-      unless repo.architectures.size > 0
+      if repo.architectures.empty?
         raise RepositoryWithoutArchitecture.new "Repository has no architecture #{prj.name} / #{repo.name}"
       end
       repo.release_targets.each do |rt|

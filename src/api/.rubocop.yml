@@ -141,6 +141,9 @@ Style/SpaceInsideBrackets:
 Style/TernaryParentheses:
   Enabled: true
 
+# Checks for receiver.length == 0 predicates and the negated versions receiver.length > 0 and receiver.length != 0.
+Style/ZeroLengthPredicate:
+  Enabled: true
 ##################### Metrics ##################################
 
 # Checks if the length a class exceeds some maximum value

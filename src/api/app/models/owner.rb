@@ -138,7 +138,7 @@ class Owner
       end
     end
 
-    return instances_without_definition if webui_mode && maintainers.length < 1
+    return instances_without_definition if webui_mode && maintainers.empty?
 
     maintainers << deepest_match if deepest_match
 
@@ -344,7 +344,7 @@ class Owner
     end unless objfilter.class == Group
 
     r.groups.where(groupsql).each do |p|
-      next unless p.group.users.where(state: "confirmed").length > 0
+      next if p.group.users.where(state: "confirmed").empty?
       m.groups ||= {}
       m.groups[p.role.title] ||= []
       m.groups[p.role.title] << p.group.title
@@ -355,7 +355,7 @@ class Owner
   def self._build_rolefilter_sql(rolefilter)
     # construct where condition
     sql = nil
-    if rolefilter.length > 0
+    if !rolefilter.empty?
       rolefilter.each do |rf|
         if sql.nil?
           sql = "( "

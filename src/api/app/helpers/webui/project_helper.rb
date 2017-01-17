@@ -55,7 +55,7 @@ module Webui::ProjectHelper
       prj_parents.each do |name, short_name|
         project_list << link_to(short_name, project_show_path(project: name))
       end
-      @crumb_list << project_list if project_list.length > 0
+      @crumb_list << project_list unless project_list.empty?
     end
     @crumb_list = @crumb_list + args
   end
