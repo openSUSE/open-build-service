@@ -9,7 +9,7 @@ class Webui::UserController < Webui::WebuiController
   skip_before_action :check_anonymous, only: [:do_login]
 
   def index
-    @users = User.all_without_nobody.includes(:owner)
+    @users = User.all_without_nobody.includes(:owner).select(:id, :login, :email, :state, :realname, :owner_id, :updated_at)
   end
 
   def logout
@@ -57,12 +57,8 @@ class Webui::UserController < Webui::WebuiController
     @owned = @displayed_user.owned_packages
 
     if User.current == @displayed_user
-      @reviews = @displayed_user.involved_reviews
+      @reviews = @displayed_user.involved_reviews.exists?
       @patchinfos = @displayed_user.involved_patchinfos
-      @requests_in = @displayed_user.incoming_requests
-      @requests_out = @displayed_user.outgoing_requests
-      @declined_requests = @displayed_user.declined_requests
-      @user_have_requests = @displayed_user.requests?
     end
   end
 

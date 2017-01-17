@@ -2,6 +2,11 @@ class PackageIssue < ApplicationRecord
   belongs_to :package
   belongs_to :issue
 
+  scope :open_issues_of_owner, -> (owner_id) { joins(:issue).where(issues: { state: 'OPEN', owner_id: owner_id})}
+  scope :with_patchinfo, lambda {
+    joins('LEFT JOIN package_kinds ON package_kinds.package_id = package_issues.package_id').where('package_kinds.kind = "patchinfo"')
+  }
+
   def self.sync_relations(package, issues)
     retries = 10
     begin

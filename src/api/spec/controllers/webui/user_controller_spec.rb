@@ -51,16 +51,9 @@ RSpec.describe Webui::UserController do
         subject(:user) { deleted_user }
         it_should_behave_like "a non existent account"
       end
-
       describe "showing an invalid user" do
         subject(:user) { 'INVALID_USER' }
         it_should_behave_like "a non existent account"
-      end
-      describe "showing self" do
-        it 'includes requests' do
-          get :show, params: { user: non_admin_user }
-          expect(assigns(:requests_out)).to eq non_admin_user.outgoing_requests
-        end
       end
       describe "showing someone else" do
         it 'does not include requests' do
