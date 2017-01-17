@@ -6,10 +6,9 @@ class Project
 
     CACHE_EXPIRY_TIME = 5.minutes
 
-    def self.find_by_project_name(project_name)
-      cache_key = "key_info_project_#{project_name}"
-      response = Rails.cache.fetch(cache_key, expires_in: CACHE_EXPIRY_TIME) do
-        Suse::Backend.get(backend_url(project_name)).body
+    def self.find_by_project(project)
+      response = Rails.cache.fetch("key_info_project_#{project.cache_key}", expires_in: CACHE_EXPIRY_TIME) do
+        Suse::Backend.get(backend_url(project.name)).body
       end
       parsed_response = Xmlhash.parse(response)
 

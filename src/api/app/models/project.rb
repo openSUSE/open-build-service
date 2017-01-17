@@ -1861,7 +1861,7 @@ class Project < ApplicationRecord
   end
 
   def key_info
-    @key_info ||= KeyInfo.find_by_project_name(name)
+    @key_info ||= KeyInfo.find_by_project(self)
   end
 
   private
