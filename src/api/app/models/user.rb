@@ -54,46 +54,46 @@ class User < ApplicationRecord
   # required.
   attr_accessor :new_password
 
-  validates_presence_of :login, :email, :password, :password_hash_type, :state,
-                        message: 'must be given'
+  validates :login, :email, :password, :password_hash_type, :state,
+            presence: { message: 'must be given' }
 
-  validates_uniqueness_of :login,
-                          message: 'is the name of an already existing user.'
+  validates :login,
+            uniqueness: { message: 'is the name of an already existing user.' }
 
-  validates_format_of :login,
-                      with: %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
-                      message: 'must not contain invalid characters.'
-  validates_length_of :login,
-                      in: 2..100, allow_nil: true,
-                      too_long: 'must have less than 100 characters.',
-                      too_short: 'must have more than two characters.'
+  validates :login,
+            format: { with:    %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+                      message: 'must not contain invalid characters.' }
+  validates :login,
+            length: { in: 2..100, allow_nil: true,
+            too_long: 'must have less than 100 characters.',
+            too_short: 'must have more than two characters.' }
 
   # We want a valid email address. Note that the checking done here is very
   # rough. Email adresses are hard to validate now domain names may include
   # language specific characters and user names can be about anything anyway.
   # However, this is not *so* bad since users have to answer on their email
   # to confirm their registration.
-  validates_format_of :email,
-                      with: %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
-                      message: 'must be a valid email address.'
+  validates :email,
+            format: { with:    %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
+                      message: 'must be a valid email address.' }
 
   # We want to validate the format of the password and only allow alphanumeric
   # and some punctiation/base64 characters.
   # The format must only be checked if the password has been set and the record
   # has not been stored yet.
-  validates_format_of :password,
-                      with: %r{\A[\w\.\- /+=!?(){}|~*]+\z},
+  validates :password,
+            format: { with:    %r{\A[\w\.\- /+=!?(){}|~*]+\z},
                       message: 'must not contain invalid characters.',
-                      if: Proc.new { |user| user.new_password? && !user.password.nil? }
+                      if:      Proc.new { |user| user.new_password? && !user.password.nil? } }
 
   # We want the password to have between 6 and 64 characters.
   # The length must only be checked if the password has been set and the record
   # has not been stored yet.
-  validates_length_of :password,
-                      within: 6..64,
-                      too_long: 'must have between 6 and 64 characters.',
+  validates :password,
+            length: { within:    6..64,
+                      too_long:  'must have between 6 and 64 characters.',
                       too_short: 'must have between 6 and 64 characters.',
-                     if: Proc.new { |user| user.new_password? && !user.password.nil? }
+                      if:        Proc.new { |user| user.new_password? && !user.password.nil? } }
 
   after_create :create_home_project
   def create_home_project

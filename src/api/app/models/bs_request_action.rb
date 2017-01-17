@@ -41,7 +41,7 @@ class BsRequestAction < ApplicationRecord
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
-  validates_inclusion_of :sourceupdate, in: VALID_SOURCEUPDATE_OPTIONS, allow_nil: true
+  validates :sourceupdate, inclusion: { in: VALID_SOURCEUPDATE_OPTIONS, allow_nil: true }
   validate :check_sanity
 
   #### Class methods using self. (public and then private)

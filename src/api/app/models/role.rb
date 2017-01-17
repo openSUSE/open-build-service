@@ -12,18 +12,18 @@ class Role < ApplicationRecord
     setup 404
   end
 
-  validates_format_of :title,
-                      with: %r{\A\w*\z},
-                      message: 'must not contain invalid characters.'
-  validates_length_of :title,
-                      in: 2..100,
-                      too_long: 'must have less than 100 characters.',
+  validates :title,
+            format: { with:    %r{\A\w*\z},
+                      message: 'must not contain invalid characters.' }
+  validates :title,
+            length: { in:        2..100,
+                      too_long:  'must have less than 100 characters.',
                       too_short: 'must have more than two characters.',
-                      allow_nil: false
+                      allow_nil: false }
 
   # We want to validate a role's title pretty thoroughly.
-  validates_uniqueness_of :title,
-                          message: 'is the name of an already existing role.'
+  validates :title,
+            uniqueness: { message: 'is the name of an already existing role.' }
 
   belongs_to :groups_roles
   belongs_to :attrib_type_modifiable_bies

@@ -251,25 +251,6 @@ Rails/ReadWriteAttribute:
 Rails/TimeZone:
   Enabled: false
 
-# Offense count: 29
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/Validation:
-  Exclude:
-    - 'app/models/architecture.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/distribution.rb'
-    - 'app/models/distribution_icon.rb'
-    - 'app/models/flag.rb'
-    - 'app/models/group.rb'
-    - 'app/models/issue_tracker.rb'
-    - 'app/models/review.rb'
-    - 'app/models/role.rb'
-    - 'app/models/static_permission.rb'
-    - 'app/models/user.rb'
-
 # Offense count: 22
 Style/AccessorMethodName:
   Enabled: false
