@@ -26,7 +26,7 @@ bundle exec rails db:drop db:create db:setup --trace
 
 # Stuff
 # travis rvm can not deal with our extended executable names
-sed -i 1,1s,\.ruby2\.3,, {script,bin}/*
+sed -i 1,1s,\.ruby2\.4,, {script,bin}/*
 # Clear temp data
 rm -rf log/* tmp/cache tmp/sessions tmp/sockets
 popd

@@ -1,6 +1,6 @@
 language: ruby
 cache: bundler
-rvm: 2.3.0
+rvm: 2.4.0
 gemfile: src/api/Gemfile
 before_install: dist/ci/travis_before_install.sh
 before_script: dist/ci/travis_before_script.sh

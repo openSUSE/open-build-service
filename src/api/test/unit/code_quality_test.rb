@@ -21,7 +21,7 @@ class CodeQualityTest < ActiveSupport::TestCase
     tmpfile.close
     linenr = 1
     linenrs = []
-    IO.popen("ruby -cv - 2>&1 > /dev/null | grep '^-' > #{tmpfile.path}", 'w') do |io|
+    IO.popen("ruby.ruby2.4 -cv - 2>&1 > /dev/null | grep '^-' > #{tmpfile.path}", 'w') do |io|
       io.write("# encoding: utf-8\n")
       @ruby_files.each do |ruby_file|
         lines = File.open(ruby_file).readlines
@@ -45,7 +45,7 @@ class CodeQualityTest < ActiveSupport::TestCase
         break if line > failed
         failedfile = ruby_file
       end
-      IO.popen("ruby -cv #{failedfile} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
+      IO.popen("ruby.ruby2.4 -cv #{failedfile} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
         line = io.read
         unless line.empty?
           assert(false, "ruby -cv gave output\n#{line}")
@@ -58,9 +58,9 @@ class CodeQualityTest < ActiveSupport::TestCase
   BLACK_LIST = {
       'AttributeController#attribute_definition'                                => 92.09,
       'BinaryRelease::update_binary_releases_via_json'                          => 128.58,
-      'BranchPackage#find_packages_to_branch'                                   => 238.17,
-      'BranchPackage#create_branch_packages'                                    => 234.78,
-      'BranchPackage#check_for_update_project'                                  => 105.96,
+      'BranchPackage#find_packages_to_branch'                                   => 226.72,
+      'BranchPackage#create_branch_packages'                                    => 227.35,
+      'BranchPackage#check_for_update_project'                                  => 103.23,
       'BranchPackage#determine_details_about_package_to_branch'                 => 101.48,
       'BranchPackage#lookup_incident_pkg'                                       => 83.09,
       'BranchPackage#extend_packages_to_link'                                   => 80.23,
@@ -68,10 +68,10 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequest#apply_default_reviewers'                                       => 129.52,
       'BsRequest#webui_actions'                                                 => 130.13,
       'BsRequest::new_from_xml'                                                 => 113.77,
-      'BsRequestAction#check_action_permission!'                                => 117.71,
+      'BsRequestAction#check_action_permission!'                                => 113.85,
       'BsRequestAction#check_action_permission_target!'                         => 89.68,
       'BsRequestAction#create_expand_package'                                   => 459.98,
-      'BsRequestAction#default_reviewers'                                       => 141.02,
+      'BsRequestAction#default_reviewers'                                       => 137.71,
       'BsRequestAction#store_from_xml'                                          => 88.01,
       'BsRequestActionMaintenanceIncident#_merge_pkg_into_maintenance_incident' => 153.15,
       'BsRequestActionSubmit#execute_accept'                                    => 126.42,
@@ -80,10 +80,8 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BuildController#file'                                                    => 127.42,
       'BuildController#project_index'                                           => 126.35,
       'ConfigurationsController#update'                                         => 82.1,
-      'ConsistencyCheckJob#package_existence_consistency_check'                 => 82.83,
       'IssueTrackersController#update'                                          => 100.78,
       'MaintenanceHelper#instantiate_container'                                 => 163.57,
-      'Owner::search'                                                           => 80.51,
       'PersonController#internal_register'                                      => 112.01,
       'Package#find_changed_issues'                                             => 93.74,
       'Package#close_requests'                                                  => 84.82,
@@ -94,7 +92,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'SearchController#find_attribute'                                         => 97.33,
       'SearchController#search'                                                 => 81.15,
       'SourceController#project_command_copy'                                   => 140.04,
-      'SourceController#update_project_meta'                                    => 103.21,
+      'SourceController#update_project_meta'                                    => 98.09,
       'UserLdapStrategy::find_with_ldap'                                        => 122.14,
       'User::find_with_credentials'                                             => 101.42,
       'UserLdapStrategy::render_grouplist_ldap'                                 => 98.25,
@@ -105,7 +103,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::PackageController#update_build_log'                               => 81.73,
       'Webui::PatchinfoController#save'                                         => 256.25,
       'Webui::ProjectController#check_devel_package_status'                     => 81.95,
-      'Webui::ProjectController#save_meta'                                      => 83.61,
       'Webui::RequestController#show'                                           => 91.96,
       'Webui::SearchController#set_parameters'                                  => 98.04,
       'WizardController#package_wizard'                                         => 97.46
