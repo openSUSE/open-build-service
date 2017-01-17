@@ -204,9 +204,9 @@ include REXML
 # retrieve full binary lists
 if !trialrun
   puts "\nRetrieve full binary list:
-osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository > #{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst"
+osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names > #{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst"
   system("
-osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository > #{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst")
+osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names > #{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst")
 end
 
 # open full binary list file
@@ -216,8 +216,8 @@ File::open(\"#{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst\", \"r\")"
   process = File::open("#{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst", "r")
 else
   puts "\nOpen full binary list file:
-File::popen(\"osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository\", \"r\")"
-  process = File::popen("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository", "r")
+File::popen(\"osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names\", \"r\")"
+  process = File::popen("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names", "r")
 end
 
 # process full binary list file
