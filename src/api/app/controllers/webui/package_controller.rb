@@ -990,19 +990,9 @@ class Webui::PackageController < Webui::WebuiController
   def rpmlint_log
     required_parameters :project, :package, :repository, :architecture
     begin
-      rpmlint_log = get_rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
-      rpmlint_log.encode!(xml: :text)
-      res = ''
-      rpmlint_log.lines.each do |line|
-        if line.match(/\w+(?:\.\w+)+: W: /)
-          res += "<span style=\"color: olive;\">#{line}</span>"
-        elsif line.match(/\w+(?:\.\w+)+: E: /)
-          res += "<span style=\"color: red;\">#{line}</span>"
-        else
-          res += line
-        end
-      end
-      render html: res
+      @log = get_rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
+      @log.encode!(xml: :text)
+      render partial: 'rpmlint_log'
     rescue ActiveXML::Transport::NotFoundError
       render plain: 'No rpmlint log'
     end
