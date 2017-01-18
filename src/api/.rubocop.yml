@@ -117,6 +117,10 @@ Style/NumericLiteralPrefix:
 Performance/RedundantBlockCall:
   Enabled: true
 
+# Identifies places where Hash#merge! can be replaced by Hash#[]=
+Performance/RedundantMerge:
+  Enabled: true
+
 # Checks for redundant `return` expressions
 Style/RedundantReturn:
   Enabled: false

@@ -106,11 +106,11 @@ module OBSApi
 
     config.action_controller.action_on_unpermitted_parameters = :raise
 
-    config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::UnauthorizedError' => 401)
-    config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::ConnectionError' => 503)
-    config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::Error' => 500)
-    config.action_dispatch.rescue_responses.merge!('Timeout::Error' => 408)
-    config.action_dispatch.rescue_responses.merge!('ActionController::InvalidAuthenticityToken' => 403)
+    config.action_dispatch.rescue_responses['ActiveXML::Transport::UnauthorizedError'] = 401
+    config.action_dispatch.rescue_responses['ActiveXML::Transport::ConnectionError'] = 503
+    config.action_dispatch.rescue_responses['ActiveXML::Transport::Error'] = 500
+    config.action_dispatch.rescue_responses['Timeout::Error'] = 408
+    config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 403
 
     # avoid a warning
     I18n.enforce_available_locales = true

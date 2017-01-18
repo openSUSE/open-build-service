@@ -6,7 +6,7 @@ module CanRenderModel
     # FIXME: Hand me the revolver please...
     partial = self.class.name == 'RemoteProject' ? 'Project' : self.class.name
     action_view = ActionView::Base.new(Rails.configuration.paths['app/views'])
-    locals.merge!(my_model: self)
+    locals[:my_model] = self
     action_view.render partial: "models/#{partial.underscore}", formats: [:xml],
                        locals: locals
   end
