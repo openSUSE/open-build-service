@@ -150,7 +150,7 @@ class BinaryRelease < ApplicationRecord
       node = {}
       node[:package] = release_package.name if release_package
       node[:time] = self.binary_releasetime if self.binary_releasetime
-      binary.publish(node) if node.length > 0
+      binary.publish(node) unless node.empty?
 
       binary.build(time: binary_buildtime) if binary_buildtime
       binary.modify(time: modify_time) if modify_time

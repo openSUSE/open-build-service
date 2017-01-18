@@ -1225,7 +1225,7 @@ class Project < ApplicationRecord
 
     trigger = nil # no trigger is set by default
     trigger = 'maintenance' if is_maintenance_incident?
-    if add_target_repos.length > 0
+    unless add_target_repos.empty?
       # add repository targets
       add_target_repos.each do |repo|
         trepo.release_targets.create(target_repository: repo, trigger: trigger)
@@ -1808,7 +1808,7 @@ class Project < ApplicationRecord
       # full remove, otherwise the model will take care of the cleanup
       if opts[:recursive_remove]
         # recursive for INDIRECT linked repositories
-        unless linking_repositories.length < 1
+        unless linking_repositories.empty?
           # FIXME: we would actually need to check for :no_write_to_backend here as well
           #        but the calling code is currently broken and would need the starting
           #        project different

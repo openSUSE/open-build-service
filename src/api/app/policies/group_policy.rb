@@ -13,7 +13,7 @@ class GroupPolicy < ApplicationPolicy
     return true if @user.is_admin?
 
     # and also group maintainers
-    @record.group_maintainers.where(user: @user).length > 0
+    !@record.group_maintainers.where(user: @user).empty?
   end
 
   def destroy?

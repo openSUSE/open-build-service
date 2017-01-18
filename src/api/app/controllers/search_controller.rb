@@ -238,7 +238,7 @@ class SearchController < ApplicationController
       next if xml[item.id]
       xml[item.id] = render_all ? item.to_axml(opts) : item.to_axml_id
       xml[item.id].gsub!(/(..*)/, "  \\1") # indent it by two spaces, if line is not empty
-    end if items.size > 0
+    end unless items.empty?
 
     items.each do |i|
       output << xml[i]

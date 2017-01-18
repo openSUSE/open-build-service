@@ -9,7 +9,7 @@ class Product < ApplicationRecord
     raise Product::NotFoundError.new( "Error: Package not valid." ) unless package.class == Package
     product = find_by_name_and_package name, package
 
-    product = create( name: name, package: package ) unless product.length > 0
+    product = create( name: name, package: package ) if product.empty?
 
     product
   end
@@ -58,7 +58,7 @@ class Product < ApplicationRecord
         pd.elements("mediasets") do |ms|
           ms.elements("media") do |m|
             # product depends on others, so it is no standalone operating system
-            swClass = "a" if m.elements("productdependency").length > 0
+            swClass = "a" unless m.elements("productdependency").empty?
           end
         end
         pd.elements('products') do |ps|

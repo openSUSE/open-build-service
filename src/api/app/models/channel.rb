@@ -124,7 +124,7 @@ class Channel < ApplicationRecord
       end
       hasharray.flatten!
       # no match? either not created or searched in the right way
-      raise "Unable to find binary list #{cbl.project.name} #{cbl.repository.name} #{cbl.architecture.name}" if hasharray.size < 1
+      raise "Unable to find binary list #{cbl.project.name} #{cbl.repository.name} #{cbl.architecture.name}" if hasharray.empty?
       # update...
       _update_from_xml_binaries(cbl, hasharray)
     }
@@ -150,7 +150,7 @@ class Channel < ApplicationRecord
     # no targets defined, the project has some
     return true if channel_targets.size.zero?
 
-    channel_targets.where(disabled: false).size > 0
+    !channel_targets.where(disabled: false).empty?
   end
 
   def add_channel_repos_to_project(tpkg, mode = nil)

@@ -66,7 +66,7 @@ class Webui::SearchController < Webui::WebuiController
     end
 
     logger.debug "Searching for the string \"#{@search_text}\" in the #{@search_where}'s of #{@search_what}'s"
-    if @search_where.length < 1 && !@search_attrib_type_id && !@search_issue
+    if @search_where.empty? && !@search_attrib_type_id && !@search_issue
       flash[:error] = "You have to search for #{@search_text} in something. Click the advanced button..."
       return
     end

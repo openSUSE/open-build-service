@@ -88,7 +88,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   end
 
   def crawl
-    while @pages_to_visit.length > 0
+    until @pages_to_visit.empty?
       theone = @pages_to_visit.keys.sort.first
       @pages_visited[theone] = @pages_to_visit[theone]
       @pages_to_visit.delete theone
