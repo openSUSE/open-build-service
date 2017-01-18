@@ -193,7 +193,7 @@ class BsRequestPermissionCheck
     if action.action_type == :maintenance_incident
       # this action type is always branching using extended names
       target_package_name = Package.extended_name(action.source_project, action.source_package)
-      @target_package = @target_project.packages.find_by_name(target_package_name)
+      @target_package = @target_project.packages.find_by_name(target_package_name) if @target_project
     end
 
     # general source write permission check (for revoke)
