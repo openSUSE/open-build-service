@@ -32,7 +32,7 @@ class StatusHistoryRescaler
   def find_start_items(allitems, max)
     items = []
 
-    items << allitems.shift while !allitems.empty? && allitems[0].time < max
+    items << allitems.shift while allitems.present? && allitems[0].time < max
     items
   end
 

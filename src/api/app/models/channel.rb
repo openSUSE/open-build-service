@@ -150,7 +150,7 @@ class Channel < ApplicationRecord
     # no targets defined, the project has some
     return true if channel_targets.size.zero?
 
-    !channel_targets.where(disabled: false).empty?
+    channel_targets.where(disabled: false).present?
   end
 
   def add_channel_repos_to_project(tpkg, mode = nil)

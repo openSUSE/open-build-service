@@ -73,7 +73,7 @@ class Repository < ApplicationRecord
     linking_repositories.each do |lrep|
       lrep.path_elements.includes(:link, :repository).each do |pe|
         next unless pe.link == self # this is not pointing to our repo
-        if !lrep.path_elements.where(repository_id: Repository.deleted_instance).empty?
+        if lrep.path_elements.where(repository_id: Repository.deleted_instance).present?
           # repo has already a path element pointing to deleted repository
           pe.destroy
         else
@@ -89,7 +89,7 @@ class Repository < ApplicationRecord
       lrep.targetlinks.includes(:target_repository, :repository).each do |rt|
         next unless rt.target_repository == self # this is not pointing to our repo
         repo = rt.repository
-        if !lrep.targetlinks.where(repository_id: Repository.deleted_instance).empty?
+        if lrep.targetlinks.where(repository_id: Repository.deleted_instance).present?
           # repo has already a path element pointing to deleted repository
           logger.debug "destroy release target #{rt.target_repository.project.name}/#{rt.target_repository.name}"
           rt.destroy

@@ -355,7 +355,7 @@ class Owner
   def self._build_rolefilter_sql(rolefilter)
     # construct where condition
     sql = nil
-    if !rolefilter.empty?
+    if rolefilter.present?
       rolefilter.each do |rf|
         if sql.nil?
           sql = "( "
