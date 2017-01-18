@@ -93,6 +93,8 @@ sub check {
   my $buildarch = ($repo->{'arch'} || [])->[0] || '';
   # compat to old OBS versions, prefer local...
   $buildarch = 'local' if $BSConfig::localarch && grep {$_ eq 'local'} @{$repo->{'arch'} || []};
+  # reposerver buildinfo is always the right build arch
+  $buildarch = $myarch if $ctx->{'isreposerver'};
   # localbuildarch is where we take the buildenv from
   my $localbuildarch = $buildarch eq 'local' && $BSConfig::localarch ? $BSConfig::localarch : $buildarch;
   my $markerdir;
