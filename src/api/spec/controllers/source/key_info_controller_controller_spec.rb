@@ -5,7 +5,7 @@ RSpec.describe Source::KeyInfoController, type: :controller do
   describe 'GET #show' do
     let(:user) { create(:confirmed_user) }
     let(:project) { create(:project, name: "test_project", title: "Test Project") }
-    let(:backend_url) { CONFIG['source_url'] + Project::KeyInfo.send(:backend_url, project.name) }
+    let(:backend_url) { "#{CONFIG['source_url']}#{Project::KeyInfo.backend_url(project.name)}" }
     let(:gpg_public_key) { Faker::Lorem.characters(1024) }
     let(:ssl_certificate) { Faker::Lorem.characters(1024) }
     let(:keyinfo_response) do
