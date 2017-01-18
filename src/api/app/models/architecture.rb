@@ -18,8 +18,8 @@ class Architecture < ApplicationRecord
   scope :available, -> { where(available: 1) }
 
   #### Validations macros
-  validates_uniqueness_of :name
-  validates_presence_of :name
+  validates :name, uniqueness: true
+  validates :name, presence: true
 
   #### Class methods using self. (public and then private)
 

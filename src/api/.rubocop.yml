@@ -203,3 +203,7 @@ Rails:
 # Use `find_by` instead `where.first` and `where.take`
 Rails/FindBy:
   Enabled: true
+
+# Checks for the use of old-style attribute validation macros.
+Rails/Validation:
+  Enabled: true

@@ -8,7 +8,7 @@ class Flag < ApplicationRecord
 
   validates :flag, presence: true
   validates :position, presence: true
-  validates_numericality_of :position, only_integer: true
+  validates :position, numericality: { only_integer: true }
 
   after_save :discard_forbidden_project_cache
   after_destroy :discard_forbidden_project_cache

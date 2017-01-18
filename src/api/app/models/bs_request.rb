@@ -52,12 +52,12 @@ class BsRequest < ApplicationRecord
   has_many :request_history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
   has_many :review_history_elements, through: :reviews, source: :history_elements
 
-  validates_inclusion_of :state, in: VALID_REQUEST_STATES
+  validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
   validate :check_supersede_state
   validate :check_creator, on: [:create, :save!]
-  validates_length_of :comment, maximum: 300000
-  validates_length_of :description, maximum: 300000
+  validates :comment, length: { maximum: 300000 }
+  validates :description, length: { maximum: 300000 }
 
   after_update :send_state_change
 

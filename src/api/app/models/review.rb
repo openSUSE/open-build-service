@@ -7,7 +7,7 @@ class Review < ApplicationRecord
 
   belongs_to :bs_request, touch: true
   has_many :history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Review', foreign_key: :op_object_id
-  validates_inclusion_of :state, in: VALID_REVIEW_STATES
+  validates :state, inclusion: { in: VALID_REVIEW_STATES }
 
   validates :by_user, length: { maximum: 250 }
   validates :by_group, length: { maximum: 250 }
