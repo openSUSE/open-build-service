@@ -46,15 +46,15 @@ sub verify_packid {
   die("packid '$packid' is too long\n") if length($packid) > 200;
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
     # multibuild case: first part must be a vaild package, second part simple label
-    die("packid '$packid' is illegal\n") unless $packid =~ /^([^:]+):([^:]+)$/s;
+    die("packid '$packid' is illegal\n") unless $packid =~ /\A([^:]+):([^:]+)\z/s;
     my ($p1, $p2) = ($1, $2);
     die("packid '$packid' is illegal\n") if $p1 eq '_project' || $p1 eq '_pattern';
     verify_packid($p1);
     die("packid '$packid' is illegal\n") unless $p2 =~ /\A[^_\.\/:\000-\037][^\/:\000-\037]*\z/;
     return;
   }
-  return if $packid =~ /\A(_product|_pattern|_project|_patchinfo)\z/;
-  return if $packid =~ /^(?:_product:|_patchinfo:)[^_\.\/:\000-\037][^\/:\000-\037]*\z/;
+  return if $packid =~ /\A(?:_product|_pattern|_project|_patchinfo)\z/;
+  return if $packid =~ /\A(?:_product:|_patchinfo:)[^_\.\/:\000-\037][^\/:\000-\037]*\z/;
   die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
   die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/;
   die("packid '$packid' is illegal\n") unless $packid;
