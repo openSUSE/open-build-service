@@ -44,20 +44,17 @@ sub verify_packid {
   my $packid = $_[0];
   die("packid is empty\n") unless defined($packid) && $packid ne '';
   die("packid '$packid' is too long\n") if length($packid) > 200;
-  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
-    # multibuild case: both parts need to be a valid source package name
-    die("packid '$packid' is illegal\n") unless $packid =~ /^([^:]+):([^:]+)$/s;
-    my ($p1, $p2) = ($1, $2);
-    die("packid '$packid' is illegal\n") if $p1 eq '_project' || $p1 eq '_pattern';
-    verify_packid($p1);
-    verify_packid($p2);
-    return;
+
+  return if $packid =~ /\A(_product|_pattern|_project|_patchinfo)\z/;
+  return if $packid =~ /\A(_product:|_patchinfo:)?[^_\.\/:\000-\037][^\/:\000-\037]*\z/;
+
+  # multibuild case: both parts need to be a valid source package name
+  die("packid '$packid' is illegal\n") unless $packid =~ /\A([^:]+):([^:]+)\z/;
+  my ($p1, $p2) = ($1, $2);
+  die("packid '$packid' is illegal\n") unless $p1 =~ /\A[^_\.\/:\000-\037][^\/:\000-\037]*\z/;
+  unless ($p2 =~ /\A(_product|_pattern|_project|_patchinfo)\z/ || $p2 =~ /\A[^_\.\/:\000-\037][^\/:\000-\037]*\z/){
+    die("packid '$packid' is illegal\n");
   }
-  $packid =~ s/^_product://s;
-  $packid =~ s/^_patchinfo://s;
-  die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
-  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ && $packid ne '_product' && $packid ne '_pattern' && $packid ne '_project' && $packid ne '_patchinfo';
-  die("packid '$packid' is illegal\n") unless $packid;
 }
 
 sub verify_repoid {
