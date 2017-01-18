@@ -35,3 +35,5 @@ seed:
   obs_url: http://localhost
   cleanup_empty_projects: 1
   disable_publish_for_branches: 1
+  unlisted_projects_filter: ^home:.+
+  unlisted_projects_filter_description: home projects

@@ -44,7 +44,7 @@ class Webui::ProjectController < Webui::WebuiController
   def index
     @show_all = (params[:show_all].to_s == "true")
     projects = Project.all
-    projects = projects.not_home unless @show_all
+    projects = projects.filtered_for_list unless @show_all
     @projects = projects.pluck(:name, :title)
 
     atype = AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject')

@@ -17,9 +17,9 @@
 <div style="display: inline">
   <p>
     <% if @show_all %>
-      <%= link_to "Exclude home projects", projects_path %>
+      <%= link_to "Exclude #{::Configuration.unlisted_projects_filter_description}", projects_path %>
     <% else %>
-      <%= link_to "Include home projects", projects_path(show_all: true) %>
+      <%= link_to "Include #{::Configuration.unlisted_projects_filter_description}", projects_path(show_all: true) %>
     <% end %>
     <% unless User.current.is_nobody? %>
       <span style="float: right">
@@ -52,4 +52,3 @@
   <% end %>
 
 </div>
-

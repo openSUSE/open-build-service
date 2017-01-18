@@ -19,8 +19,8 @@ There is also an install medium with installs OBS on hard disc now.
 
 dist/README.UPDATERS file has informations for updaters.
 
-OBS Appliance users who have setup their LVM can just replace 
-their appliance image without data loss. The migration will 
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
 happen automatically.
 
 
@@ -38,11 +38,12 @@ Features
                of creating local links
  * /about route is now independent from request format
  * workers are now also tracked when they went away (new states "down", "away" and "dead")
+ * Main projects list is now filtered based on a configurable (by the admin) regular expression
 
 Wanted changes:
 ===============
 
- * kiwi builds: build configuration changes from the project where the kiwi 
+ * kiwi builds: build configuration changes from the project where the kiwi
                 file is stored have always an effect now.
 
  * maintenance_release requests are locking only the source packages on
@@ -79,4 +80,3 @@ To avoid these problems you need switch directory to avoid the systemd mapper:
 
  # cd /etc/init.d
  # ./obssrcserver status|stop|start
-

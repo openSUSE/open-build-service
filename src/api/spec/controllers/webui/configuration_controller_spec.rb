@@ -17,4 +17,22 @@ RSpec.describe Webui::ConfigurationController do
       end
     end
   end
+
+  describe 'PATCH #update' do
+    context 'as admin' do
+      before do
+        login(admin_user)
+        patch :update, configuration: { name: 'obs', title: 'OBS', description: 'something',
+          unlisted_projects_filter: '^home:fake_user:.*', unlisted_projects_filter_description: "fake_user's home" }
+      end
+
+      it { expect(response).to redirect_to(configuration_path) }
+      it { expect(flash[:notice]).to eq('Configuration was successfully updated.') }
+      it { expect(::Configuration.first.name).to eq('obs') }
+      it { expect(::Configuration.first.title).to eq('OBS') }
+      it { expect(::Configuration.first.description).to eq('something') }
+      it { expect(::Configuration.first.unlisted_projects_filter).to eq('^home:fake_user:.*') }
+      it { expect(::Configuration.first.unlisted_projects_filter_description).to eq("fake_user's home") }
+    end
+  end
 end

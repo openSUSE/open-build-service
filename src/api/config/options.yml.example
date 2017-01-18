@@ -9,7 +9,7 @@
 
 # Make use of X-Accel-Redirect for Nginx.
 # http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
-#use_nginx_redirect: /internal_redirect 
+#use_nginx_redirect: /internal_redirect
 
 # Minimum count of rating votes a project/package needs to # be taken in account
 # for global statistics:
@@ -155,4 +155,3 @@ ldap_group_search_base: ou=OBSGROUPS,dc=EXAMPLE,dc=COM
 ldap_group_title_attr: cn
 # The value of the group objectclass attribute, leave it as "" if objectclass attr doesn't exist
 ldap_group_objectclass_attr: groupOfNames
-

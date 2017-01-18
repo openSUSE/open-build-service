@@ -37,6 +37,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #index' do
     context 'showing all projects' do
       before do
+        allow(::Configuration).to receive(:unlisted_projects_filter) { "^home:.*" }
         home_moi_project
         another_project
         get :index, params: { show_all: true}
@@ -47,8 +48,9 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { is_expected.to render_template("webui/project/list") }
     end
 
-    context 'showing not home projects' do
+    context 'showing filtered projects' do
       before do
+        allow(::Configuration).to receive(:unlisted_projects_filter) { "^home:.*" }
         home_moi_project
         another_project
         get :index, params: { show_all: false}

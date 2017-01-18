@@ -1566,6 +1566,8 @@ our $configuration = [
       [ 'schedulers' =>
 	  [ 'arch' ],
       ],
+  'unlisted_projects_filter',
+  'unlisted_projects_filter_description'
 ];
 
 our $issue_trackers = [
