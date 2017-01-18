@@ -14,6 +14,7 @@ RSpec.describe Source::KeyInfoController, type: :controller do
 
     before do
       Rails.cache.clear
+      # NOTE: we're not using VCR here because the backend does not have the obs signer setup by default
       stub_request(:get, backend_url).and_return(body: keyinfo_response)
       login(user)
 
