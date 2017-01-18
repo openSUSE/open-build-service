@@ -491,7 +491,7 @@ for i in production.rb ; do
 done
 
 if [ ! -e %{secret_key_file} ]; then
-  ( umask 0077; RAILS_ENV=production bundle exec rails.ruby2.4 secret > %{secret_key_file} )
+  ( umask 0077; RAILS_ENV=production bundle.ruby2.4 exec rails.ruby2.4 secret > %{secret_key_file} ) || exit 1
 fi
 chmod 0640 %{secret_key_file}
 chown root.www %{secret_key_file}
