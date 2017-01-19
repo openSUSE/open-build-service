@@ -13,7 +13,7 @@ class Webui::PackageController < Webui::WebuiController
   before_action :set_project, only: [:show, :users, :linking_packages, :dependency, :binary, :binaries,
                                      :requests, :statistics, :commit, :revisions, :submit_request_dialog,
                                      :add_person, :add_group, :rdiff, :wizard_new, :wizard, :save_new,
-                                     :branch_dialog, :save, :delete_dialog,
+                                     :save, :delete_dialog,
                                      :remove, :add_file, :save_file, :remove_file, :save_person,
                                      :save_group, :remove_role, :view_file,
                                      :abort_build, :trigger_rebuild, :trigger_services,
@@ -23,7 +23,7 @@ class Webui::PackageController < Webui::WebuiController
   before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries,
                                          :requests, :statistics, :commit, :revisions, :submit_request_dialog,
                                          :add_person, :add_group, :rdiff, :wizard_new, :wizard,
-                                         :branch_dialog, :save, :delete_dialog,
+                                         :save, :delete_dialog,
                                          :remove, :add_file, :save_file, :remove_file, :save_person,
                                          :save_group, :remove_role, :view_file,
                                          :abort_build, :trigger_rebuild, :trigger_services,
@@ -541,10 +541,6 @@ class Webui::PackageController < Webui::WebuiController
       return false
     end
     true
-  end
-
-  def branch_dialog
-    render_dialog
   end
 
   def branch

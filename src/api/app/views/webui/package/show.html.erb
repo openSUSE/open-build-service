@@ -99,7 +99,7 @@
         <% unless User.current.is_nobody? %>
             <% if @current_rev %>
                 <li>
-                  <%= link_to(sprited_text('arrow_branch', 'Branch package'), { :action => :branch_dialog, :project => @project, :package => @package }, :remote => true) %>
+                  <%= link_to(sprited_text('arrow_branch', 'Branch package'), '#', class: 'show_dialog', data: { target: '#package_branch_dialog' }) %>
                 </li>
                 <li>
                   <%= link_to(sprited_text('package_go', 'Submit package'), { :action => :submit_request_dialog, :project => @project, :package => @package }, :remote => true) %>
@@ -164,3 +164,5 @@
   <h2 class="box-header">Comments for <%= @project.name %> (<%= @comments.length %>)</h2>
   <%= render :partial => 'webui/comment/show', locals: { commentable: @package } %>
 </div>
+
+<%= render partial: 'webui/package/branch_dialog' %>
