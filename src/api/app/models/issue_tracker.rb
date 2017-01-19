@@ -217,7 +217,11 @@ class IssueTracker < ApplicationRecord
       u = User.find_by_email(r["assigned_to"].to_s)
       logger.info "Bugzilla user #{r["assigned_to"]} is not found in OBS user database" unless u
       issue.owner_id = u.id if u
-      issue.created_at = r["creation_time"]
+# rubocop:disable Rails/Date
+      # the warning regarding timezone is pointless since the object got no information either
+      issue.created_at = r["creation_time"].to_time if r["creation_time"].present?
+# rubocop:enable Rails/Date
+      issue.created_at ||= Time.now
       # this is our update_at, not the one bugzilla logged in last_change_time
       issue.updated_at = @update_time_stamp
       if r["is_private"]
