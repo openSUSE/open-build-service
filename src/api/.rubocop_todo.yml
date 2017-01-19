@@ -137,18 +137,6 @@ Performance/RedundantMatch:
     - 'app/models/project.rb'
     - 'lib/tasks/databases.rake'
 
-# Offense count: 23
-# Cop supports --auto-correct.
-Performance/StringReplacement:
-  Exclude:
-    - 'app/controllers/webui/project_controller.rb'
-    - 'app/controllers/webui/search_controller.rb'
-    - 'app/models/package.rb'
-    - 'app/models/repository.rb'
-    - 'lib/tasks/extract.rake'
-    - 'lib/xpath_engine.rb'
-    - 'test/functional/kgraft_maintenance_test.rb'
-
 # Offense count: 68
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, Include.

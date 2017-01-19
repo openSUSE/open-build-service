@@ -876,7 +876,7 @@ class Webui::ProjectController < Webui::WebuiController
     @filter_out = %w(disabled excluded unknown)
     @status_filter = []
     @avail_status_values.each { |s|
-      id = s.gsub(' ', '')
+      id = s.delete(' ')
       if params.has_key?(id)
         next unless (Integer(params[id]) rescue 1) > 0
       else

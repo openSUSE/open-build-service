@@ -140,7 +140,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
          cmd: 'branch', target_project: "home:king:branches:BaseDistro2.0",
          maintenance: 1
     assert_response :success
-    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}/packageNew.spec",
+    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernelIncidentProject.tr( ':', '_')}/packageNew.spec",
             File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read
     assert_response :success
 
@@ -205,7 +205,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # validate repos
     get "/source/" + incidentProject + "/_meta"
     assert_response :success
-    assert_xml_tag parent: { tag: "repository", attributes: { name: kernelIncidentProject.gsub(/:/, "_") } },
+    assert_xml_tag parent: { tag: "repository", attributes: { name: kernelIncidentProject.tr(':', "_") } },
                    tag: "path", attributes: { project: kernelIncidentProject, repository: "BaseDistro2.0_LinkedUpdateProject" }
     assert_xml_tag parent: { tag: "repository", attributes: { name: "BaseDistro2.0" } },
                    tag: "path", attributes: { project: "BaseDistro2.0", repository: "BaseDistro2_repo" }
@@ -269,13 +269,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # check build state
     get "/build/#{incidentProject}/_result"
     assert_response :success
-    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernelIncidentProject.gsub( /:/, '_'), arch: 'i586', code: 'building' } },
-               tag: 'status', attributes: { package: "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", code: 'scheduled' }
-    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernelIncidentProject.gsub( /:/, '_'), arch: 'i586', code: 'building' } },
+    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernelIncidentProject.tr( ':', '_'), arch: 'i586', code: 'building' } },
+               tag: 'status', attributes: { package: "kgraft-incident-0.#{kernelIncidentProject.tr( ':', '_')}", code: 'scheduled' }
+    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernelIncidentProject.tr( ':', '_'), arch: 'i586', code: 'building' } },
                tag: 'status', attributes: { package: 'kgraft-GA.BaseDistro2.0', code: 'disabled' }
-    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernelIncidentProject.gsub( /:/, '_'), arch: 'i586', code: 'building' } },
+    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernelIncidentProject.tr( ':', '_'), arch: 'i586', code: 'building' } },
                tag: 'status', attributes: { package: 'BaseDistro2.Channel', code: 'disabled' }
-    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernelIncidentProject.gsub( /:/, '_'), arch: 'i586', code: 'building' } },
+    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernelIncidentProject.tr( ':', '_'), arch: 'i586', code: 'building' } },
                tag: 'status', attributes: { package: "patchinfo", code: 'blocked' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2Channel', arch: 'i586' } }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0', arch: 'i586', code: 'building' } },
@@ -285,10 +285,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # upload build result as a worker would do
     # Those binaries will get picked up based on previously made channel configurations
-    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}",
-                      kernelIncidentProject.gsub( /:/, '_'), 'i586')
-    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}",
-                      kernelIncidentProject.gsub( /:/, '_'), 'x86_64', "package_newweaktags-1.0-1.x86_64.rpm")
+    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.tr( ':', '_')}",
+                      kernelIncidentProject.tr( ':', '_'), 'i586')
+    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.tr( ':', '_')}",
+                      kernelIncidentProject.tr( ':', '_'), 'x86_64', "package_newweaktags-1.0-1.x86_64.rpm")
     inject_build_job( incidentProject, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'i586')
     inject_build_job( incidentProject, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'x86_64')
 
