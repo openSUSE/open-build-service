@@ -107,7 +107,7 @@ class Webui::DriverUpdateController < Webui::PackageController
   # TODO: select architecture of binary packages
   def binaries
     required_parameters :repository
-    @binaries = @package.build_result(params[:repository], ['binarylist', 'status']).each('//binary').map{|binary| binary['filename']}
+    @binaries = @package.build_result_old(params[:repository], ['binarylist', 'status']).each('//binary').map{|binary| binary['filename']}
     render partial: 'binary_packages'
   end
 

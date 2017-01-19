@@ -874,7 +874,7 @@ class Package < ApplicationRecord
     the_services
   end
 
-  def build_result(repository, view = [])
+  def build_result_old(repository, view = [])
     Buildresult.find(project: project, package: self, repository: repository, view: view)
   end
 
