@@ -94,26 +94,27 @@ function autocomplete_repositories(project_name) {
     if (project_name === "")
         return;
     $('#loader-repo').show();
-    $('#add_repository_button').attr('disabled', 'true');
-    $('#target_repo').attr('disabled', 'true');
-    $('#repo_name').attr('disabled', 'true');
+    $('#add_repository_button').prop('disabled', true);
+    $('#target_repo').prop('disabled', true);
+    $('#repo_name').prop('disabled', true);
     $.ajax({
         url: $('#target_repo').data('ajaxurl'),
         data: {project: project_name},
-        success: function (data) {
+        success: function (repos) {
             $('#target_repo').html('');
             // suggest a name:
-            $('#repo_name').attr('value', project_name.replace(/:/g, '_') + '_' + data[0]);
-            var foundoptions = false;
-            $.each(data, function (idx, val) {
-                $('#target_repo').append(new Option(val));
-                $('#target_repo').removeAttr('disabled');
-                $('#repo_name').removeAttr('disabled');
-                $('#add_repository_button').removeAttr('disabled');
-                foundoptions = true;
-            });
-            if (!foundoptions)
+            $('#repo_name').attr('value', project_name.replace(/:/g, '_') + '_' + repos[0]);
+            if(repos.length === 0) {
                 $('#target_repo').append(new Option('No repos found'));
+                return;
+            }
+
+            $('#target_repo').prop('disabled', false);
+            $('#repo_name').prop('disabled', false);
+            $('#add_repository_button').prop('disabled', false);
+            $('#target_repo').append(repos.map(function(repo) {
+                return new Option(repo);
+            }));
         },
         complete: function (data) {
             $('#loader-repo').hide();

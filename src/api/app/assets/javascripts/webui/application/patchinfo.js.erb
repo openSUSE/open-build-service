@@ -1,53 +1,66 @@
 function append_bug(issue) {
-    if (issue.length > 0) {
-        $("#issue_spinner").show();
-        var issues = new Array();
-        issue = issue.replace(/ /g, "");
-        issues = issue.split(",");
-        jQuery.unique(issues);
-        $.ajax({
-            url: "new_tracker",
-            type: "get",
-            dataType: "json",
-            data: {
-                issues: issues,
-                project: $("#project").val(),
-                package: $("#package").val()
-            },
-            success: function (data) {
-                if (data.error != "") {
-                    alert(data.error);
-                }
-                ;
-                jQuery.each(data.issues, function () {
-                    if ($("div#issue_" + this[0] + "_" + this[1]).length > 0) {
-                        return;
-                    }
-                    else {
-                        $("#issuelist").append("<div id='issue_" + this[0] + "_" + this[1] + "'>" +
-                            "<a id='remove_" + this[0] + "_" + this[1] + "' onclick='$(\"#issue_" + this[0] + "_" + this[1] + "\").remove(); return false;' href='#'> " +
-                            "<img src='<%= asset_path('bug_delete.png') %>' title='Remove Bug' alt='Remove Bug'></a> " +
-                            "<input type='hidden' name='issueid[]' id='issueid_" + this[0] + "_" + this[1] + "' value='" + this[1] + "'/>" +
-                            "<input type='hidden' name='issuetracker[]' id='issuetracker_" + this[0] + "_" + this[1] + "' value='" + this[0] + "'/>" +
-                            "<input type='hidden' name='issueurl[]' id='issueurl_" + this[0] + "_" + this[1] + "' value='" + this[2] + "'/>" +
-                            "<input type='hidden' name='issuesum[]' id='issuesum_" + this[0] + "_" + this[1] + "' value='" + this[3] + "'/>" +
-                            "<a href=\"" + this[2] + "\" target='_blank'>" + this[0] + "#" + this[1] + "</a>" + ":<br/>" +
-                            "<div id='issue_desc_" + this[0] + "_" + this[1] + "' onclick='change_issue_desc(\"" + this[0] +
-                            "_" + this[1] + "\");'>" + this[3] + "</div>" +
-                            "<div id='change_desc_" + this[0] + "_" + this[1] + "' style='display:none;'>" +
-                            "<input id='desc_" + this[0] + "_" + this[1] + "' type='text' value='" + this[3] + "' size=" + this[3].length +
-                            " name='desc_" + this[0] + "_" + this[1] + "'/><a onclick='changeDesc(\"ok\", \"" + this[0] + "_" + this[1] + "\"); return false;' href='#'>" +
-                            "<img title='Change description' src='<%=asset_path('ok.png')%>', alt='Ok'></a>" +
-                            "<a onclick='changeDesc(\"cancel\", \"" + this[0] + "_" + this[1] + "\"); return false;' href='#'>" +
-                            "<img title='Cancel changes' src='<%=asset_path('req-decline.png')%>', alt='Cancel'></a></div></div>");
+    if (issue.length === 0)
+        return false;
 
-                    }
-                });
-                $("#issue").val("");
-                $("#issue_spinner").hide();
+    $("#issue_spinner").show();
+    var issues = issue.replace(/ /g, '').split(',');
+    jQuery.unique(issues);
+    $.ajax({
+        url: "new_tracker",
+        type: "get",
+        dataType: "json",
+        data: {
+            issues: issues,
+            project: $("#project").val(),
+            package: $("#package").val()
+        },
+        success: function (data) {
+            if (data.error != "") {
+                alert(data.error);
             }
-        });
-    }
+
+            // transform arrays into objects with meaningful
+            // names
+            var issuesNotAdded = data.issues.map(function(data) {
+                var mappedData = {
+                    tracker : data[0],
+                    id : data[1],
+                    url : data[2],
+                    sum : data[3],
+                };
+                mappedData.uniqueID = mappedData.tracker + '_' + mappedData.id;
+                return mappedData;
+            }).filter(function(issue) { // only get issues that weren't added yet
+              return $("div#issue_" + issue.uniqueID).length == 0;
+            });
+
+            $("#issuelist").append(issuesNotAdded.map(function(issue) {
+                var tracker = issue.tracker;
+                var id = issue.id;
+                var url = issue.url;
+                var sum = issue.sum;
+                var uniqueID = issue.uniqueID;
+
+                return $("<div id='issue_" + uniqueID + "'>" +
+                    "<a id='remove_" + uniqueID + "' onclick='$(\"#issue_" + uniqueID + "\").remove(); return false;' href='#'> " +
+                    "<img src='<%= asset_path('bug_delete.png') %>' title='Remove Bug' alt='Remove Bug'></a> " +
+                    "<input type='hidden' name='issueid[]' id='issueid_" + uniqueID + "' value='" + id + "'/>" +
+                    "<input type='hidden' name='issuetracker[]' id='issuetracker_" + uniqueID + "' value='" + tracker + "'/>" +
+                    "<input type='hidden' name='issueurl[]' id='issueurl_" + uniqueID + "' value='" + url + "'/>" +
+                    "<input type='hidden' name='issuesum[]' id='issuesum_" + uniqueID + "' value='" + sum + "'/>" +
+                    "<a href=\"" + url + "\" target='_blank'>" + tracker + "#" + id + "</a>" + ":<br/>" +
+                    "<div id='issue_desc_" + uniqueID + "' onclick='change_issue_desc(\"" + uniqueID + "\");'>" + sum + "</div>" +
+                    "<div id='change_desc_" + uniqueID + "' style='display:none;'>" +
+                    "<input id='desc_" + uniqueID + "' type='text' value='" + sum + "' size=" + sum.length +
+                    " name='desc_" + uniqueID + "'/><a onclick='changeDesc(\"ok\", \"" + uniqueID + "\"); return false;' href='#'>" +
+                    "<img title='Change description' src='<%=asset_path('ok.png')%>', alt='Ok'></a>" +
+                    "<a onclick='changeDesc(\"cancel\", \"" + uniqueID + "\"); return false;' href='#'>" +
+                    "<img title='Cancel changes' src='<%=asset_path('req-decline.png')%>', alt='Cancel'></a></div></div>");
+            }));
+            $("#issue").val("");
+            $("#issue_spinner").hide();
+        }
+    });
     return false;
 }
 
@@ -99,17 +112,13 @@ function moveSelectedItems(source, destination) {
 function stopRKey(evt) {
     var evt = (evt) ? evt : ((event) ? event : null);
     var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-    if ((evt.keyCode == 13) && (node.type == "text")) {
+    if (evt.keyCode == 13 && node.type == "text") {
         return false;
     }
 }
 
 function toggle_blockreason(){
-    if (!$("#block").is(":checked")) {
-        $("#block_reason").prop('disabled', true);
-    } else {
-        $("#block_reason").prop('disabled', false);
-    }
+    $("#block_reason").prop('disabled', !$("#block").is(":checked"));
 }
 
 function patchinfoReady() {

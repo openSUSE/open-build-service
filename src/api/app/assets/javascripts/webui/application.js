@@ -202,7 +202,7 @@ function change_role(obj) {
 
     $('#' + type + '_spinner').show();
     $('#' + type + '_table input').animate({opacity: 0.2}, 500);
-    $('#' + type + '_table input').attr("disabled", "true");
+    $('#' + type + '_table input').prop('disabled', true);
 
     $.ajax({
         url: url,
@@ -211,7 +211,7 @@ function change_role(obj) {
         complete: function () {
             $('#' + type + '_spinner').hide();
             $('#' + type + '_table input').animate({opacity: 1}, 200);
-            $('#' + type + '_table input').removeAttr('disabled');
+            $('#' + type + '_table input').prop('disabled', false);
         }
     });
 }
