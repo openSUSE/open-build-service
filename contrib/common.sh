@@ -62,6 +62,56 @@ function setup_ruby_gem() {
   echo 'install: --no-format-executable' >> /etc/gemrc
 }
 
+function setup_kerberos_server() {
+  zypper --quiet --non-interactive install krb5-server krb5-client
+  cat <<eof > /etc/krb5.conf
+[libdefaults]
+  default_realm = EXAMPLE.COM
+  default_keytab_name = FILE:/etc/krb5.keytab
+[realms]
+  EXAMPLE.COM = {
+    kdc = krb.example.com
+    admin_server = krb.example.com
+  }
+eof
+  printf "%s\n%s\n%s\n" >> /etc/hosts \
+    "127.0.0.1 krb.example.com" \
+    "127.0.0.1 www.example.com" \
+    "127.0.0.1 $(hostname)"
+  mkdir -p /etc/krb5kdc
+  cat <<eof > /etc/krb5kdc/kdc.conf
+[kdcdefaults]
+  kdc_listen = 88
+  kdc_tcp_listen = 88
+[realms]
+  EXAMPLE.COM = {
+    kadmind_port = 749
+    max_life = 12h 0m 0s
+    max_renewable_life = 7d 0h 0m 0s
+    master_key_type = aes256-cts
+    supported_enctypes = aes256-cts:normal aes128-cts:normal
+  }
+[logging]
+  kdc = FILE:/var/log/krb5kdc.log
+  admin_server = FILE:/var/log/kadmin.log
+  default = FILE:/var/log/krb5lib.log
+eof
+  # Not enough entropy on virtual machines...
+  #printf "\n\n" | /usr/lib/mit/sbin/kdb5_util create -r EXAMPLE.COM -s
+  #tar -vzcf "$(dirname "$0")"/krb5kdc-test-data.tgz /var/lib/kerberos/krb5kdc
+  tar -zxf "$(dirname "$0")"/krb5kdc-test-data.tgz -C /
+  [ ! -d "/run/user/0" ] && mkdir -p "/run/user/0"
+  printf "%s\n" \
+      "addprinc -randkey HTTP/www.example.com@EXAMPLE.COM" \
+      "addprinc -randkey HTTP/localhost@EXAMPLE.COM" \
+      "addprinc -pw tnert trent@EXAMPLE.COM" \
+      "ktadd HTTP/www.example.com@EXAMPLE.COM" \
+      "ktadd HTTP/localhost@EXAMPLE.COM" \
+    | /usr/lib/mit/sbin/kadmin.local
+  systemctl start krb5kdc.service kadmind.service
+  chmod 755 /etc/krb5.keytab
+}
+
 function install_bundler_package() {
   echo -e "\ninstalling bundler...\n"
   gem install bundler
