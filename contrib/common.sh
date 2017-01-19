@@ -49,27 +49,15 @@ function install_common_packages() {
   grub2-install /dev/sda
 }
 
-function setup_ruby() {
-  echo -e "\nsetup ruby binaries...\n"
-  [ -f /usr/bin/ruby ] ||ln -s /usr/bin/ruby.ruby2.4 /usr/bin/ruby
-  for bin in rake rdoc ri; do
-     /usr/sbin/update-alternatives --set $bin /usr/bin/$bin.ruby.ruby2.4
-  done
-}
-
 function setup_ruby_gem() {
   echo -e "\ndisabling versioned gem binary names...\n"
   echo 'install: --no-format-executable' >> /etc/gemrc
 }
 
-function install_bundler_package() {
-  echo -e "\ninstalling bundler...\n"
-  gem install bundler
-}
-
 function install_bundle() {
   echo -e "\ninstalling your bundle...\n"
   su - vagrant -c "cd /vagrant/src/api/; bundle install --quiet"
+  bundle binstubs railties rake rdoc rspec-core --force
 }
 
 function setup_mariadb() {
