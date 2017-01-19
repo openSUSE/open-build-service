@@ -878,6 +878,24 @@ class Package < ApplicationRecord
     Buildresult.find(project: project, package: self, repository: repository, view: view)
   end
 
+  def buildresults
+    results = Buildresult.find_hashed(project: project.name, package: name, view: 'status', multibuild: '1', locallink: '1')
+
+    local_build_results = {}
+    results.elements('result').sort {|a, b| a['repository'] <=> b['repository']}.each do |result|
+      result.elements('status').each do |status|
+        local_build_results[status['package']] ||= []
+        local_build_results[status['package']] << LocalBuildResult.new(repository: result['repository'],
+                                                                       architecture: result['arch'],
+                                                                       code: status['code'],
+                                                                       state: result['state'],
+                                                                       details: result['details'])
+      end
+    end
+
+    local_build_results
+  end
+
   # local mode (default): last package in link chain in my project
   # no local mode:        first package in link chain outside of my project
   def origin_container(options = { local: true })
