@@ -388,8 +388,8 @@ CREATE TABLE `configurations` (
   `admin_email` varchar(255) COLLATE utf8_bin DEFAULT 'unconfigured@openbuildservice.org',
   `default_tracker` varchar(255) COLLATE utf8_bin DEFAULT 'bnc',
   `api_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `unlisted_projects_filter` varchar(255) COLLATE utf8_bin DEFAULT '^home:.+',
-  `unlisted_projects_filter_description` varchar(255) COLLATE utf8_bin DEFAULT 'home projects',
+  `unlisted_projects_filter` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `unlisted_projects_filter_description` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -821,7 +821,6 @@ CREATE TABLE `projects` (
   `name` varchar(200) COLLATE utf8_bin NOT NULL,
   `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `description` text CHARACTER SET utf8,
-  `url` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `remoteurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -829,6 +828,7 @@ CREATE TABLE `projects` (
   `develproject_id` int(11) DEFAULT NULL,
   `delta` tinyint(1) NOT NULL DEFAULT '1',
   `kind` enum('standard','maintenance','maintenance_incident','maintenance_release') COLLATE utf8_bin DEFAULT 'standard',
+  `url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`),
   KEY `updated_at_index` (`updated_at`),
