@@ -70,14 +70,6 @@ RSpec.configure do |config|
   # test failures related to randomization by passing the same `--seed` value
   # as the one that triggered the failure.
   Kernel.srand config.seed
-
-  # Custom formatter, but not in Travis-CI and neither during package build
-  unless ENV['TRAVIS'] || ENV['RPM_BUILD_ROOT']
-    # users who tend to run test cases manually and may need to debug travis issues
-    unless ['adrian', 'mls'].include? ENV['USER']
-      config.formatter = 'NyanUnicornFormatter'
-    end
-  end
 end
 
 # We never want the backend to autostart itself...
@@ -85,9 +77,6 @@ ENV['BACKEND_STARTED'] = '1'
 
 # Generate 30 tests for every property test
 ENV['RANTLY_COUNT'] = '30'
-
-# To have quiet output from Rantly, it looks horrible with the Unicorn
-ENV['RANTLY_VERBOSE'] = '0' unless ENV['TRAVIS'] || ENV['RPM_BUILD_ROOT']
 
 # support logging
 require 'support/logging'
