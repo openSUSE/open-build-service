@@ -569,6 +569,15 @@ class ApplicationController < ActionController::Base
     request.format = :xml if request.format == :html
   end
 
+  def extract_user_public
+    if ::Configuration.anonymous
+      load_nobody # to become _public_ special user
+    else
+      logger.error 'No public access is configured'
+      render_error( message: 'No public access is configured', status: 401 )
+    end
+  end
+
   private
 
   def forward_from_backend(path)

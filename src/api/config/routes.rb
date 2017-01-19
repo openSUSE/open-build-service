@@ -251,6 +251,11 @@ OBSApi::Application.routes.draw do
       post 'project/unlock' => :unlock
     end
 
+    resources :projects, only: [], param: :name do
+      resource :public_key, controller: 'webui/projects/public_key', only: [:show]
+      resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show]
+    end
+
     controller 'webui/request' do
       get 'request/add_reviewer_dialog' => :add_reviewer_dialog
       post 'request/add_reviewer' => :add_reviewer
@@ -404,6 +409,7 @@ OBSApi::Application.routes.draw do
     get 'source/:project/:package/_wizard' => 'wizard#package_wizard', constraints: cons
     get 'source/:project/:package/_tags' => 'tag#package_tags', constraints: cons
     get 'source/:project/_tags' => 'tag#project_tags', constraints: cons
+    get 'source/:project/_keyinfo' => 'source/key_info#show', constraints: cons
 
     get 'about' => 'about#index'
 # you may enable this to test erbit setups
