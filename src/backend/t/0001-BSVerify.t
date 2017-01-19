@@ -63,11 +63,15 @@ my $tc_packid = {
 #        'package name',
         '_pattern:foo',
         '_project:foo',
+        'foo:_foo',
+        '_foo',
         '.test',
         '_product:.test',
+        "foo\nfoo",
         "foo\n",
 #        'foo;bar',
         'x' x 201,
+        '0',
         undef
     ]
 };
