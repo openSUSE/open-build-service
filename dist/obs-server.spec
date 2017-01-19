@@ -311,7 +311,7 @@ This package contains test cases for testing a installed appliances.
 export DESTDIR=$RPM_BUILD_ROOT
 %setup -q -n open-build-service-%version
 # drop build script, we require the installed one from own package
-rm -rf src/build
+rm -rf src/backend/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
 
 # Run the test suite with current config version
@@ -371,6 +371,12 @@ install -m 0644 %{SOURCE2} %{buildroot}/srv/www/obs/api/config
 
 # drop testcases for now
 rm -rf %{buildroot}/srv/www/obs/api/spec
+
+# fail when Makefiles created a directory
+if ! test -L %{buildroot}/usr/lib/obs/server/build; then
+  echo "/usr/lib/obs/server/build is not a symlink!"
+  exit 1
+fi
 
 %check
 ### TEMPORARY HACK

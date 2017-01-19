@@ -15,6 +15,7 @@ install: prepare_dirs install_data_dirs bs_config
 	# prevent error while copy if there is an previous installation
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/build
 	cp -a ./* $(DESTDIR)$(OBS_BACKEND_PREFIX)
+	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/build
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/Makefile
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/t
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/testdata
