@@ -1860,6 +1860,10 @@ class Project < ApplicationRecord
       where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' }).exists?
   end
 
+  def public_key
+    @public_key ||= PublicKey.find_by_project_name(name)
+  end
+
   private
 
   def discard_cache

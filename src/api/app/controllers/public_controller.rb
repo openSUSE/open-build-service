@@ -193,17 +193,6 @@ class PublicController < ApplicationController
     end
   end
 
-  def extract_user_public
-    # to become _public_ special user
-    if ::Configuration.anonymous
-      load_nobody
-      return true
-    end
-    logger.error 'No public access is configured'
-    render_error( message: 'No public access is configured', status: 401 )
-    false
-  end
-
   def check_package_access(project, package, use_source = true)
     # don't use the cache for use_source
     if use_source

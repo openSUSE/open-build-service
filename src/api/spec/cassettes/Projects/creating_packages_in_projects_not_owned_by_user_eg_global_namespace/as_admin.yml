@@ -438,4 +438,66 @@ http_interactions:
         </status>
     http_version: 
   recorded_at: Wed, 05 Oct 2016 09:13:49 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/global_project/_keyinfo?withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '12'
+    body:
+      encoding: UTF-8
+      string: "<keyinfo />\n"
+    http_version: 
+  recorded_at: Mon, 09 Jan 2017 11:15:21 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/global_project/_keyinfo?withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '12'
+    body:
+      encoding: UTF-8
+      string: "<keyinfo />\n"
+    http_version: 
+  recorded_at: Mon, 09 Jan 2017 11:15:21 GMT
 recorded_with: VCR 3.0.3
