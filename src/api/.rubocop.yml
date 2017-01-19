@@ -113,14 +113,6 @@ Style/Not:
 Style/NumericLiteralPrefix:
   Enabled: true
 
-# Use yield instead of having a &block parameter and block.call
-Performance/RedundantBlockCall:
-  Enabled: true
-
-# Identifies places where Hash#merge! can be replaced by Hash#[]=
-Performance/RedundantMerge:
-  Enabled: true
-
 # Checks for redundant `return` expressions
 Style/RedundantReturn:
   Enabled: false
@@ -148,6 +140,7 @@ Style/TernaryParentheses:
 # Checks for predicates than can be replaced by receiver.empty? and !receiver.empty?
 Style/ZeroLengthPredicate:
   Enabled: true
+
 ##################### Metrics ##################################
 
 # Checks if the length a class exceeds some maximum value
@@ -197,6 +190,20 @@ Lint/UselessAccessModifier:
 
 # Checks for every useless assignment to local variable in every scope
 Lint/UselessAssignment:
+  Enabled: true
+
+##################### Performance ###############################
+
+# Use yield instead of having a &block parameter and block.call
+Performance/RedundantBlockCall:
+  Enabled: true
+
+# Identifies places where Hash#merge! can be replaced by Hash#[]=
+Performance/RedundantMerge:
+  Enabled: true
+
+# Identifies places where gsub can be replaced by tr or delete.
+Performance/StringReplacement:
   Enabled: true
 
 ##################### Rails ##################################

@@ -108,7 +108,7 @@ class Webui::SearchController < Webui::WebuiController
 
     @search_text = ""
     @search_text = params[:search_text].strip unless params[:search_text].blank?
-    @search_text = @search_text.gsub("'", '').gsub('[', '').gsub(']', '').gsub("\n", '')
+    @search_text = @search_text.delete("'[]\n")
 
     @search_what = []
     @search_what << 'package' if params[:package] == '1' || params[:package].nil?

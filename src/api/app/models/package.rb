@@ -852,7 +852,7 @@ class Package < ApplicationRecord
     directory_hash = Directory.hashed(project: project, package: package)
     linkinfo = directory_hash["linkinfo"] || {}
 
-    "#{linkinfo['package'] || package}.#{linkinfo['project'] || project}".gsub(/:/, '_')
+    "#{linkinfo['package'] || package}.#{linkinfo['project'] || project}".tr(':', '_')
   end
 
   def linkinfo
@@ -1318,7 +1318,7 @@ class Package < ApplicationRecord
   end
 
   def fixtures_name
-    "#{project.name}_#{name}".gsub(':', '_')
+    "#{project.name}_#{name}".tr(':', '_')
   end
 
   def api_obj

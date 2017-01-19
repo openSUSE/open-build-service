@@ -400,7 +400,7 @@ class XpathEngine
       case token
       when :function
         fname = stack.shift
-        fname_int = "xpath_func_" + fname.gsub(/-/, "_")
+        fname_int = "xpath_func_" + fname.tr('-', "_")
         unless respond_to? fname_int
           raise IllegalXpathError, "unknown xpath function '#{fname}'"
         end

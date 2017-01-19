@@ -115,7 +115,7 @@ namespace :db do
             if record.has_key?(prefix + '_id')
               p = Project.find(record.delete(prefix + '_id'))
               prefix = 'project' if prefix == 'db_project'
-              record[prefix] = p.name.gsub(':', '_')
+              record[prefix] = p.name.tr(':', '_')
             end
           end
           %w(package develpackage links_to).each do |prefix|
@@ -128,12 +128,12 @@ namespace :db do
             pid = record.delete('linked_db_project_id')
             if pid > 0
               p = Project.find(pid)
-              record['linked_db_project'] = p.name.gsub(':', '_')
+              record['linked_db_project'] = p.name.tr(':', '_')
             end
           end
           if table_name == 'taggings'
             if record['taggable_type'] == 'Project'
-              record['taggable_id'] = ActiveRecord::FixtureSet.identify(Project.find(record['taggable_id']).name.gsub(':', '_'))
+              record['taggable_id'] = ActiveRecord::FixtureSet.identify(Project.find(record['taggable_id']).name.tr(':', '_'))
             end
             if record['taggable_type'] == 'Package'
               record['taggable_id'] = ActiveRecord::FixtureSet.identify(Package.find(record['taggable_id']).fixtures_name)
@@ -156,7 +156,7 @@ namespace :db do
             defaultkey = "#{record['role']}_#{record['static_permission']}"
           end
           if table_name == 'projects' || table_name == 'architectures'
-            key = record['name'].gsub(':', '_')
+            key = record['name'].tr(':', '_')
             record.delete(primary)
           end
           if %w(static_permissions packages).include? table_name
