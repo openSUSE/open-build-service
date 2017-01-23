@@ -1,8 +1,4 @@
 <% if issues.present? %>
-  <% content_for :ready_function do %>
-    $('.expandable_issue_description').expander({slicePoint: 50, sliceEarlierAt: '<br>', expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
-  <% end %>
-
   <table>
     <tbody>
       <% issues.each do |long_name, issue| %>
@@ -23,7 +19,7 @@
         <% end %>
         <% if issue[:summary] %>
           <tr class="odd">
-            <td colspan="3" class="expandable_issue_description"><%= issue[:summary] %></td>
+            <td colspan="3"><%= toggle_sliced_text(issue[:summary]) %></td>
           </tr>
         <% end %>
       <% end %>

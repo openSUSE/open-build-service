@@ -2,10 +2,6 @@
 <% @layouttype = 'custom' %>
 <% @crumb_list = ["Request #{@number}"] %>
 
-<%= content_for :ready_function do %>
-    $('#description-text').expander({slicePoint: 300, expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
-<% end %>
-
 <div id="request_navigation_box" style="position: absolute; right: 0.3em;">
   <% if @request_before -%>
     <%= link_to '<<', request_show_path(@request_before), data: { keybinding: "h" } %>
@@ -19,7 +15,7 @@
   <%= render :partial => 'tabs' %>
   <div class="grid_10 alpha">
     <h3><%= @pagetitle %> (<%= @state %>)</h3>
-    <%= description_wrapper(@req['description']) %>
+    <%= description_wrapper(toggle_sliced_text(@req['description'], 300)) %>
 
     <div class="grid_16 alpha omega">
 

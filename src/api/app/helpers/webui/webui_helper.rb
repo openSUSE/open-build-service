@@ -411,4 +411,18 @@ module Webui::WebuiHelper
     # adds a <wbr> tag after an amount of given characters
     safe_join(string.scan(/.{1,#{length}}/), "<wbr>".html_safe)
   end
+
+  def toggle_sliced_text(text, slice_length = 50, id = "toggle_sliced_text_#{Time.now.to_f.to_s.delete('.')}")
+    return text if text.length < slice_length
+    javascript_toggle_code = "$(\"[data-toggle-id='".html_safe + id + "']\").toggle();".html_safe
+    short = content_tag(:span, 'data-toggle-id' => id) do
+      content_tag(:span, text.slice(0, slice_length) + ' ') +
+      link_to('[+]', '#', onclick: javascript_toggle_code)
+    end
+    long = content_tag(:span, 'data-toggle-id' => id, :style => 'display: none;') do
+      content_tag(:span, text + ' ') +
+      link_to('[-]', '#', onclick: javascript_toggle_code)
+    end
+    short + long
+  end
 end
