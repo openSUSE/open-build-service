@@ -34,7 +34,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
   end
 
   def test_next_codemirror_uid
-    assert_kind_of Fixnum, next_codemirror_uid
+    assert_kind_of Integer, next_codemirror_uid
   end
 
   def test_escape_nested_list_escapes_forbidden_chars # spec/helpers/webui/webui_helper_spec.rb
