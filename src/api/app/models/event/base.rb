@@ -86,6 +86,10 @@ module Event
       self.class.raw_type
     end
 
+    def amqp_name
+      'opensuse.obs.' + self.class.amqp_name
+    end
+
     def initialize(_attribs)
       attribs = _attribs.dup
       super()
@@ -146,6 +150,12 @@ module Event
                                      Yajl::Encoder.encode(p),
                                      'Content-Type' => 'application/json')
       Xmlhash.parse(ret.body)['code'] == 'ok'
+      conn = Bunny.new("amqp://guest:guest@kazhua.suse.de", threaded: false, log_level: Logger::DEBUG)
+      conn.start
+      ch = conn.create_channel
+      x = Bunny::Exchange.new(ch, :topic, "pubsub")
+      x.publish(Yajl::Encoder.encode(p), routing_key: self.amqp_name)
+      conn.close
     end
 
     after_create :perform_create_jobs
