@@ -8,7 +8,7 @@ module Event
     self.table_name = 'events'
 
     class << self
-      attr_accessor :description, :raw_type
+      attr_accessor :description, :raw_type, :amqp_name
       @payload_keys = nil
       @create_jobs = nil
       @classnames = nil

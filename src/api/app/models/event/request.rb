@@ -118,11 +118,13 @@ end
 class Event::RequestChange < Event::Request
   self.raw_type = 'SRCSRV_REQUEST_CHANGE'
   self.description = 'Request XML was updated (admin only)'
+  self.amqp_name = 'request.change'
 end
 
 class Event::RequestCreate < Event::Request
   self.raw_type = 'SRCSRV_REQUEST_CREATE'
   self.description = 'Request created'
+  self.amqp_name = 'request.create'
   receiver_roles :source_maintainer, :target_maintainer
 
   def custom_headers
@@ -145,11 +147,13 @@ end
 class Event::RequestDelete < Event::Request
   self.raw_type = 'SRCSRV_REQUEST_DELETE'
   self.description = 'Request was deleted (admin only)'
+  self.amqp_name = 'request.delete'
 end
 
 class Event::RequestStatechange < Event::Request
   self.raw_type = 'SRCSRV_REQUEST_STATECHANGE'
   self.description = 'Request state was changed'
+  self.amqp_name = 'request.state_change'
   payload_keys :oldstate
   receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
 
@@ -160,7 +164,7 @@ end
 
 class Event::ReviewWanted < Event::Request
   self.description = 'Review was created'
-
+  self.amqp_name = 'review.created'
   payload_keys :reviewers, :by_user, :by_group, :by_project, :by_package
   receiver_roles :reviewer
 

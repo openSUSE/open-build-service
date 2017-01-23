@@ -27,6 +27,7 @@ class Event::CommentForProject < ::Event::Project
   receiver_roles :maintainer
 
   self.description = 'New comment for project created'
+  self.amqp_name = 'project.comment'
 
   def subject
     "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}"
@@ -38,6 +39,7 @@ class Event::CommentForPackage < ::Event::Package
   receiver_roles :maintainer
 
   self.description = 'New comment for package created'
+  self.amqp_name = 'package.comment'
 
   def subject
     "New comment in package #{payload['project']}/#{payload['package']} by #{User.find(payload['commenter']).login}"
@@ -47,6 +49,7 @@ end
 class Event::CommentForRequest < ::Event::Request
   include CommentEvent
   self.description = 'New comment for request created'
+  self.amqp_name = 'request.comment'
   payload_keys :request_number
   receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
 
