@@ -198,6 +198,10 @@ Lint/UselessAssignment:
 Performance/RedundantBlockCall:
   Enabled: true
 
+# Identifies uses of `Regexp#match` and `String#match where `=~` could be used as well
+Performance/RedundantMatch:
+  Enabled: true
+
 # Identifies places where Hash#merge! can be replaced by Hash#[]=
 Performance/RedundantMerge:
   Enabled: true

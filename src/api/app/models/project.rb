@@ -168,7 +168,7 @@ class Project < ApplicationRecord
 
   def self.autocomplete(search)
     projects = Project.where(["lower(name) like lower(?)", "#{search}%"])
-    if search.to_s.match(/home:./)
+    if search.to_s =~ /home:./
       projects.home
     else
       projects.not_home

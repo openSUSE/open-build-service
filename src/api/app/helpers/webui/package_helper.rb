@@ -21,12 +21,12 @@ module Webui::PackageHelper
   end
 
   def guess_code_class( filename )
-    return 'xml' if %w(_aggregate _link _patchinfo _service).include?(filename) || filename.match(/.*\.service/)
-    return 'shell' if filename.match(/^rc[\w-]+$/) # rc-scripts are shell
-    return 'python' if filename.match(/^.*rpmlintrc$/)
+    return 'xml' if %w(_aggregate _link _patchinfo _service).include?(filename) || filename =~ /.*\.service/
+    return 'shell' if filename =~ /^rc[\w-]+$/ # rc-scripts are shell
+    return 'python' if filename =~ /^.*rpmlintrc$/
     return 'makefile' if filename == 'debian.rules'
     return 'baselibs' if filename == 'baselibs.conf'
-    return 'spec' if filename.match(/^macros\.\w+/)
+    return 'spec' if filename =~ /^macros\.\w+/
     ext = Pathname.new(filename).extname.downcase
     case ext
       when '.group' then return 'xml'

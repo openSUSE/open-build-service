@@ -52,7 +52,7 @@ class Issue < ApplicationRecord
   def self.valid_name?(tracker, name)
     # We only verify cve format atm. This should be done via a regexp definition in the
     # tracker definition in future
-    !tracker.cve? || Regexp.new(/^\d\d\d\d-\d+$/).match(name)
+    !tracker.cve? || /^\d\d\d\d-\d+$/ =~ name
   end
 
   after_create :fetch_issues

@@ -588,7 +588,7 @@ class User < ApplicationRecord
   def can_create_project?(project_name)
     ## special handling for home projects
     return true if project_name == home_project_name && Configuration.allow_user_to_create_home_project
-    return true if /^#{home_project_name}:/.match(project_name) && Configuration.allow_user_to_create_home_project
+    return true if /^#{home_project_name}:/ =~ project_name && Configuration.allow_user_to_create_home_project
 
     return true if has_global_permission?('create_project')
     parent_project = Project.new(name: project_name).parent
