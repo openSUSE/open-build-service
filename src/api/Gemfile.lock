@@ -236,7 +236,7 @@ GEM
     redcarpet (3.3.4)
     responders (2.2.0)
       railties (>= 4.2.0, < 5.1)
-    riddle (1.5.12)
+    riddle (2.1.0)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
       rspec-expectations (~> 3.5.0)
