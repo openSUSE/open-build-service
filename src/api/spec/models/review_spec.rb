@@ -38,4 +38,85 @@ RSpec.describe Review do
     subject { Review.unassigned }
     it { is_expected.to match_array([review_unassigned1, review_unassigned2]) }
   end
+
+  describe '#accepted_at' do
+    let!(:user) { create(:user) }
+    let!(:review) do
+      create(
+        :review,
+        by_user: user.login,
+        state: :accepted,
+        updated_at: Faker::Time.forward(1)
+      )
+    end
+
+    context 'with a review assigned to and state = accepted' do
+      let!(:review2) do
+        create(
+          :review,
+          by_user: user.login,
+          review_id: review.id,
+          updated_at: Faker::Time.forward(2),
+          state: :accepted
+        )
+      end
+
+      subject { review.accepted_at }
+
+      it { is_expected.to eq(review2.updated_at) }
+    end
+
+    context 'with no reviewed assigned to and state = accepted' do
+      subject { review.accepted_at }
+
+      it { is_expected.to eq(review.updated_at) }
+    end
+  end
+
+  describe '#validate_not_self_assigned' do
+    let!(:user) { create(:user) }
+    let!(:review) { create(:review, by_user: user.login) }
+
+    context 'assigned to itself' do
+      before { review.review_id = review.id }
+
+      subject! { review.valid? }
+
+      it { expect(review.errors[:review_id].count).to eq(1) }
+    end
+
+    context 'assigned to a different review' do
+      let!(:review2) { create(:review, by_user: user.login) }
+
+      before { review.review_id = review2.id }
+
+      subject! { review.valid? }
+
+      it { expect(review.errors[:review_id].count).to eq(0) }
+    end
+  end
+
+  describe '#validate_non_symmetric_assignment' do
+    let!(:user) { create(:user) }
+    let!(:review) { create(:review, by_user: user.login) }
+    let!(:review2) { create(:review, by_user: user.login, review_id: review.id) }
+
+    context 'review1 is assigned to review2 which is already assigned to review1' do
+      before { review.review_id = review2.id }
+
+      subject! { review.valid? }
+
+      it { expect(review.errors[:review_id].count).to eq(1) }
+    end
+
+    context 'review1 is assigned to review3' do
+      let!(:review3) { create(:review, by_user: user.login, review_id: review.id) }
+
+      before { review.review_id = review3.id }
+
+      subject! { review.valid? }
+
+      it { expect(review.errors[:review_id].count).to eq(0) }
+    end
+  end
 end
