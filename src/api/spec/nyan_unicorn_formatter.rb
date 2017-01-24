@@ -1,6 +1,30 @@
 # -*- coding: utf-8 -*-
 require 'nyan_cat_formatter'
 
+# Overwritting nyan-cat-formatter class to remove warning '::Fixnum is deprecated'
+class RSpec3
+  def start(notification)
+    # TODO: Lazy fix for specs.
+    if notification.kind_of?(Integer)
+      super(OpenStruct.new(count: notification))
+    else
+      super(notification)
+    end
+
+    @current = @color_index = @passing_count = @failure_count = @pending_count = 0
+    @example_results = []
+    @failed_examples = []
+    @pending_examples = []
+  end
+
+  def example_started(notification)
+    if notification.respond_to?(:example)
+      notification = notification.example
+    end
+    @example_name = notification.full_description
+  end
+end
+
 class NyanUnicornFormatter < NyanCatFormatter
   RSpec::Core::Formatters.register self, :example_started, :example_passed, :example_pending, :example_failed, :start_dump, :start
 
