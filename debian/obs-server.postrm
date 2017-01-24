@@ -1,9 +1,20 @@
 #!/bin/sh -e
 
 if [ "$1" = "purge" ]; then
-    # Remove obs data under /srv
-    rm -rf /srv/obs
+    # Remove obs data under /srv/obs/
+    [ -d "/srv/obs/build" ] && rm -rf /srv/obs/build
+    [ -d "/srv/obs/events" ] && rm -rf /srv/obs/events
+    [ -d "/srv/obs/info" ] && rm -rf /srv/obs/info
+    [ -d "/srv/obs/jobs" ] && rm -rf /srv/obs/jobs
+    [ -d "/srv/obs/projects" ] && rm -rf /srv/obs/projects
+    [ -d "/srv/obs/repos" ] && rm -rf /srv/obs/repos
+    [ -d "/srv/obs/run" ] && rm -rf /srv/obs/run
+    rmdir /srv/obs 2>/dev/null || true
 
+    # Delete obs users and group
+    deluser --system --quiet obsrun
+    deluser --system --quiet obsservicerun
+    delgroup --system --quiet obsrun
 fi
 
 #DEBHELPER#

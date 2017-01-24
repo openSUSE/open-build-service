@@ -9,6 +9,7 @@ case "$1" in
 			. /usr/share/dbconfig-common/dpkg/prerm.mysql
 			dbc_go obs-api $@
 		fi
+		invoke-rc.d obsapidelayed stop || true
 	;;
 
 	purge|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)

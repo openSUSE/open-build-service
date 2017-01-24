@@ -20,9 +20,4 @@ if [ "$1" = "remove" ]; then
     if [ -d /run/systemd/system ]; then
 	systemctl --system daemon-reload >/dev/null || true
     fi
-    # Delete obs users and group
-    deluser --system --quiet obsrun
-    deluser --system --quiet obsservicerun
-    delgroup --system --quiet obsrun
 fi
-

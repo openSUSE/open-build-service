@@ -43,12 +43,25 @@ if [ "$1" = "purge" ]; then
     if which ucf >/dev/null 2>&1; then
 	ucf --purge /etc/obs/api/config/database.yml
     fi
+    rm -rf /etc/obs/api
     rm -rf /usr/share/obs/api
     rm -rf /usr/share/obs/overview
-    # Drop the links on obs log.
-    if [ -L /var/log/obs ]; then
-        rm -f /var/log/obs
-    fi
+    rm -rf /var/cache/obs
+    # Remove log files
+    rm -f /var/log/obs/apache_access_log*
+    rm -f /var/log/obs/apache_error_log*
+    rm -f /var/log/obs/access.log*
+    rm -f /var/log/obs/backend_access.log*
+    rm -f /var/log/obs/db_setup.log*
+    rm -f /var/log/obs/delayed_job.log*
+    rm -f /var/log/obs/error.log*
+    rm -f /var/log/obs/lastevents.access.log*
+    rm -f /var/log/obs/production.log*
+    rm -f /var/log/obs/production.searchd.log*
+    rm -f /var/log/obs/production.searchd.query.log*
+    rm -f /var/log/obs/production.sphinx.pid
+    rm -f /var/log/obs/clockworkd.clock.output*
+    rmdir /var/log/obs 2> /dev/null || true
     # Test whether a2dissite is available (and thus also apache2ctl).
     if `pathfind a2dissite`; then
     # Disable the obs site if not already disabled

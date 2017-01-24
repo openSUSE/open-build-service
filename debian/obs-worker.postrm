@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+#DEBHELPER#
+
+if [ "$1" = "purge" ]; then
+    [ -d "/srv/obs/worker" ] && rm -rf /srv/obs/worker
+    [ -d "/run/obs" ] && rm -rf /run/obs
+    rmdir /srv/obs 2>/dev/null || true
+    deluser --system --quiet obsworker || true
+    delgroup --system --quiet obsworker || true
+fi
+
