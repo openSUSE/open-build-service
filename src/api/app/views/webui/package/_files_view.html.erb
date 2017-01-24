@@ -27,7 +27,7 @@
                       link_to sprite_tag('page_white_get', title: 'Download File'),
                               file_url(@project.name, @package.name, file[:name], file[:srcmd5])
                     end %>
-              <% unless file[:name].match(/^_service:/) %>
+              <% unless file[:name] =~ /^_service:/ %>
                   <% if User.current.can_modify_package? @package %>
                       <%= link_to sprite_tag('page_white_delete', title: 'Remove File'), {:action => :remove_file, :project => @project.to_param,
                                                                                           :package => @package.to_param, :filename => file[:name]},

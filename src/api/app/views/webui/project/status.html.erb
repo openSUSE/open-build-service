@@ -74,7 +74,7 @@
                 :action => :rdiff, :project => @project.name, :package => p['name'])
               sortkey = "7-changes" + p['name']
               icon = "changes"
-            elsif c.match(/^error-/)
+            elsif c =~ /^error-/
               outs << link_to(c[6..-1], :controller => :package, :project => p['develproject'], :package => p['develpackage'],
                 :action => :show)
               sortkey = "1-problem-" + p['name']

@@ -21,7 +21,7 @@ module Webui::PackageHelper
   end
 
   def guess_code_class( filename )
-    return 'xml' if %w(_aggregate _link _patchinfo _service).include?(filename) || filename.match(/.*\.service/)
+    return 'xml' if %w(_aggregate _link _patchinfo _service).include?(filename) || filename =~ /.*\.service/
     return 'shell' if filename =~ /^rc[\w-]+$/ # rc-scripts are shell
     return 'python' if filename =~ /^.*rpmlintrc$/
     return 'makefile' if filename == 'debian.rules'
