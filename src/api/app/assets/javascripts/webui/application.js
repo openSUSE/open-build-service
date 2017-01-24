@@ -20,7 +20,6 @@
 //= require jquery.flot.resize
 //= require jquery.flot.time
 //= require jquery.flot.stack.js
-//= require jquery.expander.min.js
 //= require jquery_ujs
 //= require dataTables/jquery.dataTables
 //= require cocoon

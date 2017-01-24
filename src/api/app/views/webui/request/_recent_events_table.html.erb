@@ -1,7 +1,3 @@
-<%= content_for :ready_function do %>
-  $('.expandable_event_comment').expander({slicePoint: 48, sliceEarlierAt: '<br>', expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
-<% end %>
-
 <table>
   <tbody>
     <!-- add a history item based on the request creation information -->
@@ -18,7 +14,7 @@
       </td>
     </tr>
     <tr class="odd">
-      <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= @bsreq.description %></pre></td>
+      <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= toggle_sliced_text(@bsreq.description, 48) %></pre></td>
     </tr>
     <!-- and now everything from the history log -->
     <% @history.each do |element| %>
@@ -40,7 +36,7 @@
       </tr>
       <% unless element.comment.blank? %>
         <tr class="odd">
-          <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= element.comment %></pre></td>
+          <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= toggle_sliced_text(element.comment, 48) %></pre></td>
         </tr>
       <% end %>
     <% end %>
