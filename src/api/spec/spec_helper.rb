@@ -91,3 +91,5 @@ ENV['RANTLY_VERBOSE'] = '0' unless ENV['TRAVIS'] || ENV['RPM_BUILD_ROOT']
 
 # support logging
 require 'support/logging'
+
+Dir["./spec/support/shared_contexts/*.rb"].each { |file| require file }
