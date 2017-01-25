@@ -1,0 +1,10 @@
+<% if @project.key_info.present? %>
+  <li>
+    <%= link_to(sprited_text('key', 'Download GPG Key'), project_public_key_path(project_name: @project.name)) %>
+  </li>
+<% end %>
+<% if @project.key_info.present? && @project.key_info.ssl_certificate.present? %>
+  <li>
+    <%= link_to(sprited_text('key', 'Download SSL Certificate'), project_ssl_certificate_path(project_name: @project.name)) %>
+  </li>
+<% end %>
