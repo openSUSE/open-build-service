@@ -41,16 +41,17 @@ RSpec.describe Review do
 
   describe '#accepted_at' do
     let!(:user) { create(:user) }
+    let(:review_state) { :accepted }
     let!(:review) do
       create(
         :review,
         by_user: user.login,
-        state: :accepted,
+        state: review_state,
         updated_at: Faker::Time.forward(1)
       )
     end
 
-    context 'with a review assigned to and state = accepted' do
+    context 'with a review assigned to and assigned to state = accepted' do
       let!(:review2) do
         create(
           :review,
@@ -66,10 +67,34 @@ RSpec.describe Review do
       it { is_expected.to eq(review2.updated_at) }
     end
 
+    context 'with a review assigned to and assigned to state != accepted' do
+      let!(:review2) do
+        create(
+          :review,
+          by_user: user.login,
+          review_id: review.id,
+          updated_at: Faker::Time.forward(2),
+          state: :new
+        )
+      end
+
+      subject { review.accepted_at }
+
+      it { is_expected.to eq(nil) }
+    end
+    
     context 'with no reviewed assigned to and state = accepted' do
       subject { review.accepted_at }
 
       it { is_expected.to eq(review.updated_at) }
+    end
+
+    context 'with no reviewed assigned to and state != accepted' do
+      let(:review_state) { :new }
+
+      subject { review.accepted_at }
+
+      it { is_expected.to eq(nil) }
     end
   end
 
