@@ -64,7 +64,9 @@ OBSApi::Application.routes.draw do
       end
     end
 
-    resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
+    Feature.with(:image_templates) do
+      resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
+    end
 
     resources :download_repositories, constraints: cons, only: [:create, :update, :destroy], controller: 'webui/download_on_demand'
 
@@ -643,11 +645,13 @@ OBSApi::Application.routes.draw do
 
     get '/404' => 'main#notfound'
 
-    scope 'public' do
+    Feature.with(:image_templates) do
+      scope 'public' do
+        resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
+      end
+
       resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
     end
-
-    resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
   end
 
   controller :source do
