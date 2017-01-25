@@ -62,7 +62,7 @@ namespace :db do
       constraints = Array.new
       added_comma = false
       structure.each_line do |line|
-        if line =~ %{[ ]*CONSTRAINT}
+        if line =~ /[ ]*CONSTRAINT/
           unless line.end_with?(",\n")
             added_comma = true
             line = line[0..-2] + ",\n"
