@@ -5733,23 +5733,6 @@ sub external_notification {
   return $BSStdServer::return_ok;
 }
 
-sub notify_plugins {
-  my ($cgi, $type) = @_;
-  my $param = {};
-  if (BSServer::have_content()) {
-    my $jsonbody = BSServer::read_data(10000000);
-    $param = JSON::XS::decode_json($jsonbody);
-  } else {
-    for (keys %$cgi) {
-      $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
-    }
-  }
-
-  BSNotify::notify_plugins($type, $param);
-  return $BSStdServer::return_ok;
-}
-
-
 ####################################################################
 
 sub listjobs {
@@ -5983,8 +5966,6 @@ my $dispatches = [
 
   # notifications from publisher/repserver - CGI
   'POST:/notify/$_type: *:?' => \&external_notification,
-  # called from the API to notify hermes/rabbitmq
-  'POST:/notify_plugins/$_type:' => \&notify_plugins,
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
