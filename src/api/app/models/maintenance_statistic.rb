@@ -18,12 +18,9 @@ class MaintenanceStatistic
     if request
       result << MaintenanceStatistic.new(type: :release_request_created, when: request.created_at)
 
-      # TODO: This is to reflect also :decline, :reopen etc.
-      # However, we need to adapt the view src/api/app/views/statistics/maintenance_incidents/show.xml.builder
-      # because it only reflects :accepted state atm
       request.request_history_elements.each do |history_element|
-        # history_element.type is untested and probably doesn't work -> should result in sth like release_request_accepted
-        result << MaintenanceStatistic.new(type: "release_request_#{history_element.type}", when: history_element.created_at)
+        history_element_type = history_element.class.name.demodulize.underscore
+        result << MaintenanceStatistic.new(type: "release_request_#{history_element_type}", when: history_element.created_at)
       end
 
       request.reviews.unassigned.each do |review|

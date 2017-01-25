@@ -82,7 +82,7 @@ RSpec.describe Review do
 
       it { is_expected.to eq(nil) }
     end
-    
+
     context 'with no reviewed assigned to and state = accepted' do
       subject { review.accepted_at }
 

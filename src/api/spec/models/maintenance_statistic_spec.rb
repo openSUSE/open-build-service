@@ -21,15 +21,13 @@ RSpec.describe MaintenanceStatistic do
       expect(maintenance_statistics[2].when).to eq(review.created_at)
     end
 
-    it 'contains release_request_HistoryElement::RequestAccepted' do
-      expect(maintenance_statistics[3].type)
-        .to eq('release_request_HistoryElement::RequestAccepted')
+    it 'contains release_request_request_accepted' do
+      expect(maintenance_statistics[3].type).to eq('release_request_request_accepted')
       expect(maintenance_statistics[3].when).to eq(history_element_request_accepted.created_at)
     end
 
-    it 'contains release_request_HistoryElement::RequestCreated' do
-      expect(maintenance_statistics[4].type)
-        .to eq('release_request_HistoryElement::RequestCreated')
+    it 'contains release_request_request_created' do
+      expect(maintenance_statistics[4].type).to eq('release_request_request_created')
       expect(maintenance_statistics[4].when).to eq(history_element_request_created.created_at)
     end
 
