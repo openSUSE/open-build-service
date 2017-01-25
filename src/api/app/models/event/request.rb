@@ -116,13 +116,11 @@ class Event::Request < ::Event::Base
 end
 
 class Event::RequestChange < Event::Request
-  self.raw_type = 'SRCSRV_REQUEST_CHANGE'
   self.description = 'Request XML was updated (admin only)'
   self.amqp_name = 'request.change'
 end
 
 class Event::RequestCreate < Event::Request
-  self.raw_type = 'SRCSRV_REQUEST_CREATE'
   self.description = 'Request created'
   self.amqp_name = 'request.create'
   receiver_roles :source_maintainer, :target_maintainer
@@ -145,13 +143,11 @@ class Event::RequestCreate < Event::Request
 end
 
 class Event::RequestDelete < Event::Request
-  self.raw_type = 'SRCSRV_REQUEST_DELETE'
   self.description = 'Request was deleted (admin only)'
   self.amqp_name = 'request.delete'
 end
 
 class Event::RequestStatechange < Event::Request
-  self.raw_type = 'SRCSRV_REQUEST_STATECHANGE'
   self.description = 'Request state was changed'
   self.amqp_name = 'request.state_change'
   payload_keys :oldstate

@@ -1,5 +1,4 @@
 class Event::Packtrack < Event::Base
-  self.raw_type = 'PACKTRACK'
   self.description = 'Binary was published'
   self.amqp_name = 'repo.packtrack'
   payload_keys :project, :repo, :payload

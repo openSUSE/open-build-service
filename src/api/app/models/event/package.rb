@@ -5,7 +5,6 @@ module Event
   end
 
   class CreatePackage < Package
-    self.raw_type = 'SRCSRV_CREATE_PACKAGE'
     self.description = 'Package was created'
     self.amqp_name = 'package.create'
 
@@ -17,13 +16,11 @@ module Event
   end
 
   class UpdatePackage < Package
-    self.raw_type = 'SRCSRV_UPDATE_PACKAGE'
     self.description = 'Package meta data was updated'
     self.amqp_name = 'package.update'
   end
 
   class UndeletePackage < Package
-    self.raw_type = 'SRCSRV_UNDELETE_PACKAGE'
     self.description = 'Package was undeleted'
     self.amqp_name = 'package.undelete'
     payload_keys :comment
@@ -36,7 +33,6 @@ module Event
   end
 
   class DeletePackage < Package
-    self.raw_type = 'SRCSRV_DELETE_PACKAGE'
     self.description = 'Package was deleted'
     self.amqp_name = 'package.delete'
     payload_keys :comment, :requestid
@@ -49,7 +45,6 @@ module Event
   end
 
   class BranchCommand < Package
-    self.raw_type = 'SRCSRV_BRANCH_COMMAND'
     self.description = 'Package was branched'
     self.amqp_name = 'package.branch'
     payload_keys :targetproject, :targetpackage, :user
@@ -60,7 +55,6 @@ module Event
   end
 
   class VersionChange < Package
-    self.raw_type = 'SRCSRV_VERSION_CHANGE'
     self.amqp_name = 'package.version_change'
     self.description = 'Package has changed its version'
     payload_keys :comment, :requestid, :files, :rev, :newversion, :user, :oldversion
@@ -73,7 +67,6 @@ module Event
   end
 
   class Commit < Package
-    self.raw_type = 'SRCSRV_COMMIT'
     self.amqp_name = 'package.commit'
     self.description = 'New revision of a package was commited'
     payload_keys :project, :package, :comment, :user, :files, :rev, :requestid
@@ -92,14 +85,12 @@ module Event
   end
 
   class Upload < Package
-    self.raw_type = 'SRCSRV_UPLOAD'
     self.description = 'Package sources were uploaded'
     self.amqp_name = 'package.upload'
     payload_keys :project, :package, :comment, :filename, :requestid, :target, :user
   end
 
   class ServiceSuccess < Package
-    self.raw_type = 'SRCSRV_SERVICE_SUCCESS'
     self.description = 'Package source service has succeeded'
     self.amqp_name = 'package.service_success'
     payload_keys :comment, :package, :project, :rev, :user, :requestid
@@ -118,7 +109,6 @@ module Event
   end
 
   class ServiceFail < Package
-    self.raw_type = 'SRCSRV_SERVICE_FAIL'
     self.description = 'Package source service has failed'
     self.amqp_name = 'package.service_fail'
     payload_keys :comment, :error, :package, :project, :rev, :user, :requestid

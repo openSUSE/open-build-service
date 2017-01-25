@@ -21,7 +21,6 @@ class Event::Build < Event::Package
 end
 
 class Event::BuildSuccess < Event::Build
-  self.raw_type = 'BUILD_SUCCESS'
   self.description = 'Package has succeeded building'
   self.amqp_name = 'package.build_success'
 end
@@ -29,7 +28,6 @@ end
 class Event::BuildFail < Event::Build
   include BuildLogSupport
 
-  self.raw_type = 'BUILD_FAIL'
   self.description = 'Package has failed to build'
   self.amqp_name = 'package.build_fail'
   receiver_roles :maintainer, :bugowner, :reader
@@ -74,7 +72,6 @@ class Event::BuildFail < Event::Build
 end
 
 class Event::BuildUnchanged < Event::Build
-  # no raw_type as it should not go to plugins
   self.description = 'Package has succeeded building with unchanged result'
   self.amqp_name = 'package.build_unchanged'
 end
