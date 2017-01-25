@@ -212,7 +212,7 @@ case "$1" in
     start)
         # reset screenrc
         mkdir -p "$obsrundir"
-        chown obsrun:obsrun "$obsrundir"
+        chown obsworker:obsworker "$obsrundir"
         rm -rf "$workerdir"
         mkdir -p "$workerbootdir"
         echo "zombie on"       > $screenrc
