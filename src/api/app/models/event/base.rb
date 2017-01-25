@@ -2,7 +2,7 @@
 # that users (or services) would like to know about
 module Event
   class Base < ApplicationRecord
-    scope :not_in_queue, -> { where(queued: false) }
+    scope :not_sent_to_bus, -> { where(queued: false) }
 
     self.inheritance_column = 'eventtype'
     self.table_name = 'events'
@@ -132,7 +132,7 @@ module Event
       @payload ||= Yajl::Parser.parse(read_attribute(:payload))
     end
 
-    def notify_backend
+    def send_to_bus(exchange)
       return false if queued
       self.queued = true
       begin
@@ -141,21 +141,9 @@ module Event
         # if someone else saved it too, better don't send it
         return false
       end
-      return false unless self.class.raw_type
-      # tell the backend to tell the (old) plugins
       p = payload
-      p['time'] = created_at.to_i
-      logger.debug "notify_backend #{self.class.name} #{p.inspect}"
-      ret = Backend::Connection.post("/notify_plugins/#{self.class.raw_type}",
-                                     Yajl::Encoder.encode(p),
-                                     'Content-Type' => 'application/json')
-      Xmlhash.parse(ret.body)['code'] == 'ok'
-      conn = Bunny.new("amqp://guest:guest@kazhua.suse.de", threaded: false, log_level: Logger::DEBUG)
-      conn.start
-      ch = conn.create_channel
-      x = Bunny::Exchange.new(ch, :topic, "pubsub")
-      x.publish(Yajl::Encoder.encode(p), routing_key: self.amqp_name)
-      conn.close
+      p['created_at'] = created_at.to_i
+      exchange.publish(Yajl::Encoder.encode(p), routing_key: self.amqp_name)
     end
 
     after_create :perform_create_jobs
