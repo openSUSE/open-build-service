@@ -340,14 +340,6 @@ export DESTDIR=$RPM_BUILD_ROOT
   perl -p -i -e 's/^APACHE_GROUP=.*/APACHE_GROUP=apache/' Makefile.include
 %endif
 
-# TODO: implement a clean way for fedora/rh
-#%if 0%{?fedora} || 0%{?rhel}
-#  # Fedora use different user:group for apache
-#  find -type f | xargs sed -i '1,$s/wwwrun\(.*\)www/apache\1apache/g'
-#  find -type f | xargs sed -i '1,$s/user wwwrun/user apache/g'
-#  find -type f | xargs sed -i '1,$s/group www/group apache/g'
-#%endif
-
 export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install
 
@@ -379,6 +371,13 @@ if ! test -L %{buildroot}/usr/lib/obs/server/build; then
 fi
 
 %check
+%if 0%{?disable_obs_test_suite}
+echo "WARNING:"
+echo "WARNING: OBS test suite got skipped!"
+echo "WARNING:"
+exit 0
+%endif
+
 ### TEMPORARY HACK
 # disabling this testsuite, since sphinx startup breaks unreliable in kvm
 # needs debugging and fixing
