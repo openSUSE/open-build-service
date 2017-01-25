@@ -340,14 +340,6 @@ export DESTDIR=$RPM_BUILD_ROOT
   perl -p -i -e 's/^APACHE_GROUP=.*/APACHE_GROUP=apache/' Makefile.include
 %endif
 
-# TODO: implement a clean way for fedora/rh
-#%if 0%{?fedora} || 0%{?rhel}
-#  # Fedora use different user:group for apache
-#  find -type f | xargs sed -i '1,$s/wwwrun\(.*\)www/apache\1apache/g'
-#  find -type f | xargs sed -i '1,$s/user wwwrun/user apache/g'
-#  find -type f | xargs sed -i '1,$s/group www/group apache/g'
-#%endif
-
 export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install
 
@@ -379,6 +371,13 @@ if ! test -L %{buildroot}/usr/lib/obs/server/build; then
 fi
 
 %check
+%if 0%{?disable_obs_test_suite}
+echo "WARNING:"
+echo "WARNING: OBS test suite got skipped!"
+echo "WARNING:"
+exit 0
+%endif
+
 ### TEMPORARY HACK
 # disabling this testsuite, since sphinx startup breaks unreliable in kvm
 # needs debugging and fixing
@@ -389,13 +388,6 @@ export DESTDIR=$RPM_BUILD_ROOT
 pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
 rm -rf build
 ln -sf /usr/lib/build build # just for %%check, it is a %%ghost
-
-# TODO: integrate this perl test into new test suite and change to TAP
-
-for i in bs_*; do
-  perl -wc "$i"
-done
-bash $RPM_BUILD_DIR/open-build-service-%version/src/backend/testdata/test_dispatcher || exit 1
 popd
 
 # run in build environment
@@ -406,16 +398,30 @@ popd
 
 ####
 # start backend testing
+pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
+%if 0%{?disable_obs_backend_test_suite:1} < 1
+# TODO: move syntax check to backend test suite
+for i in bs_*; do
+  perl -wc "$i"
+done
+bash $RPM_BUILD_DIR/open-build-service-%version/src/backend/testdata/test_dispatcher || exit 1
+popd
+
 make -C src/backend test
+%endif
 
 #### 
 # start api testing
 #
+%if 0%{?disable_obs_frontend_test_suite:1} < 1
 make -C src/api test
+%endif
 
 #### 
-# misc tests
+# distribution tests
+%if 0%{?disable_obs_dist_test_suite:1} < 1
 make -C dist test
+%endif
 
 # create user and group in advance of obs-server
 %pre -n obs-common
