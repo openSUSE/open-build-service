@@ -110,7 +110,7 @@ RSpec.describe Review do
     end
 
     context 'review1 is assigned to review3' do
-      let!(:review3) { create(:review, by_user: user.login, review_id: review.id) }
+      let!(:review3) { create(:review, by_user: user.login) }
 
       before { review.review_id = review3.id }
 
