@@ -47,12 +47,13 @@ GEM
       activerecord (>= 3.0)
     acts_as_tree (2.5.0)
       activerecord (>= 3.0.0)
-    addressable (2.4.0)
+    addressable (2.5.0)
+      public_suffix (~> 2.0, >= 2.0.2)
     ansi (1.5.0)
     arel (7.1.1)
     ast (2.3.0)
-    builder (3.2.2)
-    capybara (2.10.1)
+    builder (3.2.3)
+    capybara (2.12.0)
       addressable
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -79,7 +80,7 @@ GEM
       execjs
     coffee-script-source (1.11.1)
     colorize (0.8.1)
-    concurrent-ruby (1.0.2)
+    concurrent-ruby (1.0.4)
     coveralls (0.8.15)
       json (>= 1.8, < 3)
       simplecov (~> 0.12.0)
@@ -135,7 +136,7 @@ GEM
       jquery-rails
       railties (>= 3.1)
       sass-rails
-    jquery-rails (4.1.1)
+    jquery-rails (4.2.2)
       rails-dom-testing (>= 1, < 3)
       railties (>= 4.2.0)
       thor (>= 0.14, < 2.0)
@@ -174,7 +175,7 @@ GEM
     mousetrap-rails (1.4.6)
     mysql2 (0.4.4)
     nio4r (1.2.1)
-    nokogiri (1.6.8.1)
+    nokogiri (1.7.0.1)
       mini_portile2 (~> 2.1.0)
     nokogumbo (1.4.9)
       nokogiri
@@ -184,7 +185,7 @@ GEM
       ast (~> 2.2)
     path_expander (1.0.0)
     pkg-config (1.1.7)
-    poltergeist (1.11.0)
+    poltergeist (1.13.0)
       capybara (~> 2.1)
       cliver (~> 0.3.1)
       websocket-driver (>= 0.2.0)
@@ -194,6 +195,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    public_suffix (2.0.5)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     rack (2.0.1)
@@ -215,9 +217,9 @@ GEM
       actionpack (~> 5.x)
       actionview (~> 5.x)
       activesupport (~> 5.x)
-    rails-dom-testing (2.0.1)
+    rails-dom-testing (2.0.2)
       activesupport (>= 4.2.0, < 6.0)
-      nokogiri (~> 1.6.0)
+      nokogiri (~> 1.6)
     rails-html-sanitizer (1.0.3)
       loofah (~> 2.0)
     rails_tokeninput (1.7.0)
@@ -236,7 +238,7 @@ GEM
     redcarpet (3.3.4)
     responders (2.2.0)
       railties (>= 4.2.0, < 5.1)
-    riddle (1.5.12)
+    riddle (2.1.0)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
       rspec-expectations (~> 3.5.0)
@@ -266,7 +268,7 @@ GEM
       unicode-display_width (~> 1.0, >= 1.0.1)
     ruby-ldap (0.9.19)
     ruby-progressbar (1.8.1)
-    ruby_parser (3.8.2)
+    ruby_parser (3.8.4)
       sexp_processor (~> 4.1)
     safe_yaml (1.0.4)
     sanitize (4.1.0)
@@ -292,7 +294,7 @@ GEM
       rake
     slop (3.6.0)
     sprite-factory (1.7.1)
-    sprockets (3.7.0)
+    sprockets (3.7.1)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
     sprockets-rails (3.1.1)
@@ -310,7 +312,7 @@ GEM
       joiner (>= 0.2.0)
       middleware (>= 0.1.0)
       riddle (>= 1.5.11)
-    thor (0.19.1)
+    thor (0.19.4)
     thread_safe (0.3.5)
     tilt (2.0.5)
     timecop (0.8.1)
@@ -333,7 +335,7 @@ GEM
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
-    websocket-driver (0.6.4)
+    websocket-driver (0.6.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
     xmlhash (1.3.7)
@@ -384,7 +386,7 @@ DEPENDENCIES
   momentjs-rails
   mousetrap-rails
   mysql2
-  nokogiri (~> 1.6.7)
+  nokogiri (~> 1.7.0.1)
   nyan-cat-formatter
   poltergeist
   pry (>= 0.9.12)
