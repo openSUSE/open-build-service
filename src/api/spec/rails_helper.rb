@@ -50,3 +50,6 @@ require 'support/controllers/controllers_authentification'
 
 # helper methods for authentification in models tests
 require 'support/models/models_authentification'
+
+# support feature switch testing
+require 'feature/testing'
