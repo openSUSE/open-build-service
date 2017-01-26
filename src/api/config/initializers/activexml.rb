@@ -15,7 +15,7 @@ map.connect :collection, 'rest:///search/:what?:match',
 
 map.connect :fileinfo, 'rest:///build/:project/:repository/:arch/:package/:filename?:view'
 
-map.connect :buildresult, 'rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository'
+map.connect :buildresult, 'rest:///build/:project/_result?:view&:package&:code&:lastbuild&:arch&:repository&:multibuild&:locallink'
 
 map.connect :builddepinfo, 'rest:///build/:project/:repository/:arch/_builddepinfo?:package&:limit&:code'
 
