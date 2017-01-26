@@ -229,7 +229,7 @@ Group:          Productivity/Networking/Web/Utilities
 %endif
 
 %description -n obs-api
-This is the API server instance, and the web client for the 
+This is the API server instance, and the web client for the
 OBS.
 
 %package -n obs-devel
@@ -252,7 +252,7 @@ Group:          Productivity/Networking/Web/Utilities
 # Our default services, used in osc and webui
 Requires(pre):	obs-common
 Requires:	perl(XML::Structured)
-# 
+#
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
 
@@ -319,8 +319,8 @@ cp %{SOURCE2} src/api/config/
 
 %build
 export DESTDIR=$RPM_BUILD_ROOT
-# we need it for the test suite or it may silently succeed 
-test -x /usr/bin/Xvfb 
+# we need it for the test suite or it may silently succeed
+test -x /usr/bin/Xvfb
 
 #
 # generate apidocs
@@ -408,12 +408,12 @@ popd
 # start backend testing
 make -C src/backend test
 
-#### 
+####
 # start api testing
 #
 make -C src/api test
 
-#### 
+####
 # misc tests
 make -C dist test
 
@@ -578,7 +578,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/worker-deltagen.spec
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
-# created via %%post, since rpm fails otherwise while switching from 
+# created via %%post, since rpm fails otherwise while switching from
 # directory to symlink
 %ghost /usr/lib/obs/server/build
 
@@ -615,6 +615,7 @@ usermod -a -G docker obsservicerun
 %dir /srv/www/obs/api
 %dir /srv/www/obs/api/config
 %config(noreplace) /srv/www/obs/api/config/cable.yml
+%config(noreplace) /srv/www/obs/api/config/feature.yml
 %config(noreplace) /srv/www/obs/api/config/puma.rb
 %config(noreplace) /srv/www/obs/api/config/secrets.yml
 %config(noreplace) /srv/www/obs/api/config/spring.rb
