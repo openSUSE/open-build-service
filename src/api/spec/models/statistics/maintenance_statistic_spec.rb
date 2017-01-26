@@ -1,10 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe MaintenanceStatistic do
+RSpec.describe Statistics::MaintenanceStatistic do
   describe '.find_by_project' do
     include_context 'a project with maintenance statistics'
 
-    subject(:maintenance_statistics) { MaintenanceStatistic.find_by_project(project) }
+    subject(:maintenance_statistics) { Statistics::MaintenanceStatistic.find_by_project(project) }
 
     it 'contains issue_created' do
       expect(maintenance_statistics[0].type).to eq(:issue_created)
