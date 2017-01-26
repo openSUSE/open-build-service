@@ -871,4 +871,13 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'project', attributes: { name: 'home:adrian' }
     assert_xml_tag tag: 'collection', children: { count: 1 }
   end
+
+  def test_xpath_search_for_remoteurl
+    login_king
+
+    get '/search/project', match: 'starts-with(remoteurl, "http")'
+    assert_response :success
+    assert_xml_tag tag: 'collection', children: { count: 2 }
+    assert_xml_tag child: { tag: 'project', attributes: { name: 'RemoteInstance'} }
+  end
 end
