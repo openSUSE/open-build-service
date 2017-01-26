@@ -46,8 +46,15 @@ RSpec.describe Review do
       create(
         :review,
         by_user: user.login,
-        state: review_state,
-        updated_at: Faker::Time.forward(1)
+        state: review_state
+      )
+    end
+    let!(:history_element_review_accepted) do
+      create(
+        :history_element_review_accepted,
+        review: review,
+        user: user,
+        created_at: Faker::Time.forward(1)
       )
     end
 
@@ -57,14 +64,21 @@ RSpec.describe Review do
           :review,
           by_user: user.login,
           review_id: review.id,
-          updated_at: Faker::Time.forward(2),
           state: :accepted
+        )
+      end
+      let!(:history_element_review_accepted2) do
+        create(
+          :history_element_review_accepted,
+          review: review2,
+          user: user,
+          created_at: Faker::Time.forward(2)
         )
       end
 
       subject { review.accepted_at }
 
-      it { is_expected.to eq(review2.updated_at) }
+      it { is_expected.to eq(history_element_review_accepted2.created_at) }
     end
 
     context 'with a review assigned to and assigned to state != accepted' do
@@ -86,7 +100,7 @@ RSpec.describe Review do
     context 'with no reviewed assigned to and state = accepted' do
       subject { review.accepted_at }
 
-      it { is_expected.to eq(review.updated_at) }
+      it { is_expected.to eq(history_element_review_accepted.created_at) }
     end
 
     context 'with no reviewed assigned to and state != accepted' do

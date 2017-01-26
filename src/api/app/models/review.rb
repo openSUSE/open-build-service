@@ -60,10 +60,14 @@ class Review < ApplicationRecord
 
   def accepted_at
     if review_assigned_to && review_assigned_to.state == :accepted
-      review_assigned_to.updated_at
+      review_assigned_to.accept_history_element.created_at
     elsif state == :accepted && !review_assigned_to
-      updated_at
+      accept_history_element.created_at
     end
+  end
+
+  def accept_history_element
+    history_elements.find_by(type: 'HistoryElement::ReviewAccepted')
   end
 
   def assigned_reviewer
