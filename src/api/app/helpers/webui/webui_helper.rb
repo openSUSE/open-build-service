@@ -413,7 +413,7 @@ module Webui::WebuiHelper
   end
 
   def toggle_sliced_text(text, slice_length = 50, id = "toggle_sliced_text_#{Time.now.to_f.to_s.delete('.')}")
-    return text if text.length < slice_length
+    return text if text.to_s.length < slice_length
     javascript_toggle_code = "$(\"[data-toggle-id='".html_safe + id + "']\").toggle();".html_safe
     short = content_tag(:span, 'data-toggle-id' => id) do
       content_tag(:span, text.slice(0, slice_length) + ' ') +
