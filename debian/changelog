@@ -1,3 +1,11 @@
+open-build-service (2.7.1-10) unstable; urgency=medium
+
+  * Fix logrotate, refine postrm, prerm script to ensure config and log
+    files removed after purged. (Closes:#851356)
+  * Fixed obs-worker failed to start issue. (Closes: #851761)
+
+ -- Andrew Lee (李健秋) <ajqlee@debian.org>  Thu, 26 Jan 2017 01:17:48 +0800
+
 open-build-service (2.7.1-9) unstable; urgency=medium
 
   * obs-worker: drop slptool from depends as it's scheduled for removal
