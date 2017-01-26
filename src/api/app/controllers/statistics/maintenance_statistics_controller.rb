@@ -1,8 +1,8 @@
 module Statistics
-  class MaintenanceIncidentsController < ApplicationController
+  class MaintenanceStatisticsController < ApplicationController
     skip_before_action :extract_user
 
-    def show
+    def index
       @project = Project.find_by(name: params[:project])
       @maintenance_statistics = MaintenanceStatisticDecorator.wrap(
         MaintenanceStatistic.find_by_project(@project)

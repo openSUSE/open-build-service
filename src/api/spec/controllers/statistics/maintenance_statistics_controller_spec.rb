@@ -1,14 +1,14 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Statistics::MaintenanceIncidentsController, type: :controller do
-  describe 'GET #show' do
+RSpec.describe Statistics::MaintenanceStatisticsController, type: :controller do
+  describe 'GET #index' do
     include_context 'a project with maintenance statistics'
 
     before do
       login(user)
 
-      get :show, params: { format: :xml, project: project.name }
+      get :index, params: { format: :xml, project: project.name }
     end
 
     it { is_expected.to respond_with(:success) }
