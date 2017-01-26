@@ -1,1 +1,0 @@
-builder.entry(type: maintenance_statistic.type, when: maintenance_statistic.when)

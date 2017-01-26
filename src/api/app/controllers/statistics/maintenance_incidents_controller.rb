@@ -4,7 +4,9 @@ module Statistics
 
     def show
       @project = Project.find_by(name: params[:project])
-      @maintenance_statistics = MaintenanceStatistic.find_by_project(@project)
+      @maintenance_statistics = MaintenanceStatisticDecorator.wrap(
+        MaintenanceStatistic.find_by_project(@project)
+      )
     end
   end
 end

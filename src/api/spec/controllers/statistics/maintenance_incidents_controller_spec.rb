@@ -18,9 +18,7 @@ RSpec.describe Statistics::MaintenanceIncidentsController, type: :controller do
     end
 
     it 'assigns the maintenance_statistics array to an instance variable' do
-      assigns[:maintenance_statistics].each do |maintenance_statistic|
-        expect(maintenance_statistic).to be_a(MaintenanceStatistic)
-      end
+      expect(assigns[:maintenance_statistics]).to be_an(Array)
     end
   end
 end
