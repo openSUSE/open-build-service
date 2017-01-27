@@ -1,0 +1,1 @@
+builder.entry(type: maintenance_statistic.type, name: maintenance_statistic.name, tracker: maintenance_statistic.tracker, when: maintenance_statistic.when)
