@@ -720,7 +720,7 @@ EOT
 
     describe 'GET #package_live_build_log' do
       def do_request(params)
-        get :live_build_log, params
+        get :live_build_log, params: params
       end
 
       it_should_behave_like "build log"
@@ -728,7 +728,7 @@ EOT
 
     describe "GET #update_build_log" do
       def do_request(params)
-        xhr :get, :update_build_log, params
+        xhr :get, :update_build_log, params: params
       end
 
       it_should_behave_like "build log"
