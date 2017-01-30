@@ -103,7 +103,7 @@ class EventTest < ActionDispatch::IntegrationTest
   end
 
   test 'sent all' do
-    Event::SendToBus.trigger_delayed_sent
+    Event::SendToBus.trigger_delayed_send
   end
 
   test 'cleanup job' do

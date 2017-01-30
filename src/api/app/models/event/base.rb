@@ -82,8 +82,8 @@ module Event
       self.class.receiver_roles
     end
 
-    def amqp_name
-      'opensuse.obs.' + self.class.amqp_name
+    def amqp_name(config)
+      config.fetch('prefix', 'opensuse.obs') + '.' + self.class.amqp_name
     end
 
     def initialize(_attribs)
@@ -128,7 +128,7 @@ module Event
       @payload ||= Yajl::Parser.parse(read_attribute(:payload))
     end
 
-    def send_to_bus(exchange)
+    def send_to_bus(exchange, config)
       return false if queued
       self.queued = true
       begin
@@ -137,9 +137,14 @@ module Event
         # if someone else saved it too, better don't send it
         return false
       end
+
+      # if the exchange is nil, there is no bus configured and
+      # we just fake queue
+      return true if exchange.nil?
+
       p = payload
       p['created_at'] = created_at.to_i
-      exchange.publish(Yajl::Encoder.encode(p), routing_key: self.amqp_name)
+      exchange.publish(Yajl::Encoder.encode(p), routing_key: amqp_name(config))
     end
 
     after_create :perform_create_jobs
