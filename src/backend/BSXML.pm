@@ -1801,7 +1801,11 @@ our $keyinfo = [
     'keyinfo' =>
 	'project',
       [ 'pubkey' =>
+	    'keyid',
 	    'algo',
+	    'keysize',
+	    'expires',
+	    'fingerprint',
 	    '_content',
       ],
 	'sslcert',

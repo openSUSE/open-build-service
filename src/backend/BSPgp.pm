@@ -23,6 +23,7 @@
 package BSPgp;
 
 use MIME::Base64 ();
+use Digest;
 
 use strict;
 
@@ -113,6 +114,36 @@ sub pk2algo {
   die("unknown pubkey algorithm\n");
 }
 
+sub pk2keysize {
+  my ($pk) = @_;
+  my ($tag, $len, $off) = pkdecodetaglenoff($pk);
+  die("not a public key\n") unless $tag == 6;
+  my $pack = substr($pk, $off, $len);
+  my $ver = unpack('C', substr($pack, 0, 1));
+  if ($ver == 3) {
+    $pack = substr($pack, 7);
+  } elsif ($ver == 4) {
+    $pack = substr($pack, 5);
+  } else {
+    die("unknown pubkey version\n");
+  }
+  my ($algo, $size) = unpack('Cn', $pack);
+  die("unknown pubkey algorithm\n") unless $algo == 1 || $algo == 17;
+  return ($size + 15) & ~15;
+}
+
+sub pk2fingerprint {
+  my ($pk) = @_;
+  my ($tag, $len, $off) = pkdecodetaglenoff($pk);
+  die("not a public key\n") unless $tag == 6;
+  my $pack = substr($pk, $off, $len);
+  my $ver = unpack('C', substr($pack, 0, 1));
+  die("fingerprint calculation needs at least V4 keys\n") if $ver < 4;
+  my $ctx = Digest->new("SHA-1");
+  $ctx->add(pack('Cn', 0x99, $len)."$pack");
+  return $ctx->hexdigest();
+}
+
 sub pk2signtime {
   my ($pk) = @_; 
   my ($tag, $len, $off) = pkdecodetaglenoff($pk);
@@ -136,6 +167,7 @@ sub pk2signtime {
 
 sub unarmor {
   my ($str) = @_;
+  $str =~ s/\n+$//s;
   $str =~ s/.*\n\n//s;
   $str =~ s/\n=.*/\n/s;
   my $pk = MIME::Base64::decode($str);

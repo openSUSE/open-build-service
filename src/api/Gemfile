@@ -56,6 +56,8 @@ gem 'coffee-rails'
 gem 'mousetrap-rails'
 # for issue tracker communication
 gem 'xmlrpc'
+# Multiple feature switch
+gem 'feature'
 
 group :development, :production do
   # to have the delayed job daemon

@@ -352,6 +352,10 @@ RSpec.describe Webui::WebuiHelper do
     let(:big_text) { "big_text_" * 100 }
     let(:sliced_text) { big_text.slice(0, 50) }
 
+    context 'with nil as text' do
+      it { expect(toggle_sliced_text(nil)).to be_nil }
+    end
+
     context 'with a short text' do
       it { expect(toggle_sliced_text(short_text)).to eq(short_text) }
     end

@@ -4996,9 +4996,26 @@ sub getkeyinfo {
   $keyinfo->{'project'} = $projid if $projid;
   if ($pk) {
     my $algo;
-    eval { $algo = BSPgp::pk2algo(BSPgp::unarmor($pk)) };
+    my $keysize;
+    my $fingerprint;
+    my $expire;
+    eval {
+      my $pku = BSPgp::unarmor($pk);
+      eval { $algo = BSPgp::pk2algo($pku) };
+      eval { $keysize = BSPgp::pk2keysize($pku) };
+      eval { $fingerprint = BSPgp::pk2fingerprint($pku) };
+      eval { $expire = BSPgp::pk2expire($pku) };
+    };
     $keyinfo->{'pubkey'} = { '_content' => $pk };
     $keyinfo->{'pubkey'}->{'algo'} = $algo if $algo;
+    $keyinfo->{'pubkey'}->{'keysize'} = $keysize if $keysize;
+    if ($fingerprint) {
+      $keyinfo->{'pubkey'}->{'keyid'} = substr($fingerprint, -8, 8);
+      $fingerprint =~ s/(....)/$1 /g;
+      $fingerprint =~ s/ $//;
+      $keyinfo->{'pubkey'}->{'fingerprint'} = $fingerprint;
+    }
+    $keyinfo->{'pubkey'}->{'expires'} = $expire if $expire;
   }
   if ($cert) {
     $keyinfo->{'sslcert'} = $cert;

@@ -27,8 +27,8 @@
  *= require webui/application/notifications.css.scss
  *= require webui/application/attribute.css.scss
  *= require webui/application/request.css.scss
- *= require webui/application/image_templates.css.sass
 */
+<% require_asset 'webui/application/image_templates' if Feature.active?(:image_templates) %>
 
 table.dataTable tbody tr {
   background-color: #eeeeee;

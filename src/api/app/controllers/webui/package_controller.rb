@@ -53,7 +53,6 @@ class Webui::PackageController < Webui::WebuiController
     @bugowners_mail = (@package.bugowner_emails + @project.api_obj.bugowner_emails).uniq
     @revision = params[:rev]
     @failures = 0
-    load_buildresults
     set_linking_packages
 
     if @spider_bot
@@ -953,7 +952,6 @@ class Webui::PackageController < Webui::WebuiController
 
   def buildresult
     check_ajax
-    load_buildresults
     render partial: 'buildstatus'
   end
 
@@ -1077,29 +1075,6 @@ class Webui::PackageController < Webui::WebuiController
     unless @package
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
       redirect_to project_show_path(project: @project, nextstatus: 404)
-    end
-  end
-
-  def load_buildresults
-    @buildresult = Buildresult.find_hashed( project: @project, package: @package.to_param, view: 'status')
-    if @buildresult.blank?
-      @buildresult = Array.new
-      return
-    end
-    fill_status_cache
-
-    newr = Hash.new
-    @buildresult.elements('result').sort {|a, b| a['repository'] <=> b['repository']}.each do |result|
-      repo = result['repository']
-      if result.has_key? 'status'
-        newr[repo] ||= Array.new
-        newr[repo] << result['arch']
-      end
-    end
-
-    @buildresult = Array.new
-    newr.keys.sort.each do |r|
-      @buildresult << [r, newr[r].flatten.sort]
     end
   end
 

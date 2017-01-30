@@ -22,8 +22,8 @@ RSpec.describe Webui::ConfigurationController do
     context 'as admin' do
       before do
         login(admin_user)
-        patch :update, configuration: { name: 'obs', title: 'OBS', description: 'something',
-          unlisted_projects_filter: '^home:fake_user:.*', unlisted_projects_filter_description: "fake_user's home" }
+        patch :update, params: { configuration: { name: 'obs', title: 'OBS', description: 'something',
+          unlisted_projects_filter: '^home:fake_user:.*', unlisted_projects_filter_description: "fake_user's home" } }
       end
 
       it { expect(response).to redirect_to(configuration_path) }

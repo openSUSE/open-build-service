@@ -1,34 +1,31 @@
-<div id="package_buildstatus">
-  <% if !@project.repositories.any? %>
-    <%= render "no_repositories" %>
-  <% elsif @buildresult.blank? %>
-    <p><i>No build result available</i></p>
-  <% else %>
-
-    <table class="repostatus">
-      <% @buildresult.each do |r,archs|
-        index = 0
-        archs.each do |a|
-          -%>
+<% @package.buildresults.each_pair do |package, results| %>
+  <h3><%= package %></h3>
+  <div id="package_buildstatus">
+    <% if !@project.repositories.any? %>
+      <%= render "no_repositories" %>
+    <% else %>
+      <table>
+        <% previous_repo = nil %>
+        <% results.each do |result| %>
           <tr>
-            <% if index == 0 %>
-              <td title="<%= r %>" rowspan="<%= archs.length %>">
-                <%= link_to(word_break(r, 22), {:action => :binaries, :controller => :package, :project => @project, :package => @package, :repository => r}, {:title => "Binaries for #{r}"}) %>
-              </td>
-              <% index += 1 -%>
-            <% end # if -%>
-            <td class="arch">
-              <%= repo_status_icon(@repostatushash[r][a],@repostatusdetailshash[r][a]) %> <%= a %>
+            <% if result.repository != previous_repo %>
+              <td title="<%= result.repository %>" rowspan="<%= @package.repositories.find_by_name(result.repository).architectures.length %>">
+              <%= link_to(word_break(result.repository, 22), { action: :binaries, controller: :package, project: @project, package: @package, repository: result.repository }, { title: "Binaries for #{result.repository}" }) %>
             </td>
-            <%= arch_repo_table_cell r, a, @package.name %>
+            <% end %>
+            <td class="arch">
+              <div class="nowrap" style="margin: 0 0.5ex">
+                <%= repo_status_icon(result.state, result.details) %> <%= result.architecture %>
+              </div>
+            </td>
+            <%= arch_repo_table_cell(result.repository, result.architecture, package, { "code" => result.code, "details" => result.details }) %>
           </tr>
-        <% end # all archs -%>
-      <% end # all builds -%>
-    </table>
-
-  <% end # if -%>
-</div>
-
+          <% previous_repo = result.repository %>
+        <% end %>
+      </table>
+    <% end %>
+  </div>
+<% end %>
 <%= javascript_tag do %>
     $('.unresolvable, .blocked').click(function() {
         var title = $(this).attr('title');

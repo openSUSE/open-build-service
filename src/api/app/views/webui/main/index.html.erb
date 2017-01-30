@@ -22,7 +22,7 @@
       <% unless @spider_bot -%>
           <%= proceed_link 'utilities-system-monitor', 'Status Monitor', :controller => 'monitor', :action => 'index' %>
       <% end -%>
-      <%= proceed_link 'drive-optical-32', 'New Image', image_templates_path if User.current.is_admin? %>
+      <%= proceed_link 'drive-optical-32', 'New Image', image_templates_path if Feature.active?(:image_templates) %>
     </ul>
   </div>
 
@@ -40,4 +40,3 @@
   <%= render :partial => 'news' %>
   <%= render :partial => 'latest_updates' if (@latest_updates and ::Configuration.anonymous) %>
 </div>
-
