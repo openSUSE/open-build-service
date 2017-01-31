@@ -23,6 +23,7 @@ strong{font-weight:bold;}
 em{font-style:italic;}
 small{font-size:10px;}
 .box p small, p small{font-size:inherit;margin:0;}
+.box input[type="text"]{width:300px;}
 option:nth-child(even){background-color:#eee;}
 label{font-weight:normal;}
 hr{background-color:#999;border:0 none;color:#999;height:1px;margin:2em 10px;}
