@@ -263,7 +263,10 @@ module MaintenanceHelper
     if Package.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links: false)
       tpkg = Package.get_by_project_and_name(targetProject.name, targetPackageName, use_source: false, follow_project_links: false)
     else
-      tpkg = Package.new(name: targetPackageName, title: sourcePackage.title, description: sourcePackage.description)
+      tpkg = Package.new(name: targetPackageName,
+                         releasename: sourcePackage.releasename,
+                         title: sourcePackage.title,
+                         description: sourcePackage.description)
       targetProject.packages << tpkg
       if sourcePackage.is_patchinfo?
         # publish patchinfos only
