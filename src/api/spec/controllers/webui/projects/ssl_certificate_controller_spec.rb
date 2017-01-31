@@ -4,7 +4,7 @@ require 'webmock/rspec'
 RSpec.describe Webui::Projects::SslCertificateController, type: :controller do
   describe 'GET #show' do
     let(:project) { create(:project, name: "test_project", title: "Test Project") }
-    let(:backend_url) { "#{CONFIG['source_url']}#{Project::KeyInfo.backend_url_with_ssl(project.name)}" }
+    let(:backend_url) { "#{CONFIG['source_url']}#{Project::KeyInfo.backend_url(project.name)}" }
     let(:gpg_public_key) { Faker::Lorem.characters(1024) }
 
     before do
@@ -16,9 +16,18 @@ RSpec.describe Webui::Projects::SslCertificateController, type: :controller do
     end
 
     context 'with a project that has an ssl certificate' do
+      skip('Current code is disabled since it always creates an SSL cert')
+
       let(:ssl_certificate) { Faker::Lorem.characters(1024) }
       let(:keyinfo_response) do
-        %(<keyinfo project="Test"><pubkey algo="rsa">#{gpg_public_key}</pubkey><sslcert>#{ssl_certificate}</sslcert></keyinfo>)
+        <<-XML
+          <keyinfo project="Test">
+            <pubkey keyid="0292741d" algo="rsa" keysize="2048" expires="1554571193" fingerprint="f9fe d209 ff53 6d54 ec96 916a 45d4 5b02 0292 741d">
+              #{gpg_public_key}
+            </pubkey>
+            <sslcert>#{ssl_certificate}</sslcert>
+          </keyinfo>
+        XML
       end
 
       it { expect(response.header['Content-Disposition']).to include('attachment') }
@@ -27,7 +36,13 @@ RSpec.describe Webui::Projects::SslCertificateController, type: :controller do
 
     context 'with a project that has no ssl certificate' do
       let(:keyinfo_response) do
-        %(<keyinfo project="Test"><pubkey algo="rsa">#{gpg_public_key}</pubkey></keyinfo>)
+        <<-XML
+          <keyinfo project="Test">
+            <pubkey keyid="0292741d" algo="rsa" keysize="2048" expires="1554571193" fingerprint="f9fe d209 ff53 6d54 ec96 916a 45d4 5b02 0292 741d">
+              #{gpg_public_key}
+            </pubkey>
+          </keyinfo>
+        XML
       end
 
       it { is_expected.to redirect_to(project_show_path(project)) }

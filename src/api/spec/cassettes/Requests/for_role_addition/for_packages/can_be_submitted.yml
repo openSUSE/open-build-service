@@ -510,4 +510,41 @@ http_interactions:
         </status>
     http_version: 
   recorded_at: Wed, 05 Oct 2016 09:10:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:titan/_result?locallink=1&multibuild=1&package=goal&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Mon, 13 Feb 2017 15:56:58 GMT
 recorded_with: VCR 3.0.3

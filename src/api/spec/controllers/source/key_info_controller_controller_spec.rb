@@ -9,7 +9,16 @@ RSpec.describe Source::KeyInfoController, type: :controller do
     let(:gpg_public_key) { Faker::Lorem.characters(1024) }
     let(:ssl_certificate) { Faker::Lorem.characters(1024) }
     let(:keyinfo_response) do
-      %(<keyinfo project="Test"><pubkey algo="rsa">#{gpg_public_key}</pubkey><sslcert>#{ssl_certificate}</sslcert></keyinfo>)
+      <<-XML
+        <keyinfo project="Test">
+          <pubkey keyid="0292741d" algo="rsa" keysize="2048" expires="1554571193" fingerprint="f9fe d209 ff53 6d54 ec96 916a 45d4 5b02 0292 741d">
+            #{gpg_public_key}
+          </pubkey>
+          <sslcert>
+            #{ssl_certificate}
+          </sslcert>
+        </keyinfo>
+      XML
     end
 
     before do
