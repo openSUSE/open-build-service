@@ -36,7 +36,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     click_link('Branch package')
     expect(page).to have_text('Do you really want to branch package')
 
-    click_button('Ok')
+    click_button('Branch Package')
     expect(page).to have_text('Successfully branched package')
 
     # change the package sources so we have a difference

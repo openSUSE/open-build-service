@@ -28,7 +28,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:link, 'Branch package').click
 
     find(:css, '#package_branch_dialog').must_have_text %r{Do you really want to branch package}
-    find_button('Ok').click
+    find_button('Branch Package').click
 
     find(:css, '#flash-messages').must_have_text %r{Successfully branched package}
 

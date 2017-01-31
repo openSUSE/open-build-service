@@ -32,7 +32,7 @@ RSpec.feature "Packages", type: :feature, js: true do
       visit package_show_path(project: other_user.home_project, package: other_users_package)
 
       click_link("Branch package")
-      click_button("Ok")
+      click_button("Branch Package")
 
       expect(page).to have_text("Successfully branched package")
       expect(page.current_path).to eq(
