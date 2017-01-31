@@ -8,7 +8,11 @@ class Project
 
     def self.find_by_project(project)
       response = Rails.cache.fetch("key_info_project_#{project.cache_key}", expires_in: CACHE_EXPIRY_TIME) do
-        Suse::Backend.get(backend_url(project.name)).body
+        begin
+          Suse::Backend.get(backend_url_with_ssl(project.name)).body
+        rescue ActiveXML::Transport::Error
+          Suse::Backend.get(backend_url(project.name)).body
+        end
       end
       parsed_response = Xmlhash.parse(response)
 
@@ -27,6 +31,10 @@ class Project
     end
 
     def self.backend_url(project_name)
+      "/source/#{project_name}/_keyinfo"
+    end
+
+    def self.backend_url_with_ssl(project_name)
       "/source/#{project_name}/_keyinfo?withsslcert=1"
     end
   end
