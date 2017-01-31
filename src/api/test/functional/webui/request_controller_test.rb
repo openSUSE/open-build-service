@@ -355,8 +355,6 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   def test_succesful_reply_comment_creation # spec/features/webui/comments_spec.rb
-    puts Comment.find(301).commentable.number
-    puts BsRequest.find_by(number: 4).comments.first.body
     login_Iggy to: request_show_path(4)
     find(:id, 'reply_link_id_301').click
     fill_in 'reply_body_301', with: 'Comment Body'
