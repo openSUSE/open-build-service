@@ -668,6 +668,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     run_scheduler('i586')
     run_publisher
 
+    # validate releasename
+    get "/source/BaseDistro3/pack2.0/_meta"
+    assert_response :success
+    assert_xml_tag tag: "releasename", content: "pack2"
+
     # collect the job results
     get "/build/#{incidentProject}/_result"
     assert_response :success
