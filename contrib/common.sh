@@ -28,6 +28,8 @@ function install_common_packages() {
     ruby2.4-rubygem-ruby-ldap \
     ruby2.4-rubygem-xmlhash \
     ruby2.4-rubygem-thinking-sphinx\
+    # Temporary workaround to install our patched gem version
+    ruby2.4-rubygem-rantly\
     perl-GD \
     perl-XML-Parser \
     perl-Devel-Cover \
