@@ -87,7 +87,7 @@ Style/InfiniteLoop:
   Enabled: true
 
 # Checks for unwanted parentheses in parameterless method calls
-Style/MethodCallParentheses:
+Style/MethodCallWithoutArgsParentheses:
   Enabled: true
 
 # Checks for parentheses around the arguments in method definitions
@@ -165,11 +165,7 @@ Lint/AssignmentInCondition:
 
 # Align ends correctly.
 Lint/EndAlignment:
-  AlignWith: variable
-
-# checks for the use of *Kernel#eval* as it is a serious security risk.
-Lint/Eval:
-  Enabled: true
+  EnforcedStyleAlignWith: variable
 
 # checks for private or protected access modifiers which are applied to a
 # singleton method, as they do not make it private/protected.
@@ -222,3 +218,10 @@ Rails/FindBy:
 # Checks for the use of old-style attribute validation macros.
 Rails/Validation:
   Enabled: true
+
+##################### Security ##################################
+
+# checks for the use of *Kernel#eval* as it is a serious security risk.
+Security/Eval:
+  Enabled: true
+
