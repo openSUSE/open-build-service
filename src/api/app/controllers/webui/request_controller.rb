@@ -140,10 +140,10 @@ class Webui::RequestController < Webui::WebuiController
   def require_request
     required_parameters :number
     @req = BsRequest.find_by_number params[:number]
-    unless @req
-      flash[:error] = "Can't find request #{params[:number]}"
-      redirect_back(fallback_location: user_show_path(User.current)) && return
-    end
+    return if @req
+
+    flash[:error] = "Can't find request #{params[:number]}"
+    redirect_back(fallback_location: user_show_path(User.current)) && return
   end
 
   def changerequest

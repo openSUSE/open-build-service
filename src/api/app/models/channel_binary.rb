@@ -41,10 +41,8 @@ class ChannelBinary < ApplicationRecord
                                                         allow_remote_packages: false
                                                        )
     # does it exist already? then just skip it
-    unless package_exists
-      # create a channel package beside my package and return that
-      channel.branch_channel_package_into_project(project, comment)
-    end
+    # create a channel package beside my package and return that
+    channel.branch_channel_package_into_project(project, comment) unless package_exists
   end
 
   def to_axml_id(_opts = {})

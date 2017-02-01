@@ -29,9 +29,7 @@ class GroupController < ApplicationController
     else
       @list = Group.all
     end
-    if params[:prefix]
-      @list = @list.find_all { |group| group.title.starts_with? params[:prefix] }
-    end
+    @list = @list.find_all { |group| group.title.starts_with? params[:prefix] } if params[:prefix]
   end
 
   # DELETE for removing it

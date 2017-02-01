@@ -13,10 +13,9 @@ module DB
     end
 
     def warn_for_environment
-      if ENV['RAILS_ENV'] != 'production'
-        puts "\nWARNING: This script is supposed to be running in \"production\" environment but actual is \"#{ENV['RAILS_ENV']}\".".red
-        puts "         To do so just run \"RAILS_ENV=production ./script/check_database\"".red
-      end
+      return unless ENV['RAILS_ENV'] != 'production'
+      puts "\nWARNING: This script is supposed to be running in \"production\" environment but actual is \"#{ENV['RAILS_ENV']}\".".red
+      puts "         To do so just run \"RAILS_ENV=production ./script/check_database\"".red
     end
 
     def initialize

@@ -8,12 +8,10 @@ class MessageController < ApplicationController
 
   def check_project_and_package
     # get project and package if params are set
-    if params[:project]
-      @project = Project.find_by_name! params[:project]
-      if params[:package]
-        @package = @project.packages.find_by_name! params[:package]
-      end
-    end
+    return unless params[:project]
+
+    @project = Project.find_by_name! params[:project]
+    @package = @project.packages.find_by_name! params[:package] if params[:package]
   end
 
   def list

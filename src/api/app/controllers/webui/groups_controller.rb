@@ -70,9 +70,8 @@ class Webui::GroupsController < Webui::WebuiController
     @group = Group.find_by_title(params[:title])
 
     # Group.find_by_title! is self implemented and would raise an 500 error
-    unless @group
-      flash[:error] = "Group '#{params[:title]}' does not exist"
-      redirect_back(fallback_location: {controller: 'main', action: 'index'})
-    end
+    return if @group
+    flash[:error] = "Group '#{params[:title]}' does not exist"
+    redirect_back(fallback_location: {controller: 'main', action: 'index'})
   end
 end

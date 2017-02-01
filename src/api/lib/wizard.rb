@@ -149,10 +149,9 @@ class Wizard
     end
 
     def []=(key, value)
-      if self[key] != value
-        @dirty = true
-        super(key, value)
-      end
+      return unless self[key] != value
+      @dirty = true
+      super(key, value)
     end
   end
 

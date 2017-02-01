@@ -28,14 +28,10 @@ class Webui::RepositoriesController < Webui::WebuiController
       @distributions[dis['vendor']] << dis
     end
 
-    if @distributions.empty?
-      if User.current.is_admin?
-        redirect_to({ controller: 'configuration', action: 'interconnect' },
-                    alert: 'There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
-      else
-        redirect_to action: 'new', project: @project
-      end
-    end
+    return unless @distributions.empty?
+    redirect_to(action: 'new', project: @project) && return unless User.current.is_admin?
+    redirect_to({ controller: 'configuration', action: 'interconnect' },
+                alert: 'There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
   end
 
   # POST project/save_repository

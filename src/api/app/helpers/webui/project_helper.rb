@@ -94,13 +94,9 @@ module Webui::ProjectHelper
 
   def incident_issue_color(patchinfo_issues, package_issues)
     return 'red' if package_issues.zero?
-    if patchinfo_issues == package_issues
-      return 'green'
-    elsif patchinfo_issues < package_issues
-      return 'olive'
-    else
-      return 'red'
-    end
+    return 'green' if patchinfo_issues == package_issues
+    return 'olive' if patchinfo_issues < package_issues
+    return 'red'
   end
 
   STATE_ICONS = {

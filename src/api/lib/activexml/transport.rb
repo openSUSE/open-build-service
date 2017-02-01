@@ -46,11 +46,8 @@ module ActiveXML
 
       def summary
         parse!
-        if @xml.has_key? 'summary'
-          return @xml['summary']
-        else
-          return message
-        end
+        return @xml['summary'] if @xml.has_key? 'summary'
+        return message
       end
 
       def code
@@ -92,9 +89,8 @@ module ActiveXML
     end
 
     def replace_server_if_needed( uri )
-      unless uri.host
-        uri.scheme, uri.host, uri.port = @schema, @host, @port
-      end
+      return if uri.host
+      uri.scheme, uri.host, uri.port = @schema, @host, @port
     end
 
     def target_for( model )
@@ -214,9 +210,7 @@ module ActiveXML
 
     # delete a header field set with set_additional_header
     def delete_additional_header( key )
-      if @http_header.has_key? key
-        @http_header.delete key
-      end
+      @http_header.delete key if @http_header.has_key? key
     end
 
     # TODO: get rid of this very thin wrapper

@@ -515,11 +515,6 @@ Style/GlobalVars:
     - 'test/functional/request_controller_test.rb'
     - 'test/functional/source_controller_test.rb'
 
-# Offense count: 151
-# Configuration parameters: MinBodyLength.
-Style/GuardClause:
-  Enabled: false
-
 # Offense count: 8
 Style/IdenticalConditionalBranches:
   Exclude:
