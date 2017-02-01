@@ -646,10 +646,10 @@ OBSApi::Application.routes.draw do
 
     Feature.with(:image_templates) do
       scope 'public' do
-        resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
+        resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates/interconnects'
       end
 
-      resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
+      resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates/interconnects'
     end
   end
 
