@@ -27,21 +27,36 @@ happen automatically.
 Features
 ========
 
- * New obsservicedispatch service to handle source service runs in a queue
-   and asynchron.
- * Allow admins to lock or delete users and their home projects via new command
- * Users can be declared sub accounts of other users. Useful for automated scripts.
+UI:
  * Allow triggering services from the UI.
  * Show a hint to project maintainers, when he/she is not a package maintainer of
    the target package of a request
- * multibuild: allow to build multiple jobs from one source package without the need
-               of creating local links
- * /about route is now independent from request format
- * workers are now also tracked when they went away (new states "down", "away" and "dead")
  * Main projects list is now filtered based on a configurable (by the admin) regular expression
  * Users can download the public key and SSL certificate for a project via the project home page
+ * import of kiwi build descriptions is supported (obs-service-kiwi_import)
+
+API:
+ * Allow admins to lock or delete users and their home projects via new command
+ * Users can be declared as sub accounts of other users. Useful for automated scripts.
  * New API route to get public key and SSL certificate: GET /source/:project_name/_keyinfo
  * New feature toggle config file. Use config/feature.yml to enable/disable features in the OBS.
+
+Backend:
+ * multibuild: allow to build multiple jobs from one source package without the need
+               of creating local links
+ * experimental support of snap package format
+ * workers are now also tracked when they went away (new states "down", "away" and "dead")
+ * worker capabilities can be requested
+ * usable workers can be requested with uncommited constraints
+ * functionality to remove published packages (osc unpublish)
+ * New obsservicedispatch service to handle source service runs in a queue
+   and asynchron.
+ * preinstall images can be used for local building
+ * improved speed of diffing sources
+ * Support caching of pulled git sources
+
+Shipment:
+ * optional docker container to run source services is provided
 
 Wanted changes:
 ===============
@@ -61,6 +76,8 @@ Other changes
 
  * The way to identify spiders got changed. A separate configuration via
    apache is no longer required. See the Administration Guide.
+
+ * Frontend stack is using ruby 2.4 and rails 5.0.1 now
 
 Notes for systems using systemd:
 ================================
