@@ -7,6 +7,7 @@ class Review < ApplicationRecord
 
   belongs_to :bs_request, touch: true
   has_many :history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Review', foreign_key: :op_object_id
+  has_many :history_elements_assigned, class_name: 'HistoryElement::ReviewAssigned', foreign_key: :op_object_id
   validates :state, inclusion: { in: VALID_REVIEW_STATES }
 
   validates :by_user, length: { maximum: 250 }
@@ -17,6 +18,20 @@ class Review < ApplicationRecord
   validates :reason, length: { maximum: 65534 }
 
   validate :check_initial, on: [:create]
+  # Validate the review is not assigned to a review which is already assigned to this review
+  validate :validate_non_symmetric_assignment
+  validate :validate_not_self_assigned
+
+  belongs_to :review_assigned_from, class_name: 'Review', foreign_key: :review_id
+  has_one :review_assigned_to, class_name: 'Review', foreign_key: :review_id
+
+  scope :assigned, lambda {
+    left_outer_joins(:history_elements_assigned).having('COUNT(history_elements.id) > 0').group('reviews.id')
+  }
+
+  scope :unassigned, lambda {
+    left_outer_joins(:history_elements_assigned).having('COUNT(history_elements.id) = 0').group('reviews.id')
+  }
 
   before_validation(on: :create) do
     if read_attribute(:state).nil?
@@ -24,8 +39,51 @@ class Review < ApplicationRecord
     end
   end
 
+  def validate_non_symmetric_assignment
+    if review_assigned_from && review_assigned_from == review_assigned_to
+      errors.add(
+        :review_id,
+        "assigned to review which is already assigned to this review"
+      )
+    end
+  end
+
+  def validate_not_self_assigned
+    if persisted? && id == review_id
+      errors.add(:review_id, "recursive assignment")
+    end
+  end
+
   def state
     read_attribute(:state).to_sym
+  end
+
+  def accepted_at
+    if review_assigned_to && review_assigned_to.state == :accepted
+      review_assigned_to.accepted_history_element.created_at
+    elsif state == :accepted && !review_assigned_to
+      accepted_history_element.created_at
+    end
+  end
+
+  def declined_at
+    if review_assigned_to && review_assigned_to.state == :declined
+      review_assigned_to.declined_history_element.created_at
+    elsif state == :declined && !review_assigned_to
+      declined_history_element.created_at
+    end
+  end
+
+  def accepted_history_element
+    history_elements.find_by(type: 'HistoryElement::ReviewAccepted')
+  end
+
+  def declined_history_element
+    history_elements.find_by(type: 'HistoryElement::ReviewDeclined')
+  end
+
+  def assigned_reviewer
+    self[:reviewer] || by_user || by_group || by_project || by_package
   end
 
   def check_initial

@@ -547,7 +547,7 @@ class BsRequest < ApplicationRecord
     end
   end
 
-  def _assignreview_update_reviews(reviewer, opts)
+  def _assignreview_update_reviews(reviewer, opts, new_review = nil)
     review_comment = nil
     reviews.reverse_each do |review|
       next if review.by_user
@@ -562,6 +562,7 @@ class BsRequest < ApplicationRecord
         history_class = HistoryElement::ReviewReopened
       else
         review.state = :accepted
+        review.review_assigned_to = new_review if new_review
         review_comment = ""
         history_class = HistoryElement::ReviewAccepted
       end
@@ -584,24 +585,23 @@ class BsRequest < ApplicationRecord
     reviewer = User.find_by_login!(opts[:reviewer])
 
     Review.transaction do
-      review_comment = _assignreview_update_reviews(reviewer, opts)
-
       # check if user is a reviewer already
       user_review = reviews.where(by_user: reviewer.login).last
       if opts[:revert]
+        _assignreview_update_reviews(reviewer, opts)
         raise Review::NotFoundError.new unless user_review
         raise InvalidStateError.new "review is not in new state" unless user_review.state == :new
         raise Review::NotFoundError.new "Not an assigned review" unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
         user_review.destroy
       elsif user_review
+        review_comment = _assignreview_update_reviews(reviewer, opts)
         user_review.state = :new
         user_review.save!
         HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.current)
       else
-        user_review = reviews.create(by_user: reviewer.login, creator: User.current.login)
-        user_review.state = :new
-        user_review.save!
-        HistoryElement::ReviewAssigned.create(review: user_review, comment: review_comment, user: User.current)
+        review = reviews.create(by_user: reviewer.login, creator: User.current.login, state: :new)
+        review_comment = _assignreview_update_reviews(reviewer, opts, review)
+        HistoryElement::ReviewAssigned.create(review: review, comment: review_comment, user: User.current)
       end
       save!
     end

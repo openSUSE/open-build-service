@@ -38,4 +38,34 @@ RSpec.describe BsRequestAction do
       it { expect(@output.updated_when.to_i).to eq(@output.updated_at.to_i) }
     end
   end
+
+  describe '#assignreview' do
+    context 'from group to user' do
+      let(:reviewer) { create(:confirmed_user) }
+      let(:group) { create(:group)}
+      let(:review) { create(:review, by_group: group.title) }
+      let!(:request) { create(:bs_request, creator: reviewer.login, reviews: [review] ) }
+
+      before do
+        login(reviewer)
+      end
+
+      subject! { request.assignreview({ by_group: group.title, reviewer: reviewer.login }) }
+
+      let(:new_review) { request.reviews.last }
+
+      it { expect(request.reviews.count).to eq(2) }
+
+      it 'creates a new review by the user' do
+        expect(new_review.by_user).to eq(reviewer.login)
+        expect(new_review.history_elements.last.type).to eq('HistoryElement::ReviewAssigned')
+      end
+
+      it 'updates the old review state to accepted and assigns it' do
+        expect(review.state).to eq(:accepted)
+        expect(review.review_assigned_to).to eq(request.reviews.last)
+        expect(review.history_elements.last.type).to eq('HistoryElement::ReviewAccepted')
+      end
+    end
+  end
 end
