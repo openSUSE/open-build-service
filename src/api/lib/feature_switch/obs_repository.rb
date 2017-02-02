@@ -12,7 +12,7 @@ module Feature
       # @return [Array<Symbol>] list of active features
       #
       def active_features
-        data = read_file(@yaml_file_name)
+        data = read_file(@yaml_file_name).with_indifferent_access
         data['features'] = DEFAULTS.merge(data['features'])
         get_active_features(data, @environment)
       end
