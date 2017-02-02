@@ -1073,8 +1073,12 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     unless @package
-      flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-      redirect_to project_show_path(project: @project, nextstatus: 404)
+      if request.xhr?
+        render nothing: true, status: :not_found
+      else
+        flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
+        redirect_to project_show_path(project: @project, nextstatus: 404)
+      end
     end
   end
 

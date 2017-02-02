@@ -3,7 +3,7 @@
 - project_bread_crumb
 - if @package
   - @crumb_list << link_to(@package, package_show_path(package: @package))
-- @crumb_list << "Attributes"
+- @crumb_list << "Repositories"
 
 - if @package
   = render :partial => "webui/package/tabs"
