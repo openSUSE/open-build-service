@@ -7,9 +7,12 @@
       <table>
         <% previous_repo = nil %>
         <% results.each do |result| %>
+          <% repository = @package.repositories.find_by_name(result.repository) %>
+          <% next unless repository %>
+          <% next unless repository.architectures.pluck(:name).include?(result.architecture) %>
           <tr>
             <% if result.repository != previous_repo %>
-              <td title="<%= result.repository %>" rowspan="<%= @package.repositories.find_by_name(result.repository).architectures.length %>">
+              <td title="<%= result.repository %>" rowspan="<%= repository.architectures.length %>">
               <%= link_to(word_break(result.repository, 22), { action: :binaries, controller: :package, project: @project, package: @package, repository: result.repository }, { title: "Binaries for #{result.repository}" }) %>
             </td>
             <% end %>
