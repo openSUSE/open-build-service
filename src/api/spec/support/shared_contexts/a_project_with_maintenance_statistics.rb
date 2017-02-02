@@ -37,12 +37,12 @@ RSpec.shared_context 'a project with maintenance statistics' do
       bs_request: bs_request,
       by_user: user.login,
       created_at: 6.days.ago,
-      state: :accepted
+      state: :declined
     )
   end
-  let!(:history_element_review_accepted) do
+  let!(:history_element_review_declined) do
     create(
-      :history_element_review_accepted,
+      :history_element_review_declined,
       review: review,
       user: user,
       created_at: 5.days.ago

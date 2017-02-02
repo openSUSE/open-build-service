@@ -67,6 +67,15 @@ module Statistics
             when: review.accepted_at
           )
         end
+
+        if review.declined_at
+          unassigned_review_statistics << MaintenanceStatistic.new(
+            type: :review_declined,
+            who: review.assigned_reviewer,
+            id: review.id,
+            when: review.declined_at
+          )
+        end
       end
       unassigned_review_statistics
     end

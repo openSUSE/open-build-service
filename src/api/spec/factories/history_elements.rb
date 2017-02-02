@@ -7,6 +7,10 @@ FactoryGirl.define do
     type { 'HistoryElement::ReviewAccepted' }
   end
 
+  factory :history_element_review_declined, class: 'HistoryElement::ReviewDeclined' do
+    type { 'HistoryElement::ReviewDeclined' }
+  end
+
   factory :history_element_request_created, class: 'HistoryElement::RequestCreated' do
     type { 'HistoryElement::RequestCreated' }
   end
