@@ -93,11 +93,13 @@ RSpec.describe Statistics::MaintenanceStatistic do
         new_review = Review.last
         expect(maintenance_statistics[-4].type).to eq(:review_accepted)
         expect(maintenance_statistics[-4].when).to eq(new_review.accepted_at)
+        expect(maintenance_statistics[-4].who).to eq(group.title)
       end
 
       it 'contains review_opened for the original review assigned to the group' do
         expect(maintenance_statistics[-3].type).to eq(:review_opened)
         expect(maintenance_statistics[-3].when).to eq(review.created_at)
+        expect(maintenance_statistics[-3].who).to eq(group.title)
       end
 
       it 'contains release_request_created' do

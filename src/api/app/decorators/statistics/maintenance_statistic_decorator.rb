@@ -1,27 +1,18 @@
 module Statistics
   class MaintenanceStatisticDecorator < BaseDecorator
     def to_hash_for_xml
-      if model.type == :issue_created
-        {
-          type:    model.type,
-          name:    model.name,
-          tracker: model.tracker,
-          when:    model.when
-        }
-      elsif model.type == :review_accepted || model.type == :review_opened
-        {
-          type: model.type,
-          who:  model.who,
-          id:   model.id,
-          when: model.when
-        }
-      else
-        default_hash
-      end
-    end
+      result = { type: model.type, when: model.when }
 
-    def default_hash
-      { type: model.type, when: model.when }
+      case model.type
+      when :issue_created
+        result[:name] = model.name
+        result[:tracker] = model.tracker
+      when :review_accepted, :review_declined, :review_opened
+        result[:who] = model.who
+        result[:id] = model.id
+      end
+
+      result
     end
   end
 end
