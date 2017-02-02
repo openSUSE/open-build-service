@@ -66,8 +66,20 @@ class Review < ApplicationRecord
     end
   end
 
+  def declined_at
+    if review_assigned_to && review_assigned_to.state == :declined
+      review_assigned_to.declined_history_element.created_at
+    elsif state == :declined && !review_assigned_to
+      declined_history_element.created_at
+    end
+  end
+
   def accept_history_element
     history_elements.find_by(type: 'HistoryElement::ReviewAccepted')
+  end
+
+  def declined_history_element
+    history_elements.find_by(type: 'HistoryElement::ReviewDeclined')
   end
 
   def assigned_reviewer

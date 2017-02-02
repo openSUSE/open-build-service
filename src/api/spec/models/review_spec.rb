@@ -112,6 +112,79 @@ RSpec.describe Review do
     end
   end
 
+  describe '#declined_at' do
+    let!(:user) { create(:user) }
+    let(:review_state) { :declined }
+    let!(:review) do
+      create(
+        :review,
+        by_user: user.login,
+        state: review_state
+      )
+    end
+    let!(:history_element_review_declined) do
+      create(
+        :history_element_review_declined,
+        review: review,
+        user: user,
+        created_at: Faker::Time.forward(1)
+      )
+    end
+
+    context 'with a review assigned to and assigned to state = declined' do
+      let!(:review2) do
+        create(
+          :review,
+          by_user: user.login,
+          review_id: review.id,
+          state: :declined
+        )
+      end
+      let!(:history_element_review_declined2) do
+        create(
+          :history_element_review_declined,
+          review: review2,
+          user: user,
+          created_at: Faker::Time.forward(2)
+        )
+      end
+
+      subject { review.declined_at }
+
+      it { is_expected.to eq(history_element_review_declined2.created_at) }
+    end
+
+    context 'with a review assigned to and assigned to state != declined' do
+      let!(:review2) do
+        create(
+          :review,
+          by_user: user.login,
+          review_id: review.id,
+          updated_at: Faker::Time.forward(2),
+          state: :new
+        )
+      end
+
+      subject { review.declined_at }
+
+      it { is_expected.to eq(nil) }
+    end
+
+    context 'with no reviewed assigned to and state = declined' do
+      subject { review.declined_at }
+
+      it { is_expected.to eq(history_element_review_declined.created_at) }
+    end
+
+    context 'with no reviewed assigned to and state != declined' do
+      let(:review_state) { :new }
+
+      subject { review.declined_at }
+
+      it { is_expected.to eq(nil) }
+    end
+  end
+
   describe '#validate_not_self_assigned' do
     let!(:user) { create(:user) }
     let!(:review) { create(:review, by_user: user.login) }
