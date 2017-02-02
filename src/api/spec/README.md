@@ -48,6 +48,12 @@ possible in RSpec. We concentrate on 4 types:
 We agreed that we wan to focus on model and feature tests.
 While migrating the old test suite, we review all controller tests and try to translate most of them to model tests.
 
+### Property testing
+
+Property tests give a property (high-level specification of behavior) and generate random examples which must verify the property. They are used when we want to ensure the correctness of the code and testing the code with one or some concrete examples is not enough. A good example of use case are regular expressions, as it sometimes difficult to choose concrete example that cover all cases and they are naturally and easily tested with property tests.
+
+We are using Rantly gem which extends RSpec for property testing. Information about how to write property tests can be found in the [Rantly documentation](https://github.com/abargnesi/rantly/blob/master/README.textile).
+
 ## Adding tests
 We are using the standard [RSpec generators](https://relishapp.com/rspec/rspec-rails/docs/generators) like:
 
