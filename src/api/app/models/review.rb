@@ -7,6 +7,7 @@ class Review < ApplicationRecord
 
   belongs_to :bs_request, touch: true
   has_many :history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Review', foreign_key: :op_object_id
+  has_many :history_elements_assigned, class_name: 'HistoryElement::ReviewAssigned', foreign_key: :op_object_id
   validates :state, inclusion: { in: VALID_REVIEW_STATES }
 
   validates :by_user, length: { maximum: 250 }
@@ -24,14 +25,13 @@ class Review < ApplicationRecord
   belongs_to :review_assigned_from, class_name: 'Review', foreign_key: :review_id
   has_one :review_assigned_to, class_name: 'Review', foreign_key: :review_id
 
-  HISTORY_ELEMENTS_ASSIGNED_SUB_QUERY = <<-SQL
-    SELECT COUNT(history_elements.id) FROM history_elements
-    WHERE history_elements.op_object_id = reviews.id
-    AND history_elements.type = 'HistoryElement::ReviewAssigned'
-  SQL
+  scope :assigned, lambda {
+    left_outer_joins(:history_elements_assigned).having('COUNT(history_elements.id) > 0').group('reviews.id')
+  }
 
-  scope :assigned, -> { where("(#{HISTORY_ELEMENTS_ASSIGNED_SUB_QUERY}) > 0") }
-  scope :unassigned, -> { where("(#{HISTORY_ELEMENTS_ASSIGNED_SUB_QUERY}) = 0") }
+  scope :unassigned, lambda {
+    left_outer_joins(:history_elements_assigned).having('COUNT(history_elements.id) = 0').group('reviews.id')
+  }
 
   before_validation(on: :create) do
     if read_attribute(:state).nil?
