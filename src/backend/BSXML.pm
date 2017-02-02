@@ -1312,6 +1312,9 @@ our $person = [
 	'login',
 	'email',
 	'realname',
+      [ 'owner' =>
+                'userid',
+        ],
 	'state',
       [ 'globalrole' ],
       [ 'watchlist' =>
