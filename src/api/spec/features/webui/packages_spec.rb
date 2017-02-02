@@ -150,7 +150,7 @@ RSpec.feature "Packages", type: :feature, js: true do
                             </resultlist>
                             )
       result_path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status&package=#{package}"
-      stub_request(:get, result_path + '&multibuild=1&locallink=1')
+      stub_request(:get, result_path)
         .and_return(body: result)
       stub_request(:get, result_path + "&arch=i586&repository=#{repository.name}")
         .and_return(body: result)

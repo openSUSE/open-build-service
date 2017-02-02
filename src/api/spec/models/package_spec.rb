@@ -17,23 +17,6 @@ RSpec.describe Package, vcr: true do
   let(:other_user) { create(:confirmed_user, login: 'other_user') }
   let(:other_user2) { create(:confirmed_user, login: 'other_user2') }
   let(:other_user3) { create(:confirmed_user, login: 'other_user3') }
-  let(:fake_multibuild_results) do
-    Buildresult.new(
-      '<resultlist state="b006a28328744bf1186d2b6fb3006ecb">
-        <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="finished" state="finished">
-          <status package="test_package" code="excluded" />
-          <status package="test_package:test_package-source" code="succeeded" />
-        </result>
-        <result project="home:tom" repository="openSUSE_Tumbleweed" arch="x86_64" code="building" state="building">
-          <status package="test_package" code="building" />
-          <status package="test_package:test_package-source" code="unresolvable" />
-        </result>
-        <result project="home:tom" repository="openSUSE_Leap_42.2" arch="x86_64" code="finished" state="finished">
-          <status package="test_package" code="succeded" />
-          <status package="test_package:test_package-source" code="disabled" />
-        </result>
-      </resultlist>')
-  end
 
   context '#save_file' do
     before do
@@ -280,57 +263,5 @@ RSpec.describe Package, vcr: true do
       it{ expect(Package.valid_name?('_project')).to be(true) }
       it{ expect(Package.valid_name?('_patchinfo')).to be(true) }
     end
-  end
-
-  # WARNING: "#The buildresults" test has been stubbed because,
-  # in order to make it work without stubs it would be needed
-  # to mock the scheduler as it is done in the old test suite.
-  #
-  # The following code would be needed to get this working
-  # once we have a scheduler running in this test suite:
-  #
-  # user2 = create(:confirmed_user, login: 'usuario_prueba')
-  # login user2
-  # user2_home_project = user2.home_project
-  #
-  # home_project_repo = create(:repository, name: 'user2_home_project_repo', project: user2_home_project, architectures: ['i586'])
-  #
-  # project2 = create(:project, name: 'project2')
-  # project2.config.save({}, 'Type: spec')
-  # project2_repo = create(:repository, name: 'project2_repo', project: project2, architectures: ['i586'])
-  #
-  # create(:path_element, repository: home_project_repo, link: project2_repo)
-  # user2_home_project.store
-  #
-  # package_locallink = create(:package, name: 'locallink', project: user2_home_project)
-  #
-  # results = package_locallink.buildresults
-  #
-  context "#buildresults" do
-    let(:results) { package.buildresults }
-    let(:results_test_package) { results['test_package'] }
-    let(:results_test_package_source) { results['test_package:test_package-source'] }
-
-    before do
-      allow(Buildresult).to receive(:find).and_return(fake_multibuild_results)
-    end
-
-    it { expect(results.keys).to match_array(['test_package', 'test_package:test_package-source']) }
-
-    it { expect(results_test_package.length).to eq(3) }
-
-    it { expect(results_test_package.first.repository).to eq('openSUSE_Leap_42.2') }
-    it { expect(results_test_package.first.architecture).to eq('x86_64') }
-    it { expect(results_test_package.first.code).to eq('succeded') }
-    it { expect(results_test_package.first.state).to eq('finished') }
-    it { expect(results_test_package.first.details).to be_nil }
-
-    it { expect(results_test_package_source.length).to eq(3) }
-
-    it { expect(results_test_package_source.first.repository).to eq('openSUSE_Leap_42.2') }
-    it { expect(results_test_package_source.first.architecture).to eq('x86_64') }
-    it { expect(results_test_package_source.first.code).to eq('disabled') }
-    it { expect(results_test_package_source.first.state).to eq('finished') }
-    it { expect(results_test_package_source.first.details).to be_nil }
   end
 end
