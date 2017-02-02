@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/sh -x
 # Copyright (c) 2007-2011, SUSE Inc.
 #
 # Author: adrian@suse.de
