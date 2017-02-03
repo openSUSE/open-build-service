@@ -60,7 +60,6 @@ CREATE TABLE `attrib_namespace_modifiable_bies` (
   UNIQUE KEY `attrib_namespace_user_role_all_index` (`attrib_namespace_id`,`user_id`,`group_id`),
   KEY `bs_user_id` (`user_id`),
   KEY `bs_group_id` (`group_id`),
-  KEY `index_attrib_namespace_modifiable_bies_on_attrib_namespace_id` (`attrib_namespace_id`),
   CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_1` FOREIGN KEY (`attrib_namespace_id`) REFERENCES `attrib_namespaces` (`id`),
   CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_4` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   CONSTRAINT `attrib_namespace_modifiable_bies_ibfk_5` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`)
@@ -100,7 +99,6 @@ CREATE TABLE `attrib_types` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_attrib_types_on_attrib_namespace_id_and_name` (`attrib_namespace_id`,`name`),
   KEY `index_attrib_types_on_name` (`name`),
-  KEY `attrib_namespace_id` (`attrib_namespace_id`),
   CONSTRAINT `attrib_types_ibfk_1` FOREIGN KEY (`attrib_namespace_id`) REFERENCES `attrib_namespaces` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -176,7 +174,6 @@ CREATE TABLE `binary_releases` (
   `binary_updateinfo_version` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `modify_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_binary_releases_on_binary_name` (`binary_name`),
   KEY `ra_name_index` (`repository_id`,`binary_name`),
   KEY `exact_search_index` (`binary_name`,`binary_epoch`,`binary_version`,`binary_release`,`binary_arch`),
   KEY `release_package_id` (`release_package_id`),
@@ -184,9 +181,7 @@ CREATE TABLE `binary_releases` (
   KEY `index_binary_releases_on_medium` (`medium`),
   KEY `index_binary_releases_on_binary_name_and_binary_arch` (`binary_name`,`binary_arch`),
   CONSTRAINT `binary_releases_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
-  CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`),
-  CONSTRAINT `binary_releases_ibfk_3` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
-  CONSTRAINT `binary_releases_ibfk_4` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`)
+  CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `blacklist_tags` (
@@ -232,11 +227,10 @@ CREATE TABLE `bs_request_actions` (
   `makeoriginolder` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `bs_request_id` (`bs_request_id`),
-  KEY `index_bs_request_actions_on_target_project` (`target_project`),
   KEY `index_bs_request_actions_on_target_package` (`target_package`),
   KEY `index_bs_request_actions_on_source_project` (`source_project`),
   KEY `index_bs_request_actions_on_source_package` (`source_package`),
-  KEY `index_bs_request_actions_on_target_project_and_source_project` (`target_project`,`source_project`),
+  KEY `index_bs_request_actions_on_target_project` (`target_project`),
   CONSTRAINT `bs_request_actions_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -275,7 +269,6 @@ CREATE TABLE `cache_lines` (
   `request` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_cache_lines_on_project` (`project`),
   KEY `index_cache_lines_on_project_and_package` (`project`,`package`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -337,7 +330,6 @@ CREATE TABLE `channels` (
   `package_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_unique` (`package_id`),
-  KEY `package_id` (`package_id`),
   CONSTRAINT `channels_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -576,7 +568,6 @@ CREATE TABLE `history_elements` (
   PRIMARY KEY (`id`),
   KEY `index_history_elements_on_created_at` (`created_at`),
   KEY `index_history_elements_on_type` (`type`),
-  KEY `index_history_elements_on_op_object_id` (`op_object_id`),
   KEY `index_search` (`op_object_id`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -687,7 +678,6 @@ CREATE TABLE `package_issues` (
   `issue_id` int(11) NOT NULL,
   `change` enum('added','deleted','changed','kept') DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_package_issues_on_package_id` (`package_id`),
   KEY `index_package_issues_on_package_id_and_issue_id` (`package_id`,`issue_id`),
   KEY `index_package_issues_on_issue_id` (`issue_id`),
   CONSTRAINT `package_issues_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`),
@@ -722,7 +712,6 @@ CREATE TABLE `packages` (
   UNIQUE KEY `packages_all_index` (`project_id`,`name`),
   KEY `devel_package_id_index` (`develpackage_id`),
   KEY `updated_at_index` (`updated_at`),
-  KEY `index_packages_on_project_id` (`project_id`),
   CONSTRAINT `packages_ibfk_3` FOREIGN KEY (`develpackage_id`) REFERENCES `packages` (`id`),
   CONSTRAINT `packages_ibfk_4` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -758,7 +747,6 @@ CREATE TABLE `product_media` (
   `arch_filter_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_unique` (`product_id`,`repository_id`,`name`,`arch_filter_id`),
-  KEY `product_id` (`product_id`),
   KEY `repository_id` (`repository_id`),
   KEY `index_product_media_on_name` (`name`),
   KEY `index_product_media_on_arch_filter_id` (`arch_filter_id`),
@@ -774,7 +762,6 @@ CREATE TABLE `product_update_repositories` (
   `arch_filter_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_unique` (`product_id`,`repository_id`,`arch_filter_id`),
-  KEY `product_id` (`product_id`),
   KEY `repository_id` (`repository_id`),
   KEY `index_product_update_repositories_on_arch_filter_id` (`arch_filter_id`),
   CONSTRAINT `product_update_repositories_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
@@ -928,7 +915,6 @@ CREATE TABLE `reviews` (
   PRIMARY KEY (`id`),
   KEY `index_reviews_on_creator` (`creator`),
   KEY `index_reviews_on_reviewer` (`reviewer`),
-  KEY `index_reviews_on_state` (`state`),
   KEY `index_reviews_on_by_user` (`by_user`),
   KEY `index_reviews_on_by_group` (`by_group`),
   KEY `index_reviews_on_by_project` (`by_project`),
@@ -1411,6 +1397,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170103132257'),
 ('20170111114943'),
 ('20170118091131'),
+('20170123115500'),
 ('21'),
 ('22'),
 ('23'),
