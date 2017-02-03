@@ -27,7 +27,8 @@ RSpec.describe Webui::Projects::PublicKeyController, type: :controller do
     context 'with a project that has no public key' do
       let(:keyinfo_response) { '<keyinfo />' }
 
-      it { expect(response.status).to eq(404) }
+      it { is_expected.to redirect_to(project_show_path(project)) }
+      it { expect(flash[:error]).not_to be_nil }
     end
   end
 end

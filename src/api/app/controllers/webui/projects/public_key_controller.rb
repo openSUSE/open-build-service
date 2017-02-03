@@ -11,7 +11,8 @@ module Webui
             filename: "#{project.title}_key.pub"
           )
         else
-          render nothing: true, status: :not_found
+          flash[:error] = "Project #{params[:project_name]} does not have a public key"
+          redirect_to project_show_path(project: project)
         end
       end
     end
