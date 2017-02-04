@@ -955,6 +955,8 @@ class Webui::PackageController < Webui::WebuiController
 
     # FIXME: OMG, if you call Package.get_by_project_and_name( 'blah', 'blubb', {follow_project_links: true} )
     # then @package.project might not be 'blah' but another project...
+    # NOTE: you may need an extra permission check when using this object beside show build state
+    @package.commit_opts = { NO_SAVE: true }
     @package.project = @project
 
     render partial: 'buildstatus'
