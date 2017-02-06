@@ -2830,7 +2830,7 @@ sub getbuilddepinfo {
   }
   my @cycles = map {{'package' => $_}} @{$depends->{'cycles'} || []};
   my $res = { 'package' => \@res, };
-  $res->{'cycle'} = \@cycles if @cycles;
+  $res->{'cycle'} = [ map { { 'package' => $_ } } @cycles ] if @cycles;
   return ($res, $BSXML::builddepinfo);
 }
 
