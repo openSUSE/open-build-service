@@ -4875,7 +4875,7 @@ sub autoextend_check {
   return $pk unless $pk;
   my $ex = 0;
   eval { $ex = BSPgp::pk2expire(BSPgp::unarmor($pk)) };
-  if ($ex && $ex < time() + 24 * 3600) {
+  if ($ex && $ex < time() + 14 * 24 * 3600) {
     extendkey({'comment' => 'auto-extend public key expiry date'}, $projid);
     $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
   }
