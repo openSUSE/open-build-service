@@ -38,6 +38,10 @@ if test -z "$SUBTEST"; then
     jshint)
       jshint .
       ;;
+    backend)
+      pushd ../backend
+      make test_unit
+      ;; 
     *)
       bundle exec rails rubocop
       bundle exec rails test:api
