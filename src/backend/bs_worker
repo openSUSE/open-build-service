@@ -2864,7 +2864,7 @@ sub dobuild {
     rm_rf("$buildroot/.build.packages");
     # move directory with extracted build results
     if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
-      print "final rename failed: $!";
+      print "final rename failed: $!\n";
       return 1;
     }
     # XXX: extracted cpio is flat but code below expects those directories...
