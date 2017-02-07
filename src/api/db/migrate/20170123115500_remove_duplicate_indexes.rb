@@ -48,24 +48,6 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration
     # To remove this duplicate index, execute:
     execute "ALTER TABLE `binary_releases` DROP INDEX `index_binary_releases_on_binary_name`;"
 
-    # FOREIGN KEY binary_releases_ibfk_3 (`repository_id`) REFERENCES `repositories` (`id`) is a duplicate of FOREIGN KEY binary_releases_ibfk_1 (`repository_id`) REFERENCES `repositories` (`id`)
-    # Key definitions:
-    #   CONSTRAINT `binary_releases_ibfk_3` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
-    #   CONSTRAINT `binary_releases_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
-    # Column types:
-    #	  `repository_id` int(11) not null
-    # To remove this duplicate foreign key, execute:
-    execute "ALTER TABLE `binary_releases` DROP FOREIGN KEY `binary_releases_ibfk_3`;"
-
-    # FOREIGN KEY binary_releases_ibfk_4 (`release_package_id`) REFERENCES `packages` (`id`) is a duplicate of FOREIGN KEY binary_releases_ibfk_2 (`release_package_id`) REFERENCES `packages` (`id`)
-    # Key definitions:
-    #   CONSTRAINT `binary_releases_ibfk_4` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`)
-    #   CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`)
-    # Column types:
-    #	  `release_package_id` int(11) default null
-    # To remove this duplicate foreign key, execute:
-    execute "ALTER TABLE `binary_releases` DROP FOREIGN KEY `binary_releases_ibfk_4`;"
-
     # ########################################################################
     # obs.bs_request_actions
     # ########################################################################
@@ -150,37 +132,6 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration
     execute "ALTER TABLE `packages` DROP INDEX `index_packages_on_project_id`;"
 
     # ########################################################################
-    # obs.product_media
-    # ########################################################################
-
-    # product_id is a left-prefix of index_unique
-    # Key definitions:
-    #   KEY `product_id` (`product_id`),
-    #   UNIQUE KEY `index_unique` (`product_id`,`repository_id`,`name`,`arch_filter_id`),
-    # Column types:
-    #	  `product_id` int(11) default null
-    #	  `repository_id` int(11) default null
-    #	  `name` varchar(255) collate utf8_unicode_ci default null
-    #	  `arch_filter_id` int(11) default null
-    # To remove this duplicate index, execute:
-    execute "ALTER TABLE `product_media` DROP INDEX `product_id`;"
-
-    # ########################################################################
-    # obs.product_update_repositories
-    # ########################################################################
-
-    # product_id is a left-prefix of index_unique
-    # Key definitions:
-    #   KEY `product_id` (`product_id`),
-    #   UNIQUE KEY `index_unique` (`product_id`,`repository_id`,`arch_filter_id`),
-    # Column types:
-    #	  `product_id` int(11) default null
-    #	  `repository_id` int(11) default null
-    #	  `arch_filter_id` int(11) default null
-    # To remove this duplicate index, execute:
-    execute "ALTER TABLE `product_update_repositories` DROP INDEX `product_id`;"
-
-    # ########################################################################
     # obs.reviews
     # ########################################################################
 
@@ -201,16 +152,12 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration
     execute "ALTER TABLE `attrib_namespace_modifiable_bies` ADD INDEX `index_attrib_namespace_modifiable_bies_on_attrib_namespace_id` (`attrib_namespace_id`);"
     execute "ALTER TABLE `attrib_types` ADD INDEX `attrib_namespace_id` (`attrib_namespace_id`);"
     execute "ALTER TABLE `binary_releases` ADD INDEX `index_binary_releases_on_binary_name` (`binary_name`);"
-    execute "ALTER TABLE `binary_releases` ADD CONSTRAINT `binary_releases_ibfk_3` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`);"
-    execute "ALTER TABLE `binary_releases` ADD CONSTRAINT `binary_releases_ibfk_4` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`);"
     execute "ALTER TABLE `bs_request_actions` ADD INDEX `index_bs_request_actions_on_target_project_and_source_project` (`target_project`, `source_project`);"
     execute "ALTER TABLE `cache_lines` ADD INDEX `index_cache_lines_on_project` (`project`);"
     execute "ALTER TABLE `channels` ADD INDEX `package_id` (`package_id`);"
     execute "ALTER TABLE `history_elements` ADD INDEX `index_history_elements_on_op_object_id` (`op_object_id`);"
     execute "ALTER TABLE `package_issues` ADD INDEX `index_package_issues_on_package_id` (`package_id`);"
     execute "ALTER TABLE `packages` ADD INDEX `index_packages_on_project_id` (`project_id`);"
-    execute "ALTER TABLE `product_media` ADD INDEX `product_id` (`product_id`);"
-    execute "ALTER TABLE `product_update_repositories` ADD INDEX `product_id` (`product_id`);"
     execute "ALTER TABLE `reviews` ADD INDEX `index_reviews_on_state` (`state`);"
   end
 end
