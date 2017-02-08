@@ -117,6 +117,10 @@ if [ -n "$OBS_VM_INITRD" -a "$OBS_VM_INITRD" != "none" ] ; then
     OBS_WORKER_OPT="$OBS_WORKER_OPT --vm-initrd $OBS_VM_INITRD"
 fi
 
+if [ -n "$OBS_VM_CUSTOM_OPTION" -a "$OBS_VM_CUSTOM_OPTION" != "none" ] ; then
+    OBS_WORKER_OPT="$OBS_WORKER_OPT --vm-custom-option \"$OBS_VM_CUSTOM_OPTION\""
+fi
+
 if [ -n "$OBS_WORKER_LOCALKIWI_DIRECTORY" ]; then
     OBS_WORKER_OPT="$OBS_WORKER_OPT --localkiwi $OBS_WORKER_LOCALKIWI_DIRECTORY --arch local"
 fi

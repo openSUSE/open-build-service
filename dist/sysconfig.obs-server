@@ -286,6 +286,16 @@ OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS=""
 OBS_VM_USE_TMPFS=""
 
 ## Path:        Applications/OBS
+## Description: Specify custom options for VM handler
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# Can be used to workaround problems with VM handler and should not be needed usually
+#
+OBS_VM_CUSTOM_OPTION=""
+
+## Path:        Applications/OBS
 ## Description: Memory allocated for each VM (512) if not set
 ## Type:        integer
 ## Default:     ""

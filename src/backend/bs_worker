@@ -65,6 +65,7 @@ my $vm_swap = '';
 my $vm_kernel;
 my $vm_initrd;
 my $vm_memory;
+my $vm_custom_option;
 my $vm_enable_console;
 my $vm_worker_name;
 my $vm_worker_instance;
@@ -285,6 +286,9 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --vm-worker-nr NUMBER
                    : (z/VM) set instance number of the actual worker
 
+       --vm-custom-option SWITCHES
+                   : hand over custom switches to vm handler (eg. qemu)
+
        --vmdisk-rootsize <size>
                    : size of the root disk image (default 4096M)
 
@@ -447,6 +451,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vm-memory') {
     shift @ARGV;
     $vm_memory = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vm-custom-option') {
+    shift @ARGV;
+    $vm_custom_option = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--vm-worker') {
@@ -2786,6 +2795,7 @@ sub dobuild {
     push @args, '--memory', $vmmemory if $vmmemory;
     push @args, '--vm-kernel', $vm_kernel if $vm_kernel;
     push @args, '--vm-initrd', $vm_initrd if $vm_initrd;
+    push @args, '--vm-custom-opt', $vm_custom_option if $vm_custom_option;
     push @args, '--vmdisk-rootsize', $vmdisk_rootsize if $vmdisk_rootsize;
     push @args, '--vmdisk-swapsize', $vmdisk_swapsize if $vmdisk_swapsize;
     push @args, '--vmdisk-filesystem', $vmdisk_filesystem if $vmdisk_filesystem;
