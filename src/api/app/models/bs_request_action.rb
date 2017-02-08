@@ -116,7 +116,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_sanity
-    if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? action_type
+    if action_type.in?([:submit, :maintenance_incident, :maintenance_release, :change_devel])
       errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
       unless is_maintenance_incident?
         errors.add(:source_package, "should not be empty for #{action_type} requests") if source_package.blank?
@@ -195,7 +195,7 @@ class BsRequestAction < ApplicationRecord
       # old form
       self.sourceupdate = 'update' if sourceupdate == '1'
       # there is mess in old data ;(
-      self.sourceupdate = nil unless VALID_SOURCEUPDATE_OPTIONS.include? sourceupdate
+      self.sourceupdate = nil unless sourceupdate.in?(VALID_SOURCEUPDATE_OPTIONS)
 
       self.updatelink = true if o.delete('updatelink') == 'true'
       self.makeoriginolder = o.delete('makeoriginolder')
@@ -240,7 +240,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def render_xml_attributes(node)
-    if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? action_type
+    if action_type.in?([:submit, :maintenance_incident, :maintenance_release, :change_devel])
       render_xml_source(node)
       render_xml_target(node)
     end
@@ -336,7 +336,7 @@ class BsRequestAction < ApplicationRecord
         else
           tpkg = tprj.find_package target_package.gsub(/\.[^\.]*$/, '')
         end
-      elsif [:set_bugowner, :add_role, :change_devel, :delete].include? action_type
+      elsif action_type.in?([:set_bugowner, :add_role, :change_devel, :delete])
         # target must exists
         tpkg = tprj.packages.find_by_name! target_package
       else
@@ -574,11 +574,11 @@ class BsRequestAction < ApplicationRecord
             raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " +
                                        "needs recalculation by the schedulers"
           end
-          if %w(finished publishing).include? result.attributes['state']
+          if result.attributes['state'].in?(["finished", "publishing"])
             raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo}' / #{arch}" +
                                        "did not finish the publish yet"
           end
-          unless %w(published unpublished).include? result.attributes['state']
+          unless result.attributes['state'].in?(["published", "unpublished"])
             raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " +
                                        "did not finish the build yet"
           end
@@ -684,7 +684,7 @@ class BsRequestAction < ApplicationRecord
       # no action, nothing to do
       next unless newAction
       # check if the source contains really a diff or we can skip the entire action
-      if [:submit, :maintenance_incident].include?(newAction.action_type) && !newAction.contains_change?
+      if newAction.action_type.in?([:submit, :maintenance_incident]) && !newAction.contains_change?
         # submit contains no diff, drop it again
         newAction.destroy
       else
@@ -742,7 +742,7 @@ class BsRequestAction < ApplicationRecord
     unless sprj
       raise UnknownProject.new "Unknown source project #{source_project}"
     end
-    unless sprj.class == Project || [:submit, :maintenance_incident].include?(action_type)
+    unless sprj.class == Project || action_type.in?([:submit, :maintenance_incident])
       raise NotSupported.new "Source project #{source_project} is not a local project. This is not supported yet."
     end
     if source_package
@@ -784,7 +784,7 @@ class BsRequestAction < ApplicationRecord
           raise UnknownRole.new 'No role specified'
         end
       end
-    elsif [:submit, :change_devel, :maintenance_release, :maintenance_incident].include?(action_type)
+    elsif action_type.in?([:submit, :change_devel, :maintenance_release, :maintenance_incident])
       # check existence of source
       unless sprj || skip_source
         # no support for remote projects yet, it needs special support during accept as well
@@ -798,13 +798,13 @@ class BsRequestAction < ApplicationRecord
         raise 'We should have expanded a target_project' unless target_project
         # validate project type
         prj = Project.get_by_name(target_project)
-        unless %w(maintenance maintenance_incident).include? prj.kind
+        unless prj.kind.in?(["maintenance", "maintenance_incident"])
           raise IncidentHasNoMaintenanceProject.new 'incident projects shall only create below maintenance projects'
         end
       end
 
       # source update checks
-      if [:submit, :maintenance_incident].include?(action_type)
+      if action_type.in?([:submit, :maintenance_incident])
         # cleanup implicit home branches. FIXME3.0: remove this, the clients should do this automatically meanwhile
         if sourceupdate.nil? && target_project
           if User.current.branch_project_name(target_project) == source_project
@@ -849,7 +849,7 @@ class BsRequestAction < ApplicationRecord
     end
     if target_package
       if Package.exists_by_project_and_name(target_project, target_package) ||
-        [:delete, :change_devel, :add_role, :set_bugowner].include?(action_type)
+        action_type.in?([:delete, :change_devel, :add_role, :set_bugowner])
         tpkg = Package.get_by_project_and_name target_project, target_package
       end
       a = tpkg.find_attribute('OBS', 'RejectRequests') if defined?(tpkg) && tpkg
@@ -871,7 +871,7 @@ class BsRequestAction < ApplicationRecord
   def expand_targets(ignore_build_state)
     # expand target_package
 
-    if [:submit, :maintenance_incident].include?(action_type)
+    if action_type.in?([:submit, :maintenance_incident])
       if target_package &&
          Package.exists_by_project_and_name(target_project, target_package, { follow_project_links: false })
         raise MissingAction.new unless contains_change?
@@ -890,7 +890,7 @@ class BsRequestAction < ApplicationRecord
       return
     end
 
-    if [:submit, :maintenance_release, :maintenance_incident].include?(action_type)
+    if action_type.in?([:submit, :maintenance_release, :maintenance_incident])
       packages = Array.new
       per_package_locking = false
       if source_package
@@ -938,7 +938,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_for_expand_errors!(add_revision)
-    return unless [:submit, :maintenance_incident, :maintenance_release].include? action_type
+    return unless action_type.in?([:submit, :maintenance_incident, :maintenance_release])
 
     # validate that the sources are not broken
     begin

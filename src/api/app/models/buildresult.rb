@@ -62,6 +62,6 @@ class Buildresult < ActiveXML::Node
   end
 
   def self.final_status?(status)
-    %w(succeeded failed unresolvable broken disabled excluded).include? status
+    status.in?(["succeeded", "failed", "unresolvable", "broken", "disabled", "excluded"])
   end
 end

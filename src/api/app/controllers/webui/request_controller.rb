@@ -48,7 +48,7 @@ class Webui::RequestController < Webui::WebuiController
     state = nil
     req = nil
     params.each do |key, value|
-      state = key if  %w(accepted declined new).include? key
+      state = key if  key.in?(["accepted", "declined", "new"])
       req = BsRequest.find_by_number!(value) if key.starts_with?('review_request_number_')
 
       # Our views are valid XHTML. So, several forms 'POST'-ing to the same action have different
@@ -99,10 +99,8 @@ class Webui::RequestController < Webui::WebuiController
 
     @my_open_reviews = @req['my_open_reviews']
     @other_open_reviews = @req['other_open_reviews']
-    # rubocop:disable Metrics/LineLength
-    @can_add_reviews = %w(new review).include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.present?) && !User.current.is_nobody?
-    # rubocop:enable Metrics/LineLength
-    @can_handle_request = %w(new review declined).include?(@state) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
+    @can_add_reviews = @state.in?(["new", "review"]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?) && !User.current.is_nobody?
+    @can_handle_request = @state.in?(["new", "review", "declined"]) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
 
     @history = @bsreq.history_elements
     @actions = @req['actions']

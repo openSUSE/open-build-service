@@ -638,7 +638,7 @@ class XpathEngine
     # Note that this can result in bloated SQL statements, so some trust in the query optimization
     # capabilities of your DBMS is neeed :-)
 
-    if [:child, :attribute].include? expr.first
+    if expr.first.in?([:child, :attribute])
       # for incorrect writings of not(@name) as existens check
       # we used to support it :/
       @condition_values_needed = 2 if expr.first == :attribute

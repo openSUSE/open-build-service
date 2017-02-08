@@ -1040,7 +1040,7 @@ class Project < ApplicationRecord
       flag_default = FlagHelper.default_for(flag_name)
       archs = Array.new
       flagret = Array.new
-      unless %w(lock access sourceaccess).include?(flag_name)
+      unless flag_name.in?(["lock", "access", "sourceaccess"])
         repos.each do |repo|
           flagret << flag_status(flag_default, repo.name, nil, flaglist, pkg_flags)
           repo.architectures.each do |arch|
@@ -1314,7 +1314,7 @@ class Project < ApplicationRecord
     # - omit 'lock' or we cannot create packages
     disable_publish_for_branches = ::Configuration.disable_publish_for_branches || project.image_template?
     project.flags.each do |f|
-      next if %w(build lock).include?(f.flag)
+      next if f.flag.in?(["build", "lock"])
       next if f.flag == 'publish' && disable_publish_for_branches
       # NOTE: it does not matter if that flag is set to enable or disable, so we do not check fro
       #       for same flag status here explizit
@@ -1599,12 +1599,12 @@ class Project < ApplicationRecord
     if repository && repository_states.has_key?(repository)
       return false if repository_states[repository].empty? # No buildresult is bad
       repository_states[repository].each do |state, _|
-        return false if %w(broken failed unresolvable).include?(state)
+        return false if state.in?(["broken", "failed", "unresolvable"])
       end
     else
       return false unless states.empty? # No buildresult is bad
       states.each do |state, _|
-        return false if %w(broken failed unresolvable).include?(state)
+        return false if state.in?(["broken", "failed", "unresolvable"])
       end
     end
     true

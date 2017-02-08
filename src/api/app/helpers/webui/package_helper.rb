@@ -21,7 +21,7 @@ module Webui::PackageHelper
   end
 
   def guess_code_class( filename )
-    return 'xml' if %w(_aggregate _link _patchinfo _service).include?(filename) || filename =~ /.*\.service/
+    return 'xml' if filename.in?(["_aggregate", "_link", "_patchinfo", "_service"]) || filename =~ /.*\.service/
     return 'shell' if filename =~ /^rc[\w-]+$/ # rc-scripts are shell
     return 'python' if filename =~ /^.*rpmlintrc$/
     return 'makefile' if filename == 'debian.rules'
@@ -43,7 +43,7 @@ module Webui::PackageHelper
       when '.changes' then return 'rpm-changes'
     end
     ext = ext[1..-1]
-    return ext if %w(diff php html xml css perl).include? ext
+    return ext if ext.in?(["diff", "php", "html", "xml", "css", "perl"])
     ''
   end
 

@@ -14,7 +14,7 @@ module Webui::BuildresultHelper
     end
 
     result = content_tag(:td, class: [theclass, "buildstatus", "nowrap"]) do
-      if %w(- unresolvable blocked excluded scheduled).include?(code)
+      if code.in?(["-", "unresolvable", "blocked", "excluded", "scheduled"])
         concat link_to(code, '#', title: link_title, id: status_id, class: code)
       else
         concat link_to(code.gsub(/\s/, '&nbsp;'),

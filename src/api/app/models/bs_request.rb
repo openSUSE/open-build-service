@@ -615,12 +615,12 @@ class BsRequest < ApplicationRecord
         raise InvalidStateError.new 'request is not in review state'
       end
       check_if_valid_review!(opts)
-      unless [:new, :accepted, :declined, :superseded].include? new_review_state
+      unless new_review_state.in?([:new, :accepted, :declined, :superseded])
         raise InvalidStateError.new "review state must be new, accepted, declined or superseded, was #{new_review_state}"
       end
       # to track if the request state needs to be changed as well
       go_new_state = :review
-      go_new_state = new_review_state if [:declined, :superseded].include? new_review_state
+      go_new_state = new_review_state if new_review_state.in?([:declined, :superseded])
       found = false
 
       reviews_seen = Hash.new
@@ -752,7 +752,7 @@ class BsRequest < ApplicationRecord
   def setpriority(opts)
     permission_check_setpriority!
 
-    unless ['low', 'moderate', 'important', 'critical'].include? opts[:priority]
+    unless opts[:priority].in?(['low', 'moderate', 'important', 'critical'])
       raise SaveError, "Illegal priority '#{opts[:priority]}'"
     end
 
@@ -770,7 +770,7 @@ class BsRequest < ApplicationRecord
     # rails enums do not support compare and break db constraints :/
     if new == "critical"
       self.priority = new
-    elsif new == "important" && ["moderate", "low"].include?(priority)
+    elsif new == "important" && priority.in?(["moderate", "low"])
       self.priority = new
     elsif new == "moderate" && "low" == priority
       self.priority = new
@@ -807,7 +807,7 @@ class BsRequest < ApplicationRecord
   def send_state_change
     return if state_was.to_s == state.to_s
     # new->review && review->new are not worth an event - it's just spam
-    return if IntermediateStates.include?(state.to_s) && IntermediateStates.include?(state_was.to_s)
+    return if state.to_s.in?(IntermediateStates) && state_was.to_s.in?(IntermediateStates)
     Event::RequestStatechange.create(notify_parameters)
   end
 

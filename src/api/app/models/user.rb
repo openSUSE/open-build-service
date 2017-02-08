@@ -98,7 +98,7 @@ class User < ApplicationRecord
   after_create :create_home_project
   def create_home_project
     # avoid errors during seeding
-    return if ["_nobody_", "Admin"].include? login
+    return if login.in?(["_nobody_", "Admin"])
     # may be disabled via Configuration setting
     return unless can_create_project?(home_project_name)
     # find or create the project
@@ -332,7 +332,7 @@ class User < ApplicationRecord
   # state an password hash type being in the range of allowed values.
   def validate
     # validate state and password has type to be in the valid range of values
-    errors.add(:password_hash_type, 'must be in the list of hash types.') unless User.password_hash_types.include? password_hash_type
+    errors.add(:password_hash_type, 'must be in the list of hash types.') unless password_hash_type.in?(User.password_hash_types)
     # check that the state transition is valid
     errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
 
@@ -455,9 +455,9 @@ class User < ApplicationRecord
     when 'unconfirmed'
       true
     when 'confirmed'
-      ["locked", "deleted"].include?(to)
+      to.in?(["locked", "deleted"])
     when 'locked'
-      ["confirmed", "deleted"].include?(to)
+      to.in?(["confirmed", "deleted"])
     when 'deleted'
       to == "confirmed"
     else
