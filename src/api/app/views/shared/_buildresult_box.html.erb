@@ -54,6 +54,7 @@
 	  <%= raw("'index': '#{index}',") if defined?(index) %>
         },
         success: function(data) {
+          $('#result_display_<%= index %>_1').show();
           $('#result_display_<%= index %>_1').html(data);
         },
         error: function(data) {
