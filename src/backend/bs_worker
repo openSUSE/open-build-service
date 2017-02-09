@@ -2799,8 +2799,7 @@ sub dobuild {
     push @args, '--vmdisk-rootsize', $vmdisk_rootsize if $vmdisk_rootsize;
     push @args, '--vmdisk-swapsize', $vmdisk_swapsize if $vmdisk_swapsize;
     push @args, '--vmdisk-filesystem', $vmdisk_filesystem if $vmdisk_filesystem;
-    # mount options require quoting due to arguments which might start with "-o ..."
-    push @args, '--vmdisk-mount-options', "\"$vmdisk_mount_options\"" if $vmdisk_mount_options;
+    push @args, "--vmdisk-mount-options=$vmdisk_mount_options" if $vmdisk_mount_options;
     push @args, '--vmdisk-clean'if $vmdisk_clean;
     push @args, '--hugetlbfs', $hugetlbfs if $hugetlbfs;
     push @args, '--vm-worker', $vm_worker_name if $vm_worker_name;
