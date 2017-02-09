@@ -1,0 +1,34 @@
+From c59be3deddd70f6a99eb803112aeb86b45396461 Mon Sep 17 00:00:00 2001
+From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+Date: Mon, 2 Dec 2013 15:15:50 +0100
+Subject: Seperately include debs and udebs into reprepro
+
+Split out the calls for including debs and udebs into reprepro. This
+ensure the deb package still get properly included if the udeb isn't
+available (mostly for older builds)
+
+--- a/src/backend/bs_publish
++++ b/src/backend/bs_publish
+@@ -631,10 +631,21 @@
+           '--ignore=wrongdistribution',
+           '--ignore=updatedarchall',
+ 	  '--ignore=unusedarch',
+-	  '-T', 'deb|udeb',
++	  '-T', 'deb',
+           '-C', $component,
+           'include', $codename,
+           "$extrep/$f");
++        if (qsystem ('grep', '-q', '^Package-Type:.*',
++            "$extrep/$f") == 0) {
++          qsystem ('reprepro', '-b', $repo,
++            '--ignore=wrongdistribution',
++            '--ignore=updatedarchall',
++            '--ignore=unusedarch',
++            '-T', 'udeb',
++            '-C', $component,
++            'include', $codename,
++            "$extrep/$f");
++         }
+       } elsif ($f =~ /\.dsc/) {
+         print " Updated dsc file => $f\n" ;
+         qsystem ('reprepro', '-b', $repo,

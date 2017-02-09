@@ -1,0 +1,24 @@
+From 872f77567f739de672fa2910e3c2e66d1a80b9ce Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?H=C3=A9ctor=20Or=C3=B3n=20Mart=C3=ADnez?=
+ <hector.oron@collabora.co.uk>
+Date: Tue, 21 Jun 2016 16:20:28 +0200
+Subject: publisher: reprepro: set surprising binary
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+surprising binary needs to be passed to reprepro to be able to accept
+dbgsym packages.
+
+Signed-off-by: Héctor Orón Martínez <hector.oron@collabora.co.uk>
+
+--- a/src/backend/bs_publish
++++ b/src/backend/bs_publish
+@@ -665,6 +665,7 @@
+             '--ignore=wrongdistribution',
+             '--ignore=updatedarchall',
+             '--ignore=unusedarch',
++            '--ignore=surprisingbinary',
+             '-T', $type,
+             '-C', $component,
+             'include', $codename,

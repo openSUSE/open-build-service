@@ -1,0 +1,21 @@
+From 84b142833b22c50b233d39f0290c7b826562a405 Mon Sep 17 00:00:00 2001
+From: Hector Oron <hector.oron@collabora.co.uk>
+Date: Fri, 22 Mar 2013 14:58:44 +0100
+Subject: Add --ignore=unusedarch to reprepro params
+
+  When including changes files that contain architecture specific udeb, but
+  architecture independent deb packages, reprepro needs to pass
+  --ignore=unusedarch to get those binaries included into repository.
+
+Signed-off-by: Hector Oron <hector.oron@collabora.co.uk>
+
+--- a/src/backend/bs_publish
++++ b/src/backend/bs_publish
+@@ -630,6 +630,7 @@
+         qsystem ('reprepro', '-b', $repo,
+           '--ignore=wrongdistribution',
+           '--ignore=updatedarchall',
++	  '--ignore=unusedarch',
+           '-C', $component,
+           'include', $codename,
+           "$extrep/$f");

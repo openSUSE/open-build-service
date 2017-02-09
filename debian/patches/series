@@ -15,3 +15,11 @@ missing-codemirror-js.patch
 Do-not-ship-database.yml.patch
 localgem.patch
 disable-slp.patch
+Add_global_configuration_for_a_shared_reprepro.patch
+Add_--ignore=unusedarch_to_reprepro_params.patch
+publish_Also_accept_udebs_into_reprepro_repository.patch
+Seperately_include_debs_and_udebs_into_reprepro.patch
+BSConfig.pm.template_include_a_skeleton_reprepro.patch
+Include_ddebs_in_reprepro_too_and_fix_inclusion_of_udebs.patch
+bs_publish_improve-logging_for_reprepro_invocations.patch
+publisher_reprepro_set_surprising_binary.patch

@@ -1,0 +1,75 @@
+From 290f0dcd30fac56cc9de142598beba34dbe19f58 Mon Sep 17 00:00:00 2001
+From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+Date: Tue, 8 Jan 2013 15:30:15 +0100
+Subject: Add global configuration for a shared reprepro managed repository
+
+Allow configuration in BSConfig to configure a shared reprepro managed
+repository. All other repositories will use standard OBS mechanism to
+minimize complexity (Given these are mostly home branches which are
+small anyway)
+
+--- a/src/backend/bs_publish
++++ b/src/backend/bs_publish
+@@ -617,6 +617,33 @@
+   qsystem('rm', '-rf', "$extrep/descr") if -d "$extrep/descr";
+ }
+ 
++sub updaterepo_reprepro {
++  my ($prp, $extrep, @changed) = @_;
++
++  my $repo = "$extrepodir/$BSConfig::reprepository->{$prp}{'repository'}";
++  my $codename = $BSConfig::reprepository->{$prp}{'codename'};
++  my $component = $BSConfig::reprepository->{$prp}{'component'};
++
++  for my $f (@changed) {
++      if ($f =~ /\.changes/) {
++        print " Updated changes file => $f\n" ;
++        qsystem ('reprepro', '-b', $repo,
++          '--ignore=wrongdistribution',
++          '--ignore=updatedarchall',
++          '-C', $component,
++          'include', $codename,
++          "$extrep/$f");
++      } elsif ($f =~ /\.dsc/) {
++        print " Updated dsc file => $f\n" ;
++        qsystem ('reprepro', '-b', $repo,
++          '-C', $component,
++          '-P', 'standard',
++          '-S', 'main',
++          'includedsc', $codename, "$extrep/$f");
++      }
++  }
++}
++
+ sub createrepo_debian {
+   my ($extrep, $projid, $repoid, $data, $options) = @_;
+ 
+@@ -1596,6 +1623,7 @@
+   my @db_deleted;  	# for published db update
+   my @db_changed;	# for published db update
+   my @changed;  	# all changed files for hooks.
++  my @deleted;		# All deleted files for hooks.
+ 
+   my %bins_done;
+   @archs = sort(ls($extrep));
+@@ -1618,6 +1646,7 @@
+         unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+         push @db_deleted, $p if $p =~ /\.(?:$binsufsre)$/;
+         $changed = 1;
++	push @deleted, $p;
+ 	next;
+       }
+       if ("$s[9]/$s[7]/$s[1]" ne $bins_id{$p}) {
+@@ -2053,7 +2082,11 @@
+     deleterepo_hdlist2($extrep, $projid, $xrepoid, $data);
+   }
+   if ($repotype{'debian'}) {
+-    createrepo_debian($extrep, $projid, $xrepoid, $data, $repotype{'debian'});
++    if ($BSConfig::reprepository && $BSConfig::reprepository->{$prp}) {
++	updaterepo_reprepro($prp, $extrep, @changed)
++    } else {
++	createrepo_debian($extrep, $projid, $xrepoid, $data, $repotype{'debian'});
++    }
+   } else {
+     deleterepo_debian($extrep, $projid, $xrepoid, $data);
+   }

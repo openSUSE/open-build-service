@@ -1,0 +1,25 @@
+From 5c61a1a298e1febd6f605666469e229b349a8de2 Mon Sep 17 00:00:00 2001
+From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+Date: Mon, 21 Oct 2013 10:11:25 +0200
+Subject: publish: Also accept udebs into reprepro repositories
+
+
+--- a/src/backend/bs_publish
++++ b/src/backend/bs_publish
+@@ -631,6 +631,7 @@
+           '--ignore=wrongdistribution',
+           '--ignore=updatedarchall',
+ 	  '--ignore=unusedarch',
++	  '-T', 'deb|udeb',
+           '-C', $component,
+           'include', $codename,
+           "$extrep/$f");
+@@ -1466,7 +1467,7 @@
+       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
+ 	$p = "$1/$bin";
+ 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
+-      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.deb$/) {
++      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.u+deb$/) {
+ 	$p = "$1/$bin";
+       } elsif ($bin =~ /\.exe$/) {
+ 	$p = "$bin";

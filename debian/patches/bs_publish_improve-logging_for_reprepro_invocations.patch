@@ -1,0 +1,52 @@
+From 4e5b72258d098901ee6f88ed3842a8a637349381 Mon Sep 17 00:00:00 2001
+From: Simon McVittie <simon.mcvittie@collabora.co.uk>
+Date: Mon, 10 Feb 2014 15:03:37 +0000
+Subject: bs_publish: improve logging for reprepro invocations
+
+
+--- a/src/backend/bs_publish
++++ b/src/backend/bs_publish
+@@ -633,6 +633,8 @@
+           # (.deb, .udeb, .ddeb)
+           my $in_files = 0;
+           while (my $line = <$fh>) {
++            print "    $line";
++
+             if ($in_files) {
+               if ($line =~ /^\s/) {
+                 if ($line =~ /\.((?:|u|d)deb)$/) {
+@@ -653,12 +655,13 @@
+           # no binary packages at all? assume we must have mis-parsed it,
+           # and run reprepro for the .deb files so we get a better
+           # error report
++	  print "  warning: no .deb/.udeb/.ddeb found in .changes, assuming .deb only\n";
+           %types = (deb => 1);
+         }
+ 
+         foreach my $type (keys %types) {
+ 
+-          qsystem ('reprepro', '-b', $repo,
++          my @args = ('reprepro', '-b', $repo,
+             '--ignore=wrongdistribution',
+             '--ignore=updatedarchall',
+             '--ignore=unusedarch',
+@@ -666,14 +669,18 @@
+             '-C', $component,
+             'include', $codename,
+             "$extrep/$f");
++          print("  importing .$type binaries: ", join(' ', @args), "\n");
++          qsystem(@args);
+          }
+       } elsif ($f =~ /\.dsc/) {
+         print " Updated dsc file => $f\n" ;
+-        qsystem ('reprepro', '-b', $repo,
++        my @args = ('reprepro', '-b', $repo,
+           '-C', $component,
+           '-P', 'standard',
+           '-S', 'main',
+           'includedsc', $codename, "$extrep/$f");
++        print("  importing sources: ", join(' ', @args), "\n");
++        qsystem(@args);
+       }
+   }
+ }
