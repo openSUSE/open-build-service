@@ -54,7 +54,6 @@
 	  <%= raw("'index': '#{index}',") if defined?(index) %>
         },
         success: function(data) {
-          $('#result_display_<%= index %>_1').show();
           $('#result_display_<%= index %>_1').html(data);
         },
         error: function(data) {
@@ -84,7 +83,11 @@
 	<%= raw("'index': '#{index}',") if defined?(index) %>
       },
       success: function(data) {
-        $('#result_display_<%= index %>_0').html(data);
+        if ( data ) {
+            $('#result_display_<%= index %>_0').html(data);
+        } else {
+            $('#result_display_<%= index %>_1').show();
+        }
       },
       error: function(data) {
         $('#result_display_<%= index %>_0').html('<p>No build results available</p>');
