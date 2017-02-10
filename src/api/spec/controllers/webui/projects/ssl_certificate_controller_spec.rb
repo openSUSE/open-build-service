@@ -30,7 +30,8 @@ RSpec.describe Webui::Projects::SslCertificateController, type: :controller do
         %(<keyinfo project="Test"><pubkey algo="rsa">#{gpg_public_key}</pubkey></keyinfo>)
       end
 
-      it { expect(response.status).to eq(404) }
+      it { is_expected.to redirect_to(project_show_path(project)) }
+      it { expect(flash[:error]).not_to be_empty }
     end
   end
 end
