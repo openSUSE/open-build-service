@@ -6,6 +6,8 @@ before_install: dist/ci/travis_before_install.sh
 before_script: dist/ci/travis_before_script.sh
 after_failure: dist/ci/travis_after_failure.sh
 script: "dist/ci/travis_script.sh $TEST_SUITE"
+dist: trusty
+sudo: required
 env:
   - TEST_SUITE=rspec
   - TEST_SUITE=api
