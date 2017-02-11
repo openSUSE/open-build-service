@@ -47,13 +47,27 @@
 * Add O:S:U
   * zypper -n ar http://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_42.2/OBS:Server:Unstable.repo
   * zypper ref -s
-* install obs-worker package
-  * zypper -n in obs-worker
+* install obs-worker and openstack related packages
+  * zypper -n in obs-worker python-websocket-client python-glanceclient python-cinderclient python-novaclient python-neutronclient
 * get access settings (OBS-openrc.sh)
 * source OBS-openrc.sh
 * Create and upload grub-image
   (dist/openstack/create-grub-image.sh)
-* Configure OBS-Server (IP Addresses in /etc/sysconfig/obs-server)
+* Configure OBS worker in /etc/sysconfig/obs-server
+  * You have to configure at least the following variables
+    * OBS_SRC_SERVER="$OBSSERVER_IP:5352"
+    * OBS_REPO_SERVERS="$OBSSERVER_IP:5252"
+    * OBS_VM_TYPE="openstack"
+    * OBS_WORKER_CONTROL_INSTANCE=
+    * OBS_WORKER_OS_FLAVOR=
+    * OS_AUTH_URL=
+    * OS_PROJECT_ID=
+    * OS_PROJECT_NAME=
+    * OS_USER_DOMAIN_NAME=
+    * OS_USERNAME=
+    * OS_PASSWORD=
+    * OS_REGION_NAME=
+
 * Configure OpenStack settings (in /etc/sysconfig/obs-server)
 * create Volumes (boot/root/swap) for NUM of workers
   (dist/openstack/create-vm-volumes.sh)
