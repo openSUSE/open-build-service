@@ -11,6 +11,7 @@ module OBSApi
         Rails.logger.debug "Indexing and starting Sphinx"
         # Ensure sphinx directories exist for the test environment
         ThinkingSphinx::Test.init
+        ThinkingSphinx::Test.start
         # Index
         ThinkingSphinx::Test.index
         # Configure and start Sphinx
