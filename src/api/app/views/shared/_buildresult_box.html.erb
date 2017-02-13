@@ -29,8 +29,6 @@
 <% end %>
 
 <%= javascript_tag do %>
-  var tab_index_<%= index %> = 0;
-
   <% if controller == 'package' %>
     $('.result_select_link_<%= index %>').click(function (event) {
       $('#result_select_<%= index %> li.selected').attr('class', '');
@@ -61,7 +59,7 @@
         },
         complete: function(data) {
           $('#result_spinner_<%= index %>_1').hide();
-          if (tab_index_<%= index %> == 1) {
+          if ($('#result_select_link_<%= index %>_1').parent().hasClass('selected')) {
             $('#result_reload_<%= index %>_1').show();
           }
         }
@@ -90,7 +88,7 @@
       },
       complete: function(data) {
         $('#result_spinner_<%= index %>_0').hide();
-        if (tab_index_<%= index %> == 0) {
+        if ($('#result_select_link_<%= index %>_0').parent().hasClass('selected')) {
           $('#result_reload_<%= index %>_0').show();
         }
       }
