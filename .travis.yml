@@ -5,12 +5,14 @@ gemfile: src/api/Gemfile
 before_install: dist/ci/travis_before_install.sh
 before_script: dist/ci/travis_before_script.sh
 after_failure: dist/ci/travis_after_failure.sh
-script: "dist/ci/travis_script.sh $TEST_SUITE"
+script:
+  - "dist/ci/travis_script.sh $TEST_SUITE"
 env:
   - TEST_SUITE=rspec
   - TEST_SUITE=api
   - TEST_SUITE=webui
   - TEST_SUITE=spider
+  - TEST_SUITE=backend
 matrix:
   fast_finish: true
   include:
