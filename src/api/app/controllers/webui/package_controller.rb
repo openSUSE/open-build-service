@@ -957,7 +957,11 @@ class Webui::PackageController < Webui::WebuiController
     # then @package.project might not be 'blah' but another project...
     @package.project = @project
 
-    render partial: 'buildstatus'
+    if @project.repositories.any?
+      render partial: 'buildstatus'
+    else
+      render partial: 'no_repositories'
+    end
   end
 
   def rpmlint_result
