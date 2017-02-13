@@ -35,7 +35,7 @@
       $(event.target).parent().attr('class', 'selected')
       $('.result_display_<%= index %>').hide();
       $('.result_reload_<%= index %>').hide();
-      tab_index = event.target.id.split('result_select_link_<%= index %>_')[1];
+      var tab_index = event.target.id.split('result_select_link_<%= index %>_')[1];
       $('#result_reload_<%= index %>_' + tab_index).show();
       $('#result_display_<%= index %>_' + tab_index).show();
       return false;
@@ -94,6 +94,6 @@
       }
     });
   }
-	
+
   update_build_result();
 <% end %>
