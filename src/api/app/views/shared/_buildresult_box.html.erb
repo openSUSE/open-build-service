@@ -48,8 +48,8 @@
         url: '<%= url_for(:controller => controller, :action => 'rpmlint_result') %>',
         data: {
           <%= raw("'project': '#{project}',") if defined?(project) %>
-	  <%= raw("'package': '#{package}',") if defined?(package) %>
-	  <%= raw("'index': '#{index}',") if defined?(index) %>
+          <%= raw("'package': '#{package}',") if defined?(package) %>
+          <%= raw("'index': '#{index}',") if defined?(index) %>
         },
         success: function(data) {
           $('#result_display_<%= index %>_1').html(data);
@@ -77,8 +77,8 @@
       url: '<%= url_for(:controller => controller, :action => 'buildresult') %>',
       data: {
         <%= raw("'project': '#{project}',") if defined?(project) %>
-	<%= raw("'package': '#{package}',") if defined?(package) %>
-	<%= raw("'index': '#{index}',") if defined?(index) %>
+        <%= raw("'package': '#{package}',") if defined?(package) %>
+        <%= raw("'index': '#{index}',") if defined?(index) %>
       },
       success: function(data) {
         $('#result_display_<%= index %>_0').html(data);
