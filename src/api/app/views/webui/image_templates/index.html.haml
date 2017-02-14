@@ -15,7 +15,7 @@
             %dd
               %span.form-radio
               - if template.has_icon?
-                %img{ alt: template.title, src: template.source_path('_icon') }
+                %img{ alt: template.title, src: template.public_source_path('_icon') }
               - else
                 = sprite_tag('drive-optical-48')
               %span.group
@@ -28,7 +28,7 @@
             There are currently no base image templates available for project
             = succeed '.' do
               %strong= title_or_name(project)
-  - if first_template && User.current
+  - if first_template
     .templates_form
       = form_tag({ controller: :package, action: :branch }, method: :post, id: 'appliance_form') do
         = hidden_field_tag 'linked_project', first_template.project
@@ -40,7 +40,7 @@
           (Maximum of 200 characters, no blank, /, :, - or ; characters)
         %br
         = text_field_tag(:target_package, first_template, class: 'name_appliance_form', required: true)
-        = submit_tag('Create appliance', class: 'create_appliance')
+        = submit_tag('Create appliance', class: 'create_appliance', disabled: User.current.is_nobody? ? true: nil)
   - elsif @projects.empty?
     %p
       There are no templates yet, sorry.
