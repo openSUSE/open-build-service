@@ -2,24 +2,31 @@ class Project
   class KeyInfo
     include ActiveModel::Model
 
-    attr_accessor :pubkey, :algorithm, :ssl_certificate
+    attr_accessor :pubkey,
+                  :algorithm,
+                  :ssl_certificate,
+                  :keyid,
+                  :keysize,
+                  :expires,
+                  :fingerprint
 
     CACHE_EXPIRY_TIME = 5.minutes
 
     def self.find_by_project(project)
       response = Rails.cache.fetch("key_info_project_#{project.cache_key}", expires_in: CACHE_EXPIRY_TIME) do
-        begin
-          Suse::Backend.get(backend_url_with_ssl(project.name)).body
-        rescue ActiveXML::Transport::Error
-          Suse::Backend.get(backend_url(project.name)).body
-        end
+        # don't use _with_ssl for now since it will always create a cert in the backend
+        Suse::Backend.get(backend_url(project.name)).body
       end
       parsed_response = Xmlhash.parse(response)
 
       if parsed_response['pubkey'].present?
         key_info_params = {
-          pubkey:    parsed_response['pubkey']['_content'],
-          algorithm: parsed_response['pubkey']['algo']
+          pubkey:      parsed_response['pubkey']['_content'],
+          algorithm:   parsed_response['pubkey']['algo'],
+          keyid:       parsed_response['pubkey']['keyid'],
+          keysize:     parsed_response['pubkey']['keysize'],
+          expires:     parsed_response['pubkey']['expires'],
+          fingerprint: parsed_response['pubkey']['fingerprint']
         }
 
         if parsed_response['sslcert'].present?
