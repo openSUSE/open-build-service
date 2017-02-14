@@ -179,4 +179,24 @@ RSpec.describe PublicController, vcr: true do
     it { is_expected.to respond_with(:success) }
     it { expect(assigns(:pkg)).to eq(package) }
   end
+
+  describe "GET #source_file history" do
+    context "with history unlimited" do
+      before do
+        get :source_file, params: { project: project.name, package: package.name, filename: "_history" }
+        @revisions = Nokogiri::XML(response.body).xpath("//revision")
+      end
+      it { is_expected.to respond_with(:success) }
+      it { expect(@revisions.count).to be > 1 }
+    end
+
+    context "with history limited to 1" do
+      before do
+        get :source_file, params: { project: project.name, package: package.name, filename: "_history", limit: 1 }
+        @revisions = Nokogiri::XML(response.body).xpath("//revision")
+      end
+      it { is_expected.to respond_with(:success) }
+      it { expect(@revisions.count).to eq 1 }
+    end
+  end
 end
