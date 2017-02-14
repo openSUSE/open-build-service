@@ -1,0 +1,8 @@
+#configuration_tabs.box-header.header-tabs
+  %ul
+    = tab 'configuration', 'Configuration', controller: :configuration, action: :index
+    = tab 'architectures', 'Architectures', controller: :architectures, action: :index
+    = tab 'users', 'Manage Users', controller: :user, action: :index
+    = tab 'groups', 'Manage Groups', controller: :groups, action: :index
+    = tab 'notifications', 'Notifications', controller: :notifications, action: :index
+    = tab 'interconnect', 'Interconnect', controller: :configuration, action: :interconnect

@@ -1,0 +1,38 @@
+- @pagetitle = "Configuration"
+- @crumb_list = [@pagetitle]
+- @layouttype = 'custom'
+.grid_16.alpha.omega.box.box-shadow
+  = render partial: 'tabs'
+  .grid_16.alpha
+    %p
+      Configure your Open Build Service instance.
+    = form_for @configuration, url: { action: :update } do |f|
+      %h3 Frontpage Greeting
+      %p Change the text that is displayed as greeting on the frontpage
+      %p
+        = f.label :title
+        %br/
+        = f.text_field :title
+      %p
+        = f.label :description
+        %br/
+        = f.text_area :description, size: "80x20"
+      %h3 Base Configuration
+      %p Note: a backend restart is needed after a change here.
+      %p
+        = f.label :name
+        %br/
+        = f.text_field :name
+        The instance name which gets generated into each package. Short string only, no white spaces recommended.
+      %p
+        = f.label :unlisted_projects_filter_description
+        %br/
+        = f.text_field :unlisted_projects_filter_description
+        The description that will appear in projects list for explaining the exclusion filter.
+      %p
+        = f.label :unlisted_projects_filter
+        %br/
+        = f.text_field :unlisted_projects_filter
+        The exclusion filter itself. Is a Regular Expression (eg: ^home:.*)
+      %p
+        = f.submit "Update"
