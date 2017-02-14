@@ -2,7 +2,7 @@ require 'base64'
 require 'event'
 
 class Webui::UserController < Webui::WebuiController
-  before_action :check_display_user, only: [:show, :edit, :requests, :list_my, :delete, :save, :confirm, :admin, :lock]
+  before_action :check_display_user, only: [:show, :edit, :list_my, :delete, :save, :confirm, :admin, :lock]
   before_action :require_login, only: [:edit, :save, :notifications, :update_notifications, :index]
   before_action :require_admin, only: [:edit, :delete, :lock, :confirm, :admin, :index]
 
@@ -68,45 +68,6 @@ class Webui::UserController < Webui::WebuiController
       redirect_to action: :show, user: params[:user]
     else
       redirect_to action: :show, user: User.current
-    end
-  end
-
-  # Request from the user
-  def requests
-    sortable_fields = {
-        0 => :created_at,
-        3 => :creator,
-        5 => :priority
-      }
-    sorting_field = sortable_fields[params['order[0][column]'].to_i]
-    sorting_field ||= :created_at
-    sorting_dir = params['order[0][dir]'].try(:to_sym)
-    sorting_dir = :asc unless ["asc", "desc"].include?(params['order[0][dir]'])
-    search = params[:search] ? params[:search].permit![:value] : ""
-    request_methods = {
-      'all_requests_table'      => :requests,
-      'requests_out_table'      => :outgoing_requests,
-      'requests_declined_table' => :declined_requests,
-      'requests_in_table'       => :incoming_requests,
-      'reviews_in_table'        => :involved_reviews
-    }
-    # Depending on the table that is requesting we call the appropiate user method
-    request_method = request_methods[params[:dataTableId]] || :requests
-    @requests = @displayed_user.send(request_method, search)
-    @requests_count = @requests.count
-    @requests = @requests.offset(params[:start].to_i).limit(params[:length].to_i).reorder(sorting_field => sorting_dir)
-    respond_to do |format|
-      # For jquery dataTable
-      format.json {
-        render_json_response_for_dataTable(
-          draw: params[:draw].to_i + 1,
-          total_records_count: @displayed_user.send(request_method).count,
-          total_filtered_records_count: @requests_count,
-          records: @requests.includes(:bs_request_actions)
-        ) do |request|
-          render_to_string(partial: "shared/single_request.json", locals: { req: request, no_target: true, hide_state: true }).to_s.split(',')
-        end
-      }
     end
   end
 

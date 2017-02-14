@@ -5,7 +5,7 @@ RSpec.describe Webui::UserController do
   let!(:non_admin_user) { create(:confirmed_user, login: "moi") }
   let!(:admin_user) { create(:admin_user, login: "king") }
   let(:deleted_user) { create(:deleted_user) }
-  let!(:non_admin_user_request) { create(:bs_request, creator: non_admin_user, commenter: non_admin_user) }
+  let!(:non_admin_user_request) { create(:bs_request, priority: 'critical', creator: non_admin_user, commenter: non_admin_user) }
 
   it { is_expected.to use_before_action(:require_login) }
   it { is_expected.to use_before_action(:require_admin) }
@@ -105,15 +105,6 @@ RSpec.describe Webui::UserController do
 
   describe "GET #home" do
     skip
-  end
-
-  describe "GET #requests" do
-    before { login non_admin_user }
-
-    it 'renders the requests as json' do
-      get :requests, { format: :json }
-      expect(response.body).to eq({ draw: 1, recordsTotal: 1, recordsFiltered: 1, data: [] }.to_json)
-    end
   end
 
   describe "POST #save" do

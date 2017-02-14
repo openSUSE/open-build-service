@@ -114,26 +114,6 @@ class Webui::WebuiController < ActionController::Base
 
   protected
 
-  # Renders a json response for jquery dataTables
-  def render_json_response_for_dataTable(options)
-    options[:draw] ||= 1
-    options[:total_records_count] ||= 0
-    options[:total_displayed_records] ||= 0
-    response = {
-      draw:            options[:draw].to_i,
-      recordsTotal:    options[:total_records_count].to_i,
-      recordsFiltered: options[:total_filtered_records_count].to_i,
-      data:            options[:records].map do |record|
-        if block_given?
-          yield record
-        else
-          record
-        end
-      end
-    }
-    render json: Yajl::Encoder.encode(response)
-  end
-
   def require_login
     if User.current.nil? || User.current.is_nobody?
       render(text: 'Please login') && (return false) if request.xhr?
