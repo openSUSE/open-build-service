@@ -6,9 +6,9 @@
   requests ||= nil
   paginate = serverProcessing || (!requests.nil? && requests.count > 25)
   if serverProcessing
-    sort_columns = ['null', "{'orderable': false}", '{\'orderable\': false}']
+    sort_columns = ['null', "{ 'orderable': false }" ]
   else
-    sort_columns = %w(null null null)
+    sort_columns = %w(null null)
   end
 %>
 
@@ -20,26 +20,26 @@
       <tr>
         <th>Created</th>
         <th>Source</th>
-        <% if !no_target
-             sort_columns << 'null' -%>
+        <% unless no_target
+             sort_columns << "{ 'orderable': false }" -%>
             <th>Target</th>
         <% end -%>
         <th>Requester</th>
         <th>Type</th>
         <%
         if serverProcessing
-          sort_columns.concat ['null', "{'orderable': false}"]
+          sort_columns.concat ['null', "{ 'orderable': false }"]
         else
           sort_columns.concat %w(null null)
         end
         %>
-        <% if !hide_state
-             sort_columns << 'null' -%>
+        <% unless hide_state -%>
             <th>State</th>
             <% sort_columns.concat %w(null) %>
         <% end %>
         <th>Priority</th>
         <th></th>
+        <% sort_columns.concat ['null', "{ 'orderable': false }"] %>
       </tr>
       </thead>
       <tbody>
@@ -51,10 +51,7 @@
     <% content_for :ready_function do %>
         $('#<%= request_table_id %>').dataTable({
           'order': [[0,'desc']],
-          'columns': [
-          <%== sort_columns.join(",\n") %>,
-          {'orderable': false}
-          ],
+          'columns': [ <%== sort_columns.join(",\n") %> ],
           'info': false,
           'paging': <%= paginate %>,
           pagingType: "full_numbers",
