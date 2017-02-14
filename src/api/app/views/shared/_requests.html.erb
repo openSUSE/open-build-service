@@ -48,7 +48,7 @@
       <% end unless serverProcessing %>
       </tbody>
     </table>
-    <% content_for :ready_function do %>
+    <script>
         $('#<%= request_table_id %>').dataTable({
           'order': [[0,'desc']],
           'columns': [ <%== sort_columns.join(",\n") %> ],
@@ -64,5 +64,5 @@
           }
           <% end %>
         });
-    <% end %>
+    </script>
 <% end %>
