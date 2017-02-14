@@ -1,0 +1,32 @@
+- @pagetitle = "Group Management"
+- @crumb_list = [@pagetitle]
+- @layouttype = 'custom'
+.grid_16.alpha.omega.box.box-shadow
+  = render partial: 'webui/configuration/tabs'
+  %p
+    Manage groups.
+  - unless @groups.empty?
+    %table#group_table.compact
+      %thead
+        %tr
+          %th Group name
+          %th Members
+          %th Action
+      %tbody
+        - @groups.each do |group|
+          %tr{ id: "group-#{valid_xml_id(group.title)}" }
+            %td
+              = link_to(group.title, { controller: 'groups', action: 'show', title: group.title }, { id: group.title })
+            %td.users
+              = safe_join(group.users.map { |user| link_to(user, user_show_path(user)) }, ', ')
+            %td.nowrap
+              = link_to(sprited_text('accessories-text-editor', 'Edit Group'), { controller: 'groups', action: 'edit', title: group.title })
+  - else
+    %p
+      %i There are no groups configured
+  %p= link_to(sprited_text('group_add', 'Add group'), controller: 'groups', action: :new)
+- if @groups.length > 0
+  :javascript
+    $(function() {
+      $('#group_table').dataTable();
+    });

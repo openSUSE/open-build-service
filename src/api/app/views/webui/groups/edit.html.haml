@@ -1,0 +1,18 @@
+- @pagetitle = "Edit User Data"
+%h2
+  Edit Group #{@group.title}
+= form_tag({ action: 'update' }, { id: 'group_add_form' }) do
+  %p
+    %input#title{ name: "title", type: "hidden", value: "#{@group.title}" }/
+    = label_tag :members, 'Members:'
+    %br/
+    %input#members{ name: "group[members]", style: "display: none;", type: "text" }/
+    = submit_tag 'Save'
+:javascript
+  $(function() {
+    $("#members").tokenInput("#{url_for controller: 'user', action: 'tokens'}" ,{
+      theme: "facebook",
+      tokenValue: "name",
+      prePopulate: #{raw(@members.to_json)}
+    });
+  });
