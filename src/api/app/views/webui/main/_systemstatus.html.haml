@@ -1,0 +1,23 @@
+.box.box-shadow
+  %h2.box-header System Status
+  - if @busy
+    #overallgraph.aligncenter{ style: "height:250px; margin: 0px 20px 20px 20px" }
+    %p.description
+      The above graphs show the number of active build jobs last week,
+      currently #{@building_workers} of #{@overall_workers} build hosts
+      are busy building packages.
+      At the moment #{@waiting_packages} packages are waiting on the different architectures.
+  %p.description
+    = @configuration['title']
+    hosts
+    %b= number_with_delimiter @project_count
+    projects, with
+    %b= number_with_delimiter @package_count
+    packages, in
+    %b= number_with_delimiter @repo_count
+    repositories
+    and is used by
+    %b= number_with_delimiter @user_count
+    confirmed developers.
+- content_for :ready_function do
+  plotbusyworkers(#{Webui::MonitorHelper.print_statistics_array(@busy)});
