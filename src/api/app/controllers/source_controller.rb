@@ -1143,7 +1143,6 @@ class SourceController < ApplicationController
           end
         end
       end
-      @project.add_user @http_user, 'maintainer'
       @project.store
     end unless @project
 

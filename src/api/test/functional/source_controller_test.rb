@@ -2818,7 +2818,6 @@ EOF
     get '/source/home:fred:COPY/_meta'
     assert_response :success
     assert_no_xml_tag tag: 'person', attributes: { userid: 'Iggy' }
-    assert_xml_tag tag: 'person', attributes: { userid: 'fred', role: 'maintainer' }
     copy = @response.body
     # almost everything must be identical
     orig = orig.gsub(/project name=.*/, 'project') # make project name identical
