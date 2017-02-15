@@ -1,0 +1,72 @@
+
+#
+# Open Build Service 2.9
+#
+
+WARNING:
+WARNING: This is a development release, not for production usage!
+WARNING:
+
+
+
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+There is also an install medium with installs OBS on hard disc now.
+
+dist/README.UPDATERS file has informations for updaters.
+
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
+happen automatically.
+
+
+Features
+========
+
+UI:
+ *
+
+API:
+ *
+
+Backend:
+ * support project copy with makeoriginolder option
+
+Shipment:
+ * 
+
+Wanted changes:
+===============
+
+ * project copy is not adding the user anymore
+
+Other changes
+=============
+
+ * 
+
+Notes for systems using systemd:
+================================
+
+OBS is using init scripts, not systemd style .service files. This will stay until
+we will switch from SLES 11 to SLES 12 as default production platform.
+
+openSUSE installations may use systemd (instead of sysvinit) and it should work
+in general. Not working are usages like
+
+ # rcobssrcserver status
+
+You will only get the systemd status here.
+
+Also stopping services may not kill all processes, which leads to abstract errors
+when trying to restart them. We heard also about trashed MySQL databases when using
+systemd.
+
+To avoid these problems you need switch directory to avoid the systemd mapper:
+
+ # cd /etc/init.d
+ # ./obssrcserver status|stop|start
