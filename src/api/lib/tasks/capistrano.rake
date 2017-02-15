@@ -12,7 +12,7 @@ def cap(*parameters)
 
   require 'capistrano/cli'
 
-  Capistrano::CLI.new(parameters.map { |param| param.to_s }).execute!
+  Capistrano::CLI.new(parameters.map(&:to_s)).execute!
 end
 
 namespace :remote do

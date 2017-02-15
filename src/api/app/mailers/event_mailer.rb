@@ -38,7 +38,7 @@ class EventMailer < ActionMailer::Base
     subscribers.delete(orig)
     return if subscribers.empty?
 
-    tos = subscribers.map { |u| u.display_name }
+    tos = subscribers.map(&:display_name)
 
     if orig
       orig = orig.display_name

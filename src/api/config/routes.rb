@@ -708,6 +708,4 @@ OBSApi::Application.routes.draw do
   get 'main/sitemap_packages/:listaction' => 'webui/main#sitemap_packages'
 end
 
-OBSEngine::Base.subclasses.each do |engine|
-  engine.mount_it
-end
+OBSEngine::Base.subclasses.each(&:mount_it)

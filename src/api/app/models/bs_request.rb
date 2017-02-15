@@ -687,14 +687,10 @@ class BsRequest < ApplicationRecord
           end
           # if all groups agreed, we can set all now to new
           if go_new_state
-            bs_request_action_groups.each do |g|
-              g.set_group_to_new
-            end
+            bs_request_action_groups.each(&:set_group_to_new)
           end
         elsif go_new_state == :review
-          bs_request_action_groups.each do |g|
-            g.set_group_to_review
-          end
+          bs_request_action_groups.each(&:set_group_to_review)
         elsif go_new_state == :declined
           history = HistoryElement::RequestDeclined
         else

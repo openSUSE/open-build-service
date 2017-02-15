@@ -133,7 +133,7 @@ class Webui::SearchController < Webui::WebuiController
     @attrib_type_list = AttribType.includes(:attrib_namespace).map do |t|
       ["#{t.attrib_namespace.name}:#{t.name}", t['id']]
     end
-    @attrib_type_list.sort_by! {|a| a.first }
+    @attrib_type_list.sort_by!(&:first)
     @attrib_type_list.unshift(['', ''])
   end
 

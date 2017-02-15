@@ -242,7 +242,7 @@ module MaintenanceHelper
     projectFilter = nil
     prj = sourcePackage.project.parent
     if prj && prj.is_maintenance?
-      projectFilter = prj.maintained_projects.map{|mp| mp.project}
+      projectFilter = prj.maintained_projects.map(&:project)
     end
     # prefer a channel in the source project to avoid double hits exceptions
     cts = ChannelTarget.find_by_repo(targetRepo, [sourcePackage.project])

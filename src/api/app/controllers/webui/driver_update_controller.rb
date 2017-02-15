@@ -26,11 +26,11 @@ class Webui::DriverUpdateController < Webui::PackageController
     end
 
     # parse name, archs, repos from services file
-    @repositories = dud_service.each('param[@name="instrepo"]').map{|repo| repo.text}
+    @repositories = dud_service.each('param[@name="instrepo"]').map(&:text)
     @name = dud_service.find_first('param[@name="name"]').text if dud_service.find_first( 'param[@name="name"]' )
     @distname = dud_service.find_first('param[@name="distname"]').text if dud_service.find_first( 'param[@name="distname"]' )
     @flavour = dud_service.find_first('param[@name="flavour"]').text if dud_service.find_first( 'param[@name="flavour"]' )
-    @architectures = dud_service.each('param[@name="arch"]').map{|arch| arch.text}
+    @architectures = dud_service.each('param[@name="arch"]').map(&:text)
 
     # parse packages, binary packages from dud_packlist.xml file
     @packages = []

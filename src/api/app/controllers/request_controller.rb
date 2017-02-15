@@ -33,7 +33,7 @@ class RequestController < ApplicationController
     params[:types] = params[:types].split(',') if params[:types]
     params[:states] = params[:states].split(',') if params[:states]
     params[:review_states] = params[:reviewstates].split(',') if params[:reviewstates]
-    params[:ids] = params[:ids].split(',').map { |i| i.to_i } if params[:ids]
+    params[:ids] = params[:ids].split(',').map(&:to_i) if params[:ids]
 
     rel = BsRequest.collection(params).includes([:reviews]).
           includes({bs_request_actions: :bs_request_action_accept_info}).
