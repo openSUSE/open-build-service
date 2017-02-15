@@ -407,7 +407,8 @@ module Webui::WebuiHelper
     input.gsub(/[!"#$%&'()*+,.\/:\\;<=>?@\[\]^`{|}~]/, '_')
   end
 
-  def word_break(string, length)
+  def word_break(string, length = 80)
+    return "" unless string
     # adds a <wbr> tag after an amount of given characters
     safe_join(string.scan(/.{1,#{length}}/), "<wbr>".html_safe)
   end

@@ -154,13 +154,19 @@ function setup_subprojects_tables() {
         'paging': false,
         'searching': false,
         'info': false,
-        "autoWidth": false
+        "autoWidth": false,
+        "columnDefs": [
+          { "width": "40%", "targets": 0 }
+	]
         });
     }
     $('#subprojects_table').dataTable({
         'paging': false,
         'searching': false,
         'info': false,
-        "autoWidth": false
+        "autoWidth": false,
+        "columnDefs": [
+          { "width": "40%", "targets": 0 }
+        ]
     });
 }

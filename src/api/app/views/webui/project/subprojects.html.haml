@@ -14,8 +14,8 @@
     %tbody
       - @parentprojects.each do |project|
         %tr
-          %td.project_name= link_to(project.name, {:action => 'show', :project => project.name})
-          %td.project_title= project.title
+          %td.project_name= link_to(word_break(project.name), {:action => 'show', :project => project.name})
+          %td.project_title= word_break(project.title)
 
 %h3= @pagetitle
 - if @subprojects.present?
@@ -27,8 +27,8 @@
     %tbody
       - @subprojects.each do |project|
         %tr
-          %td.project_name= link_to(remove_parent_name(project.name, @project.name), {:action => 'show', :project => project.name})
-          %td.project_title= project.title
+          %td.project_name= link_to(word_break(remove_parent_name(project.name, @project.name), 50), {:action => 'show', :project => project.name})
+          %td.project_title= word_break(project.title)
 - else
   %p
     %i This project has no subprojects
@@ -43,8 +43,8 @@
     %tbody
       - @siblings.each do |project|
         %tr
-          %td.project_name= link_to(remove_parent_name(project.name, @parent_name), {:action => 'show', :project => project.name})
-          %td.project_title= project.title
+          %td.project_name= link_to(word_break(remove_parent_name(project.name, @parent_name), 50), {:action => 'show', :project => project.name})
+          %td.project_title= word_break(project.title)
 
 - if User.current.can_modify_project?(@project)
   %p

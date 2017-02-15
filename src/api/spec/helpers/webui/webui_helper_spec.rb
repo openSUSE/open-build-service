@@ -57,6 +57,10 @@ RSpec.describe Webui::WebuiHelper do
     it "does not evaluate HTML tags" do
       expect(word_break("01234<b>567</b>890", 3)).to eq("012<wbr>34&lt;<wbr>b&gt;5<wbr>67&lt;<wbr>/b&gt;<wbr>890")
     end
+
+    it "returns blank if no string given" do
+      expect(word_break(nil, 3)).to eq("")
+    end
   end
 
   describe '#repo_status_icon' do
