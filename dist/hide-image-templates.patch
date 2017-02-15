@@ -1,0 +1,12 @@
+diff --git a/src/api/app/views/webui/main/index.html.erb b/src/api/app/views/webui/main/index.html.erb
+index 61d1725f3..bdbdcdc18 100644
+--- a/src/api/app/views/webui/main/index.html.erb
++++ b/src/api/app/views/webui/main/index.html.erb
+@@ -22,7 +22,6 @@
+       <% unless @spider_bot -%>
+           <%= proceed_link 'utilities-system-monitor', 'Status Monitor', :controller => 'monitor', :action => 'index' %>
+       <% end -%>
+-      <%= proceed_link 'drive-optical-32', 'New Image', image_templates_path if Feature.active?(:image_templates) %>
+     </ul>
+   </div>
+ 

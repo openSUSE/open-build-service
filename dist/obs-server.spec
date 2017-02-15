@@ -31,6 +31,7 @@
 %endif
 
 %define secret_key_file /srv/www/obs/api/config/secret.key
+%bcond_without image_templates
 
 %if 0%{?suse_version} >= 1315
 %define reload_on_update() %{?nil:
@@ -124,6 +125,8 @@ Requires:       perl-Net-SSLeay
 Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
+
+Patch0: hide-image-templates.patch
 
 %description
 The Open Build Service (OBS) backend is used to store all sources and binaries. It also
@@ -308,6 +311,10 @@ This package contains test cases for testing a installed appliances.
 
 #--------------------------------------------------------------------------------
 %prep
+%if %{without image_templates}
+patch0 -p1
+%endif
+
 export DESTDIR=$RPM_BUILD_ROOT
 %setup -q -n open-build-service-%version
 # drop build script, we require the installed one from own package
