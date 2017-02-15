@@ -1124,6 +1124,8 @@ while (@ARGV) {
     my $val;
     eval "\$val = \$BSConfig::$var";
     print "$val\n";
+  } elsif ( $arg eq "--drop-badhosts" ) {
+    BSUtil::touch("$rundir/bs_dispatch.dropbadhosts");
   } else {
     echo_help();
     exit(1)
