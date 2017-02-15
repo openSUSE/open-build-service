@@ -16,7 +16,7 @@
                 - state="red"
               - elsif daemon["state"] == "booting"
                 - state="yellow"
-              %div{ class: "statuslight #{"status_" + state}", style: "margin: auto"}
+              %div{ class: "statuslight #{"status_" + state}", style: "margin: auto", title: "#{daemon["state"]}"}
               .statusarch
                 = daemon["arch"] ? daemon["arch"] : daemon["type"]
               %span.hidden.statustext
@@ -26,9 +26,7 @@
                 - if daemon.has_key? "starttime"
                   - start_time = Time.at(daemon["starttime"].to_i)
                   for #{distance_of_time_in_words(@time_now, start_time, include_seconds: true)} (last restart: #{start_time.iso8601})
-      %br/
     - else
       %p
         %i No daemons running!
-    %br/
 .clear
