@@ -202,14 +202,33 @@ RSpec.describe Webui::ProjectController, vcr: true do
     before do
       apache_project
       @project = create(:project, name: 'Apache:Apache2')
-      create(:project, name: 'Apache:Apache2:TestSubproject')
-      create(:project, name: 'Apache:Apache2:TestSubproject2')
-      another_project
-      get :subprojects, params: { project: @project }
+      @subproject1 = create(:project, name: 'Apache:Apache2:TestSubproject')
+      @subproject2 = create(:project, name: 'Apache:Apache2:TestSubproject2')
     end
 
-    it { expect(assigns(:subprojects)).to match_array(@project.subprojects) }
-    it { expect(assigns(:parentprojects)).to match_array(@project.ancestors) }
+    context 'subprojects' do
+      before do
+        get :subprojects, params: { project: @project }
+      end
+
+      it "has subprojects" do
+        expect(assigns(:subprojects)).to match_array([@subproject1, @subproject2])
+        expect(assigns(:parentprojects)).to contain_exactly(apache_project)
+        expect(assigns(:siblings)).to be_empty
+      end
+    end
+
+    context 'siblingprojects' do
+      before do
+        get :subprojects, params: { project: @subproject1 }
+      end
+
+      it "has siblingprojects" do
+        expect(assigns(:subprojects)).to be_empty
+        expect(assigns(:parentprojects)).to match_array([apache_project, @project])
+        expect(assigns(:siblings)).to contain_exactly(@subproject2)
+      end
+    end
   end
 
   describe 'GET #new' do
