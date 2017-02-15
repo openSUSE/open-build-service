@@ -308,12 +308,14 @@ class Package < ApplicationRecord
     project.is_locked?
   end
 
+  def master_product_object
+    # test _product permissions if any other _product: subcontainer is used and _product exists
+    product_object = project.packages.find_by(name: "_product") if name =~ /\A_product:\w[-+\w\.]*\z/
+    product_object || self
+  end
+
   def check_write_access(ignoreLock = nil)
-    # test _product permissions if any other _product: subcontainer is used
-    obj = self
-    obj = project.packages.find_by(name: "_product") if name =~ /\A_product:\w[-+\w\.]*\z/
-    return true if User.current.can_modify_package? obj, ignoreLock
-    false
+    User.current.can_modify_package? master_product_object, ignoreLock
   end
 
   def check_write_access!(ignoreLock = nil)
@@ -755,7 +757,7 @@ class Package < ApplicationRecord
 
     # not really packages...
     # everything below _product:
-    return true if name =~ /\A_product:\w[-+\w\.]*\z/
+    return true if name =~ /\A_product:\w[-+\w\.]*\z/ && master_product_object != self
     return true if name == '_project'
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
