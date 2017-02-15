@@ -253,6 +253,7 @@ sub dod_deb {
     fetch("$url$pfile", $sslfingerprint, $timeout_large, $tmp);
     chkverify($tmp, $files{$pfile}) if $files{$pfile};
     uncompress($tmp, "Packages.gz", $file);
+    unlink($tmp);
   }
   return ($release_md5, $baseurl);
 }
