@@ -40,18 +40,17 @@ class Review < ApplicationRecord
   end
 
   def validate_non_symmetric_assignment
-    if review_assigned_from && review_assigned_from == review_assigned_to
-      errors.add(
-        :review_id,
-        "assigned to review which is already assigned to this review"
-      )
-    end
+    return unless review_assigned_from && review_assigned_from == review_assigned_to
+
+    errors.add(
+      :review_id,
+      "assigned to review which is already assigned to this review"
+    )
   end
 
   def validate_not_self_assigned
-    if persisted? && id == review_id
-      errors.add(:review_id, "recursive assignment")
-    end
+    return unless persisted? && id == review_id
+    errors.add(:review_id, "recursive assignment")
   end
 
   def state
@@ -111,11 +110,11 @@ class Review < ApplicationRecord
     if by_package && !by_project
       errors.add(:unknown, 'by_package defined, but missing by_project')
     end
-    if by_package && !Package.find_by_project_and_name(by_project, by_package)
-      # must be a local package. maybe we should rewrite in case the
-      # package comes via local project link...
-      errors.add(:by_package, "#{by_project}/#{by_package} not found")
-    end
+    return unless by_package && !Package.find_by_project_and_name(by_project, by_package)
+
+    # must be a local package. maybe we should rewrite in case the
+    # package comes via local project link...
+    errors.add(:by_package, "#{by_project}/#{by_package} not found")
   end
 
   def self.new_from_xml_hash(hash)

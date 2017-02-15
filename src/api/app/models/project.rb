@@ -455,9 +455,9 @@ class Project < ApplicationRecord
     return if Rails.env.test? && User.current.nil? # for unit tests
 
     # the can_create_check is inconsistent with package class check_write_access! check
-    unless check_write_access(ignoreLock)
-      raise WritePermissionError, "No permission to modify project '#{name}' for user '#{User.current.login}'"
-    end
+    return if check_write_access(ignoreLock)
+
+    raise WritePermissionError, "No permission to modify project '#{name}' for user '#{User.current.login}'"
   end
 
   def check_write_access(ignoreLock = nil)
@@ -528,11 +528,10 @@ class Project < ApplicationRecord
     end
 
     # do not allow to remove maintenance master projects if there are incident projects
-    if is_maintenance?
-      if MaintenanceIncident.find_by_maintenance_db_project_id id
-        raise DeleteError.new 'This maintenance project has incident projects and can therefore not be deleted.'
-      end
-    end
+    return unless is_maintenance?
+    return unless MaintenanceIncident.find_by_maintenance_db_project_id id
+
+    raise DeleteError.new 'This maintenance project has incident projects and can therefore not be deleted.'
   end
 
   def can_be_unlocked?(with_exception = true)
@@ -549,17 +548,14 @@ class Project < ApplicationRecord
         end
       end
     end
+
     unless flags.find_by_flag_and_status('lock', 'enable')
-      if with_exception
-        raise ProjectNotLocked.new "project '#{name}' is not locked"
-      else
-        errors.add(:base, 'is not locked')
-      end
+      raise ProjectNotLocked.new "project '#{name}' is not locked" if with_exception
+
+      errors.add(:base, 'is not locked')
     end
-    if errors.any?
-      return false
-    end
-    true
+
+    !errors.any?
   end
 
   def update_from_xml!(xmlhash, force = nil)
@@ -741,11 +737,10 @@ class Project < ApplicationRecord
       end
 
       target_repo = Repository.find_by_project_and_name(project.name, repository)
-      if target_repo
-        current_repo.release_targets.new(target_repository: target_repo, trigger: trigger)
-      else
-        raise SaveError, "Unknown target repository '#{project}/#{repository}'"
-      end
+
+      raise SaveError, "Unknown target repository '#{project}/#{repository}'" unless target_repo
+
+      current_repo.release_targets.new(target_repository: target_repo, trigger: trigger)
     end
   end
 
@@ -822,6 +817,7 @@ class Project < ApplicationRecord
     end
   end
 
+  # rubocop:disable Style/GuardClause
   def update_linked_projects(xmlhash)
     position = 1
     # destroy all current linked projects
@@ -850,6 +846,7 @@ class Project < ApplicationRecord
     end
     position
   end
+  # rubocop:enable Style/GuardClause
 
   def update_maintained_prjs_from_xml(xmlhash)
     # First check all current maintained project relations
@@ -1228,11 +1225,12 @@ class Project < ApplicationRecord
 
     trigger = nil # no trigger is set by default
     trigger = 'maintenance' if is_maintenance_incident?
-    unless add_target_repos.empty?
-      # add repository targets
-      add_target_repos.each do |repo|
-        trepo.release_targets.create(target_repository: repo, trigger: trigger)
-      end
+
+    return if add_target_repos.empty?
+
+    # add repository targets
+    add_target_repos.each do |repo|
+      trepo.release_targets.create(target_repository: repo, trigger: trigger)
     end
   end
 
@@ -1271,11 +1269,11 @@ class Project < ApplicationRecord
 
     branch_copy_flags(project)
 
-    if pkg_to_enable.is_channel?
-      # explizit call for a channel package, so create the repos for it
-      pkg_to_enable.channels.each do |channel|
-        channel.add_channel_repos_to_project(pkg_to_enable)
-      end
+    return unless pkg_to_enable.is_channel?
+
+    # explizit call for a channel package, so create the repos for it
+    pkg_to_enable.channels.each do |channel|
+      channel.add_channel_repos_to_project(pkg_to_enable)
     end
   end
 
@@ -1323,9 +1321,9 @@ class Project < ApplicationRecord
       flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
     end
 
-    if disable_publish_for_branches
-      flags.create(status: 'disable', flag: 'publish') unless flags.find_by_flag_and_status( 'publish', 'disable' )
-    end
+    return unless disable_publish_for_branches
+
+    flags.create(status: 'disable', flag: 'publish') unless flags.find_by_flag_and_status( 'publish', 'disable' )
   end
 
   def open_requests_with_project_as_source_or_target
@@ -1550,10 +1548,10 @@ class Project < ApplicationRecord
 
   def unlock_by_request(request)
     f = flags.find_by_flag_and_status('lock', 'enable')
-    if f
-      flags.delete(f)
-      store(comment: "Request got revoked", request: request, lowprio: 1)
-    end
+    return unless f
+
+    flags.delete(f)
+    store(comment: "Request got revoked", request: request, lowprio: 1)
   end
 
   def reopen_release_targets
@@ -1685,10 +1683,10 @@ class Project < ApplicationRecord
   # FIXME: will be cleaned up after implementing FATE #308899
   def prepend_kiwi_config
     prjconf = source_file('_config')
-    unless prjconf =~ /^Type:/
-      prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-      Suse::Backend.put_source(source_path('_config'), prjconf)
-    end
+    return if prjconf =~ /^Type:/
+
+    prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+    Suse::Backend.put_source(source_path('_config'), prjconf)
   end
 
   def self.validate_remote_permissions(request_data)

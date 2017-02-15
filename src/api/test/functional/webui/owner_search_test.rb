@@ -30,11 +30,11 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
 
     click_button "search_button"
 
-    if options[:expect] == :no_results
-      flash_message.must_equal "Your search did not return any results."
-      flash_message_type.must_equal :info
-      assert search_results.empty?
-    end
+    return unless options[:expect] == :no_results
+
+    flash_message.must_equal "Your search did not return any results."
+    flash_message_type.must_equal :info
+    assert search_results.empty?
   end
 
   def validate_search_page

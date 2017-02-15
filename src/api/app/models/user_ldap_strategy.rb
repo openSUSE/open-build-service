@@ -197,11 +197,9 @@ class UserLdapStrategy
         result << entry.vals(required_attr)
       end
     end
-    if result.empty?
-      return
-    else
-      return result
-    end
+
+    return if result.empty?
+    result
   end
 
   # This static method performs the search with the given grouplist, user to return the groups that the user in

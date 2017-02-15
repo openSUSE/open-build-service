@@ -63,8 +63,8 @@ class UnregisteredUser < User
       raise ErrRegisterSave.new "Could not save the registration, details: #{details}"
     end
 
-    if newuser.state == "unconfirmed"
-      raise ErrRegisterSave.new "Thank you for signing up! An admin has to confirm your account now. Please be patient."
-    end
+    return unless newuser.state == "unconfirmed"
+
+    raise ErrRegisterSave.new "Thank you for signing up! An admin has to confirm your account now. Please be patient."
   end
 end

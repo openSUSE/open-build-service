@@ -100,10 +100,10 @@ class Configuration < ApplicationRecord
   end
 
   def write_to_backend
-    if CONFIG['global_write_through']
-      path = '/configuration'
-      logger.debug 'Writing configuration.xml to backend...'
-      Suse::Backend.put_source(path, render_xml)
-    end
+    return unless CONFIG['global_write_through']
+
+    path = '/configuration'
+    logger.debug 'Writing configuration.xml to backend...'
+    Suse::Backend.put_source(path, render_xml)
   end
 end

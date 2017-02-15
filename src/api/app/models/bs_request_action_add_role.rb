@@ -21,9 +21,8 @@ class BsRequestActionAddRole < BsRequestAction
   def check_sanity
     super
     errors.add(:role, "should not be empty for add_role") if role.blank?
-    if person_name.blank? && group_name.blank?
-      errors.add(:person_name, "Either person or group needs to be set")
-    end
+    return unless person_name.blank? && group_name.blank?
+    errors.add(:person_name, "Either person or group needs to be set")
   end
 
   def execute_accept(_opts)
@@ -47,9 +46,9 @@ class BsRequestActionAddRole < BsRequestAction
     if person_name
       node.person name: person_name, role: role
     end
-    if group_name
-      node.group name: group_name, role: role
-    end
+    return unless group_name
+
+    node.group name: group_name, role: role
   end
 
   #### Alias of methods

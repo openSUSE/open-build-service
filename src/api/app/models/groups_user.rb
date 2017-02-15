@@ -10,8 +10,7 @@ class GroupsUser < ApplicationRecord
 
   validate :validate_duplicates, on: :create
   def validate_duplicates
-    if GroupsUser.find_by(user: user, group: group)
-      errors.add(:user, "User already has this group")
-    end
+    return unless GroupsUser.find_by(user: user, group: group)
+    errors.add(:user, "User already has this group")
   end
 end

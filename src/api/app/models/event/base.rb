@@ -102,12 +102,12 @@ module Event
       attribs.delete 'action'
       attribs.delete 'controller'
 
-      unless attribs.empty?
-        na = []
-        attribs.keys.each { |k| na << k.to_s }
-        logger.debug "LEFT #{self.class.name} payload_keys :#{na.sort.join(', :')}"
-        raise "LEFT #{self.class.name} payload_keys :#{na.sort.join(', :')} # #{attribs.inspect}"
-      end
+      return if attribs.empty?
+
+      na = []
+      attribs.keys.each { |k| na << k.to_s }
+      logger.debug "LEFT #{self.class.name} payload_keys :#{na.sort.join(', :')}"
+      raise "LEFT #{self.class.name} payload_keys :#{na.sort.join(', :')} # #{attribs.inspect}"
     end
 
     def set_payload(attribs, keys)

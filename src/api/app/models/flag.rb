@@ -26,11 +26,17 @@ class Flag < ApplicationRecord
 
   validate :validate_duplicates, on: :create
   def validate_duplicates
-    # rubocop:disable Metrics/LineLength
-    if Flag.where("status = ? AND repo = ? AND project_id = ? AND package_id = ? AND architecture_id = ? AND flag = ?", status, repo, project_id, package_id, architecture_id, flag).exists?
-      errors.add(:flag, "Flag already exists")
-    end
-    # rubocop:enable Metrics/LineLength
+    flag_exists = Flag.where(
+      "status = ? AND repo = ? AND project_id = ? AND package_id = ? AND architecture_id = ? AND flag = ?",
+      status,
+      repo,
+      project_id,
+      package_id,
+      architecture_id,
+      flag
+    ).exists?
+
+    errors.add(:flag, "Flag already exists") if flag_exists
   end
 
   def self.default_status(flag_name)
@@ -131,15 +137,10 @@ class Flag < ApplicationRecord
   def is_relevant_for?(in_repo, in_arch)
     arch = architecture ? architecture.name : nil
 
-    if arch.nil? && repo.nil?
-      return true
-    elsif arch.nil? && !repo.nil?
-      return true if in_repo == repo
-    elsif arch && repo.nil?
-      return true if in_arch == arch
-    elsif in_arch == arch && in_repo == repo
-      return true
-    end
+    return true if arch.nil? && repo.nil?
+    return true if arch.nil? && !repo.nil? && in_repo == repo
+    return true if arch && repo.nil? && in_arch == arch
+    return true if in_arch == arch && in_repo == repo
 
     false
   end

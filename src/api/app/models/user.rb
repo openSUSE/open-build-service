@@ -338,9 +338,9 @@ class User < ApplicationRecord
 
     # check that the password hash type has not been set if no new password
     # has been provided
-    if @new_hash_type && (!@new_password || password.nil?)
-      errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
-    end
+    return unless @new_hash_type && (!@new_password || password.nil?)
+
+    errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
   end
 
   # Override the accessor for the "password_hash_type" property so it sets
@@ -494,13 +494,12 @@ class User < ApplicationRecord
       self.email = proxy_email
       save
     end
-    if env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
-      realname = env['HTTP_X_FIRSTNAME'] + ' ' + env['HTTP_X_LASTNAME']
-      if self.realname != realname
-        self.realname = realname
-        save
-      end
-    end
+    return unless env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
+    realname = env['HTTP_X_FIRSTNAME'] + ' ' + env['HTTP_X_LASTNAME']
+    return unless self.realname != realname
+
+    self.realname = realname
+    save
   end
 
   #####################
@@ -621,6 +620,7 @@ class User < ApplicationRecord
     false
   end
 
+  # rubocop:disable Style/GuardClause
   def can_create_attribute_in?(object, opts)
     if !object.kind_of?(Project) && !object.kind_of?(Package)
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
@@ -657,6 +657,7 @@ class User < ApplicationRecord
     # never reached
     false
   end
+  # rubocop:enable Style/GuardClause
 
   def can_download_binaries?(package)
     return true if is_admin?
@@ -1005,9 +1006,9 @@ class User < ApplicationRecord
   # Hashes the given parameter by the selected hashing method. It uses the
   # "password_salt" property's value to make the hashing more secure.
   def hash_string(value)
-    if password_hash_type == "md5"
-      Digest::MD5.hexdigest(value + password_salt)
-    end
+    return unless password_hash_type == "md5"
+
+    Digest::MD5.hexdigest(value + password_salt)
   end
 
   cattr_accessor :lookup_strategy do

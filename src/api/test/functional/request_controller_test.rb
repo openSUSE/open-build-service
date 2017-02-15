@@ -1255,14 +1255,14 @@ XML
     assert_xml_tag(tag: 'collection', child: { tag: 'request' })
     assert_no_xml_tag(tag: 'target', attributes: { project: 'HiddenProject' })
 
-    if $ENABLE_BROKEN_TEST
-      # ... but adrian gets it
-      login_adrian
-      get '/request?view=collection&user=adrian&states=new,review'
-      assert_response :success
-      assert_xml_tag(tag: 'collection', child: { tag: 'request' })
-      assert_xml_tag(tag: 'target', attributes: { project: 'HiddenProject' })
-    end
+    return unless $ENABLE_BROKEN_TEST
+
+    # ... but adrian gets it
+    login_adrian
+    get '/request?view=collection&user=adrian&states=new,review'
+    assert_response :success
+    assert_xml_tag(tag: 'collection', child: { tag: 'request' })
+    assert_xml_tag(tag: 'target', attributes: { project: 'HiddenProject' })
   end
 
   def test_process_devel_request

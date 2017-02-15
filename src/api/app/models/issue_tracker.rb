@@ -83,12 +83,12 @@ class IssueTracker < ApplicationRecord
     end
     ids = result["bugs"].map { |x| x["id"].to_i }
 
-    if private_fetch_issues(ids)
-      self.issues_updated = @update_time_stamp
-      save!
+    return unless private_fetch_issues(ids)
 
-      return true
-    end
+    self.issues_updated = @update_time_stamp
+    save!
+
+    return true
   end
 
   def update_issues_github
@@ -120,18 +120,19 @@ class IssueTracker < ApplicationRecord
     http = Net::HTTP.start("cve.mitre.org")
     header = http.head("/data/downloads/allitems.xml.gz")
     mtime = Time.parse(header["Last-Modified"])
-    if mtime.nil? || self.issues_updated.nil? || (self.issues_updated < mtime)
-      # new file exists
-      h = http.get("/data/downloads/allitems.xml.gz")
-      unzipedio = StringIO.new(h.body) # Net::HTTP is decompressing already
-      listener = CVEparser.new
-      listener.set_tracker(self)
-      parser = Nokogiri::XML::SAX::Parser.new(listener)
-      parser.parse_io(unzipedio)
-      # done
-      self.issues_updated = mtime - 1.second
-      save
-    end
+
+    return unless mtime.nil? || self.issues_updated.nil? || (self.issues_updated < mtime)
+
+    # new file exists
+    h = http.get("/data/downloads/allitems.xml.gz")
+    unzipedio = StringIO.new(h.body) # Net::HTTP is decompressing already
+    listener = CVEparser.new
+    listener.set_tracker(self)
+    parser = Nokogiri::XML::SAX::Parser.new(listener)
+    parser.parse_io(unzipedio)
+    # done
+    self.issues_updated = mtime - 1.second
+    save
   end
 
   def update_issues
@@ -203,34 +204,34 @@ class IssueTracker < ApplicationRecord
 
   def parse_single_bugzilla_issue(r)
     issue = Issue.find_by_name_and_tracker r["id"].to_s, name
-    if issue
-      if r["is_open"]
-        # bugzilla sees it as open
-        issue.state = "OPEN"
-      elsif r["is_open"] == false
-        # bugzilla sees it as closed
-        issue.state = "CLOSED"
-      else
-        # bugzilla does not tell a state
-        issue.state = Issue.bugzilla_state(r["status"])
-      end
-      u = User.find_by_email(r["assigned_to"].to_s)
-      logger.info "Bugzilla user #{r["assigned_to"]} is not found in OBS user database" unless u
-      issue.owner_id = u.id if u
-# rubocop:disable Rails/Date
-      # the warning regarding timezone is pointless since the object got no information either
-      issue.created_at = r["creation_time"].to_time if r["creation_time"].present?
-# rubocop:enable Rails/Date
-      issue.created_at ||= Time.now
-      # this is our update_at, not the one bugzilla logged in last_change_time
-      issue.updated_at = @update_time_stamp
-      if r["is_private"]
-        issue.summary = nil
-      else
-        issue.summary = r["summary"]
-      end
-      issue.save
+    return unless issue
+
+    if r["is_open"]
+      # bugzilla sees it as open
+      issue.state = "OPEN"
+    elsif r["is_open"] == false
+      # bugzilla sees it as closed
+      issue.state = "CLOSED"
+    else
+      # bugzilla does not tell a state
+      issue.state = Issue.bugzilla_state(r["status"])
     end
+    u = User.find_by_email(r["assigned_to"].to_s)
+    logger.info "Bugzilla user #{r["assigned_to"]} is not found in OBS user database" unless u
+    issue.owner_id = u.id if u
+# rubocop:disable Rails/Date
+    # the warning regarding timezone is pointless since the object got no information either
+    issue.created_at = r["creation_time"].to_time if r["creation_time"].present?
+# rubocop:enable Rails/Date
+    issue.created_at ||= Time.now
+    # this is our update_at, not the one bugzilla logged in last_change_time
+    issue.updated_at = @update_time_stamp
+    if r["is_private"]
+      issue.summary = nil
+    else
+      issue.summary = r["summary"]
+    end
+    issue.save
   end
 
   def parse_github_issues(js)
@@ -265,14 +266,12 @@ class IssueTracker < ApplicationRecord
       return false
     end
 
-    if kind == "bugzilla"
-      return fetch_bugzilla_issues(ids)
-    elsif kind == "github"
-      return fetch_github_issues(ids)
-    elsif kind == "fate"
-      # Try with 'IssueTracker.find_by_name('fate').details('123')' on script/console
-      return fetch_fate_issues
-    end
+    return fetch_bugzilla_issues(ids) if kind == "bugzilla"
+    return fetch_github_issues(ids) if kind == "github"
+
+    # Try with 'IssueTracker.find_by_name('fate').details('123')' on script/console
+    return fetch_fate_issues if kind == "fate"
+
     # everything succeeded
     true
   end
@@ -347,9 +346,9 @@ class CVEparser < Nokogiri::XML::SAX::Document
   end
 
   def characters(content)
-    if @@isDesc
-      @@mySummary += content.chomp
-    end
+    return unless @@isDesc
+
+    @@mySummary += content.chomp
   end
 
   def end_element(name)

@@ -53,13 +53,9 @@ class EventSubscription < ApplicationRecord
   end
 
   def self.filter_relationships(rel, obj)
-    if obj.kind_of? User
-      return rel.where(user: obj)
-    elsif obj.kind_of? Group
-      return rel.where(group: obj)
-    elsif obj.nil?
-      return rel.where(user_id: nil, group_id: nil)
-    end
+    return rel.where(user: obj) if obj.kind_of? User
+    return rel.where(group: obj) if obj.kind_of? Group
+    return rel.where(user_id: nil, group_id: nil) if obj.nil?
 
     raise "Unable to filter by #{obj.class}"
   end

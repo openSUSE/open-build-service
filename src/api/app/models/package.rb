@@ -297,10 +297,9 @@ class Package < ApplicationRecord
   end
 
   def check_source_access!
-    unless check_source_access?
-      be_not_nobody!
-      raise ReadSourceAccessError, "#{project.name}/#{name}"
-    end
+    return if check_source_access?
+    be_not_nobody!
+    raise ReadSourceAccessError, "#{project.name}/#{name}"
   end
 
   def is_locked?
@@ -320,9 +319,9 @@ class Package < ApplicationRecord
 
   def check_write_access!(ignoreLock = nil)
     return if Rails.env.test? && User.current.nil? # for unit tests
-    unless check_write_access(ignoreLock)
-      raise WritePermissionError, "No permission to modify package '#{name}' for user '#{User.current.login}'"
-    end
+    return if check_write_access(ignoreLock)
+
+    raise WritePermissionError, "No permission to modify package '#{name}' for user '#{User.current.login}'"
   end
 
   def check_weak_dependencies?
@@ -338,12 +337,12 @@ class Package < ApplicationRecord
     packs = develpackages
     packs = packs.where.not(project: project) if ignore_local
     packs = packs.to_a
-    unless packs.empty?
-      msg = packs.map { |p| p.project.name + '/' + p.name }.join(', ')
-      de = DeleteError.new "Package is used by following packages as devel package: #{msg}"
-      de.packages = packs
-      raise de
-    end
+    return if packs.empty?
+
+    msg = packs.map { |p| p.project.name + '/' + p.name }.join(', ')
+    de = DeleteError.new "Package is used by following packages as devel package: #{msg}"
+    de.packages = packs
+    raise de
   end
 
   def find_project_local_linking_packages
@@ -370,9 +369,8 @@ class Package < ApplicationRecord
   end
 
   def update_project_for_product
-    if name == '_product'
-      project.update_product_autopackages
-    end
+    return unless name == '_product'
+    project.update_product_autopackages
   end
 
   def private_set_package_kind(dir)
@@ -392,10 +390,9 @@ class Package < ApplicationRecord
 
   def unlock_by_request(request)
     f = flags.find_by_flag_and_status('lock', 'enable')
-    if f
-      flags.delete(f)
-      store(comment: "Request got revoked", request: request, lowprio: 1)
-    end
+    return unless f
+    flags.delete(f)
+    store(comment: "Request got revoked", request: request, lowprio: 1)
   end
 
   def sources_changed(opts = {})
@@ -552,6 +549,7 @@ class Package < ApplicationRecord
     myissues
   end
 
+  # rubocop:disable Style/GuardClause
   def update_channel_list
     if is_channel?
       xml = Suse::Backend.get(source_path('_channel'))
@@ -568,6 +566,7 @@ class Package < ApplicationRecord
       channels.destroy_all
     end
   end
+  # rubocop:enable Style/GuardClause
 
   def update_product_list
     # short cut to ensure that no products are left over
@@ -1294,9 +1293,8 @@ class Package < ApplicationRecord
     if name == '_patchinfo'
       Patchinfo.new.verify_data(pkg.project, content)
     end
-    if name == '_attribute'
-      raise IllegalFileName
-    end
+    return unless name == '_attribute'
+    raise IllegalFileName
   end
 
   def save_file(opt = {})
@@ -1324,9 +1322,8 @@ class Package < ApplicationRecord
     end
 
     # update package timestamp and reindex sources
-    unless opt[:rev] == 'repository' || %w(_project _pattern).include?(name)
-      sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))
-    end
+    return if opt[:rev] == 'repository' || %w(_project _pattern).include?(name)
+    sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))
   end
 
   def to_param

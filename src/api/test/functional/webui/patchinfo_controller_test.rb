@@ -186,21 +186,21 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
 
   def delete_patchinfo(project) # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
     visit patchinfo_show_path(package: 'patchinfo', project: project)
-    if page.has_link?('delete-patchinfo')
-      find(:id, 'delete-patchinfo').click
-      find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
-      find_button("Ok").click
+    return unless page.has_link?('delete-patchinfo')
 
-      assert_equal page.current_path, project_show_path(project)
-      find('#flash-messages').must_have_text "Patchinfo was successfully removed."
+    find(:id, 'delete-patchinfo').click
+    find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
+    find_button("Ok").click
 
-      # FIXME: There must be a better way to test this
-      begin
-        Package.get_by_project_and_name(project.to_param, "patchinfo")
-        assert false
-      rescue Package::UnknownObjectError => e
-        assert_equal "home:Iggy/patchinfo", e.message
-      end
+    assert_equal page.current_path, project_show_path(project)
+    find('#flash-messages').must_have_text "Patchinfo was successfully removed."
+
+    # FIXME: There must be a better way to test this
+    begin
+      Package.get_by_project_and_name(project.to_param, "patchinfo")
+      assert false
+    rescue Package::UnknownObjectError => e
+      assert_equal "home:Iggy/patchinfo", e.message
     end
   end
 

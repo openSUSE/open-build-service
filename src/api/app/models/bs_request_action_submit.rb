@@ -114,9 +114,9 @@ class BsRequestActionSubmit < BsRequestAction
       source_cleanup
     end
 
-    if self.target_package == "_product"
-      Project.find_by_name!(self.target_project).update_product_autopackages
-    end
+    return unless self.target_package == "_product"
+
+    Project.find_by_name!(self.target_project).update_product_autopackages
   end
 
   #### Alias of methods
