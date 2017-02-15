@@ -230,6 +230,7 @@ Suse::Backend.post('/source/BaseDistro2.0/pack2?cmd=commitfilelist&vrev=2.3&vers
 Suse::Backend.put('/source/BaseDistro2.0/pack2/myfile?user=king', 'DummyContent of BaseDistro2.0/pack2')
 Suse::Backend.put('/source/BaseDistro2.0/pack2/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 Suse::Backend.put('/source/BaseDistro2.0/pack2.linked/_link?user=king', "<link package=\"pack2\" cicount='copy' />")
+Suse::Backend.put('/source/BaseDistro2.0:LinkedUpdateProject/_config?user=king', "cicntstart: 42.1")
 Suse::Backend.put('/source/BaseDistro3/_config?user=king', "Type: spec\nRepotype: rpm-md suse")
 Suse::Backend.put('/source/BaseDistro3/pack2/pack2.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read)
 Suse::Backend.put('/source/BaseDistro3/pack2/_multibuild?user=king', '<multibuild><package>package_multibuild</package></multibuild>')

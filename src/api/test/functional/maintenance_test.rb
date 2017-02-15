@@ -517,6 +517,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_king
     put '/source/ServicePack/_meta', "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
     assert_response :success
+    put '/source/ServicePack/_config', "cicntstart: 99.1"
+    assert_response :success
 
     # test right branching from ServicePack layer
     login_tom

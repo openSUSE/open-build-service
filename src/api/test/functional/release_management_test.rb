@@ -107,12 +107,15 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     post "/source/TEST:BaseDistro", cmd: :copy, oproject: "BaseDistro", makeolder: 1, nodelay: 1
     assert_response :success
 
-    # the origin must got increased by 2
+    # the origin must got increased by 2 behind a possible dot
     vrevs.each_key do |k|
       get "/source/BaseDistro/#{k}"
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i + 2}", files.value(:vrev)
+      revision_parts = vrevs[k].to_s.split(/(.*\.)([^.]*)$/)
+      expectedvrev = "#{revision_parts[0].to_i + 2}" # no dot inside of vrev as fallback
+      expectedvrev = "#{revision_parts[1]}#{revision_parts[2].to_i + 2}" if revision_parts.count > 1
+      assert_equal expectedvrev, files.value(:vrev)
     end
 
     # the copy must have a vrev by one higher and an extended .1
