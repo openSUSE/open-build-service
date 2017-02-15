@@ -205,24 +205,6 @@ Rails/NotNullColumn:
     - 'db/migrate/20131027122410_add_primary_to_repository_architectures.rb'
     - 'db/migrate/20131209103450_add_primary_to_groups_users.rb'
 
-# Offense count: 38
-# Configuration parameters: Include.
-# Include: app/**/*.rb, config/**/*.rb, db/**/*.rb, lib/**/*.rb
-Rails/Output:
-  Exclude:
-    - 'app/jobs/create_job.rb'
-    - 'app/models/bs_request_action_group.rb'
-    - 'app/models/full_text_search.rb'
-    - 'app/models/update_notification_events.rb'
-    - 'config/deploy.rb'
-    - 'config/environment.rb'
-    - 'db/migrate/001_initial_database.rb'
-    - 'db/migrate/20130301100000_add_release_target_constraints.rb'
-    - 'db/migrate/20140908125426_convert_request_history.rb'
-    - 'db/seeds.rb'
-    - 'lib/opensuse/backend.rb'
-    - 'lib/workers/import_requests.rb'
-
 # Offense count: 28
 Rails/OutputSafety:
   Exclude:

@@ -1,4 +1,3 @@
-# rubocop:disable Rails/Output
 require 'colorize'
 
 module DB

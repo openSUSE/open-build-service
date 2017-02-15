@@ -85,7 +85,7 @@ class BsRequestActionGroup < BsRequestAction
   end
 
   def execute_accept(opts)
-    puts "changestate #{opts.inspect}"
+    logger.info "changestate #{opts.inspect}"
     # TODO
   end
 

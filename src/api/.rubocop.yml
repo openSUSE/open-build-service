@@ -214,6 +214,14 @@ Rails:
 # Use `find_by` instead `where.first` and `where.take`
 Rails/FindBy:
   Enabled: true
+  
+# Checks for the use of output calls like puts and print
+Rails/Output:
+  Exclude:
+    - 'app/jobs/*'
+    - 'config/*'
+    - 'db/**/*'
+    - 'lib/**/*'
 
 # Checks for the use of old-style attribute validation macros.
 Rails/Validation:

@@ -45,7 +45,6 @@ class ConsistencyCheckJob < ApplicationJob
   end
 
   def check_project(fix = nil)
-    # rubocop:disable Output
     init
     if ENV['project'].blank?
       puts "Please specify the project with 'project=MyProject' on CLI"
@@ -61,7 +60,6 @@ class ConsistencyCheckJob < ApplicationJob
     end
     @errors << package_existence_consistency_check(project, fix)
     puts @errors unless @errors.blank?
-    # rubocop:enable Output
   end
 
   def project_meta_check(project, fix = nil)

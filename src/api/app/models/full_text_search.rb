@@ -85,8 +85,8 @@ class FullTextSearch
         interface.index
       rescue => e
         # Something failed, let's try again
-        puts "Indexing failed: #{e.message}"
-        puts "Retying indexing."
+        logger.info "Indexing failed: #{e.message}"
+        logger.info "Retying indexing."
         interface.index
       end
       begin
@@ -94,7 +94,7 @@ class FullTextSearch
       rescue RuntimeError => e
         # Most likely, this means that searchd is already running.
         # Nothing to worry about
-        puts "Handled exception: #{e.message}"
+        logger.info "Handled exception: #{e.message}"
       end
     end
     true

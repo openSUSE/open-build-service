@@ -31,7 +31,8 @@ class UpdateNotificationEvents
       if Rails.env.test?
         # make debug output useful in test suite, not just showing backtrace to HoptoaddNotifier
         Rails.logger.error "ERROR: #{e.inspect}: #{e.backtrace}"
-        puts e.inspect, e.backtrace
+        logger.info e.inspect
+        logger.info o e.backtrace
       end
       HoptoadNotifier.notify(e, {failed_job: type.inspect})
       return
