@@ -2965,6 +2965,7 @@ sub copyproject {
   my $oprojid = $cgi->{'oproject'};
   return $BSStdServer::return_ok if $oprojid eq $projid;
 
+  die("copyproject can not have both makeolder and makeoriginolder\n") if $cgi->{'makeolder'} && $cgi->{'makeoriginolder'};
   my $proj = BSRevision::readproj_local($projid);
   my $oproj = BSRevision::readproj_local($oprojid);
 
@@ -3013,7 +3014,7 @@ sub copyproject {
       # need to do this now because the binary copy will fail otherwise
       notify_repservers('package', $projid, $packid) if $cgi->{'withbinaries'};
     }
-    if ($cgi->{'makeolder'} || -s "$projectsdir/$oprojid.pkg/$packid.rev") {
+    if ($cgi->{'makeolder'} || $cgi->{'makeoriginolder'} || -s "$projectsdir/$oprojid.pkg/$packid.rev") {
       my $lastorev;
       if ($cgi->{'withhistory'}) {
 	# FIXME: races ahead
@@ -3037,7 +3038,7 @@ sub copyproject {
 	$lastorev = BSFileDB::fdb_getlast("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay);
       }
       if (!$lastorev || !$lastorev->{'rev'}) {
-	next unless $cgi->{'makeolder'};
+	next unless $cgi->{'makeolder'} || $cgi->{'makeoriginolder'};
 	# fake empty commit
 	$lastorev = { 'version' => 'unknown', 'rev' => 0, 'vrev' => 0, 'srcmd5' => $BSSrcrep::emptysrcmd5 };
       }
@@ -3073,17 +3074,24 @@ sub copyproject {
       $newrev->{'time'} = time();
       if ($cgi->{'makeolder'}) {
 	$newrev->{'vrev'} =~ s/(\d+)$/($1+1).".1"/e;
+      } elsif ($cgi->{'makeoriginolder'} && !$files->{'_link'}) {
+	$newrev->{'vrev'} =~ s/(\d+)$/$1+2/e;
       } else {
 	$newrev->{'vrev'} =~ s/(\d+)$/$1+1/e;
       }
       delete $newrev->{'rev'};
       $newrev = BSRevision::addrev_local({'vrev' => 1}, $projid, $packid, $newrev, $files);
-      if ($cgi->{'makeolder'}) {
+      if ($cgi->{'makeolder'} || ($cgi->{'makeoriginolder'} && !$files->{'_link'})) {
 	$lastorev->{'user'} = $user;
 	$lastorev->{'comment'} = $comment;
 	$lastorev->{'requestid'} = $cgi->{'requestid'};
 	$lastorev->{'time'} = time();
-	$lastorev->{'vrev'} =~ s/(\d+)$/$1+2/e;
+	$lastorev->{'user'} = $user;
+	if ($cgi->{'makeoriginolder'}) {
+	  $lastorev->{'vrev'} =~ s/(\d+)$/($1+1).".1"/e;
+	} else {
+	  $lastorev->{'vrev'} =~ s/(\d+)$/$1+2/e;
+	}
 	delete $lastorev->{'rev'};
 	$lastorev = BSFileDB::fdb_add_i("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay, $lastorev);
       }
@@ -3118,6 +3126,9 @@ sub copyproject {
   }
   # check all packages in project
   notify_repservers('package', $projid);	# also resumes the project
+  if ($cgi->{'makeolder'} || $cgi->{'makeoriginolder'}) {
+    notify_repservers('package', $oprojid);
+  }
   return $BSStdServer::return_ok;
 }
 
@@ -3257,7 +3268,7 @@ sub sourcecopy {
     delete $lastline->{'requestid'};
     delete $lastline->{'rev'};
     $lastline->{'user'} = 'buildservice-autocommit';
-    $lastline->{'comment'} = "makeolder vrev update for $projid/$packid";
+    $lastline->{'comment'} = "makeoriginolder vrev update for $projid/$packid";
     $lastline->{'requestid'} = $cgi->{'requestid'} if $cgi->{'requestid'};
     $lastline->{'vrev'} =~ s/(\d+)$/($1+1).".1"/e;
     BSFileDB::fdb_add_i("$projectsdir/$oprojid.pkg/$opackid.rev", $srcrevlay, $lastline);
@@ -5762,7 +5773,7 @@ my $dispatches = [
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
-  'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? resign:bool? noservice:bool?' => \&copyproject,
+  'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? makeoriginolder:bool? resign:bool? noservice:bool?' => \&copyproject,
   'POST:/source/$project cmd=move oproject:project' => \&moveproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package* withchangesmd5:bool?' => \&getprojectsourceinfo,
