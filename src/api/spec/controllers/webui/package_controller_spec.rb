@@ -728,7 +728,7 @@ EOT
 
     describe "GET #update_build_log" do
       def do_request(params)
-        xhr :get, :update_build_log, params: params
+        get :update_build_log, params: params, xhr: true
       end
 
       it_should_behave_like "build log"
