@@ -427,7 +427,8 @@ Parameters:
   # for copy command only:
   oproject: origin project name (required)
   resign: resign all binaries with new target project key
-  makeolder: make a split, the source is bumped by two numbers and target by one
+  makeolder: make target older, the source vrev is bumped by two numbers and target by one
+  makeoriginolder: make origin older, the source vrev is extended and target is guaranteed to be newer
   withhistory: copies sources with history on copy command
   withbinaries: copies also binaries on copy command
   noservice: do not run source services

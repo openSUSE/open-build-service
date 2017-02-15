@@ -2399,14 +2399,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_copy_project_for_release_with_history
-    # this is changing also the source project
-    login_tom
-    post '/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&makeolder=1'
-    assert_response 403
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
-    assert_match(/requires modification permission in oproject/, @response.body)
+    # Backup
+    system("for i in #{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/*.rev; do cp $i $i.backup; done")
 
     # store revisions before copy
+    login_king
     get '/source/BaseDistro/pack2/_history'
     assert_response :success
     originhistory = ActiveXML::Node.new(@response.body)
@@ -2418,7 +2415,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_not_nil originsrcmd5
 
     # as admin
-    login_king
     post '/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&makeolder=1&nodelay=1'
     assert_response :success
     get '/source/CopyOfBaseDistro/_meta'
@@ -2464,6 +2460,90 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal 'king', last_revision(copyhistory).value(:user)
 
     # cleanup
+    system("for i in #{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/*.rev; do mv $i.backup $i; done")
+    delete '/source/CopyOfBaseDistro'
+    assert_response :success
+  end
+
+  def test_copy_from_origin_with_modification_has_write_permission_check
+    # this is changing also the source project
+    login_tom
+    post '/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&makeolder=1'
+    assert_response 403
+    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_match(/requires modification permission in origin project/, @response.body)
+
+    # this is changing also the source project
+    post '/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&makeoriginolder=1'
+    assert_response 403
+    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_match(/requires modification permission in origin project/, @response.body)
+  end
+
+  def test_copy_project_for_release_using_makeoriginolder
+    # Backup
+    system("for i in #{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/*.rev; do cp $i $i.backup; done")
+
+    # store revisions before copy
+    login_tom
+    get '/source/BaseDistro/pack2/_history'
+    assert_response :success
+    originhistory = ActiveXML::Node.new(@response.body)
+    last = originhistory.each('revision').last
+    originsrcmd5 = last.value(:srcmd5)
+    originversion = last.value(:version)
+    origintime = last.value('time')
+    originvrev = last.value('vrev')
+    assert_not_nil originsrcmd5
+
+    # as admin
+    login_king
+    post '/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&makeoriginolder=1&nodelay=1'
+    assert_response :success
+    get '/source/CopyOfBaseDistro/_meta'
+    assert_response :success
+    get '/source/BaseDistro'
+    assert_response :success
+    opackages = ActiveXML::Node.new(@response.body)
+    get '/source/CopyOfBaseDistro'
+    assert_response :success
+    packages = ActiveXML::Node.new(@response.body)
+    assert_equal opackages.to_s, packages.to_s
+
+    # compare revisions of source project
+    get '/source/BaseDistro/pack2/_history'
+    assert_response :success
+    history = ActiveXML::Node.new(@response.body)
+    srcmd5 = last_revision(history).value(:srcmd5)
+    version = last_revision(history).value(:version)
+    time = last_revision(history).value(:time)
+    # rev = last_revision(history).rev
+    vrev = last_revision(history).value(:vrev)
+    assert_not_nil srcmd5
+    assert_equal originsrcmd5, srcmd5
+    expectedvrev = "#{(originvrev.to_i + 1)}.1" # the origin gets incremented by one, but also extended to avoid that it can become
+    assert_equal expectedvrev, vrev.to_s        # newer than the origin project at any time later.
+    assert_equal version, originversion
+    assert_not_equal time, origintime
+    assert_equal 'king', last_revision(history).value(:user)
+
+    # compare revisions of destination project
+    get '/source/CopyOfBaseDistro/pack2/_history'
+    assert_response :success
+    copyhistory = ActiveXML::Node.new(@response.body)
+    copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
+    copyversion = last_revision(copyhistory).value(:version)
+    copytime = last_revision(copyhistory).value(:time)
+    # copyrev = last_revision(copyhistory).rev
+    copyvrev = last_revision(copyhistory).value(:vrev)
+    assert_equal originsrcmd5, copysrcmd5
+    assert_equal (originvrev.to_i + 2).to_s, copyvrev.to_s # the copy is newer
+    assert_equal originversion, copyversion
+    assert_not_equal origintime, copytime
+    assert_equal 'king', last_revision(copyhistory).value(:user)
+
+    # cleanup
+    system("for i in #{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/*.rev; do mv $i.backup $i; done")
     delete '/source/CopyOfBaseDistro'
     assert_response :success
   end
