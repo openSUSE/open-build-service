@@ -1,4 +1,0 @@
-<h2>Waiting Queue</h2>
-<% @workerstatus.each_waiting.sort {|a,b| a.arch <=> b.arch }.each do |entry| %>
-  <%= entry.arch %>: <%= entry.jobs %> waiting<br />
-<% end %>
