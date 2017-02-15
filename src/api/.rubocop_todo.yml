@@ -977,13 +977,6 @@ Style/StringLiteralsInInterpolation:
     - 'lib/tasks/databases.rake'
     - 'test/functional/webui/download_on_demand_controller_test.rb'
 
-# Offense count: 51
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-# IgnoredMethods: respond_to, define_method
-Style/SymbolProc:
-  Enabled: false
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Style/Tab:
