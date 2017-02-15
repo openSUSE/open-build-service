@@ -460,6 +460,22 @@ sub dispatchslave {
     my %locked = map {$_ => 1} grep {/:status$/} @b;
     my %notlocked = map {$_ => 1} grep {!$locked{$_}} @b;
     my %seen;
+    my @crossb = grep {/:cross$/} @b;
+    if (@crossb) {
+      my %crossarchs;
+      for (@crossb) {
+	push @{$crossarchs{$2}}, $1 if /^(.*):([^:]+):cross$/;
+      }
+      for my $crossarch (sort keys %crossarchs) {
+	my %cj = map {$_ => 1} ls("$jobsdir/$crossarch");
+	# deltete orphaned marker
+	for (grep {!$cj{$_}} @{$crossarchs{$crossarch}}) {
+	  BSUtil::printlog("  - deleting orphaned cross marker $arch/$_:${crossarch}:cross");
+	  unlink("$jobsdir/$arch/$_:${crossarch}:cross");
+	}
+      }
+      @b = grep {!/:cross$/} @b;
+    }
     for my $job (grep {!/:(?:dir|status|new)$/} @b) {
       next if $locked{"$job:status"};
       $seen{$job} = 1;
