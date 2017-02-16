@@ -51,7 +51,7 @@
     <%= select_tag :attrib_type_id, options_for_select(@attrib_type_list, params[:attrib_type_id]), :id => 'attribute_list' %>
   </p>
   </div> <!-- end search_form -->
-<% unless @results.nil? || @results.length < 1 %>
+<% unless @results.nil? || @results.empty? %>
   <%= render :partial => 'results' %>
 <% end %>
 </div>

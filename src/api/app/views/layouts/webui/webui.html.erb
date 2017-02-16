@@ -31,7 +31,7 @@
     <% end %>
 
     <%= auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {:title => 'News'}) %>
-    <% unless CONFIG['feeds'].nil? or CONFIG['feeds'].length < 1 %>
+    <% unless CONFIG['feeds'].nil? or CONFIG['feeds'].empty? %>
       <% CONFIG['feeds'].each do |feed| %>
         <%= auto_discovery_link_tag(:rss, feed['url'], {:title => feed['name']}) %>
       <% end %>

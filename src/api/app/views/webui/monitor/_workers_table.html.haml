@@ -92,7 +92,7 @@
     but just relative against each other. The exact percentage shown has no real meaning, just one thing is certain: the bar reaches its maximum at 4h.
   %p
     The monitor is meant to entertain and not to be exact, if you need to know more details, check the #{link_to 'detailed page', action: :old}.
-- if @workers_sorted.size == 0
+- if @workers_sorted.empty?
   %p
     %i No workers
 - else

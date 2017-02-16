@@ -18,7 +18,7 @@ class Webui::SearchController < Webui::WebuiController
     end
 
     @results = Owner.search({ limit: "#{@owner_limit}", devel: "#{@owner_devel}" }, @search_text)
-    flash[:notice] = 'Your search did not return any results.' if @results.count < 1
+    flash[:notice] = 'Your search did not return any results.' if @results.empty?
   end
 
   # The search method does the search and renders the results
@@ -79,7 +79,7 @@ class Webui::SearchController < Webui::WebuiController
                                 issue_name: @search_issue,
                                 issue_tracker_name: @search_tracker)
     @results = search.search(page: params[:page], per_page: @per_page)
-    flash[:notice] = 'Your search did not return any results.' if @results.count < 1
+    flash[:notice] = 'Your search did not return any results.' if @results.empty?
   end
 
   private

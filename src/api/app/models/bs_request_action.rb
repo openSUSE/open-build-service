@@ -673,7 +673,7 @@ class BsRequestAction < ApplicationRecord
           newAction.destroy
           newAction = submitAction
         else # non-channel package
-          next if ReleaseTarget.where(repository: pkg.project.repositories, target_repository: tprj.repositories, trigger: "maintenance").count < 1
+          next if ReleaseTarget.where(repository: pkg.project.repositories, target_repository: tprj.repositories, trigger: "maintenance").empty?
           unless pkg.project.can_be_released_to_project?(tprj)
             raise WrongLinkedPackageSource.new "According to the source link of package " +
                                                "#{pkg.project.name}/#{pkg.name} it would go to project" +
@@ -717,7 +717,7 @@ class BsRequestAction < ApplicationRecord
 
         # rubocop:disable Metrics/LineLength
         # skip if there is no active maintenance trigger for this package
-        next if is_maintenance_release? && ReleaseTarget.where(repository: pkg.project.repositories, target_repository: Project.find_by_name(p).repositories, trigger: "maintenance").count < 1
+        next if is_maintenance_release? && ReleaseTarget.where(repository: pkg.project.repositories, target_repository: Project.find_by_name(p).repositories, trigger: "maintenance").empty?
         # rubocop:enable Metrics/LineLength
 
         newAction = dup

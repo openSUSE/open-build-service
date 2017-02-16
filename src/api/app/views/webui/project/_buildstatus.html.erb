@@ -2,7 +2,7 @@
   <% if @buildresult.blank? %>
       <% if @project.remoteurl %>
           <p><i>This project is just used to get referenced for using remote resources. </i></p>
-      <% elsif @project.repositories.count == 0 %>
+      <% elsif @project.repositories.empty? %>
           <p><i>This project currently has
             no <%= link_to "build targets", controller: :repositories, action: :distributions, project: @project %>
             defined. </i></p>
