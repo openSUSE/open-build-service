@@ -63,6 +63,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        open-build-service-%version.tar.xz
 Source1:        find-requires.sh
 Source2:        crawler-user-agents.json
+Patch0:         hide-image-templates.patch
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
@@ -126,7 +127,6 @@ Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
 
-Patch0: hide-image-templates.patch
 
 %description
 The Open Build Service (OBS) backend is used to store all sources and binaries. It also
@@ -226,10 +226,6 @@ Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.4.0" "production"`)
 Requires:       perl(GD)
 
 Requires:       ghostscript-fonts-std
-Summary:        The Open Build Service -- The API and WEBUI
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
-Group:          Productivity/Networking/Web/Utilities
-%endif
 
 %description -n obs-api
 This is the API server instance, and the web client for the
