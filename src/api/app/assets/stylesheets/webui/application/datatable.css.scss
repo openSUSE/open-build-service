@@ -1,0 +1,19 @@
+table.dataTable tbody tr {
+  background-color: #eeeeee;
+}
+/* table.dataTable tbody tr.selected { */
+table.dataTable tbody tr.odd td.sorting_1 {
+  background-color: #d3d6ff;
+}
+
+table.dataTable.compact {
+  border-collapse: collapse;
+}
+
+table.dataTable.compact.fit {
+  width: 100%;
+}
+
+a.paginate_button.next {
+  width: 51px;
+}

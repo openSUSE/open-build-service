@@ -82,6 +82,9 @@ class Webui::ProjectController < Webui::WebuiController
   def subprojects
     @subprojects = @project.subprojects.order(:name)
     @parentprojects = @project.ancestors.order(:name)
+    parent = @project.parent
+    @parent_name = parent.name unless parent.nil?
+    @siblings = @project.siblingprojects
   end
 
   def new

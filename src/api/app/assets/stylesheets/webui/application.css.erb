@@ -27,21 +27,6 @@
  *= require webui/application/notifications.css.scss
  *= require webui/application/attribute.css.scss
  *= require webui/application/request.css.scss
+ *= require webui/application/datatable.css.scss
 */
 <% require_asset 'webui/application/image_templates' if Feature.active?(:image_templates) %>
-
-table.dataTable tbody tr {
-  background-color: #eeeeee;
-}
-/* table.dataTable tbody tr.selected { */
-table.dataTable tbody tr.odd td.sorting_1 {
-  background-color: #d3d6ff;
-}
-
-table.dataTable.compact {
-  border-collapse: collapse;
-}
-
-a.paginate_button.next {
-  width: 51px;
-}

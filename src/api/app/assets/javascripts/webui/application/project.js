@@ -146,12 +146,27 @@ function setup_subprojects_tables() {
     $('#parentprojects_table').dataTable({
         'paging': false,
         'searching': false,
-        'info': false
+        'info': false,
+        "autoWidth": false
     });
+    if ($('#siblingprojects_table').length) {
+        $('#siblingprojects_table').dataTable({
+        'paging': false,
+        'searching': false,
+        'info': false,
+        "autoWidth": false,
+        "columnDefs": [
+          { "width": "40%", "targets": 0 }
+	]
+        });
+    }
     $('#subprojects_table').dataTable({
         'paging': false,
         'searching': false,
-        'info': false
+        'info': false,
+        "autoWidth": false,
+        "columnDefs": [
+          { "width": "40%", "targets": 0 }
+        ]
     });
-
 }

@@ -6,33 +6,45 @@
 
 - if @parentprojects.present?
   %h3 Parent projects of #{@project}
-  %table.compact.stripe.no-footer#parentprojects_table
+  %table.compact.fit.stripe.no-footer#parentprojects_table
     %thead
       %tr
         %th Parent project
-        %th Description
+        %th Title
     %tbody
       - @parentprojects.each do |project|
         %tr
-          %td= link_to project.name, :action => 'show', :project => project.name
-          %td= project.title
+          %td.project_name= link_to(word_break(project.name), {:action => 'show', :project => project.name})
+          %td.project_title= word_break(project.title)
 
 %h3= @pagetitle
-- prjlen = @project.name.length
 - if @subprojects.present?
-  %table.compact.stripe.no-footer#subprojects_table
+  %table.compact.fit.stripe.no-footer#subprojects_table
     %thead
       %tr
         %th Subproject
-        %th Description
+        %th Title
     %tbody
       - @subprojects.each do |project|
         %tr
-          %td= link_to project.name.slice(prjlen + 1, project.name.length), :action => 'show', :project => project.name
-          %td= project.title
+          %td.project_name= link_to(word_break(remove_parent_name(project.name, @project.name), 50), {:action => 'show', :project => project.name})
+          %td.project_title= word_break(project.title)
 - else
   %p
     %i This project has no subprojects
+
+- if @siblings.present?
+  %h3 Sibling projects of #{@project}
+  %table.compact.fit.stripe.no-footer#siblingprojects_table
+    %thead
+      %tr
+        %th Sibling project
+        %th Title
+    %tbody
+      - @siblings.each do |project|
+        %tr
+          %td.project_name= link_to(word_break(remove_parent_name(project.name, @parent_name), 50), {:action => 'show', :project => project.name})
+          %td.project_title= word_break(project.title)
 
 - if User.current.can_modify_project?(@project)
   %p
