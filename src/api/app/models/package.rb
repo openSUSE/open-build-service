@@ -891,7 +891,7 @@ class Package < ApplicationRecord
                                                                        architecture: result['arch'],
                                                                        code: status['code'],
                                                                        state: result['state'],
-                                                                       details: result['details'])
+                                                                       details: status['details'])
       end
     end
 
