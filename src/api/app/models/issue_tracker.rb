@@ -87,8 +87,6 @@ class IssueTracker < ApplicationRecord
 
     self.issues_updated = @update_time_stamp
     save!
-
-    return true
   end
 
   def update_issues_github

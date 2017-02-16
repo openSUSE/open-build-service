@@ -45,8 +45,7 @@ class ApplicationController < ActionController::Base
   attr_accessor :auth_method
 
   def pundit_user
-    return if User.current.is_nobody?
-    return User.current
+    return User.current unless User.current.is_nobody?
   end
 
   # Method for mapping actions in a controller to (XML) schemas based on request
