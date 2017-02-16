@@ -84,7 +84,7 @@ class Attrib < ApplicationRecord
     will_save = false
 
     #--- update issues ---#
-    if issues.map { |i| i.name }.sort != self.issues.map { |i| i.name }.sort
+    if issues.map(&:name).sort != self.issues.map(&:name).sort
       logger.debug "Attrib.update_with_associations: Issues for #{fullname} changed, updating."
       will_save = true
       self.issues.delete_all
@@ -94,7 +94,7 @@ class Attrib < ApplicationRecord
     end
 
     #--- update values ---#
-    if values.sort != self.values.map { |v| v.value}.sort
+    if values.sort != self.values.map(&:value).sort
       logger.debug "Attrib.update_with_associations: Values for #{fullname} changed, updating."
       will_save = true
       self.values.delete_all

@@ -25,13 +25,13 @@ class Distribution < ApplicationRecord
 
   def to_hash
     res = attributes
-    res["architectures"] = architectures.map { |a| a.name }
-    res["icons"] = icons.map { |i| i.attributes }
+    res["architectures"] = architectures.map(&:name)
+    res["icons"] = icons.map(&:attributes)
     res
   end
 
   def self.all_as_hash
-    Distribution.includes(:icons, :architectures).map { |d| d.to_hash }
+    Distribution.includes(:icons, :architectures).map(&:to_hash)
   end
 
   def self.all_including_remotes

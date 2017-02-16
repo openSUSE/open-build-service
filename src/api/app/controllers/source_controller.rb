@@ -1097,7 +1097,7 @@ class SourceController < ApplicationController
     end
 
     project.all_sources_changed
-    project.linked_by_projects.each {|p| p.all_sources_changed}
+    project.linked_by_projects.each(&:all_sources_changed)
 
     render_ok
   end

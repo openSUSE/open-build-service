@@ -26,7 +26,7 @@ class EventFindSubscribers
     end
 
     # fetch database settings
-    user_ids = receivers.select { |rcv| rcv.kind_of? User }.map { |u| u.id }
+    user_ids = receivers.select { |rcv| rcv.kind_of? User }.map(&:id)
     groups = receivers.select { |rcv| rcv.kind_of? Group }
     group_ids = []
     groups.each do |group|

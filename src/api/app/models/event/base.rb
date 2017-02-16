@@ -20,7 +20,7 @@ module Event
           Event::CommentForProject Event::CommentForPackage
           Event::CommentForRequest Event::BuildFail
           Event::ReviewWanted Event::ServiceFail
-        ).map { |type| type.constantize }
+        ).map(&:constantize)
       end
 
       def classnames

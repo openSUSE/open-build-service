@@ -123,7 +123,7 @@ class Repository < ApplicationRecord
   # or empty list
   def linking_repositories
     return [] if links.size.zero?
-    links.map {|l| l.repository}
+    links.map(&:repository)
   end
 
   def is_local_channel?
@@ -137,7 +137,7 @@ class Repository < ApplicationRecord
 
   def linking_target_repositories
     return [] if targetlinks.size.zero?
-    targetlinks.map {|l| l.target_repository}
+    targetlinks.map(&:target_repository)
   end
 
   def extended_name

@@ -309,7 +309,7 @@ hri.store
 
 # reindex all sources
 ActiveRecord::Base.transaction(requires_new: true) do
-  Package.all.each{ |pkg| pkg.sources_changed }
+  Package.all.each(&:sources_changed)
   UpdatePackageMetaJob.new.perform
 end
 

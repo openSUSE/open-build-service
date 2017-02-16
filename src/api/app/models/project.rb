@@ -1241,7 +1241,7 @@ class Project < ApplicationRecord
     project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
     skip_repos = []
     a = project.find_attribute('OBS', 'BranchSkipRepositories')
-    skip_repos = a.values.map{|v| v.value} if a
+    skip_repos = a.values.map(&:value) if a
     project.repositories.each do |repo|
       next if skip_repos.include? repo.name
       repoName = opts[:extend_names] ? repo.extended_name : repo.name
@@ -1255,7 +1255,7 @@ class Project < ApplicationRecord
       targets = repo.release_targets if repo.project.is_maintenance_incident?
 
       target_repos = []
-      target_repos = targets.map{|t| t.target_repository} if targets
+      target_repos = targets.map(&:target_repository) if targets
       # or branch from official release project? release to it ...
       target_repos = [repo] if repo.project.is_maintenance_release?
 
@@ -1391,7 +1391,7 @@ class Project < ApplicationRecord
   def all_sources_changed
     packages.each do |p|
       p.sources_changed
-      p.find_linking_packages.each { |lp| lp.sources_changed }
+      p.find_linking_packages.each(&:sources_changed)
     end
   end
 
@@ -1479,12 +1479,12 @@ class Project < ApplicationRecord
   end
 
   def open_requests
-    reviews = BsRequest.collection(project: name, states: %w(review)).map{|r| r.number}
-    targets = BsRequest.collection(project: name, states: %w(new)).map{|r| r.number}
-    incidents = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_incident)).map{|r| r.number}
+    reviews = BsRequest.collection(project: name, states: %w(review)).map(&:number)
+    targets = BsRequest.collection(project: name, states: %w(new)).map(&:number)
+    incidents = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_incident)).map(&:number)
 
     if is_maintenance?
-      maintenance_release = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_release), subprojects: true).map{|r| r.number}
+      maintenance_release = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_release), subprojects: true).map(&:number)
     else
       maintenance_release = []
     end
@@ -1494,9 +1494,7 @@ class Project < ApplicationRecord
 
   # for the clockworkd - called delayed
   def update_packages_if_dirty
-    packages.dirty_backend_package.each do |p|
-      p.update_if_dirty
-    end
+    packages.dirty_backend_package.each(&:update_if_dirty)
   end
 
   # Returns a list of pairs (full name, short name) for each parent
@@ -1891,7 +1889,7 @@ class Project < ApplicationRecord
   end
 
   def find_patchinfo_package
-    packages.find { |pkg| pkg.is_patchinfo? }
+    packages.find(&:is_patchinfo?)
   end
 
   def collect_patchinfo_data(patchinfo)

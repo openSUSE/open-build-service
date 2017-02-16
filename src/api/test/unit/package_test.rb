@@ -353,11 +353,11 @@ class PackageTest < ActiveSupport::TestCase
   def generate_suffixes(suffixes_in)
     suffixes_out = suffixes_in.dup
     # some lower-cased suffixes
-    suffixes_out.collect! { |i| i.downcase }
+    suffixes_out.collect!(&:downcase)
     # the same ones capitalized
-    suffixes_out.concat(suffixes_in.collect { |i| i.capitalize })
+    suffixes_out.concat(suffixes_in.collect(&:capitalize))
     # the same ones upper-cased
-    suffixes_out.concat(suffixes_in.collect { |i| i.upcase })
+    suffixes_out.concat(suffixes_in.collect(&:upcase))
     # the same ones swap-cased
     suffixes_out.concat(suffixes_in.collect { |i| i.capitalize.swapcase })
   end

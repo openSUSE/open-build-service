@@ -130,7 +130,7 @@ module ActiveXML
           obj.instance_variable_set( '@hash_cache', objhash) if objhash
           return obj
         rescue ActiveXML::Transport::NotFoundError
-          Rails.logger.debug "#{name}.find( #{args.map {|a| a.inspect}.join(', ')} ) did not find anything, return nil"
+          Rails.logger.debug "#{name}.find( #{args.map(&:inspect).join(', ')} ) did not find anything, return nil"
           return
         end
       end

@@ -13,11 +13,11 @@ module HasRelationships
 
   # webui code is a huge table - TODO to optimize
   def users
-    relationships.users.includes(:user).map { |r| r.user }.uniq
+    relationships.users.includes(:user).map(&:user).uniq
   end
 
   def groups
-    relationships.groups.includes(:group).map { |r| r.group }.uniq
+    relationships.groups.includes(:group).map(&:group).uniq
   end
 
   def bugowner_emails

@@ -133,6 +133,10 @@ Style/SpaceAroundOperators:
 Style/SpaceInsideBrackets:
   Enabled: true
 
+# Use symbols as procs when possible
+Style/SymbolProc:
+  Enabled: true
+
 # Checks for the presence of parentheses around ternary conditions
 Style/TernaryParentheses:
   Enabled: true

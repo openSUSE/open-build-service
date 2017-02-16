@@ -7,7 +7,7 @@ class WatchedProjectTest < ActiveSupport::TestCase
     User.current = users(:Iggy)
     tmp_prj = Project.create(name: 'home:Iggy:whatever')
     tmp_prj.write_to_backend
-    user_ids = User.limit(5).map{|u|u.id} # Roundup some users to watch tmp_prj
+    user_ids = User.limit(5).map(&:id) # Roundup some users to watch tmp_prj
     user_ids.each do |uid|
       tmp_prj.watched_projects.create(user_id: uid)
     end
@@ -20,7 +20,7 @@ class WatchedProjectTest < ActiveSupport::TestCase
 
   def test_watchlist_cleaned_after_user_removal
     tmp_user = User.create(login: 'watcher', email: 'foo@example.com', password: 'watcher')
-    project_ids = Project.limit(5).map{|p|p.id} # Get some projects to watch
+    project_ids = Project.limit(5).map(&:id) # Get some projects to watch
     project_ids.each do |project_id|
       tmp_user.watched_projects.create(project_id: project_id)
     end
