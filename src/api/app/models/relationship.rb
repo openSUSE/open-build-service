@@ -82,7 +82,6 @@ class Relationship < ApplicationRecord
     logger.debug "adding user: #{user.login}, #{role.title}"
     r = obj.relationships.build(user: user, role: role)
     return unless r.invalid?
-
     logger.debug "invalid: #{r.errors.inspect}"
     r.delete
   end

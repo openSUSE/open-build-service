@@ -1007,7 +1007,6 @@ class User < ApplicationRecord
   # "password_salt" property's value to make the hashing more secure.
   def hash_string(value)
     return unless password_hash_type == "md5"
-
     Digest::MD5.hexdigest(value + password_salt)
   end
 

@@ -131,7 +131,6 @@ class TagController < ApplicationController
 
     @tags = @project.tags.where("taggings.user_id = ?", user.id).order(:name)
     return @tags unless do_render
-
     render partial: "tags"
   end
 
@@ -145,7 +144,6 @@ class TagController < ApplicationController
 
     @tags = @package.tags.where("taggings.user_id = ?", user.id).order(:name)
     return @tags unless do_render
-
     render partial: "tags"
   end
 

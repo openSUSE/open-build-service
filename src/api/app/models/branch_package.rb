@@ -368,7 +368,6 @@ class BranchPackage
     raise InvalidFilelistError.new 'no such revision' unless dir
     p[:rev] = dir.value(:srcmd5)
     return if p[:rev]
-
     raise InvalidFilelistError.new 'no srcmd5 revision found'
   end
 
@@ -592,7 +591,6 @@ class BranchPackage
       @auto_cleanup = ::Configuration.cleanup_after_days
     end
     return unless @target_project && !Project.valid_name?(@target_project)
-
     raise InvalidProjectNameError, "invalid project name '#{@target_project}'"
   end
 end

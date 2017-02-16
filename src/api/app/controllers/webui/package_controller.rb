@@ -128,7 +128,6 @@ class Webui::PackageController < Webui::WebuiController
       filename: params[:dname], view: 'fileinfo_ext')
     @durl = nil
     return if @fileinfo # avoid displaying an error for non-existing packages
-
     redirect_back(fallback_location: { action: :binary, project: params[:project], package: params[:package],
                                        repository: @repository, arch: @arch, filename: @filename })
   end
@@ -347,7 +346,6 @@ class Webui::PackageController < Webui::WebuiController
     @linkinfo = nil
     lt = @package.backend_package.links_to
     return unless lt
-
     @linkinfo = { package: lt, error: @package.backend_package.error }
     @linkinfo[:diff] = true if lt.backend_package.verifymd5 != @package.backend_package.verifymd5
   end
@@ -757,7 +755,6 @@ class Webui::PackageController < Webui::WebuiController
       redirect_back(fallback_location: { action: :show, project: @project, package: @package })
       return
     end
-
     render(template: 'webui/package/simple_file_view') && return if @spider_bot
   end
 

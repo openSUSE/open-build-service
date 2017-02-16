@@ -130,7 +130,6 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # creating release requests is also locking the source package, therefore we require write access there.
     spkg = Package.find_by_project_and_name source_project, source_package
     return if spkg || !User.current.can_modify_package?(spkg)
-
     raise LackingReleaseMaintainership.new 'Creating a release request action requires maintainership in source package'
   end
 

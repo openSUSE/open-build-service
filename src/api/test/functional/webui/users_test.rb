@@ -99,7 +99,6 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
 
   def edit_role(cell, new_value)
     return if new_value.nil?
-
     input = cell.first(:css, 'input')
     input.click unless input.selected? == new_value
   end

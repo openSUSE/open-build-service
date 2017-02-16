@@ -583,7 +583,6 @@ class Webui::ProjectController < Webui::WebuiController
 
     @content = @project.config.to_s(sliced_params.to_h)
     return if @content
-
     flash[:error] = @project.config.errors.full_messages.to_sentence
     redirect_to controller: 'project', nextstatus: 404
   end

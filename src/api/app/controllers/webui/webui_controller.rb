@@ -274,7 +274,6 @@ class Webui::WebuiController < ActionController::Base
   # Before filter to check if current user is administrator
   def require_admin
     return unless User.current.nil? || !User.current.is_admin?
-
     flash[:error] = 'Requires admin privileges'
     redirect_back(fallback_location: { controller: 'main', action: 'index' })
   end

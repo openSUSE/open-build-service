@@ -163,9 +163,9 @@ class BsRequestPermissionCheck
     end
     # maintenance incident target permission checks
     return unless action.is_maintenance_incident?
-    unless @target_project.kind.in?(["maintenance", "maintenance_incident"])
-      raise TargetNotMaintenance.new "The target project is not of type maintenance or incident but #{@target_project.kind}"
-    end
+    return if @target_project.kind.in?(["maintenance", "maintenance_incident"])
+
+    raise TargetNotMaintenance.new "The target project is not of type maintenance or incident but #{@target_project.kind}"
   end
 
   def set_permissions_for_action(action, new_state = nil)

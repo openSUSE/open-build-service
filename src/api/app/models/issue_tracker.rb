@@ -345,7 +345,6 @@ class CVEparser < Nokogiri::XML::SAX::Document
 
   def characters(content)
     return unless @@isDesc
-
     @@mySummary += content.chomp
   end
 

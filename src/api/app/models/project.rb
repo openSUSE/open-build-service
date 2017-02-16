@@ -456,7 +456,6 @@ class Project < ApplicationRecord
 
     # the can_create_check is inconsistent with package class check_write_access! check
     return if check_write_access(ignoreLock)
-
     raise WritePermissionError, "No permission to modify project '#{name}' for user '#{User.current.login}'"
   end
 
@@ -551,7 +550,6 @@ class Project < ApplicationRecord
 
     unless flags.find_by_flag_and_status('lock', 'enable')
       raise ProjectNotLocked.new "project '#{name}' is not locked" if with_exception
-
       errors.add(:base, 'is not locked')
     end
 
@@ -1549,7 +1547,6 @@ class Project < ApplicationRecord
   def unlock_by_request(request)
     f = flags.find_by_flag_and_status('lock', 'enable')
     return unless f
-
     flags.delete(f)
     store(comment: "Request got revoked", request: request, lowprio: 1)
   end
@@ -1684,7 +1681,6 @@ class Project < ApplicationRecord
   def prepend_kiwi_config
     prjconf = source_file('_config')
     return if prjconf =~ /^Type:/
-
     prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
     Suse::Backend.put_source(source_path('_config'), prjconf)
   end

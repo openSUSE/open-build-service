@@ -92,7 +92,6 @@ class Webui::PatchinfoController < Webui::WebuiController
     @reboot = @file.has_element?('reboot_needed')
     @zypp_restart_needed = @file.has_element?('zypp_restart_needed')
     return unless @file.has_element?('stopped')
-
     @block = true
     @block_reason = @file.value(:stopped)
   end

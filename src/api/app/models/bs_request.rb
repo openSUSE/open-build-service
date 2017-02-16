@@ -103,7 +103,6 @@ class BsRequest < ApplicationRecord
     unless user
       errors.add(:creator, "Invalid creator specified #{creator}")
     end
-
     return if user.is_active?
     errors.add(:creator, "Login #{user.login} is not an active user")
   end
@@ -404,7 +403,6 @@ class BsRequest < ApplicationRecord
   def permission_check_change_groups!
     # adding and removing of requests is only allowed for groups
     return unless bs_request_actions.first.action_type != :group
-
     raise GroupRequestSpecial.new "Command is only valid for group requests"
   end
 
@@ -714,7 +712,6 @@ class BsRequest < ApplicationRecord
 
   def check_if_valid_review!(opts)
     return unless !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
-
     raise InvalidReview.new
   end
 
@@ -797,7 +794,6 @@ class BsRequest < ApplicationRecord
     end
 
     return unless touched
-
     save!
     HistoryElement::RequestSetIncident.create(p)
   end
