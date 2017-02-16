@@ -311,12 +311,12 @@ This package contains test cases for testing a installed appliances.
 
 #--------------------------------------------------------------------------------
 %prep
-%if %{without image_templates}
-patch0 -p1
+
+%setup -q -n open-build-service-%version
+%if %{?without image_templates:1}
+%patch0 -p1
 %endif
 
-export DESTDIR=$RPM_BUILD_ROOT
-%setup -q -n open-build-service-%version
 # drop build script, we require the installed one from own package
 rm -rf src/backend/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
