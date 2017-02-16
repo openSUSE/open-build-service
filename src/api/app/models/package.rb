@@ -42,6 +42,9 @@ class Package < ApplicationRecord
 
   belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true
+  # NOTE: these are the arch/repos from the project hosting the source. They are
+  #       not the ones from the build containers (nor the architectures specified in source)
+  #       this means an extra permission check may be needed when using them.
   delegate :repositories, to: :project
   delegate :architectures, to: :project
 
@@ -82,6 +85,7 @@ class Package < ApplicationRecord
 
   after_destroy :delete_cache_lines
 
+  before_save :shield_save
   after_save :write_to_backend
   before_update :update_activity
   after_rollback :reset_cache
@@ -1376,5 +1380,13 @@ class Package < ApplicationRecord
 
   def has_icon?
     file_exists?("_icon")
+  end
+
+  def shield_save
+    # There is a hack webui/package_controller.rb#buildresult for app/views/webui/package/_buildstatus.html.erb
+    # which patches the project id of this package meta object to match the derived any if its derived
+    # build container instances. We must never store that by accident to avoid corrupted database and
+    # broken foreign projects. So better double check here (can be dropped again when the hack went away)
+    raise InvalidProjectNameError.new 'Must not be saved due to project hack' if @commit_opts.has_key? :NO_SAVE
   end
 end
