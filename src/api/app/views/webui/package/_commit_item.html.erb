@@ -8,9 +8,9 @@
             <% realname = user.realname %>
             <%= user_icon(user) %>
             <% unless realname.empty? %>
-                <%= link_to_if(!User.current.is_nobody?, realname + ' (' + user.login + ')', user_show_path(user)) %>
+                <%= link_to(realname + ' (' + user.login + ')', user_show_path(user)) %>
             <% else %>
-                <%= link_to_if(!User.current.is_nobody?, user.login, user_show_path(user)) %>
+                <%= link_to(user.login, user_show_path(user)) %>
             <% end %>
         <% else %>
             <i><%= commit['user'] || '-' %></i>

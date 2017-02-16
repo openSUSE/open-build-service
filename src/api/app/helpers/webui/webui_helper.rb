@@ -249,9 +249,9 @@ module Webui::WebuiHelper
 
   # @param [String] user login of the user
   # @param [String] role title of the login
-  # @param [Hash]   options boolean flags :short, :no_icon and :no_link
+  # @param [Hash]   options boolean flags :short, :no_icon
   def user_and_role(user, role = nil, options = {})
-    opt = { short: false, no_icon: false, no_link: false }.merge(options)
+    opt = { short: false, no_icon: false }.merge(options)
     real_name = User.realname_for_login(user)
 
     if opt[:no_icon]
@@ -274,7 +274,7 @@ module Webui::WebuiHelper
     if User.current.is_nobody?
       icon + printed_name
     else
-      icon + link_to_if(!opt[:no_link], printed_name, user_show_path(user))
+      icon + link_to(printed_name, user_show_path(user))
     end
   end
 
@@ -348,7 +348,7 @@ module Webui::WebuiHelper
   end
 
   def user_with_realname_and_icon(user, opts = {})
-    defaults = { short: false, no_icon: false, no_link: false }
+    defaults = { short: false, no_icon: false }
     opts = defaults.merge(opts)
 
     user = User.find_by_login(user) unless user.is_a? User
@@ -363,8 +363,7 @@ module Webui::WebuiHelper
         printed_name = "#{realname} (#{user.login})"
       end
 
-      user_icon(user) + ' ' + link_to_if(!opts[:no_link], printed_name,
-                                         user_show_path(user))
+      user_icon(user) + ' ' + link_to(printed_name, user_show_path(user))
     end
   end
 

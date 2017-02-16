@@ -217,7 +217,7 @@
                 <% @my_open_reviews.each_with_index do |open_review, index| %>
                     <li class="<%= 'selected' if @my_open_reviews.length > 0 && index == 0 %>">
                       <a class="review_descision_link" id="review_descision_link_<%= index %>" href="#">Review
-                        for <%= render :partial => 'reviewer', :locals => { :review => open_review, :no_link => true, :no_icon => true } %></a>
+                        for <%= render :partial => 'reviewer', :locals => { :review => open_review, :no_icon => true } %></a>
                     </li>
                 <% end %>
             <% end %>
