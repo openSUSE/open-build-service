@@ -28,6 +28,7 @@ BEGIN {
   unshift @INC,  "$wd";
 }
 
+#use strict;
 use POSIX;
 use Data::Dumper;
 use Getopt::Long;
@@ -1126,6 +1127,20 @@ while (@ARGV) {
     print "$val\n";
   } elsif ( $arg eq "--drop-badhosts" ) {
     BSUtil::touch("$rundir/bs_dispatch.dropbadhosts");
+  } elsif ( $arg eq "--list-badhosts" ) {
+    if ( -f "$rundir/dispatch.badhosts" ) {
+        my $result = {};
+	my $badhosts = BSUtil::retrieve("$rundir/dispatch.badhosts");
+	print Dumper($badhosts);
+	#for my $key (keys(%{$badhosts})) {
+	#  if ($key =~ s#^([^/]+/[^/]+/[^/]+/[^/]+)#$1# ) {
+	#    $result->{$key}=1;
+	#  }
+	#}
+	#for my $key (sort(keys($result))) { print "$key\n" }
+    } else {
+        print "No badhosts found\n";
+    }
   } else {
     echo_help();
     exit(1)
