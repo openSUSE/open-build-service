@@ -880,8 +880,8 @@ class Package < ApplicationRecord
     Buildresult.find(project: project, package: self, repository: repository, view: view)
   end
 
-  def buildresults
-    results = Buildresult.find_hashed(project: project.name, package: name, view: 'status', multibuild: '1', locallink: '1')
+  def buildresults(prj = project)
+    results = Buildresult.find_hashed(project: prj, package: name, view: 'status', multibuild: '1', locallink: '1')
 
     local_build_results = {}
     results.elements('result').sort {|a, b| a['repository'] <=> b['repository']}.each do |result|

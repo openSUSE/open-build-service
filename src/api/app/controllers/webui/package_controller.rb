@@ -952,12 +952,8 @@ class Webui::PackageController < Webui::WebuiController
 
   def buildresult
     check_ajax
-
-    # FIXME: OMG, if you call Package.get_by_project_and_name( 'blah', 'blubb', {follow_project_links: true} )
-    # then @package.project might not be 'blah' but another project...
-    @package.project = @project
-
     if @project.repositories.any?
+      @buildresults = @package.buildresults(@project)
       render partial: 'buildstatus'
     else
       render partial: 'no_repositories'
