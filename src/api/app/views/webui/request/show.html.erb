@@ -209,7 +209,7 @@
       <div class="box-header header-tabs">
         <%= possibly_empty_ul id: 'review_descision_select', fallback: "<p><i>There's nothing to be done right now</i></p>".html_safe do %>
             <% if @can_handle_request %>
-                <li class="<%= 'selected' if !@can_add_reviews || @my_open_reviews.length == 0 %>">
+                <li class="<%= 'selected' if !@can_add_reviews || @my_open_reviews.empty? %>">
                   <a class="review_descision_link" id="review_descision_link_-1" href="#">My Decision</a>
                 </li>
             <% end %>
