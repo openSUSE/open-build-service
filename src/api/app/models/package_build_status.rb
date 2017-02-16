@@ -101,10 +101,10 @@ class PackageBuildStatus
     rescue ActiveXML::Transport::Error
       currentcode = nil
     end
-    if %w(unresolvable failed broken).include?(currentcode)
+    if currentcode.in?(["unresolvable", "failed", "broken"])
       @buildcode = 'failed'
     end
-    if %w(building scheduled finished signing blocked).include?(currentcode)
+    if currentcode.in?(["building", "scheduled", "finished", "signing", "blocked"])
       @buildcode = 'building'
     end
     if currentcode == 'excluded'

@@ -45,7 +45,7 @@ class BsRequestPermissionCheck
     check_action_target(action)
 
     # validate that specified sources do not have conflicts on accepting request
-    if [:submit, :maintenance_incident].include? action.action_type
+    if action.action_type.in?([:submit, :maintenance_incident])
       query = {expand: 1}
       query[:rev] = action.source_rev if action.source_rev
       url = Package.source_path(action.source_project, action.source_package, nil, query)
@@ -59,12 +59,12 @@ class BsRequestPermissionCheck
     end
 
     # maintenance_release accept check
-    if [:maintenance_release].include? action.action_type
+    if action.action_type == :maintenance_release
       # compare with current sources
       check_maintenance_release_accept(action)
     end
 
-    if [:delete, :add_role, :set_bugowner].include? action.action_type
+    if action.action_type.in?([:delete, :add_role, :set_bugowner])
       # target must exist
       if action.target_package
         unless @target_package
@@ -127,7 +127,7 @@ class BsRequestPermissionCheck
   # check if the action can change state - or throw an APIException if not
   def check_newstate_action!(action, opts)
     # relaxed checks for final exit states
-    return if %w(declined revoked superseded).include? opts[:newstate]
+    return if opts[:newstate].in?(["declined", "revoked", "superseded"])
 
     if opts[:newstate] == 'accepted'
       check_accepted_action(action)
@@ -137,7 +137,7 @@ class BsRequestPermissionCheck
   end
 
   def check_action_target(action)
-    return unless [:submit, :change_devel, :maintenance_release, :maintenance_incident].include? action.action_type
+    return unless action.action_type.in?([:submit, :change_devel, :maintenance_release, :maintenance_incident])
 
     if action.action_type == :change_devel && !action.target_package
       raise PostRequestNoPermission.new "Target package is missing in request #{action.bs_request.number} (type #{action.action_type})"
@@ -163,7 +163,7 @@ class BsRequestPermissionCheck
     end
     # maintenance incident target permission checks
     if action.is_maintenance_incident?
-      unless %w(maintenance maintenance_incident).include? @target_project.kind
+      unless @target_project.kind.in?(["maintenance", "maintenance_incident"])
         raise TargetNotMaintenance.new "The target project is not of type maintenance or incident but #{@target_project.kind}"
       end
     end
@@ -223,7 +223,7 @@ class BsRequestPermissionCheck
   end
 
   def cmd_addreview_permissions(permissions_granted)
-    unless [:review, :new].include? req.state
+    unless req.state.in?([:review, :new])
       raise ReviewChangeStateNoPermission.new 'The request is not in state new or review'
     end
 
@@ -234,7 +234,7 @@ class BsRequestPermissionCheck
   end
 
   def cmd_setpriority_permissions
-    unless [:review, :new].include? req.state
+    unless req.state.in?([:review, :new])
       raise SetPriorityNoPermission.new 'The request is not in state new or review'
     end
 
@@ -247,7 +247,7 @@ class BsRequestPermissionCheck
   end
 
   def cmd_setincident_permissions
-    unless [:review, :new].include? req.state
+    unless req.state.in?([:review, :new])
       raise ReviewChangeStateNoPermission.new 'The request is not in state new or review'
     end
 
@@ -282,7 +282,7 @@ class BsRequestPermissionCheck
     # Admin always ...
     return true if User.current.is_admin?
 
-    unless [:review, :new].include? req.state
+    unless req.state.in?([:review, :new])
       raise ReviewChangeStateNoPermission.new 'The request is neither in state review nor new'
     end
     unless by_user || by_group || by_package || by_project
@@ -327,8 +327,8 @@ class BsRequestPermissionCheck
     end
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
-    if [:accepted, :superseded, :revoked].include? req.state
-      if %w(accepted declined superseded revoked).include? opts[:newstate]
+    if req.state.in?([:accepted, :superseded, :revoked])
+      if opts[:newstate].in?(["accepted", "declined", "superseded", "revoked"])
         raise PostRequestNoPermission.new "set state to #{opts[:newstate]} from a final state is not allowed."
       end
     end
@@ -344,10 +344,10 @@ class BsRequestPermissionCheck
       raise PostRequestNoPermission.new 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
     end
 
-    if %w(new review revoked superseded).include?(opts[:newstate]) && req.creator == User.current.login
+    if opts[:newstate].in?(["new", "review", "revoked", "superseded"]) && req.creator == User.current.login
       # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
-    elsif req.state == :declined && %w(new review).include?(opts[:newstate]) && req.commenter == User.current.login
+    elsif req.state == :declined && opts[:newstate].in?(["new", "review"]) && req.commenter == User.current.login
       # people who declined a request shall also be able to reopen it
       permission_granted = true
     end

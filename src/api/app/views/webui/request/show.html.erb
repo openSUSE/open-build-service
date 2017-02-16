@@ -242,7 +242,7 @@
 
                 <p>
                   <%= hidden_field_tag(:number, @number) %>
-                  <% if %w(new review).include?(@state) && @is_target_maintainer %>
+                  <% if @state.in?(["new", "review"]) && @is_target_maintainer %>
                       <% if @state == 'review' %>
                           <%= submit_tag 'Accept request', name: 'accepted', id: 'accept_request_button', data: { confirm: 'Do you really want to approve this request, despite of open review requests?' } %>
                       <% else %>
@@ -251,7 +251,7 @@
                       <% end %>
                       <%= submit_tag 'Decline request', name: 'declined' if !@is_author %>
                   <% end %>
-                  <% if %w(new review declined).include?(@state) && @is_author %>
+                  <% if @state.in?(["new", "review", "declined"]) && @is_author %>
                       <%= submit_tag 'Revoke request', name: 'revoked', id: 'revoke_request_button' %>
                   <% end %>
                   <% if @state == 'declined' %>

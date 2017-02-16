@@ -44,9 +44,9 @@ class Configuration < ApplicationRecord
 
   class << self
     def map_value(key, value)
-      if ON_OFF_OPTIONS.include? key
+      if key.in?(ON_OFF_OPTIONS)
         # make them boolean
-        return [:on, ':on', 'on', 'true', true].include? value
+        return value.in?([:on, ':on', 'on', 'true', true])
       end
       value
     end
