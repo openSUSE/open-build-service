@@ -28,7 +28,7 @@ BEGIN {
   unshift @INC,  "$wd";
 }
 
-#use strict;
+use strict;
 use POSIX;
 use Data::Dumper;
 use Getopt::Long;
@@ -371,7 +371,7 @@ sub insert_request_db {
   $db->{'noindex'} = {'id' => 1};
 
   my @rid = split ('/',$file);
-  $rid = $rid[-1];
+  my $rid = $rid[-1];
   my $req = readxml("$requestdir/$rid", $BSXML::request, 1);
   print "WARNING: unable to parse request: $rid!\n" unless $req;
   $db->updateindex($rid, {}, $req || {});
@@ -428,6 +428,7 @@ sub check_constraints_xml {
 sub check_meta_xml {
   my ($project, $package) = @_;
   my $file;
+  my $metadesc;
 
   if (defined($package)){
     $file = "$projectsdir/${project}.pkg/${package}.xml";
@@ -618,6 +619,8 @@ while (@ARGV) {
   } elsif ($arg eq "--parse-build-desc") {
     die("ERROR: need a file name as argument (spec, dsc or kiwi)!\n") if @ARGV < 1;
     my $file = shift @ARGV;
+    my $cfile;
+    my $arch;
     my $cf = $cfile = $arch = undef;
     $arch = shift @ARGV if @ARGV > 0;
     if (@ARGV > 0) {
@@ -634,7 +637,7 @@ while (@ARGV) {
     print Dumper($ret);
   } elsif ($arg eq "--dump-cache") {
     if (@ARGV == 1) {
-      $fullfile = shift @ARGV;
+      my $fullfile = shift @ARGV;
       die("ERROR: invalid filename (must end with .cache or .solv)\n") if $fullfile !~ /\.(?:solv|cache)$/;
       dump_solv($fullfile) if $fullfile =~ /\.solv$/;
       dump_nStore($fullfile) if $fullfile =~ /\.cache$/;
@@ -1030,8 +1033,9 @@ while (@ARGV) {
             my ($hash, $desc) = split(/\s+/, $_);
             next if !defined( $sourcefiles{$hash.'-'.$desc});
             # open link file to look if it links to a file that will be deleted
+	    my $link;
 	    eval {
-	      my $link = readxml($sourcefiles{$hash.'-'.$desc}, $BSXML::link);
+	      $link = readxml($sourcefiles{$hash.'-'.$desc}, $BSXML::link);
 	    } ;
 	    if ($@) { warn "$@ whilst processing $treesfiles{$file}"; next; }
             next if !defined $link->{"package"} || !defined $link->{"project"} || !defined $link->{"rev"};
