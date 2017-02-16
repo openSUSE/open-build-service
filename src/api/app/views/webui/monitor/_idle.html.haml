@@ -1,0 +1,18 @@
+#idlehosts
+  %h2 Idle hosts
+  - idlehosts = @workerstatus.elements('idle')
+  - if idlehosts.length > 0
+    %p
+      = idlehosts.length
+      of #{pluralize(@workerstatus['clients'], 'host')} idle.
+    %table.building
+      %tr
+        %th Host
+        %th Arch
+      - idlehosts.each do |b|
+        %tr
+          %td= b["workerid"]
+          %td= b["hostarch"]
+  - else
+    %p
+      None of the #{pluralize(@workerstatus["clients"], 'host')} idle.

@@ -1,7 +1,0 @@
-<br>
-<h2>Average building time</h2>
-<% if @workerstatus.has_element? :buildavg %>
-  <% @workerstatus.each_buildavg.sort {|a,b| a.arch <=> b.arch }.each do |entry| %>
-    <%= entry.arch %>: <%= distance_of_time_in_words(Time.at(entry.buildavg.to_i), Time.at(0), true) %> <br />
-  <% end %>
-<% end %>
