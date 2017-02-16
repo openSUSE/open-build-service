@@ -42,6 +42,11 @@ class Webui::ApplicationControllerTest < Webui::IntegrationTest
     end
 
     visit package_show_path(project: 'home:Iggy', package: 'TestPack')
+    assert page.has_no_link?('Download package')
+
+    CONFIG['software_opensuse_url'] = "http://software.opensuse.org"
+
+    visit package_show_path(project: 'home:Iggy', package: 'TestPack')
     page.must_have_link 'Download package'
     first(:link, 'Download package')['href'].must_equal 'http://software.opensuse.org/download.html?project=home%3AIggy&package=TestPack'
   end
