@@ -12,7 +12,7 @@ class Configuration < ApplicationRecord
     description:                          nil,
     name:                                 nil, # from BSConfig.pm
     download_on_demand:                   nil, # from BSConfig.pm
-    enforce_project_keys:                 nil, # from BSConfig.pm
+    enforce_project_keys:                 false, # from BSConfig.pm
     anonymous:                            CONFIG['allow_anonymous'],
     registration:                         CONFIG['new_user_registration'],
     default_access_disabled:              CONFIG['default_access_disabled'],
