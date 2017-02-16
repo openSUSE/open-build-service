@@ -148,7 +148,6 @@ class Webui::PackageController < Webui::WebuiController
     flash[:error] = "No statistics of a successful build could be found in #{@repository}/#{@arch}"
     redirect_to controller: 'package', action: :binaries, project: @project,
                 package: @package, repository: @repository, nextstatus: 404
-    return
   end
 
   def binary
@@ -198,7 +197,6 @@ class Webui::PackageController < Webui::WebuiController
 
     flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}"
     redirect_to controller: :package, action: :show, project: @project, package: @package, nextstatus: 404
-    return
   end
 
   def users
@@ -710,7 +708,6 @@ class Webui::PackageController < Webui::WebuiController
       else
         redirect_back(fallback_location: root_path, error: message)
       end
-      return
     end
   end
 

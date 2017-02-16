@@ -162,7 +162,7 @@ module HasRelationships
       raise SaveError, "unknown group '#{id}' on LDAP server" unless UserLdapStrategy.find_group_with_ldap(id)
 
       logger.debug "Find and Create group '#{id}' from LDAP"
-      return Group.create!(title: id)
+      Group.create!(title: id)
     end
   end
 

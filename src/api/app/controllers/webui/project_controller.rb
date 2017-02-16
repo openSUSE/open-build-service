@@ -586,7 +586,6 @@ class Webui::ProjectController < Webui::WebuiController
 
     flash[:error] = @project.config.errors.full_messages.to_sentence
     redirect_to controller: 'project', nextstatus: 404
-    return
   end
 
   def save_prjconf

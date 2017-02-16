@@ -277,7 +277,6 @@ class Webui::WebuiController < ActionController::Base
 
     flash[:error] = 'Requires admin privileges'
     redirect_back(fallback_location: { controller: 'main', action: 'index' })
-    return
   end
 
   # before filter to only show the frontpage to anonymous users
