@@ -118,8 +118,7 @@
 }
 
 .statuslights ul {
-  height: 20px;
-  margin-bottom: 10px;
+  display: table;
 }
 
 .statustext {
@@ -141,25 +140,29 @@
 .statuslights {
   li {
     list-style: none;
-    margin: 0px;
-    margin-right: 3px;
+    margin: 1px;
     float: left;
+    width: 74px;
+    height: 60px;
+    background-color: #f6f6f6;
+    padding-top: 13px;
   }
   .statusarch {
-    margin-right: 5px;
+    text-align: center;
+    word-wrap: break-word;
   }
   .statuslight {
-    width: 12px;
-    min-width: 12px;
-    height: 20px;
+    width: 16px;
+    min-width: 16px;
+    height: 16px;
   }
   .status_green {
-    background-image: image-url("status_green.png");
+    background-image: image-url("icons/tick.png");
   }
   .status_yellow {
-    background-image: image-url("status_yellow.png");
+    background-image: image-url("icons/error.png");
   }
   .status_red {
-    background-image: image-url("status_red.png");
+    background-image: image-url("icons/req-decline.png");
   }
 }
