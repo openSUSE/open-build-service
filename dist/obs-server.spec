@@ -309,7 +309,7 @@ This package contains test cases for testing a installed appliances.
 %prep
 
 %setup -q -n open-build-service-%version
-%if %{?without image_templates:1}
+%if 0%{?without image_templates:1}
 %patch0 -p1
 %endif
 
