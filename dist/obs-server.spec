@@ -31,7 +31,8 @@
 %endif
 
 %define secret_key_file /srv/www/obs/api/config/secret.key
-%bcond_without image_templates
+
+%bcond_with hide_image_template_icon
 
 %if 0%{?suse_version} >= 1315
 %define reload_on_update() %{?nil:
@@ -309,7 +310,7 @@ This package contains test cases for testing a installed appliances.
 %prep
 
 %setup -q -n open-build-service-%version
-%if 0%{?without image_templates:1}
+%if %{with hide_image_template_icon}
 %patch0 -p1
 %endif
 
