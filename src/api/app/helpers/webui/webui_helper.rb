@@ -36,7 +36,7 @@ module Webui::WebuiHelper
     user = User.find_by_login!(user) unless user.is_a? User
     alt ||= user.realname
     alt = user.login if alt.empty?
-    image_tag(url_for(controller: :user, action: :user_icon, icon: user.login, size: size),
+    image_tag(url_for(controller: '/webui/user', action: :user_icon, icon: user.login, size: size),
               width: size, height: size, alt: alt, class: css_class)
   end
 
@@ -300,13 +300,13 @@ module Webui::WebuiHelper
     opts[:short] = true # for project
     out += link_to_project(prj, opts) + ' / ' +
         link_to_if(pkg, opts[:package_text],
-                   { controller: 'package', action: 'show',
+                   { controller: '/webui/package', action: 'show',
                      project: opts[:project],
                      package: opts[:package] }, { class: 'package', title: opts[:package] })
     if opts[:rev] && pkg
       out += ' ('.html_safe +
           link_to("revision #{elide(opts[:rev], 10)}",
-                  { controller: 'package', action: 'show',
+                  { controller: '/webui/package', action: 'show',
                     project: opts[:project], package: opts[:package], rev: opts[:rev] },
                   { class: 'package', title: opts[:rev] }) + ')'.html_safe
     end
@@ -322,7 +322,7 @@ module Webui::WebuiHelper
     end
     project_text = opts[:trim_to].nil? ? opts[:project_text] : elide(opts[:project_text], opts[:trim_to])
     out + link_to_if(prj, project_text,
-                     { controller: 'project', action: 'show', project: opts[:project] },
+                     { controller: '/webui/project', action: 'show', project: opts[:project] },
                      { class: 'project', title: opts[:project] })
   end
 

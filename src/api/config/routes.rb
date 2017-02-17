@@ -316,14 +316,19 @@ OBSApi::Application.routes.draw do
 
       get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
       get 'user/icon/:icon' => :user_icon, constraints: cons, as: 'user_icon'
-      get 'user/requests/:user' => :requests, constraints: cons, as: 'user_requests'
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
       get 'home/my_work' => :home
       get 'home/list_my' => :home
-      get 'home/requests' => :requests
       get 'home/home_project' => :home_project
       get 'user/:user/icon' => :icon, constraints: cons
+    end
+
+    # Hardcoding this routes is necessary because we rely on the :user parameter
+    # in check_display_user before filter. Overwriting of the parameter is not
+    # possible for nested resources atm.
+    controller 'webui/users/bs_requests' do
+      get 'users/(:user)/requests' => :index, as: 'user_requests'
     end
 
     controller 'webui/groups' do

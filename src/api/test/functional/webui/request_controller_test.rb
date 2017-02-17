@@ -293,11 +293,11 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   def test_requests # spec/controllers/webui/user_controller_spec.rb
-    get "/home/requests.json"
+    get "/users/requests.json"
     assert_response :success
     result = ActiveSupport::JSON.decode(@response.body)
-    assert_equal 1, result["draw"]
-    assert_equal 0, result["recordsTotal"]
+    assert_equal "1", result["draw"]
+    assert_equal "0", result["recordsTotal"]
     assert_equal [], result["data"]
   end
 
