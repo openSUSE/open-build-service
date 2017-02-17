@@ -1,4 +1,4 @@
-class AddPackageTracking < ActiveRecord::Migration
+class AddPackageTracking < ActiveRecord::Migration[4.2]
   def up
     create_table :binary_releases do |t|
       t.references :repository, null: false # this destroys the entry when it gets removed

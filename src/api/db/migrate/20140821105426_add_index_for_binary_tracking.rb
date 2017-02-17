@@ -1,4 +1,4 @@
-class AddIndexForBinaryTracking < ActiveRecord::Migration
+class AddIndexForBinaryTracking < ActiveRecord::Migration[4.2]
   def self.up
     add_index :binary_releases, :medium
     add_index :product_media, :name

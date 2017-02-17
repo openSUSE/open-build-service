@@ -1,4 +1,4 @@
-class AddRequestPriority < ActiveRecord::Migration
+class AddRequestPriority < ActiveRecord::Migration[4.2]
   def self.up
     execute("alter table bs_requests add column `priority` enum('critical','important','moderate','low') DEFAULT 'moderate';")
   end

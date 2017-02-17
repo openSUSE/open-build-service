@@ -1,4 +1,4 @@
-class GroupMaintainer < ActiveRecord::Migration
+class GroupMaintainer < ActiveRecord::Migration[4.2]
   def up
     create_table :group_maintainers do |t|
       t.references :group
