@@ -77,10 +77,10 @@ class Webui::UserController < Webui::WebuiController
         3 => :creator,
         5 => :priority
       }
-    sorting_field = sortable_fields[params['order[0][column]'].to_i]
-    sorting_field ||= :created_at
-    sorting_dir = params['order[0][dir]'].try(:to_sym)
-    sorting_dir = :asc unless ["asc", "desc"].include?(params['order[0][dir]'])
+    order_params = params.fetch('order', {}).fetch('0', {})
+    sorting_field = sortable_fields[order_params.fetch('column', nil).to_i]
+    sorting_dir = order_params['dir'].try(:to_sym)
+    sorting_dir = :asc unless [:asc, :desc].include?(sorting_dir)
     search = params[:search] ? params[:search].permit![:value] : ""
     request_methods = {
       'all_requests_table'      => :requests,
