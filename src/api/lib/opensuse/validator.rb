@@ -45,12 +45,8 @@ module Suse
         else
           key = action.to_s
         end
-        if opt[:request] # have a request validation schema?
-          @schema_map[controller][key + '-request'] = opt[:request].to_s
-        end
-        if opt[:response] # have a reponse validate schema?
-          @schema_map[controller][key + '-response'] = opt[:response].to_s
-        end
+        @schema_map[controller][key + '-request'] = opt[:request].to_s if opt[:request] # have a request validation schema?
+        @schema_map[controller][key + '-response'] = opt[:response].to_s if opt[:response] # have a reponse validate schema?
       end
 
       # Retrieves the schema filename from the action to schema mapping.

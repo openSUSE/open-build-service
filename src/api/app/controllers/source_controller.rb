@@ -218,11 +218,9 @@ class SourceController < ApplicationController
   def show_package
     if @deleted_package
       tpkg = Package.find_by_project_and_name(@target_project_name, @target_package_name)
-      if tpkg
-        raise PackageExists.new 'the package is not deleted'
-      else
-        validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
-      end
+      raise PackageExists.new 'the package is not deleted' if tpkg
+
+      validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
     elsif %w(_project _pattern).include? @target_package_name
       Project.get_by_name @target_project_name
     else
@@ -306,12 +304,12 @@ class SourceController < ApplicationController
   end
 
   def verify_can_modify_target_package!
-    unless User.current.can_modify_package?(@package)
-      raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' " +
-                                         "for unspecified package" unless @package.class == Package
-      raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' " +
-                                         "for package #{@package.name} in project #{@package.project.name}"
-    end
+    return if User.current.can_modify_package?(@package)
+
+    raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' " +
+                                       "for unspecified package" unless @package.class == Package
+    raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' " +
+                                       "for package #{@package.name} in project #{@package.project.name}"
   end
 
   # POST /source/:project/:package
@@ -399,9 +397,7 @@ class SourceController < ApplicationController
     end
 
     # check read access rights when the package does not exist anymore
-    if @package.nil? && @deleted_package
-      validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
-    end
+    validate_read_access_of_deleted_package(@target_project_name, @target_package_name) if @package.nil? && @deleted_package
   end
 
   class ChangeProjectNoPermission < APIException
@@ -522,15 +518,10 @@ class SourceController < ApplicationController
 
   def check_and_remove_repositories!(repositories, opts)
     result = Project.check_repositories(repositories) unless opts[:force]
-    if !opts[:force] && result[:error]
-      raise RepoDependency, result[:error]
-    else
-      result = Project.remove_repositories(repositories, opts)
+    raise RepoDependency, result[:error] if !opts[:force] && result[:error]
 
-      if !opts[:force] && result[:error]
-        raise ChangeProjectNoPermission, result[:error]
-      end
-    end
+    result = Project.remove_repositories(repositories, opts)
+    raise ChangeProjectNoPermission, result[:error] if !opts[:force] && result[:error]
   end
 
   # GET /source/:project/_config
@@ -805,10 +796,9 @@ class SourceController < ApplicationController
     pass_to_backend @path
 
     # update package timestamp and reindex sources
-    unless params[:rev] == 'repository' || @package_name.in?(["_project", "_pattern"])
-      special_file = params[:filename].in?(["_aggregate", "_constraints", "_link", "_service", "_patchinfo", "_channel"])
-      @pack.sources_changed(wait_for_update: special_file) # wait for indexing for special files
-    end
+    return if params[:rev] == 'repository' || @package_name.in?(["_project", "_pattern"])
+    special_file = params[:filename].in?(["_aggregate", "_constraints", "_link", "_service", "_patchinfo", "_channel"])
+    @pack.sources_changed(wait_for_update: special_file) # wait for indexing for special files
   end
 
   # DELETE /source/:project/:package/:filename
@@ -1051,9 +1041,7 @@ class SourceController < ApplicationController
         repo_matches = true
       end
     end
-    unless repo_matches
-      raise NoMatchingReleaseTarget.new 'No defined or matching release target'
-    end
+    raise NoMatchingReleaseTarget.new 'No defined or matching release target' unless repo_matches
   end
 
   class RemoteProjectError < APIException
@@ -1387,9 +1375,7 @@ class SourceController < ApplicationController
     path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
 
-    if @package # except in case of _project package
-      @package.sources_changed
-    end
+    @package.sources_changed if @package # except in case of _project package
   end
 
   # POST /source/<project>/<package>?cmd=commitfilelist
@@ -1398,9 +1384,7 @@ class SourceController < ApplicationController
     path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     answer = pass_to_backend path
 
-    if @package # except in case of _project package
-      @package.sources_changed(dir_xml: answer)
-    end
+    @package.sources_changed(dir_xml: answer) if @package # except in case of _project package
   end
 
   # POST /source/<project>/<package>?cmd=diff
@@ -1458,21 +1442,19 @@ class SourceController < ApplicationController
 
   def reparse_backend_package(spackage, sproject)
     answer = Suse::Backend.get("/source/#{CGI.escape(sproject)}/#{CGI.escape(spackage)}/_meta")
-    if answer
-      Package.transaction do
-        adata = Xmlhash.parse(answer.body)
-        adata['name'] = params[:package]
-        p = @project.packages.new(name: params[:package])
-        p.update_from_xml(adata)
-        p.remove_all_persons
-        p.remove_all_groups
-        p.develpackage = nil
-        p.store
-      end
-      @package = Package.find_by_project_and_name(params[:project], params[:package])
-    else
-      raise UnknownPackage.new "Unknown package #{spackage} in project #{sproject}"
+    raise UnknownPackage.new "Unknown package #{spackage} in project #{sproject}" unless answer
+
+    Package.transaction do
+      adata = Xmlhash.parse(answer.body)
+      adata['name'] = params[:package]
+      p = @project.packages.new(name: params[:package])
+      p.update_from_xml(adata)
+      p.remove_all_persons
+      p.remove_all_groups
+      p.develpackage = nil
+      p.store
     end
+    @package = Package.find_by_project_and_name(params[:project], params[:package])
   end
 
   # POST /source/<project>/<package>?cmd=release

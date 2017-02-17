@@ -93,17 +93,12 @@ class BsRequestAction < ApplicationRecord
     # FIXME3.0: drop this code and drop these actions from database.
     raise ArgumentError, "request actions of type group can not be created anymore" if classname == BsRequestActionGroup && !Rails.env.test?
 
-    if classname
-      a = classname.new
-    else
-      raise ArgumentError, 'unknown type'
-    end
+    raise ArgumentError, 'unknown type' unless classname
 
+    a = classname.new
     # now remove things from hash
     a.store_from_xml(hash)
-
     raise ArgumentError, "too much information #{hash.inspect}" unless hash.blank?
-
     a
   end
 
@@ -210,12 +205,12 @@ class BsRequestAction < ApplicationRecord
     end
 
     g = hash.delete('group')
-    if g
-      self.group_name = g.delete('name') { raise ArgumentError, 'a group without name' }
-      raise ArgumentError, 'role already taken' if role
-      self.role = g.delete('role')
-      raise ArgumentError, "too much information #{g.inspect}" unless g.blank?
-    end
+    return unless g
+
+    self.group_name = g.delete('name') { raise ArgumentError, 'a group without name' }
+    raise ArgumentError, 'role already taken' if role
+    self.role = g.delete('role')
+    raise ArgumentError, "too much information #{g.inspect}" unless g.blank?
   end
 
   def xml_package_attributes(source_or_target)
@@ -240,10 +235,10 @@ class BsRequestAction < ApplicationRecord
   end
 
   def render_xml_attributes(node)
-    if action_type.in?([:submit, :maintenance_incident, :maintenance_release, :change_devel])
-      render_xml_source(node)
-      render_xml_target(node)
-    end
+    return unless action_type.in?([:submit, :maintenance_incident, :maintenance_release, :change_devel])
+
+    render_xml_source(node)
+    render_xml_target(node)
   end
 
   def render_xml(builder)
@@ -489,9 +484,9 @@ class BsRequestAction < ApplicationRecord
     history = Xmlhash.parse(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}/_history").body)
     # rubocop:enable Metrics/LineLength
     last = history.elements('entry').last
-    unless last && last['srcmd5'].to_s == verifymd5.to_s
-      raise BuildNotFinished.new "last patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
-    end
+    return if last && last['srcmd5'].to_s == verifymd5.to_s
+
+    raise BuildNotFinished.new "last patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity

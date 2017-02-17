@@ -81,10 +81,9 @@ class Relationship < ApplicationRecord
 
     logger.debug "adding user: #{user.login}, #{role.title}"
     r = obj.relationships.build(user: user, role: role)
-    if r.invalid?
-      logger.debug "invalid: #{r.errors.inspect}"
-      r.delete
-    end
+    return unless r.invalid?
+    logger.debug "invalid: #{r.errors.inspect}"
+    r.delete
   end
 
   def self.add_group(obj, group, role, ignoreLock = nil, check = nil)

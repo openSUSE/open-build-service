@@ -5,12 +5,8 @@ module EventMailerHelper
     else
       text = project
     end
-    if opts[:short].nil?
-      if package.present?
-        "package #{text}"
-      else
-        "project #{text}"
-      end
-    end
+    return unless opts[:short].nil?
+    return "package #{text}" if package.present?
+    "project #{text}"
   end
 end

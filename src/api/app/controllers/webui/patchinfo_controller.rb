@@ -91,10 +91,9 @@ class Webui::PatchinfoController < Webui::WebuiController
     @relogin = @file.has_element?('relogin_needed')
     @reboot = @file.has_element?('reboot_needed')
     @zypp_restart_needed = @file.has_element?('zypp_restart_needed')
-    if @file.has_element?('stopped')
-      @block = true
-      @block_reason = @file.value(:stopped)
-    end
+    return unless @file.has_element?('stopped')
+    @block = true
+    @block_reason = @file.value(:stopped)
   end
 
   def save
@@ -287,19 +286,12 @@ class Webui::PatchinfoController < Webui::WebuiController
 
     issue_tracker = IssueTracker.find_by(name: tracker)
     return unless issue_tracker
+    return unless bug =~ /^#{issue_tracker.regex}$/
 
-    if bug =~ /^#{issue_tracker.regex}$/
-      issue = Issue.find_or_create_by_name_and_tracker( issueid, issue_tracker.name )
-      if issue && issue.summary.blank?
-        issue.fetch_updates
-      end
-      if issue.summary
-        return issue.summary.gsub(/\\|'/) { '' }
-      end
-    else
-      return
-    end
-    ''
+    issue = Issue.find_or_create_by_name_and_tracker( issueid, issue_tracker.name )
+    issue.fetch_updates if issue && issue.summary.blank?
+    return issue.summary.gsub(/\\|'/) { '' } if issue.summary
+    return ''
   end
 
   private

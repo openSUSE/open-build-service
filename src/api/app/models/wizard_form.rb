@@ -17,14 +17,15 @@ class WizardForm
       @label = label
       @legend = legend
       @value = value
-      if options
-        @options = []
-        options.each do |option|
-          name = option.keys[0]
-          attrs = option[name]
-          e = Entry.new(name, nil, attrs["label"], attrs["legend"], nil, nil)
-          @options << e
-        end
+
+      return unless options
+
+      @options = []
+      options.each do |option|
+        name = option.keys[0]
+        attrs = option[name]
+        e = Entry.new(name, nil, attrs["label"], attrs["legend"], nil, nil)
+        @options << e
       end
     end
   end

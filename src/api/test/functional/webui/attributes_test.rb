@@ -81,11 +81,12 @@ class Webui::AttributesTest < Webui::IntegrationTest
         raise "Did not find attribute \"#{attribute[:name]}\" after saving."
       end
     end
-    unless attribute[:value].blank?
-      values.each do |value|
-        unless find(:css, "td.#{attribute[:id]}-values").has_text?(value)
-          raise "Did not find value \"#{value}\" for \"#{attribute[:name]}\" after saving"
-        end
+
+    return if attribute[:value].blank?
+
+    values.each do |value|
+      unless find(:css, "td.#{attribute[:id]}-values").has_text?(value)
+        raise "Did not find value \"#{value}\" for \"#{attribute[:name]}\" after saving"
       end
     end
   end

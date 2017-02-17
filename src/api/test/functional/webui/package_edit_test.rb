@@ -54,9 +54,9 @@ class Webui::PackageEditTest < Webui::IntegrationTest
     unless new_info[:title].nil?
       assert_equal package_title, new_info[:title]
     end
-    unless new_info[:description].nil?
-      assert_equal package_description, new_info[:description]
-    end
+
+    return if new_info[:description].nil?
+    assert_equal package_description, new_info[:description]
   end
 
   def test_change_home_project_package_title # src/api/spec/controllers/webui/package_controller_spec.rb

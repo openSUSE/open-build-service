@@ -127,10 +127,9 @@ class Webui::PackageController < Webui::WebuiController
     @fileinfo = Fileinfo.find(project: params[:dproject], package: '_repository', repository: params[:drepository], arch: @arch,
       filename: params[:dname], view: 'fileinfo_ext')
     @durl = nil
-    unless @fileinfo # avoid displaying an error for non-existing packages
-      redirect_back(fallback_location: { action: :binary, project: params[:project], package: params[:package],
-                                         repository: @repository, arch: @arch, filename: @filename })
-    end
+    return if @fileinfo # avoid displaying an error for non-existing packages
+    redirect_back(fallback_location: { action: :binary, project: params[:project], package: params[:package],
+                                       repository: @repository, arch: @arch, filename: @filename })
   end
 
   def statistics
@@ -143,12 +142,11 @@ class Webui::PackageController < Webui::WebuiController
     rescue ActiveXML::Transport::ForbiddenError
     end
     logger.debug "Statis #{@statistics.inspect}"
-    unless @statistics
-      flash[:error] = "No statistics of a successful build could be found in #{@repository}/#{@arch}"
-      redirect_to controller: 'package', action: :binaries, project: @project,
-                  package: @package, repository: @repository, nextstatus: 404
-      return
-    end
+    return if @statistics
+
+    flash[:error] = "No statistics of a successful build could be found in #{@repository}/#{@arch}"
+    redirect_to controller: 'package', action: :binaries, project: @project,
+                package: @package, repository: @repository, nextstatus: 404
   end
 
   def binary
@@ -180,10 +178,7 @@ class Webui::PackageController < Webui::WebuiController
     end
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
-    if request.format != Mime[:html] && @durl
-      redirect_to @durl
-      return
-    end
+    redirect_to @durl && return if request.format != Mime[:html] && @durl
   end
 
   def binaries
@@ -197,11 +192,10 @@ class Webui::PackageController < Webui::WebuiController
       redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
       return
     end
-    unless @buildresult
-      flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}"
-      redirect_to controller: :package, action: :show, project: @project, package: @package, nextstatus: 404
-      return
-    end
+    return if @buildresult
+
+    flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}"
+    redirect_to controller: :package, action: :show, project: @project, package: @package, nextstatus: 404
   end
 
   def users
@@ -351,12 +345,9 @@ class Webui::PackageController < Webui::WebuiController
   def set_linkinfo
     @linkinfo = nil
     lt = @package.backend_package.links_to
-    if lt
-      @linkinfo = { package: lt, error: @package.backend_package.error }
-      if lt.backend_package.verifymd5 != @package.backend_package.verifymd5
-        @linkinfo[:diff] = true
-      end
-    end
+    return unless lt
+    @linkinfo = { package: lt, error: @package.backend_package.error }
+    @linkinfo[:diff] = true if lt.backend_package.verifymd5 != @package.backend_package.verifymd5
   end
 
   def package_files( rev = nil, expand = nil )
@@ -715,7 +706,6 @@ class Webui::PackageController < Webui::WebuiController
       else
         redirect_back(fallback_location: root_path, error: message)
       end
-      return
     end
   end
 
@@ -765,10 +755,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_back(fallback_location: { action: :show, project: @project, package: @package })
       return
     end
-    if @spider_bot
-      render template: 'webui/package/simple_file_view'
-      return
-    end
+    render(template: 'webui/package/simple_file_view') && return if @spider_bot
   end
 
   def fetch_from_params(*arr)
@@ -1077,13 +1064,13 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
 
-    unless @package
-      if request.xhr?
-        render nothing: true, status: :not_found
-      else
-        flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-        redirect_to project_show_path(project: @project, nextstatus: 404)
-      end
+    return if @package
+
+    if request.xhr?
+      render nothing: true, status: :not_found
+    else
+      flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
+      redirect_to project_show_path(project: @project, nextstatus: 404)
     end
   end
 

@@ -36,12 +36,12 @@ class BranchPackage
     @copy_from_devel = false
     @copy_from_devel = true if params[:newinstance]
     # explicit asked for maintenance branch ?
-    if params[:maintenance]
-      @extend_names = true
-      @copy_from_devel = true
-      @add_repositories = true
-      @update_path_elements = true
-    end
+    return unless params[:maintenance]
+
+    @extend_names = true
+    @copy_from_devel = true
+    @add_repositories = true
+    @update_path_elements = true
   end
 
   def logger
@@ -367,9 +367,8 @@ class BranchPackage
     dir = Directory.find(project: params[:project], package: params[:package], rev: params[:rev])
     raise InvalidFilelistError.new 'no such revision' unless dir
     p[:rev] = dir.value(:srcmd5)
-    unless p[:rev]
-      raise InvalidFilelistError.new 'no srcmd5 revision found'
-    end
+    return if p[:rev]
+    raise InvalidFilelistError.new 'no srcmd5 revision found'
   end
 
   def check_for_update_project(p)
@@ -591,8 +590,7 @@ class BranchPackage
       end
       @auto_cleanup = ::Configuration.cleanup_after_days
     end
-    if @target_project && !Project.valid_name?(@target_project)
-      raise InvalidProjectNameError, "invalid project name '#{@target_project}'"
-    end
+    return unless @target_project && !Project.valid_name?(@target_project)
+    raise InvalidProjectNameError, "invalid project name '#{@target_project}'"
   end
 end

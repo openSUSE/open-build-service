@@ -45,11 +45,7 @@ class ApplicationController < ActionController::Base
   attr_accessor :auth_method
 
   def pundit_user
-    if User.current.is_nobody?
-      return
-    else
-      return User.current
-    end
+    return User.current unless User.current.is_nobody?
   end
 
   # Method for mapping actions in a controller to (XML) schemas based on request
@@ -421,9 +417,7 @@ class ApplicationController < ActionController::Base
   end
 
   def require_parameter!(parameter)
-    unless params.include? parameter.to_s
-      raise MissingParameterError, "Required Parameter #{parameter} missing"
-    end
+    raise MissingParameterError, "Required Parameter #{parameter} missing" unless params.include? parameter.to_s
   end
 
   def required_parameters(*parameters)
@@ -545,24 +539,27 @@ class ApplicationController < ActionController::Base
 
   def validate_xml_response
     return if @skip_validation
-    # rubocop:disable Metrics/LineLength
-    if request.format != 'json' && response.status.to_s[0..2] == '200' && response.headers['Content-Type'] !~ /.*\/json/i && response.headers['Content-Disposition'] != 'attachment'
-      opt = params
-      opt[:method] = request.method.to_s
-      opt[:type] = 'response'
-      ms = Benchmark.ms do
-        if response.body.respond_to? :call
-          sio = StringIO.new
-          response.body.call(nil, sio) # send_file can return a block that takes |response, output|
-          str = sio.string
-        else
-          str = response.body
-        end
-        Suse::Validator.validate(opt, str)
+
+    request_format = request.format != 'json'
+    response_status = response.status.to_s[0..2] == '200'
+    response_headers = response.headers['Content-Type'] !~ /.*\/json/i && response.headers['Content-Disposition'] != 'attachment'
+
+    return unless request_format && response_status && response_headers
+
+    opt = params
+    opt[:method] = request.method.to_s
+    opt[:type] = 'response'
+    ms = Benchmark.ms do
+      if response.body.respond_to? :call
+        sio = StringIO.new
+        response.body.call(nil, sio) # send_file can return a block that takes |response, output|
+        str = sio.string
+      else
+        str = response.body
       end
-      logger.debug "Validate XML response: #{response} took #{Integer(ms + 0.5)}ms"
+      Suse::Validator.validate(opt, str)
     end
-    # rubocop:enable Metrics/LineLength
+    logger.debug "Validate XML response: #{response} took #{Integer(ms + 0.5)}ms"
   end
 
   def set_response_format_to_xml

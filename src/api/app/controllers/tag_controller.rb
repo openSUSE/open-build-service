@@ -130,11 +130,8 @@ class TagController < ApplicationController
     @project = Project.get_by_name(params[:project])
 
     @tags = @project.tags.where("taggings.user_id = ?", user.id).order(:name)
-    if do_render
-      render partial: "tags"
-    else
-      return @tags
-    end
+    return @tags unless do_render
+    render partial: "tags"
   end
 
   def get_tags_by_user_and_package( do_render = true )
@@ -146,11 +143,8 @@ class TagController < ApplicationController
     @project = @package.project
 
     @tags = @package.tags.where("taggings.user_id = ?", user.id).order(:name)
-    if do_render
-      render partial: "tags"
-    else
-      return @tags
-    end
+    return @tags unless do_render
+    render partial: "tags"
   end
 
   def most_popular_tags

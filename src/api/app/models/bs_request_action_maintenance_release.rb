@@ -129,9 +129,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
     # creating release requests is also locking the source package, therefore we require write access there.
     spkg = Package.find_by_project_and_name source_project, source_package
-    unless spkg || !User.current.can_modify_package?(spkg)
-      raise LackingReleaseMaintainership.new 'Creating a release request action requires maintainership in source package'
-    end
+    return if spkg || !User.current.can_modify_package?(spkg)
+    raise LackingReleaseMaintainership.new 'Creating a release request action requires maintainership in source package'
   end
 
   def set_acceptinfo(ai)
@@ -162,13 +161,13 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       # Workaround: In rails 5 'spkg.project' started to return a readonly object
       object = Project.find(spkg.project_id)
     end
-    unless object.enabled_for?('lock', nil, nil)
-      object.check_write_access!(true)
-      f = object.flags.find_by_flag_and_status('lock', 'disable')
-      object.flags.delete(f) if f # remove possible existing disable lock flag
-      object.flags.create(status: 'enable', flag: 'lock')
-      object.store(comment: "maintenance_release request")
-    end
+    return if object.enabled_for?('lock', nil, nil)
+
+    object.check_write_access!(true)
+    f = object.flags.find_by_flag_and_status('lock', 'disable')
+    object.flags.delete(f) if f # remove possible existing disable lock flag
+    object.flags.create(status: 'enable', flag: 'lock')
+    object.store(comment: "maintenance_release request")
   end
 
   def minimum_priority

@@ -155,15 +155,15 @@ module Suse
         @@backend_time += timedelta
         logger.debug "request took #{timedelta} #{@@backend_time}"
 
-        if CONFIG['extended_backend_log']
-          data = response.body
-          if data.nil?
-            @@backend_logger.info "(no data)"
-          elsif data.class == 'String' && data[0, 1] == "<"
-            @@backend_logger.info data
-          else
-            @@backend_logger.info "(non-XML data) #{data.class}"
-          end
+        return unless CONFIG['extended_backend_log']
+
+        data = response.body
+        if data.nil?
+          @@backend_logger.info "(no data)"
+        elsif data.class == 'String' && data[0, 1] == "<"
+          @@backend_logger.info data
+        else
+          @@backend_logger.info "(non-XML data) #{data.class}"
         end
       end
 

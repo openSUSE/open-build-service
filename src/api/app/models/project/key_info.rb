@@ -19,22 +19,22 @@ class Project
       end
       parsed_response = Xmlhash.parse(response)
 
-      if parsed_response['pubkey'].present?
-        key_info_params = {
-          pubkey:      parsed_response['pubkey']['_content'],
-          algorithm:   parsed_response['pubkey']['algo'],
-          keyid:       parsed_response['pubkey']['keyid'],
-          keysize:     parsed_response['pubkey']['keysize'],
-          expires:     parsed_response['pubkey']['expires'],
-          fingerprint: parsed_response['pubkey']['fingerprint']
-        }
+      return unless parsed_response['pubkey'].present?
 
-        if parsed_response['sslcert'].present?
-          key_info_params[:ssl_certificate] = parsed_response['sslcert']
-        end
+      key_info_params = {
+        pubkey:      parsed_response['pubkey']['_content'],
+        algorithm:   parsed_response['pubkey']['algo'],
+        keyid:       parsed_response['pubkey']['keyid'],
+        keysize:     parsed_response['pubkey']['keysize'],
+        expires:     parsed_response['pubkey']['expires'],
+        fingerprint: parsed_response['pubkey']['fingerprint']
+      }
 
-        new(key_info_params)
+      if parsed_response['sslcert'].present?
+        key_info_params[:ssl_certificate] = parsed_response['sslcert']
       end
+
+      new(key_info_params)
     end
 
     def self.backend_url(project_name)

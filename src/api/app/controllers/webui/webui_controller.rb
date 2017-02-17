@@ -273,11 +273,9 @@ class Webui::WebuiController < ActionController::Base
 
   # Before filter to check if current user is administrator
   def require_admin
-    if User.current.nil? || !User.current.is_admin?
-      flash[:error] = 'Requires admin privileges'
-      redirect_back(fallback_location: { controller: 'main', action: 'index' })
-      return
-    end
+    return unless User.current.nil? || !User.current.is_admin?
+    flash[:error] = 'Requires admin privileges'
+    redirect_back(fallback_location: { controller: 'main', action: 'index' })
   end
 
   # before filter to only show the frontpage to anonymous users
@@ -297,10 +295,10 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def setup_view_path
-    if CONFIG['theme']
-      theme_path = Rails.root.join('app', 'views', 'webui', 'theme', CONFIG['theme'])
-      prepend_view_path(theme_path)
-    end
+    return unless CONFIG['theme']
+
+    theme_path = Rails.root.join('app', 'views', 'webui', 'theme', CONFIG['theme'])
+    prepend_view_path(theme_path)
   end
 
   def check_ajax
@@ -308,11 +306,8 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def pundit_user
-    if User.current.is_nobody?
-      return
-    else
-      return User.current
-    end
+    return if User.current.is_nobody?
+    return User.current
   end
 
   # dialog_init is a function name called before dialog is shown

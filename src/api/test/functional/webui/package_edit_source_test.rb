@@ -41,11 +41,9 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       begin
         page.attach_file('file', file[:upload_path]) unless file[:upload_path].blank?
       rescue Capybara::FileNotFound
-        if file[:expect] != :error
-          raise "file was not found, but expect was #{file[:expect]}"
-        else
-          return
-        end
+        return unless file[:expect] != :error
+
+        raise "file was not found, but expect was #{file[:expect]}"
       end
     else
       find(:id, 'file_type').select('remote URL')

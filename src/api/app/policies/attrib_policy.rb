@@ -14,11 +14,8 @@ class AttribPolicy < ApplicationPolicy
     end
     # no specific rules set for the attribute, check if the user can modify the container
     if type_perms.empty? && namespace_perms.empty? && @record.container.present?
-      if @record.container.kind_of? Project
-        return @user.can_modify_project?(@record.container)
-      else
-        return @user.can_modify_package?(@record.container)
-      end
+      return @user.can_modify_project?(@record.container) if @record.container.kind_of? Project
+      return @user.can_modify_package?(@record.container)
     else
       type_perms.each do |rule|
         next if rule.user && rule.user != @user

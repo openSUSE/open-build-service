@@ -158,16 +158,11 @@ module HasRelationships
       return group if group
 
       # check with LDAP
-      if CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
-        if UserLdapStrategy.find_group_with_ldap(id)
-          logger.debug "Find and Create group '#{id}' from LDAP"
-          return Group.create!(title: id)
-        else
-          raise SaveError, "unknown group '#{id}' on LDAP server"
-        end
-      else
-        raise SaveError, "unknown group '#{id}'"
-      end
+      raise SaveError, "unknown group '#{id}'" unless CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
+      raise SaveError, "unknown group '#{id}' on LDAP server" unless UserLdapStrategy.find_group_with_ldap(id)
+
+      logger.debug "Find and Create group '#{id}' from LDAP"
+      Group.create!(title: id)
     end
   end
 

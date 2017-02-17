@@ -585,11 +585,9 @@ class Webui::ProjectController < Webui::WebuiController
     sliced_params.permit!
 
     @content = @project.config.to_s(sliced_params.to_h)
-    unless @content
-      flash[:error] = @project.config.errors.full_messages.to_sentence
-      redirect_to controller: 'project', nextstatus: 404
-      return
-    end
+    return if @content
+    flash[:error] = @project.config.errors.full_messages.to_sentence
+    redirect_to controller: 'project', nextstatus: 404
   end
 
   def save_prjconf
@@ -778,12 +776,12 @@ class Webui::ProjectController < Webui::WebuiController
   def load_releasetargets
     @releasetargets = []
     rts = ReleaseTarget.where(repository_id: @project.repositories)
-    unless rts.empty?
-      Rails.logger.debug rts.inspect
-      @project.repositories.each do |repository|
-        release_target = repository.release_targets.first
-        @releasetargets.push(release_target.repository.project.name + '/' + release_target.repository.name) if release_target
-      end
+    return if rts.empty?
+
+    Rails.logger.debug rts.inspect
+    @project.repositories.each do |repository|
+      release_target = repository.release_targets.first
+      @releasetargets.push(release_target.repository.project.name + '/' + release_target.repository.name) if release_target
     end
   end
 
@@ -810,12 +808,12 @@ class Webui::ProjectController < Webui::WebuiController
       @maintained_projects = @project.maintained_project_names
     end
     @is_incident_project = @project.is_maintenance_incident?
-    if @is_incident_project
-      @open_release_requests = BsRequest.collection(project: @project.name,
-                                    states: %w(new review),
-                                    types: %w(maintenance_release),
-                                    roles: %w(source)).pluck(:number)
-    end
+    return unless @is_incident_project
+
+    @open_release_requests = BsRequest.collection(project: @project.name,
+                                  states: %w(new review),
+                                  types: %w(maintenance_release),
+                                  roles: %w(source)).pluck(:number)
   end
 
   def call_diststats(bdep, jobs)
@@ -1016,28 +1014,25 @@ class Webui::ProjectController < Webui::WebuiController
       currentpack['problems'] << 'error-' + dp.error
     end
 
-    if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
-      if p.declined_request
-        @declined_requests[p.declined_request].bs_request_actions.each do |action|
-          next unless action.source_project == dp.project && action.source_package == dp.name
+    return unless currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
 
-          sourcerev = Rails.cache.fetch("rev-#{dp.project}-#{dp.name}-#{currentpack['md5']}") do
-            Directory.hashed(project: dp.project, package: dp.name)['rev']
-          end
-          if sourcerev == action.source_rev
-            currentpack['currently_declined'] = p.declined_request
-            currentpack['problems'] << 'currently_declined'
-          end
+    if p.declined_request
+      @declined_requests[p.declined_request].bs_request_actions.each do |action|
+        next unless action.source_project == dp.project && action.source_package == dp.name
+
+        sourcerev = Rails.cache.fetch("rev-#{dp.project}-#{dp.name}-#{currentpack['md5']}") do
+          Directory.hashed(project: dp.project, package: dp.name)['rev']
         end
-      end
-      if currentpack['currently_declined'].nil?
-        if p.changesmd5 != dp.changesmd5
-          currentpack['problems'] << 'different_changes'
-        else
-          currentpack['problems'] << 'different_sources'
+        if sourcerev == action.source_rev
+          currentpack['currently_declined'] = p.declined_request
+          currentpack['problems'] << 'currently_declined'
         end
       end
     end
+
+    return unless currentpack['currently_declined'].nil?
+    return currentpack['problems'] << 'different_changes' if p.changesmd5 != dp.changesmd5
+    currentpack['problems'] << 'different_sources'
   end
 
   def status_filter_packages
@@ -1101,13 +1096,13 @@ class Webui::ProjectController < Webui::WebuiController
       @status[package].failed_comment = value
     end
 
-    if @include_versions || @limit_to_old
-      project_status_attributes(@status.keys, 'openSUSE', 'UpstreamVersion') do |package, value|
-        @status[package].upstream_version = value
-      end
-      project_status_attributes(@status.keys, 'openSUSE', 'UpstreamTarballURL') do |package, value|
-        @status[package].upstream_url = value
-      end
+    return unless @include_versions || @limit_to_old
+
+    project_status_attributes(@status.keys, 'openSUSE', 'UpstreamVersion') do |package, value|
+      @status[package].upstream_version = value
+    end
+    project_status_attributes(@status.keys, 'openSUSE', 'UpstreamTarballURL') do |package, value|
+      @status[package].upstream_url = value
     end
   end
 

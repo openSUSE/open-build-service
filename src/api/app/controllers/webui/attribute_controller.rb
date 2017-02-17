@@ -24,11 +24,8 @@ class Webui::AttributeController < Webui::WebuiController
 
   def edit
     authorize @attribute
-    if @attribute.attrib_type.value_count && ( @attribute.attrib_type.value_count > @attribute.values.length )
-      ( @attribute.attrib_type.value_count - @attribute.values.length ).times do
-        @attribute.values.build(attrib: @attribute)
-      end
-    end
+    return unless @attribute.attrib_type.value_count && ( @attribute.attrib_type.value_count > @attribute.values.length )
+    (@attribute.attrib_type.value_count - @attribute.values.length).times { @attribute.values.build(attrib: @attribute) }
   end
 
   def create

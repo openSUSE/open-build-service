@@ -12,9 +12,7 @@ module ValidationHelper
   end
 
   def valid_project_name!(project_name)
-    unless valid_project_name? project_name
-      raise InvalidProjectNameError, "invalid project name '#{project_name}'"
-    end
+    raise InvalidProjectNameError, "invalid project name '#{project_name}'" unless valid_project_name? project_name
   end
 
   def valid_package_name?(name)
@@ -22,9 +20,7 @@ module ValidationHelper
   end
 
   def valid_package_name!(package_name)
-    unless valid_package_name? package_name
-      raise InvalidPackageNameError, "invalid package name '#{package_name}'"
-    end
+    raise InvalidPackageNameError, "invalid package name '#{package_name}'" unless valid_package_name? package_name
   end
 
   # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm
@@ -71,9 +67,7 @@ module ValidationHelper
     r = Suse::Backend.get(metapath)
     raise Project::UnknownObjectError unless r
     return true if @http_user.is_admin?
-    if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'access')
-      # FIXME: actually a per user checking would be more accurate here
-      raise Project::UnknownObjectError, "#{project}"
-    end
+    # FIXME: actually a per user checking would be more accurate here
+    raise Project::UnknownObjectError, "#{project}" if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'access')
   end
 end

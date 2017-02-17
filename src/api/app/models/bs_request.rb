@@ -103,9 +103,8 @@ class BsRequest < ApplicationRecord
     unless user
       errors.add(:creator, "Invalid creator specified #{creator}")
     end
-    unless user.is_active?
-      errors.add(:creator, "Login #{user.login} is not an active user")
-    end
+    return if user.is_active?
+    errors.add(:creator, "Login #{user.login} is not an active user")
   end
 
   def assign_number
@@ -123,9 +122,9 @@ class BsRequest < ApplicationRecord
     if state == :superseded && (!superseded_by.is_a?(Numeric) || !(superseded_by > 0))
       errors.add(:superseded_by, 'Superseded_by should be set')
     end
-    if superseded_by && !(state == :superseded)
-      errors.add(:superseded_by, 'Superseded_by should not be set')
-    end
+
+    return unless superseded_by && !(state == :superseded)
+    errors.add(:superseded_by, 'Superseded_by should not be set')
   end
 
   def updated_when
@@ -366,18 +365,18 @@ class BsRequest < ApplicationRecord
     group.check_for_group_in_new
 
     # and now check the reviews
-    if bs_request_action_groups.empty? && state == :review
-      reviews.each do |r|
-        # if the review is open, there is nothing we have to care about
-        return if r.state == :new
-      end
-      self.comment = "removed from group #{group.bs_request.number}"
-      self.state = :new
-      save
+    return unless bs_request_action_groups.empty? && state == :review
 
-      p = {request: self, comment: "Reopened by removing from group #{group.bs_request.number}", user_id: User.current.id}
-      HistoryElement::RequestReopened.create(p)
+    reviews.each do |r|
+      # if the review is open, there is nothing we have to care about
+      return if r.state == :new
     end
+    self.comment = "removed from group #{group.bs_request.number}"
+    self.state = :new
+    save
+
+    p = {request: self, comment: "Reopened by removing from group #{group.bs_request.number}", user_id: User.current.id}
+    HistoryElement::RequestReopened.create(p)
   end
 
   def permission_check_change_review!(params)
@@ -403,9 +402,8 @@ class BsRequest < ApplicationRecord
 
   def permission_check_change_groups!
     # adding and removing of requests is only allowed for groups
-    if bs_request_actions.first.action_type != :group
-      raise GroupRequestSpecial.new "Command is only valid for group requests"
-    end
+    return unless bs_request_actions.first.action_type != :group
+    raise GroupRequestSpecial.new "Command is only valid for group requests"
   end
 
   def permission_check_change_state!(opts)
@@ -413,12 +411,12 @@ class BsRequest < ApplicationRecord
     checker.cmd_changestate_permissions(opts)
 
     # check target write permissions
-    if opts[:newstate] == 'accepted'
-      bs_request_actions.each do |action|
-        action.check_action_permission!(true)
-        action.check_for_expand_errors! !@addrevision.nil?
-        raisepriority(action.minimum_priority)
-      end
+    return unless opts[:newstate] == 'accepted'
+
+    bs_request_actions.each do |action|
+      action.check_action_permission!(true)
+      action.check_for_expand_errors! !@addrevision.nil?
+      raisepriority(action.minimum_priority)
     end
   end
 
@@ -713,9 +711,8 @@ class BsRequest < ApplicationRecord
   end
 
   def check_if_valid_review!(opts)
-    if !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
-      raise InvalidReview.new
-    end
+    return unless !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
+    raise InvalidReview.new
   end
 
   def addreview(opts)
@@ -796,10 +793,9 @@ class BsRequest < ApplicationRecord
       end
     end
 
-    if touched
-      save!
-      HistoryElement::RequestSetIncident.create(p)
-    end
+    return unless touched
+    save!
+    HistoryElement::RequestSetIncident.create(p)
   end
 
   IntermediateStates = %w(new review)

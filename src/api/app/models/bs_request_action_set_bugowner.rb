@@ -20,9 +20,9 @@ class BsRequestActionSetBugowner < BsRequestAction
   #### Instance methods (public and then protected/private)
   def check_sanity
     super
-    if person_name.blank? && group_name.blank?
-      errors.add(:person_name, "Either person or group needs to be set")
-    end
+    return unless person_name.blank? && group_name.blank?
+
+    errors.add(:person_name, "Either person or group needs to be set")
   end
 
   def execute_accept(_opts)

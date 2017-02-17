@@ -113,11 +113,11 @@ class FullTextSearch
   end
 
   def find_issue_id
-    if issue_tracker_name && issue_name
-      # compat code for handling all writings of CVE id's
-      issue_name.gsub!(/^CVE-/i, '') if issue_tracker_name == "cve"
-      # Return 0 if the issue does not exist in order to force an empty result
-      Issue.joins(:issue_tracker).where("issue_trackers.name" => issue_tracker_name, :name => issue_name).pluck(:id).first || 0
-    end
+    return unless issue_tracker_name && issue_name
+
+    # compat code for handling all writings of CVE id's
+    issue_name.gsub!(/^CVE-/i, '') if issue_tracker_name == "cve"
+    # Return 0 if the issue does not exist in order to force an empty result
+    Issue.joins(:issue_tracker).where("issue_trackers.name" => issue_tracker_name, :name => issue_name).pluck(:id).first || 0
   end
 end

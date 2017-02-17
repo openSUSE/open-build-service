@@ -114,9 +114,7 @@ class Webui::DriverUpdateController < Webui::PackageController
   private
 
   def check_images_repo
-    unless @project.repositories.find_by(name: 'images')
-      flash.now[:alert] = "You need to add an 'images' repository to your project " +
-          'to be able to build a driver update disk image!'
-    end
+    return if @project.repositories.find_by(name: 'images')
+    flash.now[:alert] = "You need to add an 'images' repository to your project to be able to build a driver update disk image!"
   end
 end

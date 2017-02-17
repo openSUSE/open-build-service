@@ -271,18 +271,16 @@ module ActiveXML
 
     def find_first(symbol)
       symbol = symbol.to_s
-      if @node_cache.has_key?(symbol)
-        return @node_cache[symbol]
-      else
-        t0 = Time.now
-        e = _data.xpath(symbol)
-        if e.empty?
-          return @node_cache[symbol] = nil
-        end
-        node = create_node_with_relations(e.first)
-        @@xml_time += Time.now - t0
-        @node_cache[symbol] = node
+      return @node_cache[symbol] if @node_cache.has_key?(symbol)
+
+      t0 = Time.now
+      e = _data.xpath(symbol)
+      if e.empty?
+        return @node_cache[symbol] = nil
       end
+      node = create_node_with_relations(e.first)
+      @@xml_time += Time.now - t0
+      @node_cache[symbol] = node
     end
 
     # this function is a simplified version of XML::Simple of cpan fame

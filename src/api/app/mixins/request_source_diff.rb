@@ -10,21 +10,19 @@ module RequestSourceDiff
     end
 
     def gather_source_packages
-      if action.bs_request_action_accept_info # the old package can be gone
-        return [action.source_package]
-      elsif action.source_package
+      return [action.source_package] if action.bs_request_action_accept_info # the old package can be gone
+
+      if action.source_package
         action.source_access_check!
         return [action.source_package]
       else
         prj = Project.find_by_name(action.source_project)
-        if prj
-          return prj.packages.map { |p|
-            p.check_source_access!
-            p.name
-          }
-        else
-          []
-        end
+        return [] unless prj
+
+        return prj.packages.map { |p|
+          p.check_source_access!
+          p.name
+        }
       end
     end
 
@@ -117,9 +115,7 @@ module RequestSourceDiff
       @target_package ||= linkinfo["package"]
       return unless linkinfo["project"] == action.source_project
       # a local link, check if the real source change gets also transported in a seperate action
-      if action.bs_request
-        action.bs_request.bs_request_actions.any? { |a| check_action_target(a, linkinfo["package"]) }
-      end
+      action.bs_request.bs_request_actions.any? { |a| check_action_target(a, linkinfo["package"]) } if action.bs_request
     end
 
     # check if the action is the same target

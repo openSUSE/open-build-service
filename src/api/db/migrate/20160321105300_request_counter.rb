@@ -12,9 +12,7 @@ class RequestCounter < ActiveRecord::Migration
 
     # set counter
     lastreq = BsRequest.all.order(:id).last
-    if lastreq
-      BsRequest.connection.execute "INSERT INTO bs_request_counter(counter) VALUES('#{lastreq.id}')"
-    end
+    BsRequest.connection.execute "INSERT INTO bs_request_counter(counter) VALUES('#{lastreq.id}')" if lastreq
   end
 
   def self.down

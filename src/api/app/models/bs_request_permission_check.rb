@@ -77,14 +77,14 @@ class BsRequestPermissionCheck
       check_delete_accept(action)
     end
 
-    if action.makeoriginolder && Package.exists_by_project_and_name(action.target_project, action.target_package)
-      # the target project may link to another project where we need to check modification permissions
-      originpkg = Package.get_by_project_and_name action.target_project, action.target_package
-      unless User.current.can_modify_package?(originpkg, true)
-        raise PostRequestNoPermission.new "Package target can not get initialized using makeoriginolder." +
-                                          "No permission in project #{originpkg.project.name}"
-      end
-    end
+    return unless action.makeoriginolder && Package.exists_by_project_and_name(action.target_project, action.target_package)
+
+    # the target project may link to another project where we need to check modification permissions
+    originpkg = Package.get_by_project_and_name action.target_project, action.target_package
+    return if User.current.can_modify_package?(originpkg, true)
+
+    raise PostRequestNoPermission.new "Package target can not get initialized using makeoriginolder." +
+                                      "No permission in project #{originpkg.project.name}"
   end
 
   def check_delete_accept(action)
@@ -162,11 +162,10 @@ class BsRequestPermissionCheck
       raise SourceMissing.new err if err
     end
     # maintenance incident target permission checks
-    if action.is_maintenance_incident?
-      unless @target_project.kind.in?(["maintenance", "maintenance_incident"])
-        raise TargetNotMaintenance.new "The target project is not of type maintenance or incident but #{@target_project.kind}"
-      end
-    end
+    return unless action.is_maintenance_incident?
+    return if @target_project.kind.in?(["maintenance", "maintenance_incident"])
+
+    raise TargetNotMaintenance.new "The target project is not of type maintenance or incident but #{@target_project.kind}"
   end
 
   def set_permissions_for_action(action, new_state = nil)
@@ -241,9 +240,9 @@ class BsRequestPermissionCheck
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
     end
-    unless @write_permission_in_target
-      raise SetPriorityNoPermission.new 'No write permission in target of request actions'
-    end
+    return if @write_permission_in_target
+
+    raise SetPriorityNoPermission.new 'No write permission in target of request actions'
   end
 
   def cmd_setincident_permissions
@@ -298,9 +297,9 @@ class BsRequestPermissionCheck
       raise ReviewChangeStateNoPermission.new "review state change for package #{opts[:by_project]}/#{opts[:by_package]} " +
                                               "is not permitted for #{User.current.login}"
     end
-    if by_project && !User.current.can_modify_project?(by_project, true)
-      raise ReviewChangeStateNoPermission.new "review state change for project #{opts[:by_project]} is not permitted for #{User.current.login}"
-    end
+
+    return unless by_project && !User.current.can_modify_project?(by_project, true)
+    raise ReviewChangeStateNoPermission.new "review state change for project #{opts[:by_project]} is not permitted for #{User.current.login}"
   end
 
   def cmd_changestate_permissions(opts)

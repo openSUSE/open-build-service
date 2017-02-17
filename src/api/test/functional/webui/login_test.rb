@@ -12,11 +12,8 @@ class Webui::LoginTest < Webui::IntegrationTest
 
   def user_real_name
     t = find(:id, "home-realname")
-    if t
-      return t.text
-    else
-      return ''
-    end
+    return t.text if t
+    return ''
   end
 
   #

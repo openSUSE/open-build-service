@@ -73,9 +73,8 @@ class BsRequestActionGroup < BsRequestAction
       check_permissions_on(r)
     end
 
-    if bs_request.bs_request_actions.size > 1
-      raise GroupActionMustBeSingle.new "You can't mix group actions with other actions"
-    end
+    return unless bs_request.bs_request_actions.size > 1
+    raise GroupActionMustBeSingle.new "You can't mix group actions with other actions"
   end
 
   def render_xml_attributes(node)
@@ -98,22 +97,21 @@ class BsRequestActionGroup < BsRequestAction
   end
 
   def request_changes_state(state)
-    if [:revoked, :declined, :superseded].include? state
-      # now comes the heavy lifting. we need to make sure all requests
-      # get their right state
-      bs_requests.each do |r|
-        r.remove_from_group(self)
-      end
+    return unless [:revoked, :declined, :superseded].include? state
+
+    # now comes the heavy lifting. we need to make sure all requests
+    # get their right state
+    bs_requests.each do |r|
+      r.remove_from_group(self)
     end
   end
 
   def check_for_group_in_review
     group_state = find_review_state_of_group
     # only if there are open reviews, there is any need to change something
-    if group_state == :review
-      bs_request.state = :review
-      set_group_to_review
-    end
+    return unless group_state == :review
+    bs_request.state = :review
+    set_group_to_review
   end
 
   def create_post_permissions_hook(_opts)
@@ -152,16 +150,14 @@ class BsRequestActionGroup < BsRequestAction
     end
     check_and_add_request(newid)
     group_state = find_review_state_of_group
-    if group_state == :review
-      set_group_to_review
-    end
+    return unless group_state == :review
+    set_group_to_review
   end
 
   def check_for_group_in_new
     group_state = find_review_state_of_group
-    if group_state == :new && bs_request.state == :review
-      set_group_to_new
-    end
+    return unless group_state == :new && bs_request.state == :review
+    set_group_to_new
   end
 
   def removerequest(opts)

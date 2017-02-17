@@ -55,11 +55,8 @@ module HasAttributes
           a.values.build(position: i, value: "")
         end
       end
-      if a.save
-        changed = true
-      else
-        raise AttributeSaveError, a.errors.full_messages.join(", ")
-      end
+      raise AttributeSaveError, a.errors.full_messages.join(", ") unless a.save
+      changed = true
     end
     # write values
     a.update_with_associations(values, issues) || changed

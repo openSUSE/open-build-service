@@ -57,10 +57,9 @@ class Webui::UserController < Webui::WebuiController
     @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
     @owned = @displayed_user.owned_packages
 
-    if User.current == @displayed_user
-      @reviews = @displayed_user.involved_reviews.exists?
-      @patchinfos = @displayed_user.involved_patchinfos
-    end
+    return unless User.current == @displayed_user
+    @reviews = @displayed_user.involved_reviews.exists?
+    @patchinfos = @displayed_user.involved_patchinfos
   end
 
   def home
@@ -185,9 +184,7 @@ class Webui::UserController < Webui::WebuiController
     end
 
     expires_in 5.hours, public: true
-    if stale?(etag: Digest::MD5.hexdigest(content))
-      render body: content, layout: false, content_type: 'image/png'
-    end
+    render(body: content, layout: false, content_type: 'image/png') if stale?(etag: Digest::MD5.hexdigest(content))
   end
 
   def register
