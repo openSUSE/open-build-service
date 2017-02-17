@@ -38,7 +38,7 @@
         %br
         %br
         = label_tag :pubkey, 'Public Key', style: "display:inline-block;width:100px;"
-        = text_area_tag :pubkey, nil, style: "width: 400px;"
+        ~ text_area_tag :pubkey, nil, style: "width: 400px;"
 
         %p
           = submit_tag "Save"
