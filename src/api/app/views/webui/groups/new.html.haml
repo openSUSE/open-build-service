@@ -1,0 +1,20 @@
+- @pagetitle = "Add Group"
+%h2 Add Group
+= form_tag({ action: 'create' }, { id: 'group_add_form' }) do
+  %p
+    = label_tag 'group[title]', 'Title:'
+    %br/
+    = text_field_tag 'group[title]', nil, placeholder: 'Title'
+    %br/
+  %p
+    = label_tag :members, 'Members:'
+    %br/
+    %input#members{ name: "group[members]", style: "display: none;", type: "text" }/
+    = submit_tag 'Save'
+:javascript
+  $(function() {
+    $("#members").tokenInput("#{ url_for controller: 'user', action: 'tokens' }" ,{
+      theme: "facebook",
+      tokenValue: "name"
+    });
+  });
