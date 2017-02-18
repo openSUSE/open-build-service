@@ -40,10 +40,10 @@
               - warning_style = "background-color: rgb(255,#{n},0);"
             %td.starttime{ style: warning_style, title: "start time: #{start_time.iso8601}" }
               %span.sorttime{ style: "display: none" }
-                = building[starttime].to_i
+                = building["starttime"].to_i
               = distance_of_time_in_words(@time_now, start_time)
-          %td.uri= building[workerid]
-          %td.hostarch= building[hostarch]
+            %td.uri= building["workerid"]
+            %td.hostarch= building["hostarch"]
 
   = content_for :ready_function do
     :plain
@@ -53,6 +53,3 @@
         'bPaginate': false,
         'oSearch': {'sSearch': '#{@project_filter}', 'bRegex': false, 'bSmart': false},
       });
-- else
-  %p
-    %i No build jobs
