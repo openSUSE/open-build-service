@@ -184,7 +184,7 @@ my $buildcode;
 my $lastcodechecktime;
 
 my %badhost;
-my $badhostchanged;
+my $badhostchanged = 1;
 
 my %newestsrcchange;
 my %infocache;
@@ -1372,6 +1372,7 @@ while (1) {
     } else {
       unlink("$rundir/dispatch.badhosts");
     }
+    undef $badhostchanged;
   }
 
   filechecks();
