@@ -28,7 +28,7 @@
             There are currently no base image templates available for project
             = succeed '.' do
               %strong= title_or_name(project)
-  - if first_template && User.current
+  - if first_template && User.current.is_nobody?
     .templates_form
       = form_tag({ controller: :package, action: :branch }, method: :post, id: 'appliance_form') do
         = hidden_field_tag 'linked_project', first_template.project
