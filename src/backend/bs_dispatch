@@ -1357,7 +1357,12 @@ while (1) {
         delete $badhost{$_};
       }
     }
+    BSUtil::store("$rundir/dispatch.badhosts",undef,\%badhost);
+  } else {
+    # we dont care if file doesn`t exists
+    unlink("$rundir/dispatch.badhosts");
   }
+
   filechecks();
 }
 
