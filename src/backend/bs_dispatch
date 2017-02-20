@@ -184,6 +184,8 @@ my $buildcode;
 my $lastcodechecktime;
 
 my %badhost;
+my $badhostchanged;
+
 my %newestsrcchange;
 my %infocache;
 my %constraintscache;
@@ -278,10 +280,12 @@ sub assignjob {
     }
     if ($err =~ /cannot build this repository/) {
       $badhost{"$info->{'project'}/:repo:$info->{'repository'}/$info->{'arch'}/$idlename"} = time();
+      $badhostchanged = 1;
       return 'badhost';
     }
     if ($err =~ /cannot build this package/) {
       $badhost{"$info->{'project'}/$info->{'package'}/$info->{'arch'}/$idlename"} = time();
+      $badhostchanged = 1;
       return 'badhost';
     }
     if ($err =~ /bad job/) {
@@ -623,6 +627,7 @@ sub forwardevents {
 	  $badhost{"$ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'worker'}"} = $now;
 	  $badhost{"$ev->{'arch'}/$ev->{'job'}"} = $now;
 	  $badhost{"$ev->{'arch'}/$ev->{'job'}/$ev->{'worker'}"} = $now;
+	  $badhostchanged = 1;
 	  addbadhosttofinished($ev, $now);
 	}
       } else {
@@ -677,6 +682,7 @@ sub filechecks {
     unlink("$rundir/bs_dispatch.dropbadhosts");
     BSUtil::printlog("removing all badhost entries...");
     %badhost = ();
+    $badhostchanged = 1;
   }
 }
 
@@ -773,6 +779,7 @@ if (-s "$rundir/bs_dispatch.state") {
   unlink("$rundir/bs_dispatch.state");
   %infocache = %{$state->{'infocache'}} if $state && $state->{'infocache'};
   %badhost = %{$state->{'badhost'}} if $state && $state->{'badhost'};
+  $badhostchanged = 1;
   %newestsrcchange = %{$state->{'newestsrcchange'}} if $state && $state->{'newestsrcchange'};
 }
 
@@ -1355,12 +1362,16 @@ while (1) {
       if ($badhost{$_} + 24*3600 < $now) {
         BSUtil::printlog("deleting badhost $_");
         delete $badhost{$_};
+        $badhostchanged = 1;
       }
     }
-    BSUtil::store("$rundir/dispatch.badhosts",undef,\%badhost);
-  } else {
-    # we dont care if file doesn`t exists
-    unlink("$rundir/dispatch.badhosts");
+  }
+  if ($badhostchanged) {
+    if (%badhost) {
+      BSUtil::store("$rundir/.dispatch.badhosts", "$rundir/dispatch.badhosts", \%badhost);
+    } else {
+      unlink("$rundir/dispatch.badhosts");
+    }
   }
 
   filechecks();
