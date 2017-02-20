@@ -158,6 +158,8 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
   def test_copy_project_withbinaries
     login_king
 
+    put "/source/home:Iggy/TestPack/dummy_change", "trigger build"
+    assert_response :success
     run_scheduler('i586')
     run_scheduler('x86_64')
     inject_build_job( 'home:Iggy', 'TestPack', '10.2', 'i586')
@@ -253,6 +255,8 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'binarylist', children: { count: 5 }
 
     # cleanup
+    delete "/source/home:Iggy/TestPack/dummy_change"
+    assert_response :success
     delete '/source/IggyHomeCopy'
     assert_response :success
   end
