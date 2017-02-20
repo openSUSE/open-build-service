@@ -241,3 +241,8 @@ Rails/Validation:
 Security/Eval:
   Enabled: true
 
+##################### Bundler ##################################
+
+# Gems in consecutive lines should be alphabetically sorted
+Bundler/OrderedGems:
+  Enabled: true
