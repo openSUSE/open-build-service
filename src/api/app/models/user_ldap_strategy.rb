@@ -551,24 +551,24 @@ class UserLdapStrategy
     return unless defined?(CONFIG['ldap_servers'])
     require 'ldap'
     ldap_servers = CONFIG['ldap_servers'].split(":")
-    ping = false
-    server = nil
     count = 0
 
     max_ldap_attempts = CONFIG.has_key?('ldap_max_attempts') ? CONFIG['ldap_max_attempts'] : 10
 
-    while !ping && count < max_ldap_attempts
+    while count < max_ldap_attempts
       count += 1
       server = ldap_servers[rand(ldap_servers.length)]
-      # Ruby only contains TCP echo ping.  Use system ping for real ICMP ping.
-      ping = system("ping", "-c", "1", server)
+      conn = try_ldap_con(server, user_name, password)
+      if !conn.nil? && conn.bound?
+        return conn
+      end
     end
 
-    if count == max_ldap_attempts
-      Rails.logger.debug("Unable to ping to any LDAP server: #{CONFIG['ldap_servers']}")
-      return
-    end
+    Rails.logger.error("Unable to bind to any LDAP server: #{CONFIG['ldap_servers']}")
+    nil
+  end
 
+  def self.try_ldap_con(server, user_name, password)
     # implicitly turn array into string
     user_name = [user_name].flatten.join('')
 
