@@ -1,3 +1,46 @@
+For Updaters to OBS 2.8 from OBS 2.7
+====================================
+
+Note: Update from OBS 2.5 should also work, but is untested.
+      A direct update from OBS 2.4 or older will not work.
+
+  1) Remove the OBS 2.7 Repository
+
+        zypper rs OBS:Server:2.7
+
+  2) Add the OBS 2.8 Repository and update repository cache
+
+        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/2.8/$YOUR_DISTRIBUTION/OBS:Server:2.8.repo
+        zypper ref
+
+  3) Update packages
+
+        zypper dup --from OBS_Server_2.8
+
+  4) Migrate database
+
+        cd /srv/www/obs/api/
+        RAILS_ENV="production" rails.ruby2.4 db:migrate
+
+  5) Make sure that log and tmp are owned by wwwrun
+
+        chown -R wwwrun.www /srv/www/obs/api/log
+        chown -R wwwrun.www /srv/www/obs/api/tmp
+
+  6) Restart following services in this order
+
+        systemctl restart apache2
+        systemctl restart obsapidelayed
+        systemctl restart memcached
+
+  7) Enable and start the new services
+
+        systemctl enable obsservicedispatch
+        systemctl start obsservicedispatch
+
+     obsservicedispatch must run where the src server is running.
+
+
 For Updaters to OBS 2.7 from OBS 2.6
 ====================================
 
