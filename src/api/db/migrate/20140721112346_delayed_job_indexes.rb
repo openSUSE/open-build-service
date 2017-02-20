@@ -1,4 +1,4 @@
-class DelayedJobIndexes < ActiveRecord::Migration
+class DelayedJobIndexes < ActiveRecord::Migration[4.2]
   def up
     # avoiding performance penalty with increasing number jobs
     begin

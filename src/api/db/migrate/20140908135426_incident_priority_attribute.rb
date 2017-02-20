@@ -1,4 +1,4 @@
-class IncidentPriorityAttribute < ActiveRecord::Migration
+class IncidentPriorityAttribute < ActiveRecord::Migration[4.2]
   class AttribTypeModifiableBy < ActiveRecord::Base; end
 
   def self.up

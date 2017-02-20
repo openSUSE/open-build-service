@@ -1,4 +1,4 @@
-class ProductVersionTracking < ActiveRecord::Migration
+class ProductVersionTracking < ActiveRecord::Migration[4.2]
   def up
     add_column :products, :version, :string
     add_column :products, :baseversion, :string

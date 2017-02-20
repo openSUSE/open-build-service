@@ -1,4 +1,4 @@
-class AddUpdateinfoTracking < ActiveRecord::Migration
+class AddUpdateinfoTracking < ActiveRecord::Migration[4.2]
   def up
     create_table :updateinfos do |t|
       t.references :repository, null: false

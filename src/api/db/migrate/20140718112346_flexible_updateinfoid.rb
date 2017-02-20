@@ -1,4 +1,4 @@
-class FlexibleUpdateinfoid < ActiveRecord::Migration
+class FlexibleUpdateinfoid < ActiveRecord::Migration[4.2]
   def up
     # migration had wrong number first
     return if MaintenanceIncident.column_names.include? "counter"

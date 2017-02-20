@@ -1,4 +1,4 @@
-class ProductMediaTracking < ActiveRecord::Migration
+class ProductMediaTracking < ActiveRecord::Migration[4.2]
   def up
     create_table :product_media do |t|
       t.references :product
