@@ -226,7 +226,7 @@ while (1) {
 	  my @s = stat("$jobsdir/$arch/$job:status");
 	  if (@s && $s[9] + 86400 < $now) {
 	    BSUtil::printlog("removing orphaned $arch/$job status file");
-	    rmdir("$jobsdir/$arch/$job:status");
+	    unlink("$jobsdir/$arch/$job:status");
 	  }
 	}
       }
