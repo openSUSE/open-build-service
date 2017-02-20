@@ -28,7 +28,7 @@ ENV['PERL5LIB'] = "#{Rails.root}/../backend:#{Rails.root}/../backend/build"
 
 if File.exist?(backend_config)
   puts 'Old backend data is there. checking if we can stop it'
-  %w{bs_srcserver bs_repserver bs_service bs_sched bs_publish}.each do |srv|
+  %w{bs_srcserver bs_repserver bs_servicedispatch bs_service bs_sched bs_publish}.each do |srv|
     system("cd #{backend_config} && exec ./#{srv} --stop 2>&1 && sleep 2")
   end
 end
@@ -72,6 +72,7 @@ Thread.abort_on_exception = true
 srcsrv_out = nil
 reposrv_out = nil
 servicesrv_out = nil
+servicedispatchsrv_out = nil
 dienow = false
 logger = Rails.logger
 FileUtils.rm_rf(backend_data)
@@ -104,7 +105,7 @@ File.open("#{Rails.root}/../backend/BSConfig.pm.template") do |template|
 end
 file.close
 
-%w{bs_admin bs_srcserver bs_repserver bs_service bs_sched bs_publish bs_dispatch
+%w{bs_admin bs_srcserver bs_repserver bs_servicedispatch bs_service bs_sched bs_publish bs_dispatch
    bs_productconvert bs_check_consistency bs_mergechanges bs_deltastore bs_dodup}.each do |srv|
   FileUtils.symlink("#{Rails.root}/../backend/#{srv}", "#{backend_config}/#{srv}")
   unless system("cd #{backend_config} && exec perl -c ./#{srv} 2>&1")
@@ -175,6 +176,21 @@ servicesrv = Thread.new do
   while servicesrv_out && !dienow
     begin
       line = servicesrv_out.gets
+      break if line.nil?
+      logger.debug line.strip unless line.empty?
+    rescue IOError
+      break
+    end
+  end
+end
+
+puts 'Starting backend service dispatcher...'
+servicedispatchsrv = Thread.new do
+  servicedispatchsrv_out = IO.popen("cd #{backend_config}; exec ./bs_servicedispatch 2>&1")
+  puts "Started backend service  dispatcher with pid #{servicedispatchsrv_out.pid}"
+  while servicedispatchsrv_out && !dienow
+    begin
+      line = servicedispatchsrv_out.gets
       break if line.nil?
       logger.debug line.strip unless line.empty?
     rescue IOError
@@ -326,6 +342,7 @@ at_exit do
 
   Process.kill 'TERM', srcsrv_out.pid
   Process.kill 'TERM', reposrv_out.pid
+  Process.kill 'TERM', servicedispatchsrv_out.pid
   Process.kill 'TERM', servicesrv_out.pid
 
   if memcached_npid.to_i > 0
@@ -338,6 +355,9 @@ at_exit do
   reposrv_out.close
   reposrv_out = nil
   reposrv.join
+  servicedispatchsrv_out.close
+  servicedispatchsrv_out = nil
+  servicedispatchsrv.join
   servicesrv_out.close
   servicesrv_out = nil
   servicesrv.join
