@@ -21,3 +21,20 @@ if hostname.empty?
   hostname = ipaddress
 end
 Capybara.app_host = "https://" + hostname
+
+
+# Automatically save the page a test fails
+Capybara.save_path = '/tmp'
+RSpec.configure do |config|
+  config.after(:each, type: :feature) do
+    example_filename = RSpec.current_example.full_description
+    example_filename = example_filename.tr(' ', '_')
+    example_filename = example_filename + '.html'
+    example_filename = File.expand_path(example_filename, Capybara.save_path)
+    if RSpec.current_example.exception.present?
+      save_page(example_filename)
+    elsif File.exist?(example_filename)
+      File.unlink(example_filename)
+    end
+  end
+end

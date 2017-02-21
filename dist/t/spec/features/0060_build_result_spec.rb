@@ -13,13 +13,13 @@ RSpec.describe "Checking Build Results" do
     sleep(10)
     while page.has_content?("State needs recalculation") do
       sleep(3)
-      page.evaluate_script("window.location.reload()")
+      visit("/project/show/home:Admin")
     end
     all_unresolvable = 0 
     visit "/project/show/home:Admin/"
     counter = 100
     while counter > 0 do
-      page.evaluate_script("window.location.reload()")
+      visit("/project/show/home:Admin")
       puts "Refreshed Build Results @ #{Time.now}, #{counter} retries left."
       succeed_links=page.all('a', :text =>'succeeded: 1')
       unresolvable_links=page.all('a', :text =>'unresolvable: 1')
@@ -41,26 +41,26 @@ RSpec.describe "Checking Build Results" do
       begin
         Timeout.timeout(160) {
           if page.has_content?("No live log available:") then
-            page.evaluate_script("window.location.reload()")
+            visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Tumbleweed/i586"
             first(:link, "Start refresh").click
           end
           expect(page).to have_selector("div#log_space_wrapper", :wait => 20)
           expect(page).to have_content('finished "build build.spec"', :wait => 160)
         }
       rescue Timeout::Error
-        page.evaluate_script("window.location.reload()")
+        visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Tumbleweed/i586"
         expect(page).to have_content('finished "build build.spec"', :wait => 120)
       end
       visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Leap_42.1/x86_64"
       begin
         Timeout.timeout(90) {
           expect(page).to have_selector("div#log_space_wrapper", :wait => 20)
-          page.evaluate_script("window.location.reload()") if page.has_content?("No live log available:")
+          visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Leap_42.1/x86_64" if page.has_content?("No live log available:")
           next if page.has_content?("Build finished")
           expect(page).to have_content('finished "build build.spec"', :wait => 90)
         }
       rescue Timeout::Error
-        page.evaluate_script("window.location.reload()")
+        visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Leap_42.1/x86_64"
         next if page.has_content?("Build finished")
         expect(page).to have_content('finished "build build.spec"', :wait => 60)
       end
