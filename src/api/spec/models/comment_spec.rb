@@ -2,9 +2,9 @@ require "rails_helper"
 
 RSpec.describe Comment do
   let(:comment_package) { create(:comment_package) }
-  let(:comment_package_with_parent) { create(:comment_package, parent: comment_package) }
-  let(:comment_package_with_parent_2) { create(:comment_package, parent: comment_package) }
-  let(:comment_package_with_grandparent) { create(:comment_package, parent: comment_package_with_parent) }
+  let(:comment_package_with_parent) { create(:comment_package, parent: comment_package, commentable: comment_package.commentable) }
+  let(:comment_package_with_parent_2) { create(:comment_package, parent: comment_package, commentable: comment_package.commentable) }
+  let(:comment_package_with_grandparent) { create(:comment_package, parent: comment_package_with_parent, commentable: comment_package.commentable) }
 
   describe "has a valid Factory" do
     it { expect(comment_package).to be_valid }
@@ -21,6 +21,10 @@ RSpec.describe Comment do
     it { is_expected.to validate_presence_of(:body) }
     it { is_expected.to validate_presence_of(:commentable) }
     it { is_expected.to validate_presence_of(:user) }
+    it {
+      expect { create(:comment_package, parent: comment_package) }.to raise_error(
+        ActiveRecord::RecordInvalid, "Validation failed: Parent belongs to different object")
+    }
   end
 
   describe "to_xml" do

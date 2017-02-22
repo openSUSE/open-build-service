@@ -1014,9 +1014,9 @@ GET /comments/package/:project/:pname
 
 XmlResult: directory
 
-POST /comments/request/:id
-POST /comments/project/:name
-POST /comments/package/:project/:pname
+POST /comments/request/:id?parent_id=<parent_comment_id>
+POST /comments/project/:name?parent_id=<parent_comment_id>
+POST /comments/package/:project/:pname?parent_id=<parent_comment_id>
 
   Create a comment for the object
 
