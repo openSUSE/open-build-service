@@ -1,0 +1,43 @@
+From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+Date: Tue, 8 Jan 2013 15:25:14 +0100
+Subject: Put binary uploads in architecture dependent subdirectories
+
+For the binary parts of a debian upload, include the .changes file and
+put the files in an architecure specific directly. This prevent arch all
+package builds from different architectures overwriting each-other, which
+makes the changes file inconsistent
+---
+ src/backend/bs_publish | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/backend/bs_publish b/src/backend/bs_publish
+index e4ad908..66d117a 100755
+--- a/src/backend/bs_publish
++++ b/src/backend/bs_publish
+@@ -1508,7 +1508,7 @@ sub publish {
+ 	$p = "$1/$bin";
+ 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
+       } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.u+deb$/) {
+-	$p = "$1/$bin";
++	$p = "$arch/$bin";
+       } elsif ($bin =~ /\.exe$/) {
+ 	$p = "$bin";
+       } elsif ($bin =~ /\.d?rpm$/) {
+@@ -1519,7 +1519,7 @@ sub publish {
+       } elsif ($bin =~ /\.deb$/) {
+ 	# legacy format
+ 	my $q = Build::query("$r/$rbin", 'evra' => 1);
+-	$p = "$q->{'arch'}/$q->{'name'}_$q->{'version'}";
++	$p = "$arch/$q->{'name'}_$q->{'version'}";
+ 	$p .= "-$q->{'release'}" if defined $q->{'release'};
+ 	$p .= "_$q->{'arch'}.deb";
+       } elsif ($bin =~ /\.(?:pkg\.tar\.gz|pkg\.tar\.xz)$/) {
+@@ -1540,6 +1540,8 @@ sub publish {
+ 	  $p = "$bin";
+ 	} elsif ($bin =~ /\.tar(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
+ 	  $p = "$bin";
++	} elsif ($bin =~ /\.changes(:?\.sha256)?$/) {
++	  $p = "$arch/$bin";
+         } elsif ($bin =~ /\.squashfs$/) {
+ 	  $p = "$bin";	# for simpleimage builds
+ 	} elsif ($bin =~ /\.diff\.(?:gz)(?:\.sha256)?$/) {

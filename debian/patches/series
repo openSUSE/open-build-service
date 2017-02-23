@@ -24,3 +24,5 @@ Include_ddebs_in_reprepro_too_and_fix_inclusion_of_udebs.patch
 bs_publish_improve-logging_for_reprepro_invocations.patch
 publisher_reprepro_set_surprising_binary.patch
 Add-support-for-md5-and-sha256-cypted-passwords.patch
+Put-binary-uploads-in-architecture-dependent-subdirectori.patch
+Correct-reprepro-argument-to-match-current-version.patch

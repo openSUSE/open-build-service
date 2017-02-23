@@ -1,0 +1,22 @@
+From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+Date: Thu, 23 Feb 2017 14:35:30 +0100
+Subject: Correct reprepro argument to match current version
+
+Signed-off-by: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+---
+ src/backend/bs_publish | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/backend/bs_publish b/src/backend/bs_publish
+index 66d117a..595c13d 100755
+--- a/src/backend/bs_publish
++++ b/src/backend/bs_publish
+@@ -663,7 +663,7 @@ sub updaterepo_reprepro {
+ 
+           my @args = ('reprepro', '-b', $repo,
+             '--ignore=wrongdistribution',
+-            '--ignore=updatedarchall',
++            '--ignore=conflictingarchall',
+             '--ignore=unusedarch',
+             '--ignore=surprisingbinary',
+             '-T', $type,
