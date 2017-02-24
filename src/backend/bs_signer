@@ -330,7 +330,7 @@ sub signjob {
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   my $projid = $info->{'project'};
   my @files = sort(ls($jobdir));
-  my @signfiles = grep {/\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|rsasign)$/} @files;
+  my @signfiles = grep {/\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|rsasign|AppImage)$/} @files;
   my $needpubkey;
   if (grep {$_ eq '.kiwitree_tosign'} @files) {
     for my $f (split("\n", readstr("$jobdir/.kiwitree_tosign"))) {
@@ -429,6 +429,7 @@ sub signjob {
 	@signmode = ('-r', '-T', $signtime) if $signtime;
 	@signmode = ('-r', '-T', 'buildtime') if $signfile =~ /\.drpm$/;
 	@signmode = ('-D') if $signfile =~ /\.pkg\.tar\.(?:gz|xz)$/;
+	@signmode = ('-a') if $signfile =~ /\.AppImage$/;
 	if ($signfile =~ /\.key$/s) {
 	  next unless (-s "$jobdir/$signfile") == 8192;
 	  my $signfilec = readstr("$jobdir/$signfile");
@@ -459,6 +460,7 @@ sub signjob {
 	  }
 	  die("sign $jobdir/$signfile failed\n");
 	}
+	unlink("$signfile.digest") if $signfile =~ /\.AppImage$/;
       }
     };
     if ($@) {
