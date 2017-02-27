@@ -870,9 +870,9 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)_([^_]*)-[^_]*\.deb$/s) {
         $link = "$1.deb";
         $link = "${1}_$2.deb" if $versioned;
-      } elsif (/^(.*)-([^-]*)-[^-]*\.AppImage$/s) {
-        $link = "$1.AppImage";
-        $link = "$1-$2.AppImage" if $versioned;
+      } elsif (/^(.*)-([^_]*)_([^-]*)-([^-]*)\.(AppImage?(\.zsync)?)$/s) {
+        $link = "$1-latest-$4.$5";
+        $link = "$1-$2-$4.$5" if $versioned;
       } elsif (/^(.*)_([^_]*)_([^_]*)-Build[^_]*\.snap$/s) {
         $link = "${1}_${3}.snap";
         $link = "${1}_${3}_$2.snap" if $versioned;
@@ -1491,11 +1491,7 @@ sub publish {
 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
       } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.deb$/) {
 	$p = "$1/$bin";
-      } elsif ($bin =~ /.+\.AppImage$/) {
-	$p = "$bin";
-      } elsif ($bin =~ /.+\.snap$/) {
-	$p = "$bin";
-      } elsif ($bin =~ /\.exe$/) {
+      } elsif ($bin =~ /\.(?:AppImage|AppImage.zsync|snap|exe)?$/) {
 	$p = "$bin";
       } elsif ($bin =~ /\.d?rpm$/) {
 	# legacy format
@@ -1535,7 +1531,7 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.(?:box|json|ovf|qcow2|qcow2\.xz|vdi|vhdfixed.xz|vmx|vmdk)(?:\.sha256)?$/) {
 	  $p = "$bin";
-        } elsif ($bin =~ /^(.*)\.packages$/) {
+        } elsif ($bin =~ /\.packages$/) {
 	  $p = "$bin";
         } elsif ($bin =~ /^(.*)\.report$/) {
 	  # collect kiwi reports
