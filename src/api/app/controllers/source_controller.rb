@@ -1097,9 +1097,9 @@ class SourceController < ApplicationController
       raise CmdExecutionNoPermission.new "no permission to execute command 'copy'"
     end
     oprj = Project.get_by_name(params[:oproject], {includeallpackages: 1})
-    if params.has_key?(:makeolder)
+    if params.has_key?(:makeolder) || params.has_key?(:makeoriginolder)
       unless User.current.can_modify_project?(oprj)
-        raise CmdExecutionNoPermission.new "no permission to execute command 'copy', requires modification permission in oproject"
+        raise CmdExecutionNoPermission.new "no permission to execute command 'copy', requires modification permission in origin project"
       end
     end
 
@@ -1143,7 +1143,6 @@ class SourceController < ApplicationController
           end
         end
       end
-      @project.add_user @http_user, 'maintainer'
       @project.store
     end unless @project
 

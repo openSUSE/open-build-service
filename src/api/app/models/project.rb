@@ -1377,13 +1377,18 @@ class Project < ApplicationRecord
     # copy entire project in the backend
     begin
       path = "/source/#{URI.escape(name)}"
-      path << Suse::Backend.build_query_from_hash(params, [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder, :noservice])
+      path << Suse::Backend.build_query_from_hash(params,
+                                                  [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
+                                                   :makeolder, :makeoriginolder, :noservice])
       Suse::Backend.post path
     rescue ActiveXML::Transport::Error => e
       logger.debug "copy failed: #{e.summary}"
       # we need to check results of backend in any case (also timeout error eg)
     end
+    _update_backend_packages
+  end
 
+  def _update_backend_packages
     # restore all package meta data objects in DB
     backend_pkgs = Collection.find :package, match: "@project='#{name}'"
     backend_pkgs.each('package') do |package|
@@ -1395,6 +1400,7 @@ class Project < ApplicationRecord
     end
     all_sources_changed
   end
+  private :_update_backend_packages
 
   def all_sources_changed
     packages.each do |p|
