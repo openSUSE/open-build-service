@@ -1788,6 +1788,38 @@ EOF
     assert_xml_tag tag: 'summary', content: 'invalid_command'
   end
 
+  def test_blame_view
+    prepare_request_with_user 'fredlibs', 'buildservice'
+    put '/source/kde4/BLAME/_meta', '<package name="BLAME" project="kde4"><title/><description/></package>'
+    assert_response :success
+
+    put '/source/kde4/BLAME/DUMMYFILE', "init\n"
+    assert_response :success
+
+    # store current revision
+    get '/source/kde4/BLAME/_history'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    rev = node.each(:revision).last.value(:rev).to_i
+
+    # add a file
+    put '/source/kde4/BLAME/DUMMYFILE', "dummy1\ndummy2\ndummy3\n"
+    assert_response :success
+    login_king
+    put '/source/kde4/BLAME/DUMMYFILE', "dummy1\ndummy2 king\ndummy3\n"
+    assert_response :success
+
+    get '/source/kde4/BLAME/DUMMYFILE?view=blame'
+    assert_response :success
+    assert_match(/#{rev + 1} \(fredlibs .* 1\) dummy1/, @response.body)
+    assert_match(/#{rev + 2} \(king     .* 2\) dummy2 king/, @response.body)
+    assert_match(/#{rev + 1} \(fredlibs .* 3\) dummy3/, @response.body)
+
+    # cleanup
+    delete '/source/kde4/BLAME'
+    assert_response :success
+  end
+
   def test_remove_and_undelete_operations
     delete '/source/kde4/kdelibs'
     assert_response 401
