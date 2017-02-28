@@ -72,6 +72,7 @@ use BSSrcServer::Link;
 use BSSrcServer::Service;
 use BSSrcServer::Product;
 use BSSrcServer::Multibuild;
+use BSSrcServer::Blame;
 
 # configure modules
 $BSSrcServer::Projlink::getrev       = \&getrev;
@@ -87,6 +88,9 @@ $BSSrcServer::Service::readpackage  = \&readpackage;
 $BSSrcServer::Service::addrev = \&addrev;
 $BSSrcServer::Service::notify = \&notify;
 $BSSrcServer::Service::notify_repservers = \&notify_repservers;
+
+$BSSrcServer::Blame::getrev = \&getrev;
+$BSSrcServer::Blame::lsrev_expanded = \&lsrev_expanded;
 
 $BSSrcServer::Product::notify_repservers = \&notify_repservers;
 
@@ -2561,6 +2565,40 @@ sub getfile {
   } else {
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   }
+  my $view = $cgi->{'view'} || '';
+  if ($view eq 'blame') {
+    die("cannot blame deleted packages\n") if $cgi->{'deleted'};
+    my $b = BSSrcServer::Blame::blame($rev, $filename, $cgi->{'expand'}, $cgi->{'meta'});
+    my $ret = '';
+    my %links;
+    my $linkno = 1;
+    $links{"$projid/$packid"} = 0;
+    for my $rev (@$b) {
+      next unless ref($rev);
+      next if exists $links{"$rev->{'project'}/$rev->{'package'}"};
+      $ret .= sprintf("%7s ", "$linkno:")."$rev->{'project'}/$rev->{'package'}\n";
+      $links{"$rev->{'project'}/$rev->{'package'}"} = $linkno++;
+    }
+    $ret .= "\n" if $linkno > 1;
+    my $li = 1;
+    while (@$b) {
+      my ($rev, $line) = splice(@$b, 0, 2);
+      if ($linkno > 1) {
+        my $lno = $links{"$rev->{'project'}/$rev->{'package'}"};
+        $lno = $lno ? "$lno:" : '';
+        $ret .= sprintf("%7s ", "$lno$rev->{'rev'}");
+      } else {
+        $ret .= sprintf("%4d ", $rev->{'rev'});
+      }
+      my $user = sprintf("%-12s", $rev->{'user'});
+      my $date = BSUtil::isotime($rev->{'time'});
+      $ret .= "($user $date ".sprintf("%5d", $li++).") $line\n";
+    }
+    return $ret;
+  } elsif ($view) {
+    die("unknown view '$view'\n");
+  }
+
   my $files;
   if ($cgi->{'expand'}) {
     $files = lsrev_expanded($rev);
@@ -5819,7 +5857,7 @@ my $dispatches = [
   '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
   'DELETE:/source/$project/$package user:? comment:? requestid:num?' => \&delpackage,
-  '/source/$project/$package/$filename rev? expand:bool? meta:bool? deleted:bool?' => \&getfile,
+  '/source/$project/$package/$filename rev? expand:bool? meta:bool? deleted:bool? view:?' => \&getfile,
   'PUT:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool? meta:bool?' => \&putfile,
   'DELETE:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool? meta:bool?' => \&delfile,
 
