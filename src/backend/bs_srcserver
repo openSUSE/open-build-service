@@ -1927,6 +1927,10 @@ sub getpackagelist {
 
 sub getpackage {
   my ($cgi, $projid, $packid) = @_;
+  if ($cgi->{'meta'} || $cgi->{'view'}) {
+    $cgi->{'meta'} ||= 1;
+    return getfile($cgi, $projid, $packid, '_meta');
+  }
   my $proj;
   $proj = checkprojrepoarch($projid, undef, undef, 1) unless $cgi->{'deleted'};
   if ((!$proj || !$proj->{'remoteurl'}) && ($cgi->{'rev'} || $cgi->{'deleted'} || $packid eq '_project')) {
@@ -5855,7 +5859,7 @@ my $dispatches = [
   '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch? withchangesmd5:bool?' => \&getpackagesourceinfo,
   '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool? product:?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
-  '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool?' => \&getpackage,
+  '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool? view:?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
   'DELETE:/source/$project/$package user:? comment:? requestid:num?' => \&delpackage,
   '/source/$project/$package/$filename rev? expand:bool? meta:bool? deleted:bool? view:?' => \&getfile,
