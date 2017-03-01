@@ -95,14 +95,10 @@ class IssueTracker < ApplicationRecord
     # must be like this "url = https://github.com/repos/#{self.owner}/#{self.name}/issues"
     url = URI.parse("#{self.url}?since=#{self.issues_updated.to_time.iso8601}")
     mtime = Time.now
-    begin # Need a loop to follow redirects...
-      http = Net::HTTP.new(url.host, url.port)
-      http.use_ssl = (url.scheme == 'https')
-      request = Net::HTTP::Get.new(url.path)
-      response = http.start { |h| h.request(request) }
-      url = URI.parse(response.header['location']) if response.header['location']
-    end while response.header['location']
+
+    response = follow_redirects(url)
     return if response.blank?
+
     parse_github_issues(ActiveSupport::JSON.decode(response.body))
 
     # done
@@ -275,14 +271,8 @@ class IssueTracker < ApplicationRecord
   end
 
   def fetch_fate_issues
-    url = URI.parse("#{self.url}/#{name}?contenttype=text%2Fxml")
-    begin # Need a loop to follow redirects...
-      http = Net::HTTP.new(url.host, url.port)
-      http.use_ssl = (url.scheme == 'https')
-      request = Net::HTTP::Get.new(url.path)
-      resp = http.start { |h| h.request(request) }
-      url = URI.parse(resp.header['location']) if resp.header['location']
-    end while resp.header['location']
+    follow_redirects(URI.parse("#{url}/#{name}?contenttype=text%2Fxml"))
+
     # TODO: Parse returned XML and return proper JSON
     false
   end
@@ -290,15 +280,9 @@ class IssueTracker < ApplicationRecord
   def fetch_github_issues(ids)
     response = nil
     ids.each do |i|
-      url = URI.parse("#{self.url}/#{i}")
-      begin # Need a loop to follow redirects...
-        http = Net::HTTP.new(url.host, url.port)
-        http.use_ssl = (url.scheme == 'https')
-        request = Net::HTTP::Get.new(url.path)
-        response = http.start { |h| h.request(request) }
-        url = URI.parse(response.header['location']) if response.header['location']
-      end while response.header['location']
+      response = follow_redirects(URI.parse("#{url}/#{i}"))
       next unless response.is_a?(Net::HTTPSuccess)
+
       parse_github_issue(ActiveSupport::JSON.decode(response.body), true)
     end
   end
@@ -309,6 +293,24 @@ class IssueTracker < ApplicationRecord
     server.user = user if user
     server.password = password if password
     server.proxy('Bug')
+  end
+
+  # helper method that does a GET request to given <url> and follows
+  # any redirects.
+  #
+  # Returns the Net::HTTP response
+  def follow_redirects(url)
+    response = nil
+
+    begin
+      http = Net::HTTP.new(url.host, url.port)
+      http.use_ssl = (url.scheme == 'https')
+      request = Net::HTTP::Get.new(url.path)
+      response = http.start { |h| h.request(request) }
+      url = URI.parse(response.header['location']) if response.header['location']
+    end while response.header['location']
+
+    response
   end
 end
 
