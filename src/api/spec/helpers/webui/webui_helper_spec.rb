@@ -297,8 +297,8 @@ RSpec.describe Webui::WebuiHelper do
     end
 
     context 'without_fulltime' do
-      time = Time.now - 1.month
-      it { expect(fuzzy_time(time, false)).to eq('about 1 month ago') }
+      time = Time.now - 3.hours
+      it { expect(fuzzy_time(time, false)).to eq('about 3 hours ago') }
     end
   end
 
