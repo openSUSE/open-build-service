@@ -38,7 +38,7 @@ create_dir "$LOGDIR"
 
 shift
 case "$COMMAND" in
-  */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom|*/snapcraft)
+  */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom|*/snapcraft|*/kiwi_import)
     WITH_NET="1"
     ;;
   */tar_scm|*/obs_scm)
@@ -103,6 +103,7 @@ create_dir "$MOUNTDIR$INNERSCRIPTDIR"
 
 printlog "Creating INNERSCRIPT '$MOUNTDIR/$INNERSCRIPT'"
 echo "#!/bin/bash" 					> "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_SERVICE_APIURL=$OBS_SERVICE_APIURL"    >> "$MOUNTDIR/$INNERSCRIPT"
 echo "cd $INNERSRCDIR" 					>> "$MOUNTDIR/$INNERSCRIPT"
 echo -n "${INNERSCRIPT}.command" 			>> "$MOUNTDIR/$INNERSCRIPT"
 
