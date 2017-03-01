@@ -204,7 +204,7 @@ OBS_WORKER_NICE_LEVEL=18
 
 ## Path:        Applications/OBS
 ## Description: Set used VM type by worker
-## Type:        ("auto" | "xen" | "kvm" | "lxc" | "zvm" | "emulator:$arch" | "emulator:$arch:$script" | "none")
+## Type:        ("auto" | "xen" | "kvm" | "lxc" | "zvm" | "emulator:$arch" | "emulator:$arch:$script" | "none" | "openstack")
 ## Default:     "auto"
 ## Config:      OBS
 #
@@ -399,3 +399,37 @@ OBS_WORKER_CLEANUP_CHROOT=""
 #
 #
 OBS_WORKER_WIPE_AFTER_BUILD=""
+
+##Path:         Application/OBS
+## Description: name or id of openstack instance that controls the worker (building) instances
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+#
+OBS_WORKER_CONTROL_INSTANCE=""
+
+##Path:         Application/OBS
+## Description: name or id flavor to create openstack worker (building) instance
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+#
+OBS_WORKER_OS_FLAVOR=""
+
+##Path:         Application/OBS
+## Description: openstack environment variables. Only used when OBS_VM_TYPE=openstack
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+#
+OS_AUTH_URL=""
+OS_PROJECT_ID=""
+OS_PROJECT_NAME=""
+OS_USER_DOMAIN_NAME=""
+OS_USERNAME=""
+OS_PASSWORD=""
+OS_REGION_NAME=""
+

@@ -22,7 +22,7 @@
 
 # Is the worker running on Fedora >= 17 ?
 # It lacks the complete path to build other distros then
-bash_bin=`which bash`
+bash_bin=`type -p bash`
 if [ "$bash_bin" != "${bash_bin#/usr}" ]; then
   export PATH="/bin:$PATH"
 fi
@@ -109,7 +109,7 @@ if [ -n "$OBS_CACHE_SIZE" -a -n "$OBS_CACHE_DIR" ]; then
     OBS_WORKER_OPT="$OBS_WORKER_OPT --cachesize $OBS_CACHE_SIZE"
 fi
 
-if [ -n "$OBS_VM_KERNEL" -a "$OBS_VM_KERNEL" != "none" ] ; then
+if [ -n "$OBS_VM_KERNEL" -a "$OBS_VM_KERNEL" != "none" -a "$OBS_VM_TYPE" != "openstack" ] ; then
     OBS_WORKER_OPT="$OBS_WORKER_OPT --vm-kernel $OBS_VM_KERNEL"
 fi
 
@@ -186,6 +186,93 @@ if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" -o "${OBS_VM_TYPE#emulator
             VMDISK_CLEAN="--vmdisk-clean"
         fi
     fi
+fi
+
+if [ "$OBS_VM_TYPE" = "openstack" ]; then
+
+    #
+    if [ -z "$OBS_WORKER_CONTROL_INSTANCE" ];then
+	echo "Please specify OBS_WORKER_CONTROL_INSTANCE in /etc/sysconfig/obs-server!"
+        exit 1
+    fi
+
+    #
+    if [ -z "$OBS_WORKER_OS_FLAVOR" ];then
+	echo "Please specify OBS_WORKER_OS_FLAVOR in /etc/sysconfig/obs-server!"
+        exit 1
+    fi
+
+    # 
+    if [ "$OBS_WORKER_INSTANCES" -lt 1 ]; then
+         OBS_WORKER_INSTANCES=1
+    fi
+
+    # ENVIRONMENT variables for openstack clients
+    # like nova, cinder, glance, etc.
+
+    # Checking, setting and exporting of defaults
+
+    # * OS_INTERFACE
+    if [ -z "$OS_INTERFACE" ];then
+        OS_INTERFACE=public
+    fi
+    export OS_INTERFACE
+
+    # * OS_IDENTITY_API_VERSION
+    if [ -z "$OS_IDENTITY_API_VERSION" ];then
+        OS_IDENTITY_API_VERSION=3
+    fi
+    export OS_IDENTITY_API_VERSION
+
+    # Checking and exporting of required variables
+    # * OS_AUTH_URL
+    if [ -z "$OS_AUTH_URL" ];then
+        echo "ERROR: OBS_VM_TYPE=openstack needs OS_AUTH_URL to be set! Exiting"
+        exit 1
+    else
+        export OS_AUTH_URL
+    fi
+
+    # * OS_PROJECT_ID
+    if [ -z "$OS_PROJECT_ID" ];then
+        echo "ERROR: OBS_VM_TYPE=openstack needs OS_PROJECT_ID to be set! Exiting"
+        exit 1
+    else
+        export OS_PROJECT_ID
+    fi
+
+    # * OS_PROJECT_NAME
+    if [ -z "$OS_PROJECT_NAME" ];then
+        echo "ERROR: OBS_VM_TYPE=openstack needs OS_PROJECT_NAME to be set! Exiting"
+        exit 1
+    else
+        export OS_PROJECT_NAME
+    fi
+
+    # * OS_USER_DOMAIN_NAME
+    if [ -z "$OS_USER_DOMAIN_NAME" ];then
+        echo "ERROR: OBS_VM_TYPE=openstack needs OS_USER_DOMAIN_NAME to be set! Exiting"
+        exit 1
+    else
+        export OS_USER_DOMAIN_NAME
+    fi
+
+    # * OS_USERNAME
+    if [ -z "$OS_USERNAME" ];then
+        echo "ERROR: OBS_VM_TYPE=openstack needs OS_USERNAME to be set! Exiting"
+        exit 1
+    else
+        export OS_USERNAME
+    fi
+
+    # * OS_PASSWORD
+    if [ -z "$OS_PASSWORD" ];then
+        echo "ERROR: OBS_VM_TYPE=openstack needs OS_PASSWORD to be set! Exiting"
+        exit 1
+    else
+        export OS_PASSWORD
+    fi
+
 fi
 
 check_vmcp()
@@ -275,6 +362,7 @@ case "$1" in
 	elif [ "--pvm" == "$vmopt" ]; then echo "PowerVM LPAR"
 	elif [ "--emulator" == "$vmopt" ]; then echo "System emulated virtual machine"
 	elif [ "--lxc" == "$vmopt" ]; then echo "LXC container"
+	elif [ "openstack" == "$OBS_VM_TYPE" ]; then echo "OpenStack virtual machine"
 	else  echo "chroot"
 	fi
 
@@ -290,7 +378,7 @@ case "$1" in
         fi
 
         # fetch worker sources from server
-        echo "Fetching initial worker code from $WORKER_CODE"
+        echo "Fetching initial worker code from $WORKER_CODE/getworkercode"
         mkdir -p "$workerbootdir"
         pushd "$workerbootdir" > /dev/null
         I=0
@@ -348,6 +436,16 @@ case "$1" in
                 if [ -n "$OBS_VM_USE_HUGETLBFS" ]; then
                     HUGETLBFS="--hugetlbfs $OBS_VM_USE_HUGETLBFS"
                 fi
+	    elif [ "$OBS_VM_TYPE" = 'openstack' ]; then
+		mkdir -p $R
+		# Without a worker being defined, we would not be in this loop.
+                VM_SERVER="--vm-server $OBS_WORKER_CONTROL_INSTANCE"
+                VM_FLAVOR="--os-flavor $OBS_WORKER_OS_FLAVOR"
+		WORKER="--vm-worker worker$I"
+                VM_KERNEL="--vm-kernel worker$I-grub-image"
+                VM_DISK="--device worker$I-root"
+                VM_SWAP="--swap worker$I-swap"
+		OBS_WORKER_OPT="$OBS_WORKER_OPT1 $WORKER $VM_KERNEL $VM_DISK $VM_SWAP $VM_SERVER $VM_FLAVOR "
 	    elif [ -n "$vmopt" -a "$OBS_VM_TYPE" = 'zvm' ]; then
 		mkdir -p $R
 		# Without a worker being defined, we would not be in this loop.
