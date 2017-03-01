@@ -302,13 +302,15 @@ class IssueTracker < ApplicationRecord
   def follow_redirects(url)
     response = nil
 
-    begin
+    loop do
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = (url.scheme == 'https')
       request = Net::HTTP::Get.new(url.path)
       response = http.start { |h| h.request(request) }
       url = URI.parse(response.header['location']) if response.header['location']
-    end while response.header['location']
+
+      break unless response.header['location']
+    end
 
     response
   end

@@ -30,11 +30,6 @@ Lint/InheritException:
     - 'lib/api_exception.rb'
 
 # Offense count: 4
-Lint/Loop:
-  Exclude:
-    - 'app/models/issue_tracker.rb'
-    - 'app/models/update_notification_events.rb'
-
 # Offense count: 7
 Lint/NestedMethodDefinition:
   Exclude:
