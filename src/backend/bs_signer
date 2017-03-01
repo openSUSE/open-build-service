@@ -460,7 +460,6 @@ sub signjob {
 	  }
 	  die("sign $jobdir/$signfile failed\n");
 	}
-	unlink("$signfile.digest") if $signfile =~ /\.AppImage$/;
       }
     };
     if ($@) {
