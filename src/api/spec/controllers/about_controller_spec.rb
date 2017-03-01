@@ -9,7 +9,7 @@ RSpec.describe AboutController, type: :controller do
       get :index, params: { format: :xml }
     end
 
-    it { expect(response.status).to eq(200) }
+    it { expect(response).to have_http_status(:success) }
 
     it 'assigns @api_revision' do
       expect(assigns[:api_revision]).to eq(CONFIG['version'])
