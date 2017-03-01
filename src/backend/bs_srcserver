@@ -91,6 +91,7 @@ $BSSrcServer::Service::notify_repservers = \&notify_repservers;
 
 $BSSrcServer::Blame::getrev = \&getrev;
 $BSSrcServer::Blame::lsrev_expanded = \&lsrev_expanded;
+$BSSrcServer::Blame::lsrev_service = \&lsrev_service;
 
 $BSSrcServer::Product::notify_repservers = \&notify_repservers;
 
