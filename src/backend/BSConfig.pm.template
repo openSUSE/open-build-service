@@ -221,6 +221,11 @@ if (-r $hostconfig) {
 # use modifyrepo_c instead of modifyrepo
 #our $modifyrepo = '/usr/bin/modifyrepo_c';
 
+# enable service dispatcher
+our $servicedispatch = 1;
+# max of 4 parallel running services (default)
+# our $servicedispatch_maxchild = 4;
+
 # print all messages with a lower level than $debuglevel in addition to the normal log messages
 #our $debuglevel = 1;
 
