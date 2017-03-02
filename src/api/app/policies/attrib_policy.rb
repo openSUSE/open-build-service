@@ -18,19 +18,8 @@ class AttribPolicy < ApplicationPolicy
       return @user.can_modify_project?(@record.container) if @record.container.kind_of? Project
       return @user.can_modify_package?(@record.container)
     else
-      type_perms.each do |rule|
-        next if rule.user != @user
-        next if !@user.is_in_group?(rule.group)
-        next if rule.role && !@user.has_local_role?(rule.role, @record.container)
-        return true
-      end
-      namespace_perms.each do |rule|
-        next if rule.user != @user
-        next if rule.group && !@user.is_in_group?(rule.group)
-        return true
-      end
+      has_type_permissions?(type_perms) || has_namespace_permissions?(namespace_perms)
     end
-    false
   end
 
   def update?
@@ -39,5 +28,24 @@ class AttribPolicy < ApplicationPolicy
 
   def destroy?
     create?
+  end
+
+  private
+
+  # Returns true when there is any permission for the user or a group or role
+  # the user is associated to
+  def has_type_permissions?(permissions)
+    permissions.any? do |rule|
+      rule.user == @user || @user.is_in_group?(rule.group) ||
+        (rule.role && @user.has_local_role?(rule.role, @record.container))
+    end
+  end
+
+  # Returns true when there is any permission for the user or a group the user
+  # is associated to
+  def has_namespace_permissions?(permissions)
+    namespace_perms.any? do |rule|
+      rule.user == @user || @user.is_in_group?(rule.group)
+    end
   end
 end
