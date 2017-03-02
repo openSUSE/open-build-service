@@ -24,14 +24,16 @@ cp config/thinking_sphinx.yml.example config/thinking_sphinx.yml
 echo "Initialize database"
 bundle exec rails db:drop db:create db:setup --trace
 
+echo "Build apidocs"
+pushd docs/api
+make
+popd
+
 # Stuff
 # travis rvm can not deal with our extended executable names
 sed -i 1,1s,\.ruby2\.4,, {script,bin}/*
 # Clear temp data
 rm -rf log/* tmp/cache tmp/sessions tmp/sockets
-popd
 
-echo "Build apidocs"
-pushd docs/api
-make
-popd
+
+
