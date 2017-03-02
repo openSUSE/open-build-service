@@ -196,34 +196,40 @@ class IssueTracker < ApplicationRecord
     true
   end
 
-  def parse_single_bugzilla_issue(r)
-    issue = Issue.find_by_name_and_tracker r["id"].to_s, name
+  def parse_single_bugzilla_issue(bugzilla_response)
+    issue = Issue.find_by_name_and_tracker(bugzilla_response["id"].to_s, name)
     return unless issue
 
-    if r["is_open"]
+    if bugzilla_response["is_open"]
       # bugzilla sees it as open
       issue.state = "OPEN"
-    elsif r["is_open"] == false
+    elsif bugzilla_response["is_open"] == false
       # bugzilla sees it as closed
       issue.state = "CLOSED"
     else
       # bugzilla does not tell a state
-      issue.state = Issue.bugzilla_state(r["status"])
+      issue.state = Issue.bugzilla_state(bugzilla_response["status"])
     end
-    u = User.find_by_email(r["assigned_to"].to_s)
-    logger.info "Bugzilla user #{r["assigned_to"]} is not found in OBS user database" unless u
-    issue.owner_id = u.id if u
-# rubocop:disable Rails/Date
-    # the warning regarding timezone is pointless since the object got no information either
-    issue.created_at = r["creation_time"].to_time if r["creation_time"].present?
-# rubocop:enable Rails/Date
-    issue.created_at ||= Time.now
+
+    user = User.find_by_email(bugzilla_response["assigned_to"].to_s)
+    if user
+      issue.owner_id = user.id
+    else
+      logger.info "Bugzilla user #{bugzilla_response["assigned_to"]} is not found in OBS user database"
+    end
+
+    if bugzilla_response["creation_time"].present?
+      issue.created_at = bugzilla_response["creation_time"].to_time_in_current_zone
+    else
+      issue.created_at = Time.now
+    end
+
     # this is our update_at, not the one bugzilla logged in last_change_time
     issue.updated_at = @update_time_stamp
-    if r["is_private"]
+    if bugzilla_response["is_private"]
       issue.summary = nil
     else
-      issue.summary = r["summary"]
+      issue.summary = bugzilla_response["summary"]
     end
     issue.save
   end
@@ -248,7 +254,7 @@ class IssueTracker < ApplicationRecord
     else
       issue.state = "CLOSED"
     end
-#      u = User.find_by_email(js["assignee"]["login"].to_s)
+
     issue.updated_at = @update_time_stamp
     issue.summary = js["title"]
     issue.save
