@@ -209,12 +209,10 @@ class AttributeController < ApplicationController
       render_error :status => 404, :errorcode => "not_found",
                    :message => "Attribute #{params[:attribute]} does not exist" and return
     end
-    if params[:attribute]
-      unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
-        render_error :status => 403, :errorcode => "change_attribute_no_permission",
-                     :message => "user #{user.login} has no permission to change attribute"
-        return
-      end
+    unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
+      render_error status: 403, errorcode: "change_attribute_no_permission",
+                   message: "user #{user.login} has no permission to change attribute"
+      return
     end
 
     # exec
