@@ -209,12 +209,10 @@ class AttributeController < ApplicationController
       render_error(status: 404, errorcode: "not_found",
                    message: "Attribute #{params[:attribute]} does not exist") && return
     end
-    if params[:attribute]
-      unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
-        render_error status: 403, errorcode: "change_attribute_no_permission",
-                     message: "user #{user.login} has no permission to change attribute"
-        return
-      end
+    unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
+      render_error status: 403, errorcode: "change_attribute_no_permission",
+                   message: "user #{user.login} has no permission to change attribute"
+      return
     end
 
     # exec
@@ -235,26 +233,18 @@ class AttributeController < ApplicationController
     req = ActiveXML::Node.new(request.raw_post)
 
     # checks
-    if params[:attribute]
-      unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
+    req.each('attribute') do |attr|
+      begin
+        can_create = User.current.can_create_attribute_in? @attribute_container, namespace: attr.value('namespace'), name: attr.value('name')
+      rescue ArgumentError => e
+        render_error status: 400, errorcode: "change_attribute_attribute_error",
+                     message: e.message
+        return
+      end
+      unless can_create
         render_error status: 403, errorcode: "change_attribute_no_permission",
                      message: "user #{user.login} has no permission to change attribute"
         return
-      end
-    else
-      req.each('attribute') do |attr|
-        begin
-          can_create = User.current.can_create_attribute_in? @attribute_container, namespace: attr.value('namespace'), name: attr.value('name')
-        rescue ArgumentError => e
-          render_error status: 400, errorcode: "change_attribute_attribute_error",
-                       message: e.message
-          return
-        end
-        unless can_create
-          render_error status: 403, errorcode: "change_attribute_no_permission",
-                       message: "user #{user.login} has no permission to change attribute"
-          return
-        end
       end
     end
 

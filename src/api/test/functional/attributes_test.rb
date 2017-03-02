@@ -260,6 +260,32 @@ ription</description>
     assert_response 404
   end
 
+  def test_attrib_write_permissions
+    login_tom
+
+    data = "<attributes><attribute namespace='OBS' name='VeryImportantProject'/></attributes>"
+
+    # XML with an attribute I should not be able to create
+    post "/source/home:tom/_attribute", data
+    assert_response 403
+    # same with attribute parameter
+    post "/source/home:tom/_attribute/OBS:Issues", data
+    assert_response 403
+  end
+
+  def test_attrib_delete_permissions
+    # create an admin only attribute
+    login_king
+    data = "<attributes><attribute namespace='OBS' name='VeryImportantProject'/></attributes>"
+    post "/source/home:tom/_attribute", data
+
+    login_tom
+    delete "/source/home:tom/_attribute/OBS:VeryImportantProject"
+    assert_response 403
+    delete "/source/home:tom/_attribute/?namespace=OBS&name=VeryImportantProject"
+    assert_response 403
+  end
+
   def test_create_attributes_project
     login_tom
 
