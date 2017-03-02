@@ -102,10 +102,10 @@ create_dir "$MOUNTDIR$INNERSCRIPTDIR"
 # su nobody -s inner.sh.command
 
 printlog "Creating INNERSCRIPT '$MOUNTDIR/$INNERSCRIPT'"
-echo "#!/bin/bash" 					> "$MOUNTDIR/$INNERSCRIPT"
-echo "export OBS_SERVICE_APIURL=$OBS_SERVICE_APIURL"    >> "$MOUNTDIR/$INNERSCRIPT"
-echo "cd $INNERSRCDIR" 					>> "$MOUNTDIR/$INNERSCRIPT"
-echo -n "${INNERSCRIPT}.command" 			>> "$MOUNTDIR/$INNERSCRIPT"
+echo "#!/bin/bash" 					 > "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_SERVICE_APIURL=\"$OBS_SERVICE_APIURL\"" >> "$MOUNTDIR/$INNERSCRIPT"
+echo "cd $INNERSRCDIR" 					 >> "$MOUNTDIR/$INNERSCRIPT"
+echo -n "${INNERSCRIPT}.command" 			 >> "$MOUNTDIR/$INNERSCRIPT"
 
 # Create inner.sh.command
 # dirname /srv/obs/service/11875/out/
