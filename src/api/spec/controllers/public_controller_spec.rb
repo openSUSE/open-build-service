@@ -23,7 +23,7 @@ RSpec.describe PublicController, vcr: true do
       get :index
     end
 
-    it { is_expected.to redirect_to(about_path) }
+    it { is_expected.to redirect_to(about_index_path) }
   end
 
   describe "GET #build" do
