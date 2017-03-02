@@ -25,6 +25,7 @@ use BSConfiguration;
 use BSFileDB;
 use BSRevision;
 use BSSrcrep;
+use BSXML;
 
 use BSSrcServer::Local;
 use BSSrcServer::Link;
@@ -126,91 +127,163 @@ sub findcommit {
   return undef;
 }
 
-# assign blame by following a link
-sub blame_link {
-  my ($bc, $rev, $revno, $ti, $files, $linkinfo, $blame) = @_;
-
+# find the local commit for an expanded revision
+sub getlocalrev {
+  my ($bc, $rev, $ti, $files, $linkinfo, $nofallback) = @_;
   # get the local commit from the linkinfo
+  my $srcmd5 = $linkinfo->{'lservicemd5'} || $rev->{'srcmd5'};
+  if ($linkinfo->{'lsrcmd5'}) {
+    my $orev = $getrev->($rev->{'project'}, $rev->{'package'},  $linkinfo->{'lsrcmd5'});
+    my $olinkinfo = {};
+    my $ofiles = BSRevision::lsrev($orev, $olinkinfo);
+    $srcmd5 = $olinkinfo->{'lservicemd5'} || $linkinfo->{'lsrcmd5'};
+  }
+  my $lrev = findcommit($bc, $rev->{'project'}, $rev->{'package'}, $ti, $srcmd5);
+  if (!$lrev && !$nofallback) {
+    # fall back to commit at the specific time
+    $lrev = findcommit($bc, $rev->{'project'}, $rev->{'package'}, $ti);
+  }
+  return $lrev;
+}
+
+# find the baserev of a link $l for a specific time $ti
+sub find_baserev {
+  my ($bc, $rev, $l, $ti, $recu) = @_;
+  my $lproject = $l->{'project'} || $rev->{'project'};
+  my $lpackage = $l->{'package'} || $rev->{'package'};
+  # print "find_baserev $rev->{'project'}/$rev->{'package'} -> $lproject/$lpackage $ti\n";
+  my $lrev;
+  if ($l->{'rev'}) {
+    $lrev = $getrev->($lproject, $lpackage, $l->{'rev'});
+  } else {
+    $lrev = findcommit($bc, $lproject, $lpackage, $ti);
+    die("could not find commit in $lproject/$lpackage at time $ti\n") unless $lrev;
+  }
+  die("circular link\n") if $recu->{"$lproject/$lpackage/$lrev->{'rev'}"};
+  $recu->{"$lproject/$lpackage/$lrev->{'rev'}"} = 1;
+  my $lfiles = $lsrev_service->($lrev);
+  return $lrev->{'srcmd5'} unless $lfiles->{'_link'};
+  $l = BSRevision::revreadxml($rev, '_link', $lfiles->{'_link'}, $BSXML::link);
+  my $baserev = find_baserev($bc, $lrev, $l, $ti);
+  my %rev = (%$rev, 'linkrev' => $baserev);
+  $lsrev_expanded->(\%rev);
+  return $rev->{'srcmd5'};
+}
+
+# return the expaned filelist at the commit time
+# this is easy when we have a baserev in the link
+sub lsrev_expanded_committime {
+  my ($bc, $rev, $linkinfo) = @_;
+  my $files = $lsrev_service->($rev);
+  return $files unless $files->{'_link'};
+  my $l = BSRevision::revreadxml($rev, '_link', $files->{'_link'}, $BSXML::link);
+  return $files unless $l;
+  local $rev->{'linkrev'};
+  if ($l->{'baserev'}) {
+    # we have a baserev. good. expand link with it.
+    $rev->{'linkrev'} = 'base';
+  } else {
+    $rev->{'linkrev'} = find_baserev($bc, $rev, $l, $rev->{'time'}, {});
+    # print "lsrev_expanded_committime: expanded baserev of $rev->{'project'}/$rev->{'package'}/$rev->{'rev'} to $rev->{'linkrev'}\n";
+  }
+  return $lsrev_expanded->($rev, $linkinfo);
+}
+
+# get (and expand) a commit, cache result
+sub get_commit {
+  my ($bc, $projid, $packid, $revno) = @_;
+  my $rc = $bc->{'revcache'}->{"$projid/$packid/$revno"};
+  return @$rc if $rc;
+  eval {
+    my $rev;
+    if ($bc->{'meta'}) {
+      $rev = BSRevision::getrev_meta($projid, $packid, $revno);
+    } else {
+      $rev = $getrev->($projid, $packid, $revno);
+    }
+    my $linkinfo = {};
+    my $files;
+    if ($bc->{'expand'}) {
+      $files = lsrev_expanded_committime($bc, $rev, $linkinfo);
+    } elsif ($bc->{'service'}) {
+      $files = $lsrev_service->($rev);
+    } else {
+      $files = BSRevision::lsrev($rev);
+    }
+    $rc = [ $rev, $files, $linkinfo ];
+  };
+  warn("get_commit $projid/$packid/$revno: $@") if $@;
+  $rc ||= [];
+  $bc->{'revcache'}->{"$projid/$packid/$revno"} = $rc;
+  return @$rc;
+}
+
+# assign blame by following a link
+sub doblame_link {
+  my ($bc, $rev, $ti, $files, $linkinfo, $blame) = @_;
+
+  # get (expanded) filelist
   BSSrcServer::Link::linkinfo_addtarget($rev, $linkinfo);
   my $orev = $getrev->($linkinfo->{'project'}, $linkinfo->{'package'}, $linkinfo->{'srcmd5'});
   my $olinkinfo = {};
   my $ofiles = BSRevision::lsrev($orev, $olinkinfo);
-  my $osrcmd5 = $olinkinfo->{'lsrcmd5'} || $linkinfo->{'srcmd5'};
-  my $lorev = findcommit($bc, $orev->{'project'}, $orev->{'package'}, $ti, $osrcmd5);
-  if (!$lorev) {
-    $lorev = findcommit($bc, $orev->{'project'}, $orev->{'package'}, $ti);
+
+  # get the local commit from the linkinfo
+  my $lrev = getlocalrev($bc, $orev, $ti, $ofiles, $olinkinfo);
+  if (!$lrev) {
+    print "could not find local commit for $orev->{'project'}/$orev->{'package'}/$orev->{'srcmd5'}\n";
+    return;
   }
-  if ($lorev) {
-    # ok, got the commit and the expanded files. now blame by recursing.
-    my $oblame = propblame($bc, $blame, $rev, $files, $lorev, $ofiles);
-    doblame($bc, $lorev, $lorev->{'rev'}, $ti, $ofiles, $olinkinfo, $oblame) if @$oblame;
-   }
+
+  # do the blame.
+  my $oblame = propblame($bc, $blame, $rev, $files, $lrev, $ofiles);
+  doblame($bc, $lrev, $ti, $ofiles, $olinkinfo, $oblame) if @$oblame;
 }
 
 sub doblame {
-  my ($bc, $rev, $revno, $ti, $files, $linkinfo, $blame) = @_;
+  my ($bc, $rev, $ti, $files, $linkinfo, $blame) = @_;
 
-  my @todo;
-  unshift @todo, [ $rev, $revno, $ti, $files, $linkinfo, $blame ];
+  my @todo = ( [ $rev, $ti, $files, $linkinfo, $blame ] );
+
+  my $revno = $rev->{'rev'};
+  # do last commit twice in case of a link (both with time $ti and commit time)
+  $revno++ if $bc->{'expand'};
 
   # go through local commits
   while ($revno > 1) {
     $revno--;
-    my $rc = $bc->{'revcache'}->{"$rev->{'project'}/$rev->{'package'}/$revno"};
-    if (!$rc) {
-      eval {
-        my $orev;
-        if ($bc->{'meta'}) {
-          $orev = BSRevision::getrev_meta($rev->{'project'}, $rev->{'package'}, $revno);
-        } else {
-          $orev = $getrev->($rev->{'project'}, $rev->{'package'}, $revno);
-        }
-        $orev->{'linkrev'} = 'base';
-        my $olinkinfo = {};
-        my $ofiles;
-        if ($bc->{'expand'}) {
-          $ofiles = $lsrev_expanded->($orev, $olinkinfo);
-        } elsif ($bc->{'service'}) {
-          $ofiles = $lsrev_service->($orev);
-        } else {
-          $ofiles = BSRevision::lsrev($orev);
-        }
-	$rc = [ $orev, $ofiles, $olinkinfo ];
-        $bc->{'revcache'}->{"$rev->{'project'}/$rev->{'package'}/$revno"} = $rc;
-      };
-      if ($@) {
-	warn($@);
-	next;
-      }
-    }
-    my ($orev, $ofiles, $olinkinfo) = @$rc;
+    my ($orev, $ofiles, $olinkinfo) = get_commit($bc, $rev->{'project'}, $rev->{'package'}, $revno);
+    next unless $orev;
     my $oblame = propblame($bc, $blame, $rev, $files, $orev, $ofiles);
-    ($rev, $revno, $ti, $files, $linkinfo, $blame) = ($orev, $orev->{'rev'}, $orev->{'time'}, $ofiles, $olinkinfo, $oblame);
-    unshift @todo, [ $rev, $revno, $ti, $files, $linkinfo, $blame ];
+    last unless @$oblame;	# stop if nothing left to blame
+    ($rev, $ti, $files, $linkinfo, $blame) = ($orev, $orev->{'time'}, $ofiles, $olinkinfo, $oblame);
+    unshift @todo, [ $rev, $ti, $files, $linkinfo, $blame ];
   }
 
   for my $todo (@todo) {
-    ($rev, $revno, $ti, $files, $linkinfo, $blame) = @$todo;
+    ($rev, $ti, $files, $linkinfo, $blame) = @$todo;
 
     # blame those links as well
     if ($bc->{'expand'} && $linkinfo && $linkinfo->{'srcmd5'}) {
-      blame_link($bc, $rev, $revno, $ti, $files, $linkinfo, $blame);
+      doblame_link($bc, $rev, $ti, $files, $linkinfo, $blame);
     }
 
     # assign remaining blame
     if (grep {defined($_) && !$$_} @$blame) {
-      $bc->{'revs'}->{"$rev->{'project'}/$rev->{'package'}/$revno"} ||= { %$rev, 'rev' => $revno };
-      my $r = $bc->{'revs'}->{"$rev->{'project'}/$rev->{'package'}/$revno"};
-      $$_ ||= $r for grep {defined($_)} @$blame;
+      $bc->{'revs'}->{"$rev->{'project'}/$rev->{'package'}/$rev->{'rev'}"} ||= $rev;
+      $rev = $bc->{'revs'}->{"$rev->{'project'}/$rev->{'package'}/$rev->{'rev'}"};
+      $$_ ||= $rev for grep {defined($_)} @$blame;
     }
   }
 }
 
 sub blame {
   my ($rev, $filename, $expand, $meta) = @_;
+
   my $service;
   $expand = undef if $meta;
   $service = 1 if !$expand && !$meta && $filename =~ /^_service:/;
+
   my $bc = {
     'filename' => $filename,
     'expand' => $expand,
@@ -221,14 +294,19 @@ sub blame {
     'historycache' => {},
     'revcache' => {},
   };
-  my $files;
-  my $revno = $rev->{'rev'};
   my $now = time();
-  if (length($revno) >= 16) {
-    my $lrev = findcommit($bc, $rev->{'project'}, $rev->{'package'}, $now, $revno);
-    die("$rev->{'project'}/$rev->{'package'}: could not find commit $revno\n") unless $lrev;
-    $rev = $lrev;
+
+  # get local commit
+  my $lrev = $rev;
+  if (length($rev->{'rev'}) >= 16) {
+    my $olinkinfo = {};
+    my $ofiles = BSRevision::lsrev($rev, $olinkinfo);
+    $lrev = getlocalrev($bc, $rev, $now, $ofiles, $olinkinfo, 1);
+    die("could not get local commit for $rev->{'rev'}\n") unless $lrev;
   }
+
+  # get (expanded) files
+  my $files;
   my $linkinfo = {};
   if ($expand) {
     $files = $lsrev_expanded->($rev, $linkinfo);
@@ -238,6 +316,8 @@ sub blame {
     $files = BSRevision::lsrev($rev);
   }
   die("$filename does not exist\n") unless $files->{$filename};
+
+  # setup blame scoreboard
   local *F;
   BSRevision::revopen($rev, $filename, $files->{$filename}, \*F) || die("$filename: $!\n");
   my @c;
@@ -246,7 +326,9 @@ sub blame {
     push @c, '', $_;
     push @blame, \$c[-2];
   }
-  doblame($bc, $rev, $revno, $now, $files, $linkinfo, \@blame);
+
+  # run blame algorithm
+  doblame($bc, $lrev, $now, $files, $linkinfo, \@blame);
   return \@c;
 }
 
