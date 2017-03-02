@@ -11,6 +11,8 @@ install_common_packages
 
 setup_ruby
 
+setup_ruby_gem
+
 install_bundle
 
 configure_app

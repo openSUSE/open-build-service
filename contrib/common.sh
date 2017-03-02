@@ -50,6 +50,12 @@ function install_common_packages() {
   grub2-install /dev/sda
 }
 
+# Needed for single_test and other things that just call ruby in the env
+function setup_ruby() {
+  echo -e "\nsetting up ruby...\n"
+  su - vagrant -c "ln -sf /usr/bin/ruby.ruby2.4 /home/vagrant/bin/ruby"
+}
+
 function setup_ruby_gem() {
   echo -e "\ndisabling versioned gem binary names...\n"
   echo 'install: --no-format-executable' >> /etc/gemrc
@@ -58,7 +64,6 @@ function setup_ruby_gem() {
 function install_bundle() {
   echo -e "\ninstalling your bundle...\n"
   su - vagrant -c "cd /vagrant/src/api/; bundle install --quiet"
-  bundle binstubs railties rake rdoc rspec-core --force
 }
 
 function setup_mariadb() {
