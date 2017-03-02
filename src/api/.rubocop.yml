@@ -184,6 +184,10 @@ Lint/IneffectiveAccessModifier:
 Lint/LiteralInCondition:
   Enabled: true
 
+# Use Kernel#loop with break rather than begin/end/until(or while)
+Lint/Loop:
+  Enabled: true
+
 # checks for unused block arguments.
 Lint/UnusedBlockArgument:
   Enabled: true

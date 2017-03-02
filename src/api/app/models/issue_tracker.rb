@@ -95,14 +95,10 @@ class IssueTracker < ApplicationRecord
     # must be like this "url = https://github.com/repos/#{self.owner}/#{self.name}/issues"
     url = URI.parse("#{self.url}?since=#{self.issues_updated.to_time.iso8601}")
     mtime = Time.now
-    begin # Need a loop to follow redirects...
-      http = Net::HTTP.new(url.host, url.port)
-      http.use_ssl = (url.scheme == 'https')
-      request = Net::HTTP::Get.new(url.path)
-      response = http.start { |h| h.request(request) }
-      url = URI.parse(response.header['location']) if response.header['location']
-    end while response.header['location']
+
+    response = follow_redirects(url)
     return if response.blank?
+
     parse_github_issues(ActiveSupport::JSON.decode(response.body))
 
     # done
@@ -200,34 +196,40 @@ class IssueTracker < ApplicationRecord
     true
   end
 
-  def parse_single_bugzilla_issue(r)
-    issue = Issue.find_by_name_and_tracker r["id"].to_s, name
+  def parse_single_bugzilla_issue(bugzilla_response)
+    issue = Issue.find_by_name_and_tracker(bugzilla_response["id"].to_s, name)
     return unless issue
 
-    if r["is_open"]
+    if bugzilla_response["is_open"]
       # bugzilla sees it as open
       issue.state = "OPEN"
-    elsif r["is_open"] == false
+    elsif bugzilla_response["is_open"] == false
       # bugzilla sees it as closed
       issue.state = "CLOSED"
     else
       # bugzilla does not tell a state
-      issue.state = Issue.bugzilla_state(r["status"])
+      issue.state = Issue.bugzilla_state(bugzilla_response["status"])
     end
-    u = User.find_by_email(r["assigned_to"].to_s)
-    logger.info "Bugzilla user #{r["assigned_to"]} is not found in OBS user database" unless u
-    issue.owner_id = u.id if u
-# rubocop:disable Rails/Date
-    # the warning regarding timezone is pointless since the object got no information either
-    issue.created_at = r["creation_time"].to_time if r["creation_time"].present?
-# rubocop:enable Rails/Date
-    issue.created_at ||= Time.now
+
+    user = User.find_by_email(bugzilla_response["assigned_to"].to_s)
+    if user
+      issue.owner_id = user.id
+    else
+      logger.info "Bugzilla user #{bugzilla_response["assigned_to"]} is not found in OBS user database"
+    end
+
+    if bugzilla_response["creation_time"].present?
+      issue.created_at = bugzilla_response["creation_time"].to_time_in_current_zone
+    else
+      issue.created_at = Time.now
+    end
+
     # this is our update_at, not the one bugzilla logged in last_change_time
     issue.updated_at = @update_time_stamp
-    if r["is_private"]
+    if bugzilla_response["is_private"]
       issue.summary = nil
     else
-      issue.summary = r["summary"]
+      issue.summary = bugzilla_response["summary"]
     end
     issue.save
   end
@@ -252,7 +254,7 @@ class IssueTracker < ApplicationRecord
     else
       issue.state = "CLOSED"
     end
-#      u = User.find_by_email(js["assignee"]["login"].to_s)
+
     issue.updated_at = @update_time_stamp
     issue.summary = js["title"]
     issue.save
@@ -275,14 +277,8 @@ class IssueTracker < ApplicationRecord
   end
 
   def fetch_fate_issues
-    url = URI.parse("#{self.url}/#{name}?contenttype=text%2Fxml")
-    begin # Need a loop to follow redirects...
-      http = Net::HTTP.new(url.host, url.port)
-      http.use_ssl = (url.scheme == 'https')
-      request = Net::HTTP::Get.new(url.path)
-      resp = http.start { |h| h.request(request) }
-      url = URI.parse(resp.header['location']) if resp.header['location']
-    end while resp.header['location']
+    follow_redirects(URI.parse("#{url}/#{name}?contenttype=text%2Fxml"))
+
     # TODO: Parse returned XML and return proper JSON
     false
   end
@@ -290,15 +286,9 @@ class IssueTracker < ApplicationRecord
   def fetch_github_issues(ids)
     response = nil
     ids.each do |i|
-      url = URI.parse("#{self.url}/#{i}")
-      begin # Need a loop to follow redirects...
-        http = Net::HTTP.new(url.host, url.port)
-        http.use_ssl = (url.scheme == 'https')
-        request = Net::HTTP::Get.new(url.path)
-        response = http.start { |h| h.request(request) }
-        url = URI.parse(response.header['location']) if response.header['location']
-      end while response.header['location']
+      response = follow_redirects(URI.parse("#{url}/#{i}"))
       next unless response.is_a?(Net::HTTPSuccess)
+
       parse_github_issue(ActiveSupport::JSON.decode(response.body), true)
     end
   end
@@ -309,6 +299,26 @@ class IssueTracker < ApplicationRecord
     server.user = user if user
     server.password = password if password
     server.proxy('Bug')
+  end
+
+  # helper method that does a GET request to given <url> and follows
+  # any redirects.
+  #
+  # Returns the Net::HTTP response
+  def follow_redirects(url)
+    response = nil
+
+    loop do
+      http = Net::HTTP.new(url.host, url.port)
+      http.use_ssl = (url.scheme == 'https')
+      request = Net::HTTP::Get.new(url.path)
+      response = http.start { |h| h.request(request) }
+      url = URI.parse(response.header['location']) if response.header['location']
+
+      break unless response.header['location']
+    end
+
+    response
   end
 end
 
