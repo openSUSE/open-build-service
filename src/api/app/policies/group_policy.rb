@@ -9,11 +9,7 @@ class GroupPolicy < ApplicationPolicy
   end
 
   def update?
-    # admins can do it always
-    return true if @user.is_admin?
-
-    # and also group maintainers
-    @record.group_maintainers.where(user: @user).present?
+    @user.is_admin? || @record.group_maintainers.where(user: @user).exists?
   end
 
   def destroy?
