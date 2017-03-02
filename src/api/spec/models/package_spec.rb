@@ -11,6 +11,8 @@ RSpec.describe Package, vcr: true do
   let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: home_project) }
+  let(:package_with_broken_service) { create(:package_with_broken_service, name: "package_with_broken_service", project: user.home_project) }
+  let(:package_with_service) { create(:package_with_service, name: "package_with_service", project: user.home_project) }
   let(:services) { package.services }
   let(:group_bugowner) { create(:group, title: 'senseless_group') }
   let(:group) { create(:group, title: 'my_test_group') }
@@ -215,6 +217,15 @@ RSpec.describe Package, vcr: true do
 
     it 'returns false if the icon does not exist' do
       expect(package.has_icon?).to eq(false)
+    end
+  end
+
+  describe '#service_error' do
+    context 'without error' do
+      it { expect(package_with_service.service_error).to be_nil }
+    end
+    context 'with error' do
+      it { expect(package_with_broken_service.service_error).not_to be_empty }
     end
   end
 

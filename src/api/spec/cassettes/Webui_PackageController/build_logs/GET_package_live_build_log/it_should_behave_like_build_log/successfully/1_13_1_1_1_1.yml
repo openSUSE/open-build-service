@@ -1,0 +1,39 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom//i586/my_package/_jobstatus
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: repoid is empty
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '67'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>repoid is empty</summary>
+        </status>
+    http_version: 
+  recorded_at: Thu, 02 Mar 2017 15:30:47 GMT
+recorded_with: VCR 3.0.3

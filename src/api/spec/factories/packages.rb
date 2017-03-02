@@ -27,7 +27,17 @@ FactoryGirl.define do
         # NOTE: Enable global write through when writing new VCR cassetes.
         # ensure the backend knows the project
         if CONFIG['global_write_through']
-          Suse::Backend.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<service/>')
+          Suse::Backend.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<services/>')
+        end
+      end
+    end
+
+    factory :package_with_broken_service do
+      after(:create) do |package|
+        # NOTE: Enable global write through when writing new VCR cassetes.
+        # ensure the backend knows the project
+        if CONFIG['global_write_through']
+          Suse::Backend.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<service>broken</service>')
         end
       end
     end

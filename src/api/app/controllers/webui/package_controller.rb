@@ -68,6 +68,7 @@ class Webui::PackageController < Webui::WebuiController
       if @forced_unexpand.blank?
         @is_current_rev = !@revision || (@revision == @current_rev)
       else
+        @more_info = @package.service_error
         flash.now[:error] = "Files could not be expanded: #{@forced_unexpand}"
       end
     elsif @revision_parameter

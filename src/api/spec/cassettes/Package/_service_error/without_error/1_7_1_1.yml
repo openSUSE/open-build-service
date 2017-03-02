@@ -1,0 +1,235 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 07 Mar 2017 09:33:32 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_service/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '116'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 07 Mar 2017 09:33:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_service/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '116'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 07 Mar 2017 09:33:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_service/_service
+    body:
+      encoding: UTF-8
+      string: "<services/>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>a6d5ef921b584d81078d17887eb10f97</srcmd5>
+          <version>unknown</version>
+          <time>1488879213</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 07 Mar 2017 09:33:33 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '352'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_service" rev="8" vrev="8" srcmd5="a6d5ef921b584d81078d17887eb10f97">
+          <serviceinfo code="failed" xsrcmd5="3c5bb7a07abdfa1339b4d042f23b6524">
+            <error>service error: service in progress</error>
+          </serviceinfo>
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1488817359" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 07 Mar 2017 09:33:33 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_service/_serviceerror?rev=3c5bb7a07abdfa1339b4d042f23b6524
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: _serviceerror  no such file
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '132'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>_serviceerror: no such file</summary>
+          <details>404 _serviceerror: no such file</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 07 Mar 2017 09:33:33 GMT
+recorded_with: VCR 3.0.3

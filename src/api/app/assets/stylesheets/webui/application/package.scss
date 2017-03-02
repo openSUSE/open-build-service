@@ -52,3 +52,20 @@ table.repostatus td {
 .no_border_top {
   border-top: none;
 }
+
+.btn-more {
+  float: right;
+  color: #c00;
+  text-decoration: underline;
+
+  &:hover, &:active, &:focus { color: #c00; }
+}
+
+.more_info {
+  font-size: 0.8em;
+
+  .more-info-content {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+}

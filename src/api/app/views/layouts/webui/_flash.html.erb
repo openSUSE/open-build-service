@@ -20,17 +20,26 @@
           end %>
 
           <%
-          body = flash[flash_type].gsub(/\n/, '<br/>')
-          body = sanitize body, :tags => %w(a b ul li br u), :attributes => %w(href title)
+            body = flash[flash_type].gsub(/\\n/, '')
+            body = sanitize body, :tags => %w(a b ul li br u), :attributes => %w(href title)
           %>
 
           <div class="<%= flash_header %> ui-corner-all ui-widget-shadow">
-            <p>
+            <p class='flash-content'>
               <span class="ui-icon <%= flash_icon %>"/>
               <%= body %>
+              <%= link_to 'more info', '#', class: 'btn-more' if @more_info %>
             </p>
-          </div>
 
+            <%if @more_info %>
+              <div class='more_info hidden'>
+                <div class="<%= flash_header %>"></div>
+                <div class='more-info-content'>
+                  <%= simple_format @more_info.gsub(/\\n/, '<br \>') %>
+                </div>
+              </div>
+            <% end %>
+            </div>
         <% end %>
       <% end %>
 
