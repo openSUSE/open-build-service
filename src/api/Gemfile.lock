@@ -235,7 +235,7 @@ GEM
     raindrops (0.17.0)
     rake (12.0.0)
     rantly (1.0.0)
-    rdoc (5.0.0)
+    rdoc (5.1.0)
     redcarpet (3.3.4)
     responders (2.2.0)
       railties (>= 4.2.0, < 5.1)
@@ -423,4 +423,4 @@ DEPENDENCIES
   yajl-ruby
 
 BUNDLED WITH
-   1.12.5
+   1.13.6
