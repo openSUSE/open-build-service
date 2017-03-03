@@ -243,7 +243,16 @@ class AttributeController < ApplicationController
       attrib_type = AttribType.find_by_namespace_and_name!(attr.value("namespace"), attr.value("name"))
       attrib = Attrib.new(attrib_type: attrib_type)
 
+      attr.each("value") do |value|
+        attrib.values.new(value: value.text)
+      end
+
       attrib.container = @attribute_container
+
+      unless attrib.valid?
+        raise APIException.new({ message: attrib.errors.full_messages.join('\n'), status: 400 })
+      end
+
       authorize attrib, :create?
     end
 
