@@ -93,7 +93,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                        requestid: bs_request.number,
                        maintenance: 1,
                        force: 1,
-                       comment: 'Initial new branch',
+                       comment: 'Initial new branch from specified release project',
                        project: target_releaseproject, package: package_name}
       # accept branching from former update incidents or GM (for kgraft case)
       linkprj = Project.find_by_name(linkinfo['project']) if linkinfo
@@ -121,6 +121,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                        requestid: bs_request.number,
                        maintenance: 1,
                        force: 1,
+                       comment: 'Initial new branch',
                        project: linked_project, package: linked_package}
       ret = BranchPackage.new(branch_params).branch
       new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
