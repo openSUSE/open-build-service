@@ -250,8 +250,6 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
 
     context 'with build results and no binaries' do
-      render_views
-
       before do
         allow(Buildresult).to receive(:find).and_return(fake_build_results_without_binaries)
         post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
@@ -262,8 +260,6 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
 
     context 'with build results and binaries' do
-      render_views
-
       before do
         allow(Buildresult).to receive(:find).and_return(fake_build_results)
         post :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project }
