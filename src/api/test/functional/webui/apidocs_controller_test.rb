@@ -1,7 +1,7 @@
 require_relative '../../test_helper'
 
 class Webui::ApidocsControllerTest < Webui::IntegrationTest
-  def test_index
+  def test_index # spec/controllers/webui/apidocs_controller_spec.rb
     return unless File.exist? '/var/adm/fillup-templates'
     # test relative links
     visit "/apidocs"
@@ -19,7 +19,7 @@ class Webui::ApidocsControllerTest < Webui::IntegrationTest
     assert page.html =~ %r{architecture name="x86_64"}
   end
 
-  def test_broken_apidocs_setup
+  def test_broken_apidocs_setup # spec/controllers/webui/apidocs_controller_spec.rb
     old_location = CONFIG['apidocs_location']
     CONFIG['apidocs_location'] = '/your/mom'
     visit "/apidocs"
