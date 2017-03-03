@@ -243,12 +243,7 @@ class AttributeController < ApplicationController
       attrib_type = AttribType.find_by_namespace_and_name!(attr.value("namespace"), attr.value("name"))
       attrib = Attrib.new(attrib_type: attrib_type)
 
-      if @attribute_container.is_a?(Project)
-        attrib.project = @attribute_container
-      else
-        attrib.package = @attribute_container
-      end
-
+      attrib.container = @attribute_container
       authorize attrib, :create?
     end
 
