@@ -38,11 +38,7 @@ class AttribPolicy < ApplicationPolicy
   # Collects AttribTypeModifiableBy and AttribNamespaceModifiableBy associated to
   #  an AttribType object and returns them in an Array
   def modifiables
-    at_modifiables = @record.attrib_type.try(:attrib_type_modifiable_bies).to_a
-    if @record.attrib_type.try(:attrib_namespace)
-      at_modifiables + @record.attrib_type.attrib_namespace.attrib_namespace_modifiable_bies.to_a
-    else
-      at_modifiables
-    end
+    @record.attrib_type.try(:attrib_type_modifiable_bies).to_a |
+      @record.attrib_type.try(:attrib_namespace).try(:attrib_namespace_modifiable_bies).to_a
   end
 end
