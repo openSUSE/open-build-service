@@ -3,22 +3,14 @@ class AttribPolicy < ApplicationPolicy
     # Admins can write everything
     return true if @user.is_admin?
 
-    # check for modifiable_by rules
-    type_perms = []
-    namespace_perms = []
-    if @record.attrib_type
-      type_perms = @record.attrib_type.attrib_type_modifiable_bies
-      if @record.attrib_type.attrib_namespace
-        namespace_perms = @record.attrib_type.attrib_namespace.attrib_namespace_modifiable_bies
-      end
-    end
-
-    # no specific rules set for the attribute, check if the user can modify the container
-    if type_perms.empty? && namespace_perms.empty? && @record.container.present?
+    at_modifiables = modifiables
+    if at_modifiables.empty? && @record.container.present?
+      # No specific rules set for the attribute, check if the user can modify the container
       return @user.can_modify_project?(@record.container) if @record.container.kind_of? Project
       return @user.can_modify_package?(@record.container)
     else
-      has_type_permissions?(type_perms) || has_namespace_permissions?(namespace_perms)
+      # check for modifiable_by rules
+      permissions_for_modifiables?(at_modifiables)
     end
   end
 
@@ -32,20 +24,29 @@ class AttribPolicy < ApplicationPolicy
 
   private
 
-  # Returns true when there is any permission for the user or a group or role
-  # the user is associated to
-  def has_type_permissions?(permissions)
-    permissions.any? do |rule|
-      rule.user == @user || @user.is_in_group?(rule.group) ||
-        (rule.role && @user.has_local_role?(rule.role, @record.container))
+  # Parses AttribTypeModifiableBy and AttribNamespaceModifiableBy association
+  # collections and checks the users permissions.
+  #
+  # Permission check is based on:
+  #   - User
+  #   - Group association of user
+  #   - Role association of user (Only for AttribTypeModifiableBy)
+  def permissions_for_modifiables?(attrib_modifiables)
+    attrib_modifiables.any? do |rule|
+      rule.user == @user ||
+      @user.is_in_group?(rule.group) ||
+        (rule.try(:role) && @user.has_local_role?(rule.role, @record.container))
     end
   end
 
-  # Returns true when there is any permission for the user or a group the user
-  # is associated to
-  def has_namespace_permissions?(permissions)
-    namespace_perms.any? do |rule|
-      rule.user == @user || @user.is_in_group?(rule.group)
+  # Collects AttribTypeModifiableBy and AttribNamespaceModifiableBy associated to
+  #  an AttribType object and returns them in an Array
+  def modifiables
+    at_modifiables = @record.attrib_type.try(:attrib_type_modifiable_bies).to_a
+    if @record.attrib_type.try(:attrib_namespace)
+      at_modifiables + @record.attrib_type.attrib_namespace.attrib_namespace_modifiable_bies.to_a
+    else
+      at_modifiables
     end
   end
 end
