@@ -463,18 +463,19 @@ class Project < ApplicationRecord
     return
   end
 
-  def check_write_access!(ignoreLock = nil)
+  def check_write_access!(ignore_lock = nil)
     return if Rails.env.test? && User.current.nil? # for unit tests
 
     # the can_create_check is inconsistent with package class check_write_access! check
-    return if check_write_access(ignoreLock)
+    return if can_be_modified_by?(User.current, ignore_lock)
+
     raise WritePermissionError, "No permission to modify project '#{name}' for user '#{User.current.login}'"
   end
 
-  def check_write_access(ignoreLock = nil)
-    return User.current.can_create_project?(name) if new_record?
+  def can_be_modified_by?(user, ignore_lock = nil)
+    return user.can_create_project?(name) if new_record?
 
-    User.current.can_modify_project?(self, ignoreLock)
+    user.can_modify_project?(self, ignore_lock)
   end
 
   def is_locked?

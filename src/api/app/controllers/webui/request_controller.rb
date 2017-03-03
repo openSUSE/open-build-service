@@ -172,7 +172,7 @@ class Webui::RequestController < Webui::WebuiController
           else
             target = Project.find_by_name tprj
           end
-          if target.check_write_access
+          if target.can_be_modified_by?(User.current)
             # the request action type might be permitted in future, but that doesn't mean we
             # are allowed to modify the object
             target.add_user(@req.creator, 'maintainer')

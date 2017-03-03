@@ -6,8 +6,7 @@ class AttribPolicy < ApplicationPolicy
     at_modifiables = modifiables
     if at_modifiables.empty? && @record.container.present?
       # No specific rules set for the attribute, check if the user can modify the container
-      return @user.can_modify_project?(@record.container) if @record.container.kind_of? Project
-      return @user.can_modify_package?(@record.container)
+      @record.container.can_be_modified_by?(@user)
     else
       # check for modifiable_by rules
       permissions_for_modifiables?(at_modifiables)

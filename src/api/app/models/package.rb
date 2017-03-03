@@ -313,13 +313,13 @@ class Package < ApplicationRecord
     product_object || self
   end
 
-  def check_write_access(ignoreLock = nil)
-    User.current.can_modify_package? master_product_object, ignoreLock
+  def can_be_modified_by?(user, ignore_lock = nil)
+    user.can_modify_package? master_product_object, ignore_lock
   end
 
   def check_write_access!(ignoreLock = nil)
     return if Rails.env.test? && User.current.nil? # for unit tests
-    return if check_write_access(ignoreLock)
+    return if can_be_modified_by?(User.current, ignoreLock)
 
     raise WritePermissionError, "No permission to modify package '#{name}' for user '#{User.current.login}'"
   end
