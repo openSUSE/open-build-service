@@ -341,16 +341,12 @@ sub blame {
   my $linkinfo = {};
   if ($expand) {
     $files = $lsrev_expanded->($rev, $linkinfo);
-  } elsif ($service) {
-    $files = $lsrev_service->($rev);
   } else {
     $files = BSRevision::lsrev($rev);
   }
-  die("$filename does not exist\n") unless $files->{$filename};
+  die("404 $filename: no such file\n") unless $files->{$filename};
 
   # setup blame scoreboard
-  local *F;
-  BSRevision::revopen($rev, $filename, $files->{$filename}, \*F) || die("$filename: $!\n");
   my @c;
   my @blame;
   for (split("\n", BSRevision::revreadstr($rev, $filename, $files->{$filename}))) {
