@@ -14,6 +14,36 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
+
+# Source blame implementation
+# 
+# algorithm:
+#   - get file from next commit
+#     (get_commit)
+#   - call diff to find identical chunks of lines
+#     (propblame, chunker)
+#   - call blame algorithm recursivly for next commit
+#     to blame those identical chunks
+#   - assign the current commit to the remaining lines
+#
+# algorithm, with expand set to true:
+#   - expand next commit (at the time of the commit)
+#     (this will also return the expanded link target)
+#     (get_commit)
+#   - call diff to find identical chunks of lines
+#     (propblame, chunker)
+#   - call blame algorithm recursivly for next commit
+#   - call diff with expanded link target to find
+#     identical chunks of lines
+#     (doblame_link)
+#   - find local commit for the link target
+#     (getlocalrev)
+#   - call blame algorithm recursivly for link target
+#
+# the code in doblame was changed from recursion to iteration
+# so that perl does not warn about "deep recursion"
+
+
 package BSSrcServer::Blame;
 
 use strict;
@@ -53,9 +83,9 @@ sub chunker {
       }   
       $on = 1 unless defined $on;
       $nn = 1 unless defined $nn;
-      $ob-- if $ob;
-      $nb-- if $nb;
-      push @chunks, [$ob + ($on ? $on : 1), $nb + ($nn ? $nn : 1), $on ? $ob : $ob + 1, $nn ? $nb : $nb + 1]; 
+      $ob-- if $ob && $on;
+      $nb-- if $nb && $nn;
+      push @chunks, [$ob + $on, $nb + $nn, $ob, $nb];
       $in_pre = 1;
       $num_post = 0;
       next;
@@ -112,11 +142,16 @@ sub propblame {
 
 # find a commit that is older than $ti and  has srcmd5 $srcmd5
 sub findcommit {
-  my ($bc, $projid, $packid, $ti, $srcmd5) = @_;
+  my ($bc, $projid, $packid, $ti, $srcmd5, $revid) = @_;
   my $revs = $bc->{'historycache'}->{"$projid/$packid"};
   if (!$revs) {
     $revs = [ BSFileDB::fdb_getall("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay) ];
     $bc->{'historycache'}->{"$projid/$packid"} = $revs;
+  }
+  if ($revid && length($revid) < 16) {
+    # check if this revision matches
+    my $rev = (grep {$_->{'rev'} == $revid && $ti >= $_->{'time'}} reverse @$revs)[0];
+    return $rev if $rev && (!defined($srcmd5) || $rev->{'srcmd5'} eq $srcmd5);
   }
   for my $rev (reverse @$revs) {
     next if defined($srcmd5) && $rev->{'srcmd5'} ne $srcmd5;
@@ -138,12 +173,7 @@ sub getlocalrev {
     my $ofiles = BSRevision::lsrev($orev, $olinkinfo);
     $srcmd5 = $olinkinfo->{'lservicemd5'} || $linkinfo->{'lsrcmd5'};
   }
-  my $lrev = findcommit($bc, $rev->{'project'}, $rev->{'package'}, $ti, $srcmd5);
-  if (!$lrev && !$nofallback) {
-    # fall back to commit at the specific time
-    $lrev = findcommit($bc, $rev->{'project'}, $rev->{'package'}, $ti);
-  }
-  return $lrev;
+  return findcommit($bc, $rev->{'project'}, $rev->{'package'}, $ti, $srcmd5, $linkinfo->{'rev'});
 }
 
 # find the baserev of a link $l for a specific time $ti
@@ -228,16 +258,17 @@ sub doblame_link {
   my $olinkinfo = {};
   my $ofiles = BSRevision::lsrev($orev, $olinkinfo);
 
+  my $oblame = propblame($bc, $blame, $rev, $files, $orev, $ofiles);
+  return unless @$oblame;
+
   # get the local commit from the linkinfo
   my $lrev = getlocalrev($bc, $orev, $ti, $ofiles, $olinkinfo);
   if (!$lrev) {
     print "could not find local commit for $orev->{'project'}/$orev->{'package'}/$orev->{'srcmd5'}\n";
     return;
   }
-
-  # do the blame.
-  my $oblame = propblame($bc, $blame, $rev, $files, $lrev, $ofiles);
-  doblame($bc, $lrev, $ti, $ofiles, $olinkinfo, $oblame) if @$oblame;
+  # recursive call to assign the blame.
+  doblame($bc, $lrev, $ti, $ofiles, $olinkinfo, $oblame);
 }
 
 sub doblame {
@@ -301,7 +332,7 @@ sub blame {
   if (length($rev->{'rev'}) >= 16) {
     my $olinkinfo = {};
     my $ofiles = BSRevision::lsrev($rev, $olinkinfo);
-    $lrev = getlocalrev($bc, $rev, $now, $ofiles, $olinkinfo, 1);
+    $lrev = getlocalrev($bc, $rev, $now, $ofiles, $olinkinfo);
     die("could not get local commit for $rev->{'rev'}\n") unless $lrev;
   }
 
