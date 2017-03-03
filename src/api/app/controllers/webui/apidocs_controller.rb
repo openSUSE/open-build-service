@@ -4,7 +4,7 @@ class Webui::ApidocsController < Webui::WebuiController
     if File.exist?(filename)
       render file: filename, formats: [:html]
     else
-      logger.error "Unable to load apidocs index file from #{CONFIG['apidocs_location'] }. Did you create the apidocs?"
+      logger.error "Unable to load apidocs index file from #{CONFIG['apidocs_location']}. Did you create the apidocs?"
       flash[:error] = "Unable to load API documentation."
       redirect_back(fallback_location: root_path)
     end

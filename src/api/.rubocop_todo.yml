@@ -909,7 +909,6 @@ Style/SpaceInsideRangeLiteral:
 # SupportedStyles: space, no_space
 Style/SpaceInsideStringInterpolation:
   Exclude:
-    - 'app/controllers/webui/apidocs_controller.rb'
     - 'app/models/user_ldap_strategy.rb'
     - 'lib/xpath_engine.rb'
 
