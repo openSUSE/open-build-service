@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/Ana06/rantly.git
+  revision: 4a0b3881ead86b0a265c992607f815c4dd904427
+  branch: failures
+  specs:
+    rantly (1.0.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -234,7 +241,6 @@ GEM
     rainbow (2.1.0)
     raindrops (0.17.0)
     rake (12.0.0)
-    rantly (1.0.0)
     rdoc (5.0.0)
     redcarpet (3.3.4)
     responders (2.2.0)
@@ -396,7 +402,7 @@ DEPENDENCIES
   rails (~> 5.0.1)
   rails-controller-testing
   rails_tokeninput (>= 1.6.1.rc1)
-  rantly
+  rantly!
   rdoc
   redcarpet
   responders (~> 2.0)
