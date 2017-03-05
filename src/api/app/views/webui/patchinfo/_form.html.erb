@@ -9,7 +9,7 @@
           </div>
           <div class="box show_left show_right">
             <p>
-              <strong>Packager:</strong><br/>
+              <strong><label for="packager">Packager:</label></strong><br/>
               <%= text_field_tag 'packager', @packager, required: true %>
               <%= javascript_tag do %>
                   $("#packager").autocomplete({source: '<%= url_for :controller => 'user', :action => 'autocomplete' %>', minLength: 2});
@@ -18,26 +18,26 @@
 
             <p>
               <strong><%= image_tag('info.png', :title => 'Enter a short summary. Mainpackage: shortdescription of the mainfix', :alt => 'Summaryinfo') %>
-                Summary:</strong>
+                <label for="summary">Summary:</label></strong>
 
               <%= text_area_tag 'summary', @summary, :size => '60x1', required: true, min: 10 %>
             </p>
 
             <p>
               <strong><%= image_tag('info.png', :title => 'Enter a full description what the update fixes', :alt => 'Descriptioninfo') %>
-                Description: </strong>
+                <label for="description">Description:</label></strong>
               <%= text_area_tag 'description', @description, :size => '65x9', required: true, min: 10 %>
             </p>
 
             <p>
               <strong><%= image_tag('info.png', :title => 'Choose the category of your update', :alt => 'Categoryinfo') %>
-                Category:</strong>
+                <label for="category">Category:</label></strong>
               <%= select_tag 'category', options_for_select(Patchinfo::CATEGORIES, @category) %>
             </p>
 
             <p>
               <strong><%= image_tag('info.png', :title => 'Select the rating of this update', :alt => 'Ratinginfo') %>
-                Rating:</strong>
+                <label for="rating">Rating:</label></strong>
               <%= select_tag 'rating', options_for_select(Patchinfo::RATINGS, @rating) %>
             </p>
           </div>
@@ -91,13 +91,13 @@
                 Required actions:</strong></p>
 
             <p><%= check_box_tag('zypp_restart_needed', true, @zypp_restart_needed) %>
-              Package-manager restart suggested</p>
+              <label for="zypp_restart_needed">Package-manager restart suggested</label></p>
 
             <p><%= check_box_tag('relogin', true, @relogin) %>
-              Relogin suggested</p>
+              <label for="relogin">Relogin suggested</label></p>
 
             <p><%= check_box_tag('reboot', true, @reboot) %>
-              Reboot suggested</p>
+              <label for="reboot">Reboot suggested</label></p>
           </div>
           <div class="box show_left show_right">
             <p>
