@@ -222,6 +222,12 @@ Performance/StringReplacement:
 
 Rails:
   Enabled: true
+  
+# Enforces that 'exit' calls are not used.
+Rails/Exit:
+  Exclude:
+    - 'lib/memory_dumper.rb'
+    - 'config/deploy.rb'
 
 # Use `find_by` instead `where.first` and `where.take`
 Rails/FindBy:

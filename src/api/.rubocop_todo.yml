@@ -133,16 +133,6 @@ Performance/CompareWithBlock:
 Rails/DynamicFindBy:
   Enabled: false
 
-# Offense count: 4
-# Configuration parameters: Include.
-# Include: app/**/*.rb, config/**/*.rb, lib/**/*.rb
-Rails/Exit:
-  Exclude:
-    - 'lib/**/*.rake'
-    - 'app/jobs/consistency_check.rb'
-    - 'config/deploy.rb'
-    - 'lib/memory_dumper.rb'
-
 # Offense count: 126
 Rails/FilePath:
   Enabled: false
