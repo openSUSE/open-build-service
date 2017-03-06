@@ -35,10 +35,14 @@ class Webui::MainController < Webui::WebuiController
     @busy = Rails.cache.fetch('mainpage_busy', expires_in: 10.minutes) do
       gather_busy
     end
-    @project_count = Project.count
-    @package_count = Package.count
-    @repo_count = Repository.count
-    @user_count = User.count
+    @sysstats = Rails.cache.fetch('sysstats_hash', expires_in: 30.minutes) do
+      sysstats = Hash.new
+      sysstats[:projects] = Project.count
+      sysstats[:packages] = Package.count
+      sysstats[:repos] = Repository.count
+      sysstats[:users] = User.count
+      sysstats
+    end
   end
 
   def sitemap
