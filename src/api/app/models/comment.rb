@@ -7,6 +7,8 @@ class Comment < ApplicationRecord
 
   validates :body, :commentable, :user, presence: true
 
+  validate :validate_parent_id
+
   after_create :create_notification
   after_destroy :delete_parent_if_unused
 
@@ -87,5 +89,11 @@ class Comment < ApplicationRecord
 
   def delete_parent_if_unused
     parent.destroy if parent && parent.user == User.find_nobody! && parent.children.length.zero?
+  end
+
+  def validate_parent_id
+    return unless parent_id
+    return if commentable.comments.where(id: parent_id).present?
+    errors.add(:parent, "belongs to different object")
   end
 end
