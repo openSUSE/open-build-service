@@ -1,0 +1,17 @@
+<p>
+  <% if show_source_fields == true %>
+    <label for="linked_project"><strong>Name of original project:</strong></label><br/>
+    <%= text_field_tag 'linked_project', nil, :size => 80, :id => 'linked_project', required: true %><br/>
+    <label for="linked_package"><strong>Name of package in original project:</strong></label><br/>
+    <%= text_field_tag 'linked_package', nil, :size => 80, :id => 'linked_package', required: true %><br/>
+  <% end %>
+  <label for="target_package"><strong>Name of branched package in target project:</strong></label><br />
+  (If you leave this field blank, the original package name will be used) <br/>
+  <% if !package %>
+    <%= text_field_tag 'target_package', nil, :size => 80 %><br/>
+  <% else %>
+    <%= text_field_tag 'target_package', package.name, :size => 80 %><br/>
+  <% end %>
+  <%= hidden_field_tag 'target_project', @project.name %><br/>
+  <%= check_box_tag 'current_revision', false %>Stay on current revision, don't merge future upstream changes automatically
+</p>

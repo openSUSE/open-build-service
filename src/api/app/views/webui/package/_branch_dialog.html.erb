@@ -5,11 +5,14 @@
         <p>Do you really want to branch <%= package_link(@package) %>?</p>
       </div>
 
-      <%= form_tag({ controller: :package, action: :branch }, method: :post) do %>
+      <%= form_tag controller: :package, action: :branch do %>
+        <%= render partial: 'shared/package_branch_form', locals: {package: @package, show_source_fields: false} %>
+
         <%= hidden_field_tag(:linked_project, @project.name) %>
         <%= hidden_field_tag(:linked_package, @package.name) %>
+
         <div class="dialog-buttons">
-          <%= submit_tag('Ok') %>
+          <%= submit_tag('Branch Package') %>
           <%= link_to('Close', '#', title: 'Close', class: 'close-dialog', data: { target: '#package_branch_dialog' }) %>
         </div>
       <% end %>
