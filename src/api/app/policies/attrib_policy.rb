@@ -3,11 +3,14 @@ class AttribPolicy < ApplicationPolicy
     # Admins can write everything
     return true if @user.is_admin?
 
-    # No specific rules set for the attribute, check if the user can modify the container
-    return true if @record.container.try(:can_be_modified_by?, @user)
-
-    # check for modifiable_by rules
-    permissions_for_modifiables?(modifiables)
+    at_modifiables = modifiables
+    if at_modifiables.empty? && @record.container.present?
+      # No specific rules set for the attribute, check if the user can modify the container
+      @record.container.can_be_modified_by?(@user)
+    else
+      # check for modifiable_by rules
+      permissions_for_modifiables?(at_modifiables)
+    end
   end
 
   def update?
