@@ -1762,9 +1762,21 @@ EOF
     get '/source/kde4/_project/_meta?meta=1'
     assert_response :success
     assert_xml_tag(tag: 'project')
-    get '/source/kde4/_project/_meta?meta=1&rev=latest'
+    get '/source/kde4/_project/_meta?meta=1&rev=1'
     assert_response :success
     assert_xml_tag(tag: 'project')
+  end
+
+  def test_get_package_meta_file
+    get '/source/kde4/kdelibs/_history'
+    assert_response 401
+    prepare_request_with_user 'fredlibs', 'buildservice'
+    get '/source/kde4/kdelibs/_meta?meta=1'
+    assert_response :success
+    assert_xml_tag(tag: 'package')
+    get '/source/kde4/kdelibs/_meta?meta=1&rev=1'
+    assert_response :success
+    assert_xml_tag(tag: 'package')
   end
 
   def test_invalid_package_command
@@ -1813,6 +1825,14 @@ EOF
     assert_match(/#{rev + 1} \(fredlibs .* 1\) dummy1/, @response.body)
     assert_match(/#{rev + 2} \(king     .* 2\) dummy2 king/, @response.body)
     assert_match(/#{rev + 1} \(fredlibs .* 3\) dummy3/, @response.body)
+
+    # meta view needs special routing
+    get '/source/kde4/BLAME/_meta?view=blame&meta=1'
+    assert_response :success
+    assert_match(/^   1 \(fredlibs/, @response.body)
+    get '/source/kde4/_project/_meta?view=blame&meta=1'
+    assert_response :success
+    assert_match(/^   1 \(king/, @response.body)
 
     # cleanup
     delete '/source/kde4/BLAME'
