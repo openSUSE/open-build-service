@@ -252,7 +252,10 @@ sub get_commit {
 sub doblame_link {
   my ($bc, $rev, $ti, $files, $linkinfo, $blame) = @_;
 
-  # get (expanded) filelist
+  # return right away is nothing left to blame
+  return unless grep {defined($_) && !$$_} @$blame;
+
+  # get (expanded) filelist and propagate blame pointers
   BSSrcServer::Link::linkinfo_addtarget($rev, $linkinfo);
   my $orev = $getrev->($linkinfo->{'project'}, $linkinfo->{'package'}, $linkinfo->{'srcmd5'});
   my $olinkinfo = {};
@@ -300,10 +303,11 @@ sub doblame {
     }
 
     # assign remaining blame
-    if (grep {defined($_) && !$$_} @$blame) {
+    my @b = grep {defined($_) && !$$_} @$blame;
+    if (@b) {
       $bc->{'revs'}->{"$rev->{'project'}/$rev->{'package'}/$rev->{'rev'}"} ||= $rev;
       $rev = $bc->{'revs'}->{"$rev->{'project'}/$rev->{'package'}/$rev->{'rev'}"};
-      $$_ ||= $rev for grep {defined($_)} @$blame;
+      $$_ ||= $rev for @b;
     }
   }
 }
