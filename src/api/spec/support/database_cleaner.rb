@@ -1,6 +1,11 @@
 require 'database_cleaner'
 
 RSpec.configure do |config|
+  STATIC_TABLES = %w(roles roles_static_permissions
+                     static_permissions configurations
+                     architectures attrib_types
+                     attrib_namespaces issue_trackers)
+
   # We are using factory_girl to set up everything the test needs up front,
   # instead of loading a set of fixtures in the beginning of the suite
   config.use_transactional_fixtures = false
@@ -15,10 +20,7 @@ RSpec.configure do |config|
     Rails.logger.level = log_level
     # Truncate all tables loaded in db/seeds.rb, except the static ones, in the
     # beginning to be consistent.
-    DatabaseCleaner.clean_with(:truncation, except: %w(roles roles_static_permissions
-                                                       static_permissions configurations
-                                                       architectures attrib_types
-                                                       attrib_namespaces issue_trackers))
+    DatabaseCleaner.clean_with(:truncation, except: STATIC_TABLES)
   end
 
   config.before(:each) do |example|
@@ -26,10 +28,7 @@ RSpec.configure do |config|
     # test suite and the capybara driver do not use the same server thread.
     if example.metadata[:type] == :feature
       # Omit truncating what we have set up in db/seeds.rb except users and roles_user
-      DatabaseCleaner.strategy = :truncation, { except: %w(roles roles_static_permissions
-                                                           static_permissions configurations
-                                                           architectures attrib_types
-                                                           attrib_namespaces issue_trackers) }
+      DatabaseCleaner.strategy = :truncation, { except: STATIC_TABLES }
     else
       DatabaseCleaner.strategy = :transaction
     end
