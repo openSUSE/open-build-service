@@ -9,6 +9,7 @@ $( document ).ready(function() {
             { orderable: false, targets: [1,2,4,6,] }
         ],
         paging: 25,
+        pageLength: 25,
         pagingType: "full_numbers",
         processing: true,
         serverSide: true,
