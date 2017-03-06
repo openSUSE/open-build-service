@@ -737,7 +737,7 @@ class SourceController < ApplicationController
     end
 
     path = Package.source_path(project_name, package_name, file)
-    path += build_query_from_hash(params, [:rev, :meta, :deleted, :limit, :expand])
+    path += build_query_from_hash(params, [:rev, :meta, :deleted, :limit, :expand, :view])
     pass_to_backend path
   end
 
