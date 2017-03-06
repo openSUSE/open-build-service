@@ -53,6 +53,21 @@ RSpec.feature "Attributes", type: :feature, js: true do
         click_link("add-new-attribute")
         expect(page).to have_content("Sorry, you are not authorized to create this Attrib.")
       end
+
+      scenario "add valid attribute with lack of permissions" do
+        # Database cleaner deletes these tables. But we need them for the
+        # permission to function.
+        attrib_type = AttribType.where(name: "VeryImportantProject").first
+        attrib_type.attrib_type_modifiable_bies.create(role: Role.where(title: "Admin").first)
+
+        login user
+
+        visit index_attribs_path(project: user.home_project_name)
+        click_link("Add a new attribute")
+        find("select#attrib_attrib_type_id").select("OBS:VeryImportantProject")
+        click_button("Create Attribute")
+        expect(page).to have_content("Sorry, you are not authorized to create this Attrib.")
+      end
     end
 
     scenario "remove attribute" do
