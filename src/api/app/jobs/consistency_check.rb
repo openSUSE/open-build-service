@@ -48,7 +48,7 @@ class ConsistencyCheckJob < ApplicationJob
     init
     if ENV['project'].blank?
       puts "Please specify the project with 'project=MyProject' on CLI"
-      exit(1)
+      return
     end
     begin
       project = Project.get_by_name(ENV['project'])
