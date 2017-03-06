@@ -417,11 +417,11 @@ module Webui::WebuiHelper
     javascript_toggle_code = "$(\"[data-toggle-id='".html_safe + id + "']\").toggle();".html_safe
     short = content_tag(:span, 'data-toggle-id' => id) do
       content_tag(:span, text.slice(0, slice_length) + ' ') +
-      link_to('[+]', '#', onclick: javascript_toggle_code)
+      link_to('[+]', 'javascript:void(0)', onclick: javascript_toggle_code)
     end
     long = content_tag(:span, 'data-toggle-id' => id, :style => 'display: none;') do
       content_tag(:span, text + ' ') +
-      link_to('[-]', '#', onclick: javascript_toggle_code)
+      link_to('[-]', 'javascript:void(0)', onclick: javascript_toggle_code)
     end
     short + long
   end
