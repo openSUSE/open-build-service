@@ -284,6 +284,10 @@ Rails/Output:
     - 'config/*'
     - 'db/**/*'
     - 'lib/**/*'
+    
+# Checks for the use of methods which skip validations.
+Rails/SkipsModelValidations:
+  Enabled: true
 
 # Checks for the use of old-style attribute validation macros.
 Rails/Validation:

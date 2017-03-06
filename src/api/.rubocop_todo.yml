@@ -184,23 +184,6 @@ Rails/ReversibleMigration:
     - 'db/migrate/20160824132643_fix_bs_request_counter.rb'
     - 'db/migrate/20170103132257_change_project_package_name_to_string.rb'
 
-# Offense count: 14
-# Configuration parameters: Blacklist.
-# Blacklist: decrement!, decrement_counter, increment!, increment_counter, toggle!, touch, update_all, update_attribute, update_column, update_columns, update_counters
-Rails/SkipsModelValidations:
-  Exclude:
-    - 'app/jobs/project_log_rotate.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/package.rb'
-    - 'app/models/package_issue.rb'
-    - 'app/models/updateinfo_counter.rb'
-    - 'db/migrate/20151030130011_mark_events.rb'
-    - 'db/migrate/20161128115942_add_when_attribute_to_bs_request.rb'
-    - 'spec/controllers/webui/user_controller_spec.rb'
-    - 'spec/models/bs_request_action_spec.rb'
-    - 'spec/models/review_spec.rb'
-    - 'test/unit/event_mailer_test.rb'
-
 # Offense count: 78
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: strict, flexible
