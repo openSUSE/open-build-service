@@ -871,4 +871,17 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'project', attributes: { name: 'home:adrian' }
     assert_xml_tag tag: 'collection', children: { count: 1 }
   end
+
+  def test_xpath_search_for_remoteurl
+    login_king
+
+    put '/source/openSUSE.org/_meta', '<project name="openSUSE.org">
+        <title/><description/>
+        <remoteurl>https://api.opensuse.org/public</remoteurl>
+      </project>'
+    get '/search/project', match: 'starts-with(remoteurl, "http")'
+    assert_response :success
+    assert_xml_tag tag: 'collection', children: { count: 3 }
+    assert_xml_tag child: { tag: 'project', attributes: { name: 'openSUSE.org'} }
+  end
 end
