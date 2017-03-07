@@ -454,7 +454,7 @@ sub handleservice {
     $sfiles = BSRevision::lsrev($rrev);
     if ($sfiles->{'_serviceerror'}) {
       my $serror = BSSrcrep::getserviceerror($rev->{'project'}, $rev->{'package'}, $servicemark) || 'unknown service error';
-      die("service error: $serror\n");
+      die($serror eq 'service in progress' ? "$serror\n" : "service error: $serror\n");
     }
   }
   if ($sfiles) {
@@ -470,7 +470,9 @@ sub handleservice {
   }
   # don't have the tree yet
   my $serror = BSSrcrep::getserviceerror($rev->{'project'}, $rev->{'package'}, $servicemark);
-  die("service error: $serror\n") if $serror;
+  if ($serror) {
+    die($serror eq 'service in progress' ? "$serror\n" : "service error: $serror\n");
+  }
   my %nfiles = %$files;
   $nfiles{'/SERVICE'} = $servicemark;
   $rev->{'srcmd5'} = $lsrcmd5;	# put it back so that runservice can put it in /LSRCMD5
