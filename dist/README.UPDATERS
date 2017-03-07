@@ -22,18 +22,25 @@ Note: Update from OBS 2.5 should also work, but is untested.
         cd /srv/www/obs/api/
         RAILS_ENV="production" rails.ruby2.4 db:migrate
 
-  5) Make sure that log and tmp are owned by wwwrun
+  5) Change to ruby2.4
+
+        edit /etc/apache2/conf.d/mod_passenger.conf:
+
+        PassengerRuby "/usr/bin/ruby.ruby2.4"
+
+  6) Make sure that log and tmp are owned by wwwrun
 
         chown -R wwwrun.www /srv/www/obs/api/log
         chown -R wwwrun.www /srv/www/obs/api/tmp
 
-  6) Restart following services in this order
+  7) Restart following services in this order
 
         systemctl restart apache2
         systemctl restart obsapidelayed
         systemctl restart memcached
 
-  7) Enable and start the new services
+  8) Optional: you may enable serivce dispatcher in BSConfig.pm and
+     enable the service
 
         systemctl enable obsservicedispatch
         systemctl start obsservicedispatch
