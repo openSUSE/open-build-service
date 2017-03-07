@@ -87,13 +87,6 @@ OBSApi::Application.routes.draw do
       patch 'architectures/bulk_update_availability' => :bulk_update_availability, as: 'bulk_update_availability'
     end
 
-    controller 'webui/driver_update' do
-      get 'driver_update/create' => :create
-      get 'driver_update/edit' => :edit
-      post 'driver_update/save' => :save
-      get 'driver_update/binaries' => :binaries
-    end
-
     controller 'webui/monitor' do
       get 'monitor/' => :index
       get 'monitor/old' => :old
