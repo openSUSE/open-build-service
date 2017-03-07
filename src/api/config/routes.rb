@@ -345,7 +345,8 @@ OBSApi::Application.routes.draw do
     resources :comments, constraints: cons, only: [:create, :destroy], controller: 'webui/comments'
 
     ### /apidocs
-    get 'apidocs(/index)' => 'webui/apidocs#index'
+    get 'apidocs', to: redirect('/apidocs/index')
+    get 'apidocs/(index)' => 'webui/apidocs#index', as: 'apidocs_index'
   end
 
   ### /worker
