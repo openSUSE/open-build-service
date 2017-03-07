@@ -963,17 +963,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/source/#{incidentProject}?cmd=set_flag&flag=lock&status=disable"
     assert_response :success
 
-    # set an invalid
-    post "/source/#{incidentProject}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
-    assert_response :forbidden
-
-    # Note: EmbargoDate is needed for test for releasing packages
-    # Allow maintenance_coord user to change EmbargoDate
-    attrib_type = AttribType.where(name: "EmbargoDate").first
-    attrib_type.attrib_namespace.attrib_namespace_modifiable_bies.create(user: User.where(login: "maintenance_coord").first)
-    post "/source/#{incidentProject}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
-    assert_response :success
-
     # create some changes, including issue tracker references
     Timecop.freeze(1)
     put '/source/' + incidentProject + '/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', params: 'DUMMY bnc#1042'
@@ -1414,6 +1403,21 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get comments_request_path(id: reqid)
     assert_xml_tag tag: 'comment', attributes: { who: 'king' }, content: 'Release it now!'
 
+    # Note: This is also preparation for testing release of packages, which
+    #       relies on EmbargoDate
+    # set an invalid embargo date first
+    prepare_request_with_user 'maintenance_coord', 'buildservice'
+    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
+    assert_response :forbidden
+
+    # Allow maintenance_coord user to change EmbargoDate
+    attrib_type = AttribType.where(name: "EmbargoDate").first
+    attrib_type.attrib_namespace.attrib_namespace_modifiable_bies.create(user: User.where(login: "maintenance_coord").first)
+    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
+    assert_response :success
+
+    login_king
+
     #### blocked attempt to release packages
     # block the release until tomorrow
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
@@ -1430,7 +1434,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: "under_embargo" })
-    # set it to yesterday, so it works below
+
+    # set embargo date to yesterday, so it works below
     post "/source/#{incidentProject}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{DateTime.now.yesterday.year}-#{DateTime.now.yesterday.month}-#{DateTime.now.yesterday.day}</value></attribute></attributes>"
     assert_response :success
 
