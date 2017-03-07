@@ -57,57 +57,57 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_search_issues
-    get "/search/package/id", match: 'issue/@name="123456"'
+    get "/search/package/id", params: { match: 'issue/@name="123456"' }
     assert_response 401
-    get "/search/package/id", match: 'issue/@tracker="bnc"'
+    get "/search/package/id", params: { match: 'issue/@tracker="bnc"' }
     assert_response 401
-    get "/search/package/id", match: 'issue/[@name="123456" and @tracker="bnc"]'
+    get "/search/package/id", params: { match: 'issue/[@name="123456" and @tracker="bnc"]' }
     assert_response 401
-    get "/search/package/id", match: 'issue/owner/@login="fred"'
+    get "/search/package/id", params: { match: 'issue/owner/@login="fred"' }
     assert_response 401
-    get "/search/package/id", match: 'issue/@state="RESOLVED"'
+    get "/search/package/id", params: { match: 'issue/@state="RESOLVED"' }
     assert_response 401
 
     # search via bug owner
     login_Iggy
 
     # running patchinfo search as done by webui
-    get "/search/package/id", match: '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="patchinfo"]'
+    get "/search/package/id", params: { match: '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="patchinfo"]' }
     assert_response :success
     assert_xml_tag parent: { tag: "collection" }, tag: "package", attributes: { project: 'BaseDistro', name: 'patchinfo' }
-    get "/search/package/id", match: '[issue/[@state="OPEN" and owner/@login="king"] and kind="patchinfo"]'
+    get "/search/package/id", params: { match: '[issue/[@state="OPEN" and owner/@login="king"] and kind="patchinfo"]' }
     assert_response :success
     assert_xml_tag parent: { tag: "collection" }, tag: "package", attributes: { project: 'BaseDistro', name: 'patchinfo' }
 
     # validate that state and login are from same issue. NOT matching:
-    get "/search/package/id", match: '[issue/[@state="CLOSED" and owner/@login="king"] and kind="patchinfo"]'
+    get "/search/package/id", params: { match: '[issue/[@state="CLOSED" and owner/@login="king"] and kind="patchinfo"]' }
     assert_response :success
     assert_no_xml_tag parent: { tag: "collection" }, tag: "package", attributes: { project: 'BaseDistro', name: 'patchinfo' }
 
-    get "/search/package/id", match: 'issue/owner/@login="fred"'
+    get "/search/package/id", params: { match: 'issue/owner/@login="fred"' }
     assert_response :success
     assert_xml_tag parent: { tag: "collection" }, tag: "package", attributes: { project: 'BaseDistro', name: 'patchinfo' }
 
     # search for specific issue state, issue is in RESOLVED state actually
-    get "/search/package/id", match: 'issue/@state="OPEN"'
+    get "/search/package/id", params: { match: 'issue/@state="OPEN"' }
     assert_response :success
     assert_xml_tag parent: { tag: "collection" }, tag: "package", attributes: { project: 'BaseDistro', name: 'patchinfo' }
 
     # running patchinfo search as done by webui
-    get "/search/package/id", match: '[kind="patchinfo" and issue/[@state="CLOSED" and owner/@login="fred"]]'
+    get "/search/package/id", params: { match: '[kind="patchinfo" and issue/[@state="CLOSED" and owner/@login="fred"]]' }
     assert_response :success
     assert_xml_tag parent: { tag: "collection" }, tag: "package", attributes: { project: 'BaseDistro', name: 'patchinfo' }
 
     # test with not matching kind to verify that it does not match
-    get "/search/package/id", match: '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="aggregate"]'
+    get "/search/package/id", params: { match: '[issue/[@state="CLOSED" and owner/@login="fred"] and kind="aggregate"]' }
     assert_response :success
     assert_no_xml_tag parent: { tag: "collection" }, tag: "package", attributes: { project: 'BaseDistro', name: 'patchinfo' }
 
     # search via bug issue id
-    get "/search/package/id", match: '[issue/[@name="123456" and @tracker="bnc"]]'
+    get "/search/package/id", params: { match: '[issue/[@name="123456" and @tracker="bnc"]]' }
     assert_response :success
     assert_xml_tag parent: { tag: "collection" }, tag: "package", attributes: { project: 'BaseDistro', name: 'patchinfo' }
-    get "/search/package/id", match: '[issue/[@tracker="bnc" and @name="123456"]]' # SQL keeps working
+    get "/search/package/id", params: { match: '[issue/[@tracker="bnc" and @name="123456"]]' } # SQL keeps working
     assert_response :success
     assert_xml_tag parent: { tag: "collection" }, tag: "package", attributes: { project: 'BaseDistro', name: 'patchinfo' }
   end
@@ -122,20 +122,18 @@ Blubber bnc#15\n
 "
 
     login_Iggy
-    post "/source/BaseDistro/pack1", cmd: "branch", target_project: "home:Iggy:branches:BaseDistro"
+    post "/source/BaseDistro/pack1", params: { cmd: "branch", target_project: "home:Iggy:branches:BaseDistro" }
     assert_response :success
-    put "/source/home:Iggy:branches:BaseDistro/pack1/file.changes", changes
+    put "/source/home:Iggy:branches:BaseDistro/pack1/file.changes", params: changes
     assert_response :success
-    post "/source/home:Iggy:branches:BaseDistro/pack1",
-         cmd: "branch", target_project: "home:Iggy:branches:BaseDistro",
-         target_package: "pack_new"
+    post "/source/home:Iggy:branches:BaseDistro/pack1", params: { cmd: "branch", target_project: "home:Iggy:branches:BaseDistro", target_package: "pack_new" }
     assert_response :success
     changes += "-------------------------------------------------------------------\n
 Aha bnc#123456\n
 "
     changes.gsub!(/Blubber/, 'Blabber') # leads to changed
     changes.gsub!(/bnc#14/, '') # leads to removed
-    put "/source/home:Iggy:branches:BaseDistro/pack_new/file.changes", changes
+    put "/source/home:Iggy:branches:BaseDistro/pack_new/file.changes", params: changes
     assert_response :success
 
     # add some more via attribute
@@ -143,7 +141,7 @@ Aha bnc#123456\n
               <issue name='987' tracker='bnc'/>
               <issue name='654' tracker='bnc'/>
             </attribute></attributes>"
-    post "/source/home:Iggy:branches:BaseDistro/pack_new/_attribute", data
+    post "/source/home:Iggy:branches:BaseDistro/pack_new/_attribute", params: data
     assert_response :success
 
     get "/source/home:Iggy:branches:BaseDistro/pack1?view=issues"
@@ -212,23 +210,23 @@ Aha bnc#123456\n
     assert_response :success
     assert_xml_tag parent: { tag: 'issue', attributes: {change: 'added'}}, tag: 'name', content: "123456"
 
-    get "/search/package/id", match: '[issue/[@name="123456" and @tracker="bnc" and @change="added"]]'
+    get "/search/package/id", params: { match: '[issue/[@name="123456" and @tracker="bnc" and @change="added"]]' }
     assert_response :success
     assert_xml_tag parent: { tag: "collection" }, tag: "package",
                    attributes: { project: 'home:Iggy:branches:BaseDistro', name: 'pack_new' }
 
-    get "/search/package/id", match: '[issue/[@name="123456" and @tracker="bnc" and (@change="added" or @change="changed")]]'
+    get "/search/package/id", params: { match: '[issue/[@name="123456" and @tracker="bnc" and (@change="added" or @change="changed")]]' }
     assert_response :success
     assert_xml_tag parent: { tag: "collection" }, tag: "package",
                    attributes: { project: 'home:Iggy:branches:BaseDistro', name: 'pack_new' }
 
-    get "/search/package/id", match: '[issue/[@name="123456" and @tracker="bnc" and @change="kept"]]'
+    get "/search/package/id", params: { match: '[issue/[@name="123456" and @tracker="bnc" and @change="kept"]]' }
     assert_response :success
     assert_no_xml_tag parent: { tag: "collection" }, tag: "package",
                       attributes: { project: 'home:Iggy:branches:BaseDistro', name: 'pack_new' }
 
     # search for attribute issues
-    get "/search/package/id", match: '[attribute_issue/[@name="987" and @tracker="bnc"]]'
+    get "/search/package/id", params: { match: '[attribute_issue/[@name="987" and @tracker="bnc"]]' }
     assert_response :success
     assert_xml_tag parent: { tag: "collection" }, tag: "package",
                    attributes: { project: 'home:Iggy:branches:BaseDistro', name: 'pack_new' }
@@ -248,19 +246,18 @@ Blubber bnc#15\n
 "
 
     login_Iggy
-    post "/source/BaseDistro/pack1", cmd: "branch", target_project: "home:Iggy:branches:BaseDistro"
+    post "/source/BaseDistro/pack1", params: { cmd: "branch", target_project: "home:Iggy:branches:BaseDistro" }
     assert_response :success
-    put "/source/home:Iggy:branches:BaseDistro/pack1/file.changes", changes
+    put "/source/home:Iggy:branches:BaseDistro/pack1/file.changes", params: changes
     assert_response :success
-    post "/source/home:Iggy:branches:BaseDistro/pack1",
-         cmd: "branch", target_project: "home:Iggy:branches:BaseDistro", target_package: "pack_new"
+    post "/source/home:Iggy:branches:BaseDistro/pack1", params: { cmd: "branch", target_project: "home:Iggy:branches:BaseDistro", target_package: "pack_new" }
     assert_response :success
     changes += "-------------------------------------------------------------------\n
 Aha bnc#123456\n
 "
     changes.gsub!(/Blubber/, 'Blabber') # leads to changed
     changes.gsub!(/bnc#14/, '') # leads to removed
-    put "/source/home:Iggy:branches:BaseDistro/pack_new/file.changes?rev=repository", changes
+    put "/source/home:Iggy:branches:BaseDistro/pack_new/file.changes?rev=repository", params: changes
     assert_response :success
     raw_post "/source/home:Iggy:branches:BaseDistro/pack_new?cmd=commitfilelist&keeplink=1",
              ' <directory> <entry name="file.changes" md5="' + Digest::MD5.hexdigest(changes) + '" /> </directory> '
@@ -290,11 +287,11 @@ Blubber bnc#15\n
 "
 
     login_Iggy
-    post "/source/BaseDistro/new_package", cmd: "branch", missingok: 1, target_project: "home:Iggy:branches:BaseDistro"
+    post "/source/BaseDistro/new_package", params: { cmd: "branch", missingok: 1, target_project: "home:Iggy:branches:BaseDistro" }
     assert_response :success
-    put "/source/home:Iggy:branches:BaseDistro/new_package/file.changes", changes
+    put "/source/home:Iggy:branches:BaseDistro/new_package/file.changes", params: changes
     assert_response :success
-    put "/source/home:Iggy:branches:BaseDistro/new_package/file.changes?rev=repository", changes
+    put "/source/home:Iggy:branches:BaseDistro/new_package/file.changes?rev=repository", params: changes
     assert_response :success
     raw_post "/source/home:Iggy:branches:BaseDistro/new_package?cmd=commitfilelist&keeplink=1",
              ' <directory> <entry name="file.changes" md5="' + Digest::MD5.hexdigest(changes) + '" /> </directory> '
@@ -320,7 +317,7 @@ Blah FATE#14\n
 Blubber Fate#15\n
 "
     login_Iggy
-    put "/source/home:Iggy/TestPack/file.changes", changes
+    put "/source/home:Iggy/TestPack/file.changes", params: changes
     assert_response :success
 
     get "/source/home:Iggy/TestPack?view=issues"

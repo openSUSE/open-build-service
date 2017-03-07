@@ -62,15 +62,15 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
              </distributions>
              '
 
-    put "/distributions", data
+    put "/distributions", params: data
     assert_response 401
 
     login_tom
-    put "/distributions", data
+    put "/distributions", params: data
     assert_response 403
 
     login_king
-    put "/distributions", data
+    put "/distributions", params: data
     assert_response 200
 
     login_tom

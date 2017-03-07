@@ -21,25 +21,25 @@ class MessageControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( tag: 'messages')
 
-    post '/message/1', '<hallo/>'
+    post '/message/1', params: '<hallo/>'
     assert_response 404
 
-    put '/message', '<hallo/>'
+    put '/message', params: '<hallo/>'
     assert_response 400
     assert_match(/validation error/, @response.body)
 
-    put '/message', '<message severity="1" send_mail="true" private="true">sample message...</message>'
+    put '/message', params: '<message severity="1" send_mail="true" private="true">sample message...</message>'
     assert_response 400
     assert_match(/must give either project or package/, @response.body)
 
-    put '/message?package=TestPack', '<message severity="1" send_mail="true" private="true">sample message...</message>'
+    put '/message?package=TestPack', params: '<message severity="1" send_mail="true" private="true">sample message...</message>'
     assert_response 400
     assert_match(/must give either project or package/, @response.body)
 
-    put '/message?project=home:Iggy', '<message severity="1" send_mail="true" private="true">sample message...</message>'
+    put '/message?project=home:Iggy', params: '<message severity="1" send_mail="true" private="true">sample message...</message>'
     assert_response 403 # so close!
 
-    put '/message?project=home:tom', '<message severity="1" send_mail="true" private="true">sample message...</message>'
+    put '/message?project=home:tom', params: '<message severity="1" send_mail="true" private="true">sample message...</message>'
     assert_response 200
 
     get '/message'
@@ -61,7 +61,7 @@ class MessageControllerTest < ActionDispatch::IntegrationTest
     end
 
     login_Iggy
-    put '/message?project=home:Iggy&package=TestPack', '<message severity="1" send_mail="true" private="true">sample message...</message>'
+    put '/message?project=home:Iggy&package=TestPack', params: '<message severity="1" send_mail="true" private="true">sample message...</message>'
     assert_response 200
 
     get '/message'

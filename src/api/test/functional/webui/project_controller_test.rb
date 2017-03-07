@@ -744,7 +744,7 @@ XML
     put '/source/home:Iggy/_config?' + {
         project: 'home:Iggy',
         comment: 'Updated by test'
-      }.to_query, project_config
+      }.to_query, params: project_config
     assert_response :success
   end
 end

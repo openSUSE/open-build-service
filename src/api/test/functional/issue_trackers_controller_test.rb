@@ -29,13 +29,13 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
       <show-url>http://example.com/@@@</show-url>
     </issue-tracker>
     EOF
-    post '/issue_trackers', issue_tracker_xml
+    post '/issue_trackers', params: issue_tracker_xml
     assert_response 401
     login_adrian
-    post '/issue_trackers', issue_tracker_xml
+    post '/issue_trackers', params: issue_tracker_xml
     assert_response 403
     login_king
-    post '/issue_trackers', issue_tracker_xml
+    post '/issue_trackers', params: issue_tracker_xml
     assert_response :success
 
     # Show the newly created issue tracker
@@ -69,10 +69,10 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     </issue-tracker>
     EOF
     login_adrian
-    put '/issue_trackers/test', issue_tracker_xml
+    put '/issue_trackers/test', params: issue_tracker_xml
     assert_response 403
     login_king
-    put '/issue_trackers/test', issue_tracker_xml
+    put '/issue_trackers/test', params: issue_tracker_xml
     assert_response :success
     get '/issue_trackers/test'
     assert_response :success

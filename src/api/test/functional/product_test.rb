@@ -56,8 +56,7 @@ class ProductTests < ActionDispatch::IntegrationTest
 
   def test_simple_product_file
     login_tom
-    put "/source/home:tom:temporary/_meta",
-        '<project name="home:tom:temporary"> <title/> <description/>
+    put "/source/home:tom:temporary/_meta", params: '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me" />
            <repository name="images">
              <arch>local</arch>
@@ -66,15 +65,13 @@ class ProductTests < ActionDispatch::IntegrationTest
            </repository>
          </project>'
     assert_response :success
-    put '/source/home:tom:temporary/_config?user=tom', "Type: kiwi\nRepotype: none\nSubstitute: kiwi-packagemanager:instsource package\nRequired: kiwi"
+    put '/source/home:tom:temporary/_config?user=tom', params: "Type: kiwi\nRepotype: none\nSubstitute: kiwi-packagemanager:instsource package\nRequired: kiwi"
     assert_response :success
-    put "/source/home:tom:temporary/_product/_meta",
-        '<package project="home:tom:temporary" name="_product"> <title/> <description/>
+    put "/source/home:tom:temporary/_product/_meta", params: '<package project="home:tom:temporary" name="_product"> <title/> <description/>
             <person userid="adrian" role="maintainer" />
          </package>'
     assert_response :success
-    put "/source/home:tom:temporary:link/_meta",
-        '<project name="home:tom:temporary:link"> <title/> <description/>
+    put "/source/home:tom:temporary:link/_meta", params: '<project name="home:tom:temporary:link"> <title/> <description/>
            <link project="home:tom:temporary" />
            <repository name="me" />
          </project>'
@@ -150,15 +147,14 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_equal pm.repository.name, "BaseDistro_repo"
 
     # invalid uploads
-    put "/source/home:tom:temporary/_product/obs.group",
-        File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group").read
+    put "/source/home:tom:temporary/_product/obs.group", params: File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group").read
     assert_response 400
     assert_xml_tag tag: "status", attributes: { code: '400', origin: 'backend' }
     assert_match(/Illegal support key ILLEGAL for obs-server/, @response.body)
 
     # check scheduling
     login_king
-    put "/source/home:Iggy/TestPack/DUMMY_CHANGE", "JUST TO TRIGGER A BUILD"
+    put "/source/home:Iggy/TestPack/DUMMY_CHANGE", params: "JUST TO TRIGGER A BUILD"
     assert_response :success
     login_tom
     run_scheduler('i586')
@@ -206,17 +202,14 @@ class ProductTests < ActionDispatch::IntegrationTest
 
   def test_sle11_product_file
     login_tom
-    put "/source/home:tom:temporary/_meta",
-        '<project name="home:tom:temporary"> <title/> <description/>
+    put "/source/home:tom:temporary/_meta", params: '<project name="home:tom:temporary"> <title/> <description/>
          </project>'
     assert_response :success
-    put "/source/home:tom:temporary/_product/_meta",
-        '<package project="home:tom:temporary" name="_product"> <title/> <description/>
+    put "/source/home:tom:temporary/_product/_meta", params: '<package project="home:tom:temporary" name="_product"> <title/> <description/>
             <person userid="adrian" role="maintainer" />
          </package>'
     assert_response :success
-    put "/source/home:tom:temporary:link/_meta",
-        '<project name="home:tom:temporary:link"> <title/> <description/>
+    put "/source/home:tom:temporary:link/_meta", params: '<project name="home:tom:temporary:link"> <title/> <description/>
            <link project="home:tom:temporary" />
            <repository name="me">
              <arch>x86_64</arch>
@@ -224,8 +217,7 @@ class ProductTests < ActionDispatch::IntegrationTest
          </project>'
     assert_response :success
     # and set release target
-    put "/source/home:tom:temporary/_meta",
-        '<project name="home:tom:temporary"> <title/> <description/>
+    put "/source/home:tom:temporary/_meta", params: '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me" >
              <releasetarget project="home:tom:temporary:link" repository="me" trigger="manual" />
              <arch>x86_64</arch>
@@ -340,19 +332,17 @@ class ProductTests < ActionDispatch::IntegrationTest
 
   def test_submit_request
     login_tom
-    put "/source/home:tom:temporary/_meta",
-        '<project name="home:tom:temporary"> <title/> <description/>
+    put "/source/home:tom:temporary/_meta", params: '<project name="home:tom:temporary"> <title/> <description/>
          </project>'
     assert_response :success
-    put "/source/home:tom:temporary/_product/_meta",
-        '<package project="home:tom:temporary" name="_product"> <title/> <description/>
+    put "/source/home:tom:temporary/_product/_meta", params: '<package project="home:tom:temporary" name="_product"> <title/> <description/>
             <person userid="adrian" role="maintainer" />
          </package>'
     assert_response :success
 
     # branch
     login_adrian
-    post '/source/home:tom:temporary/_product', cmd: :branch
+    post '/source/home:tom:temporary/_product', params: { cmd: :branch }
     assert_response :success
 
     # upload sources in right order
@@ -370,7 +360,7 @@ class ProductTests < ActionDispatch::IntegrationTest
             </action>
             <description>SUBMIT</description>
           </request>"
-    post '/request?cmd=create', req
+    post '/request?cmd=create', params: req
     assert_response :success
     assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)

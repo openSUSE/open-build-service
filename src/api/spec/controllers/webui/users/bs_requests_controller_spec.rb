@@ -7,7 +7,7 @@ RSpec.describe Webui::Users::BsRequestsController do
 
   describe 'GET #index' do
     before do
-      get :index, user: user, format: :json, length: 10, start: 0
+      get :index, params: { user: user, format: :json, length: 10, start: 0 }
     end
 
     it { expect(response).to have_http_status(:success) }

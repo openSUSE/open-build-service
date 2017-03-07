@@ -44,11 +44,11 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_modify_and_delete_group
     xml = "<group><title>new_group</title></group>"
-    put "/group/new_group", xml
+    put "/group/new_group", params: xml
     assert_response 401
 
     prepare_request_valid_user
-    put "/group/new_group", xml
+    put "/group/new_group", params: xml
     assert_response 403
     delete "/group/new_group"
     assert_response 404
@@ -60,29 +60,29 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     delete "/group/new_group"
     assert_response 404
-    put "/group/test_group", xml
+    put "/group/test_group", params: xml
     assert_response 400
     assert_xml_tag tag: 'status', attributes: {code: "invalid_parameter"}
     assert_xml_tag tag: 'summary', content: "group name from path and xml mismatch"
-    put "/group/NOT_EXISTING_group", xml
+    put "/group/NOT_EXISTING_group", params: xml
     assert_response 400
     assert_xml_tag tag: 'status', attributes: {code: "invalid_parameter"}
     assert_xml_tag tag: 'summary', content: "group name from path and xml mismatch"
-    put "/group/new_group", xml
+    put "/group/new_group", params: xml
     assert_response :success
 
     # add a user
     xml2 = "<group><title>new_group</title> <email>obs@obs.com</email>
               <person><person userid='fred' /></person>
             </group>"
-    put "/group/new_group", xml2
+    put "/group/new_group", params: xml2
     assert_response :success
     get "/group/new_group"
     assert_response :success
     assert_xml_tag tag: 'email', content: "obs@obs.com"
 
     login_Iggy # not a group maintainer (yet)
-    put "/group/new_group", xml2
+    put "/group/new_group", params: xml2
     assert_response 403
 
     # double save is done by webui, we need to support it. Drop email adress also
@@ -91,7 +91,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
               <maintainer userid='Iggy' />
               <person><person userid='fred' /><person userid='fred' /></person>
             </group>"
-    put "/group/new_group", xml2
+    put "/group/new_group", params: xml2
     assert_response :success
     get "/group/new_group"
     assert_response :success
@@ -101,14 +101,14 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
     # check permissions
     login_adrian
-    put "/group/new_group", xml2
+    put "/group/new_group", params: xml2
     assert_response 403
     login_Iggy # group maintainer
-    put "/group/new_group", xml2
+    put "/group/new_group", params: xml2
     assert_response :success
 
     # remove user
-    put "/group/new_group", xml
+    put "/group/new_group", params: xml
     assert_response :success
     get "/group/new_group"
     assert_response :success
@@ -124,11 +124,11 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
   def test_add_and_remove_users_from_group
     prepare_request_valid_user
-    post "/group/test_group", cmd: "add_user", userid: "Iggy"
+    post "/group/test_group", params: { cmd: "add_user", userid: "Iggy" }
     assert_response 403
-    post "/group/test_group", cmd: "remove_user", userid: "Iggy"
+    post "/group/test_group", params: { cmd: "remove_user", userid: "Iggy" }
     assert_response 403
-    post "/group/test_group", cmd: "set_email", email: "obs@obs.de"
+    post "/group/test_group", params: { cmd: "set_email", email: "obs@obs.de" }
     assert_response 403
     get "/group/test_group"
     assert_response :success
@@ -136,20 +136,20 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
     # as admin
     login_king
-    post "/group/test_group", cmd: "add_user", userid: "Iggy"
+    post "/group/test_group", params: { cmd: "add_user", userid: "Iggy" }
     assert_response :success
     # double add is a dummy operation, but needs to work for webui
-    post "/group/test_group", cmd: "add_user", userid: "Iggy"
+    post "/group/test_group", params: { cmd: "add_user", userid: "Iggy" }
     assert_response :success
-    post "/group/test_group", cmd: "set_email", email: "email@me"
+    post "/group/test_group", params: { cmd: "set_email", email: "email@me" }
     assert_response :success
     get "/group/test_group"
     assert_response :success
     assert_xml_tag tag: 'person', attributes: {userid: 'Iggy'}
     assert_xml_tag tag: 'email', content: "email@me"
-    post "/group/test_group", cmd: "remove_user", userid: "Iggy"
+    post "/group/test_group", params: { cmd: "remove_user", userid: "Iggy" }
     assert_response :success
-    post "/group/test_group", cmd: "set_email"
+    post "/group/test_group", params: { cmd: "set_email" }
     assert_response :success
     get "/group/test_group"
     assert_response :success

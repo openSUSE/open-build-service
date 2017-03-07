@@ -479,7 +479,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_text "Revision Log of pack2 (3)"
 
     login_king
-    20.times { |i| put '/source/BaseDistro2.0/pack2/dummy', i.to_s }
+    20.times { |i| put '/source/BaseDistro2.0/pack2/dummy', params: i.to_s }
     visit package_view_revisions_path(project: 'BaseDistro2.0', package: 'pack2')
     page.must_have_text "Revision Log of pack2 (23)"
     all(:css, 'div.commit_item').count.must_equal 20
@@ -571,7 +571,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     click_button "Save changes"
 
     # add 6 new revision to source package
-    6.times { |i| put '/source/BaseDistro2.0/tst_pack/rev_file_test', "revision #{(i + 1)}" }
+    6.times { |i| put '/source/BaseDistro2.0/tst_pack/rev_file_test', params: "revision #{(i + 1)}" }
     # check latest revision
     visit project_show_path(project: "BaseDistro2.0")
     click_link "tst_pack"

@@ -23,7 +23,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
   def upload_request(filename)
     req = load_backend_file("request/#{filename}")
-    post "/request?cmd=create", req
+    post "/request?cmd=create", params: req
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     node.value :id

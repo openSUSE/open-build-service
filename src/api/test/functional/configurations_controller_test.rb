@@ -20,7 +20,7 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     get '/configuration' # default
     assert_response :success
     config = @response.body
-    put '/configuration', config
+    put '/configuration', params: config
     assert_response 403 # Normal users can't change site-wide configuration
 
     login_king # User with admin rights
@@ -54,7 +54,7 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     ::Configuration::OPTIONS_YML[:registration] = nil
 
     # reset
-    put '/configuration', config
+    put '/configuration', params: config
     assert_response :success
 
     login_tom

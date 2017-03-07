@@ -83,11 +83,11 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     get "/public/lastevents"
     assert_response :success
     # new method (OBS 2.3)
-    post "/public/lastevents", nil
+    post "/public/lastevents"
     assert_response :success
     # new method (OBS 2.3) using credentials
     login_tom
-    post "/lastevents", nil
+    post "/lastevents"
     assert_response :success
   end
 

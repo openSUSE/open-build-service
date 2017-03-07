@@ -998,8 +998,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
   def test_tags_by_user_and_object_put_for_a_project
     # Precondition check: Get all tags for Iggy and the home:project.
     login_Iggy
-    get "/tag/get_tags_by_user_and_project", project: 'home:Iggy',
-    user: 'Iggy'
+    get "/tag/get_tags_by_user_and_project", params: { project: 'home:Iggy', user: 'Iggy' }
     assert_response :success
     # checking response-data
     assert_xml_tag tag: "tags",
@@ -1034,7 +1033,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     end
 
     # add tags
-    put url_for(controller: :tag, action: :tags_by_user_and_object, project: 'home:Iggy', user: 'Iggy'), xml.to_s
+    put url_for(controller: :tag, action: :tags_by_user_and_object, project: 'home:Iggy', user: 'Iggy'), params: xml.to_s
     assert_response :success
 
     # Get data again and check that tags where added or removed
@@ -1064,8 +1063,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
   def test_tags_by_user_and_object_put_for_a_package
     # Precondition check: Get all tags for Iggy and a package.
     login_Iggy
-    get "/tag/get_tags_by_user_and_package", project: 'home:Iggy',
-    package: 'TestPack', user: 'Iggy'
+    get "/tag/get_tags_by_user_and_package", params: { project: 'home:Iggy', package: 'TestPack', user: 'Iggy' }
     assert_response :success
     # checking response-data
     assert_xml_tag tag: "tags",
@@ -1103,7 +1101,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     # add tags
     put url_for(controller: :tag, action: :tags_by_user_and_object, project: 'home:Iggy',
     package: "TestPack",
-    user: 'Iggy'), xml.to_s
+    user: 'Iggy'), params: xml.to_s
     assert_response :success
 
     # Get data again and check that tags where added or removed
@@ -1152,13 +1150,13 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     # put request for an unknown user
     put url_for(controller: :tag, action: :tags_by_user_and_object, project: 'home:Iggy',
       package: "TestPack",
-      user: 'Alien'), xml.to_s
+      user: 'Alien'), params: xml.to_s
     assert_response 404
 
     # put request for another user than the logged on user.
     put url_for(controller: :tag, action: :tags_by_user_and_object, project: 'home:Iggy',
       package: "TestPack",
-      user: 'fred'), xml.to_s
+      user: 'fred'), params: xml.to_s
     assert_response 403
   end
 
@@ -1166,13 +1164,11 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
 
     # put request for an unknown project
-    get "/tag/tags_by_user_and_object", project: 'AlienProject', user: 'Iggy'
+    get "/tag/tags_by_user_and_object", params: { project: 'AlienProject', user: 'Iggy' }
     assert_response 404
 
     # put request for an unknown package
-    get "/tag/tags_by_user_and_object", project: 'home:Iggy',
-      package: "AlienPackage",
-      user: 'Iggy'
+    get "/tag/tags_by_user_and_object", params: { project: 'home:Iggy', package: "AlienPackage", user: 'Iggy' }
     assert_response 404
   end
 end

@@ -13,7 +13,7 @@ class CrossBuildTest < ActionDispatch::IntegrationTest
     skip("hostsystem cleanup is currently broken, but neither supported")
     # best fix would be to drop the support again most likely
     login_tom
-    put "/source/home:tom:CrossBuild/_meta", "<project name='home:tom:CrossBuild'> <title/> <description/>
+    put "/source/home:tom:CrossBuild/_meta", params: "<project name='home:tom:CrossBuild'> <title/> <description/>
             <repository name='standard'>
               <path repository='BaseDistro_repo' project='BaseDistro' />
               <hostsystem repository='BaseDistro2_repo' project='BaseDistro2.0' />
@@ -25,7 +25,7 @@ class CrossBuildTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: "path", attributes: { project: 'BaseDistro', repository: 'BaseDistro_repo' }
     assert_xml_tag tag: "hostsystem", attributes: { project: 'BaseDistro2.0', repository: 'BaseDistro2_repo' }
 
-    put "/source/home:tom:CrossBuild/_meta", "<project name='home:tom:CrossBuild'> <title/> <description/>
+    put "/source/home:tom:CrossBuild/_meta", params: "<project name='home:tom:CrossBuild'> <title/> <description/>
             <repository name='standard'>
               <path repository='BaseDistro_repo' project='BaseDistro' />
               <hostsystem repository='nada' project='HiddenProject' />

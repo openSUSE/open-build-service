@@ -24,14 +24,14 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 #
   def test_large_channel_test
     login_king
-    put '/source/BaseDistro3/pack2/file', 'NOOP'
+    put '/source/BaseDistro3/pack2/file', params: 'NOOP'
     assert_response :success
     # setup maintained attributes
     prepare_request_with_user 'maintenance_coord', 'buildservice'
     # single packages
-    post '/source/BaseDistro2.0/pack2/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/BaseDistro2.0/pack2/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
-    post '/source/BaseDistro3/pack2/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/BaseDistro3/pack2/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
 
     # search for maintained packages like osc is doing
@@ -41,13 +41,13 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # do the real mbranch for default maintained packages
     login_tom
-    post '/source', cmd: 'branch', package: 'pack2'
+    post '/source', params: { cmd: 'branch', package: 'pack2' }
     assert_response :success
 
     # validate result is done in project wide test case
 
     # try to create a request without a change
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro3" />
                                      <options>
@@ -60,7 +60,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 400
     assert_xml_tag( tag: 'status', attributes: { code: 'missing_action' } )
     # also for entire project
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2"/>
                                      <options>
@@ -74,14 +74,14 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( tag: 'status', attributes: { code: 'missing_action' } )
 
     # do some file changes
-    put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/new_file', 'new_content_0815'
+    put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/new_file', params: 'new_content_0815'
     assert_response :success
-    put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/file', 'new_content_2137'
+    put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/file', params: 'new_content_2137'
     assert_response :success
 
     # create maintenance request for one package
     # without specifing target, the default target must get found via attribute
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro3" />
                                      <options>
@@ -99,7 +99,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     id1 = node.value(:id)
 
     # validate that request is diffable (not broken)
-    post "/request/#{id1}?cmd=diff&view=xml", nil
+    post "/request/#{id1}?cmd=diff&view=xml"
     assert_response :success
     # the diffed packages
     assert_xml_tag( tag: 'old', attributes: { project: 'BaseDistro3', package: 'pack2', srcmd5: 'eb6705ddf47af932b8332e16ab2ed8b3' } )
@@ -117,7 +117,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_match( /^\+new_content_2137/, @response.body )
 
     # search as used by osc sees it
-    get '/search/request', match: 'action/@type="maintenance_incident" and (state/@name="new" or state/@name="review") and starts-with(action/target/@project, "My:Maintenance")'
+    get '/search/request', params: { match: 'action/@type="maintenance_incident" and (state/@name="new" or state/@name="review") and starts-with(action/target/@project, "My:Maintenance")' }
     assert_response :success
     assert_xml_tag parent: { tag: 'collection' }, tag: 'request', attributes: { id: id1 }
 
@@ -150,12 +150,12 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     e.text = "patch_name"
     e = pi.add_element 'message'
     e.text = "During reboot a popup with a question will appear"
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
 
     # create maintenance request with invalid target
     login_tom
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
                                      <target project="home:tom" />
@@ -164,7 +164,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'no_maintenance_project' }
     # valid target..
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
                                      <target project="' + incidentProject + '" />
@@ -181,7 +181,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # create maintenance request for two further packages
     # without specifing target, the default target must get found via attribute
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
                                    </action>
@@ -196,7 +196,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
                                    </action>
@@ -213,9 +213,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     id3 = node.value(:id)
 
     # second one for failing permission test on lock
-    put "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/dummy", "dummy change"
+    put "/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/dummy", params: "dummy change"
     assert_response :success
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
                                    </action>
@@ -229,7 +229,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     id4 = node.value(:id)
 
     # validate that request is diffable and that the linked package is not double diffed
-    post "/request/#{id2}?cmd=diff&view=xml", nil
+    post "/request/#{id2}?cmd=diff&view=xml"
     assert_response :success
     assert_match(/new_content_0815/, @response.body) # check if our changes are part of the diff
     assert_xml_tag parent: { tag: 'file', attributes: { state: 'added' } }, tag: 'new', attributes: { name: 'new_file' }
@@ -281,7 +281,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     #
     # define one
     login_king
-    put '/source/BaseDistro3Channel/_meta', '<project name="BaseDistro3Channel" kind="maintenance_release"><title/><description/>
+    put '/source/BaseDistro3Channel/_meta', params: '<project name="BaseDistro3Channel" kind="maintenance_release"><title/><description/>
                                          <build><disable/></build>
                                          <publish><enable/></publish>
                                          <person userid="adrian_reader" role="reviewer" />
@@ -290,27 +290,27 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                          </repository>
                                    </project>'
     assert_response :success
-    put '/source/BaseDistro3Channel/_config', "Repotype: rpm-md-legacy packagesubdir:rpm\nType: spec"
+    put '/source/BaseDistro3Channel/_config', params: "Repotype: rpm-md-legacy packagesubdir:rpm\nType: spec"
     assert_response :success
 
     raw_post '/source/BaseDistro3Channel/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-BaseDistro3Channel-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
-    put '/source/Channel/_meta', '<project name="Channel"><title/><description/>
+    put '/source/Channel/_meta', params: '<project name="Channel"><title/><description/>
                                    </project>'
     assert_response :success
     get '/source/My:Maintenance/_meta'
     assert_response :success
     meta = ActiveXML::Node.new( @response.body )
     meta.find_first('maintenance').add_element 'maintains', { project: 'Channel' }
-    put '/source/My:Maintenance/_meta', meta.dump_xml
+    put '/source/My:Maintenance/_meta', params: meta.dump_xml
     assert_response :success
 
     # create channel package
-    put '/source/Channel/BaseDistro2/_meta', '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
+    put '/source/Channel/BaseDistro2/_meta', params: '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
     assert_response :success
     # set target via parameter
-    post '/source/Channel/BaseDistro2?cmd=importchannel&target_project=BaseDistro3Channel&target_repository=channel_repo', '<?xml version="1.0" encoding="UTF-8"?>
+    post '/source/Channel/BaseDistro2?cmd=importchannel&target_project=BaseDistro3Channel&target_repository=channel_repo', params: '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
             <binary name="package" package="pack2.linked" project="BaseDistro2.0:LinkedUpdateProject" />
@@ -318,11 +318,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
         </channel>'
     assert_response :success
     # set target via xml
-    put '/source/Channel/BaseDistro2.0/_meta', '<package project="Channel" name="BaseDistro2.0"><title/><description/></package>'
+    put '/source/Channel/BaseDistro2.0/_meta', params: '<package project="Channel" name="BaseDistro2.0"><title/><description/></package>'
     assert_response :success
-    put '/source/Channel/BaseDistro3/_meta', '<package project="Channel" name="BaseDistro3"><title/><description/></package>'
+    put '/source/Channel/BaseDistro3/_meta', params: '<package project="Channel" name="BaseDistro3"><title/><description/></package>'
     assert_response :success
-    post '/source/Channel/BaseDistro3?cmd=importchannel', '<?xml version="1.0" encoding="UTF-8"?>
+    post '/source/Channel/BaseDistro3?cmd=importchannel', params: '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <target project="BaseDistro3Channel" repository="channel_repo"/>
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
@@ -338,10 +338,10 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'target', attributes: { project: 'BaseDistro3Channel', repository: 'channel_repo' }
     # create channel packages and repos
     login_adrian
-    post "/source/#{incidentProject}?cmd=addchannels", nil
+    post "/source/#{incidentProject}?cmd=addchannels"
     assert_response 403
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post "/source/#{incidentProject}?cmd=addchannels", nil
+    post "/source/#{incidentProject}?cmd=addchannels"
     assert_response :success
     get "/source/#{incidentProject}/BaseDistro2.Channel/_meta"
     assert_response :success
@@ -350,13 +350,13 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incidentProject}/_meta"
     assert_response :success
     assert_xml_tag tag: "repository", attributes: {name: "BaseDistro3Channel"}
-    post "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject", cmd: 'branch', add_repositories: 1
+    post "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject", params: { cmd: 'branch', add_repositories: 1 }
     assert_response :success
     get "/source/home:maintenance_coord:branches:My:Maintenance:0/_meta"
     assert_response :success
     # local channel got skipped:
     assert_no_xml_tag tag: "repository", attributes: {name: "BaseDistro3Channel"}
-    post "/source/#{incidentProject}/BaseDistro2.Channel", cmd: 'branch', add_repositories: 1
+    post "/source/#{incidentProject}/BaseDistro2.Channel", params: { cmd: 'branch', add_repositories: 1 }
     assert_response :success
     get "/source/home:maintenance_coord:branches:My:Maintenance:0/_meta"
     assert_response :success
@@ -396,7 +396,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     delete '/source/Channel/BaseDistro2'
     assert_response :success
 
-    put '/source/Channel/BaseDistro2.0/_channel', '<?xml version="1.0" encoding="UTF-8"?>
+    put '/source/Channel/BaseDistro2.0/_channel', params: '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <target project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo"><disabled/></target>
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
@@ -405,7 +405,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
           </binaries>
         </channel>'
     assert_response :success
-    put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
+    put '/source/Channel/BaseDistro3/_channel', params: '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <target project="BaseDistro3Channel" repository="channel_repo" id_template="UpdateInfoTag-&#37;Y-&#37;C" requires_issue="true" />
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
@@ -421,19 +421,19 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # create channel packages and repos
     login_adrian
-    post "/source/#{incidentProject}?cmd=addchannels", nil
+    post "/source/#{incidentProject}?cmd=addchannels"
     assert_response 403
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post "/source/#{incidentProject}?cmd=addchannels&mode=skip_disabled", nil
+    post "/source/#{incidentProject}?cmd=addchannels&mode=skip_disabled"
     assert_response :success
     get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
     assert_response 404 # skipped because it just has a disabled target
     get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"
     assert_response :success
 
-    post "/source/#{incidentProject}/pack2.BaseDistro3?cmd=addchannels", nil
+    post "/source/#{incidentProject}/pack2.BaseDistro3?cmd=addchannels"
     assert_response :success
-    post "/source/#{incidentProject}?cmd=addchannels&mode=add_disabled", nil
+    post "/source/#{incidentProject}?cmd=addchannels&mode=add_disabled"
     assert_response :success # now it appeared
     get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
     assert_response :success
@@ -473,7 +473,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # enable the patchinfo via api call
     login_king
-    put "/source/BaseDistro2.0/_product/_meta", "<package project='BaseDistro2.0' name='_product'><title/><description/></package>"
+    put "/source/BaseDistro2.0/_product/_meta", params: "<package project='BaseDistro2.0' name='_product'><title/><description/></package>"
     assert_response :success
     ["defaults-archsets.include", "defaults-conditionals.include", "defaults-repositories.include", "obs.group", "obs-release.spec", "simple.product"].each do |file|
       raw_put "/source/BaseDistro2.0/_product/#{file}",
@@ -491,7 +491,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'enable', attributes: {repository: "BaseDistro2.0_LinkedUpdateProject"}
     # revert and enable via enablechannel
-    put "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta", old_meta
+    put "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta", params: old_meta
     assert_response :success
     post "/source/#{incidentProject}/BaseDistro2.0.Channel?cmd=enablechannel"
     assert_response :success
@@ -524,7 +524,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     pi = ActiveXML::Node.new( @response.body )
     pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'bnc'}
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
 
     # create and check updateinfo
@@ -553,7 +553,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                                       baseproject: "BaseDistro3Channel", type: "rpm" }
 
     # create release request
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -581,7 +581,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # and check what happens after modifing _channel file
-    put '/source/My:Maintenance:0/BaseDistro3.Channel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
+    put '/source/My:Maintenance:0/BaseDistro3.Channel/_channel', params: '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <target project="BaseDistro3Channel" repository="channel_repo" id_template="UpdateInfoTagNew-&#37;N-&#37;Y-&#37;C" requires_issue="true" />
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
@@ -615,7 +615,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'entry', attributes: { name: 'repomd.xml' }
     assert_xml_tag tag: 'entry', attributes: { name: 'updateinfo.xml.gz' }
 
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -660,7 +660,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                    tag: 'acceptinfo', attributes: { rev: '1', oproject: "BaseDistro3", opackage: "pack2", oxsrcmd5: 'eb6705ddf47af932b8332e16ab2ed8b3', osrcmd5: "eb6705ddf47af932b8332e16ab2ed8b3" }
 
     # diffing works
-    post "/request/#{reqid}?cmd=diff&view=xml", nil
+    post "/request/#{reqid}?cmd=diff&view=xml"
     assert_response :success
     assert_xml_tag tag: 'old', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2.0'}
     assert_xml_tag tag: 'new', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2.0'}
@@ -756,7 +756,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # event handling
     UpdateNotificationEvents.new.perform
-    get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']"
+    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']" }
     assert_response :success
     assert_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package_newweaktags', version: "1.0", release: "1", arch: "x86_64" } },
                    tag: 'publish', attributes: { package: "pack2" }
@@ -775,7 +775,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'dropped', project: "BaseDistro3", repository: "BaseDistro3_repo", arch: "i586" } },
                    tag: 'operation', content: "added"
     # entire channel content
-    get '/search/released/binary', match: "repository/[@project = 'BaseDistro3Channel']"
+    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3Channel']" }
     assert_response :success
     assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" } },
                    tag: 'operation', content: "added"
@@ -785,7 +785,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                    tag: 'updateinfo', attributes: { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", version: "1" }
 
     # search via official updateinfo id tag
-    get '/search/released/binary', match: "updateinfo/@id = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1'"
+    get '/search/released/binary', params: { match: "updateinfo/@id = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1'" }
     assert_response :success
     assert_xml_tag tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" }
     assert_xml_tag tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "src" }
@@ -796,19 +796,19 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # Additional channel using just a local linked package
     #
     # setup two channels for splitted product
-    put '/source/Channel/BaseDistro2/_meta', '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
+    put '/source/Channel/BaseDistro2/_meta', params: '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
     assert_response :success
     # set target via parameter
-    post '/source/Channel/BaseDistro2?cmd=importchannel&target_project=BaseDistro3Channel&target_repository=channel_repo', '<?xml version="1.0" encoding="UTF-8"?>
+    post '/source/Channel/BaseDistro2?cmd=importchannel&target_project=BaseDistro3Channel&target_repository=channel_repo', params: '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
             <binary name="package" package="pack2" project="BaseDistro2.0:LinkedUpdateProject" />
           </binaries>
         </channel>'
     assert_response :success
-    put '/source/Channel/BaseDistro2SDK/_meta', '<package project="Channel" name="BaseDistro2SDK"><title/><description/></package>'
+    put '/source/Channel/BaseDistro2SDK/_meta', params: '<package project="Channel" name="BaseDistro2SDK"><title/><description/></package>'
     assert_response :success
-    put '/source/Channel/BaseDistro2SDK/_channel', '<?xml version="1.0" encoding="UTF-8"?>
+    put '/source/Channel/BaseDistro2SDK/_channel', params: '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <target project="BaseDistro3Channel" repository="channel_repo" />
           <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
@@ -817,9 +817,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
         </channel>'
     assert_response :success
     # another change needed
-    put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/another_file', 'new_content_0815_changed'
+    put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/another_file', params: 'new_content_0815_changed'
     assert_response :success
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
                                      <options>
@@ -867,9 +867,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     chk.perform # raises exception on error
 
     # test package initialization for projects linking to maintenance_release projects
-    put '/source/TEST/_meta', '<project name="TEST"> <title/><description/><link project="BaseDistro2.0:LinkedUpdateProject"/></project>'
+    put '/source/TEST/_meta', params: '<project name="TEST"> <title/><description/><link project="BaseDistro2.0:LinkedUpdateProject"/></project>'
     assert_response :success
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="BaseDistro3" package="pack2"/>
                                      <target project="TEST" package="pack2"/>
@@ -906,7 +906,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # reset pack2 as done in start_test_backend script
     delete '/source/BaseDistro3/pack2'
     assert_response :success
-    put '/source/BaseDistro3/pack2/_meta', '<package project="BaseDistro3" name="pack2"><title/><description/></package>'
+    put '/source/BaseDistro3/pack2/_meta', params: '<package project="BaseDistro3" name="pack2"><title/><description/></package>'
     assert_response :success
     raw_put '/source/BaseDistro3/pack2/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
@@ -921,7 +921,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 400 # incident still refers to it
     delete "/source/#{incidentProject}"
     assert_response 403 # still locked, so unlock it ...
-    post "/source/#{incidentProject}", { cmd: 'unlock', comment: 'cleanup' }
+    post "/source/#{incidentProject}", params: { cmd: 'unlock', comment: 'cleanup' }
     assert_response :success
     delete "/source/#{incidentProject}"
     assert_response :success
