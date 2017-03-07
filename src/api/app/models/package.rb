@@ -432,6 +432,10 @@ class Package < ApplicationRecord
     Package.source_path(project.name, name, file, opts)
   end
 
+  def public_source_path(file = nil, opts = {})
+    "/public#{source_path(file, opts)}"
+  end
+
   def source_file(file, opts = {})
     Suse::Backend.get(source_path(file, opts)).body
   end

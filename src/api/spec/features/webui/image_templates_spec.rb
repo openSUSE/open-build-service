@@ -13,8 +13,10 @@ RSpec.feature "ImageTemplates", type: :feature, js: true do
     let!(:package2) { create(:package_with_file, project: project, name: "second_package") }
 
     scenario "branch image template" do
-      login(admin)
+      visit image_templates_path
+      expect(page).to have_css("input.create_appliance[disabled]")
 
+      login(admin)
       visit root_path
       find('.proceed_text > a', text: "New Image").click
 

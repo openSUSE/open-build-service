@@ -333,4 +333,16 @@ RSpec.describe Package, vcr: true do
     it { expect(results_test_package_source.first.state).to eq('finished') }
     it { expect(results_test_package_source.first.details).to be_nil }
   end
+
+  context '#source_path' do
+    it { expect(package_with_file.source_path).to eq('/source/home:tom/package_with_files') }
+    it { expect(package_with_file.source_path('icon')).to eq('/source/home:tom/package_with_files/icon') }
+    it { expect(package_with_file.source_path('icon', { format: :html})).to eq('/source/home:tom/package_with_files/icon?format=html') }
+  end
+
+  context '#public_source_path' do
+    it { expect(package_with_file.public_source_path).to eq('/public/source/home:tom/package_with_files') }
+    it { expect(package_with_file.public_source_path('icon')).to eq('/public/source/home:tom/package_with_files/icon') }
+    it { expect(package_with_file.public_source_path('icon', { format: :html})).to eq('/public/source/home:tom/package_with_files/icon?format=html') }
+  end
 end
