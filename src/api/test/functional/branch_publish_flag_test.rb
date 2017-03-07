@@ -30,7 +30,7 @@ class BranchPublishFlagTest < ActionDispatch::IntegrationTest
     tprj = "home:king:branches:#{sprj}"
 
     debug "branching #{sprj}/#{spkg} into #{tprj}"
-    post "/source/#{sprj}/#{spkg}", cmd: :branch, target_project: "#{tprj}"
+    post "/source/#{sprj}/#{spkg}", params: { cmd: :branch, target_project: "#{tprj}" }
     debug @response.body
     assert_response :success
     if @@verbose

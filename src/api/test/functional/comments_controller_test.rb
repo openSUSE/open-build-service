@@ -89,7 +89,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: 2), 'Hallo'
+      post create_request_comment_path(id: 2), params: 'Hallo'
       assert_response :success
       SendEventEmails.new.perform
     end
@@ -105,7 +105,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     login_dmayr
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: 2), 'Hallo'
+      post create_request_comment_path(id: 2), params: 'Hallo'
       assert_response :success
       SendEventEmails.new.perform
     end
@@ -115,7 +115,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     # now to something fancy
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: 2), 'Hallo @fred'
+      post create_request_comment_path(id: 2), params: 'Hallo @fred'
       assert_response :success
       SendEventEmails.new.perform
     end
@@ -125,7 +125,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     # and check if @fred becomes a 'commenter' for ever
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: 2), 'Is Fred listening now?'
+      post create_request_comment_path(id: 2), params: 'Is Fred listening now?'
       assert_response :success
       SendEventEmails.new.perform
     end
@@ -146,7 +146,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_project_comment_path(project: 'Apache'), 'Beautiful project'
+      post create_project_comment_path(project: 'Apache'), params: 'Beautiful project'
       assert_response :success
       SendEventEmails.new.perform
     end
@@ -172,7 +172,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_package_comment_path(project: 'kde4', package: 'kdebase'), "Hola, estoy aprendiendo español"
+      post create_package_comment_path(project: 'kde4', package: 'kdebase'), params: "Hola, estoy aprendiendo español"
       assert_response :success
       SendEventEmails.new.perform
     end
@@ -190,7 +190,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       # Trolling
-      post create_package_comment_path(project: 'BaseDistro', package: 'pack1'), "I preffer Apache1, don't you? @fred"
+      post create_package_comment_path(project: 'BaseDistro', package: 'pack1'), params: "I preffer Apache1, don't you? @fred"
       assert_response :success
       SendEventEmails.new.perform
     end

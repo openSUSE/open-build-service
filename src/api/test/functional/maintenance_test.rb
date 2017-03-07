@@ -20,19 +20,18 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_instantiate_for_service_packs
     login_tom
     # add a new package with defined link target
-    put '/source/home:tom:BaseDistro:SP1/_meta',
-        '<project name="home:tom:BaseDistro:SP1" kind="maintenance_release">
+    put '/source/home:tom:BaseDistro:SP1/_meta', params: '<project name="home:tom:BaseDistro:SP1" kind="maintenance_release">
         <title/> <description/>
         <link project="BaseDistro:Update"/>
         </project>'
     assert_response :success
 
-    post '/source/home:tom:BaseDistro:SP1/pack1', cmd: 'branch', target_project: 'home:tom:Branch', missingok: 1
+    post '/source/home:tom:BaseDistro:SP1/pack1', params: { cmd: 'branch', target_project: 'home:tom:Branch', missingok: 1 }
     assert_response 400
     # osc catches this error code and is fallingback to newinstance=1
     assert_xml_tag tag: 'status', attributes: {code: "not_missing"}
 
-    post '/source/home:tom:BaseDistro:SP1/pack1', cmd: 'branch', target_project: 'home:tom:Branch', newinstance: 1, extend_package_names: 1
+    post '/source/home:tom:BaseDistro:SP1/pack1', params: { cmd: 'branch', target_project: 'home:tom:Branch', newinstance: 1, extend_package_names: 1 }
     assert_response :success
     assert_xml_tag tag: 'data', attributes: {name: "sourceproject"}, content: "home:tom:BaseDistro:SP1"
 
@@ -40,7 +39,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'link', attributes: {project: "home:tom:BaseDistro:SP1"}
 
-    post '/source/BaseDistro:Update/pack1', cmd: 'branch', target_project: 'home:tom:Branch', missingok: 1, extend_package_names: 1
+    post '/source/BaseDistro:Update/pack1', params: { cmd: 'branch', target_project: 'home:tom:Branch', missingok: 1, extend_package_names: 1 }
     assert_response 400
     assert_xml_tag tag: 'status', attributes: {code: "not_missing"}
 
@@ -53,26 +52,26 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_create_maintenance_project
     login_tom
 
-    put '/source/home:tom:maintenance/_meta', '<project name="home:tom:maintenance" > <title/> <description/> </project>'
+    put '/source/home:tom:maintenance/_meta', params: '<project name="home:tom:maintenance" > <title/> <description/> </project>'
     assert_response :success
-    put '/source/home:tom:maintenance/_meta', '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> </project>'
+    put '/source/home:tom:maintenance/_meta', params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> </project>'
     assert_response :success
     delete '/source/home:tom:maintenance'
     assert_response :success
 
     # need write permission in maintained project...
-    put '/source/home:tom:maintenance/_meta', '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="BaseDistro"/></maintenance> </project>'
+    put '/source/home:tom:maintenance/_meta', params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="BaseDistro"/></maintenance> </project>'
     assert_response 403
     assert_xml_tag tag: 'summary', content: "No write access to maintained project BaseDistro"
 
     # create one ...
-    put '/source/home:tom:maintenance/_meta', '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="home:tom"/></maintenance> </project>'
+    put '/source/home:tom:maintenance/_meta', params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="home:tom"/></maintenance> </project>'
     assert_response :success
     get '/source/home:tom:maintenance/_meta'
     assert_response :success
     assert_xml_tag tag: 'maintains', attributes: { project: 'home:tom' }
 
-    get '/search/project', match: '[maintenance/maintains/@project="home:tom"]'
+    get '/search/project', params: { match: '[maintenance/maintains/@project="home:tom"]' }
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 1 }
     assert_xml_tag tag: 'maintains', attributes: { project: 'home:tom' }
@@ -82,7 +81,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # search does not find a maintained project anymore
-    get '/search/project', match: '[maintenance/maintains/@project="home:tom"]'
+    get '/search/project', params: { match: '[maintenance/maintains/@project="home:tom"]' }
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 0 }
   end
@@ -100,7 +99,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_tom
 
     # branch a package which does not exist in update project via project link
-    post '/source/BaseDistro/pack1', cmd: :branch
+    post '/source/BaseDistro/pack1', params: { cmd: :branch }
     assert_response :success
     # check source link
     get '/source/home:tom:branches:BaseDistro:Update/pack1/_link'
@@ -108,7 +107,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_project 'BaseDistro:Update'
 
     # branch a package which does exist in update project and even have a devel package defined there
-    post '/source/BaseDistro/pack2', cmd: :branch
+    post '/source/BaseDistro/pack2', params: { cmd: :branch }
     assert_response :success
     # check source link
     get '/source/home:tom:branches:Devel:BaseDistro:Update/pack2/_link'
@@ -116,7 +115,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_project 'Devel:BaseDistro:Update'
 
     # branch a package which does exist in update project and a stage project is defined via project wide devel project
-    post '/source/BaseDistro/Pack3', cmd: :branch
+    post '/source/BaseDistro/Pack3', params: { cmd: :branch }
     assert_response :success
     # check source link
     get '/source/home:tom:branches:Devel:BaseDistro:Update/Pack3/_link'
@@ -124,7 +123,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_project 'Devel:BaseDistro:Update'
 
     # branch a package which does not exist in update project, but update project is linked
-    post '/source/BaseDistro2.0/pack2', cmd: :branch
+    post '/source/BaseDistro2.0/pack2', params: { cmd: :branch }
     assert_response :success
     # check source link
     get '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link'
@@ -134,7 +133,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_nil ret['package']
 
     # check if we can upload a link to a packge only exist via project link
-    put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link', @response.body
+    put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link', params: @response.body
     assert_response :success
 
     # cleanup
@@ -150,7 +149,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_branch_package_with_local_link
     login_tom
 
-    post '/source/BaseDistro2.0/pack2', cmd: :branch, ignoredevel: 1
+    post '/source/BaseDistro2.0/pack2', params: { cmd: :branch, ignoredevel: 1 }
     assert_response :success
 
     get '/source/home:tom:branches:BaseDistro2.0/pack2/_meta'
@@ -163,7 +162,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # and trying with extended package names
     delete '/source/home:tom:branches:BaseDistro2.0'
     assert_response :success
-    post '/source/BaseDistro2.0/pack2', cmd: :branch, ignoredevel: 1, maintenance: 1
+    post '/source/BaseDistro2.0/pack2', params: { cmd: :branch, ignoredevel: 1, maintenance: 1 }
     assert_response :success
 
     get '/source/home:tom:branches:BaseDistro2.0/pack2.BaseDistro2.0/_meta'
@@ -181,14 +180,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_maintenance_request_from_foreign_and_remote_project
     login_king
     # special kdelibs
-    put '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/_meta', "<package name='kdelibs'><title/><description/></package>"
+    put '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/_meta', params: "<package name='kdelibs'><title/><description/></package>"
     assert_response :success
-    put '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/empty', 'NOOP'
+    put '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/empty', params: 'NOOP'
     assert_response :success
 
     login_tom
     # create maintenance request for one package from a unrelated project
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="RemoteInstance:kde4" package="kdelibs" />
                                    </action>
@@ -197,7 +196,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: "remote_source" })
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="kde4" package="kdelibs" />
                                      <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
@@ -206,7 +205,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="RemoteInstance:kde4" package="kdelibs" />
                                      <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
@@ -222,12 +221,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # modify source afterwards, must not appear in target after accept
     login_king
-    put "/source/kde4/kdelibs/TEMP_FILE", "dummy"
+    put "/source/kde4/kdelibs/TEMP_FILE", params: "dummy"
     assert_response :success
     login_tom
 
     # validate that request is diffable (not broken)
-    post "/request/#{id1}?cmd=diff&view=xml", nil
+    post "/request/#{id1}?cmd=diff&view=xml"
     assert_response :success
     # the diffed packages
     assert_xml_tag( tag: 'old', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kdelibs' } )
@@ -264,9 +263,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # again but find update project automatically and use a linked package
     login_tom
-    post '/source/kde4/kdelibs', cmd: :branch, ignoredevel: 1
+    post '/source/kde4/kdelibs', params: { cmd: :branch, ignoredevel: 1 }
     assert_response :success
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:kde4" package="kdelibs" />
                                      <target project="My:Maintenance" releaseproject="BaseDistro2.0" />
@@ -285,7 +284,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     id2 = node.value(:id)
 
     # validate that request is diffable (not broken)
-    post "/request/#{id2}?cmd=diff&view=xml", nil
+    post "/request/#{id2}?cmd=diff&view=xml"
     assert_response :success
     # the diffed packages
     assert_xml_tag( tag: 'old', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kdelibs' } )
@@ -311,7 +310,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # package and acceptinfo got added
     assert_xml_tag( tag: 'target', attributes: { package: 'kdelibs.BaseDistro2.0_LinkedUpdateProject' } )
     assert_xml_tag( tag: 'acceptinfo' )
-    post "/request/#{id2}?cmd=diff&view=xml", nil
+    post "/request/#{id2}?cmd=diff&view=xml"
     assert_response :success
     # project got cleaned up
     get "/source/home:tom:branches:kde4"
@@ -352,15 +351,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_OBS_BranchTarget
     login_king
-    put '/source/ServicePack/_meta', "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
+    put '/source/ServicePack/_meta', params: "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
     assert_response :success
-    post '/source/ServicePack/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/ServicePack/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
-    post '/source/ServicePack/_attribute', "<attributes><attribute namespace='OBS' name='BranchTarget' /></attributes>"
+    post '/source/ServicePack/_attribute', params: "<attributes><attribute namespace='OBS' name='BranchTarget' /></attributes>"
     assert_response :success
 
     login_tom
-    post '/source', cmd: 'branch', package: 'kdelibs'
+    post '/source', params: { cmd: 'branch', package: 'kdelibs' }
     assert_response :success
     assert_xml_tag tag: 'data', attributes: { name: 'targetproject' }, content: 'home:tom:branches:OBS_Maintained:kdelibs'
     assert_xml_tag tag: 'data', attributes: { name: 'targetpackage' }, content: 'kdelibs.kde4'
@@ -377,12 +376,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_branch_from_service_pack_WIP
     login_king
-    put '/source/ServicePack/_meta', "<project name='ServicePack'><title/><description/><link project='BaseDistro'/></project>"
+    put '/source/ServicePack/_meta', params: "<project name='ServicePack'><title/><description/><link project='BaseDistro'/></project>"
     assert_response :success
     # attribute setup
-    post '/source/BaseDistro/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/BaseDistro/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
-    post '/source/ServicePack/_attribute', "<attributes>
+    post '/source/ServicePack/_attribute', params: "<attributes>
                                                <attribute namespace='OBS' name='Maintained' />
                                             </attributes>"
     assert_response :success
@@ -393,7 +392,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'package', attributes: { project: 'BaseDistro:Update', name: 'pack2' }
 
-    post '/source/ServicePack/pack2', cmd: 'branch'
+    post '/source/ServicePack/pack2', params: { cmd: 'branch' }
     assert_response :success
 
     # default case, work on devel package base
@@ -402,7 +401,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'link', attributes: { project: 'Devel:BaseDistro:Update' }
 
     # new instance of a package wanted. so we need to link to ServicePack and copy sources from devel
-    post '/source/ServicePack/pack2', cmd: 'branch', newinstance: 1
+    post '/source/ServicePack/pack2', params: { cmd: 'branch', newinstance: 1 }
     assert_response :success
     get '/source/home:king:branches:ServicePack/pack2/_link'
     assert_response :success
@@ -424,19 +423,19 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_instantiate_new_package_with_local_link_in_service_pack
     login_king
-    put '/source/ServicePack/_meta', "<project name='ServicePack'><title/><description/><link project='BaseDistro2.0'/> <repository name='ServicePack_repo' /></project>"
+    put '/source/ServicePack/_meta', params: "<project name='ServicePack'><title/><description/><link project='BaseDistro2.0'/> <repository name='ServicePack_repo' /></project>"
     assert_response :success
-    put '/source/ServicePack:Update/_meta', "<project name='ServicePack:Update' kind='maintenance_release'><title/><description/><link project='ServicePack'/>
+    put '/source/ServicePack:Update/_meta', params: "<project name='ServicePack:Update' kind='maintenance_release'><title/><description/><link project='ServicePack'/>
           <repository name='ServicePackUpdate_repo'><arch>i586</arch></repository></project>"
     assert_response :success
-    post '/source/ServicePack/_attribute', "<attributes>
+    post '/source/ServicePack/_attribute', params: "<attributes>
                                                <attribute namespace='OBS' name='UpdateProject'>
                                                  <value>ServicePack:Update</value>
                                                </attribute>
                                             </attributes>"
     assert_response :success
 
-    post '/source/ServicePack/pack2', cmd: 'branch'
+    post '/source/ServicePack/pack2', params: { cmd: 'branch' }
     assert_response :success
     get '/source/ServicePack/pack2/package.spec'
     assert_response :success
@@ -444,18 +443,18 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # new instance of a package wanted. so we need to link to ServicePack and copy sources from devel
-    post '/source', cmd: 'createmaintenanceincident', noaccess: 1
+    post '/source', params: { cmd: 'createmaintenanceincident', noaccess: 1 }
     assert_response :success
     # use a fixed count using multiple chars to test regexp stripping the counter number from package names
     MaintenanceIncident.exec_query ["UPDATE incident_counter SET counter = 100 WHERE maintenance_db_project_id = ?", Project.find_by_name("My:Maintenance").id]
-    post '/source', cmd: 'createmaintenanceincident', noaccess: 1
+    post '/source', params: { cmd: 'createmaintenanceincident', noaccess: 1 }
     assert_response :success
     assert_xml_tag( tag: 'data', attributes: { name: 'targetproject' } )
     data = REXML::Document.new(@response.body)
     incidentProject = data.elements['/status/data'].text
     assert_equal "My:Maintenance:100", incidentProject
 
-    post '/source/ServicePack:Update/pack2', cmd: 'branch', maintenance: 1, newinstance: 1, target_project: incidentProject
+    post '/source/ServicePack:Update/pack2', params: { cmd: 'branch', maintenance: 1, newinstance: 1, target_project: incidentProject }
     assert_response :success
 
     get "/source/#{incidentProject}/pack2.ServicePack_Update/_link"
@@ -464,12 +463,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incidentProject}/pack2.linked.ServicePack_Update/_link"
     assert_response :success
     assert_xml_tag tag: 'link', attributes: { project: nil, package: "pack2.ServicePack_Update" }
-    put "/source/#{incidentProject}/pack2.ServicePack_Update/some_new_file", "content change"
+    put "/source/#{incidentProject}/pack2.ServicePack_Update/some_new_file", params: "content change"
     assert_response :success
-    put "/source/#{incidentProject}/pack2.ServicePack_Update/myfile", "modify existing file"
+    put "/source/#{incidentProject}/pack2.ServicePack_Update/myfile", params: "modify existing file"
     assert_response :success
 
-    post '/request?cmd=create&ignore_build_state=1', "<request>
+    post '/request?cmd=create&ignore_build_state=1', params: "<request>
                                    <action type='maintenance_release'>
                                      <source project='#{incidentProject}' />
                                    </action>
@@ -482,7 +481,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
     # the local linked package delivers not full content
-    post "/request/#{reqid}?cmd=diff&view=xml", nil
+    post "/request/#{reqid}?cmd=diff&view=xml"
     assert_response :success
     assert_match( /-DummyContent/, @response.body )
     assert_match( /\+modify existing file/, @response.body )
@@ -515,14 +514,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_mbranch_and_maintenance_entire_project_request
     login_king
-    put '/source/ServicePack/_meta', "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
+    put '/source/ServicePack/_meta', params: "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
     assert_response :success
-    put '/source/ServicePack/_config', "cicntstart: 99.1"
+    put '/source/ServicePack/_config', params: "cicntstart: 99.1"
     assert_response :success
 
     # test right branching from ServicePack layer
     login_tom
-    post '/source/ServicePack/kdelibs', cmd: 'branch', maintenance: 1
+    post '/source/ServicePack/kdelibs', params: { cmd: 'branch', maintenance: 1 }
     assert_response :success
     delete '/source/home:tom:branches:kde4/kdelibs.kde4' # .kde4 suffix, not .ServicePack
     assert_response :success
@@ -530,14 +529,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # setup maintained attributes
     prepare_request_with_user 'maintenance_coord', 'buildservice'
     # an entire project
-    post '/source/BaseDistro/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/BaseDistro/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
     # single packages
-    post '/source/BaseDistro2.0/pack2/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/BaseDistro2.0/pack2/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
-    post '/source/BaseDistro3/pack2/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/BaseDistro3/pack2/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
-    post '/source/ServicePack/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/ServicePack/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
 
     # search for maintained packages like osc is doing
@@ -548,7 +547,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # do the real mbranch for default maintained packages
     # test it with "noaccess"
     login_tom
-    post '/source', cmd: 'branch', package: 'pack2', noaccess: "1"
+    post '/source', params: { cmd: 'branch', package: 'pack2', noaccess: "1" }
     assert_response :success
 
     # validate result
@@ -577,33 +576,33 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'link', attributes: { package: 'pack2.BaseDistro2.0_LinkedUpdateProject' }
 
     # test branching another package set into same project
-    post '/source', cmd: 'branch', package: 'pack1', target_project: 'home:tom:branches:OBS_Maintained:pack2'
+    post '/source', params: { cmd: 'branch', package: 'pack1', target_project: 'home:tom:branches:OBS_Maintained:pack2' }
     assert_response :success
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack1.BaseDistro_Update'
     assert_response :success
 
     # add a new package with defined link target
-    post '/source/BaseDistro:Update/packN', cmd: 'branch', target_project: 'home:tom:branches:OBS_Maintained:pack2', missingok: 1, extend_package_names: 1
+    post '/source/BaseDistro:Update/packN', params: { cmd: 'branch', target_project: 'home:tom:branches:OBS_Maintained:pack2', missingok: 1, extend_package_names: 1 }
     assert_response :success
     get '/source/home:tom:branches:OBS_Maintained:pack2/packN.BaseDistro_Update'
     assert_response :success
 
     # test branching another package set into same project from same project
-    post '/source', cmd: 'branch', package: 'Pack3', target_project: 'home:tom:branches:OBS_Maintained:pack2'
+    post '/source', params: { cmd: 'branch', package: 'Pack3', target_project: 'home:tom:branches:OBS_Maintained:pack2' }
     assert_response :success
     get '/source/home:tom:branches:OBS_Maintained:pack2/Pack3.BaseDistro_Update'
     assert_response :success
     # test branching another package only reachable via project link into same project
-    post '/source', cmd: 'branch', package: 'kdelibs', target_project: 'home:tom:branches:OBS_Maintained:pack2', noaccess: 1
+    post '/source', params: { cmd: 'branch', package: 'kdelibs', target_project: 'home:tom:branches:OBS_Maintained:pack2', noaccess: 1 }
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'create_project_no_permission' }
 
 # FIXME: backend has a bug that it destroys the link even with keeplink if opackage has no rev
-    put '/source/home:coolo:test/kdelibs_DEVEL_package/DUMMY', 'CONTENT'
+    put '/source/home:coolo:test/kdelibs_DEVEL_package/DUMMY', params: 'CONTENT'
     assert_response :success
 
     # add an issue
-    put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/dummy.changes', 'DUMMY bnc#1042'
+    put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/dummy.changes', params: 'DUMMY bnc#1042'
     assert_response :success
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update?view=issues'
     assert_response :success
@@ -614,7 +613,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/home:tom:branches:OBS_Maintained:pack2/_meta'
     assert_response :success
     oldmeta = @response.body
-    post '/source', cmd: 'branch', package: 'kdelibs', target_project: 'home:tom:branches:OBS_Maintained:pack2'
+    post '/source', params: { cmd: 'branch', package: 'kdelibs', target_project: 'home:tom:branches:OBS_Maintained:pack2' }
     assert_response :success
     get '/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/_link'
     assert_response :success
@@ -623,9 +622,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'link', attributes: { project: 'kde4', package: 'kdelibs' }
 
     # do some file changes
-    put '/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/new_file', 'new_content_0815'
+    put '/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/new_file', params: 'new_content_0815'
     assert_response :success
-    put '/source/home:tom:branches:OBS_Maintained:pack2/Pack3.BaseDistro_Update/new_file', 'new_content_2137'
+    put '/source/home:tom:branches:OBS_Maintained:pack2/Pack3.BaseDistro_Update/new_file', params: 'new_content_2137'
     assert_response :success
 
     # validate created project meta
@@ -652,7 +651,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'build' }, tag: 'enable', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject' }
 
     # and branch same package again and expect error
-    post '/source', cmd: 'branch', package: 'pack1', target_project: 'home:tom:branches:OBS_Maintained:pack2'
+    post '/source', params: { cmd: 'branch', package: 'pack1', target_project: 'home:tom:branches:OBS_Maintained:pack2' }
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'double_branch_package' }
     assert_match(/branch target package already exists:/, @response.body)
@@ -673,12 +672,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # delete kdelibs package again or incident creation will fail since it does not point to a maintained project.
     delete '/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4'
     assert_response :success
-    put '/source/home:tom:branches:OBS_Maintained:pack2/_meta', oldmeta
+    put '/source/home:tom:branches:OBS_Maintained:pack2/_meta', params: oldmeta
     assert_response :success
 
     # create maintenance request
     # without specifing target, the default target must get found via attribute
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" />
                                      <options>
@@ -700,7 +699,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag( tag: 'target', attributes: { releaseproject: 'BaseDistro:LinkedUpdateProject' } )
 
     # validate that request is diffable (not broken)
-    post "/request/#{id}?cmd=diff&view=xml", nil
+    post "/request/#{id}?cmd=diff&view=xml"
     assert_response :success
     assert_match(/new_content_2137/, @response.body) # check if our changes are part of the diff
 
@@ -717,7 +716,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     prepare_request_with_user 'maintenance_coord', 'buildservice'
     get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
     assert_response 404 # due to noaccess
-    post "/request/#{id}?cmd=diff&view=xml", nil
+    post "/request/#{id}?cmd=diff&view=xml"
     assert_response :success
     assert_match(/new_content_2137/, @response.body) # check if our changes are part of the diff
 
@@ -790,26 +789,26 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_create_maintenance_incident
     login_king
-    put '/source/Temp:Maintenance/_meta', '<project name="Temp:Maintenance" kind="maintenance">
+    put '/source/Temp:Maintenance/_meta', params: '<project name="Temp:Maintenance" kind="maintenance">
                                              <title/> <description/>
                                              <person userid="maintenance_coord" role="maintainer"/>
                                            </project>'
     assert_response :success
 
     reset_auth
-    post '/source/Temp:Maintenance', cmd: 'createmaintenanceincident'
+    post '/source/Temp:Maintenance', params: { cmd: 'createmaintenanceincident' }
     assert_response 401
 
     login_adrian
-    post '/source/Temp:Maintenance', cmd: 'createmaintenanceincident'
+    post '/source/Temp:Maintenance', params: { cmd: 'createmaintenanceincident' }
     assert_response 403
-    post '/source/home:adrian', cmd: 'createmaintenanceincident'
+    post '/source/home:adrian', params: { cmd: 'createmaintenanceincident' }
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'incident_has_no_maintenance_project' }
 
     prepare_request_with_user 'maintenance_coord', 'buildservice'
     # create a public maintenance incident
-    post '/source/Temp:Maintenance', cmd: 'createmaintenanceincident'
+    post '/source/Temp:Maintenance', params: { cmd: 'createmaintenanceincident' }
     assert_response :success
     assert_xml_tag( tag: 'data', attributes: { name: 'targetproject' } )
     data = REXML::Document.new(@response.body)
@@ -823,7 +822,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( attributes: { role: 'bugowner', userid: 'maintenance_coord' }, tag: 'person', content: nil )
 
     # create a maintenance incident under embargo
-    post '/source/Temp:Maintenance?cmd=createmaintenanceincident&noaccess=1', nil
+    post '/source/Temp:Maintenance?cmd=createmaintenanceincident&noaccess=1'
     assert_response :success
     assert_xml_tag( tag: 'data', attributes: { name: 'targetproject' } )
     data = REXML::Document.new(@response.body)
@@ -850,7 +849,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_manual_branch_with_extend_names
     # submit packages via mbranch
     login_tom
-    post '/source/BaseDistro2.0/pack2', cmd: 'branch', target_package: 'DUMMY_package', extend_package_names: '1'
+    post '/source/BaseDistro2.0/pack2', params: { cmd: 'branch', target_package: 'DUMMY_package', extend_package_names: '1' }
     assert_response :success
     assert_xml_tag( tag: 'data', attributes: { name: 'sourceproject' }, content: 'BaseDistro2.0:LinkedUpdateProject')
     assert_xml_tag( tag: 'data', attributes: { name: 'sourcepackage' }, content: 'pack2')
@@ -887,7 +886,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     maintenance_project_meta = REXML::Document.new(@response.body)
     maintenance_project_meta.elements['/project'].attributes['kind'] = 'maintenance'
-    put '/source/My:Maintenance/_meta', maintenance_project_meta.to_s
+    put '/source/My:Maintenance/_meta', params: maintenance_project_meta.to_s
     assert_response :success
 
     prepare_request_with_user 'maintenance_coord', 'buildservice'
@@ -896,13 +895,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     Timecop.freeze(1)
     # setup a maintained distro
-    post '/source/BaseDistro2.0/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/BaseDistro2.0/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
     Timecop.freeze(1)
-    post '/source/BaseDistro2.0/_attribute', "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> </attribute> </attributes>"
+    post '/source/BaseDistro2.0/_attribute', params: "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> </attribute> </attributes>"
     assert_response :success
     Timecop.freeze(1)
-    post '/source/BaseDistro3/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/BaseDistro3/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
 
     # validate correct :Update project setup
@@ -913,7 +912,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # create a maintenance incident
     Timecop.freeze(1)
-    post '/source', cmd: 'createmaintenanceincident', noaccess: 1
+    post '/source', params: { cmd: 'createmaintenanceincident', noaccess: 1 }
     assert_response :success
     assert_xml_tag( tag: 'data', attributes: { name: 'targetproject' } )
     data = REXML::Document.new(@response.body)
@@ -928,7 +927,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # submit packages via mbranch
     Timecop.freeze(1)
-    post '/source', cmd: 'branch', package: 'pack2', target_project: incidentProject
+    post '/source', params: { cmd: 'branch', package: 'pack2', target_project: incidentProject }
     assert_response :success
 
     # correct branched ?
@@ -965,12 +964,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # set an invalid
-    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
+    post "/source/#{incidentProject}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
     assert_response :success
 
     # create some changes, including issue tracker references
     Timecop.freeze(1)
-    put '/source/' + incidentProject + '/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', 'DUMMY bnc#1042'
+    put '/source/' + incidentProject + '/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', params: 'DUMMY bnc#1042'
     assert_response :success
     Timecop.freeze(1)
     post '/source/' + incidentProject + '/pack2.BaseDistro2.0_LinkedUpdateProject?unified=1&cmd=diff&filelimit=0&expand=1'
@@ -983,14 +982,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # add a new package with defined link target
     Timecop.freeze(1)
-    post '/source/BaseDistro2.0/packNew', cmd: 'branch', target_project: incidentProject, missingok: 1, extend_package_names: 1, add_repositories: 1
+    post '/source/BaseDistro2.0/packNew', params: { cmd: 'branch', target_project: incidentProject, missingok: 1, extend_package_names: 1, add_repositories: 1 }
     assert_response :success
     Timecop.freeze(1)
     raw_put "/source/#{incidentProject}/packNew.BaseDistro2.0_LinkedUpdateProject/packageNew.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read
     assert_response :success
 
     # search will find this new and not yet processed incident now.
-    get '/search/project', match: '[repository/releasetarget/@trigger="maintenance"]'
+    get '/search/project', params: { match: '[repository/releasetarget/@trigger="maintenance"]' }
     assert_response :success
     assert_xml_tag parent: { tag: 'collection' }, tag: 'project', attributes: { name: incidentProject }
 
@@ -1006,7 +1005,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     meta = ActiveXML::Node.new( @response.body )
     meta.add_element 'person', { userid: 'adrian', role: 'reader' }
     Timecop.freeze(1)
-    put '/source/' + incidentProject + '/_meta', meta.dump_xml
+    put '/source/' + incidentProject + '/_meta', params: meta.dump_xml
     assert_response :success
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
@@ -1022,17 +1021,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi.add_element 'releasetarget', { project: 'BaseDistro2.0:LinkedUpdateProject' }
     pi.add_element 'releasetarget', { project: 'BaseDistro3' }
     Timecop.freeze(1)
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
     # add broken releasetarget
     pi.add_element 'releasetarget', { project: 'home:tom' } # invalid target
     Timecop.freeze(1)
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'releasetarget_not_found' }
     # add broken tracker
     pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'INVALID'} # invalid tracker
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'tracker_not_found' }
     # continue
@@ -1049,7 +1048,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # add another issue and update patchinfo
     Timecop.freeze(1)
-    put '/source/' + incidentProject + '/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', 'DUMMY bnc#1042 cve-2009-0815 bnc#4201'
+    put '/source/' + incidentProject + '/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', params: 'DUMMY bnc#1042 cve-2009-0815 bnc#4201'
     assert_response :success
     get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
     assert_response :success
@@ -1076,7 +1075,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'issue' }, tag: 'tracker', content: 'bnc'
 
     # test that another, new started branch is getting the source changes from this incident in flight
-    post '/source/BaseDistro2.0/pack2', cmd: 'branch', maintenance: 1
+    post '/source/BaseDistro2.0/pack2', params: { cmd: 'branch', maintenance: 1 }
     assert_response :success
     get '/source/home:maintenance_coord:branches:BaseDistro2.0:LinkedUpdateProject/pack2.BaseDistro2.0_LinkedUpdateProject/_history'
     assert_response :success
@@ -1119,7 +1118,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                tag: 'status', attributes: { package: 'pack2.BaseDistro3', code: 'scheduled' }
 
     # try to create release request too early
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -1142,7 +1141,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi = ActiveXML::Node.new( @response.body )
     s = pi.add_element 'stopped'
     s.text = 'The issue is not fixed for real yet'
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
     # collect the job results
     run_scheduler('x86_64')
@@ -1157,7 +1156,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'unpublished' } },
                tag: 'status', attributes: { package: 'patchinfo', code: 'broken' }
     # try to create release request nevertheless
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -1169,7 +1168,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # un-block patchinfo build, but filter for an empty result
     pi.delete_element 'stopped'
     pi.add_element('binary').text = 'does not exist'
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
     # collect the job results
     run_scheduler('x86_64')
@@ -1181,7 +1180,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                tag: 'status', attributes: { package: 'patchinfo', code: 'failed' }
     # fix it again
     pi.delete_element 'binary'
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
     # collect the job results
     run_scheduler('x86_64')
@@ -1213,14 +1212,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     maintenance_project_meta = REXML::Document.new(@response.body)
     maintenance_project_meta.elements['/project'].delete_element 'publish'
-    put "/source/#{incidentProject}/_meta", maintenance_project_meta.to_s
+    put "/source/#{incidentProject}/_meta", params: maintenance_project_meta.to_s
     assert_response :success
 
     # mess up patchinfo and try to create release request
     pi.add_element('binary').text = 'does not exist'
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -1231,13 +1230,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # revert
     pi.delete_element 'binary'
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
     run_scheduler('x86_64')
     run_scheduler('i586')
 
     # publisher run did not happen yet
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -1255,7 +1254,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # A new branch would fetch sources from us already
-    post '/source', cmd: 'branch', dryrun: 1, package: "pack2"
+    post '/source', params: { cmd: 'branch', dryrun: 1, package: "pack2" }
     assert_response :success
     assert_xml_tag( parent: { tag: "package", attributes: {project: "BaseDistro2.0:LinkedUpdateProject", package: "pack2"} },
                     tag: 'devel',
@@ -1265,7 +1264,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                     attributes: { project: incidentProject, package: "pack2.BaseDistro3" } )
 
     # create release request for real
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -1292,14 +1291,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
-    post "/request/#{reqid}?cmd=diff&view=xml", nil
+    post "/request/#{reqid}?cmd=diff&view=xml"
     assert_response :success
     # the diffed packages
     assert_xml_tag( tag: 'old', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2' } )
     assert_xml_tag( tag: 'new', attributes: { project: incidentProject, package: 'pack2.BaseDistro2.0_LinkedUpdateProject' } )
 
     # check that changes get still fetched on new branches
-    post '/source/BaseDistro2.0/pack2', cmd: 'branch'
+    post '/source/BaseDistro2.0/pack2', params: { cmd: 'branch' }
     assert_response :success
     get '/source/home:maintenance_coord:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_history'
     assert_response :success
@@ -1337,7 +1336,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # incident project not visible for tom
     login_tom
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="kde4" package="kdelibs" />
                                      <target project="' + incidentProject + '" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
@@ -1347,7 +1346,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 404
     # new incident request accept is blocked, but decline works
     login_adrian
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="BaseDistro3" package="pack2" />
                                      <target project="' + incidentProject + '" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
@@ -1365,7 +1364,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # unlock would fail due to open request
-    post "/source/#{incidentProject}", { cmd: 'unlock', comment: 'cleanup' }
+    post "/source/#{incidentProject}", params: { cmd: 'unlock', comment: 'cleanup' }
     assert_response 403
     assert_xml_tag( tag: 'status', attributes: { code: 'open_release_request' } )
 
@@ -1384,7 +1383,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # leave a comment
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: reqid), 'Release it now!'
+      post create_request_comment_path(id: reqid), params: 'Release it now!'
       assert_response :success
       SendEventEmails.new.perform
     end
@@ -1397,7 +1396,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # now leave another comment and hope the assi gets it too
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: reqid), 'Slave, can you release it? The master is gone'
+      post create_request_comment_path(id: reqid), params: 'Slave, can you release it? The master is gone'
       assert_response :success
       SendEventEmails.new.perform
     end
@@ -1413,19 +1412,19 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: "invalid_date" })
-    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{(DateTime.now + 1.day)}</value></attribute></attributes>"
+    post "/source/#{incidentProject}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{(DateTime.now + 1.day)}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: "under_embargo" })
     # use the special form, no time specified
-    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{DateTime.now.year}-#{DateTime.now.month}-#{DateTime.now.day}</value></attribute></attributes>"
+    post "/source/#{incidentProject}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{DateTime.now.year}-#{DateTime.now.month}-#{DateTime.now.day}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: "under_embargo" })
     # set it to yesterday, so it works below
-    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{DateTime.now.yesterday.year}-#{DateTime.now.yesterday.month}-#{DateTime.now.yesterday.day}</value></attribute></attributes>"
+    post "/source/#{incidentProject}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{DateTime.now.yesterday.year}-#{DateTime.now.yesterday.month}-#{DateTime.now.yesterday.day}</value></attribute></attributes>"
     assert_response :success
 
     #### release packages
@@ -1524,7 +1523,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'releasetarget', attributes: { trigger: 'maintenance' }
 
     # search will find this incident not anymore
-    get '/search/project', match: '[repository/releasetarget/@trigger="maintenance"]'
+    get '/search/project', params: { match: '[repository/releasetarget/@trigger="maintenance"]' }
     assert_response :success
     assert_no_xml_tag parent: { tag: 'collection' }, tag: 'project', attributes: { name: incidentProject }
 
@@ -1610,7 +1609,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     end
 
     # verify that local linked packages still get branched correctly
-    post '/source/BaseDistro2.0/pack2', cmd: 'branch'
+    post '/source/BaseDistro2.0/pack2', params: { cmd: 'branch' }
     assert_response :success
     get '/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
@@ -1667,14 +1666,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # disable lock and verify meta
     delete "/source/#{incidentProject}"
     assert_response 403
-    post "/source/#{incidentProject}", { cmd: 'unlock', comment: 'cleanup' }
+    post "/source/#{incidentProject}", params: { cmd: 'unlock', comment: 'cleanup' }
     assert_response :success
     get "/source/#{incidentProject}/_meta"
     assert_response :success
     assert_xml_tag tag: 'releasetarget', attributes: { trigger: 'maintenance' }
 
     # create a service pack on top of it
-    put '/source/BaseDistro2.0:ServicePack1/_meta', '<project name="BaseDistro2.0:ServicePack1"> <title/><description/><link project="BaseDistro2.0"/></project>'
+    put '/source/BaseDistro2.0:ServicePack1/_meta', params: '<project name="BaseDistro2.0:ServicePack1"> <title/><description/><link project="BaseDistro2.0"/></project>'
     assert_response :success
     # get current vrev
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
@@ -1722,9 +1721,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     delete '/source/BaseDistro2.0:ServicePack1/pack2'
     assert_response :success
-    post "/source/BaseDistro2.0:ServicePack1/_attribute", "<attributes><attribute namespace='OBS' name='MakeOriginOlder'/></attributes>"
+    post "/source/BaseDistro2.0:ServicePack1/_attribute", params: "<attributes><attribute namespace='OBS' name='MakeOriginOlder'/></attributes>"
     assert_response :success
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="BaseDistro2.0" package="pack2" />
                                      <target project="BaseDistro2.0:ServicePack1" package="pack2" />
@@ -1760,9 +1759,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # create an entirely new package via submit request the right way
     # pack2NEW is not available via project link
-    post "/source/BaseDistro2.0:ServicePack1/_attribute", "<attributes><attribute namespace='OBS' name='MakeOriginOlder'/></attributes>"
+    post "/source/BaseDistro2.0:ServicePack1/_attribute", params: "<attributes><attribute namespace='OBS' name='MakeOriginOlder'/></attributes>"
     assert_response :success
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="BaseDistro2.0" package="pack2" />
                                      <target project="BaseDistro2.0:ServicePack1" package="pack2NEW" />
@@ -1824,7 +1823,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_create_invalid_submit_request
     login_tom
     # submit requests are not allowed against release projects
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="BaseDistro2.0" package="pack2" rev="0" />
                                      <target project="BaseDistro2.0:LinkedUpdateProject" package="pack2" />
@@ -1839,7 +1838,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_create_invalid_incident_request
     login_tom
     # without specifing target, the default target must get found via attribute
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom" />
                                      <target project="home:tom" />
@@ -1850,7 +1849,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'no_maintenance_project' }
 
     # submit foreign package without releaseproject
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="kde4" package="kdelibs" />
                                      <target project="My:Maintenance" />
@@ -1861,7 +1860,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'no_maintenance_release_target' }
 
     # submit foreign package with wrong releaseproject
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="kde4" package="kdelibs" />
                                      <target project="My:Maintenance" releaseproject="home:tom" />
@@ -1870,7 +1869,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'no_maintenance_release_target' }
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="kde4" package="kdelibs" />
                                      <target project="My:Maintenance" releaseproject="NOT_EXISTING" />
@@ -1884,20 +1883,20 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_create_invalid_release_request
     login_tom
     # branch a package with simple branch command (not mbranch)
-    post '/source/BaseDistro/pack1', cmd: :branch
+    post '/source/BaseDistro/pack1', params: { cmd: :branch }
     assert_response :success
     # check source link
     get '/source/home:tom:branches:BaseDistro:Update/pack1/_link'
     assert_response :success
     # some change
-    put '/source/home:tom:branches:BaseDistro:Update/pack1/file', "file"
+    put '/source/home:tom:branches:BaseDistro:Update/pack1/file', params: "file"
     assert_response :success
     # remove release target
     get '/source/home:tom:branches:BaseDistro:Update/_meta'
     assert_response :success
     pi = REXML::Document.new( @response.body )
     pi.elements['//repository'].delete_element 'releasetarget'
-    put '/source/home:tom:branches:BaseDistro:Update/_meta', pi.to_s
+    put '/source/home:tom:branches:BaseDistro:Update/_meta', params: pi.to_s
     assert_response :success
 
     # Run without server side expansion
@@ -1909,7 +1908,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
            </action>
            <state name="new" />
          </request>'
-    post '/request?cmd=create', rq
+    post '/request?cmd=create', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'repository_without_releasetarget' }
 
@@ -1920,10 +1919,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
            </action>
            <state name="new" />
          </request>'
-    post '/request?cmd=create', rq
+    post '/request?cmd=create', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'missing_patchinfo' }
-    post '/request?cmd=create&ignore_build_state=1', rq
+    post '/request?cmd=create&ignore_build_state=1', params: rq
     assert_response 400
     # assert_xml_tag :tag => 'status', :attributes => { code: 'wrong_linked_package_source' }
     assert_xml_tag tag: 'status', attributes: { code: 'missing_action' }
@@ -1936,12 +1935,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     meta.elements['//repository'].add_element 'releasetarget'
     meta.elements['//releasetarget'].add_attribute REXML::Attribute.new('project', 'BaseDistro:Update')
     meta.elements['//releasetarget'].add_attribute REXML::Attribute.new('repository', 'BaseDistroUpdateProject_repo')
-    put '/source/home:tom:branches:BaseDistro:Update/_meta', meta.to_s
+    put '/source/home:tom:branches:BaseDistro:Update/_meta', params: meta.to_s
     assert_response :success
 
     # retry
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post '/request?cmd=create', rq
+    post '/request?cmd=create', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'missing_patchinfo' }
 
@@ -1959,13 +1958,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post '/request?cmd=create', rq
+    post '/request?cmd=create', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'build_not_finished' }
 
     # _patchinfo still incomplete
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post '/request?cmd=create&ignore_build_state=1', rq
+    post '/request?cmd=create&ignore_build_state=1', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'incomplete_patchinfo' }
 
@@ -1975,12 +1974,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     pi = REXML::Document.new( @response.body )
     pi.elements['//summary'].text = 'My Summary'
-    put '/source/home:tom:branches:BaseDistro:Update/patchinfo/_patchinfo', pi.to_s
+    put '/source/home:tom:branches:BaseDistro:Update/patchinfo/_patchinfo', params: pi.to_s
     assert_response :success
 
     # remove architecture
     meta.elements['//repository'].delete_element 'arch'
-    put '/source/home:tom:branches:BaseDistro:Update/_meta', meta.to_s
+    put '/source/home:tom:branches:BaseDistro:Update/_meta', params: meta.to_s
     assert_response :success
 
     rq = '<request>
@@ -1991,7 +1990,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
            <state name="new" />
          </request>'
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post '/request?cmd=create&ignore_build_state=1', rq
+    post '/request?cmd=create&ignore_build_state=1', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'repository_without_architecture' }
 
@@ -1999,11 +1998,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_tom
     meta.elements['//repository'].add_element 'arch'
     meta.elements['//arch'].text = 'ppc'
-    put '/source/home:tom:branches:BaseDistro:Update/_meta', meta.to_s
+    put '/source/home:tom:branches:BaseDistro:Update/_meta', params: meta.to_s
     assert_response :success
 
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post '/request?cmd=create&ignore_build_state=1', rq
+    post '/request?cmd=create&ignore_build_state=1', params: rq
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'architecture_order_missmatch' }
 
@@ -2024,7 +2023,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     meta = originmeta = ActiveXML::Node.new( @response.body )
     meta.add_element 'person', { userid: 'adrian', role: 'reviewer' }
-    put '/source/BaseDistro:Update/_meta', meta.dump_xml
+    put '/source/BaseDistro:Update/_meta', params: meta.dump_xml
     assert_response :success
 
     # ensure target package exists
@@ -2033,7 +2032,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     login_tom
     # create project
-    put '/source/home:tom:EVERGREEN/_meta', "<project name='home:tom:EVERGREEN'> <title/> <description/>
+    put '/source/home:tom:EVERGREEN/_meta', params: "<project name='home:tom:EVERGREEN'> <title/> <description/>
                                          <link project='BaseDistro:Update'/>
                                          <repository name='dummy'>
                                            <releasetarget project='BaseDistro:Update' repository='BaseDistroUpdateProject_repo' trigger='maintenance' />
@@ -2041,14 +2040,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                           </repository>
                                         </project>"
     assert_response :success
-    post '/source/home:tom:EVERGREEN/_attribute', "<attributes><attribute namespace='OBS' name='BranchTarget' /></attributes>"
+    post '/source/home:tom:EVERGREEN/_attribute', params: "<attributes><attribute namespace='OBS' name='BranchTarget' /></attributes>"
     assert_response :success
     # create package
-    put '/source/home:tom:EVERGREEN/pack/_meta', "<package name='pack'> <title/> <description/> </package>"
+    put '/source/home:tom:EVERGREEN/pack/_meta', params: "<package name='pack'> <title/> <description/> </package>"
     assert_response :success
 
     # create release request with default reviewer
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="home:tom:EVERGREEN" package="pack" />
                                      <target project="BaseDistro:Update" package="pack2" />
@@ -2065,7 +2064,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # create release request WITHOUT default reviewer
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="home:tom:EVERGREEN" package="pack" />
                                      <target project="home:tom:EVERGREEN" package="pack2" />
@@ -2083,10 +2082,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # but get reviewer added if defined in own project
     login_king
-    put '/source/home:tom:EVERGREEN/pack2/_meta', "<package name='pack2'> <title/> <description/> <person userid='adrian' role='reviewer' /> </package>"
+    put '/source/home:tom:EVERGREEN/pack2/_meta', params: "<package name='pack2'> <title/> <description/> <person userid='adrian' role='reviewer' /> </package>"
     assert_response :success
     login_tom
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="home:tom:EVERGREEN" package="pack" />
                                      <target project="home:tom:EVERGREEN" package="pack2" />
@@ -2104,7 +2103,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # cleanup
     login_king
-    put '/source/BaseDistro:Update/_meta', originmeta.dump_xml
+    put '/source/BaseDistro:Update/_meta', params: originmeta.dump_xml
     assert_response :success
     delete '/source/home:tom:EVERGREEN'
     assert_response :success
@@ -2113,7 +2112,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_try_to_release_without_permissions_binary_permissions
     login_tom
     # create project without trigger
-    put '/source/home:tom:test/_meta', "<project name='home:tom:test'> <title/> <description/>
+    put '/source/home:tom:test/_meta', params: "<project name='home:tom:test'> <title/> <description/>
                                          <repository name='dummy'>
                                            <releasetarget project='BaseDistro' repository='BaseDistro_repo' />
                                            <arch>i586</arch>
@@ -2121,7 +2120,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                         </project>"
     assert_response :success
     # add trigger
-    put '/source/home:tom:test/_meta', "<project name='home:tom:test'> <title/> <description/>
+    put '/source/home:tom:test/_meta', params: "<project name='home:tom:test'> <title/> <description/>
                                          <repository name='dummy'>
                                            <releasetarget project='BaseDistro' repository='BaseDistro_repo' trigger='maintenance' />
                                            <arch>i586</arch>
@@ -2132,11 +2131,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'releasetarget', attributes: { trigger: 'maintenance' })
     # create package
-    put '/source/home:tom:test/pack/_meta', "<package name='pack'> <title/> <description/> </package>"
+    put '/source/home:tom:test/pack/_meta', params: "<package name='pack'> <title/> <description/> </package>"
     assert_response :success
 
     # create release request
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="home:tom:test" package="pack" />
                                      <target project="home:tom:test" package="pack" />
@@ -2154,7 +2153,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'release_target_no_permission' }
 
     # create another request with same target must be blocked
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="home:tom:test" package="pack" />
                                      <target project="home:tom:test" package="pack" />
@@ -2176,13 +2175,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_try_to_release_without_permissions_source_permissions
     login_tom
     # create project
-    put '/source/home:tom:test/_meta', "<project name='home:tom:test'> <title/> <description/> </project>"
+    put '/source/home:tom:test/_meta', params: "<project name='home:tom:test'> <title/> <description/> </project>"
     assert_response :success
-    put '/source/home:tom:test/pack/_meta', "<package name='pack'> <title/> <description/> </package>"
+    put '/source/home:tom:test/pack/_meta', params: "<package name='pack'> <title/> <description/> </package>"
     assert_response :success
 
     # create release request
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="home:tom:test" package="pack" />
                                      <target project="BaseDistro" package="pack" />

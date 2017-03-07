@@ -26,7 +26,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post '/request?cmd=create',
-           "<request><action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action></request>"
+           params: "<request><action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
       SendEventEmails.new.perform
@@ -52,7 +52,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
         body += "<action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action>\n"
       end
       body += "</request>"
-      post '/request?cmd=create', body
+      post '/request?cmd=create', params: body
       assert_response :success
       req = Xmlhash.parse(@response.body)
       assert_equal actions, req['action'].count
@@ -73,7 +73,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     myid = 0
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post '/request?cmd=create', "<request><action type='set_bugowner'><target project='home:tom'/><person name='Iggy'/></action></request>"
+      post '/request?cmd=create', params: "<request><action type='set_bugowner'><target project='home:tom'/><person name='Iggy'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
       SendEventEmails.new.perform
@@ -91,7 +91,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     # now check if Iggy (the creator) gets an email about revokes
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post "/request/#{myid}?cmd=changestate&newstate=declined", ''
+      post "/request/#{myid}?cmd=changestate&newstate=declined", params: ''
       assert_response :success
       SendEventEmails.new.perform
     end
@@ -116,7 +116,8 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post '/request?cmd=create',
-           "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action></request>"
+           params: "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action>"\
+                   "</request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
       SendEventEmails.new.perform
@@ -134,7 +135,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     myid = ''
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post '/request?cmd=create', "<request><action type='delete'><target project='home:coolo' repository='standard'/></action></request>"
+      post '/request?cmd=create', params: "<request><action type='delete'><target project='home:coolo' repository='standard'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
       SendEventEmails.new.perform

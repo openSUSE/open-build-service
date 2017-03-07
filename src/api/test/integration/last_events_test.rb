@@ -30,7 +30,7 @@ class LastEventsTest < ActionDispatch::IntegrationTest
     assert_equal 1, count_before - BackendPackage.links.count
 
     # now readd the link (also to fix the fixtures)
-    put('/source/BaseDistro2.0/pack2.linked/_link', "<link package=\"pack2\" cicount='copy' />")
+    put('/source/BaseDistro2.0/pack2.linked/_link', params: "<link package=\"pack2\" cicount='copy' />")
     UpdateNotificationEvents.new.perform
     assert_equal count_before, BackendPackage.links.count
   end

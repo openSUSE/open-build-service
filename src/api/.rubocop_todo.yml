@@ -175,13 +175,6 @@ Rails/HasAndBelongsToMany:
     - 'app/models/static_permission.rb'
     - 'app/models/user.rb'
 
-# Offense count: 1260
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: spec/**/*, test/**/*
-Rails/HttpPositionalArguments:
-  Enabled: false
-
 # Offense count: 5
 # Configuration parameters: Include.
 # Include: db/migrate/*.rb

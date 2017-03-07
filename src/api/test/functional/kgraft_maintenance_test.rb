@@ -52,11 +52,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     Timecop.freeze(1)
     # setup a maintained distro
-    post '/source/BaseDistro2.0/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/BaseDistro2.0/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
     Timecop.freeze(1)
     post '/source/BaseDistro2.0/_attribute',
-         "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> </attribute> </attributes>"
+         params: "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> "\
+                 "</attribute> </attributes>"
     assert_response :success
 
     # lock GM distro to be sure that nothing can be released to
@@ -66,12 +67,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     doc = REXML::Document.new(@response.body)
     doc.elements['/project'].add_element 'lock'
     doc.elements['/project/lock'].add_element 'enable'
-    put '/source/BaseDistro2.0/_meta', doc.to_s
+    put '/source/BaseDistro2.0/_meta', params: doc.to_s
     assert_response :success
 
     # create maintenance incident for first kernel update
     Timecop.freeze(1)
-    post '/source', cmd: 'createmaintenanceincident'
+    post '/source', params: { cmd: 'createmaintenanceincident' }
     assert_response :success
     assert_xml_tag( tag: 'data', attributes: { name: 'targetproject' } )
     data = REXML::Document.new(@response.body)
@@ -79,29 +80,29 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     kernelIncidentID = kernelIncidentProject.gsub( /^My:Maintenance:/, '')
     # submit packages via mbranch
     Timecop.freeze(1)
-    post '/source', cmd: 'branch', package: 'pack2', target_project: kernelIncidentProject, add_repositories: 1
+    post '/source', params: { cmd: 'branch', package: 'pack2', target_project: kernelIncidentProject, add_repositories: 1 }
     assert_response :success
     get "/source/#{kernelIncidentProject}/_meta"
     assert_response :success
 
     # add empty kgraft container
     put "/source/BaseDistro2.0:LinkedUpdateProject/kgraft-incident-#{kernelIncidentID}/_meta",
-        "<package name='kgraft-incident-#{kernelIncidentID}' project='BaseDistro2.0:LinkedUpdateProject'><title/><description/></package>"
+        params: "<package name='kgraft-incident-#{kernelIncidentID}' project='BaseDistro2.0:LinkedUpdateProject'><title/><description/></package>"
     assert_response :success
     post "/source/BaseDistro2.0:LinkedUpdateProject/kgraft-incident-#{kernelIncidentID}",
-         cmd: 'branch', target_project: kernelIncidentProject
+         params: { cmd: 'branch', target_project: kernelIncidentProject }
     assert_response :success
 
     # create a GA update patch
     Timecop.freeze(1)
-    post '/source/BaseDistro2.0/kgraft-GA', cmd: 'branch', missingok: 1, extend_package_names: 1, add_repositories: 1, ignoredevel: 1
+    post '/source/BaseDistro2.0/kgraft-GA', params: { cmd: 'branch', missingok: 1, extend_package_names: 1, add_repositories: 1, ignoredevel: 1 }
     assert_response :success
     raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-GA.BaseDistro2.0/package.spec",
             File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
 
     # add channel
-    put '/source/BaseDistro2Channel/_meta', '<project name="BaseDistro2Channel"><title/><description/>
+    put '/source/BaseDistro2Channel/_meta', params: '<project name="BaseDistro2Channel"><title/><description/>
                                                <build><disable/></build>
                                                <publish><enable/></publish>
                                                <repository name="channel_repo">
@@ -110,17 +111,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                                </repository>
                                              </project>'
     assert_response :success
-    put '/source/BaseDistro2Channel/_config', "Repotype: rpm-md-legacy\nType: spec"
+    put '/source/BaseDistro2Channel/_config', params: "Repotype: rpm-md-legacy\nType: spec"
     assert_response :success
     # channel def
-    put '/source/Channel/_meta', '<project name="Channel"><title/><description/>
+    put '/source/Channel/_meta', params: '<project name="Channel"><title/><description/>
                                   </project>'
     assert_response :success
-    put '/source/Channel/BaseDistro2/_meta', '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
+    put '/source/Channel/BaseDistro2/_meta', params: '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
     assert_response :success
     # rubocop:disable Metrics/LineLength
     # add reference to empty kgraft container
-    post '/source/Channel/BaseDistro2?cmd=importchannel', "<?xml version='1.0' encoding='UTF-8'?>
+    post '/source/Channel/BaseDistro2?cmd=importchannel', params: "<?xml version='1.0' encoding='UTF-8'?>
         <channel>
           <target project='BaseDistro2Channel' repository='channel_repo'>
             <disabled/>
@@ -136,18 +137,16 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     ### Here starts the kgraft team
     # create a update patch based on former kernel incident
     Timecop.freeze(1)
-    post '/source/' + kernelIncidentProject + '/kgraft-incident-' + kernelIncidentID,
-         cmd: 'branch', target_project: "home:king:branches:BaseDistro2.0",
-         maintenance: 1
+    post '/source/' + kernelIncidentProject + '/kgraft-incident-' + kernelIncidentID, params: { cmd: 'branch', target_project: "home:king:branches:BaseDistro2.0", maintenance: 1 }
     assert_response :success
     raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernelIncidentProject.tr( ':', '_')}/packageNew.spec",
             File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read
     assert_response :success
 
     # branch channel
-    post '/source/Channel/BaseDistro2', cmd: 'branch', target_project: "home:king:branches:BaseDistro2.0", extend_package_names: 1, add_repositories: 1
+    post '/source/Channel/BaseDistro2', params: { cmd: 'branch', target_project: "home:king:branches:BaseDistro2.0", extend_package_names: 1, add_repositories: 1 }
     assert_response :success
-    put "/source/home:king:branches:BaseDistro2.0/BaseDistro2.Channel/_channel", "<?xml version='1.0' encoding='UTF-8'?>
+    put "/source/home:king:branches:BaseDistro2.0/BaseDistro2.Channel/_channel", params: "<?xml version='1.0' encoding='UTF-8'?>
         <channel>
           <target project='BaseDistro2Channel' repository='channel_repo'>
             <disabled/>
@@ -164,7 +163,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # make the kgraft update an incident via maintenance_incident request
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:king:branches:BaseDistro2.0" />
                                      <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
@@ -212,7 +211,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: "repository", attributes: { name: "BaseDistro2Channel" }
 
     # add disabled target repo
-    post "/source/#{incidentProject}?cmd=modifychannels&mode=enable_all", nil
+    post "/source/#{incidentProject}?cmd=modifychannels&mode=enable_all"
     assert_response :success
     get "/source/" + incidentProject + "/_meta"
     assert_response :success
@@ -259,7 +258,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi.find_first('description').text = 'live patch is always critical'
     pi.find_first('rating').text = 'critical'
     Timecop.freeze(1)
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
 
     ### the backend is now building the packages, injecting results
@@ -299,7 +298,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     doc = REXML::Document.new(@response.body)
     doc.elements['/project'].add_element 'lock'
     doc.elements['/project/lock'].add_element 'enable'
-    put '/source/' + kernelIncidentProject + '/_meta', doc.to_s
+    put '/source/' + kernelIncidentProject + '/_meta', params: doc.to_s
     assert_response :success
 
     # collect the job results
@@ -322,7 +321,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     #
     # create release request
-    post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -394,7 +393,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal false, node.has_attribute?(:rev)
 
     # old one still branchable even though conflicting change has been released?
-    post '/source', cmd: 'branch', package: 'pack2', add_repositories: 1
+    post '/source', params: { cmd: 'branch', package: 'pack2', add_repositories: 1 }
     assert_response :success
     delete "/source/home:king:branches:OBS_Maintained:pack2"
     assert_response :success
@@ -410,11 +409,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     delete '/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.1'
     assert_response :success
-    post "/source/BaseDistro2.0", { cmd: 'unlock', comment: 'revert' }
+    post "/source/BaseDistro2.0", params: { cmd: 'unlock', comment: 'revert' }
     assert_response :success
-    post "/source/#{kernelIncidentProject}", { cmd: 'unlock', comment: 'revert' }
+    post "/source/#{kernelIncidentProject}", params: { cmd: 'unlock', comment: 'revert' }
     assert_response :success
-    post "/source/#{incidentProject}", { cmd: 'unlock', comment: 'cleanup' }
+    post "/source/#{incidentProject}", params: { cmd: 'unlock', comment: 'cleanup' }
     assert_response :success
     delete "/source/#{incidentProject}"
     assert_response :success

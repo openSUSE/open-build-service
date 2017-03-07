@@ -25,7 +25,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
   def test_ichain
     login_adrian
-    get "/person/tom", nil, { "username" => "fred" }
+    get "/person/tom", headers: { "username" => "fred" }
     assert_response :success
   end
 
@@ -73,11 +73,11 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_webui_login
-    post "/person/tom/login", nil, { "username" => "tom" }
+    post "/person/tom/login", headers: { "username" => "tom" }
     assert_response 401
 
     prepare_request_valid_user
-    post "/person/tom/login", nil, { "username" => "tom" }
+    post "/person/tom/login", headers: { "username" => "tom" }
     assert_response :success
   end
 
@@ -129,7 +129,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 XML
 
     prepare_request_valid_user
-    put "/person/tom", xml
+    put "/person/tom", params: xml
     assert_response :success
     assert_select "status", code: "ok" do
       assert_select "summary", "Ok"
@@ -153,7 +153,7 @@ XML
 XML
 
     prepare_request_valid_user
-    put "/person/tom", xml
+    put "/person/tom", params: xml
     assert_response :success
     assert_select "status", code: "ok" do
       assert_select "summary", "Ok"
@@ -175,7 +175,7 @@ XML
 XML
 
     prepare_request_valid_user
-    put "/person/tom", xml
+    put "/person/tom", params: xml
     assert_response 404
     assert_select "status", code: "not_found" do
       assert_select "summary", "Couldn't find Project"
@@ -204,7 +204,7 @@ XML
     doc.elements["/person"].insert_after(doc.elements["//state"], r)
     # Write changed data back and validate result
     prepare_request_valid_user
-    put "/person/tom", doc.to_s
+    put "/person/tom", params: doc.to_s
     assert_response :success
     get "/person/tom"
     assert_response :success
@@ -215,7 +215,7 @@ XML
 
     # write as admin
     login_king
-    put "/person/tom", doc.to_s
+    put "/person/tom", params: doc.to_s
     assert_response :success
     get "/person/tom"
     assert_response :success
@@ -223,7 +223,7 @@ XML
 
     # revert
     doc.elements["/person"].delete_element "globalrole"
-    put "/person/tom", doc.to_s
+    put "/person/tom", params: doc.to_s
     assert_response :success
     get "/person/tom"
     assert_response :success
@@ -231,42 +231,42 @@ XML
 
     # remove watchlist item
     doc.elements["//watchlist"].delete_element "project"
-    put "/person/tom", doc.to_s
+    put "/person/tom", params: doc.to_s
     assert_response :success
     get "/person/tom"
     assert_response :success
     assert_no_xml_tag tag: "project", attributes: { name: "home:tom" }
 
     login_adrian
-    put "/person/tom", doc.to_s
+    put "/person/tom", params: doc.to_s
     assert_response 403
 
     login_king
-    put "/person/tom", doc.to_s
+    put "/person/tom", params: doc.to_s
     assert_response :success
 
     # lock user
     doc.elements["//state"].text = "locked"
-    put "/person/tom", doc.to_s
+    put "/person/tom", params: doc.to_s
     assert_response :success
     get "/person/tom"
     assert_response :success
     assert_xml_tag tag: "state", content: "locked"
     prepare_request_valid_user
-    put "/person/tom", doc.to_s
+    put "/person/tom", params: doc.to_s
     assert_response 403
     # set back
     login_king
     doc.elements["//state"].text = "confirmed"
-    put "/person/tom", doc.to_s
+    put "/person/tom", params: doc.to_s
     assert_response :success
 
     # create new user
-    put "/person/new_user", doc.to_s
+    put "/person/new_user", params: doc.to_s
     assert_response :success
     get "/person/new_user"
     assert_response :success
-    put "/person/new_user", doc.to_s
+    put "/person/new_user", params: doc.to_s
     assert_response :success
     # cleanup
     User.current = User.find_by(login: 'new_user')
@@ -295,7 +295,7 @@ XML
 </person>"
 
     # create new user
-    put "/person/lost_guy", user_xml
+    put "/person/lost_guy", params: user_xml
     assert_response :success
 
     get "/person/lost_guy"
@@ -314,7 +314,7 @@ XML
 </person>"
 
     # no account chaining
-    put "/person/lost_guy2", user_xml
+    put "/person/lost_guy2", params: user_xml
     assert_response 400
     assert_xml_tag tag: "status", attributes: { code: "subaccount_chaining" }
   end
@@ -330,23 +330,23 @@ XML
 </person>"
 
     # create new user
-    put "/person/lost_guy", user_xml
+    put "/person/lost_guy", params: user_xml
     assert_response :success
 
     # create sub project of home
-    put "/source/home:lost_guy:subproject/_meta", '<project name="home:lost_guy:subproject"><title/><description/></project>'
+    put "/source/home:lost_guy:subproject/_meta", params: '<project name="home:lost_guy:subproject"><title/><description/></project>'
     assert_response :success
 
     # only admins, not even the user itself can lock himself
     login_Iggy
-    post "/person/lost_guy?cmd=lock", nil
+    post "/person/lost_guy?cmd=lock"
     assert_response 403
-    post "/person/lost_guy?cmd=delete", nil
+    post "/person/lost_guy?cmd=delete"
     assert_response 403
 
     # but the admin can ...
     login_king
-    post "/person/lost_guy?cmd=lock", nil
+    post "/person/lost_guy?cmd=lock"
     assert_response :success
     get "/person/lost_guy"
     assert_response :success
@@ -359,7 +359,7 @@ XML
     assert_xml_tag tag: "lock"
 
     # we can still delete the locked user
-    post "/person/lost_guy?cmd=delete", nil
+    post "/person/lost_guy?cmd=delete"
     assert_response :success
     get "/person/lost_guy"
     assert_response 404
@@ -383,7 +383,7 @@ XML
               <password>so_alone</password>
             </unregisteredperson>"
            '
-    post "/person?cmd=register", data
+    post "/person?cmd=register", params: data
     assert_response 400
     assert_xml_tag tag: 'status', attributes: {code: "err_register_save"}
     assert_xml_tag tag: 'summary', content: "Sorry, sign up is disabled"
@@ -401,7 +401,7 @@ XML
               <state>confirmation</state>
             </unregisteredperson>"
            '
-    post "/person?cmd=register", data
+    post "/person?cmd=register", params: data
     assert_response 400
     assert_xml_tag tag: 'status', attributes: {code: "err_register_save"}
     assert_xml_tag tag: 'summary', content: "Thank you for signing up! An admin has to confirm your account now. Please be patient."
@@ -422,7 +422,7 @@ XML
               <password>so_alone</password>
             </unregisteredperson>"
            '
-    post "/person?cmd=register", data
+    post "/person?cmd=register", params: data
     assert_response :success
 
     u = User.find_by_login "adrianSuSE"
@@ -434,22 +434,22 @@ XML
 
     # change password
     data = 'NEWPASSW0RD'
-    post "/person/adrianSuSE?cmd=change_password", data
+    post "/person/adrianSuSE?cmd=change_password", params: data
     assert_response 401
 
     # wrong user
     login_adrian
-    post "/person/adrianSuSE?cmd=change_password", data
+    post "/person/adrianSuSE?cmd=change_password", params: data
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: "change_password_no_permission" }
 
     # admin
     login_king
-    post "/person/adrianSuSE?cmd=change_password", ""
+    post "/person/adrianSuSE?cmd=change_password", params: ""
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: "password_empty" }
 
-    post "/person/adrianSuSE?cmd=change_password", data
+    post "/person/adrianSuSE?cmd=change_password", params: data
     assert_response :success
     # test login with new password
     prepare_request_with_user "adrianSuSE", data
@@ -471,7 +471,7 @@ XML
             </unregisteredperson>"
            '
     # FIXME3.0: to be removed
-    post "/person/register", data
+    post "/person/register", params: data
     assert_response :success
 
     u = User.find_by_login "adrianSuSE"

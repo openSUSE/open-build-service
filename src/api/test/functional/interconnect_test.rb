@@ -18,10 +18,10 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'event', attributes: {type: 'project' }
     assert_no_xml_tag tag: 'events', attributes: {sync: 'lost' }
 
-    post '/public/lastevents', nil # OBS 2.3 and later
+    post '/public/lastevents' # OBS 2.3 and later
     assert_response :success
     assert_xml_tag tag: 'events', attributes: {sync: 'lost' }
-    post '/public/lastevents', start: '1'
+    post '/public/lastevents', params: { start: '1' }
     assert_response :success
     assert_xml_tag tag: 'event', attributes: {type: 'project' }
     assert_no_xml_tag tag: 'events', attributes: {sync: 'lost' }
@@ -150,7 +150,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
   end
 
   def test_backend_post_with_forms
-    post '/public/lastevents', 'filter=pack1&filter=pack2'
+    post '/public/lastevents', params: 'filter=pack1&filter=pack2'
     assert_response :success
   end
 
@@ -158,7 +158,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     login_tom
 
     # use repo
-    put '/source/home:tom:testing/_meta', '<project name="home:tom:testing">
+    put '/source/home:tom:testing/_meta', params: '<project name="home:tom:testing">
 	  <title />
 	  <description />
 	  <repository name="repo">
@@ -172,7 +172,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     login_king
     get '/source/RemoteInstance/_meta'
     assert_response :success
-    put '/source/RemoteInstance/_meta', @response.body.dup
+    put '/source/RemoteInstance/_meta', params: @response.body.dup
     assert_response :success
 
     # cleanup
@@ -203,9 +203,9 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     get '/source/RemoteInstance:BaseDistro/pack1?view=info&parse=1' # licensedigger needs it
     assert_response :success
     assert_xml_tag( tag: 'sourceinfo', attributes: { package: 'pack1' } )
-    post '/source/RemoteInstance:BaseDistro/pack1', cmd: 'showlinked'
+    post '/source/RemoteInstance:BaseDistro/pack1', params: { cmd: 'showlinked' }
     assert_response :success
-    post '/source/RemoteInstance:BaseDistro/pack1', cmd: 'branch'
+    post '/source/RemoteInstance:BaseDistro/pack1', params: { cmd: 'branch' }
     assert_response :success
     get '/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
@@ -216,13 +216,13 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_xml_tag( tag: 'entry', attributes: { name: 'pack2.linked', originproject: 'RemoteInstance:BaseDistro2.0' } )
     # test binary operations
     login_king
-    post '/build/RemoteInstance:BaseDistro', cmd: 'wipe', package: 'pack1'
+    post '/build/RemoteInstance:BaseDistro', params: { cmd: 'wipe', package: 'pack1' }
     assert_response 403
-    post '/build/RemoteInstance:BaseDistro', cmd: 'rebuild', package: 'pack1'
+    post '/build/RemoteInstance:BaseDistro', params: { cmd: 'rebuild', package: 'pack1' }
     assert_response 403
-    post '/build/RemoteInstance:BaseDistro', cmd: 'wipe'
+    post '/build/RemoteInstance:BaseDistro', params: { cmd: 'wipe' }
     assert_response 403
-    post '/build/RemoteInstance:BaseDistro', cmd: 'rebuild'
+    post '/build/RemoteInstance:BaseDistro', params: { cmd: 'rebuild' }
     assert_response 403
     # the webui requires this for repository browsing in advanced repo add mask
     get '/build/RemoteInstance:BaseDistro'
@@ -293,9 +293,9 @@ class InterConnectTests < ActionDispatch::IntegrationTest
       assert_response :success
       get "/source/#{project}/pack2.linked/package.spec"
       assert_response :success
-      post "/source/#{project}/pack2", cmd: 'showlinked'
+      post "/source/#{project}/pack2", params: { cmd: 'showlinked' }
       assert_response :success
-      post "/source/#{project}/pack2", cmd: 'branch'
+      post "/source/#{project}/pack2", params: { cmd: 'branch' }
       assert_response :success
       get "/source/#{project}"
       assert_response :success
@@ -313,9 +313,9 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     get '/build/UseRemoteInstance/pop/i586/pack2.linked/_log'
     assert_response :success
     # test source modifications
-    post '/build/UseRemoteInstance/pack2', cmd: 'set_flag'
+    post '/build/UseRemoteInstance/pack2', params: { cmd: 'set_flag' }
     assert_response 403
-    post '/build/UseRemoteInstance/pack2', cmd: 'unlock'
+    post '/build/UseRemoteInstance/pack2', params: { cmd: 'unlock' }
     assert_response 403
     get '/source/UseRemoteInstance/NotExisting'
     assert_response 404
@@ -325,13 +325,13 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response 404
     # test binary operations
     login_king
-    post '/build/UseRemoteInstance', cmd: 'wipe', package: 'pack2.linked'
+    post '/build/UseRemoteInstance', params: { cmd: 'wipe', package: 'pack2.linked' }
     assert_response :success
-    post '/build/UseRemoteInstance', cmd: 'rebuild', package: 'pack2.linked'
+    post '/build/UseRemoteInstance', params: { cmd: 'rebuild', package: 'pack2.linked' }
     assert_response :success
-    post '/build/UseRemoteInstance', cmd: 'wipe'
+    post '/build/UseRemoteInstance', params: { cmd: 'wipe' }
     assert_response :success
-    post '/build/UseRemoteInstance', cmd: 'rebuild'
+    post '/build/UseRemoteInstance', params: { cmd: 'rebuild' }
     assert_response :success
 
     # access via a local package linking to a remote package
@@ -341,7 +341,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     ret = Xmlhash.parse(@response.body)['linkinfo']
     xsrcmd5 = ret['xsrcmd5']
     assert_not_nil xsrcmd5
-    post '/source/LocalProject/remotepackage', cmd: 'showlinked'
+    post '/source/LocalProject/remotepackage', params: { cmd: 'showlinked' }
     assert_response :success
     get '/source/LocalProject/remotepackage/_meta'
     assert_response :success
@@ -354,7 +354,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_equal 'pack1', ret['package']
     get "/source/LocalProject/remotepackage/my_file?rev=#{xsrcmd5}"
     assert_response :success
-    post '/source/LocalProject/remotepackage', cmd: 'branch'
+    post '/source/LocalProject/remotepackage', params: { cmd: 'branch' }
     assert_response :success
     get "/source/LocalProject/remotepackage/_link?rev=#{xsrcmd5}"
     assert_response 404
@@ -362,13 +362,13 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response 404
     # test binary operations
     login_king
-    post '/build/LocalProject', cmd: 'wipe', package: 'remotepackage'
+    post '/build/LocalProject', params: { cmd: 'wipe', package: 'remotepackage' }
     assert_response :success
-    post '/build/LocalProject', cmd: 'rebuild', package: 'remotepackage'
+    post '/build/LocalProject', params: { cmd: 'rebuild', package: 'remotepackage' }
     assert_response :success
-    post '/build/LocalProject', cmd: 'wipe'
+    post '/build/LocalProject', params: { cmd: 'wipe' }
     assert_response :success
-    post '/build/LocalProject', cmd: 'rebuild'
+    post '/build/LocalProject', params: { cmd: 'rebuild' }
     assert_response :success
 
     # cleanup
@@ -390,11 +390,10 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     delete '/source/RemoteInstance:BaseDistro2.0/pack2'
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'delete_package_no_permission' }
-    post '/source/RemoteInstance:BaseDistro2.0/package', cmd: :copy, oproject: 'BaseDistro2.0', opackage: 'pack2'
+    post '/source/RemoteInstance:BaseDistro2.0/package', params: { cmd: :copy, oproject: 'BaseDistro2.0', opackage: 'pack2' }
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
-    put '/source/RemoteInstance:BaseDistro2.0/pack/_meta',
-        '<package name="pack" project="RemoteInstance:BaseDistro2.0">
+    put '/source/RemoteInstance:BaseDistro2.0/pack/_meta', params: '<package name="pack" project="RemoteInstance:BaseDistro2.0">
            <title/><description/></package>'
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'create_package_no_permission' }
@@ -402,7 +401,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
   def test_invalid_submit_to_remote_instance
     login_king
-    post '/request?cmd=create', '<request>
+    post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="BaseDistro" package="pack1" rev="1"/>
                                      <target project="RemoteInstance:home:tom" package="pack1"/>
@@ -415,13 +414,13 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
   def test_submit_requests_from_remote
     login_king
-    post '/source/LocalProject/pack2.linked', cmd: :copy, oproject: 'LocalProject', opackage: 'remotepackage'
+    post '/source/LocalProject/pack2.linked', params: { cmd: :copy, oproject: 'LocalProject', opackage: 'remotepackage' }
     assert_response :success
 
     login_tom
     # FIXME: submission from a remote project is not yet supported "RemoteInstance:BaseDistro2.0"
     %w(LocalProject UseRemoteInstance).each do |prj|
-      post '/request?cmd=create', '<request>
+      post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="' + prj + '" package="pack2.linked" rev="1"/>
                                      <target project="home:tom" package="pack1"/>
@@ -449,20 +448,20 @@ class InterConnectTests < ActionDispatch::IntegrationTest
   def test_copy_and_diff_package
     # do copy commands twice to test it with existing target and without
     login_tom
-    post '/source/LocalProject/temporary', cmd: :copy, oproject: 'LocalProject', opackage: 'remotepackage'
+    post '/source/LocalProject/temporary', params: { cmd: :copy, oproject: 'LocalProject', opackage: 'remotepackage' }
     assert_response :success
-    post '/source/LocalProject/temporary', cmd: :copy, oproject: 'LocalProject', opackage: 'remotepackage'
+    post '/source/LocalProject/temporary', params: { cmd: :copy, oproject: 'LocalProject', opackage: 'remotepackage' }
     assert_response :success
     delete '/source/LocalProject/temporary'
     assert_response :success
-    post '/source/LocalProject/temporary', cmd: :copy, oproject: 'UseRemoteInstance', opackage: 'pack2.linked'
+    post '/source/LocalProject/temporary', params: { cmd: :copy, oproject: 'UseRemoteInstance', opackage: 'pack2.linked' }
     assert_response :success
-    post '/source/LocalProject/temporary', cmd: :copy, oproject: 'RemoteInstance:BaseDistro', opackage: 'pack1'
+    post '/source/LocalProject/temporary', params: { cmd: :copy, oproject: 'RemoteInstance:BaseDistro', opackage: 'pack1' }
     assert_response :success
 
-    post '/source/LocalProject/temporary', cmd: :diff, oproject: 'LocalProject', opackage: 'remotepackage'
+    post '/source/LocalProject/temporary', params: { cmd: :diff, oproject: 'LocalProject', opackage: 'remotepackage' }
     assert_response :success
-    post '/source/LocalProject/temporary', cmd: :diff, oproject: 'UseRemoteInstance', opackage: 'pack2.linked'
+    post '/source/LocalProject/temporary', params: { cmd: :diff, oproject: 'UseRemoteInstance', opackage: 'pack2.linked' }
     assert_response :success
 
     login_king
@@ -479,7 +478,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
     Suse::Backend.put( '/source/LocalProject/newpackage/_meta?user=king', Package.find_by_project_and_name('LocalProject', 'newpackage').to_axml)
     Suse::Backend.put( '/source/LocalProject/newpackage/new_file?user=king', 'adding stuff')
-    post '/source/LocalProject/newpackage', cmd: :diff, oproject: 'RemoteInstance:BaseDistro', opackage: 'pack1'
+    post '/source/LocalProject/newpackage', params: { cmd: :diff, oproject: 'RemoteInstance:BaseDistro', opackage: 'pack1' }
     assert_response :success
   end
 
@@ -540,20 +539,20 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     p = '<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost</remoteurl> </project>'
 
     login_tom
-    put '/source/home:tom:remote/_meta', p
+    put '/source/home:tom:remote/_meta', params: p
     assert_response 403
 
     login_king
-    put '/source/home:tom:remote/_meta', p
+    put '/source/home:tom:remote/_meta', params: p
     assert_response :success
     p = '<project name="home:tom:remote"> <title/> <description/>  <remoteurl>http://localhost2</remoteurl> </project>'
-    put '/source/home:tom:remote/_meta', p
+    put '/source/home:tom:remote/_meta', params: p
     assert_response :success
     get '/source/home:tom:remote/_meta'
     assert_response :success
     assert_xml_tag tag: 'remoteurl', content: 'http://localhost2'
     p = '<project name="home:tom:remote"> <title/> <description/>  </project>'
-    put '/source/home:tom:remote/_meta', p
+    put '/source/home:tom:remote/_meta', params: p
     assert_response :success
 
     # cleanup
@@ -582,9 +581,9 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
   def test_remove_broken_link
     login_Iggy
-    put '/source/home:Iggy/TestLinkPack/_meta', "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    put '/source/home:Iggy/TestLinkPack/_meta', params: "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
     assert_response :success
-    put '/source/home:Iggy/TestLinkPack/_link', "<link project='RemoteInstance:home:Iggy' package='TestPack' rev='invalid' />"
+    put '/source/home:Iggy/TestLinkPack/_link', params: "<link project='RemoteInstance:home:Iggy' package='TestPack' rev='invalid' />"
     assert_response :success
     get '/source/home:Iggy/TestLinkPack'
     assert_response :success
@@ -602,8 +601,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
   def test_submit_from_remote
     login_Iggy
-    post '/request?cmd=create',
-         "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/>
+    post '/request?cmd=create', params: "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/>
           <target project='home:Iggy' package='TEMPORARY'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
@@ -616,8 +614,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # cleanup option can not work, do not allow to create requests
-    post '/request?cmd=create',
-         "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/>
+    post '/request?cmd=create', params: "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/>
           <target project='home:Iggy' package='TEMPORARY'/> <options><sourceupdate>cleanup</sourceupdate></options></action></request>"
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'not_supported' }

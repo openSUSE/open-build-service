@@ -53,7 +53,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
 
     login_Iggy
-    post "/attribute/TEST/_meta", data
+    post "/attribute/TEST/_meta", params: data
     assert_response 403
     assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
 
@@ -63,7 +63,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
     login_king
     # FIXME3.0: POST is deprecated, use PUT
-    post "/attribute/TEST/_meta", data
+    post "/attribute/TEST/_meta", params: data
     assert_response :success
     get "/attribute/TEST/_meta"
     assert_response :success
@@ -73,7 +73,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # using PUT and new delete route
-    put "/attribute/TEST/_meta", data
+    put "/attribute/TEST/_meta", params: data
     assert_response :success
     get "/attribute/TEST/_meta"
     assert_response :success
@@ -87,7 +87,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     # create test namespace
     login_king
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
-    post "/attribute/TEST/_meta", data
+    post "/attribute/TEST/_meta", params: data
     assert_response :success
 
     reset_auth
@@ -107,7 +107,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
               <modifiable_by role='maintainer'/>
             </definition>"
 
-    post "/attribute/TEST/Dummy/_meta", data
+    post "/attribute/TEST/Dummy/_meta", params: data
     assert_response 401
 
     login_Iggy
@@ -117,7 +117,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
     login_adrian
     # FIXME3.0: POST is deprecated, use PUT
-    post "/attribute/TEST/Dummy/_meta", data
+    post "/attribute/TEST/Dummy/_meta", params: data
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
     assert_response :success
@@ -127,7 +127,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # new PUT way
-    put "/attribute/TEST/Dummy/_meta", data
+    put "/attribute/TEST/Dummy/_meta", params: data
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
     assert_response :success
@@ -142,7 +142,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     login_king
     data = "<namespace name='TEST'><modifiable_by group='test_group'/></namespace>"
     login_king
-    post "/attribute/TEST/_meta", data
+    post "/attribute/TEST/_meta", params: data
     assert_response :success
 
     reset_auth
@@ -165,7 +165,7 @@ ription</description>
               <modifiable_by user='adrian'/>
             </definition>"
 
-    post "/attribute/TEST/Dummy/_meta", data
+    post "/attribute/TEST/Dummy/_meta", params: data
     assert_response 401
 
     login_Iggy
@@ -174,7 +174,7 @@ ription</description>
     assert_match(/Attribute type changes are not permitted/, @response.body)
 
     login_adrian
-    post "/attribute/TEST/Dummy/_meta", data
+    post "/attribute/TEST/Dummy/_meta", params: data
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
     assert_response :success
@@ -192,7 +192,7 @@ ription</description>
     login_king
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
     login_king
-    post "/attribute/TEST/_meta", data
+    post "/attribute/TEST/_meta", params: data
     assert_response :success
 
     reset_auth
@@ -201,7 +201,7 @@ ription</description>
             </definition>"
 
     login_adrian
-    post "/attribute/TEST/Dummy/_meta", data
+    post "/attribute/TEST/Dummy/_meta", params: data
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
     assert_response :success
@@ -213,7 +213,7 @@ ription</description>
               <issue name='123' tracker='bnc'/>
               <issue name='456' tracker='bnc'/>
             </attribute></attributes>"
-    post "/source/home:adrian/_attribute", data
+    post "/source/home:adrian/_attribute", params: data
     assert_response :success
 
     get "/source/home:adrian/_attribute/TEST:Dummy"
@@ -227,7 +227,7 @@ ription</description>
     data = "<attributes><attribute namespace='TEST' name='Dummy'>
               <issue name='456' tracker='bnc'/>
             </attribute></attributes>"
-    post "/source/home:adrian/_attribute", data
+    post "/source/home:adrian/_attribute", params: data
     assert_response :success
     get "/source/home:adrian/_attribute/TEST:Dummy"
     assert_response :success
@@ -266,10 +266,10 @@ ription</description>
     data = "<attributes><attribute namespace='OBS' name='VeryImportantProject'/></attributes>"
 
     # XML with an attribute I should not be able to create
-    post "/source/home:tom/_attribute", data
+    post "/source/home:tom/_attribute", params: data
     assert_response 403
     # same with attribute parameter
-    post "/source/home:tom/_attribute/OBS:Issues", data
+    post "/source/home:tom/_attribute/OBS:Issues", params: data
     assert_response 403
   end
 
@@ -277,7 +277,7 @@ ription</description>
     # create an admin only attribute
     login_king
     data = "<attributes><attribute namespace='OBS' name='VeryImportantProject'/></attributes>"
-    post "/source/home:tom/_attribute", data
+    post "/source/home:tom/_attribute", params: data
 
     login_tom
     delete "/source/home:tom/_attribute/OBS:VeryImportantProject"
@@ -290,21 +290,21 @@ ription</description>
     login_tom
 
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
-    post "/source/home:tom/_attribute", data
+    post "/source/home:tom/_attribute", params: data
     assert_response 404
     assert_select "status[code] > summary", /Attribute Type OBS:Playground does not exist/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
             </attribute></attributes>"
-    post "/source/home:tom/_attribute", data
+    post "/source/home:tom/_attribute", params: data
     assert_response 400
     assert_select "status[code] > summary", /has 1 values, but only 0 are allowed/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
-    post "/source/home:tom/_attribute", data
+    post "/source/home:tom/_attribute", params: data
     assert_response :success
-    post "/source/home:tom/_attribute/OBS:Maintained", data
+    post "/source/home:tom/_attribute/OBS:Maintained", params: data
     assert_response :success
 
     get "/source/home:tom/_attribute"
@@ -327,17 +327,17 @@ ription</description>
     # via group
     login_adrian
     data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
-    post "/source/home:tom/_attribute", data
+    post "/source/home:tom/_attribute", params: data
     assert_response :success
 
     # as admin
     login_king
-    post "/source/home:tom/_attribute", data
+    post "/source/home:tom/_attribute", params: data
     assert_response :success
 
     # not allowed
     login_Iggy
-    post "/source/home:tom/_attribute", data
+    post "/source/home:tom/_attribute", params: data
     assert_response 403
     delete "/source/home:tom/_attribute/OBS:Maintained"
     assert_response 403
@@ -357,7 +357,7 @@ ription</description>
 
     # delete
     login_tom
-    post "/source/home:tom/_attribute", data
+    post "/source/home:tom/_attribute", params: data
     assert_response :success
     delete "/source/home:tom/_attribute/OBS:Maintained"
     assert_response :success
@@ -384,30 +384,30 @@ ription</description>
     login_fred
 
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
-    post "/source/kde4/kdelibs/_attribute", data
+    post "/source/kde4/kdelibs/_attribute", params: data
     assert_response 404
     assert_select "status[code] > summary", /Attribute Type OBS:Playground does not exist/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <BROKENXML>
             </attribute></attributes>"
-    post "/source/kde4/kdelibs/_attribute", data
+    post "/source/kde4/kdelibs/_attribute", params: data
     assert_response 400
     assert_select "status[code] > summary", /Invalid XML/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
             </attribute></attributes>"
-    post "/source/kde4/kdelibs/_attribute", data
+    post "/source/kde4/kdelibs/_attribute", params: data
     assert_response 400
     assert_select "status[code] > summary", /has 1 values, but only 0 are allowed/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
-    post "/source/kde4/kdelibs/_attribute", data
+    post "/source/kde4/kdelibs/_attribute", params: data
     assert_response :success
-    post "/source/kde4/kdelibs/_attribute/OBS:Maintained", data
+    post "/source/kde4/kdelibs/_attribute/OBS:Maintained", params: data
     assert_response :success
-    post "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained", data
+    post "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained", params: data
     assert_response :success
 
     get "/source/kde4/kdelibs/_attribute"
@@ -429,11 +429,11 @@ ription</description>
 
     # no permission check
     login_Iggy
-    post "/source/kde4/kdelibs/_attribute", data
+    post "/source/kde4/kdelibs/_attribute", params: data
     assert_response 403
-    post "/source/kde4/kdelibs/_attribute/OBS:Maintained", data
+    post "/source/kde4/kdelibs/_attribute/OBS:Maintained", params: data
     assert_response 403
-    post "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained", data
+    post "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained", params: data
     assert_response 403
     delete "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
     assert_response 403
@@ -466,9 +466,9 @@ ription</description>
     # delete
     reset_auth
     login_fred
-    post "/source/kde4/kdelibs/_attribute", data
+    post "/source/kde4/kdelibs/_attribute", params: data
     assert_response :success
-    post "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained", data
+    post "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained", params: data
     assert_response :success
     delete "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
     assert_response :success

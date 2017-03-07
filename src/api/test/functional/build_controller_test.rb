@@ -38,28 +38,28 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
   def test_upload_binaries
     reset_auth
-    post "/build/home:Iggy/10.2/i586/TestPack", nil
+    post "/build/home:Iggy/10.2/i586/TestPack"
     assert_response 401
 
     login_adrian
-    post "/build/home:Iggy/10.2/i586/TestPack", nil
+    post "/build/home:Iggy/10.2/i586/TestPack"
     assert_response 403
-    put "/build/home:Iggy/10.2/i586/_repository/rpm.rpm", "/dev/null"
+    put "/build/home:Iggy/10.2/i586/_repository/rpm.rpm", params: "/dev/null"
     assert_response 403
 
     login_king
-    post "/build/home:Iggy/10.2/i586/TestPack", nil
+    post "/build/home:Iggy/10.2/i586/TestPack"
     assert_response 400 # actually a success, it reached the backend
     assert_xml_tag tag: "status", attributes: { code: "400", origin: "backend" }
 
-    put "/build/home:Iggy/10.2/i586/_repository/rpm.rpm", "/dev/null"
+    put "/build/home:Iggy/10.2/i586/_repository/rpm.rpm", params: "/dev/null"
     assert_response 200
 
     # check not supported methods
-    post "/build/home:Iggy/10.2/i586/_repository", nil
+    post "/build/home:Iggy/10.2/i586/_repository"
     assert_response 404
     assert_xml_tag tag: "status", attributes: { code: "unknown_package" }
-    put "/build/home:Iggy/10.2/i586/TestPack", nil
+    put "/build/home:Iggy/10.2/i586/TestPack"
     assert_response 404 # no such route
 
     delete "/build/home:Iggy/10.2/i586/TestPack"
@@ -74,11 +74,13 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/build/_dispatchprios"
     assert_response :success
-    put "/build/_dispatchprios", ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
+    put "/build/_dispatchprios",
+        params: ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
     assert_response 403
 
     login_king
-    put "/build/_dispatchprios", ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
+    put "/build/_dispatchprios",
+        params: ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
     assert_response :success
   end
 
@@ -210,7 +212,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: "builddepinfo" }, tag: "package", attributes: { name: "pack" }
     data = @response.body
 
-    post "/build/HiddenProject/nada/i586/_builddepinfo?view=order", data
+    post "/build/HiddenProject/nada/i586/_builddepinfo?view=order", params: data
     assert_response :success
     assert_xml_tag parent: { tag: "builddepinfo" }, tag: "package", attributes: { name: "pack" }
   end
@@ -421,11 +423,11 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: "directory", children: { count: 1 }
 
-    put "/build/home:Iggy", cmd: 'say_hallo'
+    put "/build/home:Iggy", params: { cmd: 'say_hallo' }
     assert_response 403
     assert_match(/No permission to execute command on project/, @response.body)
 
-    post "/build/home:Iggy", cmd: 'say_hallo'
+    post "/build/home:Iggy", params: { cmd: 'say_hallo' }
     assert_response 400
     assert_match(/unsupported POST command/, @response.body)
 
@@ -486,11 +488,11 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_match(/unknown_project/, @response.body)
 
-    put "/build/HiddenProject", cmd: 'say_hallo'
+    put "/build/HiddenProject", params: { cmd: 'say_hallo' }
     assert_response 404
     assert_match(/unknown_project/, @response.body)
 
-    post "/build/HiddenProject", cmd: 'say_hallo'
+    post "/build/HiddenProject", params: { cmd: 'say_hallo' }
     assert_response 404
     assert_match(/unknown_project/, @response.body)
 
@@ -509,11 +511,11 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: "directory", children: { count: 1 }
 
-    put "/build/HiddenProject", cmd: 'say_hallo'
+    put "/build/HiddenProject", params: { cmd: 'say_hallo' }
     assert_response 403
     assert_match(/No permission to execute command on project/, @response.body)
 
-    post "/build/HiddenProject", cmd: 'say_hallo'
+    post "/build/HiddenProject", params: { cmd: 'say_hallo' }
     assert_response 400
     assert_match(/illegal_request/, @response.body)
 

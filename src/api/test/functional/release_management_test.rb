@@ -13,15 +13,15 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     login_tom
 
     # try as non-admin
-    post "/source/home:tom:BaseDistro", cmd: :move, oproject: "BaseDistro"
+    post "/source/home:tom:BaseDistro", params: { cmd: :move, oproject: "BaseDistro" }
     assert_response 403
 
     login_king
-    post "/source/home:tom", cmd: :move, oproject: "BaseDistro"
+    post "/source/home:tom", params: { cmd: :move, oproject: "BaseDistro" }
     assert_response 400
 
     # real move
-    post "/source/TEMP:BaseDistro", cmd: :move, oproject: "BaseDistro"
+    post "/source/TEMP:BaseDistro", params: { cmd: :move, oproject: "BaseDistro" }
     assert_response :success
     assert_xml_tag( tag: "status", attributes: { code: "ok"} )
     get "/source/TEMP:BaseDistro"
@@ -46,7 +46,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_response 404
 
     # move back
-    post "/source/BaseDistro", cmd: :move, oproject: "TEMP:BaseDistro"
+    post "/source/BaseDistro", params: { cmd: :move, oproject: "TEMP:BaseDistro" }
     assert_response :success
     assert_xml_tag( tag: "status", attributes: { code: "ok"} )
     get "/source/BaseDistro/pack2/_meta"
@@ -69,7 +69,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     login_tom
 
     # inject a job for copy any entire project ... gets copied in testsuite but appears to be delayed
-    post "/source/home:tom:BaseDistro", cmd: :copy, oproject: "BaseDistro"
+    post "/source/home:tom:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro" }
     assert_response :success
     assert_xml_tag( tag: "status", attributes: { code: "invoked"} )
 
@@ -78,12 +78,12 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # copy any entire project NOW
-    post "/source/home:tom:BaseDistro", cmd: :copy, oproject: "BaseDistro", nodelay: 1
+    post "/source/home:tom:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro", nodelay: 1 }
     assert_response :success
     assert_xml_tag( tag: "status", attributes: { code: "ok"} )
 
     # try a split
-    post "/source/home:tom:BaseDistro", cmd: :copy, oproject: "BaseDistro", makeolder: 1
+    post "/source/home:tom:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro", makeolder: 1 }
     assert_response 403
 
     # cleanup
@@ -104,7 +104,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
 
     # make a full split as admin
     login_king
-    post "/source/TEST:BaseDistro", cmd: :copy, oproject: "BaseDistro", makeolder: 1, nodelay: 1
+    post "/source/TEST:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro", makeolder: 1, nodelay: 1 }
     assert_response :success
 
     # the origin must got increased by 2 behind a possible dot
@@ -131,7 +131,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # test again with history copy
-    post "/source/TEST:BaseDistro", cmd: :copy, oproject: "BaseDistro", makeolder: 1, nodelay: 1, withhistory: 1
+    post "/source/TEST:BaseDistro", params: { cmd: :copy, oproject: "BaseDistro", makeolder: 1, nodelay: 1, withhistory: 1 }
     assert_response :success
 
     # the origin must got increased by another 2
@@ -158,7 +158,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
   def test_copy_project_withbinaries
     login_king
 
-    put "/source/home:Iggy/TestPack/dummy_change", "trigger build"
+    put "/source/home:Iggy/TestPack/dummy_change", params: "trigger build"
     assert_response :success
     run_scheduler('i586')
     run_scheduler('x86_64')
