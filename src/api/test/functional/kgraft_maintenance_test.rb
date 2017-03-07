@@ -55,7 +55,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/BaseDistro2.0/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
     Timecop.freeze(1)
-    post '/source/BaseDistro2.0/_attribute', params: "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> </attribute> </attributes>"
+    post '/source/BaseDistro2.0/_attribute',
+         params: "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> "\
+                 "</attribute> </attributes>"
     assert_response :success
 
     # lock GM distro to be sure that nothing can be released to
@@ -84,9 +86,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # add empty kgraft container
-    put "/source/BaseDistro2.0:LinkedUpdateProject/kgraft-incident-#{kernelIncidentID}/_meta", params: "<package name='kgraft-incident-#{kernelIncidentID}' project='BaseDistro2.0:LinkedUpdateProject'><title/><description/></package>"
+    put "/source/BaseDistro2.0:LinkedUpdateProject/kgraft-incident-#{kernelIncidentID}/_meta",
+        params: "<package name='kgraft-incident-#{kernelIncidentID}' project='BaseDistro2.0:LinkedUpdateProject'><title/><description/></package>"
     assert_response :success
-    post "/source/BaseDistro2.0:LinkedUpdateProject/kgraft-incident-#{kernelIncidentID}", params: { cmd: 'branch', target_project: kernelIncidentProject }
+    post "/source/BaseDistro2.0:LinkedUpdateProject/kgraft-incident-#{kernelIncidentID}",
+         params: { cmd: 'branch', target_project: kernelIncidentProject }
     assert_response :success
 
     # create a GA update patch

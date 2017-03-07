@@ -600,7 +600,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
 
     # additional package
-    put "/source/TEMPORARY/pack/_meta", params: "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
+    put "/source/TEMPORARY/pack/_meta",
+        params: "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
     assert_response :success
     raw_put '/source/TEMPORARY/pack/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
@@ -645,7 +646,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'owner', attributes: { project: "TEMPORARY", package: "pack" }
 
     # test fall through when higher project has the package, but no bugowner
-    put "/source/TEMPORARY/pack/_meta", params: "<package name='pack' project='TEMPORARY'><title/><description/></package>"
+    put "/source/TEMPORARY/pack/_meta",
+        params: "<package name='pack' project='TEMPORARY'><title/><description/></package>"
     assert_response :success
     get "/search/owner?project=TEMPORARY&binary=package&filter=bugowner"
     assert_response :success
@@ -689,14 +691,16 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "TEMPORARY", project: "TEMPORARY", package: "pack" }
 
     # set an empty group
-    put "/source/TEMPORARY/pack/_meta", params: "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group_empty' role='bugowner'/></package>"
+    put "/source/TEMPORARY/pack/_meta",
+        params: "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group_empty' role='bugowner'/></package>"
     assert_response :success
     get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
     assert_response :success
     assert_xml_tag tag: 'missing_owner', attributes: { rootproject: "TEMPORARY", project: "TEMPORARY", package: "pack" }
 
     # set an valid group
-    put "/source/TEMPORARY/pack/_meta", params: "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
+    put "/source/TEMPORARY/pack/_meta",
+        params: "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
     assert_response :success
     get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
     assert_response :success

@@ -74,11 +74,13 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/build/_dispatchprios"
     assert_response :success
-    put "/build/_dispatchprios", params: ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
+    put "/build/_dispatchprios",
+        params: ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
     assert_response 403
 
     login_king
-    put "/build/_dispatchprios", params: ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
+    put "/build/_dispatchprios",
+        params: ' <dispatchprios> <prio project="KDE:Distro:Factory" repository="openSUSE_Factory" adjust="7" /> </dispatchprios>'
     assert_response :success
   end
 

@@ -41,7 +41,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   def test_combine_project_service_list
     login_king
 
-    put '/source/BaseDistro2.0/_project/_service', params: '<services> <service name="set_version" > <param name="version">0815</param> </service> </services>'
+    put '/source/BaseDistro2.0/_project/_service',
+        params: '<services> <service name="set_version" > <param name="version">0815</param> </service> </services>'
     assert_response :success
     put '/source/BaseDistro2.0:LinkedUpdateProject/_project/_service', params: '<services> <service name="download_files" /> </services>'
     assert_response :success
@@ -49,7 +50,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     login_tom
     post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', params: { cmd: 'branch' }
     assert_response :success
-    put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/_project/_service', params: '<services> <service name="download_url" > <param name="host">blahfasel</param> </service> </services>'
+    put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/_project/_service',
+        params: '<services> <service name="download_url" > <param name="host">blahfasel</param> </service> </services>'
     assert_response :success
 
     post '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2', params: { cmd: 'getprojectservices' }
@@ -313,7 +315,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
   def test_buildtime_service
     login_Iggy
-    put '/source/home:Iggy/service/_meta', params: "<package project='home:Iggy' name='service'> <title /> <description /> <build><enable/></build></package>"
+    put '/source/home:Iggy/service/_meta',
+        params: "<package project='home:Iggy' name='service'> <title /> <description /> <build><enable/></build></package>"
     assert_response :success
     put '/source/home:Iggy/service/pack.spec', params: "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
@@ -429,7 +432,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_match(/not_existing.service  No such file or directory/, @response.body)
 
     # unknown parameter
-    put '/source/home:tom/_project/_service', params: '<services> <service name="set_version" > <param name="INVALID">0817</param></service> </services>'
+    put '/source/home:tom/_project/_service',
+        params: '<services> <service name="set_version" > <param name="INVALID">0817</param></service> </services>'
     assert_response :success
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
@@ -447,12 +451,15 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     put '/source/home:tom/_project/_service', params: '<services> <service name="../blahfasel" ></service> </services>'
     assert_response 400
     assert_match(/service name.*contains invalid chars/, @response.body)
-    put '/source/home:tom/_project/_service', params: '<services> <service name="set_version" > <param name="asd; `ls`">0817</param></service> </services>'
+    put '/source/home:tom/_project/_service',
+        params: '<services> <service name="set_version" > <param name="asd; `ls`">0817</param></service> </services>'
     assert_response 400
     assert_match(/service parameter.*contains invalid chars/, @response.body)
 
     # reset
-    put '/source/home:tom/_project/_service', params: '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
+    put '/source/home:tom/_project/_service',
+        params: '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> '\
+                '</services>'
     assert_response :success
 
     put '/source/home:tom/service2/_meta', params: "<package project='home:tom' name='service2'> <title /> <description /> </package>"

@@ -126,7 +126,8 @@ Blubber bnc#15\n
     assert_response :success
     put "/source/home:Iggy:branches:BaseDistro/pack1/file.changes", params: changes
     assert_response :success
-    post "/source/home:Iggy:branches:BaseDistro/pack1", params: { cmd: "branch", target_project: "home:Iggy:branches:BaseDistro", target_package: "pack_new" }
+    post "/source/home:Iggy:branches:BaseDistro/pack1",
+         params: { cmd: "branch", target_project: "home:Iggy:branches:BaseDistro", target_package: "pack_new" }
     assert_response :success
     changes += "-------------------------------------------------------------------\n
 Aha bnc#123456\n
@@ -250,7 +251,8 @@ Blubber bnc#15\n
     assert_response :success
     put "/source/home:Iggy:branches:BaseDistro/pack1/file.changes", params: changes
     assert_response :success
-    post "/source/home:Iggy:branches:BaseDistro/pack1", params: { cmd: "branch", target_project: "home:Iggy:branches:BaseDistro", target_package: "pack_new" }
+    post "/source/home:Iggy:branches:BaseDistro/pack1",
+         params: { cmd: "branch", target_project: "home:Iggy:branches:BaseDistro", target_package: "pack_new" }
     assert_response :success
     changes += "-------------------------------------------------------------------\n
 Aha bnc#123456\n
