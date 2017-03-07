@@ -226,7 +226,12 @@ Rails:
 # Use `find_by` instead `where.first` and `where.take`
 Rails/FindBy:
   Enabled: true
-  
+
+# Identify usages of http methods like `get`, `post`, `put`, `path` without the usage of keyword arguments in your tests and change them to use
+# keyword arguments.
+Rails/HttpPositionalArguments:
+  Enabled: true
+
 # Checks for the use of output calls like puts and print
 Rails/Output:
   Exclude:
