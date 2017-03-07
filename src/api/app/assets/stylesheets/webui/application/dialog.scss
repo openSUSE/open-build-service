@@ -6,6 +6,10 @@
   height: 10em;
   width: 26em;
   margin-left: -13em;
+  /* TODO: Agree on a common way to use dialogs. Without this adjustment the width of 95% gets applied to the branching dialog and this looks weird */
+  input[name="target_package"] {
+    width: 300px;
+  }
   .dialog-content {
     overflow: auto;
     max-height: 400px;
