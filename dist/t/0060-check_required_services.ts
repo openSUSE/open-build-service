@@ -7,7 +7,8 @@ use Test::More 'tests' => 16;
 my $max_wait = 300;
 
 my @daemons = qw/obsapidelayed  obsdispatcher  	obspublisher  	obsrepserver
-		 obsscheduler  	obssrcserver	apache2  	mysql/;
+		 obsscheduler  	obssrcserver	apache2  	mysql
+		 obsservicedispatcher/;
 
 foreach my $srv (@daemons) {
 	my @state=`systemctl is-enabled $srv\.service 2>/dev/null`;
