@@ -30,4 +30,7 @@ $( document ).ready(function() {
 
     options.ajax.data.dataTableId = 'all_requests_table';
     $('#all_requests_table').dataTable(options);
+
+    options.ajax.data.dataTableId = 'reviews_in_table';
+    $('#reviews_in_table').dataTable(options);
 });
