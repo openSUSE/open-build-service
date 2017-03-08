@@ -481,7 +481,8 @@ CREATE TABLE `events` (
   KEY `index_events_on_queued` (`queued`),
   KEY `index_events_on_project_logged` (`project_logged`),
   KEY `index_events_on_eventtype` (`eventtype`),
-  KEY `index_events_on_created_at` (`created_at`)
+  KEY `index_events_on_created_at` (`created_at`),
+  KEY `index_events_on_mails_sent` (`mails_sent`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `flags` (
@@ -1402,6 +1403,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170118091131'),
 ('20170123115500'),
 ('20170215231042'),
+('20170306105300'),
 ('21'),
 ('22'),
 ('23'),
