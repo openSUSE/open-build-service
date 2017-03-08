@@ -312,7 +312,7 @@ RSpec.feature "Projects", type: :feature, js: true do
     scenario "an existing package, but chose a different target package name" do
       fill_in("Name of original project:", with: other_user.home_project_name)
       fill_in("Name of package in original project:", with: package_of_another_project.name)
-      fill_in("Name of branched package in target project:", with: "some_different_name")
+      fill_in("New package name:", with: "some_different_name")
       # This needs global write through
       click_button("Create Branch")
 
@@ -323,7 +323,7 @@ RSpec.feature "Projects", type: :feature, js: true do
     scenario "an existing package to an invalid target package or project" do
       fill_in("Name of original project:", with: other_user.home_project_name)
       fill_in("Name of package in original project:", with: package_of_another_project.name)
-      fill_in("Name of branched package in target project:", with: "something/illegal")
+      fill_in("New package name:", with: "something/illegal")
       # This needs global write through
       click_button("Create Branch")
 
@@ -358,7 +358,7 @@ RSpec.feature "Projects", type: :feature, js: true do
 
       fill_in("Name of original project:", with: other_user.home_project_name)
       fill_in("Name of package in original project:", with: package_of_another_project.name)
-      fill_in("Name of branched package in target project:", with: "some_different_name")
+      fill_in("New package name:", with: "some_different_name")
       # This needs global write through
       click_button("Create Branch")
 
@@ -371,7 +371,7 @@ RSpec.feature "Projects", type: :feature, js: true do
 
       fill_in("Name of original project:", with: other_user.home_project_name)
       fill_in("Name of package in original project:", with: package_of_another_project.name)
-      fill_in("Name of branched package in target project:", with: "some_different_name")
+      fill_in("New package name:", with: "some_different_name")
       # This needs global write through
       click_button("Create Branch")
 
