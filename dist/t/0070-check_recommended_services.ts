@@ -2,11 +2,11 @@
 
 use strict;
 use warnings;
-use Test::More 'tests' => 6;
+use Test::More 'tests' => 8;
 
 my $max_wait = 300;
 
-my @daemons = qw/obsdodup obssigner obsdeltastore/;
+my @daemons = qw/obsdodup obssigner obsdeltastore obsservicedispatch/;
 
 foreach my $srv (@daemons) {
 	my @state=`systemctl is-enabled $srv\.service 2>/dev/null`;
