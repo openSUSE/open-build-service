@@ -288,6 +288,11 @@ Rails/Output:
 # Checks for the use of methods which skip validations.
 Rails/SkipsModelValidations:
   Enabled: true
+  Exclude:
+    - 'db/migrate/*'
+    - 'app/jobs/*'
+    - 'spec/models/bs_request_action_spec.rb'
+    - 'spec/models/review_spec.rb'
 
 # Checks for the use of old-style attribute validation macros.
 Rails/Validation:

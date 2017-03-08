@@ -114,7 +114,8 @@ class BsRequest < ApplicationRecord
     BsRequest.transaction do
       request_counter = BsRequestCounter.lock(true).first_or_create
       self.number = request_counter.counter
-      request_counter.increment!(:counter)
+      request_counter.increment(:counter)
+      request_counter.save!
     end
   end
 
