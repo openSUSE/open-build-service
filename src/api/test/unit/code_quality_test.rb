@@ -87,7 +87,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Package#close_requests'                                                  => 84.82,
       'Flag#compute_status'                                                     => 145.55,
       'PublicController#binary_packages'                                        => 126.16,
-      'Repository#cleanup_before_destroy'                                       => 82.98,
       'RequestController#render_request_collection'                             => 85.91,
       'SearchController#find_attribute'                                         => 97.33,
       'SearchController#search'                                                 => 81.15,
@@ -102,7 +101,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::PackageController#dependency'                                     => 83.57,
       'Webui::PackageController#update_build_log'                               => 81.73,
       'Webui::PatchinfoController#save'                                         => 256.25,
-      'Webui::ProjectController#check_devel_package_status'                     => 81.95,
       'Webui::RequestController#show'                                           => 91.96,
       'Webui::SearchController#set_parameters'                                  => 98.04,
       'WizardController#package_wizard'                                         => 97.46

@@ -56,6 +56,14 @@ class Attrib < ApplicationRecord
     end
   end
 
+  def container=(container_object)
+    if container_object.is_a?(Project)
+      self.project = container_object
+    else
+      self.package = container_object
+    end
+  end
+
   def project
     if package
       package.project

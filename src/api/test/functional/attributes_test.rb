@@ -110,11 +110,6 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     post "/attribute/TEST/Dummy/_meta", params: data
     assert_response 401
 
-    login_Iggy
-    delete "/attribute/OBS/Maintenance/_meta"
-    assert_response 403
-    assert_match(/Attribute type changes are not permitted/, @response.body)
-
     login_adrian
     # FIXME3.0: POST is deprecated, use PUT
     post "/attribute/TEST/Dummy/_meta", params: data
@@ -131,6 +126,10 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
     assert_response :success
+    login_Iggy
+    delete "/attribute/TEST/Dummy/_meta"
+    assert_response 403
+    login_adrian
     delete "/attribute/TEST/Dummy"
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
@@ -168,11 +167,6 @@ ription</description>
     post "/attribute/TEST/Dummy/_meta", params: data
     assert_response 401
 
-    login_Iggy
-    delete "/attribute/OBS/Maintenance/_meta"
-    assert_response 403
-    assert_match(/Attribute type changes are not permitted/, @response.body)
-
     login_adrian
     post "/attribute/TEST/Dummy/_meta", params: data
     assert_response :success
@@ -181,6 +175,10 @@ ription</description>
     for i in ['count', 'description', 'default', 'allowed', 'count', 'modifiable_by'] do
       assert_equal(Xmlhash.parse(data)[i], Xmlhash.parse(@response.body)[i])
     end
+    login_Iggy
+    delete "/attribute/TEST/Dummy/_meta"
+    assert_response 403
+    login_adrian
     delete "/attribute/TEST/Dummy/_meta"
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
