@@ -403,8 +403,26 @@ class ApplicationController < ActionController::Base
     render_error message: exception.message, status: 404, errorcode: 'not_route'
   end
 
-  rescue_from Pundit::NotAuthorizedError do
+  rescue_from Pundit::NotAuthorizedError do |exception|
     message = "You are not authorized to perform this action."
+
+    pundit_action =
+      case exception.try(:query).to_s
+      when "index?" then "list"
+      when "show?" then "view"
+      when "create?" then "create"
+      when "new?" then "create"
+      when "update?" then "update"
+      when "edit?" then "edit"
+      when "destroy?" then "delete"
+      when "branch?" then "branch"
+      else exception.try(:query)
+      end
+
+    if pundit_action && exception.record
+      message = "You are not authorized to #{pundit_action} this #{exception.record.class}."
+    end
+
     render_error status: 403, errorcode: 'not_authorized', message: message
   end
 

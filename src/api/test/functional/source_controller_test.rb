@@ -2447,11 +2447,13 @@ EOF
     assert_response :success
 
     # use repos from other project
+    login_king
     post "/source/home:adrian:TEMP/_attribute", params: "
         <attributes><attribute namespace='OBS' name='BranchRepositoriesFromProject'>
           <value>BaseDistro</value>
         </attribute></attributes>"
     assert_response :success
+    login_adrian
     post '/source/home:adrian:TEMP/dummy', params: { cmd: 'branch', add_repositories: 1 }
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
@@ -2466,11 +2468,13 @@ EOF
     assert_response :success
 
     # use just some repositories
+    login_king
     post "/source/home:adrian:TEMP/_attribute", params: "
         <attributes><attribute namespace='OBS' name='BranchSkipRepositories'>
           <value>repo1</value><value>repo3</value>
         </attribute></attributes>"
     assert_response :success
+    login_adrian
     post '/source/home:adrian:TEMP/dummy', params: { cmd: 'branch', add_repositories: 1 }
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'

@@ -117,11 +117,6 @@ class AttributeController < ApplicationController
 
     # permission check via User model
     return unless extract_user
-    unless @http_user.can_modify_attribute_definition?(ans)
-      render_error status: 403, errorcode: 'permissions denied',
-        message: "Attribute type changes are not permitted"
-      return
-    end
 
     if request.post? || request.put?
       logger.debug "--- updating attribute type definitions ---"
@@ -134,14 +129,20 @@ class AttributeController < ApplicationController
         return
       end
 
-      entry = ans.attrib_types.where("name = ?", name ).first
+      entry = ans.attrib_types.where("name = ?", name).first
+
       if entry
+        authorize entry, :update?
+
         db = AttribType.find( entry.id ) # get a writable object
         logger.debug "* updating existing attribute definitions"
         db.update_from_xml(xml_element)
       else
+        entry = AttribType.new(name: name, attrib_namespace: ans)
+        authorize entry, :create?
+
         logger.debug "* create new attribute definition"
-        AttribType.new(name: name, attrib_namespace: ans ).update_from_xml(xml_element)
+        entry.update_from_xml(xml_element)
       end
 
       logger.debug "--- finished updating attribute namespace definitions ---"
@@ -150,7 +151,12 @@ class AttributeController < ApplicationController
       render_ok
     elsif request.delete?
       at = ans.attrib_types.where("name = ?", name ).first
-      at.destroy if at
+
+      if at
+        authorize at, :destroy?
+        at.destroy
+      end
+
       render_ok
     else
       render_error status: 400, errorcode: 'illegal_request',
@@ -234,18 +240,20 @@ class AttributeController < ApplicationController
 
     # checks
     req.each('attribute') do |attr|
-      begin
-        can_create = User.current.can_create_attribute_in? @attribute_container, namespace: attr.value('namespace'), name: attr.value('name')
-      rescue ArgumentError => e
-        render_error status: 400, errorcode: "change_attribute_attribute_error",
-                     message: e.message
-        return
+      attrib_type = AttribType.find_by_namespace_and_name!(attr.value("namespace"), attr.value("name"))
+      attrib = Attrib.new(attrib_type: attrib_type)
+
+      attr.each("value") do |value|
+        attrib.values.new(value: value.text)
       end
-      unless can_create
-        render_error status: 403, errorcode: "change_attribute_no_permission",
-                     message: "user #{user.login} has no permission to change attribute"
-        return
+
+      attrib.container = @attribute_container
+
+      unless attrib.valid?
+        raise APIException.new({ message: attrib.errors.full_messages.join('\n'), status: 400 })
       end
+
+      authorize attrib, :create?
     end
 
     # exec
