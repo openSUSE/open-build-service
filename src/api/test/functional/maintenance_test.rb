@@ -1790,6 +1790,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i + 1)}.2.1" # untouched
 
     # cleanup
+    get "/published/#{incidentProject}"
+    assert_response :success
     delete '/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
     delete '/source/BaseDistro2.0:ServicePack1'
@@ -1810,6 +1812,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     inject_build_job('BaseDistro3', 'pack2.0', 'BaseDistro3_repo', 'i586', "package_newweaktags-1.0-1.x86_64.rpm")
     inject_build_job('BaseDistro3', 'pack2.0:package_multibuild', 'BaseDistro3_repo', 'i586', "package_newweaktags-1.0-1.x86_64.rpm")
     run_scheduler('i586')
+    run_scheduler('x86_64')
+    run_publisher
+    # unpublished worked for sure
+    get "/published/#{incidentProject}"
+    assert_response 404
   end
 
   def test_create_invalid_patchinfo
