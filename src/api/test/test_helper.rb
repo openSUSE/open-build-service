@@ -160,29 +160,29 @@ class ActionDispatch::IntegrationTest
 
   def get(*args)
     super
-    if @@krbauth
-      while @response.status == 401
-        wwwauth = @response.headers['WWW-Authenticate'][/Negotiate( [^ ,]*)?/].split(' ')
-        if wwwauth.length > 0
-          begin
-            cli = GSSAPI::Simple.new(@request.env['HTTP_HOST'], "HTTP")
-            if wwwauth.length > 1
-              tok = cli.init_context Base64.strict_decode64(wwwauth[1])
-            else
-              tok = cli.init_context
-              @@auth = 'Negotiate ' + Base64.strict_encode64(tok)
-            end
-            super
-            next
-          # rescue GSSAPI::GssApiError => err
-          #   print "GSSAPI Error: #{err.message}"
-          rescue GSSAPI::GssApiError
+    return unless @@krbauth
+
+    while @response.status == 401
+      wwwauth = @response.headers['WWW-Authenticate'][/Negotiate( [^ ,]*)?/].split(' ')
+      if wwwauth.empty?
+        begin
+          cli = GSSAPI::Simple.new(@request.env['HTTP_HOST'], "HTTP")
+          if wwwauth.length > 1
+            tok = cli.init_context Base64.strict_decode64(wwwauth[1])
+          else
+            tok = cli.init_context
+            @@auth = 'Negotiate ' + Base64.strict_encode64(tok)
           end
+          super
+          next
+        # rescue GSSAPI::GssApiError => err
+        #   print "GSSAPI Error: #{err.message}"
+        rescue GSSAPI::GssApiError
         end
-        break
       end
-      @@auth = nil
+      break
     end
+    @@auth = nil
   end
 end
 
@@ -433,10 +433,10 @@ module ActionDispatch
     def reset_auth
       User.current = nil
       @@auth = nil
-      if @@krbauth
-        system "kdestroy", err: File::NULL, out: File::NULL
-        @@krbauth = false
-      end
+      return unless @@krbauth
+
+      system "kdestroy", err: File::NULL, out: File::NULL
+      @@krbauth = false
     end
 
     def self.auth_header
