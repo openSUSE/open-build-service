@@ -1,6 +1,12 @@
 require 'rails_helper'
+# WARNING: Some tests require real backend answers, so make sure you uncomment
+# this line and start a test backend.
+# CONFIG['global_write_through'] = true
 
 RSpec.describe SourceController, vcr: true do
+  let(:user) { create(:confirmed_user, login: "tom") }
+  let(:project) { user.home_project }
+
   describe "POST #global_command_orderkiwirepos" do
     it "is accessible anonymously and forwards backend errors" do
       post :global_command_orderkiwirepos, params: { cmd: "orderkiwirepos" }
@@ -23,5 +29,25 @@ RSpec.describe SourceController, vcr: true do
       expect(flash[:error]).to eq("anonymous_user(Anonymous user is not allowed here - please login): ")
       expect(response).to redirect_to(root_path)
     end
+  end
+
+  describe "GET #show_project_meta" do
+    before do
+      login user
+      get :show_project_meta, params: { project: project }
+    end
+
+    it { expect(response).to be_success }
+    it { expect(Xmlhash.parse(response.body)["name"]).to eq(project.name) }
+  end
+
+  describe "PUT #update_project_config" do
+    before do
+      login user
+      put :update_project_config, params: { project: project, comment: 'Updated by test' }
+    end
+
+    it { expect(response).to be_success }
+    it { expect(project.config.to_s).to include('Updated', 'by', 'test') }
   end
 end
