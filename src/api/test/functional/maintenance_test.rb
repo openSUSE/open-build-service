@@ -967,12 +967,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/source/#{incidentProject}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
     assert_response :forbidden
 
-    # Note: EmbargoDate is needed for test for releasing packages
-    # Allow maintenance_coord user to change EmbargoDate
-    attrib_type = AttribType.where(name: "EmbargoDate").first
-    attrib_type.attrib_namespace.attrib_namespace_modifiable_bies.create(user: User.where(login: "maintenance_coord").first)
+    # EmbargoDate is needed for test for releasing packages
+    login_king
     post "/source/#{incidentProject}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
     assert_response :success
+
+    prepare_request_with_user 'maintenance_coord', 'buildservice'
 
     # create some changes, including issue tracker references
     Timecop.freeze(1)
