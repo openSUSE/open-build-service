@@ -399,7 +399,7 @@ class Package < ApplicationRecord
     dir_xml = opts[:dir_xml]
 
     # to call update_activity before filter
-    update({})
+    update({updated_at: Time.now})
 
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: id).delete_all

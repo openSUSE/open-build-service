@@ -312,7 +312,7 @@ class PackageTest < ActiveSupport::TestCase
       Timecop.freeze(90000)
       newyear.title = "Just a silly update 8"
       newyear.save
-      assert_in_delta(73.4, newyear.activity, 0.2)
+      assert_in_delta(72.7, newyear.activity, 0.2)
     end
   end
 

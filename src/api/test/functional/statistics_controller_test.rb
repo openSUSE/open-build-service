@@ -178,7 +178,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'package', attributes: {
       name:         "kdelibs",
       project:      "kde4",
-      update_count: 0
+      update_count: 1
     }
     assert_no_xml_tag tag: 'package', attributes: { project: "HiddenProject" }
 
