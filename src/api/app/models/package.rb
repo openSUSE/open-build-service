@@ -397,7 +397,10 @@ class Package < ApplicationRecord
 
   def sources_changed(opts = {})
     dir_xml = opts[:dir_xml]
-    update_activity
+
+    # to call update_activity before filter
+    update({})
+
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: id).delete_all
     if dir_xml.is_a? Net::HTTPSuccess
@@ -814,22 +817,6 @@ class Package < ApplicationRecord
     package = Package.find_by_sql("SELECT packages.*, #{Package.activity_algorithm} " +
                                       "FROM `packages` WHERE id = #{id} LIMIT 1")
     package.shift.activity_value.to_f
-  end
-
-  # is called before_update
-  def update_activity
-    # the value we add to the activity, when the object gets updated
-    addon = 10 * (Time.now.to_f - updated_at_was.to_f) / 86400
-    addon = 10 if addon > 10
-    new_activity = activity + addon
-    new_activity = 100 if new_activity > 100
-
-    # rails 3 only - rails 4 is reported to name it update_columns
-    update_column(:activity_index, new_activity)
-    # we need to update the timestamp manually to avoid the activity_algorithm to run away
-    update_column(:updated_at, Time.now)
-    # just for beauty - and only saved if we save it for other reasons
-    self.update_counter += 1
   end
 
   def expand_flags
@@ -1387,6 +1374,21 @@ class Package < ApplicationRecord
     rescue ActiveXML::Transport::NotFoundError
       []
     end
+  end
+
+  private
+
+  # is called before_update
+  def update_activity
+    # the value we add to the activity, when the object gets updated
+    addon = 10 * (Time.now.to_f - updated_at_was.to_f) / 86400
+    addon = 10 if addon > 10
+    new_activity = activity + addon
+    new_activity > 100 ? 100 : new_activity
+
+    self.activity_index = new_activity
+    # just for beauty
+    self.update_counter += 1
   end
 end
 
