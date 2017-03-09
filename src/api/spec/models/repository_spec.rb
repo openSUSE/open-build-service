@@ -16,5 +16,27 @@ RSpec.describe Repository do
     it { should_not allow_value("f\noo").for(:name) }
     it { should allow_value("fOO_-§$&!#+~()=?\\\"").for(:name) }
     it { should allow_value("f").for(:name) }
+
+    describe '#remote_project_name_not_nil' do
+      subject! { repository.valid? }
+
+      context 'with remote_project_name = nil' do
+        let(:repository) { build(:repository, remote_project_name: nil) }
+
+        it { is_expected.to be_falsey }
+        it 'has an error on remote_project_name' do
+          expect(repository.errors[:remote_project_name].count).to eq(1)
+        end
+      end
+
+      context 'with remote_project_name = ""' do
+        let(:repository) { build(:repository, remote_project_name: '') }
+
+        it { is_expected.to be_truthy }
+        it 'does not have an error on remote_project_name' do
+          expect(repository.errors[:remote_project_name].count).to eq(0)
+        end
+      end
+    end
   end
 end

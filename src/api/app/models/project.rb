@@ -665,7 +665,7 @@ class Project < ApplicationRecord
   def fill_repo_cache
     @repocache = Hash.new
     repositories.each do |repo|
-      @repocache[repo.name] = repo unless repo.remote_project_name
+      @repocache[repo.name] = repo if repo.remote_project_name.blank?
     end
   end
 
@@ -1785,7 +1785,7 @@ class Project < ApplicationRecord
     result = []
     removed.each do |name|
       repository = repositories.find_by(name: name)
-      result << repository unless repository.remote_project_name
+      result << repository unless repository.remote_project_name.present?
     end
     result
   end

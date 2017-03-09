@@ -16,8 +16,8 @@ class Repository < ApplicationRecord
   has_many :repository_architectures, -> { order("position") }, dependent: :destroy, inverse_of: :repository
   has_many :architectures, -> { order("position") }, through: :repository_architectures
 
-  scope :not_remote, -> { where(remote_project_name: nil) }
-  scope :remote, -> { where.not(remote_project_name: nil) }
+  scope :not_remote, -> { where(remote_project_name: '') }
+  scope :remote, -> { where.not(remote_project_name: '') }
 
   validates :name, length: { in: 1..200 }
   # Keep in sync with src/backend/BSVerify.pm
@@ -31,6 +31,9 @@ class Repository < ApplicationRecord
                                  message: "%{value} is already used by a repository of this project."}
 
   validates :db_project_id, presence: true
+  # NOTE: remote_project_name cannot be NULL because mysql UNIQUE KEY constraint does considers
+  #       two NULL's to be distinct. (See mysql bug #8173)
+  validate :remote_project_name_not_nill
 
   validate do |repository|
     repository.path_elements.reject(&:valid?).each do |path_element|
@@ -217,5 +220,10 @@ class Repository < ApplicationRecord
 
   def is_dod_repository?
     download_repositories.any?
+  end
+
+  def remote_project_name_not_nill
+    return unless remote_project_name.nil?
+    errors.add :remote_project_name, 'cannot be nil'
   end
 end

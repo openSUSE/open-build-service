@@ -61,7 +61,7 @@ xml.project(project_attributes) do
         xml_repository.hostsystem(:project => repo.hostsystem.project.name, :repository => repo.hostsystem.name)
       end
       repo.path_elements.includes(:link).each do |pe|
-        if pe.link.remote_project_name
+        if pe.link.remote_project_name.present?
           project_name = pe.link.project.name+":"+pe.link.remote_project_name
         else
           project_name = pe.link.project.name
