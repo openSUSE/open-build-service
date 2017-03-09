@@ -897,6 +897,11 @@ class Package < ApplicationRecord
     local_build_results
   end
 
+  def service_error(revision = nil)
+    revision ||= serviceinfo.try{ to_hash['xsrcmd5'] }
+    PackageServiceErrorFile.new(project_name: project.name, package_name: name).to_s(rev: revision)
+  end
+
   # local mode (default): last package in link chain in my project
   # no local mode:        first package in link chain outside of my project
   def origin_container(options = { local: true })

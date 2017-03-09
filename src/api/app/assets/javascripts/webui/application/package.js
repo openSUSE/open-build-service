@@ -145,3 +145,13 @@ function live_build_log_ready() {
     $('.start_refresh').click(start_refresh);
     $('.stop_refresh').click(stop_refresh);
 }
+
+$( document ).ready(function() {
+  $('.btn-more').click(function() {
+    var link = $(this);
+    $('.more_info').toggle(0, function() {
+      link_text = $(this).is(':visible') ? 'less info' : 'more info';
+      link.text(link_text);
+    });
+  });
+});

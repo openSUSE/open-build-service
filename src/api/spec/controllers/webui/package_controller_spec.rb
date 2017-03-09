@@ -13,6 +13,7 @@ RSpec.describe Webui::PackageController, vcr: true do
   let(:target_project) { create(:project) }
   let(:package) { create(:package_with_file, name: "package_with_file", project: source_project) }
   let(:service_package) { create(:package_with_service, name: "package_with_service", project: source_project) }
+  let(:broken_service_package) { create(:package_with_broken_service, name: "package_with_broken_service", project: source_project) }
   let(:repo_for_source_project) do
     repo = create(:repository, project: source_project, architectures: ['i586'])
     source_project.store
@@ -423,6 +424,16 @@ EOT
       end
 
       it { expect(assigns(:linking_packages)).to match_array(package.linking_packages) }
+    end
+
+    context 'with a package that has a broken service' do
+      before do
+        login user
+        get :show, params: { project: user.home_project, package: broken_service_package.name }
+      end
+
+      it { expect(flash[:error]).to include('Files could not be expanded:') }
+      it { expect(assigns(:more_info)).to include('service daemon error:') }
     end
   end
 
