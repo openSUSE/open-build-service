@@ -1,0 +1,73 @@
+- @pagetitle = @package
+- patchinfo_bread_crumb 'Patchinfo'
+= render partial: 'webui/package/tabs'
+.section
+  .grid_8.alpha
+    .box.show_left.show_right
+      .box{style: "background-color:#DDDDDD; margin-top: 0"}
+        %h2{style: "display: inline"}
+          = @category
+          update for #{truncate(@pkg_names.join(", "), length: 20)}
+        - if User.current.can_modify_package?(@package)
+          %ul.horizontal-list
+            %li
+              = link_to sprite_tag('package_edit'), { action: 'edit_patchinfo', project: @project, package: @package, spec_count: @spec_count }
+              = link_to "Edit patchinfo", { action: 'edit_patchinfo', project: @project, package: @package, spec_count: @spec_count }, id: 'edit-patchinfo'
+            %li
+              = link_to(sprite_tag('package_delete'), { action: :delete_dialog, package: @package, project: @project }, remote: true)
+              = link_to('Delete patchinfo', { action: :delete_dialog, package: @package, project: @project }, remote: true, id: 'delete-patchinfo')
+      - if @block
+        .box.ui-state-error.ui-widget-shadow{ style: "min-height:15px;" }
+          %b This update is currently blocked:
+          %br/
+          - if @block_reason.present?
+            = @block_reason
+          - else
+            No reason entered.
+      %strong#summary= @summary
+      %br/
+      %label#info
+      - if @packager
+        This update was submitted from #{user_with_realname_and_icon(@packager)} and rated as
+      - else
+        This update is rated as
+      %span{ style: "color: #{patchinfo_rating_color(@rating)}" }= @rating
+    .box.show_left.show_right
+      %b Description:
+      %br/
+      = description_wrapper(@description)
+    .box.show_left.show_right
+      %b Fixed bugs:
+      - if @issues.present?
+        %ul
+          - @issues.each do |issue|
+            = issue_link(issue)
+    .box.show_left.show_right
+      %b Required actions:
+      %br/
+      %ul
+        %li
+          Relogin suggested:
+          - if @relogin
+            = image_tag "ok.png", id: "relogin_true"
+          - else
+            = image_tag "req-decline.png", id: "relogin_false"
+        %li
+          Reboot suggested:
+          - if @reboot
+            = image_tag "ok.png", id: "reboot_true"
+          - else
+            = image_tag "req-decline.png", id: "reboot_false"
+        %li
+          Package-manager restart:
+          - if @zypp_restart_needed
+            = image_tag "ok.png", id: "zypp_true"
+          - else
+            = image_tag "req-decline.png", id: "zypp_false"
+    - unless @binaries.empty?
+      .box.show_left.show_right
+        %b Selected binaries:
+        %br/
+        %ul
+          - @binaries.each do |bin|
+            %li= bin
