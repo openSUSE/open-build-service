@@ -1,0 +1,22 @@
+# Open Build Service (OBS) source services
+
+## Main concept
+Source services are there to manipulate package sources in a different ways.
+The common use case use git repository as source and pack tarball dynamically, set
+version in a build recipe, format a changlog.
+Above example can be achived with [tar_scm](https://github.com/openSUSE/obs-service-tar_scm/) and 
+[set_version](https://github.com/openSUSE/obs-service-set_version/) services for example.
+
+## Write your own service
+The logic behind it is an XML formated recipe which describes command and its parameters, like:
+```xml
+<services>
+  <service name="my_script_to_execute">
+    <param name="param1">argument_value</param>
+  </service>
+</services>
+```
+the above example will execute /usr/lib/obs/service/my_script_to_execute --param1 argument_value --outdir curr_dir
+
+It is important to mention that --outdir argument is a mandatory one and should be handled in each service which should
+ point to directory where the result will be picked from later by osc(localrun) or sourceserver(remoterun)
