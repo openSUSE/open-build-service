@@ -102,7 +102,7 @@
                   <%= link_to(sprited_text('arrow_branch', 'Branch package'), '#', class: 'show_dialog', data: { target: '#package_branch_dialog' }) %>
                 </li>
                 <li>
-                  <%= link_to(sprited_text('package_go', 'Submit package'), { :action => :submit_request_dialog, :project => @project, :package => @package }, :remote => true) %>
+                  <%= link_to(sprited_text('package_go', 'Submit package'), { :action => :submit_request_dialog, :project => @project, :package => @package, :revision => @revision }, :remote => true) %>
                 </li>
             <% end %>
             <% if User.current.can_modify_package? @package %>
