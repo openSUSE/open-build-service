@@ -1,0 +1,17 @@
+/ Start: Header
+#header
+  #header-content.container_12
+    = link_to sprite_tag( "header-logo" ), root_path, { id: "header-logo" }
+    %ul#global-navigation
+      %li#item-downloads
+        %a{href: "http://en.opensuse.org/openSUSE:Browse#Downloads" } Downloads
+      %li#item-support
+        %a{ href: "http://en.opensuse.org/openSUSE:Browse#Support" } Support
+      %li#item-community
+        %a{ href: "http://en.opensuse.org/openSUSE:Browse#Community" } Community
+      %li#item-development
+        %a{ href: "http://en.opensuse.org/openSUSE:Browse#Development" } Development
+      - unless User.current.is_nobody?
+        %li#item-favorites{ style: "float: right;" }
+          %a{ href: "#{user_show_url(User.current)}" } Watchlist
+    = render partial: "layouts/webui/watch_and_search"
