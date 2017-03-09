@@ -188,6 +188,12 @@ Lint/LiteralInCondition:
 Lint/Loop:
   Enabled: true
 
+# Checks for nested method definitions
+Lint/NestedMethodDefinition:
+  Enabled: true
+  Exclude:
+    - 'test/functional/tag_controller_test.rb'
+
 # checks for unused block arguments.
 Lint/UnusedBlockArgument:
   Enabled: true

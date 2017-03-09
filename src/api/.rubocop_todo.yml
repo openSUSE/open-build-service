@@ -29,12 +29,6 @@ Lint/InheritException:
     - 'app/controllers/webui/webui_controller.rb'
     - 'lib/api_exception.rb'
 
-# Offense count: 4
-# Offense count: 7
-Lint/NestedMethodDefinition:
-  Exclude:
-    - 'test/functional/tag_controller_test.rb'
-
 # Offense count: 9
 Lint/NonLocalExitFromIterator:
   Exclude:
