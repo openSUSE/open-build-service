@@ -179,6 +179,9 @@ if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" -o "${OBS_VM_TYPE#emulator
         if [ -n "$OBS_VM_DISK_AUTOSETUP_FILESYSTEM" ]; then
             VMDISK_FILESYSTEM="--vmdisk-filesystem ${OBS_VM_DISK_AUTOSETUP_FILESYSTEM}"
         fi
+        if [ -n "$VMDISK_ROOT_CLEAN" ];then
+            BS_WORKER_OPT="$OBS_WORKER_OPT --vmdisk-clean $VMDISK_ROOT_CLEAN"
+        fi
         if [ -n "$OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS" ]; then
             VMDISK_MOUNT_OPTIONS="--vmdisk-mount-options ${OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS}"
         fi
