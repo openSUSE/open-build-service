@@ -1,0 +1,34 @@
+= form_for(download_on_demand) do |form|
+  %div{ style: "margin-bottom: 1.2em; margin-left: 2em" }
+    = form.label :arch, 'Architecture', style: "display:inline-block;width:100px;"
+    = form.select :arch, options_for_select(Architecture.available, download_on_demand.try(:arch))
+    %br/
+    %br/
+    = form.label :repotype, 'Type', style: "display:inline-block;width:100px;"
+    = form.select :repotype, options_for_select(DownloadRepository::REPOTYPES, download_on_demand.try(:repotype))
+    %br/
+    %br/
+    = form.label :url, style: "display:inline-block;width:100px;"
+    = form.text_field :url
+    %br/
+    %br/
+    = form.label :archfilter, 'Arch. Filter' , style: "display:inline-block;width:100px;"
+    = form.text_field :archfilter
+    %br/
+    %br/
+    = form.label :masterurl, 'Master Url', style: "display:inline-block;width:100px;"
+    = form.text_field :masterurl
+    %br/
+    %br/
+    = form.label :mastersslfingerprint, 'SSL Fingerprint', style: "display:inline-block;width:100px;"
+    = form.text_field :mastersslfingerprint
+    %br/
+    %br/
+    = form.label :pubkey, 'Public Key', style: "display:inline-block;width:100px;"
+    = form.text_area :pubkey
+    = form.hidden_field :repository_id
+    = hidden_field_tag :project, project
+    - if form.object.new_record?
+      %p= form.submit "Add Download on Demand", id: "add_dod_button"
+    - else
+      %p= form.submit "Update Download on Demand", id: "update_dod_button-#{download_on_demand}"
