@@ -966,19 +966,6 @@ class Package < ApplicationRecord
     project.store
   end
 
-  def _add_channel(mode, channel_binary, message)
-    # add source container
-    return if mode == :skip_disabled && !channel_binary.channel_binary_list.channel.is_active?
-    cpkg = channel_binary.create_channel_package_into(project, message)
-    return unless cpkg
-    # be sure that the object exists or a background job get launched
-    cpkg.backend_package
-    # add and enable repos
-    return if mode == :add_disabled && !channel_binary.channel_binary_list.channel.is_active?
-    cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
-  end
-  private :_add_channel
-
   def update_instance(namespace = 'OBS', name = 'UpdateProject')
     # check if a newer instance exists in a defined update project
     project.update_instance(namespace, name).find_package(self.name)
@@ -1377,6 +1364,18 @@ class Package < ApplicationRecord
   end
 
   private
+
+  def _add_channel(mode, channel_binary, message)
+    # add source container
+    return if mode == :skip_disabled && !channel_binary.channel_binary_list.channel.is_active?
+    cpkg = channel_binary.create_channel_package_into(project, message)
+    return unless cpkg
+    # be sure that the object exists or a background job get launched
+    cpkg.backend_package
+    # add and enable repos
+    return if mode == :add_disabled && !channel_binary.channel_binary_list.channel.is_active?
+    cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
+  end
 
   # is called before_update
   def update_activity
