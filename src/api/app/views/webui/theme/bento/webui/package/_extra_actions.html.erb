@@ -1,5 +1,0 @@
-<% if CONFIG['software_opensuse_url'] %>
-  <li>
-    <%= sprite_tag 'application_get' %> <a href="<%= CONFIG['software_opensuse_url'] %>/download.html?project=<%= u @project.name %>&amp;package=<%= u @package.name %>">Download package</a>
-  </li>
-<% end %>

@@ -1,0 +1,8 @@
+%h3 Events to get email for ...
+- @notifications.each do |type|
+  = field_set_tag type.description do
+    %ul.horizontal-list
+      - type.receiver_roles.each do |role|
+        %li
+          = check_box_tag "#{type}[#{role}]", '1', EventSubscription.subscription_value(type.to_s, role, @user)
+          = label_tag "#{type}[#{role}]", role
