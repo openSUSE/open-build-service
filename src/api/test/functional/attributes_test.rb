@@ -55,10 +55,12 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post "/attribute/TEST/_meta", params: data
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "permissions denied" }
     assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
 
     delete "/attribute/OBS/_meta"
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "permissions denied" }
     assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
 
     login_king
@@ -109,6 +111,12 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
     post "/attribute/TEST/Dummy/_meta", params: data
     assert_response 401
+
+    login_Iggy
+    delete "/attribute/OBS/Maintenance/_meta"
+    assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "permissions denied" }
+    assert_match(/Attribute type changes are not permitted/, @response.body)
 
     login_adrian
     # FIXME3.0: POST is deprecated, use PUT
@@ -167,6 +175,12 @@ ription</description>
     post "/attribute/TEST/Dummy/_meta", params: data
     assert_response 401
 
+    login_Iggy
+    delete "/attribute/OBS/Maintenance/_meta"
+    assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "permissions denied" }
+    assert_match(/Attribute type changes are not permitted/, @response.body)
+
     login_adrian
     post "/attribute/TEST/Dummy/_meta", params: data
     assert_response :success
@@ -188,8 +202,7 @@ ription</description>
   def test_with_issue
     # create test namespace
     login_king
-    data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
-    login_king
+    data = "<namespace name='TEST'><modifiable_by user='king'/></namespace>"
     post "/attribute/TEST/_meta", params: data
     assert_response :success
 
@@ -198,7 +211,6 @@ ription</description>
               <issue_list/>
             </definition>"
 
-    login_adrian
     post "/attribute/TEST/Dummy/_meta", params: data
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
@@ -207,13 +219,26 @@ ription</description>
     stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").to_timeout
 
     # set issues
+    login_adrian
     data = "<attributes><attribute namespace='TEST' name='Dummy'>
               <issue name='123' tracker='bnc'/>
               <issue name='456' tracker='bnc'/>
             </attribute></attributes>"
     post "/source/home:adrian/_attribute", params: data
     assert_response :success
+    post "/source/home:adrian/_attribute/TEST:Dummy", params: data
+    assert_response :success
 
+    login_tom
+    post "/source/home:adrian/_attribute", params: data
+    assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
+    assert_xml_tag tag: "summary", content: "user tom has no permission to change attribute TEST:Dummy"
+    post "/source/home:adrian/_attribute/TEST:Dummy", params: data
+    assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
+
+    login_adrian
     get "/source/home:adrian/_attribute/TEST:Dummy"
     assert_response :success
     assert_xml_tag parent: { tag: 'attribute', attributes: { name: "Dummy", namespace: "TEST" } },
@@ -266,9 +291,11 @@ ription</description>
     # XML with an attribute I should not be able to create
     post "/source/home:tom/_attribute", params: data
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
     # same with attribute parameter
     post "/source/home:tom/_attribute/OBS:Issues", params: data
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
   end
 
   def test_attrib_delete_permissions
@@ -276,12 +303,15 @@ ription</description>
     login_king
     data = "<attributes><attribute namespace='OBS' name='VeryImportantProject'/></attributes>"
     post "/source/home:tom/_attribute", params: data
+    assert_response :success
 
     login_tom
     delete "/source/home:tom/_attribute/OBS:VeryImportantProject"
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
     delete "/source/home:tom/_attribute/?namespace=OBS&name=VeryImportantProject"
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
   end
 
   def test_create_attributes_project
@@ -337,8 +367,10 @@ ription</description>
     login_Iggy
     post "/source/home:tom/_attribute", params: data
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
     delete "/source/home:tom/_attribute/OBS:Maintained"
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
     get "/source/home:tom/_attribute/OBS:Maintained"
     assert_response :success
 
@@ -429,16 +461,21 @@ ription</description>
     login_Iggy
     post "/source/kde4/kdelibs/_attribute", params: data
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
     post "/source/kde4/kdelibs/_attribute/OBS:Maintained", params: data
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
     post "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained", params: data
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
     delete "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
     get "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
     assert_response :success
     delete "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "change_attribute_no_permission" }
     get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response :success
 
