@@ -76,7 +76,7 @@ class Webui::WebuiController < ActionController::Base
     redirect_to root_path
   end
 
-  class ValidationError < Exception
+  class ValidationError < RuntimeError
     attr_reader :xml, :errors
 
     def message
@@ -92,7 +92,7 @@ class Webui::WebuiController < ActionController::Base
   # FIXME: This is more than stupid. Why do we tell the user that something isn't found
   # just because there is some data missing to compute the request? Someone needs to read
   # http://guides.rubyonrails.org/active_record_validations.html
-  class MissingParameterError < Exception; end
+  class MissingParameterError < RuntimeError; end
   rescue_from MissingParameterError do |exception|
     logger.debug "#{exception.class.name} #{exception.message} #{exception.backtrace.join('\n')}"
     render file: Rails.root.join('public/404'), status: 404, layout: false, formats: [:html]

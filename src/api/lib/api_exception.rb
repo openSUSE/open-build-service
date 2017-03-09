@@ -1,5 +1,5 @@
 
-class APIException < Exception
+class APIException < RuntimeError
   def self.abstract_class?
     true
   end
