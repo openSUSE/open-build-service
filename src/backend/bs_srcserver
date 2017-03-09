@@ -821,6 +821,7 @@ sub findfile {
   return $files{'_preinstallimage'} if $ext ne 'kiwi' && keys(%files) == 1 && $files{'_preinstallimage'};
   return $files{'simpleimage'} if $files{'simpleimage'};
   return $files{'snapcraft.yaml'} if $files{'snapcraft.yaml'} && $ext eq 'snapcraft';
+  return $files{'appimage.yml'} if $files{'appimage.yml'} && $ext eq 'appimage';
 
   if ($ext eq 'arch') {
     return $files{'PKGBUILD'} if $files{'PKGBUILD'};
