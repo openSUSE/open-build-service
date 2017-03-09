@@ -1,0 +1,4 @@
+.box{ style: "margin: 1em" }
+  %h2.box-header
+    Add Download on Demand for #{repository.name}
+  = render partial: 'webui/download_on_demand/form', locals: { project: project, repository: repository, download_on_demand: download_on_demand }
