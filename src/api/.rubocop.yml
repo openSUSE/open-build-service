@@ -244,6 +244,10 @@ Rails/Output:
 Rails/Validation:
   Enabled: true
 
+# Requires not to use `exit` in a Rails application
+Rails/Exit:
+  Enabled: true
+
 ##################### Security ##################################
 
 # checks for the use of *Kernel#eval* as it is a serious security risk.
