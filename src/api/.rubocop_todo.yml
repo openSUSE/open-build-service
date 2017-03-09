@@ -20,15 +20,6 @@ Lint/EmptyWhen:
 Lint/HandleExceptions:
   Enabled: false
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: runtime_error, standard_error
-Lint/InheritException:
-  Exclude:
-    - 'app/controllers/webui/webui_controller.rb'
-    - 'lib/api_exception.rb'
-
 # Offense count: 9
 Lint/NonLocalExitFromIterator:
   Exclude:

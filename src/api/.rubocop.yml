@@ -206,6 +206,10 @@ Lint/UselessAccessModifier:
 Lint/UselessAssignment:
   Enabled: true
 
+# This cop looks for error classes inheriting from `Exception`.
+Lint/InheritException:
+  Enabled: true
+
 ##################### Performance ###############################
 
 # Use yield instead of having a &block parameter and block.call
