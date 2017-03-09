@@ -31,8 +31,3 @@ popd
 
 # travis rvm can not deal with our extended executable names
 sed -i 1,1s,\.ruby2\.4,, src/api/{script,bin}/* docs/api/restility/bin/*
-
-echo "Build apidocs"
-pushd docs/api
-make
-popd
