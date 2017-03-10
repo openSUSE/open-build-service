@@ -166,7 +166,7 @@ if [ $? -eq 0 ]; then
 else
  printlog "$CMD_OUT"
  echo "$CMD_OUT"
- RETURN="2"
+ RETURN="3"
 fi
 
 if [[ $DEBUG_DOCKER ]];then

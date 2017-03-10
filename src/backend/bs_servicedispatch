@@ -177,6 +177,8 @@ sub runservice {
     $error = $@ if $@;
   } else {
     $error ||= 'error';
+    die("Transient error for $projid/$packid: $error") if $error =~ /^5/;
+    die("RPC error for $projid/$packid: $error") if $error !~ /^\d/;
     $error = "service daemon error:\n $error";
   }
   BSUtil::cleandir($odir);
