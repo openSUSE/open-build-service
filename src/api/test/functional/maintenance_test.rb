@@ -963,12 +963,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/source/#{incidentProject}?cmd=set_flag&flag=lock&status=disable"
     assert_response :success
 
-    # set an invalid
-    post "/source/#{incidentProject}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
-    assert_response :forbidden
-
     # EmbargoDate is needed for test for releasing packages
-    login_king
     post "/source/#{incidentProject}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
     assert_response :success
 
