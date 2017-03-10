@@ -138,7 +138,7 @@
         </ul>
       </div>
       <div id="reviews_in" class="tab">
-        <%= render(:partial => 'shared/requests', :locals => { :request_table_id => 'reviews_in_table', :hide_state => true, :serverProcessing => true }) %>
+        <%= render(partial: 'requests', locals: { id: 'reviews_in_table' }) %>
       </div>
    </div>
   </div>
