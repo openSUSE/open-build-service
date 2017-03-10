@@ -22,3 +22,15 @@ function setup_comment_page() {
         $(this).find('input[type="submit"]').prop('disabled', true);
     });
 }
+
+$(document).ready(function(){
+    $('a.delete_link').on('ajax:success', function(event, data, status, xhr){
+        $('#flash-messages').remove();
+        $(data.flash).filter('#flash-messages').insertAfter('#subheader').fadeIn('slow');
+        $(this).parent().parent().parent().fadeOut("slow");
+    }).on('ajax:error',function(event, xhr, status, error){
+        var response = $.parseJSON(xhr.responseText);
+        $('#flash-messages').remove();
+        $(response.flash).filter('#flash-messages').insertAfter('#subheader').fadeIn('slow');
+    });
+});

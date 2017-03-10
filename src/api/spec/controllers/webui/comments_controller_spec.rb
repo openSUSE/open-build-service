@@ -81,7 +81,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
         delete :destroy, params: { id: comment.id }
       end
 
-      it { expect(flash[:notice]).to eq('Comment deleted successfully') }
+      it { expect(flash[:notice]).to eq('Comment deleted successfully.') }
       it { expect(Comment.where(id: comment.id)).to eq([]) }
     end
 
@@ -100,7 +100,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
         delete :destroy, params: { id: other_comment.id }
       end
 
-      it { expect(flash[:notice]).to eq('Comment deleted successfully') }
+      it { expect(flash[:notice]).to eq('Comment deleted successfully.') }
       it { expect(Comment.where(id: other_comment.id)).to eq([]) }
     end
   end

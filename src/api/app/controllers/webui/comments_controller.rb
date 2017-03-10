@@ -20,18 +20,29 @@ class Webui::CommentsController < Webui::WebuiController
   def destroy
     comment = Comment.find(params[:id])
     authorize comment, :destroy?
-    comment.blank_or_destroy
 
     respond_to do |format|
-      format.js { render json: 'ok' }
-      format.html do
-        flash[:notice] = 'Comment deleted successfully'
+      if comment.blank_or_destroy
+        flash[:notice] = 'Comment deleted successfully.'
+        format.json { render json: { flash: render_flash } }
+      else
+        flash[:error] = "Failed to delete comment: #{comment.errors.full_messages.to_sentence}."
+        format.json { render json: { flash: render_flash }, status: :unprocessable_entity }
       end
+      format.html { redirect_back(fallback_location: root_path) }
     end
-    redirect_back(fallback_location: root_path)
   end
 
   private
+
+  def render_flash
+    render_to_string(
+      partial: 'layouts/webui/flash',
+      formats: :html,
+      layout: false,
+      object: flash
+    )
+  end
 
   def permitted_params
     params.require(:comment).permit(:body, :parent_id)
