@@ -58,7 +58,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:link, 'open request').click
     find("tbody tr:first-child a.request_link").click
     find(:id, 'description-text').text.must_equal 'I want the update'
-    find(:id, 'action_display_0').must_have_text ('Release in BaseDistro2.0:LinkedUpdateProject')
+    find(:id, 'action_display_0').must_have_text('Release in BaseDistro2.0:LinkedUpdateProject')
     fill_in 'reason', with: 'really? ok'
     find(:id, 'accept_request_button').click
     # rubocop:disable Metrics/LineLength

@@ -536,7 +536,7 @@ class Project < ApplicationRecord
   def check_weak_dependencies!
     # check all packages
     packages.each do |pkg|
-      pkg.check_weak_dependencies! (true) # ignore project local devel packages
+      pkg.check_weak_dependencies!(true) # ignore project local devel packages
     end
 
     # do not allow to remove maintenance master projects if there are incident projects
@@ -878,7 +878,7 @@ class Project < ApplicationRecord
   def check_for_empty_repo_list(list, error_prefix)
     return if list.empty?
     linking_repos = list.map { |x| x.repository.project.name + '/' + x.repository.name }.join "\n"
-    raise SaveError.new (error_prefix + "\n" + linking_repos)
+    raise SaveError.new(error_prefix + "\n" + linking_repos)
   end
 
   def write_to_backend
