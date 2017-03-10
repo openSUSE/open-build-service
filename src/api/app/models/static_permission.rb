@@ -18,3 +18,15 @@ class StaticPermission < ApplicationRecord
 
   alias_attribute :fixtures_name, :title
 end
+
+# == Schema Information
+#
+# Table name: static_permissions
+#
+#  id    :integer          not null, primary key
+#  title :string(200)      default(""), not null
+#
+# Indexes
+#
+#  static_permissions_title_index  (title) UNIQUE
+#

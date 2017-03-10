@@ -98,3 +98,20 @@ class MaintenanceIncident < ApplicationRecord
     connection.execute escape_sql query
   end
 end
+
+# == Schema Information
+#
+# Table name: maintenance_incidents
+#
+#  id                        :integer          not null, primary key
+#  db_project_id             :integer
+#  maintenance_db_project_id :integer
+#  updateinfo_id             :string(255)
+#  incident_id               :integer
+#  released_at               :datetime
+#
+# Indexes
+#
+#  index_maintenance_incidents_on_db_project_id              (db_project_id)
+#  index_maintenance_incidents_on_maintenance_db_project_id  (maintenance_db_project_id)
+#

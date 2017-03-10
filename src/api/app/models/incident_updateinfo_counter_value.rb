@@ -13,3 +13,19 @@ class IncidentUpdateinfoCounterValue < ApplicationRecord
                                           value: updateinfo_counter.increase)
   end
 end
+
+# == Schema Information
+#
+# Table name: incident_updateinfo_counter_values
+#
+#  id                    :integer          not null, primary key
+#  updateinfo_counter_id :integer          not null
+#  project_id            :integer          not null
+#  value                 :integer          not null
+#  released_at           :datetime         not null
+#
+# Indexes
+#
+#  project_id     (project_id)
+#  uniq_id_index  (updateinfo_counter_id,project_id)
+#

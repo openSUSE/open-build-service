@@ -69,3 +69,17 @@ class Distribution < ApplicationRecord
     list
   end
 end
+
+# == Schema Information
+#
+# Table name: distributions
+#
+#  id         :integer          not null, primary key
+#  vendor     :string(255)      not null
+#  version    :string(255)      not null
+#  name       :string(255)      not null
+#  project    :string(255)      not null
+#  reponame   :string(255)      not null
+#  repository :string(255)      not null
+#  link       :string(255)
+#

@@ -227,3 +227,23 @@ class Repository < ApplicationRecord
     errors.add :remote_project_name, 'cannot be nil'
   end
 end
+
+# == Schema Information
+#
+# Table name: repositories
+#
+#  id                  :integer          not null, primary key
+#  db_project_id       :integer          not null
+#  name                :string(255)      not null
+#  remote_project_name :string(255)
+#  rebuild             :string(10)
+#  block               :string(5)
+#  linkedbuild         :string(8)
+#  hostsystem_id       :integer
+#
+# Indexes
+#
+#  hostsystem_id              (hostsystem_id)
+#  projects_name_index        (db_project_id,name,remote_project_name) UNIQUE
+#  remote_project_name_index  (remote_project_name)
+#

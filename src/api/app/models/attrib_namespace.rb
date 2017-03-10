@@ -43,3 +43,15 @@ class AttribNamespace < ApplicationRecord
 
   #### Alias of methods
 end
+
+# == Schema Information
+#
+# Table name: attrib_namespaces
+#
+#  id   :integer          not null, primary key
+#  name :string(255)
+#
+# Indexes
+#
+#  index_attrib_namespaces_on_name  (name)
+#

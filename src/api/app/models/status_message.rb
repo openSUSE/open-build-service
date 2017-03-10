@@ -8,3 +8,20 @@ class StatusMessage < ApplicationRecord
     save
   end
 end
+
+# == Schema Information
+#
+# Table name: status_messages
+#
+#  id         :integer          not null, primary key
+#  created_at :datetime
+#  deleted_at :datetime
+#  message    :text(65535)
+#  user_id    :integer
+#  severity   :integer
+#
+# Indexes
+#
+#  index_status_messages_on_deleted_at_and_created_at  (deleted_at,created_at)
+#  user                                                (user_id)
+#

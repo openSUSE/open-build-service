@@ -175,3 +175,16 @@ class Channel < ApplicationRecord
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: channels
+#
+#  id         :integer          not null, primary key
+#  package_id :integer          not null
+#
+# Indexes
+#
+#  index_unique  (package_id) UNIQUE
+#  package_id    (package_id)
+#

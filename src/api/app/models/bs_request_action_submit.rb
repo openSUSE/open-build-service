@@ -121,3 +121,35 @@ class BsRequestActionSubmit < BsRequestAction
 
   #### Alias of methods
 end
+
+# == Schema Information
+#
+# Table name: bs_request_actions
+#
+#  id                    :integer          not null, primary key
+#  bs_request_id         :integer
+#  type                  :string(255)
+#  target_project        :string(255)
+#  target_package        :string(255)
+#  target_releaseproject :string(255)
+#  source_project        :string(255)
+#  source_package        :string(255)
+#  source_rev            :string(255)
+#  sourceupdate          :string(255)
+#  updatelink            :boolean          default("0")
+#  person_name           :string(255)
+#  group_name            :string(255)
+#  role                  :string(255)
+#  created_at            :datetime
+#  target_repository     :string(255)
+#  makeoriginolder       :boolean          default("0")
+#
+# Indexes
+#
+#  bs_request_id                                                  (bs_request_id)
+#  index_bs_request_actions_on_source_package                     (source_package)
+#  index_bs_request_actions_on_source_project                     (source_project)
+#  index_bs_request_actions_on_target_package                     (target_package)
+#  index_bs_request_actions_on_target_project                     (target_project)
+#  index_bs_request_actions_on_target_project_and_source_project  (target_project,source_project)
+#

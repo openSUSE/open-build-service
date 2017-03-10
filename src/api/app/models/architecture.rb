@@ -42,3 +42,16 @@ class Architecture < ApplicationRecord
   end
   #### Alias of methods
 end
+
+# == Schema Information
+#
+# Table name: architectures
+#
+#  id        :integer          not null, primary key
+#  name      :string(255)      not null
+#  available :boolean          default("0")
+#
+# Indexes
+#
+#  arch_name_index  (name) UNIQUE
+#

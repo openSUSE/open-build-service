@@ -7,3 +7,18 @@ class StatusHistory < ApplicationRecord
       collect { |time, value| [time.to_i, value.to_f] }
   end
 end
+
+# == Schema Information
+#
+# Table name: status_histories
+#
+#  id    :integer          not null, primary key
+#  time  :integer
+#  key   :string(255)
+#  value :float(24)        not null
+#
+# Indexes
+#
+#  index_status_histories_on_key           (key)
+#  index_status_histories_on_time_and_key  (time,key)
+#

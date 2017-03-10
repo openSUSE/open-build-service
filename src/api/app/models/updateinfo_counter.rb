@@ -19,3 +19,15 @@ class UpdateinfoCounter < ApplicationRecord
     counter
   end
 end
+
+# == Schema Information
+#
+# Table name: updateinfo_counters
+#
+#  id                        :integer          not null, primary key
+#  maintenance_db_project_id :integer
+#  day                       :integer
+#  month                     :integer
+#  year                      :integer
+#  counter                   :integer          default("0")
+#

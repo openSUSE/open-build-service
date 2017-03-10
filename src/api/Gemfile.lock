@@ -49,6 +49,9 @@ GEM
       activerecord (>= 3.0.0)
     addressable (2.5.0)
       public_suffix (~> 2.0, >= 2.0.2)
+    annotate (2.6.5)
+      activerecord (>= 2.3.0)
+      rake (>= 0.8.7)
     ansi (1.5.0)
     arel (7.1.4)
     ast (2.3.0)
@@ -353,6 +356,7 @@ DEPENDENCIES
   activemodel-serializers-xml
   acts_as_list
   acts_as_tree
+  annotate
   bundler
   capybara_minitest_spec
   chunky_png
@@ -423,4 +427,4 @@ DEPENDENCIES
   yajl-ruby
 
 BUNDLED WITH
-   1.13.6
+   1.13.7

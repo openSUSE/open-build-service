@@ -41,3 +41,16 @@ class Tag < ApplicationRecord
     errors.add(:name, "The tag is blacklisted!") if blacklist
   end
 end
+
+# == Schema Information
+#
+# Table name: tags
+#
+#  id         :integer          not null, primary key
+#  name       :string(255)      not null
+#  created_at :datetime
+#
+# Indexes
+#
+#  tags_name_unique_index  (name) UNIQUE
+#

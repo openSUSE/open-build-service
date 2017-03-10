@@ -142,3 +142,22 @@ class AttribType < ApplicationRecord
 
   #### Alias of methods
 end
+
+# == Schema Information
+#
+# Table name: attrib_types
+#
+#  id                  :integer          not null, primary key
+#  name                :string(255)      not null
+#  description         :string(255)
+#  type                :string(255)
+#  value_count         :integer
+#  attrib_namespace_id :integer          not null
+#  issue_list          :boolean          default("0")
+#
+# Indexes
+#
+#  attrib_namespace_id                                 (attrib_namespace_id)
+#  index_attrib_types_on_attrib_namespace_id_and_name  (attrib_namespace_id,name) UNIQUE
+#  index_attrib_types_on_name                          (name)
+#
