@@ -435,7 +435,11 @@ class Webui::ProjectController < Webui::WebuiController
     @name_filter = params[:pkgname]
     @lastbuild_switch = params[:lastbuild]
     if params[:defaults]
-      defaults = (Integer(params[:defaults]) rescue 1) > 0
+      defaults = (begin
+                    Integer(params[:defaults])
+                  rescue
+                    1
+                  end) > 0
     else
       defaults = true
     end
@@ -874,7 +878,11 @@ class Webui::ProjectController < Webui::WebuiController
     @avail_status_values.each { |s|
       id = s.delete(' ')
       if params.has_key?(id)
-        next unless (Integer(params[id]) rescue 1) > 0
+        next unless (begin
+                       Integer(params[id])
+                     rescue
+                       1
+                     end) > 0
       else
         next unless defaults
       end
