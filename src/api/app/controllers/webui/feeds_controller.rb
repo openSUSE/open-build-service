@@ -21,12 +21,20 @@ class Webui::FeedsController < Webui::WebuiController
       return
     end
     unless params[:starting_at].blank?
-      @start = (Time.zone.parse(params[:starting_at]) rescue nil)
+      @start = (begin
+                  Time.zone.parse(params[:starting_at])
+                rescue
+                  nil
+                end)
     end
     @start ||= 7.days.ago
     @finish = nil
     unless params[:ending_at].blank?
-      @finish = (Time.zone.parse(params[:ending_at]) rescue nil)
+      @finish = (begin
+                   Time.zone.parse(params[:ending_at])
+                 rescue
+                   nil
+                 end)
     end
     @commits = @project.project_log_entries.where(event_type: 'commit').where(["datetime >= ?", @start])
     @commits = @commits.where(["datetime <= ?", @finish]) unless @finish.nil?
