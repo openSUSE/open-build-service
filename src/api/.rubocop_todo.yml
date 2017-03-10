@@ -31,13 +31,6 @@ Lint/NonLocalExitFromIterator:
     - 'app/models/patchinfo.rb'
     - 'app/models/relationship.rb'
 
-# Offense count: 4
-Lint/ParenthesesAsGroupedExpression:
-  Exclude:
-    - 'app/models/project.rb'
-    - 'test/functional/webui/maintenance_workflow_test.rb'
-    - 'test/functional/webui/monitor_controller_test.rb'
-
 # Offense count: 10
 Lint/RescueException:
   Exclude:

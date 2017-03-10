@@ -210,6 +210,10 @@ Lint/UselessAssignment:
 Lint/InheritException:
   Enabled: true
 
+# Checks for space between a the name of a called method and a left parenthesis.
+Lint/ParenthesesAsGroupedExpression:
+  Enabled: true
+
 ##################### Performance ###############################
 
 # Use yield instead of having a &block parameter and block.call
