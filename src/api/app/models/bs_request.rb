@@ -1307,3 +1307,28 @@ class BsRequest < ApplicationRecord
     connection.quote(str)
   end
 end
+
+# == Schema Information
+#
+# Table name: bs_requests
+#
+#  id            :integer          not null, primary key
+#  description   :text(65535)
+#  creator       :string(255)
+#  state         :string(255)
+#  comment       :text(65535)
+#  commenter     :string(255)
+#  superseded_by :integer
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  accept_at     :datetime
+#  priority      :string(9)        default("moderate")
+#  number        :integer          not null
+#
+# Indexes
+#
+#  index_bs_requests_on_creator        (creator)
+#  index_bs_requests_on_number         (number) UNIQUE
+#  index_bs_requests_on_state          (state)
+#  index_bs_requests_on_superseded_by  (superseded_by)
+#

@@ -7,3 +7,18 @@ class PathElement < ApplicationRecord
   validates :link, :repository, presence: true
   validates :repository, uniqueness: { scope: :link }
 end
+
+# == Schema Information
+#
+# Table name: path_elements
+#
+#  id            :integer          not null, primary key
+#  parent_id     :integer          not null
+#  repository_id :integer          not null
+#  position      :integer          not null
+#
+# Indexes
+#
+#  parent_repository_index  (parent_id,repository_id) UNIQUE
+#  repository_id            (repository_id)
+#

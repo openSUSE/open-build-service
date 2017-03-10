@@ -60,3 +60,22 @@ class EventSubscription < ApplicationRecord
     raise "Unable to filter by #{obj.class}"
   end
 end
+
+# == Schema Information
+#
+# Table name: event_subscriptions
+#
+#  id            :integer          not null, primary key
+#  eventtype     :string(255)      not null
+#  receiver_role :string(255)      not null
+#  user_id       :integer
+#  created_at    :datetime
+#  updated_at    :datetime
+#  receive       :boolean          default("1"), not null
+#  group_id      :integer
+#
+# Indexes
+#
+#  index_event_subscriptions_on_group_id  (group_id)
+#  index_event_subscriptions_on_user_id   (user_id)
+#

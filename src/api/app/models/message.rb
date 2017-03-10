@@ -3,3 +3,24 @@ class Message < ApplicationRecord
   belongs_to :packages, class_name: "Package", foreign_key: "db_object_id"
   belongs_to :user
 end
+
+# == Schema Information
+#
+# Table name: messages
+#
+#  id             :integer          not null, primary key
+#  db_object_id   :integer
+#  db_object_type :string(255)
+#  user_id        :integer
+#  created_at     :datetime
+#  send_mail      :boolean
+#  sent_at        :datetime
+#  private        :boolean
+#  severity       :integer
+#  text           :text(65535)
+#
+# Indexes
+#
+#  object  (db_object_id)
+#  user    (user_id)
+#

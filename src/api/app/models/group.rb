@@ -155,3 +155,20 @@ class Group < ApplicationRecord
     address.format
   end
 end
+
+# == Schema Information
+#
+# Table name: groups
+#
+#  id         :integer          not null, primary key
+#  created_at :datetime
+#  updated_at :datetime
+#  title      :string(200)      default(""), not null
+#  parent_id  :integer
+#  email      :string(255)
+#
+# Indexes
+#
+#  groups_parent_id_index  (parent_id)
+#  index_groups_on_title   (title)
+#

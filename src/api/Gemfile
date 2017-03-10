@@ -119,6 +119,8 @@ group :development do
   gem 'unicorn-rails' # webrick won't work
   # for calling single testd
   gem 'single_test'
+  # for annotating models with schema info
+  gem 'annotate'
 end
 
 group :development, :test do

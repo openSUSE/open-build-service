@@ -34,3 +34,19 @@ class PackageIssue < ApplicationRecord
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: package_issues
+#
+#  id         :integer          not null, primary key
+#  package_id :integer          not null
+#  issue_id   :integer          not null
+#  change     :string(7)
+#
+# Indexes
+#
+#  index_package_issues_on_issue_id                 (issue_id)
+#  index_package_issues_on_package_id               (package_id)
+#  index_package_issues_on_package_id_and_issue_id  (package_id,issue_id)
+#

@@ -19,3 +19,19 @@ class Token < ApplicationRecord
     save!
   end
 end
+
+# == Schema Information
+#
+# Table name: tokens
+#
+#  id         :integer          not null, primary key
+#  string     :string(255)
+#  user_id    :integer          not null
+#  package_id :integer
+#
+# Indexes
+#
+#  index_tokens_on_string  (string) UNIQUE
+#  package_id              (package_id)
+#  user_id                 (user_id)
+#

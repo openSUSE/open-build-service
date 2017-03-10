@@ -176,3 +176,25 @@ class Relationship < ApplicationRecord
                "global role #{role.title} is not allowed.")
   end
 end
+
+# == Schema Information
+#
+# Table name: relationships
+#
+#  id         :integer          not null, primary key
+#  package_id :integer
+#  project_id :integer
+#  role_id    :integer          not null
+#  user_id    :integer
+#  group_id   :integer
+#
+# Indexes
+#
+#  group_id                                                    (group_id)
+#  index_relationships_on_package_id_and_role_id_and_group_id  (package_id,role_id,group_id) UNIQUE
+#  index_relationships_on_package_id_and_role_id_and_user_id   (package_id,role_id,user_id) UNIQUE
+#  index_relationships_on_project_id_and_role_id_and_group_id  (project_id,role_id,group_id) UNIQUE
+#  index_relationships_on_project_id_and_role_id_and_user_id   (project_id,role_id,user_id) UNIQUE
+#  role_id                                                     (role_id)
+#  user_id                                                     (user_id)
+#

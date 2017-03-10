@@ -143,3 +143,21 @@ class Attrib < ApplicationRecord
     errors[:values] << "has #{values.length} values, but only #{value_count} are allowed" if value_count && value_count != values.length
   end
 end
+
+# == Schema Information
+#
+# Table name: attribs
+#
+#  id             :integer          not null, primary key
+#  attrib_type_id :integer          not null
+#  package_id     :integer
+#  binary         :string(255)
+#  project_id     :integer
+#
+# Indexes
+#
+#  attribs_index                (attrib_type_id,package_id,project_id,binary) UNIQUE
+#  attribs_on_proj_and_pack     (attrib_type_id,project_id,package_id,binary) UNIQUE
+#  index_attribs_on_package_id  (package_id)
+#  index_attribs_on_project_id  (project_id)
+#

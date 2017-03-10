@@ -175,3 +175,24 @@ class Flag < ApplicationRecord
     package || project
   end
 end
+
+# == Schema Information
+#
+# Table name: flags
+#
+#  id              :integer          not null, primary key
+#  status          :string(7)        not null
+#  repo            :string(255)
+#  project_id      :integer
+#  package_id      :integer
+#  architecture_id :integer
+#  position        :integer          not null
+#  flag            :string(14)       not null
+#
+# Indexes
+#
+#  architecture_id            (architecture_id)
+#  index_flags_on_flag        (flag)
+#  index_flags_on_package_id  (package_id)
+#  index_flags_on_project_id  (project_id)
+#

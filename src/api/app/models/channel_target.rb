@@ -17,3 +17,20 @@ class ChannelTarget < ApplicationRecord
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: channel_targets
+#
+#  id             :integer          not null, primary key
+#  channel_id     :integer          not null
+#  repository_id  :integer          not null
+#  id_template    :string(255)
+#  disabled       :boolean          default("0")
+#  requires_issue :boolean
+#
+# Indexes
+#
+#  index_channel_targets_on_channel_id_and_repository_id  (channel_id,repository_id) UNIQUE
+#  repository_id                                          (repository_id)
+#
