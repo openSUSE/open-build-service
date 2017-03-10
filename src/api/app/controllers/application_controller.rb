@@ -420,10 +420,12 @@ class ApplicationController < ActionController::Base
       end
 
     if pundit_action && exception.record
-      message = "You are not authorized to #{pundit_action} this #{exception.record.class}."
+      message = "You are not authorized to #{pundit_action} this #{ActiveSupport::Inflector.underscore(exception.record.class.to_s).humanize}."
     end
 
-    render_error status: 403, errorcode: 'not_authorized', message: message
+    render_error status: 403,
+                 errorcode: "#{pundit_action}_#{ActiveSupport::Inflector.underscore(exception.record.class.to_s)}_not_authorized",
+                 message: message
   end
 
   def permissions
