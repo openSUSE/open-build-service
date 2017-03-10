@@ -772,14 +772,6 @@ Style/RedundantParentheses:
 Style/RegexpLiteral:
   Enabled: false
 
-# Offense count: 7
-# Cop supports --auto-correct.
-Style/RescueModifier:
-  Exclude:
-    - 'app/controllers/webui/feeds_controller.rb'
-    - 'app/controllers/webui/project_controller.rb'
-    - 'test/functional/webui/owner_search_test.rb'
-
 # Offense count: 20
 # Cop supports --auto-correct.
 Style/SelfAssignment:

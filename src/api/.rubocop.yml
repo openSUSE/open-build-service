@@ -149,6 +149,10 @@ Style/TernaryParentheses:
 Style/ZeroLengthPredicate:
   Enabled: true
 
+# Checks for uses of rescue in its modifier form
+Style/RescueModifier:
+  Enabled: true
+
 ##################### Metrics ##################################
 
 # Checks if the length a class exceeds some maximum value
