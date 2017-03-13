@@ -1,0 +1,47 @@
+From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+Date: Mon, 13 Mar 2017 12:37:01 +0100
+Subject: [backend] Handle ERROR_WANT_{READ,WRITE} from ssl reads
+
+Upon a read SSLeay can return with either ERROR_WANT_READ or
+ERROR_WANT_WRITE to indicate the same function needs to be called again
+(e.g. due to underlying protocol handling having been done, but no data
+ yet for the API user). Handle this by modelling it as an EINTR errno,
+ such that the higher layers will retry the read.
+
+This fixes some issue we hit when using an https repository for DoD.
+
+Signed-off-by: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+---
+ src/backend/BSSSL.pm | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/src/backend/BSSSL.pm b/src/backend/BSSSL.pm
+index 5045fe0..eb1e4e3 100644
+--- a/src/backend/BSSSL.pm
++++ b/src/backend/BSSSL.pm
+@@ -24,6 +24,7 @@
+ 
+ package BSSSL;
+ 
++use POSIX;
+ use Socket;
+ use Net::SSLeay;
+ 
+@@ -94,7 +95,16 @@ sub READLINE {
+ sub READ {
+   my ($sslr, undef, $len, $offset) = @_;
+   my $buf = \$_[1];
+-  my $r = Net::SSLeay::read($sslr->[0], $len);
++  print "length $len\n";
++  my ($r, $rv, $code);
++  ($r, $rv)  = Net::SSLeay::read($sslr->[0]);
++  if ($rv < 0) {
++        $code = Net::SSLeay::get_error($sslr->[0], $rv);
++        if ($code == &Net::SSLeay::ERROR_WANT_READ || $code == &Net::SSLeay::ERROR_WANT_WRITE) {
++          $! = POSIX::EINTR;
++        }
++  }
++
+   return undef unless defined $r;
+   return length($$buf = $r) unless defined $offset;
+   my $bl = length($$buf);

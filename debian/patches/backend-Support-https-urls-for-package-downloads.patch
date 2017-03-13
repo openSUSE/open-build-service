@@ -1,0 +1,25 @@
+From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+Date: Mon, 13 Mar 2017 12:37:51 +0100
+Subject: [backend] Support https urls for package downloads
+
+Enable support for https downloads via the BSWatcher module, such that
+the repserver can pull package down from https repositories.
+
+Signed-off-by: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+---
+ src/backend/bs_repserver | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/backend/bs_repserver b/src/backend/bs_repserver
+index 6c52647..b61950b 100755
+--- a/src/backend/bs_repserver
++++ b/src/backend/bs_repserver
+@@ -55,7 +55,7 @@ use BSXML;
+ use BSVerify;
+ use BSHandoff;
+ use Build;
+-use BSWatcher;
++use BSWatcher ":https";
+ use BSStdServer;
+ use BSXPath;
+ use BSXPathKeys;
