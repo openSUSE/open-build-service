@@ -35,6 +35,10 @@ frontend_protocol: https
 #external_frontend_port: 443
 #external_frontend_protocol: https
 
+# Kerberos authentication
+#kerberos_keytab: "/etc/krb5.keytab"
+#kerberos_service_principal: "HTTP/hostname.example.com@EXAMPLE.COM"
+#kerberos_realm: "EXAMPLE.COM"
 
 extended_backend_log: false
 
