@@ -781,14 +781,6 @@ Style/Semicolon:
     - 'test/functional/build_controller_test.rb'
     - 'test/functional/zzz_post_consistency_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: only_raise, only_fail, semantic
-Style/SignalException:
-  Exclude:
-    - 'test/functional/webui/search_controller_test.rb'
-
 # Offense count: 39
 # Cop supports --auto-correct.
 Style/SpaceAfterColon:
