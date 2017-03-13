@@ -1,10 +1,8 @@
-<% elide_len ||= no_target ? 80 : 40
+<%
    cp = common_parts(req)
    source_package = cp[:source_package]
    source_project = cp[:source_project]
    request_type = cp[:request_type]
-   target_package = cp[:target_package]
-   target_project = cp[:target_project]
 -%>
 
 <tr id="tr_request_<%= "#{req.id}" %>" class="request-<%= req.priority %>">
@@ -13,32 +11,11 @@
     <%= fuzzy_time(req.created_at) %>
   </td>
   <td class="request_source">
-    <%= project_or_package_link(project: source_project, package: source_package, creator: req.creator, trim_to: elide_len, short: true) %>
+    <%= project_or_package_link(project: source_project, package: source_package, creator: req.creator, trim_to: 80, short: true) %>
   </td>
-  <% unless no_target %>
-    <td class="request_target">
-      <% if target_project %>
-        <% if !@project || @project.name != target_project %><!-- <%= target_project %>  -->
-          <% if target_package && source_package != target_package %> <!-- /<%= target_package %> -->
-            <%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) -%>
-          <% else %>
-            <%= project_or_package_link(project: target_project, trim_to: elide_len, short: true) %>
-          <% end %>
-        <% else %>
-          <% if target_package %> <!-- <%= target_package %> -->
-            <%= project_or_package_link(project: target_project, package: target_package, trim_to: elide_len, short: true) %>
-          <% elsif request_type == :delete %>
-            This project
-          <% end %>
-        <% end %>
-      <% end %>
-    </td>
-  <% end %>
   <td class="nowrap"><%= user_with_realname_and_icon(req['creator'], short: true) %></td>
   <td class="nowrap"><%= request_type %></td>
-  <% if !hide_state %>
-    <td class="nowrap"><%= req.state %></td>
-  <% end %>
+  <td class="nowrap"><%= req.state %></td>
   <td class="nowrap">
     <span class="hidden"><%= priority_number(req.priority) %></span>
     <span title="<%= priority_description(req.priority) %>"><%= req.priority %></span>

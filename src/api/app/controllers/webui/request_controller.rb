@@ -243,9 +243,8 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to(user_show_path(User.current)) && return unless request.xhr? # non ajax request
     requests = BsRequest.list(params)
 
-    elide_len = (params[:elide_len] || 44).to_i
     session[:request_numbers] = requests.pluck(:number)
-    render partial: 'shared/requests', locals: {requests: requests, elide_len: elide_len, no_target: params[:no_target]}
+    render partial: 'shared/requests', locals: { requests: requests }
   end
 
   def list_small

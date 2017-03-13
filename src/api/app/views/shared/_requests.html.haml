@@ -1,0 +1,24 @@
+- if requests.blank?
+  %p No requests.
+- else
+  %table#request_table.compact{:width => '100%'}
+    %thead
+      %tr
+        %th Created
+        %th Source
+        %th Requester
+        %th Type
+        %th State
+        %th Priority
+        %th
+    %tbody
+      - requests.each do |req|
+        = render partial: 'shared/single_request', locals: { req: req }
+  :javascript
+    $('#request_table').dataTable({
+      'order': [[0,'desc']],
+      'columns': [ null, null, null, null, null, null, null ],
+      'info': false,
+      'paging': 25,
+      pagingType: 'full_numbers',
+    });
