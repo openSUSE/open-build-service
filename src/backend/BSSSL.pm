@@ -24,6 +24,7 @@
 
 package BSSSL;
 
+use POSIX;
 use Socket;
 use Net::SSLeay;
 
@@ -94,7 +95,15 @@ sub READLINE {
 sub READ {
   my ($sslr, undef, $len, $offset) = @_;
   my $buf = \$_[1];
-  my $r = Net::SSLeay::read($sslr->[0], $len);
+  my ($r, $rv, $code);
+  ($r, $rv)  = Net::SSLeay::read($sslr->[0]);
+  if ($rv < 0) {
+        $code = Net::SSLeay::get_error($sslr->[0], $rv);
+        if ($code == &Net::SSLeay::ERROR_WANT_READ || $code == &Net::SSLeay::ERROR_WANT_WRITE) {
+          $! = POSIX::EINTR;
+        }
+  }
+
   return undef unless defined $r;
   return length($$buf = $r) unless defined $offset;
   my $bl = length($$buf);
