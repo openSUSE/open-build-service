@@ -32,6 +32,10 @@ Style/AndOr:
 Style/AsciiComments:
   Enabled: true
 
+# Checks for methods invoked via the :: operator
+Style/ColonMethodCall:
+  Enabled: true
+
 # Use ` or %x around command literals.
 Style/CommandLiteral:
   EnforcedStyle: percent_x

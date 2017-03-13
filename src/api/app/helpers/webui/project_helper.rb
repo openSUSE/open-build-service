@@ -7,7 +7,7 @@ module Webui::ProjectHelper
     status_comment_html = ''.html_safe
     if comment
       # TODO: Port _to_remote helpers to jQuery
-      status_comment_html = ERB::Util::h(comment)
+      status_comment_html = ERB::Util.h(comment)
       if !firstfail
         if User.current.can_modify_project?(@project.api_obj)
           status_comment_html += ' '.html_safe + link_to(image_tag('comment_delete.png', size: '16x16', alt: 'Clear'),

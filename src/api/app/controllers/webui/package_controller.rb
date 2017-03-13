@@ -849,7 +849,7 @@ class Webui::PackageController < Webui::WebuiController
         @finished = true
       else
         @log_chunk = chunk
-        @offset += ActiveXML::backend.last_body_length
+        @offset += ActiveXML.backend.last_body_length
       end
 
     rescue Timeout::Error, IOError
@@ -973,7 +973,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def get_rpmlint_log(project, package, repository, architecture)
     path = "/build/#{pesc project}/#{pesc repository}/#{pesc architecture}/#{pesc package}/rpmlint.log"
-    ActiveXML::backend.direct_http(URI(path), timeout: 500)
+    ActiveXML.backend.direct_http(URI(path), timeout: 500)
   end
 
   def rpmlint_log
