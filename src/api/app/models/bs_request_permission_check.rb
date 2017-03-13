@@ -152,12 +152,12 @@ class BsRequestPermissionCheck
     else
       err = nil
       case action.action_type
-        when :change_devel
-          err = "Local source package is missing for request #{action.bs_request.number} (type #{action.action_type})"
-        when :set_bugowner
-        when :add_role
-        else
-          action.source_access_check!
+      when :change_devel
+        err = "Local source package is missing for request #{action.bs_request.number} (type #{action.action_type})"
+      when :set_bugowner
+      when :add_role
+      else
+        action.source_access_check!
       end
       raise SourceMissing.new err if err
     end
@@ -392,30 +392,30 @@ class BsRequestPermissionCheck
   def extra_permissions_check_changestate
     err =
       case opts[:newstate]
-        when 'superseded'
+      when 'superseded'
           # Is the user involved in any project or package ?
-          unless @write_permission_in_target || @write_permission_in_source
-            "You have no role in request #{req.number}"
-          end
-        when 'accepted'
+        unless @write_permission_in_target || @write_permission_in_source
+          "You have no role in request #{req.number}"
+        end
+      when 'accepted'
           # requires write permissions in all targets, this is already handled in each action check
-        when 'revoked'
+      when 'revoked'
           # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request
-          unless @write_permission_in_source
-            "No permission to revoke request #{req.number}"
-          end
-        when 'new'
-          if (req.state == :revoked && !@write_permission_in_source) ||
-              (req.state == :declined && !@write_permission_in_target)
-            "No permission to reopen request #{req.number}"
-          end
-        when 'declined'
-          unless @write_permission_in_target
-            # at least on one target the permission must be granted on decline
-            "No permission to decline request #{req.number}"
-          end
-        else
-          "No permission to change request #{req.number} state"
+        unless @write_permission_in_source
+          "No permission to revoke request #{req.number}"
+        end
+      when 'new'
+        if (req.state == :revoked && !@write_permission_in_source) ||
+            (req.state == :declined && !@write_permission_in_target)
+          "No permission to reopen request #{req.number}"
+        end
+      when 'declined'
+        unless @write_permission_in_target
+          # at least on one target the permission must be granted on decline
+          "No permission to decline request #{req.number}"
+        end
+      else
+        "No permission to change request #{req.number} state"
       end
     raise PostRequestNoPermission.new err if err
   end

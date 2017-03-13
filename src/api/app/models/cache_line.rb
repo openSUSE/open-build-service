@@ -46,14 +46,14 @@ class CacheLine < ApplicationRecord
     return key.cache_key.to_s if key.respond_to?(:cache_key)
 
     case key
-      when Array
-        if key.size > 1
-          key = key.collect { |element| expanded_key(element) }
-        else
-          key = key.first
-        end
-      when Hash
-        key = key.sort_by { |k, _| k.to_s }.collect { |k, v| "#{k}=#{v}" }
+    when Array
+      if key.size > 1
+        key = key.collect { |element| expanded_key(element) }
+      else
+        key = key.first
+      end
+    when Hash
+      key = key.sort_by { |k, _| k.to_s }.collect { |k, v| "#{k}=#{v}" }
     end
 
     key.to_param

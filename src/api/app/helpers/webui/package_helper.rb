@@ -29,18 +29,18 @@ module Webui::PackageHelper
     return 'spec' if filename =~ /^macros\.\w+/
     ext = Pathname.new(filename).extname.downcase
     case ext
-      when '.group' then return 'xml'
-      when '.kiwi' then return 'xml'
-      when '.patch', '.dif' then return 'diff'
-      when '.pl', '.pm' then return 'perl'
-      when '.product' then return 'xml'
-      when '.py' then return 'python'
-      when '.rb' then return 'ruby'
-      when '.tex' then return 'latex'
-      when '.js' then return 'javascript'
-      when '.sh' then return 'shell'
-      when '.spec' then return 'rpm-spec'
-      when '.changes' then return 'rpm-changes'
+    when '.group' then return 'xml'
+    when '.kiwi' then return 'xml'
+    when '.patch', '.dif' then return 'diff'
+    when '.pl', '.pm' then return 'perl'
+    when '.product' then return 'xml'
+    when '.py' then return 'python'
+    when '.rb' then return 'ruby'
+    when '.tex' then return 'latex'
+    when '.js' then return 'javascript'
+    when '.sh' then return 'shell'
+    when '.spec' then return 'rpm-spec'
+    when '.changes' then return 'rpm-changes'
     end
     ext = ext[1..-1]
     return ext if ext.in?(["diff", "php", "html", "xml", "css", "perl"])

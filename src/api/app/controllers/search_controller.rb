@@ -92,12 +92,12 @@ class SearchController < ApplicationController
 
   def predicate_from_match_parameter(p)
     pred = case p
-      when /^\(\[(.*)\]\)$/
-        $1
-      when /^\[(.*)\]$/
-        $1
-      else
-        p
+           when /^\(\[(.*)\]\)$/
+             $1
+           when /^\[(.*)\]$/
+             $1
+           else
+             p
     end
     pred = "*" if pred.nil? || pred.empty?
     pred

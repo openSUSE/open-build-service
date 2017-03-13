@@ -62,12 +62,12 @@ class UserLdapStrategy
     ]
     if newpassword
       case CONFIG['ldap_auth_mech']
-        when :cleartext then
-          entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [newpassword])
-        when :md5 then
-          require 'digest/md5'
-          require 'base64'
-          entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], ["{MD5}" + Base64.b64encode(Digest::MD5.digest(newpassword)).chomp])
+      when :cleartext then
+        entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [newpassword])
+      when :md5 then
+        require 'digest/md5'
+        require 'base64'
+        entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], ["{MD5}" + Base64.b64encode(Digest::MD5.digest(newpassword)).chomp])
       end
     end
     begin
@@ -104,12 +104,12 @@ class UserLdapStrategy
       return "Unable to connect to LDAP server"
     end
     case CONFIG['ldap_auth_mech']
-      when :cleartext then
-        ldap_password = password
-      when :md5 then
-        require 'digest/md5'
-        require 'base64'
-        ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
+    when :cleartext then
+      ldap_password = password
+    when :md5 then
+      require 'digest/md5'
+      require 'base64'
+      ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
     entry = [
       LDAP.mod(LDAP::LDAP_MOD_ADD, 'objectclass', CONFIG['ldap_object_class']),
@@ -317,12 +317,12 @@ class UserLdapStrategy
     end
 
     case CONFIG['ldap_auth_mech']
-      when :cleartext then
-        ldap_password = password
-      when :md5 then
-        require 'digest/md5'
-        require 'base64'
-        ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
+    when :cleartext then
+      ldap_password = password
+    when :md5 then
+      require 'digest/md5'
+      require 'base64'
+      ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
     entry = [
       LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [ldap_password])

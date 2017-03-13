@@ -525,21 +525,21 @@ class BsRequest < ApplicationRecord
 
       params = {request: self, comment: opts[:comment], user_id: User.current.id}
       case opts[:newstate]
-        when "accepted" then
-          history = HistoryElement::RequestAccepted
-        when "declined" then
-          history = HistoryElement::RequestDeclined
-        when "revoked" then
-          history = HistoryElement::RequestRevoked
-        when "superseded" then
-          history = HistoryElement::RequestSuperseded
-          params[:description_extension] = superseded_by.to_s
-        when "review" then
-          history = HistoryElement::RequestReopened
-        when "new" then
-          history = HistoryElement::RequestReopened
-        else
-          raise RuntimeError, "Unhandled state #{opts[:newstate]} for history"
+      when "accepted" then
+        history = HistoryElement::RequestAccepted
+      when "declined" then
+        history = HistoryElement::RequestDeclined
+      when "revoked" then
+        history = HistoryElement::RequestRevoked
+      when "superseded" then
+        history = HistoryElement::RequestSuperseded
+        params[:description_extension] = superseded_by.to_s
+      when "review" then
+        history = HistoryElement::RequestReopened
+      when "new" then
+        history = HistoryElement::RequestReopened
+      else
+        raise RuntimeError, "Unhandled state #{opts[:newstate]} for history"
       end
       history.create(params)
     end
@@ -1051,63 +1051,63 @@ class BsRequest < ApplicationRecord
       end
 
       case xml.action_type # All further stuff depends on action type...
-        when :submit then
-          action[:name] = "Submit #{action[:spkg]}"
-          action[:sourcediff] = xml.webui_infos if with_diff
-          creator = User.find_by_login(self.creator)
-          target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
-          action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.rolecache['maintainer'], target_package)
+      when :submit then
+        action[:name] = "Submit #{action[:spkg]}"
+        action[:sourcediff] = xml.webui_infos if with_diff
+        creator = User.find_by_login(self.creator)
+        target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
+        action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.rolecache['maintainer'], target_package)
 
-          if target_package
-            linkinfo = target_package.linkinfo
-            target_package.developed_packages.each do |dev_pkg|
-              action[:forward] ||= []
-              action[:forward] << {project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
-            end
-            if linkinfo
-              lprj, lpkg = linkinfo['project'], linkinfo['package']
-              link_is_already_devel = false
-              if action[:forward]
-                action[:forward].each do |forward|
-                  if forward[:project] == lprj && forward[:package] == lpkg
-                    link_is_already_devel = true
-                    break
-                  end
+        if target_package
+          linkinfo = target_package.linkinfo
+          target_package.developed_packages.each do |dev_pkg|
+            action[:forward] ||= []
+            action[:forward] << {project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
+          end
+          if linkinfo
+            lprj, lpkg = linkinfo['project'], linkinfo['package']
+            link_is_already_devel = false
+            if action[:forward]
+              action[:forward].each do |forward|
+                if forward[:project] == lprj && forward[:package] == lpkg
+                  link_is_already_devel = true
+                  break
                 end
               end
-              unless link_is_already_devel
-                action[:forward] ||= []
-                action[:forward] << {project: linkinfo['project'], package: linkinfo['package'], type: 'link'}
-              end
+            end
+            unless link_is_already_devel
+              action[:forward] ||= []
+              action[:forward] << {project: linkinfo['project'], package: linkinfo['package'], type: 'link'}
             end
           end
+        end
 
-        when :delete then
-          if action[:tpkg]
-            action[:name] = "Delete #{action[:tpkg]}"
-          elsif action[:trepo]
-            action[:name] = "Delete #{action[:trepo]}"
-          else
-            action[:name] = "Delete #{action[:tprj]}"
-          end
+      when :delete then
+        if action[:tpkg]
+          action[:name] = "Delete #{action[:tpkg]}"
+        elsif action[:trepo]
+          action[:name] = "Delete #{action[:trepo]}"
+        else
+          action[:name] = "Delete #{action[:tprj]}"
+        end
 
-          if action[:tpkg] # API / Backend don't support whole project diff currently
-            action[:sourcediff] = xml.webui_infos if with_diff
-          end
-        when :add_role then
-          action[:name] = 'Add Role'
-          action[:role] = xml.role
-          action[:user] = xml.person_name
-        when :change_devel then
-          action[:name] = 'Change Devel'
-        when :set_bugowner then
-          action[:name] = 'Set Bugowner'
-        when :maintenance_incident then
-          action[:name] = "Incident #{action[:spkg]}"
+        if action[:tpkg] # API / Backend don't support whole project diff currently
           action[:sourcediff] = xml.webui_infos if with_diff
-        when :maintenance_release then
-          action[:name] = "Release #{action[:spkg]}"
-          action[:sourcediff] = xml.webui_infos if with_diff
+        end
+      when :add_role then
+        action[:name] = 'Add Role'
+        action[:role] = xml.role
+        action[:user] = xml.person_name
+      when :change_devel then
+        action[:name] = 'Change Devel'
+      when :set_bugowner then
+        action[:name] = 'Set Bugowner'
+      when :maintenance_incident then
+        action[:name] = "Incident #{action[:spkg]}"
+        action[:sourcediff] = xml.webui_infos if with_diff
+      when :maintenance_release then
+        action[:name] = "Release #{action[:spkg]}"
+        action[:sourcediff] = xml.webui_infos if with_diff
       end
       actions << action
     end

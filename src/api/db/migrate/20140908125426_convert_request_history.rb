@@ -19,15 +19,15 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
         p[:comment] = request.comment unless request.comment.blank?
         history = nil
         case request.state
-          when :accepted then
-            history = HistoryElement::RequestAccepted
-          when :declined then
-            history = HistoryElement::RequestDeclined
-          when :revoked then
-            history = HistoryElement::RequestRevoked
-          when :superseded then
-            history = HistoryElement::RequestSuperseded
-            p[:description_extension] = request.superseded_by.to_s
+        when :accepted then
+          history = HistoryElement::RequestAccepted
+        when :declined then
+          history = HistoryElement::RequestDeclined
+        when :revoked then
+          history = HistoryElement::RequestRevoked
+        when :superseded then
+          history = HistoryElement::RequestSuperseded
+          p[:description_extension] = request.superseded_by.to_s
         end
         history.create(p) if history
       end
@@ -41,10 +41,10 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
         p[:comment] = review.reason unless review.reason.blank?
         history = nil
         case review.state
-          when :accepted then
-            history = HistoryElement::ReviewAccepted
-          when :declined then
-            history = HistoryElement::ReviewDeclined
+        when :accepted then
+          history = HistoryElement::ReviewAccepted
+        when :declined then
+          history = HistoryElement::ReviewDeclined
         end
         history.create(p) if history
       end
@@ -66,29 +66,29 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
 
         history = nil
         case e.state
-          when "accepted" then
-            history = HistoryElement::RequestAccepted
-          when "declined" then
-            history = HistoryElement::RequestDeclined
-          when "revoked" then
-            history = HistoryElement::RequestRevoked
-          when "superseded" then
-            history = HistoryElement::RequestSuperseded
-            p[:description_extension] = e.superseded_by.to_s
-          when "deleted" then
+        when "accepted" then
+          history = HistoryElement::RequestAccepted
+        when "declined" then
+          history = HistoryElement::RequestDeclined
+        when "revoked" then
+          history = HistoryElement::RequestRevoked
+        when "superseded" then
+          history = HistoryElement::RequestSuperseded
+          p[:description_extension] = e.superseded_by.to_s
+        when "deleted" then
+          e.destroy
+        when "review" then
+          if firstreviews
             e.destroy
-          when "review" then
-            if firstreviews
-              e.destroy
-              next
-            end
-            history = HistoryElement::RequestReviewAdded
-          when "new" then
-            if firstentry
-              e.destroy
-              next
-            end
-            history = HistoryElement::RequestAllReviewsApproved
+            next
+          end
+          history = HistoryElement::RequestReviewAdded
+        when "new" then
+          if firstentry
+            e.destroy
+            next
+          end
+          history = HistoryElement::RequestAllReviewsApproved
         end
         next unless history
         history.create(p)

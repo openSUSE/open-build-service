@@ -28,15 +28,15 @@ class Webui::WebuiController < ActionController::Base
 
   rescue_from Pundit::NotAuthorizedError do |exception|
     pundit_action = case exception.try(:query).to_s
-       when "index?" then "list"
-       when "show?" then "view"
-       when "create?" then "create"
-       when "new?" then "create"
-       when "update?" then "update"
-       when "edit?" then "edit"
-       when "destroy?" then "delete"
-       when "branch?" then "branch"
-       else exception.try(:query)
+                    when "index?" then "list"
+                    when "show?" then "view"
+                    when "create?" then "create"
+                    when "new?" then "create"
+                    when "update?" then "update"
+                    when "edit?" then "edit"
+                    when "destroy?" then "delete"
+                    when "branch?" then "branch"
+                    else exception.try(:query)
     end
     if pundit_action && exception.record
       message = "Sorry, you are not authorized to #{pundit_action} this #{exception.record.class}."
