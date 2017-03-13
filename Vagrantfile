@@ -22,8 +22,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     fe.vm.provision :shell, inline: 'chown -R vagrant:users /vagrant/src/api/tmp', run: "always"
 
     # Execute commands in the frontend directory
-    fe.exec.commands %w(rails rake rspec bundle), directory: '/vagrant/src/api'
-    fe.exec.commands %w(rails rake rspec bundle), env: {'PATH' => './bin:$PATH'}
+    fe.exec.commands %w(rails rake rspec bundle foreman), directory: '/vagrant/src/api'
+    fe.exec.commands %w(rails rake rspec bundle foreman), env: {'PATH' => './bin:$PATH'}
     fe.exec.commands 'script/start_test_backend', directory: '/vagrant/src/api'
     fe.exec.commands 'contrib/start_development_backend', directory: '/vagrant'
     fe.exec.commands '*', directory: '/vagrant'

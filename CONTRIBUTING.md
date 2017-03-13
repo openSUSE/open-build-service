@@ -85,23 +85,17 @@ make sure you run all this from a filesystem that supports this.
     vagrant up
     ```
 
-6. Start your development backend with:
+6. Start your development environment with:
 
     ```
-    vagrant exec contrib/start_development_backend
+    vagrant exec foreman start
     ```
 
-7. Start your development frontend with:
-
-    ```
-    vagrant exec rails s
-    ```
-
-8. Check out your OBS frontend:
+7. Check out your OBS frontend:
 You can access the frontend at [localhost:3000](http://localhost:3000). Whatever you change in your cloned repository will have effect in the development environment.
 **Note**: The vagrant instance is configured with a default user 'Admin' and password 'opensuse'.
 
-9. Building packages:
+8. Building packages:
      The easiest way to start building is to create an interconnect to build.opensuse.org. All resources, including the base distributions can be used that way directly.
      To set this up, follow these steps:
      * Login as admin and go to configuration page.
@@ -110,7 +104,7 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
      * Restart the backend.
      * Now you can choose from a wide range of repositories to build your packages and images for.
 
-10. Changed something in the frontend? Test your changes!
+9. Changed something in the frontend? Test your changes!
 
     ```
     vagrant exec rake test
