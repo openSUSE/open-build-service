@@ -175,16 +175,6 @@ Rails/HasAndBelongsToMany:
     - 'app/models/static_permission.rb'
     - 'app/models/user.rb'
 
-# Offense count: 5
-# Configuration parameters: Include.
-# Include: db/migrate/*.rb
-Rails/NotNullColumn:
-  Exclude:
-    - 'db/migrate/20121121142111_watchlist_use_ids.rb'
-    - 'db/migrate/20131020151037_make_comment_users_ids.rb'
-    - 'db/migrate/20131027122410_add_primary_to_repository_architectures.rb'
-    - 'db/migrate/20131209103450_add_primary_to_groups_users.rb'
-
 # Offense count: 28
 Rails/OutputSafety:
   Exclude:

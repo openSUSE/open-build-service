@@ -232,6 +232,15 @@ Rails/FindBy:
 Rails/HttpPositionalArguments:
   Enabled: true
 
+# Requires each table column to have a default value
+Rails/NotNullColumn:
+  Enabled: true
+  Exclude:
+    - 'db/migrate/20121121142111_watchlist_use_ids.rb'
+    - 'db/migrate/20131020151037_make_comment_users_ids.rb'
+    - 'db/migrate/20131027122410_add_primary_to_repository_architectures.rb'
+    - 'db/migrate/20131209103450_add_primary_to_groups_users.rb'
+
 # Checks for the use of output calls like puts and print
 Rails/Output:
   Exclude:
