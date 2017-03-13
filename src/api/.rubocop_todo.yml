@@ -286,25 +286,6 @@ Style/BlockDelimiters:
 Style/BracesAroundHashParameters:
   Enabled: false
 
-# Offense count: 79
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, IndentOneStep, IndentationWidth.
-# SupportedStyles: case, end
-Style/CaseIndentation:
-  Exclude:
-    - 'app/controllers/group_controller.rb'
-    - 'app/controllers/search_controller.rb'
-    - 'app/controllers/webui/request_controller.rb'
-    - 'app/controllers/webui/webui_controller.rb'
-    - 'app/helpers/webui/package_helper.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/bs_request_permission_check.rb'
-    - 'app/models/cache_line.rb'
-    - 'app/models/user_ldap_strategy.rb'
-    - 'db/migrate/20140908125426_convert_request_history.rb'
-    - 'lib/opensuse/backend.rb'
-    - 'lib/opensuse/validator.rb'
-
 # Offense count: 110
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: nested, compact
