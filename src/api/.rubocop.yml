@@ -153,6 +153,10 @@ Style/ZeroLengthPredicate:
 Style/RescueModifier:
   Enabled: true
 
+# Enforces the use the shorthand for self-assignment
+Style/SelfAssignment:
+  Enabled: true
+
 ##################### Metrics ##################################
 
 # Checks if the length a class exceeds some maximum value
