@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe Webui::GroupsController do
   let(:group) { create(:group) }
   let(:another_group) { create(:group, title: "#{group.title}-#{SecureRandom.hex}" ) }
+  let(:user) { create(:user) }
 
   # except [:show, :tokens, :autocomplete]
   it { is_expected.to use_before_action(:require_login) }
@@ -62,6 +63,38 @@ RSpec.describe Webui::GroupsController do
     it 'returns empty list if no match' do
       get :autocomplete, params: { term: 'no_group' }
       expect(response.body).to eq([].to_json)
+    end
+  end
+
+  describe 'GET edit' do
+    let(:users_of_group) { create_list(:user, 3) }
+
+    before do
+      group.users << users_of_group
+
+      login(user)
+    end
+
+    context 'as a normal user' do
+      it 'does not allow to see the edit form used for updating a group' do
+        get :edit, params: { title: group.title }
+
+        expect(flash[:error]).to eq("Sorry, you are not authorized to update this Group.")
+      end
+    end
+
+    context 'as a group maintainer' do
+      before do
+        create(:group_maintainer, user: user, group: group)
+      end
+
+      it 'shows edit form and populates it with data' do
+        get :edit, params: { title: group.title }
+
+        expect(response).to have_http_status(:success)
+        assigned_members = assigns(:members).map { |user| user['name'] }
+        expect(assigned_members).to match_array(users_of_group.map(&:login))
+      end
     end
   end
 end
