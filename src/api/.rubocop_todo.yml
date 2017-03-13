@@ -227,12 +227,6 @@ Rails/SkipsModelValidations:
 Rails/TimeZone:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Security/YAMLLoad:
-  Exclude:
-    - 'app/models/project_log_entry.rb'
-
 # Offense count: 20
 Style/AccessorMethodName:
   Exclude:

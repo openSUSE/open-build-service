@@ -56,7 +56,7 @@ class ProjectLogEntry < ApplicationRecord
   # Almost equivalent to the ApplicationRecord.serialize mechanism
   def additional_info
     a = read_attribute(:additional_info)
-    a ? YAML.load(a) : {}
+    a ? YAML.safe_load(a) : {}
   end
 
   # Extract the username from the payload of an event, since different names are
