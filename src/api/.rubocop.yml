@@ -272,6 +272,10 @@ Rails/Validation:
 Security/Eval:
   Enabled: true
 
+# Checks for uses of YAML methods with potential security issues leading to remote code execution when loading from an untrusted source.
+Security/YAMLLoad:
+  Enabled: true
+
 ##################### Bundler ##################################
 
 # Gems in consecutive lines should be alphabetically sorted
