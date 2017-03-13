@@ -219,7 +219,7 @@ module Webui::WebuiHelper
   end
 
   def next_codemirror_uid
-    @codemirror_editor_setup = @codemirror_editor_setup + 1
+    @codemirror_editor_setup += 1
     @codemirror_editor_setup
   end
 

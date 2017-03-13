@@ -57,7 +57,7 @@ module Webui::ProjectHelper
       end
       @crumb_list << project_list unless project_list.empty?
     end
-    @crumb_list = @crumb_list + args
+    @crumb_list += args
   end
 
   def format_seconds(secs)

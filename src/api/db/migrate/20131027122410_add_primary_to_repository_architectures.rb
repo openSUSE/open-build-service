@@ -12,7 +12,7 @@ class AddPrimaryToRepositoryArchitectures < ActiveRecord::Migration
       id = 1
       rs.each do |r|
         RepositoryArchitecture.create architecture_id: r.architecture_id, repository_id: r.repository_id, position: r.position, id: id
-        id = id + 1
+        id += 1
       end
     end
     execute("alter table repository_architectures add PRIMARY KEY (`id`)")

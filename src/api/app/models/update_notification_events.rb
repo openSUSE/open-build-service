@@ -23,7 +23,7 @@ class UpdateNotificationEvents
         end
       end
     rescue ActiveRecord::StatementInvalid => e
-      retries = retries - 1
+      retries -= 1
       retry if retries > 0
       HoptoadNotifier.notify(e, {failed_job: "RETRYED 10 times: #{type.inspect}: #{data}"})
       return

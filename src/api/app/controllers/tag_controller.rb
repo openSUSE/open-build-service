@@ -68,7 +68,7 @@ class TagController < ApplicationController
         @projects = tag.projects.group(:name).order(:name)
         first_run = false
       else
-        @projects = @projects & tag.projects.group(:name).order(:name)
+        @projects &= tag.projects.group(:name).order(:name)
       end
     end
 
@@ -93,7 +93,7 @@ class TagController < ApplicationController
         @packages = tag.packages.group(:name).order(:name)
         first_run = false
       else
-        @packages = @packages & tag.packages.group(:name).order(:name)
+        @packages &= tag.packages.group(:name).order(:name)
       end
     end
 

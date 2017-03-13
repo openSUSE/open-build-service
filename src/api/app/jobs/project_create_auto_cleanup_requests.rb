@@ -48,7 +48,7 @@ Such requests get not created for projects with open requests or if you remove t
     return unless time.past?
 
     # create request, but add some time between to avoid an overload
-    @cleanupTime = @cleanupTime + 5.minutes
+    @cleanupTime += 5.minutes
 
     req = BsRequest.new_from_xml('<request>
                                        <action type="delete">
