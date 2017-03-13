@@ -12,11 +12,11 @@ This fixes some issue we hit when using an https repository for DoD.
 
 Signed-off-by: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
 ---
- src/backend/BSSSL.pm | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ src/backend/BSSSL.pm | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/src/backend/BSSSL.pm b/src/backend/BSSSL.pm
-index 5045fe0..eb1e4e3 100644
+index 5045fe0..3d4bd39 100644
 --- a/src/backend/BSSSL.pm
 +++ b/src/backend/BSSSL.pm
 @@ -24,6 +24,7 @@
@@ -27,12 +27,11 @@ index 5045fe0..eb1e4e3 100644
  use Socket;
  use Net::SSLeay;
  
-@@ -94,7 +95,16 @@ sub READLINE {
+@@ -94,7 +95,15 @@ sub READLINE {
  sub READ {
    my ($sslr, undef, $len, $offset) = @_;
    my $buf = \$_[1];
 -  my $r = Net::SSLeay::read($sslr->[0], $len);
-+  print "length $len\n";
 +  my ($r, $rv, $code);
 +  ($r, $rv)  = Net::SSLeay::read($sslr->[0]);
 +  if ($rv < 0) {
