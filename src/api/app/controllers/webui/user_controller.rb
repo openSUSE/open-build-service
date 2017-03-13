@@ -58,7 +58,7 @@ class Webui::UserController < Webui::WebuiController
     @owned = @displayed_user.owned_packages
 
     return unless User.current == @displayed_user
-    @reviews = @displayed_user.involved_reviews.exists?
+    @is_displayed_user = User.current == @displayed_user
     @patchinfos = @displayed_user.involved_patchinfos
   end
 
