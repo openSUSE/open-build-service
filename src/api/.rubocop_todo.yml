@@ -338,19 +338,6 @@ Style/ClosingParenthesisIndentation:
   Exclude:
     - 'test/unit/project_test.rb'
 
-# Offense count: 14
-# Cop supports --auto-correct.
-Style/ColonMethodCall:
-  Exclude:
-    - 'app/controllers/configurations_controller.rb'
-    - 'app/controllers/webui/package_controller.rb'
-    - 'app/helpers/webui/project_helper.rb'
-    - 'app/mixins/build_log_support.rb'
-    - 'app/models/issue_tracker.rb'
-    - 'config/application.rb'
-    - 'config/initializers/activexml.rb'
-    - 'config/unicorn/development.rb'
-
 # Offense count: 18
 # Cop supports --auto-correct.
 # Configuration parameters: Keywords.
