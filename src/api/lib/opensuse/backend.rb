@@ -236,7 +236,7 @@ module Suse
         while counter < 100
           return if File.exist?(marker)
           sleep 0.5
-          counter = counter + 1
+          counter += 1
         end
       end
     end

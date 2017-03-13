@@ -17,7 +17,7 @@ class Tag < ApplicationRecord
       tags = opt[:tags]
       @cached_count = 0
       tags.each do |tag|
-        @cached_count = @cached_count + 1 if tag.name == name
+        @cached_count += 1 if tag.name == name
       end
     elsif opt[:scope] == "user"
       user = opt[:user]

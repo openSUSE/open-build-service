@@ -23,7 +23,7 @@ module StatusHelper
         count += 1
       end
       if count > 0
-        value = value / count
+        value /= count
       else
         value = lastvalue
       end

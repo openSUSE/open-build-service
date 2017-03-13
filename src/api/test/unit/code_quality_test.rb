@@ -124,7 +124,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       break if score < 80 # they are sorted. 80 means the function still fits on a standard screen
       next if class_method.end_with? '#none'
       score = Integer(score * 100)
-      score = score / Float(100)
+      score /= Float(100)
 
       oldscore = black.delete class_method
       if oldscore.nil?

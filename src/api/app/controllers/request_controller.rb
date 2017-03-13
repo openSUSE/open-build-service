@@ -43,7 +43,7 @@ class RequestController < ApplicationController
     xml = ActiveXML::Node.new '<collection/>'
     matches = 0
     rel.each do |r|
-      matches = matches + 1
+      matches += 1
       xml.add_node(r.render_xml(params))
     end
     xml.set_attribute('matches', matches.to_s)

@@ -12,7 +12,7 @@ class AddPrimaryToGroupsUsers < ActiveRecord::Migration
       id = 1
       gus.each do |gu|
         GroupsUser.create group_id: gu.group_id, user_id: gu.user_id, id: id, created_at: gu.created_at, email: gu.email
-        id = id + 1
+        id += 1
       end
     end
     execute("alter table groups_users add PRIMARY KEY (`id`)")

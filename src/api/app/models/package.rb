@@ -415,7 +415,7 @@ class Package < ApplicationRecord
         delay.update_if_dirty
       rescue ActiveRecord::StatementInvalid
         # mysql lock errors in delayed job handling... we need to retry
-        retries = retries - 1
+        retries -= 1
         retry if retries > 0
       end
     end

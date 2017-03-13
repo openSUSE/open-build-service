@@ -29,7 +29,7 @@ class PackageIssue < ApplicationRecord
         end
       end
     rescue ActiveRecord::StatementInvalid, Mysql2::Error
-      retries = retries - 1
+      retries -= 1
       retry if retries > 0
     end
   end

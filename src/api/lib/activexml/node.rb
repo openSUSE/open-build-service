@@ -264,7 +264,7 @@ module ActiveXML
       end
       nodes.each do |e|
         yield create_node_with_relations(e), index
-        index = index + 1
+        index += 1
       end
       nil
     end

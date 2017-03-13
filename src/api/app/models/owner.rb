@@ -133,7 +133,7 @@ class Owner
 
         # add matching entry
         maintainers << m
-        limit = limit - 1
+        limit -= 1
         return maintainers if limit < 1 && !match_all
       end
     end
