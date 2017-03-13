@@ -73,7 +73,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
           package_name: row.find('a.package').text
         }
       else
-        fail "Unrecognized result icon. #{theclass}"
+        raise "Unrecognized result icon. #{theclass}"
       end
     end
   end

@@ -129,6 +129,10 @@ Style/RedundantReturn:
 Style/RedundantSelf:
   Enabled: true
 
+# This cop checks for uses of `fail` and `raise`
+Style/SignalException:
+  Enabled: true
+
 # Checks for space after `!`
 Style/SpaceAfterNot:
   Enabled: true
