@@ -111,16 +111,6 @@ Performance/CompareWithBlock:
 Rails/DynamicFindBy:
   Enabled: false
 
-# Offense count: 4
-# Configuration parameters: Include.
-# Include: app/**/*.rb, config/**/*.rb, lib/**/*.rb
-Rails/Exit:
-  Exclude:
-    - 'lib/**/*.rake'
-    - 'app/jobs/consistency_check.rb'
-    - 'config/deploy.rb'
-    - 'lib/memory_dumper.rb'
-
 # Offense count: 126
 Rails/FilePath:
   Enabled: false
@@ -626,7 +616,6 @@ Style/PercentLiteralDelimiters:
     - 'app/controllers/source_controller.rb'
     - 'app/controllers/webui/monitor_controller.rb'
     - 'app/models/package.rb'
-    - 'config/deploy.rb'
     - 'config/initializers/hoptoad.rb'
     - 'lib/engines/base.rb'
     - 'script/start_test_backend'
@@ -854,7 +843,6 @@ Style/StringLiteralsInInterpolation:
     - 'app/models/binary_release.rb'
     - 'app/models/full_text_search.rb'
     - 'app/models/issue_tracker.rb'
-    - 'config/deploy.rb'
     - 'db/checker.rb'
     - 'lib/activexml/transport.rb'
     - 'lib/tasks/cleanup_sessions.rake'
