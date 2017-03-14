@@ -30,9 +30,9 @@ OSC_UNAUHTORIZED=$(osc -A https://localhost ls 2>&1|grep 401)
 is "$?" 0 "Checking authorization for osc"
 
 # test /apidocs
-HTTP_OK=$(curl -ik https://localhost/apidocs/ 2>/dev/null |grep "200 OK")
+HTTP_OK=$(curl -ik https://localhost/apidocs/index 2>/dev/null |grep "200 OK")
 [ -n "$HTTP_OK" ]
-is $? 0 "Checking for https://localhost/apidocs/"
+is $? 0 "Checking for https://localhost/apidocs/index"
 
 
 STATUS_CODE_200=$(curl -I http://localhost 2>/dev/null|head -1|grep -w 200)
