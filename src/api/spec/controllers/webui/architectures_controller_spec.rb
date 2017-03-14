@@ -9,6 +9,14 @@ RSpec.describe Webui::ArchitecturesController do
 
   it { is_expected.to use_before_action(:require_admin) }
 
+  describe 'GET #index' do
+    before do
+      get :index
+    end
+
+    it { expect(assigns(:architectures)).to match_array(Architecture.all) }
+  end
+
   describe 'POST #bulk_update_availability' do
     context 'with valid data' do
       before do
