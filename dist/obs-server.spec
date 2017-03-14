@@ -657,7 +657,6 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/api/files/wizardtemplate.spec
 /srv/www/obs/api/lib
 /srv/www/obs/api/public
-/srv/www/obs/api/Procfile
 /srv/www/obs/api/Rakefile
 /srv/www/obs/api/script
 /srv/www/obs/api/bin
