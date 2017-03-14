@@ -217,7 +217,7 @@ class AttributeController < ApplicationController
     end
     unless User.current.can_create_attribute_in? @attribute_container, namespace: params[:namespace], name: params[:name]
       render_error status: 403, errorcode: "change_attribute_no_permission",
-                   message: "user #{user.login} has no permission to change attribute"
+                   message: "user #{user.login} has no permission to change attribute #{params[:namespace]}:#{params[:name]}"
       return
     end
 
