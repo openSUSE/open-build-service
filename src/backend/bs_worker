@@ -2827,6 +2827,13 @@ sub dobuild {
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
   push @args, '--signdummy' if ($kiwimode || '') eq 'product' && -e "$statedir/build/signdummy";
+  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+    $packid =~ /^(.*):(.*?)$/;
+    push @args, "--obspackage=$1";
+    push @args, "--obsmultibuild=$2";
+  } else {
+    push @args, "--obspackage=$packid";
+  }
   push @args, "$srcdir/$buildinfo->{'file'}";
   if ($kiwimode && $kiwimode ne 'product') {
     # expand obsrepositories:/ directive for appliances

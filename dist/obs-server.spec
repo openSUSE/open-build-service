@@ -70,7 +70,7 @@ BuildRequires:  python-devel
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
 # also see requires in the obs-server-api sub package
-BuildRequires:  build >= 20151130
+BuildRequires:  build >= 20170314
 BuildRequires:  inst-source-utils
 BuildRequires:  perl-BSSolv >= 0.28
 BuildRequires:  perl-Compress-Zlib
