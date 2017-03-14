@@ -138,17 +138,6 @@ Aha bnc#123456\n
     assert_response :success
 
     # add some more via attribute
-    # as normal user
-    data = "<attributes><attribute namespace='OBS' name='Issues'>
-              <issue name='987' tracker='bnc'/>
-              <issue name='654' tracker='bnc'/>
-            </attribute></attributes>"
-    post "/source/home:Iggy:branches:BaseDistro/pack_new/_attribute", params: data
-    assert_response :forbidden
-
-    # when project maintainers are allowed to add Issue attribute
-    attrib_type = AttribType.where(name: "Issues").first
-    attrib_type.attrib_type_modifiable_bies.create(role: Role.where(title: "maintainer").first)
     data = "<attributes><attribute namespace='OBS' name='Issues'>
               <issue name='987' tracker='bnc'/>
               <issue name='654' tracker='bnc'/>

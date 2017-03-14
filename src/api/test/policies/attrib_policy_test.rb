@@ -41,22 +41,20 @@ class AttribPolicyTest < ActiveSupport::TestCase
 
   # AttribNamespaceModifiableBy
   test 'group can crud attrib_namespace' do
-    attrib = Attrib.new(attrib_type_id: 56, project: Project.find_by(name: 'Apache'))
     # user6 is in group honks
-    policy = AttribPolicy.new(users(:user6), attrib)
+    policy = AttribNamespacePolicy.new(users(:user6), attrib_namespaces(:obs))
     assert policy.create?, "#{users(:user6)} can't CRUD attrib_namespace"
     # Iggy is not
-    policy = AttribPolicy.new(users(:Iggy), attrib)
+    policy = AttribNamespacePolicy.new(users(:Iggy), attrib_namespaces(:obs))
     assert_not policy.create?, "#{users(:Iggy)} shouldn't be able to CURD attrib_namespace"
   end
 
   test 'user can crud attrib_namespace' do
-    attrib = attribs(:apache_issues)
     # Fred is explicitely set
-    policy = AttribPolicy.new(users(:fred), attrib)
+    policy = AttribNamespacePolicy.new(users(:fred), attrib_namespaces(:obs))
     assert policy.create?, "#{users(:fred)} can't CRUD attrib_namespace"
     # Iggy not
-    policy = AttribPolicy.new(users(:Iggy), attrib)
+    policy = AttribNamespacePolicy.new(users(:Iggy), attrib_namespaces(:obs))
     assert_not policy.create?, "#{users(:Iggy)} shouldn't be able to CURD attrib_namespace"
   end
 end
