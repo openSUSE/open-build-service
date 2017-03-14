@@ -6,7 +6,8 @@ Updaters from OBS 2.7.0 release can just ugrade the packages
 and restart all services. Updaters from former releases should
 read the README.UPDATERS file.
 
-This release fixes an security issue caused by to loose API attribute permission checks.
+This release fixes a few bugs and a security issue caused by to loose API
+attribute permission checks.
 
 Feature backports:
 ==================
@@ -23,4 +24,7 @@ Bugfixes:
 
 * [api] Fix API permission check for creating and changing (POST) attributes
 * [api] Fix API permission check for deleting (DELETE) attributes
+* [webui] Invalidate cached session in LDAP mode
+* [api][webui] Fail ldap authentification with empty password
+* [webui] Do not remove repos if there are errors
 
