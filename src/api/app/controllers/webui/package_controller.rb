@@ -795,7 +795,10 @@ class Webui::PackageController < Webui::WebuiController
     @arch = params[:arch] if Architecture.archcache[params[:arch]]
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     @offset = 0
-    @status = get_status(@project, @package, @repo, @arch) if @project && @package && @repo && @arch
+    if @project && @package && @repo && @arch
+      @status = get_status(@project, @package, @repo, @arch)
+      @what_depends_on = Package.what_depends_on(@project, @package, @repo, @arch)
+    end
 
     set_job_status
   end

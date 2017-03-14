@@ -116,6 +116,8 @@ RSpec.feature "Packages", type: :feature, js: true do
       login(user)
       path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status&package=#{package}&arch=x86_64&repository=#{repository.name}"
       stub_request(:get, path).and_return(body: fake_buildresult)
+      path = "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/x86_64/_builddepinfo?package=#{package}&view=revpkgnames"
+      stub_request(:get, path).and_return(body: '<builddepinfo />')
     end
 
     scenario "via live build log" do
@@ -156,6 +158,8 @@ RSpec.feature "Packages", type: :feature, js: true do
         .and_return(body: result)
       stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log")
         .and_return(headers: {'Content-Type'=> 'text/plain'}, body: '[1] this is my dummy logfile -> ümlaut')
+      path = "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/_builddepinfo?package=#{package}&view=revpkgnames"
+      stub_request(:get, path).and_return(body: '<builddepinfo />')
     end
 
     scenario "live build finishes succesfully" do

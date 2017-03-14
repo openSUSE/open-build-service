@@ -1379,6 +1379,15 @@ class Package < ApplicationRecord
   def has_icon?
     file_exists?("_icon")
   end
+
+  def self.what_depends_on(project, package, repository, architecture)
+    begin
+      path = "/build/#{project}/#{repository}/#{architecture}/_builddepinfo?package=#{package}&view=revpkgnames"
+      [Xmlhash.parse(Suse::Backend.get(path).body).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
+    rescue ActiveXML::Transport::NotFoundError
+      []
+    end
+  end
 end
 
 # == Schema Information
