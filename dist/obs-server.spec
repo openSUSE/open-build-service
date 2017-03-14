@@ -89,7 +89,7 @@ BuildRequires:  xorg-x11-server
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires(pre):  obs-common
-Requires:       build >= 20151130
+Requires:       build >= 20170314
 Requires:       obs-productconverter >= %version
 Requires:       perl-BSSolv >= 0.28
 # Required by source server
