@@ -2571,7 +2571,7 @@ sub kiwiurlmapper {
   my ($url) = @_;
   return '_obsrepositories';
 }
-$Build::Kiwi::urlmapper = \&kiwiurlmapper;
+$Build::Kiwi::urlmapper = \&kiwiurlmapper unless $Build::Kiwi::urlmapper;
 
 sub dobuild {
   my ($buildinfo) = @_;
@@ -2589,6 +2589,7 @@ sub dobuild {
   my $deltamode;
   $deltamode = 1 if $buildinfo->{'file'} eq '_delta';
   my $followupmode = $buildinfo->{'followupfile'};
+  my $needobspackage;
 
   my $helper = '';
   /^\Q$helperarch\E:(.*)$/ && ($helper = $1) for @{$BSCando::cando{$hostarch}};
@@ -2683,9 +2684,8 @@ sub dobuild {
 	  if (/^#\s*needsbinariesforbuild\s*$/s && $Build::Features::preinstallimage) {
 	    undef $preinstallimagedata;	# can't use an image, sorry
 	  }
-	  if (/^#\s*needssslcertforbuild\s*$/s) {
-	    $needsslcert = 1;
-	  }
+	  $needsslcert = 1 if /^#\s*needssslcertforbuild\s*$/s;
+	  $needobspackage = 1 if /\@OBS_PACKAGE\@/;
 	}
 	close F;
       }
@@ -2829,10 +2829,10 @@ sub dobuild {
   push @args, '--signdummy' if ($kiwimode || '') eq 'product' && -e "$statedir/build/signdummy";
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
     $packid =~ /^(.*):(.*?)$/;
-    push @args, "--obspackage=$1";
+    push @args, "--obspackage=$1" if $needobspackage;
     push @args, "--buildflavor=$2";
   } else {
-    push @args, "--obspackage=$packid";
+    push @args, "--obspackage=$packid" if $needobspackage;
   }
   push @args, "$srcdir/$buildinfo->{'file'}";
   if ($kiwimode && $kiwimode ne 'product') {
