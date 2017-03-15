@@ -4189,21 +4189,23 @@ sub add_localworkerstatus {
   my ($cgi, $ws, $type, $lock) = @_;
   return $ws if $cgi->{'type'} && !grep {$_ eq $type} @{$cgi->{'type'}};
   return $ws if $cgi->{'arch'} && !grep {$_ eq $type} @{$cgi->{'arch'}};
+  return $ws if $type eq 'servicedispatch' && !$BSConfig::servicedispatch;
+  return $ws if $type ne 'srcserver' && ! -e $lock;
+  my $daemondata = {'state' => 'dead', 'type' => $type};
   if ($type eq 'srcserver') {
-    my $daemondata = {'state' => 'running', 'type' => $type};
     my $req = $BSServer::request;
     $daemondata->{'starttime'} = $req->{'server'}->{'starttime'} if $req && $req->{'server'};
-    return add_daemondata($ws, $daemondata);
+    if ($req && $req->{'conf'} && $req->{'conf'}->{'handoffpath'}) {
+      $lock = "$req->{'conf'}->{'handoffpath'}.lock";
+    }
+    $daemondata->{'state'} = 'running' unless $lock;
   }
-  return $ws if $type eq 'servicedispatch' && !$BSConfig::servicedispatch;
-  return $ws unless -e "$rundir/$lock";
-  my $daemondata = {'state' => 'dead', 'type' => $type};
   local *F;
-  if (open(F, '<', "$rundir/$lock")) {
+  if ($lock && open(F, '<', $lock)) {
     if (!flock(F, LOCK_EX | LOCK_NB)) {
       my @s = stat(F);
       $daemondata->{'state'} = 'running';
-      $daemondata->{'starttime'} = $s[9] if @s;
+      $daemondata->{'starttime'} ||= $s[9] if @s;
     }
     close F;
   }
@@ -4251,8 +4253,8 @@ sub getworkerstatus {
     delete $_->{'uri'} for @{$ws->{'idle'} || []};
     delete $_->{'uri'} for @{$ws->{'building'} || []};
     add_serviceserverstatus($cgi, $ws);
-    add_localworkerstatus($cgi, $ws, 'deltastore', 'bs_deltastore.lock');
-    add_localworkerstatus($cgi, $ws, 'servicedispatch', 'bs_servicedispatch.lock');
+    add_localworkerstatus($cgi, $ws, 'deltastore', "$rundir/bs_deltastore.lock");
+    add_localworkerstatus($cgi, $ws, 'servicedispatch', "$rundir/bs_servicedispatch.lock");
     add_localworkerstatus($cgi, $ws, 'srcserver');
     return ($ws, $BSXML::workerstatus);
   }

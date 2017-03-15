@@ -1564,42 +1564,45 @@ sub workerstatus {
     local *F;
     my $daemondata = {'state' => 'dead'};
     my $lock;
-    my $state = "running";
+    my $state = 'running';
     if ($arch eq 'dispatcher') {
-      $lock = 'bs_dispatch.lock';
+      $lock = "$rundir/bs_dispatch.lock";
       $daemondata->{'type'} = 'dispatcher';
     } elsif ($arch eq 'publisher') {
-      $lock = 'bs_publish.lock';
+      $lock = "$rundir/bs_publish.lock";
       $daemondata->{'type'} = 'publisher';
     } elsif ($arch eq 'signer') {
-      $lock = 'bs_signer.lock';
+      $lock = "$rundir/bs_signer.lock";
       $daemondata->{'type'} = 'signer';
     } elsif ($arch eq 'warden') {
-      $lock = 'bs_warden.lock';
+      $lock = "$rundir/bs_warden.lock";
       $daemondata->{'type'} = 'warden';
     } elsif ($arch eq 'dodup') {
-      $lock = 'bs_dodup.lock';
+      $lock = "$rundir/bs_dodup.lock";
       $daemondata->{'type'} = 'dodup';
     } elsif ($arch eq 'repserver') {
-      $daemondata->{'type'} = 'repserver';
-      $daemondata->{'state'} = 'running';
       my $req = $BSServer::request;
+      $daemondata->{'type'} = 'repserver';
       $daemondata->{'starttime'} = $req->{'server'}->{'starttime'} if $req && $req->{'server'};
+      if ($req && $req->{'conf'} && $req->{'conf'}->{'handoffpath'}) {
+	$lock = "$req->{'conf'}->{'handoffpath'}.lock";
+      }
+      $daemondata->{'state'} = 'running' unless $lock;
     } else {
       # scheduler
-      $lock = "bs_sched.$arch.lock";
+      $lock = "$rundir/bs_sched.$arch.lock";
       $daemondata->{'type'} = 'scheduler';
       $daemondata->{'arch'} = $arch;
       my $si = readxml("$infodir/schedulerinfo.$arch", $BSXML::schedulerinfo, 1);
       $daemondata->{'queue'} = $si->{'queue'} if $si && $si->{'queue'};
-      $state = "booting" if defined($si->{'booting'});
+      $state = 'booting' if defined($si->{'booting'});
     }
     next if %types && !$types{$daemondata->{'type'}};
-    if ($lock && open(F, '<', "$rundir/$lock")) {
+    if ($lock && open(F, '<', $lock)) {
       if (!flock(F, LOCK_EX | LOCK_NB)) {
         my @s = stat(F);
         $daemondata->{'state'} = $state;
-        $daemondata->{'starttime'} = $s[9] if @s;
+        $daemondata->{'starttime'} ||= $s[9] if @s;
       }
       close F;
     }
