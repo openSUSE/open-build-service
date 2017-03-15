@@ -55,7 +55,7 @@ use BSXML;
 use BSVerify;
 use BSHandoff;
 use Build;
-use BSWatcher;
+use BSWatcher ":https";
 use BSStdServer;
 use BSXPath;
 use BSXPathKeys;
