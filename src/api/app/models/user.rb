@@ -97,6 +97,9 @@ class User < ApplicationRecord
                       too_short: 'must have between 6 and 64 characters.',
                       if:        Proc.new { |user| user.new_password? && !user.password.nil? } }
 
+  validates :password_hash_type, inclusion: { in:      PASSWORD_HASH_TYPES,
+                                              message: "%{value} must be in the list of hash types." }
+
   after_create :create_home_project
   def create_home_project
     # avoid errors during seeding
@@ -128,7 +131,6 @@ class User < ApplicationRecord
   # unconfirmed/false/0 when it has not been set yet.
   before_validation(on: :create) do
     self.state ||= 'unconfirmed'
-    self.password_hash_type = 'md5' if password_hash_type.to_s == ''
 
     @new_password = false if @new_password.nil?
     @new_hash_type = false if @new_hash_type.nil?
@@ -321,9 +323,8 @@ class User < ApplicationRecord
 
   # Overriding this method to do some more validation:
   # state an password hash type being in the range of allowed values.
+  # FIXME: This is currently not used. It's not used by rails validations.
   def validate
-    # validate state and password has type to be in the valid range of values
-    errors.add(:password_hash_type, 'must be in the list of hash types.') unless password_hash_type.in?(PASSWORD_HASH_TYPES)
     # check that the state transition is valid
     errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
 

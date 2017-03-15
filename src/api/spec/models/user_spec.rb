@@ -19,6 +19,8 @@ RSpec.describe User do
     it { is_expected.to validate_length_of(:password).is_at_least(6).with_message('must have between 6 and 64 characters.') }
     it { is_expected.to validate_length_of(:password).is_at_most(64).with_message('must have between 6 and 64 characters.') }
 
+    it { is_expected.to validate_presence_of(:password_hash_type).with_message('must be given') }
+    it { is_expected.to validate_inclusion_of(:password_hash_type).in_array(User::PASSWORD_HASH_TYPES) }
     it { expect(user.password_hash_type).to eq('md5') }
 
     it { expect(user.state).to eq('unconfirmed') }
