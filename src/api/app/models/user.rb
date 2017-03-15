@@ -20,6 +20,7 @@ class UserBasicStrategy
 end
 
 class User < ApplicationRecord
+  include ActiveModel::Dirty
   include CanRenderModel
 
   PASSWORD_HASH_TYPES = ['md5', 'md5crypt', 'sha256crypt']
@@ -51,11 +52,6 @@ class User < ApplicationRecord
 
   scope :all_without_nobody, -> { where("login != ?", nobody_login) }
 
-  # Add accessors for "new_password" property. This boolean property is set
-  # to true when the password has been set and validation on this password is
-  # required.
-  attr_accessor :new_password
-
   validates :login, :email, :password, :password_hash_type, :state,
             presence: { message: 'must be given' }
 
@@ -86,7 +82,7 @@ class User < ApplicationRecord
   validates :password,
             format: { with:    %r{\A[\w\.\- /+=!?(){}|~*]+\z},
                       message: 'must not contain invalid characters.',
-                      if:      Proc.new { |user| user.new_password? && !user.password.nil? } }
+                      if:      Proc.new { |user| user.password_changed? && !user.password_was.nil? } }
 
   # We want the password to have between 6 and 64 characters.
   # The length must only be checked if the password has been set and the record
@@ -95,7 +91,7 @@ class User < ApplicationRecord
             length: { within:    6..64,
                       too_long:  'must have between 6 and 64 characters.',
                       too_short: 'must have between 6 and 64 characters.',
-                      if:        Proc.new { |user| user.new_password? && !user.password.nil? } }
+                      if:        Proc.new { |user| user.password_changed? && !user.password_was.nil? } }
 
   validates :password_hash_type, inclusion: { in:      PASSWORD_HASH_TYPES,
                                               message: "%{value} must be in the list of hash types." }
@@ -119,38 +115,27 @@ class User < ApplicationRecord
     true
   end
 
-  # After saving, we want to set the "@new_hash_type" value set to false
-  # again.
-  after_save :set_new_hash_type_false
-  # After saving the object into the database, the password is not new any more.
-  after_save :set_new_password_false
+  # Inform ActiveModel::Dirty that changes are persistent now
+  after_save :changes_applied
 
-  # When a record object is initialized, we set the state, password
-  # hash type, indicator whether the password has freshly been set
-  # (@new_password) and the login failure count to
-  # unconfirmed/false/0 when it has not been set yet.
+  # When a record object is initialized, we set the state and the login failure
+  #  count to unconfirmed/0 when it has not been set yet.
   before_validation(on: :create) do
     self.state ||= 'unconfirmed'
-
-    @new_password = false if @new_password.nil?
-    @new_hash_type = false if @new_hash_type.nil?
 
     self.login_failure_count = 0 if login_failure_count.nil?
   end
 
   # After validation, the password should be encrypted
   after_validation(on: :create) do
-    if errors.empty? && @new_password && !password.nil?
+    if errors.empty? && password_changed? && !password_was.nil?
       # generate a new 10-char long hash only Base64 encoded so things are compatible
       self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9]
 
       # write encrypted password to object property
       write_attribute(:password, hash_string(password))
-
-      # mark the hash type as "not new" any more
-      @new_hash_type = false
     else
-      logger.debug "Error - skipping to create user #{errors.inspect} #{@new_password.inspect} #{password.inspect}"
+      logger.debug "Error - skipping to create user #{errors.inspect} #{password} #{password_was}"
     end
   end
 
@@ -326,31 +311,24 @@ class User < ApplicationRecord
 
     # check that the password hash type has not been set if no new password
     # has been provided
-    return unless @new_hash_type && (!@new_password || password.nil?)
+    return unless password_hash_type_changed? && (!password_changed? || password_was.nil?)
 
     errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
   end
 
-  # Override the accessor for the "password_hash_type" property so it sets
-  # the "@new_hash_type" private property to signal that the password's
-  # hash method has been changed. Changing the password hash type is only
+  # Overriding the default accessor to ensure ActiveModel::Dirty get's notified
+  # when password_hash_type changes. Changing the password hash type is only
   # possible if a new password has been provided.
   def password_hash_type=(value)
+    password_hash_type_will_change!
     write_attribute(:password_hash_type, value)
-    @new_hash_type = true
   end
 
-  # Overriding the default accessor to update @new_password on setting this
-  # property.
+  # Overriding the default accessor to ensure ActiveModel::Dirty get's notified
+  # about changes of password attribute
   def password=(value)
+    password_will_change!
     write_attribute(:password, value)
-    @new_password = true
-  end
-
-  # Returns true if the password has been set after the User has been loaded
-  # from the database and false otherwise
-  def new_password?
-    @new_password
   end
 
   # Method to update the password and confirmation at the same time. Call
@@ -364,6 +342,7 @@ class User < ApplicationRecord
   #   user.save
   #
   def update_password(pass)
+    password_will_change!
     self.password = hash_string(pass)
   end
 
@@ -970,14 +949,6 @@ class User < ApplicationRecord
   end
 
   private
-
-  def set_new_hash_type_false
-    @new_hash_type = false
-  end
-
-  def set_new_password_false
-    @new_password = false
-  end
 
   def can_modify_project_internal(project, ignoreLock)
     # The ordering is important because of the lock status check
