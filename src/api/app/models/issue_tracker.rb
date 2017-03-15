@@ -219,7 +219,10 @@ class IssueTracker < ApplicationRecord
     end
 
     if bugzilla_response["creation_time"].present?
-      issue.created_at = bugzilla_response["creation_time"].to_time_in_current_zone
+# rubocop:disable Rails/Date
+# rubocop bug, this is XMLRPC/DateTime not Rails/Date
+      issue.created_at = bugzilla_response["creation_time"].to_time
+# rubocop:enable Rails/Date
     else
       issue.created_at = Time.now
     end
