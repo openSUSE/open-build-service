@@ -173,7 +173,7 @@ sub run_source_update {
       push @run, "$myworkdir/out";
 
       mkdir("$myworkdir/out") || die("mkdir $myworkdir/out: $!\n");
-    
+
       BSUtil::printlog("Running command '@run'");
       # call the service
       if (! open(SERVICE, '-|')) {
@@ -181,13 +181,13 @@ sub run_source_update {
         exec(@run);
         die("$run[0]: $!\n");
       }
-    
+
       # collect output
       my $output = '';
       while (<SERVICE>) {
         $output .= $_;
       }
-    
+
       BSUtil::printlog(" $name: $output") if $verbose;
 
       if (close SERVICE) {
@@ -203,6 +203,7 @@ sub run_source_update {
         # FAILURE, Create error file
 	$output =~ s/[\r\n\s]+$//s;
         BSUtil::cleandir('.');
+        die("500 remote execution error in $name detected\n") if $? >> 8 == 3;
 	BSUtil::writestr('_service_error', undef, "service $name failed:\n$output\n");
 	$error = 1;
       }
