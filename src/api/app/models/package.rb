@@ -399,6 +399,8 @@ class Package < ApplicationRecord
     dir_xml = opts[:dir_xml]
 
     # to call update_activity before filter
+    # NOTE: We need `Time.now`, otherwise the old tests suite doesn't work,
+    # remove it when removing the tests
     update({updated_at: Time.now})
 
     # mark the backend infos "dirty"
@@ -802,7 +804,8 @@ class Package < ApplicationRecord
 
   def self.activity_algorithm
     # this is the algorithm (sql) we use for calculating activity of packages
-    # we use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time
+    # NOTE: We use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time in the old tests suite,
+    # change it when removing the tests
     '( packages.activity_index * ' +
         "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
         ') as activity_value'
