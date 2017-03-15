@@ -22,6 +22,8 @@ end
 class User < ApplicationRecord
   include CanRenderModel
 
+  PASSWORD_HASH_TYPES = ['md5', 'md5crypt', 'sha256crypt']
+
   has_many :taggings, dependent: :destroy
   has_many :tags, through: :taggings
 
@@ -164,12 +166,6 @@ class User < ApplicationRecord
     ::Configuration.registration == 'confirmation' ? 'unconfirmed' : 'confirmed'
   end
 
-  # This method returns an array with the names of all available
-  # password hash types supported by this User class.
-  def self.password_hash_types
-    default_password_hash_types
-  end
-
   # This method allows to execute a block while deactivating timestamp
   # updating.
   def self.execute_without_timestamps
@@ -179,11 +175,6 @@ class User < ApplicationRecord
     yield
 
     ApplicationRecord.record_timestamps = old_state
-  end
-
-  # This method returns an array which contains all valid hash types.
-  def self.default_password_hash_types
-    %w(md5 md5crypt sha256crypt)
   end
 
   def self.update_notifications(params, user = nil)
@@ -332,7 +323,7 @@ class User < ApplicationRecord
   # state an password hash type being in the range of allowed values.
   def validate
     # validate state and password has type to be in the valid range of values
-    errors.add(:password_hash_type, 'must be in the list of hash types.') unless password_hash_type.in?(User.password_hash_types)
+    errors.add(:password_hash_type, 'must be in the list of hash types.') unless password_hash_type.in?(PASSWORD_HASH_TYPES)
     # check that the state transition is valid
     errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
 
