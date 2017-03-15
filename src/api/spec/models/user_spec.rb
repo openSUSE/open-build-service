@@ -89,6 +89,34 @@ RSpec.describe User do
     end
   end
 
+  describe 'password validation' do
+    shared_examples 'tests for password related methods for encryption with' do |hash_type|
+      let(:user) { create(:user, password_hash_type: hash_type) }
+      let(:password) { SecureRandom.hex }
+
+      describe '#password_equals?' do
+        it { expect(user.password_equals?('buildservice')).to be true }
+        it { expect(user.password_equals?(password)).to be false }
+      end
+
+      describe '#update_password' do
+        before do
+          user.update_password(password)
+        end
+
+        it 'updates the password' do
+          expect(user.password_equals?(password)).to be true
+        end
+      end
+    end
+
+    ['md5', 'md5crypt', 'sha256crypt'].each do |hash_type|
+      context "hash type '#{hash_type}'" do
+        include_examples 'tests for password related methods for encryption with', hash_type
+      end
+    end
+  end
+
   describe 'home project creation' do
     it 'creates a home project by default if allow_user_to_create_home_project is enabled' do
       allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(true)
