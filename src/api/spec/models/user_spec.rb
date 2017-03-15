@@ -112,7 +112,7 @@ RSpec.describe User do
       end
     end
 
-    ['md5', 'md5crypt', 'sha256crypt'].each do |hash_type|
+    User::PASSWORD_HASH_TYPES.each do |hash_type|
       context "hash type '#{hash_type}'" do
         include_examples 'tests for password related methods for encryption with', hash_type
       end
