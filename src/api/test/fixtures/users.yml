@@ -9,7 +9,6 @@ Admin:
   password: f2eb735aacb365155a6d0076434b73e9
   password_hash_type: md5
   password_salt: 6H2zF0vSjj
-  password_crypted: osQq6OKjF0f8I
   state: "confirmed"
 Iggy:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -99,7 +98,6 @@ deleted:
   password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
   state: "deleted"
 dmayr:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -112,7 +110,6 @@ dmayr:
   password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
   state: "confirmed"
 fred:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -168,7 +165,6 @@ maintenance_assi:
   password: f021ce8ca85a51a5eb08d8b6e7cf82b1
   password_hash_type: md5
   password_salt: 0hY2gWMfcb
-  password_crypted: osAB47949pfHo
   state: "confirmed"
 maintenance_coord:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -214,7 +210,6 @@ user1:
   password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
   state: "confirmed"
 user2:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -227,7 +222,6 @@ user2:
   password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
   state: "confirmed"
 user3:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -240,7 +234,6 @@ user3:
   password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
   state: "confirmed"
 user4:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -253,7 +246,6 @@ user4:
   password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
   state: "confirmed"
 user5:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -266,7 +258,6 @@ user5:
   password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
   state: "confirmed"
 user6:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -279,7 +270,6 @@ user6:
   password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
   state: 2
 unconfirmed_user:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -292,5 +282,4 @@ unconfirmed_user:
   password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
   state: "unconfirmed"

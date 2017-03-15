@@ -144,10 +144,6 @@ class User < ApplicationRecord
       # generate a new 10-char long hash only Base64 encoded so things are compatible
       self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9]
 
-      # vvvvvv added this to maintain the password list for lighttpd
-      write_attribute(:password_crypted, password.crypt('os'))
-      #  ^^^^^^
-
       # write encrypted password to object property
       write_attribute(:password, hash_string(password))
 
@@ -368,7 +364,6 @@ class User < ApplicationRecord
   #   user.save
   #
   def update_password(pass)
-    self.password_crypted = hash_string(pass).crypt('os')
     self.password = hash_string(pass)
   end
 
@@ -1031,7 +1026,6 @@ end
 #  password            :string(100)      default(""), not null
 #  password_hash_type  :string(20)       default(""), not null
 #  password_salt       :string(10)       default("1234512345"), not null
-#  password_crypted    :string(64)
 #  adminnote           :text(65535)
 #  state               :string(11)       default("unconfirmed")
 #  owner_id            :integer
