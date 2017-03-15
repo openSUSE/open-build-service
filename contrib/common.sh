@@ -91,6 +91,11 @@ function configure_database() {
   rake -f /vagrant/src/api/Rakefile db:setup
 }
 
+function configure_search() {
+  rake -f /vagrant/src/api/Rakefile ts:rebuild
+}
+
+
 function setup_data_dir() {
   echo "Generating data dir and mounting them So hard links can be used..."
   # Put the backend data dir outside the shared folder so it can use hardlinks
