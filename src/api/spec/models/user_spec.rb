@@ -119,6 +119,15 @@ RSpec.describe User do
     end
   end
 
+  describe 'user creation' do
+    it "sets the 'last_logged_in_at' attribute" do
+      user = User.new
+      expect(user.last_logged_in_at).to be nil
+      user.save
+      expect(user.last_logged_in_at).to be_within(30.seconds).of(Time.now)
+    end
+  end
+
   describe 'home project creation' do
     it 'creates a home project by default if allow_user_to_create_home_project is enabled' do
       allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(true)

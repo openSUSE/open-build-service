@@ -119,9 +119,12 @@ class User < ApplicationRecord
   after_save :changes_applied
 
   # When a record object is initialized, we set the state and the login failure
-  #  count to unconfirmed/0 when it has not been set yet.
+  # count to unconfirmed/0 when it has not been set yet.
   before_validation(on: :create) do
     self.state ||= 'unconfirmed'
+
+    # Set the last login time etc. when the record is created at first.
+    self.last_logged_in_at = Time.now
 
     self.login_failure_count = 0 if login_failure_count.nil?
   end
@@ -137,11 +140,6 @@ class User < ApplicationRecord
     else
       logger.debug "Error - skipping to create user #{errors.inspect} #{password} #{password_was}"
     end
-  end
-
-  # Set the last login time etc. when the record is created at first.
-  def before_create
-    self.last_logged_in_at = Time.now
   end
 
   # the default state of a user based on the api configuration
