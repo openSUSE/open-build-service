@@ -20,7 +20,10 @@ class UserBasicStrategy
 end
 
 class User < ApplicationRecord
+  include ActiveModel::Dirty
   include CanRenderModel
+
+  PASSWORD_HASH_TYPES = ['md5', 'md5crypt', 'sha256crypt']
 
   has_many :taggings, dependent: :destroy
   has_many :tags, through: :taggings
@@ -48,11 +51,6 @@ class User < ApplicationRecord
   has_one :user_registration
 
   scope :all_without_nobody, -> { where("login != ?", nobody_login) }
-
-  # Add accessors for "new_password" property. This boolean property is set
-  # to true when the password has been set and validation on this password is
-  # required.
-  attr_accessor :new_password
 
   validates :login, :email, :password, :password_hash_type, :state,
             presence: { message: 'must be given' }
@@ -84,7 +82,7 @@ class User < ApplicationRecord
   validates :password,
             format: { with:    %r{\A[\w\.\- /+=!?(){}|~*]+\z},
                       message: 'must not contain invalid characters.',
-                      if:      Proc.new { |user| user.new_password? && !user.password.nil? } }
+                      if:      Proc.new { |user| user.password_changed? && !user.password_was.nil? } }
 
   # We want the password to have between 6 and 64 characters.
   # The length must only be checked if the password has been set and the record
@@ -93,7 +91,20 @@ class User < ApplicationRecord
             length: { within:    6..64,
                       too_long:  'must have between 6 and 64 characters.',
                       too_short: 'must have between 6 and 64 characters.',
-                      if:        Proc.new { |user| user.new_password? && !user.password.nil? } }
+                      if:        Proc.new { |user| user.password_changed? && !user.password_was.nil? } }
+
+  validates :password_hash_type, inclusion: { in:      PASSWORD_HASH_TYPES,
+                                              message: "%{value} must be in the list of hash types." }
+
+  validate :password_changes_with_hash_type
+  # Checks that the password got updated after password hash type changed
+  def password_changes_with_hash_type
+    # rubocop:disable Style/GuardClause
+    if password_hash_type_changed? && (!password_changed? || password_was.nil?)
+      errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
+    end
+    # rubocop:enable Style/GuardClause
+  end
 
   after_create :create_home_project
   def create_home_project
@@ -114,60 +125,36 @@ class User < ApplicationRecord
     true
   end
 
-  # After saving, we want to set the "@new_hash_type" value set to false
-  # again.
-  after_save :set_new_hash_type_false
-  # After saving the object into the database, the password is not new any more.
-  after_save :set_new_password_false
+  # Inform ActiveModel::Dirty that changes are persistent now
+  after_save :changes_applied
 
-  # When a record object is initialized, we set the state, password
-  # hash type, indicator whether the password has freshly been set
-  # (@new_password) and the login failure count to
-  # unconfirmed/false/0 when it has not been set yet.
+  # When a record object is initialized, we set the state and the login failure
+  # count to unconfirmed/0 when it has not been set yet.
   before_validation(on: :create) do
     self.state ||= 'unconfirmed'
-    self.password_hash_type = 'md5' if password_hash_type.to_s == ''
 
-    @new_password = false if @new_password.nil?
-    @new_hash_type = false if @new_hash_type.nil?
+    # Set the last login time etc. when the record is created at first.
+    self.last_logged_in_at = Time.now
 
     self.login_failure_count = 0 if login_failure_count.nil?
   end
 
   # After validation, the password should be encrypted
   after_validation(on: :create) do
-    if errors.empty? && @new_password && !password.nil?
+    if errors.empty? && password_changed? && !password_was.nil?
       # generate a new 10-char long hash only Base64 encoded so things are compatible
       self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9]
 
-      # vvvvvv added this to maintain the password list for lighttpd
-      write_attribute(:password_crypted, password.crypt('os'))
-      #  ^^^^^^
-
       # write encrypted password to object property
       write_attribute(:password, hash_string(password))
-
-      # mark the hash type as "not new" any more
-      @new_hash_type = false
     else
-      logger.debug "Error - skipping to create user #{errors.inspect} #{@new_password.inspect} #{password.inspect}"
+      logger.debug "Error - skipping to create user #{errors.inspect} #{password} #{password_was}"
     end
-  end
-
-  # Set the last login time etc. when the record is created at first.
-  def before_create
-    self.last_logged_in_at = Time.now
   end
 
   # the default state of a user based on the api configuration
   def self.default_user_state
     ::Configuration.registration == 'confirmation' ? 'unconfirmed' : 'confirmed'
-  end
-
-  # This method returns an array with the names of all available
-  # password hash types supported by this User class.
-  def self.password_hash_types
-    default_password_hash_types
   end
 
   # This method allows to execute a block while deactivating timestamp
@@ -179,11 +166,6 @@ class User < ApplicationRecord
     yield
 
     ApplicationRecord.record_timestamps = old_state
-  end
-
-  # This method returns an array which contains all valid hash types.
-  def self.default_password_hash_types
-    %w(md5 md5crypt sha256crypt)
   end
 
   def self.update_notifications(params, user = nil)
@@ -330,39 +312,25 @@ class User < ApplicationRecord
 
   # Overriding this method to do some more validation:
   # state an password hash type being in the range of allowed values.
+  # FIXME: This is currently not used. It's not used by rails validations.
   def validate
-    # validate state and password has type to be in the valid range of values
-    errors.add(:password_hash_type, 'must be in the list of hash types.') unless password_hash_type.in?(User.password_hash_types)
     # check that the state transition is valid
     errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
-
-    # check that the password hash type has not been set if no new password
-    # has been provided
-    return unless @new_hash_type && (!@new_password || password.nil?)
-
-    errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
   end
 
-  # Override the accessor for the "password_hash_type" property so it sets
-  # the "@new_hash_type" private property to signal that the password's
-  # hash method has been changed. Changing the password hash type is only
+  # Overriding the default accessor to ensure ActiveModel::Dirty get's notified
+  # when password_hash_type changes. Changing the password hash type is only
   # possible if a new password has been provided.
   def password_hash_type=(value)
+    password_hash_type_will_change!
     write_attribute(:password_hash_type, value)
-    @new_hash_type = true
   end
 
-  # Overriding the default accessor to update @new_password on setting this
-  # property.
+  # Overriding the default accessor to ensure ActiveModel::Dirty get's notified
+  # about changes of password attribute
   def password=(value)
+    password_will_change!
     write_attribute(:password, value)
-    @new_password = true
-  end
-
-  # Returns true if the password has been set after the User has been loaded
-  # from the database and false otherwise
-  def new_password?
-    @new_password
   end
 
   # Method to update the password and confirmation at the same time. Call
@@ -376,7 +344,7 @@ class User < ApplicationRecord
   #   user.save
   #
   def update_password(pass)
-    self.password_crypted = hash_string(pass).crypt('os')
+    password_will_change!
     self.password = hash_string(pass)
   end
 
@@ -984,14 +952,6 @@ class User < ApplicationRecord
 
   private
 
-  def set_new_hash_type_false
-    @new_hash_type = false
-  end
-
-  def set_new_password_false
-    @new_password = false
-  end
-
   def can_modify_project_internal(project, ignoreLock)
     # The ordering is important because of the lock status check
     return false if !ignoreLock && project.is_locked?
@@ -1039,7 +999,6 @@ end
 #  password            :string(100)      default(""), not null
 #  password_hash_type  :string(20)       default(""), not null
 #  password_salt       :string(10)       default("1234512345"), not null
-#  password_crypted    :string(64)
 #  adminnote           :text(65535)
 #  state               :string(11)       default("unconfirmed")
 #  owner_id            :integer

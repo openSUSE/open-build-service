@@ -84,7 +84,6 @@ end
 #  password            :string(100)      default(""), not null
 #  password_hash_type  :string(20)       default(""), not null
 #  password_salt       :string(10)       default("1234512345"), not null
-#  password_crypted    :string(64)
 #  adminnote           :text(65535)
 #  state               :string(11)       default("unconfirmed")
 #  owner_id            :integer
