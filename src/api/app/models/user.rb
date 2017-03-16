@@ -635,32 +635,10 @@ class User < ApplicationRecord
     can?(:source_access, package)
   end
 
-  def can_access?(parm)
-    can?(:access, parm)
-  end
-
   def can?(key, package)
     is_admin? ||
       has_global_permission?(key.to_s) ||
       has_local_permission?(key.to_s, package)
-  end
-
-  def can_access_downloadbinany?(parm)
-    return true if is_admin?
-    if parm.kind_of? Package
-      return true if can_download_binaries?(parm)
-    end
-    return true if can_access?(parm)
-    false
-  end
-
-  def can_access_downloadsrcany?(parm)
-    return true if is_admin?
-    if parm.kind_of? Package
-      return true if can_source_access?(parm)
-    end
-    return true if can_access?(parm)
-    false
   end
 
   def has_local_role?( role, object )
