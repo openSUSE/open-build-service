@@ -356,4 +356,76 @@ RSpec.describe Package, vcr: true do
     it { expect(package_with_file.public_source_path('icon')).to eq('/public/source/home:tom/package_with_files/icon') }
     it { expect(package_with_file.public_source_path('icon', { format: :html})).to eq('/public/source/home:tom/package_with_files/icon?format=html') }
   end
+
+  describe '.what_depends_on' do
+    let(:repository) { 'openSUSE_Leap_42.1'}
+    let(:architecture) { 'x86_64' }
+    let(:parameter) { "package=#{package.name}&view=revpkgnames" }
+    let(:url) { "#{CONFIG['source_url']}/build/#{package.project}/#{repository}/#{architecture}/_builddepinfo?#{parameter}" }
+    let(:result) { Package.what_depends_on(package.project, package, repository, architecture) }
+    let(:no_dependency) { "<builddepinfo />" }
+
+    it 'builds backend path correct' do
+      stub_request(:get, url).and_return(body: no_dependency)
+      Package.what_depends_on(package.project, package, repository, architecture)
+      expect(a_request(:get, url)).to have_been_made.once
+    end
+
+    context 'with no build dependencies' do
+      before do
+        stub_request(:get, url).and_return(body: no_dependency)
+      end
+
+      it 'returns an empty array' do
+        expect(result).to eq([])
+      end
+    end
+
+    context 'with one build dependency' do
+      let(:one_dependency) do
+        "<builddepinfo>" +
+          "<package name=\"gcc6\">" +
+            "<pkgdep>gcc</pkgdep>" +
+          "</package>" +
+        "</builddepinfo>"
+      end
+
+      before do
+        stub_request(:get, url).and_return(body: one_dependency)
+      end
+
+      it 'returns an array with the dependency' do
+        expect(result).to eq(['gcc'])
+      end
+    end
+
+    context 'with more than one build dependency' do
+      let(:two_dependencies) do
+        "<builddepinfo>" +
+          "<package name=\"gcc\">" +
+            "<pkgdep>gcc6</pkgdep>" +
+            "<pkgdep>xz</pkgdep>" +
+          "</package>" +
+        "</builddepinfo>"
+      end
+
+      before do
+        stub_request(:get, url).and_return(body: two_dependencies)
+      end
+
+      it 'returns an array with the dependencies' do
+        expect(result).to eq(['gcc6', 'xz'])
+      end
+    end
+
+    context 'with invalid repository or architecture' do
+      before do
+        allow(Suse::Backend).to receive(:get).and_raise(ActiveXML::Transport::NotFoundError.new('message'))
+      end
+
+      it 'returns an empty array' do
+        expect(result).to eq([])
+      end
+    end
+  end
 end
