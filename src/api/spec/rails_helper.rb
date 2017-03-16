@@ -28,6 +28,8 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+
+  config.render_views # NOTE: This is required otherwise Suse::Validator.validate will fail
 end
 
 # support test coverage

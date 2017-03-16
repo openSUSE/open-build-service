@@ -88,8 +88,6 @@ RSpec.describe Webui::MainController do
   end
 
   describe "GET #sitemap" do
-    render_views
-
     before do
       get :sitemap
       @paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map do |url|
@@ -108,8 +106,6 @@ RSpec.describe Webui::MainController do
   end
 
   describe "GET #sitemap_projects" do
-    render_views
-
     before do
       create(:confirmed_user)
       @projects = create_list(:project, 5)
@@ -125,8 +121,6 @@ RSpec.describe Webui::MainController do
   end
 
   describe "GET #sitemap_packages" do
-    render_views
-
     before do
       create_list(:project_with_package, 5)
       get :sitemap_packages, params: { listaction: 'show' }
