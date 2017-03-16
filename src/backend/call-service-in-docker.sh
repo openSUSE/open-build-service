@@ -154,7 +154,8 @@ find $MOUNTDIR
 DOCKER_RUN_CMD="docker run -u 2:2 $DOCKER_OPTS_NET --rm --name $CONTAINER_ID $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
 printlog "DOCKER_RUN_CMD: '$DOCKER_RUN_CMD'"
 CMD_OUT=$(${DOCKER_RUN_CMD} 2>&1)
-if [ $? -eq 0 ]; then
+RET_ERR=$?
+if [ $RET_ERR -eq 0 ]; then
   # move out the result
   if [ 0`find "$MOUNTDIR/$INNEROUTDIR" -type f 2>/dev/null| wc -l` -gt 0 ]; then
     for i in _service:* ; do
@@ -163,10 +164,14 @@ if [ $? -eq 0 ]; then
       fi
     done
   fi
+elif [ $RET_ERR -eq 125 ] || [ $RET_ERR -eq 126 ] || [ $RET_ERR -eq 127]; then
+  printlog "$CMD_OUT"
+  echo "$CMD_OUT"
+  RETURN="3"
 else
- printlog "$CMD_OUT"
- echo "$CMD_OUT"
- RETURN="3"
+  printlog "$CMD_OUT"
+  echo "$CMD_OUT"
+  RETURN="2"
 fi
 
 if [[ $DEBUG_DOCKER ]];then
