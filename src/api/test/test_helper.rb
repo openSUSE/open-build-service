@@ -12,6 +12,7 @@ if ENV['DO_COVERAGE']
   Coveralls.wear_merged!('rails')
 
   SimpleCov.start 'rails' do
+    # NOTE: Keep filters in sync with spec/support/coverage.rb
     add_filter '/app/indices/'
     add_filter '/app/models/user_ldap_strategy.rb'
     add_filter '/lib/templates/'
