@@ -1,17 +1,22 @@
 require "spec_helper"
 
-RSpec.describe "Sign Up & Login" do
-  it "should be able to sign up successfully and logout" do
+RSpec.describe "Authentication" do
+  after(:example) do
+    logout
+  end
+
+  it "should be able to sign up" do
     visit "/"
-    expect(page).to have_content("Log In")
     fill_in 'login', with: 'test_user'
     fill_in 'email', with: 'test_user@openqa.com'
     fill_in 'pwd', with: 'opensuse'
     click_button('Sign Up')
     expect(page).to have_content("The account 'test_user' is now active.")
-    within("div#subheader") do
-      click_link('Logout')
-    end
+    expect(page).to have_link('link-to-user-home')
+  end
+
+  it "should be able to login" do
+    login
+    expect(page).to have_link('link-to-user-home')
   end
 end
-
