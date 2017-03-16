@@ -2712,6 +2712,14 @@ sub getbuildinfo_post {
 
   my $bconf = BSRepServer::getconfig($projid, $repoid, $arch);
   $bconf->{'type'} = $cgi->{'_buildtype'} if $cgi->{'_buildtype'};
+  if (defined($packid)) {
+    $bconf->{'obspackage'} = $packid;
+    if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+      $packid =~ /^(.*):(.*?)$/;
+      $bconf->{'obspackage'} = $1;
+      $bconf->{'buildflavor'} = $2;
+    }
+  }
   my $d = Build::parse_typed($bconf, $fn, $bconf->{'type'});
   unlink($fn);
   die("unknown repository type $bconf->{'type'}\n") unless $d;

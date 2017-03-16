@@ -1562,8 +1562,16 @@ sub getprojpack {
 	      }
 	    }
 	    # get build dependency info
+	    local $conf->{'buildflavor'};
+	    local $conf->{'obspackage'} = $packid;
+	    if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+	      $packid =~ /^(.*):(.*?)$/;
+	      $conf->{'obspackage'} = $1;
+	      $conf->{'buildflavor'} = $2;
+	    }
 	    my $d = Build::parse_typed($conf, BSRevision::revfilename($rev, $file, $files->{$file}), $buildtype);
 	    data2utf8xml($d);
+
 	    if (!$d || !defined($d->{'name'})) {
 	      $rinfo->{'error'} = "can not parse package name from $file";
 	      $rinfo->{'error'} .= " because: ".$d->{'error'} if $d->{'error'};
@@ -5504,6 +5512,14 @@ sub sourceinfo {
     $r->{'error'} = "don't know how to build $file";
     return $r;
   }
+  local $bconf->{'obspackage'} = $packid;
+  local $bconf->{'buildflavor'};
+  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+    $packid =~ /^(.*):(.*?)$/;
+    $bconf->{'obspackage'} = $1;
+    $bconf->{'buildflavor'} = $2;
+  }
+  
   my $d = Build::parse_typed($bconf, BSRevision::revfilename($rev, $file, $files->{$file}), $buildtype);
   if (!$d) {
     $r->{'error'} = "parse error";
