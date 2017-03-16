@@ -33,4 +33,21 @@ $( document ).ready(function() {
 
     options.ajax.data.dataTableId = 'reviews_in_table';
     $('#reviews_in_table').dataTable(options);
+
+    $('.result_reload').click(function() {
+      var that = this;
+      $(this).hide();
+      $(this).siblings('.result_spinner').show();
+      var table = $(this).data('table');
+
+      $('#' + table).DataTable().ajax.reload(function(){
+        $(that).show();
+        $(that).siblings('.result_spinner').hide();
+      }, false);
+    });
+
+    $('#requests li a').click(function (event) {
+      $(this).parent().parent().find('.result_reload').hide();
+      $(this).siblings('.result_reload').show();
+    });
 });

@@ -129,7 +129,11 @@
     <div id="reviews">
       <div class="box-header header-tabs">
         <ul>
-          <li><a href="#reviews_in" title="Requests that <%= @displayed_user.login %> has to review">Incoming Reviews</a></li>
+          <li>
+            <a href="#reviews_in" title="Requests that <%= @displayed_user.login %> has to review">Incoming Reviews</a>
+            <%= sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'reviews_in_table' }) %>
+            <%= image_tag('ajax-loader.gif', class: 'result_spinner hidden') %>
+          </li>
         </ul>
       </div>
       <div id="reviews_in" class="tab">
@@ -142,10 +146,26 @@
     <div id="requests">
       <div class="box-header header-tabs">
         <ul>
-            <li><a id="requests_in_tab" href="#requests_in" title="Requests that <%= @displayed_user.login %> has to merge">Incoming Requests</a></li>
-            <li><a id="requests_out_tab" href="#requests_out" title="Requests that <%= @displayed_user.login %> has sent">Outgoing Requests</a></li>
-            <li><a id="requests_declined_tab" href="#requests_declined" title="Requests from <%= @displayed_user.login %> that are declined">Declined Requests</a></li>
-            <li><a id="all_requests_tab" href="#all_requests" title="All Requests from <%= @displayed_user.login %>">All Requests</a></li>
+            <li>
+              <a id="requests_in_tab" href="#requests_in" title="Requests that <%= @displayed_user.login %> has to merge">Incoming Requests</a>
+              <%= sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'requests_in_table' }) %>
+              <%= image_tag('ajax-loader.gif', class: 'result_spinner hidden') %>
+            </li>
+            <li>
+              <a id="requests_out_tab" href="#requests_out" title="Requests that <%= @displayed_user.login %> has sent">Outgoing Requests</a>
+              <%= sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_out_table' }) %>
+              <%= image_tag('ajax-loader.gif', class: 'result_spinner hidden') %>
+            </li>
+            <li>
+              <a id="requests_declined_tab" href="#requests_declined" title="Requests from <%= @displayed_user.login %> that are declined">Declined Requests</a>
+              <%= sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_declined_table' }) %>
+              <%= image_tag('ajax-loader.gif', class: 'result_spinner hidden') %>
+            </li>
+            <li>
+              <a id="all_requests_tab" href="#all_requests" title="All Requests from <%= @displayed_user.login %>">All Requests</a>
+              <%= sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'all_requests_table' }) %>
+              <%= image_tag('ajax-loader.gif', class: 'result_spinner hidden') %>
+            </li>
         </ul>
       </div>
         <div id="requests_in" class="tab">
