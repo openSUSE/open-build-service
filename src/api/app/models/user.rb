@@ -183,7 +183,7 @@ class User < ApplicationRecord
 
   # This method returns an array which contains all valid hash types.
   def self.default_password_hash_types
-    %w(md5)
+    %w(md5 md5crypt sha256crypt)
   end
 
   def self.update_notifications(params, user = nil)
@@ -1006,8 +1006,13 @@ class User < ApplicationRecord
   # Hashes the given parameter by the selected hashing method. It uses the
   # "password_salt" property's value to make the hashing more secure.
   def hash_string(value)
-    return unless password_hash_type == "md5"
-    Digest::MD5.hexdigest(value + password_salt)
+    crypt2index = { "md5crypt"    => 1,
+                    "sha256crypt" => 5 }
+    if password_hash_type == "md5"
+      Digest::MD5.hexdigest(value + password_salt)
+    elsif crypt2index.keys.include?(password_hash_type)
+      value.crypt("$#{crypt2index[password_hash_type]}$#{password_salt}$").split("$")[3]
+    end
   end
 
   cattr_accessor :lookup_strategy do
