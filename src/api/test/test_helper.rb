@@ -16,6 +16,8 @@ if ENV['DO_COVERAGE']
     add_filter '/app/indices/'
     add_filter '/app/models/user_ldap_strategy.rb'
     add_filter '/lib/templates/'
+    add_filter '/lib/memory_debugger.rb'
+    add_filter '/lib/memory_dumper.rb'
     merge_timeout 3600
     formatter Coveralls::SimpleCov::Formatter
   end
