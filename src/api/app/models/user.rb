@@ -96,6 +96,16 @@ class User < ApplicationRecord
   validates :password_hash_type, inclusion: { in:      PASSWORD_HASH_TYPES,
                                               message: "%{value} must be in the list of hash types." }
 
+  validate :password_changes_with_hash_type
+  # Checks that the password got updated after password hash type changed
+  def password_changes_with_hash_type
+    # rubocop:disable Style/GuardClause
+    if password_hash_type_changed? && (!password_changed? || password_was.nil?)
+      errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
+    end
+    # rubocop:enable Style/GuardClause
+  end
+
   after_create :create_home_project
   def create_home_project
     # avoid errors during seeding
@@ -306,12 +316,6 @@ class User < ApplicationRecord
   def validate
     # check that the state transition is valid
     errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
-
-    # check that the password hash type has not been set if no new password
-    # has been provided
-    return unless password_hash_type_changed? && (!password_changed? || password_was.nil?)
-
-    errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
   end
 
   # Overriding the default accessor to ensure ActiveModel::Dirty get's notified

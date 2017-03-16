@@ -20,8 +20,25 @@ RSpec.describe User do
     it { is_expected.to validate_length_of(:password).is_at_most(64).with_message('must have between 6 and 64 characters.') }
 
     it { is_expected.to validate_presence_of(:password_hash_type).with_message('must be given') }
-    it { is_expected.to validate_inclusion_of(:password_hash_type).in_array(User::PASSWORD_HASH_TYPES) }
     it { expect(user.password_hash_type).to eq('md5') }
+
+    it 'validates that password_hash_type is in User::PASSWORD_HASH_TYPES' do
+      user.password_hash_type = SecureRandom.hex
+      expect(user.valid?).to be false
+      expect(user.errors.full_messages).to include("Password hash type #{user.password_hash_type} must be in the list of hash types.")
+      User::PASSWORD_HASH_TYPES.each do |hash_type|
+        user.password_hash_type = hash_type
+        expect(user.errors.full_messages).not_to include("Password hash type #{hash_type} must be in the list of hash types.")
+      end
+    end
+
+    it 'validates that password changes with password_hash_type' do
+      user.password_hash_type = 'md5crypt'
+      expect(user.valid?).to be false
+      expect(user.errors.full_messages.to_sentence).to eq('Password hash type cannot be changed unless a new password has been provided.')
+      user.password = "changedit"
+      expect(user.valid?).to be true
+    end
 
     it { expect(user.state).to eq('unconfirmed') }
 
@@ -108,6 +125,15 @@ RSpec.describe User do
 
         it 'updates the password' do
           expect(user.password_equals?(password)).to be true
+        end
+      end
+
+      describe '#password_hash_type=' do
+        let(:new_hash_type) { hash_type == 'md5' ? 'sha256' : 'md5' }
+
+        it 'changes the password hash type' do
+          user.password_hash_type = new_hash_type
+          expect(user.password_hash_type).to eq(new_hash_type)
         end
       end
     end
