@@ -5,12 +5,6 @@
 
 <%= render :partial => "tabs" %>
 
-<!--
-<p>
-<%= link_to('Create package using spec file wizard', :controller => 'package', :action => 'wizard_new', :project => @project.to_param) %>
-(experimental)
-</p>
--->
 <h2><%= @pagetitle %> for <%= @project.name %></h2>
 
 <%= form_tag controller: :package, action: 'save_new', project: @project.to_param do %>
