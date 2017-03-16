@@ -370,23 +370,6 @@ class User < ApplicationRecord
     self.user_registration = token
   end
 
-  # This method expects the token for the current user. If the token is
-  # correct, the user's state will be set to "confirmed" and the associated
-  # "user_registration" record will be removed.
-  # Returns "true" on success and "false" on failure/or the user is already
-  # confirmed and/or has no "user_registration" record.
-  def confirm_registration(token)
-    return false if user_registration.nil?
-    return false if user_registration.token != token
-    return false unless state_transition_allowed?(state, 'confirmed')
-
-    self.state = 'confirmed'
-    save!
-    user_registration.destroy
-
-    true
-  end
-
   # Overwrite the state setting so it backs up the initial state from
   # the database.
   def state=(value)
@@ -398,13 +381,6 @@ class User < ApplicationRecord
   # hashed with this user's password hash type. Returns a boolean.
   def password_equals?(value)
     hash_string(value) == password
-  end
-
-  # Sets the last login time and saves the object. Note: Must currently be
-  # called explicitely!
-  def did_log_in
-    self.last_logged_in_at = DateTime.now
-    self.class.execute_without_timestamps { save }
   end
 
   # Returns true if the the state transition from "from" state to "to" state
@@ -785,11 +761,6 @@ class User < ApplicationRecord
   # list outgoing requests involving this user
   def outgoing_requests(search = nil)
     BsRequest.collection(user: login, states: %w(new review), roles: %w(creator), search: search)
-  end
-
-  # finds if the user have any request
-  def requests?
-    requests.count > 0
   end
 
   # list of all requests
