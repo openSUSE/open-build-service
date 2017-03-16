@@ -1389,8 +1389,6 @@ class Package < ApplicationRecord
     new_activity > 100 ? 100 : new_activity
 
     self.activity_index = new_activity
-    # just for beauty
-    self.update_counter += 1
   end
 end
 
@@ -1406,7 +1404,6 @@ end
 #  created_at      :datetime
 #  updated_at      :datetime         indexed
 #  url             :string(255)
-#  update_counter  :integer          default(0)
 #  activity_index  :float(24)        default(100.0)
 #  bcntsynctag     :string(255)
 #  develpackage_id :integer          indexed

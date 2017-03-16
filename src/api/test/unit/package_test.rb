@@ -252,7 +252,6 @@ class PackageTest < ActiveSupport::TestCase
       # freshly created it should have 20
       assert_equal 20, newyear.activity_index
       assert_in_delta(20.0, newyear.activity, 0.2)
-      assert_equal 0, newyear.update_counter
 
       # a month later now
       Timecop.freeze(2010, 2, 1)
@@ -264,7 +263,6 @@ class PackageTest < ActiveSupport::TestCase
 
       newyear.title = "Just a silly update"
       newyear.save
-      assert_equal 1, newyear.update_counter
       assert_in_delta(22.9, newyear.activity, 0.2)
 
       Timecop.freeze(2010, 4, 1)
@@ -275,7 +273,6 @@ class PackageTest < ActiveSupport::TestCase
 
       newyear.title = "Just a silly update 2"
       newyear.save
-      assert_equal 2, newyear.update_counter
       assert_in_delta(24.7, newyear.activity, 0.2)
       newyear.title = "Just a silly update 3"
       newyear.save
