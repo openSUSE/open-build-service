@@ -110,8 +110,6 @@ OBSApi::Application.routes.draw do
       get 'package/add_person/:project/:package' => :add_person, constraints: cons
       get 'package/add_group/:project/:package' => :add_group, constraints: cons
       get 'package/rdiff/(:project/(:package))' => :rdiff, constraints: cons
-      get 'package/wizard_new/:project' => :wizard_new, constraints: cons
-      get 'package/wizard/:project/:package' => :wizard, constraints: cons
       post 'package/save_new/:project' => :save_new, constraints: cons
       post 'package/branch' => :branch, constraints: cons
       post 'package/save/:project/:package' => :save, constraints: cons
@@ -406,7 +404,6 @@ OBSApi::Application.routes.draw do
 
     ### /source
 
-    get 'source/:project/:package/_wizard' => 'wizard#package_wizard', constraints: cons
     get 'source/:project/:package/_tags' => 'tag#package_tags', constraints: cons
     get 'source/:project/_tags' => 'tag#project_tags', constraints: cons
     get 'source/:project/_keyinfo' => 'source/key_info#show', constraints: cons

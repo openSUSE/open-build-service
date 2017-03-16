@@ -12,7 +12,7 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :set_project, only: [:show, :users, :linking_packages, :dependency, :binary, :binaries,
                                      :requests, :statistics, :commit, :revisions, :submit_request_dialog,
-                                     :add_person, :add_group, :rdiff, :wizard_new, :wizard, :save_new,
+                                     :add_person, :add_group, :rdiff, :save_new,
                                      :save, :delete_dialog,
                                      :remove, :add_file, :save_file, :remove_file, :save_person,
                                      :save_group, :remove_role, :view_file,
@@ -22,7 +22,7 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries,
                                          :requests, :statistics, :commit, :revisions, :submit_request_dialog,
-                                         :add_person, :add_group, :rdiff, :wizard_new, :wizard,
+                                         :add_person, :add_group, :rdiff,
                                          :save, :delete_dialog,
                                          :remove, :add_file, :save_file, :remove_file, :save_person,
                                          :save_group, :remove_role, :view_file,
@@ -33,7 +33,7 @@ class Webui::PackageController < Webui::WebuiController
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :linking_packages, :linking_packages, :dependency,
                                          :binary, :binaries, :users, :requests, :statistics, :commit,
-                                         :revisions, :rdiff, :wizard_new, :view_file, :live_build_log,
+                                         :revisions, :rdiff, :view_file, :live_build_log,
                                          :update_build_log, :devel_project, :buildresult, :rpmlint_result,
                                          :rpmlint_log, :meta, :attributes, :files]
 
