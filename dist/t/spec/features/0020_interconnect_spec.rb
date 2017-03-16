@@ -1,15 +1,19 @@
 require "spec_helper"
 
-RSpec.describe "Create Interconnect as admin and build package" do
-
-  it "should be able to login as user 'Admin'" do
-    obs_login("Admin","opensuse")
+RSpec.describe "Interconnect" do
+  before(:context) do
+    login
   end
 
-  it "should be able to add Opensuse Interconnect as Admin" do
+  after(:context) do
+    logout
+  end
+
+  it "should be able to create link" do
     visit "/configuration/interconnect"
-    click_button('openSUSE')
+    # Don't wait for the javascript text replacement...
+    page.execute_script("$('input[type=\"submit\"]').prop('disabled', false)")
     click_button('Save changes')
+    expect(page).to have_content("Project 'openSUSE.org' was created successfully")
   end
-
 end
