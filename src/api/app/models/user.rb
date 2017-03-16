@@ -628,24 +628,21 @@ class User < ApplicationRecord
   # rubocop:enable Style/GuardClause
 
   def can_download_binaries?(package)
-    return true if is_admin?
-    return true if has_global_permission? 'download_binaries'
-    return true if has_local_permission?('download_binaries', package)
-    false
+    is_admin? ||
+      has_global_permission?('download_binaries') ||
+      has_local_permission?('download_binaries', package)
   end
 
   def can_source_access?(package)
-    return true if is_admin?
-    return true if has_global_permission? 'source_access'
-    return true if has_local_permission?('source_access', package)
-    false
+    is_admin? ||
+      has_global_permission?('source_access') ||
+      has_local_permission?('source_access', package)
   end
 
   def can_access?(parm)
-    return true if is_admin?
-    return true if has_global_permission? 'access'
-    return true if has_local_permission?('access', parm)
-    false
+    is_admin? ||
+      has_global_permission?('access') ||
+      has_local_permission?('access', parm)
   end
 
   def can_access_downloadbinany?(parm)
