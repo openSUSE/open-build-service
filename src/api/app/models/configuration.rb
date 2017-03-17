@@ -113,33 +113,35 @@ end
 #
 # Table name: configurations
 #
-#  id                                :integer          not null, primary key
-#  title                             :string(255)      default("")
-#  description                       :text(65535)
-#  created_at                        :datetime
-#  updated_at                        :datetime
-#  name                              :string(255)      default("")
-#  registration                      :string(12)       default("allow")
-#  anonymous                         :boolean          default("1")
-#  default_access_disabled           :boolean          default("0")
-#  allow_user_to_create_home_project :boolean          default("1")
-#  disallow_group_creation           :boolean          default("0")
-#  change_password                   :boolean          default("1")
-#  hide_private_options              :boolean          default("0")
-#  gravatar                          :boolean          default("1")
-#  enforce_project_keys              :boolean          default("0")
-#  download_on_demand                :boolean          default("1")
-#  download_url                      :string(255)
-#  ymp_url                           :string(255)
-#  bugzilla_url                      :string(255)
-#  http_proxy                        :string(255)
-#  no_proxy                          :string(255)
-#  theme                             :string(255)
-#  obs_url                           :string(255)
-#  cleanup_after_days                :integer
-#  cleanup_empty_projects            :boolean          default("1")
-#  disable_publish_for_branches      :boolean          default("1")
-#  admin_email                       :string(255)      default("unconfigured@openbuildservice.org")
-#  default_tracker                   :string(255)      default("bnc")
-#  api_url                           :string(255)
+#  id                                   :integer          not null, primary key
+#  title                                :string(255)      default("")
+#  description                          :text(65535)
+#  created_at                           :datetime
+#  updated_at                           :datetime
+#  name                                 :string(255)      default("")
+#  registration                         :string(12)       default("allow")
+#  anonymous                            :boolean          default(TRUE)
+#  default_access_disabled              :boolean          default(FALSE)
+#  allow_user_to_create_home_project    :boolean          default(TRUE)
+#  disallow_group_creation              :boolean          default(FALSE)
+#  change_password                      :boolean          default(TRUE)
+#  hide_private_options                 :boolean          default(FALSE)
+#  gravatar                             :boolean          default(TRUE)
+#  enforce_project_keys                 :boolean          default(FALSE)
+#  download_on_demand                   :boolean          default(TRUE)
+#  download_url                         :string(255)
+#  ymp_url                              :string(255)
+#  bugzilla_url                         :string(255)
+#  http_proxy                           :string(255)
+#  no_proxy                             :string(255)
+#  theme                                :string(255)
+#  obs_url                              :string(255)
+#  cleanup_after_days                   :integer
+#  admin_email                          :string(255)      default("unconfigured@openbuildservice.org")
+#  cleanup_empty_projects               :boolean          default(TRUE)
+#  disable_publish_for_branches         :boolean          default(TRUE)
+#  default_tracker                      :string(255)      default("bnc")
+#  api_url                              :string(255)
+#  unlisted_projects_filter             :string(255)      default("^home:.+")
+#  unlisted_projects_filter_description :string(255)      default("home projects")
 #

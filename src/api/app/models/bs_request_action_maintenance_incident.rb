@@ -219,29 +219,32 @@ end
 # Table name: bs_request_actions
 #
 #  id                    :integer          not null, primary key
-#  bs_request_id         :integer
+#  bs_request_id         :integer          indexed
 #  type                  :string(255)
-#  target_project        :string(255)
-#  target_package        :string(255)
+#  target_project        :string(255)      indexed
+#  target_package        :string(255)      indexed
 #  target_releaseproject :string(255)
-#  source_project        :string(255)
-#  source_package        :string(255)
+#  source_project        :string(255)      indexed
+#  source_package        :string(255)      indexed
 #  source_rev            :string(255)
 #  sourceupdate          :string(255)
-#  updatelink            :boolean          default("0")
+#  updatelink            :boolean          default(FALSE)
 #  person_name           :string(255)
 #  group_name            :string(255)
 #  role                  :string(255)
 #  created_at            :datetime
 #  target_repository     :string(255)
-#  makeoriginolder       :boolean          default("0")
+#  makeoriginolder       :boolean          default(FALSE)
 #
 # Indexes
 #
-#  bs_request_id                                                  (bs_request_id)
-#  index_bs_request_actions_on_source_package                     (source_package)
-#  index_bs_request_actions_on_source_project                     (source_project)
-#  index_bs_request_actions_on_target_package                     (target_package)
-#  index_bs_request_actions_on_target_project                     (target_project)
-#  index_bs_request_actions_on_target_project_and_source_project  (target_project,source_project)
+#  bs_request_id                               (bs_request_id)
+#  index_bs_request_actions_on_source_package  (source_package)
+#  index_bs_request_actions_on_source_project  (source_project)
+#  index_bs_request_actions_on_target_package  (target_package)
+#  index_bs_request_actions_on_target_project  (target_project)
+#
+# Foreign Keys
+#
+#  bs_request_actions_ibfk_1  (bs_request_id => bs_requests.id)
 #

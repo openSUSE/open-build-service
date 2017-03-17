@@ -34,7 +34,7 @@ end
 # Table name: bs_request_action_accept_infos
 #
 #  id                   :integer          not null, primary key
-#  bs_request_action_id :integer
+#  bs_request_action_id :integer          indexed
 #  rev                  :string(255)
 #  srcmd5               :string(255)
 #  xsrcmd5              :string(255)
@@ -47,4 +47,8 @@ end
 # Indexes
 #
 #  bs_request_action_id  (bs_request_action_id)
+#
+# Foreign Keys
+#
+#  bs_request_action_accept_infos_ibfk_1  (bs_request_action_id => bs_request_actions.id)
 #

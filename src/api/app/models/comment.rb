@@ -102,22 +102,23 @@ end
 #
 # Table name: comments
 #
-#  id            :integer          not null, primary key
-#  project_id    :integer
-#  package_id    :integer
-#  bs_request_id :integer
-#  body          :text(65535)
-#  parent_id     :integer
-#  type          :string(255)
-#  created_at    :datetime
-#  updated_at    :datetime
-#  user_id       :integer          not null
+#  id               :integer          not null, primary key
+#  body             :text(65535)
+#  parent_id        :integer          indexed
+#  created_at       :datetime
+#  updated_at       :datetime
+#  user_id          :integer          not null, indexed
+#  commentable_type :string(255)      indexed => [commentable_id]
+#  commentable_id   :integer          indexed => [commentable_type]
 #
 # Indexes
 #
-#  index_comments_on_bs_request_id  (bs_request_id)
-#  index_comments_on_package_id     (package_id)
-#  index_comments_on_project_id     (project_id)
-#  parent_id                        (parent_id)
-#  user_id                          (user_id)
+#  index_comments_on_commentable_type_and_commentable_id  (commentable_type,commentable_id)
+#  parent_id                                              (parent_id)
+#  user_id                                                (user_id)
+#
+# Foreign Keys
+#
+#  comments_ibfk_1  (user_id => users.id)
+#  comments_ibfk_4  (parent_id => comments.id)
 #

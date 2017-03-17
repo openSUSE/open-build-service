@@ -197,32 +197,36 @@ end
 # Table name: binary_releases
 #
 #  id                        :integer          not null, primary key
-#  repository_id             :integer          not null
+#  repository_id             :integer          not null, indexed => [binary_name]
 #  operation                 :string(8)        default("added")
 #  obsolete_time             :datetime
-#  release_package_id        :integer
-#  binary_name               :string(255)      not null
-#  binary_epoch              :string(64)
-#  binary_version            :string(64)       not null
-#  binary_release            :string(64)       not null
-#  binary_arch               :string(64)       not null
+#  release_package_id        :integer          indexed
+#  binary_name               :string(255)      not null, indexed => [binary_epoch, binary_version, binary_release, binary_arch], indexed => [binary_arch], indexed => [repository_id]
+#  binary_epoch              :string(64)       indexed => [binary_name, binary_version, binary_release, binary_arch]
+#  binary_version            :string(64)       not null, indexed => [binary_name, binary_epoch, binary_release, binary_arch]
+#  binary_release            :string(64)       not null, indexed => [binary_name, binary_epoch, binary_version, binary_arch]
+#  binary_arch               :string(64)       not null, indexed => [binary_name, binary_epoch, binary_version, binary_release], indexed => [binary_name]
 #  binary_disturl            :string(255)
 #  binary_buildtime          :datetime
 #  binary_releasetime        :datetime         not null
 #  binary_supportstatus      :string(255)
 #  binary_maintainer         :string(255)
-#  medium                    :string(255)
-#  binary_updateinfo         :string(255)
+#  medium                    :string(255)      indexed
+#  binary_updateinfo         :string(255)      indexed
 #  binary_updateinfo_version :string(255)
 #  modify_time               :datetime
 #
 # Indexes
 #
 #  exact_search_index                                    (binary_name,binary_epoch,binary_version,binary_release,binary_arch)
-#  index_binary_releases_on_binary_name                  (binary_name)
 #  index_binary_releases_on_binary_name_and_binary_arch  (binary_name,binary_arch)
 #  index_binary_releases_on_binary_updateinfo            (binary_updateinfo)
 #  index_binary_releases_on_medium                       (medium)
 #  ra_name_index                                         (repository_id,binary_name)
 #  release_package_id                                    (release_package_id)
+#
+# Foreign Keys
+#
+#  binary_releases_ibfk_1  (repository_id => repositories.id)
+#  binary_releases_ibfk_2  (release_package_id => packages.id)
 #

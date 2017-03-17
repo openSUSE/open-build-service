@@ -147,10 +147,10 @@ end
 # Table name: issues
 #
 #  id               :integer          not null, primary key
-#  name             :string(255)      not null
-#  issue_tracker_id :integer          not null
+#  name             :string(255)      not null, indexed => [issue_tracker_id]
+#  issue_tracker_id :integer          not null, indexed => [name], indexed
 #  summary          :string(255)
-#  owner_id         :integer
+#  owner_id         :integer          indexed
 #  created_at       :datetime
 #  updated_at       :datetime
 #  state            :string(7)
@@ -160,4 +160,9 @@ end
 #  index_issues_on_name_and_issue_tracker_id  (name,issue_tracker_id)
 #  issue_tracker_id                           (issue_tracker_id)
 #  owner_id                                   (owner_id)
+#
+# Foreign Keys
+#
+#  issues_ibfk_1  (owner_id => users.id)
+#  issues_ibfk_2  (issue_tracker_id => issue_trackers.id)
 #

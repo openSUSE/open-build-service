@@ -75,12 +75,12 @@ end
 # Table name: project_log_entries
 #
 #  id              :integer          not null, primary key
-#  project_id      :integer
-#  user_name       :string(255)
-#  package_name    :string(255)
-#  bs_request_id   :integer
-#  datetime        :datetime
-#  event_type      :string(255)
+#  project_id      :integer          indexed
+#  user_name       :string(255)      indexed
+#  package_name    :string(255)      indexed
+#  bs_request_id   :integer          indexed
+#  datetime        :datetime         indexed
+#  event_type      :string(255)      indexed
 #  additional_info :text(65535)
 #
 # Indexes
@@ -91,4 +91,8 @@ end
 #  index_project_log_entries_on_package_name   (package_name)
 #  index_project_log_entries_on_user_name      (user_name)
 #  project_id                                  (project_id)
+#
+# Foreign Keys
+#
+#  project_log_entries_ibfk_1  (project_id => projects.id)
 #

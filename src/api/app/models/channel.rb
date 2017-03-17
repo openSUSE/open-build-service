@@ -181,10 +181,13 @@ end
 # Table name: channels
 #
 #  id         :integer          not null, primary key
-#  package_id :integer          not null
+#  package_id :integer          not null, indexed
 #
 # Indexes
 #
 #  index_unique  (package_id) UNIQUE
-#  package_id    (package_id)
+#
+# Foreign Keys
+#
+#  channels_ibfk_1  (package_id => packages.id)
 #

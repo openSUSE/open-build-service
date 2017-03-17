@@ -9,13 +9,17 @@ end
 #
 #  id             :integer          not null, primary key
 #  score          :integer
-#  db_object_id   :integer
+#  db_object_id   :integer          indexed
 #  db_object_type :string(255)
 #  created_at     :datetime
-#  user_id        :integer
+#  user_id        :integer          indexed
 #
 # Indexes
 #
 #  object  (db_object_id)
 #  user    (user_id)
+#
+# Foreign Keys
+#
+#  ratings_ibfk_1  (user_id => users.id)
 #

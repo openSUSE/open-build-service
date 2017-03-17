@@ -104,8 +104,8 @@ end
 # Table name: maintenance_incidents
 #
 #  id                        :integer          not null, primary key
-#  db_project_id             :integer
-#  maintenance_db_project_id :integer
+#  db_project_id             :integer          indexed
+#  maintenance_db_project_id :integer          indexed
 #  updateinfo_id             :string(255)
 #  incident_id               :integer
 #  released_at               :datetime

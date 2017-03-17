@@ -233,17 +233,22 @@ end
 # Table name: repositories
 #
 #  id                  :integer          not null, primary key
-#  db_project_id       :integer          not null
-#  name                :string(255)      not null
-#  remote_project_name :string(255)
+#  db_project_id       :integer          not null, indexed => [name, remote_project_name]
+#  name                :string(255)      not null, indexed => [db_project_id, remote_project_name]
+#  remote_project_name :string(255)      default(""), not null, indexed => [db_project_id, name], indexed
 #  rebuild             :string(10)
 #  block               :string(5)
 #  linkedbuild         :string(8)
-#  hostsystem_id       :integer
+#  hostsystem_id       :integer          indexed
 #
 # Indexes
 #
 #  hostsystem_id              (hostsystem_id)
 #  projects_name_index        (db_project_id,name,remote_project_name) UNIQUE
 #  remote_project_name_index  (remote_project_name)
+#
+# Foreign Keys
+#
+#  repositories_ibfk_1  (db_project_id => projects.id)
+#  repositories_ibfk_2  (hostsystem_id => repositories.id)
 #

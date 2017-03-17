@@ -13,8 +13,8 @@ end
 # Table name: status_histories
 #
 #  id    :integer          not null, primary key
-#  time  :integer
-#  key   :string(255)
+#  time  :integer          indexed => [key]
+#  key   :string(255)      indexed, indexed => [time]
 #  value :float(24)        not null
 #
 # Indexes

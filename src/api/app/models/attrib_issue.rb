@@ -10,11 +10,16 @@ end
 # Table name: attrib_issues
 #
 #  id        :integer          not null, primary key
-#  attrib_id :integer          not null
-#  issue_id  :integer          not null
+#  attrib_id :integer          not null, indexed => [issue_id]
+#  issue_id  :integer          not null, indexed => [attrib_id], indexed
 #
 # Indexes
 #
 #  index_attrib_issues_on_attrib_id_and_issue_id  (attrib_id,issue_id) UNIQUE
 #  issue_id                                       (issue_id)
+#
+# Foreign Keys
+#
+#  attrib_issues_ibfk_1  (attrib_id => attribs.id)
+#  attrib_issues_ibfk_2  (issue_id => issues.id)
 #

@@ -1395,24 +1395,28 @@ end
 # Table name: packages
 #
 #  id              :integer          not null, primary key
-#  project_id      :integer          not null
-#  name            :text(65535)
+#  project_id      :integer          not null, indexed => [name]
+#  name            :string(200)      not null, indexed => [project_id]
 #  title           :string(255)
 #  description     :text(65535)
-#  created_at      :datetime         default("0000-00-00 00:00:00")
-#  updated_at      :datetime         default("0000-00-00 00:00:00")
+#  created_at      :datetime
+#  updated_at      :datetime         indexed
 #  url             :string(255)
-#  update_counter  :integer          default("0")
-#  activity_index  :float(24)        default("100")
+#  update_counter  :integer          default(0)
+#  activity_index  :float(24)        default(100.0)
 #  bcntsynctag     :string(255)
-#  develpackage_id :integer
-#  delta           :boolean          default("1"), not null
+#  develpackage_id :integer          indexed
+#  delta           :boolean          default(TRUE), not null
 #  releasename     :string(255)
 #
 # Indexes
 #
-#  devel_package_id_index        (develpackage_id)
-#  index_packages_on_project_id  (project_id)
-#  packages_all_index            (project_id,name) UNIQUE
-#  updated_at_index              (updated_at)
+#  devel_package_id_index  (develpackage_id)
+#  packages_all_index      (project_id,name) UNIQUE
+#  updated_at_index        (updated_at)
+#
+# Foreign Keys
+#
+#  packages_ibfk_3  (develpackage_id => packages.id)
+#  packages_ibfk_4  (project_id => projects.id)
 #

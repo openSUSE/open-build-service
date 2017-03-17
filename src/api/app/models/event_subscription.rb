@@ -68,11 +68,11 @@ end
 #  id            :integer          not null, primary key
 #  eventtype     :string(255)      not null
 #  receiver_role :string(255)      not null
-#  user_id       :integer
+#  user_id       :integer          indexed
 #  created_at    :datetime
 #  updated_at    :datetime
-#  receive       :boolean          default("1"), not null
-#  group_id      :integer
+#  receive       :boolean          default(TRUE), not null
+#  group_id      :integer          indexed
 #
 # Indexes
 #

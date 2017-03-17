@@ -149,10 +149,10 @@ end
 # Table name: attribs
 #
 #  id             :integer          not null, primary key
-#  attrib_type_id :integer          not null
-#  package_id     :integer
-#  binary         :string(255)
-#  project_id     :integer
+#  attrib_type_id :integer          not null, indexed => [package_id, project_id, binary], indexed => [project_id, package_id, binary]
+#  package_id     :integer          indexed => [attrib_type_id, project_id, binary], indexed => [attrib_type_id, project_id, binary], indexed
+#  binary         :string(255)      indexed => [attrib_type_id, package_id, project_id], indexed => [attrib_type_id, project_id, package_id]
+#  project_id     :integer          indexed => [attrib_type_id, package_id, binary], indexed => [attrib_type_id, package_id, binary], indexed
 #
 # Indexes
 #
@@ -160,4 +160,10 @@ end
 #  attribs_on_proj_and_pack     (attrib_type_id,project_id,package_id,binary) UNIQUE
 #  index_attribs_on_package_id  (package_id)
 #  index_attribs_on_project_id  (project_id)
+#
+# Foreign Keys
+#
+#  attribs_ibfk_1  (attrib_type_id => attrib_types.id)
+#  attribs_ibfk_2  (package_id => packages.id)
+#  attribs_ibfk_3  (project_id => projects.id)
 #

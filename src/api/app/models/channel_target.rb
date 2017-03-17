@@ -23,14 +23,20 @@ end
 # Table name: channel_targets
 #
 #  id             :integer          not null, primary key
-#  channel_id     :integer          not null
-#  repository_id  :integer          not null
+#  channel_id     :integer          not null, indexed => [repository_id]
+#  repository_id  :integer          not null, indexed => [channel_id], indexed
+#  prefix         :string(255)
 #  id_template    :string(255)
-#  disabled       :boolean          default("0")
+#  disabled       :boolean          default(FALSE)
 #  requires_issue :boolean
 #
 # Indexes
 #
 #  index_channel_targets_on_channel_id_and_repository_id  (channel_id,repository_id) UNIQUE
 #  repository_id                                          (repository_id)
+#
+# Foreign Keys
+#
+#  channel_targets_ibfk_1  (channel_id => channels.id)
+#  channel_targets_ibfk_2  (repository_id => repositories.id)
 #

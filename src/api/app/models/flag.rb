@@ -183,11 +183,11 @@ end
 #  id              :integer          not null, primary key
 #  status          :string(7)        not null
 #  repo            :string(255)
-#  project_id      :integer
-#  package_id      :integer
-#  architecture_id :integer
+#  project_id      :integer          indexed
+#  package_id      :integer          indexed
+#  architecture_id :integer          indexed
 #  position        :integer          not null
-#  flag            :string(14)       not null
+#  flag            :string(14)       not null, indexed
 #
 # Indexes
 #
@@ -195,4 +195,10 @@ end
 #  index_flags_on_flag        (flag)
 #  index_flags_on_package_id  (package_id)
 #  index_flags_on_project_id  (project_id)
+#
+# Foreign Keys
+#
+#  flags_ibfk_3  (architecture_id => architectures.id)
+#  flags_ibfk_4  (project_id => projects.id)
+#  flags_ibfk_5  (package_id => packages.id)
 #

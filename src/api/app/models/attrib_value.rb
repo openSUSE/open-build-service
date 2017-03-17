@@ -50,11 +50,15 @@ end
 # Table name: attrib_values
 #
 #  id        :integer          not null, primary key
-#  attrib_id :integer          not null
+#  attrib_id :integer          not null, indexed
 #  value     :text(65535)      not null
 #  position  :integer          not null
 #
 # Indexes
 #
 #  index_attrib_values_on_attrib_id  (attrib_id)
+#
+# Foreign Keys
+#
+#  attrib_values_ibfk_1  (attrib_id => attribs.id)
 #

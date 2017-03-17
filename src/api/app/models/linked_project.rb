@@ -24,8 +24,8 @@ end
 # Table name: linked_projects
 #
 #  id                         :integer          not null, primary key
-#  db_project_id              :integer          not null
-#  linked_db_project_id       :integer
+#  db_project_id              :integer          not null, indexed => [linked_db_project_id]
+#  linked_db_project_id       :integer          indexed => [db_project_id]
 #  position                   :integer
 #  linked_remote_project_name :string(255)
 #

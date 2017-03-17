@@ -163,8 +163,8 @@ end
 #  id         :integer          not null, primary key
 #  created_at :datetime
 #  updated_at :datetime
-#  title      :string(200)      default(""), not null
-#  parent_id  :integer
+#  title      :string(200)      default(""), not null, indexed
+#  parent_id  :integer          indexed
 #  email      :string(255)
 #
 # Indexes

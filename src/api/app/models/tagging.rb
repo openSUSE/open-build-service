@@ -14,10 +14,10 @@ end
 # Table name: taggings
 #
 #  id            :integer          not null, primary key
-#  taggable_id   :integer
-#  taggable_type :string(255)
-#  tag_id        :integer
-#  user_id       :integer
+#  taggable_id   :integer          indexed => [taggable_type, tag_id, user_id]
+#  taggable_type :string(255)      indexed, indexed => [taggable_id, tag_id, user_id]
+#  tag_id        :integer          indexed, indexed => [taggable_id, taggable_type, user_id]
+#  user_id       :integer          indexed => [taggable_id, taggable_type, tag_id], indexed
 #
 # Indexes
 #
@@ -25,4 +25,9 @@ end
 #  tag_id                           (tag_id)
 #  taggings_taggable_id_index       (taggable_id,taggable_type,tag_id,user_id) UNIQUE
 #  user_id                          (user_id)
+#
+# Foreign Keys
+#
+#  taggings_ibfk_1  (tag_id => tags.id)
+#  taggings_ibfk_2  (user_id => users.id)
 #
