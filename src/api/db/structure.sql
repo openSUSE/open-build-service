@@ -263,7 +263,7 @@ CREATE TABLE `bs_requests` (
 
 CREATE TABLE `cache_lines` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `key` varchar(4096) COLLATE utf8_unicode_ci NOT NULL,
   `package` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `project` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `request` int(11) DEFAULT NULL,
@@ -1406,6 +1406,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170306105300'),
 ('20170315190919'),
 ('20170315200936'),
+('20170317094221'),
 ('21'),
 ('22'),
 ('23'),
