@@ -25,7 +25,7 @@ end
 # Table name: download_repositories
 #
 #  id                   :integer          not null, primary key
-#  repository_id        :integer          not null
+#  repository_id        :integer          not null, indexed
 #  arch                 :string(255)      not null
 #  url                  :string(255)      not null
 #  repotype             :string(255)
@@ -37,4 +37,8 @@ end
 # Indexes
 #
 #  repository_id  (repository_id)
+#
+# Foreign Keys
+#
+#  download_repositories_ibfk_1  (repository_id => repositories.id)
 #

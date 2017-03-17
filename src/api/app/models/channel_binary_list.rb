@@ -15,10 +15,10 @@ end
 # Table name: channel_binary_lists
 #
 #  id              :integer          not null, primary key
-#  channel_id      :integer          not null
-#  project_id      :integer
-#  repository_id   :integer
-#  architecture_id :integer
+#  channel_id      :integer          not null, indexed
+#  project_id      :integer          indexed
+#  repository_id   :integer          indexed
+#  architecture_id :integer          indexed
 #
 # Indexes
 #
@@ -26,4 +26,11 @@ end
 #  channel_id       (channel_id)
 #  project_id       (project_id)
 #  repository_id    (repository_id)
+#
+# Foreign Keys
+#
+#  channel_binary_lists_ibfk_1  (channel_id => channels.id)
+#  channel_binary_lists_ibfk_2  (project_id => projects.id)
+#  channel_binary_lists_ibfk_3  (repository_id => repositories.id)
+#  channel_binary_lists_ibfk_4  (architecture_id => architectures.id)
 #

@@ -386,5 +386,5 @@ end
 #  password       :string(255)
 #  label          :text(65535)      not null
 #  issues_updated :datetime         not null
-#  enable_fetch   :boolean          default("0")
+#  enable_fetch   :boolean          default(FALSE)
 #

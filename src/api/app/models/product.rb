@@ -168,8 +168,8 @@ end
 # Table name: products
 #
 #  id          :integer          not null, primary key
-#  name        :string(255)      not null
-#  package_id  :integer          not null
+#  name        :string(255)      not null, indexed => [package_id]
+#  package_id  :integer          not null, indexed => [name], indexed
 #  cpe         :string(255)
 #  version     :string(255)
 #  baseversion :string(255)
@@ -180,4 +180,8 @@ end
 #
 #  index_products_on_name_and_package_id  (name,package_id) UNIQUE
 #  package_id                             (package_id)
+#
+# Foreign Keys
+#
+#  products_ibfk_1  (package_id => packages.id)
 #

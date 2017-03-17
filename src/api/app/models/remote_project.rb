@@ -14,16 +14,17 @@ end
 # Table name: projects
 #
 #  id              :integer          not null, primary key
-#  name            :text(65535)
+#  name            :string(200)      not null, indexed
 #  title           :string(255)
 #  description     :text(65535)
-#  created_at      :datetime         default("0000-00-00 00:00:00")
-#  updated_at      :datetime         default("0000-00-00 00:00:00")
+#  created_at      :datetime
+#  updated_at      :datetime         indexed
 #  remoteurl       :string(255)
 #  remoteproject   :string(255)
-#  develproject_id :integer
-#  delta           :boolean          default("1"), not null
+#  develproject_id :integer          indexed
+#  delta           :boolean          default(TRUE), not null
 #  kind            :string(20)       default("standard")
+#  url             :string(255)
 #
 # Indexes
 #

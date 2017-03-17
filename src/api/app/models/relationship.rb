@@ -182,11 +182,11 @@ end
 # Table name: relationships
 #
 #  id         :integer          not null, primary key
-#  package_id :integer
-#  project_id :integer
-#  role_id    :integer          not null
-#  user_id    :integer
-#  group_id   :integer
+#  package_id :integer          indexed => [role_id, group_id], indexed => [role_id, user_id]
+#  project_id :integer          indexed => [role_id, group_id], indexed => [role_id, user_id]
+#  role_id    :integer          not null, indexed => [package_id, group_id], indexed => [package_id, user_id], indexed => [project_id, group_id], indexed => [project_id, user_id], indexed
+#  user_id    :integer          indexed => [package_id, role_id], indexed => [project_id, role_id], indexed
+#  group_id   :integer          indexed, indexed => [package_id, role_id], indexed => [project_id, role_id]
 #
 # Indexes
 #
@@ -197,4 +197,12 @@ end
 #  index_relationships_on_project_id_and_role_id_and_user_id   (project_id,role_id,user_id) UNIQUE
 #  role_id                                                     (role_id)
 #  user_id                                                     (user_id)
+#
+# Foreign Keys
+#
+#  relationships_ibfk_1  (role_id => roles.id)
+#  relationships_ibfk_2  (user_id => users.id)
+#  relationships_ibfk_3  (group_id => groups.id)
+#  relationships_ibfk_4  (project_id => projects.id)
+#  relationships_ibfk_5  (package_id => packages.id)
 #

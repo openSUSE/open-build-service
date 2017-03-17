@@ -29,5 +29,5 @@ end
 #  day                       :integer
 #  month                     :integer
 #  year                      :integer
-#  counter                   :integer          default("0")
+#  counter                   :integer          default(0)
 #

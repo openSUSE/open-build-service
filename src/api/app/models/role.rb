@@ -97,10 +97,14 @@ end
 #
 #  id        :integer          not null, primary key
 #  title     :string(100)      default(""), not null
-#  parent_id :integer
-#  global    :boolean          default("0")
+#  parent_id :integer          indexed
+#  global    :boolean          default(FALSE)
 #
 # Indexes
 #
 #  roles_parent_id_index  (parent_id)
+#
+# Foreign Keys
+#
+#  roles_ibfk_1  (parent_id => roles.id)
 #

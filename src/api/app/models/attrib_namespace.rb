@@ -49,7 +49,7 @@ end
 # Table name: attrib_namespaces
 #
 #  id   :integer          not null, primary key
-#  name :string(255)
+#  name :string(255)      indexed
 #
 # Indexes
 #

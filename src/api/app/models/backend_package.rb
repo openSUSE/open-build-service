@@ -35,7 +35,7 @@ end
 # Table name: backend_packages
 #
 #  package_id  :integer          not null, primary key
-#  links_to_id :integer
+#  links_to_id :integer          indexed
 #  updated_at  :datetime
 #  srcmd5      :string(255)
 #  changesmd5  :string(255)
@@ -47,4 +47,9 @@ end
 # Indexes
 #
 #  index_backend_packages_on_links_to_id  (links_to_id)
+#
+# Foreign Keys
+#
+#  backend_packages_ibfk_1  (package_id => packages.id)
+#  backend_packages_ibfk_2  (links_to_id => packages.id)
 #

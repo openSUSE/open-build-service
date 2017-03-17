@@ -10,10 +10,10 @@ end
 # Table name: attrib_type_modifiable_bies
 #
 #  id             :integer          not null, primary key
-#  attrib_type_id :integer          not null
-#  user_id        :integer
-#  group_id       :integer
-#  role_id        :integer
+#  attrib_type_id :integer          not null, indexed => [user_id, group_id, role_id]
+#  user_id        :integer          indexed => [attrib_type_id, group_id, role_id], indexed
+#  group_id       :integer          indexed => [attrib_type_id, user_id, role_id], indexed
+#  role_id        :integer          indexed => [attrib_type_id, user_id, group_id], indexed
 #
 # Indexes
 #
@@ -21,4 +21,10 @@ end
 #  group_id                         (group_id)
 #  role_id                          (role_id)
 #  user_id                          (user_id)
+#
+# Foreign Keys
+#
+#  attrib_type_modifiable_bies_ibfk_1  (user_id => users.id)
+#  attrib_type_modifiable_bies_ibfk_2  (group_id => groups.id)
+#  attrib_type_modifiable_bies_ibfk_3  (role_id => roles.id)
 #

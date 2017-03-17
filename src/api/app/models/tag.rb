@@ -47,7 +47,7 @@ end
 # Table name: tags
 #
 #  id         :integer          not null, primary key
-#  name       :string(255)      not null
+#  name       :string(255)      not null, indexed
 #  created_at :datetime
 #
 # Indexes

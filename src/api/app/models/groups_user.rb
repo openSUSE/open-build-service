@@ -19,14 +19,19 @@ end
 #
 # Table name: groups_users
 #
-#  group_id   :integer          default("0"), not null
-#  user_id    :integer          default("0"), not null
+#  group_id   :integer          default(0), not null, indexed => [user_id]
+#  user_id    :integer          default(0), not null, indexed => [group_id], indexed
 #  created_at :datetime
-#  email      :boolean          default("1")
+#  email      :boolean          default(TRUE)
 #  id         :integer          not null, primary key
 #
 # Indexes
 #
 #  groups_users_all_index  (group_id,user_id) UNIQUE
 #  user_id                 (user_id)
+#
+# Foreign Keys
+#
+#  groups_users_ibfk_1  (group_id => groups.id)
+#  groups_users_ibfk_2  (user_id => users.id)
 #

@@ -19,8 +19,8 @@ end
 # Table name: incident_updateinfo_counter_values
 #
 #  id                    :integer          not null, primary key
-#  updateinfo_counter_id :integer          not null
-#  project_id            :integer          not null
+#  updateinfo_counter_id :integer          not null, indexed => [project_id]
+#  project_id            :integer          not null, indexed, indexed => [updateinfo_counter_id]
 #  value                 :integer          not null
 #  released_at           :datetime         not null
 #
@@ -28,4 +28,8 @@ end
 #
 #  project_id     (project_id)
 #  uniq_id_index  (updateinfo_counter_id,project_id)
+#
+# Foreign Keys
+#
+#  incident_updateinfo_counter_values_ibfk_1  (project_id => projects.id)
 #

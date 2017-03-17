@@ -10,5 +10,5 @@ end
 # Table name: bs_request_counter
 #
 #  id      :integer          not null, primary key
-#  counter :integer          default("1")
+#  counter :integer          default(1)
 #

@@ -211,17 +211,18 @@ end
 # Table name: reviews
 #
 #  id            :integer          not null, primary key
-#  bs_request_id :integer
-#  creator       :string(255)
-#  reviewer      :string(255)
+#  bs_request_id :integer          indexed
+#  creator       :string(255)      indexed
+#  reviewer      :string(255)      indexed
 #  reason        :text(65535)
-#  state         :string(255)
-#  by_user       :string(255)
-#  by_group      :string(255)
-#  by_project    :string(255)
-#  by_package    :string(255)
+#  state         :string(255)      indexed => [by_project], indexed => [by_user]
+#  by_user       :string(255)      indexed, indexed => [state]
+#  by_group      :string(255)      indexed
+#  by_project    :string(255)      indexed => [by_package], indexed, indexed => [state]
+#  by_package    :string(255)      indexed => [by_project]
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
+#  review_id     :integer          indexed
 #
 # Indexes
 #
@@ -231,8 +232,13 @@ end
 #  index_reviews_on_by_project                 (by_project)
 #  index_reviews_on_by_user                    (by_user)
 #  index_reviews_on_creator                    (creator)
+#  index_reviews_on_review_id                  (review_id)
 #  index_reviews_on_reviewer                   (reviewer)
-#  index_reviews_on_state                      (state)
 #  index_reviews_on_state_and_by_project       (state,by_project)
 #  index_reviews_on_state_and_by_user          (state,by_user)
+#
+# Foreign Keys
+#
+#  fk_rails_813a4fb24f  (review_id => reviews.id)
+#  reviews_ibfk_1       (bs_request_id => bs_requests.id)
 #

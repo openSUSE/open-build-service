@@ -1314,16 +1314,17 @@ end
 #
 #  id            :integer          not null, primary key
 #  description   :text(65535)
-#  creator       :string(255)
-#  state         :string(255)
+#  creator       :string(255)      indexed
+#  state         :string(255)      indexed
 #  comment       :text(65535)
 #  commenter     :string(255)
-#  superseded_by :integer
+#  superseded_by :integer          indexed
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #  accept_at     :datetime
 #  priority      :string(9)        default("moderate")
-#  number        :integer          not null
+#  number        :integer          indexed
+#  updated_when  :datetime
 #
 # Indexes
 #

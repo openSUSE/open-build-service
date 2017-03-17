@@ -112,12 +112,12 @@ end
 # Table name: channel_binaries
 #
 #  id                     :integer          not null, primary key
-#  name                   :string(255)      not null
-#  channel_binary_list_id :integer          not null
-#  project_id             :integer
-#  repository_id          :integer
-#  architecture_id        :integer
-#  package                :string(255)
+#  name                   :string(255)      not null, indexed => [channel_binary_list_id]
+#  channel_binary_list_id :integer          not null, indexed, indexed => [name]
+#  project_id             :integer          indexed => [package]
+#  repository_id          :integer          indexed
+#  architecture_id        :integer          indexed
+#  package                :string(255)      indexed => [project_id]
 #  binaryarch             :string(255)
 #  supportstatus          :string(255)
 #
@@ -128,4 +128,11 @@ end
 #  index_channel_binaries_on_name_and_channel_binary_list_id  (name,channel_binary_list_id)
 #  index_channel_binaries_on_project_id_and_package           (project_id,package)
 #  repository_id                                              (repository_id)
+#
+# Foreign Keys
+#
+#  channel_binaries_ibfk_1  (channel_binary_list_id => channel_binary_lists.id)
+#  channel_binaries_ibfk_2  (project_id => projects.id)
+#  channel_binaries_ibfk_3  (repository_id => repositories.id)
+#  channel_binaries_ibfk_4  (architecture_id => architectures.id)
 #

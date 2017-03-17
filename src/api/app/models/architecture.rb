@@ -48,8 +48,8 @@ end
 # Table name: architectures
 #
 #  id        :integer          not null, primary key
-#  name      :string(255)      not null
-#  available :boolean          default("0")
+#  name      :string(255)      not null, indexed
+#  available :boolean          default(FALSE)
 #
 # Indexes
 #

@@ -8,11 +8,16 @@ end
 # Table name: maintained_projects
 #
 #  id                     :integer          not null, primary key
-#  project_id             :integer          not null
-#  maintenance_project_id :integer          not null
+#  project_id             :integer          not null, indexed => [maintenance_project_id]
+#  maintenance_project_id :integer          not null, indexed, indexed => [project_id]
 #
 # Indexes
 #
 #  maintenance_project_id  (maintenance_project_id)
 #  uniq_index              (project_id,maintenance_project_id) UNIQUE
+#
+# Foreign Keys
+#
+#  maintained_projects_ibfk_1  (project_id => projects.id)
+#  maintained_projects_ibfk_2  (maintenance_project_id => projects.id)
 #

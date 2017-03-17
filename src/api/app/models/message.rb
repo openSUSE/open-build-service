@@ -9,9 +9,9 @@ end
 # Table name: messages
 #
 #  id             :integer          not null, primary key
-#  db_object_id   :integer
+#  db_object_id   :integer          indexed
 #  db_object_type :string(255)
-#  user_id        :integer
+#  user_id        :integer          indexed
 #  created_at     :datetime
 #  send_mail      :boolean
 #  sent_at        :datetime
