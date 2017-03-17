@@ -448,13 +448,24 @@ sub cpio_sender {
       my $filename = $file->{'filename'};
       if (ref($filename)) {
 	*F = $filename;
-      } elsif (!open(F, '<', $filename)) {
-	$errors->{'data'} .= "$file->{'name'}: $filename: $!\n";
-	next;
+      } else {
+	@s = lstat($filename);
+	if (!@s) {
+	  $errors->{'data'} .= "$file->{'name'}: $filename: $!\n";
+	  next;
+	}
+	if (-l _ || ! -f _) {
+	  $errors->{'data'} .= "$file->{'name'}: $filename: not a plain file\n";
+	  next;
+	}
+	if (!open(F, '<', $filename)) {
+	  $errors->{'data'} .= "$file->{'name'}: $filename: $!\n";
+	  next;
+	}
       }
       @s = stat(F);
       if (!@s) {
-	$errors->{'data'} .= "$file->{'name'}: stat: $!\n";
+	$errors->{'data'} .= "$file->{'name'}: fstat: $!\n";
 	close F unless ref $filename;
 	next;
       }
