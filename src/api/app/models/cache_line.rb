@@ -60,19 +60,3 @@ class CacheLine < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: cache_lines
-#
-#  id         :integer          not null, primary key
-#  key        :string(4096)     not null
-#  package    :string(255)
-#  project    :string(255)
-#  request    :integer
-#  created_at :datetime
-#
-# Indexes
-#
-#  index_cache_lines_on_project              (project)
-#  index_cache_lines_on_project_and_package  (project,package)
-#

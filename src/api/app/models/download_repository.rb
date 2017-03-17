@@ -20,21 +20,3 @@ class DownloadRepository < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: download_repositories
-#
-#  id                   :integer          not null, primary key
-#  repository_id        :integer          not null
-#  arch                 :string(255)      not null
-#  url                  :string(255)      not null
-#  repotype             :string(255)
-#  archfilter           :string(255)
-#  masterurl            :string(255)
-#  mastersslfingerprint :string(255)
-#  pubkey               :text(65535)
-#
-# Indexes
-#
-#  repository_id  (repository_id)
-#

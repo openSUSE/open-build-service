@@ -5,12 +5,3 @@ class DistributionIcon < ApplicationRecord
   has_and_belongs_to_many :distributions
 end
 
-# == Schema Information
-#
-# Table name: distribution_icons
-#
-#  id     :integer          not null, primary key
-#  url    :string(255)      not null
-#  width  :integer
-#  height :integer
-#

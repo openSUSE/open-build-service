@@ -219,10 +219,10 @@ class IssueTracker < ApplicationRecord
     end
 
     if bugzilla_response["creation_time"].present?
-# rubocop:disable Rails/Date
-# rubocop bug, this is XMLRPC/DateTime not Rails/Date
+      # rubocop:disable Rails/Date
+      # rubocop bug, this is XMLRPC/DateTime not Rails/Date
       issue.created_at = bugzilla_response["creation_time"].to_time
-# rubocop:enable Rails/Date
+      # rubocop:enable Rails/Date
     else
       issue.created_at = Time.now
     end
@@ -371,20 +371,3 @@ class CVEparser < Nokogiri::XML::SAX::Document
   end
 end
 
-# == Schema Information
-#
-# Table name: issue_trackers
-#
-#  id             :integer          not null, primary key
-#  name           :string(255)      not null
-#  kind           :string(11)       not null
-#  description    :string(255)
-#  url            :string(255)      not null
-#  show_url       :string(255)
-#  regex          :string(255)      not null
-#  user           :string(255)
-#  password       :string(255)
-#  label          :text(65535)      not null
-#  issues_updated :datetime         not null
-#  enable_fetch   :boolean          default("0")
-#

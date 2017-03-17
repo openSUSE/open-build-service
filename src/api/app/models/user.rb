@@ -930,27 +930,3 @@ class User < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: users
-#
-#  id                  :integer          not null, primary key
-#  created_at          :datetime
-#  updated_at          :datetime
-#  last_logged_in_at   :datetime
-#  login_failure_count :integer          default("0"), not null
-#  login               :text(65535)
-#  email               :string(200)      default(""), not null
-#  realname            :string(200)      default(""), not null
-#  password            :string(100)      default(""), not null
-#  password_hash_type  :string(20)       default(""), not null
-#  password_salt       :string(10)       default("1234512345"), not null
-#  adminnote           :text(65535)
-#  state               :string(11)       default("unconfirmed")
-#  owner_id            :integer
-#
-# Indexes
-#
-#  users_login_index     (login) UNIQUE
-#  users_password_index  (password)
-#

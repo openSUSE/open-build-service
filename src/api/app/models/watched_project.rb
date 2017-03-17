@@ -7,15 +7,3 @@ class WatchedProject < ApplicationRecord
   validates :user, presence: true
 end
 
-# == Schema Information
-#
-# Table name: watched_projects
-#
-#  id         :integer          not null, primary key
-#  user_id    :integer          default("0"), not null
-#  project_id :integer          not null
-#
-# Indexes
-#
-#  watched_projects_users_fk_1  (user_id)
-#

@@ -142,22 +142,3 @@ class Issue < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: issues
-#
-#  id               :integer          not null, primary key
-#  name             :string(255)      not null
-#  issue_tracker_id :integer          not null
-#  summary          :string(255)
-#  owner_id         :integer
-#  created_at       :datetime
-#  updated_at       :datetime
-#  state            :string(7)
-#
-# Indexes
-#
-#  index_issues_on_name_and_issue_tracker_id  (name,issue_tracker_id)
-#  issue_tracker_id                           (issue_tracker_id)
-#  owner_id                                   (owner_id)
-#

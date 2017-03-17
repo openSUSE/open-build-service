@@ -5,16 +5,3 @@ class AttribIssue < ApplicationRecord
   accepts_nested_attributes_for :issue
 end
 
-# == Schema Information
-#
-# Table name: attrib_issues
-#
-#  id        :integer          not null, primary key
-#  attrib_id :integer          not null
-#  issue_id  :integer          not null
-#
-# Indexes
-#
-#  index_attrib_issues_on_attrib_id_and_issue_id  (attrib_id,issue_id) UNIQUE
-#  issue_id                                       (issue_id)
-#

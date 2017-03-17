@@ -107,25 +107,3 @@ class ChannelBinary < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: channel_binaries
-#
-#  id                     :integer          not null, primary key
-#  name                   :string(255)      not null
-#  channel_binary_list_id :integer          not null
-#  project_id             :integer
-#  repository_id          :integer
-#  architecture_id        :integer
-#  package                :string(255)
-#  binaryarch             :string(255)
-#  supportstatus          :string(255)
-#
-# Indexes
-#
-#  architecture_id                                            (architecture_id)
-#  channel_binary_list_id                                     (channel_binary_list_id)
-#  index_channel_binaries_on_name_and_channel_binary_list_id  (name,channel_binary_list_id)
-#  index_channel_binaries_on_project_id_and_package           (project_id,package)
-#  repository_id                                              (repository_id)
-#

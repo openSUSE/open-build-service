@@ -206,33 +206,3 @@ class Review < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: reviews
-#
-#  id            :integer          not null, primary key
-#  bs_request_id :integer
-#  creator       :string(255)
-#  reviewer      :string(255)
-#  reason        :text(65535)
-#  state         :string(255)
-#  by_user       :string(255)
-#  by_group      :string(255)
-#  by_project    :string(255)
-#  by_package    :string(255)
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#
-# Indexes
-#
-#  bs_request_id                               (bs_request_id)
-#  index_reviews_on_by_group                   (by_group)
-#  index_reviews_on_by_package_and_by_project  (by_package,by_project)
-#  index_reviews_on_by_project                 (by_project)
-#  index_reviews_on_by_user                    (by_user)
-#  index_reviews_on_creator                    (creator)
-#  index_reviews_on_reviewer                   (reviewer)
-#  index_reviews_on_state                      (state)
-#  index_reviews_on_state_and_by_project       (state,by_project)
-#  index_reviews_on_state_and_by_user          (state,by_user)
-#

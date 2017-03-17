@@ -15,16 +15,3 @@ class GroupMaintainer < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: group_maintainers
-#
-#  id       :integer          not null, primary key
-#  group_id :integer
-#  user_id  :integer
-#
-# Indexes
-#
-#  group_id  (group_id)
-#  user_id   (user_id)
-#

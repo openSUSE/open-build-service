@@ -70,25 +70,3 @@ class ProjectLogEntry < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: project_log_entries
-#
-#  id              :integer          not null, primary key
-#  project_id      :integer
-#  user_name       :string(255)
-#  package_name    :string(255)
-#  bs_request_id   :integer
-#  datetime        :datetime
-#  event_type      :string(255)
-#  additional_info :text(65535)
-#
-# Indexes
-#
-#  index_project_log_entries_on_bs_request_id  (bs_request_id)
-#  index_project_log_entries_on_datetime       (datetime)
-#  index_project_log_entries_on_event_type     (event_type)
-#  index_project_log_entries_on_package_name   (package_name)
-#  index_project_log_entries_on_user_name      (user_name)
-#  project_id                                  (project_id)
-#

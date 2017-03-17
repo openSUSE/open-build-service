@@ -1,5 +1,4 @@
 # those contain tons of others
-
 module Event
   # generate an Event class
   class Factory
