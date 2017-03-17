@@ -1694,7 +1694,7 @@ sub receivekiwitree {
     } elsif ($type eq 'l') {
       $extra =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
       die("bad symlink\n") if "/$extra/" =~ /\/\.?\//;
-      if ("/$extra/" =~ /^(\/\.\.)+\/(.*?)$/s) {
+      if ("/$extra/" =~ /^((?:\/\.\.)+)\/(.*?)$/s) {
         my ($head, $tail) = ($1, $2);
 	die("bad upref in symlink\n") if "/$tail/" =~ /\/\.\.\//;
 	die("bad upref in symlink\n") if ($head =~ y!/!!) > ($file =~ y!/!!);
