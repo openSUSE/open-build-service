@@ -98,8 +98,8 @@ class EventTest < ActionDispatch::IntegrationTest
   end
 
   test 'notifications are sent' do
-    e = Event::VersionChange.first
-    # TODO assert e.send_to_bus
+    # e = Event::VersionChange.first
+    # TODO: assert e.send_to_bus
   end
 
   test 'sent all' do

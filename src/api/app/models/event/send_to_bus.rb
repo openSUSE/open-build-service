@@ -1,7 +1,6 @@
 module Event
   # performed from delayed job triggered by clockwork
   class SendToBus
-
     def self.connection(config)
       @@conn ||= Bunny.new(config['url'], log_level: Logger::DEBUG)
       @@conn.start
@@ -13,7 +12,7 @@ module Event
 
     def bus_topic(config)
       # no config, nil topic
-      return if config.empty? or config['url'].empty?
+      return if config.empty? || config['url'].empty?
 
       ch = self.class.connection(config).create_channel
       # this has to be a predefined topic
