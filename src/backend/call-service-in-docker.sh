@@ -164,7 +164,7 @@ if [ $RET_ERR -eq 0 ]; then
       fi
     done
   fi
-elif [ $RET_ERR -eq 125 ] || [ $RET_ERR -eq 126 ] || [ $RET_ERR -eq 127]; then
+elif [ $RET_ERR -eq 125 ] || [ $RET_ERR -eq 126 ] || [ $RET_ERR -eq 127 ]; then
   printlog "$CMD_OUT"
   echo "$CMD_OUT"
   RETURN="3"
