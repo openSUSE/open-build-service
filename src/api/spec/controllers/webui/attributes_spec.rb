@@ -54,4 +54,49 @@ RSpec.describe Webui::AttributeController do
       it { expect(flash[:error]).not_to be_nil }
     end
   end
+
+  describe 'PATCH #update' do
+    let(:attrib) { create(:attrib, project: user.home_project) }
+    let(:new_attrib_type) { create(:attrib_type_with_namespace) }
+
+    before do
+      login user
+    end
+
+    context 'with valid parameters' do
+      before do
+        patch :update, params: { id: attrib.id, attrib: { attrib_type_id: new_attrib_type.id } }
+        attrib.reload
+      end
+
+      it { expect(response).to redirect_to( edit_attribs_path(attribute: attrib.fullname, project: user.home_project.to_s, package: '') ) }
+      it { expect(flash[:notice]).to eq 'Attribute was successfully updated.' }
+      it { expect(attrib.attrib_type_id).to eq new_attrib_type.id }
+    end
+
+    context 'with non valid parameters' do
+      before do
+        patch :update, params: { id: attrib.id, attrib: { attrib_type_id: nil } }
+      end
+
+      it { expect(response).to redirect_to(root_path) }
+      it { expect(flash[:error]).not_to be_nil }
+    end
+  end
+
+  describe 'DELETE #destroy' do
+    let!(:attrib) { create(:attrib, project: user.home_project) }
+
+    before do
+      login user
+    end
+
+    it 'deletes the attrib' do
+      expect {
+        delete :destroy, params: { id: attrib.id }
+      }.to change{Attrib.count}.by(-1)
+      expect(response).to redirect_to(root_path)
+      expect(flash[:notice]).to eq 'Attribute sucessfully deleted!'
+    end
+  end
 end
