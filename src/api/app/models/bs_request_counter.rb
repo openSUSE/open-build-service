@@ -5,10 +5,3 @@ class BsRequestCounter < ActiveRecord::Base
   self.table_name = "bs_request_counter"
 end
 
-# == Schema Information
-#
-# Table name: bs_request_counter
-#
-#  id      :integer          not null, primary key
-#  counter :integer          default("1")
-#

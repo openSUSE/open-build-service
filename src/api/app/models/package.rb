@@ -1390,29 +1390,3 @@ class Package < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: packages
-#
-#  id              :integer          not null, primary key
-#  project_id      :integer          not null
-#  name            :text(65535)
-#  title           :string(255)
-#  description     :text(65535)
-#  created_at      :datetime         default("0000-00-00 00:00:00")
-#  updated_at      :datetime         default("0000-00-00 00:00:00")
-#  url             :string(255)
-#  update_counter  :integer          default("0")
-#  activity_index  :float(24)        default("100")
-#  bcntsynctag     :string(255)
-#  develpackage_id :integer
-#  delta           :boolean          default("1"), not null
-#  releasename     :string(255)
-#
-# Indexes
-#
-#  devel_package_id_index        (develpackage_id)
-#  index_packages_on_project_id  (project_id)
-#  packages_all_index            (project_id,name) UNIQUE
-#  updated_at_index              (updated_at)
-#

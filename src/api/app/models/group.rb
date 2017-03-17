@@ -1,9 +1,8 @@
 require_dependency 'api_exception'
-
+ 
 # The Group class represents a group record in the database and thus a group
 # in the ActiveRbac model. Groups are arranged in trees and have a title.
 # Groups have an arbitrary number of roles and users assigned to them.
-#
 class Group < ApplicationRecord
   has_many :groups_users, inverse_of: :group, dependent: :destroy
   has_many :group_maintainers, inverse_of: :group, dependent: :destroy
@@ -156,19 +155,3 @@ class Group < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: groups
-#
-#  id         :integer          not null, primary key
-#  created_at :datetime
-#  updated_at :datetime
-#  title      :string(200)      default(""), not null
-#  parent_id  :integer
-#  email      :string(255)
-#
-# Indexes
-#
-#  groups_parent_id_index  (parent_id)
-#  index_groups_on_title   (title)
-#

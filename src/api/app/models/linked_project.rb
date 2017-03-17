@@ -19,17 +19,3 @@ class LinkedProject < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: linked_projects
-#
-#  id                         :integer          not null, primary key
-#  db_project_id              :integer          not null
-#  linked_db_project_id       :integer
-#  position                   :integer
-#  linked_remote_project_name :string(255)
-#
-# Indexes
-#
-#  linked_projects_index  (db_project_id,linked_db_project_id) UNIQUE
-#

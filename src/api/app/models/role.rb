@@ -91,16 +91,3 @@ class Role < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: roles
-#
-#  id        :integer          not null, primary key
-#  title     :string(100)      default(""), not null
-#  parent_id :integer
-#  global    :boolean          default("0")
-#
-# Indexes
-#
-#  roles_parent_id_index  (parent_id)
-#

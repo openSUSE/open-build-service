@@ -163,21 +163,3 @@ class Product < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: products
-#
-#  id          :integer          not null, primary key
-#  name        :string(255)      not null
-#  package_id  :integer          not null
-#  cpe         :string(255)
-#  version     :string(255)
-#  baseversion :string(255)
-#  patchlevel  :string(255)
-#  release     :string(255)
-#
-# Indexes
-#
-#  index_products_on_name_and_package_id  (name,package_id) UNIQUE
-#  package_id                             (package_id)
-#

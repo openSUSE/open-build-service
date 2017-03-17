@@ -30,21 +30,3 @@ class BackendPackage < ApplicationRecord
   #### Alias of methods
 end
 
-# == Schema Information
-#
-# Table name: backend_packages
-#
-#  package_id  :integer          not null, primary key
-#  links_to_id :integer
-#  updated_at  :datetime
-#  srcmd5      :string(255)
-#  changesmd5  :string(255)
-#  verifymd5   :string(255)
-#  expandedmd5 :string(255)
-#  error       :text(65535)
-#  maxmtime    :datetime
-#
-# Indexes
-#
-#  index_backend_packages_on_links_to_id  (links_to_id)
-#

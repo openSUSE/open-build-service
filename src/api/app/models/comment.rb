@@ -98,26 +98,3 @@ class Comment < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: comments
-#
-#  id            :integer          not null, primary key
-#  project_id    :integer
-#  package_id    :integer
-#  bs_request_id :integer
-#  body          :text(65535)
-#  parent_id     :integer
-#  type          :string(255)
-#  created_at    :datetime
-#  updated_at    :datetime
-#  user_id       :integer          not null
-#
-# Indexes
-#
-#  index_comments_on_bs_request_id  (bs_request_id)
-#  index_comments_on_package_id     (package_id)
-#  index_comments_on_project_id     (project_id)
-#  parent_id                        (parent_id)
-#  user_id                          (user_id)
-#

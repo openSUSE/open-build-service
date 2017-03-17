@@ -15,18 +15,3 @@ class GroupsUser < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: groups_users
-#
-#  group_id   :integer          default("0"), not null
-#  user_id    :integer          default("0"), not null
-#  created_at :datetime
-#  email      :boolean          default("1")
-#  id         :integer          not null, primary key
-#
-# Indexes
-#
-#  groups_users_all_index  (group_id,user_id) UNIQUE
-#  user_id                 (user_id)
-#

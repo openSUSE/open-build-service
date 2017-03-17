@@ -1,5 +1,4 @@
 # The maintenance incident class represents the entry in the database.
-#
 class MaintenanceIncident < ApplicationRecord
   belongs_to :project, class_name: "Project", foreign_key: :db_project_id
   belongs_to :maintenance_db_project, class_name: "Project"
@@ -99,19 +98,3 @@ class MaintenanceIncident < ApplicationRecord
   end
 end
 
-# == Schema Information
-#
-# Table name: maintenance_incidents
-#
-#  id                        :integer          not null, primary key
-#  db_project_id             :integer
-#  maintenance_db_project_id :integer
-#  updateinfo_id             :string(255)
-#  incident_id               :integer
-#  released_at               :datetime
-#
-# Indexes
-#
-#  index_maintenance_incidents_on_db_project_id              (db_project_id)
-#  index_maintenance_incidents_on_maintenance_db_project_id  (maintenance_db_project_id)
-#

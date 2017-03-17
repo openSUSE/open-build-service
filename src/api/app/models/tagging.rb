@@ -9,20 +9,3 @@ class Tagging < ApplicationRecord
                             foreign_key: "taggable_id"
 end
 
-# == Schema Information
-#
-# Table name: taggings
-#
-#  id            :integer          not null, primary key
-#  taggable_id   :integer
-#  taggable_type :string(255)
-#  tag_id        :integer
-#  user_id       :integer
-#
-# Indexes
-#
-#  index_taggings_on_taggable_type  (taggable_type)
-#  tag_id                           (tag_id)
-#  taggings_taggable_id_index       (taggable_id,taggable_type,tag_id,user_id) UNIQUE
-#  user_id                          (user_id)
-#

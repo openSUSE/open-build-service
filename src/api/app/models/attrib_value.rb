@@ -45,16 +45,3 @@ class AttribValue < ApplicationRecord
   #### Alias of methods
 end
 
-# == Schema Information
-#
-# Table name: attrib_values
-#
-#  id        :integer          not null, primary key
-#  attrib_id :integer          not null
-#  value     :text(65535)      not null
-#  position  :integer          not null
-#
-# Indexes
-#
-#  index_attrib_values_on_attrib_id  (attrib_id)
-#

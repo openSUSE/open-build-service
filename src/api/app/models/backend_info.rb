@@ -38,13 +38,3 @@ class BackendInfo < ApplicationRecord
   #### Alias of methods
 end
 
-# == Schema Information
-#
-# Table name: backend_infos
-#
-#  id         :integer          not null, primary key
-#  key        :string(255)      not null
-#  value      :string(255)      not null
-#  created_at :datetime
-#  updated_at :datetime
-#
