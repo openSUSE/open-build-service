@@ -100,7 +100,7 @@ class User < ApplicationRecord
   # Checks that the password got updated after password hash type changed
   def password_changes_with_hash_type
     # rubocop:disable Style/GuardClause
-    if password_hash_type_changed? && (!password_changed? || password_was.nil?)
+    if password_hash_type_changed? && !password_was.nil? && !password_changed?
       errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
     end
     # rubocop:enable Style/GuardClause
