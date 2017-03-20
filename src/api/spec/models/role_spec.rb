@@ -3,6 +3,12 @@ require "rails_helper"
 RSpec.describe Role do
   let(:role) { create(:role) }
 
+  describe 'validations' do
+    it { is_expected.to validate_length_of(:title).is_at_least(2).with_message('must have more than two characters.') }
+    it { is_expected.to validate_length_of(:title).is_at_most(100).with_message('must have less than 100 characters.') }
+    it { expect(role).to validate_uniqueness_of(:title).with_message('is the name of an already existing role.') }
+  end
+
   describe '::hashed' do
     # created by db/seeds.rb
     let(:existing_role_titles) { ['Admin', 'maintainer', 'bugowner', 'reviewer', 'downloader', 'reader'] }
