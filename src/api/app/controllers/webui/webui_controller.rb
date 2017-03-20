@@ -133,12 +133,6 @@ class Webui::WebuiController < ActionController::Base
     !request.xhr?
   end
 
-  def find_hashed(classname, *args)
-    ret = classname.find( *args )
-    return Xmlhash::XMLHash.new({}) unless ret
-    ret.to_hash
-  end
-
   def instantiate_controller_and_action_names
     @current_action = action_name
     @current_controller = controller_name
