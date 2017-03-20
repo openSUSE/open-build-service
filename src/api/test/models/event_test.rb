@@ -45,7 +45,7 @@ class EventTest < ActionDispatch::IntegrationTest
     # for this test we don't want fixtures to interfere
     EventSubscription.delete_all
 
-    all_get_events = EventSubscription.create eventtype: 'Event::CreatePackage', receiver_role: :maintainer
+    all_get_events = EventSubscription.create! eventtype: 'Event::CreatePackage', receiver_role: :maintainer
 
     e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
                                      {'project' => 'kde4',
@@ -57,7 +57,7 @@ class EventTest < ActionDispatch::IntegrationTest
     assert_equal %w(test_group), groups_for_event(e)
 
     # now fred configures it off
-    EventSubscription.create eventtype: 'Event::CreatePackage',
+    EventSubscription.create! eventtype: 'Event::CreatePackage',
                              user: users(:fred), receiver_role: :all, receive: false
 
     # fred, fredlibs and king are maintainer, adrian is in test_group - fred disabled it
@@ -69,7 +69,7 @@ class EventTest < ActionDispatch::IntegrationTest
     assert_equal [], users_for_event(e)
 
     # now fredlibs configures on
-    EventSubscription.create eventtype: 'Event::CreatePackage',
+    EventSubscription.create! eventtype: 'Event::CreatePackage',
                              user: users(:fredlibs),
                              receiver_role: :all, receive: true
 
@@ -112,11 +112,11 @@ class EventTest < ActionDispatch::IntegrationTest
     assert Event::Base.count == firstcount, 'all our fixtures are fresh'
     f = Event::Base.first
     f.queued = true
-    f.save
+    f.save!
     CleanupEvents.new.perform
     assert Event::Base.count == firstcount, 'queuing is not enough'
     f.project_logged = true
-    f.save
+    f.save!
     CleanupEvents.new.perform
     assert Event::Base.count != firstcount, 'now its gone'
   end
@@ -126,7 +126,7 @@ class EventTest < ActionDispatch::IntegrationTest
     EventSubscription.delete_all
 
     # just one subsciption
-    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
+    EventSubscription.create! eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
 
     assert_equal %w(Iggy), users_for_event(events(:build_failure_for_iggy))
   end
@@ -136,7 +136,7 @@ class EventTest < ActionDispatch::IntegrationTest
     EventSubscription.delete_all
 
     # just one subsciption
-    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
+    EventSubscription.create! eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
 
     assert_equal %w(fred), users_for_event(events(:build_failure_for_reader))
   end
@@ -146,7 +146,7 @@ class EventTest < ActionDispatch::IntegrationTest
     EventSubscription.delete_all
 
     # just one subsciption
-    EventSubscription.create eventtype: 'Event::ServiceFail', receiver_role: :maintainer, user: users(:Iggy)
+    EventSubscription.create! eventtype: 'Event::ServiceFail', receiver_role: :maintainer, user: users(:Iggy)
 
     assert_equal %w(Iggy), users_for_event(events(:service_failure_for_iggy))
   end

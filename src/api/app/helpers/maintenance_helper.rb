@@ -270,7 +270,7 @@ module MaintenanceHelper
       targetProject.packages << tpkg
       if sourcePackage.is_patchinfo?
         # publish patchinfos only
-        tpkg.flags.create(flag: 'publish', status: 'enable')
+        tpkg.flags.create!(flag: 'publish', status: 'enable')
       end
       tpkg.store
     end
@@ -333,7 +333,7 @@ module MaintenanceHelper
       end
     end
 
-    pkg = project.packages.create(name: pkg_name, title: opkg.title, description: opkg.description)
+    pkg = project.packages.create!(name: pkg_name, title: opkg.title, description: opkg.description)
     pkg.store
 
     arguments = "&noservice=1"
@@ -368,7 +368,7 @@ module MaintenanceHelper
       end
       # create container
       unless project.packages.where(name: lpkg_name).exists?
-        lpkg = project.packages.create(name: lpkg_name, title: p.title, description: p.description)
+        lpkg = project.packages.create!(name: lpkg_name, title: p.title, description: p.description)
         lpkg.store
       end
 

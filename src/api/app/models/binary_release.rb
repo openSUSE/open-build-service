@@ -96,7 +96,7 @@ class BinaryRelease < ApplicationRecord
         end
 
         # new entry, also for modified binaries.
-        entry = repository.binary_releases.create(hash)
+        entry = repository.binary_releases.create!(hash)
         processed_item[entry.id] = true
       end
 

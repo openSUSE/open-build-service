@@ -11,7 +11,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_maintained_project_names
-    project = Project.create(name: "Z")
+    project = Project.create!(name: "Z")
     ["A", "B", "C"].each do |project_name|
       project.maintained_projects.create(project: Project.create(name: project_name))
     end
@@ -22,7 +22,7 @@ class ProjectTest < ActiveSupport::TestCase
   def test_flags_inheritance
     User.current = users( :Iggy )
 
-    project = Project.create(name: "home:Iggy:flagtest")
+    project = Project.create!(name: "home:Iggy:flagtest")
 
     # project is given as axml
     axml = Xmlhash.parse(
@@ -62,7 +62,7 @@ class ProjectTest < ActiveSupport::TestCase
       end
     end
 
-    package1 = project.packages.create(name: "test1")
+    package1 = project.packages.create!(name: "test1")
     # package is given as axml
     axml = Xmlhash.parse(
         "<package name='test1' project='home:Iggy:flagtest'>
@@ -95,7 +95,7 @@ class ProjectTest < ActiveSupport::TestCase
       end
     end
 
-    package2 = project.packages.create(name: "test2")
+    package2 = project.packages.create!(name: "test2")
     # package is given as axml
     axml = Xmlhash.parse(
         "<package name='test2' project='home:Iggy:flagtest'>
@@ -210,7 +210,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 'enable', flag_useforbuild_all.effective_status
     assert_equal 'disable', flag_useforbuild_all.default_status
 
-    package3 = project.packages.create(name: "test3")
+    package3 = project.packages.create!(name: "test3")
     # package is given as axml
     axml = Xmlhash.parse(
         "<package name='test3' project='home:Iggy:flagtest'>
@@ -252,7 +252,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 'disable', flag_test.default_status
 
     # now the final test: check all flags default in project and package
-    project2 = Project.create(name: "home:Iggy:flagtest2")
+    project2 = Project.create!(name: "home:Iggy:flagtest2")
     axml = Xmlhash.parse(
       "<project name='home:Iggy:flagtest2'>
         <title>Iggy's Flag Testing Project 2</title>
@@ -298,7 +298,7 @@ class ProjectTest < ActiveSupport::TestCase
       end
     end
 
-    package4 = project2.packages.create(name: "test4")
+    package4 = project2.packages.create!(name: "test4")
     axml = Xmlhash.parse(
         "<package name='test4' project='home:Iggy:flagtest2'>
            <title>My Test package 4</title>
@@ -331,27 +331,27 @@ class ProjectTest < ActiveSupport::TestCase
     end
 
     # this is the end
-    project.destroy
+    project.destroy!
     project2.destroy
   end
 
   def test_release_targets_ng
     User.current = User.find_by_login "king"
 
-    project = Project.create(name: "ABC", kind: "maintenance")
+    project = Project.create!(name: "ABC", kind: "maintenance")
     project.store
 
-    subproject = Project.create(name: "ABC:D", kind: "maintenance_incident")
+    subproject = Project.create!(name: "ABC:D", kind: "maintenance_incident")
     subproject.store
 
-    repo_1 = Repository.create(name: "repo_1", db_project_id: subproject.id)
-    repo_2 = Repository.create(name: "repo_2", db_project_id: subproject.id)
-    repo_1.release_targets.create(trigger: "maintenance", target_repository_id: repo_2.id)
+    repo_1 = Repository.create!(name: "repo_1", db_project_id: subproject.id)
+    repo_2 = Repository.create!(name: "repo_2", db_project_id: subproject.id)
+    repo_1.release_targets.create!(trigger: "maintenance", target_repository_id: repo_2.id)
 
-    package = subproject.packages.create(name: "test2")
-    package.flags.create(flag: :build, status: "enable", repo: "repo_1")
+    package = subproject.packages.create!(name: "test2")
+    package.flags.create!(flag: :build, status: "enable", repo: "repo_1")
 
-    Patchinfo.new.create_patchinfo("ABC:D", "_patchinfo", { comment:  "patchinfo summary" })
+    Patchinfo.new.create_patchinfo("ABC:D", "_patchinfo", { comment: "patchinfo summary" })
 
     result = subproject.reload.release_targets_ng
     assert_equal ["ABC:D"], result.keys
@@ -366,7 +366,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal nil,                 result["ABC:D"][:patchinfo][:stopped]
   ensure
     # Prevent AAAPreConsistency check to fail
-    project.destroy
+    project.destroy!
     subproject.destroy
   end
 
@@ -416,7 +416,7 @@ class ProjectTest < ActiveSupport::TestCase
       position = @project.update_flags(axml, flagtype, position)
     end
 
-    @project.save
+    @project.save!
     @project.reload
 
     # check results
@@ -695,7 +695,7 @@ END
         <link project='home:Iggy' />
       </project>"
       )
-    projectA = Project.create( name: "home:Iggy:A" )
+    projectA = Project.create!( name: "home:Iggy:A" )
     projectA.update_from_xml!(axml)
     projectA.store
 
@@ -707,7 +707,7 @@ END
         <link project='home:Iggy:A' />
       </project>"
       )
-    projectB = Project.create( name: "home:Iggy:B" )
+    projectB = Project.create!( name: "home:Iggy:B" )
     projectB.update_from_xml!(axml)
     projectB.store
 
@@ -717,7 +717,7 @@ END
     xml_string = projectB.to_axml
     assert_xml_tag xml_string, tag: :link, attributes: { project: "home:Iggy:A" }
 
-    projectA.destroy
+    projectA.destroy!
     projectB.reload
     xml_string = projectB.to_axml
     assert_no_xml_tag xml_string, tag: :link
@@ -1016,7 +1016,7 @@ END
     XML
 
     flag = project.add_flag('access', 'disable')
-    flag.save
+    flag.save!
 
     actual = Project.validate_link_xml_attribute(Xmlhash.parse(xml), 'the_project')
     expected = { error: "Project links work only when both projects have same read access protection level: the_project -> home:Iggy" }
@@ -1043,7 +1043,7 @@ END
     User.current = users(:Iggy)
     project = projects(:home_Iggy)
     flag = project.add_flag('access', 'disable')
-    flag.save
+    flag.save!
 
     xml = <<-XML.strip_heredoc
       <project name='other_project'>
@@ -1062,7 +1062,7 @@ END
     User.current = users(:Iggy)
     project = projects(:home_Iggy)
     flag = project.add_flag('access', 'disable')
-    flag.save
+    flag.save!
 
     xml = <<-XML.strip_heredoc
       <project name='home:Iggy'>
@@ -1172,7 +1172,7 @@ END
 
     repository = repositories(:repositories_96)
     repository.remote_project_name = "my_remote_repository"
-    repository.save
+    repository.save!
     project.repositories << repository
 
     xml = <<-XML.strip_heredoc
@@ -1236,15 +1236,15 @@ END
       parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
       child = projects('Apache')
 
-      parent2.linking_to.create(project: parent2,
+      parent2.linking_to.create!(project: parent2,
                                  linked_db_project_id: projects('home_Iggy').id,
                                  position: 1)
 
-      child.linking_to.create(project: child,
+      child.linking_to.create!(project: child,
                                  linked_db_project_id: parent1.id,
                                  position: 1)
 
-      child.linking_to.create(project: child,
+      child.linking_to.create!(project: child,
                                   linked_db_project_id: parent2.id,
                                   position: 2)
 
@@ -1276,11 +1276,11 @@ END
       parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
       child = projects('Apache')
 
-      child.linking_to.create(project: child,
+      child.linking_to.create!(project: child,
                                   linked_db_project_id: parent1.id,
                                   position: 1)
 
-      child.linking_to.create(project: child,
+      child.linking_to.create!(project: child,
                                   linked_db_project_id: parent2.id,
                                   position: 2)
 
@@ -1301,11 +1301,11 @@ END
 
       child = projects('Apache')
 
-      child.linking_to.create(project: child,
+      child.linking_to.create!(project: child,
                                   linked_db_project_id: base_distro_update.id,
                                   position: 1)
 
-      child.linking_to.create(project: child,
+      child.linking_to.create!(project: child,
                                   linked_db_project_id: base_distro.id,
                                   position: 2)
 

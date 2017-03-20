@@ -94,7 +94,7 @@ class PersonController < ApplicationController
           message: "no permission to change userinfo for user #{user.login}") && return
       end
     elsif User.current.is_admin?
-      user = User.create(login: login, password: "notset", email: "TEMP")
+      user = User.create!(login: login, password: "notset", email: "TEMP")
       user.state = "locked"
     else
       logger.debug "Tried to create non-existing user without admin rights"
@@ -293,7 +293,7 @@ class PersonController < ApplicationController
 
     token = Token.where( user_id: user.id, id: params[:id] ).first
     raise TokenNotFound.new "Specified token \"#{params[:id]}\" got not found" unless token
-    token.destroy
+    token.destroy!
     render_ok
   end
 end

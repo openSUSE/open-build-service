@@ -8,7 +8,7 @@ class NewSuseBugzillas < ActiveRecord::Migration
     t.url = "https://bugzilla.opensuse.org/"
     t.label = "boo#@@@"
     t.show_url = "https://bugzilla.opensuse.org/show_bug.cgi?id=@@@"
-    t.save
+    t.save!
     Delayed::Worker.delay_jobs = true
     IssueTracker.write_to_backend
   end
@@ -22,7 +22,7 @@ class NewSuseBugzillas < ActiveRecord::Migration
     t.url = "https://bugzilla.novell.com/"
     t.label = "bnc#@@@"
     t.show_url = "https://bugzilla.novell.com/show_bug.cgi?id=@@@"
-    t.save
+    t.save!
     Delayed::Worker.delay_jobs = true
     IssueTracker.write_to_backend
   end

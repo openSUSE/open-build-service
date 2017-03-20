@@ -4,7 +4,7 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
   let!(:user) { create(:confirmed_user, login: 'moi') }
 
   scenario "creating a home project" do
-    user.home_project.destroy
+    user.home_project.destroy!
     login user
     visit(new_project_path(name: user.home_project_name))
 

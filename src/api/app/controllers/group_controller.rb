@@ -36,7 +36,7 @@ class GroupController < ApplicationController
   def delete
     group = Group.find_by_title!(params[:title])
     authorize group, :destroy?
-    group.destroy
+    group.destroy!
     render_ok
   end
 
@@ -50,7 +50,7 @@ class GroupController < ApplicationController
     group = Group.find_by_title(params[:title])
     if group.nil?
       authorize Group, :create?
-      group = Group.create(title: params[:title])
+      group = Group.create!(title: params[:title])
     end
     authorize group, :update?
 

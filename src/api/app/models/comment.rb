@@ -88,7 +88,7 @@ class Comment < ApplicationRecord
   private
 
   def delete_parent_if_unused
-    parent.destroy if parent && parent.user == User.find_nobody! && parent.children.length.zero?
+    parent.destroy! if parent && parent.user == User.find_nobody! && parent.children.length.zero?
   end
 
   def validate_parent_id

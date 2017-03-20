@@ -35,7 +35,7 @@ module ModelHelper
               modified = true
             end
           end
-          entries[key].save if modified
+          entries[key].save! if modified
           to_delete.delete(key)
         else
           # not existing yet, creating

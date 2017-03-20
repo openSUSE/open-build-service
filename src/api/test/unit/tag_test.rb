@@ -7,7 +7,7 @@ class TagTest < ActiveSupport::TestCase
     t = Tag.new
     t.name = 'IamNotAllowed'
     t.created_at = "2007-03-09 14:57:54"
-    assert t.save == false
+    assert t.save! == false
 
     # expected error message
     assert_equal "The tag is blacklisted!", t.errors[:name].join(';')
@@ -15,7 +15,7 @@ class TagTest < ActiveSupport::TestCase
     t = Tag.new
     t.name = 'NotAllowedSymbol_?'
     t.created_at = "2007-03-09 14:57:54"
-    assert t.save == false
+    assert t.save! == false
 
     # expected error message
     assert_equal "no ? and : allowed!", t.errors[:name].join(';')
@@ -23,7 +23,7 @@ class TagTest < ActiveSupport::TestCase
     t = Tag.new
     t.name = 'NotAllowedSymbol_:'
     t.created_at = "2007-03-09 14:57:54"
-    assert t.save == false
+    assert t.save! == false
 
     # expected error message
     assert_equal "no ? and : allowed!", t.errors[:name].join(';')

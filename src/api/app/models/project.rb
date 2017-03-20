@@ -178,7 +178,7 @@ class Project < ApplicationRecord
   def self.deleted_instance
     project = Project.find_by(name: 'deleted')
     unless project
-      project = Project.create(title: 'Place holder for a deleted project instance', name: 'deleted')
+      project = Project.create!(title: 'Place holder for a deleted project instance', name: 'deleted')
       project.store
     end
     project
@@ -308,7 +308,7 @@ class Project < ApplicationRecord
     LinkedProject.transaction do
       LinkedProject.where(linked_db_project: self).each do |lp|
         id = lp.db_project_id
-        lp.destroy
+        lp.destroy!
         Rails.cache.delete("xml_project_#{id}")
       end
     end
@@ -321,7 +321,7 @@ class Project < ApplicationRecord
         next unless Repository.find(pe.repository_id).db_project_id == id
         if link_rep.path_elements.find_by_repository_id Repository.deleted_instance
           # repository has already a path to deleted repo
-          pe.destroy
+          pe.destroy!
         else
           pe.link = Repository.deleted_instance
           pe.save
@@ -338,7 +338,7 @@ class Project < ApplicationRecord
       link_rep.release_targets.includes(:target_repository).each do |rt|
         next unless Repository.find(rt.repository_id).db_project_id == id
         rt.target_repository = Repository.deleted_instance
-        rt.save
+        rt.save!
         # update backend
         link_rep.project.write_to_backend
       end
@@ -925,13 +925,13 @@ class Project < ApplicationRecord
 
   def add_repository_with_targets(repoName, source_repo, add_target_repos = [], opts = {})
     return if repositories.where(name: repoName).exists?
-    trepo = repositories.create name: repoName
+    trepo = repositories.create! name: repoName
 
     trepo.clone_repository_from(source_repo)
     trepo.rebuild = opts[:rebuild] if opts[:rebuild]
     trepo.rebuild = source_repo.rebuild if opts[:rebuild] == "copy"
     trepo.block   = opts[:block] if opts[:block]
-    trepo.save
+    trepo.save!
 
     trigger = nil # no trigger is set by default
     trigger = 'maintenance' if is_maintenance_incident?
@@ -1187,7 +1187,7 @@ class Project < ApplicationRecord
         p.store
       elsif f_pkg_index.has_key?(pkg) && !b_pkg_index.has_key?(pkg)
         # autopackage was removed, remove from database
-        f_pkg_index[pkg].destroy
+        f_pkg_index[pkg].destroy!
       end
     end
   end
@@ -1232,7 +1232,7 @@ class Project < ApplicationRecord
     transaction do
       f = flags.find_by_flag_and_status('lock', 'disable')
       flags.delete(f) if f
-      flags.create(status: 'enable', flag: 'lock')
+      flags.create!(status: 'enable', flag: 'lock')
       store({comment: comment})
     end
   end
@@ -1542,7 +1542,7 @@ class Project < ApplicationRecord
       repository = project.repositories.find(repo.id)
       if Repository.exists?(repo.id) && repository
         logger.info "destroy repo #{repository.name} in '#{project.name}'"
-        repository.destroy
+        repository.destroy!
         project.store({ lowprio: true }) unless opts[:no_write_to_backend]
       end
     end

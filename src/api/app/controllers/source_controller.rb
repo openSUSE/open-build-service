@@ -153,7 +153,7 @@ class SourceController < ApplicationController
     logger.info "destroying project object #{project.name}"
     project.commit_opts = { comment: params[:comment] }
     begin
-      project.destroy
+      project.destroy!
     rescue ActiveRecord::RecordNotDestroyed => invalid
       exception_message = "Destroying Project #{project.name} failed: #{invalid.record.errors.full_messages.to_sentence}"
       logger.debug exception_message
@@ -271,7 +271,7 @@ class SourceController < ApplicationController
     tpkg.commit_opts = { comment: params[:comment] }
 
     begin
-      tpkg.destroy
+      tpkg.destroy!
     rescue ActiveRecord::RecordNotDestroyed => invalid
       exception_message = "Destroying Package #{tpkg.project.name}/#{tpkg.name} failed: #{invalid.record.errors.full_messages.to_sentence}"
       logger.debug exception_message
@@ -1127,12 +1127,12 @@ class SourceController < ApplicationController
         @project = Project.new name: project_name, title: rdata['title'], description: rdata['description']
       else # local project
         @project = Project.new name: project_name, title: oprj.title, description: oprj.description
-        @project.save
+        @project.save!
         oprj.flags.each do |f|
           @project.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo) unless f.flag == 'lock'
         end
         oprj.repositories.each do |repo|
-          r = @project.repositories.create name: repo.name
+          r = @project.repositories.create! name: repo.name
           repo.repository_architectures.each do |ra|
             r.repository_architectures.create! architecture: ra.architecture, position: ra.position
           end
@@ -1568,7 +1568,7 @@ class SourceController < ApplicationController
     if ret[:text]
       render ret
     else
-      Event::BranchCommand.create project: params[:project], package: params[:package],
+      Event::BranchCommand.create! project: params[:project], package: params[:package],
                                   targetproject: params[:target_project], targetpackage: params[:target_package],
                                   user: User.current.login
       render_ok ret

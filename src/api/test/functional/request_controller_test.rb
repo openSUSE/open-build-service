@@ -3353,7 +3353,7 @@ XML
 
   def test_reviews_in_delete_requests
     # make Iggy maintainer for pack2 in this test
-    packages(:Devel_BaseDistro_Update_pack2).relationships.create(role: roles(:maintainer), user: users(:Iggy))
+    packages(:Devel_BaseDistro_Update_pack2).relationships.create!(role: roles(:maintainer), user: users(:Iggy))
 
     login_tom
     post '/request?cmd=create', params: "<request><action type='delete'><target project='Devel:BaseDistro:Update' package='pack2'/></action></request>"

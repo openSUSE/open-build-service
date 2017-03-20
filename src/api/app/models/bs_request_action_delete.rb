@@ -30,7 +30,7 @@ class BsRequestActionDelete < BsRequestAction
     unless r
       raise RepositoryMissing.new "The repository #{target_project} / #{target_repository} does not exist"
     end
-    r.destroy
+    r.destroy!
     prj.store(lowprio: opts[:lowprio], comment: opts[:comment], request: bs_request)
   end
 
@@ -64,12 +64,12 @@ class BsRequestActionDelete < BsRequestAction
       package = Package.get_by_project_and_name(target_project, target_package,
                                                 use_source: true, follow_project_links: false)
       package.commit_opts = { comment: bs_request.description, request: bs_request }
-      package.destroy
+      package.destroy!
       return Package.source_path target_project, target_package
     else
       project = Project.get_by_name(target_project)
       project.commit_opts = { comment: bs_request.description, request: bs_request }
-      project.destroy
+      project.destroy!
       return "/source/#{target_project}"
     end
   end

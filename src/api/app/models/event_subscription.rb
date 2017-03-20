@@ -47,7 +47,7 @@ class EventSubscription < ApplicationRecord
   def self.update_subscription(eventtype, role, subscriber, value)
     rel = _get_rel(eventtype)
     rel = filter_relationships(rel, subscriber)
-    rule = rel.where(receiver_role: role).first_or_create
+    rule = rel.where(receiver_role: role).first_or_create!
     rule.receive = value
     rule.save
   end

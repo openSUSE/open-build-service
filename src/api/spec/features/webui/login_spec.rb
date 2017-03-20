@@ -46,7 +46,7 @@ RSpec.feature "Login", type: :feature, js: true do
   end
 
   scenario "login without home project shows a link to create it" do
-    user.home_project.destroy
+    user.home_project.destroy!
     login user
     expect(page).to have_content "#{user.login} | Create Home | Logout"
   end

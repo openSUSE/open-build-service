@@ -24,7 +24,7 @@ class EventMailerTest < ActionMailer::TestCase
     EventSubscription.delete_all
 
     # just one subsciption
-    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
+    EventSubscription.create! eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
     Suse::Backend.wait_for_scheduler_start
 
     mail = EventMailer.event([users(:Iggy)], events(:build_failure_for_iggy))
@@ -36,7 +36,7 @@ class EventMailerTest < ActionMailer::TestCase
     EventSubscription.delete_all
 
     # just one subsciption
-    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
+    EventSubscription.create! eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
     Suse::Backend.wait_for_scheduler_start
 
     mail = EventMailer.event([users(:fred)], events(:build_failure_for_reader))
@@ -69,8 +69,8 @@ class EventMailerTest < ActionMailer::TestCase
 
     req = bs_requests(:submit_from_home_project)
 
-    GroupsUser.where(user: users(:maintenance_assi), group: groups(:maint_coord)).first.update({ email: false })
-    GroupsUser.where(user: users(:maintenance_coord), group: groups(:maint_coord)).first.update({ email: false })
+    GroupsUser.where(user: users(:maintenance_assi), group: groups(:maint_coord)).first.update!({ email: false })
+    GroupsUser.where(user: users(:maintenance_coord), group: groups(:maint_coord)).first.update!({ email: false })
     assert_difference 'ActionMailer::Base.deliveries.size', 0 do
       req.addreview(by_group: 'maint_coord', comment: 'does it still look ok?')
     end

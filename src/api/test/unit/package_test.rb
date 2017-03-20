@@ -66,7 +66,7 @@ class PackageTest < ActiveSupport::TestCase
       position = @package.update_flags(axml, flagtype, position)
     end
 
-    @package.save
+    @package.save!
     @package.reload
 
     # check results
@@ -208,7 +208,7 @@ class PackageTest < ActiveSupport::TestCase
 
   test "invalid names are catched" do
     @package.name = '_coolproject'
-    assert !@package.save
+    assert !@package.save!
     assert_raise(ActiveRecord::RecordInvalid) do
       @package.save!
     end
@@ -262,7 +262,7 @@ class PackageTest < ActiveSupport::TestCase
       assert_in_delta(12.9, newyear.activity, 0.2)
 
       newyear.title = "Just a silly update"
-      newyear.save
+      newyear.save!
       assert_in_delta(22.9, newyear.activity, 0.2)
 
       Timecop.freeze(2010, 4, 1)
@@ -272,43 +272,43 @@ class PackageTest < ActiveSupport::TestCase
       assert_in_delta(14.7, newyear.activity, 0.2)
 
       newyear.title = "Just a silly update 2"
-      newyear.save
+      newyear.save!
       assert_in_delta(24.7, newyear.activity, 0.2)
       newyear.title = "Just a silly update 3"
-      newyear.save
+      newyear.save!
       # activity stays the same  now
       assert_in_delta(24.7, newyear.activity, 0.2)
 
       # an hour later perhaps?
       Timecop.freeze(3600)
       newyear.title = "Just a silly update 4"
-      newyear.save
+      newyear.save!
       assert_in_delta(25.1, newyear.activity, 0.2)
 
       # and commit every day?
       Timecop.freeze(90000)
       newyear.title = "Just a silly update 5"
-      newyear.save
+      newyear.save!
       assert_in_delta(34.9, newyear.activity, 0.2)
 
       Timecop.freeze(90000)
       newyear.title = "Just a silly update 6"
-      newyear.save
+      newyear.save!
       assert_in_delta(44.6, newyear.activity, 0.2)
 
       Timecop.freeze(90000)
       newyear.title = "Just a silly update 7"
-      newyear.save
+      newyear.save!
       assert_in_delta(54.2, newyear.activity, 0.2)
 
       Timecop.freeze(90000)
       newyear.title = "Just a silly update 8"
-      newyear.save
+      newyear.save!
       assert_in_delta(63.8, newyear.activity, 0.2)
 
       Timecop.freeze(90000)
       newyear.title = "Just a silly update 8"
-      newyear.save
+      newyear.save!
       assert_in_delta(72.7, newyear.activity, 0.2)
     end
   end

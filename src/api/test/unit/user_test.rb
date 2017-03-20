@@ -9,13 +9,13 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_create_home_project # spec/models/user_spec.rb
-    User.create(login: 'moises', email: 'moises@home.com', password: '123456')
+    User.create!(login: 'moises', email: 'moises@home.com', password: '123456')
     assert Project.find_by(name: 'home:moises')
     # cleanup
-    Project.find_by(name: 'home:moises').destroy
+    Project.find_by(name: 'home:moises').destroy!
 
     Configuration.stubs(:allow_user_to_create_home_project).returns(false)
-    User.create(login: 'bob', email: 'bob@home.com', password: '123456')
+    User.create!(login: 'bob', email: 'bob@home.com', password: '123456')
     assert !Project.find_by(name: 'home:bob')
   end
 
@@ -33,7 +33,7 @@ class UserTest < ActiveSupport::TestCase
   def test_subaccount_permission
     user = User.find_by(login: "adrian")
 
-    robot = User.create(login: 'robot_man', email: 'scorpions@hannover.de', password: 'dummy',
+    robot = User.create!(login: 'robot_man', email: 'scorpions@hannover.de', password: 'dummy',
                         owner: user)
 
     axml = robot.render_axml
@@ -137,7 +137,7 @@ class UserTest < ActiveSupport::TestCase
   test 'gravatar image' do
     f = Configuration.first
     f.gravatar = true
-    f.save # of course just for this test
+    f.save! # of course just for this test
 
     stub_request(:get, 'http://www.gravatar.com/avatar/ef677ecd5e63faa5842d43bcdfca2f33?d=wavatar&s=20').
         to_return(status: 200, body: 'Superpng', headers: {})

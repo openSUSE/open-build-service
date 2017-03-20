@@ -556,7 +556,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # set devel package (this one has another devel package in home:coolo:test)
     pkg = Package.find_by_project_and_name "home:Iggy", "TestPack"
     pkg.develpackage = Package.find_by_project_and_name "kde4", "kdelibs"
-    pkg.save
+    pkg.save!
 
     # include devel package
     get "/search/owner?binary=package"
@@ -664,7 +664,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag tag: 'person', attributes: { name: "Iggy", role: "bugowner" }
     u.state = 'confirmed'
-    u.save
+    u.save!
 
     # group in project meta
     get "/search/owner?project=TEMPORARY&binary=package&filter=maintainer"
@@ -730,7 +730,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     # reset devel package setting again
     pkg.develpackage = nil
-    pkg.save
+    pkg.save!
     # cleanup
     delete "/source/TEMPORARY"
     assert_response :success

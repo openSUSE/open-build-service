@@ -109,7 +109,7 @@ class ConsistencyCheckJob < ApplicationJob
         # just delete ... if it exists in backend it can be undeleted
         diff.each do |project|
           project = Project.find_by_name project
-          project.destroy if project
+          project.destroy! if project
         end
       end
     end
@@ -160,7 +160,7 @@ class ConsistencyCheckJob < ApplicationJob
           errors << "Invalid package name #{name} in project #{project.name}\n"
           if fix
             # just remove it, the backend won't accept it anyway
-            project.packages.find_by(name: name).destroy
+            project.packages.find_by(name: name).destroy!
             next
           end
         end
@@ -180,7 +180,7 @@ class ConsistencyCheckJob < ApplicationJob
         # delete database object, can be undeleted
         diff.each do |package|
           pkg = project.packages.where(name: package).first
-          pkg.destroy if pkg
+          pkg.destroy! if pkg
         end
       end
     end

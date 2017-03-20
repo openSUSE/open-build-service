@@ -58,7 +58,7 @@ RSpec.feature "Attributes", type: :feature, js: true do
         # Database cleaner deletes these tables. But we need them for the
         # permission to function.
         attrib_type = AttribType.where(name: "VeryImportantProject").first
-        attrib_type.attrib_type_modifiable_bies.create(role: Role.where(title: "Admin").first)
+        attrib_type.attrib_type_modifiable_bies.create!(role: Role.where(title: "Admin").first)
 
         login user
 

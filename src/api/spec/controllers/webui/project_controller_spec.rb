@@ -736,7 +736,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         let!(:bs_request) { create(:bs_request, type: 'maintenance_release', source_project: user.home_project.name) }
 
         before do
-          user.home_project.update(kind: 'maintenance_incident')
+          user.home_project.update!(kind: 'maintenance_incident')
           post :unlock, params: { project: user.home_project }
         end
 

@@ -27,12 +27,12 @@ class IssueTest < ActiveSupport::TestCase
     # pkg = Package.find( 10095 )
     iggy = User.find_by_email("Iggy@pop.org")
     bnc = IssueTracker.find_by_name("bnc")
-    issue = Issue.create name: '0815', issue_tracker: bnc
-    issue.save
+    issue = Issue.create! name: '0815', issue_tracker: bnc
+    issue.save!
     issue.summary = 'This unit test is not working'
     issue.state = Issue.bugzilla_state('NEEDINFO')
     issue.owner = iggy
-    issue.save
+    issue.save!
     issue.destroy
   end
 
@@ -65,12 +65,12 @@ class IssueTest < ActiveSupport::TestCase
   test "fetch cve" do
     # erase all the bugzilla fixtures
     Issue.destroy_all
-    IssueTracker.find_by_kind("bugzilla").destroy
+    IssueTracker.find_by_kind("bugzilla").destroy!
 
     cve = IssueTracker.find_by_name("cve")
     cve.enable_fetch = 1
-    cve.save
-    cve.issues.create name: "CVE-1999-0001"
+    cve.save!
+    cve.issues.create! name: "CVE-1999-0001"
 
     stub_request(:head, "http://cve.mitre.org/data/downloads/allitems.xml.gz").
         to_return(status: 200, headers: {'Last-Modified' => 2.days.ago})
@@ -85,15 +85,15 @@ class IssueTest < ActiveSupport::TestCase
   test "fetch fate" do
     # erase all the bugzilla fixtures
     Issue.destroy_all
-    IssueTracker.find_by_kind("bugzilla").destroy
+    IssueTracker.find_by_kind("bugzilla").destroy!
 
     stub_request(:get, "https://features.opensuse.org//fate").
         to_return(status: 200, body: "", headers: {})
 
     fate = IssueTracker.find_by_name("fate")
     fate.enable_fetch = 1
-    fate.save
-    fate.issues.create name: "fate#2282"
+    fate.save!
+    fate.issues.create! name: "fate#2282"
 
     IssueTracker.update_all_issues
   end

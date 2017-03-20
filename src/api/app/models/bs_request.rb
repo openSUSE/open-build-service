@@ -112,7 +112,7 @@ class BsRequest < ApplicationRecord
     # to assign a unique and steady incremental number.
     # Using MySQL auto-increment mechanism is not working on clusters.
     BsRequest.transaction do
-      request_counter = BsRequestCounter.lock(true).first_or_create
+      request_counter = BsRequestCounter.lock(true).first_or_create!
       self.number = request_counter.counter
       request_counter.increment(:counter)
       request_counter.save!
@@ -345,14 +345,14 @@ class BsRequest < ApplicationRecord
           review.by_package && review.by_package == opts[:by_package]
         logger.debug "Obsoleting review #{review.id}"
         review.state = :obsoleted
-        review.save
+        review.save!
         history = HistoryElement::ReviewObsoleted
-        history.create(review: review, comment: "reviewer got removed", user_id: User.current.id)
+        history.create!(review: review, comment: "reviewer got removed", user_id: User.current.id)
 
         # Maybe this will turn the request into an approved state?
         if state == :review && reviews.where(state: "new").none?
           self.state = :new
-          save
+          save!
           history = HistoryElement::RequestAllReviewsApproved
           history.create(request: self, comment: opts[:comment], user_id: User.current.id)
         end
@@ -374,7 +374,7 @@ class BsRequest < ApplicationRecord
     end
     self.comment = "removed from group #{group.bs_request.number}"
     self.state = :new
-    save
+    save!
 
     p = {request: self, comment: "Reopened by removing from group #{group.bs_request.number}", user_id: User.current.id}
     HistoryElement::RequestReopened.create(p)
@@ -598,7 +598,7 @@ class BsRequest < ApplicationRecord
         user_review.save!
         HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.current)
       else
-        review = reviews.create(by_user: reviewer.login, creator: User.current.login, state: :new)
+        review = reviews.create!(by_user: reviewer.login, creator: User.current.login, state: :new)
         review_comment = _assignreview_update_reviews(reviewer, opts, review)
         HistoryElement::ReviewAssigned.create(review: review, comment: review_comment, user: User.current)
       end
@@ -648,7 +648,7 @@ class BsRequest < ApplicationRecord
             history = HistoryElement::ReviewAccepted if new_review_state == :accepted
             history = HistoryElement::ReviewDeclined if new_review_state == :declined
             history = HistoryElement::ReviewReopened if new_review_state == :new
-            history.create(review: review, comment: opts[:comment], user_id: User.current.id) if history
+            history.create!(review: review, comment: opts[:comment], user_id: User.current.id) if history
 
             # last review finished:
             go_new_state = :new if go_new_state == :review && review.state == :accepted
@@ -702,7 +702,7 @@ class BsRequest < ApplicationRecord
         self.comment = 'All reviewers accepted request' if go_new_state == :accepted
       end
       save!
-      history.create(p) if history
+      history.create!(p) if history
 
       # we want to check right now if pre-approved requests can be processed
       if go_new_state == :new && accept_at
@@ -726,7 +726,7 @@ class BsRequest < ApplicationRecord
       self.commenter = User.current.login
       self.comment = opts[:comment] if opts[:comment]
 
-      newreview = reviews.create(
+      newreview = reviews.create!(
         reason:     opts[:comment],
         by_user:    opts[:by_user],
         by_group:   opts[:by_group],
@@ -742,7 +742,7 @@ class BsRequest < ApplicationRecord
         description_extension: newreview.id.to_s
       }
       history_params[:comment] = opts[:comment] if opts[:comment]
-      HistoryElement::RequestReviewAdded.create(history_params)
+      HistoryElement::RequestReviewAdded.create!(history_params)
       newreview.create_notification(notify_parameters)
     end
   end
@@ -1024,7 +1024,7 @@ class BsRequest < ApplicationRecord
 
   def notify
     notify = notify_parameters
-    Event::RequestCreate.create notify
+    Event::RequestCreate.create! notify
 
     reviews.each do |review|
       review.create_notification(notify)

@@ -75,7 +75,7 @@ class AttributeController < ApplicationController
         db.update_from_xml(xml_element)
       else
         logger.debug "* create new attribute namespace"
-        AttribNamespace.create(name: namespace).update_from_xml(xml_element)
+        AttribNamespace.create!(name: namespace).update_from_xml(xml_element)
       end
 
       logger.debug "--- finished updating attribute namespace definitions ---"
@@ -222,7 +222,7 @@ class AttributeController < ApplicationController
     end
 
     # exec
-    ac.destroy
+    ac.destroy!
     @attribute_container.write_attributes(params[:comment])
     render_ok
   end

@@ -112,7 +112,7 @@ class IssueTrackersController < ApplicationController
     unless @issue_tracker
       render_error(status: 404, errorcode: "not_found", message: "Unable to find issue tracker '#{params[:id]}'") && return
     end
-    @issue_tracker.destroy
+    @issue_tracker.destroy!
     IssueTracker.write_to_backend
 
     respond_to do |format|

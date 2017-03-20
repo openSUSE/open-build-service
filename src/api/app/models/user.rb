@@ -115,9 +115,9 @@ class User < ApplicationRecord
     # find or create the project
     project = Project.find_by(name: home_project_name)
     unless project
-      project = Project.create(name: home_project_name)
+      project = Project.create!(name: home_project_name)
       # make the user maintainer
-      project.relationships.create(user: self,
+      project.relationships.create!(user: self,
                                    role: Role.find_by_title('maintainer'))
       project.store({login: login})
       @home_project = project
@@ -223,7 +223,7 @@ class User < ApplicationRecord
       logger.debug( "Name : #{ldap_info[1]}" )
       # Generate and store a 24 char fake pw in the OBS DB that no-one knows
       password = SecureRandom.base64
-      user = User.create( login: login,
+      user = User.create!( login: login,
                           password: password,
                           email: ldap_info[0],
                           last_logged_in_at: Time.now)
@@ -844,7 +844,7 @@ class User < ApplicationRecord
   end
 
   def add_watched_project(name)
-    watched_projects.create(project: Project.find_by_name!(name))
+    watched_projects.create!(project: Project.find_by_name!(name))
     clear_watched_projects_cache
   end
 

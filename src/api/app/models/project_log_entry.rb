@@ -22,7 +22,7 @@ class ProjectLogEntry < ApplicationRecord
                 event_type: event.class.model_name.to_s.split("::").last.underscore)
     entry.user_name = username_from(event.payload)
     entry.additional_info = event.payload.except(*EXCLUDED_KEYS)
-    entry.save
+    entry.save!
     entry
   end
 

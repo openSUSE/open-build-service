@@ -18,7 +18,7 @@ class StatusHistoryTest < ActiveSupport::TestCase
         end
       end
 
-      StatusHistory.create time: Time.now.to_i, key: 'busy_x86_64', value: 100
+      StatusHistory.create! time: Time.now.to_i, key: 'busy_x86_64', value: 100
 
       assert_equal 1001, StatusHistory.count
       StatusHistoryRescaler.new.rescale

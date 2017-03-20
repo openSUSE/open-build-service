@@ -108,7 +108,7 @@ class Attrib < ApplicationRecord
       self.values.delete_all
       position = 1
       values.each do |val|
-        self.values.create(value: val, position: position)
+        self.values.create!(value: val, position: position)
         position += 1
       end
     end

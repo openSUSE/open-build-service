@@ -34,7 +34,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     branch_package
     create_request
 
-    @package.project.destroy
+    @package.project.destroy!
 
     @request.reload
     assert_equal :revoked, @request.state
@@ -44,16 +44,16 @@ class ProjectRemoveTest < ActiveSupport::TestCase
 
   def test_destroy_target_declines_request
     User.current = users(:king)
-    project = Project.create(name: 'test_destroy_target_declines_request')
+    project = Project.create!(name: 'test_destroy_target_declines_request')
     project.store
 
     User.current = users(:Iggy)
     other_project = Project.find_by(name: 'home:Iggy')
-    other_package = other_project.packages.create(name: 'pack')
+    other_package = other_project.packages.create!(name: 'pack')
     create_request('test_destroy_target_declines_request', 'pack', 'home:Iggy')
 
     User.current = users(:king)
-    project.destroy
+    project.destroy!
 
     @request.reload
     assert_equal :declined, @request.state
@@ -98,7 +98,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   end
 
   def test_review_gets_obsoleted
-    review_project = Project.create(name: 'test_review_gets_removed')
+    review_project = Project.create!(name: 'test_review_gets_removed')
 
     User.current = users(:Iggy)
     branch_package
@@ -111,7 +111,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     assert_equal 1, HistoryElement::RequestReviewAdded.where(op_object_id: @request.id).count
     assert_equal :new, @request.reviews.first.state
 
-    review_project.destroy
+    review_project.destroy!
 
     @request.reload
     assert_equal 1, @request.reviews.count

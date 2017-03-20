@@ -578,7 +578,7 @@ class Webui::PackageController < Webui::WebuiController
     created_project_name = branched_package[:data][:targetproject]
     created_package_name = branched_package[:data][:targetpackage]
 
-    Event::BranchCommand.create(project: source_project_name, package: source_package_name,
+    Event::BranchCommand.create!(project: source_project_name, package: source_package_name,
                                 targetproject: created_project_name, targetpackage: created_package_name,
                                 user: User.current.login)
 
@@ -629,7 +629,7 @@ class Webui::PackageController < Webui::WebuiController
       @package.check_weak_dependencies?
     end
     if @package.errors.empty?
-      @package.destroy
+      @package.destroy!
       redirect_to(project_show_path(@project), notice: "Package was successfully removed.")
     else
       redirect_to(package_show_path(project: @project, package: @package),

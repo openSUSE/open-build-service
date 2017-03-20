@@ -25,9 +25,9 @@ class Webui::MonitorControllerTest < Webui::IntegrationTest
     StatusHistory.transaction do
       time = Time.now.to_i
       400.times do |i|
-        StatusHistory.create(time: time - i * 1.day, key: 'squeue_med_x86_64', value: i)
-        StatusHistory.create(time: time - i * 1.day, key: 'squeue_high_x86_64', value: 0)
-        StatusHistory.create(time: time - i * 1.day, key: 'building_x86_64', value: Random.rand(10..42))
+        StatusHistory.create!(time: time - i * 1.day, key: 'squeue_med_x86_64', value: i)
+        StatusHistory.create!(time: time - i * 1.day, key: 'squeue_high_x86_64', value: 0)
+        StatusHistory.create!(time: time - i * 1.day, key: 'building_x86_64', value: Random.rand(10..42))
         StatusHistory.create(time: time - i * 1.day, key: 'waiting_x86_64', value: Random.rand(10..42) * 1000)
       end
     end

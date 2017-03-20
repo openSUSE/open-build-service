@@ -294,6 +294,9 @@ Rails/SkipsModelValidations:
     - 'spec/models/bs_request_action_spec.rb'
     - 'spec/models/review_spec.rb'
 
+Rails/SaveBang:
+  Enabled: true
+
 # Checks for the use of old-style attribute validation macros.
 Rails/Validation:
   Enabled: true

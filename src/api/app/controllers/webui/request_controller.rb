@@ -176,7 +176,7 @@ class Webui::RequestController < Webui::WebuiController
             # the request action type might be permitted in future, but that doesn't mean we
             # are allowed to modify the object
             target.add_user(@req.creator, 'maintainer')
-            target.save
+            target.save!
             target.store if target.kind_of? Project
           end
         end

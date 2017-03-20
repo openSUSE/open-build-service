@@ -94,13 +94,13 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     count = Flag.all.size
 
     # destroy flags
-    @project.flags.of_type('debuginfo')[1].destroy
+    @project.flags.of_type('debuginfo')[1].destroy!
     # reload required!
     @project.reload
     assert_equal 1, @project.flags.of_type('debuginfo').size
     assert_equal 1, count - Flag.all.size
 
-    @project.flags.of_type('debuginfo')[0].destroy
+    @project.flags.of_type('debuginfo')[0].destroy!
     # reload required
     @project.reload
     assert_equal 0, @project.flags.of_type('debuginfo').size
@@ -114,7 +114,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     count = Flag.all.size
 
     # destroy flags
-    @package.flags.of_type('debuginfo')[0].destroy
+    @package.flags.of_type('debuginfo')[0].destroy!
     # reload required!
     @package.reload
     assert_equal 0, @package.flags.of_type('debuginfo').size
@@ -149,7 +149,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
     # a flag update should not alter the flag position
     f.repo = '10.0'
-    f.save
+    f.save!
 
     f.reload
     assert_equal '10.0', f.repo
@@ -170,7 +170,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
     # a flag update should not alter the flag position
     f.repo = '10.1'
-    f.save
+    f.save!
 
     f.reload
     assert_equal '10.1', f.repo

@@ -6,8 +6,8 @@ class HistoryTest < ActionMailer::TestCase
   test 'basic operation request creations' do
     req = BsRequest.first
     user = User.first
-    a = HistoryElement::RequestAccepted.create(request: req, comment: "yxc", user_id: user.id)
-    s = HistoryElement::RequestSuperseded.create(request: req, description_extension: "42", comment: "I like it better", user_id: user.id)
+    a = HistoryElement::RequestAccepted.create!(request: req, comment: "yxc", user_id: user.id)
+    s = HistoryElement::RequestSuperseded.create!(request: req, description_extension: "42", comment: "I like it better", user_id: user.id)
 
     assert_equal a.request.class, BsRequest
     assert_equal a.description, "Request got accepted" # overwrite must not work

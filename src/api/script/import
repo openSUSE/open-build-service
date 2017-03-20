@@ -46,7 +46,7 @@ def store_project( p )
   begin
     create_missing_users_for p
 
-    p.save
+    p.save!
     STDERR.puts "success"
     store_packages_for p
     return true
@@ -75,14 +75,14 @@ def store_packages_for( p )
 
       create_missing_users_for xpack
 
-      pack.save
+      pack.save!
       STDERR.puts "success"
     end
     STDERR.puts "  <-- fin"
   rescue Object => e
     # remove whole project to cause missing packages to be read at next run
     STDERR.puts "### store_packages exception handling"
-    Project.find_by_name(p.name.to_s).destroy
+    Project.find_by_name(p.name.to_s).destroy!
     xmldebug xpack.dump_xml
     raise e
   end
@@ -102,7 +102,7 @@ def create_missing_users_for( meta )
     u = User.find_by_login person.userid.to_s
     unless u
       attribs = {login: person.userid.to_s}.merge DUMMY_USER_ATTR
-      u = User.create attribs
+      u = User.create! attribs
       u.save
     end
   end

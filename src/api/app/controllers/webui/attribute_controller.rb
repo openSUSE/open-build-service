@@ -68,7 +68,7 @@ class Webui::AttributeController < Webui::WebuiController
   def destroy
     authorize @attribute
 
-    @attribute.destroy
+    @attribute.destroy!
     redirect_back(fallback_location: root_path, notice: 'Attribute sucessfully deleted!')
   end
 

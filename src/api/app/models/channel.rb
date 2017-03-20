@@ -105,7 +105,7 @@ class Channel < ApplicationRecord
     if package.project.is_maintenance_incident? || package.is_link?
       # we skip binaries in incidents and when they are just a branch
       # we do not need the data since it is not the origin definition
-      save
+      save!
       return
     end
 

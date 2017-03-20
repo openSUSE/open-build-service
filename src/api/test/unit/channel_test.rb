@@ -38,7 +38,7 @@ class ChannelTest < ActiveSupport::TestCase
     3.times do
       # just doing it multiple times to create and update
       @channel.update_from_xml(axml)
-      @channel.save
+      @channel.save!
       @channel.reload
 
       # check results
@@ -72,7 +72,7 @@ class ChannelTest < ActiveSupport::TestCase
         </channel>'
     )
     @channel.update_from_xml(axml)
-    @channel.save
+    @channel.save!
     @channel.reload
     assert_equal 1, @channel.channel_targets.size
     ct = @channel.channel_targets.first

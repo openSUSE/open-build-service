@@ -47,7 +47,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     return if pkg.project.is_locked?
     f = pkg.project.flags.find_by_flag_and_status('lock', 'disable')
     pkg.project.flags.delete(f) if f # remove possible existing disable lock flag
-    pkg.project.flags.create(status: 'enable', flag: 'lock')
+    pkg.project.flags.create!(status: 'enable', flag: 'lock')
     pkg.project.store(comment: "maintenance_release request accepted")
   end
 
@@ -166,7 +166,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     object.check_write_access!(true)
     f = object.flags.find_by_flag_and_status('lock', 'disable')
     object.flags.delete(f) if f # remove possible existing disable lock flag
-    object.flags.create(status: 'enable', flag: 'lock')
+    object.flags.create!(status: 'enable', flag: 'lock')
     object.store(comment: "maintenance_release request")
   end
 
