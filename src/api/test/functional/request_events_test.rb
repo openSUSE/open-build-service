@@ -108,8 +108,8 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     login_Iggy
 
     # for this test, ignore reviewers
-    packages(:kde4_kdelibs).relationships.where(role: Role.rolecache['reviewer']).delete_all
-    projects(:kde4).relationships.where(role: Role.rolecache['reviewer']).delete_all
+    packages(:kde4_kdelibs).relationships.where(role: Role.hashed['reviewer']).delete_all
+    projects(:kde4).relationships.where(role: Role.hashed['reviewer']).delete_all
 
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = ''

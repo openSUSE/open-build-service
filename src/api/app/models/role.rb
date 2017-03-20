@@ -40,20 +40,13 @@ class Role < ApplicationRecord
 
   scope :global, -> { where(global: true) }
 
-  after_save :discard_cache
-  after_destroy :discard_cache
-
-  def self.discard_cache
-    @cache = nil
-  end
-
-  def self.rolecache
-    @cache || create_cache
-  end
-
-  def self.create_cache
-    # {"Admin" => #<Role id:1>, "downloader" => #<Role id:2>, ... }
-    @cache = Hash[Role.all.map { |role| [role.title, role] }]
+  # Fetches all roles and stores them as a hash. Uses title attribute as hash key.
+  #
+  # {"Admin" => #<Role id:1>, "downloader" => #<Role id:2>, ... }
+  def self.hashed
+    Rails.cache.fetch('hashed_roles', expires_in: 8.hours) do
+      Hash[Role.all.map { |role| [role.title, role] }]
+    end
   end
 
   def self.find_by_title!(title)
@@ -61,19 +54,11 @@ class Role < ApplicationRecord
   end
 
   def self.local_roles
-    %w(maintainer bugowner reviewer downloader reader).map { |r| Role.rolecache[r] }
+    %w(maintainer bugowner reviewer downloader reader).map { |r| Role.hashed[r] }
   end
 
   def self.global_roles
     %w(Admin User)
-  end
-
-  def rolecache
-    self.class.rolecache
-  end
-
-  def discard_cache
-    self.class.discard_cache
   end
 
   def self.ids_with_permission(perm_string)

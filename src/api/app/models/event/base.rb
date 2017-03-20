@@ -218,7 +218,7 @@ module Event
       # old/deleted obj
       return [] unless obj || role.blank?
 
-      rel = obj.relationships.where(role: Role.rolecache[role])
+      rel = obj.relationships.where(role: Role.hashed[role])
       receivers = rel.map { |r| r.user_id ? r.user : r.group }
       if receivers.empty? && obj.respond_to?(:project)
         receivers = obj_roles(obj.project, role)

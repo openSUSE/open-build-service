@@ -399,7 +399,7 @@ class BsRequestAction < ApplicationRecord
     # obj can be a project or package object
     reviewers = []
 
-    reviewer_id = Role.rolecache['reviewer'].id
+    reviewer_id = Role.hashed['reviewer'].id
 
     # check for reviewers in a package first
     if obj.class == Project

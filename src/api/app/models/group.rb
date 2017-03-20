@@ -118,7 +118,7 @@ class Group < ApplicationRecord
 
   def involved_projects_ids
     # just for maintainer for now.
-    role = Role.rolecache['maintainer']
+    role = Role.hashed['maintainer']
 
     ### all projects where user is maintainer
     Relationship.projects.where(group_id: id, role_id: role.id).distinct.pluck(:project_id)
@@ -133,7 +133,7 @@ class Group < ApplicationRecord
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
     # just for maintainer for now.
-    role = Role.rolecache['maintainer']
+    role = Role.hashed['maintainer']
 
     projects = involved_projects_ids
     projects << -1 if projects.empty?
