@@ -7,7 +7,7 @@ class BsRequestTest < ActiveSupport::TestCase
     User.current = users( :Iggy )
   end
 
-  test "if create works" do
+  def test_if_create_works
     xml = '<request>
               <action type="submit">
                 <source project="BaseDistro" package="pack2" rev="1"/>
@@ -152,8 +152,29 @@ eos
     end
   end
 
-  test "request ownership" do
+  def test_request_ownership
     check_user_targets(:Iggy, 10)
     check_user_targets(:adrian, 1, 1000)
+  end
+
+  def test_conflicting_targets_are_blocked
+    xml = '<request>
+              <action type="submit">
+                <source project="BaseDistro" package="pack2" rev="1"/>
+                <target project="home:tom" package="pack1"/>
+              </action>
+              <action type="submit">
+                <source project="BaseDistro3" package="pack2"/>
+                <target project="home:tom" package="pack1"/>
+              </action>
+              <state name="new" />
+          </request>'
+    req = BsRequest.new_from_xml(xml)
+    assert req.number.nil?
+    assert_equal 2, req.bs_request_actions.length
+    exception = assert_raise ActiveRecord::RecordInvalid do
+      req.save!
+    end
+    assert_match(/Validation failed: Invalid double action for home:tom.pack1/, exception.message)
   end
 end
