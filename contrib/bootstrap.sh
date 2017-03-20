@@ -23,6 +23,8 @@ setup_memcached
 
 configure_database
 
+configure_search
+
 print_final_information
 
 setup_data_dir
