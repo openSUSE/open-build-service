@@ -76,19 +76,6 @@ class Webui::WebuiController < ActionController::Base
     redirect_to root_path
   end
 
-  class ValidationError < RuntimeError
-    attr_reader :xml, :errors
-
-    def message
-      errors
-    end
-
-    def initialize( _xml, _errors )
-      @xml = _xml
-      @errors = _errors
-    end
-  end
-
   # FIXME: This is more than stupid. Why do we tell the user that something isn't found
   # just because there is some data missing to compute the request? Someone needs to read
   # http://guides.rubyonrails.org/active_record_validations.html
