@@ -188,16 +188,6 @@ class Repository < ApplicationRecord
     path_elements.create(link: source_repository, position: 1)
   end
 
-  def download_medium_url(medium)
-    Rails.cache.fetch("download_url_#{project.name}##{name}##medium##{medium}") do
-      path  = "/published/#{URI.escape(project.name)}/#{URI.escape(name)}"
-      path += "?view=publishedpath"
-      path += "&medium=#{CGI.escape(file)}"
-      xml = Xmlhash.parse(Suse::Backend.get(path).body)
-      xml.elements('url').last.to_s
-    end
-  end
-
   def download_url(file)
     url = Rails.cache.fetch("download_url_#{project.name}##{name}") do
       path  = "/published/#{URI.escape(project.name)}/#{URI.escape(name)}"
