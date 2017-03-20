@@ -3109,7 +3109,7 @@ if ($ex == 0) {
       undef $kiwitree unless @$kiwitree;
       undef $kiwitree if defined($BSConfig::nokiwitree) && $BSConfig::nokiwitree;
     }
-    @files = grep {-f "$buildroot/.build.packages/$d/$_"} @files;
+    @files = grep {! -l "$buildroot/.build.packages/$d/$_" && -f _} @files;
     push @send, map {"$buildroot/.build.packages/$d/$_"} @files;
   }
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
