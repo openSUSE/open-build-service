@@ -67,13 +67,10 @@ class Role < ApplicationRecord
       select('role_id').pluck(:role_id)
   end
 
-  def to_param
-    title
-  end
-
   def to_s
     title
   end
+  alias to_param to_s
 end
 
 # == Schema Information
