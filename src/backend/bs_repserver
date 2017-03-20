@@ -1646,6 +1646,7 @@ sub sendbadhostevent {
 sub receivekiwitree_scan {
   my ($buildinfo) = @_;
 
+  print "receivekiwitree_scan start\n";
   my %res;
   my %prpas;
   for my $dep (@{$buildinfo->{'bdep'} || []}) {
@@ -1665,11 +1666,14 @@ sub receivekiwitree_scan {
       }
     }
   }
+  print "receivekiwitree_scan end\n";
   return \%res;
 }
 
 sub receivekiwitree {
   my ($info, $js, $dir) = @_;
+
+  print "receivekiwitree start\n";
   local *F;
   open(F, '<', "$dir/.kiwitree") || die("$dir/.kiwitree: $!\n");
   unlink("$dir/.kiwitree");
