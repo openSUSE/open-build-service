@@ -390,7 +390,7 @@ class Webui::PackageController < Webui::WebuiController
       end
     rescue ActiveXML::Transport::Error => e
       # TODO crudest hack ever!
-      if e.summary == 'service in progress'
+      if e.summary == 'service in progress' && @expand == 1
         @expand = 0
         # silently in this case
         return set_file_details
