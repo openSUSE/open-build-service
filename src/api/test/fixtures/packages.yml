@@ -5,7 +5,6 @@ Apache_Taskjuggler:
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
   url: http://some.url
-  update_counter: 0
   activity_index: 100.0
   delta: 1
   project: Apache
@@ -16,7 +15,6 @@ Apache_Tidy:
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
   url: http://some.url
-  update_counter: 0
   activity_index: 100.0
   delta: 1
   project: Apache
@@ -27,7 +25,6 @@ Apache_apache2:
   created_at: 2005-01-01 01:00:02.000000000 Z
   updated_at: 2007-01-19 11:44:45.000000000 Z
   url: http://httpd.apache.org
-  update_counter: 0
   activity_index: 100.0
   delta: 1
   project: Apache
@@ -38,7 +35,6 @@ Apache_libapr-util1:
   created_at: 2005-01-01 01:00:02.000000000 Z
   updated_at: 2007-01-19 11:44:45.000000000 Z
   url: http://some.url
-  update_counter: 0
   activity_index: 100.0
   delta: 1
   project: Apache
@@ -48,7 +44,6 @@ BaseDistro2.0_pack2:
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BaseDistro2.0
@@ -59,7 +54,6 @@ BaseDistro2.0_pack2.linked:
   bcntsynctag: pack2
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BaseDistro2.0
@@ -69,7 +63,6 @@ LinkedUpdateProject_pack_local:
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BaseDistro2.0_LinkedUpdateProject
@@ -80,7 +73,6 @@ BaseDistro3_pack2:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BaseDistro3
@@ -90,7 +82,6 @@ BaseDistro_Update_pack2:
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BaseDistro_Update
@@ -102,7 +93,6 @@ BaseDistro_pack1:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BaseDistro
@@ -113,7 +103,6 @@ BaseDistro_pack2:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BaseDistro
@@ -124,7 +113,6 @@ BaseDistro_pack3:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   bcntsynctag: pack1
   delta: 1
@@ -136,7 +124,6 @@ BaseDistro_product:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BaseDistro
@@ -147,7 +134,6 @@ BaseDistro_product_fixed_release:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BaseDistro
@@ -158,7 +144,6 @@ BaseDistro_patchinfo:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BaseDistro
@@ -169,7 +154,6 @@ BinaryprotectedProject_bdpack:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BinaryprotectedProject
@@ -180,7 +164,6 @@ CopyTest_target:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: CopyTest
@@ -191,7 +174,6 @@ CopyTest_test:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: CopyTest
@@ -202,7 +184,6 @@ Devel_BaseDistro_Update_pack2:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: Devel_BaseDistro_Update
@@ -213,7 +194,6 @@ Devel_BaseDistro_Update_pack3:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: Devel_BaseDistro_Update
@@ -224,7 +204,6 @@ HiddenProject_pack:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: HiddenProject
@@ -235,7 +214,6 @@ HiddenProject_packCopy:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: HiddenProject
@@ -246,7 +224,6 @@ HiddenProject_target:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: HiddenProject
@@ -257,7 +234,6 @@ LocalProject_newpackage:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: LocalProject
@@ -268,7 +244,6 @@ LocalProject_remotepackage:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: LocalProject
@@ -279,7 +254,6 @@ SourceprotectedProject_pack:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: SourceprotectedProject
@@ -290,7 +264,6 @@ SourceprotectedProject_target:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: SourceprotectedProject
@@ -301,7 +274,6 @@ home_Iggy_TestPack:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: home_Iggy
@@ -312,7 +284,6 @@ home_Iggy_ToBeDeletedTestPack:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: home_Iggy
@@ -323,7 +294,6 @@ home_Iggy_branches_kde4_BranchPack:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: home_Iggy_branches_kde4
@@ -334,7 +304,6 @@ home_adrian_ProtectionTest_aggregate:
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   url: ''
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: home_adrian_ProtectionTest
@@ -344,7 +313,6 @@ home_coolo_test_kdelibs_DEVEL_package:
   description: blub
   created_at: 2001-01-01 02:01:01.000000000 Z
   updated_at: 2002-02-02 03:02:02.000000000 Z
-  update_counter: 0
   activity_index: 100.0
   delta: 1
   project: home_coolo_test
@@ -355,7 +323,6 @@ home_dmayr_x11vnc:
   created_at: 2005-01-01 01:00:02.000000000 Z
   updated_at: 2007-01-25 12:48:59.000000000 Z
   url: http://geblubberblah/total/egal
-  update_counter: 0
   activity_index: 100.0
   delta: 1
   project: home_dmayr
@@ -365,7 +332,6 @@ home_king_commentpack:
   description: description
   created_at: 2014-02-14 01:00:02.000000000 Z
   updated_at: 2014-02-14 12:48:59.000000000 Z
-  update_counter: 0
   activity_index: 100.0
   delta: 1
   project: home_king
@@ -375,7 +341,6 @@ kde4_kdebase:
   description: blub
   created_at: 2001-01-01 02:01:01.000000000 Z
   updated_at: 2002-02-02 03:02:02.000000000 Z
-  update_counter: 0
   activity_index: 100.0
   delta: 1
   project: kde4
@@ -385,7 +350,6 @@ kde4_kdelibs:
   description: blub
   created_at: 2001-01-01 02:01:01.000000000 Z
   updated_at: 2002-02-02 03:02:02.000000000 Z
-  update_counter: 0
   activity_index: 100.0
   delta: 1
   project: kde4
@@ -396,7 +360,6 @@ BrokenPublishing_pack_broken_publish:
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
-  update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BrokenPublishing

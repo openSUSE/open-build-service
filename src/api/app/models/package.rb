@@ -397,7 +397,12 @@ class Package < ApplicationRecord
 
   def sources_changed(opts = {})
     dir_xml = opts[:dir_xml]
-    update_activity
+
+    # to call update_activity before filter
+    # NOTE: We need `Time.now`, otherwise the old tests suite doesn't work,
+    # remove it when removing the tests
+    update({updated_at: Time.now})
+
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: id).delete_all
     if dir_xml.is_a? Net::HTTPSuccess
@@ -799,7 +804,8 @@ class Package < ApplicationRecord
 
   def self.activity_algorithm
     # this is the algorithm (sql) we use for calculating activity of packages
-    # we use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time
+    # NOTE: We use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time in the old tests suite,
+    # change it when removing the tests
     '( packages.activity_index * ' +
         "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
         ') as activity_value'
@@ -814,22 +820,6 @@ class Package < ApplicationRecord
     package = Package.find_by_sql("SELECT packages.*, #{Package.activity_algorithm} " +
                                       "FROM `packages` WHERE id = #{id} LIMIT 1")
     package.shift.activity_value.to_f
-  end
-
-  # is called before_update
-  def update_activity
-    # the value we add to the activity, when the object gets updated
-    addon = 10 * (Time.now.to_f - updated_at_was.to_f) / 86400
-    addon = 10 if addon > 10
-    new_activity = activity + addon
-    new_activity = 100 if new_activity > 100
-
-    # rails 3 only - rails 4 is reported to name it update_columns
-    update_column(:activity_index, new_activity)
-    # we need to update the timestamp manually to avoid the activity_algorithm to run away
-    update_column(:updated_at, Time.now)
-    # just for beauty - and only saved if we save it for other reasons
-    self.update_counter += 1
   end
 
   def expand_flags
@@ -978,19 +968,6 @@ class Package < ApplicationRecord
     end
     project.store
   end
-
-  def _add_channel(mode, channel_binary, message)
-    # add source container
-    return if mode == :skip_disabled && !channel_binary.channel_binary_list.channel.is_active?
-    cpkg = channel_binary.create_channel_package_into(project, message)
-    return unless cpkg
-    # be sure that the object exists or a background job get launched
-    cpkg.backend_package
-    # add and enable repos
-    return if mode == :add_disabled && !channel_binary.channel_binary_list.channel.is_active?
-    cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
-  end
-  private :_add_channel
 
   def update_instance(namespace = 'OBS', name = 'UpdateProject')
     # check if a newer instance exists in a defined update project
@@ -1388,6 +1365,31 @@ class Package < ApplicationRecord
       []
     end
   end
+
+  private
+
+  def _add_channel(mode, channel_binary, message)
+    # add source container
+    return if mode == :skip_disabled && !channel_binary.channel_binary_list.channel.is_active?
+    cpkg = channel_binary.create_channel_package_into(project, message)
+    return unless cpkg
+    # be sure that the object exists or a background job get launched
+    cpkg.backend_package
+    # add and enable repos
+    return if mode == :add_disabled && !channel_binary.channel_binary_list.channel.is_active?
+    cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
+  end
+
+  # is called before_update
+  def update_activity
+    # the value we add to the activity, when the object gets updated
+    addon = 10 * (Time.now.to_f - updated_at_was.to_f) / 86400
+    addon = 10 if addon > 10
+    new_activity = activity + addon
+    new_activity > 100 ? 100 : new_activity
+
+    self.activity_index = new_activity
+  end
 end
 
 # == Schema Information
@@ -1402,7 +1404,6 @@ end
 #  created_at      :datetime
 #  updated_at      :datetime         indexed
 #  url             :string(255)
-#  update_counter  :integer          default(0)
 #  activity_index  :float(24)        default(100.0)
 #  bcntsynctag     :string(255)
 #  develpackage_id :integer          indexed

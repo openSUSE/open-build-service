@@ -9,11 +9,9 @@ class UpdateinfoCounter < ApplicationRecord
 
   def increase
     # do an atomic increase of counter
-    counter = nil
     transaction do
       lock!
-      increment!(:counter)
-      counter = self.counter
+      increment(:counter)
       save!
     end
     counter

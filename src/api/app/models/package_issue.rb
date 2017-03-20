@@ -25,7 +25,9 @@ class PackageIssue < ApplicationRecord
 
         # set change value for all
         issues.each do |pair|
+          # rubocop:disable Rails/SkipsModelValidations
           PackageIssue.where(package: package, issue: pair.last).lock(true).update_all(change: pair.first)
+          # rubocop:enable Rails/SkipsModelValidations
         end
       end
     rescue ActiveRecord::StatementInvalid, Mysql2::Error
