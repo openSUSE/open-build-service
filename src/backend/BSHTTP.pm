@@ -455,7 +455,7 @@ sub cpio_sender {
 	  next;
 	}
 	if (-l _) {
-	  if (!$file->{'follow'}) {
+	  if (!$file->{'follow'} && !$param->{'follow'}) {
 	    $errors->{'data'} .= "$file->{'name'}: $filename: is a symlink\n";
 	    next;
 	  }
