@@ -76,19 +76,6 @@ class Webui::WebuiController < ActionController::Base
     redirect_to root_path
   end
 
-  class ValidationError < RuntimeError
-    attr_reader :xml, :errors
-
-    def message
-      errors
-    end
-
-    def initialize( _xml, _errors )
-      @xml = _xml
-      @errors = _errors
-    end
-  end
-
   # FIXME: This is more than stupid. Why do we tell the user that something isn't found
   # just because there is some data missing to compute the request? Someone needs to read
   # http://guides.rubyonrails.org/active_record_validations.html
@@ -144,12 +131,6 @@ class Webui::WebuiController < ActionController::Base
     return true if cc == 'max-age=0'
     return false unless cc == 'no-cache'
     !request.xhr?
-  end
-
-  def find_hashed(classname, *args)
-    ret = classname.find( *args )
-    return Xmlhash::XMLHash.new({}) unless ret
-    ret.to_hash
   end
 
   def instantiate_controller_and_action_names
@@ -237,15 +218,6 @@ class Webui::WebuiController < ActionController::Base
   end
 
   private
-
-  def put_body_to_tempfile(xmlbody)
-    file = Tempfile.new('xml', "#{Rails.root}/tmp").path
-    file = File.open(file + '.xml', 'w')
-    file.write(xmlbody)
-    file.close
-    file.path
-  end
-  private :put_body_to_tempfile
 
   def require_configuration
     @configuration = ::Configuration.first
