@@ -78,7 +78,7 @@ class Repository < ApplicationRecord
         next unless pe.link == self # this is not pointing to our repo
         if lrep.path_elements.where(repository_id: Repository.deleted_instance).present?
           # repo has already a path element pointing to deleted repository
-          pe.destroy
+          pe.destroy!
         else
           pe.link = Repository.deleted_instance
           pe.save

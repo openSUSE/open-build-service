@@ -102,25 +102,25 @@ class Webui::UserController < Webui::WebuiController
 
   def delete
     @displayed_user.state = 'deleted'
-    @displayed_user.save
+    @displayed_user.save!
     redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
 
   def confirm
     @displayed_user.state = 'confirmed'
-    @displayed_user.save
+    @displayed_user.save!
     redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
 
   def lock
     @displayed_user.state = 'locked'
-    @displayed_user.save
+    @displayed_user.save!
     redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
 
   def admin
     @displayed_user.update_globalroles(%w(Admin))
-    @displayed_user.save
+    @displayed_user.save!
     redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
 

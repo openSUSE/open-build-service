@@ -89,13 +89,13 @@ class PublishFlagTest < ActiveSupport::TestCase
     count = Flag.all.size
 
     # destroy flags
-    @project.flags.of_type('publish')[1].destroy
+    @project.flags.of_type('publish')[1].destroy!
     # reload required!
     @project.reload
     assert_equal 1, @project.flags.of_type('publish').size
     assert_equal 1, count - Flag.all.size
 
-    @project.flags.of_type('publish')[0].destroy
+    @project.flags.of_type('publish')[0].destroy!
     # reload required
     @project.reload
     assert_equal 0, @project.flags.of_type('publish').size
@@ -109,7 +109,7 @@ class PublishFlagTest < ActiveSupport::TestCase
     count = Flag.all.size
 
     # destroy flags
-    @package.flags.of_type('publish')[0].destroy
+    @package.flags.of_type('publish')[0].destroy!
     # reload required!
     @package.reload
     assert_equal 0, @package.flags.of_type('publish').size
@@ -144,7 +144,7 @@ class PublishFlagTest < ActiveSupport::TestCase
 
     # a flag update should not alter the flag position
     f.repo = '10.0'
-    f.save
+    f.save!
 
     f.reload
     assert_equal '10.0', f.repo
@@ -155,7 +155,7 @@ class PublishFlagTest < ActiveSupport::TestCase
     f = Flag.new(repo: "10.2", status: "enable", position: 4, flag: 'publish')
     @project.flags << f
     f.architecture = @arch
-    f.save
+    f.save!
 
     @project.reload
     assert_equal 4, @project.flags.of_type('publish').size
@@ -166,7 +166,7 @@ class PublishFlagTest < ActiveSupport::TestCase
 
     # a flag update should not alter the flag position
     f.repo = '10.1'
-    f.save
+    f.save!
 
     f.reload
     assert_equal '10.1', f.repo

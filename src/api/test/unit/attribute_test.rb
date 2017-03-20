@@ -17,7 +17,7 @@ class AttributeTest < ActiveSupport::TestCase
             </namespace>"
 
     xml = Xmlhash.parse( axml )
-    assert_equal true, AttribNamespace.create(name: "NewNamespace").update_from_xml(xml)
+    assert_equal true, AttribNamespace.create!(name: "NewNamespace").update_from_xml(xml)
     @ans = AttribNamespace.find_by_name( "NewNamespace" )
 
     # check results
@@ -52,7 +52,7 @@ class AttributeTest < ActiveSupport::TestCase
             </attribute>"
 
     xml = Xmlhash.parse( axml )
-    assert AttribType.create(name: "NewAttribute", attrib_namespace: @attrib_ns).update_from_xml(xml)
+    assert AttribType.create!(name: "NewAttribute", attrib_namespace: @attrib_ns).update_from_xml(xml)
 
     @atro = @attrib_ns.attrib_types.where(name: "NewAttribute").first
     assert_not_nil @atro

@@ -47,7 +47,7 @@ class UnregisteredUser < User
     opts[:note] = nil unless User.current && User.current.is_admin?
     state = ::Configuration.registration == 'allow' ? "confirmed" : "unconfirmed"
 
-    newuser = User.create(
+    newuser = User.create!(
         login: opts[:login],
         password: opts[:password],
         email: opts[:email] )
@@ -56,7 +56,7 @@ class UnregisteredUser < User
     newuser.state = state
     newuser.adminnote = opts[:note]
     logger.debug("Saving new user #{newuser.login}")
-    newuser.save
+    newuser.save!
 
     unless newuser.errors.empty?
       details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(', ')

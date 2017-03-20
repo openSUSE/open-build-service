@@ -261,7 +261,7 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :destroy?
     if @project.check_weak_dependencies?
       parent = @project.parent
-      @project.destroy
+      @project.destroy!
       if parent
         redirect_to project_show_path(parent), notice: "Project was successfully removed."
       else
@@ -402,7 +402,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     repository = @project.repositories.find(params[:repository])
     path_element = repository.path_elements.find(params[:path])
-    path_element.destroy
+    path_element.destroy!
     if @project.valid?
       @project.store
       redirect_to({ action: :index, controller: :repositories, project: @project }, success: "Successfully removed path")

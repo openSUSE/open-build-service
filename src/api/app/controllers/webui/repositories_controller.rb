@@ -71,7 +71,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     archs = []
     archs = params[:arch].keys.map { |arch| Architecture.find_by_name(arch) } if params[:arch]
     repo.architectures = archs
-    repo.save
+    repo.save!
     @project.store({ comment: "Modified #{repo.name} repository" })
 
     # Merge project repo's arch list with currently available arches from API. This needed as you want

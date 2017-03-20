@@ -132,7 +132,7 @@ module Event
       return false if queued
       self.queued = true
       begin
-        save
+        save!
       rescue ActiveRecord::StaleObjectError
         # if someone else saved it too, better don't send it
         return false
@@ -152,7 +152,7 @@ module Event
 
     def perform_create_jobs
       self.undone_jobs = 0
-      save
+      save!
       Rails.logger.debug "PCJ #{inspect} #{create_jobs.inspect}"
       create_jobs.each do |job|
         eclass = job.to_s.camelize.safe_constantize
@@ -164,7 +164,7 @@ module Event
         Delayed::Job.enqueue djob, opts
         self.undone_jobs += 1
       end
-      save if self.undone_jobs > 0
+      save! if self.undone_jobs > 0
     end
 
     # to be overwritten in subclasses

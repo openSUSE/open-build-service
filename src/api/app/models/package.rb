@@ -401,7 +401,7 @@ class Package < ApplicationRecord
     # to call update_activity before filter
     # NOTE: We need `Time.now`, otherwise the old tests suite doesn't work,
     # remove it when removing the tests
-    update({updated_at: Time.now})
+    update!({updated_at: Time.now})
 
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: id).delete_all
@@ -563,7 +563,7 @@ class Package < ApplicationRecord
     if is_channel?
       xml = Suse::Backend.get(source_path('_channel'))
       begin
-        channels.first_or_create.update_from_xml(xml.body.to_s)
+        channels.first_or_create!.update_from_xml(xml.body.to_s)
       rescue ActiveRecord::RecordInvalid => e
         if Rails.env.test?
           raise e
@@ -1064,7 +1064,7 @@ class Package < ApplicationRecord
     update_issue_list
 
     begin
-      bp.save
+      bp.save!
     rescue ActiveRecord::RecordNotUnique
       # it's not too unlikely that another process tried to save the same infos
       # we can ignore the problem - the other process will have gathered the
@@ -1170,12 +1170,12 @@ class Package < ApplicationRecord
     update_needed = nil
     if project.flags.find_by_flag_and_status( 'build', 'disable' )
       # enable package builds if project default is disabled
-      flags.create( position: 1, flag: 'build', status: 'enable', repo: repoName )
+      flags.create!( position: 1, flag: 'build', status: 'enable', repo: repoName )
       update_needed = true
     end
     if project.flags.find_by_flag_and_status( 'debuginfo', 'disable' )
       # take over debuginfo config from origin project
-      flags.create( position: 1, flag: 'debuginfo', status: 'enable', repo: repoName )
+      flags.create!( position: 1, flag: 'debuginfo', status: 'enable', repo: repoName )
       update_needed = true
     end
     store if update_needed

@@ -5,8 +5,8 @@ class AddOwnerRootProjectAttribType < ActiveRecord::Migration
     ans = AttribNamespace.find_by_name "OBS"
 
     transaction do
-      at = AttribType.create( attrib_namespace: ans, name: "OwnerRootProject" )
-      at.attrib_type_modifiable_bies.create(p)
+      at = AttribType.create!( attrib_namespace: ans, name: "OwnerRootProject" )
+      at.attrib_type_modifiable_bies.create!(p)
       at.allowed_values << AttribAllowedValue.new( value: "DisableDevel" )
       at.allowed_values << AttribAllowedValue.new( value: "BugownerOnly" )
     end

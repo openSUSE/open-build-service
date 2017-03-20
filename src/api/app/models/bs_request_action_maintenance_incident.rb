@@ -77,8 +77,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       if Package.exists_by_project_and_name(incidentProject.name, source_package, follow_project_links: false)
         new_pkg = Package.get_by_project_and_name(incidentProject.name, source_package, use_source: false, follow_project_links: false)
       else
-        new_pkg = incidentProject.packages.create(name: source_package, title: pkg_title, description: pkg_description)
-        new_pkg.flags.create(status: 'enable', flag: 'build')
+        new_pkg = incidentProject.packages.create!(name: source_package, title: pkg_title, description: pkg_description)
+        new_pkg.flags.create!(status: 'enable', flag: 'build')
         new_pkg.flags.create(status: 'enable', flag: 'publish') unless incidentProject.flags.find_by_flag_and_status('access', 'disable')
         new_pkg.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
       end

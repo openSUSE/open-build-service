@@ -5,7 +5,7 @@ class AdaptCveTracker < ActiveRecord::Migration
       t.regex = '(?:cve|CVE)-(\d\d\d\d-\d+)'
       t.label = "CVE-@@@"
       t.show_url = "http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-@@@"
-      t.save
+      t.save!
       Delayed::Worker.delay_jobs = true
       IssueTracker.write_to_backend
 
@@ -23,7 +23,7 @@ class AdaptCveTracker < ActiveRecord::Migration
       t.regex = '(CVE-\d\d\d\d-\d+)'
       t.label = "@@@"
       t.show_url = "http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@"
-      t.save
+      t.save!
       Delayed::Worker.delay_jobs = true
       IssueTracker.write_to_backend
 

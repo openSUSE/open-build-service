@@ -71,7 +71,7 @@ class Project
         link = Project.find_by_name(l['project'])
         if link.nil?
           if Project.find_remote_project(l['project'])
-            project.linking_to.create(project: project,
+            project.linking_to.create!(project: project,
                                        linked_remote_project_name: l['project'],
                                        position: position)
           else
@@ -291,7 +291,7 @@ class Project
         if current_repo.repository_architectures.where(architecture: Architecture.archcache[arch]).exists?
           raise SaveError, "double use of architecture: '#{arch}'"
         end
-        current_repo.repository_architectures.create(architecture: Architecture.archcache[arch], position: position)
+        current_repo.repository_architectures.create!(architecture: Architecture.archcache[arch], position: position)
         position += 1
       end
     end

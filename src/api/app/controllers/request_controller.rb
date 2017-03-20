@@ -116,7 +116,7 @@ class RequestController < ApplicationController
     BsRequest.transaction do
       oldrequest = BsRequest.find_by_number!(params[:id])
       notify = oldrequest.notify_parameters
-      oldrequest.destroy
+      oldrequest.destroy!
 
       req = BsRequest.new_from_xml(body)
       req.number = params[:id]
@@ -124,7 +124,7 @@ class RequestController < ApplicationController
       req.save!
 
       notify[:who] = User.current.login
-      Event::RequestChange.create notify
+      Event::RequestChange.create! notify
 
       render xml: req.render_xml
     end
@@ -134,9 +134,9 @@ class RequestController < ApplicationController
   def destroy
     request = BsRequest.find_by_number!(params[:id])
     notify = request.notify_parameters
-    request.destroy # throws us out of here if failing
+    request.destroy! # throws us out of here if failing
     notify[:who] = User.current.login
-    Event::RequestDelete.create notify
+    Event::RequestDelete.create! notify
     render_ok
   end
 

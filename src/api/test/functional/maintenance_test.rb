@@ -1393,7 +1393,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
     assert_equal %w(dirkmueller@example.com fred@feuerstein.de test_group@testsuite.org), email.to.sort
 
-    EventSubscription.create eventtype: 'Event::CommentForRequest', receiver_role: :source_maintainer,
+    EventSubscription.create! eventtype: 'Event::CommentForRequest', receiver_role: :source_maintainer,
                              user: users(:maintenance_assi), receive: true
 
     # now leave another comment and hope the assi gets it too

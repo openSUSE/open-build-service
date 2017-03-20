@@ -90,13 +90,13 @@ class BuildFlagTest < ActiveSupport::TestCase
     count = Flag.all.size
 
     # destroy flags
-    @project.flags.of_type('build')[1].destroy
+    @project.flags.of_type('build')[1].destroy!
     # reload required!
     @project.reload
     assert_equal 1, @project.flags.of_type('build').size
     assert_equal 1, count - Flag.all.size
 
-    @project.flags.of_type('build')[0].destroy
+    @project.flags.of_type('build')[0].destroy!
     # reload required
     @project.reload
     assert_equal 0, @project.flags.of_type('build').size
@@ -110,7 +110,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     count = Flag.all.size
 
     # destroy flags
-    @package.flags.of_type('build')[0].destroy
+    @package.flags.of_type('build')[0].destroy!
     # reload required!
     @package.reload
     assert_equal 1, @package.flags.of_type('build').size
@@ -145,7 +145,7 @@ class BuildFlagTest < ActiveSupport::TestCase
 
     # a flag update should not alter the flag position
     f.repo = '10.0'
-    f.save
+    f.save!
 
     f.reload
     assert_equal '10.0', f.repo
@@ -165,7 +165,7 @@ class BuildFlagTest < ActiveSupport::TestCase
 
     # a flag update should not alter the flag position
     f.repo = '10.1'
-    f.save
+    f.save!
 
     f.reload
     assert_equal '10.1', f.repo

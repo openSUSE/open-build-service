@@ -7,8 +7,8 @@ class AutoCleanupAttribute < ActiveRecord::Migration
 
     AttribTypeModifiableBy.reset_column_information
 
-    at = AttribType.create( attrib_namespace: ans, name: "AutoCleanup", value_count: 1 )
-    AttribTypeModifiableBy.create(role_id: role.id, attrib_type_id: at.id)
+    at = AttribType.create!( attrib_namespace: ans, name: "AutoCleanup", value_count: 1 )
+    AttribTypeModifiableBy.create!(role_id: role.id, attrib_type_id: at.id)
 
     add_column :configurations, :cleanup_after_days, :integer
   end

@@ -73,7 +73,7 @@ class DistributionsController < ApplicationController
   # DELETE /distributions/opensuse-11.4.xml
   def destroy
     @distribution = Distribution.find(params[:id])
-    @distribution.destroy
+    @distribution.destroy!
 
     respond_to do |format|
       format.xml  { head :ok }

@@ -200,7 +200,7 @@ class BuildController < ApplicationController
                end
       # rubocop:enable Lint/EndAlignment
 
-      headers.update(
+      headers.update!(
         'Content-Disposition' => %(attachment; filename="#{params[:filename]}"),
         'Content-Type' => c_type,
         'Transfer-Encoding' => 'binary',

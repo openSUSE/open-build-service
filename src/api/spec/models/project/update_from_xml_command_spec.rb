@@ -141,7 +141,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
       end
 
       it "raises an error if target repository does not exist" do
-        target_repository.destroy
+        target_repository.destroy!
         expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, @xml_hash, false) }.to raise_error(
           Project::SaveError, "Unknown target repository 'target_project/target_repo'"
         )

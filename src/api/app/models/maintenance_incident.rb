@@ -17,13 +17,13 @@ class MaintenanceIncident < ApplicationRecord
 
     Project.transaction do
       result = MaintenanceIncident.new(maintenance_db_project: project)
-      target_project = Project.create(name: result.project_name)
-      target_project.flags.create(position: 1, flag: 'build', status: 'disable')
+      target_project = Project.create!(name: result.project_name)
+      target_project.flags.create!(position: 1, flag: 'build', status: 'disable')
 
       # publish is disabled, just patchinfos get enabled
-      target_project.flags.create(flag: 'publish', status: 'disable')
+      target_project.flags.create!(flag: 'publish', status: 'disable')
       if no_access
-        target_project.flags.create(flag: 'access', status: 'disable')
+        target_project.flags.create!(flag: 'access', status: 'disable')
       end
 
       # take over roles from maintenance project

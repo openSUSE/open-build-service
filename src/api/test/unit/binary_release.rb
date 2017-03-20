@@ -31,7 +31,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
     project = Project.find_by_name("BaseDistro")
     repository = project.repositories.build(name: "Dummy")
     Timecop.freeze(2010, 7, 12)
-    binary_release = BinaryRelease.create(repository: repository,
+    binary_release = BinaryRelease.create!(repository: repository,
                                           binary_name: "package",
                                           binary_version: "1",
                                           binary_release: "2.3",
@@ -50,7 +50,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
 
     # cleanup works?
     id = binary_releases_of_package.first.id
-    repository.destroy
+    repository.destroy!
     assert_nil BinaryRelease.find_by_id(id)
   end
 

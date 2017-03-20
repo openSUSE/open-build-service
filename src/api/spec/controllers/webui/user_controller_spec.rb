@@ -90,7 +90,7 @@ RSpec.describe Webui::UserController do
     end
 
     it 'tells users about wrong state' do
-      user.update({ state: :locked })
+      user.update!({ state: :locked })
       post :do_login, params: { username: user.login, password: 'buildservice' }
       expect(response).to redirect_to root_path
       expect(flash[:error]).to eq("Your account is disabled. Please contact the adminsitrator for details.")

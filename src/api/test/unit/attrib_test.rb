@@ -82,12 +82,12 @@ class AttribTest < ActiveSupport::TestCase
     attrib = Attrib.new(attrib_type: attrib_type, package: Package.first)
     # default value position 1
     attrib_type.default_values << AttribDefaultValue.new(value: 'xxx', position: 1)
-    attrib_type.save
+    attrib_type.save!
     attrib.values.build(attrib: attrib, position: 1)
     assert_equal 'xxx', attrib.values[0].value
     # default value position 2
     attrib_type.default_values << AttribDefaultValue.new(value: 'yyy', position: 2)
-    attrib_type.save
+    attrib_type.save!
     attrib.values.build(attrib: attrib, position: 2)
     assert_equal 'yyy', attrib.values[1].value
   end
@@ -116,7 +116,7 @@ class AttribTest < ActiveSupport::TestCase
     attrib_type.allowed_values << AttribAllowedValue.new(value: 'Two')
     attrib_type.default_values << AttribDefaultValue.new(value: 'One', position: 1)
     attrib_type.value_count = 1
-    attrib_type.save
+    attrib_type.save!
     attrib = Attrib.new(attrib_type: attrib_type, project: Project.first)
 
     attrib.values.build(attrib: attrib, position: 1)

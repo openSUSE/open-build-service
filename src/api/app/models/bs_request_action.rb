@@ -458,13 +458,13 @@ class BsRequestAction < ApplicationRecord
       return if splits.count == 2 && splits[0] == 'home'
 
       source_project.commit_opts = { comment: bs_request.description, request: bs_request }
-      source_project.destroy
+      source_project.destroy!
       return "/source/#{self.source_project}"
     end
     # just remove one package
     source_package = source_project.packages.find_by_name!(self.source_package)
     source_package.commit_opts = { comment: bs_request.description, request: bs_request }
-    source_package.destroy
+    source_package.destroy!
     Package.source_path(self.source_project, self.source_package)
   end
 
@@ -665,7 +665,7 @@ class BsRequestAction < ApplicationRecord
           submitAction.target_project = tprj.name
           submitAction.target_package = tpkg
           # replace the new action
-          newAction.destroy
+          newAction.destroy!
           newAction = submitAction
         else # non-channel package
           next if ReleaseTarget.where(repository: pkg.project.repositories, target_repository: tprj.repositories, trigger: "maintenance").empty?
@@ -681,7 +681,7 @@ class BsRequestAction < ApplicationRecord
       # check if the source contains really a diff or we can skip the entire action
       if newAction.action_type.in?([:submit, :maintenance_incident]) && !newAction.contains_change?
         # submit contains no diff, drop it again
-        newAction.destroy
+        newAction.destroy!
       else
         newactions << newAction
       end

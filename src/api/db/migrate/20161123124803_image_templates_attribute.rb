@@ -7,7 +7,7 @@ class ImageTemplatesAttribute < ActiveRecord::Migration[5.0]
 
     AttribTypeModifiableBy.reset_column_information
 
-    at = AttribType.create(attrib_namespace: ans, name: "ImageTemplates")
+    at = AttribType.create!(attrib_namespace: ans, name: "ImageTemplates")
     AttribTypeModifiableBy.create(role_id: role.id, attrib_type_id: at.id)
   end
 

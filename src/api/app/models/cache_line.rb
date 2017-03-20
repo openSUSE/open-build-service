@@ -9,7 +9,7 @@ class CacheLine < ApplicationRecord
     cont = yield
     Rails.cache.write(cache_key, cont)
     begin
-      CacheLine.create key: cache_key,
+      CacheLine.create! key: cache_key,
                        project: opts[:project],
                        package: opts[:package],
                        request: opts[:request]

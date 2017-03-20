@@ -488,7 +488,7 @@ EOT
     context "without source access" do
       before do
         package.add_flag("sourceaccess", "disable")
-        package.save
+        package.save!
         get :revisions, params: { project: source_project, package: package }
       end
 

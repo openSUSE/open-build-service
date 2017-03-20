@@ -149,7 +149,7 @@ RSpec.describe User do
     it "sets the 'last_logged_in_at' attribute" do
       user = User.new
       expect(user.last_logged_in_at).to be nil
-      user.save
+      user.save!
       expect(user.last_logged_in_at).to be_within(30.seconds).of(Time.now)
     end
   end

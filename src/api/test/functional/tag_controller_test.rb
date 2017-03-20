@@ -85,7 +85,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     # create a tag for testing
     t = Tag.new
     t.name = "TagX"
-    t.save
+    t.save!
 
     # get this tag from the data base
     t = Tag.find_by_name("TagX")
@@ -120,7 +120,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     # create a tag for testing
     tx = Tag.new
     tx.name = "TagX"
-    tx.save
+    tx.save!
 
     # get this tag from the data base
     tx = Tag.find_by_name("TagX")
@@ -129,7 +129,7 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     # create another tag for testing
     ty = Tag.new
     ty.name = "TagY"
-    ty.save
+    ty.save!
 
     # get this tag from the data base
     ty = Tag.find_by_name("TagY")

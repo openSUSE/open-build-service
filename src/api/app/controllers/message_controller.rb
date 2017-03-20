@@ -51,7 +51,7 @@ class MessageController < ApplicationController
       else
         raise ArgumentError, 'must give either project or package'
       end
-      msg.save
+      msg.save!
       render_ok
     rescue ArgumentError => e
       render_error status: 400, errorcode: 'error creating message',
