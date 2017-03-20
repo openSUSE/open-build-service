@@ -172,7 +172,7 @@ class Review < ApplicationRecord
   def reviewers_for_obj(obj)
     return [] unless obj
     relationships = obj.relationships
-    roles = relationships.where(role: Role.rolecache['maintainer'])
+    roles = relationships.where(role: Role.hashed['maintainer'])
     User.where(id: roles.users.pluck(:user_id)) + Group.where(id: roles.groups.pluck(:group_id))
   end
 

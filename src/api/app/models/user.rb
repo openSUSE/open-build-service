@@ -697,7 +697,7 @@ class User < ApplicationRecord
 
   def involved_projects_ids
     # just for maintainer for now.
-    role = Role.rolecache['maintainer']
+    role = Role.hashed['maintainer']
 
     ### all projects where user is maintainer
     projects = relationships.projects.where(role_id: role.id).pluck(:project_id)
@@ -716,7 +716,7 @@ class User < ApplicationRecord
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
     # just for maintainer for now.
-    role = Role.rolecache['maintainer']
+    role = Role.hashed['maintainer']
 
     projects = involved_projects_ids
     projects << -1 if projects.empty?
@@ -804,7 +804,7 @@ class User < ApplicationRecord
   end
 
   def user_relevant_packages_for_status
-    role_id = Role.rolecache['maintainer'].id
+    role_id = Role.hashed['maintainer'].id
     # First fetch the project ids
     projects_ids = involved_projects_ids
     packages = Package.joins("LEFT OUTER JOIN relationships ON (relationships.package_id = packages.id AND relationships.role_id = #{role_id})")

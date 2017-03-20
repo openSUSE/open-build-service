@@ -22,7 +22,7 @@ module HasRelationships
 
   def bugowner_emails
     ret = []
-    relationships.where(role: Role.rolecache['bugowner']).joins(:user).each do |bugowner|
+    relationships.where(role: Role.hashed['bugowner']).joins(:user).each do |bugowner|
       mail = bugowner.user.email
       ret.push(mail.to_s) if mail
     end
@@ -178,7 +178,7 @@ module HasRelationships
     # in a second step we parse the XML and track in the hash if
     # we keep the relationships
     xmlhash.elements(@updater.xml_element) do |node|
-      role = Role.rolecache[node['role']]
+      role = Role.hashed[node['role']]
       raise SaveError, "illegal role name '#{node['role']}'" unless role
 
       id = @updater.id(node)

@@ -1057,7 +1057,7 @@ class BsRequest < ApplicationRecord
         action[:sourcediff] = xml.webui_infos if with_diff
         creator = User.find_by_login(self.creator)
         target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
-        action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.rolecache['maintainer'], target_package)
+        action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.hashed['maintainer'], target_package)
 
         if target_package
           linkinfo = target_package.linkinfo

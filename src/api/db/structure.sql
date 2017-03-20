@@ -935,6 +935,8 @@ CREATE TABLE `roles` (
   `title` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `parent_id` int(11) DEFAULT NULL,
   `global` tinyint(1) DEFAULT '0',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `roles_parent_id_index` (`parent_id`),
   CONSTRAINT `roles_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `roles` (`id`)
@@ -1407,6 +1409,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170315200936'),
 ('20170317094221'),
 ('20170316090223'),
+('20170320151300'),
 ('21'),
 ('22'),
 ('23'),
