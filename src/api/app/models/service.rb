@@ -79,17 +79,6 @@ class Service < ActiveXML::Node
     end
   end
 
-  def removeService(serviceid)
-    each("/services/service") do |service|
-      serviceid -= 1
-      if serviceid.zero?
-        delete_element service
-        return true
-      end
-    end
-    false
-  end
-
   def fill_params(element, parameters)
     parameters.each { |parameter|
       param = element.add_element('param', name: parameter[:name])
