@@ -454,7 +454,12 @@ sub cpio_sender {
 	  $errors->{'data'} .= "$file->{'name'}: $filename: $!\n";
 	  next;
 	}
-	if (-l _ || ! -f _) {
+	if (-l _) {
+	  if (!$file->{'follow'}) {
+	    $errors->{'data'} .= "$file->{'name'}: $filename: is a symlink\n";
+	    next;
+	  }
+	} elsif (! -f _) {
 	  $errors->{'data'} .= "$file->{'name'}: $filename: not a plain file\n";
 	  next;
 	}

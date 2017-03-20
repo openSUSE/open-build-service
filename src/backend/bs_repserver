@@ -2905,12 +2905,9 @@ sub abortbuild {
 #
 sub getqemuinterpreters {
   my @send;
-
-  if (-d "qemu") {
-      for my $file (grep {!/^\./} ls("qemu")) {
-	  next unless -f "qemu/$file";
-	  push @send, {'name' => "$file", 'filename' => "qemu/$file"};
-      }
+  for my $file (grep {!/^\./} ls('qemu')) {
+    next unless -f "qemu/$file";
+    push @send, {'name' => $file, 'filename' => "qemu/$file"};
   }
   return @send;
 }
@@ -2930,6 +2927,7 @@ sub getcode {
     push @send, {'name' => "$file", 'filename' => "$dir/$file"};
   }
   die("$dir is empty\n") unless @send;
+  $_->{'follow'} = 1 for @send;		# follow all symlinks
   BSServer::reply_cpio(\@send);
   return undef;
 }
