@@ -44,7 +44,7 @@ class Role < ApplicationRecord
   #
   # {"Admin" => #<Role id:1>, "downloader" => #<Role id:2>, ... }
   def self.hashed
-    Rails.cache.fetch('hashed_roles', expires_in: 8.hours) do
+    Rails.cache.fetch(Role.all.cache_key) do
       Hash[Role.all.map { |role| [role.title, role] }]
     end
   end
@@ -77,10 +77,12 @@ end
 #
 # Table name: roles
 #
-#  id        :integer          not null, primary key
-#  title     :string(100)      default(""), not null
-#  parent_id :integer          indexed
-#  global    :boolean          default(FALSE)
+#  id         :integer          not null, primary key
+#  title      :string(100)      default(""), not null
+#  parent_id  :integer          indexed
+#  global     :boolean          default(FALSE)
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #
 # Indexes
 #
