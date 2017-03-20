@@ -32,6 +32,10 @@ Style/AndOr:
 Style/AsciiComments:
   Enabled: true
 
+# This cop checks how the 'when's of a case expression are indented in relation to its `case` or `end` keyword.
+Style/CaseIndentation:
+  Enabled: true
+
 # Checks for methods invoked via the :: operator
 Style/ColonMethodCall:
   Enabled: true

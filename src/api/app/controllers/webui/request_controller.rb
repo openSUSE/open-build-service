@@ -21,15 +21,15 @@ class Webui::RequestController < Webui::WebuiController
     begin
       opts = {}
       case params[:review_type]
-        when 'user' then
-          opts[:by_user] = params[:review_user]
-        when 'group' then
-          opts[:by_group] = params[:review_group]
-        when 'project' then
-          opts[:by_project] = params[:review_project]
-        when 'package' then
-          opts[:by_project] = params[:review_project]
-          opts[:by_package] = params[:review_package]
+      when 'user' then
+        opts[:by_user] = params[:review_user]
+      when 'group' then
+        opts[:by_group] = params[:review_group]
+      when 'project' then
+        opts[:by_project] = params[:review_project]
+      when 'package' then
+        opts[:by_project] = params[:review_project]
+        opts[:by_package] = params[:review_package]
       end
       opts[:comment] = params[:review_comment] if params[:review_comment]
 

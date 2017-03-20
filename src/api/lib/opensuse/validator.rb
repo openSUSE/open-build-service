@@ -67,16 +67,16 @@ module Suse
       # validate ('schema.xsd', '<foo>bar</foo>")
       def validate(opt, content)
         case opt
-          when String, Symbol
-            schema_file = opt.to_s
-          when Hash, HashWithIndifferentAccess
-            schema_file = get_schema(opt).to_s
-          when ActionController::Parameters
+        when String, Symbol
+          schema_file = opt.to_s
+        when Hash, HashWithIndifferentAccess
+          schema_file = get_schema(opt).to_s
+        when ActionController::Parameters
             # TODO: Once everything else works test if we can move this to
             #       app/controllers/application_controller.rb:538
-            schema_file = get_schema(opt.to_unsafe_h.with_indifferent_access).to_s
-          else
-            raise "illegal option; need Hash/Symbol/String, seen: #{opt.class.name}"
+          schema_file = get_schema(opt.to_unsafe_h.with_indifferent_access).to_s
+        else
+          raise "illegal option; need Hash/Symbol/String, seen: #{opt.class.name}"
         end
 
         schema_base_filename = schema_location + '/' + schema_file

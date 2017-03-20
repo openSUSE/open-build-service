@@ -10,13 +10,13 @@ class GroupController < ApplicationController
 
   rescue_from Pundit::NotAuthorizedError do |exception|
     pundit_action = case exception.query.to_s
-       when "index?" then "list"
-       when "show?" then "view"
-       when "create?" then "create"
-       when "new?" then "create"
-       when "update?" then "update"
-       when "destroy?" then "delete"
-       else exception.query
+                    when "index?" then "list"
+                    when "show?" then "view"
+                    when "create?" then "create"
+                    when "new?" then "create"
+                    when "update?" then "update"
+                    when "destroy?" then "delete"
+                    else exception.query
     end
 
     render_error status: 403, errorcode: "No permission to #{pundit_action} group"
