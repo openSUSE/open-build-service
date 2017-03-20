@@ -107,8 +107,7 @@ class Repository < ApplicationRecord
   end
 
   def project_name
-    return project.name if project
-    remote_project_name
+    project.try(:name) || remote_project_name
   end
 
   def expand_all_repositories
