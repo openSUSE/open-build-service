@@ -1746,25 +1746,68 @@ EOF
     assert_xml_tag(tag: 'revisionlist')
     get '/source/kde4/_meta'
     assert_response :success
-    meta = @response.body
-    put '/source/kde4/_meta?comment=empty+change', params: meta
+    oldmeta = @response.body
+    newmeta = oldmeta.gsub(/<title>.*<\/title>/, '<title>new title string</title>')
+    raw_put '/source/kde4/_meta?comment=title+change', newmeta
     assert_response :success
     get '/source/kde4/_project/_history?meta=1'
     assert_response :success
     assert_xml_tag(tag: 'revisionlist')
-    assert_xml_tag(tag: 'comment', content: "empty change")
-  end
+    assert_xml_tag(tag: 'comment', content: "title change")
+    # compare to database version
+    get '/source/kde4/_project/_meta'
+    assert_response :success
+    assert_xml_tag(tag: 'title', content: "new title string")
+    # compare to backend version
+    get '/source/kde4/_project/_meta?meta=1&rev=latest'
+    assert_response :success
+    assert_xml_tag(tag: 'title', content: "new title string")
 
-  def test_get_project_meta_file
-    get '/source/kde4/_project/_history'
-    assert_response 401
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    # check old revision
     get '/source/kde4/_project/_meta?meta=1'
     assert_response :success
     assert_xml_tag(tag: 'project')
-    get '/source/kde4/_project/_meta?meta=1&rev=latest'
+    get '/source/kde4/_project/_meta?meta=1&rev=1'
     assert_response :success
     assert_xml_tag(tag: 'project')
+    assert_xml_tag(tag: 'title', content: "blub") # fixture string
+
+    # restore
+    raw_put '/source/kde4/_meta?comment=title+change', oldmeta
+    assert_response :success
+  end
+
+  def test_get_package_meta_file
+    get '/source/kde4/kdelibs/_history'
+    assert_response 401
+    prepare_request_with_user 'fredlibs', 'buildservice'
+    get '/source/kde4/kdelibs/_meta?meta=1'
+    assert_response :success
+    assert_xml_tag(tag: 'package')
+    oldmeta = @response.body
+    newmeta = oldmeta.gsub(/<title>.*<\/title>/, '<title>new package title string</title>')
+    raw_put '/source/kde4/kdelibs/_meta?comment=title+change', newmeta
+    assert_response :success
+    # compare to database version
+    get '/source/kde4/kdelibs/_meta'
+    assert_response :success
+    assert_xml_tag(tag: 'package')
+    assert_xml_tag(tag: 'title', content: "new package title string")
+    # compare to backend version
+    get '/source/kde4/kdelibs/_meta?meta=1&rev=latest'
+    assert_response :success
+    assert_xml_tag(tag: 'package')
+    assert_xml_tag(tag: 'title', content: "new package title string")
+
+    # old revision
+    get '/source/kde4/kdelibs/_meta?meta=1&rev=1'
+    assert_response :success
+    assert_xml_tag(tag: 'package')
+    assert_xml_tag(tag: 'title', content: "blub") # fixture string
+
+    # restore
+    raw_put '/source/kde4/kdelibs/_meta', oldmeta
+    assert_response :success
   end
 
   def test_invalid_package_command
@@ -1789,10 +1832,10 @@ EOF
 
   def test_blame_view
     prepare_request_with_user 'fredlibs', 'buildservice'
-    put '/source/kde4/BLAME/_meta', params: '<package name="BLAME" project="kde4"><title/><description/></package>'
+    raw_put '/source/kde4/BLAME/_meta', '<package name="BLAME" project="kde4"><title/><description/></package>'
     assert_response :success
 
-    put '/source/kde4/BLAME/DUMMYFILE', params: "init\n"
+    raw_put '/source/kde4/BLAME/DUMMYFILE', "init\n"
     assert_response :success
 
     # store current revision
@@ -1802,10 +1845,10 @@ EOF
     rev = node.each(:revision).last.value(:rev).to_i
 
     # add a file
-    put '/source/kde4/BLAME/DUMMYFILE', params: "dummy1\ndummy2\ndummy3\n"
+    raw_put '/source/kde4/BLAME/DUMMYFILE', "dummy1\ndummy2\ndummy3\n"
     assert_response :success
     login_king
-    put '/source/kde4/BLAME/DUMMYFILE', params: "dummy1\ndummy2 king\ndummy3\n"
+    raw_put '/source/kde4/BLAME/DUMMYFILE', "dummy1\ndummy2 king\ndummy3\n"
     assert_response :success
 
     get '/source/kde4/BLAME/DUMMYFILE?view=blame'
@@ -1813,6 +1856,14 @@ EOF
     assert_match(/#{rev + 1} \(fredlibs .* 1\) dummy1/, @response.body)
     assert_match(/#{rev + 2} \(king     .* 2\) dummy2 king/, @response.body)
     assert_match(/#{rev + 1} \(fredlibs .* 3\) dummy3/, @response.body)
+
+    # meta view needs special routing
+    get '/source/kde4/BLAME/_meta?view=blame&meta=1'
+    assert_response :success
+    assert_match(/^   1 \(fredlibs/, @response.body)
+    get '/source/kde4/_project/_meta?view=blame&meta=1'
+    assert_response :success
+    assert_match(/^   1 \(king/, @response.body)
 
     # cleanup
     delete '/source/kde4/BLAME'

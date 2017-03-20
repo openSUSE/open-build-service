@@ -641,16 +641,12 @@ class SourceController < ApplicationController
 
     pack = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
 
-    if params.has_key?(:rev) || pack.nil? # and not pro_name
-                                          # check if this comes from a remote project, also true for _project package
-                                          # or if rev it specified we need to fetch the meta from the backend
-      answer = Suse::Backend.get(request.path_info)
-      if answer
-        render xml: answer.body.to_s
-      else
-        render_error status: 404, errorcode: 'unknown_package',
-                     message: "Unknown package '#{@package_name}'"
-      end
+    if params.has_key?(:meta) || pack.nil?
+       # check if this comes from a remote project, also true for _project package
+       # or if meta is specified we need to fetch the meta from the backend
+      path = request.path_info
+      path += build_query_from_hash(params, [:meta, :rev, :view])
+      pass_to_backend path
       return
     end
 
