@@ -1,0 +1,28 @@
+From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+Date: Tue, 21 Mar 2017 11:45:31 +0100
+Subject: BSConfig: Read a BSConfig.local.pm if it exists
+
+BSConfig.<hostname>.pm is neat but it can be tricky (and breaks if the
+hostname changes or perl doesn't get teh fqdn in the expected form). So
+instead add a statically named BSConfig.local.pm to be read.
+
+Signed-off-by: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+---
+ src/backend/BSConfig.pm.template | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/backend/BSConfig.pm.template b/src/backend/BSConfig.pm.template
+index 5758256..b4c82f3 100644
+--- a/src/backend/BSConfig.pm.template
++++ b/src/backend/BSConfig.pm.template
+@@ -229,4 +229,10 @@ if (-r $hostconfig) {
+   require $hostconfig;
+ }
+ 
++my $localconfig = "/etc/obs/BSConfig.local.pm";
++if (-r $localconfig) {
++  print STDERR "reading $localconfig...\n";
++  require $localconfig;
++}
++
+ 1;

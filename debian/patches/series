@@ -28,3 +28,5 @@ Put-binary-uploads-in-architecture-dependent-subdirectori.patch
 Correct-reprepro-argument-to-match-current-version.patch
 backend-Handle-ERROR_WANT_-READ-WRITE-from-ssl-reads.patch
 backend-Support-https-urls-for-package-downloads.patch
+BSConfig-Make-every-architecture-its-own-relsync-pool.patch
+BSConfig-Read-a-BSConfig.local.pm-if-it-exists.patch

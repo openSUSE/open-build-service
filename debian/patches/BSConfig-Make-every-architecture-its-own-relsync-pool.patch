@@ -1,0 +1,60 @@
+From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+Date: Tue, 21 Mar 2017 11:42:13 +0100
+Subject: BSConfig: Make every architecture its own relsync pool
+
+Linking up e.g. all intel architectures and ARM 32 bit architectures in
+one pool really isn't useful for our general usage of OBS. So split each
+architecture in a seperate pool.
+
+Signed-off-by: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+---
+ src/backend/BSConfig.pm.template | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/src/backend/BSConfig.pm.template b/src/backend/BSConfig.pm.template
+index 7c86809..5758256 100644
+--- a/src/backend/BSConfig.pm.template
++++ b/src/backend/BSConfig.pm.template
+@@ -127,28 +127,28 @@ our $packtrack = [];
+ our $relsync_pool = {
+  "local" => "local",
+  "i586" => "i586",
+- "x86_64" => "i586",
++ "x86_64" => "x86_64",
+  "ppc" => "ppc",
+- "ppc64" => "ppc",
+- "ppc64le" => "ppc",
++ "ppc64" => "ppc64",
++ "ppc64le" => "ppc64le",
+  "mips" => "mips",
+- "mips64" => "mips",
++ "mips64" => "mips64",
+  "mipsel" => "mipsel",
+- "mips64el" => "mipsel",
+- "aarch64"  => "arm",
+- "aarch64_ilp32"  => "arm",
+- "armv4l"  => "arm",
+- "armv5l"  => "arm",
+- "armv6l"  => "arm",
+- "armv6hl" => "arm",
+- "armv7l"  => "arm",
+- "armv7hl" => "arm",
++ "mips64el" => "mips64el",
++ "aarch64"  => "aarch64",
++ "aarch64_ilp32"  => "aarch64_ilp32",
++ "armv4l"  => "armv4l",
++ "armv5l"  => "armv5l",
++ "armv6l"  => "armv6l",
++ "armv6hl" => "arm6hl",
++ "armv7l"  => "arm7l",
++ "armv7hl" => "arm7hl",
+  "armv5el" => "armv5el", # they do not exist
+  "armv6el" => "armv6el",
+  "armv7el" => "armv7el",
+  "armv8el" => "armv8el",
+  "sparcv9" => "sparcv9",
+- "sparc64" => "sparcv9",
++ "sparc64" => "sparc64",
+ };
+ 
+ #No extra stage server sync
