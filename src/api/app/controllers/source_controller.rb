@@ -641,7 +641,7 @@ class SourceController < ApplicationController
 
     pack = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
 
-    if params.has_key?(:meta) || pack.nil?
+    if params.has_key?(:meta) || params.has_key?(:rev) || params.has_key?(:view) || pack.nil?
        # check if this comes from a remote project, also true for _project package
        # or if meta is specified we need to fetch the meta from the backend
       path = request.path_info
