@@ -1864,6 +1864,10 @@ EOF
     get '/source/kde4/_project/_meta?view=blame&meta=1'
     assert_response :success
     assert_match(/^   1 \(king/, @response.body)
+    # should also work without the extra meta argument since it is _meta
+    get '/source/kde4/_project/_meta?view=blame'
+    assert_response :success
+    assert_match(/^   1 \(king/, @response.body)
 
     # cleanup
     delete '/source/kde4/BLAME'
@@ -3777,9 +3781,6 @@ EOF
 
     get '/source/home:Iggy/TestPack/_meta'
     assert_equal original, @response.body
-
-    get '/source/home:Iggy/TestPack/_meta?view=flagdetails'
-    assert_response :success
   end
 
   def test_project_remove_flag
@@ -3824,9 +3825,6 @@ EOF
 
     get '/source/home:Iggy/_meta'
     assert_equal original, @response.body
-
-    get '/source/home:Iggy/_meta?view=flagdetails'
-    assert_response :success
   end
 
   def test_wild_chars
