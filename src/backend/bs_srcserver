@@ -3649,10 +3649,15 @@ sub putproject {
 
   my %except = map {$_ => 1} qw{title description person group url attributes};
   if (!identical($oldproj, $proj, \%except)) {
-    if ($cgi->{'lowprio'}) {
-      notify_repservers('lowprioproject', $projid);
+    my $type = ($cgi->{'lowprio'}) ? 'lowprioproject' : 'project';
+    if ($proj->{'remoteurl'}) {
+      # inform all repserves about a remote project
+      # need to add the event here since notify_all_repservers() doesn't do it
+      my $ev = {'type' => $type, 'project' => $projid};
+      addevent($ev);
+      notify_all_repservers($type, $projid);
     } else {
-      notify_repservers('project', $projid);
+      notify_repservers($type, $projid);
     }
   }
 
@@ -8432,6 +8437,8 @@ if ($BSConfig::workersrcserver) {
   $conf->{'port2'} = $wport if $wport != $port;
 }
 
+# always create the event directory if it not exist
+BSUtil::mkdir_p_chown("$eventdir", $BSConfig::bsuser, $BSConfig::bsgroup) unless -d "$eventdir";
 # set a repoid for identification of this data repository
 BSUtil::mkdir_p_chown("$projectsdir", $BSConfig::bsuser, $BSConfig::bsgroup) unless -d "$projectsdir";
 if (! -e "$projectsdir/_repoid") {
