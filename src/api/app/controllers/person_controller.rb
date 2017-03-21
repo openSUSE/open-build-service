@@ -170,7 +170,7 @@ class PersonController < ApplicationController
     end
 
     UnregisteredUser.register(login: login, realname: realname, email:
-        email, password: password, note: note, status: status)
+        email, password: password, password_confirmation: password, note: note, status: status)
 
     # This may fail when no notification is configured. Not important, so no exception handling for now
     # IchainNotifier.deliver_approval(newuser)
