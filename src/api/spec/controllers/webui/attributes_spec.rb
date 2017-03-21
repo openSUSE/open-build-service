@@ -17,6 +17,95 @@ RSpec.describe Webui::AttributeController do
     end
   end
 
+  describe 'GET #new' do
+    before do
+      login user
+    end
+
+    context 'with package' do
+      let(:package) { create(:package, project: user.home_project) }
+
+      before do
+        get :new, params: { project: user.home_project, package: package }
+      end
+
+      it { expect(assigns(:attribute).project_id).to be_nil }
+      it { expect(assigns(:attribute).package_id).to eq(package.id) }
+    end
+
+    context 'without package' do
+      before do
+        get :new, params: { project: user.home_project }
+      end
+
+      it { expect(assigns(:attribute).project_id).to eq(user.home_project.id) }
+      it { expect(assigns(:attribute).package_id).to be_nil }
+    end
+  end
+
+  describe 'GET #edit' do
+    let(:attrib_value) { build(:attrib_value, value: Faker::Lorem.sentence) }
+
+    before do
+      login user
+    end
+
+    context 'with a value_count defined in attrib_type' do
+      context 'with the same amount of values, nothing changes' do
+        let(:attrib_type) { create(:attrib_type_with_namespace, value_count: 1) }
+        let!(:attrib) { create(:attrib, project: user.home_project, attrib_type: attrib_type, values: [attrib_value]) }
+
+        before do
+          get :edit, params: { project: user.home_project, attribute: attrib.fullname }
+        end
+
+        it { expect(assigns(:attribute).values.length).to be(assigns(:attribute).attrib_type.value_count) }
+        it { expect(assigns(:attribute).values.last.value).not_to be_empty }
+      end
+
+      context 'with more values, nothing changes' do
+        let(:attrib_type) { create(:attrib_type_with_namespace, value_count: 2) }
+        let(:attrib_value_2) { build(:attrib_value, value: Faker::Lorem.sentence) }
+        let!(:attrib) { create(:attrib, project: user.home_project, attrib_type: attrib_type, values: [attrib_value, attrib_value_2]) }
+
+        before do
+          attrib_type.value_count -= 1
+          attrib_type.save
+          get :edit, params: { project: user.home_project, attribute: attrib.fullname }
+        end
+
+        it { expect(assigns(:attribute).values.length).to be(assigns(:attribute).attrib_type.value_count + 1) }
+        it { expect(assigns(:attribute).values.last.value).not_to be_empty }
+      end
+
+      context 'with less values, it fills up values till value_count' do
+        let(:attrib_type) { create(:attrib_type_with_namespace, value_count: 1) }
+        let!(:attrib) { create(:attrib, project: user.home_project, attrib_type: attrib_type, values: [attrib_value]) }
+
+        before do
+          attrib_type.value_count += 1
+          attrib_type.save
+          get :edit, params: { project: user.home_project, attribute: attrib.fullname }
+        end
+
+        it { expect(assigns(:attribute).values.length).to be(assigns(:attribute).attrib_type.value_count) }
+        it { expect(assigns(:attribute).values.last.value).to be_empty }
+      end
+    end
+
+    context 'without a value_count defined in attrib_type' do
+      let(:attrib) { create(:attrib, project: user.home_project) }
+      let!(:attrib_values_length_before) { attrib.values.length }
+
+      before do
+        get :edit, params: { project: user.home_project, attribute: attrib.fullname }
+      end
+
+      it { expect(assigns(:attribute).attrib_type.value_count).to be_nil }
+      it { expect(assigns(:attribute).values.length).to eq(attrib_values_length_before) }
+    end
+  end
+
   describe 'POST #create' do
     let(:attribute_type_0) { create(:attrib_type_with_namespace, value_count: 0) }
     let(:attribute_type_1) { create(:attrib_type_with_namespace, value_count: 1) }
