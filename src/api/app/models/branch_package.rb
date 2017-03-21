@@ -429,7 +429,7 @@ class BranchPackage
     # not yet existing target package
     p[:target_package] = p[:package]
     # existing target
-    p[:target_package] = "#{p[:package].name}" if p[:package].is_a? Package
+    p[:target_package] = p[:package].name if p[:package].is_a? Package
     # user specified target name
     p[:target_package] = params[:target_package] if params[:target_package]
     # extend parameter given

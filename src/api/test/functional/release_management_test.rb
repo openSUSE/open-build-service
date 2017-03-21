@@ -113,7 +113,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
       revision_parts = vrevs[k].to_s.split(/(.*\.)([^.]*)$/)
-      expectedvrev = "#{revision_parts[0].to_i + 2}" # no dot inside of vrev as fallback
+      expectedvrev = (revision_parts[0].to_i + 2).to_s # no dot inside of vrev as fallback
       expectedvrev = "#{revision_parts[1]}#{revision_parts[2].to_i + 2}" if revision_parts.count > 1
       assert_equal expectedvrev, files.value(:vrev)
     end
@@ -139,7 +139,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       get "/source/BaseDistro/#{k}"
       assert_response :success
       files = ActiveXML::Node.new(@response.body)
-      assert_equal "#{vrevs[k].to_i + 4}", files.value(:vrev)
+      assert_equal (vrevs[k].to_i + 4).to_s, files.value(:vrev)
     end
 
     # the copy must have a vrev by 3 higher and an extended .1

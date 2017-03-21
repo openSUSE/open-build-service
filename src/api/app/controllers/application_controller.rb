@@ -259,7 +259,7 @@ class ApplicationController < ActionController::Base
   end
 
   def add_api_version
-    response.headers["X-Opensuse-APIVersion"] = "#{CONFIG['version']}"
+    response.headers["X-Opensuse-APIVersion"] = (CONFIG['version']).to_s
   end
 
   def volley_backend_path(path)

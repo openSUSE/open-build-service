@@ -945,7 +945,7 @@ XML
     assert_xml_tag(parent: { tag: 'review', attributes: { state: 'accepted', by_user: 'tom' } }, tag: 'comment', content: 'review1')
     assert_xml_tag(parent: { tag: 'review', attributes: { state: 'new', by_user: 'tom' } }, tag: 'comment', content: 'reopen2')
     node = Xmlhash.parse(@response.body)
-    assert_equal({ 'id'      => "#{id}",
+    assert_equal({ 'id'      => id.to_s,
                    'creator' => 'Iggy',
                    'action'  => {
                      'type'   => 'add_role',
@@ -3380,12 +3380,12 @@ XML
     sprj = 'Apache'
     bprj = "home:king:branches:#{sprj}"
 
-    post "/source/#{sprj}/apache2", params: { cmd: :branch, target_project: "#{bprj}" }
+    post "/source/#{sprj}/apache2", params: { cmd: :branch, target_project: bprj }
     assert_response :success
     put "/source/#{bprj}/apache2/dummy", params: "dummy"
     assert_response :success
 
-    post "/source/#{sprj}/Tidy", params: { cmd: :branch, target_project: "#{bprj}" }
+    post "/source/#{sprj}/Tidy", params: { cmd: :branch, target_project: bprj }
     assert_response :success
     put "/source/#{bprj}/Tidy/dummy", params: "dummy"
     assert_response :success

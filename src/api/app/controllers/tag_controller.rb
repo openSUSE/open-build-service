@@ -285,7 +285,7 @@ class TagController < ApplicationController
       render_ok
     else
       error = "[TAG:] There are rejected Tags: #{unsaved_tags.inspect}"
-      logger.debug "#{error}"
+      logger.debug error
       # need exception handling in the tag client
       render_error status: 400, errorcode: 'tagcreation_error',
       message: error
