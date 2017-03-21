@@ -4,6 +4,7 @@ FactoryGirl.define do
     realname { Faker::Name.name }
     sequence(:login) { |n| "user_#{n}" }
     password 'buildservice'
+    password_confirmation 'buildservice'
 
     factory :confirmed_user do
       state 2

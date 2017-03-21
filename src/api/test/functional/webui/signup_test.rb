@@ -7,6 +7,7 @@ class Webui::SignupTest < Webui::IntegrationTest
     fill_in 'login', with: 'eisendieter'
     fill_in 'email', with: 'dieter.eilts@werder.de'
     fill_in 'pwd', with: 'alemao'
+    fill_in 'pwd_confirmation', with: 'alemao'
     click_button('Sign Up')
   end
 

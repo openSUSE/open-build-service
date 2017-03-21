@@ -55,6 +55,9 @@ class User < ApplicationRecord
   validates :login, :email, :password, :password_hash_type, :state,
             presence: { message: 'must be given' }
 
+  validates :password, confirmation: true
+  validates :password_confirmation, presence: true
+
   validates :login,
             uniqueness: { message: 'is the name of an already existing user.' }
 

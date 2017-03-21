@@ -197,7 +197,12 @@ RSpec.describe Webui::UserController do
     context "when existing user is already registered with this login" do
       before do
         already_registered_user = create(:confirmed_user, login: 'previous_user')
-        post :register, params: { login: already_registered_user.login, email: already_registered_user.email, password: 'buildservice' }
+        post :register, params: {
+          login:                 already_registered_user.login,
+          email:                 already_registered_user.email,
+          password:              'buildservice',
+          password_confirmation: 'buildservice'
+        }
       end
 
       it { expect(flash[:error]).not_to be nil }
@@ -207,7 +212,7 @@ RSpec.describe Webui::UserController do
     context "when home project creation enabled" do
       before do
         allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(true)
-        post :register, params: { login: new_user.login, email: new_user.email, password: 'buildservice' }
+        post :register, params: { login: new_user.login, email: new_user.email, password: 'buildservice', password_confirmation: 'buildservice' }
       end
 
       it { expect(flash[:success]).to eq("The account '#{new_user.login}' is now active.") }
@@ -217,11 +222,21 @@ RSpec.describe Webui::UserController do
     context "when home project creation disabled" do
       before do
         allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(false)
-        post :register, params: { login: new_user.login, email: new_user.email, password: 'buildservice' }
+        post :register, params: { login: new_user.login, email: new_user.email, password: 'buildservice', password_confirmation: 'buildservice' }
       end
 
       it { expect(flash[:success]).to eq("The account '#{new_user.login}' is now active.") }
       it { expect(response).to redirect_to root_path }
+    end
+
+    context "when passwords do not match" do
+      before do
+        request.env["HTTP_REFERER"] = search_url # Needed for the redirect_to(root_url)
+        post :register, params: { login: new_user.login, email: new_user.email, password: 'buildservice', password_confirmation: 'abc' }
+      end
+
+      it { expect(flash[:error]).to eq("The passwords do not match.") }
+      it { expect(response).to redirect_to search_url }
     end
   end
 
