@@ -34,8 +34,8 @@ class BsRequest < ApplicationRecord
   # Scopes for collections
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
   scope :in_states, ->(states) { where(state: states) }
-  scope :with_types, ->(types) { where('bs_request_actions.type in (?)', types).references(:bs_request_actions) }
-  scope :from_source_project, ->(source_project) { where('bs_request_actions.source_project = ?', source_project).references(:bs_request_actions) }
+  scope :with_types, ->(types) { where('bs_request_actions.type in (?)', types) }
+  scope :from_source_project, ->(source_project) { where('bs_request_actions.source_project = ?', source_project) }
   scope :in_ids, ->(ids) { where(id: ids) }
   scope :not_creator, ->(login) { where.not(creator: login) }
   # Searching capabilities using dataTable (1.9)
@@ -1260,7 +1260,6 @@ class BsRequest < ApplicationRecord
 
   def self.extend_relation(source_or_target, requests, roles, package, subprojects, project, inner_or)
     if roles.empty? || roles.include?(source_or_target)
-      requests = requests.references(:bs_request_actions)
       if package.blank?
         if subprojects.blank?
           inner_or << "bs_request_actions.#{source_or_target}_project=#{quote(project)}"
@@ -1278,7 +1277,6 @@ class BsRequest < ApplicationRecord
   def self.extend_query_for_maintainer(obj, requests, roles, inner_or)
     if roles.empty? || roles.include?('maintainer')
       names = obj.involved_projects.pluck('name').map { |p| quote(p) }
-      requests = requests.references(:bs_request_actions)
       inner_or << "bs_request_actions.target_project in (#{names.join(',')})" unless names.empty?
       ## find request where group is maintainer in target package, except we have to project already
       obj.involved_packages.each do |ip|
