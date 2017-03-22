@@ -2,7 +2,7 @@
   %h3.box-header{ style: "padding-left: 6px;" }
     = "Add DoD repository"
 
-  = form_tag({ :action => :create_dod_repository, :project => @project }, method: "post", remote: true) do
+  = form_tag({ action: :create_dod_repository, project: @project }, method: "post", remote: true) do
     %div
       %p
         = label_tag(:name, "Repository name")
