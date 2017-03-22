@@ -22,24 +22,14 @@ package.</p>
   </ul>
 <% end %>
 <%= form_tag controller: :package, action: :branch do %>
-<p>
-  <label for="linked_project"><strong>Name of original project:</strong></label><br/>
-  <%= text_field_tag 'linked_project', nil, :size => 80, :id => 'linked_project', required: true %><br/>
-  <label for="linked_package"><strong>Name of package in original project:</strong></label><br/>
-  <%= text_field_tag 'linked_package', nil, :size => 80, :id => 'linked_package', required: true %><br/>
-  <label for="target_package"><strong>Name of branched package in target project:</strong></label> (Leave blank to use the
-  same name as in the original project) <br/>
-  <%= text_field_tag 'target_package', nil, :size => 80 %><br/>
-  <%= hidden_field_tag 'target_project', @project.name %><br/>
-  <%= check_box_tag 'current_revision', false %>Stay on current revision, don't merge future upstream changes automatically
-</p>
-<p><%= submit_tag "Create Branch" %></p>
+  <%= render partial: 'shared/package_branch_form', locals: {show_source_fields: true, target_project: @project} %>
+  <p><%= submit_tag "Create Branch" %></p>
 <% end %>
 
 <%= javascript_tag do %>
   $("#linked_project").autocomplete({source: '<%= url_for :controller => :project, :action => :autocomplete_projects %>', minLength: 2});
   $("#linked_package").autocomplete({
-    source: 
+    source:
     function (request, response) {
       $.ajax({
         url: '<%= url_for :controller => 'project', :action => 'autocomplete_packages' %>',

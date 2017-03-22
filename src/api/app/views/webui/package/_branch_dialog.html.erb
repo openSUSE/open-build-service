@@ -2,12 +2,17 @@
     <div class="box box-shadow">
       <h2 class="box-header">Branch Confirmation</h2>
       <div class="dialog-content">
-        <p>Do you really want to branch <%= package_link(@package) %>?</p>
+        <p>
+         Do you really want to branch <%= package_link(@package) %>?<br /><br />
+         <a data-target="#branching-options" data-hidetext="[-] Hide options" data-showtext="[+] More options" class="show-hide">[+] More options</a>
+        </p>
       </div>
 
-      <%= form_tag({ controller: :package, action: :branch }, method: :post) do %>
-        <%= hidden_field_tag(:linked_project, @project.name) %>
-        <%= hidden_field_tag(:linked_package, @package.name) %>
+      <%= form_tag({controller: :package, action: :branch}, method: :post) do %>
+        <div id="branching-options" class="hidden">
+          <%= render partial: 'shared/package_branch_form', locals: {show_source_fields: false, target_project: nil} %>
+        </div>
+
         <div class="dialog-buttons">
           <%= submit_tag('Ok') %>
           <%= link_to('Close', '#', title: 'Close', class: 'close-dialog', data: { target: '#package_branch_dialog' }) %>

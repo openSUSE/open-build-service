@@ -260,3 +260,18 @@ $(function() {
 $(document).on('click','.close-dialog', function() {
   $($(this).data('target')).addClass('hidden');
 });
+
+// show/hide functionality for text
+$(function() {
+  $('.show-hide').on('click', function() {
+    var target = $(this).data('target');
+    $(target).toggle();
+
+    if ($(target).is(':hidden')) {
+      $(this).text($(this).data('showtext'));
+    }
+    else {
+      $(this).text($(this).data('hidetext'));
+    }
+  });
+});
