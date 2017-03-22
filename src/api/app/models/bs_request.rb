@@ -31,11 +31,16 @@ class BsRequest < ApplicationRecord
   ]
 
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
+
   # Scopes for collections
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
   scope :in_states, ->(states) { where(state: states) }
   scope :with_types, ->(types) { where('bs_request_actions.type in (?)', types) }
+  scope :with_review, -> (review, project) { includes(:reviews).where("reviews.state = 'review' and reviews.by_project = ?", project).references(:reviews) }
+  scope :with_project, ->(project) { with_actions.where("bs_request_actions.source_project = ? AND bs_request_actions.target_project = ?", project, project) }
   scope :from_source_project, ->(source_project) { where('bs_request_actions.source_project = ?', source_project) }
+  scope :with_subprojects, (project) { with_actions.where("bs_request_actions.source_project like #{quote(project + ':%')} AND bs_request_actions.target_project like #{quote(project + ':%')}") }
+
   scope :in_ids, ->(ids) { where(id: ids) }
   scope :not_creator, ->(login) { where.not(creator: login) }
   # Searching capabilities using dataTable (1.9)

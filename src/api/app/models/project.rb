@@ -1193,12 +1193,14 @@ class Project < ApplicationRecord
   end
 
   def open_requests
-    reviews = BsRequest.collection(project: name, states: %w(review)).map(&:number)
-    targets = BsRequest.collection(project: name, states: %w(new)).map(&:number)
-    incidents = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_incident)).map(&:number)
+    request_with_project = BsRequest.with_project(project)
+
+    reviews =  request_with_project.in_states('review').with_review('review', project).map(&:number)
+    targets = request_with_project.in_states('new').map(&:number)
+    incidents = request_with_project.in_states('new').with_types('maintenance_incident').map(&:number)
 
     if is_maintenance?
-      maintenance_release = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_release), subprojects: true).map(&:number)
+      maintenance_release = BsRequest.with_subprojects(project).in_states('new').with_types('maintenance_release').map(&:number)
     else
       maintenance_release = []
     end
