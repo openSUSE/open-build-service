@@ -349,6 +349,7 @@ class User < ApplicationRecord
   def update_password(pass)
     password_will_change!
     self.password = hash_string(pass)
+    self.password_confirmation = hash_string(pass)
   end
 
   # This method returns true if the user is assigned the role with one of the
