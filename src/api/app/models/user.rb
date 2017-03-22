@@ -40,6 +40,8 @@ class User < ApplicationRecord
 
   has_many :event_subscriptions, inverse_of: :user
 
+  has_many :creator_of_requests, class_name: 'BsRequest', foreign_key: 'creator', primary_key: 'login'
+
   belongs_to :owner, class_name: 'User'
   has_many :subaccounts, class_name: 'User', foreign_key: 'owner_id'
 
@@ -750,7 +752,8 @@ class User < ApplicationRecord
 
   # list requests involving this user
   def declined_requests(search = nil)
-    BsRequest.collection(user: login, states: %w(declined), roles: %w(creator), search: search)
+    result = creator_of_requests.joins(:bs_request_actions).where(state: :declined).distinct
+    search ? result.do_search(search) : result
   end
 
   # list incoming requests involving this user
@@ -760,7 +763,8 @@ class User < ApplicationRecord
 
   # list outgoing requests involving this user
   def outgoing_requests(search = nil)
-    BsRequest.collection(user: login, states: %w(new review), roles: %w(creator), search: search)
+    result = creator_of_requests.joins(:bs_request_actions).where(state: [:new, :review]).distinct
+    search ? result.do_search(search) : result
   end
 
   # list of all requests
@@ -831,7 +835,7 @@ class User < ApplicationRecord
 
   def nr_of_requests_that_need_work
     Rails.cache.fetch("requests_for_#{login}", expires_in: 2.minutes) do
-      BsRequest.collection(user: login, states: %w(declined), roles: %w(creator)).count +
+      declined_requests.count +
       BsRequest.collection(user: login, states: %w(new), roles: %w(maintainer)).count +
       BsRequest.collection(user: login, roles: %w(reviewer), reviewstates: %w(new), states: %w(review)).count
     end

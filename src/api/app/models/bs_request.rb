@@ -52,6 +52,8 @@ class BsRequest < ApplicationRecord
   has_many :request_history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
   has_many :review_history_elements, through: :reviews, source: :history_elements
 
+  belongs_to :user, foreign_key: 'creator', primary_key: 'login'
+
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
   validate :check_supersede_state
