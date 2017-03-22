@@ -8,7 +8,6 @@ AllCops:
     - 'src/api/tmp/**/*'
     - 'src/api/lib/templates/**/*'
     - 'src/api/vendor/bundle/**/*'
-    - 'dist/**/*'
     - 'Vagrantfile'
     - 'docs/**/*'
 
@@ -37,10 +36,6 @@ Style/AsciiComments:
 
 # This cop checks how the 'when's of a case expression are indented in relation to its `case` or `end` keyword.
 Style/CaseIndentation:
-  Enabled: true
-
-# Checks for methods invoked via the :: operator
-Style/ColonMethodCall:
   Enabled: true
 
 # Use ` or %x around command literals.
@@ -73,13 +68,6 @@ Style/ExtraSpacing:
 Style/GuardClause:
   Enabled: true
 
-# Checks hash literal syntax
-Style/HashSyntax:
-  EnforcedStyle: ruby19_no_mixed_keys
-  Enabled: true
-  Exclude:
-    - 'src/api/config/routes.rb'
-
 # Use `elsif` instead of `else` with only an `if` node inside
 Style/IfInsideElse:
   Enabled: true
@@ -93,16 +81,8 @@ Style/IndentAssignment:
   Enabled: true
   IndentationWidth: 2
 
-# Checks for indentation that doesn't use two spaces.
-Style/IndentationWidth:
-  Enabled: true
-
 # Use Kernel#loop for infinite loops
 Style/InfiniteLoop:
-  Enabled: true
-
-# Checks for unwanted parentheses in parameterless method calls
-Style/MethodCallWithoutArgsParentheses:
   Enabled: true
 
 # Checks for parentheses around the arguments in method definitions
@@ -115,10 +95,6 @@ Style/MultilineBlockChain:
   Exclude:
     - 'src/api/spec/models/project_spec.rb'
     - 'src/api/spec/models/package_spec.rb'
-
-# Checks for uses of if with a negated condition (only ifs without else)
-Style/NegatedIf:
-  Enabled: true
 
 # Use ! instead not
 Style/Not:
@@ -144,18 +120,6 @@ Style/SignalException:
 Style/RescueModifier:
   Enabled: true
 
-# Enforces the use the shorthand for self-assignment
-Style/SelfAssignment:
-  Enabled: true
-
-# Checks for space after `!`
-Style/SpaceAfterNot:
-  Enabled: true
-
-# Checks that operators have space around them.
-Style/SpaceAroundOperators:
-  Enabled: true
-
 # Checks for spaces inside square brackets
 Style/SpaceInsideBrackets:
   Enabled: true
@@ -177,13 +141,6 @@ Style/ZeroLengthPredicate:
 # Checks if the length a class exceeds some maximum value
 Metrics/ClassLength:
   Severity: refactor
-
-# Checks the length of lines in the source code.
-Metrics/LineLength:
-  Max: 150
-  IgnoredPatterns: ['^\s*#']
-  Exclude:
-    - 'src/api/db/**/*'
 
 # Checks if the length a module exceeds some maximum value
 Metrics/ModuleLength:
@@ -242,10 +199,6 @@ Lint/UselessAssignment:
 
 # Use yield instead of having a &block parameter and block.call
 Performance/RedundantBlockCall:
-  Enabled: true
-
-# Identifies uses of `Regexp#match` and `String#match where `=~` could be used as well
-Performance/RedundantMatch:
   Enabled: true
 
 # Identifies places where Hash#merge! can be replaced by Hash#[]=
@@ -313,10 +266,4 @@ Security/Eval:
 
 # Checks for uses of YAML methods with potential security issues leading to remote code execution when loading from an untrusted source.
 Security/YAMLLoad:
-  Enabled: true
-
-##################### Bundler ##################################
-
-# Gems in consecutive lines should be alphabetically sorted
-Bundler/OrderedGems:
   Enabled: true

@@ -6,6 +6,15 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
+# Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: Include.
+# Include: **/Gemfile, **/gems.rb
+# Gems in consecutive lines should be alphabetically sorted
+Bundler/OrderedGems:
+  Exclude:
+    - 'dist/t/Gemfile'
+
 # Offense count: 21
 Lint/EmptyWhen:
   Exclude:
@@ -34,6 +43,7 @@ Lint/NonLocalExitFromIterator:
 # Offense count: 10
 Lint/RescueException:
   Exclude:
+    - 'dist/openQA_mail_notification.rb'
     - 'src/api/app/controllers/person_controller.rb'
     - 'src/api/app/controllers/public_controller.rb'
     - 'src/api/app/models/backend_file.rb'
@@ -55,6 +65,12 @@ Lint/UnderscorePrefixedVariableName:
     - 'src/api/app/models/bs_request_permission_check.rb'
     - 'src/api/app/models/event/base.rb'
     - 'src/api/lib/api_exception.rb'
+
+# Offense count: 2
+Lint/UselessAssignment:
+  Exclude:
+    - 'dist/obs_mirror_project'
+    - 'dist/t/spec/features/0040_prepare_package_building_spec.rb'
 
 # Offense count: 1016
 Metrics/AbcSize:
@@ -78,6 +94,14 @@ Metrics/ClassLength:
 # Offense count: 251
 Metrics/CyclomaticComplexity:
   Max: 55
+
+# Checks the length of lines in the source code.
+Metrics/LineLength:
+  Max: 150
+  IgnoredPatterns: ['^\s*#']
+  Exclude:
+    - 'src/api/db/**/*'
+    - 'dist/**/*'
 
 # Offense count: 1094
 # Configuration parameters: CountComments.
@@ -165,6 +189,13 @@ Rails/ReadWriteAttribute:
     - 'src/api/app/models/review.rb'
     - 'src/api/app/models/user.rb'
 
+# Offense count: 1
+# Cop supports --auto-correct.
+# Identifies uses of `Regexp#match` and `String#match where `=~` could be used as well
+Performance/RedundantMatch:
+  Exclude:
+    - 'dist/t/spec/features/0040_prepare_package_building_spec.rb'
+
 # Offense count: 51
 # Configuration parameters: Include.
 # Include: db/migrate/*.rb
@@ -193,6 +224,7 @@ Rails/TimeZone:
 # Offense count: 20
 Style/AccessorMethodName:
   Exclude:
+    - 'dist/openQA_mail_notification.rb'
     - 'src/api/app/controllers/application_controller.rb'
     - 'src/api/app/controllers/person_controller.rb'
     - 'src/api/app/controllers/source_controller.rb'
@@ -276,6 +308,13 @@ Style/ClosingParenthesisIndentation:
   Exclude:
     - 'src/api/test/unit/project_test.rb'
 
+# Offense count: 2
+# Cop supports --auto-correct.
+# Checks for methods invoked via the :: operator
+Style/ColonMethodCall:
+  Exclude:
+    - 'dist/obs_mirror_project'
+
 # Offense count: 18
 # Cop supports --auto-correct.
 # Configuration parameters: Keywords.
@@ -327,6 +366,34 @@ Style/Documentation:
 Style/DotPosition:
   Enabled: false
 
+# Offense count: 7
+# Cop supports --auto-correct.
+Style/EmptyLines:
+  Exclude:
+    - 'dist/obs_mirror_project'
+    - 'dist/t/spec/features/0030_create_project_home_Admin_spec.rb'
+    - 'dist/t/spec/features/0040_prepare_package_building_spec.rb'
+    - 'dist/t/spec/support/capybara.rb'
+
+# Offense count: 15
+# Cop supports --auto-correct.
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: empty_lines, no_empty_lines
+Style/EmptyLinesAroundBlockBody:
+  Exclude:
+    - 'dist/t/spec/features/0000_set_workers_spec.rb'
+    - 'dist/t/spec/features/0020_interconnect_spec.rb'
+    - 'dist/t/spec/features/0030_create_project_home_Admin_spec.rb'
+    - 'dist/t/spec/features/0040_prepare_package_building_spec.rb'
+    - 'dist/t/spec/features/0060_build_result_spec.rb'
+    - 'dist/t/spec/features/0100_delete_home_Admin_spec.rb'
+
+# Offense count: 2
+# Cop supports --auto-correct.
+Style/EmptyLinesAroundMethodBody:
+  Exclude:
+    - 'dist/t/spec/spec_helper.rb'
+
 # Offense count: 153
 # Cop supports --auto-correct.
 Style/EmptyLiteral:
@@ -344,11 +411,21 @@ Style/EmptyMethod:
 # Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.
 Style/ExtraSpacing:
   Exclude:
+    - 'dist/obs_mirror_project'
+    - 'dist/openQA_mail_notification.rb'
     - 'src/api/lib/xpath_engine.rb'
     - 'src/api/test/functional/binary_release_test.rb'
     - 'src/api/test/functional/channel_maintenance_test.rb'
     - 'src/api/test/functional/search_controller_test.rb'
     - 'src/api/test/functional/source_controller_test.rb'
+
+# Offense count: 2
+# Configuration parameters: ExpectMatchingDefinition, Regex, IgnoreExecutableScripts, AllowedAcronyms.
+# AllowedAcronyms: CLI, DSL, ACL, API, ASCII, CPU, CSS, DNS, EOF, GUID, HTML, HTTP, HTTPS, ID, IP, JSON, LHS, QPS, RAM, RHS, RPC, SLA, SMTP, SQL, SSH, TCP, TLS, TTL, UDP, UI, UID, UUID, URI, URL, UTF8, VM, XML, XMPP, XSRF, XSS
+Style/FileName:
+  Exclude:
+    - 'dist/t/spec/features/0030_create_project_home_Admin_spec.rb'
+    - 'dist/t/spec/features/0100_delete_home_Admin_spec.rb'
 
 # Offense count: 27
 # Cop supports --auto-correct.
@@ -367,6 +444,7 @@ Style/FirstParameterIndentation:
 # SupportedStyles: for, each
 Style/For:
   Exclude:
+    - 'dist/obs_mirror_project'
     - 'src/api/app/models/bs_request_action_maintenance_release.rb'
     - 'src/api/app/models/project.rb'
     - 'src/api/app/models/user_ldap_strategy.rb'
@@ -398,6 +476,18 @@ Style/GlobalVars:
     - 'src/api/test/functional/request_controller_test.rb'
     - 'src/api/test/functional/source_controller_test.rb'
 
+# Offense count: 10
+# Cop supports --auto-correct.
+# Configuration parameters: EnforcedStyle, SupportedStyles, UseHashRocketsWithSymbolValues, PreferHashRocketsForNonAlnumEndingSymbols.
+# SupportedStyles: ruby19, hash_rockets, no_mixed_keys, ruby19_no_mixed_keys
+# Checks hash literal syntax
+Style/HashSyntax:
+  EnforcedStyle: ruby19_no_mixed_keys
+  Enabled: true
+  Exclude:
+    - 'dist/t/spec/features/0060_build_result_spec.rb'
+    - 'src/api/config/routes.rb'
+
 # Offense count: 8
 Style/IdenticalConditionalBranches:
   Exclude:
@@ -410,6 +500,15 @@ Style/IdenticalConditionalBranches:
 # Configuration parameters: MaxLineLength.
 Style/IfUnlessModifier:
   Enabled: false
+
+# Offense count: 2
+# Cop supports --auto-correct.
+# Configuration parameters: Width.
+# Checks for indentation that doesn't use two spaces.
+Style/IndentationWidth:
+  Exclude:
+    - 'dist/openQA_mail_notification.rb'
+    - 'dist/t/spec/spec_helper.rb'
 
 # Offense count: 91
 # Cop supports --auto-correct.
@@ -432,10 +531,26 @@ Style/IndentationConsistency:
     - 'src/api/test/functional/webui/package_create_test.rb'
     - 'src/api/test/unit/ichain_notifier_test.rb'
 
+# Offense count: 6
+# Cop supports --auto-correct.
+Style/LeadingCommentSpace:
+  Exclude:
+    - 'dist/t/spec/features/0030_create_project_home_Admin_spec.rb'
+    - 'dist/t/spec/features/0040_prepare_package_building_spec.rb'
+    - 'dist/t/spec/features/0060_build_result_spec.rb'
+    - 'dist/t/spec/spec_helper.rb'
+
 # Offense count: 57
 # Cop supports --auto-correct.
 Style/LineEndConcatenation:
   Enabled: false
+
+# Offense count: 1
+# Cop supports --auto-correct.
+# Checks for unwanted parentheses in parameterless method calls
+Style/MethodCallWithoutArgsParentheses:
+  Exclude:
+    - 'dist/obs_mirror_project'
 
 # Offense count: 2
 Style/MethodMissing:
@@ -488,6 +603,12 @@ Style/MultilineHashBraceLayout:
 Style/MultilineIfModifier:
   Enabled: false
 
+# Offense count: 4
+# Cop supports --auto-correct.
+Style/MultilineIfThen:
+  Exclude:
+    - 'dist/t/spec/features/0060_build_result_spec.rb'
+
 # Offense count: 84
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
@@ -526,6 +647,14 @@ Style/MultilineOperationIndentation:
 Style/MutableConstant:
   Enabled: false
 
+# Offense count: 8
+# Cop supports --auto-correct.
+# Checks for uses of if with a negated condition (only ifs without else)
+Style/NegatedIf:
+  Exclude:
+    - 'dist/obs_mirror_project'
+    - 'dist/t/spec/features/0060_build_result_spec.rb'
+
 # Offense count: 11
 # Cop supports --auto-correct.
 Style/NegatedWhile:
@@ -549,6 +678,15 @@ Style/Next:
 Style/NumericLiterals:
   MinDigits: 7
 
+# Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: AutoCorrect, EnforcedStyle, SupportedStyles.
+# SupportedStyles: predicate, comparison
+Style/NumericPredicate:
+  Exclude:
+    - 'spec/**/*'
+    - 'dist/openQA_mail_notification.rb'
+
 # Offense count: 8
 # Cop supports --auto-correct.
 Style/ParallelAssignment:
@@ -564,6 +702,7 @@ Style/ParallelAssignment:
 # Configuration parameters: AllowSafeAssignment.
 Style/ParenthesesAroundCondition:
   Exclude:
+    - 'dist/t/spec/features/0060_build_result_spec.rb'
     - 'src/api/app/controllers/webui/monitor_controller.rb'
     - 'src/api/app/controllers/webui/project_controller.rb'
     - 'src/api/app/models/flag.rb'
@@ -647,6 +786,7 @@ Style/RaiseArgs:
 # Cop supports --auto-correct.
 Style/RedundantBegin:
   Exclude:
+    - 'dist/openQA_mail_notification.rb'
     - 'src/api/app/controllers/webui/package_controller.rb'
     - 'src/api/app/controllers/webui/patchinfo_controller.rb'
     - 'src/api/app/controllers/webui/project_controller.rb'
@@ -682,6 +822,13 @@ Style/RedundantParentheses:
     - 'src/api/test/functional/source_controller_test.rb'
     - 'src/api/test/functional/webui/maintenance_workflow_test.rb'
 
+# Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: AllowMultipleReturnValues.
+Style/RedundantReturn:
+  Exclude:
+    - 'dist/obs_mirror_project'
+
 # Offense count: 117
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, AllowInnerSlashes.
@@ -700,6 +847,13 @@ Style/Semicolon:
     - 'src/api/test/functional/build_controller_test.rb'
     - 'src/api/test/functional/zzz_post_consistency_test.rb'
 
+# Offense count: 1
+# Cop supports --auto-correct.
+# Enforces the use the shorthand for self-assignment
+Style/SelfAssignment:
+  Exclude:
+    - 'dist/t/spec/support/capybara.rb'
+
 # Offense count: 39
 # Cop supports --auto-correct.
 Style/SpaceAfterColon:
@@ -708,6 +862,30 @@ Style/SpaceAfterColon:
     - 'src/api/test/functional/maintenance_test.rb'
     - 'src/api/test/functional/product_test.rb'
     - 'src/api/test/functional/source_controller_test.rb'
+
+# Offense count: 7
+# Cop supports --auto-correct.
+Style/SpaceAfterComma:
+  Exclude:
+    - 'dist/t/spec/features/0020_interconnect_spec.rb'
+    - 'dist/t/spec/features/0030_create_project_home_Admin_spec.rb'
+    - 'dist/t/spec/features/0040_prepare_package_building_spec.rb'
+    - 'dist/t/spec/features/0100_delete_home_Admin_spec.rb'
+    - 'dist/t/spec/spec_helper.rb'
+
+# Offense count: 2
+# Cop supports --auto-correct.
+Style/SpaceAfterMethodName:
+  Exclude:
+    - 'dist/obs_mirror_project'
+    - 'dist/t/spec/spec_helper.rb'
+
+# Offense count: 1
+# Cop supports --auto-correct.
+# Checks for space after `!`
+Style/SpaceAfterNot:
+  Exclude:
+    - 'dist/t/spec/features/0060_build_result_spec.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -721,7 +899,17 @@ Style/SpaceAroundBlockParameters:
 # Cop supports --auto-correct.
 Style/SpaceAroundKeyword:
   Exclude:
+    - 'dist/obs_mirror_project'
     - 'src/api/spec/models/user_spec.rb'
+
+# Offense count: 11
+# Cop supports --auto-correct.
+# Configuration parameters: AllowForAlignment.
+# Checks that operators have space around them.
+Style/SpaceAroundOperators:
+  Exclude:
+    - 'dist/obs_mirror_project'
+    - 'dist/t/spec/features/0060_build_result_spec.rb'
 
 # Offense count: 87
 # Cop supports --auto-correct.
@@ -820,6 +1008,22 @@ Style/Tab:
     - 'src/api/app/helpers/maintenance_helper.rb'
     - 'src/api/lib/activexml/node.rb'
 
+# Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: final_newline, final_blank_line
+Style/TrailingBlankLines:
+  Exclude:
+    - 'dist/t/spec/features/0010_signup_as_testuser_spec.rb'
+
+# Offense count: 4
+# Cop supports --auto-correct.
+Style/TrailingWhitespace:
+  Exclude:
+    - 'dist/obs_mirror_project'
+    - 'dist/t/spec/features/0060_build_result_spec.rb'
+    - 'dist/t/spec/spec_helper.rb'
+
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, IgnoreClassMethods, Whitelist.
@@ -829,10 +1033,17 @@ Style/TrivialAccessors:
     - 'src/api/lib/activexml/node.rb'
     - 'src/api/test/test_helper.rb'
 
+# Offense count: 1
+# Cop supports --auto-correct.
+Style/UnlessElse:
+  Exclude:
+    - 'dist/obs_mirror_project'
+
 # Offense count: 29
 # Cop supports --auto-correct.
 Style/UnneededInterpolation:
   Exclude:
+    - 'dist/obs_mirror_project'
     - 'src/api/app/controllers/application_controller.rb'
     - 'src/api/app/controllers/tag_controller.rb'
     - 'src/api/app/controllers/webui/package_controller.rb'
@@ -862,6 +1073,12 @@ Style/VariableNumber:
   Exclude:
     - 'src/api/spec/features/webui/projects_spec.rb'
     - 'src/api/test/unit/project_test.rb'
+
+# Offense count: 2
+# Cop supports --auto-correct.
+Style/WhileUntilDo:
+  Exclude:
+    - 'dist/t/spec/features/0060_build_result_spec.rb'
 
 # Offense count: 34
 # Cop supports --auto-correct.
