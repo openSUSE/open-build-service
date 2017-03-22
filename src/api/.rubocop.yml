@@ -137,14 +137,6 @@ Style/RedundantSelf:
 Style/SignalException:
   Enabled: true
 
-# Checks for uses of rescue in its modifier form
-Style/RescueModifier:
-  Enabled: true
-
-# Enforces the use the shorthand for self-assignment
-Style/SelfAssignment:
-  Enabled: true
-
 # Checks for space after `!`
 Style/SpaceAfterNot:
   Enabled: true
@@ -167,6 +159,14 @@ Style/TernaryParentheses:
 
 # Checks for predicates than can be replaced by receiver.empty? and !receiver.empty?
 Style/ZeroLengthPredicate:
+  Enabled: true
+
+# Checks for uses of rescue in its modifier form
+Style/RescueModifier:
+  Enabled: true
+
+# Enforces the use the shorthand for self-assignment
+Style/SelfAssignment:
   Enabled: true
 
 ##################### Metrics ##################################
@@ -201,10 +201,6 @@ Lint/EndAlignment:
 Lint/IneffectiveAccessModifier:
   Enabled: true
 
-# This cop looks for error classes inheriting from `Exception`.
-Lint/InheritException:
-  Enabled: true
-
 # checks for literals used as the conditions or as operands in and/or expressions serving as the conditions of if/while/until.
 Lint/LiteralInCondition:
   Enabled: true
@@ -219,10 +215,6 @@ Lint/NestedMethodDefinition:
   Exclude:
     - 'test/functional/tag_controller_test.rb'
 
-# Checks for space between a the name of a called method and a left parenthesis.
-Lint/ParenthesesAsGroupedExpression:
-  Enabled: true
-
 # checks for unused block arguments.
 Lint/UnusedBlockArgument:
   Enabled: true
@@ -233,6 +225,14 @@ Lint/UselessAccessModifier:
 
 # Checks for every useless assignment to local variable in every scope
 Lint/UselessAssignment:
+  Enabled: true
+
+# This cop looks for error classes inheriting from `Exception`.
+Lint/InheritException:
+  Enabled: true
+
+# Checks for space between a the name of a called method and a left parenthesis.
+Lint/ParenthesesAsGroupedExpression:
   Enabled: true
 
 ##################### Performance ###############################
