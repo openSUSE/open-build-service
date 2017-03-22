@@ -1,0 +1,9 @@
+- @pagetitle = "Sign Up"
+%h2
+  = @pagetitle
+  for an #{@configuration['title']} account
+
+- if can_register
+  = render partial: 'shared/sign_up'
+- else
+  %p Sorry, sign up is disabled
