@@ -68,7 +68,7 @@ GEM
       minitest (>= 4)
     chunky_png (1.3.8)
     cliver (0.3.2)
-    clockwork (2.0.0)
+    clockwork (2.0.2)
       activesupport
       tzinfo
     cocoon (1.2.9)
