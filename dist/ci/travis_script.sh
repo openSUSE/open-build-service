@@ -30,7 +30,7 @@ if test -z "$SUBTEST"; then
       bundle exec rails test:spider
       ;;
     rubocop)
-      bundle exec rails rubocop
+      make -C ../../ rubocop
       ;;
     rspec)
       bundle exec rspec
@@ -41,9 +41,9 @@ if test -z "$SUBTEST"; then
     backend)
       pushd ../backend
       make test_unit
-      ;; 
+      ;;
     *)
-      bundle exec rails rubocop
+      make -C ../../ rubocop
       bundle exec rails test:api
       bundle exec rails test:webui
       bundle exec rspec
