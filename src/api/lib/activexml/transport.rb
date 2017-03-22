@@ -218,9 +218,9 @@ module ActiveXML
       defaults = {method: "GET"}
       opt = defaults.merge opt
 
-      logger.debug "--> direct_http url: #{url.inspect}"
+      logger.debug "--> direct_http url: #{url}"
 
-      http_do opt[:method], url, opt
+      http_do opt[:method], URI.encode(url.to_s, /\+/), opt
     end
 
     # replaces the parameter parts in the uri from the config file with the correct values
