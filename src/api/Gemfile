@@ -93,6 +93,8 @@ group :test do
   gem 'minitest-fail-fast'
   # for spec like reporting
   gem 'minitest-reporters'
+  # for integration testing
+  gem 'capybara'
   # for rspec like matchers
   gem 'capybara_minitest_spec'
   # to freeze time
