@@ -28,7 +28,7 @@ matrix:
       bundler: true
       directories:
         - tmp/rubocop_cache
-    before_install: ''
+    before_install: gem install rubocop
     before_script: ''
 notifications:
   irc:
