@@ -125,6 +125,12 @@ GEM
       activesupport (>= 4.1.0)
     haml (4.0.7)
       tilt
+    haml_lint (0.23.2)
+      haml (>= 4.0, < 5.1)
+      rainbow
+      rake (>= 10, < 13)
+      rubocop (>= 0.47.0)
+      sysexits (~> 1.1)
     hashdiff (0.3.0)
     hoptoad_notifier (2.4.11)
       activesupport
@@ -303,6 +309,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
+    sysexits (1.2.0)
     test-unit (3.2.3)
       power_assert
     thinking-sphinx (3.3.0)
@@ -376,6 +383,7 @@ DEPENDENCIES
   flot-rails
   font-awesome-rails
   haml
+  haml_lint
   hoptoad_notifier (~> 2.3)
   jquery-datatables-rails
   jquery-rails
