@@ -682,6 +682,9 @@ EOT
   end
 
   context "build logs" do
+    let(:source_project_with_plus) { create(:project, name: 'foo++bar') }
+    let(:package_of_project_with_plus) { create(:package, name: 'some_package', project: source_project_with_plus) }
+    let(:source_package_with_plus) { create(:package, name: 'my_package++special', project: source_project) }
     RSpec.shared_examples "build log" do
       context "successfully" do
         before do
@@ -694,6 +697,38 @@ EOT
                </result>
               </resultlist>))
           do_request project: source_project, package: source_package, repository: '10.2', arch: 'i586', format: 'js'
+        end
+
+        it { expect(response).to have_http_status(:ok) }
+      end
+
+      context "successfully with a package which name that includes '+'" do
+        before do
+          path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status" \
+                 "&package=#{source_package_with_plus}&arch=i586&repository=10.2"
+          stub_request(:get, path).and_return(body:
+            %(<resultlist state='123'>
+               <result project='#{user.home_project.name}' repository='10.2' arch='i586'>
+                 <binarylist/>
+               </result>
+              </resultlist>))
+          do_request project: source_project, package: source_package_with_plus, repository: '10.2', arch: 'i586', format: 'js'
+        end
+
+        it { expect(response).to have_http_status(:ok) }
+      end
+
+      context "successfully with a project which name that includes '+'" do
+        before do
+          path = "#{CONFIG['source_url']}/build/#{source_project_with_plus}/_result?view=status" \
+                 "&package=#{package_of_project_with_plus}&arch=i586&repository=10.2"
+          stub_request(:get, path).and_return(body:
+            %(<resultlist state='123'>
+               <result project='#{source_project_with_plus.name}' repository='10.2' arch='i586'>
+                 <binarylist/>
+               </result>
+              </resultlist>))
+          do_request project: source_project_with_plus, package: package_of_project_with_plus, repository: '10.2', arch: 'i586', format: 'js'
         end
 
         it { expect(response).to have_http_status(:ok) }
