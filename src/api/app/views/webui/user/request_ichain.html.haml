@@ -1,0 +1,29 @@
+/ FIXME: this shall become a generic request page
+- @pagetitle = 'Welcome'
+%h2
+  Welcome to #{@configuration['nameprefix']}
+%p
+  Please note that this service still runs in EXPERIMENTAL mode
+  and we can't guarantee support should you encounter any problems
+  or need help packaging.
+%p
+  If you want to try to get support anyway, join us in the channel
+  \#opensuse-buildservice on freenode or
+  %a{href: "mailto:opensuse-buildservice+subscribe@opensuse.org"} subscribe
+  to the
+  = succeed "." do
+    %a{href: "http://lists.opensuse.org/opensuse-buildservice/"} buildservice mailing list
+%p
+  Also make sure you have read
+  %a{href: "http://en.opensuse.org/openSUSE:Build_Service_application_blacklist"} http://en.opensuse.org/openSUSE:Build_Service_application_blacklist
+  and understood why you can't build some packages in the #{@configuration['nameprefix']}.
+%p
+  You do NOT need an account to download packages. Please go to
+  %a{href: "http://software.opensuse.org/search/"} http://software.opensuse.org/search/
+  for searching and installing packages.
+%p Have fun building software.
+%p Your Build Service Team
+
+= form_tag controller: 'user', action: 'register', method: :post do
+  = hidden_field_tag 'register', 'true'
+  = submit_tag "Let me build my packages!"
