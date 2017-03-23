@@ -412,7 +412,7 @@ CREATE TABLE `delayed_jobs` (
 
 CREATE TABLE `distribution_icons` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `url` varchar(255) NOT NULL,
+  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `width` int(11) DEFAULT NULL,
   `height` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
