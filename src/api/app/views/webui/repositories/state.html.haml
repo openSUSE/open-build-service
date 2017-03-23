@@ -1,0 +1,29 @@
+- @pagetitle = "Repository State of #{@project.name}"
+- @metarobots = 'noindex'
+- project_bread_crumb('Repository State')
+= render partial: 'webui/project/tabs'
+/ this page will also get other repository informations like jobhistory
+%div{id: "#{valid_xml_id(@repository.name)}", style: "margin-bottom: 1.2em"}
+  %h3
+    State of Repository #{@repository} for #{@project}
+  %p
+    = render partial: 'shared/download_repository_link', locals: { project: @project, repository: @repository }
+  %div{style: "margin-top: 1em"}
+    %h4 Build Dependency Cycles
+    - @archs.each do |arch|
+      - unless @repocycles[arch]
+        %p
+          %i
+            There are no cycles for #{arch}
+      - else
+        %h5
+          Cycles for #{arch} (##{@repocycles[arch].length})
+        %ul
+          - @repocycles[arch].each do |cycle|
+            %li
+              - cycle.each do |package|
+                = link_to package, project: @project, package: package, controller: :package, action: :show
+                - unless package == cycle.last
+                  ,
+      %p
+        Check the rebuild time for #{link_to arch, { action: :rebuild_time, project: @project, arch: arch, repository: @repository.name, controller: :project }, { rel: 'nofollow' }}

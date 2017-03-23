@@ -1,7 +1,7 @@
 .repository-container{ style: "margin-bottom: 1.5em" }
   %div{ style: "margin-left: 15px" }
     %strong
-      = link_to(repository.name, :action => 'state', :project => @project, :repository => repository.name)
+      = link_to(repository.name, action: 'state', project: @project, repository: repository.name)
     %i
       = "(" + repository.architectures.pluck(:name).join(', ') + ")"
   %div{ style: "margin-left: 30px" }
@@ -27,10 +27,10 @@
                       { data: { confirm: "Really remove repository '#{repository.name}'?" }, class: 'x', method: :post })
       - elsif !User.current.is_nobody?
         = sprite_tag('drive_delete', title: 'Delete repository')
-        = link_to('Request repository deletion', { :action => :remove_target_request_dialog, controller: :project, :project => @project, :repository => repository.name }, :remote => true)
-      = render :partial => 'shared/download_repository_link', :locals => { :project => @project, :repository => repository }
+        = link_to('Request repository deletion', { action: :remove_target_request_dialog, controller: :project, project: @project, repository: repository.name }, remote: true)
+      = render partial: 'shared/download_repository_link', locals: { project: @project, repository: repository }
       - if repository.release_targets.where(trigger: "manual").exists?
         = sprite_tag('flag_green')
-        = link_to('Release repository', { :action => :release_repository_dialog, controller: :project, :project => @project, :repository => repository.name }, :remote => true)
+        = link_to('Release repository', { action: :release_repository_dialog, controller: :project, project: @project, repository: repository.name }, remote: true)
     - if repository.is_dod_repository?
-      = render :partial => 'webui/download_on_demand/index', :locals => { project: @project, repository: repository }
+      = render partial: 'webui/download_on_demand/index', locals: { project: @project, repository: repository }

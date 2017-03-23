@@ -6,20 +6,20 @@
 - @crumb_list << "Repositories"
 
 - if @package
-  = render :partial => "webui/package/tabs"
+  = render partial: "webui/package/tabs"
 - else
-  = render :partial => "webui/project/tabs"
+  = render partial: "webui/project/tabs"
 
 - if @package
   - if @package.project == @project
     %p
       You can configure individual flags for this package here. The repositories are inherited from the project
-      = link_to @project, :controller => :repositories, :action => :index, :project => @project
-    = render :partial => 'shared/repositories', :locals => { :obj => @package }
+      = link_to @project, controller: :repositories, action: :index, project: @project
+    = render partial: 'shared/repositories', locals: { obj: @package }
   - else
     %p
       This package is inherited from the project
-      = link_to @package.project, :action => :index, controller: :repositories, :project => @package.project
+      = link_to @package.project, action: :index, controller: :repositories, project: @package.project
       and changing repository flags has no effect.
 - else
   %h3
