@@ -50,6 +50,7 @@ class ConsistencyCheckJob < ApplicationJob
       puts "Please specify the project with 'project=MyProject' on CLI"
       return
     end
+    # check api side
     begin
       project = Project.get_by_name(ENV['project'])
       @errors << project_meta_check(project, fix)
@@ -57,6 +58,15 @@ class ConsistencyCheckJob < ApplicationJob
       # specified but does not exist in api. does it also not exist in backend?
       @errors << import_project_from_backend(ENV['project'])
       project = Project.get_by_name(ENV['project'])
+    end
+    # check backend side
+    begin
+      Suse::Backend.get("/source/#{project.name}")
+    rescue ActiveXML::Transport::NotFoundError
+      Suse::Backend.without_global_write_through do
+        @errors << "Project #{project.name} lost on backend"
+        project.destroy if fix
+      end
     end
     @errors << package_existence_consistency_check(project, fix)
     puts @errors unless @errors.blank?
@@ -169,7 +179,12 @@ class ConsistencyCheckJob < ApplicationJob
 
     # compare all packages
     package_list_api = project.packages.pluck(:name)
-    plb = dir_to_array(Xmlhash.parse(Suse::Backend.get("/source/#{project.name}").body))
+    begin
+      plb = dir_to_array(Xmlhash.parse(Suse::Backend.get("/source/#{project.name}").body))
+    rescue ActiveXML::Transport::NotFoundError
+      # project disappeared ... may happen in running system
+      return ""
+    end
     # filter multibuild source container
     package_list_backend = plb.map{ |e| e.start_with?('_patchinfo:', '_product:') ? e : e.gsub(/:.*$/, '') }
 
