@@ -32,6 +32,7 @@ class User < ApplicationRecord
   has_many :groups_users, inverse_of: :user
   has_many :roles_users, inverse_of: :user
   has_many :relationships, inverse_of: :user, dependent: :destroy
+  has_many :group_relationships, through: :groups, source: :relationships
 
   has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
@@ -696,16 +697,7 @@ class User < ApplicationRecord
   end
 
   def involved_projects_ids
-    # just for maintainer for now.
-    role = Role.hashed['maintainer']
-
-    ### all projects where user is maintainer
-    projects = relationships.projects.where(role_id: role.id).pluck(:project_id)
-
-    # all projects where user is maintainer via a group
-    projects += Relationship.projects.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: id }).pluck(:project_id)
-
-    projects.uniq
+    (relationships.projects.maintainers.pluck(:project_id) + group_relationships.projects.maintainers.pluck(:project_id)).uniq
   end
 
   def involved_projects
