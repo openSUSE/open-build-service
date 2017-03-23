@@ -41,7 +41,7 @@ class BsRequest
     end
 
     def fetch_requests
-      requests_query(search).offset(offset).limit(limit).reorder(sort_column => sort_direction).includes(:bs_request_actions)
+      requests_query(search).offset(offset).limit(limit).reorder("#{sort_column} #{sort_direction}").includes(:bs_request_actions, :user)
     end
 
     def search
@@ -63,9 +63,9 @@ class BsRequest
     def sort_column
       # defaults to :created_at
       {
-          0 => :created_at,
-          3 => :creator,
-          5 => :priority
+          0 => 'bs_requests.created_at',
+          3 => 'users.login',
+          5 => 'bs_requests.priority'
       }[order_params.fetch(:column, nil).to_i]
     end
 

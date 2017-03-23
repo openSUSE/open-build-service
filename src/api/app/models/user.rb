@@ -42,6 +42,7 @@ class User < ApplicationRecord
 
   belongs_to :owner, class_name: 'User'
   has_many :subaccounts, class_name: 'User', foreign_key: 'owner_id'
+  has_many :bs_requests
 
   # users have a n:m relation to group
   has_and_belongs_to_many :groups, -> { distinct }

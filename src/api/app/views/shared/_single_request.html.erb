@@ -11,7 +11,7 @@
     <%= fuzzy_time(req.created_at) %>
   </td>
   <td class="request_source">
-    <%= project_or_package_link(project: source_project, package: source_package, creator: req.creator, trim_to: 80, short: true) %>
+    <%= project_or_package_link(project: source_project, package: source_package, creator: req.user.login, trim_to: 80, short: true) %>
   </td>
   <td class="nowrap"><%= user_with_realname_and_icon(req['creator'], short: true) %></td>
   <td class="nowrap"><%= request_type %></td>

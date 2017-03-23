@@ -343,7 +343,7 @@ class BsRequestPermissionCheck
       raise PostRequestNoPermission.new 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
     end
 
-    if opts[:newstate].in?(["new", "review", "revoked", "superseded"]) && req.creator == User.current.login
+    if opts[:newstate].in?(["new", "review", "revoked", "superseded"]) && req.user == User.current
       # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
     elsif req.state == :declined && opts[:newstate].in?(["new", "review"]) && req.commenter == User.current.login
