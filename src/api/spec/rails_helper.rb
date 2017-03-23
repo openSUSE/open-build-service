@@ -8,9 +8,8 @@ require 'spec_helper'
 require 'rspec/rails'
 # for generating test coverage
 require 'simplecov'
-# for tracking test coverage on
-# https://coveralls.io/github/openSUSE/open-build-service
-require 'coveralls'
+# for tracking test coverage
+require 'codecov'
 # for pundit policy
 require 'pundit/rspec'
 

@@ -3,14 +3,12 @@ ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
 ENV['RAILS_ENV'] = 'test'
 
 require 'simplecov'
-require 'coveralls'
+require 'codecov'
 require "minitest/reporters"
 
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
 if ENV['DO_COVERAGE']
-  Coveralls.wear_merged!('rails')
-
   SimpleCov.start 'rails' do
     # NOTE: Keep filters in sync with spec/support/coverage.rb
     add_filter '/app/indices/'
@@ -19,7 +17,7 @@ if ENV['DO_COVERAGE']
     add_filter '/lib/memory_debugger.rb'
     add_filter '/lib/memory_dumper.rb'
     merge_timeout 3600
-    formatter Coveralls::SimpleCov::Formatter
+    formatter SimpleCov::Formatter::Codecov
   end
 
   SimpleCov.at_exit do
