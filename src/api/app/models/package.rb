@@ -80,8 +80,6 @@ class Package < ApplicationRecord
   before_destroy :remove_linked_packages
   before_destroy :remove_devel_packages
 
-  after_destroy :delete_cache_lines
-
   after_save :write_to_backend
   before_update :update_activity
   after_rollback :reset_cache
@@ -1092,10 +1090,6 @@ class Package < ApplicationRecord
       bp.error = nil
       bp.links_to = nil
     end
-  end
-
-  def delete_cache_lines
-    CacheLine.cleanup_package(project.name, name)
   end
 
   def remove_linked_packages

@@ -184,8 +184,6 @@ class Project < ApplicationRecord
   end
 
   def cleanup_before_destroy
-    CacheLine.cleanup_project(name)
-
     # find linking projects
     cleanup_linking_projects
 
@@ -759,7 +757,7 @@ class Project < ApplicationRecord
   end
 
   def exists_package?(name, opts = {})
-    CacheLine.fetch([self, 'exists_package', name, opts], project: self.name, package: name) do
+    Rails.cache.fetch(['exists_package', cache_key, name, opts]) do
       if opts[:follow_project_links]
         pkg = find_package(name)
       else

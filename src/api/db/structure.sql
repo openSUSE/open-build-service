@@ -261,17 +261,6 @@ CREATE TABLE `bs_requests` (
   KEY `index_bs_requests_on_superseded_by` (`superseded_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `cache_lines` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `key` varchar(4096) COLLATE utf8_unicode_ci NOT NULL,
-  `package` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `project` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `request` int(11) DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `index_cache_lines_on_project_and_package` (`project`,`package`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 CREATE TABLE `channel_binaries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -1178,6 +1167,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170315200936'),
 ('20170316090223'),
 ('20170317094221'),
-('20170320151300');
+('20170320151300'),
+('20170323123236');
 
 
