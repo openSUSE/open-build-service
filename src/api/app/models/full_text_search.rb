@@ -91,10 +91,10 @@ class FullTextSearch
       end
       begin
         interface.start
-      rescue RuntimeError => e
+      rescue ThinkingSphinx::SphinxAlreadyRunning, RuntimeError => e
         # Most likely, this means that searchd is already running.
         # Nothing to worry about
-        puts "Handled exception: #{e.message}"
+        Rails.logger.info "Handled exception: #{e.message}"
       end
     end
     true
