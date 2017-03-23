@@ -4,7 +4,7 @@ class AcceptRequestsJob
 
   def perform
     User.current = User.find_by_login('Admin')
-    BsRequest.find_requests_to_accept.each do |r|
+    BsRequest.to_accept.each do |r|
       begin
         r.change_state('accepted', comment: "Auto accept")
       rescue BsRequestAction::UnknownProject,
