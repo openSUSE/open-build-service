@@ -321,9 +321,10 @@ module Webui::WebuiHelper
     defaults = { package: nil, rev: nil, short: false, trim_to: 40 }
     opts = defaults.merge(opts)
 
-    CacheLine.fetch(['project_or_package_link', opts], project: opts[:project], package: opts[:package]) do
-      # only care for database entries
-      prj = Project.where(name: opts[:project]).select(:id, :name).first
+    # only care for database entries
+    prj = Project.where(name: opts[:project]).select(:id, :name, :updated_at).first
+    # Expires in 2 hours so that changes of local and remote packages eventually result in an update
+    Rails.cache.fetch(['project_or_package_link', prj.try(:cache_key), opts], expires_in: 2.hours) do
       if prj && opts[:creator]
         opts[:project_text] ||= format_projectname(opts[:project], opts[:creator])
       end

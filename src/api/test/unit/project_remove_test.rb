@@ -9,10 +9,6 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     Backend::Connection.start_test_backend
   end
 
-  def test_delete_cache_lines
-    skip "No idea what CacheLine.cleanup_project is there for, Adrian?"
-  end
-
   def test_cleanup_linking_projects
     skip "LinkedProject.linked_db_project = self are replaced with links to the 'deleted' project"
   end
