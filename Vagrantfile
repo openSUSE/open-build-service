@@ -1,8 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-dev_mem = (ENV["OBS_VAGRANT_MEM"]) ? ENV["OBS_VAGRANT_MEM"] : 2048
-dev_cpu = (ENV["OBS_VAGRANT_CPU"]) ? ENV["OBS_VAGRANT_CPU"] : 2
+dev_mem = ENV["OBS_VAGRANT_MEM"] ? ENV["OBS_VAGRANT_MEM"] : 2048
+dev_cpu = ENV["OBS_VAGRANT_CPU"] ? ENV["OBS_VAGRANT_CPU"] : 2
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = '2'
@@ -12,9 +12,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
 
-  #calculate memory allocation
+  # Calculate memory allocation
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.define "development" , primary: true do |fe|
+  config.vm.define "development", primary: true do |fe|
     fe.vm.box = 'opensuse/openSUSE-42.1-x86_64'
     # Provision the box with a simple shell script
     fe.vm.provision :shell, inline: '/vagrant/contrib/bootstrap.sh'
@@ -78,5 +78,4 @@ SCRIPT
       # for documentation purpose
       # config.vm.synced_folder './', '/vagrant', type: '9p', disabled: false
   end
-
 end
