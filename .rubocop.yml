@@ -8,7 +8,7 @@ AllCops:
     - 'src/api/tmp/**/*'
     - 'src/api/lib/templates/**/*'
     - 'src/api/vendor/bundle/**/*'
-    - 'docs/**/*'
+    - 'docs/api/restility/**/*'
 
 # Align the elements of a hash literal if they span more than one line.
 Style/AlignHash:
