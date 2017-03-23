@@ -10,7 +10,13 @@ RSpec.describe Webui::ProjectHelper, type: :helper do
   end
 
   describe '#format_seconds' do
-    skip
+    it 'shows a zero for the hour if under 3600 seconds' do
+      expect(format_seconds(60)).to eq('0:01')
+    end
+
+    it 'shows hours and seconds properly' do
+      expect(format_seconds(12000)).to eq('3:20')
+    end
   end
 
   describe '#rebuild_time_col' do
@@ -42,7 +48,21 @@ RSpec.describe Webui::ProjectHelper, type: :helper do
   end
 
   describe '#incident_issue_color' do
-    skip
+    it 'returns red if there are no patchinfo issues' do
+      expect(incident_issue_color(0, 0)).to eq('red')
+    end
+
+    it 'returns green if package and patchinfo have the same amount of issues' do
+      expect(incident_issue_color(20, 20)).to eq('green')
+    end
+
+    it 'returns olive if there are more package issues than patchinfo issues' do
+      expect(incident_issue_color(20, 30)).to eq('olive')
+    end
+
+    it 'returns red if there are more patchinfo issues than package issues' do
+      expect(incident_issue_color(30, 20)).to eq('red')
+    end
   end
 
   describe '#map_request_state_to_flag' do
