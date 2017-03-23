@@ -256,7 +256,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   end
 
   def do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
-    post "/source/#{sprj}/#{spkg}", params: { cmd: :branch, target_project: "#{tprj}" }
+    post "/source/#{sprj}/#{spkg}", params: { cmd: :branch, target_project: tprj }
     puts @response.body if debug
     assert_response resp if resp
     assert_match(match, @response.body) if match
@@ -276,7 +276,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   def do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     get "/source/#{destprj}/#{destpkg}/_meta"
     orig = @response.body
-    post "/source/#{destprj}/#{destpkg}", params: { cmd: "copy", oproject: "#{srcprj}", opackage: "#{srcpkg}" }
+    post "/source/#{destprj}/#{destpkg}", params: { cmd: "copy", oproject: srcprj, opackage: srcpkg }
     assert_response resp if resp
     # ret destination package meta
     get "/source/#{destprj}/#{destpkg}/_meta"
@@ -284,7 +284,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_match(flag, @response.body) if flag
     delete "/source/#{destprj}/#{destpkg}"
     assert_response delresp if delresp
-    get url_for(controller: :source, action: :show_package_meta, project: "#{destprj}", package: "#{destpkg}")
+    get url_for(controller: :source, action: :show_package_meta, project: destprj, package: destpkg)
     put "/source/#{destprj}/#{destpkg}/_meta", params: orig.dup
   end
   protected :do_test_copy_package

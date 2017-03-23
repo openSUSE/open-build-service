@@ -331,7 +331,7 @@ class UserLdapStrategy
       ldap_con.modify(dn, entry)
     rescue LDAP::ResultError
       Rails.logger.debug("Error #{ldap_con.err} for #{login}")
-      return "#{ldap_con.err}"
+      return ldap_con.err.to_s
     end
 
     return

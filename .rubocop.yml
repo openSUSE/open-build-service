@@ -132,6 +132,10 @@ Style/SymbolProc:
 Style/TernaryParentheses:
   Enabled: true
 
+# Checks for strings that are just an interpolated expression.
+Style/UnneededInterpolation:
+  Enabled: true
+
 # Checks for predicates than can be replaced by receiver.empty? and !receiver.empty?
 Style/ZeroLengthPredicate:
   Enabled: true

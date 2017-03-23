@@ -102,7 +102,7 @@ RSpec.feature "Projects", type: :feature, js: true do
       click_button "Save changes"
 
       expect(page).to have_text("Package 'coolstuff' was created successfully")
-      expect(page.current_path).to eq(package_show_path(project: "#{global_project}", package: "coolstuff"))
+      expect(page.current_path).to eq(package_show_path(project: global_project.to_s, package: "coolstuff"))
     end
   end
 

@@ -328,7 +328,7 @@ class Webui::PackageController < Webui::WebuiController
           }
           r.change_state(opts)
         rescue APIException => e
-          supersede_errors << "#{e.message}"
+          supersede_errors << e.message.to_s
         end
       end
     end
