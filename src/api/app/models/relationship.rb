@@ -50,7 +50,7 @@ class Relationship < ApplicationRecord
     joins(:role, :group).order('roles.title, groups.title')
   }
   scope :maintainers, lambda {
-    where('roles.title' => 'maintainer')
+    where(role_id: Role.hashed['maintainer'])
   }
 
   # we only care for project<->user relationships, but the cache is not *that* expensive
