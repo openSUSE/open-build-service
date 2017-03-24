@@ -18,10 +18,9 @@ class ConsistencyCheckJob < ApplicationJob
       unless Project.valid_name? project.name
         @errors << "Invalid project name #{project.name}\n"
         if fix
-          Suse::Backend.without_global_write_through do
-            # just remove it, the backend won't accept it anyway
-            project.destroy
-          end
+          # just remove it, the backend won't accept it anyway
+          project.commit_opts = {no_backend_write: 1}
+          project.destroy
         end
         next
       end
@@ -63,10 +62,9 @@ class ConsistencyCheckJob < ApplicationJob
     begin
       Suse::Backend.get("/source/#{project.name}")
     rescue ActiveXML::Transport::NotFoundError
-      Suse::Backend.without_global_write_through do
-        @errors << "Project #{project.name} lost on backend"
-        project.destroy if fix
-      end
+      @errors << "Project #{project.name} lost on backend"
+      project.commit_opts = {no_backend_write: 1}
+      project.destroy if fix
     end
     @errors << package_existence_consistency_check(project, fix)
     puts @errors unless @errors.blank?
@@ -139,12 +137,11 @@ class ConsistencyCheckJob < ApplicationJob
   end
 
   def import_project_from_backend(project)
-    Suse::Backend.without_global_write_through do
-      meta = Suse::Backend.get("/source/#{project}/_meta").body
-      project = Project.new(name: project)
-      project.update_from_xml(Xmlhash.parse(meta))
-      project.save!
-    end
+    meta = Suse::Backend.get("/source/#{project}/_meta").body
+    project = Project.new(name: project)
+    project.commit_opts = {no_backend_write: 1}
+    project.update_from_xml(Xmlhash.parse(meta))
+    project.save!
     return ""
   rescue ActiveRecord::RecordInvalid
     Suse::Backend.delete("/source/#{project}")
@@ -163,16 +160,16 @@ class ConsistencyCheckJob < ApplicationJob
     end
 
     # valid package names?
-    Suse::Backend.without_global_write_through do
-      package_list_api = project.packages.pluck(:name)
-      package_list_api.each do |name|
-        unless Package.valid_name? name
-          errors << "Invalid package name #{name} in project #{project.name}\n"
-          if fix
-            # just remove it, the backend won't accept it anyway
-            project.packages.find_by(name: name).destroy
-            next
-          end
+    package_list_api = project.packages.pluck(:name)
+    package_list_api.each do |name|
+      unless Package.valid_name? name
+        errors << "Invalid package name #{name} in project #{project.name}\n"
+        if fix
+          # just remove it, the backend won't accept it anyway
+          pkg = project.packages.find_by(name: name)
+          pkg.commit_opts = {no_backend_write: 1}
+          pkg.destroy
+          next
         end
       end
     end
@@ -205,19 +202,18 @@ class ConsistencyCheckJob < ApplicationJob
       errors << "Additional package in backend project #{project.name}:\n #{diff}\n"
 
       if fix
-        Suse::Backend.without_global_write_through do
-          # restore from backend
-          diff.each do |package|
-            begin
-              meta = Suse::Backend.get("/source/#{project.name}/#{package}/_meta").body
-              pkg = project.packages.new(name: package)
-              pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
-              pkg.save!
-            rescue ActiveRecord::RecordInvalid,
-                   ActiveXML::Transport::NotFoundError
-              Suse::Backend.delete("/source/#{project.name}/#{package}")
-              errors << "DELETED in backend due to invalid data #{project.name}/#{package}\n"
-            end
+        # restore from backend
+        diff.each do |package|
+          begin
+            meta = Suse::Backend.get("/source/#{project.name}/#{package}/_meta").body
+            pkg = project.packages.new(name: package)
+            pkg.commit_opts = {no_backend_write: 1}
+            pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
+            pkg.save!
+          rescue ActiveRecord::RecordInvalid,
+                 ActiveXML::Transport::NotFoundError
+            Suse::Backend.delete("/source/#{project.name}/#{package}")
+            errors << "DELETED in backend due to invalid data #{project.name}/#{package}\n"
           end
         end
       end
