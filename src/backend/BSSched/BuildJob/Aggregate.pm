@@ -30,10 +30,10 @@ use BSConfiguration;		# for $BSConfig::sign
 use BSVerify;			# for verify_nevraquery
 use Build;			# for query
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz AppImage};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
-my @binsufs_sign = qw{rpm pkg.tar.gz pkg.tar.xz};
+my @binsufs_sign = qw{rpm pkg.tar.gz pkg.tar.xz AppImage};
 my $binsufsre_sign = join('|', map {"\Q$_\E"} @binsufs_sign);
 
 =head1 NAME
