@@ -118,7 +118,7 @@ class Attrib < ApplicationRecord
   end
 
   #### Alias of methods
-  alias :values_addable? :values_removeable?
+  alias_method :values_addable?, :values_removeable?
 
   private
 

@@ -10,6 +10,11 @@ AllCops:
     - 'src/api/vendor/bundle/**/*'
     - 'docs/api/restility/**/*'
 
+# Find uses of alias where alias_method would be more appropriate (or is simply preferred due to configuration), and vice versa.
+# It also finds uses of alias :symbol rather than alias bareword.
+Style/Alias:
+  EnforcedStyle: 'prefer_alias_method'
+
 # Align the elements of a hash literal if they span more than one line.
 Style/AlignHash:
   # Alignment of entries using hash rocket as separator.

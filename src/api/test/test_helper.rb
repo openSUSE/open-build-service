@@ -170,7 +170,7 @@ module ActionDispatch
         headers
       end
 
-      alias real_process process_with_kwargs
+      alias_method :real_process, :process_with_kwargs
 
       def process_with_kwargs(http_method, path, *args)
         CONFIG['global_write_through'] = true

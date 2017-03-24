@@ -241,15 +241,6 @@ Style/AccessorMethodName:
     - 'src/api/app/models/user.rb'
     - 'src/api/test/functional/search_controller_test.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: prefer_alias, prefer_alias_method
-Style/Alias:
-  Exclude:
-    - 'src/api/app/models/attrib.rb'
-    - 'src/api/lib/opensuse/backend.rb'
-
 # Offense count: 19
 # Cop supports --auto-correct.
 Style/AlignArray:
