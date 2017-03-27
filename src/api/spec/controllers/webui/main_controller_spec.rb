@@ -211,4 +211,11 @@ RSpec.describe Webui::MainController do
     it { is_expected.to respond_with(:success) }
   end
 
+  describe "GET #delete_message_dialog" do
+    before do
+      get :delete_message_dialog, xhr: true
+    end
+
+    it { is_expected.to respond_with(:success) }
+  end
 end
