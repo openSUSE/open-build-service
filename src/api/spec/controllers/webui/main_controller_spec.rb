@@ -127,15 +127,68 @@ RSpec.describe Webui::MainController do
   describe "GET #sitemap_packages" do
     render_views
 
-    before do
-      create_list(:project_with_package, 5)
-      get :sitemap_packages, params: { listaction: 'show' }
-      @package_paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map { |url| URI.parse(url).path }
+    context "without category param provided" do
+      before do
+        create_list(:project_with_package, 5)
+        get :sitemap_packages, params: { listaction: 'show' }
+        @package_paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map { |url| URI.parse(url).path }
+      end
+
+      it "have all packages's urls" do
+        Package.all.each do |package|
+          expect(@package_paths).to include("/package/show/#{package.project.name}/#{package.name}")
+        end
+      end
     end
 
-    it "have all packages's urls" do
-      Package.all.each do |package|
-        expect(@package_paths).to include("/package/show/#{package.project.name}/#{package.name}")
+    context "with category param provided that matches home%" do
+      before do
+        create(:package, project: admin_user.home_project)
+        create_list(:project_with_package, 2)
+        get :sitemap_packages, params: { listaction: 'show', category: admin_user.home_project_name }
+        @package_paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map { |url| URI.parse(url).path }
+      end
+
+      it "doesn't have packages's urls for non home subprojects" do
+        Project.where("name not like 'home:%'").each do |project|
+          project.packages.each do |package|
+            expect(@package_paths).not_to include("/package/show/#{package.project.name}/#{package.name}")
+          end
+        end
+      end
+
+      it "have packages's urls for home subprojects" do
+        Project.where("name like 'home:%'").each do |project|
+          project.packages.each do |package|
+            expect(@package_paths).to include("/package/show/#{package.project.name}/#{package.name}")
+          end
+        end
+      end
+    end
+
+    context "with category param provided as opensuse" do
+      before do
+        create(:project, name: 'openSUSE')
+        create(:project_with_package, name: 'openSUSE:subproject1')
+        create(:project_with_package, name: 'openSUSE:subproject2')
+        get :sitemap_packages, params: { listaction: 'show', category: 'opensuse' }
+        @package_paths = Nokogiri::XML(response.body).xpath("//xmlns:loc").map { |url| URI.parse(url).path }
+      end
+
+      it "doesn't have packages's urls for non openSUSE subprojects" do
+        Project.where("name not like 'openSUSE:%'").each do |project|
+          project.packages.each do |package|
+            expect(@package_paths).not_to include("/package/show/#{package.project.name}/#{package.name}")
+          end
+        end
+      end
+
+      it "have packages's urls for openSUSE subprojects" do
+        Project.where("name like 'openSUSE:%'").each do |project|
+          project.packages.each do |package|
+            expect(@package_paths).to include("/package/show/#{package.project.name}/#{package.name}")
+          end
+        end
       end
     end
   end
