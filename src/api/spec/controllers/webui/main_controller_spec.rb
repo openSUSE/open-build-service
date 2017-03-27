@@ -61,6 +61,16 @@ RSpec.describe Webui::MainController do
 
       it { expect(flash[:error]).to eq("Please provide a message and severity") }
     end
+
+    context "that fails at saving the message" do
+      before do
+        login(admin_user)
+        allow_any_instance_of(StatusMessage).to receive(:save).and_return(false)
+        post :add_news, params: { message: "Some message", severity: "Green" }
+      end
+
+      it { expect(flash[:error]).not_to be nil }
+    end
   end
 
   describe "POST delete_message" do
