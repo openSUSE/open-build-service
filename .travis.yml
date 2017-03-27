@@ -10,6 +10,7 @@ script:
 dist: trusty
 sudo: required
 env:
+  - TEST_SUITE=haml
   - TEST_SUITE=rspec
   - TEST_SUITE=api
   - TEST_SUITE=webui

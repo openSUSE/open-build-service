@@ -35,6 +35,9 @@ if test -z "$SUBTEST"; then
     rspec)
       bundle exec rspec
       ;;
+    haml)
+      bundle exec rake haml_lint
+      ;;
     jshint)
       jshint .
       ;;
