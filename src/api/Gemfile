@@ -7,7 +7,7 @@ gem 'rails', '~> 5.0.1'
 # as our database
 gem 'mysql2'
 # as requirement for activexml
-gem 'nokogiri', '~>1.7.0.1'
+gem 'nokogiri'
 # for delayed tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
 # to fill errbit
@@ -82,7 +82,7 @@ end
 # Gems used only for testing the application and not required in production environments by default.
 group :test do
   # as testing frameworks
-  gem 'minitest', '= 5.9.0'
+  gem 'minitest'
   gem 'test-unit'
   # to ensure a clean state for testing
   gem 'database_cleaner', '>= 1.0.1'
@@ -93,6 +93,8 @@ group :test do
   gem 'minitest-fail-fast'
   # for spec like reporting
   gem 'minitest-reporters'
+  # for integration testing
+  gem 'capybara'
   # for rspec like matchers
   gem 'capybara_minitest_spec'
   # to freeze time
