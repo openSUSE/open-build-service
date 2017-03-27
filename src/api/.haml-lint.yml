@@ -7,8 +7,10 @@
 # Note that changes in the inspected code, or installation of new
 # versions of Haml-Lint, may require this file to be generated again.
 
-linters:
+exclude:
+- 'vendor/bundle/**/*'
 
+linters:
   # Offense count: 26
   ClassesBeforeIds:
     exclude:
