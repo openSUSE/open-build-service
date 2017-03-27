@@ -202,4 +202,13 @@ RSpec.describe Webui::MainController do
       end
     end
   end
+
+  describe "GET #add_news_dialog" do
+    before do
+      get :add_news_dialog, xhr: true
+    end
+
+    it { is_expected.to respond_with(:success) }
+  end
+
 end
