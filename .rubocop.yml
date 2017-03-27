@@ -8,6 +8,7 @@ AllCops:
     - 'src/api/tmp/**/*'
     - 'src/api/lib/templates/**/*'
     - 'src/api/vendor/bundle/**/*'
+    - 'src/backend/**/*'
     - 'Vagrantfile'
     - 'docs/**/*'
 
