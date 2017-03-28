@@ -351,14 +351,14 @@ class Project < ApplicationRecord
     lpro && lpro[0].defines_remote_instance?
   end
 
-  def self.check_access?(dbp)
-    return false if dbp.nil?
+  def self.check_access?(project)
+    return false if project.nil?
     # check for 'access' flag
 
-    return true unless Relationship.forbidden_project_ids.include? dbp.id
+    return true unless Relationship.forbidden_project_ids.include? project.id
 
-    # simple check for involvement --> involved users can access dbp.id, User.current
-    dbp.relationships.groups.includes(:group).any? do |grouprel|
+    # simple check for involvement --> involved users can access project.id, User.current
+    project.relationships.groups.includes(:group).any? do |grouprel|
       # check if User.current belongs to group.
       User.current.is_in_group?(grouprel.group) ||
         # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
