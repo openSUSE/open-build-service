@@ -507,8 +507,6 @@ OBSApi::Application.routes.draw do
 
       get 'statistics' => :index
       get 'statistics/highest_rated' => :highest_rated
-      get 'statistics/download_counter' => :download_counter
-      get 'statistics/newest_stats' => :newest_stats
       get 'statistics/most_active_projects' => :most_active_projects
       get 'statistics/most_active_packages' => :most_active_packages
       get 'statistics/latest_added' => :latest_added
@@ -590,7 +588,6 @@ OBSApi::Application.routes.draw do
 
       match 'search/repository/id' => :repository_id, via: [:get, :post]
       match 'search/issue' => :issue, via: [:get, :post]
-      match 'search/attribute' => :attribute, via: [:get, :post]
     end
 
     ### /request
