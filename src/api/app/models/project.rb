@@ -351,39 +351,21 @@ class Project < ApplicationRecord
     lpro && lpro[0].defines_remote_instance?
   end
 
-  def self.check_access?(dbp = self)
-    return false if dbp.nil?
+  def self.check_access?(project)
+    return false if project.nil?
     # check for 'access' flag
 
-    return true unless Relationship.forbidden_project_ids.include? dbp.id
+    return true unless Relationship.forbidden_project_ids.include? project.id
 
-    # simple check for involvement --> involved users can access
-    # dbp.id, User.current
-    grouprels = dbp.relationships.groups.to_a
-
-    if grouprels
-      ret = 0
-      grouprels.each do |grouprel|
-        # check if User.current belongs to group
-        if grouprel && grouprel.group_id
-          # LOCAL
-          # if user is in group -> return true
-          ret += 1 if User.current.is_in_group?(grouprel.group_id)
-          # LDAP
-          # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
-          if CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
-            if UserLdapStrategy.user_in_group_ldap?(User.current, group.group_id)
-              ret += 1
-            end
-          end
-          #
-        end
-      end
-      # relationship to package -> access
-      return true if ret > 0
+    # simple check for involvement --> involved users can access project.id, User.current
+    project.relationships.groups.includes(:group).any? do |grouprel|
+      # check if User.current belongs to group.
+      User.current.is_in_group?(grouprel.group) ||
+        # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
+        CONFIG['ldap_mode'] == :on &&
+          CONFIG['ldap_group_support'] == :on &&
+          UserLdapStrategy.user_in_group_ldap?(User.current, grouprel.group_id)
     end
-
-    false
   end
 
   # returns an object of project(local or remote) or raises an exception

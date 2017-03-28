@@ -115,10 +115,10 @@ class Package < ApplicationRecord
 
   has_many :tokens, dependent: :destroy, inverse_of: :package
 
-  def self.check_access?(dbpkg = self)
-    return false if dbpkg.nil?
-    return false unless dbpkg.class == Package
-    Project.check_access?(dbpkg.project)
+  def self.check_access?(package)
+    return false if package.nil?
+    return false unless package.class == Package
+    Project.check_access?(package.project)
   end
 
   def self.check_cache(project, package, opts)
