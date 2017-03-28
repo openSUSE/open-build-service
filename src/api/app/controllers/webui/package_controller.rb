@@ -65,8 +65,11 @@ class Webui::PackageController < Webui::WebuiController
 
     @is_current_rev = false
     if set_file_details
-      if @forced_unexpand.blank?
+      if @forced_unexpand.blank? && @service_running.blank?
         @is_current_rev = !@revision || (@revision == @current_rev)
+      elsif @service_running
+        flash.clear
+        flash.now[:notice] = "Service currently running (<a href='#{package_show_path(project: @project, package: @package)}'>reload page</a>)."
       else
         @more_info = @package.service_error
         flash.now[:error] = "Files could not be expanded: #{@forced_unexpand}"
@@ -390,8 +393,9 @@ class Webui::PackageController < Webui::WebuiController
       end
     rescue ActiveXML::Transport::Error => e
       # TODO crudest hack ever!
-      if e.summary == 'service in progress'
+      if e.summary == 'service in progress' && @expand == 1
         @expand = 0
+        @service_running = true
         # silently in this case
         return set_file_details
       end
