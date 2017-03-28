@@ -283,7 +283,6 @@ Group:          Productivity/Networking/Web/Utilities
 %endif
 Requires:       build
 Requires:       osc
-Requires:       ruby
 
 %description -n obs-utils
 obs_project_update is a tool to copy a packages of a project from one obs to another
