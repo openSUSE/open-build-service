@@ -130,8 +130,8 @@ Requires:       perl-XML-Simple
 
 Obsoletes:	obs-source_service < 2.8.51
 Obsoletes:	obs-productconverter < 2.8.51
-Provides:	obs-source_service
-Provides:	obs-productconverter
+Provides:	obs-source_service = %version
+Provides:	obs-productconverter = %version
 
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
