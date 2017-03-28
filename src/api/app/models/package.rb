@@ -115,7 +115,7 @@ class Package < ApplicationRecord
 
   has_many :tokens, dependent: :destroy, inverse_of: :package
 
-  def self.check_access?(dbpkg = self)
+  def self.check_access?(dbpkg)
     return false if dbpkg.nil?
     return false unless dbpkg.class == Package
     Project.check_access?(dbpkg.project)

@@ -351,7 +351,7 @@ class Project < ApplicationRecord
     lpro && lpro[0].defines_remote_instance?
   end
 
-  def self.check_access?(dbp = self)
+  def self.check_access?(dbp)
     return false if dbp.nil?
     # check for 'access' flag
 
