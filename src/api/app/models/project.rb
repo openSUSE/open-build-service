@@ -361,27 +361,24 @@ class Project < ApplicationRecord
     # dbp.id, User.current
     grouprels = dbp.relationships.groups.to_a
 
-    if grouprels
-      ret = 0
-      grouprels.each do |grouprel|
-        # check if User.current belongs to group
-        if grouprel && grouprel.group_id
-          # LOCAL
-          # if user is in group -> return true
-          ret += 1 if User.current.is_in_group?(grouprel.group_id)
-          # LDAP
-          # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
-          if CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
-            if UserLdapStrategy.user_in_group_ldap?(User.current, group.group_id)
-              ret += 1
-            end
+    ret = 0
+    grouprels.each do |grouprel|
+      # check if User.current belongs to group
+      if grouprel && grouprel.group_id
+        # LOCAL
+        # if user is in group -> return true
+        ret += 1 if User.current.is_in_group?(grouprel.group_id)
+        # LDAP
+        # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
+        if CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
+          if UserLdapStrategy.user_in_group_ldap?(User.current, group.group_id)
+            ret += 1
           end
-          #
         end
       end
-      # relationship to package -> access
-      return true if ret > 0
     end
+    # relationship to package -> access
+    return true if ret > 0
 
     false
   end
