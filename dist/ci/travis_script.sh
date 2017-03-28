@@ -29,17 +29,13 @@ if test -z "$SUBTEST"; then
       unset DO_COVERAGE
       bundle exec rails test:spider
       ;;
-    rubocop)
+    linter)
       make -C ../../ rubocop
+      bundle exec rake haml_lint
+      jshint .
       ;;
     rspec)
       bundle exec rspec
-      ;;
-    haml)
-      bundle exec rake haml_lint
-      ;;
-    jshint)
-      jshint .
       ;;
     backend)
       pushd ../backend
