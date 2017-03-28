@@ -78,7 +78,7 @@ class Dog < ActiveRecord::Base
 
   def bark
     say('Guau!')
-    @number_of_barks++
+    @number_of_barks += 1
   end
 
   def cry
