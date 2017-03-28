@@ -357,17 +357,15 @@ class Project < ApplicationRecord
 
     return true unless Relationship.forbidden_project_ids.include? dbp.id
 
+    ret = 0
     # simple check for involvement --> involved users can access
     # dbp.id, User.current
-    grouprels = dbp.relationships.groups.to_a
-
-    ret = 0
-    grouprels.each do |grouprel|
+    dbp.relationships.groups.includes(:group).each do |grouprel|
       # check if User.current belongs to group
       if grouprel && grouprel.group_id
         # LOCAL
         # if user is in group -> return true
-        ret += 1 if User.current.is_in_group?(grouprel.group_id)
+        ret += 1 if User.current.is_in_group?(grouprel.group)
         # LDAP
         # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
         if CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
