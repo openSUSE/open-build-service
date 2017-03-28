@@ -371,7 +371,7 @@ class Project < ApplicationRecord
         # LDAP
         # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
         if CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
-          if UserLdapStrategy.user_in_group_ldap?(User.current, group.group_id)
+          if UserLdapStrategy.user_in_group_ldap?(User.current, grouprel.group_id)
             ret += 1
           end
         end
