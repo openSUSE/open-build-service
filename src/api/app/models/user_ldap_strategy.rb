@@ -515,12 +515,11 @@ class UserLdapStrategy
     end
 
     begin
-      return true unless render_grouplist_ldap(grouplist, user).empty?
+      render_grouplist_ldap(grouplist, user).any?
     rescue Exception
       Rails.logger.debug "Error occurred in searching user_group in ldap."
+      false
     end
-
-    false
   end
 
   def local_permission_check_with_ldap(group_relationships)
