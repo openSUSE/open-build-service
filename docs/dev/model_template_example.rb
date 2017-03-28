@@ -54,17 +54,12 @@ class Dog < ActiveRecord::Base
 
   def self.killall_by(attributes = {})
     say("Die!")
-    where(attributes).each do |dog|
-      dog.kill
-    end
+    where(attributes).each(&:kill)
   end
 
   def self.call_all
     say("Fiuuiuuuu!")
-    all.each do |dog|
-      dog.bark
-    end
-
+    all.each(&:bark)
   end
 
   #### private
@@ -75,15 +70,15 @@ class Dog < ActiveRecord::Base
 
   private_class_method :say
 
-  #### Instance methods (public and then protected/private) 
-  def initialize(attributes={})
+  #### Instance methods (public and then protected/private)
+  def initialize(attributes = {})
     super
     @number_of_barks = 0
   end
 
   def bark
     say('Guau!')
-    @number_of_barks++
+    @number_of_barks += 1
   end
 
   def cry
@@ -101,5 +96,4 @@ class Dog < ActiveRecord::Base
   def reset_attribute(attribute)
     send("#{attribute}=", 0)
   end
-
 end

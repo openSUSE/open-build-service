@@ -11,8 +11,8 @@ class Webui::DogsController < ApplicationController
   #### Callbacks macros: before_action, after_action, etc.
   before_action :set_dog, only: [:show, :edit, :update, :destroy]
   # Pundit authorization policies control
-  after_action :verify_authorized, :except => [:index, :blacks]
-  after_action :verify_policy_scoped, :only => [:index, :blacks]
+  after_action :verify_authorized, except: [:index, :blacks]
+  after_action :verify_policy_scoped, only: [:index, :blacks]
 
   #### CRUD actions
 
@@ -79,26 +79,25 @@ class Webui::DogsController < ApplicationController
     render :index
   end
 
-  #### Non actions methods 
+  #### Non actions methods
   # Use hide_action if they are not private
 
   def call_them(dogs = [])
     say("Hey!")
-    dogs.each do |dog|
-      dog.bark
-    end
+    dogs.each(&:bark)
   end
 
   hide_action :call_them
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_dog
-      @dog = Dog.find(params[:id])
-    end
 
-    # Only allow a trusted parameter "white list" through.
-    def dog_params
-      params.require(:dog).permit(:name, :color)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_dog
+    @dog = Dog.find(params[:id])
+  end
+
+  # Only allow a trusted parameter "white list" through.
+  def dog_params
+    params.require(:dog).permit(:name, :color)
+  end
 end
