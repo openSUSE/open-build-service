@@ -43,6 +43,10 @@ class BsRequestAction < ApplicationRecord
   #### Validations macros
   validates :sourceupdate, inclusion: { in: VALID_SOURCEUPDATE_OPTIONS, allow_nil: true }
   validate :check_sanity
+  validates :type, uniqueness: {
+                     scope:      [:target_project, :target_package, :bs_request_id],
+                     conditions: -> { where.not(type: ['add_role', 'maintenance_incident']) }
+  }
 
   #### Class methods using self. (public and then private)
 
