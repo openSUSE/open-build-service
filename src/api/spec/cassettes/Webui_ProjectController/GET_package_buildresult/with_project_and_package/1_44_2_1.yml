@@ -40,17 +40,17 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Apr 2017 09:38:20 GMT
+  recorded_at: Thu, 06 Apr 2017 15:26:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/_meta
+    uri: http://localhost:3200/source/home:tom/obs-server/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <project name="Apache">
-          <title>Ring of Bright Water</title>
+        <package name="obs-server" project="home:tom">
+          <title/>
           <description/>
-        </project>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -70,25 +70,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '103'
+      - '106'
     body:
       encoding: UTF-8
       string: |
-        <project name="Apache">
-          <title>Ring of Bright Water</title>
+        <package name="obs-server" project="home:tom">
+          <title></title>
           <description></description>
-        </project>
+        </package>
     http_version: 
-  recorded_at: Wed, 05 Apr 2017 09:38:20 GMT
+  recorded_at: Thu, 06 Apr 2017 15:26:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/_config
+    uri: http://localhost:3200/source/home:tom/obs-server/_meta
     body:
       encoding: UTF-8
-      string: Nemo aut sed occaecati ipsum et fugit. Incidunt perferendis voluptatem
-        expedita deserunt eligendi omnis excepturi. Dolorem maxime pariatur eveniet
-        quia non qui ut. Accusantium dolores ut consequatur est laborum laudantium
-        modi. Velit enim ut maxime mollitia rerum omnis possimus.
+      string: |
+        <package name="obs-server" project="home:tom">
+          <title/>
+          <description/>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -108,46 +109,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '106'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
+      string: |
+        <package name="obs-server" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
     http_version: 
-  recorded_at: Wed, 05 Apr 2017 09:38:20 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/Apache/_config
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/plain
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '279'
-    body:
-      encoding: UTF-8
-      string: Nemo aut sed occaecati ipsum et fugit. Incidunt perferendis voluptatem
-        expedita deserunt eligendi omnis excepturi. Dolorem maxime pariatur eveniet
-        quia non qui ut. Accusantium dolores ut consequatur est laborum laudantium
-        modi. Velit enim ut maxime mollitia rerum omnis possimus.
-    http_version: 
-  recorded_at: Wed, 05 Apr 2017 09:38:20 GMT
+  recorded_at: Thu, 06 Apr 2017 15:26:33 GMT
 recorded_with: VCR 3.0.3

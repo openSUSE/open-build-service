@@ -40,20 +40,18 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Apr 2017 09:38:20 GMT
+  recorded_at: Wed, 05 Apr 2017 08:56:22 GMT
 - request:
-    method: put
-    uri: http://localhost:3200/source/Apache/_meta
+    method: get
+    uri: http://localhost:3200/build/home:tom/_result?code=deleting&view=status
     body:
-      encoding: UTF-8
-      string: |
-        <project name="Apache">
-          <title>In a Glass Darkly</title>
-          <description/>
-        </project>
+      encoding: US-ASCII
+      string: ''
     headers:
+      Content-Type:
+      - text/plain
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - identity
       Accept:
       - "*/*"
       User-Agent:
@@ -70,48 +68,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '100'
+      - '56'
     body:
       encoding: UTF-8
-      string: |
-        <project name="Apache">
-          <title>In a Glass Darkly</title>
-          <description></description>
-        </project>
-    http_version: 
-  recorded_at: Wed, 05 Apr 2017 09:38:20 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/Apache/_config
-    body:
-      encoding: UTF-8
-      string: Sapiente voluptas laborum impedit velit. Qui ad molestiae temporibus
-        ipsam porro sequi ea. Ab sint ipsum qui assumenda.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
+      string: '<resultlist state="00000000000000000000000000000000" />
 
 '
     http_version: 
-  recorded_at: Wed, 05 Apr 2017 09:38:20 GMT
+  recorded_at: Wed, 05 Apr 2017 08:56:22 GMT
 recorded_with: VCR 3.0.3

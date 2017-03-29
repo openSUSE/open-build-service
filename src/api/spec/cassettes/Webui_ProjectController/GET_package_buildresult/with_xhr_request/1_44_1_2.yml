@@ -1,0 +1,85 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom/_result?lastbuild=1&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '762'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="c0a974eb305112d2fdf45f9ecc54a86b">
+          <result project="home:tom" repository="home_coolo_standard" arch="i586" code="unknown" state="unknown" />
+          <result project="home:tom" repository="home_coolo_standard" arch="x86_64" code="unknown" state="unknown" />
+          <result project="home:tom" repository="home_adrian_ProtectionTest_repo" arch="i586" code="unknown" state="unknown" />
+          <result project="home:tom" repository="home_adrian_ProtectionTest_repo" arch="x86_64" code="unknown" state="unknown" />
+          <result project="home:tom" repository="SourceprotectedProject_repo" arch="i586" code="unknown" state="unknown" />
+          <result project="home:tom" repository="SourceprotectedProject_repo" arch="x86_64" code="unknown" state="unknown" />
+        </resultlist>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 09:23:40 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 11:13:58 GMT
+recorded_with: VCR 3.0.3

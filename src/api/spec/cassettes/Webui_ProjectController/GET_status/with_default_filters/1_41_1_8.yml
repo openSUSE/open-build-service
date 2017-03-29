@@ -1,0 +1,910 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:other_user/develpackage?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home other_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:other_user' does not exist</summary>
+          <details>404 project 'home:other_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:other_user/develpackage
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home other_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:other_user' does not exist</summary>
+          <details>404 project 'home:other_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:other_user/develpackage?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home other_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:other_user' does not exist</summary>
+          <details>404 project 'home:other_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_develpackage?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="package_with_develpackage">
+          <error>404 package 'package_with_develpackage' does not exist</error>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_develpackage
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'package_with_develpackage' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'package_with_develpackage' does not exist</summary>
+          <details>404 package 'package_with_develpackage' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/package_with_develpackage?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'package_with_develpackage' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'package_with_develpackage' does not exist</summary>
+          <details>404 package 'package_with_develpackage' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/getprojpack?expandedrepos&nopackages&project=home:tom&withrepos
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1823'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHByb2pwYWNrIHJlcG9pZD0iMTkxMDIwNzg4Ij4KICA8cHJvamVjdCBuYW1lPSJob21lOnRvbSI+CiAgICA8dGl0bGU+0K3RgtGR0LDQvCDQstC+0LrRj9Cx0Y7RhyDQtdGO0LYg0Y3QuDwvdGl0bGU+CiAgICA8ZGVzY3JpcHRpb24+56qe57aG6IWkIOWfseWoteW+liDmuK7mubjmuaQg5q6gIOWUsuWglCwg5buy57GX57O0IOmGhumLjemejiDom6Poornot5wg5rym5r6MIOi3rCwg5bueIOmWjembiCDngYnnpK3omKAg6biZ6K6f6ZKDIOi4mSDoq6joq78g5qOw5qS75qWSIOeNq+eYr+eauyDmv57mv6Lnh6gsIOiqmeizl+i3vyDop7borYjorYAg57CF57itIOiqmSwg6YuxIOamk+eUguedriDolIrok7TolJYg6YyJ6ZyLIOicreicuOimnyDng7rnhIbnkIAg5oWh5oirIOa+giwg5qaz5qaTIOimv+iuhOiuhSDnparnrLDnrLEg5bG05aW/5bCVIOaGiSwg5YOj5YqB5ZiVIOmHuOmHquWCmyDlqJ7lvLPlvLAg6Z+OIOaUh+arpyDpiocg6ba36beH6ba+IOiguOihi+mGviDmtb3ng6IsIOi8mOi8oOi8lyDotqHotpvouKAg57SS57+AIOi3vywg5Zi9IOiUsOidr+iduiDouobovZbovZUg5ae05oCkIOeut+eur+e3tyDpiIrph7/plo0g5oOA5qG3IOaFliwg6bei6buz6by2IOm8j+WZs+WiuiDmopzmt4rmt60g6YmMIOaQi+acoCDluZMg5Z6l5aiAIOmEnOmFs+mKqiDmm5LmqoPmqpEg6bS46byi5puYLCDmupnmu4rnhYEg6aa75ZmI5au2IOavvOavuSDmu40sIOm9peW7siDluYsg5YSu5ay85oerIOamk+eUguedriDovZ7pqLnpvJo8L2Rlc2NyaXB0aW9uPgogICAgPHJlcG9zaXRvcnkgbmFtZT0iaG9tZV9jb29sb19zdGFuZGFyZCI+CiAgICAgIDxwYXRoIHByb2plY3Q9ImhvbWU6dG9tIiByZXBvc2l0b3J5PSJob21lX2Nvb2xvX3N0YW5kYXJkIiAvPgogICAgICA8cGF0aCBwcm9qZWN0PSJCYXNlRGlzdHJvMyIgcmVwb3NpdG9yeT0iQmFzZURpc3RybzNfcmVwbyIgLz4KICAgICAgPHBhdGggcHJvamVjdD0iaG9tZTpjb29sbyIgcmVwb3NpdG9yeT0ic3RhbmRhcmQiIC8+CiAgICAgIDxiYXNlIHByb2plY3Q9ImhvbWU6Y29vbG8iIHJlcG9zaXRvcnk9InN0YW5kYXJkIiAvPgogICAgICA8YXJjaD5pNTg2PC9hcmNoPgogICAgICA8YXJjaD54ODZfNjQ8L2FyY2g+CiAgICA8L3JlcG9zaXRvcnk+CiAgICA8cmVwb3NpdG9yeSBuYW1lPSJob21lX2Fkcmlhbl9Qcm90ZWN0aW9uVGVzdF9yZXBvIj4KICAgICAgPHBhdGggcHJvamVjdD0iaG9tZTp0b20iIHJlcG9zaXRvcnk9ImhvbWVfYWRyaWFuX1Byb3RlY3Rpb25UZXN0X3JlcG8iIC8+CiAgICAgIDxwYXRoIHByb2plY3Q9ImhvbWU6YWRyaWFuOlByb3RlY3Rpb25UZXN0IiByZXBvc2l0b3J5PSJyZXBvIiAvPgogICAgICA8YmFzZSBwcm9qZWN0PSJob21lOmFkcmlhbjpQcm90ZWN0aW9uVGVzdCIgcmVwb3NpdG9yeT0icmVwbyIgLz4KICAgICAgPGFyY2g+aTU4NjwvYXJjaD4KICAgICAgPGFyY2g+eDg2XzY0PC9hcmNoPgogICAgPC9yZXBvc2l0b3J5PgogICAgPHJlcG9zaXRvcnkgbmFtZT0iU291cmNlcHJvdGVjdGVkUHJvamVjdF9yZXBvIj4KICAgICAgPHBhdGggcHJvamVjdD0iaG9tZTp0b20iIHJlcG9zaXRvcnk9IlNvdXJjZXByb3RlY3RlZFByb2plY3RfcmVwbyIgLz4KICAgICAgPHBhdGggcHJvamVjdD0iQmFzZURpc3RybzMiIHJlcG9zaXRvcnk9IkJhc2VEaXN0cm8zX3JlcG8iIC8+CiAgICAgIDxiYXNlIHByb2plY3Q9IkJhc2VEaXN0cm8zIiByZXBvc2l0b3J5PSJCYXNlRGlzdHJvM19yZXBvIiAvPgogICAgICA8YXJjaD5pNTg2PC9hcmNoPgogICAgICA8YXJjaD54ODZfNjQ8L2FyY2g+CiAgICA8L3JlcG9zaXRvcnk+CiAgPC9wcm9qZWN0Pgo8L3Byb2pwYWNrPgo=
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom/home_coolo_standard/i586/_jobhistory?code=lastfailures
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '16'
+    body:
+      encoding: UTF-8
+      string: "<jobhistlist />\n"
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom/home_coolo_standard/x86_64/_jobhistory?code=lastfailures
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '16'
+    body:
+      encoding: UTF-8
+      string: "<jobhistlist />\n"
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom/home_adrian_ProtectionTest_repo/i586/_jobhistory?code=lastfailures
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '16'
+    body:
+      encoding: UTF-8
+      string: "<jobhistlist />\n"
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom/home_adrian_ProtectionTest_repo/x86_64/_jobhistory?code=lastfailures
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '16'
+    body:
+      encoding: UTF-8
+      string: "<jobhistlist />\n"
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom/SourceprotectedProject_repo/i586/_jobhistory?code=lastfailures
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '16'
+    body:
+      encoding: UTF-8
+      string: "<jobhistlist />\n"
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom/SourceprotectedProject_repo/x86_64/_jobhistory?code=lastfailures
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '16'
+    body:
+      encoding: UTF-8
+      string: "<jobhistlist />\n"
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 08:54:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 11:33:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/_meta?user=other_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title/>
+          <description/>
+          <person userid="other_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title></title>
+          <description></description>
+          <person userid="other_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 11:33:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/develpackage/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="develpackage" project="home:other_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '115'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="develpackage" project="home:other_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 11:33:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/develpackage/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="develpackage" project="home:other_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '115'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="develpackage" project="home:other_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 11:33:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_develpackage/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_develpackage" project="home:tom">
+          <title/>
+          <description/>
+          <devel project="home:other_user" package="develpackage"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '182'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_develpackage" project="home:tom">
+          <title></title>
+          <description></description>
+          <devel project="home:other_user" package="develpackage" />
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 11:33:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_develpackage/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_develpackage" project="home:tom">
+          <title/>
+          <description/>
+          <devel project="home:other_user" package="develpackage"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '182'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_develpackage" project="home:tom">
+          <title></title>
+          <description></description>
+          <devel project="home:other_user" package="develpackage" />
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 11:33:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/package_13/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_13" project="home:other_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_13" project="home:other_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 11:33:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/package_13/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_13" project="home:other_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_13" project="home:other_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 11:33:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/package_17/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_17" project="home:other_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_17" project="home:other_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 15:48:30 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/package_17/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_17" project="home:other_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_17" project="home:other_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 15:48:30 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/package_4/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="home:other_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="home:other_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 15:49:28 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_user/package_4/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="home:other_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="home:other_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Apr 2017 15:49:28 GMT
+recorded_with: VCR 3.0.3

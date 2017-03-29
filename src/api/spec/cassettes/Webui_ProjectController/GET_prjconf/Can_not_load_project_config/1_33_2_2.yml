@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 03 Jan 2017 10:31:06 GMT
+  recorded_at: Wed, 05 Apr 2017 09:38:21 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/Apache/_meta
@@ -48,7 +48,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="Apache">
-          <title>Some Buried Caesar</title>
+          <title>A Glass of Blessings</title>
           <description/>
         </project>
     headers:
@@ -70,24 +70,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '101'
+      - '103'
     body:
       encoding: UTF-8
       string: |
         <project name="Apache">
-          <title>Some Buried Caesar</title>
+          <title>A Glass of Blessings</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 03 Jan 2017 10:31:06 GMT
+  recorded_at: Wed, 05 Apr 2017 09:38:21 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/Apache/_config
     body:
       encoding: UTF-8
-      string: Et dolore accusamus quod error. Culpa et mollitia ut voluptatem. Aut
-        quasi aperiam rem vel dolorem unde porro. Explicabo id consequuntur necessitatibus
-        accusamus. Blanditiis ea saepe perferendis.
+      string: Rerum sit odit omnis sed reiciendis. Voluptas est minus suscipit et
+        ipsam excepturi autem. Maiores dignissimos repudiandae pariatur qui et perspiciatis.
+        Qui sed ab quia in cupiditate enim perspiciatis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -114,5 +114,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 03 Jan 2017 10:31:06 GMT
+  recorded_at: Wed, 05 Apr 2017 09:38:21 GMT
 recorded_with: VCR 3.0.3
