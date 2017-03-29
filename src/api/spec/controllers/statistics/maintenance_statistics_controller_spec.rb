@@ -37,6 +37,25 @@ RSpec.describe Statistics::MaintenanceStatisticsController, type: :controller do
           assert_response :not_found
         end
       end
+
+      context 'with a remote project' do
+        let(:remote) { create(:remote_project) }
+
+        it 'forwards the request to the remote instance' do
+          get :index, params: { format: :xml, project: "#{remote}:my_project" }
+          expect(a_request(:get, maintenance_statistics_url(host: remote.remoteurl, project: 'my_project')
+                          )).to have_been_made.once
+        end
+
+        it 'responds with the xml received from the remote instance' do
+          stub_request(:get, maintenance_statistics_url(host: remote.remoteurl, project: 'my_project')).
+            to_return(status: 200, body: '<received><xml/></received>')
+
+          get :index, params: { format: :xml, project: "#{remote}:my_project" }
+          expect(response).to have_http_status(:success)
+          expect(Xmlhash.parse(response.body)).to eq('xml' => {})
+        end
+      end
     end
 
     context 'with no project existing' do
