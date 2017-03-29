@@ -136,6 +136,8 @@ group :development, :test do
   gem 'pry', '>= 0.9.12'
   # for style checks
   gem 'rubocop', require: false
+  # integrates with RuboCop to analyse HAML files
+  gem 'haml_lint'
   # to generate random long strings
   gem 'faker'
   # as driver for capybara

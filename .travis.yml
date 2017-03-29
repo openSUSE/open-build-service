@@ -18,18 +18,14 @@ env:
 matrix:
   fast_finish: true
   include:
-  - rvm:
-    env: TEST_SUITE=jshint
-    before_install: npm install -g jshint
-    install: ''
-    before_script: ''
-  - env: TEST_SUITE=rubocop
+    env: TEST_SUITE=linter
     cache:
       bundler: true
       directories:
         - tmp/rubocop_cache
-    before_install: gem install rubocop -v 0.47.1
-    before_script: ''
+    before_install: 
+      - npm install -g jshint
+      - gem install rubocop -v 0.47.1
 notifications:
   irc:
      channels:
