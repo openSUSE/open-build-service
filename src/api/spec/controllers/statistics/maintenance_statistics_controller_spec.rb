@@ -8,7 +8,6 @@ RSpec.describe Statistics::MaintenanceStatisticsController, type: :controller do
 
       context 'and no access restrictions' do
         before do
-          login(user)
           get :index, params: { format: :xml, project: project.name }
         end
 
