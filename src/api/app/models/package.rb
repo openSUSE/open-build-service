@@ -4,11 +4,11 @@ require 'builder/xchar'
 require 'rexml/document'
 require_dependency 'has_relationships'
 require_dependency 'opensuse/validator'
+require_dependency 'authenticator'
 
 class Package < ApplicationRecord
   include FlagHelper
   include CanRenderModel
-  include ForbidsAnonymousUsers
   include HasRelationships
   has_many :relationships, dependent: :destroy, inverse_of: :package
 
@@ -298,7 +298,11 @@ class Package < ApplicationRecord
 
   def check_source_access!
     return if check_source_access?
-    be_not_nobody!
+    # TODO: Use pundit for authorization instead
+    if !User.current || User.current.is_nobody?
+      raise Authenticator::AnonymousUser.new 'Anonymous user is not allowed here - please login'
+    end
+
     raise ReadSourceAccessError, "#{project.name}/#{name}"
   end
 

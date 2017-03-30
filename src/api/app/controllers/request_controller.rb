@@ -64,7 +64,7 @@ class RequestController < ApplicationController
     end
 
     # refuse request creation for anonymous users
-    be_not_nobody!
+    require_login
     # no need for dispatch_command, there is only one command
     request_create
   end
@@ -74,7 +74,7 @@ class RequestController < ApplicationController
     return request_command_diff if params[:cmd] == 'diff'
 
     # refuse request manipulation for anonymous users
-    be_not_nobody!
+    require_login
 
     params[:user] = User.current.login
     @req = BsRequest.find_by_number!(params[:id])
