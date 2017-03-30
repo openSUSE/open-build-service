@@ -90,7 +90,6 @@ PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires(pre):  obs-common
 Requires:       build >= 20170315
-Requires:       obs-productconverter >= %version
 Requires:       perl-BSSolv >= 0.28
 # Required by source server
 Requires:       diffutils
@@ -128,6 +127,13 @@ Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
 
+Obsoletes:	obs-source_service < 2.8.51
+Obsoletes:	obs-productconverter < 2.8.51
+Provides:	obs-source_service = %version
+Provides:	obs-productconverter = %version
+
+Recommends:     obs-service-download_url
+Recommends:     obs-service-verify_file
 
 %description
 The Open Build Service (OBS) backend is used to store all sources and binaries. It also
@@ -228,6 +234,7 @@ Requires:       perl(GD)
 
 Requires:       ghostscript-fonts-std
 
+
 %description -n obs-api
 This is the API server instance, and the web client for the
 OBS.
@@ -243,38 +250,6 @@ Requires:       obs-api = %{version}-%{release}
 
 %description -n obs-devel
 Install to track dependencies for git
-
-%package -n obs-source_service
-Summary:        The Open Build Service -- source service daemon
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
-Group:          Productivity/Networking/Web/Utilities
-%endif
-# Our default services, used in osc and webui
-Requires(pre):	obs-common
-Requires:	perl(XML::Structured)
-#
-Recommends:     obs-service-download_url
-Recommends:     obs-service-verify_file
-
-%description -n obs-source_service
-The OBS source service is a component to modify submitted sources
-on the server side. This may include source checkout, spec file
-generation, gpg validation, quality checks and other stuff.
-
-This component is optional and not required to run the service.
-
-
-%package -n obs-productconverter
-Summary:        The Open Build Service -- product definition utility
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
-Group:          Productivity/Networking/Web/Utilities
-%endif
-# For perl library files, TODO: split out obs-lib subpackage?
-Requires:       obs-server
-
-%description -n obs-productconverter
-bs_productconvert is a utility to create Kiwi- and Spec- files from a
-product definition.
 
 %package -n obs-utils
 Summary:        The Open Build Service -- utilities
@@ -426,6 +401,12 @@ make -C src/api test
 make -C dist test
 %endif
 
+%pre
+getent passwd obsservicerun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
+    -c "User for the build service source service" obsservicerun
+exit 0
+
 # create user and group in advance of obs-server
 %pre -n obs-common
 getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
@@ -435,36 +416,17 @@ getent passwd obsrun >/dev/null || \
 exit 0
 
 %preun
-%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup obsdeltastore obsservicedispatch
+%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup obsdeltastore obsservicedispatch obsservice
 
 %preun -n obs-worker
 %stop_on_removal obsworker
 
 %post
 %if 0%{?suse_version} >= 1315
-%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsdeltastore obsservicedispatch
+%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsdeltastore obsservicedispatch obsservice obsscheduler
 %else
-%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsdeltastore obsservicedispatch
+%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsdeltastore obsservicedispatch obsservice obsscheduler
 %endif
-%restart_on_update obsscheduler
-
-%pre -n obs-source_service
-
-getent passwd obsservicerun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
-    -c "User for the build service source service" obsservicerun
-exit 0
-
-%preun -n obs-source_service
-%stop_on_removal obsservice
-
-%post -n obs-source_service
-%if 0%{?suse_version} >= 1315
-%reload_on_update obsservice
-%else
-%restart_on_update obsservice
-%endif
-
 
 %posttrans
 [ -d /srv/obs ] || install -d -o obsrun -g obsrun /srv/obs
@@ -594,8 +556,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 # directory to symlink
 %ghost /usr/lib/obs/server/build
 
-%files -n obs-source_service
-%defattr(-,root,root)
+# formerly obs-source_service
 /etc/init.d/obsservice
 /etc/logrotate.d/obs-source_service
 /etc/cron.d/cleanup_scm_cache
@@ -604,9 +565,13 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/call-service-in-docker.sh
 /usr/lib/obs/server/cleanup_scm_cache
 
+# formerly obs-productconverter
+/usr/bin/obs_productconvert
+/usr/lib/obs/server/bs_productconvert
+
 # add obsservicerun user into docker group if docker
 # gets installed
-%triggerin -n obs-source_service -- docker
+%triggerin -n obs-server -- docker
 usermod -a -G docker obsservicerun
 
 %files -n obs-worker
@@ -717,11 +682,6 @@ usermod -a -G docker obsservicerun
 %files -n obs-utils
 %defattr(-,root,root)
 /usr/sbin/obs_project_update
-
-%files -n obs-productconverter
-%defattr(-,root,root)
-/usr/bin/obs_productconvert
-/usr/lib/obs/server/bs_productconvert
 
 %files -n obs-devel
 %defattr(-,root,root)
