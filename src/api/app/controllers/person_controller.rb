@@ -34,12 +34,12 @@ class PersonController < ApplicationController
   def get_userinfo
     user = User.find_by_login!(params[:login])
 
-    if user.login != @http_user.login
+    if user.login != User.current.login
       logger.debug "Generating for user from parameter #{user.login}"
-      render xml: user.render_axml(@http_user.is_admin?)
+      render xml: user.render_axml(User.current.is_admin?)
     else
-      logger.debug "Generating user info for logged in user #{@http_user.login}"
-      render xml: @http_user.render_axml(true)
+      logger.debug "Generating user info for logged in user #{User.current.login}"
+      render xml: User.current.render_axml(true)
     end
   end
 
@@ -49,9 +49,9 @@ class PersonController < ApplicationController
     User.find_by_login!(login)
 
     if params[:cmd] == "change_password"
-      login ||= @http_user.login
+      login ||= User.current.login
       password = request.raw_post.to_s.chomp
-      if login != @http_user.login && !@http_user.is_admin?
+      if login != User.current.login && !User.current.is_admin?
         render_error status: 403, errorcode: "change_password_no_permission",
                      message: "No permission to change password for user #{login}"
         return

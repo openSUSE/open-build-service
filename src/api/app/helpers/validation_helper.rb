@@ -45,7 +45,7 @@ module ValidationHelper
 
     r = Suse::Backend.get(metapath)
     raise Package::UnknownObjectError, "#{project}/#{name}" unless r
-    return true if @http_user.is_admin?
+    return true if User.current.is_admin?
     if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'sourceaccess')
       raise Package::ReadSourceAccessError, "#{project}/#{name}"
     end
@@ -66,7 +66,7 @@ module ValidationHelper
     metapath = "/source/#{CGI.escape(project)}/_project/_meta?rev=#{lastrev.value('srcmd5')}&deleted=1"
     r = Suse::Backend.get(metapath)
     raise Project::UnknownObjectError unless r
-    return true if @http_user.is_admin?
+    return true if User.current.is_admin?
     # FIXME: actually a per user checking would be more accurate here
     raise Project::UnknownObjectError, project.to_s if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'access')
   end

@@ -43,7 +43,7 @@ class MessageController < ApplicationController
       msg.severity = new_msg.value('severity')
       msg.send_mail = new_msg.value('send_mail')
       msg.private = new_msg.value('private')
-      msg.user = @http_user
+      msg.user = User.current
       if @package
         @package.messages += [msg]
       elsif @project

@@ -49,7 +49,7 @@ class TagController < ApplicationController
   end
 
   def get_tags_by_user
-    @user = @http_user
+    @user = User.current
     @tags = @user.tags.group(:name)
     @tags
   end
@@ -173,16 +173,16 @@ class TagController < ApplicationController
     elsif request.put?
 
       @project = Project.get_by_name( project_name )
-      logger.debug "Put REQUEST for project_tags. User: #{@http_user.login}"
+      logger.debug "Put REQUEST for project_tags. User: #{User.current.login}"
 
       # TODO Permission needed!
 
-      if !@http_user
+      if !User.current
         logger.debug "No user logged in."
         render_error( message: "No user logged in.", status: 403 )
         return
       else
-        @tagCreator = @http_user
+        @tagCreator = User.current
       end
       # get the taglist xml from the put request
       request_data = request.raw_post
@@ -220,12 +220,12 @@ class TagController < ApplicationController
 
       # TODO Permission needed!
 
-      if !@http_user
+      if !User.current
         logger.debug "No user logged in."
         render_error( message: "No user logged in.", status: 403 )
         return
       else
-        @tagCreator = @http_user
+        @tagCreator = User.current
       end
       # get the taglist xml from the put request
       request_data = request.raw_post
@@ -243,7 +243,7 @@ class TagController < ApplicationController
 
   def update_tags_by_object_and_user
     @user = User.find_by_login!(params[:user])
-    unless @user == @http_user
+    unless @user == User.current
       render_error status: 403, errorcode: 'permission_denied',
         message: "Editing tags for another user than the logged on user is not allowed."
       return
