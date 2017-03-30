@@ -90,7 +90,6 @@ PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires(pre):  obs-common
 Requires:       build >= 20170315
-Requires:       build >= 20151130
 Requires:       perl-BSSolv >= 0.28
 # Required by source server
 Requires:       diffutils
