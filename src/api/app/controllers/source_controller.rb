@@ -346,7 +346,7 @@ class SourceController < ApplicationController
     valid_project_name! params[:target_project] if params[:target_project]
     valid_package_name! params[:target_package] if params[:target_package]
 
-    # Check for existens/access of origin package when specified
+    # Check for existence/access of origin package when specified
     @spkg = nil
     Project.get_by_name origin_project_name if origin_project_name
     if origin_package_name && !origin_package_name.in?(["_project", "_pattern"]) && !(params[:missingok] && @command.in?(['branch', 'release']))
