@@ -3,6 +3,7 @@ require 'rantly/rspec_extensions'
 
 RSpec.describe Project do
   let!(:project) { create(:project) }
+  let(:package) { create(:package, project: project) }
   let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
   let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
 
@@ -95,6 +96,72 @@ RSpec.describe Project do
 
     it { expect(leap_project.image_template?).to be(true) }
     it { expect(tumbleweed_project.image_template?).to be(false) }
+  end
+
+  describe '#branch_remote_repositories' do
+    let!(:repository) { create(:repository, name: 'xUbuntu_14.04', project: project) }
+    let(:remote_project) { create(:remote_project) }
+    let(:branch_remote_repositories) { project.branch_remote_repositories("#{remote_project}:#{project}") }
+    let(:remote_meta_xml) {
+      <<-XML_DATA
+        <project name="home:mschnitzer">
+          <title>Cool Title</title>
+          <description>Cool Description</description>
+          <repository name="xUbuntu_14.04">
+            <path project="Ubuntu:14.04" repository="universe"/>
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </repository>
+          <repository name="openSUSE_42.2">
+            <path project="openSUSE:Leap:42.2:Update" repository="standard"/>
+            <path project="openSUSE:Leap:42.2:Update2" repository="standard"/>
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+      XML_DATA
+    }
+    let(:local_xml_meta) {
+      <<-XML_DATA
+        <project name="#{project}">
+          <title>#{project.title}</title>
+          <description/>
+          <repository name="xUbuntu_14.04">
+          </repository>
+          <repository name="openSUSE_42.2">
+            <path project="#{remote_project.name}:#{project}" repository="openSUSE_42.2"/>
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+      XML_DATA
+    }
+    let(:expected_xml) { Nokogiri::XML(local_xml_meta) }
+
+    before do
+      allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
+      branch_remote_repositories
+      project.reload
+    end
+
+    context 'keeps original repository' do
+      let(:old_repository) { project.repositories.first }
+
+      it { expect(old_repository).to eq(repository) }
+      it { expect(old_repository.architectures).to be_empty }
+      it { expect(old_repository.path_elements).to be_empty }
+    end
+
+    context 'adds new reposity' do
+      let(:new_repository) { project.repositories.second }
+      let(:path_element) { new_repository.path_elements.first.link }
+
+      it { expect(new_repository.name).to eq("openSUSE_42.2") }
+      it { expect(new_repository.architectures.first.name).to eq("x86_64") }
+
+      it 'with correct path link' do
+        expect(path_element.name).to eq("openSUSE_42.2")
+        expect(path_element.remote_project_name).to eq(project.name)
+      end
+    end
   end
 
   describe '#self.valid_name?' do
