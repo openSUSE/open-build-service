@@ -455,15 +455,8 @@ class Webui::ProjectController < Webui::WebuiController
       arch: @arch_filter, repo: @repo_filter }
     find_opt[:lastbuild] = 1 unless @lastbuild_switch.blank?
 
-    @buildresult = Buildresult.find( find_opt )
-    unless @buildresult
-      flash[:warning] = "No build results for project '#{@project}'"
-      redirect_to action: :show, project: params[:project]
-      return
-    end
-
-    @buildresult = @buildresult.to_hash
-    unless @buildresult.has_key? 'result'
+    @buildresult = Buildresult.find( find_opt ).try { to_hash }
+    unless @buildresult && @buildresult.has_key?('result')
       @buildresult_unavailable = true
       return
     end
