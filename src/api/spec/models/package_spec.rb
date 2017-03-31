@@ -428,4 +428,23 @@ RSpec.describe Package, vcr: true do
       end
     end
   end
+
+  describe '#backend_build_command' do
+    let(:params) { ActionController::Parameters.new(arch: 'x86') }
+    let(:backend_url) { "#{CONFIG['source_url']}/build/#{package.project.name}?cmd=rebuild&arch=x86" }
+
+    subject { package.backend_build_command(:rebuild, params) }
+
+    context 'backend response is successful' do
+      before { stub_request(:post, backend_url) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'backend response fails' do
+      before { stub_request(:post, backend_url).and_raise(ActiveXML::Transport::Error) }
+
+      it { is_expected.to be_falsey }
+    end
+  end
 end

@@ -12,7 +12,7 @@ class BuildController < ApplicationController
       return
     end
 
-    if @http_user.is_admin?
+    if User.current.is_admin?
       # check for a local package instance
       Package.get_by_project_and_name( params[:project], params[:package], use_source: false, follow_project_links: false )
       pass_to_backend
@@ -90,7 +90,7 @@ class BuildController < ApplicationController
       pass_to_backend
       return
     elsif request.put?
-      if @http_user.is_admin?
+      if User.current.is_admin?
         pass_to_backend
       else
         render_error status: 403, errorcode: "execute_cmd_no_permission",
@@ -150,7 +150,7 @@ class BuildController < ApplicationController
       prj = pkg.project if pkg.class == Package
     end
 
-    if prj.class == Project && prj.disabled_for?('binarydownload', params[:repository], params[:arch]) && !@http_user.can_download_binaries?(prj)
+    if prj.class == Project && prj.disabled_for?('binarydownload', params[:repository], params[:arch]) && !User.current.can_download_binaries?(prj)
       render_error status: 403, errorcode: "download_binary_no_permission",
         message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
@@ -219,7 +219,7 @@ class BuildController < ApplicationController
       }
     else
       if request.put?
-        unless @http_user.is_admin?
+        unless User.current.is_admin?
           # this route can be used publish binaries without history changes in sources
           render_error status: 403, errorcode: "upload_binary_no_permission",
             message: "No permission to upload binaries."
@@ -235,7 +235,7 @@ class BuildController < ApplicationController
     pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: true, follow_multibuild: true
 
     if pkg.class == Package && pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
-        !@http_user.can_download_binaries?(pkg.project)
+        !User.current.can_download_binaries?(pkg.project)
       render_error status: 403, errorcode: "download_binary_no_permission",
                    message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
       return
