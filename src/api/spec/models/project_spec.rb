@@ -97,6 +97,53 @@ RSpec.describe Project do
     it { expect(tumbleweed_project.image_template?).to be(false) }
   end
 
+  describe '#branch_remote_repositories' do
+    let(:package) { create(:package) }
+    let(:remote_project) { create(:remote_project) }
+    let(:local_meta_xml) {
+      <<-XML_DATA
+        <project name="home:mschnitzer">
+          <title>Cool Title</title>
+          <description>Cool Description</description>
+          <repository name="xUbuntu_14.04">
+            <path project="Ubuntu:14.04" repository="universe"/>
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </repository>
+          <repository name="openSUSE_42.2">
+            <path project="openSUSE:Leap:42.2:Update" repository="standard"/>
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+      XML_DATA
+    }
+    let(:remote_meta_xml) {
+      <<-XML_DATA
+        <project name="#{package.project.name}">
+          <title>#{package.project.title}</title>
+          <description/>
+          <repository name="xUbuntu_14.04">
+            <path project="Ubuntu:14.04" repository="universe"/>" +
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </repository>
+          <repository name="openSUSE_42.2">
+            <path project="openSUSE:Leap:42.2:Update" repository="standard"/>
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+      XML_DATA
+    }
+
+    it 'updates a project meta description' do
+      allow(ProjectMetaFile).to receive(:new).and_return(local_meta_xml)
+      expected_xml = Nokogiri::XML(remote_meta_xml)
+
+      expect(package.project).to receive(:update_from_xml!).with(Xmlhash.parse(expected_xml.to_xml))
+      project.branch_remote_repositories(remote_project, package)
+    end
+  end
+
   describe '#self.valid_name?' do
     context "invalid" do
       it{ expect(Project.valid_name?(10)).to be(false) }
