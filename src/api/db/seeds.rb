@@ -46,6 +46,7 @@ bugowner_role   = Role.where(title: "bugowner").first_or_create
 reviewer_role   = Role.where(title: "reviewer").first_or_create
 downloader_role = Role.where(title: 'downloader').first_or_create
 reader_role     = Role.where(title: 'reader').first_or_create
+Role.where(title: "Staff").first_or_create global: true
 
 puts "Seeding users table..."
 admin = User.where(login: 'Admin').first_or_create(login: 'Admin', email: "root@localhost",

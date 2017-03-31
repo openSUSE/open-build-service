@@ -58,6 +58,10 @@ gem 'mousetrap-rails'
 gem 'xmlrpc'
 # Multiple feature switch
 gem 'feature'
+# for profiling
+gem 'peek'
+gem 'peek-dalli'
+gem 'peek-mysql2'
 
 group :development, :production do
   # to have the delayed job daemon

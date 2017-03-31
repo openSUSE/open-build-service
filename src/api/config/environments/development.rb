@@ -52,6 +52,8 @@ OBSApi::Application.configure do
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
+
+  config.peek.adapter = :memcache
 end
 
 CONFIG['extended_backend_log'] = true
