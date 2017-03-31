@@ -6,7 +6,7 @@
     <meta name="robots" content="<%= @metarobots %>"/>
     <% end %>
 
-    <link href="<%= CONFIG['relative_url_root'] %>/favicon.ico" rel="shortcut icon" />
+    <link href="<%= root_path %>/favicon.ico" rel="shortcut icon" />
 
     <title><%= "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
 

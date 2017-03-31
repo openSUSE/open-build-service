@@ -669,7 +669,9 @@ class SourceController < ApplicationController
     if params.has_key?(:rev) or pack.nil? # and not pro_name
                                           # check if this comes from a remote project, also true for _project package
                                           # or if rev it specified we need to fetch the meta from the backend
-      answer = Suse::Backend.get(request.path)
+      reqpath = request.path
+      reqpath.slice!(0, root_path.length-1) if reqpath.start_with?(root_path)
+      answer = Suse::Backend.get(reqpath)
       if answer
         render :text => answer.body.to_s, :content_type => 'text/xml'
       else
@@ -1130,6 +1132,7 @@ class SourceController < ApplicationController
 
     # read meta data from backend to restore database object
     path = request.path + '/_meta'
+    path.slice!(0, root_path.length-1) if path.start_with?(root_path)
     prj = Project.new(name: params[:project])
     Project.transaction do
       prj.update_from_xml(Xmlhash.parse(backend_get(path)))
@@ -1364,6 +1367,7 @@ class SourceController < ApplicationController
 
     # read meta data from backend to restore database object
     path = request.path + '/_meta'
+    path.slice!(0, root_path.length-1) if path.start_with?(root_path)
     prj = Project.find_by_name!(params[:project])
     pkg = prj.packages.new(name: params[:package])
     pkg.update_from_xml(Xmlhash.parse(backend_get(path)))
@@ -1374,6 +1378,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=createSpecFileTemplate
   def package_command_createSpecFileTemplate
     specfile_path = "#{request.path}/#{params[:package]}.spec"
+    specfile_path.slice!(0, root_path.length-1) if specfile_path.start_with?(root_path)
     begin
       backend_get( specfile_path )
       render_error :status => 400, :errorcode => 'spec_file_exists',
@@ -1395,7 +1400,9 @@ class SourceController < ApplicationController
     # check for sources in this or linked project
     unless @package
       # check if this is a package on a remote OBS instance
-      answer = Suse::Backend.get(request.path)
+      reqpath = request.path
+      reqpath.slice!(0, root_path.length-1) if reqpath.start_with?(root_path)
+      answer = Suse::Backend.get(reqpath)
       unless answer
         render_error :status => 400, :errorcode => 'unknown_package',
           :message => "Unknown package '#{package_name}'"
