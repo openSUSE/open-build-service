@@ -780,4 +780,24 @@ EOT
       it_should_behave_like "build log"
     end
   end
+
+  describe 'DELETE #trigger_rebuild' do
+    before do
+      login(user)
+      delete :trigger_rebuild, params: { project: source_project, package: source_package }
+    end
+
+    it 'lets the user know there was an error' do
+      expect(flash[:error]).to_not be_empty
+    end
+
+    it 'redirects to the package binaries path' do
+      expect(response).to redirect_to(
+        controller: :package,
+        action: :binaries,
+        project: source_project,
+        package: source_package
+      )
+    end
+  end
 end
