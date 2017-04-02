@@ -166,3 +166,23 @@
     background-image: image-url("icons/req-decline.png");
   }
 }
+
+#monitor-wrapper {
+  position: relative;
+  padding-left: 10px;
+  padding-right: 10px;
+
+  .buildstatus-wrapper {
+    overflow-x: auto;
+    width: 920px;
+
+    table {
+      tr th:first-child {
+        &:before {
+          padding-left: 25px;
+          content: '';
+        }
+      }
+    }
+  }
+}
