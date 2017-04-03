@@ -23,7 +23,7 @@ class Authenticator
     setup('put_request_no_permission', 403)
   end
 
-  attr_reader :request, :session, :auth_method, :user_permissions, :http_user
+  attr_reader :request, :session, :user_permissions, :http_user
 
   def initialize(request, session)
     @request = request
@@ -32,13 +32,14 @@ class Authenticator
     @user_permissions = nil
   end
 
+  def proxy_mode?
+    CONFIG['proxy_auth_mode'] == :on || CONFIG['ichain_mode'] == :on
+  end
+
   def extract_user
-    mode = CONFIG['proxy_auth_mode'] || CONFIG['ichain_mode'] || :basic
-    if mode == :on
+    if proxy_mode?
       extract_proxy_user
     else
-      @auth_method = :basic
-
       extract_basic_auth_user
 
       @http_user = User.find_with_credentials @login, @passwd if @login
@@ -80,7 +81,6 @@ class Authenticator
   private
 
   def extract_proxy_user
-    @auth_method = :proxy
     proxy_user = request.env['HTTP_X_USERNAME']
     if proxy_user
       Rails.logger.info "iChain user extracted from header: #{proxy_user}"
