@@ -4978,10 +4978,11 @@ sub getsignkey {
 }
 
 sub projid2sslcert {
-  my ($projid, $origprojid, $sk) = @_;
+  my ($projid, $origprojid, $sk, $nocreate) = @_;
   my $rev = BSRevision::getrev_meta($projid, undef);
   my $files = BSRevision::lsrev($rev);
   if (!$files->{'_sslcert'}) {
+    return undef if $nocreate;
     # length(signkey) <= 2 means special handling, don't commit it
     if (!$sk || length($sk) <= 2) {
       return pubkey2sslcert($origprojid || $projid, "$projectsdir/$projid.pkg/_pubkey");
@@ -5040,7 +5041,7 @@ sub getkeyinfo {
     $pk = autoextend_check($projid, $pk) if $cgi->{'autoextend'};
   }
   if ($cgi->{'withsslcert'} && $projid && $pk) {
-    $cert = projid2sslcert($projid, $origprojid, $sk);
+    $cert = projid2sslcert($projid, $origprojid, $sk, $cgi->{'donotcreatecert'});
   }
   if ($cgi->{'withsslcert'} && !$projid && $BSConfig::sign_project && $BSConfig::sign) {
     local *S;
@@ -5854,7 +5855,7 @@ my $dispatches = [
   'DELETE:/source/$project/_config user:? comment:?' => \&delprojectconfig,
 
   '/source/$project/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
-  '/source/$project/_keyinfo withsslcert:bool? autoextend:bool?' => \&getkeyinfo,
+  '/source/$project/_keyinfo withsslcert:bool? autoextend:bool? donotcreatecert:bool?' => \&getkeyinfo,
 
   'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&linkdiff,
