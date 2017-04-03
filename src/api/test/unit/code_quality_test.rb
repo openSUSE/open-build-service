@@ -77,7 +77,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequestActionSubmit#execute_accept'                                    => 126.42,
       'BsRequestPermissionCheck#cmd_changestate_permissions'                    => 117.09,
       'RequestSourceDiff::ActionSourceDiffer#diff_for_source'                   => 94.62,
-      'BuildController#file'                                                    => 130.44,
       'BuildController#project_index'                                           => 126.35,
       'ConfigurationsController#update'                                         => 82.1,
       'IssueTrackersController#update'                                          => 100.78,
