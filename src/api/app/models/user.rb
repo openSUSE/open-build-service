@@ -455,6 +455,10 @@ class User < ApplicationRecord
     roles.where(title: 'Admin').exists?
   end
 
+  def is_staff?
+    roles.where(title: 'Staff').exists?
+  end
+
   def is_nobody?
     login == '_nobody_'
   end

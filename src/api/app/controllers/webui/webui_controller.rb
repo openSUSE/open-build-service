@@ -217,6 +217,10 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
+  def peek_enabled?
+    User.current && (User.current.is_admin? || User.current.is_staff?)
+  end
+
   private
 
   def require_configuration
