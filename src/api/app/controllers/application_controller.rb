@@ -34,7 +34,6 @@ class ApplicationController < ActionController::Base
            :extract_user_public,
            :require_login,
            :require_admin,
-           :auth_method,
            to: :authenticator
 
   def authenticator
