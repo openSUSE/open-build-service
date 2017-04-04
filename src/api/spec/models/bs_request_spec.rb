@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'nokogiri'
 
-RSpec.describe BsRequestAction do
+RSpec.describe BsRequest do
   context '.new_from_xml' do
     let(:user) { create(:user) }
     let(:target) { create(:package) }
