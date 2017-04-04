@@ -6,7 +6,7 @@ WebMock.disable_net_connect!(allow_localhost: true)
 RSpec.configure do |config|
   # build each factory and call #valid? on it
   config.before(:suite) do
-    # Suse::Backend.start_test_backend
+    # Backend::Connection.start_test_backend
   end
 end
 

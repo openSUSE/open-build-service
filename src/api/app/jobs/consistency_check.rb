@@ -60,7 +60,7 @@ class ConsistencyCheckJob < ApplicationJob
     end
     # check backend side
     begin
-      Suse::Backend.get("/source/#{project.name}")
+      Backend::Connection.get("/source/#{project.name}")
     rescue ActiveXML::Transport::NotFoundError
       @errors << "Project #{project.name} lost on backend"
       project.commit_opts = {no_backend_write: 1}
@@ -75,7 +75,7 @@ class ConsistencyCheckJob < ApplicationJob
     # WARNING: this is using the memcache content. should maybe dropped before
     api_meta = project.to_axml
     begin
-      backend_meta = Suse::Backend.get("/source/#{project.name}/_meta").body
+      backend_meta = Backend::Connection.get("/source/#{project.name}/_meta").body
     rescue ActiveXML::Transport::NotFoundError
       # project disappeared ... may happen in running system
       return ""
@@ -104,7 +104,7 @@ class ConsistencyCheckJob < ApplicationJob
     # compare projects
     project_list_api = Project.all.pluck(:name).sort
     begin
-      project_list_backend = dir_to_array(Xmlhash.parse(Suse::Backend.get("/source").body))
+      project_list_backend = dir_to_array(Xmlhash.parse(Backend::Connection.get("/source").body))
     rescue ActiveXML::Transport::NotFoundError
       # project disappeared ... may happen in running system
       return ""
@@ -137,14 +137,14 @@ class ConsistencyCheckJob < ApplicationJob
   end
 
   def import_project_from_backend(project)
-    meta = Suse::Backend.get("/source/#{project}/_meta").body
+    meta = Backend::Connection.get("/source/#{project}/_meta").body
     project = Project.new(name: project)
     project.commit_opts = {no_backend_write: 1}
     project.update_from_xml(Xmlhash.parse(meta))
     project.save!
     return ""
   rescue ActiveRecord::RecordInvalid
-    Suse::Backend.delete("/source/#{project}")
+    Backend::Connection.delete("/source/#{project}")
     return "DELETED #{project} on backend due to invalid data\n"
   rescue ActiveXML::Transport::NotFoundError
     return "specified #{project} does not exist on backend\n"
@@ -177,7 +177,7 @@ class ConsistencyCheckJob < ApplicationJob
     # compare all packages
     package_list_api = project.packages.pluck(:name)
     begin
-      plb = dir_to_array(Xmlhash.parse(Suse::Backend.get("/source/#{project.name}").body))
+      plb = dir_to_array(Xmlhash.parse(Backend::Connection.get("/source/#{project.name}").body))
     rescue ActiveXML::Transport::NotFoundError
       # project disappeared ... may happen in running system
       return ""
@@ -205,14 +205,14 @@ class ConsistencyCheckJob < ApplicationJob
         # restore from backend
         diff.each do |package|
           begin
-            meta = Suse::Backend.get("/source/#{project.name}/#{package}/_meta").body
+            meta = Backend::Connection.get("/source/#{project.name}/#{package}/_meta").body
             pkg = project.packages.new(name: package)
             pkg.commit_opts = {no_backend_write: 1}
             pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
             pkg.save!
           rescue ActiveRecord::RecordInvalid,
                  ActiveXML::Transport::NotFoundError
-            Suse::Backend.delete("/source/#{project.name}/#{package}")
+            Backend::Connection.delete("/source/#{project.name}/#{package}")
             errors << "DELETED in backend due to invalid data #{project.name}/#{package}\n"
           end
         end

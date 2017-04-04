@@ -74,7 +74,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       name: 'TestPack_link',
       original_name: 'TestPack',
       original_project: 'home:Iggy')
-    Suse::Backend.put('/source/home:Iggy/TestPack_link/new_file', "test 1")
+    Backend::Connection.put('/source/home:Iggy/TestPack_link/new_file', "test 1")
 
     visit project_show_path(project: @project)
     create_package_branch(
@@ -82,7 +82,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       original_name: 'TestPack_link',
       original_project: 'home:Iggy')
 
-    Suse::Backend.put('/source/home:Iggy/TestPack_double_branch/new_file', "test 2")
+    Backend::Connection.put('/source/home:Iggy/TestPack_double_branch/new_file', "test 2")
     # Reload page after updating file (new revision)
     visit page.current_path
 

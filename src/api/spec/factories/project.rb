@@ -7,8 +7,8 @@ FactoryGirl.define do
       # NOTE: Enable global write through when writing new VCR cassetes.
       # ensure the backend knows the project
       if CONFIG['global_write_through']
-        Suse::Backend.put("/source/#{CGI.escape(project.name)}/_meta", project.to_axml)
-        Suse::Backend.put("/source/#{CGI.escape(project.name)}/_config", Faker::Lorem.paragraph)
+        Backend::Connection.put("/source/#{CGI.escape(project.name)}/_meta", project.to_axml)
+        Backend::Connection.put("/source/#{CGI.escape(project.name)}/_config", Faker::Lorem.paragraph)
       end
     end
 

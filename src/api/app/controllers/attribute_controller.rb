@@ -186,7 +186,7 @@ class AttributeController < ApplicationController
       # old or remote instance entry
       path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package] || '_project')}/_attribute?meta=1"
       path += "&rev=#{CGI.escape(params[:rev])}" if params[:rev]
-      answer = Suse::Backend.get(path)
+      answer = Backend::Connection.get(path)
       render xml: answer.body.to_s
       return
     end

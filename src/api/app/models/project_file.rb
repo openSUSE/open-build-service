@@ -1,10 +1,10 @@
-# BackendFile model to represent files that belongs to the project in the backend
+# Backend::File model to represent files that belongs to the project in the backend
 # Special files that are stored in /source/project/ folder
 #   _project/_meta (using meta=1 in the query),
 #   _project/_pubkey (just for read and delete),
 #   _history (readonly),
 #   _config
-class ProjectFile < BackendFile
+class ProjectFile < Backend::File
   attr_accessor :project_name
 
   validates :project_name, presence: true

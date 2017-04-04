@@ -40,7 +40,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     expect(page).to have_text('Successfully branched package')
 
     # change the package sources so we have a difference
-    Suse::Backend.put("/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE", "dummy")
+    Backend::Connection.put("/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE", "dummy")
 
     # Step 2: The user submits the update
     #####################################

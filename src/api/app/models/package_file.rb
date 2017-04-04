@@ -1,5 +1,5 @@
-# BackendFile model to represent files that belongs to the package in the backend
-class PackageFile < BackendFile
+# Backend::File model to represent files that belongs to the package in the backend
+class PackageFile < Backend::File
   attr_accessor :project_name, :package_name
 
   validates :project_name, :package_name, presence: true

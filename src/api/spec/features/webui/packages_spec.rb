@@ -22,8 +22,8 @@ RSpec.feature "Packages", type: :feature, js: true do
     after do
       # Cleanup backend
       if CONFIG["global_write_through"]
-        Suse::Backend.delete("/source/#{CGI.escape(other_user.home_project_name)}")
-        Suse::Backend.delete("/source/#{CGI.escape(user.branch_project_name(other_user.home_project_name))}")
+        Backend::Connection.delete("/source/#{CGI.escape(other_user.home_project_name)}")
+        Backend::Connection.delete("/source/#{CGI.escape(user.branch_project_name(other_user.home_project_name))}")
       end
     end
 

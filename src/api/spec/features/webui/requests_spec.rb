@@ -136,7 +136,7 @@ RSpec.feature "Requests", type: :feature, js: true do
 
     it 'other requests' do
       create_submit_request
-      Suse::Backend.put("/source/#{source_package.project.name}/#{source_package.name}/somefile.txt", Faker::Lorem.paragraph)
+      Backend::Connection.put("/source/#{source_package.project.name}/#{source_package.name}/somefile.txt", Faker::Lorem.paragraph)
       login submitter
       visit package_show_path(project: source_project, package: source_package)
       click_link 'Submit package'

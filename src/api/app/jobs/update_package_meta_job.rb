@@ -6,7 +6,7 @@ class UpdatePackageMetaJob < ApplicationJob
       path = "/search/package/id?match=("
       path += slice.map { |name| "linkinfo/@package='#{CGI.escape(name)}'" }.join("+or+")
       path += ")"
-      answer = Xmlhash.parse(Suse::Backend.get(path).body)
+      answer = Xmlhash.parse(Backend::Connection.get(path).body)
       answer.elements('package') do |p|
         pkg = Package.find_by_project_and_name(p['project'], p['name'])
         # if there is a linkinfo for a package not in database, there can not be a linked_package either

@@ -574,7 +574,7 @@ class Project < ApplicationRecord
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
       query[:lowprio] = '1' if @commit_opts[:lowprio]
       logger.debug "Writing #{name} to backend"
-      Suse::Backend.put_source(source_path('_meta', query), to_axml)
+      Backend::Connection.put_source(source_path('_meta', query), to_axml)
       logger.tagged('backend_sync') { logger.debug "Saved Project #{name}" }
     elsif @commit_opts[:no_backend_write]
       logger.tagged('backend_sync') { logger.warn "Not saving Project #{name}, backend_write is off " }
@@ -590,9 +590,9 @@ class Project < ApplicationRecord
       path = source_path
       h = {user: User.current.login, comment: @commit_opts[:comment]}
       h[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
-      path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :requestid])
+      path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
-        Suse::Backend.delete path
+        Backend::Connection.delete path
       rescue ActiveXML::Transport::NotFoundError
         # ignore this error, backend was out of sync
         logger.warn("Project #{name} was already missing on backend on removal")
@@ -1059,10 +1059,10 @@ class Project < ApplicationRecord
     # copy entire project in the backend
     begin
       path = "/source/#{URI.escape(name)}"
-      path << Suse::Backend.build_query_from_hash(params,
+      path << Backend::Connection.build_query_from_hash(params,
                                                   [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
                                                    :makeolder, :makeoriginolder, :noservice])
-      Suse::Backend.post path
+      Backend::Connection.post path
     rescue ActiveXML::Transport::Error => e
       logger.debug "copy failed: #{e.summary}"
       # we need to check results of backend in any case (also timeout error eg)
@@ -1077,7 +1077,7 @@ class Project < ApplicationRecord
       pname = package.value('name')
       path = "/source/#{URI.escape(name)}/#{pname}/_meta"
       p = packages.where(name: pname).first_or_initialize
-      p.update_from_xml(Xmlhash.parse(Suse::Backend.get(path).body))
+      p.update_from_xml(Xmlhash.parse(Backend::Connection.get(path).body))
       p.save! # do not store
     end
     all_sources_changed
@@ -1120,7 +1120,7 @@ class Project < ApplicationRecord
       ret = Hash.new
       uri = "/getprojpack?project=#{CGI.escape(project.to_s)}&nopackages&withrepos&expandedrepos"
       begin
-        body = Suse::Backend.get(uri).body
+        body = Backend::Connection.get(uri).body
         xml = Xmlhash.parse body
       rescue ActiveXML::Transport::Error
         return ret
@@ -1262,7 +1262,7 @@ class Project < ApplicationRecord
 
     return unless repositories.count > 0
     # ensure higher build numbers for re-release
-    Suse::Backend.post "/build/#{URI.escape(name)}?cmd=wipe"
+    Backend::Connection.post "/build/#{URI.escape(name)}?cmd=wipe"
   end
 
   def build_succeeded?(repository = nil)
@@ -1374,7 +1374,7 @@ class Project < ApplicationRecord
   end
 
   def source_file(file, opts = {})
-    Suse::Backend.get(source_path(file, opts)).body
+    Backend::Connection.get(source_path(file, opts)).body
   end
 
   # FIXME: will be cleaned up after implementing FATE #308899
@@ -1382,7 +1382,7 @@ class Project < ApplicationRecord
     prjconf = source_file('_config')
     return if prjconf =~ /^Type:/
     prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-    Suse::Backend.put_source(source_path('_config'), prjconf)
+    Backend::Connection.put_source(source_path('_config'), prjconf)
   end
 
   def self.validate_remote_permissions(request_data)

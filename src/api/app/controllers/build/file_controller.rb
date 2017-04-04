@@ -89,7 +89,7 @@ module Build
         unless request.query_string
           # check if binary exists and for size
           fpath = "/build/" + [:project, :repository, :arch, :package].map {|x| params[x]}.join("/")
-          file_list = Suse::Backend.get(fpath)
+          file_list = Backend::Connection.get(fpath)
           file_list.body.match(/name=["']#{Regexp.quote params[:filename]}["'].*size=["']([^"']*)["']/)
         end
     end

@@ -2658,7 +2658,7 @@ XML
     # now time travel and accept
     Timecop.freeze(2.days)
     # the backend has to be up before we can accept
-    Suse::Backend.start_test_backend
+    Backend::Connection.start_test_backend
     BsRequest.delayed_auto_accept
 
     get "/request/#{id}"
@@ -2732,7 +2732,7 @@ XML
     spec = File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read
     spec.gsub!(/^Version:.*/, 'Version: 2.42')
     spec.gsub!(/^Release:.*/, 'Release: 1')
-    Suse::Backend.put('/source/home:tom:branches:home:Iggy/TestPack/TestPack.spec?user=king', spec)
+    Backend::Connection.put('/source/home:tom:branches:home:Iggy/TestPack/TestPack.spec?user=king', spec)
     assert_response :success
 
     get '/source/home:tom:branches:home:Iggy/TestPack?view=info&parse=1'
@@ -2796,7 +2796,7 @@ XML
     delete '/source/home:tom:branches:home:Iggy'
     assert_response :success
     # restore original spec file
-    Suse::Backend.put('/source/home:Iggy/TestPack/TestPack.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read)
+    Backend::Connection.put('/source/home:Iggy/TestPack/TestPack.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read)
     assert_response :success
   end
 

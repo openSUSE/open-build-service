@@ -2,8 +2,8 @@ require 'net/http'
 require 'benchmark'
 require 'api_exception'
 
-module Suse
-  class Backend
+module Backend
+  class Connection
     @source_host = CONFIG['source_host']
     @source_port = CONFIG['source_port']
 
@@ -234,7 +234,7 @@ module Suse
         counter = 0
         marker = Rails.root.join('tmp', 'scheduler.done')
         while counter < 100
-          return if File.exist?(marker)
+          return if ::File.exist?(marker)
           sleep 0.5
           counter += 1
         end

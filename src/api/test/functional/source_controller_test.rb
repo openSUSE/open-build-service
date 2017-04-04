@@ -3832,7 +3832,7 @@ EOF
     get '/source/home:Iggy/TestPack'
     assert_response :success
 
-    Suse::Backend.put('/source/home:Iggy/TestPack/bnc%23620675.diff?user=king', 'argl')
+    Backend::Connection.put('/source/home:Iggy/TestPack/bnc%23620675.diff?user=king', 'argl')
     assert_response :success
 
     get '/source/home:Iggy/TestPack'

@@ -178,7 +178,7 @@ class Repository < ApplicationRecord
       prjconf = project.source_file('_config')
       unless prjconf =~ /^Type:/
         prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-        Suse::Backend.put_source(project.source_path('_config'), prjconf)
+        Backend::Connection.put_source(project.source_path('_config'), prjconf)
       end
       return
     end
@@ -191,7 +191,7 @@ class Repository < ApplicationRecord
     url = Rails.cache.fetch("download_url_#{project.name}##{name}") do
       path  = "/published/#{URI.escape(project.name)}/#{URI.escape(name)}"
       path += "?view=publishedpath"
-      xml = Xmlhash.parse(Suse::Backend.get(path).body)
+      xml = Xmlhash.parse(Backend::Connection.get(path).body)
       xml.elements('url').last.to_s
     end
     url + "/" + file unless file.blank?
@@ -202,7 +202,7 @@ class Repository < ApplicationRecord
       path  = "/build/#{URI.escape(project.name)}/#{URI.escape(name)}/#{URI.escape(architecture)}/#{URI.escape(package.name)}/#{URI.escape(filename)}"
       # rubocop:enable Metrics/LineLength
       path += "?view=publishedpath"
-      xml = Xmlhash.parse(Suse::Backend.get(path).body)
+      xml = Xmlhash.parse(Backend::Connection.get(path).body)
       xml.elements('url').last.to_s
     end
   end

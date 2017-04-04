@@ -129,7 +129,7 @@ class BranchPackage
       if p[:local_link]
         # rubocop:disable Metrics/LineLength
         # copy project local linked packages
-        Suse::Backend.post "/source/#{tpkg.project.name}/#{tpkg.name}?cmd=copy&oproject=#{CGI.escape(p[:link_target_project].name)}&opackage=#{CGI.escape(p[:package].name)}&user=#{CGI.escape(User.current.login)}"
+        Backend::Connection.post "/source/#{tpkg.project.name}/#{tpkg.name}?cmd=copy&oproject=#{CGI.escape(p[:link_target_project].name)}&opackage=#{CGI.escape(p[:package].name)}&user=#{CGI.escape(User.current.login)}"
         # rubocop:enable Metrics/LineLength
         # and fix the link
         ret = ActiveXML::Node.new(tpkg.source_file('_link'))
@@ -139,7 +139,7 @@ class BranchPackage
         linked_package = params[:target_package] if params[:target_package] && params[:package] == ret.value('package')
         linked_package += '.' + p[:link_target_project].name.tr(':', '_') if @extend_names
         ret.set_attribute('package', linked_package)
-        Suse::Backend.put tpkg.source_path('_link', user: User.current.login), ret.dump_xml
+        Backend::Connection.put tpkg.source_path('_link', user: User.current.login), ret.dump_xml
       else
         opackage = p[:package]
         opackage = p[:package].name if p[:package].is_a? Package
@@ -165,7 +165,7 @@ class BranchPackage
           end
           # TODO: make this a query hash
           # rubocop:disable Metrics/LineLength
-          Suse::Backend.post tpkg.source_path + "?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(User.current.login)}&comment=#{msg}"
+          Backend::Connection.post tpkg.source_path + "?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(User.current.login)}&comment=#{msg}"
           # rubocop:enable Metrics/LineLength
         end
       end
@@ -295,7 +295,7 @@ class BranchPackage
       path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(p[:package].name)}\"+and+linkinfo/@project=\"#{CGI.escape(p[:link_target_project].name)}\""
       # rubocop:enable Metrics/LineLength
       path += "+and+starts-with(@project,\"#{CGI.escape(mp.maintenance_project.name)}%3A\"))"
-      answer = Suse::Backend.post path
+      answer = Backend::Connection.post path
       data = REXML::Document.new(answer.body)
       data.elements.each('collection/package') do |e|
         ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
@@ -449,7 +449,7 @@ class BranchPackage
     pkg = p[:package]
     if pkg.is_link?
       # is the package itself a local link ?
-      link = Suse::Backend.get("/source/#{p[:package].project.name}/#{p[:package].name}/_link")
+      link = Backend::Connection.get("/source/#{p[:package].project.name}/#{p[:package].name}/_link")
       ret = Xmlhash.parse(link.body)
       if !ret['project'] || ret['project'] == p[:package].project.name
         pkg = Package.get_by_project_and_name(p[:package].project.name, ret['package'])

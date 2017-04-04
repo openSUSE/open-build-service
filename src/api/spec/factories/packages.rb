@@ -7,7 +7,7 @@ FactoryGirl.define do
       # NOTE: Enable global write through when writing new VCR cassetes.
       # ensure the backend knows the project
       if CONFIG['global_write_through']
-        Suse::Backend.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_meta", package.to_axml)
+        Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_meta", package.to_axml)
       end
     end
 
@@ -16,8 +16,8 @@ FactoryGirl.define do
         # NOTE: Enable global write through when writing new VCR cassetes.
         # ensure the backend knows the project
         if CONFIG['global_write_through']
-          Suse::Backend.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config", Faker::Lorem.paragraph)
-          Suse::Backend.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/somefile.txt", Faker::Lorem.paragraph)
+          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config", Faker::Lorem.paragraph)
+          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/somefile.txt", Faker::Lorem.paragraph)
         end
       end
     end
@@ -27,7 +27,7 @@ FactoryGirl.define do
         # NOTE: Enable global write through when writing new VCR cassetes.
         # ensure the backend knows the project
         if CONFIG['global_write_through']
-          Suse::Backend.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<services/>')
+          Backend::Connection.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<services/>')
         end
       end
     end
@@ -37,7 +37,7 @@ FactoryGirl.define do
         # NOTE: Enable global write through when writing new VCR cassetes.
         # ensure the backend knows the project
         if CONFIG['global_write_through']
-          Suse::Backend.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<service>broken</service>')
+          Backend::Connection.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<service>broken</service>')
         end
       end
     end

@@ -285,7 +285,7 @@ RSpec.feature "Projects", type: :feature, js: true do
 
     before do
       if CONFIG['global_write_through']
-        Suse::Backend.put("/source/#{CGI.escape(project.name)}/_meta", project.to_axml)
+        Backend::Connection.put("/source/#{CGI.escape(project.name)}/_meta", project.to_axml)
       end
       login user
       visit project_show_path(project)
@@ -294,8 +294,8 @@ RSpec.feature "Projects", type: :feature, js: true do
 
     after do
       if CONFIG['global_write_through']
-        Suse::Backend.delete("/source/#{CGI.escape(other_user.home_project_name)}")
-        Suse::Backend.delete("/source/#{CGI.escape(user.home_project_name)}")
+        Backend::Connection.delete("/source/#{CGI.escape(other_user.home_project_name)}")
+        Backend::Connection.delete("/source/#{CGI.escape(user.home_project_name)}")
       end
     end
 

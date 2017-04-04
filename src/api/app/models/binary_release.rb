@@ -20,7 +20,7 @@ class BinaryRelease < ApplicationRecord
   #### Class methods using self. (public and then private)
   def self.update_binary_releases(repository, key, time = Time.now)
     begin
-      body = Suse::Backend.get("/notificationpayload/#{key}").body
+      body = Backend::Connection.get("/notificationpayload/#{key}").body
       pt = ActiveSupport::JSON.decode(body)
     rescue ActiveXML::Transport::NotFoundError
       logger.error("Payload got removed for #{key}")
@@ -28,7 +28,7 @@ class BinaryRelease < ApplicationRecord
     end
     update_binary_releases_via_json(repository, pt, time)
     # drop it
-    Suse::Backend.delete("/notificationpayload/#{key}")
+    Backend::Connection.delete("/notificationpayload/#{key}")
   end
 
   def self.update_binary_releases_via_json(repository, json, time = Time.now)
@@ -87,7 +87,7 @@ class BinaryRelease < ApplicationRecord
         end
         if binary["patchinforef"]
           begin
-            pi = Patchinfo.new(Suse::Backend.get("/source/#{binary["patchinforef"]}/_patchinfo").body)
+            pi = Patchinfo.new(Backend::Connection.get("/source/#{binary["patchinforef"]}/_patchinfo").body)
           rescue ActiveXML::Transport::NotFoundError
             # patchinfo disappeared meanwhile
           end

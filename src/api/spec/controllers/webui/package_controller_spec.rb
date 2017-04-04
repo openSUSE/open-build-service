@@ -518,7 +518,7 @@ EOT
         let(:package_with_commits) { create(:package_with_file, name: "package_with_commits", project: source_project) }
 
         before do
-          19.times { |i| Suse::Backend.put("/source/#{source_project}/#{package_with_commits}/somefile.txt", i.to_s) }
+          19.times { |i| Backend::Connection.put("/source/#{source_project}/#{package_with_commits}/somefile.txt", i.to_s) }
           get :revisions, params: { project: source_project, package: package_with_commits }
         end
 
@@ -535,7 +535,7 @@ EOT
         let(:package_with_more_commits) { create(:package_with_file, name: "package_with_more_commits", project: source_project) }
 
         before do
-          20.times { |i| Suse::Backend.put("/source/#{source_project}/#{package_with_more_commits}/somefile.txt", i.to_s) }
+          20.times { |i| Backend::Connection.put("/source/#{source_project}/#{package_with_more_commits}/somefile.txt", i.to_s) }
           get :revisions, params: { project: source_project, package: package_with_more_commits }
         end
 

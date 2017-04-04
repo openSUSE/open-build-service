@@ -1805,10 +1805,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     delete '/source/BaseDistro3/pack2.0'
     assert_response :success
     # don't leave the broken link and just recreate it
-    Suse::Backend.delete '/source/BaseDistro3/pack2?user=king'
+    Backend::Connection.delete '/source/BaseDistro3/pack2?user=king'
     assert_response :success
     p = Package.find_by_project_and_name('BaseDistro3', 'pack2')
-    Suse::Backend.put( '/source/BaseDistro3/pack2/_meta?user=king', p.to_axml)
+    Backend::Connection.put( '/source/BaseDistro3/pack2/_meta?user=king', p.to_axml)
     raw_put '/source/BaseDistro3/pack2/pack2.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
     inject_build_job('BaseDistro3', 'pack2.0', 'BaseDistro3_repo', 'i586', "package_newweaktags-1.0-1.x86_64.rpm")

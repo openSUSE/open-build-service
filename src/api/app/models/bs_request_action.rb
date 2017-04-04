@@ -53,7 +53,7 @@ class BsRequestAction < ApplicationRecord
   def self.get_package_diff(path, query)
     path += "?#{query.to_query}"
     begin
-      Suse::Backend.post(path, '', 'Timeout' => 30).body
+      Backend::Connection.post(path, '', 'Timeout' => 30).body
     rescue Timeout::Error
       raise DiffError.new("Timeout while diffing #{path}")
     rescue ActiveXML::Transport::Error => e
@@ -474,7 +474,7 @@ class BsRequestAction < ApplicationRecord
 
   def check_maintenance_release(pkg, repo, arch)
     # rubocop:disable Metrics/LineLength
-    binaries = Xmlhash.parse(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}").body)
+    binaries = Xmlhash.parse(Backend::Connection.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}").body)
     # rubocop:enable Metrics/LineLength
     l = binaries.elements('binary')
     unless l && l.count > 0
@@ -485,7 +485,7 @@ class BsRequestAction < ApplicationRecord
     data = Directory.hashed(project: pkg.project.name, package: pkg.name, expand: 1)
     verifymd5 = data['srcmd5']
     # rubocop:disable Metrics/LineLength
-    history = Xmlhash.parse(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}/_history").body)
+    history = Xmlhash.parse(Backend::Connection.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}/_history").body)
     # rubocop:enable Metrics/LineLength
     last = history.elements('entry').last
     return if last && last['srcmd5'].to_s == verifymd5.to_s
@@ -560,7 +560,7 @@ class BsRequestAction < ApplicationRecord
       # do not allow release requests without binaries
       if is_maintenance_release? && pkg.is_patchinfo? && data && !opts[:ignore_build_state]
         # check for build state and binaries
-        state = REXML::Document.new(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/_result?view=versrel").body)
+        state = REXML::Document.new(Backend::Connection.get("/build/#{URI.escape(pkg.project.name)}/_result?view=versrel").body)
         results = state.get_elements("/resultlist/result[@project='#{pkg.project.name}'')]")
         unless results
           raise BuildNotFinished.new "The project'#{pkg.project.name}' has no building repositories"
@@ -946,7 +946,7 @@ class BsRequestAction < ApplicationRecord
       query[:rev] = source_rev if source_rev
       # FIXME we have a Directory model
       url = Package.source_path(source_project, source_package, nil, query)
-      c = Suse::Backend.get(url).body
+      c = Backend::Connection.get(url).body
       if add_revision && !source_rev
         dir = Xmlhash.parse(c)
         if action_type == :maintenance_release && dir['entry']

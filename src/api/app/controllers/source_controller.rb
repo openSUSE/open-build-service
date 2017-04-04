@@ -806,7 +806,7 @@ class SourceController < ApplicationController
     end
 
     @path += build_query_from_hash(params, [:user, :comment, :meta, :rev, :linkrev, :keeplink])
-    Suse::Backend.delete @path
+    Backend::Connection.delete @path
 
     unless @package_name == '_pattern' || @package_name == '_project'
       # _pattern was not a real package in old times
@@ -1068,7 +1068,7 @@ class SourceController < ApplicationController
     begin
       project.name = params[:project]
 
-      Suse::Backend.post "/source/#{URI.escape(project.name)}?cmd=move&oproject=#{CGI.escape(project_name)}"
+      Backend::Connection.post "/source/#{URI.escape(project.name)}?cmd=move&oproject=#{CGI.escape(project_name)}"
       project.store(commit)
       # update meta data in all packages, they contain the project name as well
       project.packages.each {|p| p.store(commit)}
@@ -1234,7 +1234,7 @@ class SourceController < ApplicationController
       # we could request the links on remote instance via that: but we would need to search also localy and merge ...
 
 #      path = "/search/package/id?match=(@linkinfo/package=\"#{CGI.escape(package_name)}\"+and+@linkinfo/project=\"#{CGI.escape(project_name)}\")"
-#      answer = Suse::Backend.post path
+#      answer = Backend::Connection.post path
 #      render :text => answer.body, :content_type => 'text/xml'
       render xml: '<collection/>'
       return
@@ -1324,7 +1324,7 @@ class SourceController < ApplicationController
       return
     rescue ActiveXML::Transport::NotFoundError
       specfile = File.read "#{Rails.root}/files/specfiletemplate"
-      Suse::Backend.put( specfile_path, specfile )
+      Backend::Connection.put( specfile_path, specfile )
     end
     render_ok
   end
@@ -1338,7 +1338,7 @@ class SourceController < ApplicationController
     # check for sources in this or linked project
     unless @package
       # check if this is a package on a remote OBS instance
-      answer = Suse::Backend.get(request.path_info)
+      answer = Backend::Connection.get(request.path_info)
       unless answer
         render_error status: 400, errorcode: 'unknown_package',
           message: "Unknown package '#{package_name}'"
@@ -1436,7 +1436,7 @@ class SourceController < ApplicationController
   end
 
   def reparse_backend_package(spackage, sproject)
-    answer = Suse::Backend.get("/source/#{CGI.escape(sproject)}/#{CGI.escape(spackage)}/_meta")
+    answer = Backend::Connection.get("/source/#{CGI.escape(sproject)}/#{CGI.escape(spackage)}/_meta")
     raise UnknownPackage.new "Unknown package #{spackage} in project #{sproject}" unless answer
 
     Package.transaction do
@@ -1537,7 +1537,7 @@ class SourceController < ApplicationController
     rev = "&orev=#{pkg_rev}" if pkg_rev.present?
     linkrev = ''
     linkrev = "&linkrev=#{pkg_linkrev}" if pkg_linkrev.present?
-    Suse::Backend.post "/source/#{@package.project.name}/#{@package.name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}"
+    Backend::Connection.post "/source/#{@package.project.name}/#{@package.name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}"
 
     @package.sources_changed
     render_ok

@@ -210,7 +210,8 @@ RSpec.describe Package, vcr: true do
   context '#has_icon?' do
     it 'returns true if the icon exist' do
       if CONFIG['global_write_through']
-        Suse::Backend.put("/source/#{CGI.escape(package_with_file.project.name)}/#{CGI.escape(package_with_file.name)}/_icon", Faker::Lorem.paragraph)
+        Backend::Connection.put("/source/#{CGI.escape(package_with_file.project.name)}/#{CGI.escape(package_with_file.name)}/_icon",
+                                Faker::Lorem.paragraph)
       end
       expect(package_with_file.has_icon?).to eq(true)
     end
@@ -420,7 +421,7 @@ RSpec.describe Package, vcr: true do
 
     context 'with invalid repository or architecture' do
       before do
-        allow(Suse::Backend).to receive(:get).and_raise(ActiveXML::Transport::NotFoundError.new('message'))
+        allow(Backend::Connection).to receive(:get).and_raise(ActiveXML::Transport::NotFoundError.new('message'))
       end
 
       it 'returns an empty array' do

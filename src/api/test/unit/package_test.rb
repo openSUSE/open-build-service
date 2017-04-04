@@ -195,7 +195,7 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_names_are_case_sensitive
-    Suse::Backend.without_global_write_through do
+    Backend::Connection.without_global_write_through do
       np = @package.project.packages.new(name: 'testpack')
       xh = Xmlhash.parse(@package.to_axml)
       np.save!
@@ -245,7 +245,7 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_activity
-    Suse::Backend.without_global_write_through do
+    Backend::Connection.without_global_write_through do
       Timecop.freeze(2010, 1, 1)
       project = projects(:home_Iggy)
       newyear = project.packages.create!(name: 'newyear')

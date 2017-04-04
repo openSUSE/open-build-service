@@ -128,7 +128,7 @@ class ProjectStatusCalculator
     uri = '/build/%s/%s/%s/_jobhistory?code=lastfailures' % [CGI.escape(dname), CGI.escape(repo), arch]
 
     ret = []
-    d = Suse::Backend.get(uri).body
+    d = Backend::Connection.get(uri).body
 
     return [] if d.blank?
 

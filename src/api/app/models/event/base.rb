@@ -142,7 +142,7 @@ module Event
       p = payload
       p['time'] = created_at.to_i
       logger.debug "notify_backend #{self.class.name} #{p.inspect}"
-      ret = Suse::Backend.post("/notify_plugins/#{self.class.raw_type}",
+      ret = Backend::Connection.post("/notify_plugins/#{self.class.raw_type}",
                                Yajl::Encoder.encode(p),
                                'Content-Type' => 'application/json')
       Xmlhash.parse(ret.body)['code'] == 'ok'

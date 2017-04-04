@@ -328,7 +328,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     flash_message.must_match %r{Unable to submit, sources are unchanged}
 
     # modify and resubmit
-    Suse::Backend.put( '/source/home:adrian/x11vnc/DUMMY?user=adrian', 'DUMMY')
+    Backend::Connection.put( '/source/home:adrian/x11vnc/DUMMY?user=adrian', 'DUMMY')
     click_link 'Submit package'
     page.must_have_field('targetproject', with: 'home:dmayr')
     page.wont_have_field('supersede_request_numbers[]')
@@ -392,7 +392,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     #
     # TODO: actually it does not make sense to display requests that we can't supersede
     # but that's for later
-    Suse::Backend.put( '/source/home:adrian/x11vnc/DUMMY2?user=adrian', 'DUMMY2')
+    Backend::Connection.put( '/source/home:adrian/x11vnc/DUMMY2?user=adrian', 'DUMMY2')
     login_tom to: package_show_path(project: 'home:adrian', package: 'x11vnc')
     click_link 'Submit package'
     page.must_have_field('supersede_request_numbers[]')
@@ -465,7 +465,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     end
     page.wont_have_link 'README'
     # restore now
-    Suse::Backend.put( '/source/home:dmayr/x11vnc/README?user=king', 'just to delete')
+    Backend::Connection.put( '/source/home:dmayr/x11vnc/README?user=king', 'just to delete')
   end
 
   def test_revisions
