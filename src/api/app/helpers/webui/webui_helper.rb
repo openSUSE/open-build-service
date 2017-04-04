@@ -118,7 +118,7 @@ module Webui::WebuiHelper
 
     description = REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
     description = 'State needs recalculations, former state was: ' + description if outdated
-    description << " (" + details + ")" if details
+    description += " (" + details + ")" if details
 
     sprite_tag icon, title: description
   end
