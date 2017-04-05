@@ -105,11 +105,15 @@ class Authenticator
     krb
   end
 
+  def raise_and_invalidate(authorization, message = '')
+    @response.headers["WWW-Authenticate"] = authorization.join(' ')
+    raise AuthenticationRequiredError, message
+  end
+
   def extract_krb_user(authorization)
     unless authorization[1]
       Rails.logger.debug "Didn't receive any negotiation data."
-      @response.headers["WWW-Authenticate"] = authorization.join(' ')
-      raise AuthenticationRequiredError, "GSSAPI negotiation failed."
+      raise_and_invalidate(authorization, 'GSSAPI negotiation failed.')
     end
 
     begin
@@ -118,13 +122,11 @@ class Authenticator
       begin
         tok = krb.accept_context(Base64.strict_decode64(authorization[1]))
       rescue GSSAPI::GssApiError
-        @response.headers["WWW-Authenticate"] = authorization.join(' ')
-        raise AuthenticationRequiredError, "Received invalid GSSAPI context."
+        raise_and_invalidate(authorization, 'Received invalid GSSAPI context.')
       end
 
       unless krb.display_name.match("@#{CONFIG['kerberos_realm']}$")
-        @response.headers["WWW-Authenticate"] = authorization.join(' ')
-        raise AuthenticationRequiredError, "User authenticated in wrong Kerberos realm."
+        raise_and_invalidate(authorization, 'User authenticated in wrong Kerberos realm.')
       end
 
       unless tok == true
