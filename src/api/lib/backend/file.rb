@@ -49,7 +49,7 @@ module Backend
         @last_read_query = query
       end
       @file
-    rescue Exception => e
+    rescue => e
       @backend_file_errors = e.message
       valid?
       nil
@@ -68,7 +68,7 @@ module Backend
       file(@last_read_query)
     end
 
-    # Tries to save the file to the backend and return the response, otherwise will raise an Exception
+    # Tries to save the file to the backend and return the response, otherwise will raise an StandardError
     # If "content" parameter is provided then is passed directly to the backend, otherwise it creates
     # a temp file and then send it to the backend
     def save!(query = {}, content = nil)
@@ -84,26 +84,26 @@ module Backend
       backend_response
     end
 
-    # Tries to save the file to the backend. Returns nil if some Exception is raised
+    # Tries to save the file to the backend. Returns nil if some StandardError is raised
     def save(query = {}, content = nil)
       save!(query, content)
-    rescue Exception => e
+    rescue => e
       @backend_file_errors = e.message
       valid?
       nil
     end
 
-    # Tries to destroy the file from the backend, freeze the object and return the response, otherwise will raise an Exception
+    # Tries to destroy the file from the backend, freeze the object and return the response, otherwise will raise an StandardError
     def destroy!(query = {})
       response = Connection.delete(full_path(query))
       freeze
       response
     end
 
-    # Tries to destroy the file from the backend. Returns nil if some Exception is raised
+    # Tries to destroy the file from the backend. Returns nil if some StandardError is raised
     def destroy(query = {})
       destroy!(query)
-    rescue Exception => e
+    rescue => e
       @backend_file_errors = e.message
       valid?
       nil

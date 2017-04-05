@@ -153,8 +153,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     cp_params[:orev] = source_rev if source_rev
     cp_path = "/source/#{CGI.escape(incidentProject.name)}/#{CGI.escape(new_pkg.name)}"
     cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage,
-                                                               :orev, :keeplink, :expand, :comment,
-                                                               :requestid, :withacceptinfo])
+                                                                     :orev, :keeplink, :expand, :comment,
+                                                                     :requestid, :withacceptinfo])
     result = Backend::Connection.post cp_path
     result = Xmlhash.parse(result.body)
     set_acceptinfo(result["acceptinfo"])

@@ -85,9 +85,9 @@ class BsRequestActionSubmit < BsRequestAction
 
     cp_path = "/source/#{self.target_project}/#{self.target_package}"
     cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage,
-                                                               :orev, :expand, :keeplink, :comment,
-                                                               :requestid, :dontupdatesource, :noservice,
-                                                               :withacceptinfo])
+                                                                     :orev, :expand, :keeplink, :comment,
+                                                                     :requestid, :dontupdatesource, :noservice,
+                                                                     :withacceptinfo])
     result = Backend::Connection.post cp_path
     result = Xmlhash.parse(result.body)
     set_acceptinfo(result["acceptinfo"])

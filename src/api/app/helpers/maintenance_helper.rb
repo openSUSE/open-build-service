@@ -161,9 +161,9 @@ module MaintenanceHelper
     end
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
     cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject,
-                                                               :opackage, :comment, :requestid,
-                                                               :expand, :withvrev, :noservice,
-                                                               :freezelink, :withacceptinfo])
+                                                                     :opackage, :comment, :requestid,
+                                                                     :expand, :withvrev, :noservice,
+                                                                     :freezelink, :withacceptinfo])
     result = Backend::Connection.post(cp_path)
     result = Xmlhash.parse(result.body)
     action.set_acceptinfo(result["acceptinfo"]) if action
@@ -177,7 +177,7 @@ module MaintenanceHelper
         # FIXME: filter given release and/or target repos here
         if releasetarget.target_repository.project == targetProject
           uID = copy_binaries_to_repository(sourceRepo, sourcePackage, releasetarget.target_repository, targetPackageName, setrelease)
-	  updateIDs << uID if uID
+          updateIDs << uID if uID
         end
         # remove maintenance release trigger in source
         if releasetarget.trigger == 'maintenance'
@@ -215,8 +215,8 @@ module MaintenanceHelper
     cp_path = "/build/#{CGI.escape(target_repository.project.name)}/#{URI.escape(target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
     # rubocop:enable Metrics/LineLength
     cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage,
-                                                               :orepository, :setupdateinfoid,
-                                                               :resign, :setrelease, :multibuild])
+                                                                     :orepository, :setupdateinfoid,
+                                                                     :resign, :setrelease, :multibuild])
     Backend::Connection.post cp_path
   end
 

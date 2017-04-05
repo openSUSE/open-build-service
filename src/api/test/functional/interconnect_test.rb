@@ -476,7 +476,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     # post "/source/RemoteInstance:BaseDistro/pack1", :cmd => :branch, :target_project => "LocalProject", :target_package => "branchedpackage"
     # assert_response :success
 
-    Backend::Connection.put( '/source/LocalProject/newpackage/_meta?user=king', Package.find_by_project_and_name('LocalProject', 'newpackage').to_axml)
+    Backend::Connection.put('/source/LocalProject/newpackage/_meta?user=king',
+                            Package.find_by_project_and_name('LocalProject', 'newpackage').to_axml)
     Backend::Connection.put( '/source/LocalProject/newpackage/new_file?user=king', 'adding stuff')
     post '/source/LocalProject/newpackage', params: { cmd: :diff, oproject: 'RemoteInstance:BaseDistro', opackage: 'pack1' }
     assert_response :success

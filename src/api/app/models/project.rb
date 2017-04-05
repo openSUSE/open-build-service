@@ -1059,8 +1059,8 @@ class Project < ApplicationRecord
     begin
       path = "/source/#{URI.escape(name)}"
       path << Backend::Connection.build_query_from_hash(params,
-                                                  [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
-                                                   :makeolder, :makeoriginolder, :noservice])
+                                                        [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
+                                                         :makeolder, :makeoriginolder, :noservice])
       Backend::Connection.post path
     rescue ActiveXML::Transport::Error => e
       logger.debug "copy failed: #{e.summary}"

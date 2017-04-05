@@ -7,8 +7,8 @@ module Backend
     @source_host = CONFIG['source_host']
     @source_port = CONFIG['source_port']
 
-    @@backend_logger = Logger.new("#{Rails.root}/log/backend_access.log")
-    @@backend_time = 0
+    @backend_logger = Logger.new("#{Rails.root}/log/backend_access.log")
+    @backend_time = 0
 
     def initialize
       Rails.logger.debug "init backend"
@@ -26,11 +26,11 @@ module Backend
       end
 
       def runtime
-        @@backend_time
+        @backend_time
       end
 
       def reset_runtime
-        @@backend_time = 0
+        @backend_time = 0
       end
 
       def logger
@@ -84,9 +84,11 @@ module Backend
           end
           begin
             http.request backend_request
+          # rubocop:disable Lint/ShadowedException
           rescue Errno::EPIPE, Errno::ECONNRESET, SocketError, Errno::EINTR, EOFError, IOError, Errno::ETIMEDOUT
             raise Timeout::Error
           end
+          # rubocop:enable Lint/ShadowedException
         end
         write_backend_log method, host, port, path, response
         handle_response response
@@ -151,19 +153,19 @@ module Backend
         raise "write backend log without start time" unless @start_of_last
         timedelta = Time.now - @start_of_last
         @start_of_last = nil
-        @@backend_logger.info "#{now} #{method} #{host}:#{port}#{path} #{response.code} #{timedelta}"
-        @@backend_time += timedelta
-        logger.debug "request took #{timedelta} #{@@backend_time}"
+        @backend_logger.info "#{now} #{method} #{host}:#{port}#{path} #{response.code} #{timedelta}"
+        @backend_time += timedelta
+        logger.debug "request took #{timedelta} #{@backend_time}"
 
         return unless CONFIG['extended_backend_log']
 
         data = response.body
         if data.nil?
-          @@backend_logger.info "(no data)"
+          @backend_logger.info "(no data)"
         elsif data.class == 'String' && data[0, 1] == "<"
-          @@backend_logger.info data
+          @backend_logger.info data
         else
-          @@backend_logger.info "(non-XML data) #{data.class}"
+          @backend_logger.info "(non-XML data) #{data.class}"
         end
       end
 
@@ -180,7 +182,7 @@ module Backend
         end
       end
 
-      @@backend = nil
+      @backend = nil
 
       public
 
@@ -195,24 +197,24 @@ module Backend
       end
 
       def test_backend?
-        (!@@backend.nil? && @@backend != :dont)
+        (!@backend.nil? && @backend != :dont)
       end
 
       def do_not_start_test_backend
-        @@backend = :dont
+        @backend = :dont
       end
 
       def start_test_backend
         # do_not_start_test_backend
         return unless Rails.env.test?
-        return if @@backend
+        return if @backend
         return if ENV['BACKEND_STARTED']
         print "Starting test backend..."
-        @@backend = IO.popen("#{Rails.root}/script/start_test_backend")
-        logger.debug "Test backend started with pid: #{@@backend.pid}"
+        @backend = IO.popen("#{Rails.root}/script/start_test_backend")
+        logger.debug "Test backend started with pid: #{@backend.pid}"
         loop do
-          line = @@backend.gets
-          raise RuntimeError.new('Backend died') unless line
+          line = @backend.gets
+          raise 'Backend died' unless line
           break if line =~ /DONE NOW/
           logger.debug line.strip
         end
@@ -222,8 +224,8 @@ module Backend
         ENV['BACKEND_STARTED'] = '1'
         at_exit do
           puts "Killing test backend"
-          Process.kill "INT", @@backend.pid
-          @@backend = nil
+          Process.kill "INT", @backend.pid
+          @backend = nil
         end
       end
 
