@@ -461,6 +461,7 @@
 
   <define ns="" name="token-kind">
     <choice>
+      <value>branch</value>
       <value>rss</value>
       <value>rebuild</value>
       <value>release</value>

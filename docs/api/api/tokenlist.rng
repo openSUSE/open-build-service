@@ -68,6 +68,7 @@
        <a:documentation>
         This attribute specifies which actions can be performed via this token.
         - rss: used to retrieve the notification RSS feed
+        - branch: branches a package and stores a http payload from the server in _branch_request
         - rebuild: trigger rebuilds of packages
         - release: trigger project releases
         - runservice: run a service via the POST /trigger/runservice route

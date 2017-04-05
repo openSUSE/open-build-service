@@ -1,4 +1,5 @@
 class TriggerController < ApplicationController
+  validate_action branch: { method: :post, response: :status }
   validate_action rebuild: { method: :post, response: :status }
   validate_action release: { method: :post, response: :status }
   validate_action runservice: { method: :post, response: :status }
@@ -23,6 +24,23 @@ class TriggerController < ApplicationController
     rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @pkg, project: @prj, params: params)
     authorize rebuild_trigger.policy_object, :update?
     rebuild_trigger.rebuild?
+    render_ok
+  end
+
+  def branch
+    # to be used for gitlab merge or github pull requests
+    # try to figure our the merge id
+    payload = request.body.read
+    json = JSON.parse payload
+    merge_id = json['object_attributes']['iid'].to_s
+    branch_params = {project: @pkg.project.name, package: @pkg.name, force: 1}
+    if merge_id.present?
+      branch_params[:target_project] =  User.session.home_project_name + ':MERGE:'
+      branch_params[:target_project] += @pkg.project.name + ':' + @pkg.name + ':' + merge_id
+    end	       
+    ret = BranchPackage.new(branch_params).branch
+    new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
+    Backend::Connection.put(new_pkg.source_path('_branch_request'), payload)
     render_ok
   end
 

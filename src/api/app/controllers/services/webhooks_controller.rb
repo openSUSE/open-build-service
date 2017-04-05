@@ -5,13 +5,35 @@ class Services::WebhooksController < ApplicationController
   before_action :validate_token, :set_package, :set_user
 
   def create
-    if !@user.is_active? || !@user.can_modify?(@package)
+    if !@user.is_active?
       render_error message: 'Token not found or not valid.', status: 404
       return
     end
 
-    Backend::Api::Sources::Package.trigger_services(@package.project.name, @package.name, @user.login)
-    render_ok
+    # identify operation type
+    payload = request.body.read
+    json = JSON.parse payload
+    if json['action'] == 'opened'
+      # pull request 
+      merge_id = json['number'].to_s
+      branch_params = {project: @pkg.project.name, package: @pkg.name, force: 1}
+      if merge_id.present?
+        branch_params[:target_project] =  User.session.home_project_name + ':MERGE:'
+        branch_params[:target_project] += @pkg.project.name + ':' + @pkg.name + ':' + merge_id
+      end
+      ret = BranchPackage.new(branch_params).branch
+      new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
+      Backend::Connection.put(new_pkg.source_path('_branch_request'), payload)
+      render_ok
+    elsif json['commits'].present?
+      if !@user.can_modify?(@package)
+        render_error message: 'Token not found or not valid.', status: 404
+        return
+      end
+      Backend::Api::Sources::Package.trigger_services(@package.project.name, @package.name, @user.login)
+      render_ok
+    end
+    render_error message: 'Unhandled acton type', status: 401
   end
 
   private
