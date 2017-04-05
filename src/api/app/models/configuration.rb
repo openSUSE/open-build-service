@@ -1,4 +1,3 @@
-require 'opensuse/backend'
 # The OBS instance configuration
 class Configuration < ApplicationRecord
   after_save :delayed_write_to_backend

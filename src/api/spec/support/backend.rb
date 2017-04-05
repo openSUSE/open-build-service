@@ -1,5 +1,3 @@
-require 'opensuse/backend'
-
 # Allow connections to localhost
 WebMock.disable_net_connect!(allow_localhost: true)
 

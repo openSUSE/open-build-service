@@ -36,8 +36,6 @@ require 'minitest/unit'
 
 require 'webmock/minitest'
 
-require 'opensuse/backend'
-
 require_relative 'activexml_matcher'
 require_relative '../lib/obsapi/test_sphinx'
 

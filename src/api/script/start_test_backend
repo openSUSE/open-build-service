@@ -20,8 +20,6 @@ backend_config = "#{Rails.root}/tmp/backend_config#{backend_dir_suffix}"
 backend_data   = "#{Rails.root}/tmp/backend_data#{backend_dir_suffix}"
 require File.expand_path(File.dirname(__FILE__)) + '/../test/test_helper'
 
-require 'opensuse/backend'
-
 Backend::Connection.do_not_start_test_backend
 
 ENV['PERL5LIB'] = "#{Rails.root}/../backend:#{Rails.root}/../backend/build"

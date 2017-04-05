@@ -1,4 +1,3 @@
-require_dependency 'opensuse/backend'
 require_dependency 'has_relationships'
 
 class Project < ApplicationRecord

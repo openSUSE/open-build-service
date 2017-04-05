@@ -1,5 +1,4 @@
 require 'xmlrpc/client'
-require 'opensuse/backend'
 
 class IssueTracker < ApplicationRecord
   has_many :issues, dependent: :destroy

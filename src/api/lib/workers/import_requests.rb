@@ -3,8 +3,6 @@ class ImportRequestsDelayedJob
   end
 
   def perform
-    require 'opensuse/backend'
-
     lastrq = Backend::Connection.get("/request/_lastid").body.to_i
     while lastrq > 0
       begin
