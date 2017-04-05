@@ -97,6 +97,8 @@ my $cachedir;
 my $cachesize;
 my $cleanup_chroot;
 my $wipeafterbuild;
+my $openstack_flavor;
+my $vm_server;
 
 # current XEN has no xenstore anymore
 my $xenstore_maxsize = 20 * 1000000;
@@ -232,6 +234,9 @@ sub wipe_all {
   }
   return 1;
 }
+
+my @saveargv = @ARGV;	# so we can restart ourself
+
 sub usage {
   my ($ret) = @_;
 
@@ -341,11 +346,14 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --help      : this message
 
+Your call:
+
+$0 @saveargv
+
 EOF
   exit($ret || 0);
 }
 
-my @saveargv = @ARGV;	# so we can restart ourself
 my $justbuild;
 my $exitrestart;
 
@@ -418,7 +426,7 @@ while (@ARGV) {
     $testmode = 1;
     next;
   }
-  if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm|docker|pvm)$/) {
+  if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm|docker|pvm|openstack)$/) {
     $vm = "--$1";
     shift @ARGV;
     next;
@@ -590,6 +598,22 @@ while (@ARGV) {
     $wipeafterbuild = 1;
     next;
   }
+  if ($ARGV[0] eq '--openstack-flavor') {
+    shift @ARGV;
+    $openstack_flavor = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vm-server') {
+    shift @ARGV;
+    $vm_server = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vm-type') {
+    shift @ARGV;
+    $vm = shift @ARGV;
+    next;
+  }
+  print "OPTION UNKNOWN: $ARGV[0]\n";
   last;
 }
 
@@ -2805,9 +2829,20 @@ sub dobuild {
     push @args, '--vm-worker', $vm_worker_name if $vm_worker_name;
     push @args, '--vm-worker-nr', $vm_worker_instance if $vm_worker_instance;
     push @args, '--vm-enable-console' if $vm_enable_console;
+  } elsif ($vm eq "--openstack" or $vm eq "openstack") {
+    mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
+    push @args, '--root',     "$buildroot/.mount";
+    push @args, "--vm-server", "$vm_server";
+    push @args, "--vm-worker", "$vm_worker_name";
+    push @args, "--vm-type",   "openstack";
+    push @args, "--vm-disk",   "$vm_root";
+    push @args, "--vm-swap",   "$vm_swap";
+    push @args, "--vm-kernel", "$vm_kernel";
+    push @args, "--openstack-flavor", "$openstack_flavor";
   } else {
+    print "VM-TYPE not detected";
     push @args, '--root', $buildroot;
-    push @args, '--vm-type', $1 if $vm =~ /(lxc|docker)/;
+    push @args, '--vm-type', $1 if $vm =~ /(lxc|docker|openstack)/;
   }
   push @args, '--clean';
   push @args, '--changelog';
@@ -2876,7 +2911,7 @@ sub dobuild {
     return 1;
   }
 
-  if ($vm =~ /(xen|kvm|zvm|emulator|pvm)/) {
+  if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
     rm_rf("$buildroot/.build.packages");
     # move directory with extracted build results
     if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
