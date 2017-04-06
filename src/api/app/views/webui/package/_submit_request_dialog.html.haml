@@ -1,4 +1,4 @@
-#disable_mask.dialog
+.dialog#disable_mask
 .dialog.darkgrey_box
   .box.box-shadow
     %h2.box-header Create Submit Request
@@ -38,7 +38,7 @@
         ~ text_area_tag(:description, '', size: '40x3')
         %br/
 
-        %span#supersede_display.hidden
+        %span.hidden#supersede_display
           = label_tag(:supersede_requests, 'Supersede requests:')
           %br/
           %span#supersede_requests
@@ -47,7 +47,7 @@
           = check_box_tag(:sourceupdate, 'cleanup', @cleanup_source)
           = label_tag(:sourceupdate, 'Remove local package if request is accepted')
 
-      %p#devel_project_warning.hidden
+      %p.hidden#devel_project_warning
         You are about to bypass the devel project, please submit to
         %b#devel_project_name
         instead.

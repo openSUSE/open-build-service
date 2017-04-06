@@ -49,7 +49,7 @@
 - if User.current.can_modify_project?(@project)
   %p
     = link_to sprite_tag('brick_add', title: 'New subproject') + ' New subproject', '#', id: 'create_subproject_link'
-    #create_subproject.hidden
+    .hidden#create_subproject
       = render partial: 'form', locals: { project: Project.new, configuration: @configuration, ns: @project.name }
 
 - if @subprojects.present? || @parentprojects.present?
