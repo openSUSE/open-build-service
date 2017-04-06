@@ -14,7 +14,7 @@ module Backend
     def initialize(attributes = {})
       super
       @file ||= nil
-      @response ||= {}
+      @response = {}
       @last_read_query = {}
     end
 
