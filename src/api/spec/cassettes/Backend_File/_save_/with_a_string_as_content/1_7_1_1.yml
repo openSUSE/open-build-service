@@ -1,0 +1,307 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:user/_meta?user=user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user">
+          <title/>
+          <description/>
+          <person userid="user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user">
+          <title></title>
+          <description></description>
+          <person userid="user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:10 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:user/package_with_files/_meta?user=user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '115'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:user/package_with_files/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '115'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:user/package_with_files/_config
+    body:
+      encoding: UTF-8
+      string: Laudantium vel sed minima maiores totam veritatis. Voluptatibus libero
+        corporis nostrum. Possimus nobis dolorum in fugiat. Modi officia reiciendis
+        nihil. Repudiandae veritatis et et non et quia.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="691" vrev="691">
+          <srcmd5>b3d2bc1d1578223054e82bf443e80f46</srcmd5>
+          <version>unknown</version>
+          <time>1492608731</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:user/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Nobis quas expedita rerum nihil. Et aut nihil iusto. Odit ex distinctio
+        voluptatibus cumque nesciunt rerum. Rerum distinctio odit voluptatem deleniti
+        soluta provident incidunt.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="692" vrev="692">
+          <srcmd5>34760bb857b5a3a7a931acb76a88995f</srcmd5>
+          <version>unknown</version>
+          <time>1492608731</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:user/package_with_files/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '176'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: Nobis quas expedita rerum nihil. Et aut nihil iusto. Odit ex distinctio
+        voluptatibus cumque nesciunt rerum. Rerum distinctio odit voluptatem deleniti
+        soluta provident incidunt.
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:user/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: hello
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="693" vrev="693">
+          <srcmd5>b3d2bc1d1578223054e82bf443e80f46</srcmd5>
+          <version>unknown</version>
+          <time>1492608731</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:user/package_with_files/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '5'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: hello
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
+recorded_with: VCR 3.0.3
