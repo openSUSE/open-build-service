@@ -1,0 +1,25 @@
+#!/bin/sh
+
+case $1 in
+  config)
+       cat <<'EOM'
+graph_title OBS Scheduler: obs worker (building, idle)
+graph_vlabel Number of workers
+graph_category obs
+graph_order building idle
+building.label obs_building_workers
+building.type GAUGE
+building.draw AREA
+building.colour 0022ff
+idle.label obs_idle_workers
+idle.type GAUGE
+idle.draw STACK
+idle.colour c0c0c0
+EOM
+       exit 0;;
+esac
+
+num_idle=`ls /srv/obs/workers/idle/ | wc -l`
+num_building=`ls /srv/obs/workers/building/ | wc -l`
+echo "building.value $num_building"
+echo "idle.value $num_idle"
