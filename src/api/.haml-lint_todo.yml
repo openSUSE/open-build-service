@@ -7,30 +7,6 @@
 # versions of Haml-Lint, may require this file to be generated again.
 
 linters:
-
-  # Offense count: 26
-  ClassesBeforeIds:
-    exclude:
-      - "app/views/shared/_requests.html.haml"
-      - "app/views/webui/attribute/new.html.haml"
-      - "app/views/webui/configuration/_tabs.html.haml"
-      - "app/views/webui/groups/index.html.haml"
-      - "app/views/webui/main/_add_news_dialog.html.haml"
-      - "app/views/webui/main/_delete_message_dialog.html.haml"
-      - "app/views/webui/main/_news.html.haml"
-      - "app/views/webui/main/_systemstatus.html.haml"
-      - "app/views/webui/monitor/_building_table.html.haml"
-      - "app/views/webui/monitor/_events.html.haml"
-      - "app/views/webui/monitor/_lights.html.haml"
-      - "app/views/webui/monitor/_workers_table.html.haml"
-      - "app/views/webui/package/_submit_request_dialog.html.haml"
-      - "app/views/webui/patchinfo/_delete_dialog.html.haml"
-      - "app/views/webui/project/subprojects.html.haml"
-      - "app/views/webui/search/_tabs.html.haml"
-      - "app/views/webui/theme/bento/layouts/webui/_header.html.haml"
-      - "app/views/webui/user/_password_dialog.html.haml"
-      - "app/views/webui/user/show.html.haml"
-
   # Offense count: 63
   IdNames:
     exclude:

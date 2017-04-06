@@ -2,7 +2,7 @@
 - @layouttype = 'custom'
 - @crumb_list = [@pagetitle]
 / user
-#userinfo.grid_4.alpha.box.box-shadow
+.grid_4.alpha.box.box-shadow#userinfo
   / avatar
   = user_icon(@displayed_user, 200, 'home-avatar') if @displayed_user.email
   / info
@@ -56,7 +56,7 @@
           %a{href: "#iprojects", title: "Projects that you are involved with"} Involved Projects
         %li
           %a{href: "#iowned", title: "Projects/Packages where you are responsible for the maintenance"} Owned Project/Packages
-    #ipackages.tab
+    .tab#ipackages
       - if @ipackages.length > 0
         #ipackages_wrapper{ "data-url": url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') }
           - content_for :ready_function do

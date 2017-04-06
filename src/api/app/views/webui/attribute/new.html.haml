@@ -18,7 +18,7 @@
       = f.select :attrib_type_id, AttribType.all.collect { |a| [ a.fullname, a.id] }.sort, include_blank: false
       = hidden_field_tag("attrib[project_id]", @attribute.project_id)
       = hidden_field_tag("attrib[package_id]", @attribute.package_id) if @attribute.package_id
-  %p#first-help.help-block
+  %p.help-block#first-help
     = AttribType.all.to_a.sort_by { |t| t.fullname }.first.description
     = "Sorry, this attribute has no description" if AttribType.all.to_a.sort_by { |t| t.fullname }.first.description.blank?
   - AttribType.all.each do |type|
