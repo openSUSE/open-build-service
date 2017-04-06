@@ -44,6 +44,10 @@ class ApplicationController < ActionController::Base
     return User.current unless User.current.is_nobody?
   end
 
+  def peek_enabled?
+    User.current && (User.current.is_admin? || User.current.is_staff?)
+  end
+
   def permissions
     authenticator.user_permissions
   end

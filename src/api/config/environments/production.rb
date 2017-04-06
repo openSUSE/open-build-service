@@ -66,6 +66,8 @@ OBSApi::Application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  config.peek.adapter = :memcache
 end
 
 # disabled on production for performance reasons

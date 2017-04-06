@@ -25,6 +25,8 @@ class APIMatcher
 end
 
 OBSApi::Application.routes.draw do
+  mount Peek::Railtie => '/peek'
+
   cons = {
     arch:       %r{[^\/]*},
     binary:     %r{[^\/]*},
@@ -704,8 +706,3 @@ OBSApi::Application.routes.draw do
 end
 
 OBSEngine::Base.subclasses.each(&:mount_it)
-
-OBSApi::Application.routes.draw do
-  mount Peek::Railtie => '/peek'
-  root :to => 'home#show'
-end
