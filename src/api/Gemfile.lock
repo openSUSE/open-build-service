@@ -128,7 +128,7 @@ GEM
       activesupport (>= 4.1.0)
     haml (4.0.7)
       tilt
-    haml_lint (0.23.2)
+    haml_lint (0.24.0)
       haml (>= 4.0, < 5.1)
       rainbow
       rake (>= 10, < 13)
@@ -399,7 +399,7 @@ DEPENDENCIES
   flot-rails
   font-awesome-rails
   haml
-  haml_lint
+  haml_lint (~> 0.24.0)
   hoptoad_notifier (~> 2.3)
   jquery-datatables-rails
   jquery-rails
