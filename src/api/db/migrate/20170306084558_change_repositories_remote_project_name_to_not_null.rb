@@ -1,5 +1,8 @@
 class ChangeRepositoriesRemoteProjectNameToNotNull < ActiveRecord::Migration[5.0]
   def up
+    old = CONFIG['global_write_through']
+    CONFIG['global_write_through'] = false
+
     Repository.transaction do
       sql = <<-SQL
         SELECT a.*
@@ -35,6 +38,8 @@ class ChangeRepositoriesRemoteProjectNameToNotNull < ActiveRecord::Migration[5.0
       change_column_null :repositories, :remote_project_name, false
       change_column_default :repositories, :remote_project_name, ''
     end
+
+    CONFIG['global_write_through'] = old
   end
 
   def down
