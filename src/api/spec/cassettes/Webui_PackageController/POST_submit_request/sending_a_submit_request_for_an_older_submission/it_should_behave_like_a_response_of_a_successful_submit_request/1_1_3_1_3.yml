@@ -1,0 +1,427 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    body:
+      encoding: UTF-8
+      string: Qui sunt vel explicabo repellat natus corrupti. Occaecati impedit architecto.
+        Asperiores qui voluptatem velit totam iste neque perferendis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16" vrev="16">
+          <srcmd5>c2435e1411f92cf8a2beb12a69b79558</srcmd5>
+          <version>unknown</version>
+          <time>1491582931</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Dolores ad sunt consectetur. Ut est nihil recusandae quia qui accusamus.
+        Voluptatum aut quo ullam et architecto.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="17" vrev="17">
+          <srcmd5>7b20d769125c2585265042d8f52e4388</srcmd5>
+          <version>unknown</version>
+          <time>1491582931</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '0'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="18" vrev="18">
+          <srcmd5>281f7bb0901af2eb88c9310110b0da36</srcmd5>
+          <version>unknown</version>
+          <time>1491582931</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '1'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="19" vrev="19">
+          <srcmd5>97148a06f3a168b91a61d49ee7952c2a</srcmd5>
+          <version>unknown</version>
+          <time>1491582931</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '2'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="20" vrev="20">
+          <srcmd5>c2435e1411f92cf8a2beb12a69b79558</srcmd5>
+          <version>unknown</version>
+          <time>1491582931</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_4/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>The Skull Beneath the Skin</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>The Skull Beneath the Skin</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_4/_config
+    body:
+      encoding: UTF-8
+      string: Amet itaque consequatur soluta. Deserunt et excepturi sed praesentium.
+        Sequi dolorum temporibus eius minima impedit non. Expedita aut dolore aut.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1&rev=2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '306'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="2" vrev="2" srcmd5="ead1fcf40a80e6a60c7e4f69194a3e80">
+          <entry name="_config" md5="e4266675ad8ed9f0a8d2425df840f06c" size="144" mtime="1491582928" />
+          <entry name="somefile.txt" md5="5c3e7cae52e58734e817aeac213299c4" size="142" mtime="1491582928" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+recorded_with: VCR 3.0.3
