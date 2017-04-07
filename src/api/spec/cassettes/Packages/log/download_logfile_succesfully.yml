@@ -34,7 +34,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 26 Oct 2016 08:36:37 GMT
+  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:package_test_user/test_package
@@ -69,7 +69,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 26 Oct 2016 08:36:37 GMT
+  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:package_test_user/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -106,7 +106,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 26 Oct 2016 08:36:37 GMT
+  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:package_test_user/test_package
@@ -141,7 +141,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 26 Oct 2016 08:36:37 GMT
+  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:package_test_user/test_package?expand=1
@@ -149,10 +149,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -178,7 +176,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 26 Oct 2016 08:36:37 GMT
+  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:package_test_user/test_package
@@ -186,10 +184,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -215,7 +211,42 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 26 Oct 2016 08:36:37 GMT
+  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:package_test_user/test_package?expand=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home package_test_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:package_test_user' does not exist</summary>
+          <details>404 project 'home:package_test_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:package_test_user/test_package/_service
@@ -252,18 +283,16 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 26 Oct 2016 08:36:37 GMT
+  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_2/i586/test_package/rpmlint.log
+    uri: http://localhost:3200/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -289,192 +318,7 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 26 Oct 2016 08:36:39 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_2/i586/test_package/_jobstatus
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Wed, 26 Oct 2016 08:36:39 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_2/i586/test_package/_log?view=entry
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Wed, 26 Oct 2016 08:36:39 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_3/i586/test_package/rpmlint.log
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 09 Jan 2017 11:10:38 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_3/i586/test_package/_jobstatus
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 09 Jan 2017 11:10:39 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_3/i586/test_package/_log?view=entry
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 09 Jan 2017 11:10:39 GMT
+  recorded_at: Fri, 07 Jul 2017 07:14:19 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:package_test_user/_result?package=test_package&view=status
@@ -511,10 +355,10 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Fri, 20 Jan 2017 02:55:01 GMT
+  recorded_at: Fri, 07 Jul 2017 07:14:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_33/i586/test_package/_jobstatus
+    uri: http://localhost:3200/build/home:package_test_user/repository_1/i586/test_package/_jobstatus
     body:
       encoding: US-ASCII
       string: ''
@@ -548,10 +392,10 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Mon, 13 Feb 2017 16:16:58 GMT
+  recorded_at: Fri, 07 Jul 2017 07:14:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_33/i586/test_package/_log?view=entry
+    uri: http://localhost:3200/build/home:package_test_user/repository_1/i586/test_package/_log?view=entry
     body:
       encoding: US-ASCII
       string: ''
@@ -585,223 +429,5 @@ http_interactions:
           <details>404 project 'home:package_test_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Mon, 13 Feb 2017 16:16:58 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_4/i586/test_package/_jobstatus
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 13 Feb 2017 16:33:45 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_4/i586/test_package/_log?view=entry
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 13 Feb 2017 16:33:45 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_217/i586/test_package/_jobstatus
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 08 May 2017 22:03:17 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_217/i586/test_package/_log?view=entry
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 08 May 2017 22:03:17 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?expand=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 16 May 2017 15:10:46 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 16 Jun 2017 14:24:15 GMT
+  recorded_at: Fri, 07 Jul 2017 07:14:19 GMT
 recorded_with: VCR 3.0.3
