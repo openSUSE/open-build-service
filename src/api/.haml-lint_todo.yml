@@ -254,12 +254,6 @@ linters:
       - "app/views/webui/user/show.html.haml"
 
   # Offense count: 2
-  TrailingWhitespace:
-    exclude:
-      - "app/views/webui/monitor/_events.html.haml"
-      - "app/views/webui/theme/bratwurst/webui/package/show.html.haml"
-
-  # Offense count: 2
   FinalNewline:
     exclude:
       - "app/views/webui/package/_rpmlint_log.html.haml"
