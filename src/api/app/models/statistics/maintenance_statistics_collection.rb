@@ -34,7 +34,7 @@ module Statistics
     end
 
     def release_request_created_statistic
-      MaintenanceStatistic.new(type: :release_request_created, when: request.created_at)
+      MaintenanceStatistic.new(type: :release_request_created, when: request.created_at, request: request.number)
     end
 
     def history_element_statistics
@@ -43,7 +43,8 @@ module Statistics
 
         MaintenanceStatistic.new(
           type: "release_request_#{history_element_type}",
-          when: history_element.created_at
+          when: history_element.created_at,
+          request: request.number
         )
       end
     end
