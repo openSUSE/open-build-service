@@ -38,16 +38,6 @@ class HistoryElement::Request < ::HistoryElement::Base
   end
 end
 
-class HistoryElement::RequestCreated < HistoryElement::Request
-  def color
-    'black'
-  end
-
-  def description
-    'Request created'
-  end
-end
-
 class HistoryElement::RequestAccepted < HistoryElement::Request
   def color
     'green'

@@ -34,12 +34,6 @@ RSpec.describe Statistics::MaintenanceStatisticDecorator do
         when: maintenance_statistic2.when
       }
     end
-    let(:maintenance_statistic3) do
-      double(
-        type: :release_request_request_created,
-        when: Faker::Date.forward(10)
-      )
-    end
     let(:expected_xml_hash3) do
       {
         type: maintenance_statistic3.type,
@@ -50,8 +44,7 @@ RSpec.describe Statistics::MaintenanceStatisticDecorator do
     let(:test_data) do
       {
         maintenance_statistic1 => expected_xml_hash1,
-        maintenance_statistic2 => expected_xml_hash2,
-        maintenance_statistic3 => expected_xml_hash3
+        maintenance_statistic2 => expected_xml_hash2
       }
     end
 
