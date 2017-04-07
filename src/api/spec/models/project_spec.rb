@@ -100,7 +100,7 @@ RSpec.describe Project do
   describe '#branch_remote_repositories' do
     let(:package) { create(:package) }
     let(:remote_project) { create(:remote_project) }
-    let(:local_meta_xml) {
+    let(:remote_meta_xml) {
       <<-XML_DATA
         <project name="home:mschnitzer">
           <title>Cool Title</title>
@@ -117,7 +117,7 @@ RSpec.describe Project do
         </project>
       XML_DATA
     }
-    let(:remote_meta_xml) {
+    let(:local_xml_meta) {
       <<-XML_DATA
         <project name="#{package.project.name}">
           <title>#{package.project.title}</title>
@@ -136,10 +136,15 @@ RSpec.describe Project do
     }
 
     it 'updates a project meta description' do
-      allow(ProjectMetaFile).to receive(:new).and_return(local_meta_xml)
-      expected_xml = Nokogiri::XML(remote_meta_xml)
+      allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
+      expected_xml = Nokogiri::XML(local_xml_meta)
 
       expect(package.project).to receive(:update_from_xml!).with(Xmlhash.parse(expected_xml.to_xml))
+      project.branch_remote_repositories(remote_project, package)
+    end
+
+    it 'does not add a repository that already exists' do
+      allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
       project.branch_remote_repositories(remote_project, package)
     end
   end
