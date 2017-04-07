@@ -82,7 +82,7 @@
     function updatePlots()
     {
          $(".plotspinner").show();
-         $.ajax({ url: "#{url_for(controller: :monitor, action: :events)}", 
+         $.ajax({ url: "#{url_for(controller: :monitor, action: :events)}",
                 dataType: 'json',
                 data: { "range": time_to_show,
                          "arch": arch_to_show},
