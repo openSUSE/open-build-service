@@ -9,7 +9,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
   let(:other_user) { create(:confirmed_user, login: 'gilberto')}
   let(:other_package) { create(:package_with_file, project: user.home_project, name: 'other_package') }
   let(:patchinfo_package) do
-    Patchinfo.new.create_patchinfo(user.home_project_name, nil) unless user.home_project.exists_package? 'patchinfo'
+    Patchinfo.new.create_patchinfo(user.home_project_name, nil) unless user.home_project.packages.where(name: 'patchinfo').exists?
     Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false)
   end
 
