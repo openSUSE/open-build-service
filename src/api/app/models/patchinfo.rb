@@ -140,7 +140,7 @@ class Patchinfo < ActiveXML::Node
     xml = patchinfo_axml(project)
 
     description = req.description || ''
-    xml.add_element('packager').text = req.creator
+    xml.add_element('packager').text = req.user.login
     xml.add_element('summary').text = description.split(/\n|\r\n/)[0] # first line only
     xml.add_element('description').text = description
 

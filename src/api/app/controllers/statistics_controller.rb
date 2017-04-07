@@ -198,7 +198,7 @@ class StatisticsController < ApplicationController
 
     # get all requests to it
     reqs = BsRequestAction.where(target_project: projects).select(:bs_request_id).map(&:bs_request_id).uniq.sort
-    reqs = BsRequest.where("id in (?)", reqs).select([:id, :created_at, :creator])
+    reqs = BsRequest.where("id in (?)", reqs).select([:id, :created_at, :user_id])
     if params[:raw] == '1'
       render json: reqs
       return
@@ -207,8 +207,9 @@ class StatisticsController < ApplicationController
     @stats = []
     reqs.sort.each do |month, requests|
       monstats = []
-      requests.group_by(&:creator).sort.each do |creator, list|
-        monstats << [creator, User.find_by_login(creator).email, list.length]
+      requests.group_by(&:user_id).sort.each do |user_id, list|
+        user = User.find_by_login(user_id)
+        monstats << [user.login, user.email, list.length]
       end
       @stats << [month, monstats]
     end

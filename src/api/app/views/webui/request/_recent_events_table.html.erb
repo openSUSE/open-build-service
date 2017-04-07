@@ -3,7 +3,7 @@
     <!-- add a history item based on the request creation information -->
     <tr>
       <td class="nowrap" style="width: 1%;">
-        <%= user_with_realname_and_icon @bsreq.creator, short: true %>
+        <%= user_with_realname_and_icon @bsreq.user.login, short: true %>
       </td>
       <td>
         <span style="color: black;">created request</span>

@@ -37,7 +37,7 @@ class BsRequest < ApplicationRecord
   scope :with_types, ->(types) { where('bs_request_actions.type in (?)', types) }
   scope :from_source_project, ->(source_project) { where('bs_request_actions.source_project = ?', source_project) }
   scope :in_ids, ->(ids) { where(id: ids) }
-  scope :not_creator, ->(login) { where.not(creator: login) }
+  scope :not_creator, ->(login) { includes(:user).where.not(users: { login: login }) }
   # Searching capabilities using dataTable (1.9)
   scope :do_search, lambda {|search|
     where([SEARCHABLE_FIELDS.map { |field| "#{field} like ?" }.join(' or '),
@@ -51,11 +51,13 @@ class BsRequest < ApplicationRecord
   has_many :comments, as: :commentable, dependent: :delete_all
   has_many :request_history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
   has_many :review_history_elements, through: :reviews, source: :history_elements
+  belongs_to :user
 
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
-  validates :creator, presence: true
+  validates :user, presence: true
+  validates_associated :user
   validate :check_supersede_state
-  validate :check_creator, on: [:create, :save!]
+  validate :check_user_active, on: [:create, :save!]
   validates :comment, length: { maximum: 300000 }
   validates :description, length: { maximum: 300000 }
 
@@ -95,14 +97,7 @@ class BsRequest < ApplicationRecord
     @skip_sanitize = true
   end
 
-  def check_creator
-    unless creator
-      errors.add(:creator, 'No creator defined')
-    end
-    user = User.get_by_login creator
-    unless user
-      errors.add(:creator, "Invalid creator specified #{creator}")
-    end
+  def check_user_active
     return if user.is_active?
     errors.add(:creator, "Login #{user.login} is not an active user")
   end
@@ -199,7 +194,7 @@ class BsRequest < ApplicationRecord
         request.commenter = User.current.login
       end
       # to be overwritten if we find history
-      request.creator = request.commenter
+      request.user = User.current
 
       actions.each do |ac|
         a = BsRequestAction.new_from_xml_hash(ac)
@@ -268,7 +263,7 @@ class BsRequest < ApplicationRecord
 
   def render_xml(opts = {})
     builder = Nokogiri::XML::Builder.new
-    builder.request(id: number, creator: creator) do |r|
+    builder.request(id: number, creator: user.login) do |r|
       bs_request_actions.each do |action|
         action.render_xml(r)
       end
@@ -288,7 +283,7 @@ class BsRequest < ApplicationRecord
       end
 
       if opts[:withfullhistory] || opts[:withhistory]
-        attributes = {who: creator, when: created_at.strftime('%Y-%m-%dT%H:%M:%S')}
+        attributes = {who: user.login, when: created_at.strftime('%Y-%m-%dT%H:%M:%S')}
         builder.history(attributes) do
           # request description is on purpose the comment in history:
           builder.description! "Request created"
@@ -398,7 +393,7 @@ class BsRequest < ApplicationRecord
   def permission_check_addreview!
     # allow request creator to add further reviewers
     checker = BsRequestPermissionCheck.new(self, {})
-    checker.cmd_addreview_permissions(creator == User.current.login || is_reviewer?(User.current))
+    checker.cmd_addreview_permissions(user == User.current || is_reviewer?(User.current))
   end
 
   def permission_check_change_groups!
@@ -818,7 +813,7 @@ class BsRequest < ApplicationRecord
     ret[:who] = commenter if commenter.present?
     ret[:when] = updated_when.strftime('%Y-%m-%dT%H:%M:%S')
     ret[:comment] = comment
-    ret[:author] = creator
+    ret[:author] = user.login
 
     # Use a nested data structure to support multiple actions in one request
     ret[:actions] = []
@@ -883,7 +878,7 @@ class BsRequest < ApplicationRecord
     result['description'] = description
     result['priority'] = priority
     result['state'] = state
-    result['creator'] = User.find_by_login(creator)
+    result['creator'] = user
     result['created_at'] = created_at
     result['accept_at'] = accept_at if accept_at
     result['superseded_by'] = superseded_by if superseded_by
@@ -902,7 +897,7 @@ class BsRequest < ApplicationRecord
     return unless state == :new || state == :review
 
     with_lock do
-      User.current ||= User.find_by_login creator
+      User.current ||= user
 
       begin
         change_state({newstate: 'accepted', comment: 'Auto accept'})
@@ -946,10 +941,10 @@ class BsRequest < ApplicationRecord
 
   def sanitize!
     # apply default values, expand and do permission checks
-    self.creator ||= User.current.login
+    self.user ||= User.current
     self.commenter ||= User.current.login
     # FIXME: Move permission checks to controller level
-    unless self.creator == User.current.login || User.current.is_admin?
+    unless self.user == User.current || User.current.is_admin?
       raise SaveError, 'Admin permissions required to set request creator to foreign user'
     end
     unless self.commenter == User.current.login || User.current.is_admin?
@@ -1055,9 +1050,8 @@ class BsRequest < ApplicationRecord
       when :submit then
         action[:name] = "Submit #{action[:spkg]}"
         action[:sourcediff] = xml.webui_infos if with_diff
-        creator = User.find_by_login(self.creator)
         target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
-        action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.hashed['maintainer'], target_package)
+        action[:creator_is_target_maintainer] = true if user.has_local_role?(Role.hashed['maintainer'], target_package)
 
         if target_package
           linkinfo = target_package.linkinfo
@@ -1313,7 +1307,6 @@ end
 #
 #  id            :integer          not null, primary key
 #  description   :text(65535)
-#  creator       :string(255)      indexed
 #  state         :string(255)      indexed
 #  comment       :text(65535)
 #  commenter     :string(255)
@@ -1324,11 +1317,12 @@ end
 #  priority      :string(9)        default("moderate")
 #  number        :integer          indexed
 #  updated_when  :datetime
+#  user_id       :integer          indexed
 #
 # Indexes
 #
-#  index_bs_requests_on_creator        (creator)
 #  index_bs_requests_on_number         (number) UNIQUE
 #  index_bs_requests_on_state          (state)
 #  index_bs_requests_on_superseded_by  (superseded_by)
+#  index_bs_requests_on_user_id        (user_id)
 #

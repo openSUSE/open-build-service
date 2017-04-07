@@ -243,7 +243,6 @@ CREATE TABLE `bs_request_counter` (
 CREATE TABLE `bs_requests` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `description` text COLLATE utf8_bin,
-  `creator` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `state` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `comment` text COLLATE utf8_bin,
   `commenter` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -254,11 +253,12 @@ CREATE TABLE `bs_requests` (
   `priority` enum('critical','important','moderate','low') COLLATE utf8_bin DEFAULT 'moderate',
   `number` int(11) DEFAULT NULL,
   `updated_when` datetime DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_bs_requests_on_number` (`number`),
-  KEY `index_bs_requests_on_creator` (`creator`),
   KEY `index_bs_requests_on_state` (`state`),
   KEY `index_bs_requests_on_superseded_by` (`superseded_by`)
+  KEY `index_bs_requests_on_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `cache_lines` (
@@ -1410,6 +1410,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170316090223'),
 ('20170317094221'),
 ('20170320151300'),
+('20170323145236'),
 ('21'),
 ('22'),
 ('23'),

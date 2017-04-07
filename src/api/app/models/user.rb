@@ -43,6 +43,7 @@ class User < ApplicationRecord
 
   belongs_to :owner, class_name: 'User'
   has_many :subaccounts, class_name: 'User', foreign_key: 'owner_id'
+  has_many :bs_requests
 
   # users have a n:m relation to group
   has_and_belongs_to_many :groups, -> { distinct }
@@ -746,7 +747,8 @@ class User < ApplicationRecord
 
   # list requests involving this user
   def declined_requests(search = nil)
-    BsRequest.collection(user: login, states: %w(declined), roles: %w(creator), search: search)
+    result = creator_of_requests.joins(:bs_request_actions).where(state: :declined).distinct
+    search ? result.do_search(search) : result
   end
 
   # list incoming requests involving this user
@@ -756,7 +758,8 @@ class User < ApplicationRecord
 
   # list outgoing requests involving this user
   def outgoing_requests(search = nil)
-    BsRequest.collection(user: login, states: %w(new review), roles: %w(creator), search: search)
+    result = creator_of_requests.joins(:bs_request_actions).where(state: [:new, :review]).distinct
+    search ? result.do_search(search) : result
   end
 
   # list of all requests
