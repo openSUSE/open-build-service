@@ -287,7 +287,8 @@ my %handler = (
   'arch'      => \&dod_arch,
   'deb'       => \&dod_deb,
   'susetags'  => \&dod_susetags,
-  'rpmmd'     => \&dod_rpmmd,
+  'rpmmd'     => \&dod_rpmmd, # backward compability for < 2.9
+  'rpm-md'    => \&dod_rpmmd,
   'mdk'       => \&dod_mdk,
 );
 

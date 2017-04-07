@@ -305,6 +305,8 @@ class Project
            archfilter: dod["archfilter"],
            pubkey:     dod["pubkey"]
         }
+        # we had this wrong in OBS < 2.9. Mapping it for compability
+        dod_attributes["repotype"] = "rpm-md" if dod["repotype"] == "rpmmd"
         if dod["master"]
           dod_attributes[:masterurl]            = dod["master"]["url"]
           dod_attributes[:mastersslfingerprint] = dod["master"]["sslfingerprint"]

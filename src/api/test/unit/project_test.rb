@@ -745,7 +745,7 @@ END
     )
 
     xml = prj.to_axml
-    assert_xml_tag xml, tag: :download, attributes: {arch: "i586", url: "http://me.org", repotype: "rpmmd"}
+    assert_xml_tag xml, tag: :download, attributes: {arch: "i586", url: "http://me.org", repotype: "rpm-md"}
     assert_xml_tag xml, tag: :archfilter, content: "i686,i586,noarch"
     assert_xml_tag xml, tag: :master, attributes: {url: "http://download.opensuse.org", sslfingerprint: "0815"}
     assert_xml_tag xml, tag: :pubkey, content: "grfzl"
