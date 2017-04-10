@@ -67,6 +67,7 @@ our %event_handlers = (
   'suspendproject'  => \&BSSched::EventHandler::event_suspendproject,
   'memstats'        => \&BSSched::EventHandler::event_memstats,
   'dispatchdetails' => \&BSSched::EventHandler::event_dispatchdetails,
+  'force_publish'   => \&BSSched::EventHandler::event_force_publish,
 );
 
 =head1 NAME
@@ -624,6 +625,15 @@ sub event_dispatchdetails {
   return if -e "$myjobsdir/$ev->{'job'}:status";
   my $gdst = "$reporoot/$info->{'project'}/$info->{'repository'}/$myarch";
   BSUtil::appendstr("$gdst/:packstatus.finished", "scheduled $info->{'package'}/$ev->{'job'}/$ev->{'details'}\n");
+}
+
+sub event_force_publish {
+  my ($ectx, $ev) = @_;
+  my $gctx = $ectx->{'gctx'};
+  my $repoid = $ev->{'repository'};
+  my $projid = $ev->{'project'};
+  my $ctx = BSSched::Checker->new($gctx, "$projid/$repoid");
+  $ctx->publish(undef, undef, 1);
 }
 
 1;
