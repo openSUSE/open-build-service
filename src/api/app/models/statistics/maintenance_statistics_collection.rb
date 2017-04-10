@@ -42,7 +42,7 @@ module Statistics
         history_element_type = history_element.class.name.demodulize.underscore
 
         MaintenanceStatistic.new(
-          type: "release_request_#{history_element_type}",
+          type: "release_#{history_element_type}",
           when: history_element.created_at,
           request: request.number
         )

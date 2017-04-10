@@ -23,7 +23,7 @@ RSpec.describe Statistics::MaintenanceStatistic do
       end
 
       it 'contains release_request_request_accepted' do
-        expect(maintenance_statistics[-3].type).to eq('release_request_request_accepted')
+        expect(maintenance_statistics[-3].type).to eq('release_request_accepted')
         expect(maintenance_statistics[-3].when).to eq(history_element_request_accepted.created_at)
         expect(maintenance_statistics[-3].request).to eq(bs_request.number)
       end
