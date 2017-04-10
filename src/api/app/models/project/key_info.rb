@@ -15,7 +15,7 @@ class Project
     def self.find_by_project(project)
       response = Rails.cache.fetch("key_info_project_#{project.cache_key}", expires_in: CACHE_EXPIRY_TIME) do
         # don't use _with_ssl for now since it will always create a cert in the backend
-        Suse::Backend.get(backend_url(project.name)).body
+        Backend::Connection.get(backend_url(project.name)).body
       end
       parsed_response = Xmlhash.parse(response)
 

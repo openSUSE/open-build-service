@@ -2,7 +2,6 @@
 # Likewise, all the methods added will be available for all controllers.
 
 require_dependency 'opensuse/permission'
-require_dependency 'opensuse/backend'
 require_dependency 'opensuse/validator'
 require_dependency 'api_exception'
 require_dependency 'authenticator'
@@ -108,8 +107,8 @@ class ApplicationController < ActionController::Base
 
   def setup_backend
     # initialize backend on every request
-    Suse::Backend.source_host = CONFIG['source_host']
-    Suse::Backend.source_port = CONFIG['source_port']
+    Backend::Connection.source_host = CONFIG['source_host']
+    Backend::Connection.source_port = CONFIG['source_port']
   end
 
   def add_api_version
@@ -118,7 +117,7 @@ class ApplicationController < ActionController::Base
 
   def volley_backend_path(path)
     logger.debug "[backend] VOLLEY: #{path}"
-    Suse::Backend.start_test_backend
+    Backend::Connection.start_test_backend
     backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
     backend_http.read_timeout = 1000
 
@@ -179,18 +178,18 @@ class ApplicationController < ActionController::Base
     when :post
       # for form data we don't need to download anything
       if request.form_data?
-        response = Suse::Backend.post( path, '', { 'Content-Type' => 'application/x-www-form-urlencoded' } )
+        response = Backend::Connection.post( path, '', { 'Content-Type' => 'application/x-www-form-urlencoded' } )
       else
         file = download_request
-        response = Suse::Backend.post( path, file )
+        response = Backend::Connection.post( path, file )
         file.close!
       end
     when :put
       file = download_request
-      response = Suse::Backend.put( path, file )
+      response = Backend::Connection.put( path, file )
       file.close!
     when :delete
-      response = Suse::Backend.delete( path )
+      response = Backend::Connection.delete( path )
     end
 
     text = response.body
@@ -357,7 +356,7 @@ class ApplicationController < ActionController::Base
   end
 
   def backend
-    Suse::Backend.start_test_backend if Rails.env.test?
+    Backend::Connection.start_test_backend if Rails.env.test?
     @backend ||= ActiveXML.backend
   end
 
@@ -382,7 +381,7 @@ class ApplicationController < ActionController::Base
   end
 
   def build_query_from_hash(hash, key_list = nil)
-    Suse::Backend.build_query_from_hash(hash, key_list)
+    Backend::Connection.build_query_from_hash(hash, key_list)
   end
 
   class LazyRequestReader

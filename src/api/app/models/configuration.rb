@@ -1,4 +1,3 @@
-require 'opensuse/backend'
 # The OBS instance configuration
 class Configuration < ApplicationRecord
   after_save :delayed_write_to_backend
@@ -105,7 +104,7 @@ class Configuration < ApplicationRecord
 
     path = '/configuration'
     logger.debug 'Writing configuration.xml to backend...'
-    Suse::Backend.put_source(path, render_xml)
+    Backend::Connection.put_source(path, render_xml)
   end
 end
 

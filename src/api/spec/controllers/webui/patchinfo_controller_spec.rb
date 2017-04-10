@@ -218,7 +218,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context "without permission to edit the patchinfo-file" do
       before do
         patchinfo_package
-        allow(Suse::Backend).to receive(:put).and_raise(ActiveXML::Transport::ForbiddenError)
+        allow(Backend::Connection).to receive(:put).and_raise(ActiveXML::Transport::ForbiddenError)
         do_proper_post_save
       end
 
@@ -229,7 +229,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context "putting the file is taking so long that will raise a timeout" do
       before do
         patchinfo_package
-        allow(Suse::Backend).to receive(:put).and_raise(Timeout::Error)
+        allow(Backend::Connection).to receive(:put).and_raise(Timeout::Error)
         do_proper_post_save
       end
 

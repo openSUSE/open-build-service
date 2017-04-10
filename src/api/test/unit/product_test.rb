@@ -6,7 +6,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   def test_indexed_fixture
     # check that fixtures got indexed
-    Suse::Backend.start_test_backend
+    Backend::Connection.start_test_backend
 
     assert_equal 1, Product.all.count
     p = Product.find_by_name("fixed")

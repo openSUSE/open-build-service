@@ -162,7 +162,7 @@ class Webui::PatchinfoController < Webui::WebuiController
             return
           end
 
-          Suse::Backend.put @package.source_path('_patchinfo', user: User.current.login), xml
+          Backend::Connection.put @package.source_path('_patchinfo', user: User.current.login), xml
 
           @package.sources_changed(wait_for_update: true) # wait for indexing for special files
 

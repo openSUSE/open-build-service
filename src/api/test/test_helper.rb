@@ -36,8 +36,6 @@ require 'minitest/unit'
 
 require 'webmock/minitest'
 
-require 'opensuse/backend'
-
 require_relative 'activexml_matcher'
 require_relative '../lib/obsapi/test_sphinx'
 
@@ -278,7 +276,7 @@ module Webui
       Capybara.current_driver = :rack_test
 # crude work around - one day I will dig into why this is necessary
       Minitest::Spec.new('MINE') unless Minitest::Spec.current
-      Suse::Backend.start_test_backend
+      Backend::Connection.start_test_backend
       # Capybara.current_driver = Capybara.javascript_driver
       @starttime = Time.now
       WebMock.disable_net_connect!(allow_localhost: true)
@@ -457,7 +455,7 @@ module ActionDispatch
     end
 
     def wait_for_scheduler_start
-      Suse::Backend.wait_for_scheduler_start
+      Backend::Connection.wait_for_scheduler_start
     end
 
     def login_king

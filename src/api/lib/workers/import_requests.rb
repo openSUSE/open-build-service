@@ -3,12 +3,10 @@ class ImportRequestsDelayedJob
   end
 
   def perform
-    require 'opensuse/backend'
-
-    lastrq = Suse::Backend.get("/request/_lastid").body.to_i
+    lastrq = Backend::Connection.get("/request/_lastid").body.to_i
     while lastrq > 0
       begin
-        xml = Suse::Backend.get( "/request/#{lastrq}" ).body
+        xml = Backend::Connection.get( "/request/#{lastrq}" ).body
       rescue ActiveXML::Transport::Error
         lastrq -= 1
         next

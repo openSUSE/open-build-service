@@ -87,7 +87,7 @@ module MaintenanceHelper
     link.set_attribute('package', link.value(:package).gsub(/\..*/, '') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
     link_xml = link.dump_xml
     # rubocop:disable Metrics/LineLength
-    Suse::Backend.put "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
+    Backend::Connection.put "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
     # rubocop:enable Metrics/LineLength
     md5 = Digest::MD5.hexdigest(link_xml)
     # commit with noservice parameter
@@ -99,8 +99,8 @@ module MaintenanceHelper
     }
     upload_params[:requestid] = action.bs_request.number if action
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
-    upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
-    answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
+    upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
+    answer = Backend::Connection.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
     tpkg.sources_changed(dir_xml: answer)
   end
 
@@ -122,17 +122,17 @@ module MaintenanceHelper
       comment: "Set link to #{targetPackageName} via maintenance_release request"
     }
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}/_link"
-    upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :rev])
+    upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :rev])
     link = "<link package='#{targetPackageName}' cicount='copy' />\n"
     md5 = Digest::MD5.hexdigest(link)
-    Suse::Backend.put upload_path, link
+    Backend::Connection.put upload_path, link
     # commit
     upload_params[:cmd] = 'commitfilelist'
     upload_params[:noservice] = '1'
     upload_params[:requestid] = request.number if request
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}"
-    upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
-    answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
+    upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
+    answer = Backend::Connection.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
     lpkg.sources_changed(dir_xml: answer)
   end
 
@@ -160,11 +160,11 @@ module MaintenanceHelper
       end
     end
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
-    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject,
-                                                               :opackage, :comment, :requestid,
-                                                               :expand, :withvrev, :noservice,
-                                                               :freezelink, :withacceptinfo])
-    result = Suse::Backend.post(cp_path)
+    cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject,
+                                                                     :opackage, :comment, :requestid,
+                                                                     :expand, :withvrev, :noservice,
+                                                                     :freezelink, :withacceptinfo])
+    result = Backend::Connection.post(cp_path)
     result = Xmlhash.parse(result.body)
     action.set_acceptinfo(result["acceptinfo"]) if action
   end
@@ -177,7 +177,7 @@ module MaintenanceHelper
         # FIXME: filter given release and/or target repos here
         if releasetarget.target_repository.project == targetProject
           uID = copy_binaries_to_repository(sourceRepo, sourcePackage, releasetarget.target_repository, targetPackageName, setrelease)
-	  updateIDs << uID if uID
+          updateIDs << uID if uID
         end
         # remove maintenance release trigger in source
         if releasetarget.trigger == 'maintenance'
@@ -214,10 +214,10 @@ module MaintenanceHelper
     # rubocop:disable Metrics/LineLength
     cp_path = "/build/#{CGI.escape(target_repository.project.name)}/#{URI.escape(target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
     # rubocop:enable Metrics/LineLength
-    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage,
-                                                               :orepository, :setupdateinfoid,
-                                                               :resign, :setrelease, :multibuild])
-    Suse::Backend.post cp_path
+    cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage,
+                                                                     :orepository, :setupdateinfoid,
+                                                                     :resign, :setrelease, :multibuild])
+    Backend::Connection.post cp_path
   end
 
   def get_updateinfo_id(sourcePackage, targetRepo)
@@ -303,7 +303,7 @@ module MaintenanceHelper
 
     query = { user: User.current ? User.current.login : User.nobody_login }
     query[:comment] = "channel import function"
-    Suse::Backend.put_source(pkg.source_path('_channel', query), channel.to_s)
+    Backend::Connection.put_source(pkg.source_path('_channel', query), channel.to_s)
 
     pkg.sources_changed
     # enforce updated channel list in database:
@@ -348,11 +348,11 @@ module MaintenanceHelper
         # a package exists via project link, make it older in any case
         path << "+and+make+source+instance+older&makeoriginolder=1"
       end
-      Suse::Backend.post path
+      Backend::Connection.post path
     else
       # rubocop:disable Metrics/LineLength
       # simple branch
-      Suse::Backend.post pkg.source_path + "?cmd=branch&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+as+branch"
+      Backend::Connection.post pkg.source_path + "?cmd=branch&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+as+branch"
       # rubocop:enable Metrics/LineLength
     end
     pkg.sources_changed
@@ -374,13 +374,13 @@ module MaintenanceHelper
 
       # rubocop:disable Metrics/LineLength
       # copy project local linked packages
-      Suse::Backend.post "/source/#{pkg.project.name}/#{lpkg.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}#{arguments}&user=#{CGI.escape(User.current.login)}"
+      Backend::Connection.post "/source/#{pkg.project.name}/#{lpkg.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}#{arguments}&user=#{CGI.escape(User.current.login)}"
       # rubocop:enable Metrics/LineLength
       # and fix the link
       ret = ActiveXML::Node.new(lpkg.source_file('_link'))
       ret.delete_attribute('project') # its a local link, project name not needed
       ret.set_attribute('package', pkg.name)
-      Suse::Backend.put lpkg.source_path('_link', user: User.current.login), ret.dump_xml
+      Backend::Connection.put lpkg.source_path('_link', user: User.current.login), ret.dump_xml
       lpkg.sources_changed
     end
   end

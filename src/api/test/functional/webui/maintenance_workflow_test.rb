@@ -33,7 +33,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:css, '#flash-messages').must_have_text %r{Successfully branched package}
 
     # do not die with unchanged package
-    Suse::Backend.put("/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/DUMMY_FILE", "dummy")
+    Backend::Connection.put("/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/DUMMY_FILE", "dummy")
 
     visit(project_show_path(project: 'home:tom'))
 

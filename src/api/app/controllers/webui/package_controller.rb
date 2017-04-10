@@ -643,7 +643,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def trigger_services
     begin
-      Suse::Backend.post "/source/#{URI.escape(@project.name)}/#{URI.escape(@package.name)}?cmd=runservice&user=#{User.current}"
+      Backend::Connection.post "/source/#{URI.escape(@project.name)}/#{URI.escape(@package.name)}?cmd=runservice&user=#{User.current}"
       flash[:notice] = 'Services successfully triggered'
     rescue Timeout::Error => e
       flash[:error] = "Services couldn't be triggered: " + e.message

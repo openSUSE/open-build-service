@@ -30,7 +30,7 @@ module ValidationHelper
     raise Package::ReadSourceAccessError, "#{target_project_name}/#{target_package_name}" if prj.disabled_for? 'sourceaccess', nil, nil
 
     begin
-      r = Suse::Backend.get("/source/#{CGI.escape(project)}/#{name}/_history?deleted=1&meta=1")
+      r = Backend::Connection.get("/source/#{CGI.escape(project)}/#{name}/_history?deleted=1&meta=1")
     rescue
       raise Package::UnknownObjectError, "#{project}/#{name}"
     end
@@ -43,7 +43,7 @@ module ValidationHelper
       metapath += "?rev=#{srcmd5}" # only add revision if package has some
     end
 
-    r = Suse::Backend.get(metapath)
+    r = Backend::Connection.get(metapath)
     raise Package::UnknownObjectError, "#{project}/#{name}" unless r
     return true if User.current.is_admin?
     if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'sourceaccess')
@@ -54,7 +54,7 @@ module ValidationHelper
 
   def validate_visibility_of_deleted_project(project)
     begin
-      r = Suse::Backend.get("/source/#{CGI.escape(project)}/_project/_history?deleted=1&meta=1")
+      r = Backend::Connection.get("/source/#{CGI.escape(project)}/_project/_history?deleted=1&meta=1")
     rescue
       raise Project::UnknownObjectError, project.to_s
     end
@@ -64,7 +64,7 @@ module ValidationHelper
     raise Project::UnknownObjectError, project.to_s unless lastrev
 
     metapath = "/source/#{CGI.escape(project)}/_project/_meta?rev=#{lastrev.value('srcmd5')}&deleted=1"
-    r = Suse::Backend.get(metapath)
+    r = Backend::Connection.get(metapath)
     raise Project::UnknownObjectError unless r
     return true if User.current.is_admin?
     # FIXME: actually a per user checking would be more accurate here

@@ -1,6 +1,5 @@
 require 'xmlhash'
 require 'event'
-require 'opensuse/backend'
 require 'workers/accept_requests'
 
 include MaintenanceHelper

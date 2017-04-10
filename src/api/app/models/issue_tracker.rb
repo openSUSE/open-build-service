@@ -1,5 +1,4 @@
 require 'xmlrpc/client'
-require 'opensuse/backend'
 
 class IssueTracker < ApplicationRecord
   has_many :issues, dependent: :destroy
@@ -23,7 +22,7 @@ class IssueTracker < ApplicationRecord
   def write_to_backend
     path = "/issue_trackers"
     logger.debug "Write issue tracker information to backend..."
-    Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
+    Backend::Connection.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
 
     # We need to parse again ALL sources ...
     UpdatePackageMetaJob.perform_later

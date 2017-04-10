@@ -66,7 +66,7 @@ class BsRequestActionSubmit < BsRequestAction
         target_package = target_project.packages.find_by_name(linked_package.name)
       else
         # new package, base container on source container
-        answer = Suse::Backend.get("/source/#{URI.escape(source_project)}/#{URI.escape(source_package)}/_meta")
+        answer = Backend::Connection.get("/source/#{URI.escape(source_project)}/#{URI.escape(source_package)}/_meta")
         newxml = Xmlhash.parse(answer.body)
         newxml['name'] = self.target_package
         newxml['devel'] = nil
@@ -84,11 +84,11 @@ class BsRequestActionSubmit < BsRequestAction
     end
 
     cp_path = "/source/#{self.target_project}/#{self.target_package}"
-    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage,
-                                                               :orev, :expand, :keeplink, :comment,
-                                                               :requestid, :dontupdatesource, :noservice,
-                                                               :withacceptinfo])
-    result = Suse::Backend.post cp_path
+    cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage,
+                                                                     :orev, :expand, :keeplink, :comment,
+                                                                     :requestid, :dontupdatesource, :noservice,
+                                                                     :withacceptinfo])
+    result = Backend::Connection.post cp_path
     result = Xmlhash.parse(result.body)
     set_acceptinfo(result["acceptinfo"])
 
@@ -108,8 +108,8 @@ class BsRequestActionSubmit < BsRequestAction
       h[:oproject] = self.target_project
       h[:opackage] = self.target_package
       cp_path = "/source/#{CGI.escape(source_project)}/#{CGI.escape(source_package)}"
-      cp_path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :keepcontent])
-      Suse::Backend.post cp_path
+      cp_path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :keepcontent])
+      Backend::Connection.post cp_path
     elsif sourceupdate == "cleanup"
       source_cleanup
     end

@@ -134,7 +134,7 @@ class StatusController < ApplicationController
 
   def bsrequest
     required_parameters :id
-    Suse::Backend.start_test_backend if Rails.env.test?
+    Backend::Connection.start_test_backend if Rails.env.test?
     @id = params[:id]
 
     @result = Hash.new

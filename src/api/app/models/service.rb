@@ -67,10 +67,10 @@ class Service < ActiveXML::Node
       logger.debug 'Service successfully saved'
       begin
         logger.debug 'Executing waitservice command'
-        Suse::Backend.post("/source/#{URI.escape(init_options[:project])}/#{URI.escape(init_options[:package])}?cmd=waitservice")
+        Backend::Connection.post("/source/#{URI.escape(init_options[:project])}/#{URI.escape(init_options[:package])}?cmd=waitservice")
         logger.debug 'Executing mergeservice command'
         cmd = "/source/#{URI.escape(init_options[:project])}/#{URI.escape(init_options[:package])}?cmd=mergeservice&user=#{User.current.login}"
-        Suse::Backend.post(cmd)
+        Backend::Connection.post(cmd)
       rescue ActiveXML::Transport::Error, Timeout::Error => e
         logger.debug "Error while executing backend command: #{e.message}"
       end
@@ -107,7 +107,7 @@ class Service < ActiveXML::Node
       package = Package.get_by_project_and_name(init_options[:project], init_options[:package],
                                                 use_source: true, follow_project_links: false)
       return false unless User.current.can_modify_package?(package)
-      Suse::Backend.post("/source/#{init_options[:project]}/#{init_options[:package]}?cmd=runservice&user=#{User.current.login}")
+      Backend::Connection.post("/source/#{init_options[:project]}/#{init_options[:package]}?cmd=runservice&user=#{User.current.login}")
       package.sources_changed
     end
     true

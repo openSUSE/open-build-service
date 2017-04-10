@@ -5,7 +5,7 @@ class Directory < ActiveXML::Node
     path = Package.source_path(project, package, nil, opts)
     d = nil
     begin
-      d = Suse::Backend.get(path).body
+      d = Backend::Connection.get(path).body
     rescue ActiveXML::Transport::Error => e
       logger.debug "fetching #{path} #{e.inspect}"
       return Xmlhash::XMLHash.new(error: e.summary)

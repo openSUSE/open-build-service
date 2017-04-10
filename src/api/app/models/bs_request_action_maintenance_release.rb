@@ -64,12 +64,12 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       }
       commit_params[:comment] << " the update " << opts[:updateinfoIDs].join(", ") if opts[:updateinfoIDs]
       commit_path = "/source/#{URI.escape(tprj)}/_project"
-      commit_path << Suse::Backend.build_query_from_hash(commit_params, [:cmd, :user, :comment, :requestid, :rev])
-      Suse::Backend.post commit_path
+      commit_path << Backend::Connection.build_query_from_hash(commit_params, [:cmd, :user, :comment, :requestid, :rev])
+      Backend::Connection.post commit_path
 
       next if cleanedProjects[sprj]
       # cleanup published binaries to save disk space on ftp server and mirrors
-      Suse::Backend.post "/build/#{URI.escape(sprj)}?cmd=wipepublishedlocked"
+      Backend::Connection.post "/build/#{URI.escape(sprj)}?cmd=wipepublishedlocked"
       cleanedProjects[sprj] = 1
     end
     opts[:projectCommit] = {}
@@ -108,7 +108,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
     # patchinfos don't get a link, all others should not conflict with any other
     # FIXME2.4 we have a directory model
-    answer = Suse::Backend.get "/source/#{CGI.escape(source_project)}/#{CGI.escape(source_package)}"
+    answer = Backend::Connection.get "/source/#{CGI.escape(source_project)}/#{CGI.escape(source_package)}"
     xml = REXML::Document.new(answer.body.to_s)
     rel = BsRequest.where(state: [:new, :review]).joins(:bs_request_actions)
     rel = rel.where(bs_request_actions: { target_project: target_project })

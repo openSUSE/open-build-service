@@ -222,7 +222,7 @@ class Package < ApplicationRecord
 
   def self.exists_on_backend?(package, project)
     begin
-      answer = Suse::Backend.get(Package.source_path(project, package))
+      answer = Backend::Connection.get(Package.source_path(project, package))
       return true if answer
     rescue ActiveXML::Transport::Error
       # ignored
@@ -357,7 +357,7 @@ class Package < ApplicationRecord
     path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(name)}\"+and+linkinfo/@project=\"#{CGI.escape(project.name)}\""
     path += "+and+@project=\"#{CGI.escape(project.name)}\"" if project_local
     path += ')'
-    answer = Suse::Backend.post path
+    answer = Backend::Connection.post path
     data = REXML::Document.new(answer.body)
     result = []
     data.elements.each('collection/package') do |e|
@@ -446,7 +446,7 @@ class Package < ApplicationRecord
   end
 
   def source_file(file, opts = {})
-    Suse::Backend.get(source_path(file, opts)).body
+    Backend::Connection.get(source_path(file, opts)).body
   end
 
   # Reads the source file and converts it into an ActiveXML::Node
@@ -502,7 +502,7 @@ class Package < ApplicationRecord
 
   def parse_issues_xml(query, force_state = nil)
     begin
-      answer = Suse::Backend.post(source_path(nil, query))
+      answer = Backend::Connection.post(source_path(nil, query))
     rescue ActiveXML::Transport::Error => e
       Rails.logger.debug "failed to parse issues: #{e.inspect}"
       return {}
@@ -565,7 +565,7 @@ class Package < ApplicationRecord
   # rubocop:disable Style/GuardClause
   def update_channel_list
     if is_channel?
-      xml = Suse::Backend.get(source_path('_channel'))
+      xml = Backend::Connection.get(source_path('_channel'))
       begin
         channels.first_or_create.update_from_xml(xml.body.to_s)
       rescue ActiveRecord::RecordInvalid => e
@@ -594,7 +594,7 @@ class Package < ApplicationRecord
 
     Product.transaction do
       begin
-        xml = Xmlhash.parse(Suse::Backend.get(source_path(nil, view: :products)).body)
+        xml = Xmlhash.parse(Backend::Connection.get(source_path(nil, view: :products)).body)
       rescue
         return
       end
@@ -752,7 +752,7 @@ class Package < ApplicationRecord
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
       # the request number is the requestid parameter in the backend api
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
-      Suse::Backend.put_source(source_path('_meta', query), to_axml)
+      Backend::Connection.put_source(source_path('_meta', query), to_axml)
       logger.tagged('backend_sync') { logger.debug "Saved Package #{project.name}/#{name}" }
     elsif @commit_opts[:no_backend_write]
       logger.tagged('backend_sync') { logger.warn "Not saving Package #{project.name}/#{name}, backend_write is off " }
@@ -777,9 +777,9 @@ class Package < ApplicationRecord
 
       h = { user: User.current.login, comment: commit_opts[:comment] }
       h[:requestid] = commit_opts[:request].number if commit_opts[:request]
-      path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :requestid])
+      path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
-        Suse::Backend.delete path
+        Backend::Connection.delete path
       rescue ActiveXML::Transport::NotFoundError
         # ignore this error, backend was out of sync
         logger.tagged('backend_sync') { logger.warn("Package #{project.name}/#{name} was already missing on backend on removal") }
@@ -1013,9 +1013,9 @@ class Package < ApplicationRecord
     myparam[:missingok] = '1' if missingok
     myparam[:comment] = comment if comment
     path = source_path
-    path += Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok, :olinkrev])
+    path += Backend::Connection.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok, :olinkrev])
     # branch sources in backend
-    Suse::Backend.post path
+    Backend::Connection.post path
   end
 
   # just make sure the backend_package is there
@@ -1166,7 +1166,7 @@ class Package < ApplicationRecord
       raise DeleteFileNoPermission.new 'Insufficient permissions to delete file'
     end
 
-    Suse::Backend.delete source_path(name, delete_opt)
+    Backend::Connection.delete source_path(name, delete_opt)
     sources_changed
   end
 
@@ -1345,7 +1345,7 @@ class Package < ApplicationRecord
       # Note: This list needs to keep in sync with the backend code
       permitted_params = params.permit(:repository, :arch, :package, :code, :wipe)
 
-      Suse::Backend.post("/build/#{URI.escape(project.name)}?cmd=#{command}&#{permitted_params.to_h.to_query}")
+      Backend::Connection.post("/build/#{URI.escape(project.name)}?cmd=#{command}&#{permitted_params.to_h.to_query}")
     rescue ActiveXML::Transport::Error, Timeout::Error => e
       errors.add(:base, e.message)
       return false
@@ -1364,7 +1364,7 @@ class Package < ApplicationRecord
   def self.what_depends_on(project, package, repository, architecture)
     begin
       path = "/build/#{project}/#{repository}/#{architecture}/_builddepinfo?package=#{package}&view=revpkgnames"
-      [Xmlhash.parse(Suse::Backend.get(path).body).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
+      [Xmlhash.parse(Backend::Connection.get(path).body).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
     rescue ActiveXML::Transport::NotFoundError
       []
     end

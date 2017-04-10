@@ -5,7 +5,7 @@ class PackageRemoveTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
-    Suse::Backend.start_test_backend
+    Backend::Connection.start_test_backend
   end
 
   def test_delete_on_backend
