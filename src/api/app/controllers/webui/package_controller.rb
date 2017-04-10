@@ -838,6 +838,7 @@ class Webui::PackageController < Webui::WebuiController
 
     check_ajax
 
+    @package = params[:package]
     # Make sure objects don't contain invalid chars (eg. '../')
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     unless @repo
@@ -869,7 +870,6 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    @package = params[:package]
     begin
       chunk = get_log_chunk(@project, @package, @repo, @arch, @offset, @offset + @maxsize)
 
