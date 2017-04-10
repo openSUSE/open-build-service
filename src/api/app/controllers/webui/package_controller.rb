@@ -824,6 +824,7 @@ class Webui::PackageController < Webui::WebuiController
 
     check_ajax
 
+    @package = params[:package]
     # Make sure objects don't contain invalid chars (eg. '../')
     @arch = params[:arch] if Architecture.archcache[params[:arch]]
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
@@ -845,7 +846,6 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    @package = params[:package]
     begin
       chunk = get_log_chunk(@project, @package, @repo, @arch, @offset, @offset + @maxsize)
 
