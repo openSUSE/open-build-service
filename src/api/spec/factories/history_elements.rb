@@ -14,4 +14,8 @@ FactoryGirl.define do
   factory :history_element_request_accepted, class: 'HistoryElement::RequestAccepted' do
     type { 'HistoryElement::RequestAccepted' }
   end
+
+  factory :history_element_request_revoked, class: 'HistoryElement::RequestRevoked' do
+    type { 'HistoryElement::RequestRevoked' }
+  end
 end

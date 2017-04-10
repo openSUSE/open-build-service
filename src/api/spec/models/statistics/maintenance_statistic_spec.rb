@@ -40,6 +40,75 @@ RSpec.describe Statistics::MaintenanceStatistic do
       end
     end
 
+    context 'with a revoked bs_request' do
+      let(:user) { create(:confirmed_user) }
+      let!(:project) do
+        create(
+          :project_with_repository,
+          name: 'ProjectWithRepo',
+          created_at: 10.days.ago
+        )
+      end
+      let!(:revoked_bs_request) do
+        create(
+          :bs_request,
+          source_project: project,
+          type: 'maintenance_release',
+          created_at: 9.days.ago
+        )
+      end
+      let!(:revoked_history_element) do
+        create(
+          :history_element_request_revoked,
+          request: revoked_bs_request,
+          user: user,
+          created_at: 8.days.ago
+        )
+      end
+      let!(:accepted_bs_request) do
+        create(
+          :bs_request,
+          source_project: project,
+          type: 'maintenance_release',
+          created_at: 7.days.ago
+        )
+      end
+      let!(:accepted_history_element) do
+        create(
+          :history_element_request_accepted,
+          request: accepted_bs_request,
+          user: user,
+          created_at: 6.days.ago
+        )
+      end
+
+      subject(:maintenance_statistics) { Statistics::MaintenanceStatistic.find_by_project(project) }
+
+      it 'contains release_request_request_accepted for accepted request' do
+        expect(maintenance_statistics[0].type).to eq('release_request_accepted')
+        expect(maintenance_statistics[0].when).to eq(accepted_history_element.created_at)
+        expect(maintenance_statistics[0].request).to eq(accepted_bs_request.number)
+      end
+
+      it 'contains release_request_request_created for accepted request' do
+        expect(maintenance_statistics[1].type).to eq(:release_request_created)
+        expect(maintenance_statistics[1].when).to eq(accepted_bs_request.created_at)
+        expect(maintenance_statistics[1].request).to eq(accepted_bs_request.number)
+      end
+
+      it 'contains release_request_revoked for revoked request' do
+        expect(maintenance_statistics[2].type).to eq('release_request_revoked')
+        expect(maintenance_statistics[2].when).to eq(revoked_history_element.created_at)
+        expect(maintenance_statistics[2].request).to eq(revoked_bs_request.number)
+      end
+
+      it 'contains release_request_created for revoked request' do
+        expect(maintenance_statistics[3].type).to eq(:release_request_created)
+        expect(maintenance_statistics[3].when).to eq(revoked_bs_request.created_at)
+        expect(maintenance_statistics[3].request).to eq(revoked_bs_request.number)
+      end
+    end
+
     context 'with a review by a group assigned to a user' do
       let!(:user) { create(:confirmed_user) }
       let!(:group) { create(:group) }

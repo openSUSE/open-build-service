@@ -10,10 +10,10 @@ module Statistics
       result = []
       result << project_created_statistic
 
-      if request
-        result << release_request_created_statistic
-        result += history_element_statistics
-        result += unassigned_review_statistics
+      requests.each do |request|
+        result << release_request_created_statistic(request)
+        result += history_element_statistics(request)
+        result += unassigned_review_statistics(request)
       end
 
       result += issue_statistics
@@ -22,22 +22,21 @@ module Statistics
 
     private
 
-    def request
-      @request ||=
-        BsRequest.joins(:bs_request_actions).find_by(
-          bs_request_actions: { source_project: project.name, type: 'maintenance_release' }
-        )
+    def requests
+      BsRequest.joins(:bs_request_actions).where(
+        bs_request_actions: { source_project: project.name, type: 'maintenance_release' }
+      )
     end
 
     def project_created_statistic
       MaintenanceStatistic.new(type: :project_created, when: project.created_at)
     end
 
-    def release_request_created_statistic
+    def release_request_created_statistic(request)
       MaintenanceStatistic.new(type: :release_request_created, when: request.created_at, request: request.number)
     end
 
-    def history_element_statistics
+    def history_element_statistics(request)
       request.request_history_elements.map do |history_element|
         history_element_type = history_element.class.name.demodulize.underscore
 
@@ -49,7 +48,7 @@ module Statistics
       end
     end
 
-    def unassigned_review_statistics
+    def unassigned_review_statistics(request)
       unassigned_review_statistics = []
 
       request.reviews.unassigned.each do |review|
