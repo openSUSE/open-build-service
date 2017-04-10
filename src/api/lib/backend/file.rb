@@ -30,7 +30,7 @@ module Backend
     # Sets the content File object from a path
     def file_from_path(path)
       @file = ::File.open(path)
-      @response = { type: MIME::Types.type_for(@file.basename).first.content_type, status: 200, length: @file.length }
+      @response = { type: MIME::Types.type_for(::File.basename(@file.path)).first.try(:content_type), status: 200, size: @file.size }
       @file.close
     end
 
@@ -43,7 +43,7 @@ module Backend
               tempfile.write(buffer)
             end
             @file = tempfile
-            @response = { type: backend_response['Content-Type'], status: backend_response.code, length: @file.length }
+            @response = { type: backend_response['Content-Type'], status: backend_response.code, size: @file.size }
           end
         end
         @last_read_query = query
@@ -78,7 +78,7 @@ module Backend
       else
         @file.open
         backend_response = Connection.put(full_path(query), @file)
-        @response = { type: backend_response['Content-Type'], status: backend_response.code, length: backend_response.content_length }
+        @response = { type: backend_response['Content-Type'], status: backend_response.code, size: backend_response.content_length }
         @file.close
       end
       backend_response
