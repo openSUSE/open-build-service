@@ -783,7 +783,7 @@ class Webui::PackageController < Webui::WebuiController
     @percent = nil
 
     begin
-      jobstatus = get_job_status( @project, @package, @repo, @arch )
+      jobstatus = get_job_status( @project, @build_container, @repo, @arch )
       unless jobstatus.blank?
         js = Xmlhash.parse(jobstatus)
         @workerid = js.get('workerid')
@@ -805,7 +805,7 @@ class Webui::PackageController < Webui::WebuiController
     @arch = params[:arch] if Architecture.archcache[params[:arch]]
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     @offset = 0
-    @status = get_status(@project, @package, @repo, @arch) if @project && @package && @repo && @arch
+    @status = get_status(@project, @build_container, @repo, @arch) if @project && @package && @repo && @arch
 
     set_job_status
   end
@@ -827,6 +827,7 @@ class Webui::PackageController < Webui::WebuiController
 
     check_ajax
 
+    @package = params[:package]
     # Make sure objects don't contain invalid chars (eg. '../')
     @arch = params[:arch] if Architecture.archcache[params[:arch]]
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
@@ -848,7 +849,6 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    @package = params[:package]
     begin
       chunk = get_log_chunk(@project, @package, @repo, @arch, @offset, @offset + @maxsize)
 
