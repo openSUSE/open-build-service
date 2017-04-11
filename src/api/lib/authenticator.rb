@@ -1,3 +1,7 @@
+if CONFIG['kerberos_service_principal']
+  require_dependency 'gssapi'
+end
+
 class Authenticator
   class AuthenticationRequiredError < APIException
     setup 401, "Authentication required"
@@ -25,7 +29,8 @@ class Authenticator
 
   attr_reader :request, :session, :user_permissions, :http_user
 
-  def initialize(request, session)
+  def initialize(request, session, response)
+    @response = response
     @request = request
     @session = session
     @http_user = nil
@@ -40,9 +45,8 @@ class Authenticator
     if proxy_mode?
       extract_proxy_user
     else
-      extract_basic_auth_user
-
-      @http_user = User.find_with_credentials @login, @passwd if @login
+      extract_auth_user
+      @http_user = User.find_with_credentials(@login, @passwd) if @login && @passwd
     end
 
     if !@http_user && session[:login]
@@ -57,28 +61,95 @@ class Authenticator
       load_nobody
     else
       Rails.logger.error 'No public access is configured'
-      raise NoPublicAccessError.new 'No public access is configured'
+      raise NoPublicAccessError, 'No public access is configured'
     end
   end
 
+  # We allow anonymous user only for rare special operations (if configured) but we require
+  # a valid account for all other operations.
+  # For this rare special operations we simply skip the require login before filter!
+  # At the moment these operations are the /public, /trigger and /about controller actions.
   def require_login
-    # we allow anonymous user only for rare special operations (if configured) but we require
-    # a valid account for all other operations.
-    # For this rare special operations we simply skip the require login before filter!
-    # At the moment these operations are the /public, /trigger and /about controller actions.
-    raise AnonymousUser.new 'Anonymous user is not allowed here - please login' if !User.current || User.current.is_nobody?
+    # rubocop:disable Style/GuardClause
+    if !User.current || User.current.is_nobody?
+      raise AnonymousUser, 'Anonymous user is not allowed here - please login'
+    end
+    # rubocop:enable Style/GuardClause
   end
 
   def require_admin
-    Rails.logger.debug "Checking for  Admin role for user #{@http_user.login}"
+    Rails.logger.debug "Checking for Admin role for user #{@http_user.login}"
     unless @http_user.is_admin?
       Rails.logger.debug "not granted!"
-      raise AdminUserRequiredError.new('Requires admin privileges')
+      raise AdminUserRequiredError, 'Requires admin privileges'
     end
     true
   end
 
   private
+
+  def initialize_krb_session
+    principal = CONFIG['kerberos_service_principal']
+
+    unless CONFIG['kerberos_realm']
+      CONFIG['kerberos_realm'] = principal.rpartition("@")[2]
+    end
+
+    krb = GSSAPI::Simple.new(
+      principal.partition("/")[2].rpartition("@")[0],
+      principal.partition("/")[0],
+      CONFIG['kerberos_keytab'] || "/etc/krb5.keytab"
+    )
+    krb.acquire_credentials
+
+    krb
+  end
+
+  def raise_and_invalidate(authorization, message = '')
+    @response.headers["WWW-Authenticate"] = authorization.join(' ')
+    raise AuthenticationRequiredError, message
+  end
+
+  def extract_krb_user(authorization)
+    unless authorization[1]
+      Rails.logger.debug "Didn't receive any negotiation data."
+      raise_and_invalidate(authorization, 'GSSAPI negotiation failed.')
+    end
+
+    begin
+      krb = initialize_krb_session
+
+      begin
+        tok = krb.accept_context(Base64.strict_decode64(authorization[1]))
+      rescue GSSAPI::GssApiError
+        raise_and_invalidate(authorization, 'Received invalid GSSAPI context.')
+      end
+
+      unless krb.display_name.match("@#{CONFIG['kerberos_realm']}$")
+        raise_and_invalidate(authorization, 'User authenticated in wrong Kerberos realm.')
+      end
+
+      unless tok == true
+        tok = Base64.strict_encode64(tok)
+        @response.headers["WWW-Authenticate"] = "Negotiate #{tok}"
+      end
+
+      @login = krb.display_name.partition("@")[0]
+      @http_user = User.find_by_login(@login)
+      unless @http_user
+        raise AuthenticationRequiredError, "User '#{@login}' has no account on the server."
+      end
+    rescue GSSAPI::GssApiError => error
+      raise AuthenticationRequiredError, "Received a GSSAPI exception; #{error.message}."
+    end
+  end
+
+  def extract_basic_user(authorization)
+    @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
+
+    # set password to the empty string in case no password is transmitted in the auth string
+    @passwd ||= ""
+  end
 
   def extract_proxy_user
     proxy_user = request.env['HTTP_X_USERNAME']
@@ -96,7 +167,7 @@ class Authenticator
       unless @http_user
         if ::Configuration.registration == "deny"
           Rails.logger.debug("No user found in database, creation disabled")
-          raise AuthenticationRequiredError.new "User '#{login}' does not exist"
+          raise AuthenticationRequiredError, "User '#{login}' does not exist"
         end
         # Generate and store a fake pw in the OBS DB that no-one knows
         # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
@@ -115,19 +186,21 @@ class Authenticator
     end
   end
 
-  def extract_basic_auth_user
+  def extract_auth_user
     authorization = authorization_infos
 
-    # privacy! Rails.logger.debug( "AUTH: #{authorization.inspect}" )
-
-    if authorization && authorization[0] == "Basic"
-      # Rails.logger.debug( "AUTH2: #{authorization}" )
-      @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
-
-      # set password to the empty string in case no password is transmitted in the auth string
-      @passwd ||= ""
+    # privacy! logger.debug( "AUTH: #{authorization.inspect}" )
+    if authorization
+      # logger.debug( "AUTH2: #{authorization}" )
+      if authorization[0] == "Basic"
+        extract_basic_user authorization
+      elsif authorization[0] == "Negotiate" && CONFIG['kerberos_service_principal']
+        extract_krb_user authorization
+      else
+        Rails.logger.debug "Unsupported authentication string '#{authorization[0]}' received."
+      end
     else
-      Rails.logger.debug "no authentication string was sent"
+      Rails.logger.debug "No authentication string was received."
     end
   end
 
@@ -147,14 +220,14 @@ class Authenticator
     unless @http_user
       if @login.blank?
         return true if check_for_anonymous_user
-        raise AuthenticationRequiredError.new
+        raise AuthenticationRequiredError
       end
-      raise AuthenticationRequiredError.new "Unknown user '#{@login}' or invalid password"
+      raise AuthenticationRequiredError, "Unknown user '#{@login}' or invalid password"
     end
 
     if @http_user.state == 'unconfirmed'
-      raise UnconfirmedUserError.new "User is registered but not yet approved. " +
-                                         "Your account is a registered account, but it is not yet approved for the OBS by admin."
+      raise UnconfirmedUserError, "User is registered but not yet approved. Your account " +
+                                  "is a registered account, but it is not yet approved for the OBS by admin."
     end
 
     User.current = @http_user
@@ -165,8 +238,8 @@ class Authenticator
       return true
     end
 
-    raise InactiveUserError.new "User is registered but not in confirmed state. Your account is a registered account, " +
-                                "but it is in a not active state."
+    raise InactiveUserError, "User is registered but not in confirmed state. Your account " +
+                             "is a registered account, but it is in a not active state."
   end
 
   def check_for_anonymous_user
@@ -185,6 +258,6 @@ class Authenticator
   def load_nobody
     @http_user = User.find_nobody!
     User.current = @http_user
-    @user_permissions = Suse::Permission.new( User.current )
+    @user_permissions = Suse::Permission.new(User.current)
   end
 end

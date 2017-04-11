@@ -36,7 +36,7 @@ class ApplicationController < ActionController::Base
            to: :authenticator
 
   def authenticator
-    @authenticator ||= Authenticator.new(request, session)
+    @authenticator ||= Authenticator.new(request, session, response)
   end
 
   def pundit_user
@@ -306,7 +306,13 @@ class ApplicationController < ActionController::Base
     end
 
     if @status == 401
-      response.headers["WWW-Authenticate"] = 'basic realm="API login"'
+      unless response.headers["WWW-Authenticate"]
+        if CONFIG['kerberos_service_principal']
+          response.headers["WWW-Authenticate"] = 'Negotiate'
+        else
+          response.headers["WWW-Authenticate"] = 'basic realm="API login"'
+        end
+      end
     end
     if @status == 404
       @summary ||= "Not found"
