@@ -245,7 +245,7 @@ class Project
         trigger    = release_target['trigger']
 
         unless project
-          raise SaveError, "Project '#{project}' does not exist."
+          raise SaveError, "Project '#{release_target['project']}' does not exist."
         end
 
         if project.defines_remote_instance?
