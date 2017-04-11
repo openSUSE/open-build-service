@@ -28,7 +28,6 @@ source_port: 5352
 frontend_host: localhost
 frontend_port: 443
 frontend_protocol: https
-#api_relative_url_root: /obs
 # if your users access the hosts through a proxy (or just a different name, use this to
 # overwrite the settings for users)
 #external_frontend_host: api.opensuse.org
