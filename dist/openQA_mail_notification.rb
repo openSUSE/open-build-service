@@ -59,7 +59,6 @@ def send_notification(from, to, subject, message)
     settings = { address: SMTP_SERVER, port: 25, enable_starttls_auto: false  }
     settings[:domain] = ENV["HOSTNAME"] if ENV["HOSTNAME"] && !ENV["HOSTNAME"].empty?
     mail.delivery_method :smtp, settings
-    puts mail.to_s
     mail.deliver
   rescue Exception => ex
     $stderr.puts "#{SMTP_SERVER}: #{ex.inspect}"
