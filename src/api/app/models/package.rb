@@ -1094,7 +1094,7 @@ class Package < ApplicationRecord
     errors.add(:name, 'is illegal') unless Package.valid_name?(name)
   end
 
-  def branch_from(origin_project, origin_package, rev = nil, missingok = nil, comment = nil, olinkrev = nil)
+  def branch_from(origin_project, origin_package, rev = nil, missingok = nil, comment = nil, olinkrev = nil, noservice = nil)
     myparam = { cmd:       'branch',
                 noservice: '1',
                 oproject:  origin_project,
@@ -1103,9 +1103,12 @@ class Package < ApplicationRecord
     myparam[:orev] = rev if rev.present?
     myparam[:olinkrev] = olinkrev if olinkrev.present?
     myparam[:missingok] = '1' if missingok
+    myparam[:noservice] = '1' if noservice
     myparam[:comment] = comment if comment
     path = source_path
-    path += Backend::Connection.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok, :olinkrev])
+    path += Backend::Connection.build_query_from_hash(myparam,
+                                                      [:cmd, :oproject, :opackage, :user, :comment,
+                                                       :orev, :missingok, :noservice, :olinkrev])
     # branch sources in backend
     Backend::Connection.post path
   end
