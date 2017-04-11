@@ -48,7 +48,7 @@ RSpec.describe "Package" do
     # Do not wait for autocomplete
     page.execute_script("$('input[type=\"submit\"]').prop('disabled', false)")
     click_button('Create Branch')
-    expect(page).to have_content('Successfully branched package')
+    expect(page).to have_content('Service currently running')
   end
 
   it 'should be able to delete' do
