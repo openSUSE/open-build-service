@@ -3,8 +3,8 @@ module ActiveXML
     @@transport_api
   end
 
-  def self.setup_transport_api(schema, host, port, prefix = '')
-    @@transport_api = Transport.new(schema, host, port, prefix)
+  def self.setup_transport_api(schema, host, port)
+    @@transport_api = Transport.new(schema, host, port)
   end
 
   def self.backend
@@ -108,11 +108,10 @@ module ActiveXML
       @mapping[model][:opt]
     end
 
-    def initialize( schema, host, port, prefix = '' )
+    def initialize( schema, host, port )
       @schema = schema
       @host = host
       @port = port
-      @prefix = prefix
       @default_servers ||= Hash.new
       @http_header = {"Content-Type" => "text/plain", 'Accept-Encoding' => 'identity'}
       # stores mapping information
@@ -324,7 +323,7 @@ module ActiveXML
         @http.read_timeout = opt[:timeout]
 
         raise "url.path.nil" if url.path.nil?
-        path = @prefix + url.path
+        path = url.path
         path += "?" + url.query if url.query
         logger.debug "http_do: method: #{method} url: " +
         "http#{"s" if @http.use_ssl?}://#{url.host}:#{url.port}#{path}"
