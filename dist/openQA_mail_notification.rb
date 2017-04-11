@@ -12,7 +12,7 @@ TO = 'obs-tests@opensuse.org'
 SMTP_SERVER = ''
 OPEN_QA = 'https://openqa.opensuse.org/'
 DISTRIBUTION = 'obs'
-VERSION = 'unstable'
+VERSION = 'Unstable'
 GROUP = '17'
 
 def get_build_information
