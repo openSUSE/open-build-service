@@ -149,7 +149,7 @@ class BranchPackage
         oproject = p[:link_target_project].name if p[:link_target_project].is_a? Project
 
         # branch sources in backend
-        tpkg.branch_from(oproject, opackage, p[:rev], params[:missingok], nil, params[:linkrev])
+        tpkg.branch_from(oproject, opackage, p[:rev], params[:missingok], nil, params[:linkrev], params[:noservice])
         if response
           # multiple package transfers, just tell the target project
           response = { targetproject: tpkg.project.name }
