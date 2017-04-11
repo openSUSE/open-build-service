@@ -1,3 +1,4 @@
+require_dependency 'opensuse/permission'
 if CONFIG['kerberos_service_principal']
   require_dependency 'gssapi'
 end
