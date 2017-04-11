@@ -90,10 +90,6 @@ class PackageRemoveTest < ActiveSupport::TestCase
     # nullify all Package.where(develpackage: self)
   end
 
-  def test_delete_cache_lines
-    skip "No idea what CacheLine.cleanup_package is there for, Adrian?"
-  end
-
   private
 
   def branch_package(project = 'Apache', package = 'apache2')

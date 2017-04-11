@@ -8,8 +8,6 @@ module Event
     self.raw_type = 'SRCSRV_CREATE_PACKAGE'
     self.description = 'Package was created'
 
-    create_jobs :cleanup_cache_lines
-
     def subject
       "New Package #{payload['project']}/#{payload['package']}"
     end
@@ -29,7 +27,7 @@ module Event
       attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
       super(attribs, keys)
     end
-    create_jobs :cleanup_cache_lines, :update_backend_infos
+    create_jobs :update_backend_infos
   end
 
   class DeletePackage < Package
@@ -41,7 +39,6 @@ module Event
       attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
       super(attribs, keys)
     end
-    create_jobs :cleanup_cache_lines
   end
 
   class BranchCommand < Package

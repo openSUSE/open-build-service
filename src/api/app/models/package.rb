@@ -40,7 +40,7 @@ class Package < ApplicationRecord
   class IllegalFileName < APIException; setup 'invalid_file_name_error'; end
   class PutFileNoPermission < APIException; setup 403; end
 
-  belongs_to :project, inverse_of: :packages
+  belongs_to :project, inverse_of: :packages, touch: true
   delegate :name, to: :project, prefix: true
   delegate :repositories, to: :project
   delegate :architectures, to: :project
@@ -79,8 +79,6 @@ class Package < ApplicationRecord
   before_destroy :update_project_for_product
   before_destroy :remove_linked_packages
   before_destroy :remove_devel_packages
-
-  after_destroy :delete_cache_lines
 
   after_save :write_to_backend
   before_update :update_activity
@@ -1092,10 +1090,6 @@ class Package < ApplicationRecord
       bp.error = nil
       bp.links_to = nil
     end
-  end
-
-  def delete_cache_lines
-    CacheLine.cleanup_package(project.name, name)
   end
 
   def remove_linked_packages
