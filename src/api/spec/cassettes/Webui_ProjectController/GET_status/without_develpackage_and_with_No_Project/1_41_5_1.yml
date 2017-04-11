@@ -34,7 +34,7 @@ http_interactions:
           <details>404 project 'home:other_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 19 Apr 2017 10:44:43 GMT
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:other_user/develpackage
@@ -69,7 +69,7 @@ http_interactions:
           <details>404 project 'home:other_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 19 Apr 2017 10:44:43 GMT
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:other_user/develpackage?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -106,10 +106,10 @@ http_interactions:
           <details>404 project 'home:other_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 19 Apr 2017 10:44:43 GMT
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:other_user/package_4?nofilename=1&view=info&withchangesmd5=1
+    uri: http://localhost:3200/source/home:other_user/package_26?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -141,10 +141,10 @@ http_interactions:
           <details>404 project 'home:other_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 19 Apr 2017 10:44:43 GMT
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:other_user/package_4
+    uri: http://localhost:3200/source/home:other_user/package_26
     body:
       encoding: US-ASCII
       string: ''
@@ -176,10 +176,10 @@ http_interactions:
           <details>404 project 'home:other_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 19 Apr 2017 10:44:43 GMT
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:other_user/package_4?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://localhost:3200/source/home:other_user/package_26?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -213,7 +213,7 @@ http_interactions:
           <details>404 project 'home:other_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 19 Apr 2017 10:44:43 GMT
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
 - request:
     method: get
     uri: http://localhost:3200/getprojpack?expandedrepos&nopackages&project=home:other_user&withrepos
@@ -243,8 +243,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <projpack repoid="978095017">
+        <projpack repoid="949951455">
         </projpack>
     http_version: 
-  recorded_at: Wed, 19 Apr 2017 10:44:43 GMT
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
 recorded_with: VCR 3.0.3

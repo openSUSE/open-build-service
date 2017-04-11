@@ -31,7 +31,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <resultlist state="2253242fe08c2762782382d6624a4db3">
+        <resultlist state="bbb9d1f155385ebeed71c26779ec4c86">
           <result project="home:tom" repository="home_coolo_standard" arch="i586" code="published" state="published" />
           <result project="home:tom" repository="home_coolo_standard" arch="x86_64" code="published" state="published" />
           <result project="home:tom" repository="home_adrian_ProtectionTest_repo" arch="i586" code="published" state="published" />
@@ -40,5 +40,5 @@ http_interactions:
           <result project="home:tom" repository="SourceprotectedProject_repo" arch="x86_64" code="published" state="published" />
         </resultlist>
     http_version: 
-  recorded_at: Fri, 16 Sep 2016 14:09:41 GMT
+  recorded_at: Wed, 19 Apr 2017 10:44:30 GMT
 recorded_with: VCR 3.0.3

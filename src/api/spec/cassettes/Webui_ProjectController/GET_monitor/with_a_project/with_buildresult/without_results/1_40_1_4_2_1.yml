@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom/_result?code=unresolvable&view=status
+    uri: http://localhost:3200/build/home:tom/_result?code=deleting&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -40,5 +40,5 @@ http_interactions:
           <result project="home:tom" repository="SourceprotectedProject_repo" arch="x86_64" code="published" state="published" />
         </resultlist>
     http_version: 
-  recorded_at: Wed, 19 Apr 2017 10:44:29 GMT
+  recorded_at: Thu, 20 Apr 2017 13:08:39 GMT
 recorded_with: VCR 3.0.3

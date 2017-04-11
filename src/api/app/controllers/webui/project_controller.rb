@@ -442,7 +442,7 @@ class Webui::ProjectController < Webui::WebuiController
     if params[:defaults]
       defaults = (begin
                     Integer(params[:defaults])
-                  rescue
+                  rescue ArgumentError
                     1
                   end) > 0
     else
@@ -786,7 +786,6 @@ class Webui::ProjectController < Webui::WebuiController
     @releasetargets = []
     rts = ReleaseTarget.where(repository_id: @project.repositories)
     return if rts.empty?
-
     Rails.logger.debug rts.inspect
     @project.repositories.each do |repository|
       release_target = repository.release_targets.first
@@ -858,7 +857,6 @@ class Webui::ProjectController < Webui::WebuiController
     rescue
       return
     end
-
     Rails.cache.write("rebuild-#{@pngkey}.png", png)
     f = File.open(outdir + '/longest.xml')
     longest = Xmlhash.parse(f.read)
@@ -885,7 +883,7 @@ class Webui::ProjectController < Webui::WebuiController
       if params.has_key?(id)
         next unless (begin
                        Integer(params[id])
-                     rescue
+                     rescue ArgumentError
                        1
                      end) > 0
       else

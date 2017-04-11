@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'webmock/rspec'
 # WARNING: If you change owner tests make sure you uncomment this line
 # and start a test backend. Some of the Owner methods
 # require real backend answers for projects/packages.
@@ -462,6 +463,47 @@ RSpec.describe Webui::ProjectController, vcr: true do
     before do
       # To not ask backend for build status
       allow_any_instance_of(Project).to receive(:number_of_build_problems).and_return(0)
+    end
+
+    context 'with bdep and jobs' do
+      let(:bdep_url) do
+        "http://localhost:3200/build/#{user.home_project.name}/#{repo_for_user_home.name}/x86_64/_builddepinfo"
+      end
+      let(:bdep_xml) do
+        <<-XML
+          "<builddepinfo>" +
+            "<package name=\"gcc6\">" +
+              "<pkgdep>gcc</pkgdep>" +
+            "</package>" +
+          "</builddepinfo>"
+        XML
+      end
+
+      let(:jobs_url) do
+        "http://localhost:3200/build/#{user.home_project.name}/#{repo_for_user_home.name}/x86_64/_jobhistory?limit=0&code=succeeded&code=unchanged"
+      end
+      let(:jobs_xml) do
+        <<-XML
+          "<jobhistory>" +
+            "<package name=\"gcc6\">" +
+              "<pkgdep>gcc</pkgdep>" +
+            "</package>" +
+          "</jobhistory>"
+        XML
+      end
+
+      before do
+        stub_request(:get, bdep_url).to_return(status: 200, body: bdep_xml)
+        stub_request(:get, jobs_url).to_return(status: 200, body: jobs_xml)
+
+        get :rebuild_time, params: {
+          project:    user.home_project.name,
+          repository: repo_for_user_home.name,
+          arch:       'x86_64'
+        }
+      end
+
+      it { expect(response).to have_http_status(:success) }
     end
 
     context 'with an invalid scheduler' do
@@ -1209,12 +1251,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
     let(:arch_x86_64) { Architecture.where(name: 'x86_64').first }
     let!(:package) { create(:package, project: user.home_project) }
 
-    context 'with a nonexistent project' do
-      let(:get_monitor) { post :monitor, params: { project: 'nonexistent_project' } }
-
-      it { expect{ get_monitor }.to raise_error(ActiveRecord::RecordNotFound) }
-    end
-
     context 'with a project' do
       context 'without buildresult' do
         before do
@@ -1223,6 +1259,24 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         it { expect(flash[:warning]).not_to be_nil }
+        it { expect(response).to redirect_to(project_show_path(user.home_project)) }
+      end
+
+      context 'without buildresult and with failed param set to an integer' do
+        before do
+          allow(Buildresult).to receive(:find).and_return(nil)
+          post :monitor, params: { project: user.home_project, defaults: '1', failed: '2'}
+        end
+
+        it { expect(response).to redirect_to(project_show_path(user.home_project)) }
+      end
+
+      context 'without buildresult and with failed param set to a string' do
+        before do
+          allow(Buildresult).to receive(:find).and_return(nil)
+          post :monitor, params: { project: user.home_project, defaults: '1', failed: 'abc'}
+        end
+
         it { expect(response).to redirect_to(project_show_path(user.home_project)) }
       end
 
@@ -1265,89 +1319,19 @@ RSpec.describe Webui::ProjectController, vcr: true do
             post :monitor, params: { project: user.home_project }
           end
 
-          it { expect(assigns(:buildresult_unavailable)).to be_truthy }
           it { expect(response).to have_http_status(:ok) }
         end
       end
-    end
-  end
 
-  describe 'GET #status' do
-    let(:other_user) { create(:confirmed_user, login: "other_user") }
-    let(:develpackage) { create(:package, name: "develpackage", project: other_user.home_project) }
-    let!(:package_with_develpackage) { create(:package, name: "package_with_develpackage", project: user.home_project, develpackage: develpackage) }
-    let!(:package) { create(:package, project: other_user.home_project) }
+      context 'without buildresult and no defaults set to a non-integer' do
+        before do
+          allow(Buildresult).to receive(:find).and_return(nil)
+          post :monitor, params: { project: user.home_project, defaults: 'abc'}
+        end
 
-    context 'with default filters' do
-      before do
-        get :status, params: { project: user.home_project }
+        it { expect(flash[:warning]).not_to be_nil }
+        it { expect(response).to redirect_to(project_show_path(user.home_project)) }
       end
-
-      it { expect(assigns(:filter)).to eq('_all_') }
-      it { expect(assigns(:ignore_pending)).to be_falsy }
-      it { expect(assigns(:limit_to_fails)).to be_truthy }
-      it { expect(assigns(:limit_to_old)).to be_falsy }
-      it { expect(assigns(:include_versions)).to be_truthy }
-      it { expect(assigns(:filter_for_user)).to be_nil }
-      it { expect(assigns(:packages)).to eq([]) }
-      it { expect(assigns(:develprojects)).to eq(['All Packages', 'No Project', other_user.home_project_name]) }
-      it { expect(response).to have_http_status(:ok) }
-    end
-
-    context 'with custom filters' do
-      let(:filters) do
-        { project:          user.home_project,
-          filter_devel:     'Apache',
-          ignore_pending:   true,
-          limit_to_fails:   false,
-          limit_to_old:     true,
-          include_versions: false }
-      end
-
-      before do
-        get :status, params: filters
-      end
-
-      it { expect(assigns(:filter)).to eq('Apache') }
-      it { expect(assigns(:ignore_pending)).to be_truthy }
-      it { expect(assigns(:limit_to_fails)).to be_falsy }
-      it { expect(assigns(:limit_to_old)).to be_truthy }
-      it { expect(assigns(:include_versions)).to be_falsy }
-      it { expect(assigns(:filter_for_user)).to be_nil }
-      it { expect(assigns(:packages)).to eq([]) }
-      it { expect(assigns(:develprojects)).to eq(['All Packages', 'No Project', other_user.home_project_name]) }
-      it { expect(response).to have_http_status(:ok) }
-    end
-
-    context 'with develpackage' do
-      before do
-        get :status, params: { project: user.home_project }
-      end
-
-      it { expect(assigns(:filter)).to eq('_all_') }
-      it { expect(assigns(:packages)).to eq([]) }
-      it { expect(assigns(:develprojects)).to eq(['All Packages', 'No Project', other_user.home_project_name]) }
-    end
-
-    context 'without develpackage' do
-      before do
-        get :status, params: { project: other_user.home_project }
-      end
-
-      it { expect(assigns(:filter)).to eq('_all_') }
-      it { expect(assigns(:packages)).to eq([]) }
-      it { expect(assigns(:develprojects)).to eq(['All Packages', 'No Project']) }
-      it { expect(response).to have_http_status(:ok) }
-    end
-
-    context 'with "No Project"' do
-      before do
-        get :status, params: { project: user.home_project, filter_devel: 'No Project' }
-      end
-
-      it { expect(assigns(:filter)).to eq('_none_') }
-      it { expect(assigns(:packages)).to eq([]) }
-      it { expect(assigns(:develprojects)).to eq(['All Packages', 'No Project', other_user.home_project_name]) }
     end
   end
 
@@ -1487,6 +1471,119 @@ RSpec.describe Webui::ProjectController, vcr: true do
       let(:call_package_buildresult) { get :package_buildresult, params: { project: user.home_project } }
 
       it { expect{ call_package_buildresult }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
+    end
+  end
+
+  describe 'GET #incident_request_dialog' do
+    let!(:repo) { create(:repository, project: user.home_project) }
+    let!(:release_target) { create(:release_target, repository: repo) }
+
+    before do
+      get :incident_request_dialog, params: { project: user.home_project }, xhr: true
+    end
+
+    it { expect(assigns[:releasetargets].count).to eq(1) }
+    it { expect(response).to have_http_status(:success) }
+  end
+
+  describe 'GET #release_request_dialog' do
+    before do
+      get :release_request_dialog, params: { project: user.home_project }, xhr: true
+    end
+
+    it { expect(response).to have_http_status(:success) }
+  end
+
+  describe 'GET #add_maintained_project_dialog' do
+    let(:maintenance_project) { create(:maintenance_project, name: 'MyProject') }
+
+    before do
+      get :add_maintained_project_dialog, params: { project: maintenance_project.name }, xhr: true
+    end
+
+    it { expect(response).to have_http_status(:success) }
+  end
+
+  describe 'GET #unlock_dialog' do
+    before do
+      get :unlock_dialog, params: { project: user.home_project }, xhr: true
+    end
+
+    it { expect(response).to have_http_status(:success) }
+  end
+
+  describe 'GET #meta' do
+    before do
+      login user
+      get :meta, params: { project: user.home_project }
+    end
+
+    it { expect(response).to have_http_status(:success) }
+  end
+
+  describe 'GET #edit' do
+    context 'when the user has access to the project' do
+      before do
+        login user
+        get :edit, params: { project: user.home_project }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'when the user does not have access to the project' do
+      let!(:project_locked_flag) { create(:lock_flag, project: user.home_project) }
+
+      before do
+        login user
+        get :edit, params: { project: user.home_project }
+      end
+
+      it { expect(response).to have_http_status(302) }
+    end
+  end
+
+  describe 'GET #maintained_projects' do
+    let!(:maintenance_project) { create(:maintenance_project, name: 'Project1') }
+    let!(:maintained_project) { create(:maintained_project, maintenance_project: maintenance_project) }
+
+    before do
+      login user
+      get :maintained_projects, params: { project: maintenance_project }
+    end
+
+    it { expect(response).to have_http_status(:success) }
+    it { expect(assigns[:maintained_projects]).to eq([maintained_project.project.name]) }
+  end
+
+  describe 'GET #save_person' do
+    let(:new_user) { create(:user) }
+
+    before do
+      login user
+      post :save_person, params: { project: user.home_project, role: 'maintainer', userid: new_user.login }
+    end
+
+    it { expect(response).to redirect_to(users_path) }
+  end
+
+  describe '#filter_matches?' do
+    let(:input) { 'ThisIsAPackage' }
+
+    context 'a filter_string that matches' do
+      let(:filter_string) { 'Package' }
+
+      subject { Webui::ProjectController.new.send(:filter_matches?, input, filter_string) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'a filter_string does not match' do
+      let(:filter_string) { '!Package' }
+
+      subject { Webui::ProjectController.new.send(:filter_matches?, input, filter_string) }
+
+      it { is_expected.to be_falsey }
     end
   end
 end
