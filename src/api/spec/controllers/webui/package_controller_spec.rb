@@ -69,6 +69,26 @@ RSpec.describe Webui::PackageController, vcr: true do
       it_should_behave_like "a response of a successful submit request"
     end
 
+    context 'sending a submit request for an older submission' do
+      before do
+        3.times { |i| Backend::Connection.put("/source/#{source_project}/#{package}/somefile.txt", i.to_s) }
+        post :submit_request, params: { project: source_project, package: package, targetproject: target_project, rev: 2 }
+      end
+
+      it_should_behave_like "a response of a successful submit request"
+
+      it 'creates a submit request for the correct revision' do
+        expect(BsRequestActionSubmit.where(
+                 source_project: source_project.name,
+                 source_package: package.name,
+                 target_project: target_project.name,
+                 target_package: package.name,
+                 type:           'submit',
+                 source_rev:     2
+        )).to exist
+      end
+    end
+
     context 'not successful' do
       before do
         post :submit_request, params: { project: source_project, package: source_package, targetproject: target_project.name }

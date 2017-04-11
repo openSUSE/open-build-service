@@ -329,6 +329,20 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
     # modify and resubmit
     Backend::Connection.put( '/source/home:adrian/x11vnc/DUMMY?user=adrian', 'DUMMY')
+
+    click_link 'Submit package'
+    page.must_have_field('targetproject', with: 'home:dmayr')
+    page.wont_have_field('supersede_request_numbers[]')
+    check('sourceupdate')
+    click_button 'Ok'
+    # Still doesn't allow to submit, since client request was based on
+    # previous revision.
+    page.wont_have_selector '.dialog' # wait for the reload
+    flash_message.must_match %r{Unable to submit, sources are unchanged}
+
+    # Reload page and submit with newest revision
+    visit page.current_path
+
     click_link 'Submit package'
     page.must_have_field('targetproject', with: 'home:dmayr')
     page.wont_have_field('supersede_request_numbers[]')
