@@ -306,7 +306,7 @@ class ApplicationController < ActionController::Base
 
     if @status == 401
       unless response.headers["WWW-Authenticate"]
-        if CONFIG['kerberos_service_principal']
+        if CONFIG['kerberos_mode']
           response.headers["WWW-Authenticate"] = 'Negotiate'
         else
           response.headers["WWW-Authenticate"] = 'basic realm="API login"'

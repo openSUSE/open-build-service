@@ -104,7 +104,7 @@ class Webui::WebuiController < ActionController::Base
   protected
 
   def require_login
-    if CONFIG['kerberos_service_principal']
+    if CONFIG['kerberos_mode']
       kerberos_auth
     else
       if User.current.nil? || User.current.is_nobody?
@@ -165,7 +165,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def kerberos_auth
-    return true unless CONFIG['kerberos_service_principal'] && (User.current.nil? || User.current.is_nobody?)
+    return true unless CONFIG['kerberos_mode'] && (User.current.nil? || User.current.is_nobody?)
 
     authorization = authenticator.authorization_infos || []
     if authorization[0].to_s != "Negotiate"

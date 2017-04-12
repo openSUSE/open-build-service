@@ -104,6 +104,10 @@ class Authenticator
   def initialize_krb_session
     principal = CONFIG['kerberos_service_principal']
 
+    if principal.blank?
+      raise AuthenticationRequiredError, 'Kerberos configuration is broken. Principal is empty.'
+    end
+
     unless CONFIG['kerberos_realm']
       CONFIG['kerberos_realm'] = principal.rpartition("@")[2]
     end
@@ -202,13 +206,12 @@ class Authenticator
 
   def extract_auth_user
     authorization = authorization_infos
-
     # privacy! logger.debug( "AUTH: #{authorization.inspect}" )
     if authorization
       # logger.debug( "AUTH2: #{authorization}" )
       if authorization[0] == "Basic"
         extract_basic_user authorization
-      elsif authorization[0] == "Negotiate" && CONFIG['kerberos_service_principal']
+      elsif authorization[0] == "Negotiate" && CONFIG['kerberos_mode']
         extract_krb_user authorization
       else
         Rails.logger.debug "Unsupported authentication string '#{authorization[0]}' received."
