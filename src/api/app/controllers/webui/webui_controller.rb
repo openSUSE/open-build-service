@@ -169,13 +169,10 @@ class Webui::WebuiController < ActionController::Base
       # The user does not exist in our database, create her.
       unless User.where(login: user_login).exists?
         logger.debug "Creating user #{user_login}"
-        chars = ["A".."Z", "a".."z", "0".."9"].collect(&:to_a).join
-        fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a" * 24)
-        User.create!(login: user_login,
-                     email: request.env['HTTP_X_EMAIL'],
-                     state: User.default_user_state,
-                     realname: "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip,
-                     password: fakepw)
+        User.create_user_with_fake_pw!(login: user_login,
+                                       email: request.env['HTTP_X_EMAIL'],
+                                       state: User.default_user_state,
+                                       realname: "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip)
       end
 
       # The user exists, check if shes active and update the info
