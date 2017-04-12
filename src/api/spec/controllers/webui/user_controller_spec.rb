@@ -125,11 +125,11 @@ RSpec.describe Webui::UserController do
       context "with invalid data" do
         before do
           login user
-          post :save, params: { user: user, realname: "another real name", email: "" }
+          post :save, params: { user: user, realname: "another real name", email: "invalid" }
           user.reload
         end
 
-        it { expect(flash[:error]).to eq("Couldn't update user: Validation failed: Email must be given, Email must be a valid email address..") }
+        it { expect(flash[:error]).to eq("Couldn't update user: Validation failed: Email must be a valid email address..") }
         it { expect(user.realname).to eq(user.realname) }
         it { expect(user.email).to eq(user.email) }
         it { is_expected.to redirect_to user_show_path(user) }
