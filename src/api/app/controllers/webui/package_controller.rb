@@ -910,7 +910,8 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to controller: :package, action: :show, project: @project, package: @package
     else
       flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
-      redirect_to controller: :package, action: :live_build_log, project: @project, package: @package, repository: params[:repository]
+      redirect_to controller: :package, action: :live_build_log, project: @project, package: @package,
+        repository: params[:repository], arch: params[:arch]
     end
   end
 
