@@ -234,8 +234,7 @@ class User < ApplicationRecord
       password = SecureRandom.base64
       user = User.create( login: login,
                           password: password,
-                          email: ldap_info[0],
-                          last_logged_in_at: Time.now)
+                          email: ldap_info[0])
       unless user.errors.empty?
         logger.debug("Creating User failed with: ")
         all_errors = user.errors.full_messages.map do |msg|
