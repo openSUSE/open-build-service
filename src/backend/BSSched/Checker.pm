@@ -907,7 +907,7 @@ sub printstats {
 }
 
 sub publish {
-  my ($ctx, $schedulerstate, $schedulerdetails) = @_;
+  my ($ctx, $schedulerstate, $schedulerdetails, $force) = @_;
   my $prp = $ctx->{'prp'};
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};
@@ -917,13 +917,20 @@ sub publish {
 
   my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
-
-  my $packs = $ctx->{'packs'};
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
-
+  my $packs;
+  if ($force) {
+    $packs = [ sort keys %$pdatas ];
+  } else {
+    $packs = $ctx->{'packs'};
+  }
   my $locked = 0;
   $locked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked, $myarch) if $projpacks->{$projid}->{'lock'};
   my $pubenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'publish'}, 1, $myarch);
+  if ($force && $pubenabled == 1) {
+    print "   force publish of $repoid not possible. Publishing is already enabled\n";
+    return;
+  }
   my %pubenabled;
   for my $packid (@$packs) {
     my $pdata = $pdatas->{$packid};
@@ -931,6 +938,8 @@ sub publish {
     next if !defined($pdata->{'lock'}) && $locked;
     if ($pdata->{'publish'}) {
       $pubenabled{$packid} = BSUtil::enabled($repoid, $pdata->{'publish'}, $pubenabled, $myarch);
+    } elsif ($force) {
+      $pubenabled{$packid} = 1;
     } else {
       $pubenabled{$packid} = $pubenabled;
     }
@@ -947,13 +956,13 @@ sub publish {
   }
   if (-e "$gdst/:repodone") {
     my $oldrepodone = readstr("$gdst/:repodone", 1) || '';
-    unlink("$gdst/:repodone") if $oldrepodone ne $repodonestate;
+    unlink("$gdst/:repodone") if ($oldrepodone ne $repodonestate || $force);
   }
   if ($locked) {
     print "    publishing is locked\n";
   } elsif (! -e "$gdst/:repodone") {
     my $publisherror;
-    if (($repodonestate !~ /^disabled/) || -d "$gdst/:repo") {
+    if (($force) || (($repodonestate !~ /^disabled/) || -d "$gdst/:repo")) {
       mkdir_p($gdst);
       $publisherror = BSSched::PublishRepo::prpfinished($ctx, $packs, \%pubenabled);
     } else {

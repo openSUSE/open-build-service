@@ -2519,6 +2519,8 @@ sub docommand {
 	  forwardevent($cgi, 'wipe', $projid, $packid, $repoid, $arch);
         }
       }
+    } elsif ($cmd eq 'force_publish') {
+      forwardevent($cgi, 'force_publish', $projid, undef, $repoid, $arch);
     }
   }
   return $BSStdServer::return_ok;
