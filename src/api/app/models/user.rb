@@ -178,12 +178,17 @@ class User < ApplicationRecord
     end
   end
 
-  def self.create_user_with_fake_pw!(attributes = {})
+  def self.create_user_with_fake_pw(attributes = {})
     chars = ["A".."Z", "a".."z", "0".."9"].collect(&:to_a).join
     fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a" * 24)
 
     attributes[:password] = fakepw
-    create!(attributes)
+    create(attributes)
+  end
+
+  def self.create_user_with_fake_pw!(attributes = {})
+    user = create_user_with_fake_pw(attributes)
+    user.valid? ? user : user.save!
   end
 
   # This static method tries to find a user with the given login and password
@@ -230,11 +235,7 @@ class User < ApplicationRecord
       logger.debug( "No user found in database, creating" )
       logger.debug( "Email: #{ldap_info[0]}" )
       logger.debug( "Name : #{ldap_info[1]}" )
-      # Generate and store a 24 char fake pw in the OBS DB that no-one knows
-      password = SecureRandom.base64
-      user = User.create( login: login,
-                          password: password,
-                          email: ldap_info[0])
+      User.create_user_with_fake_pw(login: login, email: ldap_info[0])
       unless user.errors.empty?
         logger.debug("Creating User failed with: ")
         all_errors = user.errors.full_messages.map do |msg|
