@@ -5,6 +5,7 @@ class Webui::UserController < Webui::WebuiController
   before_action :check_display_user, only: [:show, :edit, :list_my, :delete, :save, :confirm, :admin, :lock]
   before_action :require_login, only: [:edit, :save, :notifications, :update_notifications, :index]
   before_action :require_admin, only: [:edit, :delete, :lock, :confirm, :admin, :index]
+  before_action :kerberos_auth, only: [:login]
 
   skip_before_action :check_anonymous, only: [:do_login]
 
