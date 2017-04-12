@@ -10,7 +10,7 @@ class Webui::ProjectController < Webui::WebuiController
   before_action :require_login, only: [:create, :toggle_watch, :destroy, :new, :new_incident_request,
                                        :new_release_request, :new_package_branch, :new_package]
 
-  before_action :set_project, only: [:autocomplete_packages, :autocomplete_repositories, :users, :subprojects,
+  before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
                                      :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
                                      :show, :linking_projects, :add_person, :add_group, :buildresult, :delete_dialog,
                                      :destroy, :remove_path_from_target, :rebuild_time, :packages_simple,
@@ -66,7 +66,12 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def autocomplete_packages
-    render json: @project.packages.autocomplete(params[:term]).pluck(:name)
+    @project = Project.find_by(name: params[:project])
+    if @project
+      render json: @project.packages.autocomplete(params[:term]).pluck(:name)
+    else
+      render json: nil
+    end
   end
 
   def autocomplete_repositories

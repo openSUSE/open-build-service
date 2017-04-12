@@ -46,7 +46,7 @@ class Webui::UserController < Webui::WebuiController
     User.current = user
 
     if request.referer.end_with?("/user/login")
-      redirect_to home_path
+      redirect_to user_show_path(User.current)
     else
       redirect_back(fallback_location: root_path)
     end
