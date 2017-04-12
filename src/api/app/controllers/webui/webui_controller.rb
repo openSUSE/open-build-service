@@ -1,6 +1,8 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
+require_dependency 'authenticator'
+
 class Webui::WebuiController < ActionController::Base
   helper_method :valid_xml_id
 
@@ -102,19 +104,23 @@ class Webui::WebuiController < ActionController::Base
   protected
 
   def require_login
-    if User.current.nil? || User.current.is_nobody?
-      render(text: 'Please login') && (return false) if request.xhr?
+    if CONFIG['kerberos_service_principal']
+      kerberos_auth
+    else
+      if User.current.nil? || User.current.is_nobody?
+        render(text: 'Please login') && (return false) if request.xhr?
 
-      flash[:error] = 'Please login to access the requested page.'
-      mode = CONFIG['proxy_auth_mode'] || :off
-      if mode == :off
-        redirect_to controller: :user, action: :login
-      else
-        redirect_to controller: :main
+        flash[:error] = 'Please login to access the requested page.'
+        mode = CONFIG['proxy_auth_mode'] || :off
+        if mode == :off
+          redirect_to controller: :user, action: :login
+        else
+          redirect_to controller: :main
+        end
+        return false
       end
-      return false
+      true
     end
-    true
   end
 
   def required_parameters(*parameters)
@@ -154,10 +160,40 @@ class Webui::WebuiController < ActionController::Base
     false
   end
 
+  def authenticator
+    @authenticator ||= Authenticator.new(request, session, response)
+  end
+
+  def kerberos_auth
+    return true unless CONFIG['kerberos_service_principal'] && (User.current.nil? || User.current.is_nobody?)
+
+    authorization = authenticator.authorization_infos || []
+    if authorization[0].to_s != "Negotiate"
+      # Demand kerberos negotiation
+      response.headers["WWW-Authenticate"] = 'Negotiate'
+      render :login, status: 401
+      return
+    else
+      begin
+        authenticator.extract_user
+      rescue Authenticator::AuthenticationRequiredError => e
+        logger.info "Authentication via kerberos failed '#{e.message}'"
+        flash[:error] = "Authentication failed: '#{e.message}'"
+        redirect_back(fallback_location: root_path)
+        return
+      end
+      if User.current
+        logger.info "User '#{User.current}' has logged in via kerberos"
+        session[:login] = User.current.login
+        redirect_back(fallback_location: root_path)
+        return true
+      end
+    end
+  end
+
   def check_user
     check_spiders
     User.current = nil # reset old users hanging around
-
     if CONFIG['proxy_auth_mode'] == :on
       logger.debug "Authenticating with proxy auth mode"
       user_login = request.env['HTTP_X_USERNAME']

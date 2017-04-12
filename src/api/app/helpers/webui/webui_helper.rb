@@ -379,6 +379,7 @@ module Webui::WebuiHelper
   end
 
   def can_register
+    return false if CONFIG['kerberos_service_principal']
     return true if User.current.try(:is_admin?)
 
     begin

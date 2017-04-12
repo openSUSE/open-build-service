@@ -87,6 +87,18 @@ class Authenticator
     true
   end
 
+  def authorization_infos
+    # 1. try to get it where mod_rewrite might have put it
+    # 2. for Apache/mod_fastcgi with -pass-header Authorization
+    # 3. regular location
+    %w(X-HTTP_AUTHORIZATION Authorization HTTP_AUTHORIZATION).each do |header|
+      if request.env.has_key? header
+        return request.env[header].to_s.split
+      end
+    end
+    return
+  end
+
   private
 
   def initialize_krb_session
@@ -204,18 +216,6 @@ class Authenticator
     else
       Rails.logger.debug "No authentication string was received."
     end
-  end
-
-  def authorization_infos
-    # 1. try to get it where mod_rewrite might have put it
-    # 2. for Apace/mod_fastcgi with -pass-header Authorization
-    # 3. regular location
-    %w(X-HTTP_AUTHORIZATION Authorization HTTP_AUTHORIZATION).each do |header|
-      if request.env.has_key? header
-        return request.env[header].to_s.split
-      end
-    end
-    return
   end
 
   def check_extracted_user
