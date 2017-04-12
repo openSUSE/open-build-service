@@ -178,6 +178,14 @@ class User < ApplicationRecord
     end
   end
 
+  def self.create_user_with_fake_pw!(attributes = {})
+    chars = ["A".."Z", "a".."z", "0".."9"].collect(&:to_a).join
+    fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a" * 24)
+
+    attributes[:password] = fakepw
+    create!(attributes)
+  end
+
   # This static method tries to find a user with the given login and password
   # in the database. Returns the user or nil if he could not be found
   def self.find_with_credentials(login, password)

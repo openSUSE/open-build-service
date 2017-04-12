@@ -267,4 +267,22 @@ RSpec.describe User do
       expect(creator.declined_requests('random_string')).to be_empty
     end
   end
+
+  describe 'create_user_with_fake_pw!' do
+    context 'with login and email' do
+      let(:user) { User.create_user_with_fake_pw!({ login: 'tux', email: 'some@email.com' }) }
+
+      it 'creates a user with a fake password' do
+        expect(user).to be_an(User)
+        expect(user.login).to eq('tux')
+        expect(user.email).to eq('some@email.com')
+      end
+    end
+
+    context 'without params' do
+      it 'throws an exception' do
+        expect{ User.create_user_with_fake_pw! }.to raise_error(ActiveRecord::RecordInvalid)
+      end
+    end
+  end
 end
