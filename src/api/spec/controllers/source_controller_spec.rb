@@ -5,6 +5,7 @@ require 'rails_helper'
 
 RSpec.describe SourceController, vcr: true do
   let(:user) { create(:confirmed_user, login: "tom") }
+  let(:admin) { create(:admin_user, login: 'Admin') }
   let(:project) { user.home_project }
 
   describe "POST #global_command_orderkiwirepos" do
@@ -49,5 +50,19 @@ RSpec.describe SourceController, vcr: true do
 
     it { expect(response).to be_success }
     it { expect(project.config.to_s).to include('Updated', 'by', 'test') }
+  end
+
+  describe "PUT #update_project_meta" do
+    it "raises exception for invalid DownloadRepository" do
+      login admin
+      bypass_rescue
+
+      xml = ActiveXML::Node.new(project.to_axml)
+      repo = xml.add_element 'repository', { name: "download_on_demand" }
+      repo.add_element 'download', { arch: "i586", url: "http://somewhere", repotype: "INVALID" }
+      request.env['RAW_POST_DATA'] = xml.dump_xml
+      expect { post :update_project_meta, params: { project: project } }.to raise_error(Project::SaveError, /Repotype is not included in the list/)
+      expect(response).to be_success
+    end
   end
 end

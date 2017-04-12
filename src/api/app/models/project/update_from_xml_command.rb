@@ -299,6 +299,7 @@ class Project
     def update_download_repositories(current_repo, xml_hash)
       dod_repositories = xml_hash.elements("download").map do |dod|
         dod_attributes = {
+           repository: current_repo,
            arch:       dod["arch"],
            url:        dod["url"],
            repotype:   dod["repotype"],
@@ -310,7 +311,9 @@ class Project
           dod_attributes[:mastersslfingerprint] = dod["master"]["sslfingerprint"]
         end
 
-        DownloadRepository.new(dod_attributes)
+        repository = DownloadRepository.new(dod_attributes)
+        raise SaveError, repository.errors.full_messages.to_sentence unless repository.valid?
+        repository
       end
       current_repo.download_repositories.replace(dod_repositories)
     end
