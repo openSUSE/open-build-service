@@ -273,6 +273,10 @@ RSpec.describe User do
       let(:user) { User.create_user_with_fake_pw!({ login: 'tux', email: 'some@email.com' }) }
 
       it 'creates a user with a fake password' do
+        expect(user.password).not_to eq(User.create_user_with_fake_pw!({ login: 'tux2', email: 'some@email.com' }).password)
+      end
+
+      it 'creates a user from given attributes' do
         expect(user).to be_an(User)
         expect(user.login).to eq('tux')
         expect(user.email).to eq('some@email.com')
