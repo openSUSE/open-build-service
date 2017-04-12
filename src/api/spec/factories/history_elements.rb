@@ -11,11 +11,11 @@ FactoryGirl.define do
     type { 'HistoryElement::ReviewDeclined' }
   end
 
-  factory :history_element_request_created, class: 'HistoryElement::RequestCreated' do
-    type { 'HistoryElement::RequestCreated' }
-  end
-
   factory :history_element_request_accepted, class: 'HistoryElement::RequestAccepted' do
     type { 'HistoryElement::RequestAccepted' }
+  end
+
+  factory :history_element_request_revoked, class: 'HistoryElement::RequestRevoked' do
+    type { 'HistoryElement::RequestRevoked' }
   end
 end

@@ -15,14 +15,6 @@ RSpec.shared_context 'a project with maintenance statistics' do
       created_at: 9.days.ago
     )
   end
-  let!(:history_element_request_created) do
-    create(
-      :history_element_request_created,
-      request: bs_request,
-      user: user,
-      created_at: 8.days.ago
-    )
-  end
   let!(:history_element_request_accepted) do
     create(
       :history_element_request_accepted,
