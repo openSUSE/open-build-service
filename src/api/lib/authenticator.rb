@@ -138,7 +138,8 @@ class Authenticator
       @login = krb.display_name.partition("@")[0]
       @http_user = User.find_by_login(@login)
       unless @http_user
-        raise AuthenticationRequiredError, "User '#{@login}' has no account on the server."
+        Rails.logger.debug "Creating account for user '#{@login}'"
+        @http_user = User.create_user_with_fake_pw!(login: @login, state: User.default_user_state)
       end
     rescue GSSAPI::GssApiError => error
       raise AuthenticationRequiredError, "Received a GSSAPI exception; #{error.message}."
