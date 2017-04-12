@@ -268,7 +268,7 @@ RSpec.describe User do
     end
   end
 
-  describe 'create_user_with_fake_pw!' do
+  RSpec.shared_examples 'successful login' do
     context 'with login and email' do
       let(:user) { User.create_user_with_fake_pw!({ login: 'tux', email: 'some@email.com' }) }
 
@@ -278,10 +278,26 @@ RSpec.describe User do
         expect(user.email).to eq('some@email.com')
       end
     end
+  end
+
+  describe 'create_user_with_fake_pw' do
+    it_behaves_like 'successful login'
 
     context 'without params' do
+      it { expect(User.create_user_with_fake_pw.persisted?).to be false }
+    end
+  end
+
+  describe 'create_user_with_fake_pw!' do
+    it_behaves_like 'successful login'
+
+    context 'without params' do
+      before do
+        allow(User).to receive(:create_user_with_fake_pw).and_return(User.new)
+      end
+
       it 'throws an exception' do
-        expect{ User.create_user_with_fake_pw! }.to raise_error(ActiveRecord::RecordInvalid)
+        expect { User.create_user_with_fake_pw! }.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
   end
