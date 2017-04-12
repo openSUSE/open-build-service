@@ -16,7 +16,7 @@ pushd $tdir/open-build-service*/src/api >& /dev/null
 ruby.ruby2.4 -rbundler -e 'exit' || echo "___ERROR_BUNDLER_NOT_INSTALLED___"
 
 mode="resolve"
-if [ "$limig" == "production" ]; then
+if [ "$limit" == "production" ]; then
   mode="specs_for([:default, :assets])"
 fi
 
