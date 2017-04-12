@@ -792,12 +792,23 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def live_build_log
-    required_parameters :arch, :repository
+    @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
+    unless @repo
+      flash[:error] = "Couldn't find repository '#{params[:repository]}'. Are you sure it still exists?"
+      redirect_to(package_show_path(@project, @package))
+      return
+    end
+
+    @arch = Architecture.archcache[params[:arch]].try(:name)
+    unless @arch
+      flash[:error] = "Couldn't find architecture '#{params[:arch]}'. Are you sure it still exists?"
+      redirect_to(package_show_path(@project, @package))
+      return
+    end
 
     @build_container = params[:package] # for remote and multibuild package
     # Make sure objects don't contain invalid chars (eg. '../')
-    @arch = params[:arch] if Architecture.archcache[params[:arch]]
-    @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
+
     @offset = 0
     if @project && @package && @repo && @arch
       @status = get_status(@project, @package, @repo, @arch)
@@ -825,8 +836,18 @@ class Webui::PackageController < Webui::WebuiController
     check_ajax
 
     # Make sure objects don't contain invalid chars (eg. '../')
-    @arch = params[:arch] if Architecture.archcache[params[:arch]]
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
+    unless @repo
+      @errors = "Couldn't find repository '#{params[:repository]}'. We don't have build log for this repository"
+      return
+    end
+
+    @arch = Architecture.archcache[params[:arch]].try(:name)
+    unless @arch
+      @errors = "Couldn't find architecture '#{params[:arch]}'. We don't have build log for this architecture"
+      return
+    end
+
     @initial = params[:initial]
     @offset = params[:offset].to_i
     @status = params[:status]
@@ -886,7 +907,8 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to controller: :package, action: :show, project: @project, package: @package
     else
       flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
-      redirect_to controller: :package, action: :live_build_log, project: @project, package: @package, repository: params[:repository]
+      redirect_to controller: :package, action: :live_build_log, project: @project, package: @package,
+        repository: params[:repository], arch: params[:arch]
     end
   end
 

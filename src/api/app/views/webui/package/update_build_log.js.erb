@@ -1,16 +1,22 @@
-<% if @finished %>
-  $('#log_space').html('<%= escape_javascript(@log_chunk) %>');
-  autoscroll();
+<% if @errors %>
+  $('#flash-messages').
+    replaceWith("<%= escape_javascript(render(partial: "layouts/webui/flash", locals: { flash: { error: @errors } })) %>");
+  $("html, body").scrollTop(0);
   build_finished();
-  hide_abort();
 <% else %>
-  show_abort();
-  $('#log_space').append('<%= escape_javascript(@log_chunk) %>');
-<% if @log_chunk.length < @maxsize || @initial == 0 %>
-  autoscroll();
-  setTimeout(function() { refresh(<%= @offset %>, 0); },2000);
-<% else %>
-  refresh(<%= @offset %>, <%= @initial %> );
+  <% if @finished %>
+    $('#log_space').html('<%= escape_javascript(@log_chunk) %>');
+    autoscroll();
+    build_finished();
+    hide_abort();
+  <% else %>
+    show_abort();
+    $('#log_space').append('<%= escape_javascript(@log_chunk) %>');
+    <% if @log_chunk.length < @maxsize || @initial == 0 %>
+      autoscroll();
+      setTimeout(function() { refresh(<%= @offset %>, 0); },2000);
+    <% else %>
+      refresh(<%= @offset %>, <%= @initial %> );
+    <% end %>
+  <% end %>
 <% end %>
-<% end %>
-

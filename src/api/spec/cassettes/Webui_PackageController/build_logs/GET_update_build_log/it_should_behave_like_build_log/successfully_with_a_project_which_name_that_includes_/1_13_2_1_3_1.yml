@@ -414,4 +414,312 @@ http_interactions:
         </status>
     http_version: 
   recorded_at: Wed, 22 Mar 2017 12:15:09 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <repository name="leap_42.2">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+          <repository name="leap_42.2">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Tue, 11 Apr 2017 11:58:23 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/foo++bar/some_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="foo++bar">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="foo++bar">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 11 Apr 2017 11:58:23 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/foo++bar/10.3/i586/some_package/_log?view=entry
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'foo++bar' has no repository '10.3'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'foo++bar' has no repository '10.3'</summary>
+          <details>404 project 'foo++bar' has no repository '10.3'</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 11 Apr 2017 11:58:23 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/foo++bar/10.3/i586/some_package/_log?end=65536&nostream=1&start=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'foo++bar' has no repository '10.3'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'foo++bar' has no repository '10.3'</summary>
+          <details>404 project 'foo++bar' has no repository '10.3'</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 11 Apr 2017 11:58:23 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/foo++bar/leap_45.2/i586/some_package/_log?view=entry
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'foo++bar' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'foo++bar' does not exist</summary>
+          <details>404 project 'foo++bar' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 11 Apr 2017 15:18:07 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/foo++bar/leap_45.2/i586/some_package/_log?end=65536&nostream=1&start=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'foo++bar' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'foo++bar' does not exist</summary>
+          <details>404 project 'foo++bar' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 11 Apr 2017 15:18:07 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/foo++bar/leap_45.1/i586/some_package/_log?view=entry
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'foo++bar' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'foo++bar' does not exist</summary>
+          <details>404 project 'foo++bar' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 12 Apr 2017 09:19:08 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/foo++bar/leap_45.1/i586/some_package/_log?end=65536&nostream=1&start=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'foo++bar' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'foo++bar' does not exist</summary>
+          <details>404 project 'foo++bar' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 12 Apr 2017 09:19:08 GMT
 recorded_with: VCR 3.0.3

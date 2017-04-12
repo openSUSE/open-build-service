@@ -44,7 +44,7 @@ class ProjectLogEntryTest < ActiveSupport::TestCase
     assert_nil entry.user
     assert_equal "no_longer_there", entry.user_name
     assert_nil entry.bs_request
-    assert_equal({"rev" => "5"}, entry.additional_info)
+    assert_equal({"repository" => "10.2", "arch" => "i586", "rev" => "5"}, entry.additional_info)
   end
 
   test "#clean_older_than" do
