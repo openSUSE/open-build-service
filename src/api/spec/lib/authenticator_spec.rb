@@ -38,13 +38,12 @@ RSpec.describe Authenticator do
         let(:request_mock) { double(:request, env: { 'Authorization' => "Negotiate #{Base64.strict_encode64('krb_ticket')}" }) }
         let(:authenticator) { Authenticator.new(request_mock, session_mock, response_mock) }
 
-        before do
-          allow(gssapi_mock).to receive(:acquire_credentials)
-          allow(gssapi_mock).to receive(:accept_context).
-            with('krb_ticket').and_return(true)
-          allow(gssapi_mock).to receive(:display_name).
-            and_return("#{user.login}@test_realm.com")
+        include_context 'a kerberos mock for' do
+          let(:ticket) { 'krb_ticket' }
+          let(:login) { user.login }
+        end
 
+        before do
           allow(GSSAPI::Simple).to receive(:new).with(
             'obs.test.com', 'HTTP', '/etc/keytab'
           ).and_return(gssapi_mock)
@@ -65,7 +64,7 @@ RSpec.describe Authenticator do
           it 'creates a new account' do
             authenticator.extract_user
 
-            new_user = User.where(login: user.login)
+            new_user = User.where(login: login)
             expect(new_user).to exist
             expect(authenticator.http_user).to eq(new_user.first)
           end

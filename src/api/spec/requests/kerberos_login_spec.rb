@@ -25,22 +25,18 @@ RSpec.describe 'Kerberos login', vcr: false, type: :request do
       end
 
       context "authorization header contains 'Negotiate' with a ticket" do
-        let(:gssapi_mock) { double(:gssapi) }
+        include_context 'a kerberos mock for' do
+          let(:login) { user.login }
+        end
 
         before do
-          allow(gssapi_mock).to receive(:acquire_credentials)
-          allow(gssapi_mock).to receive(:accept_context).
-            with('ticket').and_return(true)
-          allow(gssapi_mock).to receive(:display_name).
-            and_return("#{user.login}@test_realm.com")
-
           allow(GSSAPI::Simple).to receive(:new).with(
             'obs.test.com', 'HTTP', '/etc/krb5.keytab'
           ).and_return(gssapi_mock)
         end
 
         it 'authenticates the user' do
-          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate #{Base64.strict_encode64('ticket')}" }
+          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate #{Base64.strict_encode64(ticket)}" }
           expect(response).to have_http_status(:success)
         end
       end
