@@ -80,8 +80,6 @@ class Project < ApplicationRecord
   has_many :maintenance_projects, class_name: 'MaintainedProject', foreign_key: :project_id, dependent: :delete_all
 
   has_many :incident_updateinfo_counter_values, foreign_key: :project_id, dependent: :delete_all
-  has_many :maintenance_incidents, foreign_key: :project_id, dependent: :delete_all
-  has_many :maintenance_incidents, foreign_key: :maintenance_db_project_id, dependent: :delete_all
 
   # develproject is history, use develpackage instead. FIXME3.0: clean this up
   has_many :develprojects, class_name: 'Project', foreign_key: 'develproject_id'
