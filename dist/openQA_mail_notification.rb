@@ -72,7 +72,7 @@ store = YAML::Store.new('builds.yml')
 last_build = store.transaction { store[:name] }
 result = last_build <=> build['name']
 
-unless result == 0
+if result != 0 && build['state'] == 'done'
   modules = build['modules']
   successful_modules = modules.select { |m| m['result'] == 'passed' }
   failed_modules = modules.select { |m| m['result'] == 'failed' }
