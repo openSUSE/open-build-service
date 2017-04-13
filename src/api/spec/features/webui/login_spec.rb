@@ -5,13 +5,8 @@ RSpec.feature "Login", type: :feature, js: true do
 
   context "In proxy mode" do
     before do
-      @before = CONFIG["proxy_auth_mode"]
       # Fake proxy mode
-      CONFIG["proxy_auth_mode"] = :on
-    end
-
-    after do
-      CONFIG["proxy_auth_mode"] = @before
+      stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on))
     end
 
     scenario "should log in a user when the header is set" do
