@@ -826,8 +826,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def update_build_log
-    params.require([:project, :package, :arch, :repository])
-
     check_ajax
 
     # Make sure objects don't contain invalid chars (eg. '../')
