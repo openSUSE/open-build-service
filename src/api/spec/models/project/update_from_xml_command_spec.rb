@@ -200,8 +200,8 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
     describe "download repositories" do
       context "valid usecase" do
-        before do
-          xml_hash = Xmlhash.parse(
+        let(:xml_hash) do
+          Xmlhash.parse(
             <<-EOF
               <project name="#{project.name}">
                 <repository name="repo_1" />
@@ -216,8 +216,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
               </project>
             EOF
           )
-          Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
         end
+
+        subject! { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }
 
         it "updates download repositories of a repository" do
           expect(repository_1.download_repositories).to be_empty
@@ -238,11 +239,10 @@ RSpec.describe Project::UpdateFromXmlCommand do
           expect(download_repository.pubkey).to eq "my_pubkey"
         end
       end
-      context "invalid usecase" do
-        subject { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, @xml_hash, false) }
 
-        before do
-          @xml_hash = Xmlhash.parse(
+      context "invalid usecase" do
+        let(:xml_hash) do
+          Xmlhash.parse(
             <<-EOF
               <project name="#{project.name}">
                 <repository name="repo_1" />
@@ -258,6 +258,8 @@ RSpec.describe Project::UpdateFromXmlCommand do
             EOF
           )
         end
+
+        subject { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }
 
         it "raises an exception for a wrong repotype" do
           expect { subject }.to raise_error(Project::SaveError, "Repotype is not included in the list")
