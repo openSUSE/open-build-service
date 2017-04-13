@@ -2,12 +2,6 @@ require 'rails_helper'
 
 RSpec.describe Webui::ApidocsController, type: :controller do
   describe "GET #index" do
-    let!(:previous_apidocs_location) { CONFIG['apidocs_location'] }
-
-    after do
-      CONFIG['apidocs_location'] = previous_apidocs_location
-    end
-
     context "correct setup" do
       let(:tmp_dir) { Dir.mktmpdir }
       let(:tmp_file) { "#{tmp_dir}/index.html" }
@@ -34,7 +28,7 @@ RSpec.describe Webui::ApidocsController, type: :controller do
 
     context "broken setup" do
       before do
-        CONFIG['apidocs_location'] = 'non/existent/subdirectory'
+        stub_const('CONFIG', CONFIG.merge('apidocs_location' => 'non/existent/subdirectory'))
       end
 
       it "errors and redirects" do
@@ -58,15 +52,10 @@ RSpec.describe Webui::ApidocsController, type: :controller do
           f
         end
       end
-      let!(:previous_schema_location) { CONFIG['schema_location'] }
 
       before do
-        CONFIG['schema_location'] = Dir.tmpdir
+        stub_const('CONFIG', CONFIG.merge('schema_location' => Dir.tmpdir))
         get :file, params: { filename: File.basename(tmp_file.path) }
-      end
-
-      after do
-        CONFIG['schema_location'] = previous_schema_location
       end
 
       it "reponses without error" do

@@ -1,4 +1,5 @@
 require 'rails_helper'
+
 require 'gssapi'
 
 RSpec.describe 'Kerberos login', vcr: false, type: :request do
@@ -7,17 +8,10 @@ RSpec.describe 'Kerberos login', vcr: false, type: :request do
     let(:user) { create(:confirmed_user) }
 
     before do
-      @before = {
-        kerberos_service_principal: CONFIG['kerberos_service_principal'],
-        kerberos_realm:             CONFIG['kerberos_realm']
-      }
-      CONFIG['kerberos_service_principal'] = 'HTTP/obs.test.com@test_realm.com'
-      CONFIG['kerberos_realm']             = 'test_realm.com'
-    end
-
-    after do
-      CONFIG['kerberos_service_principal'] = @before[:kerberos_service_principal]
-      CONFIG['kerberos_realm'] = @before[:kerberos_realm]
+      stub_const('CONFIG', CONFIG.merge({
+        'kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
+        'kerberos_realm'             => 'test_realm.com'
+      }))
     end
 
     context 'with valid ticket' do
