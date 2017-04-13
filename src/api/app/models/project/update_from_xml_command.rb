@@ -46,7 +46,6 @@ class Project
       project.update_relationships_from_xml(xmlhash)
 
       #--- update flag group ---#
-      # TODO: Where does update_all_flags method exist??!?
       project.update_all_flags(xmlhash)
       if ::Configuration.default_access_disabled == true && new_record
         # write a default access disable flag by default in this mode for projects if not defined
@@ -299,6 +298,7 @@ class Project
     def update_download_repositories(current_repo, xml_hash)
       dod_repositories = xml_hash.elements("download").map do |dod|
         dod_attributes = {
+           repository: current_repo,
            arch:       dod["arch"],
            url:        dod["url"],
            repotype:   dod["repotype"],
@@ -310,7 +310,9 @@ class Project
           dod_attributes[:mastersslfingerprint] = dod["master"]["sslfingerprint"]
         end
 
-        DownloadRepository.new(dod_attributes)
+        repository = DownloadRepository.new(dod_attributes)
+        raise SaveError, repository.errors.full_messages.to_sentence unless repository.valid?
+        repository
       end
       current_repo.download_repositories.replace(dod_repositories)
     end
