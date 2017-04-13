@@ -637,7 +637,7 @@ OBSApi::Application.routes.draw do
       get 'public/source/:project/:package/:filename' => :source_file, constraints: cons
       get 'public/distributions' => :distributions
       get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
-      get 'public/build/:project(/:repository(/:arch(/:package(/:file))))' => 'public#build', constraints: cons, as: :public_build
+      get 'public/build/:project(/:repository(/:arch(/:package(/:filename))))' => 'public#build', constraints: cons, as: :public_build
     end
 
     get '/404' => 'main#notfound'

@@ -17,14 +17,14 @@ RSpec.describe 'APIMatcher' do
     it { expect(get("/public/configuration?format=#{format}")).to route_to(controller: 'public', action: 'configuration_show', format: format) }
 
     it {
-      expect(get("/public/build/project/repository/arch/package/file.#{format}")).
+      expect(get("/public/build/project/repository/arch/package/filename?format=#{format}")).
         to route_to(controller: 'public',
                     action: 'build',
                     project: 'project',
                     repository: 'repository',
                     arch: 'arch',
                     package: 'package',
-                    file: 'file',
+                    filename: 'filename',
                     format: format)
     }
     it {

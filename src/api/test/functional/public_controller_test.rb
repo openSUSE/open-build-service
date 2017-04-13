@@ -141,6 +141,9 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: "binary", attributes: { filename: "package-1.0-1.i586.rpm" }
 
     get "/public/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm"
+    assert_response 200
+
+    get "/public/build/home:Iggy/10.2/i586/TestPack/not-existent.rpm"
     assert_response 404
   end
 end

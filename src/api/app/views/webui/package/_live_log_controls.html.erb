@@ -2,7 +2,7 @@
   <%= link_to sprited_text('script_lightning', 'Start refresh'), '#', class: 'start_refresh hidden' %>
   <%= link_to sprited_text('script_link', 'Stop refresh'), '#', class: 'stop_refresh' %>
   <% if User.current.is_nobody? %>
-    <%= link_to sprited_text('script', 'Download logfile'), public_build_path(package: @build_container, project: @project, arch: @arch, repository: @repo, file: '_log') %>
+    <%= link_to sprited_text('script', 'Download logfile'), public_build_path(package: @build_container, project: @project, arch: @arch, repository: @repo, filename: '_log') %>
   <% else %>
     <%= link_to sprited_text('script', 'Download logfile'), raw_logfile_path(package: @build_container, project: @project, arch: @arch, repository: @repo) %>
   <% end %>
