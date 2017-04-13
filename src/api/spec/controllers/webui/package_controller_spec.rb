@@ -823,6 +823,48 @@ EOT
         it { expect(flash[:error]).not_to be_nil }
         it { expect(response).to redirect_to(package_show_path(source_project, source_package)) }
       end
+
+      context "with a multibuild package" do
+        let(:params) {
+          { project:    source_project,
+            package:    "#{source_package}:multibuild-package",
+            repository: repo_leap_42_2.name,
+            arch:       architecture.name}
+        }
+        let(:starttime) { 1.hour.ago.to_i }
+
+        before do
+          path = "#{CONFIG['source_url']}/build/#{source_project}/_result?view=status" \
+                 "&package=#{source_package}:multibuild-package&arch=i586&repository=#{repo_leap_42_2}"
+          stub_request(:get, path).and_return(body: %(<resultlist state='123'>
+               <result project='#{source_project}' repository='#{repo_leap_42_2}' arch='i586' code="unpublished" state="unpublished">
+                <status package="#{source_package}:multibuild-package" code="succeeded" />
+               </result>
+              </resultlist>))
+
+          path = "#{CONFIG['source_url']}/build/#{source_project}/#{repo_leap_42_2}/i586/_builddepinfo" \
+                  "?package=#{source_package}:multibuild-package&view=revpkgnames"
+          stub_request(:get, path).and_return(body: %(<builddepinfo>
+                <package name="#{source_package}:multibuild-package">
+                <source>apache2</source>
+                <pkgdep>apache2</pkgdep>
+                </package>
+              </builddepinfo>))
+
+          Timecop.freeze(Time.now) do
+            path = "#{CONFIG['source_url']}/build/#{source_project}/#{repo_leap_42_2}/i586/#{source_package}:multibuild-package/_jobstatus"
+            body = "<jobstatus workerid='42' starttime='#{starttime}'/>"
+            stub_request(:get, path).and_return(body: body)
+
+            do_request params
+          end
+        end
+
+        it { expect(assigns(:what_depends_on)).to eq(['apache2']) }
+        it { expect(assigns(:status)).to eq('succeeded') }
+        it { expect(assigns(:workerid)).to eq('42') }
+        it { expect(assigns(:buildtime)).to eq(1.hour.to_i) }
+      end
     end
 
     describe "GET #update_build_log" do
@@ -870,7 +912,7 @@ EOT
 
         it "should call 'get_size_of_log' with appropriate arguments" do
           expect(controller).to receive(:get_size_of_log).
-              with(source_project, "#{source_package}:multibuild-package", repo_leap_42_2.name, architecture.name)
+            with(source_project, "#{source_package}:multibuild-package", repo_leap_42_2.name, architecture.name)
           do_request params
         end
       end

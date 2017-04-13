@@ -777,7 +777,7 @@ class Webui::PackageController < Webui::WebuiController
     @percent = nil
 
     begin
-      jobstatus = get_job_status( @project, @package, @repo, @arch )
+      jobstatus = get_job_status(@project, @build_container, @repo, @arch)
       unless jobstatus.blank?
         js = Xmlhash.parse(jobstatus)
         @workerid = js.get('workerid')
@@ -810,9 +810,9 @@ class Webui::PackageController < Webui::WebuiController
     # Make sure objects don't contain invalid chars (eg. '../')
 
     @offset = 0
-    if @project && @package && @repo && @arch
-      @status = get_status(@project, @package, @repo, @arch)
-      @what_depends_on = Package.what_depends_on(@project, @package, @repo, @arch)
+    if @project && @build_container && @repo && @arch
+      @status = get_status(@project, @build_container, @repo, @arch)
+      @what_depends_on = Package.what_depends_on(@project, @build_container, @repo, @arch)
     end
 
     set_job_status
