@@ -2,19 +2,18 @@
   <%= link_to sprited_text('script_lightning', 'Start refresh'), '#', class: 'start_refresh hidden' %>
   <%= link_to sprited_text('script_link', 'Stop refresh'), '#', class: 'stop_refresh' %>
   <% if User.current.is_nobody? %>
-    <%= link_to sprited_text('script', 'Download logfile'), public_build_path(package: @build_container, project: @project, arch: @arch, repository: @repo, filename: '_log') %>
+    <%= link_to sprited_text('script', 'Download logfile'), public_build_path(package: @package, project: @project, arch: @arch, repository: @repo, filename: '_log') %>
   <% else %>
-    <%= link_to sprited_text('script', 'Download logfile'), raw_logfile_path(package: @build_container, project: @project, arch: @arch, repository: @repo) %>
+    <%= link_to sprited_text('script', 'Download logfile'), raw_logfile_path(package: @package, project: @project, arch: @arch, repository: @repo) %>
   <% end %>
 </p>
 
-<% if User.current.can_modify_project?(@project) ||
-      (@package.kind_of?(Package) && User.current.can_modify_package?(@package)) %>
+<% if @can_modify %>
     <p>
       <span class="link_trigger_rebuild hidden">
-      <%= link_to sprited_text('rebuild', 'Trigger Rebuild'), {action: 'trigger_rebuild', project: @project, package: @build_container, arch: @arch, repository: @repo}, method: :delete %>
+      <%= link_to sprited_text('rebuild', 'Trigger Rebuild'), {action: 'trigger_rebuild', project: @project, package: @package, arch: @arch, repository: @repo}, method: :delete %>
     </span>
   <span class="link_abort_build hidden">
-      <%= link_to "[Abort build]", action: 'abort_build', project: @project, package: @build_container, arch: @arch, repository: @repo %>
+      <%= link_to "[Abort build]", action: 'abort_build', project: @project, package: @package, arch: @arch, repository: @repo %>
     </span></p>
 <% end %>
