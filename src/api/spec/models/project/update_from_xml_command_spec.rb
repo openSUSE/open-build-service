@@ -2,7 +2,6 @@ require 'rails_helper'
 
 RSpec.describe Project::UpdateFromXmlCommand do
   let!(:project) { create(:project) }
-  let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
   let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
 
   describe "#update_repositories" do
@@ -200,42 +199,71 @@ RSpec.describe Project::UpdateFromXmlCommand do
     end
 
     describe "download repositories" do
-      before do
-        xml_hash = Xmlhash.parse(
-          <<-EOF
-            <project name="#{project.name}">
-              <repository name="repo_1" />
-              <repository name="dod_repo">
-                <download arch='i586' url='http://opensuse.org' repotype='rpmmd'>
-                  <archfilter>i586, noarch</archfilter>
-                  <master url='http://master.opensuse.org' sslfingerprint='my_fingerprint'/>
-                  <pubkey>my_pubkey</pubkey>
-                </download>
-                <arch>i586</arch>
-              </repository>
-            </project>
-          EOF
-        )
-        Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
+      context "valid usecase" do
+        let(:xml_hash) do
+          Xmlhash.parse(
+            <<-EOF
+              <project name="#{project.name}">
+                <repository name="repo_1" />
+                <repository name="dod_repo">
+                  <download arch='i586' url='http://opensuse.org' repotype='rpmmd'>
+                    <archfilter>i586, noarch</archfilter>
+                    <master url='http://master.opensuse.org' sslfingerprint='my_fingerprint'/>
+                    <pubkey>my_pubkey</pubkey>
+                  </download>
+                  <arch>i586</arch>
+                </repository>
+              </project>
+            EOF
+          )
+        end
+
+        subject! { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }
+
+        it "updates download repositories of a repository" do
+          expect(repository_1.download_repositories).to be_empty
+
+          dod_repo = project.repositories.find_by(name: "dod_repo")
+          expect(dod_repo).not_to be_nil
+          expect(dod_repo.download_repositories.count).to eq 1
+        end
+
+        it "updates download_repository attributes" do
+          download_repository = project.repositories.find_by(name: "dod_repo").download_repositories.first
+          expect(download_repository.arch).to eq "i586"
+          expect(download_repository.repotype).to eq "rpmmd"
+          expect(download_repository.url).to eq "http://opensuse.org"
+          expect(download_repository.archfilter).to eq "i586, noarch"
+          expect(download_repository.masterurl).to eq "http://master.opensuse.org"
+          expect(download_repository.mastersslfingerprint).to eq "my_fingerprint"
+          expect(download_repository.pubkey).to eq "my_pubkey"
+        end
       end
 
-      it "updates download repositories of a repository" do
-        expect(repository_1.download_repositories).to be_empty
+      context "invalid usecase" do
+        let(:xml_hash) do
+          Xmlhash.parse(
+            <<-EOF
+              <project name="#{project.name}">
+                <repository name="repo_1" />
+                <repository name="dod_repo">
+                  <download arch='i586' url='http://opensuse.org' repotype='INVALID'>
+                    <archfilter>i586, noarch</archfilter>
+                    <master url='http://master.opensuse.org' sslfingerprint='my_fingerprint'/>
+                    <pubkey>my_pubkey</pubkey>
+                  </download>
+                  <arch>i586</arch>
+                </repository>
+              </project>
+            EOF
+          )
+        end
 
-        dod_repo = project.repositories.find_by(name: "dod_repo")
-        expect(dod_repo).not_to be_nil
-        expect(dod_repo.download_repositories.count).to eq 1
-      end
+        subject { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }
 
-      it "updates download_repository attributes" do
-        download_repository = project.repositories.find_by(name: "dod_repo").download_repositories.first
-        expect(download_repository.arch).to eq "i586"
-        expect(download_repository.repotype).to eq "rpmmd"
-        expect(download_repository.url).to eq "http://opensuse.org"
-        expect(download_repository.archfilter).to eq "i586, noarch"
-        expect(download_repository.masterurl).to eq "http://master.opensuse.org"
-        expect(download_repository.mastersslfingerprint).to eq "my_fingerprint"
-        expect(download_repository.pubkey).to eq "my_pubkey"
+        it "raises an exception for a wrong repotype" do
+          expect { subject }.to raise_error(Project::SaveError, "Repotype is not included in the list")
+        end
       end
     end
 
