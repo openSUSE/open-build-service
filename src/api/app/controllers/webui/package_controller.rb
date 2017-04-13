@@ -807,10 +807,8 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     @offset = 0
-    if @project && @package && @repo && @arch
-      @status = get_status(@project, @package, @repo, @arch)
-      @what_depends_on = Package.what_depends_on(@project, @package, @repo, @arch)
-    end
+    @status = get_status(@project, @package, @repo, @arch)
+    @what_depends_on = Package.what_depends_on(@project, @package, @repo, @arch)
 
     set_job_status
   end
