@@ -834,8 +834,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def update_build_log
-    params.require([:project, :package, :arch, :repository])
-
     check_ajax
 
     @package = params[:package]
