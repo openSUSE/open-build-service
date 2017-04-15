@@ -140,6 +140,7 @@ sub UNTIE {
 sub DESTROY {
   my ($sslr) = @_;
   UNTIE($sslr) if $sslr && $sslr->[0];
+  freectx();
 }
 
 sub peerfingerprint {
