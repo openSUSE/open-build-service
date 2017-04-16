@@ -98,6 +98,10 @@ sub qsystem {
       splice(@args, 0, 2);
     }
     eval {
+      if ($args[0] =~ /\s/) {
+        my @arg0 = split('\s', shift(@args));
+        unshift(@args, @arg0);
+      }
       exec(@args);
       die("$args[0]: $!\n");
     };
