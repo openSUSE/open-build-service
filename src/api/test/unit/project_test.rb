@@ -539,6 +539,23 @@ class ProjectTest < ActiveSupport::TestCase
     assert_xml_tag xml, tag: :arch, content: 'x86_64', before: { tag: :arch, content: 'local' }
   end
 
+  def test_priority
+    User.current = users(:Iggy)
+
+    #project is given as axml
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
+        <description>dummy</description>
+        <priority>17</priority>
+      </project>"
+      )
+    @project.update_from_xml!(axml)
+    @project.reload
+    xml = @project.render_xml
+    assert_xml_tag xml, :tag => :priority, :content => '17'
+  end
+
   def test_maintains
     User.current = users(:Iggy)
 

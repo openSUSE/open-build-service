@@ -526,6 +526,7 @@ sub createrepo_rpmmd {
   }
 
   my $title = $data->{'repoinfo'}->{'title'};
+  my $priority = $data->{'repoinfo'}->{'priority'};
   my $downloadurl = get_downloadurl("$projid/$repoid", $prp_ext);
   if (-x "/usr/bin/repoview") {
     my @downloadurlarg;
@@ -571,6 +572,10 @@ sub createrepo_rpmmd {
       }
     }
     print FILE "enabled=1\n";
+    # 0 represents default so no need to print, plus older version of zypper will reject
+    if ($priority ne 0) {
+      print FILE "priority=$priority\n";
+    }
     close(FILE) || die("close: $!\n");
     rename("$extrep/$projid.repo$$", "$extrep/$projid.repo") || die("rename $extrep/$projid.repo$$ $extrep/$projid.repo: $!\n");
   }
@@ -1800,10 +1805,16 @@ sub publish {
   $title .= " ($repoid)";
   $title =~ s/\n/ /sg;
 
+  my $priority = $proj->{'priority'} || 0;
+  if ($priority !~ /^\d+$/ || $priority < 0) {
+    print "WARNING: priority must be a non-negative integer\n";
+  }
+
   my $state;
   $state = $proj->{'patternmd5'} || '';
   $state .= "\0".join(',', @{$config->{'repotype'} || []}) if %bins;
   $state .= "\0".($proj->{'title'} || '') if %bins;
+  $state .= "\0".$priority if $priority;
   $state .= "\0".join(',', @{$config->{'patterntype'} || []}) if $proj->{'patternmd5'};
   $state .= "\0".join('/', map {"$_->{'project'}/$_->{'repository'}"} @{$prpsearchpath || []}) if $proj->{'patternmd5'};
   $state .= "\0".$updateinfos_state if $updateinfos_state;
@@ -1953,6 +1964,7 @@ sub publish {
     'prpsearchpath' => $prpsearchpath,
     'binaryorigins' => $binaryorigins,
     'title' => $title,
+    'priority' => $priority,
     'state' => $state,
   };
   $repoinfo->{'projectkind'} = $proj->{'kind'} if $proj->{'kind'};
