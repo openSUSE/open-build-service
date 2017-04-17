@@ -43,7 +43,7 @@
 <% require_asset 'webui/application/image_templates' if Feature.active?(:image_templates) %>
 
 function remove_dialog() {
-    $(".dialog:visible").remove();
+    $(this).parents('.dialog:visible').remove();
 }
 
 
