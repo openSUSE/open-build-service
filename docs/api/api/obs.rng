@@ -62,6 +62,8 @@
 
       <value>x86_64</value>
 
+      <value>k1om</value>
+
       <value>local</value>
     </choice>
   </define>
