@@ -75,6 +75,7 @@ module Backend
       backend_response = nil
       if content
         backend_response = Connection.put(full_path(query), content)
+        reload
       else
         @file.open
         backend_response = Connection.put(full_path(query), @file)
