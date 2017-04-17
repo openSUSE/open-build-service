@@ -1,0 +1,48 @@
+#!/bin/bash -e
+#
+# OBS prjconf diff tool
+#
+
+if [ -z "$2" ]; then
+	echo "usage:  $0 <obs project A> <obs project B>"
+        echo ""
+        echo "  Example: ./$0 Debian:7.0 Debian:8.0"
+        echo "" 
+	exit 1
+fi
+
+ORIGDIR=$(pwd)
+WORKDIR=`mktemp -d`
+trap "rm -rf $WORKDIR;" EXIT
+
+pushd $WORKDIR &> /dev/null
+
+A=$ORIGDIR/$1
+B=$ORIGDIR/$2
+
+osc meta prjconf $1 > $A
+osc meta prjconf $2 > $B
+
+ADIR=$1
+BDIR=$2
+
+mkdir -p $ADIR $BDIR
+
+for type in Preinstall Ingore Conflict Prefer Order Support Runscripts VMinstall Required; do
+	grep -i $type $A | grep -Ev "^#" | sed "s/$type: //" | sed 's/ /\n/g' | sort | uniq > $ADIR/$type
+	grep -i $type $B | grep -Ev "^#" | sed "s/$type: //" | sed 's/ /\n/g' | sort | uniq > $BDIR/$type
+done
+
+for type in Substitute; do
+	grep -i $type $A | grep -Ev "^#" | sort | uniq > $ADIR/$type
+	grep -i $type $B | grep -Ev "^#" | sort | uniq > $BDIR/$type
+done
+
+for type in Preinstall Ingore Conflict Prefer Order Support Runscripts VMinstall Required Keep Substitute; do
+	diff -up $ADIR/$type $BDIR/$type > $type.diff 2> /dev/null || true
+	cat $type.diff
+done
+
+popd &> /dev/null
+
+exit 0
