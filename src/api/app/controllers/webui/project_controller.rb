@@ -1,3 +1,5 @@
+require 'rpm'
+
 class Webui::ProjectController < Webui::WebuiController
   require_dependency 'opensuse/validator'
   include Webui::RequestHelper
@@ -1134,14 +1136,7 @@ class Webui::ProjectController < Webui::WebuiController
     ret = {}
     ret['version'] = p.version
     if p.upstream_version
-      begin
-        gup = Gem::Version.new(p.version)
-        guv = Gem::Version.new(p.upstream_version)
-      rescue ArgumentError
-        # if one of the versions can't be parsed we simply can't say
-      end
-
-      if gup && guv && gup < guv
+      if Rpm::PackageVersion.new(p.version) < Rpm::PackageVersion.new(p.upstream_version)
         ret['upstream_version'] = p.upstream_version
         ret['upstream_url'] = p.upstream_url
       end
