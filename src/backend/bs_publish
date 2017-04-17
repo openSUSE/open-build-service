@@ -1195,7 +1195,7 @@ sub map_to_extrep {
   
   my $extrep = "$extrepodir/$prp_ext";
   return $extrep unless $BSConfig::publishredirect;
-  if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
+  if ($BSConfig::publishedredirect_use_regex) {
     for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
       if ($prp =~ /^$key/) {
 	$extrep = $BSConfig::publishredirect->{$key};
