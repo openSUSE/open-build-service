@@ -4762,6 +4762,7 @@ sub getfilelist {
 	  $serviceinfo->{'code'} = 'running';
 	} else {
 	  $serviceinfo->{'code'} = 'failed';
+	  $serviceinfo->{'xsrcmd5'} = $li->{'xservicemd5'};
 	  $serviceinfo->{'error'} = $error;
 	}
       }
