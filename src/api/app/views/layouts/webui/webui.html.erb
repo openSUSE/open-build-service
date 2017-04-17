@@ -13,7 +13,7 @@
     <%= stylesheet_link_tag 'webui/application' %>
     <% if content_for?(:head_style) -%>
       <style type="text/css">
-	<%= yield :head_style %>
+        <%= yield :head_style %>
       </style>
     <% end -%>
     <%= yield :content_for_head %>
@@ -39,6 +39,8 @@
     <%= csrf_meta_tag %>
   </head>
   <body>
+    <div class="overlay"></div>
+
     <%= render 'peek/bar' %>
     <%= render :partial => 'layouts/webui/header' %>
 
