@@ -12,5 +12,8 @@ Can be used after download_url or tar_scm service.
   <parameter name="file">
     <description>Update only the given file.</description>
   </parameter>
+  <parameter name="delay">
+    <description>Delay test execution.</description>
+  </parameter>
 </service>
 

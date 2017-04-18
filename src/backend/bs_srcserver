@@ -5967,7 +5967,21 @@ sub sourcebranch {
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest', undef, $cgi->{'missingok'});
   $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
   print "SOURCEBRANCH $oprojid $opackid\n";
-  my $files = lsrev_expanded($orev);	# modifies srcmd5, thus also needed for keepcontent case
+  my $files;
+  eval {
+    $files = lsrev_expanded($orev);	# modifies srcmd5, thus also needed for keepcontent case
+  };
+  if ($@) {
+    # service file can be processed also in target side, if source service is in progress
+    if ($@ =~ /service in progress/ and not defined $cgi->{'noservice'}) {
+      # get original srcmd5 again, since orev has been modified
+      my $r = getrev($oprojid, $opackid, defined($cgi->{'orev'}) ? $cgi->{'orev'} : 'latest', undef, $cgi->{'missingok'});
+      # skip service expanded files, because service run will be triggered
+      $files = lsrev($r);
+    } else {
+      die $@;
+    }
+  }
   if ($cgi->{'keepcontent'}) {
     die("keepcontent is only supported for branches\n") unless $usebranch;
     my $nrev = getrev($projid, $packid, 'latest');
