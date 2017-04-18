@@ -1,6 +1,6 @@
-#building_list
+#building-list
   - if @workerstatus.has_key? 'building'
-    %table.building#building_table
+    %table.building#building-table
       %thead
         %tr
           %th Project
@@ -47,7 +47,7 @@
 
   = content_for :ready_function do
     :plain
-      $('#building_table').dataTable({
+      $('#building-table').dataTable({
         'aaSorting': [[3, 'desc']],
         'bInfo': false,
         'bPaginate': false,
