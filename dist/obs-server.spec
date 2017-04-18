@@ -491,7 +491,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %files
 %defattr(-,root,root)
-%doc dist/{README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README.md COPYING AUTHORS
+%doc dist/README.UPDATERS docs/openSUSE.org.xml ReleaseNotes-* README.md COPYING AUTHORS
 %dir /etc/slp.reg.d
 %dir /usr/lib/obs
 %dir /usr/lib/obs/server
@@ -581,7 +581,7 @@ usermod -a -G docker obsservicerun
 
 %files -n obs-api
 %defattr(-,root,root)
-%doc dist/{README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README.md COPYING AUTHORS
+%doc dist/README.UPDATERS docs/openSUSE.org.xml ReleaseNotes-* README.md COPYING AUTHORS
 /srv/www/obs/overview
 
 /srv/www/obs/api/config/thinking_sphinx.yml.example

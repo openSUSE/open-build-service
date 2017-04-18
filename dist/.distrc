@@ -21,7 +21,7 @@
 # 'distribute' script for details.
 #
 # These are taken from the tar ball or irrelevant during the build:
-: ${EXCLUDES:=README.SETUP README.UPDATERS TODO .dist* obs.conf.template sysconfig.obs-worker.template obs-all-svn.spec.template obs-server*.*}
+: ${EXCLUDES:=README.UPDATERS TODO .dist* obs.conf.template sysconfig.obs-worker.template obs-all-svn.spec.template obs-server*.*}
 
 # this package is not in maintenance mode here
 # that would mean the tar ball isn't udpated any longer, only patches
