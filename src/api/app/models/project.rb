@@ -391,11 +391,11 @@ class Project < ApplicationRecord
   def self.get_maintenance_project(at = nil)
     # hardcoded default. frontends can lookup themselfs a different target via attribute search
     at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
-    maintenanceProject = Project.find_by_attribute_type(at).first
-    unless maintenanceProject && check_access?(maintenanceProject)
+    maintenance_project = Project.find_by_attribute_type(at).first
+    unless maintenance_project && check_access?(maintenance_project)
       raise UnknownObjectError.new 'There is no project flagged as maintenance project on server and no target in request defined.'
     end
-    maintenanceProject
+    maintenance_project
   end
 
   # check existence of a project (local or remote)
@@ -902,9 +902,9 @@ class Project < ApplicationRecord
     products
   end
 
-  def add_repository_with_targets(repoName, source_repo, add_target_repos = [], opts = {})
-    return if repositories.where(name: repoName).exists?
-    trepo = repositories.create name: repoName
+  def add_repository_with_targets(repo_name, source_repo, add_target_repos = [], opts = {})
+    return if repositories.where(name: repo_name).exists?
+    trepo = repositories.create name: repo_name
 
     trepo.clone_repository_from(source_repo)
     trepo.rebuild = opts[:rebuild] if opts[:rebuild]
@@ -931,10 +931,10 @@ class Project < ApplicationRecord
     skip_repos = a.values.map(&:value) if a
     project.repositories.each do |repo|
       next if skip_repos.include? repo.name
-      repoName = opts[:extend_names] ? repo.extended_name : repo.name
+      repo_name = opts[:extend_names] ? repo.extended_name : repo.name
       next if repo.is_local_channel?
-      pkg_to_enable.enable_for_repository(repoName) if pkg_to_enable
-      next if repositories.find_by_name(repoName)
+      pkg_to_enable.enable_for_repository(repo_name) if pkg_to_enable
+      next if repositories.find_by_name(repo_name)
 
       # copy target repository when operating on a channel
       targets = repo.release_targets if (pkg_to_enable && pkg_to_enable.is_channel?)
@@ -953,7 +953,7 @@ class Project < ApplicationRecord
         target_repos = Repository.find_by_project_and_path(update_project, repo)
       end
 
-      add_repository_with_targets(repoName, repo, target_repos, opts)
+      add_repository_with_targets(repo_name, repo, target_repos, opts)
     end
 
     branch_copy_flags(project)

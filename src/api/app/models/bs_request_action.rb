@@ -504,8 +504,8 @@ class BsRequestAction < ApplicationRecord
     end
 
     found_patchinfo = false
-    newPackages = Array.new
-    newTargets = Array.new
+    new_packages = Array.new
+    new_targets = Array.new
 
     packages.each do |pkg|
       unless pkg.kind_of? Package
@@ -638,39 +638,39 @@ class BsRequestAction < ApplicationRecord
           if is_maintenance_release?
             pkg.project.repositories.includes(:release_targets).each do |repo|
               repo.release_targets.each do |rt|
-                newTargets << rt.target_repository.project.name
+                new_targets << rt.target_repository.project.name
               end
             end
-            newPackages << pkg
+            new_packages << pkg
             next
           elsif !is_maintenance_incident? && !is_submit?
             raise UnknownTargetPackage.new 'target package does not exist'
           end
         end
       end
-      newAction = dup
-      newAction.source_package = pkg.name
+      new_action = dup
+      new_action.source_package = pkg.name
       if is_maintenance_incident?
-        newTargets << tprj.name if tprj
-        newAction.target_releaseproject = releaseproject.name if releaseproject
+        new_targets << tprj.name if tprj
+        new_action.target_releaseproject = releaseproject.name if releaseproject
       elsif !pkg.is_channel?
-        newTargets << tprj.name
-        newAction.target_project = tprj.name
-        newAction.target_package = tpkg + incident_suffix
+        new_targets << tprj.name
+        new_action.target_project = tprj.name
+        new_action.target_package = tpkg + incident_suffix
       end
-      newAction.source_rev = rev if rev
+      new_action.source_rev = rev if rev
       if is_maintenance_release?
         if pkg.is_channel?
           # create submit request for possible changes in the _channel file
-          submitAction = BsRequestActionSubmit.new
-          submitAction.source_project = newAction.source_project
-          submitAction.source_package = newAction.source_package
-          submitAction.source_rev = newAction.source_rev
-          submitAction.target_project = tprj.name
-          submitAction.target_package = tpkg
+          sumbit_action = BsRequestActionSubmit.new
+          sumbit_action.source_project = new_action.source_project
+          sumbit_action.source_package = new_action.source_package
+          sumbit_action.source_rev = new_action.source_rev
+          sumbit_action.target_project = tprj.name
+          sumbit_action.target_package = tpkg
           # replace the new action
-          newAction.destroy
-          newAction = submitAction
+          new_action.destroy
+          new_action = sumbit_action
         else # non-channel package
           next if ReleaseTarget.where(repository: pkg.project.repositories, target_repository: tprj.repositories, trigger: "maintenance").empty?
           unless pkg.project.can_be_released_to_project?(tprj)
@@ -681,13 +681,13 @@ class BsRequestAction < ApplicationRecord
         end
       end
       # no action, nothing to do
-      next unless newAction
+      next unless new_action
       # check if the source contains really a diff or we can skip the entire action
-      if newAction.action_type.in?([:submit, :maintenance_incident]) && !newAction.contains_change?
+      if new_action.action_type.in?([:submit, :maintenance_incident]) && !new_action.contains_change?
         # submit contains no diff, drop it again
-        newAction.destroy
+        new_action.destroy
       else
-        newactions << newAction
+        newactions << new_action
       end
     end
     if is_maintenance_release? && !found_patchinfo && !opts[:ignore_build_state]
@@ -695,17 +695,17 @@ class BsRequestAction < ApplicationRecord
     end
 
     # new packages (eg patchinfos) go to all target projects by default in maintenance requests
-    newTargets.uniq!
-    newPackages.uniq!
-    newPackages.each do |pkg|
-      releaseTargets = nil
+    new_targets.uniq!
+    new_packages.uniq!
+    new_packages.each do |pkg|
+      release_targets = nil
       if pkg.is_patchinfo?
-        releaseTargets = Patchinfo.new.fetch_release_targets(pkg)
+        release_targets = Patchinfo.new.fetch_release_targets(pkg)
       end
-      newTargets.each do |p|
-        unless releaseTargets.blank?
+      new_targets.each do |p|
+        unless release_targets.blank?
           found = false
-          releaseTargets.each do |rt|
+          release_targets.each do |rt|
             if rt['project'] == p
               found = true
               break
@@ -719,13 +719,13 @@ class BsRequestAction < ApplicationRecord
         next if is_maintenance_release? && ReleaseTarget.where(repository: pkg.project.repositories, target_repository: Project.find_by_name(p).repositories, trigger: "maintenance").empty?
         # rubocop:enable Metrics/LineLength
 
-        newAction = dup
-        newAction.source_package = pkg.name
+        new_action = dup
+        new_action.source_package = pkg.name
         unless is_maintenance_incident?
-          newAction.target_project = p
-          newAction.target_package = pkg.name + incident_suffix
+          new_action.target_project = p
+          new_action.target_package = pkg.name + incident_suffix
         end
-        newactions << newAction
+        newactions << new_action
       end
     end
 

@@ -1051,12 +1051,6 @@ Style/UnneededInterpolation:
     - 'src/api/test/functional/release_management_test.rb'
     - 'src/api/test/functional/request_controller_test.rb'
 
-# Offense count: 128
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: snake_case, camelCase
-Style/VariableName:
-  Enabled: false
-
 # Offense count: 3
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: snake_case, normalcase, non_integer

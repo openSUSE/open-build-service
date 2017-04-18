@@ -1170,16 +1170,16 @@ class Package < ApplicationRecord
     sources_changed
   end
 
-  def enable_for_repository(repoName)
+  def enable_for_repository(repo_name)
     update_needed = nil
     if project.flags.find_by_flag_and_status( 'build', 'disable' )
       # enable package builds if project default is disabled
-      flags.create( position: 1, flag: 'build', status: 'enable', repo: repoName )
+      flags.create( position: 1, flag: 'build', status: 'enable', repo: repo_name )
       update_needed = true
     end
     if project.flags.find_by_flag_and_status( 'debuginfo', 'disable' )
       # take over debuginfo config from origin project
-      flags.create( position: 1, flag: 'debuginfo', status: 'enable', repo: repoName )
+      flags.create( position: 1, flag: 'debuginfo', status: 'enable', repo: repo_name )
       update_needed = true
     end
     store if update_needed

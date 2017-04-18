@@ -389,8 +389,8 @@ class SourceController < ApplicationController
                                                  use_source: use_source, follow_project_links: follow_project_links)
       if @package # for remote package case it's nil
         @project = @package.project
-        ignoreLock = @command == 'unlock'
-        unless Read_commands.include?(@command) || User.current.can_modify_package?(@package, ignoreLock)
+        ignore_lock = @command == 'unlock'
+        unless Read_commands.include?(@command) || User.current.can_modify_package?(@package, ignore_lock)
           raise CmdExecutionNoPermission.new "no permission to modify package #{@package.name} in project #{@project.name}"
         end
       end
@@ -608,14 +608,14 @@ class SourceController < ApplicationController
     path = pubkey_path
 
     # check for permissions
-    upperProject = @prj.name.gsub(/:[^:]*$/, '')
-    while upperProject != @prj.name && upperProject.present?
-      if Project.exists_by_name(upperProject) && User.current.can_modify_project?(Project.get_by_name(upperProject))
+    upper_project = @prj.name.gsub(/:[^:]*$/, '')
+    while upper_project != @prj.name && upper_project.present?
+      if Project.exists_by_name(upper_project) && User.current.can_modify_project?(Project.get_by_name(upper_project))
         pass_to_backend path
         return
       end
-      break unless upperProject.include? ':'
-      upperProject = upperProject.gsub(/:[^:]*$/, '')
+      break unless upper_project.include? ':'
+      upper_project = upper_project.gsub(/:[^:]*$/, '')
     end
 
     if User.current.is_admin?
@@ -1276,7 +1276,7 @@ class SourceController < ApplicationController
     unless User.current.can_modify_project?(project)
       raise CmdExecutionNoPermission.new "no permission to execute command 'copy'"
     end
-    unless User.current.can_modify_package?(opackage, true) # ignoreLock option
+    unless User.current.can_modify_package?(opackage, true) # ignore_lock option
       raise CmdExecutionNoPermission.new "no permission to modify source package"
     end
 

@@ -52,7 +52,7 @@ class BsRequestActionSubmit < BsRequestAction
       target_package = target_project.packages.find_by_name(source_package)
     end
 
-    relinkSource = false
+    relink_source = false
     unless target_package
       # check for target project attributes
       initialize_devel_package = target_project.find_attribute( "OBS", "InitializeDevelPackage" )
@@ -77,7 +77,7 @@ class BsRequestActionSubmit < BsRequestAction
         target_package.remove_all_groups
         if initialize_devel_package
           target_package.develpackage = Package.find_by_project_and_name( source_project, source_package )
-          relinkSource = true
+          relink_source = true
         end
         target_package.store(comment: "submit request #{bs_request.number}", request: bs_request)
       end
@@ -95,7 +95,7 @@ class BsRequestActionSubmit < BsRequestAction
     target_package.sources_changed
 
     # cleanup source project
-    if relinkSource && !(sourceupdate == "noupdate")
+    if relink_source && !(sourceupdate == "noupdate")
       # source package got used as devel package, link it to the target
       # re-create it via branch , but keep current content...
       h = {}

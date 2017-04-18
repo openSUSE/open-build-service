@@ -56,7 +56,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     super(opts)
   end
 
-  def _merge_pkg_into_maintenance_incident(incidentProject)
+  def _merge_pkg_into_maintenance_incident(incident_project)
     # recreate package based on link target and throw everything away, except source changes
     # silently as maintenance teams requests ...
     new_pkg = nil
@@ -74,12 +74,12 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
     # patchinfos are handled as new packages
     if kinds.include? 'patchinfo'
-      if Package.exists_by_project_and_name(incidentProject.name, source_package, follow_project_links: false)
-        new_pkg = Package.get_by_project_and_name(incidentProject.name, source_package, use_source: false, follow_project_links: false)
+      if Package.exists_by_project_and_name(incident_project.name, source_package, follow_project_links: false)
+        new_pkg = Package.get_by_project_and_name(incident_project.name, source_package, use_source: false, follow_project_links: false)
       else
-        new_pkg = incidentProject.packages.create(name: source_package, title: pkg_title, description: pkg_description)
+        new_pkg = incident_project.packages.create(name: source_package, title: pkg_title, description: pkg_description)
         new_pkg.flags.create(status: 'enable', flag: 'build')
-        new_pkg.flags.create(status: 'enable', flag: 'publish') unless incidentProject.flags.find_by_flag_and_status('access', 'disable')
+        new_pkg.flags.create(status: 'enable', flag: 'publish') unless incident_project.flags.find_by_flag_and_status('access', 'disable')
         new_pkg.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
       end
 
@@ -88,7 +88,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       package_name = source_package
       package_name = linkinfo['package'] if linkinfo
 
-      branch_params = {target_project: incidentProject.name,
+      branch_params = {target_project: incident_project.name,
                        olinkrev: 'base',
                        requestid: bs_request.number,
                        maintenance: 1,
@@ -116,7 +116,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       linked_project = linkinfo['project']
       linked_package = linkinfo['package']
 
-      branch_params = {target_project: incidentProject.name,
+      branch_params = {target_project: incident_project.name,
                        olinkrev: 'base',
                        requestid: bs_request.number,
                        maintenance: 1,
@@ -126,11 +126,11 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       ret = BranchPackage.new(branch_params).branch
       new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
     elsif linkinfo && linkinfo['package'] # a new package for all targets
-      if Package.exists_by_project_and_name(incidentProject.name, source_package, follow_project_links: false)
-        new_pkg = Package.get_by_project_and_name(incidentProject.name, source_package, use_source: false, follow_project_links: false)
+      if Package.exists_by_project_and_name(incident_project.name, source_package, follow_project_links: false)
+        new_pkg = Package.get_by_project_and_name(incident_project.name, source_package, use_source: false, follow_project_links: false)
       else
         new_pkg = Package.new(name: source_package, title: pkg.title, description: pkg.description)
-        incidentProject.packages << new_pkg
+        incident_project.packages << new_pkg
         new_pkg.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
       end
     else
@@ -151,7 +151,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       comment:        "Maintenance incident copy from project #{source_project}"
     }
     cp_params[:orev] = source_rev if source_rev
-    cp_path = "/source/#{CGI.escape(incidentProject.name)}/#{CGI.escape(new_pkg.name)}"
+    cp_path = "/source/#{CGI.escape(incident_project.name)}/#{CGI.escape(new_pkg.name)}"
     cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage,
                                                                      :orev, :keeplink, :expand, :comment,
                                                                      :requestid, :withacceptinfo])
@@ -163,13 +163,13 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     new_pkg
   end
 
-  def merge_into_maintenance_incident(incidentProject)
+  def merge_into_maintenance_incident(incident_project)
     # copy all or selected packages and project source files from base project
     # we don't branch from it to keep the link target.
-    pkg = _merge_pkg_into_maintenance_incident(incidentProject)
+    pkg = _merge_pkg_into_maintenance_incident(incident_project)
 
-    incidentProject.save!
-    incidentProject.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
+    incident_project.save!
+    incident_project.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
     pkg
   end
 
@@ -197,14 +197,14 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
   def expand_targets(ignore_build_state)
     # find maintenance project
-    maintenanceProject = nil
+    maintenance_project = nil
     if target_project
-      maintenanceProject = Project.get_by_name target_project
+      maintenance_project = Project.get_by_name target_project
     else
-      maintenanceProject = Project.get_maintenance_project
-      self.target_project = maintenanceProject.name
+      maintenance_project = Project.get_maintenance_project
+      self.target_project = maintenance_project.name
     end
-    unless maintenanceProject.is_maintenance_incident? || maintenanceProject.is_maintenance?
+    unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
       raise NoMaintenanceProject.new 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
     end
     raise IllegalRequest.new 'Target package must not be specified in maintenance_incident actions' if target_package

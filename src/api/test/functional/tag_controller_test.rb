@@ -13,20 +13,20 @@ class TagControllerTest < ActionDispatch::IntegrationTest
       s_to_tag(tag)
     end
 
-    def @controller.private_taglistXML_to_tags(taglistXML)
-      taglistXML_to_tags(taglistXML)
+    def @controller.private_taglistXML_to_tags(tag_list_xml)
+      taglistXML_to_tags(tag_list_xml)
     end
 
-    def @controller.private_create_relationship(object, tagCreator, tag)
-      create_relationship(object, tagCreator, tag)
+    def @controller.private_create_relationship(object, tag_creator, tag)
+      create_relationship(object, tag_creator, tag)
     end
 
-    def @controller.private_save_tags(object, tagCreator, tags)
-      save_tags(object, tagCreator, tags)
+    def @controller.private_save_tags(object, tag_creator, tags)
+      save_tags(object, tag_creator, tags)
     end
 
-    def @controller.private_taglistXML_to_tags(taglistXML)
-      taglistXML_to_tags(taglistXML)
+    def @controller.private_taglistXML_to_tags(tag_list_xml)
+      taglistXML_to_tags(tag_list_xml)
     end
 
     reset_auth

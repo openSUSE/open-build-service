@@ -140,6 +140,10 @@ Style/TernaryParentheses:
 Style/UnneededInterpolation:
   Enabled: true
 
+# Checks for all variables to use the configured style, snake_case or camelCase, for their names.
+Style/VariableName:
+  Enabled: true
+
 # Checks for predicates than can be replaced by receiver.empty? and !receiver.empty?
 Style/ZeroLengthPredicate:
   Enabled: true
