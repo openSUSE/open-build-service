@@ -124,7 +124,7 @@ function patchinfoReady() {
         $("#selected_binaries option[value='']").remove();
         moveSelectedItems('#available_binaries', '#selected_binaries');
     });
-    $('#addAll').click(function () {
+    $('#add-all').click(function () {
         $("#selected_binaries option[value='']").remove();
         $('#available_binaries option').attr('selected', 'true');
         moveSelectedItems('#available_binaries', '#selected_binaries');
@@ -132,7 +132,7 @@ function patchinfoReady() {
     $('#remove').click(function () {
         moveSelectedItems('#selected_binaries', '#available_binaries');
     });
-    $('#removeAll').click(function () {
+    $('#remove-all').click(function () {
         $('#selected_binaries option').attr('selected', 'true');
         moveSelectedItems('#selected_binaries', '#available_binaries');
     });

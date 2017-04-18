@@ -93,18 +93,18 @@
             - @binarylist.each { |d| available_bin << "#{d.to_s}" }
             - selected_bin = Array.new
             - @binaries.each { |bin| selected_bin << "#{bin.to_s}" }
-            #avail_bin{style: "float:left; width:44%; margin-left:5px;"}
+            #avail-bin{style: "float:left; width:44%; margin-left:5px;"}
               = select_tag 'available_binaries', options_for_select(available_bin), :multiple => true, :size => 6, :style => 'width:100%;'
-            #bin_options{style: "float:left; width:28px;"}
+            #bin-options{style: "float:left; width:28px;"}
               %input#add{style: "width:28px;", type: "button", value: ">"}/
               %br/
-              %input#addAll{style: "width:28px;", type: "button", value: ">>"}/
+              %input#add-all{style: "width:28px;", type: "button", value: ">>"}/
               %br/
-              %input#removeAll{style: "width:28px;", type: "button", value: "<<"}/
+              %input#remove-all{style: "width:28px;", type: "button", value: "<<"}/
               %br/
               %input#remove{style: "width:28px;", type: "button", value: "<"}/
               %br/
-            #sele_bin{style: "width:44%; float:left;"}
+            #sele-bin{style: "width:44%; float:left;"}
               - if !selected_bin.blank?
                 = select_tag 'selected_binaries', options_for_select(selected_bin), :multiple => true, :size => 6, :style => 'width:100%;'
               - else
