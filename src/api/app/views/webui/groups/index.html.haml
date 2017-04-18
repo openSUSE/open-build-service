@@ -6,7 +6,7 @@
   %p
     Manage groups.
   - unless @groups.empty?
-    %table.compact#group_table
+    %table.compact#group-table
       %thead
         %tr
           %th Group name
@@ -28,5 +28,5 @@
 - if @groups.length > 0
   :javascript
     $(function() {
-      $('#group_table').dataTable();
+      $('#group-table').dataTable();
     });
