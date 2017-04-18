@@ -497,7 +497,7 @@ class User < ApplicationRecord
   end
 
   # project is instance of Project
-  def can_modify_project?(project, ignoreLock = nil)
+  def can_modify_project?(project, ignore_lock = nil)
     unless project.kind_of? Project
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
@@ -507,16 +507,16 @@ class User < ApplicationRecord
       raise NotFoundError, "Project is not stored yet"
     end
 
-    can_modify_project_internal(project, ignoreLock)
+    can_modify_project_internal(project, ignore_lock)
   end
 
   # package is instance of Package
-  def can_modify_package?(package, ignoreLock = nil)
+  def can_modify_package?(package, ignore_lock = nil)
     return false if package.nil? # happens with remote packages easily
     unless package.kind_of? Package
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
-    return false if !ignoreLock && package.is_locked?
+    return false if !ignore_lock && package.is_locked?
     return true if is_admin?
     return true if has_global_permission? 'change_package'
     return true if has_local_permission? 'change_package', package
@@ -524,12 +524,12 @@ class User < ApplicationRecord
   end
 
   # project is instance of Project
-  def can_create_package_in?(project, ignoreLock = nil)
+  def can_create_package_in?(project, ignore_lock = nil)
     unless project.kind_of? Project
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
-    return false if !ignoreLock && project.is_locked?
+    return false if !ignore_lock && project.is_locked?
     return true if is_admin?
     return true if has_global_permission? 'create_package'
     return true if has_local_permission? 'create_package', project
@@ -898,9 +898,9 @@ class User < ApplicationRecord
 
   private
 
-  def can_modify_project_internal(project, ignoreLock)
+  def can_modify_project_internal(project, ignore_lock)
     # The ordering is important because of the lock status check
-    return false if !ignoreLock && project.is_locked?
+    return false if !ignore_lock && project.is_locked?
     return true if is_admin?
 
     return true if has_global_permission? 'change_project'

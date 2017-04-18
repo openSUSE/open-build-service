@@ -7,87 +7,87 @@ module MaintenanceHelper
 
   class MultipleUpdateInfoTemplate < APIException; end
 
-  def _release_product(sourcePackage, targetProject, action)
-    productPackage = Package.find_by_project_and_name sourcePackage.project.name, "_product"
+  def _release_product(source_package, target_project, action)
+    product_package = Package.find_by_project_and_name source_package.project.name, "_product"
     # create package container, if missing
-    tpkg = create_package_container_if_missing(productPackage, "_product", targetProject)
+    tpkg = create_package_container_if_missing(product_package, "_product", target_project)
     # copy sources
-    release_package_copy_sources(action, productPackage, "_product", targetProject)
+    release_package_copy_sources(action, product_package, "_product", target_project)
     tpkg.project.update_product_autopackages
     tpkg.sources_changed
   end
 
-  def _release_package(sourcePackage, targetProject, targetPackageName, action, relink)
+  def _release_package(source_package, target_project, target_package_name, action, relink)
     # create package container, if missing
-    tpkg = create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)
+    tpkg = create_package_container_if_missing(source_package, target_package_name, target_project)
 
     link = nil
     if relink
       # detect local links
       begin
-        link = sourcePackage.source_file('_link')
+        link = source_package.source_file('_link')
         link = ActiveXML::Node.new(link)
       rescue ActiveXML::Transport::Error
         link = nil
       end
     end
-    if link && (link.value(:project).nil? || link.value(:project) == sourcePackage.project.name)
-      release_package_relink(link, action, targetPackageName, targetProject, tpkg)
+    if link && (link.value(:project).nil? || link.value(:project) == source_package.project.name)
+      release_package_relink(link, action, target_package_name, target_project, tpkg)
     else
       # copy sources
-      release_package_copy_sources(action, sourcePackage, targetPackageName, targetProject)
+      release_package_copy_sources(action, source_package, target_package_name, target_project)
       tpkg.sources_changed
     end
   end
 
-  def release_package(sourcePackage, target, targetPackageName,
-                      filterSourceRepository = nil, action = nil, setrelease = nil, manual = nil)
+  def release_package(source_package, target, target_package_name,
+                      filter_source_repository = nil, action = nil, setrelease = nil, manual = nil)
     if target.kind_of? Repository
-      targetProject = target.project
+      target_project = target.project
     else
       # project
-      targetProject = target
+      target_project = target
     end
-    targetProject.check_write_access!
+    target_project.check_write_access!
 
-    if sourcePackage.name.starts_with?("_product:") && targetProject.packages.where(name: "_product").count > 0
+    if source_package.name.starts_with?("_product:") && target_project.packages.where(name: "_product").count > 0
       # a master _product container exists, so we need to copy all sources
-      _release_product(sourcePackage, targetProject, action)
+      _release_product(source_package, target_project, action)
     else
-      _release_package(sourcePackage, targetProject, targetPackageName, action, manual ? nil : true)
+      _release_package(source_package, target_project, target_package_name, action, manual ? nil : true)
     end
 
     # copy binaries
     if target.kind_of? Repository
-      uIDs = copy_binaries_to_repository(filterSourceRepository, sourcePackage, target, targetPackageName, setrelease)
+      u_ids = copy_binaries_to_repository(filter_source_repository, source_package, target, target_package_name, setrelease)
     else
-      uIDs = copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
+      u_ids = copy_binaries(filter_source_repository, source_package, target_package_name, target_project, setrelease)
     end
 
     # create or update main package linking to incident package
-    unless sourcePackage.is_patchinfo? || manual
-      release_package_create_main_package(action.bs_request, sourcePackage, targetPackageName, targetProject)
+    unless source_package.is_patchinfo? || manual
+      release_package_create_main_package(action.bs_request, source_package, target_package_name, target_project)
     end
 
     # publish incident if source is read protect, but release target is not. assuming it got public now.
-    f = sourcePackage.project.flags.find_by_flag_and_status( 'access', 'disable' )
+    f = source_package.project.flags.find_by_flag_and_status( 'access', 'disable' )
     if f
-      unless targetProject.flags.find_by_flag_and_status( 'access', 'disable' )
-        sourcePackage.project.flags.delete(f)
-        sourcePackage.project.store({comment: 'project becomes public on release action'})
+      unless target_project.flags.find_by_flag_and_status( 'access', 'disable' )
+        source_package.project.flags.delete(f)
+        source_package.project.store({comment: 'project becomes public on release action'})
         # patchinfos stay unpublished, it is anyway too late to test them now ...
       end
     end
 
-    uIDs
+    u_ids
   end
 
-  def release_package_relink(link, action, targetPackageName, targetProject, tpkg)
+  def release_package_relink(link, action, target_package_name, target_project, tpkg)
     link.delete_attribute('project') # its a local link, project name not needed
-    link.set_attribute('package', link.value(:package).gsub(/\..*/, '') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
+    link.set_attribute('package', link.value(:package).gsub(/\..*/, '') + target_package_name.gsub(/.*\./, '.')) # adapt link target with suffix
     link_xml = link.dump_xml
     # rubocop:disable Metrics/LineLength
-    Backend::Connection.put "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
+    Backend::Connection.put "/source/#{URI.escape(target_project.name)}/#{URI.escape(target_package_name)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
     # rubocop:enable Metrics/LineLength
     md5 = Digest::MD5.hexdigest(link_xml)
     # commit with noservice parameter
@@ -95,71 +95,71 @@ module MaintenanceHelper
       user:      User.current.login,
       cmd:       "commitfilelist",
       noservice: "1",
-      comment:   "Set local link to #{targetPackageName} via maintenance_release request"
+      comment:   "Set local link to #{target_package_name} via maintenance_release request"
     }
     upload_params[:requestid] = action.bs_request.number if action
-    upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
+    upload_path = "/source/#{URI.escape(target_project.name)}/#{URI.escape(target_package_name)}"
     upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
     answer = Backend::Connection.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
     tpkg.sources_changed(dir_xml: answer)
   end
 
-  def release_package_create_main_package(request, sourcePackage, targetPackageName, targetProject)
-    basePackageName = targetPackageName.gsub(/\.[^\.]*$/, '')
+  def release_package_create_main_package(request, source_package, target_package_name, target_project)
+    base_package_name = target_package_name.gsub(/\.[^\.]*$/, '')
 
     # only if package does not contain a _patchinfo file
     lpkg = nil
-    if Package.exists_by_project_and_name(targetProject.name, basePackageName, follow_project_links: false)
-      lpkg = Package.get_by_project_and_name(targetProject.name, basePackageName, use_source: false, follow_project_links: false)
+    if Package.exists_by_project_and_name(target_project.name, base_package_name, follow_project_links: false)
+      lpkg = Package.get_by_project_and_name(target_project.name, base_package_name, use_source: false, follow_project_links: false)
     else
-      lpkg = Package.new(name: basePackageName, title: sourcePackage.title, description: sourcePackage.description)
-      targetProject.packages << lpkg
+      lpkg = Package.new(name: base_package_name, title: source_package.title, description: source_package.description)
+      target_project.packages << lpkg
       lpkg.store
     end
     upload_params = {
       user:    User.current.login,
       rev:     "repository",
-      comment: "Set link to #{targetPackageName} via maintenance_release request"
+      comment: "Set link to #{target_package_name} via maintenance_release request"
     }
-    upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}/_link"
+    upload_path = "/source/#{URI.escape(target_project.name)}/#{URI.escape(base_package_name)}/_link"
     upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :rev])
-    link = "<link package='#{targetPackageName}' cicount='copy' />\n"
+    link = "<link package='#{target_package_name}' cicount='copy' />\n"
     md5 = Digest::MD5.hexdigest(link)
     Backend::Connection.put upload_path, link
     # commit
     upload_params[:cmd] = 'commitfilelist'
     upload_params[:noservice] = '1'
     upload_params[:requestid] = request.number if request
-    upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}"
+    upload_path = "/source/#{URI.escape(target_project.name)}/#{URI.escape(base_package_name)}"
     upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
     answer = Backend::Connection.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
     lpkg.sources_changed(dir_xml: answer)
   end
 
-  def release_package_copy_sources(action, sourcePackage, targetPackageName, targetProject)
+  def release_package_copy_sources(action, source_package, target_package_name, target_project)
     # backend copy of current sources as full copy
     # that means the xsrcmd5 is different, but we keep the incident project anyway.
     cp_params = {
       cmd:            "copy",
       user:           User.current.login,
-      oproject:       sourcePackage.project.name,
-      opackage:       sourcePackage.name,
-      comment:        "Release from #{sourcePackage.project.name} / #{sourcePackage.name}",
+      oproject:       source_package.project.name,
+      opackage:       source_package.name,
+      comment:        "Release from #{source_package.project.name} / #{source_package.name}",
       expand:         "1",
       withvrev:       "1",
       noservice:      "1",
       withacceptinfo: "1"
     }
     cp_params[:requestid] = action.bs_request.number if action
-    if targetProject.is_maintenance_release? && sourcePackage.is_link?
+    if target_project.is_maintenance_release? && source_package.is_link?
       # no permission check here on purpose
-      if sourcePackage.linkinfo['project'] == targetProject.name &&
-         sourcePackage.linkinfo['package'] == targetPackageName.gsub(/\.[^\.]*$/, '')
+      if source_package.linkinfo['project'] == target_project.name &&
+         source_package.linkinfo['package'] == target_package_name.gsub(/\.[^\.]*$/, '')
         # link target is equal to release target. So we freeze our link.
         cp_params[:freezelink] = 1
       end
     end
-    cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
+    cp_path = "/source/#{CGI.escape(target_project.name)}/#{CGI.escape(target_package_name)}"
     cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject,
                                                                      :opackage, :comment, :requestid,
                                                                      :expand, :withvrev, :noservice,
@@ -169,50 +169,50 @@ module MaintenanceHelper
     action.set_acceptinfo(result["acceptinfo"]) if action
   end
 
-  def copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
-    updateIDs = []
-    sourcePackage.project.repositories.each do |sourceRepo|
-      next if filterSourceRepository && filterSourceRepository != sourceRepo
-      sourceRepo.release_targets.each do |releasetarget|
+  def copy_binaries(filter_source_repository, source_package, target_package_name, target_project, setrelease)
+    update_ids = []
+    source_package.project.repositories.each do |source_repo|
+      next if filter_source_repository && filter_source_repository != source_repo
+      source_repo.release_targets.each do |releasetarget|
         # FIXME: filter given release and/or target repos here
-        if releasetarget.target_repository.project == targetProject
-          uID = copy_binaries_to_repository(sourceRepo, sourcePackage, releasetarget.target_repository, targetPackageName, setrelease)
-          updateIDs << uID if uID
+        if releasetarget.target_repository.project == target_project
+          u_id = copy_binaries_to_repository(source_repo, source_package, releasetarget.target_repository, target_package_name, setrelease)
+          update_ids << u_id if u_id
         end
         # remove maintenance release trigger in source
         if releasetarget.trigger == 'maintenance'
           releasetarget.trigger = nil
           releasetarget.save!
-          sourceRepo.project.store
+          source_repo.project.store
         end
       end
     end
-    updateIDs
+    update_ids
   end
 
-  def copy_binaries_to_repository(sourceRepository, sourcePackage, targetRepo, targetPackageName, setrelease)
-    uID = get_updateinfo_id(sourcePackage, targetRepo)
-    sourceRepository.architectures.each do |arch|
+  def copy_binaries_to_repository(source_repository, source_package, target_repo, target_package_name, setrelease)
+    u_id = get_updateinfo_id(source_package, target_repo)
+    source_repository.architectures.each do |arch|
       # get updateinfo id in case the source package comes from a maintenance project
-      copy_single_binary(arch, targetRepo, sourcePackage, sourceRepository, targetPackageName, uID, setrelease)
+      copy_single_binary(arch, target_repo, source_package, source_repository, target_package_name, u_id, setrelease)
     end
-    uID
+    u_id
   end
 
-  def copy_single_binary(arch, target_repository, sourcePackage, sourceRepo, targetPackageName, updateinfoId, setrelease)
+  def copy_single_binary(arch, target_repository, source_package, source_repo, target_package_name, update_info_id, setrelease)
     cp_params = {
       cmd:         "copy",
-      oproject:    sourcePackage.project.name,
-      opackage:    sourcePackage.name,
-      orepository: sourceRepo.name,
+      oproject:    source_package.project.name,
+      opackage:    source_package.name,
+      orepository: source_repo.name,
       user:        User.current.login,
       multibuild:  "1",
       resign:      "1"
     }
-    cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
+    cp_params[:setupdateinfoid] = update_info_id if update_info_id
     cp_params[:setrelease] = setrelease if setrelease
     # rubocop:disable Metrics/LineLength
-    cp_path = "/build/#{CGI.escape(target_repository.project.name)}/#{URI.escape(target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
+    cp_path = "/build/#{CGI.escape(target_repository.project.name)}/#{URI.escape(target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(target_package_name)}"
     # rubocop:enable Metrics/LineLength
     cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage,
                                                                      :orepository, :setupdateinfoid,
@@ -220,15 +220,15 @@ module MaintenanceHelper
     Backend::Connection.post cp_path
   end
 
-  def get_updateinfo_id(sourcePackage, targetRepo)
-    return unless sourcePackage.is_patchinfo?
+  def get_updateinfo_id(source_package, target_repo)
+    return unless source_package.is_patchinfo?
 
     # check for patch name inside of _patchinfo file
-    xml = Patchinfo.new.read_patchinfo_xmlhash(sourcePackage)
+    xml = Patchinfo.new.read_patchinfo_xmlhash(source_package)
     e = xml.elements("name")
-    patchName = e ? e.first : ""
+    patch_name = e ? e.first : ""
 
-    mi = MaintenanceIncident.find_by_db_project_id(sourcePackage.project_id)
+    mi = MaintenanceIncident.find_by_db_project_id(source_package.project_id)
     return unless mi
 
     id_template = "%Y-%C"
@@ -239,36 +239,36 @@ module MaintenanceHelper
     end
 
     # expand a possible defined update info template in release target of channel
-    projectFilter = nil
-    prj = sourcePackage.project.parent
+    project_filter = nil
+    prj = source_package.project.parent
     if prj && prj.is_maintenance?
-      projectFilter = prj.maintained_projects.map(&:project)
+      project_filter = prj.maintained_projects.map(&:project)
     end
     # prefer a channel in the source project to avoid double hits exceptions
-    cts = ChannelTarget.find_by_repo(targetRepo, [sourcePackage.project])
-    cts = ChannelTarget.find_by_repo(targetRepo, projectFilter) unless cts.any?
+    cts = ChannelTarget.find_by_repo(target_repo, [source_package.project])
+    cts = ChannelTarget.find_by_repo(target_repo, project_filter) unless cts.any?
     first_ct = cts.first
     unless cts.all?{|c| c.id_template == first_ct.id_template}
       msg = cts.map{|cti| "#{cti.channel.package.project.name}/#{cti.channel.package.name}"}.join(", ")
-      raise MultipleUpdateInfoTemplate.new "Multiple channel targets found in #{msg} for repository #{targetRepo.project.name}/#{targetRepo.name}"
+      raise MultipleUpdateInfoTemplate.new "Multiple channel targets found in #{msg} for repository #{target_repo.project.name}/#{target_repo.name}"
     end
     id_template = cts.first.id_template if cts.first && cts.first.id_template
 
-    uID = mi.getUpdateinfoId(id_template, patchName)
-    uID
+    u_id = mi.getUpdateinfoId(id_template, patch_name)
+    u_id
   end
 
-  def create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)
+  def create_package_container_if_missing(source_package, target_package_name, target_project)
     tpkg = nil
-    if Package.exists_by_project_and_name(targetProject.name, targetPackageName, follow_project_links: false)
-      tpkg = Package.get_by_project_and_name(targetProject.name, targetPackageName, use_source: false, follow_project_links: false)
+    if Package.exists_by_project_and_name(target_project.name, target_package_name, follow_project_links: false)
+      tpkg = Package.get_by_project_and_name(target_project.name, target_package_name, use_source: false, follow_project_links: false)
     else
-      tpkg = Package.new(name: targetPackageName,
-                         releasename: sourcePackage.releasename,
-                         title: sourcePackage.title,
-                         description: sourcePackage.description)
-      targetProject.packages << tpkg
-      if sourcePackage.is_patchinfo?
+      tpkg = Package.new(name: target_package_name,
+                         releasename: source_package.releasename,
+                         title: source_package.title,
+                         description: source_package.description)
+      target_project.packages << tpkg
+      if source_package.is_patchinfo?
         # publish patchinfos only
         tpkg.flags.create(flag: 'publish', status: 'enable')
       end
@@ -277,13 +277,13 @@ module MaintenanceHelper
     tpkg
   end
 
-  def import_channel(channel, pkg, targetRepo = nil)
+  def import_channel(channel, pkg, target_repo = nil)
     channel = REXML::Document.new(channel)
 
-    if targetRepo
+    if target_repo
       channel.elements['/channel'].add_element 'target', {
-        "project"    => targetRepo.project.name,
-        "repository" => targetRepo.name
+        "project"    => target_repo.project.name,
+        "repository" => target_repo.name
       }
     end
 

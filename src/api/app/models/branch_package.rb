@@ -283,13 +283,13 @@ class BranchPackage
   def lookup_incident_pkg(p)
     return unless p[:package].kind_of? Package
     @obs_maintenanceproject ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
-    @maintenanceProjects ||= Project.find_by_attribute_type(@obs_maintenanceproject)
+    @maintenance_projects ||= Project.find_by_attribute_type(@obs_maintenanceproject)
     incident_pkg = nil
     p[:link_target_project].maintenance_projects.each do |mp|
       # no defined devel area or no package inside, but we branch from a release are: check in open incidents
 
       # only approved maintenance projects
-      next unless @maintenanceProjects.include? mp.maintenance_project
+      next unless @maintenance_projects.include? mp.maintenance_project
 
       # rubocop:disable Metrics/LineLength
       path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(p[:package].name)}\"+and+linkinfo/@project=\"#{CGI.escape(p[:link_target_project].name)}\""

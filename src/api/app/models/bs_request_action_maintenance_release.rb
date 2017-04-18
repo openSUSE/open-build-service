@@ -52,7 +52,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   end
 
   def per_request_cleanup(opts)
-    cleanedProjects = {}
+    cleaned_projects = {}
     # log release events once in target project
     opts[:projectCommit].each do |tprj, sprj|
       commit_params = {
@@ -67,10 +67,10 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       commit_path << Backend::Connection.build_query_from_hash(commit_params, [:cmd, :user, :comment, :requestid, :rev])
       Backend::Connection.post commit_path
 
-      next if cleanedProjects[sprj]
+      next if cleaned_projects[sprj]
       # cleanup published binaries to save disk space on ftp server and mirrors
       Backend::Connection.post "/build/#{URI.escape(sprj)}?cmd=wipepublishedlocked"
-      cleanedProjects[sprj] = 1
+      cleaned_projects[sprj] = 1
     end
     opts[:projectCommit] = {}
   end
@@ -136,8 +136,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   def set_acceptinfo(ai)
     # packages in maintenance_release projects are expanded copies, so we can not use
     # the link information. We need to patch the "old" part
-    basePackageName = target_package.gsub(/\.[^\.]*$/, '')
-    pkg = Package.find_by_project_and_name( target_project, basePackageName )
+    base_package_name = target_package.gsub(/\.[^\.]*$/, '')
+    pkg = Package.find_by_project_and_name( target_project, base_package_name )
     if pkg
       opkg = pkg.origin_container
       if opkg.name != target_package || opkg.project.name != target_project

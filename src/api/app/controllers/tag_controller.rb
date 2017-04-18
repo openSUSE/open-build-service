@@ -182,18 +182,18 @@ class TagController < ApplicationController
         render_error( message: "No user logged in.", status: 403 )
         return
       else
-        @tagCreator = User.current
+        @tag_creator = User.current
       end
       # get the taglist xml from the put request
       request_data = request.raw_post
-      # taglistXML = "<the whole xml/>"
-      @taglistXML = request_data
+      # tag_list_xml = "<the whole xml/>"
+      @tag_list_xml = request_data
 
       # update_tags_by_project_and_user(request_data)
 
       @tags = taglistXML_to_tags(request_data)
 
-      save_tags(@project, @tagCreator, @tags)
+      save_tags(@project, @tag_creator, @tags)
 
       logger.debug "PUT REQUEST for project_tags."
       render_ok
@@ -225,16 +225,16 @@ class TagController < ApplicationController
         render_error( message: "No user logged in.", status: 403 )
         return
       else
-        @tagCreator = User.current
+        @tag_creator = User.current
       end
       # get the taglist xml from the put request
       request_data = request.raw_post
-      # taglistXML = "<the whole xml/>"
-      @taglistXML = request_data
+      # tag_list_xml = "<the whole xml/>"
+      @tag_list_xml = request_data
 
       @tags = taglistXML_to_tags(request_data)
 
-      save_tags(@package, @tagCreator, @tags)
+      save_tags(@package, @tag_creator, @tags)
 
       render_ok
 
@@ -292,10 +292,10 @@ class TagController < ApplicationController
     end
   end
 
-  def taglistXML_to_tags(taglistXML)
+  def taglistXML_to_tags(tag_list_xml)
     taglist = []
 
-    xml = Xmlhash.parse(taglistXML)
+    xml = Xmlhash.parse(tag_list_xml)
 
     xml.elements("tag") do |tag|
       taglist << tag["name"]
@@ -317,25 +317,25 @@ class TagController < ApplicationController
     [tags, @unsaved_tags]
   end
 
-  def save_tags(object, tagCreator, tags)
+  def save_tags(object, tag_creator, tags)
     if tags.kind_of? Tag
       tags = [tags]
     end
     tags.each do |tag|
       begin
-        create_relationship(object, tagCreator, tag)
+        create_relationship(object, tag_creator, tag)
       rescue ActiveRecord::StatementInvalid
-        logger.debug "The relationship #{object.name} - #{tag.name} - #{tagCreator.login} already exist."
+        logger.debug "The relationship #{object.name} - #{tag.name} - #{tag_creator.login} already exist."
       end
     end
   end
 
   # create an entry in the join table (taggings) if necessary
-  def create_relationship(object, tagCreator, tag)
+  def create_relationship(object, tag_creator, tag)
     Tagging.transaction do
       @jointable = Tagging.new
       object.taggings << @jointable
-      tagCreator.taggings << @jointable
+      tag_creator.taggings << @jointable
       tag.taggings << @jointable
       @jointable.save
     end

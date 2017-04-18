@@ -326,13 +326,13 @@ end
 
 # internal CVE parser class
 class CVEparser < Nokogiri::XML::SAX::Document
-  @@myTracker = nil
-  @@myIssue = nil
-  @@mySummary = ""
-  @@isDesc = false
+  @@my_tracker = nil
+  @@my_issue = nil
+  @@my_summary = ""
+  @@is_desc = false
 
   def set_tracker(tracker)
-    @@myTracker = tracker
+    @@my_tracker = tracker
   end
 
   def start_element(name, attrs = [])
@@ -344,29 +344,29 @@ class CVEparser < Nokogiri::XML::SAX::Document
         end
       end
 
-      @@myIssue = Issue.find_or_create_by_name_and_tracker(cve.gsub(/^CVE-/, ''), @@myTracker.name)
-      @@mySummary = ""
-      @@isDesc = false
+      @@my_issue = Issue.find_or_create_by_name_and_tracker(cve.gsub(/^CVE-/, ''), @@my_tracker.name)
+      @@my_summary = ""
+      @@is_desc = false
     end
-    if @@myIssue && name == "desc"
-      @@isDesc = true
+    if @@my_issue && name == "desc"
+      @@is_desc = true
     else
-      @@isDesc = false
+      @@is_desc = false
     end
   end
 
   def characters(content)
-    return unless @@isDesc
-    @@mySummary += content.chomp
+    return unless @@is_desc
+    @@my_summary += content.chomp
   end
 
   def end_element(name)
     return unless name == "item"
-    unless @@mySummary.blank?
-      @@myIssue.summary = @@mySummary[0..254]
-      @@myIssue.save
+    unless @@my_summary.blank?
+      @@my_issue.summary = @@my_summary[0..254]
+      @@my_issue.save
     end
-    @@myIssue = nil
+    @@my_issue = nil
   end
 end
 

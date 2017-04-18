@@ -129,28 +129,28 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/request/#{id1}"
     assert_response :success
     data = REXML::Document.new(@response.body)
-    incidentProject = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
-    assert_not_equal incidentProject, 'My:Maintenance'
+    incident_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    assert_not_equal incident_project, 'My:Maintenance'
 
     # test build and publish flags
-    get "/source/#{incidentProject}/_meta"
+    get "/source/#{incident_project}/_meta"
     assert_xml_tag parent: { tag: 'build' }, tag: 'disable'
     assert_xml_tag parent: { tag: 'publish' }, tag: 'disable'
     assert_response :success
-    get "/source/#{incidentProject}/patchinfo/_meta"
+    get "/source/#{incident_project}/patchinfo/_meta"
     assert_response :success
     assert_xml_tag parent: { tag: 'build' }, tag: 'enable'
     assert_xml_tag parent: { tag: 'publish' }, tag: 'enable'
     assert_xml_tag parent: { tag: 'useforbuild' }, tag: 'disable'
     # add an old style patch name, only used via %N (in BaseDistro3Channel at the end of this test)
-    get "/source/#{incidentProject}/patchinfo/_patchinfo"
+    get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
     pi = ActiveXML::Node.new( @response.body )
     e = pi.add_element 'name'
     e.text = "patch_name"
     e = pi.add_element 'message'
     e.text = "During reboot a popup with a question will appear"
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
 
     # create maintenance request with invalid target
@@ -167,11 +167,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
-                                     <target project="' + incidentProject + '" />
+                                     <target project="' + incident_project + '" />
                                    </action>
                                  </request>'
     assert_response :success
-    assert_xml_tag( tag: 'target', attributes: { project: incidentProject } )
+    assert_xml_tag( tag: 'target', attributes: { project: incident_project } )
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value(:id)
@@ -236,18 +236,18 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # set incident to merge into existing one
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post "/request/#{id2}?cmd=setincident&incident=#{incidentProject.gsub(/.*:/, '')}"
+    post "/request/#{id2}?cmd=setincident&incident=#{incident_project.gsub(/.*:/, '')}"
     assert_response :success
 
     get "/request/#{id2}"
     assert_response :success
     data = REXML::Document.new(@response.body)
-    maintenanceNotNewProject = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
-    assert_equal incidentProject, maintenanceNotNewProject
+    maintenance_not_new_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    assert_equal incident_project, maintenance_not_new_project
 
     # try to do it again
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post "/request/#{id2}?cmd=setincident&incident=#{incidentProject.gsub(/.*:/, '')}"
+    post "/request/#{id2}?cmd=setincident&incident=#{incident_project.gsub(/.*:/, '')}"
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'target_not_maintenance' }
 
@@ -259,19 +259,19 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/request/#{id2}"
     assert_response :success
     data = REXML::Document.new(@response.body)
-    maintenanceNotNewProject = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
-    assert_equal incidentProject, maintenanceNotNewProject
+    maintenance_not_new_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    assert_equal incident_project, maintenance_not_new_project
 
     # validate releasename
-    get "/source/" + incidentProject + "/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
+    get "/source/" + incident_project + "/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
     assert_xml_tag tag: "releasename", content: "pack2"
-    get "/source/" + incidentProject + "/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta"
+    get "/source/" + incident_project + "/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta"
     assert_response :success
     assert_xml_tag tag: "releasename", content: "pack2.linked"
 
     # no patchinfo was part in source project, got it created ?
-    get "/source/#{incidentProject}/patchinfo/_patchinfo"
+    get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
     assert_xml_tag tag: 'packager', content: 'tom'
     assert_xml_tag tag: 'description', content: 'To fix my bug'
@@ -338,25 +338,25 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'target', attributes: { project: 'BaseDistro3Channel', repository: 'channel_repo' }
     # create channel packages and repos
     login_adrian
-    post "/source/#{incidentProject}?cmd=addchannels"
+    post "/source/#{incident_project}?cmd=addchannels"
     assert_response 403
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post "/source/#{incidentProject}?cmd=addchannels"
+    post "/source/#{incident_project}?cmd=addchannels"
     assert_response :success
-    get "/source/#{incidentProject}/BaseDistro2.Channel/_meta"
+    get "/source/#{incident_project}/BaseDistro2.Channel/_meta"
     assert_response :success
 
     # validate branch from projects with local channel repos
-    get "/source/#{incidentProject}/_meta"
+    get "/source/#{incident_project}/_meta"
     assert_response :success
     assert_xml_tag tag: "repository", attributes: {name: "BaseDistro3Channel"}
-    post "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject", params: { cmd: 'branch', add_repositories: 1 }
+    post "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject", params: { cmd: 'branch', add_repositories: 1 }
     assert_response :success
     get "/source/home:maintenance_coord:branches:My:Maintenance:0/_meta"
     assert_response :success
     # local channel got skipped:
     assert_no_xml_tag tag: "repository", attributes: {name: "BaseDistro3Channel"}
-    post "/source/#{incidentProject}/BaseDistro2.Channel", params: { cmd: 'branch', add_repositories: 1 }
+    post "/source/#{incident_project}/BaseDistro2.Channel", params: { cmd: 'branch', add_repositories: 1 }
     assert_response :success
     get "/source/home:maintenance_coord:branches:My:Maintenance:0/_meta"
     assert_response :success
@@ -373,13 +373,13 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/request/#{id3}"
     assert_response :success
     data = REXML::Document.new(@response.body)
-    maintenanceYetAnotherProject = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    maintenance_yet_another_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
     # no cleanup
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.linked.BaseDistro2.0_LinkedUpdateProject'
     assert_response :success
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject'
     assert_response :success
-    get "/source/#{maintenanceYetAnotherProject}"
+    get "/source/#{maintenance_yet_another_project}"
     assert_response :success
     assert_xml_tag tag: "entry", attributes: { name: "BaseDistro2.Channel" }
     assert_xml_tag tag: "entry", attributes: { name: "pack2.BaseDistro2.0_LinkedUpdateProject" }
@@ -387,11 +387,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: "entry", attributes: { name: "patchinfo" }
     assert_xml_tag tag: "directory", attributes: { count: "4" }
     # cleanup
-    delete "/source/#{maintenanceYetAnotherProject}"
+    delete "/source/#{maintenance_yet_another_project}"
     assert_response :success
     # cleanup channel 2
     login_king
-    delete "/source/#{incidentProject}/BaseDistro2.Channel"
+    delete "/source/#{incident_project}/BaseDistro2.Channel"
     assert_response :success
     delete '/source/Channel/BaseDistro2'
     assert_response :success
@@ -421,29 +421,29 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # create channel packages and repos
     login_adrian
-    post "/source/#{incidentProject}?cmd=addchannels"
+    post "/source/#{incident_project}?cmd=addchannels"
     assert_response 403
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post "/source/#{incidentProject}?cmd=addchannels&mode=skip_disabled"
+    post "/source/#{incident_project}?cmd=addchannels&mode=skip_disabled"
     assert_response :success
-    get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
+    get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
     assert_response 404 # skipped because it just has a disabled target
-    get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"
+    get "/source/#{incident_project}/BaseDistro3.Channel/_meta"
     assert_response :success
 
-    post "/source/#{incidentProject}/pack2.BaseDistro3?cmd=addchannels"
+    post "/source/#{incident_project}/pack2.BaseDistro3?cmd=addchannels"
     assert_response :success
-    post "/source/#{incidentProject}?cmd=addchannels&mode=add_disabled"
+    post "/source/#{incident_project}?cmd=addchannels&mode=add_disabled"
     assert_response :success # now it appeared
-    get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
+    get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
     assert_response :success
-    get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"
+    get "/source/#{incident_project}/BaseDistro3.Channel/_meta"
     assert_response :success
     assert_xml_tag tag: 'enable', attributes: { repository: 'BaseDistro3Channel' },
                    parent: { tag: 'build' }
-    get "/source/#{incidentProject}/patchinfo/_meta" # must be global enabled for publishing
+    get "/source/#{incident_project}/patchinfo/_meta" # must be global enabled for publishing
     assert_xml_tag tag: 'enable', parent: { tag: 'publish' }
-    get "/source/#{incidentProject}/_meta"
+    get "/source/#{incident_project}/_meta"
     assert_response :success
     assert_xml_tag tag: 'path', attributes: { project: 'BaseDistro3Channel', repository: 'channel_repo' },
                    parent: { tag: 'repository', attributes: { name: 'BaseDistro3Channel' } }
@@ -453,16 +453,16 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # create jobs, inject build results and fetch them
     run_scheduler('x86_64')
     run_scheduler('i586')
-    inject_build_job( incidentProject, 'pack2.BaseDistro3', 'BaseDistro3', 'i586')
-    inject_build_job( incidentProject, 'pack2.BaseDistro3:package_multibuild', 'BaseDistro3', 'i586')
-    inject_build_job( incidentProject, 'pack2.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'i586')
-    inject_build_job( incidentProject, 'pack2.linked.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'i586')
-    inject_build_job( incidentProject, 'pack2.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'x86_64')
-    inject_build_job( incidentProject, 'pack2.linked.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'x86_64')
+    inject_build_job( incident_project, 'pack2.BaseDistro3', 'BaseDistro3', 'i586')
+    inject_build_job( incident_project, 'pack2.BaseDistro3:package_multibuild', 'BaseDistro3', 'i586')
+    inject_build_job( incident_project, 'pack2.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'i586')
+    inject_build_job( incident_project, 'pack2.linked.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'i586')
+    inject_build_job( incident_project, 'pack2.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'x86_64')
+    inject_build_job( incident_project, 'pack2.linked.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'x86_64')
     run_scheduler('x86_64')
     run_scheduler('i586')
     run_publisher
-    get "/build/#{incidentProject}/_result"
+    get "/build/#{incident_project}/_result"
     assert_response :success
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586', state: 'published' } }, tag: 'status', attributes: { package: 'patchinfo', code: 'succeeded' }
     # validate that patchinfo is not building in channel without an issue
@@ -481,21 +481,21 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
       assert_response :success
     end
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
+    get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
     old_meta = @response.body
     assert_response :success
     assert_no_xml_tag tag: 'enable', attributes: {repository: "BaseDistro2.0_LinkedUpdateProject"}
-    post "/source/#{incidentProject}/BaseDistro2.0.Channel?cmd=set_flag&product=simple&flag=build&status=enable"
+    post "/source/#{incident_project}/BaseDistro2.0.Channel?cmd=set_flag&product=simple&flag=build&status=enable"
     assert_response :success
-    get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
+    get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
     assert_response :success
     assert_xml_tag tag: 'enable', attributes: {repository: "BaseDistro2.0_LinkedUpdateProject"}
     # revert and enable via enablechannel
-    put "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta", params: old_meta
+    put "/source/#{incident_project}/BaseDistro2.0.Channel/_meta", params: old_meta
     assert_response :success
-    post "/source/#{incidentProject}/BaseDistro2.0.Channel?cmd=enablechannel"
+    post "/source/#{incident_project}/BaseDistro2.0.Channel?cmd=enablechannel"
     assert_response :success
-    get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
+    get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
     assert_response :success
     assert_xml_tag tag: 'enable', attributes: {repository: "BaseDistro2.0_LinkedUpdateProject"}
 
@@ -504,11 +504,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'collection', children: {count: 2}
     assert_xml_tag tag: 'repository', attributes: { project: "home:tom:branches:OBS_Maintained:pack2", name: 'BaseDistro2.0_LinkedUpdateProject' }
-    assert_xml_tag tag: 'repository', attributes: { project: incidentProject, name: 'BaseDistro2.0_LinkedUpdateProject' }
-    get "/search/repository/id?match=targetproduct/[@name='simple'+and+@version='13.1']+and+@project='#{incidentProject}'"
+    assert_xml_tag tag: 'repository', attributes: { project: incident_project, name: 'BaseDistro2.0_LinkedUpdateProject' }
+    get "/search/repository/id?match=targetproduct/[@name='simple'+and+@version='13.1']+and+@project='#{incident_project}'"
     assert_response :success
     assert_xml_tag tag: 'collection', children: {count: 1}
-    assert_xml_tag tag: 'repository', attributes: { project: incidentProject, name: 'BaseDistro2.0_LinkedUpdateProject' }
+    assert_xml_tag tag: 'repository', attributes: { project: incident_project, name: 'BaseDistro2.0_LinkedUpdateProject' }
     get "/search/repository/id?match=targetproduct/[@name='simple'+and+@baseversion='1'+and+@patchlevel='1']"
     assert_response :success # empty, just to check for crashes
 
@@ -518,20 +518,20 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     prepare_request_with_user 'maintenance_coord', 'buildservice'
 
     # no updateinfo create, so add an issue to the patchinfo
-    get "/build/#{incidentProject}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
+    get "/build/#{incident_project}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
     assert_response 404
-    get "/source/#{incidentProject}/patchinfo/_patchinfo"
+    get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
     pi = ActiveXML::Node.new( @response.body )
     pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'bnc'}
-    put "/source/#{incidentProject}/patchinfo/_patchinfo", params: pi.dump_xml
+    put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.dump_xml
     assert_response :success
 
     # create and check updateinfo
     run_scheduler('x86_64')
     run_scheduler('i586')
     run_publisher
-    get "/build/#{incidentProject}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
+    get "/build/#{incident_project}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
     assert_response :success
     node = Xmlhash.parse(@response.body)
     old_release_date = node['update']['issued']['date']
@@ -539,14 +539,14 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, tag: 'id', content: "UpdateInfoTag-#{Time.now.utc.year}-My_Maintenance_0"
 
     # check published search db
-    get "/search/published/binary/id?match=project='" + incidentProject + "'"
+    get "/search/published/binary/id?match=project='" + incident_project + "'"
     assert_response :success
-    assert_xml_tag tag: "binary", attributes: { name: "package", project: incidentProject, package: "patchinfo",
+    assert_xml_tag tag: "binary", attributes: { name: "package", project: incident_project, package: "patchinfo",
                                                       repository: "BaseDistro3", version: "1.0", release: "1", arch: "i586",
                                                       filename: "package-1.0-1.i586.rpm",
                                                       filepath: "My:/Maintenance:/0/BaseDistro3/i586/package-1.0-1.i586.rpm",
                                                       baseproject: "BaseDistro3", type: "rpm" }
-    assert_xml_tag tag: "binary", attributes: { name: "package", project: incidentProject, package: "patchinfo",
+    assert_xml_tag tag: "binary", attributes: { name: "package", project: incident_project, package: "patchinfo",
                                                       repository: "BaseDistro3Channel", version: "1.0", release: "1", arch: "i586",
                                                       filename: "package-1.0-1.i586.rpm",
                                                       filepath: "My:/Maintenance:/0/BaseDistro3Channel/rpm/i586/package-1.0-1.i586.rpm",
@@ -555,7 +555,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # create release request
     post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_release">
-                                     <source project="' + incidentProject + '" />
+                                     <source project="' + incident_project + '" />
                                    </action>
                                    <state name="new" />
                                  </request>'
@@ -570,7 +570,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     reqid = node.value(:id)
 
     # we are not allowed to modify the target anymore, because packages are locked now
-    post "/request/#{id4}?cmd=setincident&incident=#{incidentProject.gsub(/.*:/, '')}"
+    post "/request/#{id4}?cmd=setincident&incident=#{incident_project.gsub(/.*:/, '')}"
     assert_response :success
     post "/request/#{id4}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
     assert_response 403
@@ -592,22 +592,22 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     run_scheduler('x86_64')
     run_scheduler('i586')
     run_publisher
-    get "/build/#{incidentProject}/_result"
+    get "/build/#{incident_project}/_result"
     assert_response :success
     assert_xml_tag tag: "result", attributes: { repository: "BaseDistro3Channel", code: "published" }
     # validate channel build results
-    get "/build/#{incidentProject}/BaseDistro3Channel/i586/patchinfo"
+    get "/build/#{incident_project}/BaseDistro3Channel/i586/patchinfo"
     assert_response :success
     assert_xml_tag tag: 'binary', attributes: { filename: 'package-1.0-1.i586.rpm' }
     assert_xml_tag tag: 'binary', attributes: { filename: 'package-1.0-1.src.rpm' }
     assert_xml_tag tag: 'binary', attributes: { filename: 'updateinfo.xml' }
-    get "/published/#{incidentProject}/BaseDistro3Channel/rpm/i586"
+    get "/published/#{incident_project}/BaseDistro3Channel/rpm/i586"
     assert_response :success
     assert_xml_tag tag: 'entry', attributes: { name: 'package-1.0-1.i586.rpm' }
-    get "/published/#{incidentProject}/BaseDistro3Channel/rpm/src"
+    get "/published/#{incident_project}/BaseDistro3Channel/rpm/src"
     assert_response :success
     assert_xml_tag tag: 'entry', attributes: { name: 'package-1.0-1.src.rpm' }
-    get "/published/#{incidentProject}/BaseDistro3Channel/repodata"
+    get "/published/#{incident_project}/BaseDistro3Channel/repodata"
     assert_response :success
     assert_xml_tag tag: 'entry', attributes: { name: 'filelists.xml.gz' }
     assert_xml_tag tag: 'entry', attributes: { name: 'other.xml.gz' }
@@ -617,7 +617,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_release">
-                                     <source project="' + incidentProject + '" />
+                                     <source project="' + incident_project + '" />
                                    </action>
                                    <state name="new" />
                                  </request>'
@@ -674,14 +674,14 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: "releasename", content: "pack2"
 
     # collect the job results
-    get "/build/#{incidentProject}/_result"
+    get "/build/#{incident_project}/_result"
     assert_response :success
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586', state: 'published' } }, tag: 'status', attributes: { package: 'patchinfo', code: 'locked' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro3Channel', arch: 'i586', state: 'published' } }, tag: 'status', attributes: { package: 'patchinfo', code: 'locked' }
 
     # validate update info channel tag
-    incidentID = incidentProject.gsub(/.*:/, '')
-    get "/build/BaseDistro3Channel/channel_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
+    incident_id = incident_project.gsub(/.*:/, '')
+    get "/build/BaseDistro3Channel/channel_repo/i586/patchinfo.#{incident_id}/updateinfo.xml"
     assert_response :success
     # check for changed updateinfoid.
     assert_xml_tag parent: { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, tag: 'id', content: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1"
@@ -711,9 +711,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert old_release_date < node['update']['issued']['date']
 
     # multibuild results got released as well
-    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2.#{incidentID}:package_multibuild"
+    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2.#{incident_id}:package_multibuild"
     assert_response :success
-    get "/build/BaseDistro3Channel/channel_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
+    get "/build/BaseDistro3Channel/channel_repo/i586/patchinfo.#{incident_id}/updateinfo.xml"
     assert_response :success
     # we should have a special rpm to test backend behaviour here
 
@@ -848,8 +848,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/request/#{reqid2}"
     assert_response :success
     data = REXML::Document.new(@response.body)
-    ontopofUpdateIncidentProject = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
-    get "/source/#{ontopofUpdateIncidentProject}"
+    ontopof_update_incident_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    get "/source/#{ontopof_update_incident_project}"
     assert_response :success
     assert_xml_tag( tag: 'entry', attributes: { name: 'pack2.BaseDistro2.0_LinkedUpdateProject' } )
     assert_xml_tag( tag: 'entry', attributes: { name: 'pack2.linked.BaseDistro2.0_LinkedUpdateProject' } )
@@ -919,13 +919,13 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     delete '/source/BaseDistro3Channel'
     assert_response 400 # incident still refers to it
-    delete "/source/#{incidentProject}"
+    delete "/source/#{incident_project}"
     assert_response 403 # still locked, so unlock it ...
-    post "/source/#{incidentProject}", params: { cmd: 'unlock', comment: 'cleanup' }
+    post "/source/#{incident_project}", params: { cmd: 'unlock', comment: 'cleanup' }
     assert_response :success
-    delete "/source/#{incidentProject}"
+    delete "/source/#{incident_project}"
     assert_response :success
-    delete "/source/#{ontopofUpdateIncidentProject}"
+    delete "/source/#{ontopof_update_incident_project}"
     assert_response :success
     delete '/source/Channel'
     assert_response :success

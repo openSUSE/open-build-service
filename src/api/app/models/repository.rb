@@ -143,12 +143,12 @@ class Repository < ApplicationRecord
   end
 
   def extended_name
-    longName = project.name.tr(':', '_')
+    long_name = project.name.tr(':', '_')
     if project.repositories.count > 1
       # keep short names if project has just one repo
-      longName += '_' + name unless name == 'standard'
+      long_name += '_' + name unless name == 'standard'
     end
-    longName
+    long_name
   end
 
   def to_axml_id

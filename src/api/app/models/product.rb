@@ -31,10 +31,10 @@ class Product < ApplicationRecord
     end
   end
 
-  def set_CPE(swClass, vendor, pversion = nil)
+  def set_CPE(sw_class, vendor, pversion = nil)
     # hack for old SLE 11 definitions
     vendor = "suse" if vendor.start_with?("SUSE LINUX")
-    self.cpe = "cpe:/#{swClass}:#{vendor.downcase}:#{name.downcase}"
+    self.cpe = "cpe:/#{sw_class}:#{vendor.downcase}:#{name.downcase}"
     self.cpe += ":#{pversion}" unless pversion.blank?
   end
 
@@ -54,11 +54,11 @@ class Product < ApplicationRecord
     transaction do
       xml.elements('productdefinition') do |pd|
         # we are either an operating system or an application for CPE
-        swClass = "o"
+        sw_class = "o"
         pd.elements("mediasets") do |ms|
           ms.elements("media") do |m|
             # product depends on others, so it is no standalone operating system
-            swClass = "a" unless m.elements("productdependency").empty?
+            sw_class = "a" unless m.elements("productdependency").empty?
           end
         end
         pd.elements('products') do |ps|
@@ -69,7 +69,7 @@ class Product < ApplicationRecord
             pversion = p['version']
             pversion = p['baseversion'] if p['baseversion']
             pversion += ":sp#{p['patchlevel']}" if p['patchlevel'] && p['patchlevel'].to_i > 0
-            set_CPE(swClass, p['vendor'], pversion)
+            set_CPE(sw_class, p['vendor'], pversion)
             self.version = pversion
             # update update channel connections
             p.elements('register') do |r|
@@ -97,19 +97,19 @@ class Product < ApplicationRecord
       end
       u.elements('repository') do |repo|
         next if repo['project'].blank? # it may be just a url= reference
-        poolRepo = Repository.find_by_project_and_name(repo['project'], repo['name'])
-        unless poolRepo
+        pool_repo = Repository.find_by_project_and_name(repo['project'], repo['name'])
+        unless pool_repo
           errors.add(:missing, "Pool repository #{repo['project']}/#{repo['name']} missing")
           next
         end
         name = repo.get('medium')
         arch = repo.get('arch')
-        key = "#{poolRepo.id}/#{name}"
+        key = "#{pool_repo.id}/#{name}"
         key += "/#{arch}" unless arch.blank?
         key.downcase!
         unless medium[key]
           # new
-          p = {product: self, repository: poolRepo, name: name}
+          p = {product: self, repository: pool_repo, name: name}
           unless arch.blank?
             arch_filter = Architecture.find_by_name(arch)
             if arch_filter
@@ -136,11 +136,11 @@ class Product < ApplicationRecord
         update[key] = pu
       end
       u.elements('repository') do |repo|
-        updateRepo = Repository.find_by_project_and_name(repo.get('project'), repo.get('name'))
-        next unless updateRepo # it might be a remote repo, which will not become indexed
+        update_repo = Repository.find_by_project_and_name(repo.get('project'), repo.get('name'))
+        next unless update_repo # it might be a remote repo, which will not become indexed
         arch = repo.get('arch')
-        key = updateRepo.id.to_s
-        p = {product: self, repository: updateRepo}
+        key = update_repo.id.to_s
+        p = {product: self, repository: update_repo}
         unless arch.blank?
           key += "/#{arch}"
           arch_filter = Architecture.find_by_name(arch)

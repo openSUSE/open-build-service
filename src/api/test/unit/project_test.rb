@@ -695,9 +695,9 @@ END
         <link project='home:Iggy' />
       </project>"
       )
-    projectA = Project.create( name: "home:Iggy:A" )
-    projectA.update_from_xml!(axml)
-    projectA.store
+    project_a = Project.create( name: "home:Iggy:A" )
+    project_a.update_from_xml!(axml)
+    project_a.store
 
     # project B
     axml = Xmlhash.parse(
@@ -707,21 +707,21 @@ END
         <link project='home:Iggy:A' />
       </project>"
       )
-    projectB = Project.create( name: "home:Iggy:B" )
-    projectB.update_from_xml!(axml)
-    projectB.store
+    project_b = Project.create( name: "home:Iggy:B" )
+    project_b.update_from_xml!(axml)
+    project_b.store
 
     # validate xml
-    xml_string = projectA.to_axml
+    xml_string = project_a.to_axml
     assert_xml_tag xml_string, tag: :link, attributes: { project: "home:Iggy" }
-    xml_string = projectB.to_axml
+    xml_string = project_b.to_axml
     assert_xml_tag xml_string, tag: :link, attributes: { project: "home:Iggy:A" }
 
-    projectA.destroy
-    projectB.reload
-    xml_string = projectB.to_axml
+    project_a.destroy
+    project_b.reload
+    xml_string = project_b.to_axml
     assert_no_xml_tag xml_string, tag: :link
-    projectB.destroy
+    project_b.destroy
   end
 
   def test_repository_with_download_url

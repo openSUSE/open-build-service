@@ -7,13 +7,13 @@ Such requests get not created for projects with open requests or if you remove t
 
   def perform
     # disabled ?
-    cleanupDays = ::Configuration.cleanup_after_days
-    return unless cleanupDays && cleanupDays > 0
+    cleanup_days = ::Configuration.cleanup_after_days
+    return unless cleanup_days && cleanup_days > 0
 
     # defaults
     User.current ||= User.find_by_login "Admin"
     @cleanup_attribute = AttribType.find_by_namespace_and_name!("OBS", "AutoCleanup")
-    @cleanupTime = DateTime.now + cleanupDays.days
+    @cleanup_time = DateTime.now + cleanup_days.days
 
     Project.find_by_attribute_type(@cleanup_attribute).each do |prj|
       autoclean_project(prj)
@@ -46,7 +46,7 @@ Such requests get not created for projects with open requests or if you remove t
     return unless time.past?
 
     # create request, but add some time between to avoid an overload
-    @cleanupTime += 5.minutes
+    @cleanup_time += 5.minutes
 
     req = BsRequest.new_from_xml('<request>
                                        <action type="delete">
@@ -54,7 +54,7 @@ Such requests get not created for projects with open requests or if you remove t
                                        </action>
                                        <description>' + Description + '</description>
                                        <state />
-                                       <accept_at>' + @cleanupTime.to_s + '</accept_at>
+                                       <accept_at>' + @cleanup_time.to_s + '</accept_at>
                                      </request>')
     req.save!
     Event::RequestCreate.create(req.notify_parameters)
