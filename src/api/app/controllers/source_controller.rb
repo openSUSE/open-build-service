@@ -520,7 +520,8 @@ class SourceController < ApplicationController
       else
         prj.update_from_xml(rdata)
       end
-      prj.store
+      opts = { :comment => params[:comment] }
+      prj.store opts
     end
     render_ok
   end
