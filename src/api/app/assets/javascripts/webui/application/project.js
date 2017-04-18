@@ -143,14 +143,14 @@ function repositories_setup_autocomplete() {
 }
 
 function setup_subprojects_tables() {
-    $('#parentprojects_table').dataTable({
+    $('#parentprojects-table').dataTable({
         'paging': false,
         'searching': false,
         'info': false,
         "autoWidth": false
     });
-    if ($('#siblingprojects_table').length) {
-        $('#siblingprojects_table').dataTable({
+    if ($('#siblingprojects-table').length) {
+        $('#siblingprojects-table').dataTable({
         'paging': false,
         'searching': false,
         'info': false,
@@ -160,7 +160,7 @@ function setup_subprojects_tables() {
 	]
         });
     }
-    $('#subprojects_table').dataTable({
+    $('#subprojects-table').dataTable({
         'paging': false,
         'searching': false,
         'info': false,

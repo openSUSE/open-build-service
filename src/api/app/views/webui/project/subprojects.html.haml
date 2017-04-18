@@ -6,7 +6,7 @@
 
 - if @parentprojects.present?
   %h3 Parent projects of #{@project}
-  %table.compact.fit.stripe.no-footer#parentprojects_table
+  %table.compact.fit.stripe.no-footer#parentprojects-table
     %thead
       %tr
         %th Parent project
@@ -19,7 +19,7 @@
 
 %h3= @pagetitle
 - if @subprojects.present?
-  %table.compact.fit.stripe.no-footer#subprojects_table
+  %table.compact.fit.stripe.no-footer#subprojects-table
     %thead
       %tr
         %th Subproject
@@ -35,7 +35,7 @@
 
 - if @siblings.present?
   %h3 Sibling projects of #{@project}
-  %table.compact.fit.stripe.no-footer#siblingprojects_table
+  %table.compact.fit.stripe.no-footer#siblingprojects-table
     %thead
       %tr
         %th Sibling project
@@ -49,11 +49,11 @@
 - if User.current.can_modify_project?(@project)
   %p
     = link_to sprite_tag('brick_add', title: 'New subproject') + ' New subproject', '#', id: 'create_subproject_link'
-    .hidden#create_subproject
+    .hidden#create-subproject
       = render partial: 'form', locals: { project: Project.new, configuration: @configuration, ns: @project.name }
 
 - if @subprojects.present? || @parentprojects.present?
   - content_for :ready_function do
     setup_subprojects_tables();
 - content_for :ready_function do
-  $("#create_subproject_link").click(function() { $('#create_subproject').show(); $('#create_subproject_link').hide() });
+  $("#create_subproject_link").click(function() { $('#create-subproject').show(); $('#create_subproject_link').hide() });
