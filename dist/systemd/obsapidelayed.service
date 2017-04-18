@@ -4,23 +4,25 @@ After=network.target
 
 [Service]
 EnvironmentFile=/etc/sysconfig/obs-server
-ExecStart=/bin/bash -c "/usr/bin/echo -n 'Starting OBS api delayed job handler'"
-ExecStart=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=quick start -n 3"
-ExecStart=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=releasetracking start -i 1000"
-ExecStart=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=issuetracking start -i 1010"
-ExecStart=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=mailers start -i 1020"
-ExecStart=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb start -i 1030"
-ExecStart=/bin/bash -c "/usr/bin/echo -n 'Starting OBS api clock daemon'"
-ExecStart=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec /usr/bin/clockworkd --log-dir=log -l -c config/clock.rb start"
-ExecStop=/bin/bash -c "/usr/bin/echo -n 'Shutting down OBS api delayed job handler'"
-ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=quick stop -n 3"
-ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=releasetracking stop -i 1000"
-ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=issuetracking stop -i 1010"
-ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=mailers stop -i 1020"
-ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb stop -i 1030"
-ExecStop=/bin/bash -c "/usr/bin/echo -n 'Shutting down OBS api clock daemon'"
-ExecStop=chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec /usr/bin/clockworkd --log-dir=log -l -c config/clock.rb stop"
+Type=oneshot
+ExecStart=/bin/bash -c "/bin/echo -n 'Starting OBS api delayed job handler'"
+ExecStart=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=quick start -n 3"
+ExecStart=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=releasetracking start -i 1000"
+ExecStart=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=issuetracking start -i 1010"
+ExecStart=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=mailers start -i 1020"
+ExecStart=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb start -i 1030"
+ExecStart=/bin/bash -c "/bin/echo -n 'Starting OBS api clock daemon'"
+ExecStart=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec /usr/bin/clockworkd --log-dir=log -l -c config/clock.rb start"
+ExecStop=/bin/bash -c "/bin/echo -n 'Shutting down OBS api delayed job handler'"
+ExecStop=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=quick stop -n 3"
+ExecStop=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=releasetracking stop -i 1000"
+ExecStop=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=issuetracking stop -i 1010"
+ExecStop=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb --queue=mailers stop -i 1020"
+ExecStop=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec script/delayed_job.api.rb stop -i 1030"
+ExecStop=/bin/bash -c "/bin/echo -n 'Shutting down OBS api clock daemon'"
+ExecStop=/usr/sbin/chroot --userspec=www-data:www-data / /bin/bash -c "cd /srv/www/obs/api && /usr/bin/bundle exec /usr/bin/clockworkd --log-dir=log -l -c config/clock.rb stop"
 KillMode=process 
+RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
