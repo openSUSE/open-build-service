@@ -16,9 +16,10 @@ pushd $tdir/open-build-service*/src/api >& /dev/null
 ruby.ruby2.4 -rbundler -e 'exit' || echo "___ERROR_BUNDLER_NOT_INSTALLED___"
 
 mode="resolve"
-if [ "$limit" == "production" ]; then
-  mode="specs_for([:default, :assets])"
-fi
+# this leads to missing dependencies
+#if [ "$limit" == "production" ]; then
+#  mode="specs_for([:default, :assets])"
+#fi
 
 ruby.ruby2.4 -rbundler -e 'Bundler.definition.'"$mode"'.any? { |s| puts "rubygem('$prefix':#{s.name}) = #{s.version}" }' | while read i; do echo -n $i", "; done
 popd >& /dev/null
