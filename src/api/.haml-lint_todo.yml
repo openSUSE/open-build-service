@@ -7,37 +7,6 @@
 # versions of Haml-Lint, may require this file to be generated again.
 
 linters:
-  # Offense count: 63
-  IdNames:
-    exclude:
-      - "app/views/shared/_requests.html.haml"
-      - "app/views/webui/attribute/_form.html.haml"
-      - "app/views/webui/configuration/_tabs.html.haml"
-      - "app/views/webui/groups/index.html.haml"
-      - "app/views/webui/groups/show.html.haml"
-      - "app/views/webui/main/_add_news_dialog.html.haml"
-      - "app/views/webui/main/_delete_message_dialog.html.haml"
-      - "app/views/webui/main/index.html.haml"
-      - "app/views/webui/monitor/_building.html.haml"
-      - "app/views/webui/monitor/_building_table.html.haml"
-      - "app/views/webui/monitor/_events.html.haml"
-      - "app/views/webui/monitor/_workers_table.html.haml"
-      - "app/views/webui/package/_submit_request_dialog.html.haml"
-      - "app/views/webui/patchinfo/_delete_dialog.html.haml"
-      - "app/views/webui/patchinfo/_form.html.haml"
-      - "app/views/webui/project/subprojects.html.haml"
-      - "app/views/webui/search/_owners.html.haml"
-      - "app/views/webui/search/_results.html.haml"
-      - "app/views/webui/search/_tabs.html.haml"
-      - "app/views/webui/search/index.html.haml"
-      - "app/views/webui/search/owner.html.haml"
-      - "app/views/webui/theme/bratwurst/webui/package/_files.html.haml"
-      - "app/views/webui/user/_login_form.html.haml"
-      - "app/views/webui/user/_password_dialog.html.haml"
-      - "app/views/webui/user/_save_dialog.html.haml"
-      - "app/views/webui/user/index.html.haml"
-      - "app/views/webui/user/show.html.haml"
-
   # Offense count: 309
   RuboCop:
     exclude:
