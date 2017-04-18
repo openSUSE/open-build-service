@@ -43,7 +43,8 @@
 <% require_asset 'webui/application/image_templates' if Feature.active?(:image_templates) %>
 
 function remove_dialog() {
-    $(".dialog:visible").remove();
+    $(this).parents('.dialog:visible').remove();
+    $('.overlay').hide();
 }
 
 
@@ -255,11 +256,16 @@ function select_from_autocomplete(toselect) {
 $(function() {
   $('.show_dialog').on('click', function() {
     $($(this).data('target')).removeClass('hidden');
+    $('.overlay').show();
   });
 });
 
 $(document).on('click','.close-dialog', function() {
-  $($(this).data('target')).addClass('hidden');
+  var target = $(this).data('target');
+  if (target) {
+    $(target).addClass('hidden');
+    $('.overlay').hide();
+  }
 });
 
 // show/hide functionality for text
