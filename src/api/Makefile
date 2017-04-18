@@ -2,7 +2,6 @@ include ../../Makefile.include
 
 
 OBS_API_LOGS := access.log backend_access.log delayed_job.log error.log lastevents.access.log
-OBS_API_BUNDLER_OPTS=BUNDLE_WITHOUT=test:assets:development BUNDLE_FROZEN=1
 
 all:
 
@@ -56,6 +55,7 @@ build: config
 	bundle.ruby2.4 exec rake.ruby2.4 assets:precompile RAILS_ENV=production RAILS_GROUPS=assets || exit 1 ;\
 	rm -rf tmp/cache/sass tmp/cache/assets config/secret.key ;\
 	bundle.ruby2.4 config --local frozen 1 || exit 1 ;\
+	bundle.ruby2.4 config --local without development:test:assets || exit 1 ;\
 	# reinstall
 	$(INSTALL) config/database.yml.example $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
 	# patch our version inside
