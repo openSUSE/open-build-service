@@ -6,7 +6,7 @@
       Welcome to #{@configuration['title']}
     = raw @configuration['description']
     %br/
-    %ul#proceed_list
+    %ul#proceed-list
       - if User.current.is_admin?
         = proceed_link 'configure', 'Configuration', controller: 'configuration', action: 'index'
         = proceed_link 'list', 'All Projects', controller: 'project'
