@@ -2,8 +2,8 @@ module FeaturesAuthentification
   def login(user, password = 'buildservice')
     visit user_login_path
     expect(page).to have_text "Please Log In"
-    fill_in 'user_login', with: user.login
-    fill_in 'user_password', with: password
+    fill_in 'user-login', with: user.login
+    fill_in 'user-password', with: password
     click_button 'Log In »'
     expect(page).to have_link 'link-to-user-home'
     User.current = user

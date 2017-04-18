@@ -10,7 +10,7 @@
 <%= content_tag(:div, id: 'involved_users', data: data) do %>
     <% if @users.present? %>
         <h3>User Roles <%= image_tag 'ajax-loader.gif', :id => 'user_spinner', :class => 'hidden' %></h3>
-        <table id="user_table" class="compact stripe">
+        <table id="user-table" class="compact stripe">
           <thead>
           <tr>
             <td>Username</td>
@@ -109,7 +109,7 @@
 
 <%= content_for :ready_function do %>
     <% if @users && @users.length > 0 %>
-        $('#user_table').dataTable({
+        $('#user-table').dataTable({
         'columns': [
         null,
         <% @roles.length.times do %>null,

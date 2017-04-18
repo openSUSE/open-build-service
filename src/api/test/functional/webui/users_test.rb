@@ -48,7 +48,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     reader: true
 
     delete_user :user4
-    page.wont_have_selector 'table#user_table tr#user-user4'
+    page.wont_have_selector 'table#user-table tr#user-user4'
   end
 
   def test_add_and_edit_project_users # spec/support/shared_examples/features/user_tab.rb
@@ -152,7 +152,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
   def delete_user(user)
     # overwrite confirm function to avoid the dialog - they are very racy with selenium
     page.evaluate_script('window.confirm = function() { return true; }')
-    find(:css, "table#user_table tr#user-#{user} a.remove-user").click
+    find(:css, "table#user-table tr#user-#{user} a.remove-user").click
     flash_message_type.must_equal :info
     flash_message.must_equal "Removed user #{user}"
   end

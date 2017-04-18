@@ -39,8 +39,8 @@ function renderProjectsTable(length) {
     var projects = main_projects;
     if (!$('#excludefilter').is(":checked"))
         projects = projects.concat(excl_projects);
-    var projecturl = $("#projects_table_wrapper").data("url");
-    $("#projects_table_wrapper").html('<table cellpadding="0" cellspacing="0" border="0" class="compact stripe" id="projects_table"></table>');
+    var projecturl = $("#projects-table-wrapper").data("url");
+    $("#projects-table-wrapper").html('<table cellpadding="0" cellspacing="0" border="0" class="compact stripe" id="projects_table"></table>');
     $("#projects_table").dataTable({
         "data": projects,
         "paging": true,

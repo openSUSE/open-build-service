@@ -54,7 +54,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     use_js
     visit user_show_path(user: 'fred')
 
-    within "table#ipackages_wrapper_table" do
+    within "table#ipackages-wrapper-table" do
       assert_equal "TestPack", find(:xpath, './/tr[1]/td[1]').text
       assert_equal "home:Iggy", find(:xpath, './/tr[1]/td[2]').text
 
