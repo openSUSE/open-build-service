@@ -4,23 +4,23 @@
 - @layouttype = 'custom'
 = content_for :ready_function do
   :plain
-    $('#search_text').focus();
-    $('#advanced_link' ).click(function() {
-      $('#advanced_container').toggle("drop");
+    $('#search-text').focus();
+    $('#advanced-link' ).click(function() {
+      $('#advanced-container').toggle("drop");
       return false;
     });
 .grid_16.alpha.omega.box.box-shadow
   = render partial: 'tabs'
   %h3 Search for packages or projects:
-  #search_form
+  #search-form
     = form_tag({ controller: 'search', action: 'index' }, { method: :get }) do
       %p
         = text_field_tag('search_text', params[:search_text], placeholder: 'Search', id: 'search_input')
         = submit_tag(nil, id: 'search_button', title: 'Search')
         = select_tag(:issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker] || @default_tracker))
         = text_field_tag('issue', params[:issue], size: 10)
-        %button#advanced_link{ type: "button" } Advanced
-      #advanced_container{ style: "display: none;" }
+        %button#advanced-link{ type: "button" } Advanced
+      #advanced-container{ style: "display: none;" }
         %h4 Search for:
         %p
           = hidden_field_tag('project', 0)
@@ -43,7 +43,6 @@
         %h4 Require attribute:
         %p
           = select_tag(:attrib_type_id, options_for_select(@attrib_type_list, params[:attrib_type_id]), id: 'attribute_list')
-      / end advanced_container
-  / end search_form
+
   - unless @results.nil? || @results.empty?
     = render(partial: 'results')

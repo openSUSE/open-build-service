@@ -18,7 +18,7 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
 
   def search(options)
     validate_search_page
-    find("#advanced_link").click
+    find("#advanced-link").click
 
     options[:flags]  ||= []
     options[:expect] ||= :success

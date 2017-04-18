@@ -3,15 +3,15 @@
 - @layouttype = 'custom'
 = content_for :ready_function do
   :plain
-    $('#search_text').focus();
-    $('#advanced_link' ).click(function() {
-      $('#advanced_container').toggle("drop");
+    $('#search-text').focus();
+    $('#advanced-link' ).click(function() {
+      $('#advanced-container').toggle("drop");
       return false;
     });
 .grid_16.alpha.omega.box.box-shadow
   = render partial: 'tabs'
   %h3 Search for people responsible for package:
-  #search_form
+  #search-form
     = form_tag({ controller: 'search', action: 'owner' }, { method: :get }) do
       %p
         = text_field_tag 'search_text', params[:search_text], placeholder: 'Search', id: 'search_input'
@@ -19,8 +19,8 @@
         %input{ name: "package", type: "hidden", value: "0" }/
         %input{ name: "project", type: "hidden", value: "0" }/
         = submit_tag(nil, id: 'search_button', title: 'Search')
-        %button#advanced_link{ type: "button" } Advanced
-      #advanced_container{ style: "display: none;" }
+        %button#advanced-link{ type: "button" } Advanced
+      #advanced-container{ style: "display: none;" }
         %h4 Advanced:
         %p
           - if params[:devel] == "off"

@@ -1,4 +1,4 @@
-#search_form {
+#search-form {
   width: 600px;
   margin-left: auto ;
   margin-right: auto ;
@@ -13,7 +13,7 @@
   text-indent:10px;
   font-family:arial, sans-serif;
   font-size:1em;
-  color:#333;  
+  color:#333;
   background: #fff;
   border:solid 1px #d9d9d9;
   border-top:solid 1px #c0c0c0;
@@ -21,7 +21,7 @@
 }
 
 #search_button {
-  cursor:pointer; 
+  cursor:pointer;
   width:70px;
   height: 33px;
   line-height: 33px;
@@ -34,7 +34,7 @@
   -webkit-border-radius: 0px;
 }
 
-#advanced_link {
+#advanced-link {
   float: right;
   background-color: transparent;
 }
