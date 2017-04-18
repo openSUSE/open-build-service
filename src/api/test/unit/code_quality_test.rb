@@ -100,7 +100,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'SearchController#search' => 81.64, 
       'SourceController#project_command_copy' => 140.04,
       'SourceController#update_file' => 97.26,
-      'SourceController#update_project_meta' => 106.89,
+      'SourceController#update_project_meta' => 110.01,
       'UserLdapStrategy::find_with_ldap' => 119.04,
       'UserLdapStrategy::render_grouplist_ldap' => 100.3,
       'Webui::DriverUpdateController#save' => 97.16,
