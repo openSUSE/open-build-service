@@ -1,0 +1,19 @@
+Description=OBS Delta Storage
+After=network.target
+         
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+Environment=logdir=/srv/obs/log
+Type=oneshot
+ExecStart=/bin/bash -c "/bin/echo -n 'Initializing obsdeltastore'"
+ExecStartPre=/bin/mkdir -p $logdir
+ExecStart=bsuser=`/usr/bin/perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsuser || "obsrun" )'`
+ExecStart=bsgroup=`/usr/bin/perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsgroup || "obsrun" )'`
+ExecStart=chown $bsuser:$bsgroup "$logdir"
+ExecStop=/bin/bash -c "/bin/echo -n 'Shutting down obsdeltastore'"
+ExecStop=/usr/lib/obs/server/bs_deltastore --stop
+ExecReload=/usr/lib/obs/server/bs_deltastore --restart
+RemainAfterExit=yes
+         
+[Install]
+WantedBy=multi-user.target
