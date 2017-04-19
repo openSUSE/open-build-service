@@ -1299,9 +1299,20 @@ class Project < ApplicationRecord
       repository_node = local_project_meta.create_element("repository")
       repository_node["name"] = repository
 
-      path_elements = local_project_meta.create_element("path")
-      path_elements["project"] = project
-      path_elements["repository"] = repository
+      # if it is kiwi type
+      if repository == "images"
+        path_elements = remote_project_meta.xpath("//repository[@name='images']/path")
+
+        prjconf = source_file('_config')
+        unless prjconf =~ /^Type:/
+          prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+          Suse::Backend.put_source(source_path('_config'), prjconf)
+        end
+      else
+        path_elements = local_project_meta.create_element("path")
+        path_elements["project"] = project
+        path_elements["repository"] = repository
+      end
       repository_node.add_child(path_elements)
 
       architectures = remote_project_meta.xpath("//repository[@name='#{repository}']/arch")
