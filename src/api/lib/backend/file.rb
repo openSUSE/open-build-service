@@ -112,9 +112,10 @@ module Backend
     end
 
     # TODO: Replace SuseBackend.build_query_from_hash with this function asap
-    def self.query_from_list(params, key_list = [])
-      params = params.slice(*key_list)
-      "?#{params.to_query}"
+    def self.query_from_list(params, key_list = nil)
+      key_list ||= params.keys
+      query = params.slice(*key_list).to_query
+      query.present? ? "?#{query}" : query
     end
 
     private
