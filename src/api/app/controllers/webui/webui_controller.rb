@@ -216,7 +216,7 @@ class Webui::WebuiController < ActionController::Base
       unless User.current.is_active?
         session[:login] = nil
         User.current = User.find_nobody!
-        redirect_to(CONFIG['proxy_auth_logout_page'], error: "Your account is disabled. Please contact the adminsitrator for details.")
+        redirect_to(CONFIG['proxy_auth_logout_page'], error: "Your account is disabled. Please contact the administrator for details.")
         return
       end
       User.current.update_user_info_from_proxy_env(request.env)
