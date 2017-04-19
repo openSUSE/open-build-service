@@ -13,9 +13,18 @@ else
 	OBSSERVER_IP=$1
 fi
 
+if [ -n "$2" -a -n "$3" ];then
+   SEC_GROUP_NAME=$2
+   CREATE_SEC_GROUP=$3
+else
+   CREATE_SEC_GROUP="server worker"
+fi
+
 function create_secgroup_obsserver {
 
-	SEC_GROUP_NAME=obs-server
+	if [ -z "$SEC_GROUP_NAME" ];then
+	  SEC_GROUP_NAME=obs-server
+        fi
 	neutron security-group-create $SEC_GROUP_NAME
 	SEC_GROUP_ID=$(neutron security-group-list  -f csv -F id -F name | grep $SEC_GROUP_NAME | cut -f1 -d',' | tr -d '"')
  	neutron security-group-rule-create --direction ingress --ethertype IPv4 --port-range-min 22 --port-range-max 22 --protocol tcp $SEC_GROUP_ID
@@ -29,7 +38,9 @@ function create_secgroup_obsserver {
 
 function create_secgroup_obsworker {
 
-	SEC_GROUP_NAME=obs-worker
+	if [ -z "$SEC_GROUP_NAME" ];then
+	  SEC_GROUP_NAME=obs-worker
+        fi
 	neutron security-group-create $SEC_GROUP_NAME
 
 	SEC_GROUP_ID=$(neutron security-group-list  -f csv -F id -F name | grep $SEC_GROUP_NAME | cut -f1 -d',' | tr -d '"')
@@ -39,5 +50,9 @@ function create_secgroup_obsworker {
 	# TODO: Restrict egress also to $OBSSERVER
 }
 
-create_secgroup_obsserver
-create_secgroup_obsworker
+
+for i in $CREATE_SEC_GROUP
+do
+  FNAME=create_secgroup_obs$i
+  $FNAME
+done
