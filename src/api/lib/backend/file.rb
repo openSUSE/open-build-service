@@ -96,9 +96,10 @@ module Backend
 
     # Tries to destroy the file from the backend, freeze the object and return the response, otherwise will raise an StandardError
     def destroy!(query = {})
-      response = Connection.delete(full_path(query))
+      backend_response = Connection.delete(full_path(query))
+      @response = { type: backend_response['Content-Type'], status: backend_response.code, size: backend_response.content_length }
       freeze
-      response
+      @response
     end
 
     # Tries to destroy the file from the backend. Returns nil if some StandardError is raised
