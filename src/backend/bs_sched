@@ -4561,6 +4561,10 @@ sub uploadbuildevent {
     mkdir_p("$gdst/:meta");
     rename("$jobdatadir/meta", "$gdst/:meta/$packid");
   }
+  if (-e "$jobdatadir/history") {
+    my $h = BSFileDB::fdb_getlast("$jobdatadir/history", $historylay);
+    BSFileDB::fdb_add("$dst/history", $historylay, $h) if $h;
+  }
   rename("$jobdatadir/logfile", "$dst/logfile") if -e "$jobdatadir/logfile";
   delete $repounchanged{$prp} if $useforbuildenabled;
   $repounchanged{$prp} = 2 if $repounchanged{$prp};
