@@ -7,11 +7,9 @@ xml.project(project_attributes) do
   xml.description(my_model.description)
 
   my_model.linking_to.each do |l|
-    if l.linked_db_project
-      xml.link(project: l.linked_db_project.name)
-    else
-      xml.link(project: l.linked_remote_project_name)
-    end
+    params = { project: l.linked_db_project ? l.linked_db_project.name : l.linked_remote_project_name }
+    params[:vrevmode] = l.vrevmode unless l.vrevmode == 'standard' || l.vrevmode.blank?
+    xml.link(params)
   end
 
   xml.url(my_model.url) if my_model.url.present?

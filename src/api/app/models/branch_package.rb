@@ -149,7 +149,17 @@ class BranchPackage
         oproject = p[:link_target_project].name if p[:link_target_project].is_a? Project
 
         # branch sources in backend
-        tpkg.branch_from(oproject, opackage, p[:rev], params[:missingok], nil, params[:linkrev], params[:noservice])
+        opts = {}
+        opts[:missingok] = '1' if params[:missingok].present?
+        opts[:noservice] = '1' if params[:noservice].present?
+        opts[:orev] = p[:rev] if p[:rev].present?
+        # New incident updates need the vrev extension
+        if tpkg.project.is_maintenance_incident? && p[:package].is_a?(Package) &&
+           p[:package].project != p[:link_target_project]
+          opts[:extendvrev] = '1'
+        end
+        tpkg.branch_from(oproject, opackage, opts)
+
         if response
           # multiple package transfers, just tell the target project
           response = { targetproject: tpkg.project.name }

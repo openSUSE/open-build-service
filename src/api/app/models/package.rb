@@ -1096,21 +1096,18 @@ class Package < ApplicationRecord
     errors.add(:name, 'is illegal') unless Package.valid_name?(name)
   end
 
-  def branch_from(origin_project, origin_package, rev = nil, missingok = nil, comment = nil, olinkrev = nil, noservice = nil)
+  def branch_from(origin_project, origin_package, opts)
     myparam = { cmd:       'branch',
                 noservice: '1',
                 oproject:  origin_project,
                 opackage:  origin_package,
                 user:      User.current.login }
-    myparam[:orev] = rev if rev.present?
-    myparam[:olinkrev] = olinkrev if olinkrev.present?
-    myparam[:missingok] = '1' if missingok
-    myparam[:noservice] = '1' if noservice
-    myparam[:comment] = comment if comment
+    # merge additional key/values, avoid overwrite. _ is needed for rubocop
+    myparam.merge!(opts) { |_key, v1, _v2| v1 }
     path = source_path
     path += Backend::Connection.build_query_from_hash(myparam,
                                                       [:cmd, :oproject, :opackage, :user, :comment,
-                                                       :orev, :missingok, :noservice, :olinkrev])
+                                                       :orev, :missingok, :noservice, :olinkrev, :extendvrev])
     # branch sources in backend
     Backend::Connection.post path
   end
