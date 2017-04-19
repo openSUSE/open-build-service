@@ -1,8 +1,11 @@
 require "rails_helper"
 require 'rantly/rspec_extensions'
+# WARNING: If you need to make a Backend call uncomment the following line
+# CONFIG['global_write_through'] = true
 
-RSpec.describe Project do
-  let!(:project) { create(:project) }
+RSpec.describe Project, vcr: true do
+  let!(:project) { create(:project, name: 'openSUSE_41') }
+  let(:remote_project) { create(:remote_project, name: "openSUSE.org") }
   let(:package) { create(:package, project: project) }
   let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
   let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
@@ -52,7 +55,6 @@ RSpec.describe Project do
 
   describe "#has_distribution" do
     context "remote distribution" do
-      let(:remote_project) {create(:remote_project, name: "openSUSE.org")}
       let(:remote_distribution) { create(:repository, name: "snapshot", remote_project_name: "openSUSE:Factory", project: remote_project) }
       let(:other_remote_distribution) { create(:repository, name: "standard", remote_project_name: "openSUSE:Leap:42.1", project: remote_project) }
       let(:repository) { create(:repository, name: "openSUSE_Tumbleweed", project: project) }
@@ -99,67 +101,126 @@ RSpec.describe Project do
   end
 
   describe '#branch_remote_repositories' do
-    let!(:repository) { create(:repository, name: 'xUbuntu_14.04', project: project) }
-    let(:remote_project) { create(:remote_project) }
     let(:branch_remote_repositories) { project.branch_remote_repositories("#{remote_project}:#{project}") }
-    let(:remote_meta_xml) {
-      <<-XML_DATA
-        <project name="home:mschnitzer">
-          <title>Cool Title</title>
-          <description>Cool Description</description>
-          <repository name="xUbuntu_14.04">
-            <path project="Ubuntu:14.04" repository="universe"/>
-            <arch>i586</arch>
+
+    context "normal project" do
+      let!(:repository) { create(:repository, name: 'xUbuntu_14.04', project: project) }
+      let(:remote_meta_xml) {
+        <<-XML_DATA
+          <project name="home:mschnitzer">
+            <title>Cool Title</title>
+            <description>Cool Description</description>
+            <repository name="xUbuntu_14.04">
+              <path project="Ubuntu:14.04" repository="universe"/>
+              <arch>i586</arch>
+              <arch>x86_64</arch>
+            </repository>
+            <repository name="openSUSE_42.2">
+              <path project="openSUSE:Leap:42.2:Update" repository="standard"/>
+              <path project="openSUSE:Leap:42.2:Update2" repository="standard"/>
+              <arch>x86_64</arch>
+            </repository>
+          </project>
+        XML_DATA
+      }
+      let(:local_xml_meta) {
+        <<-XML_DATA
+          <project name="#{project}">
+            <title>#{project.title}</title>
+            <description/>
+            <repository name="xUbuntu_14.04">
+            </repository>
+            <repository name="openSUSE_42.2">
+              <path project="#{remote_project.name}:#{project}" repository="openSUSE_42.2"/>
+              <arch>x86_64</arch>
+            </repository>
+          </project>
+        XML_DATA
+      }
+      let(:expected_xml) { Nokogiri::XML(local_xml_meta) }
+
+      before do
+        allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
+        branch_remote_repositories
+        project.reload
+      end
+
+      context 'keeps original repository' do
+        let(:old_repository) { project.repositories.first }
+
+        it { expect(old_repository).to eq(repository) }
+        it { expect(old_repository.architectures).to be_empty }
+        it { expect(old_repository.path_elements).to be_empty }
+      end
+
+      context 'adds new reposity' do
+        let(:new_repository) { project.repositories.second }
+        let(:path_element) { new_repository.path_elements.first.link }
+
+        it { expect(new_repository.name).to eq("openSUSE_42.2") }
+        it { expect(new_repository.architectures.first.name).to eq("x86_64") }
+        it 'with correct path link' do
+          expect(path_element.name).to eq("openSUSE_42.2")
+          expect(path_element.remote_project_name).to eq(project.name)
+        end
+      end
+    end
+
+    context "kiwi project" do
+      let(:remote_meta_xml) {
+        <<-XML_DATA
+        <project name="home:cbruckmayer:fosdem">
+          <title>FOSDEM 2017</title>
+          <description/>
+          <repository name="openSUSE_Leap_42.1">
+            <path project="openSUSE:Leap:42.1" repository="standard"/>
             <arch>x86_64</arch>
           </repository>
-          <repository name="openSUSE_42.2">
-            <path project="openSUSE:Leap:42.2:Update" repository="standard"/>
-            <path project="openSUSE:Leap:42.2:Update2" repository="standard"/>
+          <repository name="images">
+            <path project="openSUSE.org:openSUSE:Leap:42.1:Images" repository="standard"/>
+            <path project="openSUSE.org:openSUSE:Leap:42.1:Update" repository="standard"/>
             <arch>x86_64</arch>
           </repository>
         </project>
-      XML_DATA
-    }
-    let(:local_xml_meta) {
-      <<-XML_DATA
+        XML_DATA
+      }
+      let(:local_xml_meta) {
+        <<-XML_DATA
         <project name="#{project}">
           <title>#{project.title}</title>
           <description/>
-          <repository name="xUbuntu_14.04">
+          <repository name="openSUSE_Leap_42.1">
+            <path project="#{remote_project.name}:#{project}" repository="openSUSE_Leap_42.1"/>
+            <arch>x86_64</arch>
           </repository>
-          <repository name="openSUSE_42.2">
-            <path project="#{remote_project.name}:#{project}" repository="openSUSE_42.2"/>
+          <repository name="images">
+            <path project="openSUSE.org:openSUSE:Leap:42.1:Images" repository="standard"/>
+            <path project="openSUSE.org:openSUSE:Leap:42.1:Update" repository="standard"/>
             <arch>x86_64</arch>
           </repository>
         </project>
       XML_DATA
-    }
-    let(:expected_xml) { Nokogiri::XML(local_xml_meta) }
+      }
+      let(:expected_xml) { Nokogiri::XML(local_xml_meta) }
 
-    before do
-      allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
-      branch_remote_repositories
-      project.reload
-    end
+      before do
+        allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
+        branch_remote_repositories
+        project.reload
+      end
 
-    context 'keeps original repository' do
-      let(:old_repository) { project.repositories.first }
-
-      it { expect(old_repository).to eq(repository) }
-      it { expect(old_repository.architectures).to be_empty }
-      it { expect(old_repository.path_elements).to be_empty }
-    end
-
-    context 'adds new reposity' do
       let(:new_repository) { project.repositories.second }
-      let(:path_element) { new_repository.path_elements.first.link }
+      let(:path_elements) { new_repository.path_elements.first.link }
+      let(:path_elements2) { new_repository.path_elements.second.link }
 
-      it { expect(new_repository.name).to eq("openSUSE_42.2") }
+      it { expect(new_repository.name).to eq("images") }
       it { expect(new_repository.architectures.first.name).to eq("x86_64") }
-
-      it 'with correct path link' do
-        expect(path_element.name).to eq("openSUSE_42.2")
-        expect(path_element.remote_project_name).to eq(project.name)
+      it 'with correct path links' do
+        expect(new_repository.path_elements.count).to eq(2)
+        expect(path_elements.name).to eq("standard")
+        expect(path_elements.remote_project_name).to eq("openSUSE:Leap:42.1:Images")
+        expect(path_elements2.name).to eq("standard")
+        expect(path_elements2.remote_project_name).to eq("openSUSE:Leap:42.1:Update")
       end
     end
   end
