@@ -138,7 +138,7 @@ class Channel < ApplicationRecord
     target_package.store(comment: comment)
 
     # branch sources
-    target_package.branch_from(package.project.name, package.name, nil, nil, comment)
+    target_package.branch_from(package.project.name, package.name, comment: comment)
     target_package.sources_changed(wait_for_update: true)
 
     target_package

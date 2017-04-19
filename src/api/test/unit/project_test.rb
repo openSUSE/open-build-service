@@ -704,7 +704,7 @@ class ProjectTest < ActiveSupport::TestCase
       "<project name='home:Iggy:B'>
         <title>Iggy's Home Project</title>
         <description>dummy</description>
-        <link project='home:Iggy:A' />
+        <link project='home:Iggy:A' vrevmode='extend' />
       </project>"
     )
     project_b = Project.create(name: 'home:Iggy:B')
