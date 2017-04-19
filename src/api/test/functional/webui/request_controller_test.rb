@@ -241,7 +241,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     click_link 'review_descision_link_0'
     fill_in 'review_comment_0', with: 'BranchPack sounds strange'
     click_button 'review_decline_button_0'
-    page.must_have_text 'Request 4 (declined)'
+    find('h3', text: 'Request 4 (declined)')
   end
 
   def test_request_4_can_expand # spec/features/webui/requests_spec.rb
