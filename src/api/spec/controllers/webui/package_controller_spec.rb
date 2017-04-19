@@ -859,21 +859,17 @@ EOT
             arch:       architecture.name}
         }
 
-        context 'instance variables' do
-          before do
-            do_request params
-          end
-
-          it { expect(assigns(:log_chunk)).not_to be_nil }
-          it { expect(assigns(:package)).to eq("#{source_package}:multibuild-package") }
-          it { expect(assigns(:project)).to eq(source_project) }
-        end
-
-        it "should call 'get_size_of_log' with appropriate arguments" do
-          expect(controller).to receive(:get_size_of_log).
-            with(source_project, "#{source_package}:multibuild-package", repo_leap_42_2.name, architecture.name)
+        before do
+          path = "#{CONFIG['source_url']}/build/#{source_project}/#{repo_leap_42_2}/i586/#{source_package}:multibuild-package/_log?view=entry"
+          body = "<directory><entry name=\"_log\" size=\"#{32 * 1024}\" mtime=\"1492267770\" /></directory>"
+          stub_request(:get, path).and_return(body: body)
           do_request params
         end
+
+        it { expect(assigns(:log_chunk)).not_to be_nil }
+        it { expect(assigns(:package)).to eq("#{source_package}:multibuild-package") }
+        it { expect(assigns(:project)).to eq(source_project) }
+        it { expect(assigns(:offset)).to eq(0) }
       end
     end
   end
