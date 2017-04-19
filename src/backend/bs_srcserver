@@ -3219,6 +3219,7 @@ sub sourcecopy {
   my $oprojid = exists($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
   my $opackid = exists($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
   die("makeoriginolder only makes sense with withvrev\n") if $cgi->{'makeoriginolder'} && !$cgi->{'withvrev'};
+  die("vrevbump only makes sense with withvrev\n") if $cgi->{'vrevbump'} && !$cgi->{'withvrev'};
   my $orev = $cgi->{'orev'};
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest');
   die("origin must not be virtual for makeoriginolder\n") if $cgi->{'makeoriginolder'} && $orev->{'originproject'};
@@ -3302,13 +3303,11 @@ sub sourcecopy {
 
   if ($cgi->{'withvrev'} && !$cgi->{'vrev'} && defined($oldvrev)) {
     $cgi->{'vrev'} = $oldvrev;
+    my $vrevbump = $cgi->{'vrevbump'} || 1;
+    $vrevbump = 2 if $cgi->{'makeoriginolder'} && $vrevbump < 2;
     # bump vrev so that new builds will have a bigger release number
     # (just like in copyproject)
-    if ($cgi->{'makeoriginolder'}) {
-      $cgi->{'vrev'} =~ s/(\d+)$/$1+2/e;
-    } else {
-      $cgi->{'vrev'} =~ s/(\d+)$/$1+1/e;
-    }
+    $cgi->{'vrev'} =~ s/(\d+)$/$1+$vrevbump/e;
   }
   $files = BSSrcServer::Link::keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   my $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
@@ -5866,7 +5865,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:?' => \&sourcecommitfilelist,
-  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool? withacceptinfo:bool? makeoriginolder:bool? freezelink:bool?' => \&sourcecopy,
+  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool? withacceptinfo:bool? makeoriginolder:bool? freezelink:bool? vrevbump:num?' => \&sourcecopy,
   'POST:/source/$project/$package cmd=collectbuildenv user:? comment:? orev:rev? oproject:project? opackage:package?' => \&sourcecollectbuildenv,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool? missingok:bool? noservice:bool? withacceptinfo:bool? time:num? extendvrev:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
