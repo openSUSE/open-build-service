@@ -332,7 +332,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     login_Iggy to: request_show_path(1)
     fill_in 'comment_body', with: 'Comment Body'
     find_button('Add comment').click
-    find('#flash-messages').must_have_text 'Comment was successfully created.'
+    find('#flash-messages', text: 'Comment was successfully created.')
   end
 
   def test_can_not_accept_own_requests # spec/features/webui/requests_spec.rb
@@ -359,7 +359,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     find(:id, 'reply_link_id_301').click
     fill_in 'reply_body_301', with: 'Comment Body'
     find(:id, 'add_reply_301').click
-    find('#flash-messages').must_have_text 'Comment was successfully created.'
+    find('#flash-messages', text: 'Comment was successfully created.')
   end
 
   def verify_email(fixture_name, myid, email)
