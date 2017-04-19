@@ -777,7 +777,7 @@ class Webui::PackageController < Webui::WebuiController
     @percent = nil
 
     begin
-      jobstatus = get_job_status( @project, @package, @repo, @arch )
+      jobstatus = get_job_status(@project, @package, @repo, @arch)
       unless jobstatus.blank?
         js = Xmlhash.parse(jobstatus)
         @workerid = js.get('workerid')
@@ -806,14 +806,9 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    @build_container = params[:package] # for remote and multibuild package
-    # Make sure objects don't contain invalid chars (eg. '../')
-
     @offset = 0
-    if @project && @package && @repo && @arch
-      @status = get_status(@project, @package, @repo, @arch)
-      @what_depends_on = Package.what_depends_on(@project, @package, @repo, @arch)
-    end
+    @status = get_status(@project, @package, @repo, @arch)
+    @what_depends_on = Package.what_depends_on(@project, @package, @repo, @arch)
 
     set_job_status
   end
@@ -831,11 +826,8 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def update_build_log
-    params.require([:project, :package, :arch, :repository])
-
     check_ajax
 
-    @package = params[:package]
     # Make sure objects don't contain invalid chars (eg. '../')
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     unless @repo
@@ -1150,7 +1142,12 @@ class Webui::PackageController < Webui::WebuiController
       return false
     end
 
-    @package ||= params[:package] # for remote case
+    @can_modify = User.current.can_modify_project?(@project) || User.current.can_modify_package?(@package)
+
+    # for remote and multibuild / local link packages
+    if @package.try(:name) != params[:package]
+      @package = params[:package]
+    end
 
     true
   end
