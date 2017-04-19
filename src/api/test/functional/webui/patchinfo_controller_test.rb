@@ -180,7 +180,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     find(:css, "img[alt=\"Add Bug\"]").click
     page.evaluate_script('window.confirm = function() { return true; }')
     page.wont_have_content("121212")
-    find_link("bnc#700501")
+    find('a', text: "bnc#700501")
     click_button("Save Patchinfo") # FIXME: This doesn't have any effect here
   end
 
