@@ -414,11 +414,14 @@ case "$1" in
 	    else
                 WORKERID="${HOSTNAME}:$I"
 	    fi
+            # clean worker root from previous run
             R=$OBS_WORKER_DIRECTORY/root_$I
+            test -d "$R" && rm -rf "$R"
+            mkdir -p "$R"
+
             # prepare obsworker startup in screen...
             TMPFS=
             if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" -o "${OBS_VM_TYPE#emulator:}" != "$OBS_VM_TYPE" ] ; then
-                mkdir -p $R
                 DEVICE="$OBS_WORKER_DIRECTORY/root_$I/root"
                 SWAP="$OBS_WORKER_DIRECTORY/root_$I/swap"
                 if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" ]; then
@@ -447,13 +450,11 @@ case "$1" in
                 VM_SWAP="--swap worker$I-swap"
 		OBS_WORKER_OPT="$OBS_WORKER_OPT1 $WORKER $VM_KERNEL $VM_DISK $VM_SWAP $VM_SERVER $VM_FLAVOR "
 	    elif [ -n "$vmopt" -a "$OBS_VM_TYPE" = 'zvm' ]; then
-		mkdir -p $R
 		# Without a worker being defined, we would not be in this loop.
 		WORKER="--vm-worker ${WORKERS[$I_INDEX]}"
 		WORKER_NR="--vm-worker-nr $I"
 		OBS_WORKER_OPT="$OBS_WORKER_OPT1 $WORKER $WORKER_NR $VMDISK_FILESYSTEM $VMDISK_MOUNT_OPTIONS $VMDISK_CLEAN"
             else
-                mkdir -p $R
                 DEVICE=
                 SWAP=
                 MEMORY=
