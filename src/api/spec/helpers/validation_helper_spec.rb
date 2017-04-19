@@ -14,7 +14,7 @@ RSpec.describe ValidationHelper do
     end
 
     it 'does not raise an exception on valid project names' do
-      expect { valid_project_name!("home:mschnitzer") }.to_not raise_error(ValidationHelper::InvalidProjectNameError)
+      expect { valid_project_name!("home:mschnitzer") }.to_not raise_error
     end
   end
 end
