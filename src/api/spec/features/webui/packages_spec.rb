@@ -172,7 +172,7 @@ RSpec.feature "Packages", type: :feature, js: true do
       visit package_show_path(project: user.home_project, package: package)
       # test reload and wait for the build to finish
       find('.icons-reload').click
-      find('.buildstatus', 'succeeded').click
+      find('.buildstatus', text: 'succeeded').click
       expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
       first(:link, 'Download logfile').click
       # don't bother with the umlaut
