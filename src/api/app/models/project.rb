@@ -393,7 +393,7 @@ class Project < ApplicationRecord
     at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
     maintenance_project = Project.find_by_attribute_type(at).first
     unless maintenance_project && check_access?(maintenance_project)
-      raise UnknownObjectError.new 'There is no project flagged as maintenance project on server and no target in request defined.'
+      raise UnknownObjectError, 'There is no project flagged as maintenance project on server and no target in request defined.'
     end
     maintenance_project
   end
@@ -522,7 +522,7 @@ class Project < ApplicationRecord
     return unless is_maintenance?
     return unless MaintenanceIncident.find_by_maintenance_db_project_id id
 
-    raise DeleteError.new 'This maintenance project has incident projects and can therefore not be deleted.'
+    raise DeleteError, 'This maintenance project has incident projects and can therefore not be deleted.'
   end
 
   def can_be_unlocked?(with_exception = true)
@@ -531,7 +531,7 @@ class Project < ApplicationRecord
       maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: name})
       if maintenance_release_requests.exists?
         if with_exception
-          raise OpenReleaseRequest.new "Unlock of maintenance incident #{name} is not possible," +
+          raise OpenReleaseRequest, "Unlock of maintenance incident #{name} is not possible," +
                                        " because there is a running release request: #{maintenance_release_requests.first.id}"
         else
           errors.add(:base, "Unlock of maintenance incident #{name} is not possible," +
@@ -541,7 +541,7 @@ class Project < ApplicationRecord
     end
 
     unless flags.find_by_flag_and_status('lock', 'enable')
-      raise ProjectNotLocked.new "project '#{name}' is not locked" if with_exception
+      raise ProjectNotLocked, "project '#{name}' is not locked" if with_exception
       errors.add(:base, 'is not locked')
     end
 

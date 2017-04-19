@@ -10,7 +10,7 @@ class Channel < ApplicationRecord
     xmlhash.elements('target') { |p|
       prj = Project.get_by_name(p['project'])
       unless prj.repositories.find_by_name(p['repository'])
-        raise UnknownRepository.new "Repository does not exist #{prj.name}/#{p['repository']}"
+        raise UnknownRepository, "Repository does not exist #{prj.name}/#{p['repository']}"
       end
     }
     xmlhash.elements('binaries').each { |p|
@@ -27,10 +27,10 @@ class Channel < ApplicationRecord
           prj = Project.get_by_name( project )
           if b['package']
             pkg = prj.find_package(b['package'] )
-            raise UnknownPackage.new "Package does not exist #{prj.name}/#{p['package']}" unless pkg
+            raise UnknownPackage, "Package does not exist #{prj.name}/#{p['package']}" unless pkg
           end
           if b['repository'] && !prj.repositories.find_by_name(b['repository'])
-            raise UnknownRepository.new "Repository does not exist #{prj.name}/#{b['repository']}"
+            raise UnknownRepository, "Repository does not exist #{prj.name}/#{b['repository']}"
           end
         end
       }

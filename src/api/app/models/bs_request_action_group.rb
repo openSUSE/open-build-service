@@ -43,16 +43,16 @@ class BsRequestActionGroup < BsRequestAction
 
     return if req.is_target_maintainer?(User.current)
 
-    raise CantGroupRequest.new "Request #{req.number} does not match in the group"
+    raise CantGroupRequest, "Request #{req.number} does not match in the group"
   end
 
   def check_and_add_request(newid)
     req = BsRequest.find_by_number(newid)
     if bs_requests.where(id: req.id).exists?
-      raise AlreadyGrouped.new "#{req.number} is already part of the group request #{bs_request.number}"
+      raise AlreadyGrouped, "#{req.number} is already part of the group request #{bs_request.number}"
     end
     if req.bs_request_actions.first.action_type == :group
-      raise CantGroupInGroups.new 'Groups are not supported in groups'
+      raise CantGroupInGroups, 'Groups are not supported in groups'
     end
     check_permissions_on(req)
     bs_requests << req
@@ -74,7 +74,7 @@ class BsRequestActionGroup < BsRequestAction
     end
 
     return unless bs_request.bs_request_actions.size > 1
-    raise GroupActionMustBeSingle.new "You can't mix group actions with other actions"
+    raise GroupActionMustBeSingle, "You can't mix group actions with other actions"
   end
 
   def render_xml_attributes(node)
@@ -91,7 +91,7 @@ class BsRequestActionGroup < BsRequestAction
   def remove_request(oldid)
     req = BsRequest.find_by_number oldid
     unless req
-      raise NotInGroup.new "Request #{oldid} can't be removed from group request #{bs_request.number}"
+      raise NotInGroup, "Request #{oldid} can't be removed from group request #{bs_request.number}"
     end
     req.remove_from_group(self)
   end
@@ -146,7 +146,7 @@ class BsRequestActionGroup < BsRequestAction
     begin
       newid = Integer(opts['newid'])
     rescue TypeError, ArgumentError
-      raise RequireId.new('Need the new id in the newid parameter')
+      raise RequireId, 'Need the new id in the newid parameter'
     end
     check_and_add_request(newid)
     group_state = find_review_state_of_group
@@ -166,7 +166,7 @@ class BsRequestActionGroup < BsRequestAction
     begin
       old_id = Integer(opts['oldid'])
     rescue TypeError, ArgumentError
-      raise RequireId.new('Need the old id in the oldid parameter')
+      raise RequireId, 'Need the old id in the oldid parameter'
     end
     remove_request(old_id)
     check_for_group_in_new

@@ -12,18 +12,18 @@ class Project
       # check for raising read access permissions, which can't get ensured atm
       unless project.new_record? || project.disabled_for?('access', nil, nil)
         if FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.current.is_admin?
-          raise ForbiddenError.new
+          raise ForbiddenError
         end
       end
       unless project.new_record? || project.disabled_for?('sourceaccess', nil, nil)
         if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.current.is_admin?
-          raise ForbiddenError.new
+          raise ForbiddenError
         end
       end
       new_record = project.new_record?
       if ::Configuration.default_access_disabled == true && !new_record
         if project.disabled_for?('access', nil, nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.current.is_admin?
-          raise ForbiddenError.new
+          raise ForbiddenError
         end
       end
 
@@ -113,7 +113,7 @@ class Project
 
       while prj && prj.develproject
         if processed[prj.name]
-          raise CycleError.new "There is a cycle in devel definition at #{processed.keys.join(' -- ')}"
+          raise CycleError, "There is a cycle in devel definition at #{processed.keys.join(' -- ')}"
         end
         processed[prj.name] = 1
         prj = prj.develproject
@@ -224,7 +224,7 @@ class Project
     def check_for_empty_repo_list(list, error_prefix)
       return if list.empty?
       linking_repos = list.map { |x| x.repository.project.name + '/' + x.repository.name }.join "\n"
-      raise SaveError.new(error_prefix + "\n" + linking_repos)
+      raise SaveError, error_prefix + "\n" + linking_repos
     end
 
     def update_repository_flags(current_repo, xml_hash)

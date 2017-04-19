@@ -120,7 +120,7 @@ class Webui::WebuiController < ActionController::Base
   def required_parameters(*parameters)
     parameters.each do |parameter|
       unless params.include? parameter.to_s
-        raise MissingParameterError.new "Required Parameter #{parameter} missing"
+        raise MissingParameterError, "Required Parameter #{parameter} missing"
       end
     end
   end
@@ -255,7 +255,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def check_ajax
-    raise ActionController::RoutingError.new('Expected AJAX call') unless request.xhr?
+    raise ActionController::RoutingError, 'Expected AJAX call' unless request.xhr?
   end
 
   def pundit_user

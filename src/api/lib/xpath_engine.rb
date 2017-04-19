@@ -394,7 +394,7 @@ class XpathEngine
     # logger.debug "------------------ predicate ---------------"
     # logger.debug "-- pred_array: #{stack.inspect} --"
 
-    raise IllegalXpathError.new "invalid predicate" if stack.nil?
+    raise IllegalXpathError, "invalid predicate" if stack.nil?
 
     while !stack.empty?
       token = stack.shift

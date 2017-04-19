@@ -18,9 +18,9 @@ class Service < ActiveXML::Node
 
   def self.verify_xml!(raw_post)
     Xmlhash.parse(raw_post).elements('service').each do |s|
-      raise InvalidParameter.new "service name #{s['name']} contains invalid chars" unless valid_name?(s['name'])
+      raise InvalidParameter, "service name #{s['name']} contains invalid chars" unless valid_name?(s['name'])
       s.elements('param').each do |p|
-        raise InvalidParameter.new "service parameter #{p['name']} contains invalid chars" unless valid_name?(p['name'])
+        raise InvalidParameter, "service parameter #{p['name']} contains invalid chars" unless valid_name?(p['name'])
       end
     end
   end

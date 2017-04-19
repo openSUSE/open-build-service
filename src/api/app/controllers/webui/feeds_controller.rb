@@ -6,11 +6,11 @@ class Webui::FeedsController < Webui::WebuiController
 
   def news
     @news = StatusMessage.alive.limit(5)
-    raise ActionController::RoutingError.new('expected application/rss') unless request.format == Mime[:rss]
+    raise ActionController::RoutingError, 'expected application/rss' unless request.format == Mime[:rss]
   end
 
   def latest_updates
-    raise ActionController::RoutingError.new('expected application/rss') unless request.format == Mime[:rss]
+    raise ActionController::RoutingError, 'expected application/rss' unless request.format == Mime[:rss]
     @latest_updates = get_latest_updated(10)
   end
 

@@ -437,20 +437,20 @@ module ActionDispatch
     def assert_xml_tag(conds)
       node = ActiveXML::Node.new(@response.body)
       ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-      raise MiniTest::Assertion.new("expected tag, but no tag found matching #{conds.inspect} in:\n#{node.dump_xml}") unless ret
+      raise MiniTest::Assertion, "expected tag, but no tag found matching #{conds.inspect} in:\n#{node.dump_xml}" unless ret
     end
 
     def assert_no_xml_tag(conds)
       node = ActiveXML::Node.new(@response.body)
       ret = node.find_matching(NodeMatcher::Conditions.new(conds))
-      raise MiniTest::Assertion.new("expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}") if ret
+      raise MiniTest::Assertion, "expected no tag, but found tag matching #{conds.inspect} in:\n#{node.dump_xml}" if ret
     end
 
     # useful to fix our test cases
     def url_for(hash)
-      raise ArgumentError.new('we need a hash here') unless hash.kind_of? Hash
-      raise ArgumentError.new('we need a :controller') unless hash.has_key?(:controller)
-      raise ArgumentError.new('we need a :action') unless hash.has_key?(:action)
+      raise ArgumentError, 'we need a hash here' unless hash.kind_of? Hash
+      raise ArgumentError, 'we need a :controller' unless hash.has_key?(:controller)
+      raise ArgumentError, 'we need a :action' unless hash.has_key?(:action)
       super(hash)
     end
 

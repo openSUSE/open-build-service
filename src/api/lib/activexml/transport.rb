@@ -144,7 +144,7 @@ module ActiveXML
           params = args[1].merge params
         end
       when String
-        raise ArgumentError.new "find with string is no longer allowed #{args.inspect}"
+        raise ArgumentError, "find with string is no longer allowed #{args.inspect}"
       when Hash
         # logger.debug "Transport.find: using hash"
         if args[0].has_key?(:predicate) && args[0].has_key?(:what)

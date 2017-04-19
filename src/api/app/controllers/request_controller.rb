@@ -26,7 +26,7 @@ class RequestController < ApplicationController
 
   def render_request_collection
     # if all params areblank, something is wrong
-    raise RequireFilter.new if [:project, :user, :states, :types, :reviewstates, :ids].all? { |f| params[f].blank? }
+    raise RequireFilter if [:project, :user, :states, :types, :reviewstates, :ids].all? { |f| params[f].blank? }
 
     # convert comma seperated values into arrays
     params[:roles] = params[:roles].split(',') if params[:roles]
@@ -60,7 +60,7 @@ class RequestController < ApplicationController
   # POST /request?cmd=create
   def global_command
     unless params[:cmd] == "create"
-      raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
+      raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
 
     # refuse request creation for anonymous users
@@ -96,7 +96,7 @@ class RequestController < ApplicationController
       # FIXME3.0: to be dropped
       @req.permission_check_change_groups!
     else
-      raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
+      raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
 
     # permission granted for the request at this point

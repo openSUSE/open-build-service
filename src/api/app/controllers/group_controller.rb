@@ -77,7 +77,7 @@ class GroupController < ApplicationController
     elsif params[:cmd] == "set_email"
       group.set_email params[:email]
     else
-      raise UnknownCommandError.new "cmd must be set to add_user or remove_user"
+      raise UnknownCommandError, "cmd must be set to add_user or remove_user"
     end
 
     render_ok

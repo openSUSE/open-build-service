@@ -189,7 +189,7 @@ module ActiveXML
     end
 
     def parse(data)
-      raise ParseError.new('Empty XML passed!') if data.empty?
+      raise ParseError, 'Empty XML passed!' if data.empty?
       begin
         # puts "parse #{self.class}"
         t0 = Time.now
@@ -198,7 +198,7 @@ module ActiveXML
       rescue Nokogiri::XML::SyntaxError => e
         Rails.logger.error "Error parsing XML: #{e}"
         Rails.logger.error "XML content was: #{data}"
-        raise ParseError.new e.message
+        raise ParseError, e.message
       end
     end
     private :parse

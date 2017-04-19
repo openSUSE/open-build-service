@@ -62,7 +62,7 @@ class TagController < ApplicationController
 
     @tag.split('::').each do |t|
       tag = Tag.find_by_name(t)
-      raise TagNotFoundError.new("Tag #{t} not found") unless tag
+      raise TagNotFoundError, "Tag #{t} not found" unless tag
 
       if first_run
         @projects = tag.projects.group(:name).order(:name)
@@ -87,7 +87,7 @@ class TagController < ApplicationController
 
     @tag.split('::').each do |t|
       tag = Tag.find_by_name(t)
-      raise TagNotFoundError.new("Tag #{t} not found") unless tag
+      raise TagNotFoundError, "Tag #{t} not found" unless tag
 
       if first_run
         @packages = tag.packages.group(:name).order(:name)
@@ -347,7 +347,7 @@ class TagController < ApplicationController
     unless tag
       tag = Tag.create(name: tagname)
     end
-    raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) unless tag.valid?
+    raise RuntimeError, "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" unless tag.valid?
     tag
   end
 

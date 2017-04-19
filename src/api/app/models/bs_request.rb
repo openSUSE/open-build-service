@@ -73,7 +73,7 @@ class BsRequest < ApplicationRecord
     unless r
       # the external visible request id is stored in number row.
       # the database id must not be exposed to the outside
-      raise NotFoundError.new("Couldn't find request with id '#{number}'")
+      raise NotFoundError, "Couldn't find request with id '#{number}'"
     end
     r
   end
@@ -403,7 +403,7 @@ class BsRequest < ApplicationRecord
   def permission_check_change_groups!
     # adding and removing of requests is only allowed for groups
     return unless bs_request_actions.first.action_type != :group
-    raise GroupRequestSpecial.new "Command is only valid for group requests"
+    raise GroupRequestSpecial, "Command is only valid for group requests"
   end
 
   def permission_check_change_state!(opts)
@@ -457,7 +457,7 @@ class BsRequest < ApplicationRecord
         opts[:check_for_patchinfo] = true
 
         unless incident_project.name.start_with?(target_project.name)
-          raise MultipleMaintenanceIncidents.new 'This request handles different maintenance incidents, this is not allowed !'
+          raise MultipleMaintenanceIncidents, 'This request handles different maintenance incidents, this is not allowed !'
         end
         action.target_project = incident_project.name
         action.save!
@@ -571,14 +571,14 @@ class BsRequest < ApplicationRecord
       review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
       history_class.create(review: review, comment: "review assigend to user #{reviewer.login}", user_id: User.current.id)
     end
-    raise Review::NotFoundError.new unless review_comment
+    raise Review::NotFoundError unless review_comment
     review_comment
   end
   private :_assignreview_update_reviews
 
   def assignreview(opts = {})
     unless state == :review || (state == :new && state == :new)
-      raise InvalidStateError.new 'request is not in review state'
+      raise InvalidStateError, 'request is not in review state'
     end
     reviewer = User.find_by_login!(opts[:reviewer])
 
@@ -587,9 +587,9 @@ class BsRequest < ApplicationRecord
       user_review = reviews.where(by_user: reviewer.login).last
       if opts[:revert]
         _assignreview_update_reviews(reviewer, opts)
-        raise Review::NotFoundError.new unless user_review
-        raise InvalidStateError.new "review is not in new state" unless user_review.state == :new
-        raise Review::NotFoundError.new "Not an assigned review" unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
+        raise Review::NotFoundError unless user_review
+        raise InvalidStateError, "review is not in new state" unless user_review.state == :new
+        raise Review::NotFoundError, "Not an assigned review" unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
         user_review.destroy
       elsif user_review
         review_comment = _assignreview_update_reviews(reviewer, opts)
@@ -610,11 +610,11 @@ class BsRequest < ApplicationRecord
       new_review_state = new_review_state.to_sym
 
       unless state == :review || (state == :new && new_review_state == :new)
-        raise InvalidStateError.new 'request is not in review state'
+        raise InvalidStateError, 'request is not in review state'
       end
       check_if_valid_review!(opts)
       unless new_review_state.in?([:new, :accepted, :declined, :superseded])
-        raise InvalidStateError.new "review state must be new, accepted, declined or superseded, was #{new_review_state}"
+        raise InvalidStateError, "review state must be new, accepted, declined or superseded, was #{new_review_state}"
       end
       # to track if the request state needs to be changed as well
       go_new_state = :review
@@ -663,7 +663,7 @@ class BsRequest < ApplicationRecord
           go_new_state = nil
         end
       end
-      raise Review::NotFoundError.new unless found
+      raise Review::NotFoundError unless found
       history = nil
       p = {request: self, comment: opts[:comment], user_id: User.current.id}
       if new_review_state == :superseded
@@ -712,7 +712,7 @@ class BsRequest < ApplicationRecord
 
   def check_if_valid_review!(opts)
     return unless !opts[:by_user] && !opts[:by_group] && !opts[:by_project]
-    raise InvalidReview.new
+    raise InvalidReview
   end
 
   def addreview(opts)
@@ -1127,7 +1127,7 @@ class BsRequest < ApplicationRecord
       newactions.concat(na)
     end
     # will become an empty request
-    raise MissingAction.new if newactions.empty? && oldactions.size == bs_request_actions.size
+    raise MissingAction if newactions.empty? && oldactions.size == bs_request_actions.size
 
     oldactions.each { |a| bs_request_actions.destroy a }
     newactions.each { |a| bs_request_actions << a }

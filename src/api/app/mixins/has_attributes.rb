@@ -16,7 +16,7 @@ module HasAttributes
     begin
       Backend::Connection.put_source(path, render_attribute_axml)
     rescue ActiveXML::Transport::Error => e
-      raise AttributeSaveError.new e.summary
+      raise AttributeSaveError, e.summary
     end
   end
 

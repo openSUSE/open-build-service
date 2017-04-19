@@ -22,7 +22,7 @@ module FlagHelper
   end
 
   def validate_type( flag )
-    raise InvalidFlag.new( "Error: unknown flag type '#{flag}' not found." ) unless TYPES.has_key? flag.to_s
+    raise InvalidFlag, "Error: unknown flag type '#{flag}' not found." unless TYPES.has_key? flag.to_s
   end
 
   def update_all_flags(xmlhash)
@@ -86,7 +86,7 @@ module FlagHelper
   def add_flag(flag, status, repository = nil, arch = nil)
     validate_type flag
     unless status == 'enable' || status == 'disable'
-      raise ArgumentError.new("Error: unknown status for flag '#{status}'")
+      raise ArgumentError, "Error: unknown status for flag '#{status}'"
     end
     flags.build( status: status, flag: flag ) do |f|
       f.architecture = Architecture.find_by_name(arch) if arch

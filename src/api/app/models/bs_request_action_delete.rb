@@ -28,7 +28,7 @@ class BsRequestActionDelete < BsRequestAction
     prj = Project.get_by_name(target_project)
     r = prj.repositories.find_by_name(target_repository)
     unless r
-      raise RepositoryMissing.new "The repository #{target_project} / #{target_repository} does not exist"
+      raise RepositoryMissing, "The repository #{target_project} / #{target_repository} does not exist"
     end
     r.destroy
     prj.store(lowprio: opts[:lowprio], comment: opts[:comment], request: bs_request)
@@ -49,7 +49,7 @@ class BsRequestActionDelete < BsRequestAction
     elsif target_repository
       # no source diff
     else
-      raise DiffError.new("Project diff isn't implemented yet")
+      raise DiffError, "Project diff isn't implemented yet"
     end
     ''
   end

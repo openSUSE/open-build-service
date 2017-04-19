@@ -60,7 +60,7 @@ class Patchinfo < ActiveXML::Node
         return if is_repository_matching?(prt.target_repository, rt)
       end
     end
-    raise ReleasetargetNotFound.new "Release target '#{rt['project']}/#{rt['repository']}' is not defined " +
+    raise ReleasetargetNotFound, "Release target '#{rt['project']}/#{rt['repository']}' is not defined " +
                                     "in this project '#{@project.name}'. Please ask your OBS administrator to add it."
   end
 
@@ -72,8 +72,8 @@ class Patchinfo < ActiveXML::Node
     # valid tracker?
     data.elements('issue').each do |i|
       tracker = IssueTracker.find_by_name(i['tracker'])
-      raise TrackerNotFound.new "Tracker #{i['tracker']} is not registered in this OBS instance" unless tracker
-      raise IssueTracker::InvalidIssueName.new "The issue name is not supported: #{i['id']}" unless tracker.valid_issue_name?(i['id'])
+      raise TrackerNotFound, "Tracker #{i['tracker']} is not registered in this OBS instance" unless tracker
+      raise IssueTracker::InvalidIssueName, "The issue name is not supported: #{i['id']}" unless tracker.valid_issue_name?(i['id'])
     end
     # are releasetargets specified ? validate that this project is actually defining them.
     data.elements('releasetarget') { |r| check_releasetarget!(r) }
@@ -173,10 +173,10 @@ class Patchinfo < ActiveXML::Node
     @pkg = Package.get_by_project_and_name project, pkg_name
     return if force
     if @pkg.is_patchinfo?
-      raise PatchinfoFileExists.new "createpatchinfo command: the patchinfo #{pkg_name} exists already. " +
+      raise PatchinfoFileExists, "createpatchinfo command: the patchinfo #{pkg_name} exists already. " +
                                         'Either use force=1 re-create the _patchinfo or use updatepatchinfo for updating.'
     else
-      raise PackageAlreadyExists.new "createpatchinfo command: the package #{pkg_name} exists already, " +
+      raise PackageAlreadyExists, "createpatchinfo command: the package #{pkg_name} exists already, " +
                                          'but is  no patchinfo. Please create a new package instead.'
     end
   end
@@ -227,11 +227,11 @@ class Patchinfo < ActiveXML::Node
     data = read_patchinfo_xmlhash(pkg)
     # validate _patchinfo for completeness
     if data.empty?
-      raise IncompletePatchinfo.new 'The _patchinfo file is not parseble'
+      raise IncompletePatchinfo, 'The _patchinfo file is not parseble'
     end
     %w(rating category summary).each do |field|
       if data[field].blank?
-        raise IncompletePatchinfo.new "The _patchinfo has no #{field} set"
+        raise IncompletePatchinfo, "The _patchinfo has no #{field} set"
       end
     end
     # a patchinfo may limit the targets

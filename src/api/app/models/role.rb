@@ -50,7 +50,7 @@ class Role < ApplicationRecord
   end
 
   def self.find_by_title!(title)
-    find_by_title(title) || raise(NotFound.new("Couldn't find Role '#{title}'"))
+    find_by_title(title) || raise(NotFound, "Couldn't find Role '#{title}'")
   end
 
   def self.local_roles

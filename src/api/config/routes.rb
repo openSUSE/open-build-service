@@ -7,7 +7,7 @@ class WebuiMatcher
     begin
       request.format.to_sym != :xml
     rescue ArgumentError => e
-      raise InvalidRequestFormat.new e.to_s
+      raise InvalidRequestFormat, e.to_s
     end
   end
 end

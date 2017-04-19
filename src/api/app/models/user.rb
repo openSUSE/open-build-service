@@ -281,7 +281,7 @@ class User < ApplicationRecord
   def self.get_default_admin
     admin = CONFIG['default_admin'] || 'Admin'
     user = find_by_login(admin)
-    raise NotFoundError.new("Admin not found, user #{admin} has not admin permissions") unless user.is_admin?
+    raise NotFoundError, "Admin not found, user #{admin} has not admin permissions" unless user.is_admin?
     user
   end
 
@@ -295,7 +295,7 @@ class User < ApplicationRecord
   def self.find_by_login!(login)
     user = find_by_login(login)
     if user.nil? || user.state == 'deleted'
-      raise NotFoundError.new("Couldn't find User with login = #{login}")
+      raise NotFoundError, "Couldn't find User with login = #{login}"
     end
     user
   end
@@ -304,7 +304,7 @@ class User < ApplicationRecord
     user = find_by_login!(login)
     # FIXME: Move permission checks to controller level
     unless User.current.is_admin? || user == User.current
-      raise NoPermission.new "User #{login} can not be accessed by #{User.current.login}"
+      raise NoPermission, "User #{login} can not be accessed by #{User.current.login}"
     end
     user
   end
