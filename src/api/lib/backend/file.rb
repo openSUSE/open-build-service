@@ -30,7 +30,7 @@ module Backend
     # Sets the content File object from a path
     def file_from_path(path)
       @file = ::File.open(path)
-      @response = { type: MIME::Types.type_for(@file.basename).first.content_type, status: 200, length: @file.length }
+      @response = { type: MIME::Types.type_for(::File.basename(@file.path)).first.try(:content_type), status: 200, size: @file.size }
       @file.close
     end
 
@@ -43,7 +43,7 @@ module Backend
               tempfile.write(buffer)
             end
             @file = tempfile
-            @response = { type: backend_response['Content-Type'], status: backend_response.code, length: @file.length }
+            @response = { type: backend_response['Content-Type'], status: backend_response.code, size: @file.size }
           end
         end
         @last_read_query = query
@@ -75,10 +75,11 @@ module Backend
       backend_response = nil
       if content
         backend_response = Connection.put(full_path(query), content)
+        reload
       else
         @file.open
         backend_response = Connection.put(full_path(query), @file)
-        @response = { type: backend_response['Content-Type'], status: backend_response.code, length: backend_response.content_length }
+        @response = { type: backend_response['Content-Type'], status: backend_response.code, size: backend_response.content_length }
         @file.close
       end
       backend_response
@@ -95,9 +96,10 @@ module Backend
 
     # Tries to destroy the file from the backend, freeze the object and return the response, otherwise will raise an StandardError
     def destroy!(query = {})
-      response = Connection.delete(full_path(query))
+      backend_response = Connection.delete(full_path(query))
+      @response = { type: backend_response['Content-Type'], status: backend_response.code, size: backend_response.content_length }
       freeze
-      response
+      @response
     end
 
     # Tries to destroy the file from the backend. Returns nil if some StandardError is raised
@@ -110,9 +112,10 @@ module Backend
     end
 
     # TODO: Replace SuseBackend.build_query_from_hash with this function asap
-    def self.query_from_list(params, key_list = [])
-      params = params.slice(*key_list)
-      "?#{params.to_query}"
+    def self.query_from_list(params, key_list = nil)
+      key_list ||= params.keys
+      query = params.slice(*key_list).to_query
+      query.present? ? "?#{query}" : query
     end
 
     private
