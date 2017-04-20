@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'authenticator'
 require 'gssapi'
 
 RSpec.describe 'Kerberos login', vcr: false, type: :request do
@@ -24,37 +23,29 @@ RSpec.describe 'Kerberos login', vcr: false, type: :request do
         it { expect(response.header["WWW-Authenticate"]).to eq('Negotiate') }
       end
 
-      context "authorization header contains 'Negotiate' with a ticket" do
+      context "authorization header contains 'Negotiate' with a valid ticket" do
         include_context 'a kerberos mock for' do
           let(:login) { user.login }
         end
 
         before do
-          allow(GSSAPI::Simple).to receive(:new).with(
-            'obs.test.com', 'HTTP', '/etc/krb5.keytab'
-          ).and_return(gssapi_mock)
+          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate #{Base64.strict_encode64(ticket)}" }
         end
 
-        it 'authenticates the user' do
-          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate #{Base64.strict_encode64(ticket)}" }
-          expect(response).to have_http_status(:success)
-        end
+        it { expect(response).to have_http_status(:success) }
       end
 
-      context 'authenticator raises an error while fetching user' do
-        let(:auth_header) { "Negotiate #{Base64.strict_encode64('ticket')}" }
+      context "authorization header contains 'Negotiate' with an invalid ticket" do
+        include_context 'a kerberos mock for' do
+          let(:login) { user.login }
+        end
 
         before do
-          allow_any_instance_of(Authenticator).to receive(:extract_krb_user).
-            with(auth_header.to_s.split).
-            and_raise(Authenticator::AuthenticationRequiredError, 'something happened')
+          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate INVALID_TICKET" }
         end
 
-        it 'does not authenticate the user' do
-          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => auth_header }
-          expect(response).to have_http_status(:unauthorized)
-          expect(response.body).to match('something happened')
-        end
+        it { expect(response).to have_http_status(:unauthorized) }
+        it { expect(response.body).to match('Received invalid GSSAPI context')}
       end
     end
   end

@@ -127,12 +127,6 @@ RSpec.feature "Login", type: :feature, js: true do
         let(:login) { user.login }
       end
 
-      before do
-        allow(GSSAPI::Simple).to receive(:new).with(
-          'obs.test.com', 'HTTP', '/etc/krb5.keytab'
-        ).and_return(gssapi_mock)
-      end
-
       it 'authenticates the user' do
         visit project_list_path
 

@@ -138,7 +138,7 @@ class Authenticator
 
       begin
         tok = krb.accept_context(Base64.strict_decode64(authorization[1]))
-      rescue GSSAPI::GssApiError
+      rescue GSSAPI::GssApiError, ArgumentError
         raise_and_invalidate(authorization, 'Received invalid GSSAPI context.')
       end
 
