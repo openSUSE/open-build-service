@@ -1,10 +1,10 @@
 !!!
 %html
   %head
-    %meta{:charset=> "utf-8"}
-    %meta{:name=>"viewport", :content=>"width=device-width, initial-scale=1.0"}
+    %meta{charset: "utf-8"}
+    %meta{name: "viewport", content: "width=device-width, initial-scale=1.0"}
     - if @metarobots
-      %meta{:name=>"robots", :content=>"#{@metarobots}"}
+      %meta{name: "robots", content: "#{@metarobots}"}
     = favicon_link_tag 'favicon.ico'
     %title
       = @configuration ? @configuration['title'] : 'Open Build Service'
@@ -13,7 +13,7 @@
 
     = stylesheet_link_tag "webui/bratwurst"
     - if content_for?(:head_style)
-      %style{:type=>"text/css"}
+      %style{type: "text/css"}
         = yield :head_style
     = yield :content_for_head
 
@@ -25,16 +25,16 @@
         #{yield :ready_function}
       });
 
-    = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {:title => 'News'})
+    = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {title: 'News'})
     - if CONFIG['feeds']
       - CONFIG['feeds'].each do |feed|
-        = auto_discovery_link_tag(:rss, feed['url'], {:title => feed['name']})
+        = auto_discovery_link_tag(:rss, feed['url'], {title: feed['name']})
 
     = csrf_meta_tag
 
   %body
     #wrap
-      = render :partial => "layouts/webui/navbar"
+      = render partial: "layouts/webui/navbar"
       .container
         #content
           - if flash
@@ -42,4 +42,4 @@
           = content_for?(:content) ? yield(:content) : yield
     #footer
       .container
-        = render :partial => "layouts/webui/footer"
+        = render partial: "layouts/webui/footer"
