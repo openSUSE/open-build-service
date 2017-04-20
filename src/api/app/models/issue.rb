@@ -22,7 +22,7 @@ class Issue < ApplicationRecord
   def self.find_by_name_and_tracker(name, issue_tracker_name, options = {})
     issue_tracker = IssueTracker.find_by_name(issue_tracker_name)
     unless issue_tracker
-      raise IssueTracker::NotFoundError.new("Error: Issue Tracker '#{issue_tracker_name}' not found.")
+      raise IssueTracker::NotFoundError, "Error: Issue Tracker '#{issue_tracker_name}' not found."
     end
 
     issue = issue_tracker.issues.find_by_name(name)

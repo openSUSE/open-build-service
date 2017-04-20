@@ -60,12 +60,12 @@ class UnregisteredUser < User
 
     unless newuser.errors.empty?
       details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(', ')
-      raise ErrRegisterSave.new "Could not save the registration, details: #{details}"
+      raise ErrRegisterSave, "Could not save the registration, details: #{details}"
     end
 
     return unless newuser.state == "unconfirmed"
 
-    raise ErrRegisterSave.new "Thank you for signing up! An admin has to confirm your account now. Please be patient."
+    raise ErrRegisterSave, "Thank you for signing up! An admin has to confirm your account now. Please be patient."
   end
 end
 

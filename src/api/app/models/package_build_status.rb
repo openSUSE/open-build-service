@@ -17,7 +17,7 @@ class PackageBuildStatus
 
     tocheck_repos = @pkg.project.repositories_linking_project(opts[:target_project])
 
-    raise NoRepositoriesFound.new if tocheck_repos.empty?
+    raise NoRepositoriesFound if tocheck_repos.empty?
 
     @result = {}
     tocheck_repos.each do |srep|
@@ -39,7 +39,7 @@ class PackageBuildStatus
       end
     end
     archs.uniq!
-    raise NoRepositoriesFound.new "Can not find repository building against target" unless trepo
+    raise NoRepositoriesFound, "Can not find repository building against target" unless trepo
 
     gather_target_packages(trepo)
 
@@ -132,7 +132,7 @@ class PackageBuildStatus
         buildinfo = Xmlhash.parse(ActiveXML.backend.direct_http(uri))
       rescue ActiveXML::Transport::Error => e
         # if there is an error, we ignore
-        raise FailedToRetrieveBuildInfo.new "Can't get buildinfo: #{e.summary}"
+        raise FailedToRetrieveBuildInfo, "Can't get buildinfo: #{e.summary}"
       end
 
       buildinfo.get("package").elements("pkgdep") do |b|

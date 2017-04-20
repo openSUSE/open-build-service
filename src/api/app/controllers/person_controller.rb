@@ -28,7 +28,7 @@ class PersonController < ApplicationController
       internal_register
       return
     end
-    raise UnknownCommandError.new "Allowed commands are 'change_password'"
+    raise UnknownCommandError, "Allowed commands are 'change_password'"
   end
 
   def get_userinfo
@@ -80,7 +80,7 @@ class PersonController < ApplicationController
       render_ok
       return
     end
-    raise UnknownCommandError.new "Allowed commands are 'change_password', 'lock' or 'delete', got #{params[:cmd]}"
+    raise UnknownCommandError, "Allowed commands are 'change_password', 'lock' or 'delete', got #{params[:cmd]}"
   end
 
   def put_userinfo
@@ -131,7 +131,7 @@ class PersonController < ApplicationController
   end
 
   def grouplist
-    raise NoPermissionToGroupList.new unless User.current
+    raise NoPermissionToGroupList unless User.current
 
     user = User.find_by_login! params[:login]
     @list = User.lookup_strategy.groups(user)
@@ -162,7 +162,7 @@ class PersonController < ApplicationController
 
     if authenticator.proxy_mode?
       if request.env['HTTP_X_USERNAME'].blank?
-        raise ErrRegisterSave.new "Missing iChain header"
+        raise ErrRegisterSave, "Missing iChain header"
       end
       login = request.env['HTTP_X_USERNAME']
       email = request.env['HTTP_X_EMAIL'] unless request.env['HTTP_X_EMAIL'].blank?
@@ -274,7 +274,7 @@ class PersonController < ApplicationController
     user = User.get_by_login(params[:login])
 
     unless params[:cmd] == "create"
-      raise UnknownCommandError.new "Allowed commands are 'create'"
+      raise UnknownCommandError, "Allowed commands are 'create'"
     end
     pkg = nil
     if params[:project] || params[:package]
@@ -292,7 +292,7 @@ class PersonController < ApplicationController
     user = User.get_by_login(params[:login])
 
     token = Token.where( user_id: user.id, id: params[:id] ).first
-    raise TokenNotFound.new "Specified token \"#{params[:id]}\" got not found" unless token
+    raise TokenNotFound, "Specified token \"#{params[:id]}\" got not found" unless token
     token.destroy
     render_ok
   end

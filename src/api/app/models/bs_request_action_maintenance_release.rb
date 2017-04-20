@@ -80,19 +80,19 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     prj = Project.get_by_name(source_project)
     prj.repositories.includes(:release_targets).each do |repo|
       if repo.release_targets.empty?
-        raise RepositoryWithoutReleaseTarget.new "Release target definition is missing in #{prj.name} / #{repo.name}"
+        raise RepositoryWithoutReleaseTarget, "Release target definition is missing in #{prj.name} / #{repo.name}"
       end
       if repo.architectures.empty?
-        raise RepositoryWithoutArchitecture.new "Repository has no architecture #{prj.name} / #{repo.name}"
+        raise RepositoryWithoutArchitecture, "Repository has no architecture #{prj.name} / #{repo.name}"
       end
       repo.release_targets.each do |rt|
         unless repo.architectures.size == rt.target_repository.architectures.size
-          raise ArchitectureOrderMissmatch.new "Repository '#{repo.name}' and releasetarget " +
+          raise ArchitectureOrderMissmatch, "Repository '#{repo.name}' and releasetarget " +
                                                "'#{rt.target_repository.name}' have different architectures"
         end
         for i in 1..(repo.architectures.size)
           unless repo.architectures[i - 1] == rt.target_repository.architectures[i - 1]
-            raise ArchitectureOrderMissmatch.new "Repository and releasetarget don't have the same architecture " +
+            raise ArchitectureOrderMissmatch, "Repository and releasetarget don't have the same architecture " +
                                                  "on position #{i}: #{prj.name} / #{repo.name}"
           end
         end
@@ -124,13 +124,13 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     open_ids.delete(bs_request.number) if bs_request
     if open_ids.count > 0
       msg = "The following open requests have the same target #{target_project} / #{tpkgprefix}: " + open_ids.join(', ')
-      raise OpenReleaseRequests.new msg
+      raise OpenReleaseRequests, msg
     end
 
     # creating release requests is also locking the source package, therefore we require write access there.
     spkg = Package.find_by_project_and_name source_project, source_package
     return if spkg || !User.current.can_modify_package?(spkg)
-    raise LackingReleaseMaintainership.new 'Creating a release request action requires maintainership in source package'
+    raise LackingReleaseMaintainership, 'Creating a release request action requires maintainership in source package'
   end
 
   def set_acceptinfo(ai)

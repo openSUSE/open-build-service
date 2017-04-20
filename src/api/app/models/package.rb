@@ -300,7 +300,7 @@ class Package < ApplicationRecord
     return if check_source_access?
     # TODO: Use pundit for authorization instead
     if !User.current || User.current.is_nobody?
-      raise Authenticator::AnonymousUser.new 'Anonymous user is not allowed here - please login'
+      raise Authenticator::AnonymousUser, 'Anonymous user is not allowed here - please login'
     end
 
     raise ReadSourceAccessError, "#{project.name}/#{name}"
@@ -616,7 +616,7 @@ class Package < ApplicationRecord
   end
 
   def self.detect_package_kinds(directory)
-    raise ArgumentError.new 'neh!' if directory.has_key? 'time'
+    raise ArgumentError, 'neh!' if directory.has_key? 'time'
     ret = []
     directory.elements('entry') do |e|
       %w{patchinfo aggregate link channel}.each do |kind|
@@ -646,7 +646,7 @@ class Package < ApplicationRecord
     processed = {}
 
     if pkg == pkg.develpackage
-      raise CycleError.new 'Package defines itself as devel package'
+      raise CycleError, 'Package defines itself as devel package'
     end
     while (pkg.develpackage || pkg.project.develproject)
       # logger.debug "resolve_devel_package #{pkg.inspect}"
@@ -657,7 +657,7 @@ class Package < ApplicationRecord
         processed.keys.each do |key|
           str = str + ' -- ' + key
         end
-        raise CycleError.new "There is a cycle in devel definition at #{str}"
+        raise CycleError, "There is a cycle in devel definition at #{str}"
       end
       processed[str] = 1
       # get project and package name
@@ -1163,7 +1163,7 @@ class Package < ApplicationRecord
     delete_opt[:comment] = opt[:comment] if opt[:comment]
 
     unless User.current.can_modify_package? self
-      raise DeleteFileNoPermission.new 'Insufficient permissions to delete file'
+      raise DeleteFileNoPermission, 'Insufficient permissions to delete file'
     end
 
     Backend::Connection.delete source_path(name, delete_opt)
@@ -1260,7 +1260,7 @@ class Package < ApplicationRecord
         if data.has_attribute? 'missingok'
           Project.get_by_name(tproject_name) # permission check
           if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
-            raise NotMissingError.new "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
+            raise NotMissingError, "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
           end
         else
           # permission check

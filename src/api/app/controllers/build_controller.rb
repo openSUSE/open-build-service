@@ -39,7 +39,7 @@ class BuildController < ApplicationController
 
       # check for cmd parameter
       if params[:cmd].nil?
-        raise MissingParameterError.new "Missing parameter 'cmd'"
+        raise MissingParameterError, "Missing parameter 'cmd'"
       end
 
       unless %w(wipe restartbuild killbuild abortbuild rebuild unpublish).include? params[:cmd]
@@ -170,7 +170,7 @@ class BuildController < ApplicationController
 
     pkg = Package.get_by_project_and_name(params[:project], params[:package],
                                           {use_source: false, follow_project_links: true})
-    raise RemoteProjectError.new 'The package lifes in a remote project, this is not supported atm' unless pkg
+    raise RemoteProjectError, 'The package lifes in a remote project, this is not supported atm' unless pkg
 
     tprj = Project.get_by_name params[:pathproject]
     bs = PackageBuildStatus.new(pkg).result(target_project: tprj, srcmd5: params[:srcmd5])

@@ -23,7 +23,7 @@ class StatusController < ApplicationController
   def update_messages
     # check permissions
     unless permissions.status_message_create
-      raise PermissionDeniedError.new 'message(s) cannot be created, you have not sufficient permissions'
+      raise PermissionDeniedError, 'message(s) cannot be created, you have not sufficient permissions'
     end
 
     new_messages = ActiveXML::Node.new(request.raw_post)
@@ -35,7 +35,7 @@ class StatusController < ApplicationController
       end
     else
       # TODO: make use of a validator
-      raise CreatingMessagesError.new "no message #{new_messages.dump_xml}" if new_messages.element_name != 'message'
+      raise CreatingMessagesError, "no message #{new_messages.dump_xml}" if new_messages.element_name != 'message'
       # just one message, NOT wrapped in outer xml tag 'status_messages'
       save_new_message(new_messages)
     end
@@ -53,7 +53,7 @@ class StatusController < ApplicationController
   def delete_message
     # check permissions
     unless permissions.status_message_create
-      raise PermissionDeniedError.new 'message cannot be deleted, you have not sufficient permissions'
+      raise PermissionDeniedError, 'message cannot be deleted, you have not sufficient permissions'
     end
 
     StatusMessage.find(params[:id]).delete
@@ -72,7 +72,7 @@ class StatusController < ApplicationController
     required_parameters :cmd, :project, :package, :repository, :arch
 
     unless %w(checkconstraints).include? params[:cmd]
-      raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
+      raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
 
     # read permission checking

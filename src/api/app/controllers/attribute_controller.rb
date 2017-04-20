@@ -37,7 +37,7 @@ class AttributeController < ApplicationController
   # /attribute/:namespace/_meta
   def namespace_definition
     if params[:namespace].nil?
-      raise MissingParameterError.new "parameter 'namespace' is missing"
+      raise MissingParameterError, "parameter 'namespace' is missing"
     end
     namespace = params[:namespace]
 
@@ -92,10 +92,10 @@ class AttributeController < ApplicationController
   # /attribute/:namespace/:name/_meta
   def attribute_definition
     if params[:namespace].nil?
-      raise MissingParameterError.new "parameter 'namespace' is missing"
+      raise MissingParameterError, "parameter 'namespace' is missing"
     end
     if params[:name].nil?
-      raise MissingParameterError.new "parameter 'name' is missing"
+      raise MissingParameterError, "parameter 'name' is missing"
     end
     namespace = params[:namespace]
     name = params[:name]
@@ -250,7 +250,7 @@ class AttributeController < ApplicationController
       attrib.container = @attribute_container
 
       unless attrib.valid?
-        raise APIException.new({ message: attrib.errors.full_messages.join('\n'), status: 400 })
+        raise APIException, { message: attrib.errors.full_messages.join('\n'), status: 400 }
       end
 
       authorize attrib, :create?
@@ -282,7 +282,7 @@ class AttributeController < ApplicationController
     else
       # project
       if Project.is_remote_project?(params[:project])
-        raise RemoteProject.new
+        raise RemoteProject
       end
       @attribute_container = Project.get_by_name(params[:project])
     end
@@ -294,7 +294,7 @@ class AttributeController < ApplicationController
     aname = params[:attribute]
     name_parts = aname.split(/:/)
     if name_parts.length != 2
-      raise InvalidAttribute.new "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+      raise InvalidAttribute, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
     end
     # existing ?
     AttribType.find_by_name!(params[:attribute])

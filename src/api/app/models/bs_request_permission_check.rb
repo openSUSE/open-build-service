@@ -39,7 +39,7 @@ class BsRequestPermissionCheck
 
   def check_accepted_action(action)
     unless @target_project
-      raise NotExistingTarget.new "Unable to process project #{action.target_project}; it does not exist."
+      raise NotExistingTarget, "Unable to process project #{action.target_project}; it does not exist."
     end
 
     check_action_target(action)
@@ -53,7 +53,7 @@ class BsRequestPermissionCheck
         ActiveXML.backend.direct_http(url)
       rescue ActiveXML::Transport::Error
         # rubocop:disable Metrics/LineLength
-        raise ExpandError.new "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}" : ''} is broken"
+        raise ExpandError, "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}" : ''} is broken"
         # rubocop:enable Metrics/LineLength
       end
     end
@@ -68,7 +68,7 @@ class BsRequestPermissionCheck
       # target must exist
       if action.target_package
         unless @target_package
-          raise NotExistingTarget.new "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist."
+          raise NotExistingTarget, "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist."
         end
       end
     end
@@ -83,7 +83,7 @@ class BsRequestPermissionCheck
     originpkg = Package.get_by_project_and_name action.target_project, action.target_package
     return if User.current.can_modify_package?(originpkg, true)
 
-    raise PostRequestNoPermission.new "Package target can not get initialized using makeoriginolder." +
+    raise PostRequestNoPermission, "Package target can not get initialized using makeoriginolder." +
                                       "No permission in project #{originpkg.project.name}"
   end
 
@@ -93,7 +93,7 @@ class BsRequestPermissionCheck
     elsif action.target_repository
       r = Repository.find_by_project_and_name(@target_project.name, action.target_repository)
       unless r
-        raise RepositoryMissing.new "The repository #{@target_project} / #{action.target_repository} does not exist"
+        raise RepositoryMissing, "The repository #{@target_project} / #{action.target_repository} does not exist"
       end
     else
       # remove entire project
@@ -108,7 +108,7 @@ class BsRequestPermissionCheck
       c = ActiveXML.backend.direct_http(url)
       data = REXML::Document.new(c)
       unless action.source_rev == data.elements['directory'].attributes['srcmd5']
-        raise SourceChanged.new "The current source revision in #{action.source_project}/#{action.source_package}" +
+        raise SourceChanged, "The current source revision in #{action.source_project}/#{action.source_package}" +
                                 "are not on revision #{action.source_rev} anymore."
       end
     end
@@ -118,7 +118,7 @@ class BsRequestPermissionCheck
       repo.release_targets.each do |releasetarget|
         next unless releasetarget.trigger == 'maintenance'
         unless User.current.can_modify_project? releasetarget.target_repository.project
-          raise ReleaseTargetNoPermission.new "Release target project #{releasetarget.target_repository.project.name} is not writable by you"
+          raise ReleaseTargetNoPermission, "Release target project #{releasetarget.target_repository.project.name} is not writable by you"
         end
       end
     end
@@ -140,7 +140,7 @@ class BsRequestPermissionCheck
     return unless action.action_type.in?([:submit, :change_devel, :maintenance_release, :maintenance_incident])
 
     if action.action_type == :change_devel && !action.target_package
-      raise PostRequestNoPermission.new "Target package is missing in request #{action.bs_request.number} (type #{action.action_type})"
+      raise PostRequestNoPermission, "Target package is missing in request #{action.bs_request.number} (type #{action.action_type})"
     end
 
     # full read access checks
@@ -159,13 +159,13 @@ class BsRequestPermissionCheck
       else
         action.source_access_check!
       end
-      raise SourceMissing.new err if err
+      raise SourceMissing, err if err
     end
     # maintenance incident target permission checks
     return unless action.is_maintenance_incident?
     return if @target_project.kind.in?(["maintenance", "maintenance_incident"])
 
-    raise TargetNotMaintenance.new "The target project is not of type maintenance or incident but #{@target_project.kind}"
+    raise TargetNotMaintenance, "The target project is not of type maintenance or incident but #{@target_project.kind}"
   end
 
   def set_permissions_for_action(action, new_state = nil)
@@ -223,7 +223,7 @@ class BsRequestPermissionCheck
 
   def cmd_addreview_permissions(permissions_granted)
     unless req.state.in?([:review, :new])
-      raise ReviewChangeStateNoPermission.new 'The request is not in state new or review'
+      raise ReviewChangeStateNoPermission, 'The request is not in state new or review'
     end
 
     req.bs_request_actions.each do |action|
@@ -234,7 +234,7 @@ class BsRequestPermissionCheck
 
   def cmd_setpriority_permissions
     unless req.state.in?([:review, :new])
-      raise SetPriorityNoPermission.new 'The request is not in state new or review'
+      raise SetPriorityNoPermission, 'The request is not in state new or review'
     end
 
     req.bs_request_actions.each do |action|
@@ -242,26 +242,26 @@ class BsRequestPermissionCheck
     end
     return if @write_permission_in_target
 
-    raise SetPriorityNoPermission.new 'No write permission in target of request actions'
+    raise SetPriorityNoPermission, 'No write permission in target of request actions'
   end
 
   def cmd_setincident_permissions
     unless req.state.in?([:review, :new])
-      raise ReviewChangeStateNoPermission.new 'The request is not in state new or review'
+      raise ReviewChangeStateNoPermission, 'The request is not in state new or review'
     end
 
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
 
       if @target_project.is_maintenance_incident?
-        raise TargetNotMaintenance.new 'The target project is already an incident, changing is not possible via set_incident'
+        raise TargetNotMaintenance, 'The target project is already an incident, changing is not possible via set_incident'
       end
       unless @target_project.kind == 'maintenance'
-        raise TargetNotMaintenance.new "The target project is not of type maintenance but #{@target_project.kind}"
+        raise TargetNotMaintenance, "The target project is not of type maintenance but #{@target_project.kind}"
       end
       tip = Project.get_by_name(action.target_project + ':' + opts[:incident])
       if tip && tip.is_locked?
-        raise ProjectLocked.new
+        raise ProjectLocked
       end
     end
 
@@ -282,30 +282,30 @@ class BsRequestPermissionCheck
     return true if User.current.is_admin?
 
     unless req.state.in?([:review, :new])
-      raise ReviewChangeStateNoPermission.new 'The request is neither in state review nor new'
+      raise ReviewChangeStateNoPermission, 'The request is neither in state review nor new'
     end
     unless by_user || by_group || by_package || by_project
-      raise ReviewNotSpecified.new 'The review must specified via by_user, by_group or by_project(by_package) argument.'
+      raise ReviewNotSpecified, 'The review must specified via by_user, by_group or by_project(by_package) argument.'
     end
     if by_user && !(User.current == by_user)
-      raise ReviewChangeStateNoPermission.new "review state change is not permitted for #{User.current.login}"
+      raise ReviewChangeStateNoPermission, "review state change is not permitted for #{User.current.login}"
     end
     if by_group && !User.current.is_in_group?(by_group)
-      raise ReviewChangeStateNoPermission.new "review state change for group #{by_group.title} is not permitted for #{User.current.login}"
+      raise ReviewChangeStateNoPermission, "review state change for group #{by_group.title} is not permitted for #{User.current.login}"
     end
     if by_package && !User.current.can_modify_package?(by_package, true)
-      raise ReviewChangeStateNoPermission.new "review state change for package #{opts[:by_project]}/#{opts[:by_package]} " +
+      raise ReviewChangeStateNoPermission, "review state change for package #{opts[:by_project]}/#{opts[:by_package]} " +
                                               "is not permitted for #{User.current.login}"
     end
 
     return unless by_project && !User.current.can_modify_project?(by_project, true)
-    raise ReviewChangeStateNoPermission.new "review state change for project #{opts[:by_project]} is not permitted for #{User.current.login}"
+    raise ReviewChangeStateNoPermission, "review state change for project #{opts[:by_project]} is not permitted for #{User.current.login}"
   end
 
   def cmd_changestate_permissions(opts)
     # We do not support to revert changes from accepted requests (yet)
     if req.state == :accepted
-      raise PostRequestNoPermission.new 'change state from an accepted state is not allowed.'
+      raise PostRequestNoPermission, 'change state from an accepted state is not allowed.'
     end
 
     # enforce state to "review" if going to "new", when review tasks are open
@@ -318,29 +318,29 @@ class BsRequestPermissionCheck
     if opts[:newstate] == 'accepted'
       if req.state == :review
         unless opts[:force]
-          raise PostRequestNoPermission.new 'Request is in review state. You may use the force parameter to ignore this.'
+          raise PostRequestNoPermission, 'Request is in review state. You may use the force parameter to ignore this.'
         end
       elsif req.state != :new
-        raise PostRequestNoPermission.new 'Request is not in new state. You may reopen it by setting it to new.'
+        raise PostRequestNoPermission, 'Request is not in new state. You may reopen it by setting it to new.'
       end
     end
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
     if req.state.in?([:accepted, :superseded, :revoked])
       if opts[:newstate].in?(["accepted", "declined", "superseded", "revoked"])
-        raise PostRequestNoPermission.new "set state to #{opts[:newstate]} from a final state is not allowed."
+        raise PostRequestNoPermission, "set state to #{opts[:newstate]} from a final state is not allowed."
       end
     end
 
     if opts[:newstate] == 'superseded' && !opts[:superseded_by]
-      raise PostRequestMissingParamater.new "Supersed a request requires a 'superseded_by' parameter with the request id."
+      raise PostRequestMissingParamater, "Supersed a request requires a 'superseded_by' parameter with the request id."
     end
 
     permission_granted = false
     if User.current.is_admin?
       permission_granted = true
     elsif opts[:newstate] == 'deleted'
-      raise PostRequestNoPermission.new 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
+      raise PostRequestNoPermission, 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
     end
 
     if opts[:newstate].in?(["new", "review", "revoked", "superseded"]) && req.creator == User.current.login
@@ -363,7 +363,7 @@ class BsRequestPermissionCheck
         msg = "No permission to modify target of request " +
               "#{action.bs_request.number} (type #{action.action_type}): project #{action.target_project}" unless action.bs_request.new_record?
         msg += ", package #{action.target_package}" if action.target_package
-        raise PostRequestNoPermission.new msg
+        raise PostRequestNoPermission, msg
       end
     end
 
@@ -384,7 +384,7 @@ class BsRequestPermissionCheck
 # Is the user involved in any project or package ?
   def require_permissions_in_target_or_source
     unless @write_permission_in_target || @write_permission_in_source
-      raise AddReviewNotPermitted.new "You have no role in request #{req.number}"
+      raise AddReviewNotPermitted, "You have no role in request #{req.number}"
     end
     true
   end
@@ -417,6 +417,6 @@ class BsRequestPermissionCheck
       else
         "No permission to change request #{req.number} state"
       end
-    raise PostRequestNoPermission.new err if err
+    raise PostRequestNoPermission, err if err
   end
 end

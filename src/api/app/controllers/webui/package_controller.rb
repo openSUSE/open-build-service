@@ -539,8 +539,8 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def branch
-    params.fetch(:linked_project) { raise ArgumentError.new('Linked Project parameter missing') }
-    params.fetch(:linked_package) { raise ArgumentError.new('Linked Package parameter missing') }
+    params.fetch(:linked_project) { raise ArgumentError, 'Linked Project parameter missing' }
+    params.fetch(:linked_package) { raise ArgumentError, 'Linked Package parameter missing' }
 
     # Full permission check happens in BranchPackage.new(branch_params).branch command
     # Are we linking a package from a remote instance?

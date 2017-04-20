@@ -766,13 +766,6 @@ Style/Proc:
     - 'src/api/app/models/owner.rb'
     - 'src/api/app/models/user.rb'
 
-# Offense count: 248
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: compact, exploded
-Style/RaiseArgs:
-  Enabled: false
-
 # Offense count: 11
 # Cop supports --auto-correct.
 Style/RedundantBegin:

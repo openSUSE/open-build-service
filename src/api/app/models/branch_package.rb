@@ -30,8 +30,8 @@ class BranchPackage
     @extend_names = params[:extend_package_names]
     @rebuild_policy = params[:add_repositories_rebuild]
     @block_policy = params[:add_repositories_block]
-    raise InvalidArgument.new unless [nil, "all", "local", "never"].include? @block_policy
-    raise InvalidArgument.new unless [nil, "transitive", "direct", "local", "copy"].include? @rebuild_policy
+    raise InvalidArgument unless [nil, "all", "local", "never"].include? @block_policy
+    raise InvalidArgument unless [nil, "transitive", "direct", "local", "copy"].include? @rebuild_policy
     # copy from devel package instead branching ?
     @copy_from_devel = false
     @copy_from_devel = true if params[:newinstance]
@@ -88,7 +88,7 @@ class BranchPackage
     tprj = create_branch_project
 
     unless User.current.can_modify_project?(tprj)
-      raise Project::WritePermissionError.new "no permission to modify project '#{@target_project}' while executing branch project command"
+      raise Project::WritePermissionError, "no permission to modify project '#{@target_project}' while executing branch project command"
     end
 
     # all that worked ? :)
@@ -201,13 +201,13 @@ class BranchPackage
   def create_branch_project
     if Project.exists_by_name @target_project
       if @noaccess
-        raise CreateProjectNoPermission.new "The destination project already exists, so the api can't make it not readable"
+        raise CreateProjectNoPermission, "The destination project already exists, so the api can't make it not readable"
       end
       tprj = Project.get_by_name @target_project
     else
       # permission check
       unless User.current.can_create_project?(@target_project)
-        raise CreateProjectNoPermission.new "no permission to create project '#{@target_project}' while executing branch command"
+        raise CreateProjectNoPermission, "no permission to create project '#{@target_project}' while executing branch command"
       end
 
       title = "Branch project for package #{params[:package]}"
@@ -365,10 +365,10 @@ class BranchPackage
 
   def expand_rev_to_srcmd5(p)
     dir = Directory.find(project: params[:project], package: params[:package], rev: params[:rev])
-    raise InvalidFilelistError.new 'no such revision' unless dir
+    raise InvalidFilelistError, 'no such revision' unless dir
     p[:rev] = dir.value(:srcmd5)
     return if p[:rev]
-    raise InvalidFilelistError.new 'no srcmd5 revision found'
+    raise InvalidFilelistError, 'no srcmd5 revision found'
   end
 
   def check_for_update_project(p)
@@ -489,7 +489,7 @@ class BranchPackage
     aname = params[:update_project_attribute] || 'OBS:UpdateProject'
     update_project_at = aname.split(/:/)
     if update_project_at.length != 2
-      raise ArgumentError.new "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+      raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
     end
     @up_attribute_namespace = update_project_at[0]
     @up_attribute_name = update_project_at[1]
@@ -513,7 +513,7 @@ class BranchPackage
       prj = Project.get_by_name params[:project]
       if params[:missingok]
         if Package.exists_by_project_and_name(params[:project], params[:package], follow_project_links: true, allow_remote_packages: true)
-          raise NotMissingError.new "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists."
+          raise NotMissingError, "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists."
         end
       else
         pkg = Package.get_by_project_and_name params[:project], params[:package], {check_update_project: true}
@@ -573,7 +573,7 @@ class BranchPackage
       end
     end
 
-    raise NotFoundError.new 'no packages found by search criteria' if @packages.empty?
+    raise NotFoundError, 'no packages found by search criteria' if @packages.empty?
   end
 
   def set_target_project

@@ -28,7 +28,7 @@ class Group < ApplicationRecord
   has_and_belongs_to_many :roles, -> { distinct }
 
   def self.find_by_title!(title)
-    find_by_title(title) || raise(NotFoundError.new("Couldn't find Group '#{title}'"))
+    find_by_title(title) || (raise NotFoundError, "Couldn't find Group '#{title}'")
   end
 
   def update_from_xml( xmlhash )

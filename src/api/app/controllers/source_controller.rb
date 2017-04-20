@@ -41,7 +41,7 @@ class SourceController < ApplicationController
     #--------------
 
     if params.has_key? :deleted
-      raise NoPermissionForDeleted.new unless admin_user
+      raise NoPermissionForDeleted unless admin_user
       pass_to_backend
     else
       projectlist
@@ -92,7 +92,7 @@ class SourceController < ApplicationController
     end
 
     @project = Project.find_by_name(project_name)
-    raise Project::UnknownObjectError.new project_name unless @project
+    raise Project::UnknownObjectError, project_name unless @project
     # we let the backend list the packages after we verified the project is visible
     if params.has_key? :view
       if params[:view] == 'verboseproductlist'
@@ -205,7 +205,7 @@ class SourceController < ApplicationController
 
   def show_package_issues
     unless @tpkg
-      raise NoLocalPackage.new 'Issues can only be shown for local packages'
+      raise NoLocalPackage, 'Issues can only be shown for local packages'
     end
     set_issues_default
     @tpkg.update_if_dirty
@@ -218,7 +218,7 @@ class SourceController < ApplicationController
   def show_package
     if @deleted_package
       tpkg = Package.find_by_project_and_name(@target_project_name, @target_package_name)
-      raise PackageExists.new 'the package is not deleted' if tpkg
+      raise PackageExists, 'the package is not deleted' if tpkg
 
       validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
     elsif %w(_project _pattern).include? @target_package_name
@@ -254,14 +254,14 @@ class SourceController < ApplicationController
   def delete_package
     # checks
     if @target_package_name == '_project'
-      raise DeletePackageNoPermission.new '_project package can not be deleted.'
+      raise DeletePackageNoPermission, '_project package can not be deleted.'
     end
 
     tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name,
                                            use_source: false, follow_project_links: false)
 
     unless User.current.can_modify_package?(tpkg)
-      raise DeletePackageNoPermission.new "no permission to delete package #{@target_package_name} in project #{@target_project_name}"
+      raise DeletePackageNoPermission, "no permission to delete package #{@target_package_name} in project #{@target_project_name}"
     end
 
     # deny deleting if other packages use this as develpackage
@@ -306,9 +306,9 @@ class SourceController < ApplicationController
   def verify_can_modify_target_package!
     return if User.current.can_modify_package?(@package)
 
-    raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' " +
+    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
                                        "for unspecified package" unless @package.class == Package
-    raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' " +
+    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
                                        "for package #{@package.name} in project #{@package.project.name}"
   end
 
@@ -317,7 +317,7 @@ class SourceController < ApplicationController
     params[:user] = User.current.login
 
     unless params[:cmd]
-      raise MissingParameterError.new 'POST request without given cmd parameter'
+      raise MissingParameterError, 'POST request without given cmd parameter'
     end
 
     # valid post commands
@@ -328,7 +328,7 @@ class SourceController < ApplicationController
                         collectbuildenv instantiate addchannels enablechannel)
 
     @command = params[:cmd]
-    raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(@command)
+    raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
 
     if params[:oproject]
       origin_project_name = params[:oproject]
@@ -391,7 +391,7 @@ class SourceController < ApplicationController
         @project = @package.project
         ignore_lock = @command == 'unlock'
         unless Read_commands.include?(@command) || User.current.can_modify_package?(@package, ignore_lock)
-          raise CmdExecutionNoPermission.new "no permission to modify package #{@package.name} in project #{@project.name}"
+          raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}"
         end
       end
     end
@@ -413,7 +413,7 @@ class SourceController < ApplicationController
   def show_project_meta
     if Project.find_remote_project params[:project]
       # project from remote buildservice, get metadata from backend
-      raise InvalidProjectParameters.new if params[:view]
+      raise InvalidProjectParameters if params[:view]
       pass_to_backend
     else
       # access check
@@ -621,7 +621,7 @@ class SourceController < ApplicationController
     if User.current.is_admin?
       pass_to_backend path
     else
-      raise DeleteProjectPubkeyNoPermission.new "No permission to delete public key for project '#{params[:project]}'. " +
+      raise DeleteProjectPubkeyNoPermission, "No permission to delete public key for project '#{params[:project]}'. " +
                                                 "Either maintainer permissions by upper project or admin permissions is needed."
     end
   end
@@ -760,7 +760,7 @@ class SourceController < ApplicationController
       @allowed = permissions.project_change? @prj
 
       if @file == '_attribute' && @package_name == '_project'
-        raise WrongRouteForAttribute.new "Attributes need to be changed through #{change_attribute_path(project: params[:project])}"
+        raise WrongRouteForAttribute, "Attributes need to be changed through #{change_attribute_path(project: params[:project])}"
       end
     else
       # we need a local package here in any case for modifications
@@ -774,7 +774,7 @@ class SourceController < ApplicationController
     check_permissions_for_file
 
     unless @allowed
-      raise PutFileNoPermission.new "Insufficient permissions to store file in package #{@package_name}, project #{@project_name}"
+      raise PutFileNoPermission, "Insufficient permissions to store file in package #{@package_name}, project #{@project_name}"
     end
 
     # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
@@ -802,7 +802,7 @@ class SourceController < ApplicationController
     check_permissions_for_file
 
     unless @allowed
-      raise DeleteFileNoPermission.new 'Insufficient permissions to delete file'
+      raise DeleteFileNoPermission, 'Insufficient permissions to delete file'
     end
 
     @path += build_query_from_hash(params, [:user, :comment, :meta, :rev, :linkrev, :keeplink])
@@ -971,7 +971,7 @@ class SourceController < ApplicationController
   # POST /source/<project>?cmd=undelete
   def project_command_undelete
     unless User.current.can_create_project?(params[:project])
-      raise CmdExecutionNoPermission.new "no permission to execute command 'undelete'"
+      raise CmdExecutionNoPermission, "no permission to execute command 'undelete'"
     end
 
     path = request.path_info
@@ -1028,16 +1028,16 @@ class SourceController < ApplicationController
       next if params[:repository] && params[:repository] != repo.name
       repo.release_targets.each do |releasetarget|
         unless User.current.can_modify_project?(releasetarget.target_repository.project)
-          raise CmdExecutionNoPermission.new "no permission to write in project #{releasetarget.target_repository.project.name}"
+          raise CmdExecutionNoPermission, "no permission to write in project #{releasetarget.target_repository.project.name}"
         end
         unless releasetarget.trigger == 'manual'
-          raise CmdExecutionNoPermission.new "Trigger is not set to manual in repository" +
+          raise CmdExecutionNoPermission, "Trigger is not set to manual in repository" +
                                              " #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
         end
         repo_matches = true
       end
     end
-    raise NoMatchingReleaseTarget.new 'No defined or matching release target' unless repo_matches
+    raise NoMatchingReleaseTarget, 'No defined or matching release target' unless repo_matches
   end
 
   class RemoteProjectError < APIException
@@ -1058,10 +1058,10 @@ class SourceController < ApplicationController
     commit[:comment] = params[:comment] unless params[:comment].blank?
 
     unless User.current.is_admin?
-      raise CmdExecutionNoPermission.new "Admin permissions required. STOP SCHEDULER BEFORE."
+      raise CmdExecutionNoPermission, "Admin permissions required. STOP SCHEDULER BEFORE."
     end
     if Project.exists_by_name(params[:project])
-      raise ProjectExists.new "Target project exists already."
+      raise ProjectExists, "Target project exists already."
     end
 
     project = Project.get_by_name(project_name)
@@ -1090,28 +1090,28 @@ class SourceController < ApplicationController
 
     @project = Project.find_by_name(project_name)
     unless (@project && User.current.can_modify_project?(@project)) || User.current.can_create_project?(project_name)
-      raise CmdExecutionNoPermission.new "no permission to execute command 'copy'"
+      raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
     oprj = Project.get_by_name(params[:oproject], {includeallpackages: 1})
     if params.has_key?(:makeolder) || params.has_key?(:makeoriginolder)
       unless User.current.can_modify_project?(oprj)
-        raise CmdExecutionNoPermission.new "no permission to execute command 'copy', requires modification permission in origin project"
+        raise CmdExecutionNoPermission, "no permission to execute command 'copy', requires modification permission in origin project"
       end
     end
 
     if oprj.is_a? String # remote project
-      raise RemoteProjectError.new 'The copy from remote projects is currently not supported'
+      raise RemoteProjectError, 'The copy from remote projects is currently not supported'
     end
 
     unless User.current.is_admin?
       if params[:withbinaries]
-        raise ProjectCopyNoPermission.new 'no permission to copy project with binaries for non admins'
+        raise ProjectCopyNoPermission, 'no permission to copy project with binaries for non admins'
       end
 
       unless oprj.is_a? String
         oprj.packages.each do |pkg|
           next unless pkg.disabled_for?('sourceaccess', nil, nil)
-          raise ProjectCopyNoPermission.new "no permission to copy project due to source protected package #{pkg.name}"
+          raise ProjectCopyNoPermission, "no permission to copy project due to source protected package #{pkg.name}"
         end
       end
     end
@@ -1188,7 +1188,7 @@ class SourceController < ApplicationController
     p = { comment: params[:comment] }
 
     f = @package.flags.find_by_flag_and_status('lock', 'enable')
-    raise NotLocked.new("package '#{@package.project.name}/#{@package.name}' is not locked") unless f
+    raise NotLocked, "package '#{@package.project.name}/#{@package.name}' is not locked" unless f
     @package.flags.delete(f)
     @package.store(p)
 
@@ -1268,16 +1268,16 @@ class SourceController < ApplicationController
     project = Project.get_by_name(params[:project])
     opackage = Package.get_by_project_and_name(project.name, params[:package], {check_update_project: true})
     unless opackage
-      raise RemoteProjectError.new "Instantiation from remote project is not supported"
+      raise RemoteProjectError, "Instantiation from remote project is not supported"
     end
     if project == opackage.project
-      raise CmdExecutionNoPermission.new "package is already intialized here"
+      raise CmdExecutionNoPermission, "package is already intialized here"
     end
     unless User.current.can_modify_project?(project)
-      raise CmdExecutionNoPermission.new "no permission to execute command 'copy'"
+      raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
     unless User.current.can_modify_package?(opackage, true) # ignore_lock option
-      raise CmdExecutionNoPermission.new "no permission to modify source package"
+      raise CmdExecutionNoPermission, "no permission to modify source package"
     end
 
     opts = {}
@@ -1291,16 +1291,16 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=undelete
   def package_command_undelete
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
-      raise PackageExists.new "the package exists already #{@target_project_name} #{@target_package_name}"
+      raise PackageExists, "the package exists already #{@target_project_name} #{@target_package_name}"
     end
     tprj = Project.get_by_name(@target_project_name)
     unless tprj.kind_of?(Project) && User.current.can_create_package_in?(tprj)
-      raise CmdExecutionNoPermission.new "no permission to create package in project #{@target_project_name}"
+      raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
     end
 
     path = request.path_info
     unless User.current.is_admin? || params[:time].blank?
-      raise CmdExecutionNoPermission.new "Only administrators are allowed to set the time"
+      raise CmdExecutionNoPermission, "Only administrators are allowed to set the time"
     end
     path += build_query_from_hash(params, [:cmd, :user, :comment, :time])
     pass_to_backend path
@@ -1437,7 +1437,7 @@ class SourceController < ApplicationController
 
   def reparse_backend_package(spackage, sproject)
     answer = Backend::Connection.get("/source/#{CGI.escape(sproject)}/#{CGI.escape(spackage)}/_meta")
-    raise UnknownPackage.new "Unknown package #{spackage} in project #{sproject}" unless answer
+    raise UnknownPackage, "Unknown package #{spackage} in project #{sproject}" unless answer
 
     Package.transaction do
       adata = Xmlhash.parse(answer.body)
@@ -1482,13 +1482,13 @@ class SourceController < ApplicationController
     verify_can_modify_target!
 
     if params[:target_repository].blank? || params[:repository].blank?
-      raise MissingParameterError.new 'release action with specified target project needs also "repository" and "target_repository" parameter'
+      raise MissingParameterError, 'release action with specified target project needs also "repository" and "target_repository" parameter'
     end
     targetrepo = Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
-    raise UnknownRepository.new "Repository does not exist #{params[:target_repository]}" unless targetrepo
+    raise UnknownRepository, "Repository does not exist #{params[:target_repository]}" unless targetrepo
 
     repo = pkg.project.repositories.where(name: params[:repository])
-    raise UnknownRepository.new "Repository does not exist #{params[:repository]}" unless repo.count > 0
+    raise UnknownRepository, "Repository does not exist #{params[:repository]}" unless repo.count > 0
     repo = repo.first
 
     release_package(pkg, targetrepo, pkg.name, repo, nil, params[:setrelease], true)
@@ -1549,13 +1549,13 @@ class SourceController < ApplicationController
       @project = Project.get_by_name(@target_project_name)
     else
       return if User.current.can_create_project?(@target_project_name)
-      raise CreateProjectNoPermission.new "no permission to create project #{@target_project_name}"
+      raise CreateProjectNoPermission, "no permission to create project #{@target_project_name}"
     end
 
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
       verify_can_modify_target_package!
     elsif !@project.kind_of?(Project) || !User.current.can_create_package_in?(@project)
-      raise CmdExecutionNoPermission.new "no permission to create package in project #{@target_project_name}"
+      raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
     end
   end
 
@@ -1597,11 +1597,11 @@ class SourceController < ApplicationController
     # Raising permissions afterwards is not secure. Do not allow this by default.
     unless User.current.is_admin?
       if params[:flag] == 'access' && params[:status] == 'enable' && !@project.enabled_for?('access', params[:repository], params[:arch])
-        raise Project::ForbiddenError.new
+        raise Project::ForbiddenError
       end
       if params[:flag] == 'sourceaccess' && params[:status] == 'enable' &&
           !@project.enabled_for?('sourceaccess', params[:repository], params[:arch])
-        raise Project::ForbiddenError.new
+        raise Project::ForbiddenError
       end
     end
 
@@ -1621,7 +1621,7 @@ class SourceController < ApplicationController
           obj.add_flag(params[:flag], params[:status], params[:repository], params[:arch])
         end
       rescue ArgumentError => e
-        raise InvalidFlag.new e.message
+        raise InvalidFlag, e.message
       end
 
       obj.store

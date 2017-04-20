@@ -120,6 +120,11 @@ Style/RedundantSelf:
 Style/SignalException:
   Enabled: true
 
+# Enforces passing the exception class and exception message instead
+# of constructing a new exception instance when raising errors
+Style/RaiseArgs:
+  Enabled: true
+
 # Checks for uses of rescue in its modifier form
 Style/RescueModifier:
   Enabled: true
