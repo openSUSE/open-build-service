@@ -1,9 +1,11 @@
 require 'rails_helper'
+require 'webmock/rspec'
 # WARNING: If you change owner tests make sure you uncomment this line
 # and start a test backend. Some of the Owner methods
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 
+# rubocop:disable Metrics/BlockLength
 RSpec.describe Webui::ProjectController, vcr: true do
   let(:user) { create(:confirmed_user, login: "tom") }
   let(:admin_user) { create(:admin_user, login: "admin") }
@@ -102,6 +104,14 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
   end
 
+  describe 'GET #remove_target_request_dialog' do
+    before do
+      get :remove_target_request_dialog, xhr: true
+    end
+
+    it { is_expected.to respond_with(:success) }
+  end
+
   describe 'GET #autocomplete_projects' do
     before do
       apache_project
@@ -149,6 +159,15 @@ RSpec.describe Webui::ProjectController, vcr: true do
       create(:package, name: 'Apache_Package', project: apache_project)
       create(:package, name: 'Apache2_Package', project: apache_project)
       create(:package, name: 'Apache_Package_Another_Project', project: another_project)
+    end
+
+    context 'with a nonexistent project' do
+      before do
+        get :autocomplete_packages, params: { project: 'non:existent:project' }
+        @json_response = JSON.parse(response.body)
+      end
+
+      it { expect(@json_response).to eq(nil) }
     end
 
     context 'without search term' do
@@ -446,6 +465,47 @@ RSpec.describe Webui::ProjectController, vcr: true do
       allow_any_instance_of(Project).to receive(:number_of_build_problems).and_return(0)
     end
 
+    context 'with bdep and jobs' do
+      let(:bdep_url) do
+        "http://localhost:3200/build/#{user.home_project.name}/#{repo_for_user_home.name}/x86_64/_builddepinfo"
+      end
+      let(:bdep_xml) do
+        <<-XML
+          "<builddepinfo>" +
+            "<package name=\"gcc6\">" +
+              "<pkgdep>gcc</pkgdep>" +
+            "</package>" +
+          "</builddepinfo>"
+        XML
+      end
+
+      let(:jobs_url) do
+        "http://localhost:3200/build/#{user.home_project.name}/#{repo_for_user_home.name}/x86_64/_jobhistory?limit=0&code=succeeded&code=unchanged"
+      end
+      let(:jobs_xml) do
+        <<-XML
+          "<jobhistory>" +
+            "<package name=\"gcc6\">" +
+              "<pkgdep>gcc</pkgdep>" +
+            "</package>" +
+          "</jobhistory>"
+        XML
+      end
+
+      before do
+        stub_request(:get, bdep_url).to_return(status: 200, body: bdep_xml)
+        stub_request(:get, jobs_url).to_return(status: 200, body: jobs_xml)
+
+        get :rebuild_time, params: {
+          project:    user.home_project.name,
+          repository: repo_for_user_home.name,
+          arch:       'x86_64'
+        }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
     context 'with an invalid scheduler' do
       before do
         get :rebuild_time, params: { project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64', scheduler: 'invalid_scheduler' }
@@ -710,6 +770,38 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it "redirects to project#show" do
       get :toggle_watch, params: { project: user.home_project }
       is_expected.to redirect_to(project_show_path(user.home_project))
+    end
+  end
+
+  describe 'POST #save_meta' do
+    before do
+      login user
+    end
+
+    context 'with an nonexistent project' do
+      let(:post_save_meta) { post :save_meta, params: { project: 'nonexistent_project' }, xhr: true }
+
+      it { expect{ post_save_meta }.to raise_error(Pundit::NotDefinedError) }
+    end
+
+    context 'with a valid project' do
+      context 'without a valid meta' do
+        before do
+          post :save_meta, params: { project: user.home_project, meta: '<project name="home:tom"><title/></project>' }, xhr: true
+        end
+
+        it { expect(flash.now[:error]).not_to be_nil }
+        it { expect(response).to have_http_status(400) }
+      end
+
+      context 'with a valid meta' do
+        before do
+          post :save_meta, params: { project: user.home_project, meta: '<project name="home:tom"><title/><description/></project>' }, xhr: true
+        end
+
+        it { expect(flash.now[:success]).not_to be_nil }
+        it { expect(response).to have_http_status(200) }
+      end
     end
   end
 
@@ -1152,4 +1244,347 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect { post :move_path, params: { project: 'non:existent:project' } }.to raise_error ActiveRecord::RecordNotFound }
     end
   end
+
+  describe 'GET #monitor' do
+    let(:repo_for_user) { create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project) }
+    let(:arch_i586) { Architecture.where(name: 'i586').first }
+    let(:arch_x86_64) { Architecture.where(name: 'x86_64').first }
+    let!(:package) { create(:package, project: user.home_project) }
+
+    context 'with a project' do
+      context 'without buildresult' do
+        before do
+          allow(Buildresult).to receive(:find).and_return(nil)
+          post :monitor, params: { project: user.home_project, defaults: '1'}
+        end
+
+        it { expect(flash[:warning]).not_to be_nil }
+        it { expect(response).to redirect_to(project_show_path(user.home_project)) }
+      end
+
+      context 'without buildresult and with failed param set to an integer' do
+        before do
+          allow(Buildresult).to receive(:find).and_return(nil)
+          post :monitor, params: { project: user.home_project, defaults: '1', failed: '2'}
+        end
+
+        it { expect(response).to redirect_to(project_show_path(user.home_project)) }
+      end
+
+      context 'without buildresult and with failed param set to a string' do
+        before do
+          allow(Buildresult).to receive(:find).and_return(nil)
+          post :monitor, params: { project: user.home_project, defaults: '1', failed: 'abc'}
+        end
+
+        it { expect(response).to redirect_to(project_show_path(user.home_project)) }
+      end
+
+      context 'with buildresult' do
+        context 'with results' do
+          let!(:repository_achitecture_i586) { create(:repository_architecture, repository: repo_for_user, architecture: arch_i586) }
+          let!(:repository_achitecture_x86_64) { create(:repository_architecture, repository: repo_for_user, architecture: arch_x86_64) }
+          let(:fake_buildresult) do
+            Buildresult.new(
+              '<resultlist state="073db4412ce71471edaacf7291404276">
+                <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="published" state="published">
+                  <status package="c++" code="succeeded" />
+                  <status package="redis" code="succeeded" />
+                </result>
+              </resultlist>')
+          end
+          let(:statushash) do
+            { "openSUSE_Tumbleweed" => {
+                "i586" => {
+                  "c++"   => { "package" => "c++", "code" => "succeeded" },
+                  "redis" => { "package" => "redis", "code" => "succeeded" }
+                }
+            }}
+          end
+
+          before do
+            allow(Buildresult).to receive(:find).and_return(fake_buildresult)
+            post :monitor, params: { project: user.home_project }
+          end
+
+          it { expect(assigns(:buildresult_unavailable)).to be_nil }
+          it { expect(assigns(:packagenames)).to eq(['c++', 'redis']) }
+          it { expect(assigns(:repohash)).to eq({"openSUSE_Tumbleweed"=>["i586"]}) }
+          it { expect(assigns(:statushash)).to eq(statushash) }
+          it { expect(response).to have_http_status(:ok) }
+        end
+
+        context 'without results' do
+          before do
+            post :monitor, params: { project: user.home_project }
+          end
+
+          it { expect(response).to have_http_status(:ok) }
+        end
+      end
+
+      context 'without buildresult and no defaults set to a non-integer' do
+        before do
+          allow(Buildresult).to receive(:find).and_return(nil)
+          post :monitor, params: { project: user.home_project, defaults: 'abc'}
+        end
+
+        it { expect(flash[:warning]).not_to be_nil }
+        it { expect(response).to redirect_to(project_show_path(user.home_project)) }
+      end
+    end
+  end
+
+  describe 'GET #maintenance_incidents' do
+    let(:maintenance) { create(:maintenance_project, name: 'suse:maintenance') }
+
+    context 'with maintenance incident' do
+      let(:maintenance_incident) { create(:maintenance_incident_project, name: 'suse:maintenance:incident', maintenance_project: maintenance) }
+      let(:maintenance_incident_repo) { create(:repository, project: maintenance_incident) }
+      let(:release_target) { create(:release_target, repository: maintenance_incident_repo, trigger: 'maintenance') }
+
+      before do
+        release_target
+        login user
+        get :maintenance_incidents, params: { project: maintenance }
+      end
+
+      it { expect(assigns(:incidents)).to eq([maintenance_incident]) }
+      it { expect(response).to have_http_status(:ok) }
+    end
+
+    context 'without maintenance incident' do
+      before do
+        login user
+        get :maintenance_incidents, params: { project: maintenance }
+      end
+
+      it { expect(assigns(:incidents)).to be_empty }
+      it { expect(response).to have_http_status(:ok) }
+    end
+  end
+
+  describe 'GET #edit_comment_form' do
+    context 'edit a comment via AJAX' do
+      before do
+        get :edit_comment_form, params: { project: user.home_project }, xhr: true
+      end
+
+      it { expect(response).to have_http_status(:ok) }
+      it { expect(response).to render_template(:edit_comment_form) }
+    end
+
+    context 'edit a comment without xhr' do
+      let(:call_edit_comment_form) { get :edit_comment_form, params: { project: user.home_project } }
+
+      it { expect{ call_edit_comment_form }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
+    end
+  end
+
+  describe 'GET #package_buildresult' do
+    context 'with xhr request' do
+      context 'with project' do
+        let(:fake_buildresult) do
+          Xmlhash::XMLHash.new(
+            "state" => "c0a974eb305112d2fdf45f9ecc54a86b", "result" => [
+              Xmlhash::XMLHash.new("project" => "home:tom", "repository" => "home_coolo_standard", "arch" => "i586", "code" => "published",
+                                   "state" => "published", "status" => [
+                                     Xmlhash::XMLHash.new("package" => "apache", "code" => "succeeded"),
+                                     Xmlhash::XMLHash.new("package" => "obs-server", "code" => "succeeded")
+                                   ]),
+              Xmlhash::XMLHash.new("project" => "home:tom", "repository" => "home_coolo_standard", "arch" => "x86_64", "code" => "published",
+                                   "state" => "published", "status" => [
+                                     Xmlhash::XMLHash.new("package" => "apache", "code" => "succeeded"),
+                                     Xmlhash::XMLHash.new("package" => "obs-server", "code" => "succeeded")
+                                   ])
+            ]
+          )
+        end
+        let(:repohash) do
+          { "home_coolo_standard" => ["i586", "x86_64"] }
+        end
+
+        let(:statushash) do
+          { "home_coolo_standard" => {
+            "i586"   => {
+              "apache"     => { "package" => "apache", "code" => "succeeded" },
+              "obs-server" => { "package" => "obs-server", "code" => "succeeded" }
+            },
+            "x86_64" => {
+              "apache"     => { "package" => "apache", "code" => "succeeded" },
+              "obs-server" => { "package" => "obs-server", "code" => "succeeded" }
+            }
+          }}
+        end
+        before do
+          allow(Buildresult).to receive(:find_hashed).and_return(fake_buildresult)
+          get :package_buildresult, params: { project: user.home_project }, xhr: true
+        end
+
+        it { expect(assigns(:repohash)).to eq(repohash) }
+        it { expect(assigns(:statushash)).to eq(statushash) }
+        it { expect(response).to have_http_status(:ok) }
+      end
+
+      context 'with project and package' do
+        let(:fake_buildresult) do
+          Xmlhash::XMLHash.new(
+            "state" => "c0a974eb305112d2fdf45f9ecc54a86b", "result" => [
+              Xmlhash::XMLHash.new("project" => "home:tom", "repository" => "home_coolo_standard", "arch" => "i586", "code" => "published",
+                                   "state" => "published", "status" => [
+                                     Xmlhash::XMLHash.new("package" => "obs-server", "code" => "succeeded")
+                                   ]),
+              Xmlhash::XMLHash.new("project" => "home:tom", "repository" => "home_coolo_standard", "arch" => "x86_64", "code" => "published",
+                                   "state" => "published", "status" => [
+                                     Xmlhash::XMLHash.new("package" => "obs-server", "code" => "succeeded")
+                                   ])
+            ]
+          )
+        end
+        let(:repohash) do
+          { "home_coolo_standard" => ["i586", "x86_64"] }
+        end
+
+        let(:statushash) do
+          { "home_coolo_standard" => {
+            "i586"   => {
+              "obs-server" => { "package" => "obs-server", "code" => "succeeded" }
+            },
+            "x86_64" => {
+              "obs-server" => { "package" => "obs-server", "code" => "succeeded" }
+            }
+          }}
+        end
+        let(:package) { create(:package, name: 'obs-server', project: user.home_project )}
+
+        before do
+          allow(Buildresult).to receive(:find_hashed).and_return(fake_buildresult)
+          get :package_buildresult, params: { project: user.home_project, package: package }, xhr: true
+        end
+
+        it { expect(assigns(:repohash)).to eq(repohash) }
+        it { expect(assigns(:statushash)).to eq(statushash) }
+        it { expect(response).to have_http_status(:ok) }
+      end
+    end
+    context 'without xhr request' do
+      let(:call_package_buildresult) { get :package_buildresult, params: { project: user.home_project } }
+
+      it { expect{ call_package_buildresult }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
+    end
+  end
+
+  describe 'GET #incident_request_dialog' do
+    let!(:repo) { create(:repository, project: user.home_project) }
+    let!(:release_target) { create(:release_target, repository: repo) }
+
+    before do
+      get :incident_request_dialog, params: { project: user.home_project }, xhr: true
+    end
+
+    it { expect(assigns[:releasetargets].count).to eq(1) }
+    it { expect(response).to have_http_status(:success) }
+  end
+
+  describe 'GET #release_request_dialog' do
+    before do
+      get :release_request_dialog, params: { project: user.home_project }, xhr: true
+    end
+
+    it { expect(response).to have_http_status(:success) }
+  end
+
+  describe 'GET #add_maintained_project_dialog' do
+    let(:maintenance_project) { create(:maintenance_project, name: 'MyProject') }
+
+    before do
+      get :add_maintained_project_dialog, params: { project: maintenance_project.name }, xhr: true
+    end
+
+    it { expect(response).to have_http_status(:success) }
+  end
+
+  describe 'GET #unlock_dialog' do
+    before do
+      get :unlock_dialog, params: { project: user.home_project }, xhr: true
+    end
+
+    it { expect(response).to have_http_status(:success) }
+  end
+
+  describe 'GET #meta' do
+    before do
+      login user
+      get :meta, params: { project: user.home_project }
+    end
+
+    it { expect(response).to have_http_status(:success) }
+  end
+
+  describe 'GET #edit' do
+    context 'when the user has access to the project' do
+      before do
+        login user
+        get :edit, params: { project: user.home_project }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'when the user does not have access to the project' do
+      let!(:project_locked_flag) { create(:lock_flag, project: user.home_project) }
+
+      before do
+        login user
+        get :edit, params: { project: user.home_project }
+      end
+
+      it { expect(response).to have_http_status(302) }
+    end
+  end
+
+  describe 'GET #maintained_projects' do
+    let!(:maintenance_project) { create(:maintenance_project, name: 'Project1') }
+    let!(:maintained_project) { create(:maintained_project, maintenance_project: maintenance_project) }
+
+    before do
+      login user
+      get :maintained_projects, params: { project: maintenance_project }
+    end
+
+    it { expect(response).to have_http_status(:success) }
+    it { expect(assigns[:maintained_projects]).to eq([maintained_project.project.name]) }
+  end
+
+  describe 'GET #save_person' do
+    let(:new_user) { create(:user) }
+
+    before do
+      login user
+      post :save_person, params: { project: user.home_project, role: 'maintainer', userid: new_user.login }
+    end
+
+    it { expect(response).to redirect_to(users_path) }
+  end
+
+  describe '#filter_matches?' do
+    let(:input) { 'ThisIsAPackage' }
+
+    context 'a filter_string that matches' do
+      let(:filter_string) { 'Package' }
+
+      subject { Webui::ProjectController.new.send(:filter_matches?, input, filter_string) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'a filter_string does not match' do
+      let(:filter_string) { '!Package' }
+
+      subject { Webui::ProjectController.new.send(:filter_matches?, input, filter_string) }
+
+      it { is_expected.to be_falsey }
+    end
+  end
 end
+# rubocop:enable Metrics/BlockLength

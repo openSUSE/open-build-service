@@ -1,0 +1,250 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:other_user/develpackage?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home other_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:other_user' does not exist</summary>
+          <details>404 project 'home:other_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:other_user/develpackage
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home other_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:other_user' does not exist</summary>
+          <details>404 project 'home:other_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:other_user/develpackage?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home other_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:other_user' does not exist</summary>
+          <details>404 project 'home:other_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:other_user/package_26?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home other_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:other_user' does not exist</summary>
+          <details>404 project 'home:other_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:other_user/package_26
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home other_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:other_user' does not exist</summary>
+          <details>404 project 'home:other_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:other_user/package_26?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home other_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:other_user' does not exist</summary>
+          <details>404 project 'home:other_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/getprojpack?expandedrepos&nopackages&project=home:other_user&withrepos
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '42'
+    body:
+      encoding: UTF-8
+      string: |
+        <projpack repoid="949951455">
+        </projpack>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 14:46:17 GMT
+recorded_with: VCR 3.0.3
