@@ -53,7 +53,7 @@ class User < ApplicationRecord
 
   scope :all_without_nobody, -> { where("login != ?", nobody_login) }
 
-  validates :login, :email, :password, :password_hash_type, :state,
+  validates :login, :password, :password_hash_type, :state,
             presence: { message: 'must be given' }
 
   validates :login,
@@ -73,8 +73,9 @@ class User < ApplicationRecord
   # However, this is not *so* bad since users have to answer on their email
   # to confirm their registration.
   validates :email,
-            format: { with:    %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
-                      message: 'must be a valid email address.' }
+            format: { with:        %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
+                      message:     'must be a valid email address.',
+                      allow_blank: true }
 
   # We want to validate the format of the password and only allow alphanumeric
   # and some punctiation/base64 characters.
@@ -230,8 +231,7 @@ class User < ApplicationRecord
       password = SecureRandom.base64
       user = User.create( login: login,
                           password: password,
-                          email: ldap_info[0],
-                          last_logged_in_at: Time.now)
+                          email: ldap_info[0])
       unless user.errors.empty?
         logger.debug("Creating User failed with: ")
         all_errors = user.errors.full_messages.map do |msg|

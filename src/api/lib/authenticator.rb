@@ -87,10 +87,26 @@ class Authenticator
     true
   end
 
+  def authorization_infos
+    # 1. try to get it where mod_rewrite might have put it
+    # 2. for Apache/mod_fastcgi with -pass-header Authorization
+    # 3. regular location
+    %w(X-HTTP_AUTHORIZATION Authorization HTTP_AUTHORIZATION).each do |header|
+      if request.env.has_key? header
+        return request.env[header].to_s.split
+      end
+    end
+    return
+  end
+
   private
 
   def initialize_krb_session
     principal = CONFIG['kerberos_service_principal']
+
+    if principal.blank?
+      raise AuthenticationRequiredError, 'Kerberos configuration is broken. Principal is empty.'
+    end
 
     unless CONFIG['kerberos_realm']
       CONFIG['kerberos_realm'] = principal.rpartition("@")[2]
@@ -122,7 +138,7 @@ class Authenticator
 
       begin
         tok = krb.accept_context(Base64.strict_decode64(authorization[1]))
-      rescue GSSAPI::GssApiError
+      rescue GSSAPI::GssApiError, ArgumentError
         raise_and_invalidate(authorization, 'Received invalid GSSAPI context.')
       end
 
@@ -138,7 +154,8 @@ class Authenticator
       @login = krb.display_name.partition("@")[0]
       @http_user = User.find_by_login(@login)
       unless @http_user
-        raise AuthenticationRequiredError, "User '#{@login}' has no account on the server."
+        Rails.logger.debug "Creating account for user '#{@login}'"
+        @http_user = User.create_user_with_fake_pw!(login: @login, state: User.default_user_state)
       end
     rescue GSSAPI::GssApiError => error
       raise AuthenticationRequiredError, "Received a GSSAPI exception; #{error.message}."
@@ -189,13 +206,12 @@ class Authenticator
 
   def extract_auth_user
     authorization = authorization_infos
-
     # privacy! logger.debug( "AUTH: #{authorization.inspect}" )
     if authorization
       # logger.debug( "AUTH2: #{authorization}" )
       if authorization[0] == "Basic"
         extract_basic_user authorization
-      elsif authorization[0] == "Negotiate" && CONFIG['kerberos_service_principal']
+      elsif authorization[0] == "Negotiate" && CONFIG['kerberos_mode']
         extract_krb_user authorization
       else
         Rails.logger.debug "Unsupported authentication string '#{authorization[0]}' received."
@@ -203,18 +219,6 @@ class Authenticator
     else
       Rails.logger.debug "No authentication string was received."
     end
-  end
-
-  def authorization_infos
-    # 1. try to get it where mod_rewrite might have put it
-    # 2. for Apace/mod_fastcgi with -pass-header Authorization
-    # 3. regular location
-    %w(X-HTTP_AUTHORIZATION Authorization HTTP_AUTHORIZATION).each do |header|
-      if request.env.has_key? header
-        return request.env[header].to_s.split
-      end
-    end
-    return
   end
 
   def check_extracted_user

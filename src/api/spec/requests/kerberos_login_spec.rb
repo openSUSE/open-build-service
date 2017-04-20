@@ -1,82 +1,51 @@
 require 'rails_helper'
-
 require 'gssapi'
 
 RSpec.describe 'Kerberos login', vcr: false, type: :request do
   describe 'authentication in kerberos mode' do
-    let(:gssapi_mock) { double }
     let(:user) { create(:confirmed_user) }
 
     before do
       stub_const('CONFIG', CONFIG.merge({
         'kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
-        'kerberos_realm'             => 'test_realm.com'
+        'kerberos_realm'             => 'test_realm.com',
+        'kerberos_mode'              => true
       }))
     end
 
-    context 'with valid ticket' do
-      before do
-        allow(gssapi_mock).to receive(:acquire_credentials)
-        allow(gssapi_mock).to receive(:accept_context).
-          with('fake_ticket').and_return(true)
-        allow(gssapi_mock).to receive(:display_name).
-          and_return("#{user.login}@test_realm.com")
-
-        allow(GSSAPI::Simple).to receive(:new).with(
-          'obs.test.com', 'HTTP', '/etc/krb5.keytab'
-        ).and_return(gssapi_mock)
-      end
-
-      context 'and confirmed user' do
-        it 'authenticates the user' do
-          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate #{Base64.strict_encode64('fake_ticket')}" }
-          expect(response).to have_http_status(:success)
-        end
-      end
-
-      context 'but user is unconfirmed' do
+    context "calling a controller with 'extract_user' before filter" do
+      context "authorization header does not contain 'Negotiate'" do
         before do
-          user.update(state: 'unconfirmed')
+          get "/source.xml"
         end
 
-        it 'does not authenticate the user' do
-          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate #{Base64.strict_encode64('fake_ticket')}" }
-          expect(response).to have_http_status(:forbidden)
-          expect(response.body).to match('User is registered but not yet approved. Your account is a registered account, ' +
-            'but it is not yet approved for the OBS by admin.')
-        end
+        it { expect(response).to have_http_status(:unauthorized) }
+        it { expect(response.header["WWW-Authenticate"]).to eq('Negotiate') }
       end
 
-      context 'but for a diferent realm' do
+      context "authorization header contains 'Negotiate' with a valid ticket" do
+        include_context 'a kerberos mock for' do
+          let(:login) { user.login }
+        end
+
         before do
-          allow(gssapi_mock).to receive(:display_name).
-            and_return("#{user.login}@my_other_realm.com")
-
-          allow(GSSAPI::Simple).to receive(:new).with(
-            'obs.test.com', 'HTTP', '/etc/krb5.keytab'
-          ).and_return(gssapi_mock)
+          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate #{Base64.strict_encode64(ticket)}" }
         end
 
-        it 'does not authenticate the user' do
-          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate #{Base64.strict_encode64('fake_ticket')}" }
-          expect(response).to have_http_status(:unauthorized)
-          expect(response.body).to match('User authenticated in wrong Kerberos realm.')
+        it { expect(response).to have_http_status(:success) }
+      end
+
+      context "authorization header contains 'Negotiate' with an invalid ticket" do
+        include_context 'a kerberos mock for' do
+          let(:login) { user.login }
         end
-      end
-    end
 
-    context 'with invalid ticket' do
-      before do
-        allow(gssapi_mock).to receive(:acquire_credentials).and_raise(GSSAPI::GssApiError)
-        allow(GSSAPI::Simple).to receive(:new).with(
-          'obs.test.com', 'HTTP', '/etc/krb5.keytab'
-        ).and_return(gssapi_mock)
-      end
+        before do
+          get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate INVALID_TICKET" }
+        end
 
-      it 'does not authenticate the user' do
-        get "/source.xml", headers: { 'X-HTTP_AUTHORIZATION' => "Negotiate #{Base64.strict_encode64('fake_ticket')}" }
-        expect(response).to have_http_status(:unauthorized)
-        expect(response.body).to match('Received a GSSAPI exception')
+        it { expect(response).to have_http_status(:unauthorized) }
+        it { expect(response.body).to match('Received invalid GSSAPI context')}
       end
     end
   end

@@ -19,6 +19,8 @@
         <%= link_to "Create Home", new_project_path(name: User.current.home_project_name) %>
       <% end %> |
     <%= link_to 'Logout', user_logout_path, method: :post, id: 'logout-link' %>
+  <% elsif CONFIG['kerberos_mode'] %>
+    <%= link_to 'Log In', user_login_path %>
   <% else %>
     <% if CONFIG['proxy_auth_mode'] == :on %>
       <% unless CONFIG['proxy_auth_register_page'].blank? %>
