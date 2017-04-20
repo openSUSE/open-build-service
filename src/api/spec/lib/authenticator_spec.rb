@@ -10,7 +10,7 @@ RSpec.describe Authenticator do
       'kerberos_service_principal' => 'HTTP/obs.test.com@test_realm.com',
       'kerberos_realm'             => 'test_realm.com',
       'kerberos_mode'              => true,
-      'kerberos_keytab'            => '/etc/keytab'
+      'kerberos_keytab'            => '/etc/krb5.keytab'
     }))
   end
 
@@ -41,12 +41,6 @@ RSpec.describe Authenticator do
         include_context 'a kerberos mock for' do
           let(:ticket) { 'krb_ticket' }
           let(:login) { user.login }
-        end
-
-        before do
-          allow(GSSAPI::Simple).to receive(:new).with(
-            'obs.test.com', 'HTTP', '/etc/keytab'
-          ).and_return(gssapi_mock)
         end
 
         context 'and confirmed user' do
