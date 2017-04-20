@@ -58,10 +58,10 @@
           %a{href: "#iowned", title: "Projects/Packages where you are responsible for the maintenance"} Owned Project/Packages
     .tab#ipackages
       - if @ipackages.length > 0
-        #ipackages_wrapper{ "data-url": url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') }
+        #ipackages-wrapper{ "data-url": url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') }
           - content_for :ready_function do
             var ipackages = [  #{escape_nested_list(@ipackages)}];
-            renderPackagesProjectsTable({packages: ipackages, length: 10, name: 'ipackages_wrapper'});
+            renderPackagesProjectsTable({packages: ipackages, length: 10, name: 'ipackages-wrapper'});
       - else
         %p
           %i
@@ -74,7 +74,7 @@
             = @displayed_user.login
             is not involved in any projects
       - else
-        #projects_table_wrapper{"data-url" => "#{url_for(controller: 'project', action: 'show', project: 'REPLACEIT')}"}
+        #projects-table-wrapper{"data-url" => "#{url_for(controller: 'project', action: 'show', project: 'REPLACEIT')}"}
           - content_for :head_javascript do
             var main_projects = [ #{escape_nested_list(@iprojects)} ];
             var excl_projects = [];
@@ -88,10 +88,10 @@
             = @displayed_user.login
             is not involved in any projects
       - else
-        #iowned_wrapper{ "data-url": url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') }
+        #iowned-wrapper{ "data-url": url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') }
           - content_for :ready_function do
             var iowned = [ #{escape_nested_list(@owned)} ];
-            renderPackagesProjectsTable({packages: iowned, length: 15, name: 'iowned_wrapper'});
+            renderPackagesProjectsTable({packages: iowned, length: 15, name: 'iowned-wrapper'});
 
 .clear
 - if @is_displayed_user
@@ -100,10 +100,10 @@
       .box-header.header-tabs
         %ul
           %li
-            %a{href: "#reviews_in", title: "Requests that #{@displayed_user.login} has to review"} Incoming Reviews
+            %a{href: "#reviews-in", title: "Requests that #{@displayed_user.login} has to review"} Incoming Reviews
             = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'reviews_in_table' })
             = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
-      .tab#reviews_in
+      .tab#reviews-in
         = render(partial: 'requests', locals: { id: 'reviews_in_table' })
 
   .grid_16.alpha.omega.box.box-shadow
@@ -111,28 +111,28 @@
       .box-header.header-tabs
         %ul
           %li
-            %a#requests_in_tab{href: "#requests_in", title: "Requests that #{@displayed_user.login} has to merge"} Incoming Requests
+            %a#requests-in-tab{href: "#requests-in", title: "Requests that #{@displayed_user.login} has to merge"} Incoming Requests
             = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'requests_in_table' })
             = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
           %li
-            %a#requests_out_tab{href: "#requests_out", title: "Requests that #{@displayed_user.login} has sent"} Outgoing Requests
+            %a#requests-out-tab{href: "#requests-out", title: "Requests that #{@displayed_user.login} has sent"} Outgoing Requests
             = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_out_table' })
             = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
           %li
-            %a#requests_declined_tab{href: "#requests_declined", title: "Requests from #{@displayed_user.login} that are declined"} Declined Requests
+            %a#requests-declined-tab{href: "#requests-declined", title: "Requests from #{@displayed_user.login} that are declined"} Declined Requests
             = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_declined_table' })
             = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
           %li
-            %a#all_requests_tab{href: "#all_requests", title: "All Requests from #{@displayed_user.login}"} All Requests
+            %a#all-requests-tab{href: "#all-requests", title: "All Requests from #{@displayed_user.login}"} All Requests
             = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'all_requests_table' })
             = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
-      .tab#requests_in
+      .tab#requests-in
         = render(partial: 'requests', locals: { id: 'requests_in_table' })
-      .tab#requests_out
+      .tab#requests-out
         = render(partial: 'requests', locals: { id: 'requests_out_table' })
-      .tab#requests_declined
+      .tab#requests-declined
         = render(partial: 'requests', locals: { id: 'requests_declined_table' })
-      .tab#all_requests
+      .tab#all-requests
         = render(partial: 'requests', locals: { id: 'all_requests_table' })
 
 - if @patchinfos.present?
@@ -141,9 +141,9 @@
       .box-header.header-tabs
         %ul
           %li
-            %a{href: "#patchinfos_in", title: "Requests that #{@displayed_user.login} has to merge"} Maintenance Requests
-      .tab#patchinfos_in
-        %table.compact#open_patchinfos-table{title: "Running Maintenance Updates"}
+            %a{href: "#patchinfos-in", title: "Requests that #{@displayed_user.login} has to merge"} Maintenance Requests
+      .tab#patchinfos-in
+        %table.compact#open-patchinfos-table{title: "Running Maintenance Updates"}
           %thead
             %tr
               %th Project
@@ -165,7 +165,7 @@
   = javascript_tag do
     :plain
       $(function() {
-        $('#open_patchinfos-table').dataTable();
+        $('#open-patchinfos-table').dataTable();
       });
 - content_for :ready_function do
   $( "#involved" ).tabs();

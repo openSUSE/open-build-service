@@ -39,8 +39,8 @@ function renderProjectsTable(length) {
     var projects = main_projects;
     if (!$('#excludefilter').is(":checked"))
         projects = projects.concat(excl_projects);
-    var projecturl = $("#projects_table_wrapper").data("url");
-    $("#projects_table_wrapper").html('<table cellpadding="0" cellspacing="0" border="0" class="compact stripe" id="projects_table"></table>');
+    var projecturl = $("#projects-table-wrapper").data("url");
+    $("#projects-table-wrapper").html('<table cellpadding="0" cellspacing="0" border="0" class="compact stripe" id="projects_table"></table>');
     $("#projects_table").dataTable({
         "data": projects,
         "paging": true,
@@ -143,14 +143,14 @@ function repositories_setup_autocomplete() {
 }
 
 function setup_subprojects_tables() {
-    $('#parentprojects_table').dataTable({
+    $('#parentprojects-table').dataTable({
         'paging': false,
         'searching': false,
         'info': false,
         "autoWidth": false
     });
-    if ($('#siblingprojects_table').length) {
-        $('#siblingprojects_table').dataTable({
+    if ($('#siblingprojects-table').length) {
+        $('#siblingprojects-table').dataTable({
         'paging': false,
         'searching': false,
         'info': false,
@@ -160,7 +160,7 @@ function setup_subprojects_tables() {
 	]
         });
     }
-    $('#subprojects_table').dataTable({
+    $('#subprojects-table').dataTable({
         'paging': false,
         'searching': false,
         'info': false,

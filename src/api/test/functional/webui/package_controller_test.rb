@@ -388,7 +388,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_field('targetproject', with: 'home:dmayr')
     page.must_have_field('targetpackage', with: 'x11vnc')
 
-    within '#supersede_display' do
+    within '#supersede-display' do
       page.must_have_text "#{requestid} by adrian"
     end
 

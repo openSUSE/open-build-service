@@ -14,20 +14,20 @@
   #building{ style: "height:250px; margin-right: 20px" }
   .centered
     Workers
-    %span.flot_legend#legend_building
+    %span.flot_legend#legend-building
   .plotspinner= image_tag('ajax-loader.gif')
 .clear
 .grid_8.alpha
   #events{ style: "height:250px; margin-left: 20px; margin-right: 20px" }
   .centered
     Repositories to recalculate
-    %span.flot_legend#legend_events
+    %span.flot_legend#legend-events
   .plotspinner= image_tag('ajax-loader.gif')
 .grid_8.omega
   #jobs{ style: "height:250px; margin-right: 20px" }
   .centered
     Packages scheduled for building
-    %span.flot_legend#legend_jobs
+    %span.flot_legend#legend-jobs
   .plotspinner= image_tag('ajax-loader.gif')
 .clear
 
@@ -46,7 +46,7 @@
         lines: { show: true, fill: true },
         stack: true
       },
-      legend: { noColumns: 3, position: "ne", container: "#legend_events" },
+      legend: { noColumns: 3, position: "ne", container: "#legend-events" },
       xaxis: { mode: 'time' },
       yaxis: { min: 0, max: data['events_max'], position: "left", labelWidth: 25 }
     });
@@ -63,7 +63,7 @@
             },
             xaxis: { mode: 'time' },
             yaxis: { min: 0, position: "left", labelWidth: 25 },
-            legend: { noColumns: 3, position: "ne", container: "#legend_building" }
+            legend: { noColumns: 3, position: "ne", container: "#legend-building" }
       });
     $.plot($("#jobs"), [
              { data: data['waiting'], label: "Ready to build", color: 5},
@@ -75,7 +75,7 @@
             },
             xaxis: { mode: 'time' },
             yaxis: { max: data['jobs_max'], position: "left", labelWidth: 25 },
-      legend: { noColumns: 3, position: "ne", container: "#legend_jobs" }
+      legend: { noColumns: 3, position: "ne", container: "#legend-jobs" }
         });
     }
 

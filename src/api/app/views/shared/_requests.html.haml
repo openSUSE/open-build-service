@@ -1,7 +1,7 @@
 - if requests.blank?
   %p No requests.
 - else
-  %table.compact#request_table{:width => '100%'}
+  %table.compact#request-table{:width => '100%'}
     %thead
       %tr
         %th Created
@@ -15,7 +15,7 @@
       - requests.each do |req|
         = render partial: 'shared/single_request', locals: { req: req }
   :javascript
-    $('#request_table').dataTable({
+    $('#request-table').dataTable({
       'order': [[0,'desc']],
       'columns': [ null, null, null, null, null, null, null ],
       'info': false,

@@ -1,6 +1,6 @@
 = form_for(@attribute) do |attribute_form|
   - if @attribute.errors.any?
-    #error_explanation
+    #error-explanation
       %h2
         = pluralize(@attribute.errors.count, "error")
         prohibited this attribute from being saved:

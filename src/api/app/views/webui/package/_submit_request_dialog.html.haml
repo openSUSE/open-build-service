@@ -37,18 +37,18 @@
         ~ text_area_tag(:description, '', size: '40x3')
         %br/
 
-        %span.hidden#supersede_display
+        %span.hidden#supersede-display
           = label_tag(:supersede_requests, 'Supersede requests:')
           %br/
-          %span#supersede_requests
+          %span#supersede-requests
 
-        %span#sourceupdate_display
+        %span#sourceupdate-display
           = check_box_tag(:sourceupdate, 'cleanup', @cleanup_source)
           = label_tag(:sourceupdate, 'Remove local package if request is accepted')
 
-      %p.hidden#devel_project_warning
+      %p.hidden#devel-project-warning
         You are about to bypass the devel project, please submit to
-        %b#devel_project_name
+        %b#devel-project-name
         instead.
 
       .buttons

@@ -10,7 +10,7 @@
     = link_to(sprited_text('user_add', ' Create new user'), :controller => :user, :action => :register_user)
 
   - unless @users.empty?
-    %table.compact#user_table
+    %table.compact#user-table
       %thead
         %tr
           %td
@@ -37,5 +37,5 @@
   $(function() {
     // We use count(:all) because of a bug: https://github.com/rails/rails/pull/27561
     if ("#{@users.count(:all)}" !== "0")
-      $('#user_table').dataTable();
+      $('#user-table').dataTable();
   });

@@ -1,7 +1,7 @@
 - @pagetitle = "Group #{@group.title}"
 %h2= @pagetitle
 - unless @group.users.empty?
-  %table#group_members_table
+  %table#group-members-table
     %thead
       %tr
         %th Group members
@@ -13,4 +13,4 @@
   %p
     %i This group does not contain users
 - content_for :ready_function do
-  $('#group_members_table').dataTable();
+  $('#group-members-table').dataTable();

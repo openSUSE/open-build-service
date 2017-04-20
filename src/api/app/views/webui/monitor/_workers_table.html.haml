@@ -46,19 +46,19 @@
 
     function update()
     {
-      $("#workers_updating").fadeIn(1200);
+      $("#workers-updating").fadeIn(1200);
       // resizeMonitorBoxes();
       $.getJSON("#{url_for(controller: :monitor, action: :update_building)}", function(json) {
         $.each(json, function(i,item) {
                 processCtrl(i, item);
         });
-        $("#workers_updating").fadeOut(1200);
+        $("#workers-updating").fadeOut(1200);
       });
     }
 
 = content_for :ready_function do
   :plain
-    $("#worker_display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
+    $("#worker-display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
 
     // Resize is not implemented right now. Hint: flot resize plugin could handle this.
     // resizeMonitorBoxes();
@@ -66,8 +66,8 @@
     update();
     setInterval("update()", 100000 );
 
-    $("#worker_display").change(function() {
-      $("#worker_display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
+    $("#worker-display").change(function() {
+      $("#worker-display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
       update();
     });
 
@@ -76,14 +76,14 @@
     %p
       %span{ style: "float: right" }
         %span.strong Show:
-        %select#worker_display
+        %select#worker-display
           %option{ selected: "selected", value: "package" } Package name
           %option{ value: "project" } Project
           %option{ value: "repository" } Repository
           %option{ value: "arch" } Architecture
-%h2.nowrap#workers_title
+%h2.nowrap#workers-title
   Workers
-  %span.hidden#workers_updating (updating...)
+  %span.hidden#workers-updating (updating...)
 %div
   %p
     This shows the single workers and their jobs. The

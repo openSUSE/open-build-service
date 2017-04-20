@@ -54,7 +54,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     use_js
     visit user_show_path(user: 'fred')
 
-    within "table#ipackages_wrapper_table" do
+    within "table#ipackages-wrapper_table" do
       assert_equal "TestPack", find(:xpath, './/tr[1]/td[1]').text
       assert_equal "home:Iggy", find(:xpath, './/tr[1]/td[2]').text
 
@@ -80,7 +80,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
 
     click_link("Owned Project/Packages")
 
-    within "table#iowned_wrapper_table" do
+    within "table#iowned-wrapper_table" do
       assert_equal "Apache", find(:xpath, './/tr[1]/td[2]').text
 
       assert_equal "apache2", find(:xpath, './/tr[2]/td[1]').text

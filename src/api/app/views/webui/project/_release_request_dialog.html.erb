@@ -3,7 +3,7 @@
       <h2 class="box-header">Create Maintenance Release Request</h2>
       <div class="dialog-content">
         <p>Do you want to release <%= project_or_package_link project: @project.name %> as a maintenance update?</p>
-  
+
         <%= form_tag({:controller => 'project', :action => 'new_release_request'}) do -%>
           <%= hidden_field_tag(:project, @project.name) %>
           <p>
@@ -11,9 +11,9 @@
             <%= text_field_tag(:sourceproject, elide(@project.name, 40), :size => 40, :disabled => true) %><br/>
             <%= label_tag(:description, 'Description:') %><br/>
             <%= text_area_tag(:description, '', :size => '40x3') %><br/>
-            <span id="supersede_display" class="hidden">
+            <span id="supersede-display" class="hidden">
               <%= label_tag(:pending_requests, 'Pending requests:') %><br/>
-              <span id="pending_requests"></span>
+              <span id="pending-requests"></span>
               <%= check_box_tag(:supersede) %> Supersede pending requests<br/>
             </span>
           </p>

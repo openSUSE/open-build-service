@@ -29,7 +29,7 @@ RSpec.feature "Search", type: :feature, js: true do
     fill_in 'search_input', with: package.name
     click_button 'search_button'
 
-    within '#search_results' do
+    within '#search-results' do
       expect(page).to have_link(user.home_project_name)
       expect(page).to have_link(package.name)
     end
@@ -48,7 +48,7 @@ RSpec.feature "Search", type: :feature, js: true do
     uncheck 'package'
     click_button 'search_button'
 
-    within '#search_results' do
+    within '#search-results' do
       expect(page).to have_link(apache2.name)
       expect(page).to have_link(apache2_subproject.name)
       expect(page).to have_selector('.search_result', count: 2)
@@ -70,7 +70,7 @@ RSpec.feature "Search", type: :feature, js: true do
     check 'title'
     click_button 'search_button'
 
-    within '#search_results' do
+    within '#search-results' do
       expect(page).to have_link(user.home_project_name)
       expect(page).to have_link(package.name)
       expect(page).to have_link(another_package.name)
@@ -92,7 +92,7 @@ RSpec.feature "Search", type: :feature, js: true do
     uncheck 'description'
     click_button 'search_button'
 
-    within '#search_results' do
+    within '#search-results' do
       expect(page).to have_link(apache.name)
       expect(page).to have_link(apache2.name)
       expect(page).to have_selector('.search_result', count: 2)
@@ -113,7 +113,7 @@ RSpec.feature "Search", type: :feature, js: true do
     check 'description'
     click_button 'search_button'
 
-    within '#search_results' do
+    within '#search-results' do
       expect(page).to have_link(apache.name)
       expect(page).to have_link(apache2.name)
       expect(page).to have_selector('.search_result', count: 2)
@@ -131,7 +131,7 @@ RSpec.feature "Search", type: :feature, js: true do
     click_button 'search_button'
 
     expect(find('#flash-messages')).to have_text("Your search did not return any results.")
-    expect(page).to have_selector('#search_results', count: 0)
+    expect(page).to have_selector('#search-results', count: 0)
   end
 
   scenario "search in no types" do
@@ -148,7 +148,7 @@ RSpec.feature "Search", type: :feature, js: true do
     click_button 'search_button'
 
     expect(find('#flash-messages')).to have_text("Your search did not return any results.")
-    expect(page).to have_selector('#search_results', count: 0)
+    expect(page).to have_selector('#search-results', count: 0)
   end
 
   scenario "search in no fields" do
@@ -166,7 +166,7 @@ RSpec.feature "Search", type: :feature, js: true do
     click_button 'search_button'
 
     expect(find('#flash-messages')).to have_text("You have to search for awesome in something. Click the advanced button...")
-    expect(page).to have_selector('#search_results', count: 0)
+    expect(page).to have_selector('#search-results', count: 0)
   end
 
   scenario "search Russian project in UTF-8" do
@@ -182,7 +182,7 @@ RSpec.feature "Search", type: :feature, js: true do
     check 'title'
     click_button 'search_button'
 
-    within '#search_results' do
+    within '#search-results' do
       expect(page).to have_link(russian_project.name)
       expect(page).to have_selector('.search_result', count: 1)
     end
@@ -203,7 +203,7 @@ RSpec.feature "Search", type: :feature, js: true do
       click_button 'search_button'
 
       expect(find('#flash-messages')).to have_text("Your search did not return any results.")
-      expect(page).to have_selector('#search_results', count: 0)
+      expect(page).to have_selector('#search-results', count: 0)
     end
 
     scenario "as admin user" do
@@ -221,7 +221,7 @@ RSpec.feature "Search", type: :feature, js: true do
       check 'title'
       click_button 'search_button'
 
-      within '#search_results' do
+      within '#search-results' do
         expect(page).to have_link(hidden_package.name)
         expect(page).to have_selector('.search_result', count: 1)
       end

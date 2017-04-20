@@ -269,7 +269,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text 'Request 4 accepted'
     # Iggy should be a maintainer now
     visit package_users_path(project: 'Apache', package: 'BranchPack')
-    find('#user_table').must_have_text '(Iggy)'
+    find('#user-table').must_have_text '(Iggy)'
   end
 
   def visit_requests

@@ -37,7 +37,7 @@
   <% if @projects.blank? %>
       <p><i>No projects found</i></p>
   <% else %>
-      <div id="projects_table_wrapper" data-url="<%= projecturl %>">
+      <div id="projects-table-wrapper" data-url="<%= projecturl %>">
 
         <% content_for :head_javascript do %>
             <% cache ['list_public_arrays', cachekey] do %>

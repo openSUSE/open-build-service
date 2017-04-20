@@ -180,7 +180,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     find(:css, "img[alt=\"Add Bug\"]").click
     page.evaluate_script('window.confirm = function() { return true; }')
     page.wont_have_content("121212")
-    find_link("bnc#700501")
+    find('a', text: "bnc#700501")
     click_button("Save Patchinfo") # FIXME: This doesn't have any effect here
   end
 
@@ -189,7 +189,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     return unless page.has_link?('delete-patchinfo')
 
     find(:id, 'delete-patchinfo').click
-    find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
+    find(:id, 'del-dialog').must_have_text 'Delete Confirmation'
     find_button("Ok").click
 
     assert_equal page.current_path, project_show_path(project)
@@ -249,7 +249,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
 
     visit patchinfo_show_path(package: 'patchinfo', project: "home:tom")
     find(:id, "delete-patchinfo").click
-    find(:id, "del_dialog").must_have_text "Delete Confirmation"
+    find(:id, "del-dialog").must_have_text "Delete Confirmation"
     find_button("Ok").click
 
     assert_equal page.current_path, project_show_path("home:tom")
@@ -274,7 +274,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     # the actual test...
     visit patchinfo_show_path(package: 'patchinfo', project: project.name)
     find(:id, "delete-patchinfo").click
-    find(:id, "del_dialog").must_have_text "Delete Confirmation"
+    find(:id, "del-dialog").must_have_text "Delete Confirmation"
     find_button("Ok").click
 
     assert_equal page.current_path, patchinfo_show_path(package: 'patchinfo', project: project.name)

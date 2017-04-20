@@ -1,10 +1,10 @@
 function updateSupersedeAndDevelPackageDisplay() {
     if ($('#targetproject').length > 0 && $('#targetproject')[0].value.length > 2) {
         if ($('#targetproject')[0].value == $('#sourceproject')[0].value) {
-            $('#sourceupdate_display').hide();
+            $('#sourceupdate-display').hide();
             $('#sourceupdate').prop('disabled', true); // hide 'sourceupdate' from Ruby
         } else {
-            $('#sourceupdate_display').show();
+            $('#sourceupdate-display').show();
             $('#sourceupdate').prop('disabled', false);
         }
         $.ajax({
@@ -18,11 +18,11 @@ function updateSupersedeAndDevelPackageDisplay() {
             },
             success: function (data) {
                 if (data.indexOf('No requests') == -1) {
-                    $('#supersede_display').show();
-                    $('#supersede_requests').html(data);
+                    $('#supersede-display').show();
+                    $('#supersede-requests').html(data);
                 } else {
-                    $('#supersede_display').hide();
-                    $('#supersede_requests').html('');
+                    $('#supersede-display').hide();
+                    $('#supersede-requests').html('');
                 }
             }
         });
@@ -34,10 +34,10 @@ function updateSupersedeAndDevelPackageDisplay() {
             },
             success: function (data) {
                 if (data.length > 0) {
-                    $('#devel_project_warning').show();
-                    $('#devel_project_name').html(data);
+                    $('#devel-project-warning').show();
+                    $('#devel-project-name').html(data);
                 } else {
-                    $('#devel_project_warning').hide();
+                    $('#devel-project-warning').hide();
                 }
             }
         });
@@ -45,8 +45,8 @@ function updateSupersedeAndDevelPackageDisplay() {
 }
 
 function setup_request_dialog() {
-    $('#devel_project_name').click(function () {
-        $('#targetproject').attr('value', $('#devel_project_name').html());
+    $('#devel-project-name').click(function () {
+        $('#targetproject').attr('value', $('#devel-project-name').html());
     });
 
     $('#targetproject').autocomplete({

@@ -40,7 +40,7 @@ RSpec.shared_examples 'user tab' do
       fill_in("User:", with: other_user.login)
       click_button("Add user")
       expect(page).to have_text("Added user #{other_user.login} with role maintainer")
-      within("#user_table") do
+      within("#user-table") do
         # package / project owner plus other user
         expect(find_all("tbody tr").count).to eq 2
       end
@@ -51,7 +51,7 @@ RSpec.shared_examples 'user tab' do
       click_button("Add user")
       expect(page).to have_text("Relationship already exists")
       click_link("Users")
-      within("#user_table") do
+      within("#user-table") do
         expect(find_all("tbody tr").count).to eq 2
       end
     end
