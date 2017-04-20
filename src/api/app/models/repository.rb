@@ -114,6 +114,8 @@ class Repository < ApplicationRecord
     repositories = [self]
     # add all linked and indirect linked repositories
     links.each do |path_element|
+      # skip self referencing repos to avoid loops
+      next if path_element.repository_id == id
       path_element.repository.expand_all_repositories.each do |repo|
         repositories << repo
       end
