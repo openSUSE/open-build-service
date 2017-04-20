@@ -103,6 +103,11 @@ RSpec.describe Project, vcr: true do
   describe '#branch_remote_repositories' do
     let(:branch_remote_repositories) { project.branch_remote_repositories("#{remote_project}:#{project}") }
 
+    before do
+      logout
+      allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
+    end
+
     context "normal project" do
       let!(:repository) { create(:repository, name: 'xUbuntu_14.04', project: project) }
       let(:remote_meta_xml) {
@@ -140,7 +145,6 @@ RSpec.describe Project, vcr: true do
       let(:expected_xml) { Nokogiri::XML(local_xml_meta) }
 
       before do
-        allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
         branch_remote_repositories
         project.reload
       end
@@ -204,7 +208,6 @@ RSpec.describe Project, vcr: true do
       let(:expected_xml) { Nokogiri::XML(local_xml_meta) }
 
       before do
-        allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
         branch_remote_repositories
         project.reload
       end
