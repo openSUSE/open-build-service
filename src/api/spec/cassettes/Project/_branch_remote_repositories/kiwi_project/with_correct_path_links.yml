@@ -1,0 +1,224 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_41/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE_41">
+          <title>Behold the Man</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE_41">
+          <title>Behold the Man</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:34 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_41/_config
+    body:
+      encoding: UTF-8
+      string: Reiciendis aliquam aut nesciunt quae quis in. Enim et quisquam. Magni
+        necessitatibus consequuntur aliquam maxime. Placeat et ut ullam totam et consequatur
+        aliquam. Sint quia ducimus eos omnis itaque.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:34 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE.org/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE.org">
+          <title>A Darkling Plain</title>
+          <description>In accusantium odit accusamus.</description>
+          <remoteurl>http://block.net/thora_kilback</remoteurl>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '191'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE.org">
+          <title>A Darkling Plain</title>
+          <description>In accusantium odit accusamus.</description>
+          <remoteurl>http://block.net/thora_kilback</remoteurl>
+        </project>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:34 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE.org/_config
+    body:
+      encoding: UTF-8
+      string: Autem quasi occaecati. Rem perspiciatis nemo. Possimus aperiam fugiat.
+        Voluptates non maiores et qui voluptatem.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:34 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/openSUSE_41/_config
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: Reiciendis aliquam aut nesciunt quae quis in. Enim et quisquam. Magni
+        necessitatibus consequuntur aliquam maxime. Placeat et ut ullam totam et consequatur
+        aliquam. Sint quia ducimus eos omnis itaque.
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:34 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_41/_config
+    body:
+      encoding: UTF-8
+      string: |-
+        %if "%_repository" == "images"
+        Type: kiwi
+        Repotype: none
+        Patterntype: none
+        %endif
+        Reiciendis aliquam aut nesciunt quae quis in. Enim et quisquam. Magni necessitatibus consequuntur aliquam maxime. Placeat et ut ullam totam et consequatur aliquam. Sint quia ducimus eos omnis itaque.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:34 GMT
+recorded_with: VCR 3.0.3

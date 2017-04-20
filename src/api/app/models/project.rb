@@ -923,7 +923,15 @@ class Project < ApplicationRecord
     end
   end
 
-  def branch_to_repositories_from(project, pkg_to_enable, opts = {})
+  def branch_to_repositories_from(project, pkg_to_enable = nil, opts = {})
+    if project.is_a? Project
+      branch_local_repositories(project, pkg_to_enable, opts)
+    else
+      branch_remote_repositories(project)
+    end
+  end
+
+  def branch_local_repositories(project, pkg_to_enable, opts = {})
     # shall we use the repositories from a different project?
     project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
     skip_repos = []
@@ -964,6 +972,56 @@ class Project < ApplicationRecord
     pkg_to_enable.channels.each do |channel|
       channel.add_channel_repos_to_project(pkg_to_enable)
     end
+  end
+
+  def branch_remote_repositories(project)
+    remote_project = Project.new(name: project)
+    remote_project_meta = Nokogiri::XML(remote_project.meta.to_s)
+    local_project_meta = Nokogiri::XML(to_axml)
+
+    remote_repositories = remote_project.repositories_from_meta
+    remote_repositories -= repositories.where(name: remote_repositories).pluck(:name)
+
+    remote_repositories.each do |repository|
+      repository_node = local_project_meta.create_element("repository")
+      repository_node["name"] = repository
+
+      # if it is kiwi type
+      if repository == "images"
+        path_elements = remote_project_meta.xpath("//repository[@name='images']/path")
+
+        prjconf = source_file('_config')
+        unless prjconf =~ /^Type:/
+          prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+          Backend::Connection.put_source(source_path('_config'), prjconf)
+        end
+      else
+        path_elements = local_project_meta.create_element("path")
+        path_elements["project"] = project
+        path_elements["repository"] = repository
+      end
+      repository_node.add_child(path_elements)
+
+      architectures = remote_project_meta.xpath("//repository[@name='#{repository}']/arch")
+      repository_node.add_child(architectures)
+
+      local_project_meta.at('project').add_child(repository_node)
+    end
+
+    # update branched project _meta file
+    update_from_xml!(Xmlhash.parse(local_project_meta.to_xml))
+  end
+
+  def meta
+    ProjectMetaFile.new(project_name: name)
+  end
+
+  def repositories_from_meta
+    result = []
+    Nokogiri::XML(meta.to_s).xpath('//repository').each do |repo|
+      result.push(repo.attributes.values.first.to_s)
+    end
+    result
   end
 
   def sync_repository_pathes
