@@ -118,7 +118,7 @@ group :test do
   # assigns has been extracted to a gem
   gem 'rails-controller-testing'
   # To generate random data
-  gem 'rantly'
+  gem 'rantly', '>= 1.1.0'
 end
 
 # Gems used only during development not required in production environments by default.
