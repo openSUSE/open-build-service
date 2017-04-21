@@ -7,7 +7,7 @@
 # versions of Haml-Lint, may require this file to be generated again.
 
 linters:
-  # Offense count: 121
+  # Offense count: 106
   RuboCop:
     exclude:
        - "app/views/webui/attribute/_issue_fields.html.haml"

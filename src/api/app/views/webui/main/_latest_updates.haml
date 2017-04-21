@@ -3,7 +3,7 @@
 .box.box-shadow
   %h2.box-header
     Latest Updates
-    \#{link_to('', latest_updates_feed_path(format: 'rss'), { class: "alignright icons-feeds", title: "RSS Feed" })}
+    \#{link_to('', latest_updates_feed_path(format: 'rss'), { class: 'alignright icons-feeds', title: 'RSS Feed' })}
   %table
     %tbody
       - @latest_updates.each do |update|

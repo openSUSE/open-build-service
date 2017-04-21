@@ -12,7 +12,7 @@
 %p
   - if CONFIG['proxy_auth_mode'] == :on
     Or
-    \#{link_to "register", CONFIG['proxy_auth_register_page'] + "?%22"}
+    \#{link_to 'register', CONFIG['proxy_auth_register_page'] + '?%22'}
     as a new user.
   - else
     - unless CONFIG['frontend_ldap_mode'] == :on
