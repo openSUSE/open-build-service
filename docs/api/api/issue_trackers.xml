@@ -200,13 +200,13 @@
     <enable-fetch>false</enable-fetch>
   </issue-tracker>
   <issue-tracker>
-    <name>Xamarin</name>
+    <name>bxc</name>
     <kind>bugzilla</kind>
     <description>Xamarin Bugzilla</description>
     <url>http://bugzilla.xamarin.com/index.cgi</url>
     <show-url>http://bugzilla.xamarin.com/show_bug.cgi?id=@@@</show-url>
-    <regex>Xamarin#(\d+)</regex>
-    <label>Xamarin#@@@</label>
+    <regex>bxc#(\d+)</regex>
+    <label>bxc#@@@</label>
     <enable-fetch>false</enable-fetch>
   </issue-tracker>
   <issue-tracker>
