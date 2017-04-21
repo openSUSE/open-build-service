@@ -34,9 +34,20 @@ function renderPackagesTable(wrapper, packages, length) {
     });
 }
 
-function renderProjectsTable(length) {
+function renderProjectsTable(length, filters) {
     length = (typeof length === "undefined") ? 25 : length;
-    var projects = main_projects;
+    var projects = main_projects.slice(0);
+    if (filters != undefined && filters.length > 0) {
+        var idx = projects.length;
+        while (idx--) {
+            var proj_name = projects[idx][0];
+            for (var j = 0; j < filters.length; j++) {
+                if (proj_name.match(filters[j])) {
+                    projects.splice(idx, 1);
+                }
+            }
+        }
+    }
     if (!$('#excludefilter').is(":checked"))
         projects = projects.concat(excl_projects);
     var projecturl = $("#projects-table-wrapper").data("url");
