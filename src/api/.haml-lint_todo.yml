@@ -7,7 +7,7 @@
 # versions of Haml-Lint, may require this file to be generated again.
 
 linters:
-  # Offense count: 126
+  # Offense count: 121
   RuboCop:
     exclude:
        - "app/views/webui/attribute/_issue_fields.html.haml"
@@ -44,7 +44,6 @@ linters:
        - "app/views/webui/search/owner.html.haml"
        - "app/views/webui/theme/bento/layouts/webui/_header.html.haml"
        - "app/views/webui/theme/bratwurst/layouts/webui/_footer.html.haml"
-       - "app/views/webui/theme/bratwurst/layouts/webui/_navbar.html.haml"
        - "app/views/webui/theme/bratwurst/layouts/webui/webui.html.haml"
        - "app/views/webui/theme/bratwurst/webui/package/_commit.html.haml"
        - "app/views/webui/theme/bratwurst/webui/package/_files.html.haml"
@@ -52,7 +51,6 @@ linters:
        - "app/views/webui/user/_dropdown_menu.html.haml"
        - "app/views/webui/user/_login_form.html.haml"
        - "app/views/webui/user/_password_dialog.html.haml"
-       - "app/views/webui/user/_requests.html.haml"
        - "app/views/webui/user/_save_dialog.html.haml"
        - "app/views/webui/user/index.html.haml"
        - "app/views/webui/user/login.html.haml"
