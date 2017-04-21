@@ -320,7 +320,7 @@ module MaintenanceHelper
 
     # target packages must not exist yet
     if Package.exists_by_project_and_name(project.name, pkg_name, follow_project_links: false)
-      raise PackageAlreadyExists "package #{opkg.name} already exists"
+      raise PackageAlreadyExists, "package #{opkg.name} already exists"
     end
     opkg.find_project_local_linking_packages.each do |p|
       lpkg_name = p.name
@@ -329,7 +329,7 @@ module MaintenanceHelper
         lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
       end
       if Package.exists_by_project_and_name(project.name, lpkg_name, follow_project_links: false)
-        raise PackageAlreadyExists "package #{p.name} already exists"
+        raise PackageAlreadyExists, "package #{p.name} already exists"
       end
     end
 
