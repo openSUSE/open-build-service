@@ -262,7 +262,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
         subject { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }
 
         it "raises an exception for a wrong repotype" do
-          expect { subject }.to raise_error(Project::SaveError, "Repotype is not included in the list")
+          expect { subject }.to raise_error(Project::SaveError, "Repotype 'INVALID' is not a valid repotype")
         end
       end
     end
