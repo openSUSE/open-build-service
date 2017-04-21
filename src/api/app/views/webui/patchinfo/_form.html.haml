@@ -1,5 +1,5 @@
-= render :partial => 'webui/package/tabs'
-= form_tag({ :action => 'save' }, :id => 'patchinfo') do
+= render partial: 'webui/package/tabs'
+= form_tag({ action: 'save' }, id: 'patchinfo') do
   .section
     .grid_8.alpha
       .box.show_left.show_right
@@ -13,49 +13,49 @@
             %br/
             = text_field_tag 'packager', @packager, required: true
             = javascript_tag do
-              $("#packager").autocomplete({source: '#{url_for :controller => 'user', :action => 'autocomplete'}', minLength: 2});
+              $("#packager").autocomplete({source: '#{url_for controller: 'user', action: 'autocomplete'}', minLength: 2});
           %p
             %strong
-              = image_tag('info.png', :title => 'Enter a short summary. Mainpackage: shortdescription of the mainfix', :alt => 'Summaryinfo')
+              = image_tag('info.png', title: 'Enter a short summary. Mainpackage: shortdescription of the mainfix', alt: 'Summaryinfo')
               %label{for: "summary"} Summary:
-            = text_area_tag 'summary', @summary, :size => '60x1', required: true, min: 10
+            = text_area_tag 'summary', @summary, size: '60x1', required: true, min: 10
           %p
             %strong
-              = image_tag('info.png', :title => 'Enter a full description what the update fixes', :alt => 'Descriptioninfo')
+              = image_tag('info.png', title: 'Enter a full description what the update fixes', alt: 'Descriptioninfo')
               %label{for: "description"} Description:
-            = text_area_tag 'description', @description, :size => '65x9', required: true, min: 10
+            = text_area_tag 'description', @description, size: '65x9', required: true, min: 10
           %p
             %strong
-              = image_tag('info.png', :title => 'Choose the category of your update', :alt => 'Categoryinfo')
+              = image_tag('info.png', title: 'Choose the category of your update', alt: 'Categoryinfo')
               %label{for: "category"} Category:
             = select_tag 'category', options_for_select(Patchinfo::CATEGORIES, @category)
           %p
             %strong
-              = image_tag('info.png', :title => 'Select the rating of this update', :alt => 'Ratinginfo')
+              = image_tag('info.png', title: 'Select the rating of this update', alt: 'Ratinginfo')
               %label{for: "rating"} Rating:
             = select_tag 'rating', options_for_select(Patchinfo::RATINGS, @rating)
         .box.show_left.show_right
           %p
             %strong
-              = image_tag('info.png', :title => 'List of issues what the update fixes', :alt => 'Issueinfo')
+              = image_tag('info.png', title: 'List of issues what the update fixes', alt: 'Issueinfo')
               Issues:
           #issuelist
             - if @issues
               - @issues.reject { |issue| issue.blank? }.each do |issue|
                 %div{id: "issue_#{issue[0]}_#{issue[1]}"}
-                  = link_to image_tag('bug_delete.png', :alt => 'Remove Bug', :title => 'Remove Bug'), '#', :onclick => "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;", :style => 'clear:both;', :id => "remove_#{issue[0]}_#{issue[1]}"
-                  = hidden_field_tag 'issueid[]', "#{issue[1]}", :id => "issueid_#{issue[0]}_#{issue[1]}"
-                  = hidden_field_tag 'issuetracker[]', "#{issue[0]}", :id => "issuetracker_#{issue[0]}_#{issue[1]}"
-                  = hidden_field_tag 'issueurl[]', "#{issue[2]}", :id => "issueurl_#{issue[0]}_#{issue[1]}"
-                  = hidden_field_tag 'issuesum[]', "#{issue[3]}", :id => "issuesum_#{issue[0]}_#{issue[1]}"
+                  = link_to image_tag('bug_delete.png', alt: 'Remove Bug', title: 'Remove Bug'), '#', onclick: "$('#issue_#{issue[0]}_#{issue[1]}').remove(); return false;", style: 'clear:both;', id: "remove_#{issue[0]}_#{issue[1]}"
+                  = hidden_field_tag 'issueid[]', "#{issue[1]}", id: "issueid_#{issue[0]}_#{issue[1]}"
+                  = hidden_field_tag 'issuetracker[]', "#{issue[0]}", id: "issuetracker_#{issue[0]}_#{issue[1]}"
+                  = hidden_field_tag 'issueurl[]', "#{issue[2]}", id: "issueurl_#{issue[0]}_#{issue[1]}"
+                  = hidden_field_tag 'issuesum[]', "#{issue[3]}", id: "issuesum_#{issue[0]}_#{issue[1]}"
                   = link_to "#{issue[0].to_s}##{issue[1].to_s}", issue[2].to_s
                   \: 
                   %div{id: "issue_desc_#{issue[0]}_#{issue[1]}", onclick: "change_issue_desc('#{issue[0]}_#{issue[1]}');"}
                     = issue[3].to_s
                   %div{id: "change_desc_#{issue[0]}_#{issue[1]}", style: "display:none;"}
-                    = text_field_tag 'desc_' + issue[0] + '_' + issue[1], issue[3].to_s, :size => issue[3].to_s.length
-                    = link_to image_tag('ok.png', :alt => 'Ok', :title => 'Change description'), '#', :onclick => "changeDesc('ok', '#{issue[0]}_#{issue[1]}'); return false;"
-                    = link_to image_tag('req-decline.png', :alt => 'Cancel', :title => 'Cancel changes'), '#', :onclick => "changeDesc('cancel', '#{issue[0]}_#{issue[1]}'); return false;"
+                    = text_field_tag 'desc_' + issue[0] + '_' + issue[1], issue[3].to_s, size: issue[3].to_s.length
+                    = link_to image_tag('ok.png', alt: 'Ok', title: 'Change description'), '#', onclick: "changeDesc('ok', '#{issue[0]}_#{issue[1]}'); return false;"
+                    = link_to image_tag('req-decline.png', alt: 'Cancel', title: 'Cancel changes'), '#', onclick: "changeDesc('cancel', '#{issue[0]}_#{issue[1]}'); return false;"
           .box.show_right.show_left{style: "margin-top:5px;"}
             %p
               %label{for: "issue"}
@@ -65,14 +65,14 @@
                 A list of all supported tracker you can find here:
                 \#{link_to 'Tracker List', 'https://en.opensuse.org/openSUSE:Packaging_Patches_guidelines#Current_set_of_abbreviations'}
               %input#issue{name: "issuelist", type: "text", value: "#{@issueid}"}/
-              = link_to image_tag('bug_add.png', :alt => 'Add Bug', :title => "Add additional issues e.g.: \"bnc#123456, bgo#654321\""), '#', :onclick => 'append_bug($("#issue").val()); return false;', :id => 'add_bug'
-              = image_tag('ajax-loader.gif', :id => 'issue_spinner', :class => 'hidden')
+              = link_to image_tag('bug_add.png', alt: 'Add Bug', title: "Add additional issues e.g.: \"bnc#123456, bgo#654321\""), '#', onclick: 'append_bug($("#issue").val()); return false;', id: 'add_bug'
+              = image_tag('ajax-loader.gif', id: 'issue_spinner', class: 'hidden')
           .box.show_left.show_right
-            = link_to 'Update issues from sources', { :action => 'updatepatchinfo', :project => @project, :package => @package }, { data: { confirm: 'Attention! All unsaved data getting lost! Continue?' }, :method => :post }
+            = link_to 'Update issues from sources', { action: 'updatepatchinfo', project: @project, package: @package }, { data: { confirm: 'Attention! All unsaved data getting lost! Continue?' }, method: :post }
         .box.show_left.show_right
           %p
             %strong
-              = image_tag('info.png', :title => 'Set the required flags for this update', :alt => 'Flagsinfo')
+              = image_tag('info.png', title: 'Set the required flags for this update', alt: 'Flagsinfo')
               Required actions:
           %p
             = check_box_tag('zypp_restart_needed', true, @zypp_restart_needed)
@@ -86,7 +86,7 @@
         .box.show_left.show_right
           %p
             %strong
-              = image_tag('info.png', :title => 'Move specific binaries to the right select box by using the arrows', :alt => 'Binaryinfo')
+              = image_tag('info.png', title: 'Move specific binaries to the right select box by using the arrows', alt: 'Binaryinfo')
               Binaries:
           - if !@binarylist.blank?
             - available_bin = Array.new
@@ -94,7 +94,7 @@
             - selected_bin = Array.new
             - @binaries.each { |bin| selected_bin << "#{bin.to_s}" }
             #avail-bin{style: "float:left; width:44%; margin-left:5px;"}
-              = select_tag 'available_binaries', options_for_select(available_bin), :multiple => true, :size => 6, :style => 'width:100%;'
+              = select_tag 'available_binaries', options_for_select(available_bin), multiple: true, size: 6, style: 'width:100%;'
             #bin-options{style: "float:left; width:28px;"}
               %input#add{style: "width:28px;", type: "button", value: ">"}/
               %br/
@@ -106,9 +106,9 @@
               %br/
             #sele-bin{style: "width:44%; float:left;"}
               - if !selected_bin.blank?
-                = select_tag 'selected_binaries', options_for_select(selected_bin), :multiple => true, :size => 6, :style => 'width:100%;'
+                = select_tag 'selected_binaries', options_for_select(selected_bin), multiple: true, size: 6, style: 'width:100%;'
               - else
-                = select_tag 'selected_binaries', "<option value=''></option>".html_safe, :multiple => true, :size => 6, :style => 'width:100%;'
+                = select_tag 'selected_binaries', "<option value=''></option>".html_safe, multiple: true, size: 6, style: 'width:100%;'
             %br{style: "clear:both;"}/
           - else
             %strong No binaries available!
@@ -118,7 +118,7 @@
             = check_box_tag('block', 'true', @block)
           %p
             %strong Reason:
-            = text_field_tag('block_reason', @block_reason, :style => 'width: 99%', :disabled => true)
+            = text_field_tag('block_reason', @block_reason, style: 'width: 99%', disabled: true)
         %div{style: "margin-left:5px;"}
           = submit_tag 'Save Patchinfo'
         = hidden_field_tag('project', @project.name)

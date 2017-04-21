@@ -10,7 +10,7 @@
       .clear
       .grid_4.box.news-message
         - if User.current.is_admin?
-          = link_to(sprite_tag('comment_delete', :title => 'Remove message'),
+          = link_to(sprite_tag('comment_delete', title: 'Remove message'),
             { controller: 'main', action: 'delete_message_dialog', message_id: msg.id },
             { remote: true, class: 'delete-message' })
         - case msg.severity.to_i

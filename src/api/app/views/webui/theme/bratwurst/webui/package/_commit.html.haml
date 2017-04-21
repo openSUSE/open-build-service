@@ -25,13 +25,13 @@
             = commit['user'] || 'unknown'
         - if commit['requestid']
           accepted
-          = link_to("request #{commit['requestid']}", {:controller => :request, :action => :show, :number => commit['requestid']})
+          = link_to("request #{commit['requestid']}", {controller: :request, action: :show, number: commit['requestid']})
         - else
           authored
         = fuzzy_time(Time.at(commit['time'].to_i))
     .col-md-2
       %span.pull-right
-        = link_to({:controller => :package, :action => :rdiff, :package => @package, :project => @project, :rev => commit['rev'], :linkrev => 'base'}) do
+        = link_to({controller: :package, action: :rdiff, package: @package, project: @project, rev: commit['rev'], linkrev: 'base'}) do
           revision #{commit['rev']}
 - else
   %em

@@ -1,14 +1,14 @@
-.navbar.navbar-default.navbar-fixed-top{:role => "navigation"}
+.navbar.navbar-default.navbar-fixed-top{role: "navigation"}
   / Brand and toggle get grouped for better mobile display
   .container
     .navbar-header
-      %button.navbar-toggle{"data-target" => ".navbar-ex1-collapse", "data-toggle" => "collapse", :type => "button"}
+      %button.navbar-toggle{"data-target" => ".navbar-ex1-collapse", "data-toggle" => "collapse", type: "button"}
         %span.sr-only Toggle navigation
         %span.icon-bar
         %span.icon-bar
         %span.icon-bar
-      = link_to(root_path, {:name => "top", :class => "navbar-brand"}) do
-        = image_tag("obs-logo_small.png", :width => "32px", :alt => "Home", :title => 'Home')
+      = link_to(root_path, {name: "top", class: "navbar-brand"}) do
+        = image_tag("obs-logo_small.png", width: "32px", alt: "Home", title: 'Home')
     / Collect the nav links, forms, and other content for toggling
     .collapse.navbar-collapse.navbar-ex1-collapse
       %ul.nav.navbar-nav
@@ -21,7 +21,7 @@
       - else
         %ul.nav.navbar-nav.navbar-right.hidden-xs
           %li.dropdown
-            %a.dropdown-toggle{"data-toggle" => "dropdown", :href => "#", :id => "user-dropdown"}
+            %a.dropdown-toggle{"data-toggle" => "dropdown", href: "#", id: "user-dropdown"}
               = user_icon(User.current)
               %b.caret
             %ul.dropdown-menu
@@ -30,7 +30,7 @@
                   %i.icon-home
                   = User.current
               %li
-                = link_to(user_logout_path, :method => :post) do
+                = link_to(user_logout_path, method: :post) do
                   %i.icon-off
                   Log out
         %ul.nav.navbar-nav.navbar-right.visible-xs
@@ -39,6 +39,6 @@
               %i.icon-home
               = User.current
           %li
-            = link_to(user_logout_path, :method => :post) do
+            = link_to(user_logout_path, method: :post) do
               %i.icon-off
               Log out

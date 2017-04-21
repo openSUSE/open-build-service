@@ -4,7 +4,7 @@
   - @crumb_list << link_to(@package, package_show_path(package: @package))
 - @crumb_list << "Attributes"
 - if @package
-  = render :partial => "webui/package/tabs"
+  = render partial: "webui/package/tabs"
 - else
-  = render :partial => "webui/project/tabs"
-= render :partial => "attributes"
+  = render partial: "webui/project/tabs"
+= render partial: "attributes"

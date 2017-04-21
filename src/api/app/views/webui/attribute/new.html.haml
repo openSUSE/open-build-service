@@ -7,9 +7,9 @@
   - @crumb_list << link_to('Attributes', index_attribs_path(project: @project.name))
 - @crumb_list << "Add"
 - if @package
-  = render :partial => "webui/package/tabs"
+  = render partial: "webui/package/tabs"
 - else
-  = render :partial => "webui/project/tabs"
+  = render partial: "webui/project/tabs"
 %h2
   = @pagetitle
 = form_for(@attribute) do |f|

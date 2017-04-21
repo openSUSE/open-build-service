@@ -3,11 +3,11 @@
 - @layouttype = 'custom'
 
 .grid_16.alpha.omega.box.box-shadow
-  = render :partial => 'webui/configuration/tabs'
+  = render partial: 'webui/configuration/tabs'
   %p
     Manage users.
   %p
-    = link_to(sprited_text('user_add', ' Create new user'), :controller => :user, :action => :register_user)
+    = link_to(sprited_text('user_add', ' Create new user'), controller: :user, action: :register_user)
 
   - unless @users.empty?
     %table.compact#user-table
@@ -27,7 +27,7 @@
             %td
               = user.state
             %td.nowrap
-              = render :partial => 'dropdown_menu', locals: { user: user }
+              = render partial: 'dropdown_menu', locals: { user: user }
   - else
     %p
       %i
