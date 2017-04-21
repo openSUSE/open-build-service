@@ -85,6 +85,7 @@ BuildRequires:  perl-XML-Simple
 BuildRequires:  perl(Devel::Cover)
 BuildRequires:  perl(Test::Simple) > 1
 BuildRequires:  procps
+# Required by the test suite (contains /usr/bin/Xvfb)
 BuildRequires:  xorg-x11-server
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
