@@ -280,8 +280,8 @@
                   <%= hidden_field_tag("review_by_group_#{index}", review[:by_group]) if review[:by_group] %>
                   <%= hidden_field_tag("review_by_project_#{index}", review[:by_project]) if review[:by_project] %>
                   <%= hidden_field_tag("review_by_package_#{index}", review[:by_package]) if review[:by_package] %>
-                  <%= submit_tag 'Approve', name: 'accepted', id: "review_accept_button_#{index}", title: 'Give this request your blessing, it will continue.' %>
-                  <%= submit_tag 'Disregard', name: 'declined', id: "review_decline_button_#{index}", title: 'Veto this request, it will be declined.' %>
+                  <%= submit_tag 'Approve', name: 'accepted', id: "review_accept_button_#{index}", title: 'Give this request your blessing, it will continue.', :style => 'margin-right: 4em; background-color: #4CAF50; color: #000000' %>
+                  <%= submit_tag 'Disregard', name: 'declined', id: "review_decline_button_#{index}", title: 'Veto this request, it will be declined.', :style => 'background-color: #f2391d; color: #000000' %>
                 </p>
             <% end %>
           </div>
