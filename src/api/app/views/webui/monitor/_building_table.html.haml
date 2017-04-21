@@ -35,7 +35,7 @@
             - start_time = Time.at(building["starttime"].to_i)
             - warning_style = nil
             - if start_time < @dead_line
-              - n = ((start_time - @dead_line).abs/60/@interval_steps).round
+              - n = ((start_time - @dead_line).abs / 60 / @interval_steps).round
               - n = (@max_color < n) ? 0 : @max_color - n
               - warning_style = "background-color: rgb(255,#{n},0);"
             %td.starttime{ style: warning_style, title: "start time: #{start_time.iso8601}" }
