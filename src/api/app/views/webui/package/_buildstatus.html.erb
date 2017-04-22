@@ -28,9 +28,11 @@
     </table>
   </div>
 <% end %>
+<% if @package.buildresults.any? %>
 <%= javascript_tag do %>
   $('.unresolvable, .blocked').click(function() {
     var title = $(this).attr('title');
     alert(title);
   });
+<% end %>
 <% end %>
