@@ -551,7 +551,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/bs_warden
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/worker-deltagen.spec
-%config(noreplace) /usr/lib/obs/server/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
 # created via %%post, since rpm fails otherwise while switching from
 # directory to symlink
@@ -674,6 +673,7 @@ usermod -a -G docker obsservicerun
 
 %files -n obs-common
 %defattr(-,root,root)
+%config(noreplace) /usr/lib/obs/server/BSConfig.pm
 /var/adm/fillup-templates/sysconfig.obs-server
 /usr/lib/obs/server/setup-appliance.sh
 /etc/init.d/obsstoragesetup
