@@ -607,6 +607,7 @@ class BsRequest < ApplicationRecord
 
   def change_review_state(new_review_state, opts = {})
     with_lock do
+    Review.transaction do
       new_review_state = new_review_state.to_sym
 
       unless state == :review || (state == :new && new_review_state == :new)
@@ -622,7 +623,7 @@ class BsRequest < ApplicationRecord
       found = false
 
       reviews_seen = Hash.new
-      reviews.reverse_each do |review|
+      reviews.lock(true).reverse_each do |review|
         matching = true
         matching = false if review.by_user && review.by_user != opts[:by_user]
         matching = false if review.by_group && review.by_group != opts[:by_group]
@@ -707,6 +708,7 @@ class BsRequest < ApplicationRecord
       if go_new_state == :new && accept_at
         Delayed::Job.enqueue AcceptRequestsJob.new
       end
+    end
     end
   end
 
