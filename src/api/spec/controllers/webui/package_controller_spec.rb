@@ -1034,7 +1034,7 @@ EOT
       end
 
       it { expect(flash[:notice]).to eq("Triggered wipe binaries for #{source_project.name}/#{source_package.name} successfully.") }
-      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+      it { expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package)) }
     end
   end
 
