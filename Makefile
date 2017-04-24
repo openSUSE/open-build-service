@@ -9,6 +9,7 @@ install:
 
 test:
 	make -C src/api test
+	make -C dist/sysvinit test
 	make -C dist test
 	make -C src/backend test
 
