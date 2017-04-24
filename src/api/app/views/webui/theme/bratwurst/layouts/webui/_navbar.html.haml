@@ -2,7 +2,7 @@
   / Brand and toggle get grouped for better mobile display
   .container
     .navbar-header
-      %button.navbar-toggle{"data-target" => ".navbar-ex1-collapse", "data-toggle" => "collapse", type: "button"}
+      %button.navbar-toggle{data: {target: ".navbar-ex1-collapse", toggle: "collapse"}, type: "button"}
         %span.sr-only Toggle navigation
         %span.icon-bar
         %span.icon-bar
@@ -21,7 +21,7 @@
       - else
         %ul.nav.navbar-nav.navbar-right.hidden-xs
           %li.dropdown
-            %a.dropdown-toggle{"data-toggle" => "dropdown", href: "#", id: "user-dropdown"}
+            %a.dropdown-toggle{data: {toggle: "dropdown"}, href: "#", id: "user-dropdown"}
               = user_icon(User.current)
               %b.caret
             %ul.dropdown-menu

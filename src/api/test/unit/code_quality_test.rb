@@ -56,26 +56,26 @@ class CodeQualityTest < ActiveSupport::TestCase
 
   # our current exceptions
   BLACK_LIST = {
-      'AttributeController#attribute_definition'                                => 92.09,
+      'AttributeController#attribute_definition'                                => 89.57,
       'BinaryRelease::update_binary_releases_via_json'                          => 128.58,
-      'BranchPackage#find_packages_to_branch'                                   => 226.72,
-      'BranchPackage#create_branch_packages'                                    => 227.35,
+      'BranchPackage#find_packages_to_branch'                                   => 222.99,
+      'BranchPackage#create_branch_packages'                                    => 224.13,
       'BranchPackage#check_for_update_project'                                  => 103.23,
       'BranchPackage#determine_details_about_package_to_branch'                 => 101.48,
       'BranchPackage#lookup_incident_pkg'                                       => 83.09,
       'BranchPackage#extend_packages_to_link'                                   => 80.23,
-      'BsRequest#change_review_state'                                           => 212.16,
-      'BsRequest#apply_default_reviewers'                                       => 129.52,
+      'BsRequest#change_review_state'                                           => 207.93,
+      'BsRequest#apply_default_reviewers'                                       => 115.28,
       'BsRequest#webui_actions'                                                 => 130.13,
       'BsRequest::new_from_xml'                                                 => 113.77,
-      'BsRequestAction#check_action_permission!'                                => 113.85,
-      'BsRequestAction#check_action_permission_target!'                         => 89.68,
-      'BsRequestAction#create_expand_package'                                   => 459.98,
-      'BsRequestAction#default_reviewers'                                       => 137.71,
+      'BsRequestAction#check_action_permission!'                                => 102.32,
+      'BsRequestAction#check_action_permission_target!'                         => 82.57,
+      'BsRequestAction#create_expand_package'                                   => 427.4,
+      'BsRequestAction#default_reviewers'                                       => 132.26,
       'BsRequestAction#store_from_xml'                                          => 88.01,
       'BsRequestActionMaintenanceIncident#_merge_pkg_into_maintenance_incident' => 153.15,
       'BsRequestActionSubmit#execute_accept'                                    => 126.42,
-      'BsRequestPermissionCheck#cmd_changestate_permissions'                    => 117.09,
+      'BsRequestPermissionCheck#cmd_changestate_permissions'                    => 108.62,
       'RequestSourceDiff::ActionSourceDiffer#diff_for_source'                   => 94.62,
       'BuildController#project_index'                                           => 126.35,
       'ConfigurationsController#update'                                         => 82.1,
@@ -89,20 +89,20 @@ class CodeQualityTest < ActiveSupport::TestCase
       'RequestController#render_request_collection'                             => 85.91,
       'SearchController#find_attribute'                                         => 97.33,
       'SearchController#search'                                                 => 81.15,
-      'SourceController#project_command_copy'                                   => 140.04,
+      'SourceController#project_command_copy'                                   => 133.93,
       'SourceController#update_project_meta'                                    => 98.09,
       'UserLdapStrategy::find_with_ldap'                                        => 122.14,
       'User::find_with_credentials'                                             => 101.42,
       'Webui::WebuiController#check_user'                                       => 80.99,
       'UserLdapStrategy::render_grouplist_ldap'                                 => 98.25,
-      'Webui::PackageController#branch'                                         => 124.26,
+      'Webui::PackageController#branch'                                         => 121.12,
       'Webui::PackageController#submit_request'                                 => 110.76,
       'Webui::PackageController#dependency'                                     => 83.57,
-      'Webui::PackageController#update_build_log'                               => 87.0,
+      'Webui::PackageController#update_build_log'                               => 82.21,
       'Webui::PatchinfoController#save'                                         => 256.25,
       'Webui::RequestController#show'                                           => 91.96,
-      'Webui::SearchController#set_parameters'                                  => 98.04,
-      'Project::UpdateFromXmlCommand#run'                                       => 90.85
+      'Webui::SearchController#set_parameters'                                  => 92.27,
+      'Project::UpdateFromXmlCommand#run'                                       => 88.22
   }
 
   test 'code complexity' do
@@ -142,6 +142,6 @@ class CodeQualityTest < ActiveSupport::TestCase
     end
 
     assert mismatches.empty?, mismatches.join("\n")
-    puts "Some functions are no longer complex and need to removed from black list - #{black.keys.inspect}" unless black.empty?
+    puts "Some functions are no longer complex and need to be removed from black list - #{black.keys.inspect}" unless black.empty?
   end
 end
