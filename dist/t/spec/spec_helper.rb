@@ -37,8 +37,8 @@ end
 
 def login
     visit "/user/login"
-    fill_in 'user_login', with: 'Admin'
-    fill_in 'user_password', with: 'opensuse'
+    fill_in 'user-login', with: 'Admin'
+    fill_in 'user-password', with: 'opensuse'
     click_button('log-in-button')
 
     expect(page).to have_link('link-to-user-home')
