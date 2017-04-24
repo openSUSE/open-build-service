@@ -43,10 +43,12 @@ RSpec.describe Webui::PackageController, vcr: true do
   end
 
   describe "POST #submit_request" do
+    let(:target_package) { package.name }
+
     RSpec.shared_examples "a response of a successful submit request" do
       it { expect(flash[:notice]).to match("Created .+submit request \\d.+to .+#{target_project}") }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
-      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: package.name)).to exist }
+      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: target_package)).to exist }
     end
 
     before do
@@ -56,6 +58,16 @@ RSpec.describe Webui::PackageController, vcr: true do
     context "sending a valid submit request" do
       before do
         post :submit_request, params: { project: source_project, package: package, targetproject: target_project }
+      end
+
+      it_should_behave_like "a response of a successful submit request"
+    end
+
+    context "sending a valid submit request with targetpackage as parameter" do
+      let(:target_package) { 'different_package' }
+
+      before do
+        post :submit_request, params: { project: source_project, package: package, targetproject: target_project, targetpackage: target_package }
       end
 
       it_should_behave_like "a response of a successful submit request"
