@@ -7,19 +7,16 @@
 # versions of Haml-Lint, may require this file to be generated again.
 
 linters:
-  # Offense count: 106
+  # Offense count: 93
   RuboCop:
     exclude:
-       - "app/views/webui/attribute/_issue_fields.html.haml"
        - "app/views/webui/attribute/new.html.haml"
        - "app/views/webui/comment/_links.html.haml"
        - "app/views/webui/configuration/interconnect.html.haml"
-       - "app/views/webui/download_on_demand/_form.html.haml"
        - "app/views/webui/download_on_demand/_index.html.haml"
        - "app/views/webui/groups/edit.html.haml"
        - "app/views/webui/groups/index.html.haml"
        - "app/views/webui/groups/show.html.haml"
-       - "app/views/webui/image_templates/index.html.haml"
        - "app/views/webui/main/_latest_updates.haml"
        - "app/views/webui/main/_news.html.haml"
        - "app/views/webui/main/_sponsors.html.haml"
@@ -32,10 +29,7 @@ linters:
        - "app/views/webui/monitor/_lights.html.haml"
        - "app/views/webui/monitor/_stats.html.haml"
        - "app/views/webui/monitor/_workers_table.html.haml"
-       - "app/views/webui/notifications/index.html.haml"
        - "app/views/webui/patchinfo/_form.html.haml"
-       - "app/views/webui/patchinfo/show.html.haml"
-       - "app/views/webui/repositories/_dod_repository_form.html.haml"
        - "app/views/webui/repositories/_edit_repository.html.haml"
        - "app/views/webui/repositories/_repository_entry.html.haml"
        - "app/views/webui/repositories/new.html.haml"
