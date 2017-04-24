@@ -81,4 +81,8 @@ module Webui::PackageHelper
       end
     end.compact.reverse.join(' ')
   end
+
+  def binaries?(xml_hash)
+    [xml_hash.dig('result')].flatten.compact.any? { |result| result.dig('binarylist', 'binary').present? }
+  end
 end
