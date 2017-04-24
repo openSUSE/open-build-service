@@ -142,6 +142,6 @@ class CodeQualityTest < ActiveSupport::TestCase
     end
 
     assert mismatches.empty?, mismatches.join("\n")
-    puts "Some functions are no longer complex and need to removed from black list - #{black.keys.inspect}" unless black.empty?
+    puts "Some functions are no longer complex and need to be removed from black list - #{black.keys.inspect}" unless black.empty?
   end
 end
