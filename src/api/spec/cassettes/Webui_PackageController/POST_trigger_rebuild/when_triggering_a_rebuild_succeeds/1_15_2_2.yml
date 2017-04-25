@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 25 Apr 2017 12:08:46 GMT
+  recorded_at: Tue, 25 Apr 2017 12:20:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/_meta?user=tom
@@ -87,7 +87,7 @@ http_interactions:
           </repository>
         </project>
     http_version: 
-  recorded_at: Tue, 25 Apr 2017 12:08:46 GMT
+  recorded_at: Tue, 25 Apr 2017 12:20:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
@@ -95,8 +95,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>In Dubious Battle</title>
-          <description>Distinctio earum non expedita sit.</description>
+          <title>A Farewell to Arms</title>
+          <description>Repellendus minima repudiandae pariatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -117,16 +117,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>In Dubious Battle</title>
-          <description>Distinctio earum non expedita sit.</description>
+          <title>A Farewell to Arms</title>
+          <description>Repellendus minima repudiandae pariatur.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 25 Apr 2017 12:08:47 GMT
+  recorded_at: Tue, 25 Apr 2017 12:20:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta
@@ -134,8 +134,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>In Dubious Battle</title>
-          <description>Distinctio earum non expedita sit.</description>
+          <title>A Farewell to Arms</title>
+          <description>Repellendus minima repudiandae pariatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -156,16 +156,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>In Dubious Battle</title>
-          <description>Distinctio earum non expedita sit.</description>
+          <title>A Farewell to Arms</title>
+          <description>Repellendus minima repudiandae pariatur.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 25 Apr 2017 12:08:47 GMT
+  recorded_at: Tue, 25 Apr 2017 12:20:57 GMT
 - request:
     method: post
     uri: http://localhost:3200/build/home:tom?cmd=rebuild&package=my_package
@@ -200,5 +200,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 25 Apr 2017 12:08:47 GMT
+  recorded_at: Tue, 25 Apr 2017 12:20:58 GMT
 recorded_with: VCR 3.0.3

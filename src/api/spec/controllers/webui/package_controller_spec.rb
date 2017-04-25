@@ -939,14 +939,14 @@ EOT
     end
   end
 
-  describe 'DELETE #trigger_rebuild' do
+  describe 'POST #trigger_rebuild' do
     before do
       login(user)
     end
 
     context 'when triggering a rebuild fails' do
       before do
-        delete :trigger_rebuild, params: { project: source_project, package: source_package }
+        post :trigger_rebuild, params: { project: source_project, package: source_package }
       end
 
       it 'lets the user know there was an error' do
@@ -968,7 +968,7 @@ EOT
         create(:repository, project: source_project, architectures: ['i586'])
         source_project.store
 
-        delete :trigger_rebuild, params: { project: source_project, package: source_package }
+        post :trigger_rebuild, params: { project: source_project, package: source_package }
       end
 
       it { expect(flash[:notice]).to eq("Triggered rebuild for #{source_project.name}/#{source_package.name} successfully.") }

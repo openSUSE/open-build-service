@@ -40,54 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 25 Apr 2017 12:19:23 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title/>
-          <description/>
-          <person userid="tom" role="maintainer"/>
-          <repository name="repository_2">
-            <arch>i586</arch>
-          </repository>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '202'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title></title>
-          <description></description>
-          <person userid="tom" role="maintainer" />
-          <repository name="repository_2">
-            <arch>i586</arch>
-          </repository>
-        </project>
-    http_version: 
-  recorded_at: Tue, 25 Apr 2017 12:19:23 GMT
+  recorded_at: Tue, 25 Apr 2017 12:20:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
@@ -95,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>O Pioneers!</title>
-          <description>Iure repudiandae tempore incidunt tempora eligendi nulla qui totam.</description>
+          <title>For a Breath I Tarry</title>
+          <description>Sapiente ut eius numquam voluptas reprehenderit nostrum laborum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -117,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '184'
+      - '190'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>O Pioneers!</title>
-          <description>Iure repudiandae tempore incidunt tempora eligendi nulla qui totam.</description>
+          <title>For a Breath I Tarry</title>
+          <description>Sapiente ut eius numquam voluptas reprehenderit nostrum laborum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 25 Apr 2017 12:19:23 GMT
+  recorded_at: Tue, 25 Apr 2017 12:21:01 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta
@@ -134,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>O Pioneers!</title>
-          <description>Iure repudiandae tempore incidunt tempora eligendi nulla qui totam.</description>
+          <title>For a Breath I Tarry</title>
+          <description>Sapiente ut eius numquam voluptas reprehenderit nostrum laborum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -156,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '184'
+      - '190'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>O Pioneers!</title>
-          <description>Iure repudiandae tempore incidunt tempora eligendi nulla qui totam.</description>
+          <title>For a Breath I Tarry</title>
+          <description>Sapiente ut eius numquam voluptas reprehenderit nostrum laborum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 25 Apr 2017 12:19:23 GMT
+  recorded_at: Tue, 25 Apr 2017 12:21:01 GMT
 - request:
     method: post
     uri: http://localhost:3200/build/home:tom?cmd=rebuild&package=my_package
@@ -183,8 +136,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: no repository defined
     headers:
       Content-Type:
       - text/xml
@@ -193,12 +146,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '73'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
+      string: |
+        <status code="400">
+          <summary>no repository defined</summary>
+        </status>
     http_version: 
-  recorded_at: Tue, 25 Apr 2017 12:19:23 GMT
+  recorded_at: Tue, 25 Apr 2017 12:21:01 GMT
 recorded_with: VCR 3.0.3
