@@ -942,20 +942,37 @@ EOT
   describe 'DELETE #trigger_rebuild' do
     before do
       login(user)
-      delete :trigger_rebuild, params: { project: source_project, package: source_package }
     end
 
-    it 'lets the user know there was an error' do
-      expect(flash[:error]).to_not be_empty
+    context 'when triggering a rebuild fails' do
+      before do
+        delete :trigger_rebuild, params: { project: source_project, package: source_package }
+      end
+
+      it 'lets the user know there was an error' do
+        expect(flash[:error]).to_not be_empty
+      end
+
+      it 'redirects to the package binaries path' do
+        expect(response).to redirect_to(
+          controller: :package,
+          action: :binaries,
+          project: source_project,
+          package: source_package
+        )
+      end
     end
 
-    it 'redirects to the package binaries path' do
-      expect(response).to redirect_to(
-        controller: :package,
-        action: :binaries,
-        project: source_project,
-        package: source_package
-      )
+    context 'when triggering a rebuild succeeds' do
+      before do
+        create(:repository, project: source_project, architectures: ['i586'])
+        source_project.store
+
+        delete :trigger_rebuild, params: { project: source_project, package: source_package }
+      end
+
+      it { expect(flash[:notice]).to eq("Triggered rebuild for #{source_project.name}/#{source_package.name} successfully.") }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
   end
 end
