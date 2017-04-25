@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:30:36 GMT
+  recorded_at: Wed, 26 Apr 2017 07:46:06 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/_meta?user=tom
@@ -87,7 +87,7 @@ http_interactions:
           </repository>
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:30:36 GMT
+  recorded_at: Wed, 26 Apr 2017 07:46:06 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package++special/_meta?user=tom
@@ -95,8 +95,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package++special" project="home:tom">
-          <title>Antic Hay</title>
-          <description>Vel distinctio facilis similique maiores fugit magnam optio dolorem.</description>
+          <title>The Proper Study</title>
+          <description>Et quo enim iure neque quibusdam omnis tempore.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -117,16 +117,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '192'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package++special" project="home:tom">
-          <title>Antic Hay</title>
-          <description>Vel distinctio facilis similique maiores fugit magnam optio dolorem.</description>
+          <title>The Proper Study</title>
+          <description>Et quo enim iure neque quibusdam omnis tempore.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:30:36 GMT
+  recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package++special/_meta
@@ -134,8 +134,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package++special" project="home:tom">
-          <title>Antic Hay</title>
-          <description>Vel distinctio facilis similique maiores fugit magnam optio dolorem.</description>
+          <title>The Proper Study</title>
+          <description>Et quo enim iure neque quibusdam omnis tempore.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -156,27 +156,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '192'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package++special" project="home:tom">
-          <title>Antic Hay</title>
-          <description>Vel distinctio facilis similique maiores fugit magnam optio dolorem.</description>
+          <title>The Proper Study</title>
+          <description>Et quo enim iure neque quibusdam omnis tempore.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:30:36 GMT
+  recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:tom/_result?arch=i586&package=my_package%2B%2Bspecial&repository=leap_42.2&view=status
     body:
-      encoding: UTF-8
+      encoding: US-ASCII
       string: ''
     headers:
       Content-Type:
-      - application/octet-stream
+      - text/plain
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - identity
       Accept:
       - "*/*"
       User-Agent:
@@ -201,7 +201,7 @@ http_interactions:
           <result project="home:tom" repository="leap_42.2" arch="i586" code="unknown" state="unknown" />
         </resultlist>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:30:36 GMT
+  recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:tom/leap_42.2/i586/_builddepinfo?package=my_package%20%20special&view=revpkgnames
@@ -232,7 +232,7 @@ http_interactions:
       encoding: UTF-8
       string: "<builddepinfo />\n"
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:30:36 GMT
+  recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:tom/leap_42.2/i586/my_package++special/_jobstatus
@@ -265,5 +265,5 @@ http_interactions:
       encoding: UTF-8
       string: "<jobstatus />\n"
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:30:36 GMT
+  recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
 recorded_with: VCR 3.0.3

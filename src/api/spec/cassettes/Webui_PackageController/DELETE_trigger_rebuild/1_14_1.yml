@@ -1,8 +1,292 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: http://localhost:3200/build/home:tom?cmd=rebuild&package=my_package
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 07:30:35 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <repository name="leap_42.2">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+          <repository name="leap_42.2">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 07:30:35 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/foo++bar/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo++bar">
+          <title>Alone on a Wide, Wide Sea</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo++bar">
+          <title>Alone on a Wide, Wide Sea</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 07:30:35 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/foo++bar/_config
+    body:
+      encoding: UTF-8
+      string: Temporibus quos nemo laboriosam qui earum in. Facere odit deleniti reiciendis
+        fugit corrupti. Recusandae nobis et id officiis libero.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 07:30:35 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/foo++bar/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo++bar">
+          <title>Alone on a Wide, Wide Sea</title>
+          <description/>
+          <repository name="leap_45.1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo++bar">
+          <title>Alone on a Wide, Wide Sea</title>
+          <description></description>
+          <repository name="leap_45.1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 07:30:35 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/foo++bar/some_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="foo++bar">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Dolorum culpa reprehenderit et libero ut numquam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '198'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="foo++bar">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Dolorum culpa reprehenderit et libero ut numquam.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 07:30:35 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/foo++bar/some_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="foo++bar">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Dolorum culpa reprehenderit et libero ut numquam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '198'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="foo++bar">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Dolorum culpa reprehenderit et libero ut numquam.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 07:30:35 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/foo++bar/leap_45.1/i586/_builddepinfo?package=some_package&view=revpkgnames
     body:
       encoding: UTF-8
       string: ''
@@ -17,8 +301,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: unknown package  my_package
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -27,16 +311,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '132'
+      - '17'
     body:
       encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>unknown package: my_package</summary>
-          <details>404 unknown package: my_package</details>
-        </status>
+      string: "<builddepinfo />\n"
     http_version: 
-  recorded_at: Fri, 31 Mar 2017 08:43:47 GMT
+  recorded_at: Wed, 26 Apr 2017 07:30:36 GMT
 - request:
     method: post
     uri: http://localhost:3200/build/home:tom?cmd=rebuild&package=my_package
@@ -54,8 +334,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: unknown package  my_package
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -64,14 +344,10 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '132'
+      - '14'
     body:
       encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>unknown package: my_package</summary>
-          <details>404 unknown package: my_package</details>
-        </status>
+      string: "<jobstatus />\n"
     http_version: 
-  recorded_at: Fri, 31 Mar 2017 08:43:52 GMT
+  recorded_at: Wed, 26 Apr 2017 07:30:36 GMT
 recorded_with: VCR 3.0.3
