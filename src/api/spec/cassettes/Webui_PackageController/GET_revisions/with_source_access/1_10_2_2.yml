@@ -40,16 +40,16 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 02 Sep 2016 08:47:39 GMT
+  recorded_at: Wed, 26 Apr 2017 07:15:26 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
+    uri: http://localhost:3200/source/home:tom/package_with_one_revision/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_file" project="home:tom">
-          <title/>
-          <description/>
+        <package name="package_with_one_revision" project="home:tom">
+          <title>Fear and Trembling</title>
+          <description>Sequi aspernatur accusantium et ipsam autem illo et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,66 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '191'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_file" project="home:tom">
-          <title></title>
-          <description></description>
+        <package name="package_with_one_revision" project="home:tom">
+          <title>Fear and Trembling</title>
+          <description>Sequi aspernatur accusantium et ipsam autem illo et.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 02 Sep 2016 08:47:39 GMT
+  recorded_at: Wed, 26 Apr 2017 07:15:27 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta
+    uri: http://localhost:3200/source/home:tom/package_with_one_revision/_meta
     body:
       encoding: UTF-8
       string: |
-        <project name="home:tom">
-          <title/>
-          <description/>
-          <person userid="tom" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '129'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title></title>
-          <description></description>
-          <person userid="tom" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Fri, 02 Sep 2016 08:47:39 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_file" project="home:tom">
-          <title/>
-          <description/>
+        <package name="package_with_one_revision" project="home:tom">
+          <title>Fear and Trembling</title>
+          <description>Sequi aspernatur accusantium et ipsam autem illo et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,23 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '191'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_file" project="home:tom">
-          <title></title>
-          <description></description>
+        <package name="package_with_one_revision" project="home:tom">
+          <title>Fear and Trembling</title>
+          <description>Sequi aspernatur accusantium et ipsam autem illo et.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 02 Sep 2016 08:47:39 GMT
+  recorded_at: Wed, 26 Apr 2017 07:15:27 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://localhost:3200/source/home:tom/package_with_one_revision/somefile.txt
     body:
-      encoding: UTF-8
-      string: Placeat quibusdam ea voluptatum atque sed est. Magni eligendi voluptas
-        fuga rerum. Placeat et commodi autem iste.
+      encoding: US-ASCII
+      string: '0'
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -191,18 +149,18 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>b0c24f734bce842821b7caa9ee0c71f9</srcmd5>
+          <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
           <version>unknown</version>
-          <time>1472806059</time>
+          <time>1493190927</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 02 Sep 2016 08:47:39 GMT
+  recorded_at: Wed, 26 Apr 2017 07:15:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://localhost:3200/source/home:tom/package_with_one_revision
     body:
       encoding: US-ASCII
       string: ''
@@ -225,18 +183,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '210'
+      - '216'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="1" vrev="1" srcmd5="b0c24f734bce842821b7caa9ee0c71f9">
-          <entry name="somefile.txt" md5="56c4dbab8274a0268b75ed70a2d2a6f2" size="113" mtime="1472806059" />
+        <directory name="package_with_one_revision" rev="1" vrev="1" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
+          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1493190926" />
         </directory>
     http_version: 
-  recorded_at: Fri, 02 Sep 2016 08:47:39 GMT
+  recorded_at: Wed, 26 Apr 2017 07:15:27 GMT
 - request:
     method: delete
-    uri: http://localhost:3200/source/home:tom/package_with_file?comment&user=tom
+    uri: http://localhost:3200/source/home:tom/package_with_one_revision?comment&user=tom
     body:
       encoding: US-ASCII
       string: ''
@@ -266,5 +224,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Fri, 02 Sep 2016 08:47:40 GMT
+  recorded_at: Wed, 26 Apr 2017 07:15:27 GMT
 recorded_with: VCR 3.0.3

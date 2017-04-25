@@ -13,6 +13,20 @@ FactoryGirl.define do
       end
     end
 
+    factory :package_with_revisions do
+      transient do
+        revision_count 2
+      end
+
+      after(:create) do |package, evaluator|
+        evaluator.revision_count.times do |i|
+          if CONFIG['global_write_through']
+            Backend::Connection.put("/source/#{package.project}/#{package}/somefile.txt", i.to_s)
+          end
+        end
+      end
+    end
+
     factory :package_with_file do
       after(:create) do |package|
         # NOTE: Enable global write through when writing new VCR cassetes.

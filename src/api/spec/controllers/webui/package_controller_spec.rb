@@ -525,6 +525,8 @@ EOT
   end
 
   describe "GET #revisions" do
+    let(:package) { create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 1, project: source_project) }
+
     before do
       login(user)
     end
@@ -546,7 +548,7 @@ EOT
       end
 
       after do
-        # This is necessary to delete the commits created in the before statement
+        # Delete revisions that got created in the backend
         package.destroy
       end
 
@@ -559,15 +561,14 @@ EOT
       end
 
       context "with less than 21 revisions" do
-        let(:package_with_commits) { create(:package_with_file, name: "package_with_commits", project: source_project) }
+        let(:package_with_commits) { create(:package_with_revisions, name: 'package_with_20_revisions', revision_count: 20, project: source_project) }
 
         before do
-          19.times { |i| Backend::Connection.put("/source/#{source_project}/#{package_with_commits}/somefile.txt", i.to_s) }
           get :revisions, params: { project: source_project, package: package_with_commits }
         end
 
         after do
-          # This is necessary to delete the commits created in the before statement
+          # Delete revisions that got created in the backend
           package_with_commits.destroy
         end
 
@@ -576,27 +577,33 @@ EOT
       end
 
       context "with 21 revisions" do
-        let(:package_with_more_commits) { create(:package_with_file, name: "package_with_more_commits", project: source_project) }
+        let(:package_with_more_commits) {
+          create(:package_with_revisions, name: 'package_with_21_revisions', revision_count: 21, project: source_project)
+        }
 
         before do
-          20.times { |i| Backend::Connection.put("/source/#{source_project}/#{package_with_more_commits}/somefile.txt", i.to_s) }
           get :revisions, params: { project: source_project, package: package_with_more_commits }
         end
 
         after do
-          # This is necessary to delete the commits created in the before statement
+          # Delete revisions that got created in the backend
           package_with_more_commits.destroy
         end
 
         it { expect(assigns(:lastrev)).to eq(21) }
-        it { expect(assigns(:revisions)).to eq((2..21).to_a.reverse) }
+
+        it 'lists the last 20 revisions' do
+          expect(assigns(:revisions)).to eq((2..21).to_a.reverse)
+        end
 
         context "with showall parameter set" do
           before do
             get :revisions, params: { project: source_project, package: package_with_more_commits, showall: true }
           end
 
-          it { expect(assigns(:revisions)).to eq((1..21).to_a.reverse) }
+          it 'lists all revisions' do
+            expect(assigns(:revisions)).to eq((1..21).to_a.reverse)
+          end
         end
       end
     end
