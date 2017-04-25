@@ -345,12 +345,18 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "adding a file that doesn't exist yet" do
       before do
-        post :save_file, params: { project: source_project, package: source_package, filename: "newly_created_file", file_type: "local" }
+        post :save_file, params: {
+          project:   source_project,
+          package:   source_package,
+          filename:  "newly_created_file",
+          file_type: "local",
+          file:      "some_content"
+        }
       end
 
       it { expect(response).to have_http_status(:found) }
       it { expect(flash[:success]).to eq("The file 'newly_created_file' has been successfully saved.") }
-      it { expect(source_package.source_file("newly_created_file")).to be nil }
+      it { expect(source_package.source_file("newly_created_file")).to eq("some_content") }
     end
 
     context "uploading a utf-8 file" do

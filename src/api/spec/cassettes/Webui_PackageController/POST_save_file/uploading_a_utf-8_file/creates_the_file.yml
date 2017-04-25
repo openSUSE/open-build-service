@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 19 Aug 2016 08:29:44 GMT
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title/>
-          <description/>
+          <title>The Glory and the Dream</title>
+          <description>Et fugiat in nam libero illo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,55 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>The Glory and the Dream</title>
+          <description>Et fugiat in nam libero illo.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 19 Aug 2016 08:29:45 GMT
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>The Glory and the Dream</title>
+          <description>Et fugiat in nam libero illo.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>The Glory and the Dream</title>
+          <description>Et fugiat in nam libero illo.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93?user=tom
@@ -142,20 +181,59 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '203'
+      - '205'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>f42733cd79e5deedd28d098916115f2e</srcmd5>
+        <revision rev="15" vrev="15">
+          <srcmd5>6b6b0f5e3f65c5ef2b2b2f665ee8fda5</srcmd5>
           <version>unknown</version>
-          <time>1471595385</time>
+          <time>1493193902</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 19 Aug 2016 08:29:45 GMT
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>The Glory and the Dream</title>
+          <description>Et fugiat in nam libero illo.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>The Glory and the Dream</title>
+          <description>Et fugiat in nam libero illo.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package
@@ -181,17 +259,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '203'
+      - '540'
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjMiIHZyZXY9IjMi
-        IHNyY21kNT0iZjQyNzMzY2Q3OWU1ZGVlZGQyOGQwOTg5MTYxMTVmMmUiPgog
-        IDxlbnRyeSBuYW1lPSLlrabkuaDmgLvnu5MiIG1kNT0iNmJhMTY3ZDcyZTlj
-        YzYwMTA4YTc1NjdjZGFlYzcyMGYiIHNpemU9Ijk3NyIgbXRpbWU9IjE0NzE1
-        OTUzODQiIC8+CjwvZGlyZWN0b3J5Pgo=
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjE1IiB2cmV2PSIxNSIgc3JjbWQ1PSI2YjZiMGY1ZTNmNjVjNWVmMmIyYjJmNjY1ZWU4ZmRhNSI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InJ1bm5pbmciIC8+CiAgPGVudHJ5IG5hbWU9Il9hZ2dyZWdhdGUiIG1kNT0iOWY2MTkwYWE5ZmE0ZTdmZDY4NWQxNjc4OTk3OGNlNjgiIHNpemU9IjE1MCIgbXRpbWU9IjE0OTMxOTM4OTYiIC8+CiAgPGVudHJ5IG5hbWU9Il9zZXJ2aWNlIiBtZDU9ImExMmJkN2ZmNmY5ZGVjYWFlZjFjZGI4ODFlODYzZjliIiBzaXplPSI3NDEiIG10aW1lPSIxNDkzMTkzOTAwIiAvPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iYmFhYjZjMTZkOTE0MzUyM2I3ODY1ZDQ2ODk2ZTQ1OTYiIHNpemU9IjEyIiBtdGltZT0iMTQ5MzE5Mzg5OCIgLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNDkzMTkzOTAxIiAvPgo8L2RpcmVjdG9yeT4K
     http_version: 
-  recorded_at: Fri, 19 Aug 2016 08:29:45 GMT
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
@@ -217,15 +291,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '184'
+      - '186'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="my_package" rev="3" vrev="3" srcmd5="f42733cd79e5deedd28d098916115f2e" verifymd5="f42733cd79e5deedd28d098916115f2e">
-          <revtime>1471595385</revtime>
+        <sourceinfo package="my_package" rev="15" vrev="15" srcmd5="6911ca678602a3bd0c8207bb2ff55151" verifymd5="b0405d17677719769c78b0de2409aa48">
+          <revtime>1493193902</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Fri, 19 Aug 2016 08:29:45 GMT
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package
@@ -251,17 +325,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '203'
+      - '585'
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjMiIHZyZXY9IjMi
-        IHNyY21kNT0iZjQyNzMzY2Q3OWU1ZGVlZGQyOGQwOTg5MTYxMTVmMmUiPgog
-        IDxlbnRyeSBuYW1lPSLlrabkuaDmgLvnu5MiIG1kNT0iNmJhMTY3ZDcyZTlj
-        YzYwMTA4YTc1NjdjZGFlYzcyMGYiIHNpemU9Ijk3NyIgbXRpbWU9IjE0NzE1
-        OTUzODQiIC8+CjwvZGlyZWN0b3J5Pgo=
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjE1IiB2cmV2PSIxNSIgc3JjbWQ1PSI2YjZiMGY1ZTNmNjVjNWVmMmIyYjJmNjY1ZWU4ZmRhNSI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InN1Y2NlZWRlZCIgeHNyY21kNT0iNjkxMWNhNjc4NjAyYTNiZDBjODIwN2JiMmZmNTUxNTEiIC8+CiAgPGVudHJ5IG5hbWU9Il9hZ2dyZWdhdGUiIG1kNT0iOWY2MTkwYWE5ZmE0ZTdmZDY4NWQxNjc4OTk3OGNlNjgiIHNpemU9IjE1MCIgbXRpbWU9IjE0OTMxOTM4OTYiIC8+CiAgPGVudHJ5IG5hbWU9Il9zZXJ2aWNlIiBtZDU9ImExMmJkN2ZmNmY5ZGVjYWFlZjFjZGI4ODFlODYzZjliIiBzaXplPSI3NDEiIG10aW1lPSIxNDkzMTkzOTAwIiAvPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iYmFhYjZjMTZkOTE0MzUyM2I3ODY1ZDQ2ODk2ZTQ1OTYiIHNpemU9IjEyIiBtdGltZT0iMTQ5MzE5Mzg5OCIgLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNDkzMTkzOTAxIiAvPgo8L2RpcmVjdG9yeT4K
     http_version: 
-  recorded_at: Fri, 19 Aug 2016 08:29:45 GMT
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -284,24 +354,24 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
-      Content-Length:
-      - '301'
       Cache-Control:
       - no-cache
       Connection:
       - close
+      Content-Length:
+      - '302'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="44775bddc1e6679d9b46b3a59e8779a0">
+        <sourcediff key="0451ccef3ace6641fec3fcac7d2e9fd5">
           <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="my_package" rev="1" srcmd5="f42733cd79e5deedd28d098916115f2e" />
+          <new project="home:tom" package="my_package" rev="15" srcmd5="6b6b0f5e3f65c5ef2b2b2f665ee8fda5" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Fri, 19 Aug 2016 08:29:45 GMT
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93
@@ -331,30 +401,9 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        dWJ1bnR1MTIuMDQgcm9vdOeZu+W9lQox5YWI6K6+5a6a5LiA5Liqcm9vdOea
-        hOWvhuegge+8jHN1ZG8gcGFzc3dkIHJvb3QKCjIgcm9vdCDnmbvpmYbvvIxz
-        dSByb290CgozIOWkh+S7veS4gOS4i2xpZ2h0Z2RtCmNwIC1wIC9ldGMvbGln
-        aHRkbS9saWdodGRtLmNvbmYgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZi5i
-        YWsKCjQgdmkgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZgoKNSDlop7liqDv
-        vJpncmVldGVyLXNob3ctbWFudWFsLWxvZ2luPXRydWUKICDkv67mlLnlkI7k
-        uLrvvJoKICBbU2VhdERlZmF1bHRzXQogIGdyZWV0ZXItc2Vzc2lvbj11bml0
-        eS1ncmVldGVyCiAgdXNlci1zZXNzaW9uPXVidW50dQogIGdyZWV0ZXItc2hv
-        dy1tYW51YWwtbG9naW49dHJ1ZQoKICDph43lkK/nmbvpmYbljbPlj6/jgILl
-        t7Lnu4/lj6/ku6XovpPlhaVyb2905LqGCgoKcm9vdOeZu+mZhuWQjui/mOay
-        oeWjsOmfs++8jOWPiOafpeS6huafpe+8jOWmguS4i+aWueazlToKVWJ1bnR1
-        IHJvb3TnmbvlvZXmsqHmnInlo7Dpn7Pov5nkuKrpl67popjnmoTmoLnmnKzl
-        jp/lm6DmmK/kvb/nlKhyb29055m75b2V5ZCOcHVsc2VhdWRpb+ayoeacieWQ
-        r+WKqOOAggrlsIZyb2905Yqg5YiwcHVsc2UtYWNjZXNz57uE77yaCnN1ZG8g
-        dXNlcm1vZCAtYSAtRyBwdWxzZS1hY2Nlc3Mgcm9vdArnhLblkI7kv67mlLnp
-        hY3nva7mlofku7YvZXRjL2RlZmF1bHQvcHVsc2VhdWRpb++8jOWwhlBVTFNF
-        QVVESU9fU1lTVEVNX1NUQVJU6K6+5Li6Me+8jAoKPT09PT09PT09PT09PT09
-        PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-        PT09PT09PT09PT0K5a6J6KOFbGludXjniYjmnKznmoRiZXlvbmQgY29tcGFy
-        ZQpiZXlvbmQgY29tcGFyZeeahOazqOWGjOegge+8mgpIbUI1b0FOeWdRT2hh
-        U3RUSE5hK3pPS2dPZVdIT2tlQXA2ZDErUXdJZWJ6Nno5a3dZQ205LU8wakY5
-        Rjc5enZ6ZWQ5djVVVkM0VnJEa0RNbVRNOG5CKwoKCgo=
+        dWJ1bnR1MTIuMDQgcm9vdOeZu+W9lQox5YWI6K6+5a6a5LiA5Liqcm9vdOeahOWvhuegge+8jHN1ZG8gcGFzc3dkIHJvb3QKCjIgcm9vdCDnmbvpmYbvvIxzdSByb290CgozIOWkh+S7veS4gOS4i2xpZ2h0Z2RtCmNwIC1wIC9ldGMvbGlnaHRkbS9saWdodGRtLmNvbmYgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZi5iYWsKCjQgdmkgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZgoKNSDlop7liqDvvJpncmVldGVyLXNob3ctbWFudWFsLWxvZ2luPXRydWUKICDkv67mlLnlkI7kuLrvvJoKICBbU2VhdERlZmF1bHRzXQogIGdyZWV0ZXItc2Vzc2lvbj11bml0eS1ncmVldGVyCiAgdXNlci1zZXNzaW9uPXVidW50dQogIGdyZWV0ZXItc2hvdy1tYW51YWwtbG9naW49dHJ1ZQoKICDph43lkK/nmbvpmYbljbPlj6/jgILlt7Lnu4/lj6/ku6XovpPlhaVyb2905LqGCgoKcm9vdOeZu+mZhuWQjui/mOayoeWjsOmfs++8jOWPiOafpeS6huafpe+8jOWmguS4i+aWueazlToKVWJ1bnR1IHJvb3TnmbvlvZXmsqHmnInlo7Dpn7Pov5nkuKrpl67popjnmoTmoLnmnKzljp/lm6DmmK/kvb/nlKhyb29055m75b2V5ZCOcHVsc2VhdWRpb+ayoeacieWQr+WKqOOAggrlsIZyb2905Yqg5YiwcHVsc2UtYWNjZXNz57uE77yaCnN1ZG8gdXNlcm1vZCAtYSAtRyBwdWxzZS1hY2Nlc3Mgcm9vdArnhLblkI7kv67mlLnphY3nva7mlofku7YvZXRjL2RlZmF1bHQvcHVsc2VhdWRpb++8jOWwhlBVTFNFQVVESU9fU1lTVEVNX1NUQVJU6K6+5Li6Me+8jAoKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K5a6J6KOFbGludXjniYjmnKznmoRiZXlvbmQgY29tcGFyZQpiZXlvbmQgY29tcGFyZeeahOazqOWGjOegge+8mgpIbUI1b0FOeWdRT2hhU3RUSE5hK3pPS2dPZVdIT2tlQXA2ZDErUXdJZWJ6Nno5a3dZQ205LU8wakY5Rjc5enZ6ZWQ5djVVVkM0VnJEa0RNbVRNOG5CKwoKCgo=
     http_version: 
-  recorded_at: Fri, 19 Aug 2016 08:29:45 GMT
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93
@@ -384,67 +433,7 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        dWJ1bnR1MTIuMDQgcm9vdOeZu+W9lQox5YWI6K6+5a6a5LiA5Liqcm9vdOea
-        hOWvhuegge+8jHN1ZG8gcGFzc3dkIHJvb3QKCjIgcm9vdCDnmbvpmYbvvIxz
-        dSByb290CgozIOWkh+S7veS4gOS4i2xpZ2h0Z2RtCmNwIC1wIC9ldGMvbGln
-        aHRkbS9saWdodGRtLmNvbmYgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZi5i
-        YWsKCjQgdmkgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZgoKNSDlop7liqDv
-        vJpncmVldGVyLXNob3ctbWFudWFsLWxvZ2luPXRydWUKICDkv67mlLnlkI7k
-        uLrvvJoKICBbU2VhdERlZmF1bHRzXQogIGdyZWV0ZXItc2Vzc2lvbj11bml0
-        eS1ncmVldGVyCiAgdXNlci1zZXNzaW9uPXVidW50dQogIGdyZWV0ZXItc2hv
-        dy1tYW51YWwtbG9naW49dHJ1ZQoKICDph43lkK/nmbvpmYbljbPlj6/jgILl
-        t7Lnu4/lj6/ku6XovpPlhaVyb2905LqGCgoKcm9vdOeZu+mZhuWQjui/mOay
-        oeWjsOmfs++8jOWPiOafpeS6huafpe+8jOWmguS4i+aWueazlToKVWJ1bnR1
-        IHJvb3TnmbvlvZXmsqHmnInlo7Dpn7Pov5nkuKrpl67popjnmoTmoLnmnKzl
-        jp/lm6DmmK/kvb/nlKhyb29055m75b2V5ZCOcHVsc2VhdWRpb+ayoeacieWQ
-        r+WKqOOAggrlsIZyb2905Yqg5YiwcHVsc2UtYWNjZXNz57uE77yaCnN1ZG8g
-        dXNlcm1vZCAtYSAtRyBwdWxzZS1hY2Nlc3Mgcm9vdArnhLblkI7kv67mlLnp
-        hY3nva7mlofku7YvZXRjL2RlZmF1bHQvcHVsc2VhdWRpb++8jOWwhlBVTFNF
-        QVVESU9fU1lTVEVNX1NUQVJU6K6+5Li6Me+8jAoKPT09PT09PT09PT09PT09
-        PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-        PT09PT09PT09PT0K5a6J6KOFbGludXjniYjmnKznmoRiZXlvbmQgY29tcGFy
-        ZQpiZXlvbmQgY29tcGFyZeeahOazqOWGjOegge+8mgpIbUI1b0FOeWdRT2hh
-        U3RUSE5hK3pPS2dPZVdIT2tlQXA2ZDErUXdJZWJ6Nno5a3dZQ205LU8wakY5
-        Rjc5enZ6ZWQ5djVVVkM0VnJEa0RNbVRNOG5CKwoKCgo=
+        dWJ1bnR1MTIuMDQgcm9vdOeZu+W9lQox5YWI6K6+5a6a5LiA5Liqcm9vdOeahOWvhuegge+8jHN1ZG8gcGFzc3dkIHJvb3QKCjIgcm9vdCDnmbvpmYbvvIxzdSByb290CgozIOWkh+S7veS4gOS4i2xpZ2h0Z2RtCmNwIC1wIC9ldGMvbGlnaHRkbS9saWdodGRtLmNvbmYgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZi5iYWsKCjQgdmkgL2V0Yy9saWdodGRtL2xpZ2h0ZG0uY29uZgoKNSDlop7liqDvvJpncmVldGVyLXNob3ctbWFudWFsLWxvZ2luPXRydWUKICDkv67mlLnlkI7kuLrvvJoKICBbU2VhdERlZmF1bHRzXQogIGdyZWV0ZXItc2Vzc2lvbj11bml0eS1ncmVldGVyCiAgdXNlci1zZXNzaW9uPXVidW50dQogIGdyZWV0ZXItc2hvdy1tYW51YWwtbG9naW49dHJ1ZQoKICDph43lkK/nmbvpmYbljbPlj6/jgILlt7Lnu4/lj6/ku6XovpPlhaVyb2905LqGCgoKcm9vdOeZu+mZhuWQjui/mOayoeWjsOmfs++8jOWPiOafpeS6huafpe+8jOWmguS4i+aWueazlToKVWJ1bnR1IHJvb3TnmbvlvZXmsqHmnInlo7Dpn7Pov5nkuKrpl67popjnmoTmoLnmnKzljp/lm6DmmK/kvb/nlKhyb29055m75b2V5ZCOcHVsc2VhdWRpb+ayoeacieWQr+WKqOOAggrlsIZyb2905Yqg5YiwcHVsc2UtYWNjZXNz57uE77yaCnN1ZG8gdXNlcm1vZCAtYSAtRyBwdWxzZS1hY2Nlc3Mgcm9vdArnhLblkI7kv67mlLnphY3nva7mlofku7YvZXRjL2RlZmF1bHQvcHVsc2VhdWRpb++8jOWwhlBVTFNFQVVESU9fU1lTVEVNX1NUQVJU6K6+5Li6Me+8jAoKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K5a6J6KOFbGludXjniYjmnKznmoRiZXlvbmQgY29tcGFyZQpiZXlvbmQgY29tcGFyZeeahOazqOWGjOegge+8mgpIbUI1b0FOeWdRT2hhU3RUSE5hK3pPS2dPZVdIT2tlQXA2ZDErUXdJZWJ6Nno5a3dZQ205LU8wakY5Rjc5enZ6ZWQ5djVVVkM0VnJEa0RNbVRNOG5CKwoKCgo=
     http_version: 
-  recorded_at: Fri, 19 Aug 2016 08:29:45 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:tom/my_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title/>
-          <description/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '106'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title></title>
-          <description></description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 05 Oct 2016 09:32:48 GMT
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
 recorded_with: VCR 3.0.3
