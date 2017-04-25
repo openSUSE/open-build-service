@@ -851,14 +851,6 @@ class Webui::PackageController < Webui::WebuiController
 
     set_initial_offset if @offset.zero?
 
-    package_object = @project.find_package(params[:package])
-    # remote package sources are always fine to show
-    if package_object && !package_object.check_source_access?
-      flash[:error] = "Could not access revisions"
-      redirect_back(fallback_location: package_show_path(project: @project, package: package_object.name))
-      return
-    end
-
     begin
       chunk = get_log_chunk(@project, @package, @repo, @arch, @offset, @offset + @maxsize)
 
