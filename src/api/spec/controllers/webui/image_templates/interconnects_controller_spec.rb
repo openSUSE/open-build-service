@@ -1,19 +1,14 @@
 require 'rails_helper'
 require './spec/support/shared_examples/controllers/image_templates.rb'
 
-RSpec.describe Webui::ImageTemplatesController, type: :controller do
-  let(:user) { create(:user) }
+RSpec.describe Webui::ImageTemplates::InterconnectsController, type: :controller do
   describe 'GET #index' do
-    before do
-      login user
-    end
+    it_behaves_like 'image templates', 'interconnects/index', :xml
 
-    it_behaves_like 'image templates', 'index', :html
-
-    context 'and format XML' do
+    context 'and format HTML' do
       it 'fails with UnknownFormat' do
         expect do
-          get :index, format: :xml
+          get :index, format: :html
         end.to raise_error ActionController::UnknownFormat
       end
     end
