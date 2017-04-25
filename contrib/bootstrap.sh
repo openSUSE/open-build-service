@@ -21,6 +21,8 @@ setup_mariadb
 
 setup_memcached
 
+setup_signd
+
 configure_database
 
 configure_search
