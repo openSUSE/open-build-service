@@ -627,15 +627,16 @@ EOT
     end
 
     context "without a service file in the package" do
-      let(:post_url) { "#{CONFIG['source_url']}/source/#{source_project}/#{source_package}?cmd=runservice&user=#{user}" }
+      let(:package) { create(:package_with_file, name: "package_with_file", project: source_project) }
+      let(:post_url) { "#{CONFIG['source_url']}/source/#{source_project}/#{package}?cmd=runservice&user=#{user}" }
 
       before do
-        get :trigger_services, params: { project: source_project, package: source_package }
+        get :trigger_services, params: { project: source_project, package: package }
       end
 
       it { expect(a_request(:post, post_url)).to have_been_made.once }
       it { expect(flash[:error]).to eq("Services couldn't be triggered: no source service defined!") }
-      it { is_expected.to redirect_to(action: :show, project: source_project, package: source_package) }
+      it { is_expected.to redirect_to(action: :show, project: source_project, package: package) }
     end
   end
 
