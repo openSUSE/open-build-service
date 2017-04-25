@@ -2,6 +2,8 @@ FactoryGirl.define do
   factory :package do
     project
     sequence(:name) { |n| "package_#{n}" }
+    title { Faker::Book.title }
+    description { Faker::Lorem.sentence }
 
     after(:create) do |package|
       # NOTE: Enable global write through when writing new VCR cassetes.

@@ -159,6 +159,18 @@ RSpec.describe Webui::PackageController, vcr: true do
     it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
   end
 
+  describe "GET #meta" do
+    before do
+      get :meta, params: { project: source_project, package: source_package }
+    end
+
+    it 'sends the xml representation of a package' do
+      expect(assigns(:meta)).to eq(source_package.render_xml)
+    end
+    it { expect(response).to render_template("package/meta") }
+    it { expect(response).to have_http_status(:success) }
+  end
+
   describe "POST #branch" do
     before do
       login(user)
