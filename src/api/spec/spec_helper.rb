@@ -86,8 +86,8 @@ ENV['BACKEND_STARTED'] = '1'
 # Generate 30 tests for every property test
 ENV['RANTLY_COUNT'] = '30'
 
-# To have quiet output from Rantly, it looks horrible with the Unicorn
-ENV['RANTLY_VERBOSE'] = '0' unless ENV['TRAVIS'] || ENV['RPM_BUILD_ROOT']
+# To have quiet output from Rantly, it is not needed and looks horrible with the Unicorn
+ENV['RANTLY_VERBOSE'] = '0'
 
 # support logging
 require 'support/logging'
