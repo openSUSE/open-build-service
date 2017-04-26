@@ -99,7 +99,7 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/package', format: false, defaults: { format: "html" } do
-      get 'package/show/(:project/(:package))' => :show, as: 'package_show', constraints: cons
+      get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
       get 'package/dependency/:project/:package' => :dependency, constraints: cons
       get 'package/binary/:project/:package' => :binary, constraints: cons, as: 'package_binary'
       get 'package/binaries/:project/:package' => :binaries, constraints: cons, as: 'package_binaries'
@@ -111,7 +111,7 @@ OBSApi::Application.routes.draw do
       post 'package/submit_request/:project/:package' => :submit_request, constraints: cons
       get 'package/add_person/:project/:package' => :add_person, constraints: cons
       get 'package/add_group/:project/:package' => :add_group, constraints: cons
-      get 'package/rdiff/(:project/(:package))' => :rdiff, constraints: cons
+      get 'package/rdiff/:project/:package' => :rdiff, constraints: cons
       post 'package/save_new/:project' => :save_new, constraints: cons
       post 'package/branch' => :branch, constraints: cons
       post 'package/save/:project/:package' => :save, constraints: cons
@@ -122,7 +122,7 @@ OBSApi::Application.routes.draw do
       post 'package/save_person/:project/:package' => :save_person, constraints: cons
       post 'package/save_group/:project/:package' => :save_group, constraints: cons
       post 'package/remove_role/:project/:package' => :remove_role, constraints: cons
-      get 'package/view_file/(:project/(:package/(:filename)))' => :view_file, constraints: cons, as: 'package_view_file'
+      get 'package/view_file/:project/:package/(:filename)' => :view_file, constraints: cons, as: 'package_view_file'
       get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons, as: 'package_live_build_log'
       defaults format: 'js' do
         get 'package/linking_packages/:project/:package' => :linking_packages, constraints: cons
