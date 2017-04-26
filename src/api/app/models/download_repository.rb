@@ -8,7 +8,7 @@ class DownloadRepository < ApplicationRecord
   validate :architecture_inclusion
   validates :url, presence: true, format: { with: /\A[a-zA-Z]+:.*\Z/ } # from backend/BSVerify.pm
   validates :repotype, presence: true
-  validates :repotype, inclusion: { in: REPOTYPES }
+  validates :repotype, inclusion: { in: REPOTYPES, message: "\'%{value}\' is not a valid repotype" }
 
   delegate :to_s, to: :id
 

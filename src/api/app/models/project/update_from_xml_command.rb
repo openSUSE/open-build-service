@@ -296,6 +296,8 @@ class Project
     end
 
     def update_download_repositories(current_repo, xml_hash)
+      current_repo.download_repositories.delete_all
+
       dod_repositories = xml_hash.elements("download").map do |dod|
         dod_attributes = {
            repository: current_repo,
