@@ -38,7 +38,7 @@ Conflict: kiwi:libudev-mini1
 Conflict: kiwi:systemd-mini
 Conflict: libudev1:udev-mini
 
-FileProvides: /usr/sbin/groupadd pwdutils
+FileProvides: /usr/sbin/groupadd shadow
 FileProvides: /usr/sbin/useradd shadow
 FileProvides: /sbin/netconfig sysconfig-netconfig
 FileProvides: /usr/bin/docbook2man docbook-utils

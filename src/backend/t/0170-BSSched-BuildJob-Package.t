@@ -12,6 +12,7 @@ use lib "$FindBin::Bin/lib/";
 
 use Test::Mock::BSConfig;
 use Test::Mock::BSSched::Checker;
+use Test::OBS;
 
 use warnings;
 
@@ -67,7 +68,7 @@ my $bi = $ctx->{'buildinfo'};
 delete $bi->{'readytime'};
 delete $xbi->{'readytime'};
 
-is_deeply($ctx->{'buildinfo'}, $xbi, 'buildinfo for screen');
+cmp_buildinfo($ctx->{'buildinfo'}, $xbi, 'buildinfo for screen');
 is($ctx->{'reason'}->{'explain'}, 'new build', 'reason for build');
 
 exit 0;
