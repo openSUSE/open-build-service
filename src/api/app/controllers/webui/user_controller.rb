@@ -32,7 +32,7 @@ class Webui::UserController < Webui::WebuiController
     user = User.find_with_credentials(params[:username], params[:password])
 
     if user && !user.is_active?
-      redirect_to(root_path, error: "Your account is disabled. Please contact the adminsitrator for details.")
+      redirect_to(root_path, error: "Your account is disabled. Please contact the administrator for details.")
       return
     end
 

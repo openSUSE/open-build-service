@@ -93,7 +93,7 @@ RSpec.describe Webui::UserController do
       user.update({ state: :locked })
       post :do_login, params: { username: user.login, password: 'buildservice' }
       expect(response).to redirect_to root_path
-      expect(flash[:error]).to eq("Your account is disabled. Please contact the adminsitrator for details.")
+      expect(flash[:error]).to eq("Your account is disabled. Please contact the administrator for details.")
     end
 
     it 'assigns the current user' do
