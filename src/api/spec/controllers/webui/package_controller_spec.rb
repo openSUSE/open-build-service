@@ -964,7 +964,7 @@ EOT
       end
 
       it 'lets the user know there was an error' do
-        expect(flash[:error]).to_not be_empty
+        expect(flash[:error]).to match("Error while triggering rebuild for home:tom/my_package")
       end
 
       it 'redirects to the package binaries path' do
