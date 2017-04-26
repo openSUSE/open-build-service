@@ -2,7 +2,7 @@ module OBSEngine
   # base class for all engine hooks
   class Base
     # implement this function to patch the routes
-    def mount_it
+    def self.mount_it
     end
   end
 
