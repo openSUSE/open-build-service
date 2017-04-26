@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:25 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title/>
-          <description/>
+          <title>Absalom, Absalom!</title>
+          <description>Ipsa optio itaque temporibus ex.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Absalom, Absalom!</title>
+          <description>Ipsa optio itaque temporibus ex.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:25 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title/>
-          <description/>
+          <title>Absalom, Absalom!</title>
+          <description>Ipsa optio itaque temporibus ex.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Absalom, Absalom!</title>
+          <description>Ipsa optio itaque temporibus ex.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:25 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://localhost:3200/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Quas occaecati aut. Dolores enim beatae perspiciatis ex natus. Nostrum
-        voluptas perferendis doloribus id quis quod accusamus. A nam iste et est qui.
+      string: Distinctio ea quia placeat quia veniam. Impedit accusamus voluptates
+        aut autem nihil ut. Assumenda dignissimos temporibus officia eaque neque et
+        omnis. Aut et quo dolorem accusamus modi placeat. Autem voluptatum sed quia
+        provident cupiditate aspernatur dolor.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,20 +147,61 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>f15f7be000c0004ad3f4a8b81188eda0</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>5c887dfaed31453c1b6a02b52877c146</srcmd5>
           <version>unknown</version>
-          <time>1475493925</time>
+          <time>1493194665</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:25 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Molestiae odit architecto. Et dolorum vel provident ex aut ut ad. Sint
+        et molestias qui non. Ut fugit architecto omnis pariatur. Esse laboriosam
+        quidem autem illo.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>2ee044b7fa0481a029168f32ed36f772</srcmd5>
+          <version>unknown</version>
+          <time>1493194665</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: post
     uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22package_with_file%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
@@ -193,7 +236,7 @@ http_interactions:
         <collection>
         </collection>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:26 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom:branches:home:tom/_meta?user=tom
@@ -234,7 +277,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:26 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file/_meta?user=tom
@@ -242,8 +285,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom:branches:home:tom">
-          <title/>
-          <description/>
+          <title>Absalom, Absalom!</title>
+          <description>Ipsa optio itaque temporibus ex.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -264,55 +307,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '131'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom:branches:home:tom">
-          <title></title>
-          <description></description>
+          <title>Absalom, Absalom!</title>
+          <description>Ipsa optio itaque temporibus ex.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:26 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_file" project="home:tom:branches:home:tom">
-          <title/>
-          <description/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '131'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_file" project="home:tom:branches:home:tom">
-          <title></title>
-          <description></description>
-        </package>
-    http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:26 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file?cmd=branch&opackage=package_with_file&oproject=home:tom&user=tom
@@ -340,20 +344,59 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="15" vrev="15">
-          <srcmd5>55149857250f5d447be0072847ca9fda</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>a04e84f00fe8c16bb857fcc78712e491</srcmd5>
           <version>unknown</version>
-          <time>1475493926</time>
+          <time>1493194665</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:26 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom:branches:home:tom">
+          <title>Absalom, Absalom!</title>
+          <description>Ipsa optio itaque temporibus ex.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom:branches:home:tom">
+          <title>Absalom, Absalom!</title>
+          <description>Ipsa optio itaque temporibus ex.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file
@@ -379,17 +422,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '539'
+      - '633'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="15" vrev="15" srcmd5="55149857250f5d447be0072847ca9fda">
-          <linkinfo project="home:tom" package="package_with_file" srcmd5="f15f7be000c0004ad3f4a8b81188eda0" baserev="f15f7be000c0004ad3f4a8b81188eda0" xsrcmd5="e99b501c4d46c521c73bc2c622104d01" lsrcmd5="55149857250f5d447be0072847ca9fda" />
-          <entry name="_link" md5="bab01f70a89654418635c456831f522d" size="116" mtime="1475493926" />
-          <entry name="somefile.txt" md5="3c96d7544c2f64a6a70ce6a15f9eba5f" size="148" mtime="1475493925" />
+        <directory name="package_with_file" rev="1" vrev="1" srcmd5="a04e84f00fe8c16bb857fcc78712e491">
+          <linkinfo project="home:tom" package="package_with_file" srcmd5="2ee044b7fa0481a029168f32ed36f772" baserev="2ee044b7fa0481a029168f32ed36f772" xsrcmd5="f3a2f091888b81176cae8f8b8c43cad4" lsrcmd5="a04e84f00fe8c16bb857fcc78712e491" />
+          <entry name="_config" md5="4fa177a47ec67a5b5e8222c2aa1f319e" size="259" mtime="1493194665" />
+          <entry name="_link" md5="3e981ca30bd73b3de5fbcb5b61dc4592" size="116" mtime="1493194665" />
+          <entry name="somefile.txt" md5="c2a096ac1172f3baeb4b6c06d2d5fd0c" size="163" mtime="1493194665" />
         </directory>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:26 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file?nofilename=1&view=info&withchangesmd5=1
@@ -415,16 +459,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '296'
+      - '294'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_with_file" rev="15" vrev="35" srcmd5="e99b501c4d46c521c73bc2c622104d01" lsrcmd5="55149857250f5d447be0072847ca9fda" verifymd5="f15f7be000c0004ad3f4a8b81188eda0">
+        <sourceinfo package="package_with_file" rev="1" vrev="3" srcmd5="f3a2f091888b81176cae8f8b8c43cad4" lsrcmd5="a04e84f00fe8c16bb857fcc78712e491" verifymd5="2ee044b7fa0481a029168f32ed36f772">
           <linked project="home:tom" package="package_with_file" />
-          <revtime>1475493926</revtime>
+          <revtime>1493194665</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:26 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file
@@ -450,17 +494,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '539'
+      - '633'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="15" vrev="15" srcmd5="55149857250f5d447be0072847ca9fda">
-          <linkinfo project="home:tom" package="package_with_file" srcmd5="f15f7be000c0004ad3f4a8b81188eda0" baserev="f15f7be000c0004ad3f4a8b81188eda0" xsrcmd5="e99b501c4d46c521c73bc2c622104d01" lsrcmd5="55149857250f5d447be0072847ca9fda" />
-          <entry name="_link" md5="bab01f70a89654418635c456831f522d" size="116" mtime="1475493926" />
-          <entry name="somefile.txt" md5="3c96d7544c2f64a6a70ce6a15f9eba5f" size="148" mtime="1475493925" />
+        <directory name="package_with_file" rev="1" vrev="1" srcmd5="a04e84f00fe8c16bb857fcc78712e491">
+          <linkinfo project="home:tom" package="package_with_file" srcmd5="2ee044b7fa0481a029168f32ed36f772" baserev="2ee044b7fa0481a029168f32ed36f772" xsrcmd5="f3a2f091888b81176cae8f8b8c43cad4" lsrcmd5="a04e84f00fe8c16bb857fcc78712e491" />
+          <entry name="_config" md5="4fa177a47ec67a5b5e8222c2aa1f319e" size="259" mtime="1493194665" />
+          <entry name="_link" md5="3e981ca30bd73b3de5fbcb5b61dc4592" size="116" mtime="1493194665" />
+          <entry name="somefile.txt" md5="c2a096ac1172f3baeb4b6c06d2d5fd0c" size="163" mtime="1493194665" />
         </directory>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:26 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -488,19 +533,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '352'
+      - '351'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="07eef0f3e9b14167328565fd03418891">
+        <sourcediff key="e03ed3bd3887a32005c1eb0fd628e0c7">
           <old project="home:tom:branches:home:tom" package="package_with_file" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom:branches:home:tom" package="package_with_file" rev="15" srcmd5="55149857250f5d447be0072847ca9fda" />
+          <new project="home:tom:branches:home:tom" package="package_with_file" rev="1" srcmd5="a04e84f00fe8c16bb857fcc78712e491" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:26 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -532,13 +577,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="0aa882dd26b47f5ff40b2d48c3435778">
-          <old project="home:tom" package="package_with_file" rev="f15f7be000c0004ad3f4a8b81188eda0" srcmd5="f15f7be000c0004ad3f4a8b81188eda0" />
-          <new project="home:tom:branches:home:tom" package="package_with_file" rev="e99b501c4d46c521c73bc2c622104d01" srcmd5="e99b501c4d46c521c73bc2c622104d01" />
+        <sourcediff key="7d64a1082dc0b3c6f2964be5fa0cd997">
+          <old project="home:tom" package="package_with_file" rev="2ee044b7fa0481a029168f32ed36f772" srcmd5="2ee044b7fa0481a029168f32ed36f772" />
+          <new project="home:tom:branches:home:tom" package="package_with_file" rev="f3a2f091888b81176cae8f8b8c43cad4" srcmd5="f3a2f091888b81176cae8f8b8c43cad4" />
           <files />
         </sourcediff>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:26 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom:branches:home:tom/_meta?user=tom
@@ -585,42 +630,7 @@ http_interactions:
           </publish>
         </project>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:26 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:tom/_result?package=package_with_file&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '56'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
-    http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:27 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file?nofilename=1&view=info&withchangesmd5=1
@@ -646,15 +656,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '193'
+      - '191'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_with_file" rev="20" vrev="20" srcmd5="f15f7be000c0004ad3f4a8b81188eda0" verifymd5="f15f7be000c0004ad3f4a8b81188eda0">
-          <revtime>1475493925</revtime>
+        <sourceinfo package="package_with_file" rev="2" vrev="2" srcmd5="2ee044b7fa0481a029168f32ed36f772" verifymd5="2ee044b7fa0481a029168f32ed36f772">
+          <revtime>1493194665</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:27 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file
@@ -680,15 +690,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '212'
+      - '306'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="20" vrev="20" srcmd5="f15f7be000c0004ad3f4a8b81188eda0">
-          <entry name="somefile.txt" md5="3c96d7544c2f64a6a70ce6a15f9eba5f" size="148" mtime="1475493925" />
+        <directory name="package_with_file" rev="2" vrev="2" srcmd5="2ee044b7fa0481a029168f32ed36f772">
+          <entry name="_config" md5="4fa177a47ec67a5b5e8222c2aa1f319e" size="259" mtime="1493194665" />
+          <entry name="somefile.txt" md5="c2a096ac1172f3baeb4b6c06d2d5fd0c" size="163" mtime="1493194665" />
         </directory>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:27 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -716,19 +727,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '316'
+      - '315'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="1e5128814e6c68f0370bc2bb7fb56500">
+        <sourcediff key="ddb442d746b75924bf3e8a0d5b65d270">
           <old project="home:tom" package="package_with_file" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="package_with_file" rev="20" srcmd5="f15f7be000c0004ad3f4a8b81188eda0" />
+          <new project="home:tom" package="package_with_file" rev="2" srcmd5="2ee044b7fa0481a029168f32ed36f772" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:27 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file
@@ -754,18 +765,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '212'
+      - '306'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="20" vrev="20" srcmd5="f15f7be000c0004ad3f4a8b81188eda0">
-          <entry name="somefile.txt" md5="3c96d7544c2f64a6a70ce6a15f9eba5f" size="148" mtime="1475493925" />
+        <directory name="package_with_file" rev="2" vrev="2" srcmd5="2ee044b7fa0481a029168f32ed36f772">
+          <entry name="_config" md5="4fa177a47ec67a5b5e8222c2aa1f319e" size="259" mtime="1493194665" />
+          <entry name="somefile.txt" md5="c2a096ac1172f3baeb4b6c06d2d5fd0c" size="163" mtime="1493194665" />
         </directory>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:27 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1&rev=20
+    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -790,15 +802,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '212'
+      - '306'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="20" vrev="20" srcmd5="f15f7be000c0004ad3f4a8b81188eda0">
-          <entry name="somefile.txt" md5="3c96d7544c2f64a6a70ce6a15f9eba5f" size="148" mtime="1475493925" />
+        <directory name="package_with_file" rev="2" vrev="2" srcmd5="2ee044b7fa0481a029168f32ed36f772">
+          <entry name="_config" md5="4fa177a47ec67a5b5e8222c2aa1f319e" size="259" mtime="1493194665" />
+          <entry name="somefile.txt" md5="c2a096ac1172f3baeb4b6c06d2d5fd0c" size="163" mtime="1493194665" />
         </directory>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:27 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file
@@ -826,15 +839,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '212'
+      - '306'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="20" vrev="20" srcmd5="f15f7be000c0004ad3f4a8b81188eda0">
-          <entry name="somefile.txt" md5="3c96d7544c2f64a6a70ce6a15f9eba5f" size="148" mtime="1475493925" />
+        <directory name="package_with_file" rev="2" vrev="2" srcmd5="2ee044b7fa0481a029168f32ed36f772">
+          <entry name="_config" md5="4fa177a47ec67a5b5e8222c2aa1f319e" size="259" mtime="1493194665" />
+          <entry name="somefile.txt" md5="c2a096ac1172f3baeb4b6c06d2d5fd0c" size="163" mtime="1493194665" />
         </directory>
     http_version: 
-  recorded_at: Mon, 03 Oct 2016 11:25:27 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file/_service
@@ -853,7 +867,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: package 'package_with_file' does not exist
+      message: _service  no such file
     headers:
       Content-Type:
       - text/xml
@@ -862,14 +876,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '122'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>package 'package_with_file' does not exist</summary>
-          <details>404 package 'package_with_file' does not exist</details>
+          <summary>_service: no such file</summary>
+          <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Thu, 06 Oct 2016 12:14:19 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 recorded_with: VCR 3.0.3

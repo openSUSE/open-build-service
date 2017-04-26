@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:51 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_broken_service/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title/>
-          <description/>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Consequatur qui distinctio repudiandae et rerum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '123'
+      - '196'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Consequatur qui distinctio repudiandae et rerum.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:51 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_broken_service/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title/>
-          <description/>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Consequatur qui distinctio repudiandae et rerum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '123'
+      - '196'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Consequatur qui distinctio repudiandae et rerum.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:51 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_broken_service/_service
@@ -148,16 +148,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>1313399d7c9f2b1b913c33b4b940c0db</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>feebe56763302f5fc5914cbee81468f3</srcmd5>
           <version>unknown</version>
-          <time>1488963351</time>
+          <time>1493194668</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:51 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_broken_service?nofilename=1&view=info&withchangesmd5=1
@@ -187,11 +187,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_with_broken_service" rev="1" vrev="1" srcmd5="1313399d7c9f2b1b913c33b4b940c0db">
+        <sourceinfo package="package_with_broken_service" rev="2" vrev="2" srcmd5="feebe56763302f5fc5914cbee81468f3">
           <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
         </sourceinfo>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:51 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_broken_service
@@ -221,14 +221,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="1313399d7c9f2b1b913c33b4b940c0db">
-          <serviceinfo code="failed" xsrcmd5="a04dedb33d8a8bb88c4a95504b8b85eb">
+        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="feebe56763302f5fc5914cbee81468f3">
+          <serviceinfo code="failed" xsrcmd5="aa60748d63bfa76da2d712d560388f60">
             <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
           </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1488963351" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1493194667" />
         </directory>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:51 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom/package_with_broken_service?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -260,15 +260,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="3cbf0baebb555406f53df8b459310caa">
+        <sourcediff key="007150f791b969a63446eba4d3d1c039">
           <old project="home:tom" package="package_with_broken_service" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="package_with_broken_service" rev="1" srcmd5="1313399d7c9f2b1b913c33b4b940c0db" />
+          <new project="home:tom" package="package_with_broken_service" rev="2" srcmd5="feebe56763302f5fc5914cbee81468f3" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:52 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_broken_service
@@ -298,17 +298,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="1313399d7c9f2b1b913c33b4b940c0db">
-          <serviceinfo code="failed" xsrcmd5="a04dedb33d8a8bb88c4a95504b8b85eb">
+        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="feebe56763302f5fc5914cbee81468f3">
+          <serviceinfo code="failed" xsrcmd5="aa60748d63bfa76da2d712d560388f60">
             <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
           </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1488963351" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1493194667" />
         </directory>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:52 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service?expand=1&rev=1
+    uri: http://localhost:3200/source/home:tom/package_with_broken_service?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -342,7 +342,7 @@ http_interactions:
           <summary>service error:  400 remote error: document element must be 'services', was 'service'</summary>
         </status>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:52 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_broken_service
@@ -372,17 +372,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="1313399d7c9f2b1b913c33b4b940c0db">
-          <serviceinfo code="failed" xsrcmd5="a04dedb33d8a8bb88c4a95504b8b85eb">
+        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="feebe56763302f5fc5914cbee81468f3">
+          <serviceinfo code="failed" xsrcmd5="aa60748d63bfa76da2d712d560388f60">
             <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
           </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1488963351" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1493194667" />
         </directory>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:52 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service?expand=0&rev=1
+    uri: http://localhost:3200/source/home:tom/package_with_broken_service?expand=0&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -411,14 +411,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="1313399d7c9f2b1b913c33b4b940c0db">
-          <serviceinfo code="failed" xsrcmd5="a04dedb33d8a8bb88c4a95504b8b85eb">
+        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="feebe56763302f5fc5914cbee81468f3">
+          <serviceinfo code="failed" xsrcmd5="aa60748d63bfa76da2d712d560388f60">
             <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
           </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1488963351" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1493194667" />
         </directory>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:52 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_broken_service
@@ -450,17 +450,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="1313399d7c9f2b1b913c33b4b940c0db">
-          <serviceinfo code="failed" xsrcmd5="a04dedb33d8a8bb88c4a95504b8b85eb">
+        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="feebe56763302f5fc5914cbee81468f3">
+          <serviceinfo code="failed" xsrcmd5="aa60748d63bfa76da2d712d560388f60">
             <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
           </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1488963351" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1493194667" />
         </directory>
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:52 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_serviceerror?rev=a04dedb33d8a8bb88c4a95504b8b85eb
+    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_serviceerror?rev=aa60748d63bfa76da2d712d560388f60
     body:
       encoding: US-ASCII
       string: ''
@@ -490,7 +490,7 @@ http_interactions:
         service daemon error:
          400 remote error: document element must be 'services', was 'service'
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:52 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_broken_service/_service
@@ -523,5 +523,5 @@ http_interactions:
       encoding: UTF-8
       string: "<service>broken</service>"
     http_version: 
-  recorded_at: Wed, 08 Mar 2017 08:55:52 GMT
+  recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 recorded_with: VCR 3.0.3

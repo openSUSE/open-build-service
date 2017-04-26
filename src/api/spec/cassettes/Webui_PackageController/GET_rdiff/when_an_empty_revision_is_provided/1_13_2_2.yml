@@ -40,16 +40,16 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
+  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="my_package" project="home:tom">
-          <title>To Say Nothing of the Dog</title>
-          <description>Fugiat qui quidem ab nostrum.</description>
+        <package name="package_with_file" project="home:tom">
+          <title>A Time to Kill</title>
+          <description>Id ullam ut blanditiis quidem ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -74,21 +74,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <package name="my_package" project="home:tom">
-          <title>To Say Nothing of the Dog</title>
-          <description>Fugiat qui quidem ab nostrum.</description>
+        <package name="package_with_file" project="home:tom">
+          <title>A Time to Kill</title>
+          <description>Id ullam ut blanditiis quidem ea.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
+  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package/_meta
+    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
     body:
       encoding: UTF-8
       string: |
-        <package name="my_package" project="home:tom">
-          <title>To Say Nothing of the Dog</title>
-          <description>Fugiat qui quidem ab nostrum.</description>
+        <package name="package_with_file" project="home:tom">
+          <title>A Time to Kill</title>
+          <description>Id ullam ut blanditiis quidem ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -113,18 +113,20 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <package name="my_package" project="home:tom">
-          <title>To Say Nothing of the Dog</title>
-          <description>Fugiat qui quidem ab nostrum.</description>
+        <package name="package_with_file" project="home:tom">
+          <title>A Time to Kill</title>
+          <description>Id ullam ut blanditiis quidem ea.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
+  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
-    method: get
-    uri: http://localhost:3200/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/_config
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: Atque optio odio ex. Est incidunt earum accusantium consequatur qui
+        quis. Consequatur cum corporis deleniti consequatur. Accusantium nam porro
+        illo magnam dignissimos aliquid rem. Nemo veniam sint.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,18 +146,64 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
-          <revtime/>
-        </sourceinfo>
+        <revision rev="7" vrev="7">
+          <srcmd5>79efa0048e7b8b566f0777cc915d4f72</srcmd5>
+          <version>unknown</version>
+          <time>1493194714</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
+  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Aut quis itaque quod autem sapiente ipsam ut. Nostrum sequi assumenda
+        nisi est ducimus ut. Necessitatibus non qui dolor ducimus aut. Dolor optio
+        quasi.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>99d4748017567e51e78388e2e16e781f</srcmd5>
+          <version>unknown</version>
+          <time>1493194714</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/my_package
+    uri: http://localhost:3200/source/home:tom/package_with_file
     body:
       encoding: US-ASCII
       string: ''
@@ -178,104 +226,72 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '85'
+      - '306'
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="package_with_file" rev="8" vrev="8" srcmd5="99d4748017567e51e78388e2e16e781f">
+          <entry name="_config" md5="a85aaa8cc07633b795aa08eeaab10abf" size="197" mtime="1493194714" />
+          <entry name="somefile.txt" md5="6a64848542a48ebeda0bb4e5ad8abb24" size="151" mtime="1493194714" />
         </directory>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
+  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '306'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="8" vrev="8" srcmd5="99d4748017567e51e78388e2e16e781f">
+          <entry name="_config" md5="a85aaa8cc07633b795aa08eeaab10abf" size="197" mtime="1493194714" />
+          <entry name="somefile.txt" md5="6a64848542a48ebeda0bb4e5ad8abb24" size="151" mtime="1493194714" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&expand=1&rev=&view=xml&withissues=1
     body:
       encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '278'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="983dd8a964f7e0e4d1742d58788ab969">
-          <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <files />
-        </sourcediff>
-    http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:tom/my_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '85'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:tom/my_package?expand=1
-    body:
-      encoding: US-ASCII
       string: ''
     headers:
       Content-Type:
       - text/plain
       Accept-Encoding:
       - identity
+      Content-Length:
+      - '0'
       Accept:
       - "*/*"
       User-Agent:
       - Ruby
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: revision is empty
     headers:
       Content-Type:
       - text/xml
@@ -284,84 +300,51 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '85'
+      - '69'
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:tom/my_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '85'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:tom/my_package/_service
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: _service  no such file
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '122'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>_service: no such file</summary>
-          <details>404 _service: no such file</details>
+        <status code="400">
+          <summary>revision is empty</summary>
         </status>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
+  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&expand=0&rev=&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '0'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: revision is empty
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '69'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>revision is empty</summary>
+        </status>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 recorded_with: VCR 3.0.3
