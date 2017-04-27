@@ -608,7 +608,7 @@ class Webui::PackageController < Webui::WebuiController
     if @package.save
       flash[:notice] = "Package data for '#{@package.name}' was saved successfully"
     else
-      flash[:notice] = "Failed to save package '#{@package.name}'"
+      flash[:error] = "Failed to save package '#{@package.name}'"
     end
     redirect_to action: :show, project: params[:project], package: params[:package]
   end
