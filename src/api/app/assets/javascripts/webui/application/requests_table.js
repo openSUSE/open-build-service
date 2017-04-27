@@ -24,7 +24,7 @@ $( document ).ready(function() {
     var table = $(this).dataTable(options);
 
     // 2. Reload button
-    var reload_button = $('.result_reload[data-table=' + dataTableId + ']')
+    var reload_button = $('.result_reload[data-table=' + dataTableId + ']');
     var loading_spinner = $(reload_button).siblings('.result_spinner');
 
     reload_button.click(function(){

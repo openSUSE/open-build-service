@@ -3,8 +3,9 @@ class BsRequest
     class FindForUserQuery
       attr_reader :user, :params
 
-      def initialize(user, params)
+      def initialize(user, request_method, params)
         @user = user
+        @request_method = request_method
         @params = params
       end
 
@@ -28,9 +29,9 @@ class BsRequest
       private
 
       def requests_query(search = nil)
-        raise ArgumentError unless valid_request_methods.include?(params[:request_method])
+        raise ArgumentError unless valid_request_methods.include?(@request_method)
 
-        @user.send(params[:request_method], search)
+        @user.send(@request_method, search)
       end
 
       def valid_request_methods

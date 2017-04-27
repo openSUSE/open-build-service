@@ -12,12 +12,8 @@ module Webui
       }
 
       def index
-        parsed_params =
-          BsRequest::DataTable::ParamsParser.new(params)
-          .parsed_params
-          .merge(request_method: request_method)
-
-        requests_query = BsRequest::DataTable::FindForUserQuery.new(@displayed_user, parsed_params)
+        parsed_params = BsRequest::DataTable::ParamsParser.new(params).parsed_params
+        requests_query = BsRequest::DataTable::FindForUserQuery.new(@displayed_user, request_method, parsed_params)
         @requests_data_table = BsRequest::DataTable::Table.new(requests_query, parsed_params[:draw])
 
         respond_to do |format|
