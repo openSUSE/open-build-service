@@ -415,11 +415,9 @@ class Webui::PackageController < Webui::WebuiController
   private :set_file_details
 
   def add_person
-    @roles = Role.local_roles
   end
 
   def add_group
-    @roles = Role.local_roles
   end
 
   def find_last_req

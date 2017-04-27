@@ -211,12 +211,10 @@ class Webui::ProjectController < Webui::WebuiController
 
   def add_person
     authorize @project, :update?
-    @roles = Role.local_roles
   end
 
   def add_group
     authorize @project, :update?
-    @roles = Role.local_roles
   end
 
   def buildresult
