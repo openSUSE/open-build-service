@@ -810,8 +810,7 @@ class Webui::PackageController < Webui::WebuiController
     begin
       size = get_size_of_log(@project, @package, @repo, @arch)
       logger.debug("log size is #{size}")
-      @offset = size - 32 * 1024
-      @offset = 0 if @offset < 0
+      @offset = [0, size - 32 * 1024].max
     rescue => e
       logger.error "Got #{e.class}: #{e.message}; returning empty log."
     end
