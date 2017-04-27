@@ -159,6 +159,18 @@ RSpec.describe Webui::PackageController, vcr: true do
     it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
   end
 
+  describe "GET #meta" do
+    before do
+      get :meta, params: { project: source_project, package: source_package }
+    end
+
+    it 'sends the xml representation of a package' do
+      expect(assigns(:meta)).to eq(source_package.render_xml)
+    end
+    it { expect(response).to render_template("package/meta") }
+    it { expect(response).to have_http_status(:success) }
+  end
+
   describe "POST #branch" do
     before do
       login(user)
@@ -333,12 +345,18 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context "adding a file that doesn't exist yet" do
       before do
-        post :save_file, params: { project: source_project, package: source_package, filename: "newly_created_file", file_type: "local" }
+        post :save_file, params: {
+          project:   source_project,
+          package:   source_package,
+          filename:  "newly_created_file",
+          file_type: "local",
+          file:      "some_content"
+        }
       end
 
       it { expect(response).to have_http_status(:found) }
       it { expect(flash[:success]).to eq("The file 'newly_created_file' has been successfully saved.") }
-      it { expect(source_package.source_file("newly_created_file")).to be nil }
+      it { expect(source_package.source_file("newly_created_file")).to eq("some_content") }
     end
 
     context "uploading a utf-8 file" do
@@ -513,6 +531,8 @@ EOT
   end
 
   describe "GET #revisions" do
+    let(:package) { create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 1, project: source_project) }
+
     before do
       login(user)
     end
@@ -534,7 +554,7 @@ EOT
       end
 
       after do
-        # This is necessary to delete the commits created in the before statement
+        # Delete revisions that got created in the backend
         package.destroy
       end
 
@@ -547,15 +567,14 @@ EOT
       end
 
       context "with less than 21 revisions" do
-        let(:package_with_commits) { create(:package_with_file, name: "package_with_commits", project: source_project) }
+        let(:package_with_commits) { create(:package_with_revisions, name: 'package_with_20_revisions', revision_count: 20, project: source_project) }
 
         before do
-          19.times { |i| Backend::Connection.put("/source/#{source_project}/#{package_with_commits}/somefile.txt", i.to_s) }
           get :revisions, params: { project: source_project, package: package_with_commits }
         end
 
         after do
-          # This is necessary to delete the commits created in the before statement
+          # Delete revisions that got created in the backend
           package_with_commits.destroy
         end
 
@@ -564,27 +583,33 @@ EOT
       end
 
       context "with 21 revisions" do
-        let(:package_with_more_commits) { create(:package_with_file, name: "package_with_more_commits", project: source_project) }
+        let(:package_with_more_commits) {
+          create(:package_with_revisions, name: 'package_with_21_revisions', revision_count: 21, project: source_project)
+        }
 
         before do
-          20.times { |i| Backend::Connection.put("/source/#{source_project}/#{package_with_more_commits}/somefile.txt", i.to_s) }
           get :revisions, params: { project: source_project, package: package_with_more_commits }
         end
 
         after do
-          # This is necessary to delete the commits created in the before statement
+          # Delete revisions that got created in the backend
           package_with_more_commits.destroy
         end
 
         it { expect(assigns(:lastrev)).to eq(21) }
-        it { expect(assigns(:revisions)).to eq((2..21).to_a.reverse) }
+
+        it 'lists the last 20 revisions' do
+          expect(assigns(:revisions)).to eq((2..21).to_a.reverse)
+        end
 
         context "with showall parameter set" do
           before do
             get :revisions, params: { project: source_project, package: package_with_more_commits, showall: true }
           end
 
-          it { expect(assigns(:revisions)).to eq((1..21).to_a.reverse) }
+          it 'lists all revisions' do
+            expect(assigns(:revisions)).to eq((1..21).to_a.reverse)
+          end
         end
       end
     end
@@ -608,15 +633,16 @@ EOT
     end
 
     context "without a service file in the package" do
-      let(:post_url) { "#{CONFIG['source_url']}/source/#{source_project}/#{source_package}?cmd=runservice&user=#{user}" }
+      let(:package) { create(:package_with_file, name: "package_with_file", project: source_project) }
+      let(:post_url) { "#{CONFIG['source_url']}/source/#{source_project}/#{package}?cmd=runservice&user=#{user}" }
 
       before do
-        get :trigger_services, params: { project: source_project, package: source_package }
+        get :trigger_services, params: { project: source_project, package: package }
       end
 
       it { expect(a_request(:post, post_url)).to have_been_made.once }
       it { expect(flash[:error]).to eq("Services couldn't be triggered: no source service defined!") }
-      it { is_expected.to redirect_to(action: :show, project: source_project, package: source_package) }
+      it { is_expected.to redirect_to(action: :show, project: source_project, package: package) }
     end
   end
 
@@ -927,23 +953,40 @@ EOT
     end
   end
 
-  describe 'DELETE #trigger_rebuild' do
+  describe 'POST #trigger_rebuild' do
     before do
       login(user)
-      delete :trigger_rebuild, params: { project: source_project, package: source_package }
     end
 
-    it 'lets the user know there was an error' do
-      expect(flash[:error]).to_not be_empty
+    context 'when triggering a rebuild fails' do
+      before do
+        post :trigger_rebuild, params: { project: source_project, package: source_package }
+      end
+
+      it 'lets the user know there was an error' do
+        expect(flash[:error]).to match("Error while triggering rebuild for home:tom/my_package")
+      end
+
+      it 'redirects to the package binaries path' do
+        expect(response).to redirect_to(
+          controller: :package,
+          action: :binaries,
+          project: source_project,
+          package: source_package
+        )
+      end
     end
 
-    it 'redirects to the package binaries path' do
-      expect(response).to redirect_to(
-        controller: :package,
-        action: :binaries,
-        project: source_project,
-        package: source_package
-      )
+    context 'when triggering a rebuild succeeds' do
+      before do
+        create(:repository, project: source_project, architectures: ['i586'])
+        source_project.store
+
+        post :trigger_rebuild, params: { project: source_project, package: source_package }
+      end
+
+      it { expect(flash[:notice]).to eq("Triggered rebuild for #{source_project.name}/#{source_package.name} successfully.") }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
   end
 end

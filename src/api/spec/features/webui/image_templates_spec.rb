@@ -20,7 +20,7 @@ RSpec.feature "ImageTemplates", type: :feature, js: true do
       visit root_path
       find('.proceed_text > a', text: "New Image").click
 
-      expect(page).to have_text(package1)
+      expect(page).to have_text(package1.title)
       expect(find("input[data-package='#{package1}']", visible: false)['checked']).to be true
       expect(find("input[data-package='#{package2}']", visible: false)['checked']).to be false
 

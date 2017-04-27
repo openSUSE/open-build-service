@@ -1,0 +1,312 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>The Little Foxes</title>
+          <description>Cumque et et necessitatibus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>The Little Foxes</title>
+          <description>Cumque et et necessitatibus.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>The Little Foxes</title>
+          <description>Cumque et et necessitatibus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>The Little Foxes</title>
+          <description>Cumque et et necessitatibus.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    body:
+      encoding: UTF-8
+      string: Optio quia dolorem. Inventore maxime non qui. Ratione consectetur dolorum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>78ae42b4e4055e31cc63d9aeca03e36e</srcmd5>
+          <version>unknown</version>
+          <time>1493194713</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Quam error est ut quod corrupti sit. Qui perspiciatis corrupti optio
+        aut id fuga perferendis. Consequuntur quae hic praesentium aliquid. Sed recusandae
+        minus assumenda necessitatibus. Sequi maiores possimus itaque ipsam sed sapiente.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>357e0338def01000c1f095dcad86de54</srcmd5>
+          <version>unknown</version>
+          <time>1493194713</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '305'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="4" vrev="4" srcmd5="357e0338def01000c1f095dcad86de54">
+          <entry name="_config" md5="66d344e38502b0d412bcfe7b2de7f77f" size="74" mtime="1493194713" />
+          <entry name="somefile.txt" md5="1039aa320d12e7de8d6ad69bdb13b8b6" size="233" mtime="1493194713" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '305'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="4" vrev="4" srcmd5="357e0338def01000c1f095dcad86de54">
+          <entry name="_config" md5="66d344e38502b0d412bcfe7b2de7f77f" size="74" mtime="1493194713" />
+          <entry name="somefile.txt" md5="1039aa320d12e7de8d6ad69bdb13b8b6" size="233" mtime="1493194713" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&expand=1&opackage=package_with_file&oproject=home:tom&rev=4&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '0'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '292'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="58b0beea9ee5eee211018ba94f4a0914">
+          <old project="home:tom" package="package_with_file" rev="4" srcmd5="357e0338def01000c1f095dcad86de54" />
+          <new project="home:tom" package="package_with_file" rev="4" srcmd5="357e0338def01000c1f095dcad86de54" />
+          <files />
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
+recorded_with: VCR 3.0.3

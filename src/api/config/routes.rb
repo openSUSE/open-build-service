@@ -116,7 +116,6 @@ OBSApi::Application.routes.draw do
       post 'package/branch' => :branch, constraints: cons
       post 'package/save/:project/:package' => :save, constraints: cons
       get 'package/delete_dialog/:project/:package' => :delete_dialog, constraints: cons
-      post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons
       post 'package/remove/:project/:package' => :remove, constraints: cons
       get 'package/add_file/:project/:package' => :add_file, constraints: cons
       post 'package/save_file/:project/:package' => :save_file, constraints: cons
@@ -128,7 +127,8 @@ OBSApi::Application.routes.draw do
       get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons, as: 'package_live_build_log'
       get 'package/update_build_log/:project/:package/:repository/:arch' => :update_build_log, constraints: cons
       get 'package/abort_build/:project/:package' => :abort_build, constraints: cons
-      delete 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons
+      post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons
+      post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons
       delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons
       get 'package/devel_project/:project/:package' => :devel_project, constraints: cons
       get 'package/buildresult' => :buildresult, constraints: cons

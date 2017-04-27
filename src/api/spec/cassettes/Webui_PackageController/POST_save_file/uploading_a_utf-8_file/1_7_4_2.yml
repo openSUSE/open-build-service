@@ -1,0 +1,375 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>A Farewell to Arms</title>
+          <description>Eum laudantium in accusantium voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>A Farewell to Arms</title>
+          <description>Eum laudantium in accusantium voluptatem.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>A Farewell to Arms</title>
+          <description>Eum laudantium in accusantium voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>A Farewell to Arms</title>
+          <description>Eum laudantium in accusantium voluptatem.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93?user=tom
+    body:
+      encoding: UTF-8
+      string: |+
+        ubuntu12.04 root登录
+        1先设定一个root的密码，sudo passwd root
+
+        2 root 登陆，su root
+
+        3 备份一下lightgdm
+        cp -p /etc/lightdm/lightdm.conf /etc/lightdm/lightdm.conf.bak
+
+        4 vi /etc/lightdm/lightdm.conf
+
+        5 增加：greeter-show-manual-login=true
+          修改后为：
+          [SeatDefaults]
+          greeter-session=unity-greeter
+          user-session=ubuntu
+          greeter-show-manual-login=true
+
+          重启登陆即可。已经可以输入root了
+
+
+        root登陆后还没声音，又查了查，如下方法:
+        Ubuntu root登录没有声音这个问题的根本原因是使用root登录后pulseaudio没有启动。
+        将root加到pulse-access组：
+        sudo usermod -a -G pulse-access root
+        然后修改配置文件/etc/default/pulseaudio，将PULSEAUDIO_SYSTEM_START设为1，
+
+        =======================================================================
+        安装linux版本的beyond compare
+        beyond compare的注册码：
+        HmB5oANygQOhaStTHNa+zOKgOeWHOkeAp6d1+QwIebz6z9kwYCm9-O0jF9F79zvzed9v5UVC4VrDkDMmTM8nB+
+
+
+
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '755'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="14" vrev="14">
+          <srcmd5>be1e4b22865ff9df37744583829121f0</srcmd5>
+          <version>unknown</version>
+          <time>1493193901</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>A Farewell to Arms</title>
+          <description>Eum laudantium in accusantium voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>A Farewell to Arms</title>
+          <description>Eum laudantium in accusantium voluptatem.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '540'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjE0IiB2cmV2PSIxNCIgc3JjbWQ1PSJiZTFlNGIyMjg2NWZmOWRmMzc3NDQ1ODM4MjkxMjFmMCI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InJ1bm5pbmciIC8+CiAgPGVudHJ5IG5hbWU9Il9hZ2dyZWdhdGUiIG1kNT0iOWY2MTkwYWE5ZmE0ZTdmZDY4NWQxNjc4OTk3OGNlNjgiIHNpemU9IjE1MCIgbXRpbWU9IjE0OTMxOTM4OTYiIC8+CiAgPGVudHJ5IG5hbWU9Il9zZXJ2aWNlIiBtZDU9ImExMmJkN2ZmNmY5ZGVjYWFlZjFjZGI4ODFlODYzZjliIiBzaXplPSI3NDEiIG10aW1lPSIxNDkzMTkzOTAwIiAvPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iYmFhYjZjMTZkOTE0MzUyM2I3ODY1ZDQ2ODk2ZTQ1OTYiIHNpemU9IjEyIiBtdGltZT0iMTQ5MzE5Mzg5OCIgLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNDkzMTkzOTAxIiAvPgo8L2RpcmVjdG9yeT4K
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '186'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="my_package" rev="14" vrev="14" srcmd5="a72a750d97be3360eacf94e0ec172086" verifymd5="b7290b205eff35a01ed0e0c7662d9e80">
+          <revtime>1493193901</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '585'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjE0IiB2cmV2PSIxNCIgc3JjbWQ1PSJiZTFlNGIyMjg2NWZmOWRmMzc3NDQ1ODM4MjkxMjFmMCI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InN1Y2NlZWRlZCIgeHNyY21kNT0iYTcyYTc1MGQ5N2JlMzM2MGVhY2Y5NGUwZWMxNzIwODYiIC8+CiAgPGVudHJ5IG5hbWU9Il9hZ2dyZWdhdGUiIG1kNT0iOWY2MTkwYWE5ZmE0ZTdmZDY4NWQxNjc4OTk3OGNlNjgiIHNpemU9IjE1MCIgbXRpbWU9IjE0OTMxOTM4OTYiIC8+CiAgPGVudHJ5IG5hbWU9Il9zZXJ2aWNlIiBtZDU9ImExMmJkN2ZmNmY5ZGVjYWFlZjFjZGI4ODFlODYzZjliIiBzaXplPSI3NDEiIG10aW1lPSIxNDkzMTkzOTAwIiAvPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iYmFhYjZjMTZkOTE0MzUyM2I3ODY1ZDQ2ODk2ZTQ1OTYiIHNpemU9IjEyIiBtdGltZT0iMTQ5MzE5Mzg5OCIgLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNDkzMTkzOTAxIiAvPgo8L2RpcmVjdG9yeT4K
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="f94e82dbecc081ea4109ee1ff5ee4ce5">
+          <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="my_package" rev="14" srcmd5="be1e4b22865ff9df37744583829121f0" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:02 GMT
+recorded_with: VCR 3.0.3

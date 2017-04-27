@@ -1,0 +1,436 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Death Be Not Proud</title>
+          <description>Nesciunt ea expedita odit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Death Be Not Proud</title>
+          <description>Nesciunt ea expedita odit.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Death Be Not Proud</title>
+          <description>Nesciunt ea expedita odit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Death Be Not Proud</title>
+          <description>Nesciunt ea expedita odit.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '510'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="download_url">
+            <param name="host">raw.github.com</param>
+            <param name="protocol">https</param>
+            <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+            <param name="filename">remote_file</param>
+          </service>
+        <service name="download_url"><param name="host">raw.github.com</param><param name="protocol">https</param><param name="path">/openSUSE/open-build-service/master/.gitignore</param><param name="filename">remote_file</param></service></services>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_service?user=tom
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="download_url">
+            <param name="host">raw.github.com</param>
+            <param name="protocol">https</param>
+            <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+            <param name="filename">remote_file</param>
+          </service>
+        <service name="download_url"><param name="host">raw.github.com</param><param name="protocol">https</param><param name="path">/openSUSE/open-build-service/master/.gitignore</param><param name="filename">remote_file</param></service><service name="download_url"><param name="host">raw.github.com</param><param name="protocol">https</param><param name="path">/openSUSE/open-build-service/master/.gitignore</param><param name="filename">remote_file</param></service></services>
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '741'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="11" vrev="11">
+          <srcmd5>e9cf769c43534e24e15bb95c0712de55</srcmd5>
+          <version>unknown</version>
+          <time>1493193900</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/my_package?cmd=runservice&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Death Be Not Proud</title>
+          <description>Nesciunt ea expedita odit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Death Be Not Proud</title>
+          <description>Nesciunt ea expedita odit.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '439'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="my_package" rev="12" vrev="12" srcmd5="cb77c95f62fac1dca3cc1d11bf7cdcbc">
+          <serviceinfo code="running" />
+          <entry name="_aggregate" md5="9f6190aa9fa4e7fd685d16789978ce68" size="150" mtime="1493193896" />
+          <entry name="_service" md5="a12bd7ff6f9decaaef1cdb881e863f9b" size="741" mtime="1493193900" />
+          <entry name="newly_created_file" md5="baab6c16d9143523b7865d46896e4596" size="12" mtime="1493193898" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '186'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="my_package" rev="12" vrev="12" srcmd5="3e3b51983768ca5a662214dd5a9c4d3e" verifymd5="c2bd4dea6d77a9b207d9784c36be2b45">
+          <revtime>1493193900</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '484'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="my_package" rev="12" vrev="12" srcmd5="cb77c95f62fac1dca3cc1d11bf7cdcbc">
+          <serviceinfo code="succeeded" xsrcmd5="3e3b51983768ca5a662214dd5a9c4d3e" />
+          <entry name="_aggregate" md5="9f6190aa9fa4e7fd685d16789978ce68" size="150" mtime="1493193896" />
+          <entry name="_service" md5="a12bd7ff6f9decaaef1cdb881e863f9b" size="741" mtime="1493193900" />
+          <entry name="newly_created_file" md5="baab6c16d9143523b7865d46896e4596" size="12" mtime="1493193898" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="505d58a02789a830170a958921d4cf49">
+          <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="my_package" rev="12" srcmd5="cb77c95f62fac1dca3cc1d11bf7cdcbc" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+recorded_with: VCR 3.0.3

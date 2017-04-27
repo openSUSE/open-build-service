@@ -1,0 +1,436 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Ipsa ut alias enim dolor quo blanditiis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '187'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Ipsa ut alias enim dolor quo blanditiis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Ipsa ut alias enim dolor quo blanditiis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '187'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Ipsa ut alias enim dolor quo blanditiis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '279'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="download_url">
+            <param name="host">raw.github.com</param>
+            <param name="protocol">https</param>
+            <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+            <param name="filename">remote_file</param>
+          </service>
+        </services>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_service?user=tom
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="download_url">
+            <param name="host">raw.github.com</param>
+            <param name="protocol">https</param>
+            <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+            <param name="filename">remote_file</param>
+          </service>
+        <service name="download_url"><param name="host">raw.github.com</param><param name="protocol">https</param><param name="path">/openSUSE/open-build-service/master/.gitignore</param><param name="filename">remote_file</param></service></services>
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '510'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="9" vrev="9">
+          <srcmd5>04da53a4f5356ec354c1522596f111a5</srcmd5>
+          <version>unknown</version>
+          <time>1493193900</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/my_package?cmd=runservice&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Ipsa ut alias enim dolor quo blanditiis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '187'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Ipsa ut alias enim dolor quo blanditiis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '484'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="my_package" rev="10" vrev="10" srcmd5="115abde1165aa4885b7a2671137f13e3">
+          <serviceinfo code="succeeded" xsrcmd5="6e0e0614cb16c770e3a1823d761bd446" />
+          <entry name="_aggregate" md5="9f6190aa9fa4e7fd685d16789978ce68" size="150" mtime="1493193896" />
+          <entry name="_service" md5="5dbc612dc2be754f6aab272d4567b5dd" size="510" mtime="1493193900" />
+          <entry name="newly_created_file" md5="baab6c16d9143523b7865d46896e4596" size="12" mtime="1493193898" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '186'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="my_package" rev="10" vrev="10" srcmd5="6e0e0614cb16c770e3a1823d761bd446" verifymd5="88dd75701dfbca1802745c785e5298f5">
+          <revtime>1493193900</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '484'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="my_package" rev="10" vrev="10" srcmd5="115abde1165aa4885b7a2671137f13e3">
+          <serviceinfo code="succeeded" xsrcmd5="6e0e0614cb16c770e3a1823d761bd446" />
+          <entry name="_aggregate" md5="9f6190aa9fa4e7fd685d16789978ce68" size="150" mtime="1493193896" />
+          <entry name="_service" md5="5dbc612dc2be754f6aab272d4567b5dd" size="510" mtime="1493193900" />
+          <entry name="newly_created_file" md5="baab6c16d9143523b7865d46896e4596" size="12" mtime="1493193898" />
+        </directory>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="cedc24f7f2e7c09ac3e93daaf3f0b202">
+          <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="my_package" rev="10" srcmd5="115abde1165aa4885b7a2671137f13e3" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 08:05:00 GMT
+recorded_with: VCR 3.0.3
