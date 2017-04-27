@@ -1019,4 +1019,37 @@ EOT
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
   end
+
+  describe 'POST #abort_build' do
+    before do
+      login(user)
+    end
+
+    context 'when aborting the build fails' do
+      before do
+        post :abort_build, params: { project: source_project, package: source_package, repository: 'foo', arch: 'bar' }
+      end
+
+      it 'lets the user know there was an error' do
+        expect(flash[:error]).to match("Error while triggering abort build for home:tom/my_package")
+        expect(flash[:error]).to match("no repository defined")
+      end
+      it {
+        expect(response).to redirect_to(package_live_build_log_path(
+                                          project: source_project, package: source_package, repository: 'foo', arch: 'bar'))
+      }
+    end
+
+    context 'when aborting the build succeeds' do
+      before do
+        create(:repository, project: source_project, architectures: ['i586'])
+        source_project.store
+
+        post :abort_build, params: { project: source_project, package: source_package }
+      end
+
+      it { expect(flash[:notice]).to eq("Triggered abort build for #{source_project.name}/#{source_package.name} successfully.") }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+    end
+  end
 end
