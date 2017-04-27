@@ -1054,7 +1054,7 @@ EOT
   end
 
   describe 'GET #statistics' do
-    let!(:repository) { create(:repository, project: source_project, architectures: ['i586']) }
+    let!(:repository) { create(:repository, name: 'statistics', project: source_project, architectures: ['i586']) }
 
     before do
       login(user)
@@ -1074,6 +1074,18 @@ EOT
 
       it { expect(assigns(:statistics)).to eq({ disk: { usage: 20, size: 30 } }) }
       it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'when backend does not return statistics' do
+      before do
+        get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
+      end
+
+      it { expect(flash[:error]).to eq("No statistics of a successful build could be found in #{repository}/i586") }
+      it {
+        expect(response).to redirect_to(package_binaries_path(
+                                          project: source_project, package: source_package, repository: repository.name, nextstatus: 404))
+      }
     end
 
     context 'when backend raises an exception' do
