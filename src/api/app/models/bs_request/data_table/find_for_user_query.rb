@@ -28,10 +28,13 @@ class BsRequest
       private
 
       def requests_query(search = nil)
-        # This check is included for security reasons
-        raise ArgumentError unless ParamsParser::REQUEST_METHODS.values.include?(params[:request_method])
+        raise ArgumentError unless valid_request_methods.include?(params[:request_method])
 
         @user.send(params[:request_method], search)
+      end
+
+      def valid_request_methods
+        Webui::Users::BsRequestsController::REQUEST_METHODS.values
       end
     end
   end

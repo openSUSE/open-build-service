@@ -1,14 +1,6 @@
 class BsRequest
   module DataTable
     class ParamsParser
-      REQUEST_METHODS = {
-        'all_requests_table'      => :requests,
-        'requests_out_table'      => :outgoing_requests,
-        'requests_declined_table' => :declined_requests,
-        'requests_in_table'       => :incoming_requests,
-        'reviews_in_table'        => :involved_reviews
-      }
-
       def initialize(requested_params)
         @requested_params = requested_params
       end
@@ -20,8 +12,7 @@ class BsRequest
           offset:         offset,
           limit:          limit,
           sort_column:    sort_column,
-          sort_direction: sort_direction,
-          request_method: request_method
+          sort_direction: sort_direction
         }
       end
 
@@ -59,10 +50,6 @@ class BsRequest
       def sort_direction
         # defaults to :desc
         order_params[:dir].try(:to_sym) == :asc ? :asc : :desc
-      end
-
-      def request_method
-        REQUEST_METHODS[@requested_params[:dataTableId]] || :requests
       end
     end
   end
