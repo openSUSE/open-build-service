@@ -914,12 +914,9 @@ class Webui::PackageController < Webui::WebuiController
   def devel_project
     check_ajax
     required_parameters :package, :project
-    tgt_pkg = Package.find_by_project_and_name( params[:project], params[:package] )
-    if tgt_pkg && tgt_pkg.develpackage
-      render plain: tgt_pkg.develpackage.project
-    else
-      render plain: ''
-    end
+    tgt_pkg = Package.find_by_project_and_name(params[:project], params[:package])
+
+    render plain: tgt_pkg.try(:develpackage).try(:project).to_s
   end
 
   def import_spec
