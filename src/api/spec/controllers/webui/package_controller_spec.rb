@@ -989,4 +989,34 @@ EOT
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
   end
+
+  describe 'POST #wipe_binaries' do
+    before do
+      login(user)
+    end
+
+    context 'when wiping binaries fails' do
+      before do
+        post :wipe_binaries, params: { project: source_project, package: source_package }
+      end
+
+      it 'lets the user know there was an error' do
+        expect(flash[:error]).to match("Error while triggering wipe binaries for home:tom/my_package")
+        expect(flash[:error]).to match("no repository defined")
+      end
+      it { expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package)) }
+    end
+
+    context 'when wiping binaries succeeds' do
+      before do
+        create(:repository, project: source_project, architectures: ['i586'])
+        source_project.store
+
+        post :wipe_binaries, params: { project: source_project, package: source_package }
+      end
+
+      it { expect(flash[:notice]).to eq("Triggered wipe binaries for #{source_project.name}/#{source_package.name} successfully.") }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+    end
+  end
 end
