@@ -1,6 +1,11 @@
 require "browser_helper"
 require "webmock/rspec"
 
+# WARNING: If you change owner tests make sure you uncomment this line
+# and start a test backend. Some of the Owner methods
+# require real backend answers for projects/packages.
+# CONFIG['global_write_through'] = true
+
 RSpec.feature "Packages", type: :feature, js: true do
   it_behaves_like 'user tab' do
     let(:package) {
@@ -17,6 +22,33 @@ RSpec.feature "Packages", type: :feature, js: true do
   let!(:other_users_package) { create(:package_with_file, name: "branch_test_package", project: other_user.home_project) }
   let(:package_with_develpackage) { create(:package, name: "develpackage", project: user.home_project, develpackage: other_users_package) }
   let(:third_project) { create(:project_with_package, package_name: "develpackage") }
+
+  describe 'Viewing a package that' do
+    let(:branching_data) { BranchPackage.new(project: user.home_project.name, package: package.name).branch }
+    let(:branched_project) { Project.where(name: branching_data[:data][:targetproject]).first }
+
+    before do
+      # Needed for branching
+      User.current = user
+    end
+
+    scenario 'was branched' do
+      visit package_show_path(project: branched_project, package: branched_project.packages.first)
+      expect(page).to have_text("Links to #{user.home_project} / #{package}")
+    end
+
+    scenario 'has derived packages' do
+      # Trigger branch creation
+      branched_project
+
+      visit package_show_path(project: user.home_project, package: package)
+      expect(page).to have_text("1 derived package")
+      click_link("derived package")
+      expect(page).to have_link("home:package_test_user...ome:package_test_user")
+      click_link("home:package_test_user...ome:package_test_user")
+      expect(page.current_path).to eq(package_show_path(project: branched_project, package: branched_project.packages.first))
+    end
+  end
 
   describe "branching a package" do
     after do

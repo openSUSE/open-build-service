@@ -3,7 +3,7 @@
     <h2 class="box-header">Derived Packages</span></h2>
     <div class="dialog-content">
       <ul>
-        <% @linking_packages.each do |lp| %>
+        <% @package.linking_packages.each do |lp| %>
             <% if lp.name != @package.name %>
                 <% name = elide_two(lp.project.name, lp.name, 46).join(' / ') %>
             <% else %>

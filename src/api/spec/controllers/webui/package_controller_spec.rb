@@ -466,16 +466,6 @@ EOT
       end
     end
 
-    context "with a package that have derived packages" do
-      before do
-        login user
-        BranchPackage.new(project: source_project.name, package: package.name).branch
-        get :show, params: { project: source_project, package: package }
-      end
-
-      it { expect(assigns(:linking_packages)).to match_array(package.linking_packages) }
-    end
-
     context 'with a package that has a broken service' do
       before do
         login user

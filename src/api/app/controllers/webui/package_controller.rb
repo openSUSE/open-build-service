@@ -53,7 +53,6 @@ class Webui::PackageController < Webui::WebuiController
     @bugowners_mail = (@package.bugowner_emails + @project.api_obj.bugowner_emails).uniq
     @revision = params[:rev]
     @failures = 0
-    set_linking_packages
 
     if @spider_bot
       @expand = 0
@@ -90,12 +89,7 @@ class Webui::PackageController < Webui::WebuiController
     @package # used by mixins
   end
 
-  def set_linking_packages
-    @linking_packages = @package.linking_packages
-  end
-
   def linking_packages
-    set_linking_packages
     render_dialog
   end
 
