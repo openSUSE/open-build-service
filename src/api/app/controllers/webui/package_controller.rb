@@ -888,11 +888,10 @@ class Webui::PackageController < Webui::WebuiController
 
     if @package.abort_build(params)
       flash[:notice] = "Triggered abort build for #{@project.name}/#{@package.name} successfully."
-      redirect_to controller: :package, action: :show, project: @project, package: @package
+      redirect_to package_show_path(project: @project, package: @package)
     else
       flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
-      redirect_to controller: :package, action: :live_build_log, project: @project, package: @package,
-        repository: params[:repository], arch: params[:arch]
+      redirect_to package_live_build_log_path(project: @project, package: @package, repository: params[:repository], arch: params[:arch])
     end
   end
 
@@ -901,10 +900,10 @@ class Webui::PackageController < Webui::WebuiController
 
     if @package.rebuild(params)
       flash[:notice] = "Triggered rebuild for #{@project.name}/#{@package.name} successfully."
-      redirect_to controller: :package, action: :show, project: @project, package: @package
+      redirect_to package_show_path(project: @project, package: @package)
     else
       flash[:error] = "Error while triggering rebuild for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
-      redirect_to controller: :package, action: :binaries, project: @project, package: @package, repository: params[:repository]
+      redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
     end
   end
 
@@ -913,10 +912,10 @@ class Webui::PackageController < Webui::WebuiController
 
     if @package.wipe_binaries(params)
       flash[:notice] = "Triggered wipe binaries for #{@project.name}/#{@package.name} successfully."
-      redirect_to controller: :package, action: :show, project: @project, package: @package
+      redirect_to package_show_path(project: @project, package: @package)
     else
       flash[:error] = "Error while triggering wipe binaries for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
-      redirect_to controller: :package, action: :binaries, project: @project, package: @package, repository: params[:repository]
+      redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
     end
   end
 
