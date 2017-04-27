@@ -332,6 +332,7 @@ case "$1" in
         rm -rf "$workerdir"
         mkdir -p "$workerbootdir"
         echo "zombie on"       > $screenrc
+        echo "defscrollback 10000" >> $screenrc
         echo 'caption always "%3n %t%? [%h]%?"' >> $screenrc
 
         if [ 0"$OBS_WORKER_INSTANCES" -gt 0 ]; then
@@ -466,7 +467,7 @@ case "$1" in
 	    mkdir -p $workerdir/$I
         done
         pushd "$workerbootdir" > /dev/null
-        screen -m -d -c $screenrc
+        screen -S obsworker -m -d -c $screenrc
         popd > /dev/null
     ;;
     stop)
@@ -482,6 +483,7 @@ case "$1" in
         killall bs_worker 2>/dev/null
         sleep 2
         killall -s 9 bs_worker 2>/dev/null
+        screen -S obsworker -X quit
         rc_status -v
     ;;
     restart)
