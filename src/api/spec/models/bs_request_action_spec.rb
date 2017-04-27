@@ -21,6 +21,31 @@ RSpec.describe BsRequestAction do
       expect(duplicated_bs_request_action.errors.full_messages.to_sentence).to eq('Type has already been taken')
     end
 
+    describe '.set_associations' do
+      let(:project) { create(:project_with_package, name: 'Apache', package_name: 'apache2') }
+      let(:package) { project.packages.first }
+
+      it 'sets target to package if target_package and target_project parameters provided' do
+        action = BsRequestAction.create(target_project: project.name, target_package: package.name)
+        expect(action.target = package)
+      end
+
+      it 'sets target to project if target_project parameters provided' do
+        action = BsRequestAction.create(target_project: project.name)
+        expect(action.target = project)
+      end
+
+      it 'sets source to package if source_package and source_project parameters provided' do
+        action = BsRequestAction.create(source_project: project.name, source_package: package.name)
+        expect(action.source = package)
+      end
+
+      it 'sets source to project if target_project parameter provided' do
+        action = BsRequestAction.create(source_project: project.name)
+        expect(action.source = project)
+      end
+    end
+
     RSpec.shared_examples 'it skips validation for type' do |type|
       context "type '#{type}'" do
         it 'allows multiple bs request actions' do

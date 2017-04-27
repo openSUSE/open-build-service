@@ -225,12 +225,18 @@ CREATE TABLE `bs_request_actions` (
   `created_at` datetime DEFAULT NULL,
   `target_repository` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `makeoriginolder` tinyint(1) DEFAULT '0',
+  `source_type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `source_id` int(11) DEFAULT NULL,
+  `target_type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `target_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `bs_request_id` (`bs_request_id`) USING BTREE,
   KEY `index_bs_request_actions_on_source_package` (`source_package`) USING BTREE,
   KEY `index_bs_request_actions_on_source_project` (`source_project`) USING BTREE,
   KEY `index_bs_request_actions_on_target_package` (`target_package`) USING BTREE,
   KEY `index_bs_request_actions_on_target_project` (`target_project`) USING BTREE,
+  KEY `index_bs_request_actions_on_source_type_and_source_id` (`source_type`,`source_id`),
+  KEY `index_bs_request_actions_on_target_type_and_target_id` (`target_type`,`target_id`),
   CONSTRAINT `bs_request_actions_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -1182,6 +1188,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170316090223'),
 ('20170317094221'),
 ('20170320151300'),
-('20170426153510');
+('20170426153510'),
+('20170427102943');
 
 

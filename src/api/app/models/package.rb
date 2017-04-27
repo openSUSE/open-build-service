@@ -76,6 +76,9 @@ class Package < ApplicationRecord
 
   has_many :reviews, dependent: :nullify, as: :entity
 
+  has_many :source_of_bs_request_actions, as: :source, class_name: 'BsRequestAction'
+  has_many :target_of_bs_request_actions, as: :target, class_name: 'BsRequestAction'
+
   before_destroy :delete_on_backend
   before_destroy :close_requests
   before_destroy :update_project_for_product
