@@ -145,7 +145,6 @@ class Webui::PackageController < Webui::WebuiController
       @statistics = Statistic.find_hashed( project: @project, package: @package, repository: @repository, arch: @arch )
     rescue ActiveXML::Transport::ForbiddenError
     end
-    logger.debug "Statis #{@statistics.inspect}"
     return if @statistics
 
     flash[:error] = "No statistics of a successful build could be found in #{@repository}/#{@arch}"
