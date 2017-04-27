@@ -74,6 +74,8 @@ class Package < ApplicationRecord
 
   has_many :binary_releases, dependent: :delete_all, foreign_key: 'release_package_id'
 
+  has_many :reviews, dependent: :nullify, as: :entity
+
   before_destroy :delete_on_backend
   before_destroy :close_requests
   before_destroy :update_project_for_product

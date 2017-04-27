@@ -39,6 +39,8 @@ class User < ApplicationRecord
   has_many :messages
   has_many :tokens, dependent: :destroy, inverse_of: :user
 
+  has_many :reviews, dependent: :nullify, as: :entity
+
   has_many :event_subscriptions, inverse_of: :user
 
   belongs_to :owner, class_name: 'User'
