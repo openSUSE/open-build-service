@@ -1,6 +1,6 @@
 include ../Makefile.include
 
-INIT_SCRIPTS 			:= obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obssigner obswarden obsapidelayed obsapisetup obsstoragesetup obsservice obsdodup obsdeltastore obsservicedispatch
+INITSCRIPTS_SUBDIRS	:= systemv
 LOGROTATE_CONFIGS := obs-api obs-server obs-source_service
 OBS_BIN_SCRIPTS 	:= obs_productconvert
 OBS_SBIN_SCRIPTS 	:= obs_admin obs_serverstatus
@@ -10,7 +10,7 @@ install: install_obsapisetup install_apache install_initscripts install_project_
 #install_overview
 
 install_obsapisetup: system_dirs
-	$(INSTALL) -m 755 obsapisetup $(DESTDIR)/etc/init.d/obsapisetup
+	$(INSTALL) -m 755 systemv/obsapisetup $(DESTDIR)/etc/init.d/obsapisetup
 	$(INSTALL) -m 755 setup-appliance.sh $(DESTDIR)$(OBS_BACKEND_PREFIX)/setup-appliance.sh
 
 install_apache:
@@ -18,8 +18,7 @@ install_apache:
 	$(INSTALL) -m 644 $(APACHE_VHOST_CONF) $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)/obs.conf
 
 install_initscripts: system_dirs
-	$(foreach script,$(INIT_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/etc/init.d/$(script)) )
-	$(foreach script,$(INIT_SCRIPTS),$(shell ln -sf /etc/init.d/$(script) $(DESTDIR)/usr/sbin/rc$(script)) )
+	  $(MAKE) -C $(INITSCRIPTS_SUBDIRS) install
 
 install_project_update: system_dirs
 	$(INSTALL) -m 0755 obs_project_update $(DESTDIR)/usr/sbin/obs_project_update
