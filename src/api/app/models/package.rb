@@ -891,6 +891,28 @@ class Package < ApplicationRecord
     local_build_results
   end
 
+  def jobhistory_list(project, repository, arch, limit = 100)
+    results = Jobhistory.find_hashed(project: project.name, package: name,
+                                     repository: repository, arch: arch,
+                                     limit: limit)
+
+    local_jobs_history = []
+    results.elements('jobhist').reverse_each do |result|
+      local_jobs_history << LocalJobHistory.new(revision: result['rev'],
+                                                build_counter: result['bcnt'],
+                                                worker_id: result['workerid'],
+                                                host_arch: result['hostarch'],
+                                                reason: result['reason'],
+                                                ready_time: result['readytime'].to_i,
+                                                start_time: result['starttime'].to_i,
+                                                end_time: result['endtime'].to_i,
+                                                total_time: result['endtime'].to_i - result['starttime'].to_i,
+                                                code: result['code'])
+    end
+
+    local_jobs_history
+  end
+
   def service_error(revision = nil)
     revision ||= serviceinfo.try{ to_hash['xsrcmd5'] }
     PackageServiceErrorFile.new(project_name: project.name, package_name: name).to_s(rev: revision)

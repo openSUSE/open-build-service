@@ -154,4 +154,8 @@ $( document ).ready(function() {
       link.text(link_text);
     });
   });
+
+  $('#jobhistory-table').dataTable({
+    order: [[0, 'desc']]
+  });
 });

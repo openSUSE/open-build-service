@@ -28,17 +28,18 @@ OBSApi::Application.routes.draw do
   mount Peek::Railtie => '/peek'
 
   cons = {
-    arch:       %r{[^\/]*},
-    binary:     %r{[^\/]*},
-    filename:   %r{[^\/]*},
-    id:         %r{\d*},
-    login:      %r{[^\/]*},
-    package:    %r{[^\/]*},
-    project:    %r{[^\/]*},
-    repository: %r{[^\/]*},
-    service:    %r{\w[^\/]*},
-    title:      %r{[^\/]*},
-    user:       %r{[^\/]*}
+    arch:         %r{[^\/]*},
+    binary:       %r{[^\/]*},
+    filename:     %r{[^\/]*},
+    id:           %r{\d*},
+    login:        %r{[^\/]*},
+    package:      %r{[^\/]*},
+    package_name: %r{[^\/]*},
+    project:      %r{[^\/]*},
+    repository:   %r{[^\/]*},
+    service:      %r{\w[^\/]*},
+    title:        %r{[^\/]*},
+    user:         %r{[^\/]*}
   }
 
   constraints(WebuiMatcher) do
@@ -144,6 +145,12 @@ OBSApi::Application.routes.draw do
       get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
       # compat route
       get 'package/files/:project/:package' => :show, constraints: cons
+    end
+
+    resources :packages, only: [], param: :name do
+      resource :job_history, controller: 'webui/packages/job_history', only: [] do
+        get '/:project/:repository/:arch' => :index, as: :index, constraints: cons
+      end
     end
 
     controller 'webui/patchinfo' do

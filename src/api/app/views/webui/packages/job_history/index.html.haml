@@ -1,0 +1,40 @@
+:ruby
+  @pagetitle = "Job history of #{@project} / #{@package}"
+  @metarobots = 'index,nofollow'
+
+= render partial: 'tabs'
+
+%h3= @pagetitle
+%h6.subtitle
+  Repository / Architecture: #{params[:repository]} / #{params[:arch]}
+
+%table#jobhistory-table
+  %thead
+    %th Revision
+    %th Time
+    %th Reason
+    %th Status Code
+    %th Build Time
+    %th Worker
+    %th
+  %tbody
+    - @jobshistory.each do |jobhistory|
+      %tr
+        %td
+          = jobhistory.revision
+        %td
+          = time_tag(Time.at(jobhistory.ready_time))
+        %td
+          = jobhistory.reason
+        %td
+          = jobhistory.code
+        %td
+          = humanize_time(jobhistory.total_time)
+        %td
+          = jobhistory.worker_id
+        %td
+          - title = "Package:#{@package.name} | revision:#{jobhistory.revision}"
+          = link_to sprite_tag('req-showdiff', title: title),
+                    package_show_path(project: @project,
+                                      package: @package,
+                                      rev: jobhistory.revision)

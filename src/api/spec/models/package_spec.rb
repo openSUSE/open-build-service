@@ -448,4 +448,44 @@ RSpec.describe Package, vcr: true do
       it { is_expected.to be_falsey }
     end
   end
+
+  describe '#jobhistory_list' do
+    let(:backend_url) { "#{CONFIG['source_url']}/build/#{home_project}/openSUSE_Tumbleweed/x86_64/_jobhistory?package=#{package}&limit=100" }
+
+    subject { package.jobhistory_list(home_project, 'openSUSE_Tumbleweed', 'x86_64') }
+
+    context 'when response is successful' do
+      let(:local_job_history) do
+        { revision:      '1',
+          build_counter: '1',
+          worker_id:     'vagrant-openSUSE-Leap:1',
+          host_arch:     'x86_64',
+          reason:        'new build',
+          ready_time:    1_492_687_344,
+          start_time:    1_492_687_470,
+          end_time:      1_492_687_507,
+          total_time:    37,
+          code:          'succeed' }
+      end
+
+      before do
+        stub_request(:get, backend_url).and_return(body:
+        %(<jobhistlist>
+          <jobhist package='#{package.name}' rev='1' srcmd5='2ac8bd685591b40e412ee99b182f94c2' versrel='7-3' bcnt='1' readytime='1492687344'
+          starttime='1492687470' endtime='1492687507' code='succeed' uri='http://127.0.0.1:41355' workerid='vagrant-openSUSE-Leap:1'
+          hostarch='x86_64' reason='new build' verifymd5='2ac8bd685591b40e412ee99b182f94c2'/>
+        </jobhistlist>))
+      end
+
+      it { expect(subject.class).to eq(Array) }
+      it { expect(subject.first.class).to eq(LocalJobHistory) }
+      it { expect(subject.first).to have_attributes(local_job_history) }
+    end
+
+    context 'when response fails' do
+      before { stub_request(:get, backend_url).and_raise(ActiveXML::Transport::NotFoundError) }
+
+      it { is_expected.to eq([]) }
+    end
+  end
 end
