@@ -78,43 +78,45 @@
   <% elsif @packagenames.empty? -%>
     <h3>No Results</h3>
   <% else -%>
-    <table class="buildstatus">
-      <!-- repo row -->
-      <thead class="header">
-        <tr>
-          <th></th>
-          <% @repohash.sort.each do |repo,archlist|
-            next if archlist.empty? -%>
-            <th colspan="<%= archlist.length %>"><span class="strong"><%= repo %></span></th>
-          <% end -%>
-        </tr>
-        <!-- arch row -->
-        <tr>
-          <th></th>
-          <% @repohash.sort.each do |repo, archlist| -%>
-            <% archlist.sort.each do |arch| -%>
-              <th class="buildstatus"><%= repo_status_icon(@repostatushash[repo][arch],@repostatusdetailshash[repo][arch]) %> <%= arch %></th>
-            <% end -%>
-          <% end -%>
-        </tr>
-      </thead>
-
-      <tbody>      <!-- package rows -->
-        <% @packagenames.each do |packname| -%>
+    <div class='buildstatus-wrapper'>
+      <table class="buildstatus">
+        <!-- repo row -->
+        <thead class="header">
           <tr>
-            <td>
-              <%= link_to word_break(packname, 40), :controller => "package", :action => "show",
-                :package => packname, :project => @project.to_s %>
-            </td>
+            <th></th>
+            <% @repohash.sort.each do |repo,archlist|
+              next if archlist.empty? -%>
+              <th colspan="<%= archlist.length %>"><span class="strong"><%= repo %></span></th>
+            <% end -%>
+          </tr>
+          <!-- arch row -->
+          <tr>
+            <th></th>
             <% @repohash.sort.each do |repo, archlist| -%>
               <% archlist.sort.each do |arch| -%>
-                <%= arch_repo_table_cell(repo, arch, packname, nil, false) %>
+                <th class="buildstatus"><%= repo_status_icon(@repostatushash[repo][arch],@repostatusdetailshash[repo][arch]) %> <%= arch %></th>
               <% end -%>
             <% end -%>
           </tr>
-        <% end -%>
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody>      <!-- package rows -->
+          <% @packagenames.each do |packname| -%>
+            <tr>
+              <td>
+                <%= link_to word_break(packname, 40), :controller => "package", :action => "show",
+                  :package => packname, :project => @project.to_s %>
+              </td>
+              <% @repohash.sort.each do |repo, archlist| -%>
+                <% archlist.sort.each do |arch| -%>
+                  <%= arch_repo_table_cell(repo, arch, packname, nil, false) %>
+                <% end -%>
+              <% end -%>
+            </tr>
+          <% end -%>
+        </tbody>
+      </table>
+    </div>
   <% end -%>
   <div id="refresh_date"><p>Updated at: <%= DateTime.now.to_s.sub(/T/, " ") %></p></div>
   <div id="legend">
