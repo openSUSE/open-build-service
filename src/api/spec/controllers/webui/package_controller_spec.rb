@@ -1052,4 +1052,56 @@ EOT
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
   end
+
+  describe 'GET #statistics' do
+    let!(:repository) { create(:repository, name: 'statistics', project: source_project, architectures: ['i586']) }
+
+    before do
+      login(user)
+
+      # Save the repository in backend
+      source_project.store
+    end
+
+    context 'when backend returns statistics' do
+      before do
+        allow(Statistic).to receive(:find_hashed).
+          with(project: source_project, package: source_package, repository: repository.name, arch: 'i586').
+          and_return({ disk: { usage: 20, size: 30 } })
+
+        get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
+      end
+
+      it { expect(assigns(:statistics)).to eq({ disk: { usage: 20, size: 30 } }) }
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'when backend does not return statistics' do
+      before do
+        get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
+      end
+
+      it { expect(flash[:error]).to eq("No statistics of a successful build could be found in #{repository}/i586") }
+      it {
+        expect(response).to redirect_to(package_binaries_path(
+                                          project: source_project, package: source_package, repository: repository.name, nextstatus: 404))
+      }
+    end
+
+    context 'when backend raises an exception' do
+      before do
+        allow(Statistic).to receive(:find_hashed).
+          with(project: source_project, package: source_package, repository: repository.name, arch: 'i586').
+          and_raise(ActiveXML::Transport::ForbiddenError)
+
+        get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
+      end
+
+      it { expect(flash[:error]).to eq("No statistics of a successful build could be found in #{repository}/i586") }
+      it {
+        expect(response).to redirect_to(package_binaries_path(
+                                          project: source_project, package: source_package, repository: repository.name, nextstatus: 404))
+      }
+    end
+  end
 end
