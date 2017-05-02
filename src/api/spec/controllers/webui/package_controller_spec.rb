@@ -125,6 +125,8 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'not successful' do
       before do
+        # NOTE: This test has to run with running backend, but 'global_write_through' disabled
+        stub_const('CONFIG', CONFIG.merge({ 'global_write_through' => false }))
         post :submit_request, params: { project: source_project, package: source_package, targetproject: target_project.name }
       end
 
