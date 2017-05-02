@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Autem et eos aut possimus.</description>
+          <title>What's Become of Waring</title>
+          <description>Atque adipisci id minima ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Autem et eos aut possimus.</description>
+          <title>What's Become of Waring</title>
+          <description>Atque adipisci id minima ut.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Autem et eos aut possimus.</description>
+          <title>What's Become of Waring</title>
+          <description>Atque adipisci id minima ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Autem et eos aut possimus.</description>
+          <title>What's Become of Waring</title>
+          <description>Atque adipisci id minima ut.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93?user=tom
@@ -181,20 +181,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="13" vrev="13">
-          <srcmd5>567c8f4b6de660eb1d2f8bc4e36fd529</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>88925e87d982dfe2af8f52ec0d33a902</srcmd5>
           <version>unknown</version>
-          <time>1493193901</time>
+          <time>1493722424</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
@@ -202,8 +202,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Autem et eos aut possimus.</description>
+          <title>What's Become of Waring</title>
+          <description>Atque adipisci id minima ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -224,16 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Autem et eos aut possimus.</description>
+          <title>What's Become of Waring</title>
+          <description>Atque adipisci id minima ut.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package
@@ -259,13 +259,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '585'
+      - '309'
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjEzIiB2cmV2PSIxMyIgc3JjbWQ1PSI1NjdjOGY0YjZkZTY2MGViMWQyZjhiYzRlMzZmZDUyOSI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InN1Y2NlZWRlZCIgeHNyY21kNT0iOTlkMDIwNDQ2NGEyZDkwMzYzODFiMTI5NTVjZTY0NTQiIC8+CiAgPGVudHJ5IG5hbWU9Il9hZ2dyZWdhdGUiIG1kNT0iOWY2MTkwYWE5ZmE0ZTdmZDY4NWQxNjc4OTk3OGNlNjgiIHNpemU9IjE1MCIgbXRpbWU9IjE0OTMxOTM4OTYiIC8+CiAgPGVudHJ5IG5hbWU9Il9zZXJ2aWNlIiBtZDU9ImExMmJkN2ZmNmY5ZGVjYWFlZjFjZGI4ODFlODYzZjliIiBzaXplPSI3NDEiIG10aW1lPSIxNDkzMTkzOTAwIiAvPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iYmFhYjZjMTZkOTE0MzUyM2I3ODY1ZDQ2ODk2ZTQ1OTYiIHNpemU9IjEyIiBtdGltZT0iMTQ5MzE5Mzg5OCIgLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNDkzMTkzOTAxIiAvPgo8L2RpcmVjdG9yeT4K
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjQiIHZyZXY9IjQiIHNyY21kNT0iODg5MjVlODdkOTgyZGZlMmFmOGY1MmVjMGQzM2E5MDIiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iYmFhYjZjMTZkOTE0MzUyM2I3ODY1ZDQ2ODk2ZTQ1OTYiIHNpemU9IjEyIiBtdGltZT0iMTQ5MzcyMjIxMyIgLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNDkzNzIyMjEyIiAvPgo8L2RpcmVjdG9yeT4K
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
@@ -291,15 +291,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '184'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="my_package" rev="13" vrev="13" srcmd5="99d0204464a2d9036381b12955ce6454" verifymd5="7be81d85b825cc5e78f7a0a2c9a1c86b">
-          <revtime>1493193901</revtime>
+        <sourceinfo package="my_package" rev="4" vrev="4" srcmd5="88925e87d982dfe2af8f52ec0d33a902" verifymd5="88925e87d982dfe2af8f52ec0d33a902">
+          <revtime>1493722424</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package
@@ -325,13 +325,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '585'
+      - '309'
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjEzIiB2cmV2PSIxMyIgc3JjbWQ1PSI1NjdjOGY0YjZkZTY2MGViMWQyZjhiYzRlMzZmZDUyOSI+CiAgPHNlcnZpY2VpbmZvIGNvZGU9InN1Y2NlZWRlZCIgeHNyY21kNT0iOTlkMDIwNDQ2NGEyZDkwMzYzODFiMTI5NTVjZTY0NTQiIC8+CiAgPGVudHJ5IG5hbWU9Il9hZ2dyZWdhdGUiIG1kNT0iOWY2MTkwYWE5ZmE0ZTdmZDY4NWQxNjc4OTk3OGNlNjgiIHNpemU9IjE1MCIgbXRpbWU9IjE0OTMxOTM4OTYiIC8+CiAgPGVudHJ5IG5hbWU9Il9zZXJ2aWNlIiBtZDU9ImExMmJkN2ZmNmY5ZGVjYWFlZjFjZGI4ODFlODYzZjliIiBzaXplPSI3NDEiIG10aW1lPSIxNDkzMTkzOTAwIiAvPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iYmFhYjZjMTZkOTE0MzUyM2I3ODY1ZDQ2ODk2ZTQ1OTYiIHNpemU9IjEyIiBtdGltZT0iMTQ5MzE5Mzg5OCIgLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNDkzMTkzOTAxIiAvPgo8L2RpcmVjdG9yeT4K
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjQiIHZyZXY9IjQiIHNyY21kNT0iODg5MjVlODdkOTgyZGZlMmFmOGY1MmVjMGQzM2E5MDIiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iYmFhYjZjMTZkOTE0MzUyM2I3ODY1ZDQ2ODk2ZTQ1OTYiIHNpemU9IjEyIiBtdGltZT0iMTQ5MzcyMjIxMyIgLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNDkzNzIyMjEyIiAvPgo8L2RpcmVjdG9yeT4K
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -359,17 +359,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '302'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="3435a973d6ca2d6ea36f1c79da506322">
+        <sourcediff key="9257a2bfe6a90c0a41d791e636c034e2">
           <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="my_package" rev="13" srcmd5="567c8f4b6de660eb1d2f8bc4e36fd529" />
+          <new project="home:tom" package="my_package" rev="4" srcmd5="88925e87d982dfe2af8f52ec0d33a902" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:05:01 GMT
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
 recorded_with: VCR 3.0.3
