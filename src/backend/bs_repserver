@@ -1072,6 +1072,7 @@ sub getbinary_info {
     my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+    $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
     for my $prp (@prp) {
       my ($rprojid, $rrepoid) = split('/', $prp, 2);
       my $r;
