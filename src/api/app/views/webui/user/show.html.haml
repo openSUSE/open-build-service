@@ -104,7 +104,7 @@
             = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'reviews_in_table' })
             = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
       .tab#reviews-in
-        = render(partial: 'requests', locals: { id: 'reviews_in_table' })
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(@displayed_user) })
 
   .grid_16.alpha.omega.box.box-shadow
     #requests
@@ -127,13 +127,13 @@
             = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'all_requests_table' })
             = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
       .tab#requests-in
-        = render(partial: 'requests', locals: { id: 'requests_in_table' })
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: user_requests_path(@displayed_user) })
       .tab#requests-out
-        = render(partial: 'requests', locals: { id: 'requests_out_table' })
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_out_table', source_url: user_requests_path(@displayed_user) })
       .tab#requests-declined
-        = render(partial: 'requests', locals: { id: 'requests_declined_table' })
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_declined_table', source_url: user_requests_path(@displayed_user) })
       .tab#all-requests
-        = render(partial: 'requests', locals: { id: 'all_requests_table' })
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(@displayed_user) })
 
 - if @patchinfos.present?
   .grid_16.alpha.omega.box.box-shadow
