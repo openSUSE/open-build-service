@@ -1171,9 +1171,8 @@ class BsRequest < ApplicationRecord
     roles = opts[:roles] || []
     states = opts[:states] || []
 
-    # it's wiser to split the queries
     if opts[:project] && roles.empty? && (states.empty? || states.include?("review"))
-      (collection(opts.merge(roles: ["reviewer"])) + collection(opts.merge(roles: ["target", "source"]))).uniq
+      collection(opts.merge(roles: ["reviewer", "target", "source"])).uniq
     else
       collection(opts).uniq
     end
