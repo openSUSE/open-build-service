@@ -303,6 +303,7 @@ sub preparepool {
 
   my $pool = BSSolv::pool->new();
   $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+  $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
   $ctx->{'pool'} = $pool;
 
   my $prpsearchpath = $ctx->{'prpsearchpath'};
