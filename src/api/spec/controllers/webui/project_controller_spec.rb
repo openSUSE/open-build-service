@@ -384,7 +384,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it 'assigns the local roles' do
       login user
       get :add_person, params: { project: user.home_project }
-      expect(assigns(:roles)).to match_array(Role.local_roles)
+      expect(response).to render_template('webui/project/add_person')
     end
   end
 
@@ -392,7 +392,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it 'assigns the local roles' do
       login user
       get :add_group, params: { project: user.home_project }
-      expect(assigns(:roles)).to match_array(Role.local_roles)
+      expect(response).to render_template('webui/project/add_group')
     end
   end
 

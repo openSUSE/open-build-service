@@ -64,10 +64,10 @@
               <%#TODO: Fix this hard link %>
             </li>
         <% end %>
-        <% if @linking_packages.present? %>
+        <% if @package.linking_packages.present? %>
             <li>
               <%= sprite_tag 'information', title: '' %>
-              <%= @linking_packages.size %> <%= link_to('derived packages', { :action => :linking_packages, :project => @project, :package => @package }, :remote => true) %>
+              <%= @package.linking_packages.size %> <%= link_to('derived packages', { :action => :linking_packages, :project => @project, :package => @package }, :remote => true) %>
             </li>
         <% end %>
         <% if @linkinfo %>

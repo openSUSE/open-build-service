@@ -8,7 +8,7 @@
       $("#userid").autocomplete({source: '<%= url_for :controller => 'user', :action => 'autocomplete' %>', minLength: 2});
     <% end %>
     <b>Role:</b><br/>
-    <%= select_tag 'role', options_for_select(@roles, params[:role]), required: true %><br/>
+    <%= select_tag 'role', options_for_select(Role.local_roles, params[:role]), required: true %><br/>
     <%= hidden_field_tag 'package', @package %>
     <%= hidden_field_tag 'project', @project %>
   </p>

@@ -211,12 +211,10 @@ class Webui::ProjectController < Webui::WebuiController
 
   def add_person
     authorize @project, :update?
-    @roles = Role.local_roles
   end
 
   def add_group
     authorize @project, :update?
-    @roles = Role.local_roles
   end
 
   def buildresult
@@ -267,10 +265,11 @@ class Webui::ProjectController < Webui::WebuiController
     if @project.check_weak_dependencies?
       parent = @project.parent
       @project.destroy
+      flash[:notice] = "Project was successfully removed."
       if parent
-        redirect_to project_show_path(parent), notice: "Project was successfully removed."
+        redirect_to project_show_path(parent)
       else
-        redirect_to({ action: :index }, notice: "Project was successfully removed.")
+        redirect_to({ action: :index })
       end
     else
       redirect_to project_show_path(@project), notice: "Project can't be removed: #{@project.errors.full_messages.to_sentence}"

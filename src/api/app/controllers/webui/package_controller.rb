@@ -53,7 +53,6 @@ class Webui::PackageController < Webui::WebuiController
     @bugowners_mail = (@package.bugowner_emails + @project.api_obj.bugowner_emails).uniq
     @revision = params[:rev]
     @failures = 0
-    set_linking_packages
 
     if @spider_bot
       @expand = 0
@@ -90,12 +89,7 @@ class Webui::PackageController < Webui::WebuiController
     @package # used by mixins
   end
 
-  def set_linking_packages
-    @linking_packages = @package.linking_packages
-  end
-
   def linking_packages
-    set_linking_packages
     render_dialog
   end
 
@@ -420,11 +414,9 @@ class Webui::PackageController < Webui::WebuiController
   private :set_file_details
 
   def add_person
-    @roles = Role.local_roles
   end
 
   def add_group
-    @roles = Role.local_roles
   end
 
   def find_last_req
@@ -615,7 +607,7 @@ class Webui::PackageController < Webui::WebuiController
     if @package.save
       flash[:notice] = "Package data for '#{@package.name}' was saved successfully"
     else
-      flash[:notice] = "Failed to save package '#{@package.name}'"
+      flash[:error] = "Failed to save package '#{@package.name}'"
     end
     redirect_to action: :show, project: params[:project], package: params[:package]
   end
@@ -817,8 +809,7 @@ class Webui::PackageController < Webui::WebuiController
     begin
       size = get_size_of_log(@project, @package, @repo, @arch)
       logger.debug("log size is #{size}")
-      @offset = size - 32 * 1024
-      @offset = 0 if @offset < 0
+      @offset = [0, size - 32 * 1024].max
     rescue => e
       logger.error "Got #{e.class}: #{e.message}; returning empty log."
     end
@@ -921,12 +912,9 @@ class Webui::PackageController < Webui::WebuiController
   def devel_project
     check_ajax
     required_parameters :package, :project
-    tgt_pkg = Package.find_by_project_and_name( params[:project], params[:package] )
-    if tgt_pkg && tgt_pkg.develpackage
-      render plain: tgt_pkg.develpackage.project
-    else
-      render plain: ''
-    end
+    tgt_pkg = Package.find_by_project_and_name(params[:project], params[:package])
+
+    render plain: tgt_pkg.try(:develpackage).try(:project).to_s
   end
 
   def import_spec
