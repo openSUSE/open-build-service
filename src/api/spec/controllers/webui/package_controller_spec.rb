@@ -336,32 +336,32 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context "without any uploaded file data" do
         it "fails with an error message" do
-          do_request params: { project: source_project, package: source_package }
-          expect(response).to redirect_to(root_path)
+          do_request(project: source_project, package: source_package)
+          expect(response).to expected_failure_response
           expect(flash[:error]).to eq("Error while creating '' file: No file or URI given.")
         end
       end
 
       context "with an invalid filename" do
         it "fails with a backend error message" do
-          do_request params: { project: source_project, package: source_package, filename: ".test" }
-          expect(response).to redirect_to(root_path)
+          do_request(project: source_project, package: source_package, filename: ".test")
+          expect(response).to expected_failure_response
           expect(flash[:error]).to eq("Error while creating '.test' file: filename '.test' is illegal.")
         end
       end
 
       context "adding a file that doesn't exist yet" do
         before do
-          do_request params: {
+          do_request(
             project:   source_project,
             package:   source_package,
             filename:  "newly_created_file",
             file_type: "local",
             file: "some_content"
-          }
+          )
         end
 
-        it { expect(response).to have_http_status(:found) }
+        it { expect(response).to have_http_status(expected_success_status) }
         it { expect(flash[:success]).to eq("The file 'newly_created_file' has been successfully saved.") }
         it { expect(source_package.source_file("newly_created_file")).to eq('some_content') }
       end
@@ -370,10 +370,10 @@ RSpec.describe Webui::PackageController, vcr: true do
         let(:file_to_upload) { File.read(File.expand_path(Rails.root.join("spec/support/files/chinese.txt"))) }
 
         before do
-          do_request params: { project: source_project, package: source_package, filename: "学习总结", file: file_to_upload }
+          do_request(project: source_project, package: source_package, filename: "学习总结", file: file_to_upload)
         end
 
-        it { expect(response).to have_http_status(:found) }
+        it { expect(response).to have_http_status(expected_success_status) }
         it { expect(flash[:success]).to eq("The file '学习总结' has been successfully saved.") }
         it "creates the file" do
           expect { source_package.source_file("学习总结") }.not_to raise_error
@@ -383,10 +383,10 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context "uploading a file from remote URL" do
         before do
-          do_request params: {
+          do_request(
             project: source_project, package: source_package, filename: "remote_file",
             file_url: "https://raw.github.com/openSUSE/open-build-service/master/.gitignore"
-          }
+          )
         end
 
         after do
@@ -394,7 +394,7 @@ RSpec.describe Webui::PackageController, vcr: true do
           source_package.destroy
         end
 
-        it { expect(response).to have_http_status(:found) }
+        it { expect(response).to have_http_status(expected_success_status) }
         it { expect(flash[:success]).to eq("The file 'remote_file' has been successfully saved.") }
         # Uploading a remote file creates a service instead of downloading it directly!
         it "creates a valid service file" do
@@ -416,9 +416,23 @@ EOT
       end
     end
 
-    context "as non-ajax request" do
+    context "as ajax request" do
+      let(:expected_success_status) { :ok }
+      let(:expected_failure_response) { have_http_status(:bad_request) }
+
       def do_request(params)
-        post :save_file, params
+        post :save_file, xhr: true, params: params
+      end
+
+      include_examples 'tests for save_file action'
+    end
+
+    context "as non-ajax request" do
+      let(:expected_success_status) { :found }
+      let(:expected_failure_response) { redirect_to(root_path) }
+
+      def do_request(params)
+        post :save_file, params: params
       end
 
       include_examples 'tests for save_file action'
