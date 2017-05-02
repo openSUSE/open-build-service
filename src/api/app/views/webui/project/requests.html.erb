@@ -5,5 +5,22 @@
 
 <h3><%= @pagetitle %></h3>
 
-<%= render :partial => 'shared/select_requests', :locals => {:project => @project, :subprojects => @is_maintenance_project, :no_target => true} %>
+<p>
+  Display
+  <%= select_tag(
+      "request_type_select",
+      options_for_select(@available_types, @default_request_type),
+      data: { table: 'all_requests_table' }) %>
+  requests in state
+  <%= select_tag(
+      "request_state_select",
+      options_for_select(@available_states, @default_request_state),
+      data: { table: 'all_requests_table' }) %>
+  <span id="request_count">
+    <%= "(" + @requests.length.to_s + ")" unless not defined?(@requests) or @requests.blank? %>
+  </span>:
+  <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
+</p>
 
+
+<%= render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: projects_requests_path(@project) }) %>

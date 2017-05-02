@@ -324,6 +324,10 @@ OBSApi::Application.routes.draw do
       get 'users/(:user)/requests' => :index, as: 'user_requests'
     end
 
+    controller 'webui/projects/bs_requests' do
+      get 'projects/(:project)/requests' => :index, as: 'projects_requests'
+    end
+
     controller 'webui/groups' do
       get 'groups' => :index
       get 'group/show/:title' => :show, constraints: {:title => /[^\/]*/}, as: 'group_show'
