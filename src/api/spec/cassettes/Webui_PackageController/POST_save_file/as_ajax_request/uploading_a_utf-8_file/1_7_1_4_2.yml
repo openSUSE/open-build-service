@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:59 GMT
+  recorded_at: Tue, 02 May 2017 11:22:22 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Endless Night</title>
-          <description>Odit eum numquam minus expedita exercitationem aut vel.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Sed qui explicabo nesciunt doloremque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Endless Night</title>
-          <description>Odit eum numquam minus expedita exercitationem aut vel.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Sed qui explicabo nesciunt doloremque.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:59 GMT
+  recorded_at: Tue, 02 May 2017 11:22:22 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Endless Night</title>
-          <description>Odit eum numquam minus expedita exercitationem aut vel.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Sed qui explicabo nesciunt doloremque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,29 +109,62 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Endless Night</title>
-          <description>Odit eum numquam minus expedita exercitationem aut vel.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Sed qui explicabo nesciunt doloremque.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:59 GMT
+  recorded_at: Tue, 02 May 2017 11:22:22 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package/newly_created_file?user=tom
+    uri: http://localhost:3200/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93?user=tom
     body:
       encoding: UTF-8
-      string: some_content
+      string: |+
+        ubuntu12.04 root登录
+        1先设定一个root的密码，sudo passwd root
+
+        2 root 登陆，su root
+
+        3 备份一下lightgdm
+        cp -p /etc/lightdm/lightdm.conf /etc/lightdm/lightdm.conf.bak
+
+        4 vi /etc/lightdm/lightdm.conf
+
+        5 增加：greeter-show-manual-login=true
+          修改后为：
+          [SeatDefaults]
+          greeter-session=unity-greeter
+          user-session=ubuntu
+          greeter-show-manual-login=true
+
+          重启登陆即可。已经可以输入root了
+
+
+        root登陆后还没声音，又查了查，如下方法:
+        Ubuntu root登录没有声音这个问题的根本原因是使用root登录后pulseaudio没有启动。
+        将root加到pulse-access组：
+        sudo usermod -a -G pulse-access root
+        然后修改配置文件/etc/default/pulseaudio，将PULSEAUDIO_SYSTEM_START设为1，
+
+        =======================================================================
+        安装linux版本的beyond compare
+        beyond compare的注册码：
+        HmB5oANygQOhaStTHNa+zOKgOeWHOkeAp6d1+QwIebz6z9kwYCm9-O0jF9F79zvzed9v5UVC4VrDkDMmTM8nB+
+
+
+
     headers:
       Content-Type:
       - text/plain
       Accept-Encoding:
       - identity
       Content-Length:
-      - '12'
+      - '755'
       Accept:
       - "*/*"
       User-Agent:
@@ -152,16 +185,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>4e284c3a4fdc28e152d67c4531c3f164</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>f42733cd79e5deedd28d098916115f2e</srcmd5>
           <version>unknown</version>
-          <time>1493193899</time>
+          <time>1493724142</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:59 GMT
+  recorded_at: Tue, 02 May 2017 11:22:22 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
@@ -169,8 +202,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Endless Night</title>
-          <description>Odit eum numquam minus expedita exercitationem aut vel.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Sed qui explicabo nesciunt doloremque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -191,16 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Endless Night</title>
-          <description>Odit eum numquam minus expedita exercitationem aut vel.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Sed qui explicabo nesciunt doloremque.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:59 GMT
+  recorded_at: Tue, 02 May 2017 11:22:22 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package
@@ -226,16 +259,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '307'
+      - '203'
     body:
-      encoding: UTF-8
-      string: |
-        <directory name="my_package" rev="6" vrev="6" srcmd5="4e284c3a4fdc28e152d67c4531c3f164">
-          <entry name="_aggregate" md5="9f6190aa9fa4e7fd685d16789978ce68" size="150" mtime="1493193896" />
-          <entry name="newly_created_file" md5="baab6c16d9143523b7865d46896e4596" size="12" mtime="1493193898" />
-        </directory>
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjIiIHZyZXY9IjIiIHNyY21kNT0iZjQyNzMzY2Q3OWU1ZGVlZGQyOGQwOTg5MTYxMTVmMmUiPgogIDxlbnRyeSBuYW1lPSLlrabkuaDmgLvnu5MiIG1kNT0iNmJhMTY3ZDcyZTljYzYwMTA4YTc1NjdjZGFlYzcyMGYiIHNpemU9Ijk3NyIgbXRpbWU9IjE0OTM3MjIyMTIiIC8+CjwvZGlyZWN0b3J5Pgo=
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:59 GMT
+  recorded_at: Tue, 02 May 2017 11:22:22 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
@@ -265,11 +295,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="my_package" rev="6" vrev="6" srcmd5="4e284c3a4fdc28e152d67c4531c3f164" verifymd5="4e284c3a4fdc28e152d67c4531c3f164">
-          <revtime>1493193899</revtime>
+        <sourceinfo package="my_package" rev="2" vrev="2" srcmd5="f42733cd79e5deedd28d098916115f2e" verifymd5="f42733cd79e5deedd28d098916115f2e">
+          <revtime>1493724142</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:59 GMT
+  recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package
@@ -295,16 +325,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '307'
+      - '203'
     body:
-      encoding: UTF-8
-      string: |
-        <directory name="my_package" rev="6" vrev="6" srcmd5="4e284c3a4fdc28e152d67c4531c3f164">
-          <entry name="_aggregate" md5="9f6190aa9fa4e7fd685d16789978ce68" size="150" mtime="1493193896" />
-          <entry name="newly_created_file" md5="baab6c16d9143523b7865d46896e4596" size="12" mtime="1493193898" />
-        </directory>
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjIiIHZyZXY9IjIiIHNyY21kNT0iZjQyNzMzY2Q3OWU1ZGVlZGQyOGQwOTg5MTYxMTVmMmUiPgogIDxlbnRyeSBuYW1lPSLlrabkuaDmgLvnu5MiIG1kNT0iNmJhMTY3ZDcyZTljYzYwMTA4YTc1NjdjZGFlYzcyMGYiIHNpemU9Ijk3NyIgbXRpbWU9IjE0OTM3MjIyMTIiIC8+CjwvZGlyZWN0b3J5Pgo=
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:59 GMT
+  recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -336,13 +363,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="ae555c22fcd4d415402c9018aa29a0b9">
+        <sourcediff key="e419f8b0c3d0fd9c2135c5e1d533c46a">
           <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="my_package" rev="4" srcmd5="4e284c3a4fdc28e152d67c4531c3f164" />
+          <new project="home:tom" package="my_package" rev="1" srcmd5="f42733cd79e5deedd28d098916115f2e" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:59 GMT
+  recorded_at: Tue, 02 May 2017 11:22:23 GMT
 recorded_with: VCR 3.0.3

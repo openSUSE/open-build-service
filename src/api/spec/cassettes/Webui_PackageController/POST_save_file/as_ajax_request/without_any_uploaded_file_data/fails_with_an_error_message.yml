@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:57 GMT
+  recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>To Say Nothing of the Dog</title>
-          <description>Veritatis veniam autem deleniti.</description>
+          <title>Recalled to Life</title>
+          <description>Optio distinctio consequuntur sit amet fugit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>To Say Nothing of the Dog</title>
-          <description>Veritatis veniam autem deleniti.</description>
+          <title>Recalled to Life</title>
+          <description>Optio distinctio consequuntur sit amet fugit.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:57 GMT
+  recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>To Say Nothing of the Dog</title>
-          <description>Veritatis veniam autem deleniti.</description>
+          <title>Recalled to Life</title>
+          <description>Optio distinctio consequuntur sit amet fugit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,14 +109,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>To Say Nothing of the Dog</title>
-          <description>Veritatis veniam autem deleniti.</description>
+          <title>Recalled to Life</title>
+          <description>Optio distinctio consequuntur sit amet fugit.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:57 GMT
+  recorded_at: Tue, 02 May 2017 11:22:23 GMT
 recorded_with: VCR 3.0.3

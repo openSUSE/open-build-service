@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:58 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Down to a Sunless Sea</title>
-          <description>Omnis fuga officia ipsa ut praesentium.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Ex omnis natus magni sint totam voluptatem corrupti nisi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Down to a Sunless Sea</title>
-          <description>Omnis fuga officia ipsa ut praesentium.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Ex omnis natus magni sint totam voluptatem corrupti nisi.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:58 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Down to a Sunless Sea</title>
-          <description>Omnis fuga officia ipsa ut praesentium.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Ex omnis natus magni sint totam voluptatem corrupti nisi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Down to a Sunless Sea</title>
-          <description>Omnis fuga officia ipsa ut praesentium.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Ex omnis natus magni sint totam voluptatem corrupti nisi.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:58 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/newly_created_file?user=tom
@@ -152,16 +152,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>4e284c3a4fdc28e152d67c4531c3f164</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>5a8503c52a494e9a5660128cbdfa43f6</srcmd5>
           <version>unknown</version>
-          <time>1493193898</time>
+          <time>1493722424</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:58 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
@@ -169,8 +169,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Down to a Sunless Sea</title>
-          <description>Omnis fuga officia ipsa ut praesentium.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Ex omnis natus magni sint totam voluptatem corrupti nisi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -191,16 +191,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Down to a Sunless Sea</title>
-          <description>Omnis fuga officia ipsa ut praesentium.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Ex omnis natus magni sint totam voluptatem corrupti nisi.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:58 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package
@@ -226,16 +226,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '307'
+      - '208'
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_package" rev="5" vrev="5" srcmd5="4e284c3a4fdc28e152d67c4531c3f164">
-          <entry name="_aggregate" md5="9f6190aa9fa4e7fd685d16789978ce68" size="150" mtime="1493193896" />
-          <entry name="newly_created_file" md5="baab6c16d9143523b7865d46896e4596" size="12" mtime="1493193898" />
+        <directory name="my_package" rev="3" vrev="3" srcmd5="5a8503c52a494e9a5660128cbdfa43f6">
+          <entry name="newly_created_file" md5="baab6c16d9143523b7865d46896e4596" size="12" mtime="1493722213" />
         </directory>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:58 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
@@ -265,11 +264,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="my_package" rev="5" vrev="5" srcmd5="4e284c3a4fdc28e152d67c4531c3f164" verifymd5="4e284c3a4fdc28e152d67c4531c3f164">
-          <revtime>1493193898</revtime>
+        <sourceinfo package="my_package" rev="3" vrev="3" srcmd5="5a8503c52a494e9a5660128cbdfa43f6" verifymd5="5a8503c52a494e9a5660128cbdfa43f6">
+          <revtime>1493722424</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:58 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/my_package
@@ -295,16 +294,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '307'
+      - '208'
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_package" rev="5" vrev="5" srcmd5="4e284c3a4fdc28e152d67c4531c3f164">
-          <entry name="_aggregate" md5="9f6190aa9fa4e7fd685d16789978ce68" size="150" mtime="1493193896" />
-          <entry name="newly_created_file" md5="baab6c16d9143523b7865d46896e4596" size="12" mtime="1493193898" />
+        <directory name="my_package" rev="3" vrev="3" srcmd5="5a8503c52a494e9a5660128cbdfa43f6">
+          <entry name="newly_created_file" md5="baab6c16d9143523b7865d46896e4596" size="12" mtime="1493722213" />
         </directory>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:58 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -336,13 +334,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="ae555c22fcd4d415402c9018aa29a0b9">
+        <sourcediff key="42a3e628bb8b9b5c7ac07f3062f1fdf3">
           <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="my_package" rev="4" srcmd5="4e284c3a4fdc28e152d67c4531c3f164" />
+          <new project="home:tom" package="my_package" rev="1" srcmd5="5a8503c52a494e9a5660128cbdfa43f6" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 08:04:58 GMT
+  recorded_at: Tue, 02 May 2017 10:53:44 GMT
 recorded_with: VCR 3.0.3
