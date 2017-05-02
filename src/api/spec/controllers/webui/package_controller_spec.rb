@@ -194,6 +194,12 @@ RSpec.describe Webui::PackageController, vcr: true do
       expect(response).to redirect_to(root_path)
     end
 
+    it "shows an error if user has no permissions for source project" do
+      post :branch, params: { linked_project: source_project, linked_package: source_package, target_project: 'home:admin:nope' }
+      expect(flash[:error]).to eq("Sorry, you are not authorized to create this Project.")
+      expect(response).to redirect_to(root_path)
+    end
+
     it "shows an error if source project parameter not provided" do
       post :branch, params: { linked_package: source_package }
       expect(flash[:error]).to eq("Failed to branch: Linked Project parameter missing")
