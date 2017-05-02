@@ -10,6 +10,9 @@ module Webui
         )
         @requests_data_table = BsRequest::DataTable::Table.new(requests_query, params[:draw])
 
+        # NOTE: This session is used by requests/show
+        session[:request_numbers] = requests_query.requests.map(&:number)
+
         respond_to do |format|
           format.json
         end
@@ -18,7 +21,7 @@ module Webui
       private
 
       def types
-        [params[:type]] if params[:type].present?
+        [params[:type]] if params[:type].present? && params[:type] != 'all'
       end
 
       def states

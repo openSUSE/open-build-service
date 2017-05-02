@@ -9,19 +9,34 @@ class BsRequest
       end
 
       def requests
-        @requests ||= BsRequest.list(
+        @requests ||=
+          request_query
+          .offset(@params[:offset])
+          .limit(@params[:limit])
+          .reorder(@params[:sort_column] => @params[:sort_direction])
+          .includes(:bs_request_actions)
+      end
+
+      def records_total
+        request_query_without_search.count
+      end
+
+      def count_requests
+        request_query.count
+      end
+
+      private
+
+      def request_query
+        BsRequest.collection(
           @params.merge(project: @project.name, types: @types, states: @states)
         )
       end
 
-      # TODO: This should show the number of requests without the search applied
-      def records_total
-        requests.count
-      end
-
-      # TODO: This should show the number of requests with the search applied
-      def count_requests
-        requests.count
+      def request_query_without_search
+        BsRequest.collection(
+          @params.except(:search).merge(project: @project.name, types: @types, states: @states)
+        )
       end
     end
   end

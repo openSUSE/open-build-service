@@ -93,3 +93,4 @@ ENV['RANTLY_VERBOSE'] = '0'
 require 'support/logging'
 
 Dir["./spec/support/shared_contexts/*.rb"].each { |file| require file }
+Dir["./spec/support/shared_examples/*.rb"].each { |file| require file }

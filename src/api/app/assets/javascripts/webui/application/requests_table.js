@@ -44,7 +44,7 @@ $( document ).ready(function() {
     });
 
     // 3. Type dropdown (if it exists)
-    var loading_spinner = $('#spinner');
+    loading_spinner = $('#spinner');
 
     type_dropdown.change(function(){
       loading_spinner.show();

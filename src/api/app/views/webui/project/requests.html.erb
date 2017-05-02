@@ -17,7 +17,7 @@
       options_for_select(@available_states, @default_request_state),
       data: { table: 'all_requests_table' }) %>
   <span id="request_count">
-    <%= "(" + @requests.length.to_s + ")" unless not defined?(@requests) or @requests.blank? %>
+    <%= "(" + @requests.length.to_s + ")" unless not defined?(@requests) || @requests.blank? %>
   </span>:
   <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
 </p>

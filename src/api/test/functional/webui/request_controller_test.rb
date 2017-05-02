@@ -307,25 +307,26 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     visit project_requests_path(project: "Apache")
     page.must_have_text "Requests for Apache"
-    find_all("a.request_link", count: 4)[1].click
+    find_all("a.request_link", count: 4)[0].click
 
-    assert_equal "/request/show/1000", page.current_path
+    assert_equal "/request/show/10", page.current_path
+
     # start of list
     page.wont_have_link("<<")
     click_link(">>")
-    assert_equal "/request/show/10", page.current_path
-    click_link(">>")
-    assert_equal "/request/show/5", page.current_path
+    assert_equal "/request/show/1000", page.current_path
     click_link(">>")
     assert_equal "/request/show/4", page.current_path
+    click_link(">>")
+    assert_equal "/request/show/5", page.current_path
     page.wont_have_link(">>")
     # end of list
     click_link("<<")
-    assert_equal "/request/show/5", page.current_path
+    assert_equal "/request/show/4", page.current_path
+    click_link("<<")
+    assert_equal "/request/show/1000", page.current_path
     click_link("<<")
     assert_equal "/request/show/10", page.current_path
-    click_link(">>")
-    assert_equal "/request/show/5", page.current_path
   end
 
   def test_succesful_comment_creation # spec/features/webui/comments_spec.rb

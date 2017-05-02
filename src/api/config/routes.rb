@@ -324,10 +324,6 @@ OBSApi::Application.routes.draw do
       get 'users/(:user)/requests' => :index, as: 'user_requests'
     end
 
-    controller 'webui/projects/bs_requests' do
-      get 'projects/(:project)/requests' => :index, as: 'projects_requests'
-    end
-
     controller 'webui/groups' do
       get 'groups' => :index
       get 'group/show/:title' => :show, constraints: {:title => /[^\/]*/}, as: 'group_show'
@@ -653,6 +649,9 @@ OBSApi::Application.routes.draw do
 
       resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
     end
+
+    ### /projects
+    get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
   end
 
   controller :source do
