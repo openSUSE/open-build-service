@@ -86,6 +86,15 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
     end
 
+    context 'superseeding a request that does not exist' do
+      before do
+        post :submit_request, params: { project: source_project, package: package, targetproject: target_project, supersede_request_numbers: [42] }
+      end
+
+      it { expect(flash[:notice]).to match(" Superseding failed: Couldn't find request with id '42'") }
+      it_should_behave_like "a response of a successful submit request"
+    end
+
     context "having whitespaces in parameters" do
       before do
         post :submit_request, params: { project: " #{source_project} ", package: " #{package} ", targetproject: " #{target_project} " }
