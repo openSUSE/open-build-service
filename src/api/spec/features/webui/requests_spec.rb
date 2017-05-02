@@ -128,6 +128,47 @@ RSpec.feature "Requests", type: :feature, js: true do
       expect(page).to have_text('In state accepted')
       expect(submitter.has_local_permission?('change_package', target_project.packages.find_by(name: target_package.name))).to be_truthy
     end
+
+    describe 'forwarding requests' do
+      let(:package) { create(:package_with_file, name: 'pkg_forward_test', project_id: target_project.id) }
+
+      def branch_and_change_sources
+        click_link('Branch package')
+        click_button('Ok')
+        # We need source changes to be able to create a submit request
+        click_link('somefile.txt')
+        # Workaround to update codemirror text field
+        execute_script("$('.CodeMirror')[0].CodeMirror.setValue('#{SecureRandom.hex}')")
+        click_button("Save")
+        # Back to package view
+        click_link('pkg_forward_test')
+      end
+
+      scenario 'and forward a request' do
+        login(submitter)
+        visit package_show_path(project: target_project, package: package)
+
+        # 2 branches are needed for the test: Initial submit request will be made from
+        # 2nd branch to 1st one.
+        # When this request get's accepted a forwarded request will be created from
+        # 1st branch to initial package.
+        branch_and_change_sources
+        branch_and_change_sources
+
+        click_link('Submit package')
+        click_button('Ok')
+
+        click_link('submit request 1')
+
+        expect(page.body).to have_text("Submit package home:kugelb...home:titan / pkg_forward_test (revision 2) " +
+          "to package home:kugelb...home:titan / pkg_forward_test")
+        expect(page.body).to have_text("Forward to linked package home:titan / pkg_forward_test")
+
+        check('forward_link')
+        click_button('Accept')
+        expect(page).to have_text("accepted and forwarded to home:titan / pkg_forward_test")
+      end
+    end
   end
 
   describe 'superseed' do
