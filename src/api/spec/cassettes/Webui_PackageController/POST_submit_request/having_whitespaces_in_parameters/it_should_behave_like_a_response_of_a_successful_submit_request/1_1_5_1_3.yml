@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Tue, 02 May 2017 14:55:50 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Et itaque esse eos.</description>
+          <title>Oh! To be in England</title>
+          <description>Corporis maiores illum laudantium possimus autem in enim ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '193'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Et itaque esse eos.</description>
+          <title>Oh! To be in England</title>
+          <description>Corporis maiores illum laudantium possimus autem in enim ut.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Tue, 02 May 2017 14:55:50 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Et itaque esse eos.</description>
+          <title>Oh! To be in England</title>
+          <description>Corporis maiores illum laudantium possimus autem in enim ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '193'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Et itaque esse eos.</description>
+          <title>Oh! To be in England</title>
+          <description>Corporis maiores illum laudantium possimus autem in enim ut.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Tue, 02 May 2017 14:55:50 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Eligendi non tenetur fugiat. Sit eum consectetur neque ducimus aut.
-        Iste aut corrupti. Voluptas temporibus quas consequatur vero adipisci.
+      string: Facilis consectetur voluptates explicabo hic molestias fuga mollitia.
+        Corporis perferendis aperiam cum similique cupiditate. Voluptatum earum nam
+        ut et minima repellat quibusdam. In numquam aperiam deleniti non. Est dolorum
+        incidunt quia et maiores minima unde.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -149,24 +151,25 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>829fa317e688da664cd3bfb1a57f4c34</srcmd5>
+        <revision rev="11" vrev="11">
+          <srcmd5>b887b7765414500ebf3718a8bb75cab2</srcmd5>
           <version>unknown</version>
-          <time>1493736952</time>
+          <time>1493736950</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Tue, 02 May 2017 14:55:50 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Corporis dolore distinctio. Vero quae animi sint eligendi. Molestiae
-        architecto eaque dicta atque sed voluptatem eius. Excepturi possimus ipsum
-        aut suscipit id ducimus. Quae sed vel porro recusandae pariatur ut.
+      string: Architecto occaecati porro. Eos aliquid corporis iure vel praesentium
+        molestiae dolorum. Neque dolor placeat vel voluptates tempora dolores. Eum
+        veniam et ut doloribus officia sed. Quia unde autem voluptas iste dolores
+        aut aut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -190,24 +193,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>3be6fce6c540010b3f628c8997250d7d</srcmd5>
+        <revision rev="12" vrev="12">
+          <srcmd5>aca924de020b8147bf5d95f1aa511ef1</srcmd5>
           <version>unknown</version>
-          <time>1493736952</time>
+          <time>1493736950</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Tue, 02 May 2017 14:55:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_10/_meta
+    uri: http://localhost:3200/source/project_6/_meta
     body:
       encoding: UTF-8
       string: |
-        <project name="project_10">
-          <title>The Violent Bear It Away</title>
+        <project name="project_6">
+          <title>Brandy of the Damned</title>
           <description/>
         </project>
     headers:
@@ -229,24 +232,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '106'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_10">
-          <title>The Violent Bear It Away</title>
+        <project name="project_6">
+          <title>Brandy of the Damned</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Tue, 02 May 2017 14:55:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_10/_config
+    uri: http://localhost:3200/source/project_6/_config
     body:
       encoding: UTF-8
-      string: Nihil qui recusandae. Distinctio pariatur perspiciatis libero corporis
-        aperiam nemo. Aut rerum consequatur. Culpa rem inventore. Laudantium sequi
-        molestias dolores.
+      string: Facilis dolorum architecto sit. Cumque aliquid qui ut. Officiis fuga
+        nihil. Qui est ullam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -273,7 +275,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Tue, 02 May 2017 14:55:50 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
@@ -303,10 +305,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="20" vrev="20" srcmd5="3be6fce6c540010b3f628c8997250d7d">
-          <entry name="_config" md5="d87abe18af68bd1afbb96f434303c70c" size="138" mtime="1493736952" />
-          <entry name="somefile.txt" md5="3da710f68ed38be76135b08d4952862d" size="211" mtime="1493736952" />
+        <directory name="package_with_file" rev="12" vrev="12" srcmd5="aca924de020b8147bf5d95f1aa511ef1">
+          <entry name="_config" md5="7bb959e8cf55a851ad283ce676131f25" size="261" mtime="1493736950" />
+          <entry name="somefile.txt" md5="95fb22048d00e4dfda3dc4dc18d2af0f" size="227" mtime="1493736950" />
         </directory>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:52 GMT
+  recorded_at: Tue, 02 May 2017 14:55:50 GMT
 recorded_with: VCR 3.0.3

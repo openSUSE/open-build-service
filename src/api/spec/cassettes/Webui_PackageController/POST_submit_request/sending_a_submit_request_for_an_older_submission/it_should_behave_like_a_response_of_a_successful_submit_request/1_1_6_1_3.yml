@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+  recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title/>
-          <description/>
+          <title>Eyeless in Gaza</title>
+          <description>Adipisci qui alias sapiente quia quae in.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Eyeless in Gaza</title>
+          <description>Adipisci qui alias sapiente quia quae in.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+  recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title/>
-          <description/>
+          <title>Eyeless in Gaza</title>
+          <description>Adipisci qui alias sapiente quia quae in.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Eyeless in Gaza</title>
+          <description>Adipisci qui alias sapiente quia quae in.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+  recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Qui sunt vel explicabo repellat natus corrupti. Occaecati impedit architecto.
-        Asperiores qui voluptatem velit totam iste neque perferendis.
+      string: Voluptas itaque provident ut. Necessitatibus sint qui. Aspernatur ad
+        ratione ullam dolorem ut. Dolores ut neque magnam repellat quia totam animi.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -149,23 +149,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16" vrev="16">
-          <srcmd5>c2435e1411f92cf8a2beb12a69b79558</srcmd5>
+        <revision rev="49" vrev="49">
+          <srcmd5>7226c99bfdec0169d81dd4895f1104c8</srcmd5>
           <version>unknown</version>
-          <time>1491582931</time>
+          <time>1493736959</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+  recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Dolores ad sunt consectetur. Ut est nihil recusandae quia qui accusamus.
-        Voluptatum aut quo ullam et architecto.
+      string: Maxime at qui quis nesciunt cumque. Eum praesentium harum dolores eveniet
+        eius. Rem debitis quia officiis quo. Sit aut eos.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -189,16 +189,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="17" vrev="17">
-          <srcmd5>7b20d769125c2585265042d8f52e4388</srcmd5>
+        <revision rev="50" vrev="50">
+          <srcmd5>34d22ebc117a55fa2d3aad45e4bd04b4</srcmd5>
           <version>unknown</version>
-          <time>1491582931</time>
+          <time>1493736959</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+  recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
@@ -228,16 +228,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="18" vrev="18">
-          <srcmd5>281f7bb0901af2eb88c9310110b0da36</srcmd5>
+        <revision rev="51" vrev="51">
+          <srcmd5>0f2238c71acef89b35ebb3a7bfac8764</srcmd5>
           <version>unknown</version>
-          <time>1491582931</time>
+          <time>1493736959</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+  recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
@@ -267,16 +267,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>97148a06f3a168b91a61d49ee7952c2a</srcmd5>
+        <revision rev="52" vrev="52">
+          <srcmd5>285bacae73d3c34e40a64c0b0db1ec3d</srcmd5>
           <version>unknown</version>
-          <time>1491582931</time>
+          <time>1493736959</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+  recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
@@ -306,24 +306,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>c2435e1411f92cf8a2beb12a69b79558</srcmd5>
+        <revision rev="53" vrev="53">
+          <srcmd5>7226c99bfdec0169d81dd4895f1104c8</srcmd5>
           <version>unknown</version>
-          <time>1491582931</time>
+          <time>1493736959</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+  recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_4/_meta
+    uri: http://localhost:3200/source/project_22/_meta
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>The Skull Beneath the Skin</title>
+        <project name="project_22">
+          <title>In Dubious Battle</title>
           <description/>
         </project>
     headers:
@@ -345,23 +345,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '112'
+      - '104'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>The Skull Beneath the Skin</title>
+        <project name="project_22">
+          <title>In Dubious Battle</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+  recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_4/_config
+    uri: http://localhost:3200/source/project_22/_config
     body:
       encoding: UTF-8
-      string: Amet itaque consequatur soluta. Deserunt et excepturi sed praesentium.
-        Sequi dolorum temporibus eius minima impedit non. Expedita aut dolore aut.
+      string: Rerum et blanditiis iure et. Et omnis adipisci voluptate. Vel ut natus
+        dolorem rem dolorum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -388,7 +388,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+  recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file?expand=1&rev=2
@@ -418,10 +418,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="2" vrev="2" srcmd5="ead1fcf40a80e6a60c7e4f69194a3e80">
-          <entry name="_config" md5="e4266675ad8ed9f0a8d2425df840f06c" size="144" mtime="1491582928" />
-          <entry name="somefile.txt" md5="5c3e7cae52e58734e817aeac213299c4" size="142" mtime="1491582928" />
+        <directory name="package_with_file" rev="2" vrev="2" srcmd5="42e71d08a4a9c55b352719593064ac33">
+          <entry name="_config" md5="2702d3ea42d76432faf603ded851a13f" size="199" mtime="1493736947" />
+          <entry name="somefile.txt" md5="a01262138d67b69a079cc3b42eea8e96" size="149" mtime="1493736947" />
         </directory>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:31 GMT
+  recorded_at: Tue, 02 May 2017 14:55:59 GMT
 recorded_with: VCR 3.0.3

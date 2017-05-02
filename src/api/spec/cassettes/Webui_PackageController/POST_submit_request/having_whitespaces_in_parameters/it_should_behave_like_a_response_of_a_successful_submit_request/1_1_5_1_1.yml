@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:29 GMT
+  recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title/>
-          <description/>
+          <title>Vile Bodies</title>
+          <description>Nemo nihil accusantium laboriosam tenetur commodi in porro.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '183'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Vile Bodies</title>
+          <description>Nemo nihil accusantium laboriosam tenetur commodi in porro.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:29 GMT
+  recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title/>
-          <description/>
+          <title>Vile Bodies</title>
+          <description>Nemo nihil accusantium laboriosam tenetur commodi in porro.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,64 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '183'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Vile Bodies</title>
+          <description>Nemo nihil accusantium laboriosam tenetur commodi in porro.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:29 GMT
+  recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Error aut quas est. Pariatur reprehenderit inventore. Ex dignissimos
-        quae.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>2041640db83c0661c6466aec123bc811</srcmd5>
-          <version>unknown</version>
-          <time>1491582929</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:29 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
-    body:
-      encoding: UTF-8
-      string: Ut vero illo hic quasi cupiditate autem assumenda. Ipsum laudantium
-        in architecto impedit commodi ad. Rerum consequatur cumque modi facere quos.
-        Perferendis expedita itaque iure rerum est incidunt ea.
+      string: Magni ut eligendi id. Est quo assumenda quam voluptates minima est.
+        Ad architecto molestiae ea aut amet.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -191,21 +150,23 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="7" vrev="7">
-          <srcmd5>8a0492f69e59920a90cd0b510cb610f0</srcmd5>
+          <srcmd5>ed840525b00853559fac73749400d7e1</srcmd5>
           <version>unknown</version>
-          <time>1491582929</time>
+          <time>1493736949</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:29 GMT
+  recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
     body:
-      encoding: US-ASCII
-      string: '0'
+      encoding: UTF-8
+      string: Ipsam laborum distinctio magni id nihil. Sequi minima reiciendis autem
+        facere. Expedita enim reiciendis tempora. Accusamus est veniam quis est debitis
+        eos.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -230,101 +191,23 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="8" vrev="8">
-          <srcmd5>3d299a33d8bb668b769339402add6cd0</srcmd5>
+          <srcmd5>a17149c5a7597066fc11da42d4216fde</srcmd5>
           <version>unknown</version>
-          <time>1491582929</time>
+          <time>1493736949</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:29 GMT
+  recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
-    body:
-      encoding: US-ASCII
-      string: '1'
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
+    uri: http://localhost:3200/source/project_4/_meta
     body:
       encoding: UTF-8
       string: |
-        <revision rev="9" vrev="9">
-          <srcmd5>d4ab4830626807dc752f46e272f5a4db</srcmd5>
-          <version>unknown</version>
-          <time>1491582930</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:30 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
-    body:
-      encoding: US-ASCII
-      string: '2'
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '209'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="10" vrev="10">
-          <srcmd5>2041640db83c0661c6466aec123bc811</srcmd5>
-          <version>unknown</version>
-          <time>1491582930</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:30 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/project_2/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="project_2">
-          <title>The Needle's Eye</title>
+        <project name="project_4">
+          <title>Oh! To be in England</title>
           <description/>
         </project>
     headers:
@@ -346,24 +229,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '102'
+      - '106'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_2">
-          <title>The Needle's Eye</title>
+        <project name="project_4">
+          <title>Oh! To be in England</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:30 GMT
+  recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_config
+    uri: http://localhost:3200/source/project_4/_config
     body:
       encoding: UTF-8
-      string: Necessitatibus numquam minus itaque. Minima harum nostrum et temporibus
-        distinctio. Quia iure consequatur qui. Magnam voluptatem ducimus veritatis
-        at. Saepe et eos quisquam enim sit qui non.
+      string: Est minus quisquam tempora inventore voluptas ratione suscipit. Et nam
+        sunt ut voluptatibus cum id et. Exercitationem accusantium possimus. Ut eaque
+        est est nulla.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -390,10 +273,10 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:30 GMT
+  recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1&rev=2
+    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -420,10 +303,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="2" vrev="2" srcmd5="ead1fcf40a80e6a60c7e4f69194a3e80">
-          <entry name="_config" md5="e4266675ad8ed9f0a8d2425df840f06c" size="144" mtime="1491582928" />
-          <entry name="somefile.txt" md5="5c3e7cae52e58734e817aeac213299c4" size="142" mtime="1491582928" />
+        <directory name="package_with_file" rev="8" vrev="8" srcmd5="a17149c5a7597066fc11da42d4216fde">
+          <entry name="_config" md5="bda5ddb3840f9e92a7c42b4ace48e9c5" size="104" mtime="1493736949" />
+          <entry name="somefile.txt" md5="c33abebaa288947732dab536df26ceef" size="155" mtime="1493736949" />
         </directory>
     http_version: 
-  recorded_at: Fri, 07 Apr 2017 16:35:30 GMT
+  recorded_at: Tue, 02 May 2017 14:55:49 GMT
 recorded_with: VCR 3.0.3

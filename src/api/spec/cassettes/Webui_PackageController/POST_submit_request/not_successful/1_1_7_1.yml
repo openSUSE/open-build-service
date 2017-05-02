@@ -34,5 +34,5 @@ http_interactions:
           <details>404 package 'my_package' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Mon, 10 Apr 2017 16:42:15 GMT
+  recorded_at: Tue, 02 May 2017 15:08:01 GMT
 recorded_with: VCR 3.0.3

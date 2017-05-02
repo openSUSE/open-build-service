@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+  recorded_at: Tue, 02 May 2017 14:55:53 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>It's a Battlefield</title>
-          <description>Nostrum esse officiis provident.</description>
+          <title>Surprised by Joy</title>
+          <description>Cum nostrum quasi et minus quia excepturi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>It's a Battlefield</title>
-          <description>Nostrum esse officiis provident.</description>
+          <title>Surprised by Joy</title>
+          <description>Cum nostrum quasi et minus quia excepturi.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+  recorded_at: Tue, 02 May 2017 14:55:53 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>It's a Battlefield</title>
-          <description>Nostrum esse officiis provident.</description>
+          <title>Surprised by Joy</title>
+          <description>Cum nostrum quasi et minus quia excepturi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,24 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>It's a Battlefield</title>
-          <description>Nostrum esse officiis provident.</description>
+          <title>Surprised by Joy</title>
+          <description>Cum nostrum quasi et minus quia excepturi.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+  recorded_at: Tue, 02 May 2017 14:55:53 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Libero doloremque voluptatibus aut asperiores quod perferendis ut. Vel
-        voluptatem modi adipisci architecto. Dolorem omnis officiis magnam et minima.
-        Et voluptatem soluta labore.
+      string: Sint eum labore quam velit similique laudantium. Et temporibus asperiores
+        rerum harum aut. Est laudantium molestiae. Porro at temporibus enim ab dolores.
+        Dolores dignissimos quos voluptatibus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -150,24 +150,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="17" vrev="17">
-          <srcmd5>9d7ec1a0417e527c6782cc509f142423</srcmd5>
+        <revision rev="25" vrev="25">
+          <srcmd5>cb3ca90100aeb0f46c8b3b68efa81163</srcmd5>
           <version>unknown</version>
-          <time>1493733763</time>
+          <time>1493736953</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+  recorded_at: Tue, 02 May 2017 14:55:54 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Voluptatem reprehenderit illum tenetur et velit. Optio totam et ut ut
-        velit repudiandae. Vel earum harum nihil iusto consectetur beatae recusandae.
-        Sint totam expedita doloribus quia ipsam nihil accusantium.
+      string: Ex culpa aut repellendus. Repellat repudiandae sunt culpa in. Quia deleniti
+        occaecati nulla. Beatae vitae dicta magni. Cupiditate rerum consequatur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -191,24 +190,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="18" vrev="18">
-          <srcmd5>f64f37bc0d39a18232d72f78c4b8476d</srcmd5>
+        <revision rev="26" vrev="26">
+          <srcmd5>7ab8574c906f1e9118553dd79bafc3f0</srcmd5>
           <version>unknown</version>
-          <time>1493733763</time>
+          <time>1493736954</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+  recorded_at: Tue, 02 May 2017 14:55:54 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_4/_meta
+    uri: http://localhost:3200/source/project_13/_meta
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>Cabbages and Kings</title>
+        <project name="project_13">
+          <title>An Instant In The Wind</title>
           <description/>
         </project>
     headers:
@@ -230,23 +229,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '109'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>Cabbages and Kings</title>
+        <project name="project_13">
+          <title>An Instant In The Wind</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+  recorded_at: Tue, 02 May 2017 14:55:54 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_4/_config
+    uri: http://localhost:3200/source/project_13/_config
     body:
       encoding: UTF-8
-      string: Et animi quia fugit cupiditate sit rerum odio. Dicta maxime aut aliquid
-        numquam asperiores et non. Dolorum accusamus esse labore placeat aut architecto.
+      string: Odit ipsa fuga eum ex. Facilis eveniet architecto perspiciatis. Omnis
+        excepturi ullam temporibus sequi qui numquam. Tempore officia unde.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -273,7 +272,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+  recorded_at: Tue, 02 May 2017 14:55:54 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
@@ -303,10 +302,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="18" vrev="18" srcmd5="f64f37bc0d39a18232d72f78c4b8476d">
-          <entry name="_config" md5="d0bf29e6e6072b6c70e2eada7ffff1ec" size="177" mtime="1493733763" />
-          <entry name="somefile.txt" md5="c96109d5ca2bfbaa9245b09c1e6c267a" size="207" mtime="1493733763" />
+        <directory name="package_with_file" rev="26" vrev="26" srcmd5="7ab8574c906f1e9118553dd79bafc3f0">
+          <entry name="_config" md5="c0fb2ca0afc89b39a4c98a2a7f385a9e" size="192" mtime="1493736953" />
+          <entry name="somefile.txt" md5="74610a4ce0caa6a52f611dc4076ee148" size="148" mtime="1493736954" />
         </directory>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+  recorded_at: Tue, 02 May 2017 14:55:54 GMT
 recorded_with: VCR 3.0.3
