@@ -1,0 +1,312 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>It's a Battlefield</title>
+          <description>Nostrum esse officiis provident.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>It's a Battlefield</title>
+          <description>Nostrum esse officiis provident.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>It's a Battlefield</title>
+          <description>Nostrum esse officiis provident.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>It's a Battlefield</title>
+          <description>Nostrum esse officiis provident.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    body:
+      encoding: UTF-8
+      string: Libero doloremque voluptatibus aut asperiores quod perferendis ut. Vel
+        voluptatem modi adipisci architecto. Dolorem omnis officiis magnam et minima.
+        Et voluptatem soluta labore.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="17" vrev="17">
+          <srcmd5>9d7ec1a0417e527c6782cc509f142423</srcmd5>
+          <version>unknown</version>
+          <time>1493733763</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Voluptatem reprehenderit illum tenetur et velit. Optio totam et ut ut
+        velit repudiandae. Vel earum harum nihil iusto consectetur beatae recusandae.
+        Sint totam expedita doloribus quia ipsam nihil accusantium.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="18" vrev="18">
+          <srcmd5>f64f37bc0d39a18232d72f78c4b8476d</srcmd5>
+          <version>unknown</version>
+          <time>1493733763</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_4/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>Cabbages and Kings</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>Cabbages and Kings</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_4/_config
+    body:
+      encoding: UTF-8
+      string: Et animi quia fugit cupiditate sit rerum odio. Dicta maxime aut aliquid
+        numquam asperiores et non. Dolorum accusamus esse labore placeat aut architecto.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '308'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="18" vrev="18" srcmd5="f64f37bc0d39a18232d72f78c4b8476d">
+          <entry name="_config" md5="d0bf29e6e6072b6c70e2eada7ffff1ec" size="177" mtime="1493733763" />
+          <entry name="somefile.txt" md5="c96109d5ca2bfbaa9245b09c1e6c267a" size="207" mtime="1493733763" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 14:02:43 GMT
+recorded_with: VCR 3.0.3

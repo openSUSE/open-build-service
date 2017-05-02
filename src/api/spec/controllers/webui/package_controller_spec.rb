@@ -73,6 +73,19 @@ RSpec.describe Webui::PackageController, vcr: true do
       it_should_behave_like "a response of a successful submit request"
     end
 
+    context "sending a valid submit request with 'sourceupdate' parameter" do
+      before do
+        post :submit_request, params: { project: source_project, package: package, targetproject: target_project, sourceupdate: 'update' }
+      end
+
+      it_should_behave_like "a response of a successful submit request"
+
+      it 'creates a submit request with correct sourceupdate attibute' do
+        created_request = BsRequestActionSubmit.where(target_project: target_project.name, target_package: target_package).first
+        expect(created_request.sourceupdate).to eq('update')
+      end
+    end
+
     context "having whitespaces in parameters" do
       before do
         post :submit_request, params: { project: " #{source_project} ", package: " #{package} ", targetproject: " #{target_project} " }
