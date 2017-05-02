@@ -60,7 +60,6 @@ our $servicedir = "/usr/lib/obs/service/";
 # Maximum number of concurrent jobs for source service
 #our $service_maxchild = 20;
 
-#our $gpg_standard_key = "/etc/obs-default-gpg.asc";
 # optional notification service:
 #our $hermesserver = "http://$hostname/hermes";
 #our $hermesnamespace = "OBS";
@@ -157,6 +156,7 @@ our $relsync_pool = {
 #our $sign_project = 1;
 #Global sign key 
 #our $keyfile = '/srv/obs/openSUSE-Build-Service.asc';
+#our $gpg_standard_key = "/etc/obs-default-gpg.asc";
 
 # Use a special local arch for product building
 # our $localarch = "x86_64";

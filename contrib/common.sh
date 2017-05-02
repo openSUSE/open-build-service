@@ -18,7 +18,7 @@ function install_common_packages() {
   zypper -q -n install --replacefiles\
     update-alternatives make gcc gcc-c++ patch cyrus-sasl-devel openldap2-devel \
     libmysqld-devel libxml2-devel zlib-devel libxslt-devel nodejs mariadb memcached \
-    sphinx phantomjs \
+    sphinx phantomjs haveged \
     screen \
     ruby2.4-devel \
     ruby2.4-rubygem-bundler \
@@ -94,6 +94,14 @@ function configure_search() {
   rake -f /vagrant/src/api/Rakefile ts:rebuild
 }
 
+function setup_signd() {
+  echo "Setting up signd so bs_signer can be used..."
+  cd / && tar xf /vagrant/dist/obs-signd-conf.tar.bz2
+  systemctl enable haveged
+  systemctl start haveged
+  systemctl enable obssignd
+  systemctl start obssignd
+}
 
 function setup_data_dir() {
   echo "Generating data dir and mounting them So hard links can be used..."
