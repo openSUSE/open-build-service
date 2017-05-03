@@ -211,4 +211,17 @@ RSpec.feature "Packages", type: :feature, js: true do
       expect(page.source).to have_text('[1] this is my dummy logfile')
     end
   end
+
+  scenario 'adding a valid file' do
+    login user
+
+    visit package_show_path(project: user.home_project, package: package)
+    click_link('Add file')
+
+    fill_in 'Filename', with: 'new_file'
+    click_button('Save changes')
+
+    expect(page).to have_text("The file 'new_file' has been successfully saved.")
+    expect(page).to have_link('new_file')
+  end
 end
