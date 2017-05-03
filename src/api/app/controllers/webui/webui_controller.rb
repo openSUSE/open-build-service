@@ -88,7 +88,8 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def set_project
-    @project = Project.find_by(name: params[:project])
+    # We've started to use project_name for new routes...
+    @project = Project.find_by(name: params[:project_name] || params[:project])
     raise ActiveRecord::RecordNotFound unless @project
   end
 
