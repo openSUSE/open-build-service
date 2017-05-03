@@ -118,8 +118,10 @@ class Webui::RequestController < Webui::WebuiController
 
     @request_before = nil
     @request_after = nil
-    index = session[:request_numbers].try(:index, @number)
-    if index
+
+    if session[:request_numbers].present?
+      index = session[:request_numbers].index(@bsreq.number)
+
       @request_before = session[:request_numbers][index - 1] if index > 0
       # will be nil for after end
       @request_after = session[:request_numbers][index + 1]

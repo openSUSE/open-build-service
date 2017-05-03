@@ -649,6 +649,9 @@ OBSApi::Application.routes.draw do
 
       resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
     end
+
+    ### /projects
+    get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
   end
 
   controller :source do

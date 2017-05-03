@@ -29,11 +29,11 @@ class BsRequest
       end
 
       def offset
-        @requested_params[:start].to_i
+        @requested_params[:start] ? @requested_params[:start].to_i : 0
       end
 
       def limit
-        @requested_params[:length].to_i
+        @requested_params[:length] ? @requested_params[:length].to_i : 25
       end
 
       def order_params

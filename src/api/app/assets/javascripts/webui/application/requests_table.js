@@ -1,9 +1,12 @@
 $( document ).ready(function() {
   $('.requests-datatable').each(function(index){
     // 1. Create DataTable
-    var url = $(this).data('source');
     var dataTableId = $(this).attr('id');
-    var options = {
+    var type_dropdown = $('select[name=request_type_select][data-table=' + dataTableId + ']');
+    var state_dropdown = $('select[name=request_state_select][data-table=' + dataTableId + ']');
+    var url = $(this).data('source');
+
+    var table = $(this).dataTable({
       order: [[0,'desc']],
       info: false,
       columnDefs: [
@@ -18,12 +21,15 @@ $( document ).ready(function() {
       serverSide: true,
       ajax: {
         url: url,
-        data: { dataTableId: dataTableId }
+        data: function(d) {
+          d.dataTableId = dataTableId;
+          d.type = type_dropdown.val();
+          d.state = state_dropdown.val();
+        }
       }
-    };
-    var table = $(this).dataTable(options);
+    });
 
-    // 2. Reload button
+    // 2. Reload button (if it exists)
     var reload_button = $('.result_reload[data-table=' + dataTableId + ']');
     var loading_spinner = $(reload_button).siblings('.result_spinner');
 
@@ -33,6 +39,26 @@ $( document ).ready(function() {
 
       table.api().ajax.reload(function(){
         reload_button.show();
+        loading_spinner.hide();
+      }, false);
+    });
+
+    // 3. Type dropdown (if it exists)
+    loading_spinner = $('#spinner');
+
+    type_dropdown.change(function(){
+      loading_spinner.show();
+
+      table.api().ajax.reload(function(){
+        loading_spinner.hide();
+      }, false);
+    });
+
+    // 4. State dropdown (if it exists)
+    state_dropdown.change(function(){
+      loading_spinner.show();
+
+      table.api().ajax.reload(function(){
         loading_spinner.hide();
       }, false);
     });
