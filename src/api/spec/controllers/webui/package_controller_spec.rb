@@ -73,6 +73,28 @@ RSpec.describe Webui::PackageController, vcr: true do
       it_should_behave_like "a response of a successful submit request"
     end
 
+    context "sending a valid submit request with 'sourceupdate' parameter" do
+      before do
+        post :submit_request, params: { project: source_project, package: package, targetproject: target_project, sourceupdate: 'update' }
+      end
+
+      it_should_behave_like "a response of a successful submit request"
+
+      it 'creates a submit request with correct sourceupdate attibute' do
+        created_request = BsRequestActionSubmit.where(target_project: target_project.name, target_package: target_package).first
+        expect(created_request.sourceupdate).to eq('update')
+      end
+    end
+
+    context 'superseeding a request that does not exist' do
+      before do
+        post :submit_request, params: { project: source_project, package: package, targetproject: target_project, supersede_request_numbers: [42] }
+      end
+
+      it { expect(flash[:notice]).to match(" Superseding failed: Couldn't find request with id '42'") }
+      it_should_behave_like "a response of a successful submit request"
+    end
+
     context "having whitespaces in parameters" do
       before do
         post :submit_request, params: { project: " #{source_project} ", package: " #{package} ", targetproject: " #{target_project} " }
@@ -103,6 +125,8 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'not successful' do
       before do
+        # NOTE: This test has to run with running backend, but 'global_write_through' disabled
+        stub_const('CONFIG', CONFIG.merge({ 'global_write_through' => false }))
         post :submit_request, params: { project: source_project, package: source_package, targetproject: target_project.name }
       end
 

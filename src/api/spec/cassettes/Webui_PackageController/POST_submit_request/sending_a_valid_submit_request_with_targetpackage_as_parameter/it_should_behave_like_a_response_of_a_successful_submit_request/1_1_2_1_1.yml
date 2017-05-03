@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 24 Apr 2017 15:15:26 GMT
+  recorded_at: Tue, 02 May 2017 14:55:48 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title/>
-          <description/>
+          <title>The Grapes of Wrath</title>
+          <description>In et quo eaque consequatur quisquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>The Grapes of Wrath</title>
+          <description>In et quo eaque consequatur quisquam.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 24 Apr 2017 15:15:26 GMT
+  recorded_at: Tue, 02 May 2017 14:55:48 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title/>
-          <description/>
+          <title>The Grapes of Wrath</title>
+          <description>In et quo eaque consequatur quisquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,24 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>The Grapes of Wrath</title>
+          <description>In et quo eaque consequatur quisquam.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 24 Apr 2017 15:15:26 GMT
+  recorded_at: Tue, 02 May 2017 14:55:48 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Laudantium quos minus. Eos necessitatibus quo et earum quibusdam. Sit
-        sunt odit praesentium sit explicabo sunt debitis. Eos ut doloribus expedita
-        nobis voluptas perspiciatis. Quia amet molestias ut.
+      string: Quibusdam molestiae quo dicta ipsa est repellendus a. Aspernatur qui
+        omnis non consequatur delectus. Est repudiandae placeat vel nam. Magnam impedit
+        doloremque et qui culpa vitae. Dolor omnis ex.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -151,23 +151,22 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="3" vrev="3">
-          <srcmd5>9f487221bbee4f06559584b7fa8c0cbd</srcmd5>
+          <srcmd5>2778bbcf32e2784308a0475785c38c32</srcmd5>
           <version>unknown</version>
-          <time>1493046926</time>
+          <time>1493736948</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 24 Apr 2017 15:15:26 GMT
+  recorded_at: Tue, 02 May 2017 14:55:48 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Dolore necessitatibus sunt et non amet deserunt. Cum quo magni sequi.
-        Nesciunt consequuntur deserunt consequatur eaque possimus quia. Non nulla
-        est fugit at dolorem inventore.
+      string: Id maiores tenetur ipsam aut. Debitis omnis rerum nihil. Repudiandae
+        aut recusandae. Molestiae necessitatibus et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -192,23 +191,23 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="4" vrev="4">
-          <srcmd5>4c1215d9ca7c1e0da901a42eb0dae623</srcmd5>
+          <srcmd5>bce07eb19ec03074947a79966e467b51</srcmd5>
           <version>unknown</version>
-          <time>1493046926</time>
+          <time>1493736948</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 24 Apr 2017 15:15:26 GMT
+  recorded_at: Tue, 02 May 2017 14:55:48 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/_meta
+    uri: http://localhost:3200/source/project_2/_meta
     body:
       encoding: UTF-8
       string: |
-        <project name="project_1">
-          <title>The Stars' Tennis Balls</title>
+        <project name="project_2">
+          <title>The Wives of Bath</title>
           <description/>
         </project>
     headers:
@@ -230,24 +229,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '103'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_1">
-          <title>The Stars' Tennis Balls</title>
+        <project name="project_2">
+          <title>The Wives of Bath</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 24 Apr 2017 15:15:26 GMT
+  recorded_at: Tue, 02 May 2017 14:55:48 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/_config
+    uri: http://localhost:3200/source/project_2/_config
     body:
       encoding: UTF-8
-      string: Beatae illum velit. Optio quibusdam quasi quia doloribus architecto.
-        Dignissimos at eum in in accusamus repellendus doloribus. Saepe quidem quia
-        in officiis. Est ex non labore nihil soluta.
+      string: Dolorum sed dolores iure in quidem. Esse similique adipisci rem et voluptatem.
+        Ipsam aut omnis cumque.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -274,7 +272,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 24 Apr 2017 15:15:26 GMT
+  recorded_at: Tue, 02 May 2017 14:55:48 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
@@ -304,10 +302,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="4" vrev="4" srcmd5="4c1215d9ca7c1e0da901a42eb0dae623">
-          <entry name="_config" md5="f20042e74c7cc0d4fa573ec07eb704cb" size="198" mtime="1493046926" />
-          <entry name="somefile.txt" md5="c262464f9b4e480872ea6daea3c1c092" size="175" mtime="1493046926" />
+        <directory name="package_with_file" rev="4" vrev="4" srcmd5="bce07eb19ec03074947a79966e467b51">
+          <entry name="_config" md5="4cdb52546f6e3a8ed3f70eae121ec1e3" size="195" mtime="1493736948" />
+          <entry name="somefile.txt" md5="c4b49ae43781c3e6d8e3f92d94b2cd2b" size="113" mtime="1493736948" />
         </directory>
     http_version: 
-  recorded_at: Mon, 24 Apr 2017 15:15:26 GMT
+  recorded_at: Tue, 02 May 2017 14:55:48 GMT
 recorded_with: VCR 3.0.3
