@@ -141,4 +141,21 @@ RSpec.describe Webui::RequestController, vcr: true do
       it { expect(@bs_request).to be nil }
     end
   end
+
+  describe "POST #sourcediff" do
+    context "with xhr header" do
+      before do
+        post :sourcediff, xhr: true
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(response).to render_template('shared/_editor') }
+    end
+
+    context "without xhr header" do
+      let(:call_sourcediff) { post :sourcediff }
+
+      it { expect{ call_sourcediff }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
+    end
+  end
 end
