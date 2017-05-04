@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe Webui::RequestController, vcr: true do
   let(:submitter) { create(:confirmed_user, login: 'kugelblitz' ) }
   let(:receiver) { create(:confirmed_user, login: 'titan' ) }
+  let(:reviewer) { create(:confirmed_user, login: 'klasnic' ) }
   let(:target_project) { receiver.home_project }
   let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
   let(:source_project) { submitter.home_project }
@@ -15,6 +16,14 @@ RSpec.describe Webui::RequestController, vcr: true do
                                       source_project: source_project.name,
                                       source_package: source_package.name,
                                       bs_request_id: bs_request.id)
+  end
+  let(:request_with_review) do
+    create(:review_bs_request,
+           reviewer: reviewer,
+           target_project: target_project.name,
+           target_package: target_package.name,
+           source_project: source_project.name,
+           source_package: source_package.name)
   end
 
   it { is_expected.to use_before_action(:require_login) }
@@ -94,6 +103,62 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it "does not create a delete request" do
         expect(BsRequest.count).to eq(0)
+      end
+    end
+  end
+
+  describe "POST #modify_review" do
+    before do
+      login(reviewer)
+    end
+
+    context "with valid parameters" do
+      before do
+        post :modify_review, params: { review_comment_0:        "yeah",
+                                       review_request_number_0: request_with_review.number,
+                                       review_by_user_0:        reviewer,
+                                       accepted:                'Approve' }
+      end
+
+      it { expect(response).to redirect_to(request_show_path(number: request_with_review.number)) }
+      it { expect(request_with_review.reload.reviews.last.state).to eq(:accepted) }
+    end
+
+    context "with invalid parameters" do
+      it 'without request' do
+        post :modify_review, params: { review_comment_0:        "yeah",
+                                       review_request_number_0: 1899,
+                                       review_by_user_0:        reviewer,
+                                       accepted:                "Approve"}
+        expect(flash[:error]).to eq('Unable to load request')
+        expect(request_with_review.reload.reviews.last.state).to eq(:new)
+        expect(request_with_review.reload.state).to eq(:review)
+      end
+      it 'without state' do
+        post :modify_review, params: { review_comment_0:        "yeah",
+                                       review_request_number_0: request_with_review.number,
+                                       review_by_user_0:        reviewer}
+        expect(flash[:error]).to eq('Unknown state to set')
+        expect(request_with_review.reload.reviews.last.state).to eq(:new)
+        expect(request_with_review.reload.state).to eq(:review)
+      end
+      it "without permissions" do
+        post :modify_review, params: { review_comment_0:        "yeah",
+                                       review_request_number_0: request_with_review.number,
+                                       review_by_user_0:        submitter,
+                                       accepted:                'Approve' }
+        expect(flash[:error]).to eq("Not permitted to change review state: review state change is not permitted for #{reviewer.login}")
+        expect(request_with_review.reload.reviews.last.state).to eq(:new)
+        expect(request_with_review.reload.state).to eq(:review)
+      end
+      it "with invalid transition" do
+        request_with_review.update_attributes(state: 'declined')
+        post :modify_review, params: { review_comment_0:        "yeah",
+                                       review_request_number_0: request_with_review.number,
+                                       review_by_user_0:        reviewer,
+                                       accepted:                'Approve' }
+        expect(flash[:error]).to eq("Not permitted to change review state: The request is neither in state review nor new")
+        expect(request_with_review.reload.state).to eq(:declined)
       end
     end
   end
