@@ -26,10 +26,19 @@ RSpec.feature "Packages", type: :feature, js: true do
   describe 'Viewing a package that' do
     let(:branching_data) { BranchPackage.new(project: user.home_project.name, package: package.name).branch }
     let(:branched_project) { Project.where(name: branching_data[:data][:targetproject]).first }
+    let(:package_mime) do
+      create(:package, name: 'test.json', project: user.home_project, description: 'A package with a mime type suffix')
+    end
 
     before do
       # Needed for branching
       User.current = user
+    end
+
+    scenario "has a mime like suffix in it's name" do
+      visit package_show_path(project: user.home_project, package: package_mime)
+      expect(page).to have_text('test.json')
+      expect(page).to have_text('A package with a mime type suffix')
     end
 
     scenario 'was branched' do
