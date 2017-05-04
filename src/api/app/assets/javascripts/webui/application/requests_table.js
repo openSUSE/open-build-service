@@ -27,6 +27,10 @@ $( document ).ready(function() {
           d.state = state_dropdown.val();
         }
       }
+    }).on('xhr.dt', function ( e, settings, json, xhr ) {
+      if (json) {
+        $('#request_count').text('(' + json.recordsTotal + ')');
+      }
     });
 
     // 2. Reload button (if it exists)

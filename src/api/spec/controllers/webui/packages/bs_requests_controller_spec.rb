@@ -1,10 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe Webui::Projects::BsRequestsController do
+RSpec.describe Webui::Packages::BsRequestsController do
   describe 'GET #index' do
     include_context 'a set of bs requests'
 
-    let(:base_params) { { project: source_project, format: :json } }
+    let(:base_params) { { project: source_project, package: source_package, format: :json } }
     let(:context_params) { {} }
     let(:params) { base_params.merge(context_params) }
 

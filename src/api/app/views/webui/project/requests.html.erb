@@ -5,22 +5,6 @@
 
 <h3><%= @pagetitle %></h3>
 
-<p>
-  Display
-  <%= select_tag(
-      "request_type_select",
-      options_for_select(@available_types, @default_request_type),
-      data: { table: 'all_requests_table' }) %>
-  requests in state
-  <%= select_tag(
-      "request_state_select",
-      options_for_select(@available_states, @default_request_state),
-      data: { table: 'all_requests_table' }) %>
-  <span id="request_count">
-    <%= "(" + @requests.length.to_s + ")" unless not defined?(@requests) || @requests.blank? %>
-  </span>:
-  <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
-</p>
-
+<%= render(partial: 'webui/shared/requests_state_and_type_form') %>
 
 <%= render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: projects_requests_path(@project) }) %>
