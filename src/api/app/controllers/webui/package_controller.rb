@@ -295,7 +295,8 @@ class Webui::PackageController < Webui::WebuiController
     rescue Project::UnknownObjectError,
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
-      flash[:error] = "Unable to submit (missing target): #{e.message}"
+      redirect_back(fallback_location: root_path, error: "Unable to submit (missing target): #{e.message}")
+      return
     rescue APIException, ActiveRecord::RecordInvalid => e
       flash[:error] = "Unable to submit: #{e.message}"
     rescue ActiveRecord::RecordInvalid => e
