@@ -167,6 +167,19 @@ RSpec.describe Webui::PackageController, vcr: true do
       it { expect(response).to redirect_to(project_show_path(project: source_project)) }
       it { expect(BsRequestActionSubmit.where(target_project: source_project.name)).not_to exist }
     end
+
+    context "sending a submit request without target" do
+      before do
+        post :submit_request, params: { project: 'unknown', package: package, targetproject: target_project, targetpackage: target_package }
+      end
+
+      it 'creates a submit request with correct sourceupdate attibute' do
+        expect(flash[:error]).to eq("Unable to submit (missing target): unknown")
+      end
+
+      it { expect(response).to redirect_to(root_path) }
+      it { expect(BsRequestActionSubmit.where(target_project: target_project, target_package: target_package)).not_to exist }
+    end
   end
 
   describe 'POST #save' do

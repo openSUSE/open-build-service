@@ -96,7 +96,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::WebuiController#check_user'                                       => 80.99,
       'UserLdapStrategy::render_grouplist_ldap'                                 => 98.25,
       'Webui::PackageController#branch'                                         => 121.12,
-      'Webui::PackageController#submit_request'                                 => 110.76,
+      'Webui::PackageController#submit_request'                                 => 113.46,
       'Webui::PackageController#dependency'                                     => 83.57,
       'Webui::PackageController#update_build_log'                               => 82.21,
       'Webui::PatchinfoController#save'                                         => 256.25,
