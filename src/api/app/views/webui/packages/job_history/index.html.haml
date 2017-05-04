@@ -26,7 +26,7 @@
           = time_tag(Time.at(jobhistory.ready_time))
         %td
           = jobhistory.reason
-        %td
+        %td{ class: "status_#{jobhistory.code}" }
           = jobhistory.code
         %td
           = humanize_time(jobhistory.total_time)
