@@ -36,6 +36,7 @@ OBSApi::Application.routes.draw do
     package:      %r{[^\/]*},
     package_name: %r{[^\/]*},
     project:      %r{[^\/]*},
+    project_name: %r{[^\/]*},
     repository:   %r{[^\/]*},
     service:      %r{\w[^\/]*},
     title:        %r{[^\/]*},
@@ -253,8 +254,8 @@ OBSApi::Application.routes.draw do
     end
 
     resources :projects, only: [], param: :name do
-      resource :public_key, controller: 'webui/projects/public_key', only: [:show]
-      resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show]
+      resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons
+      resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show], constraints: cons
     end
 
     controller 'webui/request' do
