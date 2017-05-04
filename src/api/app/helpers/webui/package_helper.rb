@@ -72,4 +72,13 @@ module Webui::PackageHelper
     # But at this point we know it truly is html safe
     result.html_safe
   end
+
+  def humanize_time(seconds)
+    [[60, :s], [60, :m], [24, :h]].map do |count, name|
+      if seconds > 0
+        seconds, n = seconds.divmod(count)
+        "#{n.to_i}#{name}"
+      end
+    end.compact.reverse.join(' ')
+  end
 end

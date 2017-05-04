@@ -41,6 +41,20 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     end
   end
 
+  describe '#humanize_time' do
+    it 'returns seconds' do
+      expect(humanize_time(28)).to eq('28s')
+    end
+
+    it 'returns minutes and seconds' do
+      expect(humanize_time(88)).to eq('1m 28s')
+    end
+
+    it 'returns hours, minutes and seconds' do
+      expect(humanize_time(3688)).to eq('1h 1m 28s')
+    end
+  end
+
   describe '#file_url' do
     skip
   end
