@@ -2,7 +2,8 @@ class Project
   class KeyInfo
     include ActiveModel::Model
 
-    attr_accessor :pubkey,
+    attr_accessor :origin,
+                  :pubkey,
                   :algorithm,
                   :ssl_certificate,
                   :keyid,
@@ -22,6 +23,7 @@ class Project
       return unless parsed_response['pubkey'].present?
 
       key_info_params = {
+        origin:      parsed_response['project'],
         pubkey:      parsed_response['pubkey']['_content'],
         algorithm:   parsed_response['pubkey']['algo'],
         keyid:       parsed_response['pubkey']['keyid'],
@@ -33,6 +35,8 @@ class Project
       if parsed_response['sslcert'].present?
         key_info_params[:ssl_certificate] = parsed_response['sslcert']
       end
+
+      key_info_params.delete(:origin) if key_info_params[:origin] == project.name
 
       new(key_info_params)
     end

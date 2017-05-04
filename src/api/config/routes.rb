@@ -256,7 +256,11 @@ OBSApi::Application.routes.draw do
     end
 
     resources :projects, only: [], param: :name do
-      resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons
+      resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons do
+        member do
+          get 'key_dialog'
+        end
+      end
       resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show], constraints: cons
     end
 
