@@ -49,7 +49,7 @@ class Webui::RequestController < Webui::WebuiController
     req = nil
     params.each do |key, value|
       state = key if  key.in?(["accepted", "declined", "new"])
-      req = BsRequest.find_by_number!(value) if key.starts_with?('review_request_number_')
+      req = BsRequest.find_by_number(value) if key.starts_with?('review_request_number_')
 
       # Our views are valid XHTML. So, several forms 'POST'-ing to the same action have different
       # HTML ids. Thus we have to parse 'params' a bit:
@@ -77,7 +77,7 @@ class Webui::RequestController < Webui::WebuiController
       end
     end
 
-    redirect_to action: 'show', number: req.number
+    redirect_to request_show_path(number: req), success: "Successfully submitted review"
   end
 
   def show
