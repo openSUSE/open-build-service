@@ -9,6 +9,9 @@
 
 <p>
   <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => @repository} %>
+  <% if binaries?(@buildresult) %>
+    <%= link_to sprited_text('drive_burn', 'Delete'), { controller: :package, action: :wipe_binaries, project: @project, package: @package, repository: @repository }, { method: :delete} %> all built binaries
+  <% end %>
 </p>
 
 <% @buildresult.elements('result') do |result|
