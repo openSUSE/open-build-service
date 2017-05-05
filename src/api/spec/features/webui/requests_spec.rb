@@ -293,4 +293,39 @@ RSpec.feature "Requests", type: :feature, js: true do
       end
     end
   end
+
+  describe 'project with list of requests' do
+    let(:project) { create(:project, name: 'my_project') }
+    let!(:request_1) { create(:bs_request, source_project: project, type: 'submit', created_at: Time.now + 1) }
+    let!(:request_2) { create(:bs_request, source_project: project, type: 'submit', created_at: Time.now + 2) }
+    let!(:request_3) { create(:bs_request, source_project: project, type: 'submit', created_at: Time.now + 3) }
+
+    before do
+      project.relationships.create(user: submitter, role: Role.where(title: 'maintainer').first)
+    end
+
+    scenario 'going through a request list' do
+      login(submitter)
+      visit project_requests_path(project: project)
+
+      expect(page).to have_text("Requests for #{project}")
+      expect(page).to have_link("Show request ##{request_1.id}")
+      expect(page).to have_link("Show request ##{request_2.id}")
+      expect(page).to have_link("Show request ##{request_3.id}")
+
+      click_link("Show request ##{request_1.id}")
+      expect(page).to have_text("Request #{request_1.id} (new)")
+      expect(page).not_to have_link('>>')
+
+      click_link('<<')
+      expect(page).to have_text("Request #{request_2.id} (new)")
+
+      click_link('<<')
+      expect(page).to have_text("Request #{request_3.id} (new)")
+      expect(page).not_to have_link('<<')
+
+      click_link('>>')
+      expect(page).to have_text("Request #{request_2.id} (new)")
+    end
+  end
 end
