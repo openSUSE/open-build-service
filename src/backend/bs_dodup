@@ -62,7 +62,10 @@ sub fetch {
     $param->{'filename'} = $filename;
   }
   #print "-- $url\n";
-  return BSRPC::rpc($param);
+  my $r;
+  eval { $r = BSRPC::rpc($param); };
+  die("$url: $@") if $@;
+  return $r;
 }
 
 sub chkverify {
