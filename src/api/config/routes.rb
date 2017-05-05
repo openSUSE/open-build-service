@@ -272,7 +272,6 @@ OBSApi::Application.routes.draw do
       post 'request/sourcediff' => :sourcediff
       post 'request/changerequest' => :changerequest
       get 'request/diff/:number' => :diff
-      get 'request/list' => :list
       get 'request/list_small' => :list_small
       get 'request/delete_request_dialog' => :delete_request_dialog
       post 'request/delete_request' => :delete_request
