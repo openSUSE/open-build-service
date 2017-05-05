@@ -1,6 +1,7 @@
 :ruby
   @pagetitle = "Job history of #{@project} / #{@package}"
   @metarobots = 'index,nofollow'
+  job_history_breadcrumb(@project, @package, 'Job history')
 
 = render partial: 'tabs'
 
@@ -33,8 +34,5 @@
         %td
           = jobhistory.worker_id
         %td
-          - title = "Package:#{@package.name} | revision:#{jobhistory.revision}"
-          = link_to sprite_tag('req-showdiff', title: title),
-                    package_show_path(project: @project,
-                                      package: @package,
-                                      rev: jobhistory.revision)
+          = link_to_package_from_job_history(@project, @package,
+                                             jobhistory, @is_link)

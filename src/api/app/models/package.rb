@@ -901,6 +901,7 @@ class Package < ApplicationRecord
     local_jobs_history = []
     results.elements('jobhist').reverse_each do |result|
       local_jobs_history << LocalJobHistory.new(revision: result['rev'],
+                                                srcmd5: result['srcmd5'],
                                                 build_counter: result['bcnt'],
                                                 worker_id: result['workerid'],
                                                 host_arch: result['hostarch'],
