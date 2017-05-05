@@ -89,6 +89,11 @@ class Project < ApplicationRecord
 
   has_many :project_log_entries, dependent: :delete_all
 
+  has_many :reviews, dependent: :nullify, as: :entity
+
+  has_many :source_of_bs_request_actions, as: :source, class_name: 'BsRequestAction'
+  has_many :target_of_bs_request_actions, as: :target, class_name: 'BsRequestAction'
+
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
 
   scope :maintenance, -> { where("kind = 'maintenance'") }

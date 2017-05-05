@@ -9,6 +9,7 @@ class Group < ApplicationRecord
   has_many :group_maintainers, inverse_of: :group, dependent: :destroy
   has_many :relationships, dependent: :destroy, inverse_of: :group
   has_many :event_subscriptions, dependent: :destroy, inverse_of: :group
+  has_many :reviews, dependent: :nullify, as: :entity
 
   validates :title,
             format: { with:    %r{\A[\w\.\-]*\z},

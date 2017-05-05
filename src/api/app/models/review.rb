@@ -22,6 +22,7 @@ class Review < ApplicationRecord
   validate :validate_non_symmetric_assignment
   validate :validate_not_self_assigned
 
+  belongs_to :entity, polymorphic: true
   belongs_to :review_assigned_from, class_name: 'Review', foreign_key: :review_id
   has_one :review_assigned_to, class_name: 'Review', foreign_key: :review_id
 
@@ -38,6 +39,8 @@ class Review < ApplicationRecord
       self.state = :new
     end
   end
+
+  before_validation :set_associations
 
   def validate_non_symmetric_assignment
     return unless review_assigned_from && review_assigned_from == review_assigned_to
@@ -94,15 +97,23 @@ class Review < ApplicationRecord
       errors.add(:unknown, 'no reviewer defined')
     end
 
-    if by_user && !User.find_by_login(by_user)
+    if by_user
+      error = true if by_group || by_project || by_package
+    elsif by_group
+      error = true if by_project || by_package
+    end
+
+    errors.add(:base, 'it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package.') if error
+
+    if by_user && !entity
       errors.add(:by_user, "#{by_user} not found")
     end
 
-    if by_group && !Group.find_by_title(by_group)
+    if by_group && !entity
       errors.add(:by_group, "#{by_group} not found")
     end
 
-    if by_project && !Project.find_by_name(by_project)
+    if by_project && !entity
       # must be a local project or we can't ask
       errors.add(:by_project, "#{by_project} not found")
     end
@@ -110,7 +121,7 @@ class Review < ApplicationRecord
     if by_package && !by_project
       errors.add(:unknown, 'by_package defined, but missing by_project')
     end
-    return unless by_package && !Package.find_by_project_and_name(by_project, by_package)
+    return unless by_package && !entity
 
     # must be a local package. maybe we should rewrite in case the
     # package comes via local project link...
@@ -204,6 +215,24 @@ class Review < ApplicationRecord
     # send email later
     Event::ReviewWanted.create params
   end
+
+  private
+
+  # Note that this is not an polymorphic association at the moment as it is possible
+  # to e.g. set by_group and by_user at the same time.
+  # We set the associations as the authoritative storage are the by_ attributes as
+  # even when a record (project, package ...) got deleted the review should still be usable
+  def set_associations
+    if by_package && by_project
+      self.entity = Package.find_by_project_and_name(by_project, by_package)
+    elsif by_project
+      self.entity = Project.find_by_name(by_project)
+    elsif by_user
+      self.entity = User.find_by(login: by_user)
+    elsif by_group
+      self.entity = Group.find_by(title: by_group)
+    end
+  end
 end
 
 # == Schema Information
@@ -223,6 +252,8 @@ end
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #  review_id     :integer          indexed
+#  entity_type   :string(255)      indexed => [entity_id]
+#  entity_id     :integer          indexed => [entity_type]
 #
 # Indexes
 #
@@ -232,6 +263,7 @@ end
 #  index_reviews_on_by_project                 (by_project)
 #  index_reviews_on_by_user                    (by_user)
 #  index_reviews_on_creator                    (creator)
+#  index_reviews_on_entity_type_and_entity_id  (entity_type,entity_id)
 #  index_reviews_on_review_id                  (review_id)
 #  index_reviews_on_reviewer                   (reviewer)
 #  index_reviews_on_state_and_by_project       (state,by_project)

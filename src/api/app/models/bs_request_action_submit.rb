@@ -143,14 +143,20 @@ end
 #  created_at            :datetime
 #  target_repository     :string(255)
 #  makeoriginolder       :boolean          default(FALSE)
+#  target_type           :string(255)      indexed => [target_id]
+#  target_id             :integer          indexed => [target_type]
+#  source_type           :string(255)      indexed => [source_id]
+#  source_id             :integer          indexed => [source_type]
 #
 # Indexes
 #
-#  bs_request_id                               (bs_request_id)
-#  index_bs_request_actions_on_source_package  (source_package)
-#  index_bs_request_actions_on_source_project  (source_project)
-#  index_bs_request_actions_on_target_package  (target_package)
-#  index_bs_request_actions_on_target_project  (target_project)
+#  bs_request_id                                          (bs_request_id)
+#  index_bs_request_actions_on_source_package             (source_package)
+#  index_bs_request_actions_on_source_project             (source_project)
+#  index_bs_request_actions_on_source_type_and_source_id  (source_type,source_id)
+#  index_bs_request_actions_on_target_package             (target_package)
+#  index_bs_request_actions_on_target_project             (target_project)
+#  index_bs_request_actions_on_target_type_and_target_id  (target_type,target_id)
 #
 # Foreign Keys
 #

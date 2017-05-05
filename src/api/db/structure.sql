@@ -225,12 +225,18 @@ CREATE TABLE `bs_request_actions` (
   `created_at` datetime DEFAULT NULL,
   `target_repository` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `makeoriginolder` tinyint(1) DEFAULT '0',
+  `source_type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `source_id` int(11) DEFAULT NULL,
+  `target_type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `target_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `bs_request_id` (`bs_request_id`) USING BTREE,
   KEY `index_bs_request_actions_on_source_package` (`source_package`) USING BTREE,
   KEY `index_bs_request_actions_on_source_project` (`source_project`) USING BTREE,
   KEY `index_bs_request_actions_on_target_package` (`target_package`) USING BTREE,
   KEY `index_bs_request_actions_on_target_project` (`target_project`) USING BTREE,
+  KEY `index_bs_request_actions_on_source_type_and_source_id` (`source_type`,`source_id`),
+  KEY `index_bs_request_actions_on_target_type_and_target_id` (`target_type`,`target_id`),
   CONSTRAINT `bs_request_actions_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -915,6 +921,8 @@ CREATE TABLE `reviews` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `review_id` int(11) DEFAULT NULL,
+  `entity_type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `entity_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `bs_request_id` (`bs_request_id`) USING BTREE,
   KEY `index_reviews_on_by_group` (`by_group`) USING BTREE,
@@ -926,6 +934,7 @@ CREATE TABLE `reviews` (
   KEY `index_reviews_on_state_and_by_project` (`state`,`by_project`) USING BTREE,
   KEY `index_reviews_on_state_and_by_user` (`state`,`by_user`) USING BTREE,
   KEY `index_reviews_on_review_id` (`review_id`),
+  KEY `index_reviews_on_entity_type_and_entity_id` (`entity_type`,`entity_id`),
   CONSTRAINT `fk_rails_813a4fb24f` FOREIGN KEY (`review_id`) REFERENCES `reviews` (`id`),
   CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -1178,6 +1187,8 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170315200936'),
 ('20170316090223'),
 ('20170317094221'),
-('20170320151300');
+('20170320151300'),
+('20170426153510'),
+('20170427102943');
 
 
