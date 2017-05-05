@@ -538,6 +538,8 @@ class BsRequest < ApplicationRecord
         history = HistoryElement::RequestReopened
       when "new" then
         history = HistoryElement::RequestReopened
+      when "deleted" then
+        history = HistoryElement::RequestDeleted
       else
         raise RuntimeError, "Unhandled state #{opts[:newstate]} for history"
       end
