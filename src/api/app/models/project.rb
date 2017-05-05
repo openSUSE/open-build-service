@@ -89,6 +89,8 @@ class Project < ApplicationRecord
 
   has_many :project_log_entries, dependent: :delete_all
 
+  has_many :reviews, dependent: :nullify, as: :reviewable
+
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
 
   scope :maintenance, -> { where("kind = 'maintenance'") }

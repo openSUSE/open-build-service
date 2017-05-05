@@ -908,13 +908,15 @@ CREATE TABLE `reviews` (
   `reviewer` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `reason` text COLLATE utf8_unicode_ci,
   `state` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `by_user` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `by_group` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `by_project` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `by_package` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `by_user` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `by_group` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `by_project` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `by_package` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `review_id` int(11) DEFAULT NULL,
+  `reviewable_type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `reviewable_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `bs_request_id` (`bs_request_id`) USING BTREE,
   KEY `index_reviews_on_by_group` (`by_group`) USING BTREE,
@@ -926,6 +928,7 @@ CREATE TABLE `reviews` (
   KEY `index_reviews_on_state_and_by_project` (`state`,`by_project`) USING BTREE,
   KEY `index_reviews_on_state_and_by_user` (`state`,`by_user`) USING BTREE,
   KEY `index_reviews_on_review_id` (`review_id`),
+  KEY `index_reviews_on_reviewable_type_and_reviewable_id` (`reviewable_type`,`reviewable_id`),
   CONSTRAINT `fk_rails_813a4fb24f` FOREIGN KEY (`review_id`) REFERENCES `reviews` (`id`),
   CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -1178,6 +1181,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170315200936'),
 ('20170316090223'),
 ('20170317094221'),
-('20170320151300');
+('20170320151300'),
+('20170426153510');
 
 
