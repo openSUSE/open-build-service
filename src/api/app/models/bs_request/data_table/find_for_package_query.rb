@@ -1,8 +1,9 @@
 class BsRequest
   module DataTable
-    class FindForProjectQuery
-      def initialize(project, params)
+    class FindForPackageQuery
+      def initialize(project, package, params)
         @project = project
+        @package = package
         @params = params
       end
 
@@ -27,13 +28,13 @@ class BsRequest
 
       def request_query
         BsRequest.collection(
-          @params.merge(project: @project.name)
+          @params.merge(project: @project.name, package: @package.name)
         )
       end
 
       def request_query_without_search
         BsRequest.collection(
-          @params.except(:search).merge(project: @project.name)
+          @params.except(:search).merge(project: @project.name, package: @package.name)
         )
       end
     end

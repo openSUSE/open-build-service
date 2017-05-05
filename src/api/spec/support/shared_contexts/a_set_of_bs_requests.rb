@@ -1,4 +1,5 @@
 RSpec.shared_context 'a set of bs requests' do
+  # Set 1
   let!(:user) { create(:confirmed_user, login: "tom") }
 
   let!(:source_project) { create(:project_with_package) }
@@ -33,5 +34,23 @@ RSpec.shared_context 'a set of bs requests' do
                 source_package: source_package,
                 target_project: target_project,
                 target_package: target_package)
+  end
+
+  # Set 2
+  let!(:user2) { create(:confirmed_user, login: "jerry") }
+
+  let!(:source_project2) { create(:project_with_package) }
+  let!(:source_package2) { source_project2.packages.first }
+  let!(:target_project2) { create(:project_with_package) }
+  let!(:target_package2) { target_project2.packages.first }
+
+  let!(:request3) do
+    create(:bs_request_with_submit_action,
+           creator: user2,
+           priority: 'critical',
+           source_project: source_project2,
+           source_package: source_package2,
+           target_project: target_project2,
+           target_package: target_package2)
   end
 end

@@ -203,7 +203,9 @@ class Webui::PackageController < Webui::WebuiController
 
   def requests
     @default_request_type = params[:type] if params[:type]
+    @available_types = %w(all submit delete add_role change_devel maintenance_incident maintenance_release)
     @default_request_state = params[:state] if params[:state]
+    @available_states = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded']
   end
 
   def commit
@@ -1052,28 +1054,6 @@ class Webui::PackageController < Webui::WebuiController
     rescue Object => e
       logger.error "Error in checking for file #{url}: #{e.message}"
       return false
-    end
-  end
-
-  def require_package
-    required_parameters :package
-    params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
-    @project ||= params[:project]
-    unless params[:package].blank?
-      begin
-        @package = Package.get_by_project_and_name( @project.to_param, params[:package],
-                                                    {use_source: false, follow_project_links: true, follow_multibuild: true} )
-      rescue APIException # why it's not found is of no concern :)
-      end
-    end
-
-    return if @package
-
-    if request.xhr?
-      render nothing: true, status: :not_found
-    else
-      flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-      redirect_to project_show_path(project: @project, nextstatus: 404)
     end
   end
 
