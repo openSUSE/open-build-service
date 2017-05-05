@@ -241,14 +241,6 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to action: :show, number: params[:number]
   end
 
-  def list
-    redirect_to(user_show_path(User.current)) && return unless request.xhr? # non ajax request
-    requests = BsRequest.list(params)
-
-    session[:request_numbers] = requests.pluck(:number)
-    render partial: 'shared/requests', locals: { requests: requests }
-  end
-
   def list_small
     required_parameters :project # the minimum
     redirect_to(user_show_path(User.current)) && return unless request.xhr? # non ajax request
