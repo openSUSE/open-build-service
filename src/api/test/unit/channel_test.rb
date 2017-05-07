@@ -56,9 +56,9 @@ class ChannelTest < ActiveSupport::TestCase
       assert_equal 3, cbl.channel_binaries.size
       assert_equal "package", cbl.channel_binaries.first.name
       assert_equal "l3", cbl.channel_binaries.first.supportstatus
-      assert_equal nil, cbl.channel_binaries.first.binaryarch
-      assert_equal nil, cbl.channel_binaries.first.project
-      assert_equal nil, cbl.channel_binaries.first.architecture
+      assert_nil cbl.channel_binaries.first.binaryarch
+      assert_nil cbl.channel_binaries.first.project
+      assert_nil cbl.channel_binaries.first.architecture
     end
 
     # change some values
@@ -82,12 +82,12 @@ class ChannelTest < ActiveSupport::TestCase
     cbl = @channel.channel_binary_lists.first
     assert_equal 2, cbl.channel_binaries.size
     assert_equal "pack2", cbl.channel_binaries.where(name: "package").first.package
-    assert_equal nil, cbl.channel_binaries.where(name: "package").first.supportstatus
-    assert_equal nil, cbl.channel_binaries.where(name: "package").first.binaryarch
-    assert_equal nil, cbl.channel_binaries.where(name: "package").first.project
+    assert_nil cbl.channel_binaries.where(name: "package").first.supportstatus
+    assert_nil cbl.channel_binaries.where(name: "package").first.binaryarch
+    assert_nil cbl.channel_binaries.where(name: "package").first.project
     assert_equal "x86_64", cbl.channel_binaries.where(name: "package").first.architecture.name
 
-    assert_equal nil, cbl.channel_binaries.where(name: "does_not_exist").first.package
+    assert_nil cbl.channel_binaries.where(name: "does_not_exist").first.package
     assert_equal "l2", cbl.channel_binaries.where(name: "does_not_exist").first.supportstatus
   end
 end
