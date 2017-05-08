@@ -131,6 +131,16 @@ class HistoryElement::RequestPriorityChange < HistoryElement::Request
   end
 end
 
+class HistoryElement::RequestDeleted < HistoryElement::Request
+  def color
+    'red'
+  end
+
+  def description
+    'Request was deleted'
+  end
+end
+
 class HistoryElement::Review < ::HistoryElement::Base
   self.description = 'Review was updated'
   self.abstract_class = true

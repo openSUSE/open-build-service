@@ -68,4 +68,24 @@ RSpec.describe BsRequest do
       end
     end
   end
+
+  describe '#changestate' do
+    let!(:request) { create(:bs_request) }
+    let(:admin) { create(:admin_user) }
+
+    context 'to delete state' do
+      before do
+        User.current = admin
+        request.change_state({ newstate: "deleted" })
+      end
+
+      it 'changes state to deleted' do
+        expect(request.state).to eq(:deleted)
+      end
+
+      it 'creates a HistoryElement::RequestDeleted' do
+        expect(request.history_elements.first.type).to eq("HistoryElement::RequestDeleted")
+      end
+    end
+  end
 end
