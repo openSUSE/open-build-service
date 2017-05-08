@@ -65,7 +65,7 @@ class Webui::PackageController < Webui::WebuiController
     @is_current_rev = false
     if set_file_details
       if @forced_unexpand.blank? && @service_running.blank?
-        @is_current_rev = !@revision || (@revision == @current_rev)
+        @is_current_rev = (@revision == @current_rev)
       elsif @service_running
         flash.clear
         flash.now[:notice] = "Service currently running (<a href='#{package_show_path(project: @project, package: @package)}'>reload page</a>)."
@@ -382,11 +382,7 @@ class Webui::PackageController < Webui::WebuiController
       @current_rev = @package.rev
       @revision = @current_rev if !@revision && !@srcmd5 # on very first page load only
 
-      if @srcmd5
-        @files = package_files(@srcmd5, @expand)
-      else
-        @files = package_files(@revision, @expand)
-      end
+      @files = package_files(@srcmd5 || @revision, @expand)
     rescue ActiveXML::Transport::Error => e
       # TODO crudest hack ever!
       if e.summary == 'service in progress' && @expand == 1
