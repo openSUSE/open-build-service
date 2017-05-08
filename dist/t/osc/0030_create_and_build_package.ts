@@ -51,13 +51,14 @@ my $succeed;
 
 while (1) {
   my $states = {
-    broken    => 0,
-    scheduled => 0,
-    succeeded => 0,
-    building  => 0,
-    failed    => 0,
-    signing   => 0,
-    finished  => 0
+    broken       => 0,
+    scheduled    => 0,
+    succeeded    => 0,
+    building     => 0,
+    failed       => 0,
+    signing      => 0,
+    finished     => 0,
+    unresolvable => 0
   };
   my $re = join('|',keys(%$states));
   my $recalculation = 0;
@@ -79,7 +80,11 @@ while (1) {
     # if all have succeeded and no recalculation is needed the test succeed
     $succeed = 1 if ($states->{succeeded} == @result);
     # if any of the results is failed/broken the whole test is failed
-    $succeed = 0 if ($states->{failed} + $states->{broken} > 0);
+    my $bad_results = $states->{failed} + $states->{broken} + $states->{unresolvable};
+    if ($bad_results > 0) {
+      $succeed = 0;
+      print STDERR "@result";
+    }
   }
 
   last if (defined($succeed));
