@@ -363,7 +363,8 @@ class ProjectTest < ActiveSupport::TestCase
 
     assert_equal "patchinfo summary", result["ABC:D"][:patchinfo][:summary]
     assert_equal "recommended",       result["ABC:D"][:patchinfo][:category]
-    assert_equal nil,                 result["ABC:D"][:patchinfo][:stopped]
+
+    assert_nil result["ABC:D"][:patchinfo][:stopped]
   ensure
     # Prevent AAAPreConsistency check to fail
     project.destroy
