@@ -55,12 +55,16 @@
 <% end %>
 
 <% unless @files.blank? || @spider_bot %>
+  <% if @revision.present? %>
     <% unless @is_current_rev %>
-        <h3>Revision <%= @revision %> (latest revision is <%= @current_rev %>)</h3>
+      <h3>Revision <%= @revision %> (latest revision is <%= @current_rev %>)</h3>
     <% else %>
-        <h3>Latest Revision</h3>
+      <h3>Latest Revision</h3>
     <% end %>
     <div style="margin-left: 1.2em">
       <%= render :partial => 'commit_item', :locals => {:rev => @revision} %>
     </div>
+    <% elsif @srcmd5 %>
+      <h3>Source MD5 is <%= @srcmd5 %> (latest revision is <%= @current_rev %>)</h3>
+  <% end %>
 <% end %>
