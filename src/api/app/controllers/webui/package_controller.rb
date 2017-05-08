@@ -380,11 +380,7 @@ class Webui::PackageController < Webui::WebuiController
       @current_rev = @package.rev
       @revision = @current_rev if !@revision && !@srcmd5 # on very first page load only
 
-      if @srcmd5
-        @files = package_files(@srcmd5, @expand)
-      else
-        @files = package_files(@revision, @expand)
-      end
+      @files = package_files(@srcmd5 || @revision, @expand)
     rescue ActiveXML::Transport::Error => e
       # TODO crudest hack ever!
       if e.summary == 'service in progress' && @expand == 1
