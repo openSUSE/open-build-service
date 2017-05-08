@@ -2,10 +2,12 @@
 
 use strict;
 use warnings;
-use Test::More tests => 5;
+use Test::More tests => 4;
 use FindBin;
 use File::Path qw(make_path remove_tree);
 use File::Copy;
+use Cwd;
+
 my $RCODE=0;
 
 my $TMP_DIR="$FindBin::Bin/tmp";
@@ -41,24 +43,57 @@ ok(!$@,"Checking preparation of package");
 system('osc ci -m "initial version"');
 ok(!$?,"Checking initial commit of package obs-testpackage");
 
-eval {
-  # wait for package to finish build
-  system("osc r -w");
-  die "Error while waiting for package to finish" if ($?);
-};
+# wait for building results
+my $time_out = 60 * 60; # wait for at least an hour
+my $start_time = time();
+my $retry_timeout = 5; # retry after X seconds
+my $succeed;
 
-ok(!$@,"Finished building of package");
-my @succeed;
-
-eval {
+while (1) {
+  my $states = {
+    broken       => 0,
+    scheduled    => 0,
+    succeeded    => 0,
+    building     => 0,
+    failed       => 0,
+    signing      => 0,
+    finished     => 0,
+    unresolvable => 0
+  };
+  my $re = join('|',keys(%$states));
+  my $recalculation = 0;
   my @result = `osc r`;
+  for my $line (@result) {
+    if ( $line =~ /($re)(\*)?$/) {
+      if (($2 ||'') eq '*'){
+        $recalculation = 1;
+      } else {
+        $states->{$1}++;
+      }
+    }
+  }
 
-  # count succeed
-  my $succeed = 0;
-  @succeed = grep { /succeeded/ } @result;
-};
+  # test reached timeout (e.g. stuck while signing)
+  last if (($start_time + $time_out) < time());
 
-my $r = ok(@succeed == 2,"Checking succeed builds");
+  if (! $recalculation) {
+    # if all have succeeded and no recalculation is needed the test succeed
+    $succeed = 1 if ($states->{succeeded} == @result);
+    # if any of the results is failed/broken the whole test is failed
+    my $bad_results = $states->{failed} + $states->{broken} + $states->{unresolvable};
+    if ($bad_results > 0) {
+      $succeed = 0;
+      print STDERR "@result";
+    }
+  }
+
+  last if (defined($succeed));
+
+  sleep($retry_timeout);
+}
+
+my $r = ok($succeed,"Checking if build succeeded");
+
 if (! $r) {
   open(F,">","$TMP_DIR/.SKIP") || die "Error while touching $TMP_DIR/.SKIP: $!";
   close(F);
