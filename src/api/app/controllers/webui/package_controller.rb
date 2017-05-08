@@ -65,7 +65,7 @@ class Webui::PackageController < Webui::WebuiController
     @is_current_rev = false
     if set_file_details
       if @forced_unexpand.blank? && @service_running.blank?
-        @is_current_rev = !@revision || (@revision == @current_rev)
+        @is_current_rev = (@revision == @current_rev)
       elsif @service_running
         flash.clear
         flash.now[:notice] = "Service currently running (<a href='#{package_show_path(project: @project, package: @package)}'>reload page</a>)."
