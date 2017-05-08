@@ -430,7 +430,7 @@ XML
     assert_equal "adrianSuSE", u.login
     assert_equal "adrian@example.com", u.email
     assert_equal "Adrian Schroeter", u.realname
-    assert_equal nil, u.adminnote
+    assert_nil u.adminnote
 
     # change password
     data = 'NEWPASSW0RD'
@@ -479,7 +479,7 @@ XML
     assert_equal u.login, "adrianSuSE"
     assert_equal u.email, "adrian@example.com"
     assert_equal u.realname, "Adrian Schroeter"
-    assert_equal nil, u.adminnote
+    assert_nil u.adminnote
     User.current = u
     Project.find_by(name: 'home:adrianSuSE').destroy
     u.destroy
