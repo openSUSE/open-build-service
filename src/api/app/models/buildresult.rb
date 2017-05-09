@@ -1,5 +1,4 @@
 class Buildresult < ActiveXML::Node
-  # rubocop:disable Style/AlignHash
   AVAIL_STATUS_VALUES = {
     succeeded:    0,
     failed:       1,
@@ -11,13 +10,12 @@ class Buildresult < ActiveXML::Node
     building:     7,
     finished:     8,
     signing:      9,
-    disabled:    10,
-    excluded:    11,
-    locked:      12,
-    deleting:    13,
-    unknown:     14
+    disabled:     10,
+    excluded:     11,
+    locked:       12,
+    deleting:     13,
+    unknown:      14
   }
-  # rubocop:enable Style/AlignHash
 
   STATUS_DESCRIPTION = {
       succeeded:    "Package has built successfully and can be used to build further packages.",
