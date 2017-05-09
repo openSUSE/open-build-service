@@ -9,14 +9,18 @@ read the README.UPDATERS file.
 Feature backports:
 ==================
 
-* none
+* [api][webui] Copy repositories when branching from a remote project
 
 Changes:
 ========
 
 * Removed obsolete option api_relative_url_root
+* [backend] Implements 'donotcreatecert' option for _keyinfo
 
 Bugfixes:
 =========
 
-* [webui] Fixes bug in live build log when no architecture or repository parameter was given
+* [webui] Fixes a bug in branch and submit dialog
+* [webui] Fixes a bug in live build log when no architecture or repository parameter was given
+* [webui] Fixes a bug in live build log when the package is a multibuild
+* [backend] Handles arch dependencies correctly
