@@ -18,6 +18,7 @@ function create_dir {
 
 #FSDIR="/opt/obs/SourceServiceSystem"
 DOCKER_IMAGE=`obs_admin --query-config docker_image`
+DOCKER_CUSTOM_OPT=`obs_admin --query-config docker_custom_opt`
 SERVICES_DIR=`obs_admin --query-config servicetempdir`
 SCM_COMMAND=0
 WITH_NET=0
@@ -151,7 +152,7 @@ fi
 
 find $MOUNTDIR
 # run jailed process
-DOCKER_RUN_CMD="docker run -u 2:2 $DOCKER_OPTS_NET --rm --name $CONTAINER_ID $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
+DOCKER_RUN_CMD="docker run -u 2:2 $DOCKER_OPTS_NET --rm --name $CONTAINER_ID $DOCKER_CUSTOM_OPT $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
 printlog "DOCKER_RUN_CMD: '$DOCKER_RUN_CMD'"
 CMD_OUT=$(${DOCKER_RUN_CMD} 2>&1)
 RET_ERR=$?
