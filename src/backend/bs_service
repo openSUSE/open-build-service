@@ -164,10 +164,13 @@ sub run_source_update {
       push @run, "$servicedir/$name";
       for my $param (@{$service->{'param'}}) {
         next if $param->{'name'} eq 'outdir';
-        next unless $param->{'_content'};
         die("$name: service parameter \"$param->{'name'}\" is not defined\n") unless grep {$_->{'name'} eq $param->{'name'}} @{$servicedef->{'parameter'}};
-        push @run, "--$param->{'name'}";
-        push @run, $param->{'_content'};
+        if ($param->{'_content'}) {
+          push @run, "--$param->{'name'}";
+          push @run, $param->{'_content'};
+        } else {
+          push @run, "--$param->{'name'}=";
+        }
       }
       push @run, "--outdir";
       push @run, "$myworkdir/out";
