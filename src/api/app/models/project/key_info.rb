@@ -15,7 +15,6 @@ class Project
 
     def self.find_by_project(project)
       response = Rails.cache.fetch("key_info_project_#{project.cache_key}", expires_in: CACHE_EXPIRY_TIME) do
-        # don't use _with_ssl for now since it will always create a cert in the backend
         Backend::Connection.get(backend_url(project.name)).body
       end
       parsed_response = Xmlhash.parse(response)
@@ -42,11 +41,7 @@ class Project
     end
 
     def self.backend_url(project_name)
-      "/source/#{project_name}/_keyinfo"
-    end
-
-    def self.backend_url_with_ssl(project_name)
-      "/source/#{project_name}/_keyinfo?withsslcert=1"
+      "/source/#{project_name}/_keyinfo?withsslcert=1&donotcreatecert=1"
     end
   end
 end
