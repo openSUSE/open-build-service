@@ -709,6 +709,7 @@ our $worker = [
 	'hostarch',
 	'ip',
 	'port',
+	'registerserver',   # compat for OBS 2.8 worker
 	'workerid',
       [ 'buildarch' ],
       [ 'hostlabel' ],
