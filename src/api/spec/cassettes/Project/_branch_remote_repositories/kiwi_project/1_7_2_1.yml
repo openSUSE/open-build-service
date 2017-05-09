@@ -1,0 +1,225 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_41/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE_41">
+          <title>A Summer Bird-Cage</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE_41">
+          <title>A Summer Bird-Cage</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_41/_config
+    body:
+      encoding: UTF-8
+      string: Ipsam molestias non. Nam quis ut impedit aspernatur fugiat unde. Eos
+        asperiores voluptas ea a error dignissimos culpa. Autem atque molestiae quibusdam
+        ut aspernatur aut.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE.org/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE.org">
+          <title>Carrion Comfort</title>
+          <description>Facere rerum magni ut et eaque voluptate est.</description>
+          <remoteurl>http://huelsmcglynn.co/mireille_cronin</remoteurl>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '213'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE.org">
+          <title>Carrion Comfort</title>
+          <description>Facere rerum magni ut et eaque voluptate est.</description>
+          <remoteurl>http://huelsmcglynn.co/mireille_cronin</remoteurl>
+        </project>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE.org/_config
+    body:
+      encoding: UTF-8
+      string: Sunt ut voluptatem et aut corporis. Beatae culpa dolore natus ea eum.
+        Deserunt magni nam consequuntur aut. Ad voluptatem ut nihil labore mollitia
+        excepturi. Rerum in et non dolore eos enim omnis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:33 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/openSUSE_41/_config
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: Ipsam molestias non. Nam quis ut impedit aspernatur fugiat unde. Eos
+        asperiores voluptas ea a error dignissimos culpa. Autem atque molestiae quibusdam
+        ut aspernatur aut.
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/openSUSE_41/_config
+    body:
+      encoding: UTF-8
+      string: |-
+        %if "%_repository" == "images"
+        Type: kiwi
+        Repotype: none
+        Patterntype: none
+        %endif
+        Ipsam molestias non. Nam quis ut impedit aspernatur fugiat unde. Eos asperiores voluptas ea a error dignissimos culpa. Autem atque molestiae quibusdam ut aspernatur aut.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:27:33 GMT
+recorded_with: VCR 3.0.3

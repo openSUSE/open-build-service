@@ -173,18 +173,11 @@ class BranchPackage
 
       # create repositories, if missing
       if @add_repositories
-        # rubocop:disable Style/EmptyElse
-        if p[:link_target_project].is_a? Project
-          opts = {}
-          opts[:extend_names] = true if @extend_names
-          opts[:rebuild] = @rebuild_policy if @rebuild_policy
-          opts[:block]   = @block_policy   if @block_policy
-          tprj.branch_to_repositories_from(p[:link_target_project], tpkg, opts)
-        else
-          # FIXME: for remote project instances
-          # Please also remove the rubocop ignore comment when you implement the FIXME
-        end
-        # rubocop:enable Style/EmptyElse
+        opts = {}
+        opts[:extend_names] = true if @extend_names
+        opts[:rebuild] = @rebuild_policy if @rebuild_policy
+        opts[:block]   = @block_policy   if @block_policy
+        tprj.branch_to_repositories_from(p[:link_target_project], tpkg, opts)
       end
 
       if tprj.is_maintenance_incident?
