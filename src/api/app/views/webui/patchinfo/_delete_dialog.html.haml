@@ -1,0 +1,13 @@
+.darkgrey_box.dialog#del_dialog
+  .box.box-shadow
+    %h2.box-header Delete Confirmation
+    .dialog-content
+      %p
+        Do you really want to delete #{package_link @package}?
+      = form_tag({ controller: :patchinfo, action: :remove}, method: :post) do
+        %div
+          = hidden_field_tag(:project, @project)
+          = hidden_field_tag(:package, @package)
+          .dialog-buttons
+            = submit_tag('Ok')
+            = remove_dialog_tag('Cancel')

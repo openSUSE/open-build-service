@@ -1,0 +1,10 @@
+.dialog.darkgrey_box
+  .box.box-shadow
+    %h2.box-header Delete Confirmation
+    .dialog-content
+      %p Really delete this message?
+    = form_tag({ controller: 'main', action: 'delete_message' }, method: 'post') do
+      = hidden_field_tag(:message_id, params[:message_id])
+      .dialog-buttons
+        = submit_tag('Ok')
+        = remove_dialog_tag('Cancel')

@@ -1,0 +1,17 @@
+.dialog.darkgrey_box
+  .box.box-shadow
+    %h2.box-header Edit your account
+    .dialog-content
+      = form_tag(action: 'save') do
+        %input#user{name: "user", type: "hidden", value: "#{User.current.login}"}/
+        %p
+          = label_tag :realname, 'Name:'
+          %br/
+          = text_field_tag :realname, User.current.realname
+        %p
+          = label_tag :email, 'e-Mail:'
+          %br/
+          = email_field_tag :email, User.current.email, required: true, email: true
+        .dialog-buttons
+          = submit_tag("Ok")
+          = remove_dialog_tag('Cancel')
