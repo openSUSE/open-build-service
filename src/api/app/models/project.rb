@@ -215,6 +215,10 @@ class Project < ApplicationRecord
   end
   private :cleanup_before_destroy
 
+  def buildresults
+    Buildresult.summary(name)
+  end
+
   def subprojects
     Project.where("name like ?", "#{name}:%")
   end

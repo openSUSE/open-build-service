@@ -219,40 +219,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def buildresult
     check_ajax
-    @buildresult = Buildresult.find_hashed(project: params[:project], view: 'summary')
-    fill_status_cache
-    # convert build result
-    myarray = []
-    @buildresult.elements('result') do |result|
-      result['summary'].elements('statuscount') do |sc|
-        myarray << [result['repository'], result['arch'], Buildresult.code2index(sc['code']), sc['count']]
-      end
-    end
-    myarray.sort!
-    repos = []
-    orepo = nil
-    oarch = nil
-    archs = nil
-    counts = nil
-    myarray.each do |repo, arch, code, count|
-      if orepo != repo
-        archs << [oarch, counts] if oarch
-        oarch = nil
-        repos << [orepo, archs] if orepo
-        archs = []
-      end
-      orepo = repo
-      if oarch != arch
-        archs << [oarch, counts] if oarch
-        counts = []
-      end
-      oarch = arch
-      counts << [Buildresult.index2code(code), count]
-    end
-    archs << [oarch, counts] if oarch
-    repos << [orepo, archs] if orepo
-    @buildresult = repos
-    render partial: 'buildstatus'
+    render partial: 'buildstatus', locals: { project: @project, buildresults: @project.buildresults }
   end
 
   def delete_dialog
