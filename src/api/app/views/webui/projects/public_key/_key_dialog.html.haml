@@ -4,7 +4,7 @@
       = @project.name
       keys
     .dialog-content
-      %table{style: "text-align: center;", width: "95%"}
+      %table{ style: "text-align: center;", width: "95%" }
         %tr
           %th Size
           %th Algorithm
@@ -20,7 +20,7 @@
           %td
             = @project.key_info.keyid
           %td
-            = DateTime.strptime(@project.key_info.expires ,'%s').strftime('%F')
+            = DateTime.strptime(@project.key_info.expires, '%s').strftime('%F')
           - if @project.key_info.origin.present?
             %td= @project.key_info.origin
       %p
