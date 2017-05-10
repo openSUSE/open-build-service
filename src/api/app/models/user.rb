@@ -719,19 +719,9 @@ class User < ApplicationRecord
 
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
-    # just for maintainer for now.
-    role = Role.hashed['maintainer']
-
-    projects = involved_projects_ids
-    projects << -1 if projects.empty?
-
-    # all packages where user is maintainer
-    packages = relationships.where(role_id: role.id).joins(:package).where('packages.project_id not in (?)', projects).pluck(:package_id)
-
-    # all packages where user is maintainer via a group
-    packages += Relationship.packages.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: id }).pluck(:package_id)
-
-    Package.where(id: packages).where('project_id not in (?)', projects)
+    Package.for_user(id).or(
+      Package.for_group(groups.pluck(:id))
+    ).where.not(project_id: involved_projects_ids)
   end
 
   # list packages owned by this user.

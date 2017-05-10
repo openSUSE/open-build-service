@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe User do
   let(:admin_user) { create(:admin_user, login: 'king') }
   let(:user) { create(:user, login: 'eisendieter') }
+  let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
   let(:input) { { 'Event::RequestCreate' => { source_maintainer: '1' } } }
   let(:project_with_package) { create(:project_with_package, name: 'project_b') }
 
@@ -461,6 +462,41 @@ RSpec.describe User do
         let(:not_maintained_target_package) { create(:package) }
         let!(:relationship_package_admin) { create(:relationship_package_user, user: admin_user, package: target_package) }
       end
+    end
+  end
+
+  describe '#involved_packages' do
+    let(:group) { create(:group) }
+    let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
+
+    let(:maintained_package) { create(:package) }
+    let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: maintained_package) }
+
+    let(:group_maintained_package) { create(:package) }
+    let!(:relationship_package_group) { create(:relationship_package_group, group: group, package: group_maintained_package) }
+
+    let(:project_maintained_package) { create(:package) }
+    let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: project_maintained_package.project) }
+
+    let(:group_project_maintained_package) { create(:package) }
+    let!(:relationship_project_group) { create(:relationship_project_group, group: group, project: group_project_maintained_package.project) }
+
+    subject { confirmed_user.involved_packages }
+
+    it 'does include packages where user is maintainer' do
+      expect(subject).to include(maintained_package)
+    end
+
+    it 'does include packages where user is maintainer by group' do
+      expect(subject).to include(group_maintained_package)
+    end
+
+    it 'does not include packages where user is maintainer of the project' do
+      expect(subject).not_to include(project_maintained_package)
+    end
+
+    it 'does not include packages where user is maintainer of the project by group' do
+      expect(subject).not_to include(group_project_maintained_package)
     end
   end
 end
