@@ -37,6 +37,11 @@ class BsRequestAction < ApplicationRecord
   belongs_to :bs_request, touch: true
   has_one :bs_request_action_accept_info, dependent: :delete
 
+  belongs_to :target_package_object, class_name: 'Package', foreign_key: 'target_package_id'
+  belongs_to :target_project_object, class_name: 'Project', foreign_key: 'target_project_id'
+  belongs_to :source_package_object, class_name: 'Package', foreign_key: 'source_package_id'
+  belongs_to :source_project_object, class_name: 'Project', foreign_key: 'source_project_id'
+
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
 
@@ -47,6 +52,8 @@ class BsRequestAction < ApplicationRecord
                      scope:      [:target_project, :target_package, :bs_request_id],
                      conditions: -> { where.not(type: ['add_role', 'maintenance_incident']) }
   }
+
+  before_validation :set_source_and_target_associations
 
   #### Class methods using self. (public and then private)
 
@@ -962,6 +969,13 @@ class BsRequestAction < ApplicationRecord
     end
   end
 
+  def set_source_and_target_associations
+    self.source_package_object = Package.find_by_project_and_name(source_project, source_package)
+    self.source_project_object = Project.find_by_name(source_project)
+    self.target_package_object = Package.find_by_project_and_name(target_project, target_package)
+    self.target_project_object = Project.find_by_name(target_project)
+  end
+
   #### Alias of methods
 end
 
@@ -986,14 +1000,22 @@ end
 #  created_at            :datetime
 #  target_repository     :string(255)
 #  makeoriginolder       :boolean          default(FALSE)
+#  target_package_id     :integer          indexed
+#  target_project_id     :integer          indexed
+#  source_package_id     :integer          indexed
+#  source_project_id     :integer          indexed
 #
 # Indexes
 #
-#  bs_request_id                               (bs_request_id)
-#  index_bs_request_actions_on_source_package  (source_package)
-#  index_bs_request_actions_on_source_project  (source_project)
-#  index_bs_request_actions_on_target_package  (target_package)
-#  index_bs_request_actions_on_target_project  (target_project)
+#  bs_request_id                                  (bs_request_id)
+#  index_bs_request_actions_on_source_package     (source_package)
+#  index_bs_request_actions_on_source_package_id  (source_package_id)
+#  index_bs_request_actions_on_source_project     (source_project)
+#  index_bs_request_actions_on_source_project_id  (source_project_id)
+#  index_bs_request_actions_on_target_package     (target_package)
+#  index_bs_request_actions_on_target_package_id  (target_package_id)
+#  index_bs_request_actions_on_target_project     (target_project)
+#  index_bs_request_actions_on_target_project_id  (target_project_id)
 #
 # Foreign Keys
 #

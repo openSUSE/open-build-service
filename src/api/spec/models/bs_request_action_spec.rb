@@ -34,4 +34,29 @@ RSpec.describe BsRequestAction do
   end
 
   it { should belong_to(:bs_request).touch(true) }
+
+  describe '.set_source_and_target_associations' do
+    let(:project) { create(:project_with_package, name: 'Apache', package_name: 'apache2') }
+    let(:package) { project.packages.first }
+
+    it 'sets target_package_object to package if target_package and target_project parameters provided' do
+      action = BsRequestAction.create(target_project: project.name, target_package: package.name)
+      expect(action.target_package_object).to eq(package)
+    end
+
+    it 'sets target_project_object to project if target_project parameters provided' do
+      action = BsRequestAction.create(target_project: project.name)
+      expect(action.target_project_object).to eq(project)
+    end
+
+    it 'sets source_package_object to package if source_package and source_project parameters provided' do
+      action = BsRequestAction.create(source_project: project.name, source_package: package.name)
+      expect(action.source_package_object).to eq(package)
+    end
+
+    it 'sets source_project_object to project if target_project parameter provided' do
+      action = BsRequestAction.create(source_project: project.name)
+      expect(action.source_project_object).to eq(project)
+    end
+  end
 end

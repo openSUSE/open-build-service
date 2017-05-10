@@ -76,6 +76,12 @@ class Package < ApplicationRecord
 
   has_many :reviews, dependent: :nullify, as: :reviewable
 
+  has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_package_id'
+  has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
+
+  has_many :source_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'source_package_id'
+  has_many :source_of_bs_requests, through: :source_of_bs_request_actions, source: :bs_request
+
   before_destroy :delete_on_backend
   before_destroy :close_requests
   before_destroy :update_project_for_product

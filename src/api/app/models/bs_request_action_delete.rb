@@ -98,14 +98,22 @@ end
 #  created_at            :datetime
 #  target_repository     :string(255)
 #  makeoriginolder       :boolean          default(FALSE)
+#  target_package_id     :integer          indexed
+#  target_project_id     :integer          indexed
+#  source_package_id     :integer          indexed
+#  source_project_id     :integer          indexed
 #
 # Indexes
 #
-#  bs_request_id                               (bs_request_id)
-#  index_bs_request_actions_on_source_package  (source_package)
-#  index_bs_request_actions_on_source_project  (source_project)
-#  index_bs_request_actions_on_target_package  (target_package)
-#  index_bs_request_actions_on_target_project  (target_project)
+#  bs_request_id                                  (bs_request_id)
+#  index_bs_request_actions_on_source_package     (source_package)
+#  index_bs_request_actions_on_source_package_id  (source_package_id)
+#  index_bs_request_actions_on_source_project     (source_project)
+#  index_bs_request_actions_on_source_project_id  (source_project_id)
+#  index_bs_request_actions_on_target_package     (target_package)
+#  index_bs_request_actions_on_target_package_id  (target_package_id)
+#  index_bs_request_actions_on_target_project     (target_project)
+#  index_bs_request_actions_on_target_project_id  (target_project_id)
 #
 # Foreign Keys
 #
