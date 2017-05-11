@@ -350,26 +350,6 @@ class Webui::PackageController < Webui::WebuiController
     @linkinfo[:diff] = true if lt.backend_package.verifymd5 != @package.backend_package.verifymd5
   end
 
-  def package_files( rev = nil, expand = nil )
-    files = []
-    p = {}
-    p[:project] = @package.project.name
-    p[:package] = @package.name
-    p[:expand]  = expand  if expand
-    p[:rev]     = rev     if rev
-    dir = Directory.find(p)
-    return files unless dir
-    @serviceinfo = dir.find_first(:serviceinfo)
-    dir.each(:entry) do |entry|
-      file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.value(x.to_s)]}.flatten]
-      file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
-      file[:editable] = file[:viewable] && !file[:name].match(/^_service[_:]/)
-      file[:srcmd5] = dir.value(:srcmd5)
-      files << file
-    end
-    files
-  end
-
   def set_file_details
     @forced_unexpand ||= ''
 
@@ -1034,6 +1014,27 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   private
+
+  def package_files(rev = nil, expand = nil)
+    p = {}
+    p[:project] = @package.project.name
+    p[:package] = @package.name
+    p[:expand]  = expand  if expand
+    p[:rev]     = rev     if rev
+    dir = Directory.find(p)
+    return [] unless dir
+
+    @serviceinfo = dir.find_first(:serviceinfo)
+    files = []
+    dir.each(:entry) do |entry|
+      file = Hash[*[:name, :size, :mtime, :md5].map {|x| [x, entry.value(x.to_s)]}.flatten]
+      file[:viewable] = !Package.is_binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
+      file[:editable] = file[:viewable] && !file[:name].match?(/^_service[_:]/)
+      file[:srcmd5] = dir.value(:srcmd5)
+      files << file
+    end
+    files
+  end
 
   def file_available?(url, max_redirects = 5)
     begin
