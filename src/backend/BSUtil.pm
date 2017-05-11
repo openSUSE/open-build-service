@@ -605,7 +605,17 @@ sub ping {
 sub restartexit {
   my ($arg, $name, $runfile, $pingfile) = @_;
   return unless $arg;
-  if ($arg eq '--stop' || $arg eq '--exit') {
+
+  my $opts;
+  if (ref($arg) eq 'HASH') {
+    $opts=$arg;
+  } else {
+    $opts={};
+    $opts->{stop}    = 1 if ($arg eq '--stop' || $arg eq '--exit');
+    $opts->{restart} = 1 if ($arg eq '--restart');
+  }
+
+  if ($opts->{stop}) {
     if (!(-e "$runfile.lock") || lockcheck('>>', "$runfile.lock")) {
       print "$name not running.\n";
       exit 0;
@@ -616,7 +626,7 @@ sub restartexit {
     BSUtil::waituntilgone("$runfile.exit");
     exit(0);
   }
-  if ($ARGV[0] eq '--restart') {
+  if ($opts->{restart}) {
     die("$name not running.\n") if !(-e "$runfile.lock") || BSUtil::lockcheck('>>', "$runfile.lock");
     print "restarting $name...\n";
     BSUtil::touch("$runfile.restart");

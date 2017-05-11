@@ -28,34 +28,73 @@ BEGIN {
   unshift @INC,  "$wd";
 }
 
+use strict;
+
 use XML::Structured ':bytes';
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 use Digest::MD5 ();
 
+use BSStdServer;
 use BSConfiguration;
 use BSUtil;
 use BSSolv;
+use Getopt::Long qw(GetOptionsFromArray);
 
-use strict;
+sub parse_options {
+  my %opts;
+  my $ret = GetOptionsFromArray(
+    \@_,
+    \%opts,
+    'testmode|test-mode',
+    'stop|exit',
+    'restart',
+    'logfile:s',
+  );
+  if (! $ret) {
+    print_usage();
+    die "Invalid option(s)\n";
+  };
 
-my $bsdir = $BSConfig::bsdir || "/srv/obs";
+  return \%opts;
+}
 
-BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+sub print_usage {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  print "Usage: ".($0 =~ m-.*/(.*)$-)." [options]
+
+Options:
+  --testmode|--test-mode - run only for one event
+  --stop|--exit          - graceful shutdown daemon
+  --restart              - restart daemon
+  --logfile [file]       - optional you can specify a logfile, otherwise
+                           $BSConfig::logdir/deltastore.log is used
+
+";
+}
+
+# copy @ARGV to keep it untouched in case of restart
+my $options = parse_options(@ARGV);
+
+# set default logfile if key exsit but no value set
+# (--logfile option without parameter)
+$options->{logfile} = "$BSConfig::logdir/deltastore.log" if ( exists($options->{logfile}) and ! $options->{logfile} );
+
+BSStdServer::openlog($options);
+
+BSUtil::mkdir_p_chown($BSConfig::bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
 BSUtil::drop_privs_to($BSConfig::bsuser||$BSConfig::bsuser, $BSConfig::bsgroup||$BSConfig::bsgroup);
 BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
 my $eventdir = "$BSConfig::bsdir/events";
-my $srcrep = "$BSConfig::bsdir/sources";
-my $uploaddir = "$BSConfig::bsdir/upload";
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 
 my $myeventdir = "$eventdir/deltastore";
 
-my $testmode;
-
 sub deltastore {
   my ($projid, $packid, $file) = @_;
+  my $srcrep = "$BSConfig::bsdir/sources";
+  my $uploaddir = "$BSConfig::bsdir/upload";
   print "generating src delta for $projid/$packid/$file\n";
   mkdir_p($uploaddir);
   my $tmp = "$uploaddir/deltastore.$$";
@@ -96,14 +135,9 @@ sub deltastore {
   }
 }
 
-if (@ARGV && ($ARGV[0] eq '--test-mode' || $ARGV[0] eq '--testmode')) {
-  $testmode = 1;
-  shift @ARGV;
-}
-
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($ARGV[0], 'deltastore', "$rundir/bs_deltastore", "$myeventdir/.ping");
+BSUtil::restartexit($options, 'deltastore', "$rundir/bs_deltastore", "$myeventdir/.ping");
 print "starting source delta generator\n";
 
 mkdir_p($rundir);
@@ -150,7 +184,7 @@ while(1) {
     }
   }
 
-  if ($testmode) {
+  if ($options->{testmode}) {
     close(RUNLOCK);
     print "Test mode, exiting...\n";
     exit(0);

@@ -81,8 +81,12 @@ sub check_configuration_once {
 update_from_configuration();
 BSUtil::setdebuglevel($BSConfig::debuglevel) if $BSConfig::debuglevel;
 
+# set common defaults if not already set in BSConfig.pm
+
 $BSConfig::servicetempdir           = $BSConfig::servicetempdir           || "$BSConfig::bsdir/service";
 $BSConfig::scm_cache_high_watermark = $BSConfig::scm_cache_high_watermark || 80;
 $BSConfig::scm_cache_low_watermark  = $BSConfig::scm_cache_low_watermark  || 70;
+$BSConfig::bsdir                    = $BSConfig::bsdir                    || '/srv/obs';
+$BSConfig::logdir                   = $BSConfig::logdir                   || "$BSConfig::bsdir/log";
 
 1;
