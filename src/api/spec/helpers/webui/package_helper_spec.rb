@@ -86,7 +86,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
 
       it "when it ends by .service" do
         property_of {
-          sized(range(1, 191)){ string(/./) } + '.service'
+          sized(range(1, 191)) { string(/./) } + '.service'
         }.check(3) { |filename|
           expect(guess_code_class(filename)).to eq('xml')
         }
@@ -101,7 +101,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     context "is shell" do
       it "with rc-scripts" do
         property_of {
-          'rc' + sized(range(1, 197)){ string(/[\w-]/) }
+          'rc' + sized(range(1, 197)) { string(/[\w-]/) }
         }.check(3) { |filename|
           expect(guess_code_class(filename)).to eq('shell')
         }
@@ -111,7 +111,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     context "is python" do
       it "when it ends in rpmlintrc" do
         property_of {
-          sized(range(0, 190)){ string(/./) } + 'rpmlintrc'
+          sized(range(0, 190)) { string(/./) } + 'rpmlintrc'
         }.check(3) { |filename|
           expect(guess_code_class(filename)).to eq('python')
         }
@@ -129,7 +129,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     context "is spec" do
       it "when it starts with macros." do
         property_of {
-          'macros.' + sized(range(1, 192)){ string(/\w/) }
+          'macros.' + sized(range(1, 192)) { string(/\w/) }
         }.check(3) { |filename|
           expect(guess_code_class(filename)).to eq('spec')
         }
