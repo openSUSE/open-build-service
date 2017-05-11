@@ -236,7 +236,7 @@ RSpec.describe Package, vcr: true do
 
       it "has an invalid character in first position" do
         property_of {
-          string = sized(1){ string(/[-+_\.]/) } + sized(range(0, 199)){ string(/[-+\w\.]/) }
+          string = sized(1) { string(/[-+_\.]/) } + sized(range(0, 199)) { string(/[-+\w\.]/) }
           guard string !~ /^(_product|_product:\w|_patchinfo|_patchinfo:\w|_pattern|_project)/
           string
         }.check { |string|
@@ -246,7 +246,7 @@ RSpec.describe Package, vcr: true do
 
       it "has more than 200 characters" do
         property_of {
-          sized(1){ string(/[a-zA-Z0-9]/) } + sized(200) { string(/[-+\w\.:]/) }
+          sized(1) { string(/[a-zA-Z0-9]/) } + sized(200) { string(/[-+\w\.:]/) }
         }.check(3) { |string|
           expect(Package.valid_name?(string)).to be(false)
         }
