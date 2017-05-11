@@ -27,24 +27,22 @@ module Webui::PackageHelper
     return 'makefile' if filename == 'debian.rules'
     return 'baselibs' if filename == 'baselibs.conf'
     return 'spec' if filename =~ /^macros\.\w+/
+
     ext = Pathname.new(filename).extname.downcase
     case ext
-    when '.group' then return 'xml'
-    when '.kiwi' then return 'xml'
-    when '.patch', '.dif' then return 'diff'
-    when '.pl', '.pm' then return 'perl'
-    when '.product' then return 'xml'
-    when '.py' then return 'python'
-    when '.rb' then return 'ruby'
-    when '.tex' then return 'latex'
-    when '.js' then return 'javascript'
-    when '.sh' then return 'shell'
-    when '.spec' then return 'rpm-spec'
-    when '.changes' then return 'rpm-changes'
+    when '.group', '.kiwi', '.product' then 'xml'
+    when '.patch', '.dif' then 'diff'
+    when '.pl', '.pm' then 'perl'
+    when '.py' then 'python'
+    when '.rb' then 'ruby'
+    when '.tex' then 'latex'
+    when '.js' then 'javascript'
+    when '.sh' then 'shell'
+    when '.spec' then 'rpm-spec'
+    when '.changes' then 'rpm-changes'
+    when '.diff', '.php', '.html', '.xml', '.css', '.perl' then ext[1..-1]
+    else ''
     end
-    ext = ext[1..-1]
-    return ext if ext.in?(["diff", "php", "html", "xml", "css", "perl"])
-    ''
   end
 
   include Webui::ProjectHelper
