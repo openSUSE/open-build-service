@@ -32,8 +32,6 @@
 
 %define secret_key_file /srv/www/obs/api/config/secret.key
 
-%bcond_with hide_image_template_icon
-
 %if 0%{?suse_version} >= 1315
 %define reload_on_update() %{?nil:
 	test -n "$FIRST_ARG" || FIRST_ARG=$1
@@ -64,7 +62,6 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        open-build-service-%version.tar.xz
 Source1:        find-requires.sh
 Source2:        crawler-user-agents.json
-Patch0:         hide-image-templates.patch
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
@@ -285,9 +282,6 @@ This package contains test cases for testing a installed appliances.
 %prep
 
 %setup -q -n open-build-service-%version
-%if %{with hide_image_template_icon}
-%patch0 -p1
-%endif
 
 # drop build script, we require the installed one from own package
 rm -rf src/backend/build
