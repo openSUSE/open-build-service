@@ -13,6 +13,7 @@ class PackageBuildStatus
 
   def result(opts = {})
     @srcmd5 = opts[:srcmd5]
+    @multibuild_pkg = opts[:multibuild_pkg]
     gather_md5sums
 
     tocheck_repos = @pkg.project.repositories_linking_project(opts[:target_project])
@@ -90,9 +91,8 @@ class PackageBuildStatus
   def gather_current_buildcode(srep, arch)
     @buildcode = "unknown"
     begin
-      # rubocop:disable Metrics/LineLength
-      uri = URI("/build/#{CGI.escape(@pkg.project.name)}/_result?package=#{CGI.escape(@pkg.name)}&repository=#{CGI.escape(srep['name'])}&arch=#{CGI.escape(arch)}")
-      # rubocop:enable Metrics/LineLength
+      package = CGI.escape(@multibuild_pkg || @pkg.name)
+      uri = URI("/build/#{CGI.escape(@pkg.project.name)}/_result?package=#{package}&repository=#{CGI.escape(srep['name'])}&arch=#{CGI.escape(arch)}")
       resultlist = Xmlhash.parse(ActiveXML.backend.direct_http(uri))
       currentcode = nil
       resultlist.elements('result') do |r|
