@@ -181,7 +181,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   def test_another_succesful_comment_creation # spec/features/webui/comments_spec.rb
     use_js
     login_Iggy
-    visit '/package/show?project=home:Iggy&package=TestPack'
+    visit '/package/show/home:Iggy/TestPack'
     # @Iggy works at the very beginning and requests are case insensitive
     fill_comment "@Iggy likes to mention himself and to write request#23 with capital 'R', like Request#23."
     within('div.thread_level_0') do
