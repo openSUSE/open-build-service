@@ -46,6 +46,8 @@ class User < ApplicationRecord
   belongs_to :owner, class_name: 'User'
   has_many :subaccounts, class_name: 'User', foreign_key: 'owner_id'
 
+  has_many :requests_created, foreign_key: 'creator', primary_key: :login, class_name: 'BsRequest'
+
   # users have a n:m relation to group
   has_and_belongs_to_many :groups, -> { distinct }
   # users have a n:m relation to roles
@@ -752,7 +754,8 @@ class User < ApplicationRecord
 
   # list requests involving this user
   def declined_requests(search = nil)
-    BsRequest.collection(user: login, states: %w(declined), roles: %w(creator), search: search)
+    result = requests_created.in_states(:declined).with_actions
+    search ? result.do_search(search) : result
   end
 
   # list incoming requests involving this user
