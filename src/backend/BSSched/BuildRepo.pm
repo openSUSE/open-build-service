@@ -93,6 +93,7 @@ use BSSched::DoD;
 my $exportcnt = 0;
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+my $binsufsre_lnk = join('|', map {"\Q$_\E"} (@binsufs, 'obsbinlnk'));
 
 =head1 FUNCTIONS / METHODS
 
@@ -338,7 +339,7 @@ sub fctx_rebuild_full {
   my %newfullsuf = map {("$_->{'name'}.$_->{'suf'}" => $_)} values %$newfull;
   my %kept;
   for my $bin (sort(ls("$gdst/:full"))) {
-    next unless $bin =~ /\.($binsufsre)$/;      # hmm?
+    next unless $bin =~ /\.($binsufsre_lnk)$/;      # hmm?
     my $suf = $1;
     my $r = $newfullsuf{$bin};
     if ($r) {
@@ -420,7 +421,7 @@ sub fctx_migrate_full {
   my $dirty;
   my %packidschecked;
   for my $bin (sort(ls("$gdst/:full"))) {
-    next unless $bin =~ /\.($binsufsre)$/;      # hmm?
+    next unless $bin =~ /\.($binsufsre_lnk)$/;      # hmm?
     my $suf = $1;
     my @s = stat("$gdst/:full/$bin");
     next unless @s;
@@ -911,7 +912,7 @@ sub addrepo_scan {
   my @bins;
   local *D;
   if (opendir(D, $dir)) {
-    @bins = grep {/\.(?:$binsufsre)$/s && !/^\.dod\./s} readdir(D);
+    @bins = grep {/\.(?:$binsufsre_lnk)$/s && !/^\.dod\./s} readdir(D);
     closedir D;
     if (!@bins && -s "$dir.subdirs") {
       for my $subdir (split(' ', readstr("$dir.subdirs"))) {

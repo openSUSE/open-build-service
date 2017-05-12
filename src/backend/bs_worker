@@ -2215,6 +2215,7 @@ sub getbinaries {
     die("getbinaries: missing packages: @todo\n") if @todo;
     @todo = grep {$bdep_noinstall{$_} || !$bdep_notmeta{$_}} @bdep;
   }
+  @todo = grep {!/^container:/} @todo if $kiwimode;
 
   my %bvls;		# bvl cache, the query is not free
   my ($imagefile, $imagebins);
@@ -2242,8 +2243,7 @@ sub getbinaries {
   for my $repo (@{$buildinfo->{'path'} || []}) {
     my $ddir = $dir;
     if ($kiwimode) {
-      my $prpdir = "$repo->{'project'}/$repo->{'repository'}";
-      $ddir = "$srcdir/repos/$prpdir";
+      $ddir = "$srcdir/repos/$repo->{'project'}/$repo->{'repository'}";
       mkdir_p($ddir);
     }
     next if !@todo;
@@ -2280,6 +2280,32 @@ sub getbinaries {
     }
   }
   die("getbinaries: missing packages: @todo\n") if @todo;
+
+  if ($kiwimode) {
+    for my $bdep (grep {$_->{'name'} =~ /^container:/} @{$buildinfo->{'bdep'} || []}) {
+      my $repo = ($buildinfo->{'containerpath'} || [])->[0];
+      die("getbinaries: job has no container repository\n") unless $repo;
+      my $ddir = "$srcdir/containers/$bdep->{'project'}";
+      $ddir .= "/$bdep->{'repository'}" if $bdep->{'repository'};
+      mkdir_p($ddir);
+      my @args;
+      push @args, "project=$repo->{'project'}";
+      push @args, "repository=$repo->{'repository'}";
+      push @args, "arch=$buildinfo->{'arch'}";
+      my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+      my $res = BSRPC::rpc({
+	'uri' => "$server/getbinaries",
+	'directory' => $ddir,
+	'withmd5' => 1,
+	'timeout' => $gettimeout,
+	'receiver' => \&BSHTTP::cpio_receiver,
+      }, undef, @args, "binaries=$bdep->{'name'}");
+      die("Error\n") unless ref($res);
+      $res = [ grep {$_->{'name'} ne '.errors'} @$res ];
+      die("getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
+      push @meta, "$res->[0]->{'md5'}  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
+    }
+  }
 
   if (!$kiwimode) {
     # generate meta data

@@ -1005,6 +1005,7 @@ sub create {
   $binfo->{'bdep'} = \@bdeps;
   $binfo->{'path'} = $searchpath;
   $binfo->{'syspath'} = $syspath if $syspath;
+  $binfo->{'containerpath'} = path2buildinfopath($gctx, $ctx->{'containerpath'}) if $ctx->{'containerpath'};
   $binfo->{'needed'} = $needed;
   $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
   $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};

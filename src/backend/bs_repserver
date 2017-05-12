@@ -44,6 +44,7 @@ use Data::Dumper;
 use Digest::MD5 ();
 use List::Util;
 use Symbol;
+use JSON::XS ();
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -389,6 +390,12 @@ sub getbinaries {
       $path = fetchdodbinary($pool, $repo, $p, $arch, 3, \@handoff);
       return unless defined $path;
       $needscan = 1;
+    }
+    if ($bin =~ /^container:/ && $path =~ /(\.tar(?:\..+)?)$/) {
+      my $nbin = $bin;
+      $nbin =~ s/^container://;
+      push @send, {'name' => "$nbin.$1", 'filename' => $path} unless $cgi->{'metaonly'};
+      next;
     }
     if ($path !~ /\.($binsufsre)$/) {
       push @send, {'name' => $bin, 'error' => 'unknown suffix'};
@@ -1775,6 +1782,54 @@ sub notify_jobresult {
   }
 }
 
+sub docker2obsbinlnk {
+  my ($dir, $metadata, $packid) = @_;
+  return undef unless -e "$dir/$metadata";
+  return undef unless (-s _) < 100000;
+  my $m = readstr("$dir/$metadata");
+  my $d;
+  eval { $d = JSON::XS::decode_json($m); };
+  return undef unless $d && ref($d) eq 'HASH';
+  $d = $d->{'image'};
+  return undef unless $d && ref($d) eq 'HASH';
+  my $tags = $d->{'tags'};
+  $tags = [] unless $tags && ref($tags) eq 'ARRAY';
+  for (@$tags) {
+    $_ = undef unless defined($_) && ref($_) eq '';
+  }
+  @$tags = grep {defined($_)} @$tags;
+  my $name = $d->{'name'};
+  $name = undef unless defined($name) && ref($name) eq '';
+  my $file = $d->{'file'};
+  $file = undef unless defined($file) && ref($file) eq '';
+  return undef unless defined($name) && defined($file);
+  my $lnk = {};
+  $lnk->{'name'} = "container:$name";
+  $lnk->{'name'} =~ s/\//-/g;
+  $lnk->{'version'} = '0';
+  $lnk->{'arch'} = 'noarch';
+  $lnk->{'source'} = $lnk->{'name'};
+  push @{$lnk->{'provides'}}, "$lnk->{'name'} = $lnk->{'version'}";
+  push @{$lnk->{'provides'}}, "container:$name" if "container:$name" ne $lnk->{'name'};
+  for my $tag (@$tags) {
+    push @{$lnk->{'provides'}}, "container:$name:$tag";
+  }
+  eval {
+    BSVerify::verify_simple($file);
+    BSVerify::verify_filename($file);
+    BSVerify::verify_nevraquery($lnk);
+  };
+  return undef if $@;
+  local *F;
+  return undef unless open(F, '<', "$dir/$file");
+  my $ctx = Digest::MD5->new;
+  $ctx->addfile(*F);
+  close F;
+  $lnk->{'hdrmd5'} = $ctx->hexdigest();
+  $lnk->{'path'} = "../$packid/$file";
+  return $lnk;
+}
+
 sub putjob {
   my ($cgi, $arch, $job, $jobid) = @_;
 
@@ -1852,6 +1907,7 @@ sub putjob {
     die("different jobid\n") if $jobstatus->{'jobid'} ne $jobid;
     die("job is not building\n") if $jobstatus->{'code'} ne 'building';
     die("job is building on a different worker\n") if $jobstatus->{'workerid'} ne $oldjobstatus->{'workerid'} || $jobstatus->{'starttime'} ne $oldjobstatus->{'starttime'};
+    die("job contains an illegal file\n") if grep {$_->{'name'} =~ /\.obsbinlnk$/s} @$uploaded;
     if (!@$uploaded && -e $dir) {
       # local image building hack
       rmdir($tmpdir);
@@ -1886,8 +1942,26 @@ sub putjob {
 
   notify_jobresult($info, $jobstatus, "$projid/$repoid/$arch");
 
-  # calculate binary info to speed up scheduler
   my $bininfo = {};
+
+  # create obsbinlnk file for kiwi docker results
+  if (grep {$_->{'name'} =~ /\.metadata$/} @$uploaded) {
+    my %up = map {$_->{'name'} => $_} @$uploaded;
+    for my $file (@$uploaded) {
+      my $prefix = $file->{'name'};
+      next unless $prefix =~ s/\.metadata$//;
+      next unless $up{"$prefix.packages"};
+      my $obsbinlink = docker2obsbinlnk($dir, "$prefix.metadata", $info->{'package'});
+      BSUtil::store("$dir/$prefix.obsbinlnk", undef, $obsbinlink) if $obsbinlink;
+      my @s = stat("$dir/$prefix.obsbinlnk");
+      next unless @s;
+      my $data = { %$obsbinlink, 'filename' => "$prefix.obsbinlnk", 'id' => "$s[9]/$s[7]/$s[1]" };
+      delete $data->{'path'};
+      $bininfo->{$data->{'filename'}} = $data;
+    }
+  }
+
+  # calculate binary info to speed up scheduler
   for my $file (@$uploaded) {
     my @s = stat("$dir/$file->{'name'}");
     next unless @s;

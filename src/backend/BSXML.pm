@@ -555,6 +555,12 @@ our $buildinfo = [
 	    'server',	# internal
 	    'url',	# external
      ]],
+     [[ 'containerpath' =>
+	    'project',
+	    'repository',
+	    'server',	# internal
+	    'url',	# external
+     ]],
 	'expanddebug',
 	'followupfile',	# for two-stage builds
 	'masterdispatched',	# dispatched through a master dispatcher

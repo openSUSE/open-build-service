@@ -59,6 +59,7 @@ use BSSched::ProjPacks;			# for getconfig
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+my $binsufsre_binlnk = join('|', map {"\Q$_\E"} (@binsufs, 'obsbinlnk'));
 
 our $new_full_handling = 1;
 $new_full_handling = $BSConfig::new_full_handling if defined $BSConfig::new_full_handling;
@@ -182,7 +183,7 @@ sub set_suf_and_filter_exports {
     next unless $r->{'source'};         # no src in full tree
     next unless $r->{'name'};           # need binary name
     my $suf;
-    $suf = $1 if $rp =~ /\.($binsufsre)$/;
+    $suf = $1 if $rp =~ /\.($binsufsre_binlnk)$/;
     next unless $suf;                   # need a valid suffix
     $r->{'suf'} = $suf;
     my $nn = $rp;
@@ -252,18 +253,24 @@ sub update_bininfo_merge {
 =cut
 
 sub repofromfiles {
-  my ($files, $cache) = @_;
-  my @bins =  grep {/\.(?:$binsufsre)$/} @$files;
+  my ($dir, $files, $cache) = @_;
   my $repobins = {};
-  for my $bin (@bins) {
-    my @s = stat($bin);
+  for my $bin (@$files) {
+    next unless $bin =~ /\.(?:$binsufsre_binlnk)$/;
+    next if $bin =~ /\.delta\.rpm$/;	# those go not into the full tree
+    my @s = stat("$dir/$bin");
     next unless @s;
     my $id = "$s[9]/$s[7]/$s[1]";
     my $data;
     if ($cache && $cache->{$id}) {
       $data = { %{$cache->{$id}} };
     } else {
-      $data = Build::query($bin, 'evra' => 1);  # need arch
+      if ($bin =~ /\.obsbinlnk$/) {
+	$data = BSUtil::retrieve("$dir/$bin", 1);
+	delete $data->{'path'} if $data;
+      } else {
+        $data = Build::query("$dir/$bin", 'evra' => 1);  # need arch
+      }
       next unless $data;
     }
     eval {
@@ -272,7 +279,7 @@ sub repofromfiles {
     next if $@;
     delete $data->{'disttag'};
     $data->{'id'} = $id;
-    $repobins->{$bin} = $data;
+    $repobins->{"$dir/$bin"} = $data;
   }
   return $repobins;
 }
@@ -334,7 +341,7 @@ sub update_dst_full {
     $jobbininfo ||= read_bininfo($jobdir);
     delete $jobbininfo->{'.bininfo'};   # delete new version marker
     my $cache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$jobbininfo };
-    $jobrepo = repofromfiles([ map {"$jobdir/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @jobfiles ], $cache);
+    $jobrepo = repofromfiles($jobdir, \@jobfiles, $cache);
     $useforbuildenabled = 0 if -e "$jobdir/.channelinfo" || -e "$jobdir/updateinfo.xml";        # just in case
   } else {
     $jobrepo = {};
@@ -360,7 +367,7 @@ sub update_dst_full {
     my $oldbininfo = read_bininfo($dst);
     delete $oldbininfo->{'.bininfo'};   # delete new version marker
     my $oldcache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$oldbininfo };
-    $oldrepo = repofromfiles([ map {"$dst/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @oldfiles ], $oldcache);
+    $oldrepo = repofromfiles($dst, \@oldfiles, $oldcache);
 
     # move files over (and rename in import case)
     my %new;
@@ -536,6 +543,13 @@ sub read_bininfo {
     if ($file !~ /\.(?:$binsufsre)$/) {
       if ($file eq '.channelinfo' || $file eq 'updateinfo.xml') {
         $bininfo->{'.nouseforbuild'} = {};
+      } elsif ($file =~ /\.obsbinlnk$/) {
+	my @s = stat("$dir/$file");
+	my $d = BSUtil::retrieve("$dir/$file", 1);
+	next unless @s && $d;
+	my $r = {%$d, 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
+	delete $r->{'path'};
+	$bininfo->{$file} = $r;
       } elsif ($file =~ /[-.]appdata\.xml$/) {
         local *F;
         open(F, '<', "$dir/$file") || next;
@@ -663,7 +677,7 @@ sub remove_from_volatile {
   my ($gdst, $del) = @_;
   for my $r (@$del) {
     my $bin = $r->{'filename'};
-    next unless $bin =~ /^(.*)\.($binsufsre)$/; # hmm?
+    next unless $bin =~ /^(.*)\.($binsufsre_binlnk)$/; # hmm?
     print "      - _volatile/$bin\n";
     unlink("$gdst/_volatile/$1.meta");
     unlink("$gdst/_volatile/$bin");

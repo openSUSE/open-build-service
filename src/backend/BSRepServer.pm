@@ -177,6 +177,13 @@ sub read_bininfo {
       $r->{'hdrmd5'} = $hdrmd5;
       $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
       $bininfo->{$file} = $r;
+    } elsif ($file =~ /\.obsbinlnk$/) {
+      my @s = stat("$dir/$file");
+      my $d = BSUtil::retrieve("$dir/$file", 1);
+      next unless @s && $d;
+      my $r = {%$d, 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
+      delete $r->{'path'};
+      $bininfo->{$file} = $r;
     } elsif ($file =~ /[-.]appdata\.xml$/) {
       local *F;
       open(F, '<', "$dir/$file") || next;
