@@ -1,5 +1,4 @@
 class Buildresult < ActiveXML::Node
-  # rubocop:disable Style/AlignHash
   AVAIL_STATUS_VALUES = {
     succeeded:    0,
     failed:       1,
@@ -11,13 +10,12 @@ class Buildresult < ActiveXML::Node
     building:     7,
     finished:     8,
     signing:      9,
-    disabled:    10,
-    excluded:    11,
-    locked:      12,
-    deleting:    13,
-    unknown:     14
+    disabled:     10,
+    excluded:     11,
+    locked:       12,
+    deleting:     13,
+    unknown:      14
   }
-  # rubocop:enable Style/AlignHash
 
   STATUS_DESCRIPTION = {
       succeeded:    "Package has built successfully and can be used to build further packages.",
@@ -60,5 +58,24 @@ class Buildresult < ActiveXML::Node
 
   def self.final_status?(status)
     status.in?(["succeeded", "failed", "unresolvable", "broken", "disabled", "excluded"])
+  end
+
+  def self.summary(project_name)
+    results = find_hashed(project: project_name, view: 'summary')
+    local_build_results = {}
+    results.elements('result').sort {|a, b| a['repository'] <=> b['repository']}.each do |result|
+      build = LocalBuildResult.new(repository: result['repository'], architecture: result['arch'], code: result['code'], state: result['state'])
+
+      build.summary = []
+      result['summary'].elements('statuscount').each do |count|
+        build.summary << StatusCount.new(code: count['code'], count: count['count'])
+      end
+
+      build.summary.sort! { |a, b| code2index(a.code) <=> code2index(b.code) }
+      local_build_results[result['repository']] ||= []
+      local_build_results[result['repository']] << build
+    end
+
+    local_build_results
   end
 end

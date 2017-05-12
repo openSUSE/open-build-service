@@ -397,13 +397,24 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'GET #buildresult' do
-    it 'assigns the buildresult' do
-      summary = Xmlhash::XMLHash.new({'statuscount' => {'code' => 'succeeded', 'count' => 1} })
-      build_result = { 'result' => Xmlhash::XMLHash.new({'repository' => 'openSUSE', 'arch' => 'x86_64', 'summary' => summary }) }
+    let(:summary) { Xmlhash::XMLHash.new({'statuscount' => {'code' => 'succeeded', 'count' => '1'} }) }
+    let(:build_result) do
+      { 'result' => Xmlhash::XMLHash.new({'repository' => 'openSUSE',
+                                          'arch' => 'x86_64', 'code' => 'published', 'state' => 'published', 'summary' => summary }) }
+    end
+
+    let(:local_build_result) { assigns(:project).buildresults['openSUSE'].first }
+    let(:result) { { architecture: 'x86_64', code: 'published', repository: 'openSUSE', state: 'published' } }
+    let(:status_count) { local_build_result.summary.first }
+
+    before do
       allow(Buildresult).to receive(:find_hashed).and_return(Xmlhash::XMLHash.new(build_result))
       get :buildresult, params: { project: project_with_package }, xhr: true
-      expect(assigns(:buildresult)).to match_array([["openSUSE", [["x86_64", [[:succeeded, 1]]]]]])
     end
+
+    it { expect(assigns(:project).buildresults).to have_key('openSUSE') }
+    it { expect(local_build_result).to have_attributes(result) }
+    it { expect(status_count).to have_attributes({ code: 'succeeded', count: '1' }) }
   end
 
   describe 'GET #delete_dialog' do

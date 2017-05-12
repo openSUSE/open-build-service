@@ -1,4 +1,4 @@
 class LocalBuildResult
   include ActiveModel::Model
-  attr_accessor :repository, :architecture, :code, :state, :details
+  attr_accessor :repository, :architecture, :code, :state, :details, :summary
 end
