@@ -219,28 +219,20 @@ module Webui::WebuiHelper
   end
 
   def next_codemirror_uid
+    return @codemirror_editor_setup = 1 unless @codemirror_editor_setup
     @codemirror_editor_setup += 1
-    @codemirror_editor_setup
   end
 
-  def setup_codemirror_editor(opts = {})
-    if @codemirror_editor_setup
-      return next_codemirror_uid
-    end
-    @codemirror_editor_setup = 0
-    opts.reverse_merge!({ read_only: false, no_border: false, width: 'auto' })
+  def codemirror_style(opts = {})
+    opts.reverse_merge!({ read_only: false, no_border: false, width: 'auto', height: 'auto' })
 
-    content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index'))
-    style = ''
-    style += ".CodeMirror {\n"
+    style = ".CodeMirror {\n"
     if opts[:no_border] || opts[:read_only]
       style += "border-width: 0 0 0 0;\n"
     end
-    style += "height: #{opts[:height]};\n" unless opts[:height] == 'auto'
-    style += "width: #{opts[:width]}; \n" unless opts[:width] == 'auto'
-    style += "}\n"
-    content_for(:head_style, style)
-    @codemirror_editor_setup
+    style += "height: #{opts[:height]};\n"
+    style += "width: #{opts[:width]}; \n"
+    style + "}\n"
   end
 
   def remove_dialog_tag(text)
