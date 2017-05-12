@@ -319,7 +319,76 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#user_and_role' do
-    skip('Please add some tests')
+    let(:user) { create(:user) }
+    let(:nobody) { create(:user_nobody) }
+
+    context 'for logged in users' do
+      before do
+        User.current = user
+      end
+
+      it 'display the users realname with its login' do
+        expect(user_and_role(user.login)).to eq(
+          "<img width=\"20\" height=\"20\" alt=\"#{user.realname}\" src=\"/user/icon/#{user.login}?size=20\" " + \
+          "/><a href=\"/user/show/#{user.login}\">#{user.realname} (#{user.login})</a>"
+        )
+      end
+
+      it 'falls back to users login if realname is empty' do
+        user.realname = ''
+        user.save!
+
+        expect(user_and_role(user.login)).to eq(
+          "<img width=\"20\" height=\"20\" alt=\"#{user}\" src=\"/user/icon/#{user.login}?size=20\" " + \
+          "/><a href=\"/user/show/#{user.login}\">#{user.login}</a>"
+        )
+      end
+    end
+
+    context 'with options' do
+      before do
+        User.current = nobody
+      end
+
+      it 'does not show an icon if option disables it' do
+        expect(user_and_role(user.login, nil, no_icon: true)).to eq(
+          "#{user.realname} (#{user.login})"
+        )
+      end
+
+      it 'only shows user login if short option is set' do
+        expect(user_and_role(user.login, nil, short: true)).to eq(
+          "<img width=\"20\" height=\"20\" alt=\"#{user.realname}\" src=\"/user/icon/#{user.login}?size=20\" " + \
+          "/>#{user.login}"
+        )
+      end
+    end
+
+    context 'for guests' do
+      before do
+        User.current = nobody
+      end
+
+      it 'does not link to user profiles' do
+        expect(user_and_role(user.login)).to eq(
+          "<img width=\"20\" height=\"20\" alt=\"#{user.realname}\" " + \
+          "src=\"/user/icon/#{user.login}?size=20\" />#{user.realname} (#{user.login})"
+        )
+      end
+    end
+
+    context 'with roles' do
+      before do
+        User.current = nobody
+      end
+
+      it 'appends a role name' do
+        expect(user_and_role(user.login, 'test')).to eq(
+          "<img width=\"20\" height=\"20\" alt=\"#{user.realname}\" src=\"/user/icon/#{user.login}?size=20\" " + \
+          "/>#{user.realname} (#{user.login}) as test"
+        )
+      end
+    end
   end
 
   describe '#project_or_package_link' do
