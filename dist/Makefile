@@ -1,11 +1,14 @@
 include ../Makefile.include
 
-INIT_SCRIPTS 			:= obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obssigner obswarden obsapidelayed obsapisetup obsstoragesetup obsservice obsdodup obsdeltastore obsservicedispatch
-LOGROTATE_CONFIGS := obs-api obs-server obs-source_service
-OBS_BIN_SCRIPTS 	:= obs_productconvert
-OBS_SBIN_SCRIPTS 	:= obs_admin obs_serverstatus
+INIT_SCRIPTS          := obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obssigner obswarden obsapidelayed obsapisetup obsstoragesetup obsservice obsdodup obsservicedispatch
+LOGROTATE_CONFIGS     := obs-api obs-server obs-source_service
+OBS_BIN_SCRIPTS       := obs_productconvert
+OBS_SBIN_SCRIPTS      := obs_admin obs_serverstatus
+SYSTEMD_SERVICE_FILES := obsdeltastore
 
-install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs install_overview install_tests_appliance install_crontabs
+UNITDIR=/usr/lib/systemd/system/
+
+install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs install_overview install_tests_appliance install_crontabs install_systemd_services
 
 #install_overview
 
@@ -20,6 +23,10 @@ install_apache:
 install_initscripts: system_dirs
 	$(foreach script,$(INIT_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/etc/init.d/$(script)) )
 	$(foreach script,$(INIT_SCRIPTS),$(shell ln -sf /etc/init.d/$(script) $(DESTDIR)/usr/sbin/rc$(script)) )
+
+install_systemd_services: system_dirs
+	$(foreach service,$(SYSTEMD_SERVICE_FILES),$(shell $(INSTALL) -m 644 ./systemd/$(service).service $(DESTDIR)$(UNITDIR)$(service).service) )
+	$(foreach service,$(SYSTEMD_SERVICE_FILES),$(shell ln -sf /usr/sbin/service $(DESTDIR)/usr/sbin/rc$(service) ) )
 
 install_project_update: system_dirs
 	$(INSTALL) -m 0755 obs_project_update $(DESTDIR)/usr/sbin/obs_project_update
@@ -53,6 +60,7 @@ system_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)/var/adm/fillup-templates
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/share/doc/packages/obs-devel
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/lib/obs/tests/appliance
+	$(INSTALL) -d -m 755 $(DESTDIR)$(UNITDIR)
 
 install_devel_docs:
 	$(INSTALL) -m 644 README.devel $(DESTDIR)/usr/share/doc/packages/obs-devel/README.devel

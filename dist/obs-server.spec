@@ -133,6 +133,12 @@ Provides:	obs-productconverter = %version
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
 
+%if 0%{?suse_version} >= 1210
+BuildRequires: systemd-rpm-macros
+%endif
+
+%{?systemd_requires}
+
 %description
 The Open Build Service (OBS) backend is used to store all sources and binaries. It also
 calculates the need for new build jobs and distributes it.
@@ -402,6 +408,8 @@ getent passwd obsservicerun >/dev/null || \
     -c "User for the build service source service" obsservicerun
 exit 0
 
+%service_add_pre obsdeltastore
+
 # create user and group in advance of obs-server
 %pre -n obs-common
 getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
@@ -411,17 +419,21 @@ getent passwd obsrun >/dev/null || \
 exit 0
 
 %preun
-%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup obsdeltastore obsservicedispatch obsservice
+%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice
+
+%service_del_preun obsdeltastore
 
 %preun -n obs-worker
 %stop_on_removal obsworker
 
 %post
 %if 0%{?suse_version} >= 1315
-%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsdeltastore obsservicedispatch obsservice obsscheduler
+%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice obsscheduler
 %else
-%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsdeltastore obsservicedispatch obsservice obsscheduler
+%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice obsscheduler
 %endif
+
+%service_add_post obsdeltastore
 
 %posttrans
 [ -d /srv/obs ] || install -d -o obsrun -g obsrun /srv/obs
@@ -437,6 +449,8 @@ fi
 %insserv_cleanup
 %verifyscript -n obs-server
 %verify_permissions
+%service_del_postun obsdeltastore
+
 # cleanup empty directory just in case
 rmdir /srv/obs 2> /dev/null || :
 
@@ -498,7 +512,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /etc/init.d/obssrcserver
 /etc/init.d/obswarden
 /etc/init.d/obsdodup
-/etc/init.d/obsdeltastore
+%{_unitdir}/obsdeltastore.service
 /etc/init.d/obsservicedispatch
 /etc/init.d/obssigner
 /usr/sbin/obs_admin
