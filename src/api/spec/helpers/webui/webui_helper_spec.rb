@@ -319,7 +319,52 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#user_and_role' do
-    skip('Please add some tests')
+    let(:user) { create(:user) }
+    let(:logged_in_user) { create(:user) }
+    let(:anonymous_user) { create(:user_nobody) }
+
+    context 'for logged in users' do
+      before do
+        User.current = logged_in_user
+      end
+
+      it 'displays the users realname to a user that is logged in' do
+        expect(user_and_role(user.login)).to include(link_to("#{user.realname} (#{user.login})", user_show_path(user: user)))
+      end
+
+      it 'falls back to users login if realname is empty' do
+        user.update_attributes(realname: '')
+        expect(user_and_role(user.login)).to include(link_to(user.login, user_show_path(user: user)))
+      end
+
+      it 'does not show an icon if option disables it' do
+        expect(user_and_role(user.login, nil, no_icon: true)).to eq(
+          link_to("#{user.realname} (#{user.login})", user_show_path(user: user))
+        )
+      end
+
+      it 'only shows user login if short option is set' do
+        expect(user_and_role(user.login, nil, short: true)).to include(link_to(user.login, user_show_path(user: user)))
+      end
+
+      it 'appends a role name' do
+        expect(user_and_role(user.login, 'test')).to include(
+          link_to("#{user.realname} (#{user.login}) as test", user_show_path(user: user)))
+      end
+    end
+
+    context 'for users that are not logged in' do
+      before do
+        User.current = anonymous_user
+      end
+
+      it 'does not link to user profiles' do
+        expect(user_and_role(user.login)).to eq(
+          "<img width=\"20\" height=\"20\" alt=\"#{user.realname}\" " + \
+          "src=\"/user/icon/#{user.login}?size=20\" />#{user.realname} (#{user.login})"
+        )
+      end
+    end
   end
 
   describe '#project_or_package_link' do
