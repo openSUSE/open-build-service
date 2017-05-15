@@ -2915,8 +2915,24 @@ sub dobuild {
 	push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $prio;	# different prio for smart?
       }
     }
+    my $cdep = (grep {/^container:/} @{$kiwi->{'deps'} || []})[0];
+    if ($cdep) {
+      $cdep =~ s/^container://;
+      $cdep =~ s/\/\//\//;
+      $cdep =~ s/:([^:\/]+)$/#$1/;
+    }
     for (@{$buildinfo->{'containerurl'} || []}) {
-      push @args, '--kiwi-parameter', "--set-container-derived-from", "--kiwi-parameter", $_;
+      if ($cdep) {
+	my $cdepdir = $cdep;
+	$cdepdir =~ s/\/.*?$//;
+	mkdir_p("$srcdir/containers/$cdepdir");
+	if (/^obs:\/(.*)/) {
+	  print "link $srcdir/containers/$1 $srcdir/containers/$cdep\n";
+	  link("$srcdir/containers/$1", "$srcdir/containers/$cdep");
+	}
+      } else {
+        push @args, '--kiwi-parameter', "--set-container-derived-from", "--kiwi-parameter", $_;
+      }
     }
   }
   qsystem(@args);
