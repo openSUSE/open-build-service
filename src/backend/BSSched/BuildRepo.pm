@@ -92,8 +92,9 @@ use BSSched::DoD;
 
 my $exportcnt = 0;
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs_lnk = (@binsufs, 'obsbinlnk');
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
-my $binsufsre_lnk = join('|', map {"\Q$_\E"} (@binsufs, 'obsbinlnk'));
+my $binsufsre_lnk = join('|', map {"\Q$_\E"} @binsufs_lnk);
 
 =head1 FUNCTIONS / METHODS
 
@@ -166,7 +167,7 @@ sub fctx_add_binary_to_full {
   rename("$dir/$fn.dup", "$gdst/:full/$n.$suf") || die("rename $dir/$fn.dup $gdst/:full/$n.$suf: $!\n");
   unlink("$dir/$fn.dup");
   $fctx->{'oldids'}->{"$n.$suf"} = $r->{'id'};
-  for my $osuf (@binsufs) {
+  for my $osuf (@binsufs_lnk) {
     next if $suf eq $osuf;
     unlink("$gdst/:full/$n.$osuf");
     delete $fctx->{'oldids'}->{"$n.$osuf"};
@@ -208,7 +209,7 @@ sub fctx_del_binary_from_full {
   my $suf = $r->{'suf'};
   print "      - :full/$n.$suf\n";
   my $gdst = $fctx->{'gdst'};
-  for my $osuf (@binsufs) {
+  for my $osuf (@binsufs_lnk) {
     unlink("$gdst/:full/$n.$osuf");
     delete $fctx->{'oldids'}->{"$n.$osuf"};
   }

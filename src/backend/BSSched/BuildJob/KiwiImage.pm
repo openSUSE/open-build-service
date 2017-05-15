@@ -139,6 +139,7 @@ sub check {
   my @deps = @{$info->{'dep'} || []};
   my $cprp;
   my $cdep;
+  my $cmeta;
   if (grep {/^container:/} @deps) {
     for my $dep (splice @deps) {
       if ($dep =~ /^container:([^\/]*\/[^\/]*)\/(.+)$/) {
@@ -178,6 +179,7 @@ sub check {
     $cbdep = {'name' => $cdeps[0], 'noinstall' => 1};
     ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2);
     $cprp = $cpool->pkg2reponame($p);
+    $cmeta = $cpool->pkg2pkgid($p) . "  $cprp/$cdeps[0]";
     if ($ctx->{'dobuildinfo'}) {
       ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2) if $cprp;
       my $d = $cpool->pkg2data($p);
@@ -243,6 +245,7 @@ sub check {
     }
     return ('blocked', join(', ', @blocked));
   }
+  push @new_meta, $cmeta if $cmeta;
   @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
   my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-image', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp ]);

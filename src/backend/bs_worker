@@ -2285,8 +2285,9 @@ sub getbinaries {
     for my $bdep (grep {$_->{'name'} =~ /^container:/} @{$buildinfo->{'bdep'} || []}) {
       my $repo = ($buildinfo->{'containerpath'} || [])->[0];
       die("getbinaries: job has no container repository\n") unless $repo;
-      my $ddir = "$srcdir/containers/$bdep->{'project'}";
-      $ddir .= "/$bdep->{'repository'}" if $bdep->{'repository'};
+      my $cprp = $bdep->{'project'};
+      $cprp .= "/$bdep->{'repository'}" if $bdep->{'repository'};
+      my $ddir = "$srcdir/containers/$cprp";
       mkdir_p($ddir);
       my @args;
       push @args, "project=$repo->{'project'}";
@@ -2303,6 +2304,7 @@ sub getbinaries {
       die("Error\n") unless ref($res);
       $res = [ grep {$_->{'name'} ne '.errors'} @$res ];
       die("getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
+      push @{$buildinfo->{'containerurl'}}, "obs:/$cprp/$res->[0]->{'name'}";
       push @meta, "$res->[0]->{'md5'}  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
     }
   }
@@ -2670,6 +2672,7 @@ sub dobuild {
   BSUtil::cleandir($pkgdir) if -d $pkgdir;
   rm_rf($oldpkgdir) if -d $oldpkgdir;
 
+  # create buildenv data
   if (!$kiwimode && !$followupmode && !$deltamode) {
     $buildinfo->{'outbuildinfo'} = {
       'project' => $projid,
@@ -2684,6 +2687,7 @@ sub dobuild {
       $buildinfo->{'outbuildinfo'}->{$_} = $buildinfo->{$_} if defined $buildinfo->{$_};
     }
   }
+
   ####### download phase
   $binariesdownload = 0;
   $binariescachehits = 0;
@@ -2910,6 +2914,9 @@ sub dobuild {
 	push @args, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', 'rpm-md';
 	push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $prio;	# different prio for smart?
       }
+    }
+    for (@{$buildinfo->{'containerurl'} || []}) {
+      push @args, '--kiwi-parameter', "--set-container-derived-from", "--kiwi-parameter", $_;
     }
   }
   qsystem(@args);
