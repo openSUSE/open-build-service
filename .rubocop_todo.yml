@@ -189,13 +189,6 @@ Rails/ReadWriteAttribute:
     - 'src/api/app/models/review.rb'
     - 'src/api/app/models/user.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Identifies uses of `Regexp#match` and `String#match where `=~` could be used as well
-Performance/RedundantMatch:
-  Exclude:
-    - 'dist/t/spec/features/0040_prepare_package_building_spec.rb'
-
 # Offense count: 51
 # Configuration parameters: Include.
 # Include: db/migrate/*.rb
