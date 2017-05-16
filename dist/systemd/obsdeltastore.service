@@ -1,6 +1,6 @@
 [Unit]
 Description=OBS deltastore daemon
-After=network.target
+After=network.target obsstoragesetup.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/obs-server
