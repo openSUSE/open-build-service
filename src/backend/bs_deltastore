@@ -97,7 +97,7 @@ sub deltastore {
   my ($projid, $packid, $file) = @_;
   my $srcrep = "$BSConfig::bsdir/sources";
   my $uploaddir = "$BSConfig::bsdir/upload";
-  BSUtil::printlog("generating src delta for $projid/$packid/$file\n");
+  BSUtil::printlog("generating src delta for $projid/$packid/$file");
   mkdir_p($uploaddir);
   my $tmp = "$uploaddir/deltastore.$$";
   unlink($tmp);
@@ -105,12 +105,12 @@ sub deltastore {
   die("cannot get rid of $tmp") if -e $tmp;
   link("$srcrep/$packid/$file", "$tmp.in") || die("link $srcrep/$packid/$file $tmp.in: $!\n");
   if (BSSolv::isobscpio("$tmp.in")) {
-    BSUtil::printlog("  - already delta cpio\n");
+    BSUtil::printlog("  - already delta cpio");
     unlink("$tmp.in");
     return;
   }
   if (!BSSolv::makeobscpio("$tmp.in", "$srcrep/$packid/deltastore", $tmp)) {
-    BSUtil::printlog("  - delta creation error\n");
+    BSUtil::printlog("  - delta creation error");
     unlink("$tmp.in");
     unlink($tmp);
     return;
@@ -119,7 +119,7 @@ sub deltastore {
   if (1) {
     if ($file =~ /^([0-9a-f]{32})-/) {
       my $md5 = $1;
-      BSUtil::printlog("  - verifying re-expansion...\n");
+      BSUtil::printlog("  - verifying re-expansion...");
       local *F;
       BSSolv::obscpioopen($tmp, "$srcrep/$packid/deltastore", \*F, $uploaddir) || die("BSSolv::obscpioopen failed\n");
       my $ctx = Digest::MD5->new;
@@ -130,7 +130,7 @@ sub deltastore {
     }
   }
   if (!rename($tmp, "$srcrep/$packid/$file")) {
-    BSUtil::printlog("  - rename $tmp $srcrep/$packid/$file: $!\n");
+    BSUtil::printlog("  - rename $tmp $srcrep/$packid/$file: $!");
     unlink("$tmp.in");
     unlink($tmp);
     return;
@@ -140,7 +140,7 @@ sub deltastore {
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($options, 'deltastore', "$rundir/bs_deltastore", "$myeventdir/.ping");
-BSUtil::printlog("starting source delta generator\n");
+BSUtil::printlog("starting source delta generator");
 
 mkdir_p($rundir);
 open(RUNLOCK, '>>', "$rundir/bs_deltastore.lock") || die("$rundir/bs_deltastore.lock: $!\n");
@@ -188,7 +188,7 @@ while(1) {
 
   if ($options->{testmode}) {
     close(RUNLOCK);
-    BSUtil::printlog("Test mode, exiting...\n");
+    BSUtil::printlog("Test mode, exiting...");
     exit(0);
   }
 
@@ -196,17 +196,17 @@ while(1) {
   if (-e "$rundir/bs_deltastore.exit") {
     close(RUNLOCK);
     unlink("$rundir/bs_deltastore.exit");
-    BSUtil::printlog("exiting...\n");
+    BSUtil::printlog("exiting...");
     exit(0);
   }
   if (-e "$rundir/bs_deltastore.restart") {
     close(RUNLOCK);
     unlink("$rundir/bs_deltastore.restart");
-    BSUtil::printlog("restarting...\n");
+    BSUtil::printlog("restarting...");
     exec($0);
     die("$0: $!\n");
   }
-  BSUtil::printlog("waiting for an event...\n");
+  BSUtil::printlog("waiting for an event...");
   sysread(PING, $dummy, 1, 0);
 }
 
