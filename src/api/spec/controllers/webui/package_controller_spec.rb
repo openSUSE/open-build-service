@@ -516,6 +516,35 @@ EOT
       it { expect(flash[:error]).to include('Files could not be expanded:') }
       it { expect(assigns(:more_info)).to include('service daemon error:') }
     end
+
+    context 'revision handling' do
+      let(:package_with_revisions) do
+        create(:package_with_revisions, name: 'rev_package', revision_count: 3, project: user.home_project)
+      end
+
+      after do
+        # Cleanup: otherwhise older revisions stay in backend and influence other tests, and test re-runs
+        package_with_revisions.destroy
+      end
+
+      context "with a 'rev' parameter with existent revision" do
+        before do
+          get :show, params: { project: user.home_project, package: package_with_revisions, rev: 2 }
+        end
+
+        it { expect(assigns(:revision)).to eq('2') }
+        it { expect(response).to have_http_status(:success) }
+      end
+
+      context "with a 'rev' parameter with non-existent revision" do
+        before do
+          get :show, params: { project: user.home_project, package: package_with_revisions, rev: 4 }
+        end
+
+        it { expect(flash[:error]).to eq('No such revision: 4') }
+        it { expect(response).to redirect_to(package_show_path(project: user.home_project, package: package_with_revisions)) }
+      end
+    end
   end
 
   describe "DELETE #remove_file" do
