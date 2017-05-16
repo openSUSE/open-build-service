@@ -392,9 +392,7 @@ sub getbinaries {
       $needscan = 1;
     }
     if ($bin =~ /^container:/ && $path =~ /(\.tar(?:\..+)?)$/) {
-      my $nbin = "$bin$1";
-      $nbin =~ s/^container://;
-      push @send, {'name' => $nbin, 'filename' => $path} unless $cgi->{'metaonly'};
+      push @send, {'name' => "$bin$1", 'filename' => $path} unless $cgi->{'metaonly'};
       next;
     }
     if ($path !~ /\.($binsufsre)$/) {
@@ -633,7 +631,11 @@ sub getbinarylist_repository {
         $needscan = 1;
       }
       my $n = $bin;
-      $n .= ".$1" if $path =~ /\.($binsufsre)$/;
+      if ($n =~ /^container:/) {
+	$n .= $1 if $path =~ /(\.tar(?:\..+)?)$/;
+      } elsif ($path =~ /\.($binsufsre)$/) {
+	$n .= ".$1";
+      }
       if ($BSStdServer::isajax) {
 	push @files, {'name' => $n, 'filename' => $path};
 	next;
