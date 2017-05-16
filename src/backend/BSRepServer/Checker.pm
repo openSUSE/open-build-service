@@ -26,12 +26,14 @@ use BSSched::BuildJob;
 use BSSched::BuildJob::Package;
 use BSSched::BuildJob::KiwiImage;
 use BSSched::BuildJob::KiwiProduct;
+use BSSched::BuildJob::Docker;
 use BSSched::BuildJob::Unknown;
 use BSSched::BuildJob::BuildEnv;
 
 my %handlers = (
   'kiwi-product'    => BSSched::BuildJob::KiwiProduct->new(),
   'kiwi-image'      => BSSched::BuildJob::KiwiImage->new(),
+  'docker'          => BSSched::BuildJob::Docker->new(),
   'buildenv'        => BSSched::BuildJob::BuildEnv->new(),
   'unknown'         => BSSched::BuildJob::Unknown->new(),
   'default'         => BSSched::BuildJob::Package->new(),
@@ -107,7 +109,7 @@ sub preparepool {
   $ctx->{'dep2pkg'} = \%dep2pkg;
   $ctx->{'dep2src'} = \%dep2src;
   my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
-  @subpacks = () if $bconf->{'type'} eq 'kiwi';
+  @subpacks = () if $bconf->{'type'} eq 'kiwi' || $bconf->{'type'} eq 'docker';
   $ctx->{'subpacks'} = { $pname => \@subpacks };
 }
 

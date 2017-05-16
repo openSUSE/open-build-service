@@ -891,7 +891,7 @@ sub create {
 
   my $expanddebug = $ctx->{'expanddebug'};
 
-  # calculate sysdeps (cannot cache in the kiwi case)
+  # calculate sysdeps (cannot cache in the kiwi/docker case)
   my @sysdeps;
   if ($buildtype eq 'kiwi') {
     my $kiwitype = '';
@@ -910,7 +910,7 @@ sub create {
   unshift @bdeps, @{$info->{'dep'} || []}, @{$ctx->{'extradeps'} || []};
   push @bdeps, '--ignoreignore--' if @sysdeps;
 
-  if ($buildtype eq 'kiwi' || $buildtype eq 'buildenv') {
+  if ($buildtype eq 'kiwi' || $buildtype eq 'docker' || $buildtype eq 'buildenv') {
     @bdeps = (1, @$edeps);      # reuse edeps packages, no need to expand again
   } else {
     @bdeps = Build::get_build($bconf, $subpacks, @bdeps);
@@ -938,7 +938,7 @@ sub create {
   # do DoD checking
   if (!$ctx->{'isreposerver'} && $BSConfig::enable_download_on_demand) {
     my $dods;
-    if ($buildtype eq 'kiwi') {
+    if ($buildtype eq 'kiwi' || $buildtype eq 'docker') {
       # for kiwi the image packages are already checked (they come from a different pool anyway)
       $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @pdeps, @vmdeps, @sysdeps);
     } else {
@@ -977,7 +977,7 @@ sub create {
     $_->{'runscripts'} = 1 if $runscripts{$n};
     $_->{'notmeta'} = 1 unless $edeps{$n};
     if (@sysdeps) {
-      $_->{'installonly'} = 1 if $sysdeps{$n} && !$bdeps{$n} && $buildtype ne 'kiwi';
+      $_->{'installonly'} = 1 if $sysdeps{$n} && !$bdeps{$n} && $buildtype ne 'kiwi' && $buildtype ne 'docker';
       $_->{'noinstall'} = 1 if $bdeps{$n} && !($sysdeps{$n} || $vmdeps{$n} || $pdeps{$n});
     }
     if ($dobuildinfo) {
