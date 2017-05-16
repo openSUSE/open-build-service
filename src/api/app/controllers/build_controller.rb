@@ -124,6 +124,15 @@ class BuildController < ApplicationController
     pass_to_backend path
   end
 
+  def preinstallimginfo
+    required_parameters :project, :repository, :arch, :package
+
+    # just for permission checking
+    Project.get_by_name params[:project]
+
+    pass_to_backend
+  end
+
   def builddepinfo
     required_parameters :project, :repository, :arch
 

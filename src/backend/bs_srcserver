@@ -6647,6 +6647,147 @@ sub getbuildinfo {
   return ($buildinfo, $BSXML::buildinfo);
 }
 
+sub getpreinstallimginfo_post {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+
+  $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+
+  my @args;
+  push @args, 'internal=1';
+  push @args, 'debug=1' if $cgi->{'debug'};
+  my $param = {
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo",
+    'request' => 'POST',
+    'data' => \&BSServer::forward_sender,
+    'chunked' => 1,
+  };
+  my $buildinfo = BSWatcher::rpc($param, $BSXML::buildinfo, @args);
+  return undef unless $buildinfo;
+  return preinstallimginfo($cgi,  $projid, $repoid, $arch, $packid, $buildinfo);
+}
+
+sub getpreinstallimginfo {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+
+  $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+
+  my @args;
+  push @args, 'internal=1';
+  push @args, 'debug=1' if $cgi->{'debug'};
+
+  my $buildinfo = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, @args);
+  return undef unless $buildinfo;
+  return preinstallimginfo($cgi,  $projid, $repoid, $arch, $packid, $buildinfo);
+}
+
+sub preinstallimginfo {
+  my ($cgi, $projid, $repoid, $arch, $packid, $buildinfo) = @_;
+
+  my @bins;
+  for my $bdep (@{$buildinfo->{'bdep'}}) {
+    next if grep {$bdep->{'name'} eq $_} @{$cgi->{'localpackage'} || []};
+    push @bins, $bdep->{'name'};
+  }
+
+  my %prpas;
+  my %hdrmd5s;
+  for my $path (@{$buildinfo->{'path'}}) {
+    my $server = $path->{'server'};
+    my @args;
+    push @args, "project=$path->{'project'}";
+    push @args, "repository=$path->{'repository'}";
+    push @args, "arch=$buildinfo->{'arch'}";
+    push @args, "binaries=".join(',', @bins);
+    print "getbinaryversions: server $server, args @args\n";
+    my $bvl;
+    eval {
+      $bvl = BSRPC::rpc({
+        'uri' => "$server/getbinaryversions",
+        'timeout' => 60,
+      }, $BSXML::binaryversionlist, @args);
+    };
+    warn($@) if $@;
+    last unless $bvl;       # stop here
+    push @{$prpas{$server}}, "$path->{'project'}/$path->{'repository'}/$buildinfo->{'arch'}" if $server ne $BSConfig::srcserver;
+    for (@{$bvl->{'binary'}}) {
+      next if exists $_->{'error'};
+      next unless $_->{'name'} =~ /(.*)\.(?:$binsufsre)$/;
+      $hdrmd5s{$_->{'hdrmd5'}} = $1;
+    }
+  }
+
+  die("404 no binaryversions available\n") unless %hdrmd5s && %prpas;
+
+  # ok, now check if there is an image on one of the repo servers
+  my $match = "\1" x 512;
+  foreach my $h5 (keys %hdrmd5s) {
+    vec($match, hex(substr($h5, 0, 3)), 1) = 1;
+  }
+
+  my @images;
+  for my $server (sort(keys %prpas)) {
+    my $serverimages;
+    eval {
+      $serverimages = BSRPC::rpc({
+        'uri' => "$server/getpreinstallimageinfos",
+        'request' => 'POST',
+        'data' => $match,
+        'headers' => [ 'Content-Type: application/octet-stream' ],
+        'timeout' => 60,
+      }, undef, "match=body", map {"prpa=$_"} @{$prpas{$server}});
+    };
+    warn($@) if $@;
+    if ($serverimages && substr($serverimages, 0, 4) eq 'pst0') {
+      eval {
+        $serverimages = Storable::thaw(substr($serverimages, 4));
+      };
+      warn($@) if $@;
+    }
+    $serverimages = [] unless $serverimages && ref($serverimages);
+    $_->{'server'} = $server for @$serverimages;
+    push @images, @$serverimages;
+  }
+
+  die("404 no preinstall images available\n") unless @images;
+
+  # got all available images, now find a good one to use
+  my %neededhdrmd5s;
+  $neededhdrmd5s{$_} = 1 for keys %hdrmd5s;
+  my $bestimgn = 1;
+  my $bestimg;
+  for my $img (@images) {
+    # check if it really fits!
+    next if @{$img->{'hdrmd5s'} || []} < $bestimgn;
+    next unless $img->{'sizek'} && $img->{'hdrmd5'};
+    next if grep {!$neededhdrmd5s{$_}} @{$img->{'hdrmd5s'} || []};
+    # ignore our own image
+    next if $img->{'prpa'} eq "$projid/$repoid/$buildinfo->{'arch'}" && $img->{'package'} eq $buildinfo->{'package'};
+    if ($buildinfo->{'file'} eq '_preinstallimage') {
+      # for building preinstall images we want at least one new package to avoid cycles
+      my %havehdrmd5 = map {$_ => 1} @{$img->{'hdrmd5s'} || []};
+      next unless grep {!$havehdrmd5{$_}} values %hdrmd5s;
+    }
+    $bestimg = ();
+    $bestimg->{'path'} = $img->{'path'};
+    $bestimg->{'server'} = $img->{'server'};
+    $bestimg->{'package'} = $img->{'package'};
+    $bestimg->{'hdrmd5'} = $img->{'hdrmd5'};
+    $bestimg->{'file'} = $img->{'file'};
+    $bestimg->{'prpa'} = $img->{'prpa'};
+    $bestimg->{'arch'} = $buildinfo->{'arch'};
+    for my $h5 (@{$img->{'hdrmd5s'}}) {
+      push @{$bestimg->{'binaries'}}, $hdrmd5s{$h5};
+    }
+    $bestimgn = @{$img->{'hdrmd5s'} || []};
+  }
+
+  return ($bestimg, $BSXML::preinstallimginfo);
+}
+
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
@@ -8364,6 +8505,8 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* debug:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool?' => \&getbuildinfo,
+  'POST:/build/$project/$repository/$arch/$package_repository/_preinstallimginfo localpackage:*  debug:bool?' => \&getpreinstallimginfo_post,
+  '/build/$project/$repository/$arch/$package/_preinstallimginfo localpackage:*  debug:bool?' => \&getpreinstallimginfo,
   '/build/$project/$repository/$arch/$package/_jobstatus' => \&getjobstatus,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,

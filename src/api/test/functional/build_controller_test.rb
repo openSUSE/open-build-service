@@ -141,6 +141,113 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_match(/Delete operation of build results is not allowed/, @response.body)
   end
 
+  def test_preinstall_img
+    login_king
+
+    repo = "BaseDistro3_repo"
+    proj = "preinstall_test"
+
+    pkgA = "pack"
+    pkgB = "pack2"
+    preinst_pkg = "preinstall-pack"
+
+    # create project where preinstall image is tested
+    prj_meta = %{
+    <project name="#{proj}">
+        <title/>
+        <description/>
+        <person userid="king" role="maintainer"/>
+        <useforbuild>
+            <enable/>
+        </useforbuild>
+        <repository name="#{repo}">
+            <path project="BaseDistro3" repository="#{repo}"/>
+            <arch>i586</arch>
+        </repository>
+    </project>
+    }
+
+    put "/source/#{proj}/_meta", prj_meta
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
+
+    pkg_meta = %{
+<package name="PKG" project="PROJ">
+    <title/>
+    <description/>
+</package>
+    }
+
+    # create package which will be included to preinstall image
+    pkgA_meta = pkg_meta.sub("PKG", pkgA).sub("PROJ", proj)
+
+    raw_put "/source/#{proj}/#{pkgA}/_meta", pkgA_meta
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
+
+    spec = File.open("#{Rails.root}/test/fixtures/backend/binary/pack.spec").read
+
+    raw_put "/source/#{proj}/#{pkgA}/#{pkgA}.spec", spec
+    assert_xml_tag :tag => 'revision', :attributes => { :rev => '1' }
+
+    run_scheduler('i586')
+    inject_build_job(proj, pkgA, repo, 'i586')
+    run_scheduler('i586')
+
+    # create preinstall image which contains single package
+    preinst_pkg_meta = pkg_meta.sub("PKG", preinst_pkg).sub("PROJ", proj)
+    raw_put "/source/#{proj}/#{preinst_pkg}/_meta", preinst_pkg_meta
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
+
+    _preinstallimage = %{
+Name: preinstall-tst
+BuildRequires: #{pkgA}
+    }
+
+    raw_put "/source/#{proj}/#{preinst_pkg}/_preinstallimage", _preinstallimage
+    assert_xml_tag :tag => 'revision', :attributes => { :rev => '1' }
+
+    run_scheduler('i586')
+    inject_preinstall_build_job(proj, preinst_pkg, repo, 'i586')
+    run_scheduler('i586')
+
+    # create package which will be used for querying available preinstall images
+    pkgB_meta = pkg_meta.sub("PKG", pkgB).sub("PROJ", proj)
+    raw_put "/source/#{proj}/#{pkgB}/_meta", pkgB_meta
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
+
+    raw_put "/source/#{proj}/#{pkgB}/#{pkgB}.spec", spec
+    assert_xml_tag :tag => 'revision', :attributes => { :rev => '1' }
+
+    # query preinstall images: there shouldn't be any because test package
+    # doesn't have any build deps
+    get "/build/#{proj}/#{repo}/i586/#{pkgB}/_preinstallimginfo"
+    assert_response 404
+    assert_xml_tag :tag => "summary", :content => 'no binaryversions available'
+
+    # add build dep to first package
+    pkgB_spec = spec.sub("pack", pkgB).sub("#TAG", "BuildRequires: #{pkgA}")
+    raw_put "/source/#{proj}/#{pkgB}/#{pkgB}.spec", pkgB_spec
+    assert_xml_tag :tag => 'revision', :attributes => { :rev => '2' }
+
+    # buildinfo should contain build dep
+    get "/build/#{proj}/#{repo}/i586/#{pkgB}/_buildinfo"
+    assert_xml_tag :tag => 'bdep', :attributes => { :name => pkgA }
+
+    # now there should be preistall image available
+    get "/build/#{proj}/#{repo}/i586/#{pkgB}/_preinstallimginfo"
+    assert_xml_tag :tag => 'package', :content => preinst_pkg
+    assert_xml_tag :tag => 'binaries', :content => pkgA
+
+    # no preinstall images should be available, if local package cotains build dep:
+    get "/build/#{proj}/#{repo}/i586/#{pkgB}/_preinstallimginfo?localpackage=#{pkgA}"
+    assert_response 404
+    assert_xml_tag :tag => "summary", :content => 'no binaryversions available'
+
+    # preinstall image should be found, if local package list contains unrelated packages
+    get "/build/#{proj}/#{repo}/i586/#{pkgB}/_preinstallimginfo?localpackage=liha&localpackage=pulla"
+    assert_xml_tag :tag => 'package', :content => preinst_pkg
+    assert_xml_tag :tag => 'binaries', :content => pkgA
+  end
+
   def test_buildinfo
     # just testing routing
     get "/build/buildinfo"

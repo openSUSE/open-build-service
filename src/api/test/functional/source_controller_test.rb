@@ -2129,11 +2129,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # compare source with target repo
     get '/build/home:Iggy/10.2/i586/TestPack/'
     assert_response :success
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 5 }
 
     get '/build/home:adrian:RT/rt/i586/TestPack/'
     assert_response :success
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 5 }
 
     # cleanup
     login_Iggy
@@ -2212,12 +2212,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # compare source with target repo
     get '/build/home:Iggy/10.2/i586/TestPack/'
     assert_response :success
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 5 }
     assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
 
     get '/build/home:adrian:RT/rt/i586/TestPack/'
     assert_response :success
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 5 }
     assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
 
     # link got expanded
@@ -2243,12 +2243,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # compare source with target repo
     get '/build/home:Iggy/10.2/i586/TestPack/'
     assert_response :success
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 5 }
     assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
 
     get '/build/home:adrian:RT/rt/i586/TestPack/'
     assert_response :success
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 5 }
     # binary got  renamed during release
     assert_no_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
     assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-Beta1.i586.rpm' }

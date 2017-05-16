@@ -550,6 +550,19 @@ our $buildinfo = [
 	'nounchanged',	# do not check for "unchanged" builds
 ];
 
+our $preinstallimginfo = [
+   'imageinfo' =>
+       [],
+       'path',
+       'server',
+       'package',
+       'hdrmd5',
+       'file',
+       'prpa',
+       'arch',
+       [ 'binaries' ],
+];
+
 our $jobstatus = [
     'jobstatus' =>
 	'code',

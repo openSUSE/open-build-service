@@ -70,6 +70,27 @@ def inject_build_job(project, package, repo, arch, extrabinary=nil)
   system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
 end
 
+def inject_preinstall_build_job(project, package, repo, arch)
+  job=IO.popen("find #{Rails.root}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
+  jobfile=job.readlines.first
+  return unless File.file?("#{Rails.root}/test/fixtures/backend/binary/#{package}.info")
+  return unless File.file?("#{Rails.root}/test/fixtures/backend/binary/#{package}.tar.gz")
+  return unless jobfile
+  jobfile.chomp!
+  jobid=''
+  IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|
+    jobid = io.readlines.first.chomp
+  end
+  data = REXML::Document.new(File.new(jobfile))
+  verifymd5 = data.elements['/buildinfo/verifymd5'].text
+  f = File.open("#{jobfile}:status", 'w')
+  f.write("<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>#{arch}</hostarch> </jobstatus>")
+  f.close
+  system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '#{package}.info' -o -name '#{package}.tar.gz' -o -name logfile -o -name _statistics | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
+  system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
+  system("cat #{Rails.root}/test/fixtures/backend/binary/#{package}.info >> #{jobfile}:dir/meta")
+end
+
 module ActionDispatch
   module Integration
     class Session
