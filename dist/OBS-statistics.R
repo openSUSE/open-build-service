@@ -40,3 +40,16 @@ bs_requests_data <- data.frame(
 ggplot(data=bs_requests_data, aes(x=date, y=bs_requests)) +
   geom_line()
 
+# NUMBER OF BS REQUESTS FROM 2015
+# require scales library to show only the years in the dates axis, 
+# in case that you don't have then installed, use: install.packages("scales")
+library(scales)
+
+# Take subset with the data from 2015
+bs_requests_data_from_2015 <- subset(bs_requests_data, date >= as.Date("2015-01-01") )
+
+# We scale to show only the year. 
+# Otherwise, as this period of time if shorter it will show 2015-01, 2015-07, 2016-01,... on the date axis
+ggplot(data=bs_requests_data_from_2015, aes(x=date, y=bs_requests)) +
+  geom_line() +
+  scale_x_date(breaks = date_breaks("1 years"), labels = date_format("%Y"))
