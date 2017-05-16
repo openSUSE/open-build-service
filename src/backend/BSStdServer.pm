@@ -303,9 +303,11 @@ sub server {
 =cut
 
 sub openlog {
-  my ($options) = @_;
+  my ($options,$user,$group) = @_;
   return unless $options->{'logfile'};
   my $logfile = $options->{logfile};
+  my ($ld) = $logfile =~ m-(.*)/- ;
+  BSUtil::mkdir_p_chown($ld, $user, $group);
   open(NEWSTDOUT,'>>',$logfile) || die "Could not open $logfile: $!\n";
   open(NEWSTDERR,'>>',$logfile) || die "Could not open $logfile: $!\n";
   close STDOUT || die "Could not close STDOUT: $!\n";
