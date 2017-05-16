@@ -176,6 +176,9 @@ sub fixupbuildinfo {
     $binfo->{'syspath'} = [] if grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []};
     unshift @{$binfo->{'path'}}, @{delete $binfo->{'syspath'}};
   }
+  if ($binfo->{'containerpath'}) {
+    unshift @{$binfo->{'path'}}, @{delete $binfo->{'containerpath'}};
+  }
   addurltopath($ctx, $binfo);
   # never use the subpacks from the full tree
   $binfo->{'subpack'} = $info->{'subpacks'} if $info->{'subpacks'};
