@@ -406,9 +406,10 @@ make -C dist test
 getent passwd obsservicerun >/dev/null || \
     /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
     -c "User for the build service source service" obsservicerun
-exit 0
 
 %service_add_pre obsdeltastore
+
+exit 0
 
 # create user and group in advance of obs-server
 %pre -n obs-common
