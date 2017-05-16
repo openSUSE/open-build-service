@@ -8432,6 +8432,8 @@ if ($BSConfig::workersrcserver) {
   $conf->{'port2'} = $wport if $wport != $port;
 }
 
+# always create the event directory if it not exist
+BSUtil::mkdir_p_chown("$eventdir", $BSConfig::bsuser, $BSConfig::bsgroup) unless -d "$eventdir";
 # set a repoid for identification of this data repository
 BSUtil::mkdir_p_chown("$projectsdir", $BSConfig::bsuser, $BSConfig::bsgroup) unless -d "$projectsdir";
 if (! -e "$projectsdir/_repoid") {
