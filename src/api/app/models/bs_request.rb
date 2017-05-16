@@ -55,6 +55,7 @@ class BsRequest < ApplicationRecord
   validates :creator, presence: true
   validate :check_supersede_state
   validate :check_creator, on: [:create, :save!]
+  validate :conflicting_actions, on: [:create, :save!]
   validates :comment, length: { maximum: 300000 }
   validates :description, length: { maximum: 300000 }
 
@@ -104,6 +105,21 @@ class BsRequest < ApplicationRecord
     end
     return if user.is_active?
     errors.add(:creator, "Login #{user.login} is not an active user")
+  end
+
+  def conflicting_actions
+    bs_request_actions.each do |actionA|
+      bs_request_actions.each do |actionB|
+        next if actionA == actionB
+        next if actionA.type == "add_role" # the exception that proves the rule
+        next if actionA.type == "maintenance_incident" # we could extend the check for package link target
+        if actionA.type == actionB.type &&
+           actionA.target_project == actionB.target_project &&
+           actionA.target_package == actionB.target_package
+          errors.add(:invalid, "double action for #{actionB.try(:target_project)}/#{actionB.try(:target_package)} ")
+        end
+      end
+    end
   end
 
   def assign_number
