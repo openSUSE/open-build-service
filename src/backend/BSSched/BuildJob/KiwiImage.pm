@@ -187,6 +187,7 @@ sub check {
       $cbdep->{'version'} = $d->{'version'};
       $cbdep->{'release'} = $d->{'release'} if defined $d->{'release'};
       $cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
+      $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
     }
   }
 
