@@ -100,6 +100,7 @@ Style/MultilineBlockChain:
     - 'src/api/spec/models/project_spec.rb'
     - 'src/api/spec/models/package_spec.rb'
     - 'src/api/spec/helpers/webui/package_helper_spec.rb'
+    - 'src/api/spec/models/kiwi/repository_spec.rb'
 
 # Use ! instead not
 Style/Not:
