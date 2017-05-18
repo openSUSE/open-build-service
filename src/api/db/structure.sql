@@ -633,6 +633,35 @@ CREATE TABLE `issues` (
   CONSTRAINT `issues_ibfk_2` FOREIGN KEY (`issue_tracker_id`) REFERENCES `issue_trackers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `kiwi_images` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `md5_last_revision` varchar(32) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `kiwi_repositories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `image_id` int(11) DEFAULT NULL,
+  `repo_type` varchar(255) DEFAULT NULL,
+  `source_path` varchar(255) DEFAULT NULL,
+  `order` int(11) DEFAULT NULL,
+  `priority` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `alias` varchar(255) DEFAULT NULL,
+  `imageinclude` tinyint(1) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `prefer_license` tinyint(1) DEFAULT NULL,
+  `replaceable` tinyint(1) DEFAULT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_kiwi_repositories_on_image_id_and_order` (`image_id`,`order`),
+  KEY `index_kiwi_repositories_on_image_id` (`image_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `linked_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) NOT NULL,
@@ -717,10 +746,13 @@ CREATE TABLE `packages` (
   `develpackage_id` int(11) DEFAULT NULL,
   `delta` tinyint(1) NOT NULL DEFAULT '1',
   `releasename` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `kiwi_image_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `packages_all_index` (`project_id`,`name`) USING BTREE,
   KEY `devel_package_id_index` (`develpackage_id`) USING BTREE,
   KEY `updated_at_index` (`updated_at`) USING BTREE,
+  KEY `index_packages_on_kiwi_image_id` (`kiwi_image_id`),
+  CONSTRAINT `fk_rails_9a47aff19d` FOREIGN KEY (`kiwi_image_id`) REFERENCES `kiwi_images` (`id`),
   CONSTRAINT `packages_ibfk_3` FOREIGN KEY (`develpackage_id`) REFERENCES `packages` (`id`),
   CONSTRAINT `packages_ibfk_4` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -1190,7 +1222,10 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170316090223'),
 ('20170317094221'),
 ('20170320151300'),
+('20170412121601'),
+('20170412121957'),
 ('20170426153510'),
-('20170509123922');
-
+('20170509123922'),
+('20170511120355'),
+('20170516140442');
 

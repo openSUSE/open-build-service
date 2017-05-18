@@ -11,6 +11,8 @@ class Package < ApplicationRecord
   include CanRenderModel
   include HasRelationships
   has_many :relationships, dependent: :destroy, inverse_of: :package
+  belongs_to :kiwi_image, class_name: 'Kiwi::Image'
+  accepts_nested_attributes_for :kiwi_image
 
   include HasRatings
   include HasAttributes
@@ -1444,15 +1446,18 @@ end
 #  develpackage_id :integer          indexed
 #  delta           :boolean          default(TRUE), not null
 #  releasename     :string(255)
+#  kiwi_image_id   :integer          indexed
 #
 # Indexes
 #
-#  devel_package_id_index  (develpackage_id)
-#  packages_all_index      (project_id,name) UNIQUE
-#  updated_at_index        (updated_at)
+#  devel_package_id_index           (develpackage_id)
+#  index_packages_on_kiwi_image_id  (kiwi_image_id)
+#  packages_all_index               (project_id,name) UNIQUE
+#  updated_at_index                 (updated_at)
 #
 # Foreign Keys
 #
-#  packages_ibfk_3  (develpackage_id => packages.id)
-#  packages_ibfk_4  (project_id => projects.id)
+#  fk_rails_9a47aff19d  (kiwi_image_id => kiwi_images.id)
+#  packages_ibfk_3      (develpackage_id => packages.id)
+#  packages_ibfk_4      (project_id => projects.id)
 #
