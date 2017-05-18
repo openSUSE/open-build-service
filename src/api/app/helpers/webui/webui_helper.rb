@@ -261,10 +261,10 @@ module Webui::WebuiHelper
       icon = user_icon(user)
     end
 
-    if !(real_name.empty? || opt[:short])
-      printed_name = "#{real_name} (#{user})"
-    else
+    if real_name.empty? || opt[:short]
       printed_name = user
+    else
+      printed_name = "#{real_name} (#{user})"
     end
 
     printed_name << " as #{role}" if role
