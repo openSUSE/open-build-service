@@ -186,12 +186,14 @@ OBSApi::Application.routes.draw do
       delete 'flag/:project(/:package)/:flag' => :remove_flag, constraints: cons
     end
 
-    controller 'webui/kiwi/images' do
-      get 'package/:package_id/kiwi_images/import_from_package' => :import_from_package, as: 'import_kiwi_image'
-    end
+    Feature.with(:kiwi_image_editor) do
+      controller 'webui/kiwi/images' do
+        get 'package/:package_id/kiwi_images/import_from_package' => :import_from_package, as: 'import_kiwi_image'
+      end
 
-    resources :kiwi_images, only: [], controller: 'webui/kiwi/images' do
-      resources :repositories, only: [:index], controller: 'webui/kiwi/repositories'
+      resources :kiwi_images, only: [], controller: 'webui/kiwi/images' do
+        resources :repositories, only: [:index], controller: 'webui/kiwi/repositories'
+      end
     end
 
     controller 'webui/project' do

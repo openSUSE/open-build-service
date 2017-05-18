@@ -1,2 +1,3 @@
 features:
   image_templates: true
+  kiwi_image_editor: false
