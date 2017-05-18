@@ -1,0 +1,26 @@
+.repository-container{ style: "margin-bottom: 1.5em" }
+  %div{ style: "margin-left: 15px" }
+    %strong
+      = link_to(repository.name, repository.source_path)
+    %i (#{repo_type_and_priority(repository)})
+  %div{ style: "margin-left: 30px" }
+    %div{ style: "margin: 5px" }
+      - if repository.username
+        %strong User:
+        repository.username.to_s
+      - if repository.password
+        - if repository.username
+          |
+        %strong Password:
+        repository.password.to_s
+    %div
+      = check_box "repository-#{repository.order}", 'prefer_license',
+        { checked: repository.prefer_license, disabled: true }
+      = label "repository-#{repository.order}", 'prefer_license',
+        'Prefer license'
+      = check_box "repository-#{repository.order}", 'imageinclude',
+        { checked: repository.imageinclude, disabled: true }
+      = label "repository-#{repository.order}", 'imageinclude', 'Image include'
+      = check_box "repository-#{repository.order}", 'replaceable',
+        { checked: repository.replaceable, disabled: true }
+      = label "repository-#{repository.order}", 'replaceable', 'Replaceable'
