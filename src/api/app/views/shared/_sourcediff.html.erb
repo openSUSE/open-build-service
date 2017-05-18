@@ -5,7 +5,9 @@
    div_opts[:id] = css_id
    div_opts[:class] = "table_wrapper #{css_class}" %>
 
-<% setup_codemirror_editor(height: 'auto', width: editor_width, no_border: true) # we need to have this here for ajax only diffs %>
+<% next_codemirror_uid %>
+<% content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index')) %>
+<% content_for(:head_style, codemirror_style(height: 'auto', width: editor_width, no_border: true)) %>
 
 <%= content_tag(:div, div_opts) do %>
 <% if filenames && filenames.length > 0 %>

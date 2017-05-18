@@ -330,8 +330,40 @@ RSpec.describe Webui::WebuiHelper do
     skip('Please add some tests')
   end
 
-  describe '#setup_codemirror_editor' do
-    skip('Please add some tests')
+  describe '#codemirror_style' do
+    context 'option height' do
+      it 'uses auto as default value' do
+        expect(codemirror_style).to include('height: auto;')
+      end
+
+      it 'get set properly' do
+        expect(codemirror_style(height: '250px')).to include('height: 250px;')
+      end
+    end
+
+    context 'option width' do
+      it 'uses auto as default value' do
+        expect(codemirror_style).to include('width: auto;')
+      end
+
+      it 'get set properly' do
+        expect(codemirror_style(width: '250px')).to include('width: 250px;')
+      end
+    end
+
+    context 'option border' do
+      it 'does not remove border' do
+        expect(codemirror_style).not_to include('border-width')
+      end
+
+      it 'removes the border if in read-only mode' do
+        expect(codemirror_style(read_only: true)).to include('border-width')
+      end
+
+      it 'removes the border if no_border is set' do
+        expect(codemirror_style(no_border: true)).to include('border-width')
+      end
+    end
   end
 
   describe '#package_link' do
