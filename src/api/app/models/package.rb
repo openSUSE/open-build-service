@@ -321,6 +321,28 @@ class Package < ApplicationRecord
     project.is_locked?
   end
 
+  def kiwi_image?
+    kiwi_image_file.present?
+  end
+
+  def kiwi_image_file
+    dir_hash.elements('entry') do |e|
+      return e['name'] if e['name'] =~ /.kiwi$/
+    end
+    nil
+  end
+
+  def kiwi_file_md5
+    dir_hash.elements('entry') do |e|
+      return e['md5'] if e['name'] =~ /.kiwi$/
+    end
+    nil
+  end
+
+  def kiwi_image_outdated?
+    kiwi_image && (kiwi_image.md5_last_revision != kiwi_file_md5)
+  end
+
   def master_product_object
     # test _product permissions if any other _product: subcontainer is used and _product exists
     product_object = project.packages.find_by(name: "_product") if name =~ /\A_product:\w[-+\w\.]*\z/
