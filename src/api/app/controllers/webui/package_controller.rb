@@ -1017,11 +1017,12 @@ class Webui::PackageController < Webui::WebuiController
 
   def package_files(rev = nil, expand = nil)
     p = {}
-    p[:project] = @package.project.name
-    p[:package] = @package.name
     p[:expand]  = expand  if expand
     p[:rev]     = rev     if rev
-    dir = Directory.find(p)
+
+    # FIXME: This should be something like ActiveXML::Node.find!
+    # so we can require ActiveXML::Node to tell us when things do not exist
+    dir = ActiveXML::Node.new(Backend::Connection.get(@package.source_path(nil, p)).body)
     return [] unless dir
 
     @serviceinfo = dir.find_first(:serviceinfo)
