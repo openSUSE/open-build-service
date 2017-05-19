@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+  export api_url="https://api.opensuse.org"
+else
+  export api_url=$1
+fi
+
+DEPLOYED_REVISION=`osc -A $api_url api /about|awk -F'[<|>]' '/revision/{printf("%s\n",$3)}'|rev|cut -d . -f 1|rev`
+git log -p --reverse --no-merges $DEPLOYED_REVISION..master -- . ':!src/api/spec'
