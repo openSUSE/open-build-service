@@ -296,7 +296,7 @@ sub server {
 
  checks if $options->{logfile} is set and reopens STDOUT/STDERR to logfile
 
- BSUtil::openlog($options,$name);
+ BSUtil::openlog($options, $name);
 
  $options should be HashRef of options (given by ARGV)
 
@@ -308,13 +308,10 @@ sub openlog {
   my $logfile = $options->{logfile};
   my ($ld) = $logfile =~ m-(.*)/- ;
   BSUtil::mkdir_p_chown($ld, $user, $group);
-  open(NEWSTDOUT,'>>',$logfile) || die "Could not open $logfile: $!\n";
-  open(NEWSTDERR,'>>',$logfile) || die "Could not open $logfile: $!\n";
   close STDOUT || die "Could not close STDOUT: $!\n";
+  open(STDOUT, '>>', $logfile) || die "(STDOUT) Could not open $logfile: $!\n";
   close STDERR || die "Could not close STDERR: $!\n";
-  *STDOUT = *NEWSTDOUT;
-  *STDERR = *NEWSTDERR;
+  open(STDERR, '>>', $logfile) || die "(STDERR) Could not open $logfile: $!\n";
 }
-
 
 1;
