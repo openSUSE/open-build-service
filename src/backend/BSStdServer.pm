@@ -310,8 +310,7 @@ sub openlog {
   BSUtil::mkdir_p_chown($ld, $user, $group);
   close STDOUT || die "Could not close STDOUT: $!\n";
   open(STDOUT, '>>', $logfile) || die "(STDOUT) Could not open $logfile: $!\n";
-  close STDERR || die "Could not close STDERR: $!\n";
-  open(STDERR, '>>', $logfile) || die "(STDERR) Could not open $logfile: $!\n";
+  open(STDERR, ">&STDOUT");
 }
 
 1;
