@@ -233,6 +233,10 @@ function prepare_database_setup {
 
   if [[ $? > 0 ]];then
     echo "Initialize MySQL databases (first time only)"
+    echo " - reconfiguring /etc/my.cnf"
+    perl -p -i -e 's#.*datadir\s*=\s*/var/lib/mysql$#datadir= /srv/obs/MySQL#' /etc/my.cnf
+    mysql_install_db
+    chown mysql:mysql -R /srv/obs/MySQL
     mysqladmin -u root password "opensuse"
     if [[ $? > 0 ]];then
       echo "ERROR: Your mysql setup doesn't fit your rails setup"
