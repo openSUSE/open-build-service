@@ -157,6 +157,41 @@ ccf(diff_all, number_projects)
 
 ###############################################################################################
 
+# GITHUB
+
+# CODE FRECUENCY
+
+code_frequency <- read.csv('code_frequency.csv')
+
+code_frequency_data <-
+  data.frame(
+    additions = code_frequency$additions,
+    deletions = code_frequency$deletions,
+    date = as.Date(code_frequency$date, format = "%Y-%m-%d")
+  )
+
+test_data_long <- melt(code_frequency_data, id="date")  # convert to long format
+
+ggplot(data=test_data_long,
+       aes(x=date, y=value, colour=variable)) +
+  geom_line()
+
+
+# COMMIT ACTIVITY
+
+dataCommits <- read.csv('commit_activity.csv')
+
+commits_data <- data.frame(
+  commits = dataCommits$commits,
+  date = as.Date(dataCommits$date, format = "%Y-%m-%d") # convert String to Date
+)
+
+ggplot(data=commits_data, aes(x=date, y=commits)) +
+  geom_line()
+
+
+###############################################################################################
+
 # PIE CHART OF REQUESTS STATES
 
 slices <- c(10763, 1684, 369727, 97, 44014, 5352, 46547)
