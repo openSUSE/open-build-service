@@ -7,6 +7,7 @@ namespace :statistics do
     date = Date.new(2006,02,01)
     old_users = 0
     while date < Date.today
+      # locked users could also be considered here
       num_users = User.where('created_at < ? AND state = ?', date, 'confirmed').count
       information += (date.to_s + ", " + num_users.to_s + ", " + (num_users - old_users).to_s + "\n")
       # granularity, currently it is one month. Adjust it as needed
