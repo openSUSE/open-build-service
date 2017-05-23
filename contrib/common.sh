@@ -7,15 +7,15 @@ function allow_vendor_change() {
 function add_common_repos() {
   zypper -q rr systemsmanagement-chef
   zypper -q rr systemsmanagement-puppet
-  zypper -q ar -f http://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_42.1/OBS:Server:Unstable.repo
-  zypper -q ar -f http://download.opensuse.org/repositories/openSUSE:/Tools/openSUSE_42.1/openSUSE:Tools.repo
+  zypper -q ar -f http://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_42.2/OBS:Server:Unstable.repo
+  zypper -q ar -f http://download.opensuse.org/repositories/openSUSE:/Tools/openSUSE_42.2/openSUSE:Tools.repo
   zypper -q --gpg-auto-import-keys refresh
   zypper -q -n dup -l --replacefiles
 }
 
 function install_common_packages() {
   echo -e "\ninstalling required software packages...\n"
-  zypper -q -n install --replacefiles\
+  zypper -q -n install --replacefiles \
     update-alternatives make gcc gcc-c++ patch cyrus-sasl-devel openldap2-devel \
     libmysqld-devel libxml2-devel zlib-devel libxslt-devel nodejs mariadb memcached \
     sphinx phantomjs haveged \
@@ -24,7 +24,6 @@ function install_common_packages() {
     ruby2.4-rubygem-bundler \
     ruby2.4-rubygem-mysql2 \
     ruby2.4-rubygem-nokogiri \
-    ruby2.4-rubygem-multi_json \
     ruby2.4-rubygem-ruby-ldap \
     ruby2.4-rubygem-xmlhash \
     ruby2.4-rubygem-thinking-sphinx\
