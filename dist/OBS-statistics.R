@@ -78,3 +78,15 @@ ggplot(data=test_data_long,
        aes(x=date, y=value, colour=variable)) +
   geom_line()
 
+
+# SEVERAL BS REQUESTS FROM 2015
+
+# Take subset with the data from 2015
+several_bs_requests_data_from_2015 <- subset(several_bs_requests_data, date >= as.Date("2015-01-01") )
+
+test_data_long <- melt(several_bs_requests_data_from_2015, id="date")  # convert to long format
+
+ggplot(data=test_data_long,
+       aes(x=date, y=value, colour=variable)) +
+  geom_line()
+
