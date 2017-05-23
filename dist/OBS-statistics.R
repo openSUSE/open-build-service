@@ -74,6 +74,8 @@ several_bs_requests_data <-
     date = as.Date(dataBsRequests$date, format = "%Y-%m-%d")
   )
 
+test_data_long <- melt(several_bs_requests_data_from_2015, id="date")  # convert to long format
+
 ggplot(data=test_data_long,
        aes(x=date, y=value, colour=variable)) +
   geom_line()
@@ -196,10 +198,33 @@ ggplot(data=commits_data, aes(x=date, y=commits)) +
 
 slices <- c(10763, 1684, 369727, 97, 44014, 5352, 46547)
 lbls <- c("declined", "review", "accepted", "deleted", "revoked", "new", "superseded")
-pct <- round(slices/sum(slices)*100)
+pct <- round(slices/sum(slices)*100, 2)
 # add percents and %
 lbls <- paste(paste(lbls, pct),"%",sep="")
 # print the pie chart with a beautiful rainbow color
 # cex is though to export the image in 2000x1200
 pie(slices,labels = lbls, col=rainbow(length(lbls)), radius = 1, cex = 3)
 
+
+###############################################################################################
+
+# PIE CHART OF CODE LINES
+
+slices <- c(217801, 30622, 33769)
+lbls <- c("Code Lines", "Comment Lines", "Blank Lines")
+pct <- round(slices/sum(slices)*100)
+# add percents and %
+lbls <- paste(paste(lbls, pct),"%",sep="")
+# cex is though to export the image in 2000x1200 (to show it small)
+pie(slices,labels = lbls, cex = 3)
+
+# PIE CHART OF CODE LINES BY LANGUAGE
+
+slices <- c(92288, 81912, 54648, 14854, 14913, 12827, 4470, 6280)
+lbls <- c("Ruby", "Perl", "Python", "XML", "JavaScript", "shell script", "CSS", "Others")
+pct <- round(slices/sum(slices)*100, 1)
+# add percents and %
+lbls <- paste(paste(lbls, pct),"%",sep="")
+# print the pie chart with a beautiful rainbow color
+# cex is though to export the image in 2000x1200
+pie(slices,labels = lbls, col=rainbow(length(lbls)), radius = 1, cex = 3)
