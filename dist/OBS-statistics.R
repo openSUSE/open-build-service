@@ -40,6 +40,7 @@ bs_requests_data <- data.frame(
 ggplot(data=bs_requests_data, aes(x=date, y=bs_requests)) +
   geom_line()
 
+
 # NUMBER OF BS REQUESTS FROM 2015
 # require scales library to show only the years in the dates axis, 
 # in case that you don't have then installed, use: install.packages("scales")
@@ -53,3 +54,27 @@ bs_requests_data_from_2015 <- subset(bs_requests_data, date >= as.Date("2015-01-
 ggplot(data=bs_requests_data_from_2015, aes(x=date, y=bs_requests)) +
   geom_line() +
   scale_x_date(breaks = date_breaks("1 years"), labels = date_format("%Y"))
+
+
+# SEVERAL BS REQUESTS
+
+library(reshape2)
+library(plotly)
+
+several_bs_requests_data <-
+  data.frame(
+    all = dataBsRequests$bs_requests,
+    openSUSE_Factory = read.csv('number_bs_requests_for_openSUSE:Factory.txt')$bs_requests,
+    openSUSE_Maintenance = read.csv('number_bs_requests_for_openSUSE:Maintenance.txt')$bs_requests,
+    openSUSE_Leap_42.1 = read.csv('number_bs_requests_for_openSUSE:Leap:42.1.txt')$bs_requests,
+    openSUSE_Leap_42.2 = read.csv('number_bs_requests_for_openSUSE:Leap:42.2.txt')$bs_requests,
+    openSUSE_Leap_42.3 = read.csv('number_bs_requests_for_openSUSE:Leap:42.3.txt')$bs_requests,
+    GNOME_Factory = read.csv('number_bs_requests_for_GNOME:Factory.txt')$bs_requests,
+    devel_languages = read.csv('number_bs_requests_for_devel:languages.txt')$bs_requests,
+    date = as.Date(dataBsRequests$date, format = "%Y-%m-%d")
+  )
+
+ggplot(data=test_data_long,
+       aes(x=date, y=value, colour=variable)) +
+  geom_line()
+
