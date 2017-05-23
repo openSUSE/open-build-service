@@ -156,3 +156,15 @@ ccf(diff_all, number_projects)
 
 
 ###############################################################################################
+
+# PIE CHART OF REQUESTS STATES
+
+slices <- c(10763, 1684, 369727, 97, 44014, 5352, 46547)
+lbls <- c("declined", "review", "accepted", "deleted", "revoked", "new", "superseded")
+pct <- round(slices/sum(slices)*100)
+# add percents and %
+lbls <- paste(paste(lbls, pct),"%",sep="")
+# print the pie chart with a beautiful rainbow color
+# cex is though to export the image in 2000x1200
+pie(slices,labels = lbls, col=rainbow(length(lbls)), radius = 1, cex = 3)
+
