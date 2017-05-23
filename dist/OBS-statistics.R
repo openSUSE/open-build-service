@@ -90,3 +90,40 @@ ggplot(data=test_data_long,
        aes(x=date, y=value, colour=variable)) +
   geom_line()
 
+
+# NUMBER OF ACTIVE PROJECTS
+
+dataProjects <- read.csv('number_projects_bs_requests.txt')
+projects_data <- data.frame(
+  number_projects = dataProjects$projects_bs_requests,
+  date = as.Date(dataProjects$date, format = "%Y-%m-%d")
+)
+
+ggplot(data=projects_data,
+       aes(x=date, y=number_projects)) +
+  geom_line()
+
+
+# NUMBER OF ACTIVE PROJECTS VS ACTIVITY
+
+dataBsRequests <- read.csv('number_bs_requests.txt')
+
+bs_requests_data <- data.frame(
+  bs_requests = dataBsRequests$bs_requests,
+  date = as.Date(dataBsRequests$date, format = "%Y-%m-%d") # convert String to Date
+)
+
+dataBsRequestsFrom2013 <- subset(bs_requests_data, date >= as.Date("2013-01-01") )
+
+projects_bs_requests_data <- data.frame(
+    all = dataBsRequestsFrom2013$bs_requests,
+    number_projects = read.csv('number_projects_bs_requests.txt')$projects_bs_requests,
+    date = as.Date(dataBsRequestsFrom2013$date, format = "%Y-%m-%d")
+  )
+
+test_data_long <- melt(projects_bs_requests_data, id="date")  # convert to long format
+
+ggplot(data=test_data_long,
+       aes(x=date, y=value, colour=variable)) +
+  geom_line()
+
