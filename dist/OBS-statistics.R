@@ -127,3 +127,32 @@ ggplot(data=test_data_long,
        aes(x=date, y=value, colour=variable)) +
   geom_line()
 
+
+# NUMBER OF ACTIVE PROJECTS VS DIFF ACTIVITY
+
+projects_diff_bs_requests_data <- data.frame(
+  diff_all = c(0,diff(dataBsRequestsFrom2013$bs_requests)),
+  number_projects = read.csv('number_projects_bs_requests.txt')$projects_bs_requests,
+  date = as.Date(dataBsRequestsFrom2013$date, format = "%Y-%m-%d")
+)
+
+test_data_long <- melt(projects_diff_bs_requests_data, id="date")  # convert to long format
+
+ggplot(data=test_data_long,
+       aes(x=date, y=value, colour=variable)) +
+  geom_line()
+
+
+# BS REQUEST CORRELATION
+
+diff_all <- projects_diff_bs_requests_data$diff_all
+number_projects <- projects_diff_bs_requests_data$number_projects
+
+# get correlation value
+cor(diff_all, number_projects)
+
+# paint the correlation graph
+ccf(diff_all, number_projects)
+
+
+###############################################################################################
