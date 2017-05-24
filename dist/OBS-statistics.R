@@ -1,15 +1,23 @@
+# We use ggplot2, a library that makes painting graphics much easier.
+# You can check the types of graphs and examples code here: https://plot.ly/ggplot2
+
+# REQUIRE NEEDED LIBRARIES, in case that you don't have then installed, use: install.packages("ggplot2")
+library(ggplot2)
+library(reshape2)
+library(plotly)
+# require scales library to show only the years in the dates axis, 
+# in case that you don't have then installed, use: install.packages("scales")
+library(scales)
+
+# FORMAT GRAPHS, to export in 2000x1200 and not valid for the pie charts
+theme_set(theme_gray(base_size = 56))
+
 # NUMBER OF USERS GRAPH
 
 # Read users data and save it in a dataframe variable
 dataUsers <- read.csv('number_users.txt')
 
-# We use ggplot2, a library that makes painting graphics much easier.
-# You can check the types of graphs and examples code here: https://plot.ly/ggplot2
-
 # In this case, we are going to use a simple geom_line without points
-
-# require library, in case that you don't have then installed, use: install.packages("ggplot2")
-library(ggplot2)
 
 users_data <- data.frame(
   users = dataUsers$users,
@@ -17,7 +25,7 @@ users_data <- data.frame(
 )
 
 ggplot(data=users_data, aes(x=date, y=users)) +
-  geom_line()
+  geom_line(size=3)
 
 
 ###############################################################################################
@@ -27,24 +35,16 @@ ggplot(data=users_data, aes(x=date, y=users)) +
 # Read bs_requests data and save it in a dataframe variable
 dataBsRequests <- read.csv('number_bs_requests.txt')
 
-# In this case, we are going to use a simple geom_line without points
-
-# require library, in case that you don't have then installed, use: install.packages("ggplot2")
-library(ggplot2)
-
 bs_requests_data <- data.frame(
   bs_requests = dataBsRequests$bs_requests,
   date = as.Date(dataBsRequests$date, format = "%Y-%m-%d") # convert String to Date
 )
 
 ggplot(data=bs_requests_data, aes(x=date, y=bs_requests)) +
-  geom_line()
+  geom_line(size=1, colour="red")
 
 
 # NUMBER OF BS REQUESTS FROM 2015
-# require scales library to show only the years in the dates axis, 
-# in case that you don't have then installed, use: install.packages("scales")
-library(scales)
 
 # Take subset with the data from 2015
 bs_requests_data_from_2015 <- subset(bs_requests_data, date >= as.Date("2015-01-01") )
@@ -58,8 +58,8 @@ ggplot(data=bs_requests_data_from_2015, aes(x=date, y=bs_requests)) +
 
 # SEVERAL BS REQUESTS
 
-library(reshape2)
-library(plotly)
+# for this graphs the font has to be decreased and EXPORT IT in 2000x1000
+theme_set(theme_gray(base_size = 36))
 
 several_bs_requests_data <-
   data.frame(
@@ -74,11 +74,12 @@ several_bs_requests_data <-
     date = as.Date(dataBsRequests$date, format = "%Y-%m-%d")
   )
 
-test_data_long <- melt(several_bs_requests_data_from_2015, id="date")  # convert to long format
+test_data_long <- melt(several_bs_requests_data, id="date")  # convert to long format
 
 ggplot(data=test_data_long,
        aes(x=date, y=value, colour=variable)) +
-  geom_line()
+  geom_line(size=1) +
+  theme(legend.text=element_text(size=26),legend.key.height=unit(2,"line"))
 
 
 # SEVERAL BS REQUESTS FROM 2015
@@ -94,6 +95,8 @@ ggplot(data=test_data_long,
 
 
 # NUMBER OF ACTIVE PROJECTS
+# reset font and EXPORT IT in 2000x1200
+theme_set(theme_gray(base_size = 56))
 
 dataProjects <- read.csv('number_projects_bs_requests.txt')
 projects_data <- data.frame(
@@ -103,10 +106,13 @@ projects_data <- data.frame(
 
 ggplot(data=projects_data,
        aes(x=date, y=number_projects)) +
-  geom_line()
+  geom_line(size=2, color="#0ECBD9")
 
 
 # NUMBER OF ACTIVE PROJECTS VS ACTIVITY
+
+# for this graphs the font has to be decreased and EXPORT IT in 2000x1000
+theme_set(theme_gray(base_size = 46))
 
 dataBsRequests <- read.csv('number_bs_requests.txt')
 
@@ -127,7 +133,8 @@ test_data_long <- melt(projects_bs_requests_data, id="date")  # convert to long 
 
 ggplot(data=test_data_long,
        aes(x=date, y=value, colour=variable)) +
-  geom_line()
+  geom_line(size=1) +
+  theme(legend.text=element_text(size=28),legend.key.height=unit(2,"line"))
 
 
 # NUMBER OF ACTIVE PROJECTS VS DIFF ACTIVITY
@@ -142,8 +149,8 @@ test_data_long <- melt(projects_diff_bs_requests_data, id="date")  # convert to 
 
 ggplot(data=test_data_long,
        aes(x=date, y=value, colour=variable)) +
-  geom_line()
-
+  geom_line(size=2) +
+  theme(legend.text=element_text(size=28),legend.key.height=unit(2,"line"))
 
 # BS REQUEST CORRELATION
 
@@ -163,6 +170,9 @@ ccf(diff_all, number_projects)
 
 # CODE FRECUENCY
 
+# for this graphs the font has to be decreased and EXPORT IT in 2000x1000
+theme_set(theme_gray(base_size = 46))
+
 code_frequency <- read.csv('code_frequency.csv')
 
 code_frequency_data <-
@@ -176,10 +186,15 @@ test_data_long <- melt(code_frequency_data, id="date")  # convert to long format
 
 ggplot(data=test_data_long,
        aes(x=date, y=value, colour=variable)) +
-  geom_line()
+  geom_line(size=1) +
+  theme(legend.text=element_text(size=28),legend.key.height=unit(2,"line"))
+
 
 
 # COMMIT ACTIVITY
+
+# reset font and EXPORT IT in 2000x1200
+theme_set(theme_gray(base_size = 56))
 
 dataCommits <- read.csv('commit_activity.csv')
 
@@ -189,13 +204,16 @@ commits_data <- data.frame(
 )
 
 ggplot(data=commits_data, aes(x=date, y=commits)) +
-  geom_line()
+  geom_line(size=2, color="#04B404")
 
 
 
 ###############################################################################################
 
 # BAR GRAPH FOR NUMBER OF BUILDS
+
+# for this graphs the font has to be decreased and EXPORT IT in 2000x1000
+theme_set(theme_gray(base_size = 38))
 
 build <- data.frame(
   status = factor(c("unchanged", "unchanged", "unchanged", "unchanged", "failed", "failed", "failed", "failed", "succeeded", "succeeded", "succeeded", "succeeded")),
@@ -206,9 +224,9 @@ build <- data.frame(
 ggplot(data=build, aes(x=hosts, y=builds, fill=status)) +
   geom_bar(colour="black", stat="identity",
            position=position_dodge(),
-           size=.3) +  # Thinner lines
-  scale_fill_manual(values=c("#FF0000", "#04B404", "#0080FF"))
-
+           size=.5) +  # Thinner lines
+  scale_fill_manual(values=c("#FF0000", "#04B404", "#0080FF")) +
+  theme(legend.text=element_text(size=30),legend.key.height=unit(2,"line"))
 
 ###############################################################################################
 
