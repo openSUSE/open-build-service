@@ -168,6 +168,22 @@ ccf(diff_all, number_projects)
 
 # GITHUB
 
+# PRs
+
+# reset font and EXPORT IT in 2000x1200
+theme_set(theme_gray(base_size = 56))
+
+dataPrs <- read.csv('pull_requests_merged.csv')
+
+prs_data <- data.frame(
+  PRs = dataPrs$number_pull_requests_merged,
+  date = as.Date(dataPrs$week, format = "%Y-%m-%d") # convert String to Date
+)
+
+ggplot(data=prs_data, aes(x=date, y=PRs)) +
+  geom_line(size=2, color="#5F04B4")
+
+
 # CODE FRECUENCY
 
 # for this graphs the font has to be decreased and EXPORT IT in 2000x1000
