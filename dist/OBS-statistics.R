@@ -192,6 +192,24 @@ ggplot(data=commits_data, aes(x=date, y=commits)) +
   geom_line()
 
 
+
+###############################################################################################
+
+# BAR GRAPH FOR NUMBER OF BUILDS
+
+build <- data.frame(
+  status = factor(c("unchanged", "unchanged", "unchanged", "unchanged", "failed", "failed", "failed", "failed", "succeeded", "succeeded", "succeeded", "succeeded")),
+  hosts = factor(c("distributions", "home", "staging", "rest", "distributions", "home", "staging", "rest", "distributions", "home", "staging", "rest"), levels=c("distributions", "home", "staging", "rest")),
+  builds = c(4000, 15300, 49000, 50000, 100, 5000, 800, 8800, 6200, 15000, 20000, 34000)
+)
+
+ggplot(data=build, aes(x=hosts, y=builds, fill=status)) +
+  geom_bar(colour="black", stat="identity",
+           position=position_dodge(),
+           size=.3) +  # Thinner lines
+  scale_fill_manual(values=c("#FF0000", "#04B404", "#0080FF"))
+
+
 ###############################################################################################
 
 # PIE CHART OF REQUESTS STATES
