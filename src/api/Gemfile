@@ -125,8 +125,6 @@ end
 group :development do
   # as alternative to the standard IRB shell
   gem 'unicorn-rails' # webrick won't work
-  # for calling single testd
-  gem 'single_test'
   # for annotating models with schema info
   gem 'annotate'
 end
@@ -150,6 +148,8 @@ group :development, :test do
   gem 'poltergeist'
   # to launch browser in test
   gem 'launchy'
+  # for calling single testd
+  gem 'single_test'
 end
 
 # Gems used only for assets and not required in production environments by default.
