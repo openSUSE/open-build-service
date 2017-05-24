@@ -231,7 +231,8 @@ RSpec.feature "Requests", type: :feature, js: true do
   context 'review' do
     describe 'for user' do
       let(:reviewer) { create(:confirmed_user) }
-      it 'opens a review' do
+
+      it 'opens a review and accepts it' do
         login submitter
         visit request_show_path(bs_request)
         click_link 'Add a review'
@@ -239,6 +240,18 @@ RSpec.feature "Requests", type: :feature, js: true do
         fill_in 'review_user', with: reviewer.login
         click_button 'Ok'
         expect(page).to have_text("Open review for #{reviewer.login}")
+        expect(page).to have_text("Request 1 (review)")
+        expect(Review.all.count).to eq(1)
+        logout
+
+        login reviewer
+        visit request_show_path(1)
+        click_link('review_descision_link_0')
+        fill_in 'review_comment_0', with: 'Ok for the project'
+        click_button 'review_accept_button_0'
+        expect(page).to have_text('Ok for the project')
+        expect(Review.first.state).to eq(:accepted)
+        expect(BsRequest.first.state).to eq(:new)
       end
     end
 
