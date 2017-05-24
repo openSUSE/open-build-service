@@ -27,6 +27,11 @@ class Service < ActiveXML::Node
 
   #### Instance methods (public and then protected/private)
   def addDownloadURL(url, filename = nil)
+    if url.starts_with?('git@') || url.ends_with?('.git')
+      add_scm_service(url)
+      return true
+    end
+
     begin
       uri = URI.parse(url)
     rescue
@@ -47,13 +52,6 @@ class Service < ActiveXML::Node
 
     if uri.path =~ /.src.rpm$/ || uri.path =~ /.spm$/ # download and extract source package
       addService("download_src_package", service_content)
-    elsif uri.scheme == "git"
-      service_content = [{name: "scm", value: "git"}, {name: "url", value: url}]
-      addService("obs_scm", service_content)
-      addService("tar", nil, "buildtime")
-      service_content = [{name: "compression", value: "xz"}, {name: "file", value: "*.tar"}]
-      addService("recompress", service_content, "buildtime")
-      addService("set_version", nil, "buildtime")
     else # just download
       service_content << {name: "filename", value: filename} unless filename.blank?
       addService("download_url", service_content)
@@ -111,5 +109,16 @@ class Service < ActiveXML::Node
       package.sources_changed
     end
     true
+  end
+
+  private
+
+  def add_scm_service(url)
+    addService('obs_scm', [{name: 'scm', value: 'git'}, {name: 'url', value: url}])
+    addService('tar', [], 'buildtime')
+    addService('recompress', [{name: 'compression', value: 'xz'}, {name: 'file', value: '*.tar'}], 'buildtime')
+    addService('set_version', [], 'buildtime')
+
+    return true
   end
 end
