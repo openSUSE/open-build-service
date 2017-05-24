@@ -164,8 +164,8 @@ sub dod_susetags {
   my $datadir = 'suse';
   $url .= '/' unless $url =~ /\/$/;
   my $content = fetch("${url}content", $sslfingerprint, $timeout_small);
-  my $content_md5 = Digest::MD5::md5_hex($content);
-  return undef if ($cookie || '') eq $content_md5;
+  my $newcookie = Digest::MD5::md5_hex("$url\n$content");
+  return undef if ($cookie || '') eq $newcookie;
   mastercheck($doddata, 'content', $content);
   signaturecheck($doddata, "${url}content.asc", $sslfingerprint, $content);
   my ($packages, $packages_sum);
@@ -179,7 +179,7 @@ sub dod_susetags {
   fetch("${url}$descrdir/$packages", $sslfingerprint, $timeout_large, $file);
   chkverify($file, $packages_sum);
   uncompress($file, $packages);
-  return ($content_md5, $url);
+  return ($newcookie, $url);
 }
 
 sub dod_rpmmd {
@@ -188,8 +188,8 @@ sub dod_rpmmd {
   my $sslfingerprint = getsslfingerprint($doddata);
   $url .= '/' unless $url =~ /\/$/;
   my $repomd = fetch("${url}repodata/repomd.xml", $sslfingerprint, $timeout_small);
-  my $repomd_md5 = Digest::MD5::md5_hex($repomd);
-  return undef if ($cookie || '') eq $repomd_md5;
+  my $newcookie = Digest::MD5::md5_hex("$url\n$repomd");
+  return undef if ($cookie || '') eq $newcookie;
   mastercheck($doddata, 'repodata/repomd.xml', $repomd);
   signaturecheck($doddata, "${url}repodata/repomd.xml.asc", $sslfingerprint, $repomd);
   writestr("$file.repomd", undef, $repomd);
@@ -202,12 +202,12 @@ sub dod_rpmmd {
   fetch("${url}$primaryfile->{'location'}", $sslfingerprint, $timeout_large, $file);
   chkverify($file, $primaryfile->{'checksum'}) if $primaryfile->{'checksum'};
   uncompress($file, $primaryfile->{'location'});
-  return ($repomd_md5, $url);
+  return ($newcookie, $url);
 }
 
 # same parser as in build package:
 #   distribution:   <baseurl>/<dist>/[components]
-#   flat repo:      <baseurl>/.[/components]
+#   flat repo:      <baseurl>/.[/subdir]
 #     components:   comp1,comp2... (main if empty)
 sub dod_deb {
   my ($doddata, $cookie, $file) = @_;
@@ -233,8 +233,8 @@ sub dod_deb {
     $baseurl =~ s/([^\/]+\/)$//;
   }
   my $release = fetch("${url}Release", $sslfingerprint, $timeout_small);
-  my $release_md5 = Digest::MD5::md5_hex(join(',',@components)."\n$release");
-  return undef if ($cookie || '') eq $release_md5;
+  my $newcookie = Digest::MD5::md5_hex("$baseurl\n".join(',',@components)."\n$release");
+  return undef if ($cookie || '') eq $newcookie;
   mastercheck($doddata, 'Release', $release);
   signaturecheck($doddata, "${url}Release.gpg", $sslfingerprint, $release, 1);
   my %files;
@@ -258,7 +258,7 @@ sub dod_deb {
     uncompress($tmp, "Packages.gz", $file);
     unlink($tmp);
   }
-  return ($release_md5, $baseurl);
+  return ($newcookie, $baseurl);
 }
 
 sub dod_arch {
@@ -270,8 +270,9 @@ sub dod_arch {
   my $reponame = $1;
   my $r = fetch("${url}$reponame.db", $sslfingerprint, $timeout_large, $file, 1);
   die unless $r->{'md5'};
-  return undef if $cookie && $r->{'md5'} eq $cookie;
-  return ($r->{'md5'}, $url);
+  my $newcookie = Digest::MD5::md5_hex("$url\n$r->{'md5'}");
+  return undef if ($cookie || '') eq $newcookie;
+  return ($newcookie, $url);
 }
 
 sub dod_mdk {
@@ -281,9 +282,10 @@ sub dod_mdk {
   $url .= '/' unless $url =~ /\/$/;
   my $r = fetch("${url}media_info/synthesis.hdlist.cz", $sslfingerprint, $timeout_large, $file, 1);
   die unless $r->{'md5'};
-  return undef if $cookie && $r->{'md5'} eq $cookie;
+  my $newcookie = Digest::MD5::md5_hex("$url\n$r->{'md5'}");
+  return undef if ($cookie || '') eq $newcookie;
   uncompress($file, 'synthesis.hdlist.cz');
-  return ($r->{'md5'}, $url);
+  return ($newcookie, $url);
 }
 
 my %handler = (
