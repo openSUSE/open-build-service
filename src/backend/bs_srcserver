@@ -97,6 +97,7 @@ $BSSrcServer::Product::notify_repservers = \&notify_repservers;
 
 $Build::Rpm::unfilteredprereqs = 1 if defined $Build::Rpm::unfilteredprereqs;
 $Build::Rpm::conflictdeps = 1 if defined $Build::Rpm::conflictdeps;
+$Build::Kiwi::repopriorities = 1 if defined $Build::Kiwi::repopriorities;
 
 use strict;
 
