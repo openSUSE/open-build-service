@@ -944,84 +944,11 @@ class Project < ApplicationRecord
   end
 
   def branch_local_repositories(project, pkg_to_enable, opts = {})
-    # shall we use the repositories from a different project?
-    project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
-    skip_repos = []
-    a = project.find_attribute('OBS', 'BranchSkipRepositories')
-    skip_repos = a.values.map(&:value) if a
-    project.repositories.each do |repo|
-      next if skip_repos.include? repo.name
-      repo_name = opts[:extend_names] ? repo.extended_name : repo.name
-      next if repo.is_local_channel?
-      pkg_to_enable.enable_for_repository(repo_name) if pkg_to_enable
-      next if repositories.find_by_name(repo_name)
-
-      # copy target repository when operating on a channel
-      targets = repo.release_targets if (pkg_to_enable && pkg_to_enable.is_channel?)
-      # base is a maintenance incident, take its target instead (kgraft case)
-      targets = repo.release_targets if repo.project.is_maintenance_incident?
-
-      target_repos = []
-      target_repos = targets.map(&:target_repository) if targets
-      # or branch from official release project? release to it ...
-      target_repos = [repo] if repo.project.is_maintenance_release?
-
-      update_project = repo.project.update_instance
-      if update_project != repo.project
-        # building against gold master projects might happen (kgraft), but release
-        # must happen to the right repos in the update project
-        target_repos = Repository.find_by_project_and_path(update_project, repo)
-      end
-
-      add_repository_with_targets(repo_name, repo, target_repos, opts)
-    end
-
-    branch_copy_flags(project)
-
-    return unless pkg_to_enable.is_channel?
-
-    # explicit call for a channel package, so create the repos for it
-    pkg_to_enable.channels.each do |channel|
-      channel.add_channel_repos_to_project(pkg_to_enable)
-    end
+    BranchLocalRepositoriesCommand.new(self, project, pkg_to_enable, opts).run
   end
 
-  def branch_remote_repositories(project)
-    remote_project = Project.new(name: project)
-    remote_project_meta = Nokogiri::XML(remote_project.meta.to_s)
-    local_project_meta = Nokogiri::XML(to_axml)
-
-    remote_repositories = remote_project.repositories_from_meta
-    remote_repositories -= repositories.where(name: remote_repositories).pluck(:name)
-
-    remote_repositories.each do |repository|
-      repository_node = local_project_meta.create_element("repository")
-      repository_node["name"] = repository
-
-      # if it is kiwi type
-      if repository == "images"
-        path_elements = remote_project_meta.xpath("//repository[@name='images']/path")
-
-        prjconf = source_file('_config')
-        unless prjconf =~ /^Type:/
-          prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-          Backend::Connection.put_source(source_path('_config'), prjconf)
-        end
-      else
-        path_elements = local_project_meta.create_element("path")
-        path_elements["project"] = project
-        path_elements["repository"] = repository
-      end
-      repository_node.add_child(path_elements)
-
-      architectures = remote_project_meta.xpath("//repository[@name='#{repository}']/arch")
-      repository_node.add_child(architectures)
-
-      local_project_meta.at('project').add_child(repository_node)
-    end
-
-    # update branched project _meta file
-    update_from_xml!(Xmlhash.parse(local_project_meta.to_xml))
+  def branch_remote_repositories(remote_project_name)
+    BranchRemoteRepositoriesCommand.new(self, remote_project_name).run
   end
 
   def meta

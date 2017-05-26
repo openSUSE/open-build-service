@@ -104,7 +104,6 @@ RSpec.describe Project, vcr: true do
     let(:branch_remote_repositories) { project.branch_remote_repositories("#{remote_project}:#{project}") }
 
     before do
-      logout
       allow(ProjectMetaFile).to receive(:new).and_return(remote_meta_xml)
     end
 
