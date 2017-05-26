@@ -27,6 +27,15 @@ users_data <- data.frame(
 ggplot(data=users_data, aes(x=date, y=users)) +
   geom_line(size=3)
 
+# Users increase over time, related to Diffusion of innovations theory
+
+users_increase_data <- data.frame(
+  users = dataUsers$users_increase,
+  date = as.Date(dataUsers$date, format = "%Y-%m-%d") # convert String to Date
+)
+
+ggplot(data=users_increase_data, aes(x=date, y=users)) + geom_point() + stat_smooth(size=3)
+
 
 ###############################################################################################
 
