@@ -455,6 +455,7 @@ Style/FormatString:
 # Offense count: 7
 # Configuration parameters: AllowedVariables.
 Style/GlobalVars:
+  AllowedVariables: ['$rabbitmq_connection']
   Exclude:
     - 'src/api/test/functional/interconnect_test.rb'
     - 'src/api/test/functional/request_controller_test.rb'
