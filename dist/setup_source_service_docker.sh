@@ -3,15 +3,13 @@
 DAEMON_UID=2
 DAEMON_GID=2
 
-BRAND_STRING=$( cat /etc/SUSE-brand )
-BRAND=$( echo $BRAND_STRING | cut -d ' ' -f1 )
-SUSE=$( echo $BRAND | cut -d ' ' -f1 )
-VERSION=$( echo $BRAND_STRING | cut -d ' ' -f4 )
+SUSE=$( . /etc/os-release; echo $ID )
+VERSION=$( . /etc/os-release; echo $VERSION )
 
 repo=$SUSE"_"$VERSION
 docker_image="suse/obs-source-service:latest"
 
-if [ "$SUSE" == "openSUSE" ]; then
+if [ "$SUSE" == "opensuse" ]; then
   downloadserver="download.opensuse.org/repositories"
   echo "Adding repository for docker containers"
   sudo zypper ar --refresh -n --no-gpg-checks http://download.opensuse.org/repositories/Virtualization:/containers/$SUSE"_Leap_"$VERSION/Virtualization:containers.repo
@@ -23,8 +21,8 @@ elif [ "$SUSE" == "SLE" ]; then
   exit
   # If we are on a SLE the download server and repositories must be different. 
   # Must be clarified. Until clarification the installer only works on openSUSE Distributions.
-else   
-  echo "Something wrong with the OS brand. Must be SLE or openSUSE."
+else
+  echo "Something wrong with the OS brand. Must be SLE or opensuse ($SUSE)."
   exit
 fi
 
