@@ -125,8 +125,8 @@ Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
 
-Obsoletes:	obs-source_service < 2.8.51
-Obsoletes:	obs-productconverter < 2.8.51
+Obsoletes:	obs-source_service < 2.9
+Obsoletes:	obs-productconverter < 2.9
 Provides:	obs-source_service = %version
 Provides:	obs-productconverter = %version
 
