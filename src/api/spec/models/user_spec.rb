@@ -293,8 +293,8 @@ RSpec.describe User do
     let(:target_package) { create(:package) }
     let(:source_package) { create(:package) }
     let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
-    let(:new_bs_request) { create(:bs_request, creator: confirmed_user) }
-    let(:declined_bs_request) {
+    let!(:new_bs_request) { create(:bs_request, creator: confirmed_user) }
+    let!(:declined_bs_request) {
       create(:declined_bs_request,
              target_project: target_package.project,
              target_package: target_package,
@@ -302,7 +302,7 @@ RSpec.describe User do
              source_package: source_package,
              creator: confirmed_user)
     }
-    let(:admin_bs_request) {
+    let!(:admin_bs_request) {
       create(:declined_bs_request,
              target_project: target_package.project,
              target_package: target_package,
