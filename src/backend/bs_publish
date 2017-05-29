@@ -870,9 +870,8 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)_([^_]*)-[^_]*\.deb$/s) {
         $link = "$1.deb";
         $link = "${1}_$2.deb" if $versioned;
-      } elsif (/^(.*)-([^_]*)_([^-]*)-([^-]*)\.(AppImage?(\.zsync)?)$/s) {
-        $link = "$1-latest-$4.$5";
-        $link = "$1-$2-$4.$5" if $versioned;
+      } elsif (/^(.*)-([^-]*)-([^-]*)\.(AppImage?(\.zsync)?)$/s) {
+        $link = "$1-latest-$3.$4";
       } elsif (/^(.*)_([^_]*)_([^_]*)-Build[^_]*\.snap$/s) {
         $link = "${1}_${3}.snap";
         $link = "${1}_${3}_$2.snap" if $versioned;
