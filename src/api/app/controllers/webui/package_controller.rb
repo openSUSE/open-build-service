@@ -529,7 +529,8 @@ class Webui::PackageController < Webui::WebuiController
 
     branch_params = {
         project: source_project_name,
-        package: source_package_name
+        package: source_package_name,
+        add_repositories: params[:add_repositories]
     }
 
     # Set the branch to the current revision if revision is present

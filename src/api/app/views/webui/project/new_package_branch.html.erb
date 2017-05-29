@@ -21,7 +21,7 @@ package.</p>
   <% end %>
   </ul>
 <% end %>
-<%= form_tag controller: :package, action: :branch do %>
+<%= form_tag controller: :package, action: :branch, params: { add_repositories: 1 } do %>
   <%= render partial: 'shared/package_branch_form', locals: {show_source_fields: true, target_project: @project} %>
   <p><%= submit_tag "Create Branch" %></p>
 <% end %>
