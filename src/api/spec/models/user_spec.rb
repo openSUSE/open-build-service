@@ -333,4 +333,62 @@ RSpec.describe User do
       expect(subject).not_to include(new_bs_request)
     end
   end
+
+  describe '#declined outgoing_requests' do
+    let(:target_package) { create(:package) }
+    let(:source_package) { create(:package) }
+    let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
+    let!(:new_bs_request) { create(:bs_request, creator: confirmed_user) }
+    let!(:review_bs_request) {
+      create(:review_bs_request,
+             target_project: target_package.project,
+             target_package: target_package,
+             source_project: source_package.project,
+             source_package: source_package,
+             creator: confirmed_user,
+             reviewer: admin_user)
+    }
+    let!(:declined_bs_request) {
+      create(:declined_bs_request,
+             target_project: target_package.project,
+             target_package: target_package,
+             source_project: source_package.project,
+             source_package: source_package,
+             creator: confirmed_user)
+    }
+    let!(:admin_bs_request) {
+      create(:bs_request,
+             target_project: target_package.project,
+             target_package: target_package,
+             source_project: source_package.project,
+             source_package: source_package,
+             creator: admin_user)
+    }
+
+    subject { confirmed_user.outgoing_requests }
+
+    it 'does include requests created by the user and in state :new' do
+      expect(subject).to include(new_bs_request)
+    end
+
+    it 'does include requests created by the user and in state :review' do
+      expect(subject).to include(review_bs_request)
+    end
+
+    it 'does include requests with matching search parameter' do
+      expect(confirmed_user.outgoing_requests('confirmed_user')).to include(new_bs_request)
+    end
+
+    it 'does not include requests with not matching search parameter' do
+      expect(confirmed_user.outgoing_requests('not-existent')).not_to include(new_bs_request)
+    end
+
+    it 'does not include requests created by any other user' do
+      expect(subject).not_to include(admin_bs_request)
+    end
+
+    it 'does not include requests in any other state except :new or :review' do
+      expect(subject).not_to include(declined_bs_request)
+    end
+  end
 end
