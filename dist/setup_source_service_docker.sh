@@ -74,16 +74,18 @@ echo "Altering default docker opts"
 sed -i 's,DOCKER_OPTS=.*, DOCKER_OPTS="--userns-remap=obsservicerun:obsrun",' /etc/sysconfig/docker
 
 echo "creating subuid and subgid"
-echo "obsservicerun:"$(($( id -u obsservicerun ) - $DAEMON_UID ))":65536" >> /etc/subuid
-echo "obsrun:"$(($( id -g obsservicerun ) - $DAEMON_GID ))":65536" >> /etc/subgid
+grep -q -P '^obsservicerun:' /etc/subuid || \
+  echo "obsservicerun:"$(($( id -u obsservicerun ) - $DAEMON_UID ))":65536" >> /etc/subuid
+grep -q -P '^obsrun:' /etc/subgid || \
+  echo "obsrun:"$(($( id -g obsservicerun ) - $DAEMON_GID ))":65536" >> /etc/subgid
 
 echo "enable and start docker"
 systemctl enable docker
-systemctl start docker
+systemctl restart docker
 
 echo "enable and start obsservice"
 systemctl enable obsservice
-systemctl start obsservice
+systemctl restart obsservice
 
 echo "install and register containment"
 zypper -n install --replacefiles $docker_install
