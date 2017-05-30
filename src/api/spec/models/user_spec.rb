@@ -289,7 +289,7 @@ RSpec.describe User do
     end
   end
 
-  describe '#declined requests' do
+  describe '#declined_requests' do
     let(:target_package) { create(:package) }
     let(:source_package) { create(:package) }
     let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
@@ -334,7 +334,7 @@ RSpec.describe User do
     end
   end
 
-  describe '#declined outgoing_requests' do
+  describe '#outgoing_requests' do
     let(:target_package) { create(:package) }
     let(:source_package) { create(:package) }
     let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
@@ -389,6 +389,78 @@ RSpec.describe User do
 
     it 'does not include requests in any other state except :new or :review' do
       expect(subject).not_to include(declined_bs_request)
+    end
+  end
+
+  describe '#incoming_requests' do
+    let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
+
+    shared_examples 'incoming_requests' do
+      let(:source_package) { create(:package) }
+
+      let!(:maintained_request) {
+        create(:bs_request_with_submit_action,
+               target_project: target_package.project,
+               target_package: target_package,
+               source_project: source_package.project,
+               source_package: source_package,
+               creator: admin_user.login
+              )
+      }
+
+      let!(:not_maintained_request) {
+        create(:bs_request_with_submit_action,
+               target_project: not_maintained_target_package.project,
+               target_package: not_maintained_target_package,
+               source_project: source_package.project,
+               source_package: source_package,
+               creator: admin_user.login
+              )
+      }
+
+      subject { confirmed_user.incoming_requests }
+
+      it 'does include requests of maintained subject' do
+        expect(subject).to include(maintained_request)
+      end
+
+      it 'does not include requests of not maintained subject' do
+        expect(subject).not_to include(not_maintained_request)
+      end
+
+      it 'does not include requests in any other state expect new' do
+        maintained_request.state = :review
+        maintained_request.save
+        expect(subject).not_to include(maintained_request)
+      end
+
+      it 'does include requests if search does match' do
+        expect(confirmed_user.incoming_requests(admin_user.login)).to include(maintained_request)
+      end
+
+      it 'does nots include requests if search does not match' do
+        expect(confirmed_user.incoming_requests('does not exist')).not_to include(maintained_request)
+      end
+    end
+
+    context 'with maintained project' do
+      it_behaves_like 'incoming_requests' do
+        let(:target_package) { create(:package) }
+        let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: target_package.project) }
+
+        let(:not_maintained_target_package) { create(:package) }
+        let!(:relationship_project_admin) { create(:relationship_project_user, user: admin_user, project: target_package.project) }
+      end
+    end
+
+    context 'with maintained package' do
+      it_behaves_like 'incoming_requests' do
+        let(:target_package) { create(:package) }
+        let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: target_package) }
+
+        let(:not_maintained_target_package) { create(:package) }
+        let!(:relationship_package_admin) { create(:relationship_package_user, user: admin_user, package: target_package) }
+      end
     end
   end
 end
