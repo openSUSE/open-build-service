@@ -10,6 +10,7 @@ repo=$SUSE"_"$VERSION
 docker_image="suse/obs-source-service:latest"
 
 if [ "$SUSE" == "opensuse" ]; then
+  SUSE=openSUSE
   downloadserver="download.opensuse.org/repositories"
   echo "Adding repository for docker containers"
   sudo zypper ar --refresh -n --no-gpg-checks http://download.opensuse.org/repositories/Virtualization:/containers/$SUSE"_Leap_"$VERSION/Virtualization:containers.repo
