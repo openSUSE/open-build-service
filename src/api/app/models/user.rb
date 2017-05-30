@@ -765,7 +765,8 @@ class User < ApplicationRecord
 
   # list outgoing requests involving this user
   def outgoing_requests(search = nil)
-    BsRequest.collection(user: login, states: %w(new review), roles: %w(creator), search: search)
+    result = requests_created.in_states([:new, :review]).with_actions
+    search ? result.do_search(search) : result
   end
 
   # list of all requests
