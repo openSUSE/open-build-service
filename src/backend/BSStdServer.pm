@@ -292,4 +292,25 @@ sub server {
   die("server returned\n");
 }
 
+=head2 openlog - open STDOUT/STDERR to log file
+
+ checks if $options->{logfile} is set and reopens STDOUT/STDERR to logfile
+
+ BSUtil::openlog($options, $name);
+
+ $options should be HashRef of options (given by ARGV)
+
+=cut
+
+sub openlog {
+  my ($options,$user,$group) = @_;
+  return unless $options->{'logfile'};
+  my $logfile = $options->{logfile};
+  my ($ld) = $logfile =~ m-(.*)/- ;
+  BSUtil::mkdir_p_chown($ld, $user, $group);
+  close STDOUT || die "Could not close STDOUT: $!\n";
+  open(STDOUT, '>>', $logfile) || die "(STDOUT) Could not open $logfile: $!\n";
+  open(STDERR, ">&STDOUT");
+}
+
 1;

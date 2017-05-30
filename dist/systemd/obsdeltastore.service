@@ -1,0 +1,12 @@
+[Unit]
+Description=OBS deltastore daemon
+After=network.target obsstoragesetup.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStart=/usr/lib/obs/server/bs_deltastore --logfile
+ExecStop=/usr/lib/obs/server/bs_deltastore --stop
+ExecReload=/usr/lib/obs/server/bs_deltastore --restart
+
+[Install]
+WantedBy=multi-user.target
