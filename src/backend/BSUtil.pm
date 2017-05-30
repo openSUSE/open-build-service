@@ -606,16 +606,12 @@ sub restartexit {
   my ($arg, $name, $runfile, $pingfile) = @_;
   return unless $arg;
 
-  my $opts;
-  if (ref($arg) eq 'HASH') {
-    $opts=$arg;
-  } else {
-    $opts={};
-    $opts->{stop}    = 1 if ($arg eq '--stop' || $arg eq '--exit');
-    $opts->{restart} = 1 if ($arg eq '--restart');
-  }
+  # support option hash as arg
+  $arg = '--stop' if ref($arg) && $arg->{stop};
+  $arg = '--restart' if ref($arg) && $arg->{restart};
+  return if ref($arg);
 
-  if ($opts->{stop}) {
+  if ($arg eq '--stop' || $arg eq '--exit') {
     if (!(-e "$runfile.lock") || lockcheck('>>', "$runfile.lock")) {
       print "$name not running.\n";
       exit 0;
@@ -626,7 +622,7 @@ sub restartexit {
     BSUtil::waituntilgone("$runfile.exit");
     exit(0);
   }
-  if ($opts->{restart}) {
+  if ($arg eq '--restart') {
     die("$name not running.\n") if !(-e "$runfile.lock") || BSUtil::lockcheck('>>', "$runfile.lock");
     print "restarting $name...\n";
     BSUtil::touch("$runfile.restart");

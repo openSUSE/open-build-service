@@ -4,7 +4,7 @@ After=network.target obsstoragesetup.service
 
 [Service]
 EnvironmentFile=/etc/sysconfig/obs-server
-ExecStart=/usr/lib/obs/server/bs_deltastore --logfile
+ExecStart=/usr/lib/obs/server/bs_deltastore --logfile deltastore.log
 ExecStop=/usr/lib/obs/server/bs_deltastore --stop
 ExecReload=/usr/lib/obs/server/bs_deltastore --restart
 
