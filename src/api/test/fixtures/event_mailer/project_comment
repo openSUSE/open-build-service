@@ -41,7 +41,7 @@ Content-Transfer-Encoding: 7bit
 <div><p>Comment Body</p>
 </div>
 <br/>
---<br/>
+-- <br/>
 Configure notifications at <a href="http://localhost/user/notifications">http://localhost/user/notifications</a><br/>
 Open Build Service (<a href="http://localhost/">http://localhost/</a>)<br/>
 
