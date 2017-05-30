@@ -43,6 +43,11 @@ class BsRequest < ApplicationRecord
            ["%#{search}%"] * SEARCHABLE_FIELDS.length].flatten)
   }
 
+  scope :for_users, ->(user_ids) { joins(:reviews).where(reviews: { reviewable_id: user_ids, reviewable_type: 'User' }) }
+  scope :for_projects, ->(project_ids) { joins(:reviews).where(reviews: { reviewable_id: project_ids, reviewable_type: 'Project' }) }
+  scope :for_packages, ->(package_ids) { joins(:reviews).where(reviews: { reviewable_id: package_ids, reviewable_type: 'Package' }) }
+  scope :for_groups, ->(group_ids) { joins(:reviews).where(reviews: { reviewable_id: group_ids, reviewable_type: 'Group' }) }
+
   before_save :assign_number
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
   has_many :reviews, dependent: :delete_all

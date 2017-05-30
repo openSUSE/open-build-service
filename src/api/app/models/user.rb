@@ -739,13 +739,13 @@ class User < ApplicationRecord
 
   # lists reviews involving this user
   def involved_reviews(search = nil)
-    result = BsRequest.where(reviews: { reviewable_id: id, reviewable_type: 'User' }).or(
-      BsRequest.where(reviews: { reviewable_id: involved_projects_ids, reviewable_type: 'Project' }).or(
-        BsRequest.where(reviews: { reviewable_id: involved_packages_ids, reviewable_type: 'Package' }).or(
-          BsRequest.where(reviews: { reviewable_id: groups.pluck(:id), reviewable_type: 'Group' })
+    result = BsRequest.for_users(id).or(
+      BsRequest.for_projects(involved_projects_ids).or(
+        BsRequest.for_packages(involved_packages_ids).or(
+          BsRequest.for_groups(groups.pluck(:id))
         )
       )
-    ).joins(:reviews, :bs_request_actions).where(state: :review, reviews: { state: :new }).where.not(creator: login)
+    ).joins(:bs_request_actions).where(state: :review, reviews: { state: :new }).where.not(creator: login)
     search ? result.do_search(search) : result
   end
 
