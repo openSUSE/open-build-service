@@ -41,7 +41,12 @@
       - if @issues.present?
         %ul
           - @issues.each do |issue|
-            = issue_link(issue)
+            - if issue[0] == "CVE"
+              %li
+                = link_to((issue[1]).to_s, issue[2]) + ": #{issue[3]}"
+            - else
+              %li
+                = link_to("#{issue[0]}##{issue[1]}", issue[2]) + ": #{issue[3]}"
     .box.show_left.show_right
       %b Required actions:
       %br/

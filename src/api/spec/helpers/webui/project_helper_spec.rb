@@ -6,7 +6,51 @@ RSpec.describe Webui::ProjectHelper, type: :helper do
   end
 
   describe '#project_bread_crumb' do
-    skip
+    let(:project) { create(:project_with_package) }
+
+    before do
+      @project = project.name
+    end
+
+    it 'creates a list with a link to projects list' do
+      expect(project_bread_crumb).to eq([link_to('Projects', project_list_public_path)])
+    end
+
+    context "when it's called with a parameter" do
+      it 'adds the content of the parameter to the list' do
+        expect(project_bread_crumb('my label')).to eq([link_to('Projects', project_list_public_path), 'my label'])
+      end
+    end
+
+    context 'when the project has parent projects' do
+      let(:child_project) { create(:project_with_package, name: "#{project}:child") }
+
+      before do
+        @project = child_project
+        @package = project.packages.first.name
+      end
+
+      it 'adds a link to the parent projects to the list' do
+        expect(project_bread_crumb('Text')).to eq(
+          [
+            link_to('Projects', project_list_public_path),
+            [
+              link_to(project, project_show_path(project: project)),
+              link_to('child', project_show_path(project: child_project))
+            ],
+            'Text'
+          ]
+        )
+      end
+    end
+
+    context 'when @spider_bot is true' do
+      before do
+        @spider_bot = true
+      end
+
+      it { expect(project_bread_crumb).to be nil }
+    end
   end
 
   describe '#format_seconds' do
