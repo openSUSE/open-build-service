@@ -9,13 +9,18 @@ VERSION=$( . /etc/os-release; echo $VERSION )
 repo=$SUSE"_"$VERSION
 docker_image="suse/obs-source-service:latest"
 
+if [ $UID != 0 ];then
+  echo "You must be root!"
+  exit 1
+fi
+
 if [ "$SUSE" == "opensuse" ]; then
   SUSE=openSUSE
-  downloadserver="download.opensuse.org/repositories"
+  downloadserver="http://download.opensuse.org"
   echo "Adding repository for docker containers"
-  sudo zypper ar --refresh -n --no-gpg-checks http://download.opensuse.org/repositories/Virtualization:/containers/$SUSE"_Leap_"$VERSION/Virtualization:containers.repo
+  zypper ar --refresh -n --no-gpg-checks $downloadserver/repositories/Virtualization:/containers/$SUSE"_Leap_"$VERSION/Virtualization:containers.repo
   echo "Adding repository for source service containment"
-  sudo zypper ar --refresh -n --no-gpg-checks -t rpm-md http://download.opensuse.org/repositories/OBS:/Server:/Unstable/containment/ Containment
+  zypper ar --refresh -n --no-gpg-checks -t rpm-md $downloadserver/repositories/OBS:/Server:/Unstable/containment/ Containment
   docker_install="obs-source-service-docker-image"
 elif [ "$SUSE" == "SLE" ]; then
   echo "SLE not supported yet by the installer"
@@ -28,8 +33,10 @@ else
 fi
 
 echo "Adding main obs repository"
-sudo zypper ar --refresh -n --no-gpg-checks http://$downloadserver/OBS:/Server:/Unstable/$repo/OBS:Server:Unstable.repo
+zypper ar --refresh -n --no-gpg-checks $downloadserver/repositories/OBS:/Server:/Unstable/$repo/OBS:Server:Unstable.repo
 
+echo "Refreshing repositories"
+zypper -n --gpg-auto-import-keys ref -s
 
 # Install the software we need
 echo "Installing required software"
