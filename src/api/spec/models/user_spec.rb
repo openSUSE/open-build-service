@@ -289,7 +289,7 @@ RSpec.describe User do
     end
   end
 
-  describe '#declined requests' do
+  describe '#declined_requests' do
     let(:target_package) { create(:package) }
     let(:source_package) { create(:package) }
     let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
@@ -334,7 +334,7 @@ RSpec.describe User do
     end
   end
 
-  describe '#declined outgoing_requests' do
+  describe '#outgoing_requests' do
     let(:target_package) { create(:package) }
     let(:source_package) { create(:package) }
     let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
