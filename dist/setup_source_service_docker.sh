@@ -6,7 +6,6 @@ DAEMON_GID=2
 SUSE=$( . /etc/os-release; echo $ID )
 VERSION=$( . /etc/os-release; echo $VERSION )
 
-repo=$SUSE"_"$VERSION
 docker_image="suse/obs-source-service:latest"
 
 if [ $UID != 0 ];then
@@ -21,6 +20,9 @@ if [ "$SUSE" == "opensuse" ]; then
   zypper ar --refresh -n --no-gpg-checks $downloadserver/repositories/Virtualization:/containers/$SUSE"_Leap_"$VERSION/Virtualization:containers.repo
   echo "Adding repository for source service containment"
   zypper ar --refresh -n --no-gpg-checks -t rpm-md $downloadserver/repositories/OBS:/Server:/Unstable/containment/ Containment
+  echo "Adding main obs repository"
+  zypper ar --refresh -n --no-gpg-checks $downloadserver/repositories/OBS:/Server:/Unstable/$SUSE\_$VERSION/OBS:Server:Unstable.repo
+
   docker_install="obs-source-service-docker-image"
 elif [ "$SUSE" == "SLE" ]; then
   echo "SLE not supported yet by the installer"
@@ -31,9 +33,6 @@ else
   echo "Something wrong with the OS brand. Must be SLE or opensuse ($SUSE)."
   exit
 fi
-
-echo "Adding main obs repository"
-zypper ar --refresh -n --no-gpg-checks $downloadserver/repositories/OBS:/Server:/Unstable/$repo/OBS:Server:Unstable.repo
 
 echo "Refreshing repositories"
 zypper -n --gpg-auto-import-keys ref -s
