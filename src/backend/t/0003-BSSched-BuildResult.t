@@ -25,7 +25,7 @@ my $fixtures = [
 
 $got = BSSched::BuildResult::set_suf_and_filter_exports($fixtures->[0]->{repo});
 
-print Dumper($got);
+#print Dumper($got);
 
 exit 0;
 
