@@ -62,7 +62,7 @@ namespace :statistics do
     end
 
     def on_last_page?(links)
-      link_rel = links.first.match(/.*rel=\"(\w+*)\"/).captures.first
+      link_rel = links.first.match(/.*rel=\"(\w*)\"/).captures.first
       link_rel == 'first'
     end
 
