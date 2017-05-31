@@ -489,4 +489,32 @@ RSpec.describe Package, vcr: true do
       it { is_expected.to eq([]) }
     end
   end
+
+  describe '#last_build_reason' do
+    before do
+      path = "#{CONFIG['source_url']}/build/#{package.project.name}/openSUSE_Leap_42.3/x86_64/#{package.name}/_reason"
+      stub_request(:get, path).and_return(body:
+        %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource></reason>))
+    end
+
+    let(:result) { package.last_build_reason("openSUSE_Leap_42.3", "x86_64") }
+
+    it 'returns a PackageBuildReason object' do
+      expect(result).to be_a(PackageBuildReason)
+    end
+
+    context 'validation of data' do
+      it 'for: explain' do
+        expect(result.explain).to eq('source change')
+      end
+
+      it 'for: time' do
+        expect(result.time).to eq('1496387771')
+      end
+
+      it 'for: oldsource' do
+        expect(result.oldsource).to eq('1de56fdc419ea4282e35bd388285d370')
+      end
+    end
+  end
 end

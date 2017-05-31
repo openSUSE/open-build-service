@@ -154,6 +154,10 @@ OBSApi::Application.routes.draw do
       resource :job_history, controller: 'webui/packages/job_history', only: [] do
         get '/:project/:repository/:arch' => :index, as: :index, constraints: cons
       end
+
+      resource :build_reason, controller: 'webui/packages/build_reason', only: [] do
+        get '/:project/:repository/:arch' => :index, as: :index, constraints: cons
+      end
     end
 
     controller 'webui/patchinfo' do
