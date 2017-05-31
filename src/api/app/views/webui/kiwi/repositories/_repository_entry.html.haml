@@ -7,12 +7,12 @@
     %div{ style: "margin: 5px" }
       - if repository.username
         %strong User:
-        repository.username.to_s
+        = repository.username
       - if repository.password
         - if repository.username
           |
         %strong Password:
-        repository.password.to_s
+        = repository.password
     %div
       = check_box "repository-#{repository.order}", 'prefer_license',
         { checked: repository.prefer_license, disabled: true }
