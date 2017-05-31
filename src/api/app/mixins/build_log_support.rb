@@ -1,9 +1,7 @@
 module BuildLogSupport
-  include Escaper
-
   def raw_log_chunk( project, package, repo, arch, start, theend )
     logger.debug "get log chunk #{start}-#{theend}"
-    path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?nostream=1&start=#{start}&end=#{theend}"
+    path = URI.escape("/build/#{project}/#{repo}/#{arch}/#{package}/_log?nostream=1&start=#{start}&end=#{theend}")
     ActiveXML.backend.direct_http URI(path), timeout: 500
   end
 
@@ -29,7 +27,7 @@ module BuildLogSupport
 
   def get_size_of_log( project, package, repo, arch)
     logger.debug 'get log entry'
-    path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_log?view=entry"
+    path = URI.escape("/build/#{project}/#{repo}/#{arch}/#{package}/_log?view=entry")
     data = ActiveXML.backend.direct_http URI(path), timeout: 500
     return 0 unless data
     doc = Xmlhash.parse(data)
@@ -39,13 +37,13 @@ module BuildLogSupport
     0
   end
 
-  def get_job_status( project, package, repo, arch)
-    path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_jobstatus"
+  def get_job_status(project, package, repo, arch)
+    path = URI.escape("/build/#{project}/#{repo}/#{arch}/#{package}/_jobstatus")
     ActiveXML.backend.direct_http URI(path), timeout: 500
   end
 
   def get_status(project, package, repo, arch)
-    path = "/build/#{pesc project}/_result?view=status&package=#{pesc package}&arch=#{pesc arch}&repository=#{pesc repo}"
+    path = URI.escape("/build/#{project}/_result?view=status&package=#{package}&arch=#{arch}&repository=#{repo}")
     code = ""
     data = ActiveXML.backend.direct_http URI(path), timeout: 500
     return code unless data
