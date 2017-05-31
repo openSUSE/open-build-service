@@ -43,6 +43,11 @@ class BsRequest < ApplicationRecord
            ["%#{search}%"] * SEARCHABLE_FIELDS.length].flatten)
   }
 
+  scope :for_users, ->(user_ids) { joins(:reviews).where(reviews: { reviewable_id: user_ids, reviewable_type: 'User' }) }
+  scope :for_projects, ->(project_ids) { joins(:reviews).where(reviews: { reviewable_id: project_ids, reviewable_type: 'Project' }) }
+  scope :for_packages, ->(package_ids) { joins(:reviews).where(reviews: { reviewable_id: package_ids, reviewable_type: 'Package' }) }
+  scope :for_groups, ->(group_ids) { joins(:reviews).where(reviews: { reviewable_id: group_ids, reviewable_type: 'Group' }) }
+
   before_save :assign_number
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
   has_many :reviews, dependent: :delete_all
@@ -1280,8 +1285,8 @@ class BsRequest < ApplicationRecord
       names = obj.involved_projects.pluck('name').map { |p| quote(p) }
       inner_or << "bs_request_actions.target_project in (#{names.join(',')})" unless names.empty?
       ## find request where group is maintainer in target package, except we have to project already
-      obj.involved_packages.each do |ip|
-        inner_or << "(bs_request_actions.target_project='#{ip.project.name}' and bs_request_actions.target_package='#{ip.name}')"
+      obj.involved_packages.includes(:project).pluck('packages.name, projects.name').each do |ip|
+        inner_or << "(bs_request_actions.target_project='#{ip.second}' and bs_request_actions.target_package='#{ip.first}')"
       end
     end
     [requests, inner_or]
@@ -1294,8 +1299,8 @@ class BsRequest < ApplicationRecord
       or_in_and << "reviews.by_project in (#{projects.join(',')})" unless projects.blank?
 
       ## find request where user is maintainer in target package, except we have to project already
-      obj.involved_packages.select('name,project_id').includes(:project).each do |ip|
-        or_in_and << "(reviews.by_project='#{ip.project.name}' and reviews.by_package='#{ip.name}')"
+      obj.involved_packages.includes(:project).pluck('packages.name, projects.name').each do |ip|
+        or_in_and << "(reviews.by_project='#{ip.second}' and reviews.by_package='#{ip.first}')"
       end
 
       inner_or << "(reviews.state=#{quote(review_state)} and (#{or_in_and.join(' or ')}))"

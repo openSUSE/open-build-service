@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe User do
   let(:admin_user) { create(:admin_user, login: 'king') }
   let(:user) { create(:user, login: 'eisendieter') }
+  let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
   let(:input) { { 'Event::RequestCreate' => { source_maintainer: '1' } } }
   let(:project_with_package) { create(:project_with_package, name: 'project_b') }
 
@@ -460,6 +461,163 @@ RSpec.describe User do
 
         let(:not_maintained_target_package) { create(:package) }
         let!(:relationship_package_admin) { create(:relationship_package_user, user: admin_user, package: target_package) }
+      end
+    end
+  end
+
+  describe '#involved_packages' do
+    let(:group) { create(:group) }
+    let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
+
+    let(:maintained_package) { create(:package) }
+    let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: maintained_package) }
+
+    let(:group_maintained_package) { create(:package) }
+    let!(:relationship_package_group) { create(:relationship_package_group, group: group, package: group_maintained_package) }
+
+    let(:project_maintained_package) { create(:package) }
+    let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: project_maintained_package.project) }
+
+    let(:group_project_maintained_package) { create(:package) }
+    let!(:relationship_project_group) { create(:relationship_project_group, group: group, project: group_project_maintained_package.project) }
+
+    subject { confirmed_user.involved_packages }
+
+    it 'does include packages where user is maintainer' do
+      expect(subject).to include(maintained_package)
+    end
+
+    it 'does include packages where user is maintainer by group' do
+      expect(subject).to include(group_maintained_package)
+    end
+
+    it 'does not include packages where user is maintainer of the project' do
+      expect(subject).not_to include(project_maintained_package)
+    end
+
+    it 'does not include packages where user is maintainer of the project by group' do
+      expect(subject).not_to include(group_project_maintained_package)
+    end
+  end
+
+  describe '#involved_reviews' do
+    shared_examples 'involved_reviews' do
+      subject { confirmed_user.involved_reviews }
+
+      before do
+        # Setting state in create will be overwritten by BsRequest#sanitize!
+        # so we need to set it to review afterwards
+        [subject_request, request_with_same_creator_and_reviewer, request_of_another_subject].each do |request|
+          request.state = :review
+          request.save
+        end
+      end
+
+      it 'returns a BsRequest::ActiveRecord_Relation' do
+        expect(subject.class).to eq(BsRequest::ActiveRecord_Relation)
+      end
+
+      it 'does include reviews where the user is not the creator of the request' do
+        expect(subject).to include(subject_request)
+      end
+
+      it 'does not include reviews where the user is the creator of the request' do
+        expect(subject).not_to include(request_with_same_creator_and_reviewer)
+      end
+
+      it 'does not include reviews where the user is not the reviewer' do
+        expect(subject).not_to include(request_of_another_subject)
+      end
+    end
+
+    context 'with by_user reviews' do
+      it_behaves_like 'involved_reviews' do
+        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
+        let!(:subject_review) { create(:review, by_user: confirmed_user.login, bs_request: subject_request) }
+
+        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
+        let!(:review_with_same_creator_and_reviewer) {
+          create(:review, by_user: confirmed_user.login, bs_request: request_with_same_creator_and_reviewer)
+        }
+
+        let(:other_project) { create(:project) }
+        let(:request_of_another_subject) { create(:bs_request, creator: confirmed_user.login) }
+        let!(:review_of_another_subject) { create(:review, by_user: admin_user.login, bs_request: request_of_another_subject) }
+      end
+    end
+
+    context 'with by_group reviews' do
+      it_behaves_like 'involved_reviews' do
+        let(:group) { create(:group) }
+        let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
+
+        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
+        let!(:subject_review) { create(:review, by_group: group.title, bs_request: subject_request) }
+
+        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
+        let!(:review_with_same_creator_and_reviewer) { create(:review, by_group: group.title, bs_request: request_with_same_creator_and_reviewer) }
+
+        let(:other_group) { create(:group) }
+        let(:request_of_another_subject) { create(:bs_request, creator: admin_user.login) }
+        let!(:review_of_another_subject) { create(:review, by_group: other_group.title, bs_request: request_of_another_subject) }
+      end
+    end
+
+    context 'with by_project reviews' do
+      it_behaves_like 'involved_reviews' do
+        let(:project) { create(:project) }
+        let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: project) }
+
+        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
+        let!(:subject_review) { create(:review, by_project: project.name, bs_request: subject_request) }
+
+        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
+        let!(:review_with_same_creator_and_reviewer) { create(:review, by_project: project.name, bs_request: request_with_same_creator_and_reviewer) }
+
+        let(:other_project) { create(:project) }
+        let(:request_of_another_subject) { create(:bs_request, creator: admin_user.login) }
+        let!(:review_of_another_subject) { create(:review, by_project: other_project.name, bs_request: request_of_another_subject) }
+      end
+    end
+
+    context 'with by_package reviews' do
+      it_behaves_like 'involved_reviews' do
+        let(:package) { create(:package) }
+        let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: package) }
+
+        let(:subject_request) { create(:bs_request, creator: admin_user.login) }
+        let!(:subject_review) { create(:review, by_project: package.project.name, by_package: package.name, bs_request: subject_request) }
+
+        let(:request_with_same_creator_and_reviewer) { create(:bs_request, creator: confirmed_user.login) }
+        let!(:review_with_same_creator_and_reviewer) {
+          create(:review, by_project: package.project.name, by_package: package.name, bs_request: request_with_same_creator_and_reviewer)
+        }
+
+        let(:other_package) { create(:package) }
+        let(:request_of_another_subject) { create(:bs_request, creator: admin_user.login) }
+        let!(:review_of_another_subject) {
+          create(:review, by_project: other_package.project.name, by_package: other_package.name, bs_request: request_of_another_subject)
+        }
+      end
+    end
+
+    context 'with search parameter' do
+      let(:request) { create(:bs_request, creator: admin_user.login) }
+      let!(:review) { create(:review, by_user: confirmed_user.login, bs_request: request) }
+
+      before do
+        # Setting state in create will be overwritten by BsRequest#sanitize!
+        # so we need to set it to review afterwards
+        request.state = :review
+        request.save
+      end
+
+      it 'returns the request if the search does match' do
+        expect(confirmed_user.involved_reviews(admin_user.login)).to include(request)
+      end
+
+      it 'returns no request if the search does not match' do
+        expect(confirmed_user.involved_reviews('does not exist')).not_to include(request)
       end
     end
   end

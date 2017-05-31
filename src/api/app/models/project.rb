@@ -116,6 +116,9 @@ class Project < ApplicationRecord
       where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' })
   }
 
+  scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
+  scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
+
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: true
   validates :title, length: { maximum: 250 }
   validate :valid_name

@@ -4,6 +4,7 @@ review_for_1000_1:
   state: new
   by_project: Apache
   by_package: apache2
+  reviewable: apache2 (Package)
   created_at: 2013-09-09 19:15:16.000000000 Z
   updated_at: 2013-09-09 19:15:16.000000000 Z
 review_for_1000_2:
@@ -11,6 +12,7 @@ review_for_1000_2:
   bs_request_id: 9991000
   state: new
   by_user: adrian
+  reviewable: adrian (User)
   created_at: 2013-09-09 19:15:16.000000000 Z
   updated_at: 2013-09-09 19:15:16.000000000 Z
 review_for_1000_3:
@@ -18,6 +20,7 @@ review_for_1000_3:
   bs_request_id: 9991000
   state: new
   by_group: test_group
+  reviewable: test_group (Group)
   created_at: 2013-09-09 19:15:16.000000000 Z
   updated_at: 2013-09-09 19:15:16.000000000 Z
 review_for_1000_4:
@@ -25,6 +28,7 @@ review_for_1000_4:
   bs_request_id: 9991000
   state: new
   by_user: tom
+  reviewable: tom (User)
   created_at: 2013-09-10 19:15:16.000000000 Z
   updated_at: 2013-09-10 19:15:20.000000000 Z
 reviews_1:
@@ -34,6 +38,7 @@ reviews_1:
   reason: see if users can review
   state: new
   by_user: tom
+  reviewable: tom (User)
   created_at: 2012-09-28 11:55:19.000000000 Z
   updated_at: 2012-09-28 11:55:19.000000000 Z
 reviews_2:
@@ -43,6 +48,7 @@ reviews_2:
   reason: one group review
   state: new
   by_group: test_group
+  reviewable: test_group (Group)
   created_at: 2012-09-28 11:56:46.000000000 Z
   updated_at: 2012-09-28 11:56:46.000000000 Z
 reviews_3:
@@ -52,6 +58,7 @@ reviews_3:
   reason: another group review
   state: new
   by_group: test_group_b
+  reviewable: test_group (Group)
   created_at: 2012-09-28 11:56:53.000000000 Z
   updated_at: 2012-09-28 11:56:53.000000000 Z
 reviews_7:
@@ -60,6 +67,7 @@ reviews_7:
   state: new
   by_project: Apache
   by_package: apache2
+  reviewable: apache2 (Package)
   created_at: 2013-09-09 19:20:44.000000000 Z
   updated_at: 2013-09-09 19:20:44.000000000 Z
 reviews_8:
@@ -68,5 +76,6 @@ reviews_8:
   state: new
   by_project: Apache
   by_package: libapr-util1
+  reviewable: libapr-util1 (Package)
   created_at: 2013-09-09 19:20:44.000000000 Z
   updated_at: 2013-09-09 19:20:44.000000000 Z

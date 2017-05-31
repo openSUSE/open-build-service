@@ -32,7 +32,6 @@ class User < ApplicationRecord
   has_many :groups_users, inverse_of: :user
   has_many :roles_users, inverse_of: :user
   has_many :relationships, inverse_of: :user, dependent: :destroy
-  has_many :group_relationships, through: :groups, source: :relationships
 
   has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
@@ -708,30 +707,17 @@ class User < ApplicationRecord
     end
   end
 
-  def involved_projects_ids
-    (relationships.projects.maintainers.pluck(:project_id) + group_relationships.projects.maintainers.pluck(:project_id)).uniq
-  end
-
   def involved_projects
-    # now filter the projects that are not visible
-    Project.where(id: involved_projects_ids)
+    Project.for_user(id).or(
+      Project.for_group(groups.pluck(:id))
+    )
   end
 
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
-    # just for maintainer for now.
-    role = Role.hashed['maintainer']
-
-    projects = involved_projects_ids
-    projects << -1 if projects.empty?
-
-    # all packages where user is maintainer
-    packages = relationships.where(role_id: role.id).joins(:package).where('packages.project_id not in (?)', projects).pluck(:package_id)
-
-    # all packages where user is maintainer via a group
-    packages += Relationship.packages.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: id }).pluck(:package_id)
-
-    Package.where(id: packages).where('project_id not in (?)', projects)
+    Package.for_user(id).or(
+      Package.for_group(groups.pluck(:id))
+    ).where.not(project_id: involved_projects.pluck(:id))
   end
 
   # list packages owned by this user.
@@ -749,7 +735,14 @@ class User < ApplicationRecord
 
   # lists reviews involving this user
   def involved_reviews(search = nil)
-    BsRequest.collection(user: login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review), search: search).not_creator(login)
+    result = BsRequest.for_users(id).or(
+      BsRequest.for_projects(involved_projects.pluck(:id)).or(
+        BsRequest.for_packages(involved_packages.pluck(:id)).or(
+          BsRequest.for_groups(groups.pluck(:id))
+        )
+      )
+    ).joins(:bs_request_actions).where(state: :review, reviews: { state: :new }).where.not(creator: login)
+    search ? result.do_search(search) : result
   end
 
   # list requests involving this user
@@ -812,7 +805,7 @@ class User < ApplicationRecord
   def user_relevant_packages_for_status
     role_id = Role.hashed['maintainer'].id
     # First fetch the project ids
-    projects_ids = involved_projects_ids
+    projects_ids = involved_projects.pluck(:id)
     packages = Package.joins("LEFT OUTER JOIN relationships ON (relationships.package_id = packages.id AND relationships.role_id = #{role_id})")
     # No maintainers
     packages = packages.where([
