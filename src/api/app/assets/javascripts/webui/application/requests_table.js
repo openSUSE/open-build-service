@@ -35,9 +35,9 @@ $( document ).ready(function() {
 
     // 2. Reload button (if it exists)
     var reload_button = $('.result_reload[data-table=' + dataTableId + ']');
-    var loading_spinner = $(reload_button).siblings('.result_spinner');
 
     reload_button.click(function(){
+      var loading_spinner = $(reload_button).siblings('.result_spinner');
       reload_button.hide();
       loading_spinner.show();
 
@@ -48,7 +48,7 @@ $( document ).ready(function() {
     });
 
     // 3. Type dropdown (if it exists)
-    loading_spinner = $('#spinner');
+    var loading_spinner = $('#spinner');
 
     type_dropdown.change(function(){
       loading_spinner.show();
