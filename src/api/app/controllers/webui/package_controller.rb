@@ -5,7 +5,6 @@ class Webui::PackageController < Webui::WebuiController
   require_dependency 'opensuse/validator'
   include ParsePackageDiff
   include Webui::PackageHelper
-  include Escaper
   include Webui::LoadBuildresults
   include Webui::ManageRelationships
   include BuildLogSupport
@@ -950,7 +949,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def get_rpmlint_log(project, package, repository, architecture)
-    path = "/build/#{pesc project}/#{pesc repository}/#{pesc architecture}/#{pesc package}/rpmlint.log"
+    path = URI.escape("/build/#{project}/#{repository}/#{architecture}/#{package}/rpmlint.log")
     ActiveXML.backend.direct_http(URI(path), timeout: 500)
   end
 
