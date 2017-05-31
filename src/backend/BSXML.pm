@@ -189,7 +189,7 @@ our $packinfo = [
 	    'nosrcpkgs',	# kiwi
 	 [[ 'path' =>
 		'project',
-		'project',
+		'repository',
 		'priority',
 	]],
 	 [[ 'extrasource' =>
