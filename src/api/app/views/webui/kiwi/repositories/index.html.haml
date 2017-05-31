@@ -1,0 +1,11 @@
+= render partial: 'webui/kiwi/tabs'
+
+%h2
+  = @image.name
+%h3 Repositories
+- if @repositories.empty?
+  %p There are no repositories.
+- else
+  %ul
+    - @repositories.each do |repository|
+      = render partial: 'repository_entry', locals: {repository: repository}

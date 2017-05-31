@@ -112,6 +112,13 @@
                 <li>
                   <%= link_to(sprited_text('package_delete', 'Delete package'), { :action => :delete_dialog, :package => @package, :project => @project }, :remote => true, id: 'delete-package') %>
                 </li>
+                <% Feature.with(:kiwi_image_editor) do %>
+                  <% if @package.kiwi_image? %>
+                    <li>
+                      <%= link_to(sprited_text('package_edit', 'Edit KIWI'), import_kiwi_image_path(@package.id), id: 'edit-kiwi') %>
+                    </li>
+                  <% end %>
+                <% end %>
                 <% if @services.present? %>
                   <li>
                     <%= link_to(sprited_text('package_link', 'Trigger services'), { action: :trigger_services, package: @package, project: @project }, method: :post) %>
