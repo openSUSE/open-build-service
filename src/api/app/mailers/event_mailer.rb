@@ -17,39 +17,26 @@ class EventMailer < ActionMailer::Base
     'OBS Notification <' + ::Configuration.admin_email + '>'
   end
 
-  def event(subscribers, e)
-    subscribers = subscribers.to_a
-
-    set_headers
+  def event(subscribers, event)
     begin
-      @e = e.expanded_payload
+      @e = event.expanded_payload
     rescue Project::UnknownObjectError, Package::UnknownObjectError
-      # object got removed already
-      return
+      return # object got removed already
     end
 
-    headers(e.custom_headers)
-
-    template_name = e.template_name
-    orig = e.originator
-
-    # no need to tell user about this own actions
-    # TODO: make configurable?
-    subscribers.delete(orig)
+    subscribers = subscribers.to_a
     return if subscribers.empty?
 
-    tos = subscribers.map(&:display_name)
+    set_headers
+    headers(event.custom_headers)
 
-    if orig
-      orig = orig.display_name
-    else
-      orig = mail_sender
-    end
+    to = subscribers.map(&:display_name).sort
+    origin = event.originator ? event.originator.display_name : mail_sender
 
-    mail(to: tos.sort,
-         subject: e.subject,
-         from: orig,
-         date: e.created_at,
-         template_name: template_name)
+    mail(to: to,
+         subject: event.subject,
+         from: origin,
+         date: event.created_at,
+         template_name: event.template_name)
   end
 end
