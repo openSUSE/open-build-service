@@ -668,6 +668,38 @@ CREATE TABLE `delayed_jobs` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `digest_emails`
+--
+
+DROP TABLE IF EXISTS `digest_emails`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `digest_emails` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_subscription_id` int(11) NOT NULL,
+  `sent_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `digest_emails_events`
+--
+
+DROP TABLE IF EXISTS `digest_emails_events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `digest_emails_events` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `digest_email_id` int(11) NOT NULL,
+  `event_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `distribution_icons`
 --
 
@@ -1832,7 +1864,7 @@ CREATE TABLE `watched_projects` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-05-31 16:16:33
+-- Dump completed on 2017-06-01 11:19:42
 INSERT INTO schema_migrations (version) VALUES
 ('1'),
 ('20140210114542'),
@@ -1922,6 +1954,8 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170426153510'),
 ('20170509123922'),
 ('20170511120355'),
-('20170516140442');
+('20170516140442'),
+('20170601083100'),
+('20170601083322');
 
 
