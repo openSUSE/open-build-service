@@ -418,6 +418,22 @@ CREATE TABLE `delayed_jobs` (
   KEY `index_delayed_jobs_on_queue` (`queue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `digest_emails` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_subscription_id` int(11) NOT NULL,
+  `sent_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `digest_emails_events` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `digest_email_id` int(11) NOT NULL,
+  `event_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `distribution_icons` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -1227,5 +1243,8 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170426153510'),
 ('20170509123922'),
 ('20170511120355'),
-('20170516140442');
+('20170516140442'),
+('20170601083100'),
+('20170601083322');
+
 
