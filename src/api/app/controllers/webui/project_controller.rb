@@ -169,12 +169,13 @@ class Webui::ProjectController < Webui::WebuiController
         flash[:success] = "Created maintenance release request " +
                           "<a href='#{url_for(controller: 'request', action: 'show', number: req.number)}'>#{req.number}</a>"
       rescue Patchinfo::IncompletePatchinfo,
-             BsRequestAction::UnknownProject,
-             BsRequestAction::BuildNotFinished,
+             BsRequestActionMaintenanceRelease::ArchitectureOrderMissmatch,
+             BsRequestActionMaintenanceRelease::OpenReleaseRequests,
              BsRequestActionMaintenanceRelease::RepositoryWithoutReleaseTarget,
              BsRequestActionMaintenanceRelease::RepositoryWithoutArchitecture,
-             BsRequestActionMaintenanceRelease::ArchitectureOrderMissmatch,
+             BsRequestAction::BuildNotFinished,
              BsRequestAction::VersionReleaseDiffers,
+             BsRequestAction::UnknownProject,
              BsRequestAction::UnknownTargetProject,
              BsRequestAction::UnknownTargetPackage => e
         flash[:error] = e.message
