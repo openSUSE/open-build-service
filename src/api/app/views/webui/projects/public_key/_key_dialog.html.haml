@@ -9,7 +9,8 @@
           %th Size
           %th Algorithm
           %th ID
-          %th Expires
+          - if @project.key_info.expires
+            %th Expires
           - if @project.key_info.origin.present?
             %th Origin
         %tr
@@ -19,8 +20,9 @@
             = @project.key_info.algorithm
           %td
             = @project.key_info.keyid
-          %td
-            = DateTime.strptime(@project.key_info.expires, '%s').strftime('%F')
+          - if @project.key_info.expires
+            %td
+              = DateTime.strptime(@project.key_info.expires, '%s').strftime('%F')
           - if @project.key_info.origin.present?
             %td= @project.key_info.origin
       %p
