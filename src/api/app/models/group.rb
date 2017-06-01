@@ -161,12 +161,13 @@ end
 #
 # Table name: groups
 #
-#  id         :integer          not null, primary key
-#  created_at :datetime
-#  updated_at :datetime
-#  title      :string(200)      default(""), not null, indexed
-#  parent_id  :integer          indexed
-#  email      :string(255)
+#  id                   :integer          not null, primary key
+#  created_at           :datetime
+#  updated_at           :datetime
+#  title                :string(200)      default(""), not null, indexed
+#  parent_id            :integer          indexed
+#  email                :string(255)
+#  digest_email_enabled :boolean          default(FALSE)
 #
 # Indexes
 #
