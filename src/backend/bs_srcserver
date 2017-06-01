@@ -97,7 +97,7 @@ $BSSrcServer::Product::notify_repservers = \&notify_repservers;
 
 $Build::Rpm::unfilteredprereqs = 1 if defined $Build::Rpm::unfilteredprereqs;
 $Build::Rpm::conflictdeps = 1 if defined $Build::Rpm::conflictdeps;
-$Build::Kiwi::repopriorities = 1 if defined $Build::Kiwi::repopriorities;
+$Build::Kiwi::repoextras = 1 if defined $Build::Kiwi::repoextras;
 
 use strict;
 
@@ -1570,7 +1570,14 @@ sub getprojpack {
 	      $conf->{'obspackage'} = $1;
 	      $conf->{'buildflavor'} = $2;
 	    }
-	    my $d = Build::parse_typed($conf, BSRevision::revfilename($rev, $file, $files->{$file}), $buildtype);
+	    my $d;
+	    eval {
+	      $d = Build::parse_typed($conf, BSRevision::revfilename($rev, $file, $files->{$file}), $buildtype);
+	    };
+	    if ($@) {
+	      $d = {'error' => $@};
+	      $d->{'error'} =~ s/\n.*//s;
+	    }
 	    data2utf8xml($d);
 
 	    if (!$d || !defined($d->{'name'})) {
@@ -1617,6 +1624,11 @@ sub getprojpack {
 	    }
 	    for ('imagetype', 'path', 'extrasource') {
 	      $rinfo->{$_} = $d->{$_} if exists $d->{$_};
+	    }
+	    for (@{$d->{'path'} || []}) {
+	      my $r = { 'project' => $_->{'project'}, 'repository' => $_->{'repository'} };
+	      $r->{'priority'} = $_->{'priority'} if defined $_->{'priority'};
+	      push @{$r->{'path'}}, $r;
 	    }
 	    if ($remotemap && $rinfo->{'path'}) {
 	      my @kiwipath = map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$rinfo->{'path'}};
@@ -5526,9 +5538,17 @@ sub sourceinfo {
     $bconf->{'buildflavor'} = $2;
   }
   
-  my $d = Build::parse_typed($bconf, BSRevision::revfilename($rev, $file, $files->{$file}), $buildtype);
+  my $d;
+  eval {
+    $d = Build::parse_typed($bconf, BSRevision::revfilename($rev, $file, $files->{$file}), $buildtype);
+  };
+  if ($@) {
+    $r->{'error'} = "parse error: $@";
+    $r->{'error'} =~ s/\n.*//s;
+    return $r;
+  }
   if (!$d) {
-    $r->{'error'} = "parse error";
+    $r->{'error'} = 'parse error';
     return $r;
   }
   for (qw{name version release subpacks deps prereqs exclarch badarch}) {
