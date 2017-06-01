@@ -20,14 +20,12 @@ eval {
 $got = $@;
 $expected = "cannot determine partition for Test::Project\n";
 
-is($got,$expected,"Check die if partition cannot determined");
+is($got,$expected,"Check die if partition cannot be determined");
 
-no warnings 'once';
 $BSConfig::partition = "test";
-use warnings;
 
 eval {
-  my $result = BSSrcServer::Partition::checkpartition($remotemap,$projid);
+  my $result = BSSrcServer::Partition::checkpartition({ %$remotemap, ':partition' => $BSConfig::partition },$projid);
 };
 
 $got = $@;
