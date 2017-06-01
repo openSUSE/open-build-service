@@ -185,7 +185,7 @@ end
 # Table name: bs_request_actions
 #
 #  id                    :integer          not null, primary key
-#  bs_request_id         :integer          indexed
+#  bs_request_id         :integer          indexed, indexed => [target_package_id], indexed => [target_project_id]
 #  type                  :string(255)
 #  target_project        :string(255)      indexed
 #  target_package        :string(255)      indexed
@@ -201,22 +201,22 @@ end
 #  created_at            :datetime
 #  target_repository     :string(255)
 #  makeoriginolder       :boolean          default(FALSE)
-#  target_package_id     :integer          indexed
-#  target_project_id     :integer          indexed
+#  target_package_id     :integer          indexed => [bs_request_id]
+#  target_project_id     :integer          indexed => [bs_request_id]
 #  source_package_id     :integer          indexed
 #  source_project_id     :integer          indexed
 #
 # Indexes
 #
-#  bs_request_id                                  (bs_request_id)
-#  index_bs_request_actions_on_source_package     (source_package)
-#  index_bs_request_actions_on_source_package_id  (source_package_id)
-#  index_bs_request_actions_on_source_project     (source_project)
-#  index_bs_request_actions_on_source_project_id  (source_project_id)
-#  index_bs_request_actions_on_target_package     (target_package)
-#  index_bs_request_actions_on_target_package_id  (target_package_id)
-#  index_bs_request_actions_on_target_project     (target_project)
-#  index_bs_request_actions_on_target_project_id  (target_project_id)
+#  bs_request_id                                                    (bs_request_id)
+#  index_bs_request_actions_on_bs_request_id_and_target_package_id  (bs_request_id,target_package_id)
+#  index_bs_request_actions_on_bs_request_id_and_target_project_id  (bs_request_id,target_project_id)
+#  index_bs_request_actions_on_source_package                       (source_package)
+#  index_bs_request_actions_on_source_package_id                    (source_package_id)
+#  index_bs_request_actions_on_source_project                       (source_project)
+#  index_bs_request_actions_on_source_project_id                    (source_project_id)
+#  index_bs_request_actions_on_target_package                       (target_package)
+#  index_bs_request_actions_on_target_project                       (target_project)
 #
 # Foreign Keys
 #

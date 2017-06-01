@@ -753,7 +753,15 @@ class User < ApplicationRecord
 
   # list incoming requests involving this user
   def incoming_requests(search = nil)
-    BsRequest.collection(user: login, states: %w(new), roles: %w(maintainer), search: search)
+    project_ids = involved_projects.pluck(:id)
+    package_ids = involved_packages.pluck(:id)
+
+    result = BsRequest.with_actions.with_involved_projects(project_ids)
+                      .or(BsRequest.in_states(:new).with_actions
+                                    .with_involved_packages(package_ids))
+                      .in_states(:new)
+
+    search ? result.do_search(search) : result
   end
 
   # list outgoing requests involving this user

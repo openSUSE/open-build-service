@@ -235,10 +235,10 @@ CREATE TABLE `bs_request_actions` (
   KEY `index_bs_request_actions_on_source_project` (`source_project`) USING BTREE,
   KEY `index_bs_request_actions_on_target_package` (`target_package`) USING BTREE,
   KEY `index_bs_request_actions_on_target_project` (`target_project`) USING BTREE,
-  KEY `index_bs_request_actions_on_target_package_id` (`target_package_id`),
-  KEY `index_bs_request_actions_on_target_project_id` (`target_project_id`),
   KEY `index_bs_request_actions_on_source_package_id` (`source_package_id`),
   KEY `index_bs_request_actions_on_source_project_id` (`source_project_id`),
+  KEY `index_bs_request_actions_on_bs_request_id_and_target_project_id` (`bs_request_id`,`target_project_id`),
+  KEY `index_bs_request_actions_on_bs_request_id_and_target_package_id` (`bs_request_id`,`target_package_id`),
   CONSTRAINT `bs_request_actions_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -1227,6 +1227,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170426153510'),
 ('20170509123922'),
 ('20170511120355'),
-('20170516140442');
+('20170516140442'),
+('20170607110443');
 
 
