@@ -676,11 +676,14 @@ DROP TABLE IF EXISTS `digest_emails`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `digest_emails` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `event_subscription_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `group_id` int(11) DEFAULT NULL,
   `sent_at` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_digest_emails_on_user_id` (`user_id`),
+  KEY `index_digest_emails_on_group_id` (`group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1854,7 +1857,7 @@ CREATE TABLE `watched_projects` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping routines for database 'api_test'
+-- Dumping routines for database 'api_development'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -1866,7 +1869,7 @@ CREATE TABLE `watched_projects` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-06-01 14:36:21
+-- Dump completed on 2017-06-01 15:23:50
 INSERT INTO schema_migrations (version) VALUES
 ('1'),
 ('20140210114542'),
