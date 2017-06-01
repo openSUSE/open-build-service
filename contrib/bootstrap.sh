@@ -33,4 +33,6 @@ setup_data_dir
 
 chown_vagrant_owned_dirs
 
+configure_api
+
 exit 0

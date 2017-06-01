@@ -82,6 +82,11 @@ function configure_app() {
   copy_example_file options.yml || return 1
 }
 
+function configure_api() {
+  echo -e "\nconfiguring your api...\n"
+  su - vagrant -c "cd /vagrant/src/api/; bundle exec rails runner 'Configuration.first.update(enforce_project_keys: true)'"
+}
+
 function configure_database() {
   copy_example_file database.yml || return 1
   check_for_databases && return 1
