@@ -555,6 +555,7 @@ CREATE TABLE `groups` (
   `title` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `parent_id` int(11) DEFAULT NULL,
   `email` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `digest_email_enabled` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `groups_parent_id_index` (`parent_id`) USING BTREE,
   KEY `index_groups_on_title` (`title`) USING BTREE
@@ -1140,6 +1141,7 @@ CREATE TABLE `users` (
   `adminnote` text CHARACTER SET utf8,
   `state` enum('unconfirmed','confirmed','locked','deleted','subaccount') COLLATE utf8_bin DEFAULT 'unconfirmed',
   `owner_id` int(11) DEFAULT NULL,
+  `digest_email_enabled` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)) USING BTREE,
   KEY `users_password_index` (`password`) USING BTREE
@@ -1245,6 +1247,8 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170511120355'),
 ('20170516140442'),
 ('20170601083100'),
-('20170601083322');
+('20170601083322'),
+('20170601123232'),
+('20170601123244');
 
 
