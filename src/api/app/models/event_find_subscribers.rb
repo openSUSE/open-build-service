@@ -111,6 +111,8 @@ class EventFindSubscribers
       end
     end
 
+    ret.delete(@event.originator)
+
     ret
   end
 
