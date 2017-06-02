@@ -13,8 +13,9 @@ class SendEventEmails
         # if someone else saved it too, better don't continue - we're not alone
         return false
       end
-      subscribers = event.subscribers
-      next if subscribers.empty?
+      subscriptions = event.subscriptions
+      next if subscriptions.empty?
+      subscribers = subscriptions.map(&:subscriber)
       EventMailer.event(subscribers, event).deliver_now
     end
     true
