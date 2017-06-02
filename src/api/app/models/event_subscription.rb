@@ -5,6 +5,14 @@ class EventSubscription < ApplicationRecord
   validates :receiver_role, inclusion: { in: [:all, :maintainer, :bugowner, :reader, :source_maintainer,
                                               :target_maintainer, :reviewer, :commenter, :creator] }
 
+  def subscriber
+    if user_id.present?
+      user
+    elsif group_id.present?
+      group
+    end
+  end
+
   def receiver_role
     read_attribute(:receiver_role).to_sym
   end

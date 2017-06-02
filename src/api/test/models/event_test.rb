@@ -32,12 +32,12 @@ class EventTest < ActionDispatch::IntegrationTest
   end
 
   def users_for_event(e)
-    users = EventFindSubscribers.new(e).subscribers
+    users = EventFindSubscriptions.new(e).subscriptions.map(&:subscriber)
     User.where(id: users).pluck(:login).sort
   end
 
   def groups_for_event(e)
-    groups = EventFindSubscribers.new(e).subscribers
+    groups = EventFindSubscriptions.new(e).subscriptions.map(&:subscriber)
     Group.where(id: groups).pluck(:title).sort
   end
 
