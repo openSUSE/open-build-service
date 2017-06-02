@@ -190,8 +190,8 @@ module Event
       ret
     end
 
-    def subscribers
-      EventFindSubscribers.new(self).subscribers
+    def subscriptions
+      EventFindSubscriptions.new(self).subscriptions
     end
 
     # to calculate expensive things we don't want to store in database (i.e. diffs)
