@@ -27,17 +27,9 @@ def redefine_task(args, &block)
 end
 
 namespace :db do
-  namespace :structure do
-    desc "Dump the database structure to a SQL file"
-    task dump: :environment do
-      path = Rails.root.join('db', 'structure.sql')
-      File.write(path, File.read(path).gsub(/ AUTO_INCREMENT=\d*/, ''))
-    end
-  end
-
-  desc 'Create the database, load the structure, and initialize with the seed data'
+  desc 'Create the database, load the schema, and initialize with the seed data'
   redefine_task setup: :environment do
-    Rake::Task["db:structure:load"].invoke
+    Rake::Task["db:schema:load"].invoke
     Rake::Task["db:seed"].invoke
   end
 end

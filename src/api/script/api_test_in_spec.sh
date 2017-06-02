@@ -65,11 +65,11 @@ EOF
 # migration test
 export RAILS_ENV=migrate
 bundle.ruby2.4 exec rake.ruby2.4 db:create || exit 1
-cp db/structure.sql{,.git}
-bundle.ruby2.4 exec rake.ruby2.4 db:migrate db:structure:dump db:drop || exit 1
-if test `diff db/structure.sql{,.git} | wc -l` -gt 0 ; then
-  echo "ERROR: Migration is producing a different structure.sql"
-  diff -u db/structure.sql{,.git}
+cp db/schema.rb{,.git}
+bundle.ruby2.4 exec rake.ruby2.4 db:migrate db:schema:dump db:drop || exit 1
+if test `diff db/schema.rb{,.git} | wc -l` -gt 0 ; then
+  echo "ERROR: Migration is producing a different schema.rb"
+  diff -u db/schema.rb{,.git}
   exit 1
 fi
 

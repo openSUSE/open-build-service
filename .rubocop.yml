@@ -9,6 +9,7 @@ AllCops:
     - 'src/api/lib/templates/**/*'
     - 'src/api/vendor/bundle/**/*'
     - 'docs/api/restility/**/*'
+    - 'src/api/db/schema.rb'
 
 # Find uses of alias where alias_method would be more appropriate (or is simply preferred due to configuration), and vice versa.
 # It also finds uses of alias :symbol rather than alias bareword.

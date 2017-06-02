@@ -84,7 +84,7 @@ module OBSApi
     # Make Active Record use UTC-base instead of local time
     # config.active_record.default_timezone = :utc
 
-    config.active_record.schema_format = :sql
+    config.active_record.schema_format = :ruby
 
     config.action_controller.perform_caching = true
 
