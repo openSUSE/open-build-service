@@ -6,8 +6,7 @@ namespace :statistics do
                .where(type: "HistoryElement::RequestAccepted")
                .joins("INNER JOIN bs_requests ON bs_requests.id = history_elements.op_object_id")
                .pluck('bs_requests.created_at', 'history_elements.created_at')
-    time = 0 # time in seconds
-    elements.sum { |element| time += (element[1].to_i - element[0].to_i) }
+    time = elements.sum { |element| element[1].to_i - element[0].to_i }
     time_in_hours = time / elements.count / 60 / 60
 
     information = """OBS STATISTICS ON #{Time.zone.today}\n
