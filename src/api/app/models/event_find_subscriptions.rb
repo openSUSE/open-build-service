@@ -1,18 +1,39 @@
 # strategy class for the event model
-class EventFindSubscribers
+class EventFindSubscriptions
   def initialize(event)
     @event = event
   end
 
+  def subscriptions
+    @payload = @event.payload
+    @subscriptions = EventSubscription.where(eventtype: @event.class.classnames)
+
+    # 1. generic defaults
+    @toconsider = @subscriptions.where('user_id is null AND group_id is null').to_a
+    @event.class.receiver_roles.each do |r|
+      unless receiver_role_set(r)
+        @toconsider << EventSubscription.new(eventtype: @event.class.name, receiver_role: r, receive: false)
+      end
+    end
+
+    # 2. user and group specifics
+    generics = @subscriptions
+    @toconsider |= generics.where(receiver_role: :all).to_a
+
+    return [] if @toconsider.empty?
+
+    expand_toconsider
+    filter_toconsider
+  end
+
+  private
+
   def expand_toconsider
-    nt = []
-    @toconsider.each do |r|
-      nt.concat(expand_one_rule(r))
+    new_toconsider = []
+    @toconsider.each do |subscription|
+      new_toconsider.concat(expand_one_rule(subscription))
     end
-    @toconsider = nt
-    @toconsider.each do |t|
-      Rails.logger.debug "Expanded #{t.inspect}"
-    end
+    @toconsider = new_toconsider
   end
 
   def expand_one_rule(r)
@@ -21,9 +42,6 @@ class EventFindSubscribers
     end
 
     receivers = @event.send("#{r.receiver_role}s")
-    receivers.each do |u|
-      Rails.logger.debug "Event for receiver_role #{r.receiver_role} goes to #{u}"
-    end
 
     # fetch database settings
     user_ids = receivers.select { |rcv| rcv.kind_of? User }.map(&:id)
@@ -59,8 +77,8 @@ class EventFindSubscribers
     ret
   end
 
-  def compare_two_rules(x, y)
-    # prefer rules in the database
+  def compare_two_subscriptions(x, y)
+    # prefer subscriptions in the database
     return -1 if x.id && !y.id
     return 1 if !x.id && y.id
 
@@ -76,10 +94,8 @@ class EventFindSubscribers
     -1
   end
 
-  def check_rules?(rules)
-    rules.sort! { |x, y| compare_two_rules(x, y) }
-    return false unless rules[0].receive
-    true
+  def sort_subscriptions_by_priority(subscriptions)
+    subscriptions.sort { |x, y| compare_two_subscriptions(x, y) }
   end
 
   def user_subscribed_to_group_email?(group, user)
@@ -87,59 +103,30 @@ class EventFindSubscribers
   end
 
   def filter_toconsider
-    receivers = Hash.new
+    subscribers_and_subscriptions = Hash.new
 
-    @toconsider.each do |r|
-      if r.group_id
-        group = Group.find(r.group_id)
-        next if group.email.blank?
-        receivers[group] ||= Array.new
-        receivers[group] << r
-      end
-
-      # add users
-      next unless r.user_id
-      u = User.find(r.user_id)
-      receivers[u] ||= Array.new
-      receivers[u] << r
+    @toconsider.each do |subscription|
+      subscribers_and_subscriptions[subscription.subscriber] ||= []
+      subscribers_and_subscriptions[subscription.subscriber] << subscription
     end
 
-    ret = []
-    receivers.each do |rcv, rules|
-      if check_rules? rules
-        ret << rcv
+    subscriptions_to_receive = []
+    subscribers_and_subscriptions.each do |_subscriber, subscriptions|
+      priority_subscription = sort_subscriptions_by_priority(subscriptions).first
+
+      if priority_subscription.receive
+        subscriptions_to_receive << priority_subscription
       end
     end
 
-    ret
+    subscriptions_to_receive.reject! do |subscription|
+      subscription.subscriber == @event.originator
+    end
+
+    subscriptions_to_receive
   end
 
   def receiver_role_set(role)
     @toconsider.any? {|r| r.receiver_role.to_sym == role.to_sym}
-  end
-
-  def subscribers
-    @payload = @event.payload
-    @subscriptions = EventSubscription.where(eventtype: @event.class.classnames)
-
-    # 1. generic defaults
-    @toconsider = @subscriptions.where('user_id is null AND group_id is null').to_a
-    @event.class.receiver_roles.each do |r|
-      unless receiver_role_set(r)
-        @toconsider << EventSubscription.new(eventtype: @event.class.name, receiver_role: r, receive: false)
-      end
-    end
-
-    # 2. user and group specifics
-    generics = @subscriptions
-    @toconsider |= generics.where(receiver_role: :all).to_a
-
-    @toconsider.each do |t|
-      Rails.logger.debug "To consider #{t.inspect}"
-    end
-    return [] if @toconsider.empty?
-
-    expand_toconsider
-    filter_toconsider
   end
 end
