@@ -14,28 +14,21 @@ class SendEventEmails
         return false
       end
 
-      next if event.subscribers.empty?
+      next if event.subscriptions.empty?
 
-      subscribers = event.subscribers.select { |subscriber| subscriber.digest_email_enabled == false }
-      digest_subscribers = event.subscribers.select { |subscriber| subscriber.digest_email_enabled == true }
+      subscriptions = event.subscriptions.reject(&:digest_email_enabled?)
+      digest_subscriptions = event.subscriptions.select(&:digest_email_enabled?)
 
       # Send an email to the subscribers with digest_email_enabled == false
-      if subscribers.any?
-        EventMailer.event(subscribers, event).deliver_now
+      if subscriptions.any?
+        EventMailer.email_for_event(subscriptions.map(&:subscriber), event).deliver_now
       end
 
       # Add to a digest email for the subscribers with digest_email_enabled == true
-      digest_subscribers.each do |subscriber|
-        digest_email =
-          if subscriber.is_a? User
-            DigestEmail.find_or_create_by(user: subscriber, sent_at: nil)
-          elsif subscriber.is_a? Group
-            DigestEmail.find_or_create_by(group: subscriber, sent_at: nil)
-          end
-
+      digest_subscriptions.each do |subscription|
+        digest_email = DigestEmail.find_or_create_by(event_subscription: subscription, sent_at: nil)
         digest_email.events << event
       end
     end
-    true
   end
 end

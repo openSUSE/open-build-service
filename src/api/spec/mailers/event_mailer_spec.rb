@@ -10,7 +10,7 @@ RSpec.describe EventMailer do
     let!(:receiver) { create(:confirmed_user) }
     let!(:subscription) { create(:event_subscription_comment_for_project, user: receiver) }
     let!(:comment) { create(:comment_project, body: "Hey @#{receiver.login} how are things?") }
-    let(:mail) { EventMailer.event(Event::CommentForProject.last.subscribers, Event::CommentForProject.last).deliver_now }
+    let(:mail) { EventMailer.email_for_event(Event::CommentForProject.last.subscribers, Event::CommentForProject.last).deliver_now }
 
     it 'gets delivered' do
       expect(ActionMailer::Base.deliveries).to include(mail)

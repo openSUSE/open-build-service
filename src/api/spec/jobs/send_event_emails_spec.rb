@@ -29,15 +29,15 @@ RSpec.describe SendEventEmails, type: :job do
     it 'sends an email to the subscribers which have digest_email_enabled = false' do
       email = ActionMailer::Base.deliveries.first
 
-      expect(email.to).to eq([user.email, group.email])
+      expect(email.to).to match_array([user.email, group.email])
       expect(email.subject).to include('New comment')
     end
 
     it 'creates digest emails with this event for the subscribers which have digest_email_enabled = true' do
       expect(DigestEmail.all.count).to eq(2)
 
-      digest_email_for_user = DigestEmail.find_by(user: digest_user)
-      digest_email_for_group = DigestEmail.find_by(group: digest_group)
+      digest_email_for_user = DigestEmail.find_by(event_subscription: subscription4)
+      digest_email_for_group = DigestEmail.find_by(event_subscription: subscription5)
 
       expect(digest_email_for_user.events.count).to eq(1)
       expect(digest_email_for_group.events.count).to eq(1)

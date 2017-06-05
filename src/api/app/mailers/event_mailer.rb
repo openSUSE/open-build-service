@@ -17,7 +17,7 @@ class EventMailer < ActionMailer::Base
     'OBS Notification <' + ::Configuration.admin_email + '>'
   end
 
-  def event(subscribers, event)
+  def email_for_event(subscribers, event)
     begin
       @e = event.expanded_payload
     rescue Project::UnknownObjectError, Package::UnknownObjectError
