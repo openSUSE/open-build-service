@@ -52,3 +52,6 @@ require 'support/models/models_authentification'
 
 # support feature switch testing
 require 'feature/testing'
+
+# support Delayed Jobs
+require 'support/delayed_job'
