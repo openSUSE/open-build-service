@@ -1,6 +1,6 @@
 = Open Build Service API
 
-Version: 2.7
+Version: 2.9
 
   Only authenticated users are allowed to access the API. Authentication is done
   by sending a Basic HTTP Authorisation header. 
@@ -264,10 +264,6 @@ GET /source/<project>/_meta
 
   Read project meta file.
 
-Parameters:
-
-  rev: revision, mandatory
-
 XmlResult: project
 
 
@@ -298,6 +294,28 @@ Parameters:
 
 
 XmlResult: status
+
+
+GET /source/<project>/_project
+
+  List project files
+
+Parameters:
+
+  meta: switch for _meta files, optional
+  rev: revision, optional
+
+XmlResult: project directory.xsd
+
+
+GET /source/<project>/_project/<file>
+
+  Read a project file.
+
+Parameters:
+
+  meta: switch for _meta files, optional
+  rev: revision, optional
 
 
 GET /source/<project>/_attribute/<attribute>
