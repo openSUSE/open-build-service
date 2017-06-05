@@ -197,8 +197,9 @@ class Authenticator
           password: fakepw)
       end
 
+      @http_user.last_logged_in_at = Time.now
       # update user data from login proxy headers
-      @http_user.update_user_info_from_proxy_env(request.env) if @http_user
+      @http_user.update_user_info_from_proxy_env(request.env)
     else
       Rails.logger.error "No X-username header from login proxy! Are we really using an authentification proxy?"
     end
