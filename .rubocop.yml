@@ -281,6 +281,9 @@ Rails/SkipsModelValidations:
 Rails/Validation:
   Enabled: true
 
+Bundler/OrderedGems:
+  Enabled: true
+
 ##################### Security ##################################
 
 # checks for the use of *Kernel#eval* as it is a serious security risk.
