@@ -270,7 +270,7 @@ user6:
   password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
-  state: 2
+  state: 'confirmed'
 unconfirmed_user:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z

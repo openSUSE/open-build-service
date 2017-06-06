@@ -6,7 +6,7 @@ FactoryGirl.define do
     password 'buildservice'
 
     factory :confirmed_user do
-      state 2
+      state 'confirmed'
 
       factory :admin_user do
         roles { [Role.find_by_title('admin')] }
@@ -21,7 +21,7 @@ FactoryGirl.define do
 
     factory :deleted_user do
       login 'deleted'
-      state 4
+      state 'deleted'
     end
 
     factory :user_nobody do

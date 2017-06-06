@@ -25,6 +25,8 @@ class User < ApplicationRecord
 
   PASSWORD_HASH_TYPES = ['md5', 'md5crypt', 'sha256crypt']
 
+#  enum state: { 'unconfirmed' => 0, 'confirmed' => 1, 'locked' => 2, 'deleted' => 3, 'subaccount' => 4 }
+
   has_many :taggings, dependent: :destroy
   has_many :tags, through: :taggings
 
