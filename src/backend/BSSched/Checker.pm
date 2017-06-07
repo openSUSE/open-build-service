@@ -1062,4 +1062,8 @@ sub getconfig {
   return BSSched::ProjPacks::getconfig($ctx->{'gctx'}, $projid, $repoid, $arch, $configpath);
 }
 
+sub get_path_projpacks {
+  my ($ctx, $projid, $path) = @_;
+}
+
 1;

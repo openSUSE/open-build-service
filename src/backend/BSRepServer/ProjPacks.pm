@@ -47,6 +47,35 @@ sub get_projpacks {
   update_projpacks($gctx, $projpacksin);
 }
 
+sub get_path_projpacks {
+  my ($gctx, $projid, $path) = @_;
+  my @args;
+
+  my $projpacks = $gctx->{'projpacks'} || {};
+  my $remoteprojs = $gctx->{'remoteprojs'} || {};
+  for (@$path) {
+    my $p = $_->{'project'};
+    next if $p eq '_obsrepositories' || $p eq $projid;
+    if ($remoteprojs->{$p}) {
+      next if defined $remoteprojs->{$p}->{'config'};
+    } elsif ($projpacks->{$p}) {
+      next if defined $projpacks->{$p}->{'config'};
+    }
+    push @args, "project=$p";
+  }
+  return unless @args;
+  @args = BSUtil::unify(@args);
+  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
+  unshift @args, "withconfig=1";
+  unshift @args, "withremotemap=1";
+  my $projpacksin = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, @args);
+  for my $proj (@{$projpacksin->{'project'} || []}) {
+    next if $proj->{'name'} eq $projid;
+    $projpacks->{delete $proj->{'name'}} = $proj;
+  }
+  remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'}) if $projpacksin->{'remotemap'};
+}
+
 sub update_projpacks {
   my ($gctx, $projpacksin) = @_;
   my $projpacks = {};

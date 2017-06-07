@@ -58,6 +58,11 @@ sub getconfig {
   return BSRepServer::ProjPacks::getconfig($ctx->{'gctx'}, $projid, $repoid, $arch, $configpath);
 }
 
+sub get_path_projpacks {
+  my ($ctx, $projid, $path) = @_;
+  return BSRepServer::ProjPacks::get_path_projpacks($ctx->{'gctx'}, $projid, $path);
+}
+
 sub setup {
   my ($ctx) = @_;
 

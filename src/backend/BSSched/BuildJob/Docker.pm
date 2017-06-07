@@ -86,7 +86,104 @@ sub check {
   my $prpnotready = $gctx->{'prpnotready'};
   my $neverblock = $ctx->{'isreposerver'} || ($repo->{'block'} || '' eq 'never');
 
-  my @aprps = @{$ctx->{'prpsearchpath'} || []};	# for now
+  my @deps = @{$info->{'dep'} || []};
+
+  my @aprps;
+
+  # need base image for image path
+  my $cprp;
+  my $cdep;
+  if (grep {/^container:/} @deps) {
+    for my $dep (splice @deps) {
+      if ($dep =~ /^container:([^\/]*\/[^\/]*)\/(.+)$/) {
+	return ('broken', 'multiple containers') if $cprp;
+	$cprp = $1;
+	$cdep = "container:$2";
+      } else {
+	push @deps, $dep;
+      }
+    }
+  }
+
+  my $cbdep;	# container bdep for job
+  my $cmeta;	# container meta entry
+  if ($cprp) {
+    # setup container pool
+    my $cpool;
+    if ($cprp eq '_obsrepositories/' || $cprp eq '/') {
+      $cpool = $ctx->{'pool'};
+    } else {
+      return ('broken', "repository $cprp is unavailable") if !$ctx->checkprpaccess($cprp);
+      $cpool = BSSolv::pool->new();
+      my $r = $ctx->addrepo($cpool, $cprp);
+      if (!$r) {
+	return ('delayed', "repository '$cprp' is unavailable (delayed)") if defined $r;
+	return ('broken', "repository '$cprp' is unavailable");
+      }
+      $cpool->createwhatprovides();
+    }
+
+    # expand to container package name
+    my $xp = BSSolv::expander->new($cpool, $ctx->{'conf'});
+    my ($cok, @cdeps) = $xp->expand($cdep);
+    return ('unresolvable', join(', ', @cdeps)) unless $cok;
+    return ('unresolvable', 'weird result of container expansion') if @cdeps != 1;
+
+    # find container package
+    my $p;
+    for ($cpool->whatprovides($cdeps[0])) {
+      $p = $_ if $cpool->pkg2name($_) eq $cdeps[0];
+    }
+    return ('unresolvable', 'weird result of container expansion') unless $p;
+
+    # generate bdep entry
+    $cbdep = {'name' => $cdeps[0], 'noinstall' => 1};
+    ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2);
+    $cprp = $cpool->pkg2reponame($p);
+    $cmeta = $cpool->pkg2pkgid($p) . "  $cprp/$cdeps[0]";
+    if ($ctx->{'dobuildinfo'}) {
+      ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2) if $cprp;
+      my $d = $cpool->pkg2data($p);
+      $cbdep->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+      $cbdep->{'version'} = $d->{'version'};
+      $cbdep->{'release'} = $d->{'release'} if defined $d->{'release'};
+      $cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
+    }
+
+    # add container repositories
+    if (defined &BSSolv::pool::pkg2annotation) {
+      my $annotation_xml = $cpool->pkg2annotation($p);
+      if ($annotation_xml) {
+	my $annotation = BSUtil::fromxml($annotation_xml, $BSXML::binannotation, 1);
+	if ($annotation) {
+	  for my $r (@{$annotation->{'repo'} || []}) {
+	    my $url = $r->{'url'};
+	    next unless $url;
+	    # see Build::Kiwi
+	    my $urlprp;
+	    if ($url =~ /^obs:\/{1,3}([^\/]+)\/([^\/]+)\/?$/) {
+	      $urlprp = "$1/$2";
+	    } else {
+	      $urlprp = $Build::Kiwi::urlmapper->($url) if $Build::Kiwi::urlmapper;
+	      return ('broken', "repository url '$url' cannot be handled") unless $urlprp;
+	    }
+	    push @aprps, $urlprp;
+	  }
+	}
+      }
+    }
+    if (@aprps) {
+      my @path = @aprps;
+      for (@path) {
+        my ($p, $r) = split('/', $_, 2);
+        $_ = { 'project' => $p, 'repository' => $r };
+      }
+      $ctx->get_path_projpacks($projid, \@path);
+    }
+  }
+
+  # add repos configured in Dockerfile
+  unshift @aprps, map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
 
   # get config from docker path
   my @configpath = @aprps;
@@ -134,61 +231,6 @@ sub check {
   my $bconfignoreh = $bconf->{'ignoreh'};
   delete $bconf->{'ignore'};
   delete $bconf->{'ignoreh'};
-
-  my $cbdep;
-  my @deps = @{$info->{'dep'} || []};
-  my $cprp;
-  my $cdep;
-  my $cmeta;
-  if (grep {/^container:/} @deps) {
-    for my $dep (splice @deps) {
-      if ($dep =~ /^container:([^\/]*\/[^\/]*)\/(.+)$/) {
-	return ('broken', 'multiple containers') if $cprp;
-	$cprp = $1;
-	$cdep = "container:$2";
-      } else {
-	push @deps, $dep;
-      }
-    }
-  }
-  if ($cprp) {
-    my $cpool;
-    if ($cprp eq '_obsrepositories/') {
-      $cpool = $ctx->{'pool'};
-    } else {
-      return ('broken', "repository $cprp is unavailable") if !$ctx->checkprpaccess($cprp);
-      $cpool = BSSolv::pool->new();
-      my $r = $ctx->addrepo($cpool, $cprp);
-      if (!$r) {
-	return ('delayed', "repository '$cprp' is unavailable (delayed)") if defined $r;
-	return ('broken', "repository '$cprp' is unavailable");
-      }
-      $cpool->createwhatprovides();
-    }
-    my $xp = BSSolv::expander->new($cpool, $bconf);
-    my ($cok, @cdeps) = $xp->expand($cdep);
-    if (!$cok) {
-      return ('unresolvable', join(', ', @cdeps));
-    }
-    return ('unresolvable', 'weird result of container expansion') if @cdeps != 1;
-    my $p;
-    for ($cpool->whatprovides($cdeps[0])) {
-      $p = $_ if $cpool->pkg2name($_) eq $cdeps[0];
-    }
-    return ('unresolvable', 'weird result of container expansion') unless $p;
-    $cbdep = {'name' => $cdeps[0], 'noinstall' => 1};
-    ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2);
-    $cprp = $cpool->pkg2reponame($p);
-    $cmeta = $cpool->pkg2pkgid($p) . "  $cprp/$cdeps[0]";
-    if ($ctx->{'dobuildinfo'}) {
-      ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2) if $cprp;
-      my $d = $cpool->pkg2data($p);
-      $cbdep->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
-      $cbdep->{'version'} = $d->{'version'};
-      $cbdep->{'release'} = $d->{'release'} if defined $d->{'release'};
-      $cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
-    }
-  }
 
   my $expanddebug = $ctx->{'expanddebug'};
   local $Build::expand_dbg = 1 if $expanddebug;
