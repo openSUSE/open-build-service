@@ -823,6 +823,7 @@ sub findfile {
   return $files{'simpleimage'} if $files{'simpleimage'};
   return $files{'snapcraft.yaml'} if $files{'snapcraft.yaml'} && $ext eq 'snapcraft';
   return $files{'appimage.yml'} if $files{'appimage.yml'} && $ext eq 'appimage';
+  return $files{'Dockerfile'} if $files{'Dockerfile'} && $ext eq 'docker';
 
   if ($ext eq 'arch') {
     return $files{'PKGBUILD'} if $files{'PKGBUILD'};
@@ -984,7 +985,7 @@ sub getprojpack {
 	  next unless $remotemap && $cgi->{'project'};
 	  BSSrcServer::Partition::checkpartition($remotemap, $projid, $r) if $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$projid};
 	  if ($remotemap->{$projid} && $cgi->{'withconfig'} && $remotemap->{$projid}->{'partition'}) {
-	    # also put config in remotemap is asked for a specific project
+	    # also put config in remotemap if asked for a specific project
 	    my $c = readstr("$projectsdir/$projid.conf", 1);
 	    $remotemap->{$projid}->{'config'} = defined($c) ? $c : '';
 	  }
