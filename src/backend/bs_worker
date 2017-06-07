@@ -2285,9 +2285,7 @@ sub getbinaries {
     for my $bdep (grep {$_->{'name'} =~ /^container:/} @{$buildinfo->{'bdep'} || []}) {
       my $repo = ($buildinfo->{'containerpath'} || [])->[0];
       die("getbinaries: job has no container repository\n") unless $repo;
-      my $cprp = $bdep->{'project'};
-      $cprp .= "/$bdep->{'repository'}" if $bdep->{'repository'};
-      my $ddir = "$srcdir/containers/$cprp";
+      my $ddir = "$srcdir/containers/$repo->{'project'}/$repo->{'repository'}";
       mkdir_p($ddir);
       my @args;
       push @args, "project=$repo->{'project'}";
@@ -2304,7 +2302,7 @@ sub getbinaries {
       die("Error\n") unless ref($res);
       $res = [ grep {$_->{'name'} ne '.errors'} @$res ];
       die("getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
-      push @{$buildinfo->{'containerurl'}}, "obs:/$cprp/$res->[0]->{'name'}";
+      push @{$buildinfo->{'containerurl'}}, "obs:/$repo->{'project'}/$repo->{'repository'}/$res->[0]->{'name'}";
       push @meta, "$res->[0]->{'md5'}  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
     }
   }
@@ -2915,24 +2913,23 @@ sub dobuild {
 	push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $prio;	# different prio for smart?
       }
     }
-    my $cdep = (grep {/^container:/} @{$kiwi->{'deps'} || []})[0];
-    if ($cdep) {
-      $cdep =~ s/^container://;
-      $cdep =~ s/\/\//\//;
-      $cdep =~ s/:([^:\/]+)$/#$1/;
-    }
-    for (@{$buildinfo->{'containerurl'} || []}) {
+    for my $containerurl (@{$buildinfo->{'containerurl'} || []}) {
+      # compat code ahead, to be removed
+      my $cdep = (grep {/^container:/} @{$kiwi->{'deps'} || []})[0];
       if ($cdep) {
-	my $cdepdir = $cdep;
-	$cdepdir =~ s/\/.*?$//;
+        # convert back to kiwi name
+        $cdep =~ s/^container://;
+        $cdep =~ s/:([^:\/]+)$/#$1/;
+	my $cdepdir = $kiwi->{'containerpath'} ? "$kiwi->{'containerpath'}->[0]->{'project'}/$kiwi->{'containerpath'}->[0]->{'repository'}" : 'obsrepositories:';
 	mkdir_p("$srcdir/containers/$cdepdir");
-	if (/^obs:\/(.*)/) {
+	if ($containerurl =~ /^obs:\/(.*)/) {
 	  print "link $srcdir/containers/$1 $srcdir/containers/$cdep\n";
 	  link("$srcdir/containers/$1", "$srcdir/containers/$cdep");
 	}
-      } else {
-        push @args, '--kiwi-parameter', "--set-container-derived-from", "--kiwi-parameter", $_;
+        next;
       }
+
+      push @args, '--kiwi-parameter', "--set-container-derived-from", "--kiwi-parameter", $containerurl;
     }
   }
   qsystem(@args);

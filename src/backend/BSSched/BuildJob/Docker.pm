@@ -87,41 +87,21 @@ sub check {
   my $neverblock = $ctx->{'isreposerver'} || ($repo->{'block'} || '' eq 'never');
 
   my @deps = @{$info->{'dep'} || []};
-
   my @aprps;
 
-  # need base image for image path
-  my $cprp;
-  my $cdep;
-  if (grep {/^container:/} @deps) {
-    for my $dep (splice @deps) {
-      if ($dep =~ /^container:([^\/]*\/[^\/]*)\/(.+)$/) {
-	return ('broken', 'multiple containers') if $cprp;
-	$cprp = $1;
-	$cdep = "container:$2";
-      } else {
-	push @deps, $dep;
-      }
-    }
-  }
-
+  my $cdep;	# container dependency
+  my $cprp;	# container prp
   my $cbdep;	# container bdep for job
   my $cmeta;	# container meta entry
-  if ($cprp) {
+
+  my @containerdeps = grep {/^container:/} @deps;
+  if (@containerdeps) {
+    return ('broken', 'multiple containers') if @containerdeps != 1;
+    $cdep = $containerdeps[0];
+    @deps = grep {!/^container:/} @deps;
+
     # setup container pool
-    my $cpool;
-    if ($cprp eq '_obsrepositories/' || $cprp eq '/') {
-      $cpool = $ctx->{'pool'};
-    } else {
-      return ('broken', "repository $cprp is unavailable") if !$ctx->checkprpaccess($cprp);
-      $cpool = BSSolv::pool->new();
-      my $r = $ctx->addrepo($cpool, $cprp);
-      if (!$r) {
-	return ('delayed', "repository '$cprp' is unavailable (delayed)") if defined $r;
-	return ('broken', "repository '$cprp' is unavailable");
-      }
-      $cpool->createwhatprovides();
-    }
+    my $cpool = $ctx->{'pool'};
 
     # expand to container package name
     my $xp = BSSolv::expander->new($cpool, $ctx->{'conf'});
@@ -148,6 +128,7 @@ sub check {
       $cbdep->{'version'} = $d->{'version'};
       $cbdep->{'release'} = $d->{'release'} if defined $d->{'release'};
       $cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
+      $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
     }
 
     # add container repositories

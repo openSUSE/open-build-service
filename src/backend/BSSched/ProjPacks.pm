@@ -833,7 +833,7 @@ sub calc_prps {
     my @pdatas = values(%{$proj->{'package'} || {}});
     my @aggs = grep {$_->{'aggregatelist'}} @pdatas;
     my @channels = grep {$_->{'channel'}} @pdatas;
-    my @kiwiinfos = grep {$_->{'path'}} map {@{$_->{'info'} || []}} @pdatas;
+    my @kiwiinfos = grep {$_->{'path'} || $_->{'containerpath'}} map {@{$_->{'info'} || []}} @pdatas;
     @pdatas = ();               # free mem
     my %channelrepos;
     for my $channel (map {$_->{'channel'}} @channels) {
@@ -889,7 +889,10 @@ sub calc_prps {
       }
       if (@kiwiinfos) {
 	# push repositories used in all kiwi files
-	push @xsp, map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} map {@{$_->{'path'}}} grep {$_->{'repository'} eq $repoid} @kiwiinfos;
+	for my $info (grep {$_->{'repository'} eq $repoid} @kiwiinfos) {
+	  push @xsp, map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$info->{'path'} || []};
+	  push @xsp, map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$info->{'containerpath'} || []};
+        }
       }
       if ($channelrepos{$repoid}) {
 	# let a channel repo target all non-channel repos

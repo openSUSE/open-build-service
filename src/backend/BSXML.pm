@@ -191,7 +191,12 @@ our $packinfo = [
 		'project',
 		'repository',
 		'priority',
-	]],
+	 ]],
+	 [[ 'containerpath' =>
+		'project',
+		'repository',
+		'priority',
+	 ]],
 	 [[ 'extrasource' =>
 		'project',
 		'package',

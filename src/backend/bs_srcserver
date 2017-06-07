@@ -1623,16 +1623,22 @@ sub getprojpack {
 	      $rinfo->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $myarch} @{$d->{'exclarch'}};
 	      $rinfo->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $myarch} @{$d->{'badarch'}};
 	    }
-	    for ('imagetype', 'path', 'extrasource') {
+	    for ('imagetype', 'extrasource') {
 	      $rinfo->{$_} = $d->{$_} if exists $d->{$_};
 	    }
 	    for (@{$d->{'path'} || []}) {
 	      my $r = { 'project' => $_->{'project'}, 'repository' => $_->{'repository'} };
 	      $r->{'priority'} = $_->{'priority'} if defined $_->{'priority'};
-	      push @{$r->{'path'}}, $r;
+	      push @{$rinfo->{'path'}}, $r;
 	    }
-	    if ($remotemap && $rinfo->{'path'}) {
-	      my @kiwipath = map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$rinfo->{'path'}};
+	    for (@{$d->{'containerpath'} || []}) {
+	      my $r = { 'project' => $_->{'project'}, 'repository' => $_->{'repository'} };
+	      $r->{'priority'} = $_->{'priority'} if defined $_->{'priority'};
+	      push @{$rinfo->{'containerpath'}}, $r;
+	    }
+	    if ($remotemap && ($rinfo->{'path'} || $rinfo->{'containerpath'})) {
+	      my @kiwipath = (@{$rinfo->{'path'} || []}, @{$rinfo->{'containerpath'} || []});
+	      @kiwipath = map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @kiwipath;
 	      # simple way to fill the remote map
 	      eval {
 		concatconfigs($projid, $repoid, $remotemap, @kiwipath);

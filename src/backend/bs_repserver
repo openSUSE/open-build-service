@@ -2820,20 +2820,24 @@ sub getbuildinfo_post {
     die("could not parse build description ($bconf->{'type'}): $d->{'error'}\n") if $d->{'error'};
     die("could not parse build description ($bconf->{'type'})\n");
   }
+
+  # build info from parsed data
   my $info = { 'repository' => $repoid };
   $info->{'name'} = $d->{'name'};
   $info->{'dep'} = $d->{'deps'};
-  $info->{'subpacks'} = $d->{'subpacks'};
+  $info->{'subpacks'} = $d->{'subpacks'} if $d->{'subpacks'};
   if ($d->{'prereqs'}) {
     my %deps = map {$_ => 1} (@{$d->{'deps'} || []}, @{$d->{'subpacks'} || []});
     my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
     $info->{'prereq'} = \@prereqs if @prereqs;
   }
   $info->{'path'} = $d->{'path'} if $d->{'path'};
+  $info->{'containerpath'} = $d->{'containerpath'} if $d->{'containerpath'};
   if ($bconf->{'type'} eq 'kiwi') {
     $info->{'imagetype'} = $d->{'imagetype'};
     $info->{'imagearch'} = $d->{'exclarch'} if $d->{'exclarch'};
   }
+
   my $pdata = {'buildtype' => $bconf->{'type'}, 'info' => [ $info ]};
   $pdata->{'buildenv'} = readxml($cgi->{'_buildenvfile'}, $BSXML::buildinfo) if $cgi->{'_buildenvfile'};
   if ($cgi->{'_servicefile'}) {

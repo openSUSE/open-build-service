@@ -135,49 +135,50 @@ sub check {
   delete $bconf->{'ignore'};
   delete $bconf->{'ignoreh'};
 
-  my $cbdep;
   my @deps = @{$info->{'dep'} || []};
-  my $cprp;
-  my $cdep;
-  my $cmeta;
-  if (grep {/^container:/} @deps) {
-    for my $dep (splice @deps) {
-      if ($dep =~ /^container:([^\/]*\/[^\/]*)\/(.+)$/) {
-	return ('broken', 'multiple containers') if $cprp;
-	$cprp = $1;
-	$cdep = "container:$2";
-      } else {
-	push @deps, $dep;
-      }
-    }
-  }
-  if ($cprp) {
-    my $cpool;
-    if ($cprp eq '_obsrepositories/') {
-      $cpool = $ctx->{'pool'};
-    } else {
-      return ('broken', "repository $cprp is unavailable") if !$ctx->checkprpaccess($cprp);
+
+  my $cdep;     # container dependency
+  my $cprp;     # container prp
+  my $cbdep;    # container bdep for job
+  my $cmeta;    # container meta entry
+
+  my @containerdeps = grep {/^container:/} @deps;
+  if (@containerdeps) {
+    return ('broken', 'multiple containers') if @containerdeps != 1;
+    $cdep = $containerdeps[0];
+    @deps = grep {!/^container:/} @deps;
+
+    # setup container pool
+    my $cpool = $ctx->{'pool'};
+    if ($info->{'containerpath'}) {
       $cpool = BSSolv::pool->new();
-      my $r = $ctx->addrepo($cpool, $cprp);
-      if (!$r) {
-	return ('delayed', "repository '$cprp' is unavailable (delayed)") if defined $r;
-	return ('broken', "repository '$cprp' is unavailable");
+      my @cprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'containerpath'}};
+      for my $aprp (@cprps) {
+        return ('broken', "repository $aprp is unavailable") if !$ctx->checkprpaccess($aprp);
+        my $r = $ctx->addrepo($cpool, $aprp);
+        if (!$r) {
+	  return ('delayed', "repository '$aprp' is unavailable (delayed)") if defined $r;
+	  return ('broken', "repository '$aprp' is unavailable");
+        }
       }
       $cpool->createwhatprovides();
     }
+
+    # expand the container dependency
     my $xp = BSSolv::expander->new($cpool, $bconf);
     my ($cok, @cdeps) = $xp->expand($cdep);
-    if (!$cok) {
-      return ('unresolvable', join(', ', @cdeps));
-    }
+    return ('unresolvable', join(', ', @cdeps)) unless $cok;
     return ('unresolvable', 'weird result of container expansion') if @cdeps != 1;
+
+    # find container package
     my $p;
     for ($cpool->whatprovides($cdeps[0])) {
       $p = $_ if $cpool->pkg2name($_) eq $cdeps[0];
     }
     return ('unresolvable', 'weird result of container expansion') unless $p;
+
+    # generate bdep entry
     $cbdep = {'name' => $cdeps[0], 'noinstall' => 1};
-    ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2);
     $cprp = $cpool->pkg2reponame($p);
     $cmeta = $cpool->pkg2pkgid($p) . "  $cprp/$cdeps[0]";
     if ($ctx->{'dobuildinfo'}) {
