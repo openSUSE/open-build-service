@@ -16,9 +16,12 @@
   <strong>Description:</strong><br/>
   <%= text_area_tag 'description', @package_description, :cols => 80, :rows => 10 %><br/>
   <% unless @configuration['hide_private_options'] %>
-    <%= check_box_tag :source_protection %>Deny access to sources of package.<br/>
+    <%= check_box_tag :source_protection %>
+    <label for="source_protection">Deny access to sources of package.</label>
+    <br/>
   <% end %>
-  <%= check_box_tag :disable_publishing %>Disable build results publishing.
+  <%= check_box_tag :disable_publishing %>
+  <label for="disable_publishing">Disable build results publishing.</label>
 </p>
 <p><%= submit_tag %></p>
 <% end %>
