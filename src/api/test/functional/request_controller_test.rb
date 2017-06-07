@@ -3481,7 +3481,7 @@ XML
                                      <source project="BaseDistro" package="pack2"/>
                                      <target project="home:Iggy" package="low"/>
                                    </action>
-                                   <priority>low</priority>
+                                   <priority>lowlow</priority>
                                    <description></description>
                                  </request>'
     assert_response :success
@@ -3520,6 +3520,7 @@ XML
     assert_xml_tag(tag: 'collection', child: { tag: 'request' },
                    attributes: { matches: 6 })
     node = Xmlhash.parse(@response.body)
+    p node
     assert_equal node['request'][0]['priority'], 'critical'
     assert_equal node['request'][1]['priority'], 'important'
     # three "moderate" requests, not showing a priority field

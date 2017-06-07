@@ -31,7 +31,6 @@
 /src/api/config/*.sphinx.conf
 /src/api/coverage
 /src/api/coverage.data
-/src/api/db/schema.rb
 /src/api/files/distributions.xml
 /src/api/log
 /src/api/public/assets

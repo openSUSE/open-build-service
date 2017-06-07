@@ -623,7 +623,7 @@ usermod -a -G docker obsservicerun
 /usr/sbin/rcobsapisetup
 /usr/sbin/rcobsapidelayed
 /srv/www/obs/api/app
-%attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/structure.sql
+%attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/schema.rb
 /srv/www/obs/api/db/attribute_descriptions.rb
 /srv/www/obs/api/db/data
 /srv/www/obs/api/db/migrate
