@@ -87,8 +87,8 @@ sub check {
   my $neverblock = $ctx->{'isreposerver'} || ($repo->{'block'} || '' eq 'never');
 
   my @deps = @{$info->{'dep'} || []};
-  my @aprps;
 
+  my @newpath;
   my $cdep;	# container dependency
   my $cprp;	# container prp
   my $cbdep;	# container bdep for job
@@ -148,23 +148,17 @@ sub check {
 	      $urlprp = $Build::Kiwi::urlmapper->($url) if $Build::Kiwi::urlmapper;
 	      return ('broken', "repository url '$url' cannot be handled") unless $urlprp;
 	    }
-	    push @aprps, $urlprp;
+	    my ($pr, $rp) = split('/', $urlprp, 2);
+	    push @newpath, {'project' => $pr, 'repository' => $rp};
 	  }
 	}
       }
     }
-    if (@aprps) {
-      my @path = @aprps;
-      for (@path) {
-        my ($p, $r) = split('/', $_, 2);
-        $_ = { 'project' => $p, 'repository' => $r };
-      }
-      $ctx->get_path_projpacks($projid, \@path);
-    }
+    $ctx->get_path_projpacks($projid, \@newpath) if @newpath;
   }
-
-  # add repos configured in Dockerfile
-  unshift @aprps, map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+  unshift @newpath, @{$info->{'path'} || []};
+  
+  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @newpath;
 
   # get config from docker path
   my @configpath = @aprps;
@@ -271,7 +265,7 @@ sub check {
   push @new_meta, $cmeta if $cmeta;
   @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
-  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'docker', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp ]);
+  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'docker', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp, \@newpath ]);
   if ($BSConfig::enable_download_on_demand && $state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;
@@ -294,12 +288,16 @@ sub build {
   my $edep2pkg = $data->[3];
   my $cbdep = $data->[4];
   my $cprp = $data->[5];
-  my $reason = $data->[6];
+  my $newpath = $data->[6];
+  my $reason = $data->[7];
 
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
+
+  # fixup path in info
+  $info = { %$info, 'path' => $newpath } if @$newpath;
 
   if (!@{$repo->{'path'} || []}) {
     # repo has no path, use docker repositories also for docker system setup
