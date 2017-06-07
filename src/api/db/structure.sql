@@ -428,7 +428,7 @@ CREATE TABLE `digest_email_events` (
 CREATE TABLE `digest_emails` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `event_subscription_id` int(11) DEFAULT NULL,
-  `sent_at` datetime DEFAULT NULL,
+  `email_sent` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),

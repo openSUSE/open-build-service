@@ -10,7 +10,7 @@ end
 #
 #  id                    :integer          not null, primary key
 #  event_subscription_id :integer          indexed
-#  sent_at               :datetime
+#  email_sent            :boolean          default(FALSE), not null
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
 #
