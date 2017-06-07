@@ -17,12 +17,15 @@
       <%= f.text_area :description, cols: 80, rows: 10  %>
       <br/>
       <% unless configuration['hide_private_options'] %>
-          <%= check_box_tag :access_protection, false %>Hide the entire project.
+          <%= check_box_tag :access_protection, false %>
+          <label for="access_protection">Hide the entire project.</label>
           <br/>
-          <%= check_box_tag :source_protection, false %>Deny access to sources of project.
+          <%= check_box_tag :source_protection, false %>
+          <label for="source_protection">Deny access to sources of project.</label>
           <br/>
       <% end %>
-      <%= check_box_tag :disable_publishing, false %>Disable build results publishing.
+      <%= check_box_tag :disable_publishing, false %>
+      <label for="disable_publishing">Disable build results publishing.</label>
       <br/>
     </p>
     <p><%= submit_tag "Create Project" %></p>
