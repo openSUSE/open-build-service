@@ -1428,6 +1428,19 @@ class Package < ApplicationRecord
     end
   end
 
+  def last_build_reason(repo, arch)
+    repo = repo.name if repo.is_a? Repository
+
+    xml_data = Nokogiri::XML(BuildReasonFile.new(
+      project_name: project.name,
+      package_name: name,
+      repo: repo,
+      arch: arch
+    ).to_s).xpath('reason')
+
+    PackageBuildReason.new(Hash.from_xml(xml_data.to_s)['reason'])
+  end
+
   private
 
   def _add_channel(mode, channel_binary, message)
