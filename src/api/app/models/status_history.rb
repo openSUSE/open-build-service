@@ -1,10 +1,14 @@
 class StatusHistory < ApplicationRecord
-  def self.history_by_key_and_hours(key, hours = 24)
-    starttime = Time.now.to_i - hours.to_i * 3600
-
-    where("time >= ? AND \`key\` = ?", starttime, key).
-      pluck(:time, :value).
-      collect { |time, value| [time.to_i, value.to_f] }
+  def self.history_by_key_and_hours(key, hours = 24, end_date = '')
+    result = if end_date.empty?
+      start_time = Time.now.to_i - hours.to_i * 3600
+      where("time >= ? AND \`key\` = ?", start_time, key)
+    else
+      end_time = Time.strptime(end_date, "%Y%m%d").to_i
+      start_time = end_time - hours.to_i * 3600
+      where("time >= ? AND time <= ? AND \`key\` = ?", start_time, end_time, key)
+    end
+    result.pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
   end
 end
 
