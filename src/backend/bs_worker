@@ -2180,7 +2180,8 @@ sub getbinaries {
 
   mkdir_p($dir);
   my $kiwimode;
-  $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
+  $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
+  $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
 
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
@@ -2634,6 +2635,7 @@ sub dobuild {
   my $kiwimode;
   $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
   $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
+  $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
   my $kiwiorigins = {};
   my $stats = {};
   my $deltamode;
@@ -2722,6 +2724,7 @@ sub dobuild {
     undef $kiwimode;
     $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
     $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
+    $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
     @meta = split("\n", readstr("$srcdir/meta"));
   } else {
     my $needsslcert;
@@ -2898,7 +2901,7 @@ sub dobuild {
     push @args, "--obspackage=$packid" if $needobspackage;
   }
   push @args, "$srcdir/$buildinfo->{'file'}";
-  if ($kiwimode && $kiwimode ne 'product') {
+  if (($kiwimode || '') eq 'image') {
     # expand obsrepositories:/ directive for appliances
     my $kiwi = Build::parse(undef, "$srcdir/$buildinfo->{'file'}") || {};
     if (grep {$_->{'project'} eq '_obsrepositories'} @{$kiwi->{'path'} || []}) {
