@@ -1,6 +1,10 @@
 record_0:
   bs_request_id: 9991
   type: submit
+  target_project_id: 998483895
+  target_package_id: 691693709
+  source_project_id: 0
+  source_package_id: 0
   target_project: kde4
   target_package: kdelibs
   source_project: NotExisiting
@@ -67,6 +71,10 @@ record_6:
 record_7:
   bs_request_id: 9992
   type: submit
+  target_project_id: 0
+  target_package_id: 0
+  source_project_id: 998483895
+  source_package_id: 691693709
   target_project: NeitherExisting
   target_package: unknown
   source_project: kde4

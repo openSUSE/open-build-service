@@ -345,6 +345,7 @@ kde4_kdebase:
   delta: 1
   project: kde4
 kde4_kdelibs:
+  id: 691693709
   name: kdelibs
   title: blub
   description: blub
