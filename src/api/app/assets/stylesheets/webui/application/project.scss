@@ -6,8 +6,8 @@
     margin-right: 0.5em;
     border: 1px solid #cccccc;
   }
-  margin-bottom: 2em;
-  border-bottom: 1px solid #cccccc;
+  margin-bottom: 0em;
+  border-bottom: none;
   padding: 0.5em 0 0.5em 1em;
   overflow: hidden;
   height: 2em;
@@ -42,6 +42,7 @@
   background: #eee;
   border: 1px solid black;
   margin-top: 0.5em;
+  z-index: 75;
 }
 
 .filterbox_close {
@@ -91,7 +92,8 @@ td.buildstatus {
 }
 
 table.buildstatus {
-  width: 1%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 /* move the image back into the line */
@@ -99,3 +101,12 @@ table.buildstatus {
 th.buildstatus img {
   margin-bottom: -3px;
 }
+
+.packages {
+  width: 1%;
+  text-align: left;
+  margin-left: 10px;
+  margin-right: 0;
+  border-right: 1px dotted #ccc;
+}
+
