@@ -2920,11 +2920,11 @@ sub dobuild {
         # convert back to kiwi name
         $cdep =~ s/^container://;
         $cdep =~ s/:([^:\/]+)$/#$1/;
-	my $cdepdir = $kiwi->{'containerpath'} ? "$kiwi->{'containerpath'}->[0]->{'project'}/$kiwi->{'containerpath'}->[0]->{'repository'}" : 'obsrepositories:';
+	my $cdepdir = @{$kiwi->{'containerpath'} || []} ? "$kiwi->{'containerpath'}->[0]->{'project'}/$kiwi->{'containerpath'}->[0]->{'repository'}" : '_obsrepositories';
 	mkdir_p("$srcdir/containers/$cdepdir");
 	if ($containerurl =~ /^obs:\/(.*)/) {
-	  print "link $srcdir/containers/$1 $srcdir/containers/$cdep\n";
-	  link("$srcdir/containers/$1", "$srcdir/containers/$cdep");
+	  print "link $srcdir/containers/$1 $srcdir/containers/$cdepdir/$cdep\n";
+	  link("$srcdir/containers/$1", "$srcdir/containers/$cdepdir/$cdep");
 	}
         next;
       }

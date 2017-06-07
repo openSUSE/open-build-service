@@ -150,7 +150,7 @@ sub check {
 
     # setup container pool
     my $cpool = $ctx->{'pool'};
-    if ($info->{'containerpath'}) {
+    if (@{$info->{'containerpath'} || []}) {
       $cpool = BSSolv::pool->new();
       my @cprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'containerpath'}};
       for my $aprp (@cprps) {
