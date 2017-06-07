@@ -25,6 +25,8 @@ class User < ApplicationRecord
 
   PASSWORD_HASH_TYPES = ['md5', 'md5crypt', 'sha256crypt']
 
+  enum state: { unconfirmed: 0, confirmed: 1, locked: 2, deleted: 3, subaccount: 4 }
+
   has_many :taggings, dependent: :destroy
   has_many :tags, through: :taggings
 
@@ -960,7 +962,7 @@ end
 #  password_salt       :string(10)       default("1234512345"), not null
 #  adminnote           :text(65535)
 #  owner_id            :integer
-#  state               :integer          default(0)
+#  state               :integer          default("unconfirmed")
 #
 # Indexes
 #

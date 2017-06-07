@@ -86,7 +86,7 @@ end
 #  password_salt       :string(10)       default("1234512345"), not null
 #  adminnote           :text(65535)
 #  owner_id            :integer
-#  state               :integer          default(0)
+#  state               :integer          default("unconfirmed")
 #
 # Indexes
 #

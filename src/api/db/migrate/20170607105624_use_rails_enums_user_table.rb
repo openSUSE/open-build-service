@@ -1,35 +1,35 @@
 class UseRailsEnumsUserTable < ActiveRecord::Migration[5.0]
   def up
-    User.transaction do
-      change_table(:users) do |t|
-        t.column :new_state, :integer, limit: 2, default: 0
-      end
-
-      User.where(state: 'unconfirmed').update_all(new_state: 0)
-      User.where(state: 'confirmed').update_all(new_state: 1)
-      User.where(state: 'locked').update_all(new_state: 2)
-      User.where(state: 'deleted').update_all(new_state: 3)
-      User.where(state: 'subaccount').update_all(new_state: 4)
-
-      remove_column :users, :state
-      rename_column :users, :new_state, :state
+    change_table(:users) do |t|
+      t.column :new_state, :integer, limit: 2, default: 0
     end
+
+    User.states.values.each do |index|
+      # We need to use raw sql to avoid conflicts with the ActiveRecord::Enum
+      # mapping defined in the model.
+      # SQL enums start at 1, ActiveRecord::Enum usually at 0.
+      User.connection.execute("UPDATE users SET new_state='#{index}' WHERE state='#{User.states.key(index)}'")
+    end
+
+    remove_column :users, :state
+    rename_column :users, :new_state, :state
   end
 
   def down
-    User.transaction do
-      change_table(:users) do |t|
-        t.column :new_state, :string, limit: 11, default: 'unconfirmed'
-      end
-
-      User.where(state: 0).update_all(new_state: 'unconfirmed')
-      User.where(state: 1).update_all(new_state: 'confirmed')
-      User.where(state: 2).update_all(new_state: 'locked')
-      User.where(state: 3).update_all(new_state: 'deleted')
-      User.where(state: 4).update_all(new_state: 'subaccount')
-
-      remove_column :users, :state
-      rename_column :users, :new_state, :state
+    change_table(:users) do |t|
+      t.column :new_state, "ENUM('unconfirmed','confirmed','locked','deleted','subaccount')", default: 'unconfirmed'
     end
+
+    User.states.values.each do |index|
+      # We need to use raw sql to avoid conflicts with the ActiveRecord::Enum
+      # mapping defined in the model.
+      # SQL enums start at 1, ActiveRecord::Enum usually at 0.
+      User.connection.execute("UPDATE users SET new_state='#{User.states.key(index)}' WHERE state='#{index}'")
+    end
+
+    remove_column :users, :state
+    rename_column :users, :new_state, :state
+
+    puts "WARNING: After rolling back the migration you need to remove the enum definition from the model"
   end
 end
