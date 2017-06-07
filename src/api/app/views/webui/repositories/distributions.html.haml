@@ -14,7 +14,7 @@
       - selected = @project.has_distribution(distribution['project'], distribution['repository'])
       %span.nowrap
         = check_box_tag 'distributions[]', distribution['reponame'], selected, id: 'repo_' + replace_jquery_meta_characters(distribution['reponame']), class: 'repocheckbox'
-        %label{ for: "repo_#{distribution['reponame']}" }= distribution['name']
+        %label{ for: 'repo_' + replace_jquery_meta_characters(distribution['reponame']) }= distribution['name']
   - list.each do |distribution|
     = form_tag({ action: :create, project: @project }, remote: true, class: 'hidden', id: 'repo_' + replace_jquery_meta_characters(distribution['reponame']) + '_create') do
       = hidden_field_tag 'repository', distribution['reponame']
