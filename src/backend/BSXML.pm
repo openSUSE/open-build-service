@@ -1821,4 +1821,12 @@ our $keyinfo = [
 	'sslcert',
 ];
 
+our $binannotation = [
+    'annotation' =>
+     [[ 'repo' =>
+	'url',
+	'priority',
+     ]],
+];
+
 1;

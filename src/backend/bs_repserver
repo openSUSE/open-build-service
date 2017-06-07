@@ -1784,15 +1784,13 @@ sub notify_jobresult {
   }
 }
 
-sub docker2obsbinlnk {
-  my ($dir, $metadata, $packid) = @_;
-  return undef unless -e "$dir/$metadata";
+sub containerinfo2obsbinlnk {
+  my ($dir, $containerinfo, $packid) = @_;
+  return undef unless -e "$dir/$containerinfo";
   return undef unless (-s _) < 100000;
-  my $m = readstr("$dir/$metadata");
+  my $m = readstr("$dir/$containerinfo");
   my $d;
   eval { $d = JSON::XS::decode_json($m); };
-  return undef unless $d && ref($d) eq 'HASH';
-  $d = $d->{'image'};
   return undef unless $d && ref($d) eq 'HASH';
   my $tags = $d->{'tags'};
   $tags = [] unless $tags && ref($tags) eq 'ARRAY';
@@ -1810,13 +1808,15 @@ sub docker2obsbinlnk {
     BSVerify::verify_filename($file);
   };
   return undef if $@;
+  return undef unless $file =~ /\.tar(?:\.[^\.]+)?$/s;
   my $lnk = {};
   $lnk->{'name'} = "container:$file";
-  $lnk->{'name'} =~ s/\.tar(?:[^\.]+)?$//;	# strip tar.xz
+  $lnk->{'name'} =~ s/\.tar(?:\.[^\.]+)?$//;	# strip tar.xz
   $lnk->{'name'} =~ s/-[^-]+$//;		# strip version
-  $lnk->{'version'} = '0';
+  $lnk->{'version'} = defined($d->{'version'}) ? $d->{'version'} : '0';
   $lnk->{'arch'} = 'noarch';
   $lnk->{'source'} = $lnk->{'name'};
+  # add self-provides
   push @{$lnk->{'provides'}}, "$lnk->{'name'} = $lnk->{'version'}";
 
   push @{$lnk->{'provides'}}, "container:$name" if "container:$name" ne $lnk->{'name'};
@@ -1827,6 +1827,12 @@ sub docker2obsbinlnk {
     BSVerify::verify_nevraquery($lnk);
   };
   return undef if $@;
+  my $annotation = {};
+  $annotation->{'repo'} = $d->{'repos'} if $d->{'repos'};
+  if (%$annotation) {
+    eval { $lnk->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation) };
+    warn($@) if $@;
+  }
   local *F;
   return undef unless open(F, '<', "$dir/$file");
   my $ctx = Digest::MD5->new;
@@ -1952,14 +1958,13 @@ sub putjob {
   my $bininfo = {};
 
   # create obsbinlnk file for kiwi docker results
-  if (grep {$_->{'name'} =~ /\.metadata$/} @$uploaded) {
-    my %up = map {$_->{'name'} => $_} @$uploaded;
+  if (grep {$_->{'name'} =~ /\.containerinfo$/} @$uploaded) {
     for my $file (@$uploaded) {
       my $prefix = $file->{'name'};
-      next unless $prefix =~ s/\.metadata$//;
-      next unless $up{"$prefix.packages"};
-      my $obsbinlink = docker2obsbinlnk($dir, "$prefix.metadata", $info->{'package'});
-      BSUtil::store("$dir/$prefix.obsbinlnk", undef, $obsbinlink) if $obsbinlink;
+      next unless $prefix =~ s/\.containerinfo$//;
+      my $obsbinlink = containerinfo2obsbinlnk($dir, "$prefix.containerinfo", $info->{'package'});
+      next unless $obsbinlink;
+      BSUtil::store("$dir/$prefix.obsbinlnk", undef, $obsbinlink);
       my @s = stat("$dir/$prefix.obsbinlnk");
       next unless @s;
       my $data = { %$obsbinlink, 'filename' => "$prefix.obsbinlnk", 'id' => "$s[9]/$s[7]/$s[1]" };
@@ -2824,10 +2829,10 @@ sub getbuildinfo_post {
     my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
     $info->{'prereq'} = \@prereqs if @prereqs;
   }
+  $info->{'path'} = $d->{'path'} if $d->{'path'};
   if ($bconf->{'type'} eq 'kiwi') {
     $info->{'imagetype'} = $d->{'imagetype'};
     $info->{'imagearch'} = $d->{'exclarch'} if $d->{'exclarch'};
-    $info->{'path'} = $d->{'path'};
   }
   my $pdata = {'buildtype' => $bconf->{'type'}, 'info' => [ $info ]};
   $pdata->{'buildenv'} = readxml($cgi->{'_buildenvfile'}, $BSXML::buildinfo) if $cgi->{'_buildenvfile'};
