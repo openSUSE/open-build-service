@@ -14,6 +14,8 @@ class BinaryRelease < ApplicationRecord
   after_rollback :reset_cache
   after_save :reset_cache
 
+  enum operation: { added: 0, removed: 1, modified: 2 }
+
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
@@ -198,7 +200,6 @@ end
 #
 #  id                        :integer          not null, primary key
 #  repository_id             :integer          not null, indexed => [binary_name]
-#  operation                 :string(8)        default("added")
 #  obsolete_time             :datetime
 #  release_package_id        :integer          indexed
 #  binary_name               :string(255)      not null, indexed => [binary_epoch, binary_version, binary_release, binary_arch], indexed => [binary_arch], indexed => [repository_id]
@@ -215,6 +216,7 @@ end
 #  binary_updateinfo         :string(255)      indexed
 #  binary_updateinfo_version :string(255)
 #  modify_time               :datetime
+#  operation                 :integer          default("added")
 #
 # Indexes
 #

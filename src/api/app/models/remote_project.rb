@@ -23,8 +23,8 @@ end
 #  remoteproject   :string(255)
 #  develproject_id :integer          indexed
 #  delta           :boolean          default(TRUE), not null
-#  kind            :string(20)       default("standard")
 #  url             :string(255)
+#  kind            :integer          default("standard")
 #
 # Indexes
 #

@@ -1,5 +1,7 @@
 class PackageKind < ApplicationRecord
   belongs_to :package
+
+  enum kind: { patchinfo: 0, aggregate: 1, link: 2, channel: 3, product: 4 }
 end
 
 # == Schema Information
@@ -8,7 +10,7 @@ end
 #
 #  id         :integer          not null, primary key
 #  package_id :integer          indexed
-#  kind       :string(9)        not null
+#  kind       :integer          not null
 #
 # Indexes
 #

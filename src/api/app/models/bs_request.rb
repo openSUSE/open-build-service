@@ -29,6 +29,8 @@ class BsRequest < ApplicationRecord
     'bs_request_actions.type'
   ]
 
+  enum priority: { critical: 0, important: 1, moderate: 2, low: 3 }
+
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
   # Scopes for collections
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
@@ -1329,9 +1331,9 @@ end
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #  accept_at     :datetime
-#  priority      :string(9)        default("moderate")
 #  number        :integer          indexed
 #  updated_when  :datetime
+#  priority      :integer          default("moderate")
 #
 # Indexes
 #
