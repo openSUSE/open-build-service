@@ -169,9 +169,12 @@ sub remoteprojid {
   my $rsuf = '';
   my $origprojid = $projid;
 
-  my $projpacks = $gctx->{'projpacks'};
+  # check partition case, all partition projects are already in remoteprojs
   my $remoteprojs = $gctx->{'remoteprojs'};
   return $remoteprojs->{$projid} if $remoteprojs->{$projid} && $remoteprojs->{$projid}->{'partition'};
+
+  # go up hierarchy until we find a remote project
+  my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid};
   if ($proj) {
     return undef unless $proj->{'remoteurl'};
@@ -208,6 +211,8 @@ sub remoteprojid {
       };
     }
   }
+
+  # nope, not a remote project
   return undef;
 }
 
