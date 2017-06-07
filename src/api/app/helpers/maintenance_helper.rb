@@ -301,7 +301,7 @@ module MaintenanceHelper
       end
     end
 
-    query = { user: User.current ? User.current.login : User.nobody_login }
+    query = { user: User.current_login }
     query[:comment] = "channel import function"
     Backend::Connection.put_source(pkg.source_path('_channel', query), channel.to_s)
 

@@ -281,6 +281,12 @@ class User < ApplicationRecord
     '_nobody_'
   end
 
+  private_class_method :nobody_login
+
+  def self.current_login
+    current.try(:login) || nobody_login
+  end
+
   def self.get_default_admin
     admin = CONFIG['default_admin'] || 'Admin'
     user = find_by_login(admin)
