@@ -1122,8 +1122,8 @@ CREATE TABLE `users` (
   `password_hash_type` varchar(20) COLLATE utf8_bin NOT NULL DEFAULT 'md5',
   `password_salt` varchar(10) CHARACTER SET utf8 NOT NULL DEFAULT '1234512345',
   `adminnote` text CHARACTER SET utf8,
-  `state` enum('unconfirmed','confirmed','locked','deleted','subaccount') COLLATE utf8_bin DEFAULT 'unconfirmed',
   `owner_id` int(11) DEFAULT NULL,
+  `state` smallint(6) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)) USING BTREE,
   KEY `users_password_index` (`password`) USING BTREE
@@ -1228,6 +1228,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170509123922'),
 ('20170511120355'),
 ('20170516140442'),
+('20170607105624'),
 ('20170607110443');
 
 
