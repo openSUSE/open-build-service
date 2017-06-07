@@ -883,7 +883,7 @@ sub create {
 
   my $syspath;
   my $searchpath = path2buildinfopath($gctx, $ctx->{'prpsearchpath'});
-  if ($buildtype eq 'kiwi') {
+  if ($buildtype eq 'kiwi' || $buildtype eq 'docker') {
     # switch searchpath to kiwi info path
     $syspath = $searchpath if @$searchpath;
     $searchpath = path2buildinfopath($gctx, [ expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
@@ -891,7 +891,7 @@ sub create {
 
   my $expanddebug = $ctx->{'expanddebug'};
 
-  # calculate sysdeps (cannot cache in the kiwi/docker case)
+  # calculate sysdeps (cannot cache in the kiwi case)
   my @sysdeps;
   if ($buildtype eq 'kiwi') {
     my $kiwitype = '';
