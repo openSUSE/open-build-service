@@ -783,7 +783,7 @@ class Package < ApplicationRecord
     reset_cache
     #--- write through to backend ---#
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      query = { user: User.current ? User.current.login : User.nobody_login }
+      query = { user: User.current_login }
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
       # the request number is the requestid parameter in the backend api
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
