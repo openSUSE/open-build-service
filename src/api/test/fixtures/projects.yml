@@ -261,6 +261,7 @@ kde:
   kind: standard
   delta: 1
 kde4:
+  id: 998483895
   name: kde4
   title: blub
   description: bla
