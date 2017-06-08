@@ -8,6 +8,11 @@ module Webui
 
       def index
         @details = @package.last_build_reason(@repository, @architecture.name)
+
+        unless @details.explain
+          flash[:error] = "No build reason found for #{@repository.name}:#{@architecture.name}"
+          redirect_back(fallback_location: { action: :binaries, controller: '/webui/package', project: @project, package: @package, repository: @repository.name })
+        end
       end
 
       private
