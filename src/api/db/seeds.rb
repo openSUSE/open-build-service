@@ -51,10 +51,10 @@ Role.where(title: "Staff").first_or_create global: true
 puts "Seeding users table..."
 admin = User.where(login: 'Admin').first_or_create(login: 'Admin', email: "root@localhost",
                                                     realname: "OBS Instance Superuser", state: "2",
-                                                    password: "opensuse")
+                                                    password: "opensuse", password_confirmation: "opensuse")
 User.where(login: '_nobody_').first_or_create(login: "_nobody_", email: "nobody@localhost",
                                               realname: "Anonymous User", state: "3",
-                                              password: "123456")
+                                              password: "123456", password_confirmation: "opensuse")
 
 puts "Seeding roles_users table..."
 RolesUser.where(user_id: admin.id, role_id: admin_role.id).first_or_create

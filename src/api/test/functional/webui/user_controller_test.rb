@@ -198,6 +198,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
       fill_in "Username", with: "bob"
       fill_in "Email address", with: "bob@suse.de"
       fill_in "Enter a password", with: "linux123"
+      fill_in "Confirm password", with: "linux123"
     end
     click_button "Sign Up"
 
@@ -216,6 +217,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
       fill_in "Username", with: "bob"
       fill_in "Email address", with: "bob@suse.de"
       fill_in "Enter a password", with: "linux123"
+      fill_in "Confirm password", with: "linux123"
     end
     click_button "Sign Up"
 

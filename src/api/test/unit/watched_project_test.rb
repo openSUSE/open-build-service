@@ -19,7 +19,7 @@ class WatchedProjectTest < ActiveSupport::TestCase
   end
 
   def test_watchlist_cleaned_after_user_removal
-    tmp_user = User.create(login: 'watcher', email: 'foo@example.com', password: 'watcher')
+    tmp_user = User.create(login: 'watcher', email: 'foo@example.com', password: 'watcher', password_confirmation: 'watcher')
     project_ids = Project.limit(5).map(&:id) # Get some projects to watch
     project_ids.each do |project_id|
       tmp_user.watched_projects.create(project_id: project_id)

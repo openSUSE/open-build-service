@@ -59,6 +59,9 @@ class User < ApplicationRecord
   validates :login, :password, :password_hash_type, :state,
             presence: { message: 'must be given' }
 
+  validates :password, confirmation: true
+  validates :password_confirmation, presence: true
+
   validates :login,
             uniqueness: { message: 'is the name of an already existing user.' }
 
@@ -360,6 +363,7 @@ class User < ApplicationRecord
   def update_password(pass)
     password_will_change!
     self.password = hash_string(pass)
+    self.password_confirmation = hash_string(pass)
   end
 
   # This method returns true if the user is assigned the role with one of the
