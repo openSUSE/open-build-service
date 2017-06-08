@@ -55,12 +55,15 @@ class Flag < ApplicationRecord
     same_flag = main_object.flags.find_by(flag: flag, repo: repo, architecture: architecture_id)
     if main_object.kind_of? Package
       if variant == 'effective'
-        same_flag = main_object.project.flags.find_by(flag: flag, repo: repo, architecture: architecture_id) unless
-          all_flag || same_flag || repo_flag || arch_flag
-        repo_flag = main_object.project.flags.find_by(flag: flag, repo: repo, architecture: nil) unless
-          all_flag || repo_flag || arch_flag
-        arch_flag = main_object.project.flags.find_by(flag: flag, repo: nil, architecture: architecture_id) unless
-          all_flag || arch_flag
+        unless all_flag || same_flag || repo_flag || arch_flag
+          same_flag = main_object.project.flags.find_by(flag: flag, repo: repo, architecture: architecture_id)
+        end
+        unless all_flag || repo_flag || arch_flag
+          repo_flag = main_object.project.flags.find_by(flag: flag, repo: repo, architecture: nil)
+        end
+        unless all_flag || arch_flag
+          arch_flag = main_object.project.flags.find_by(flag: flag, repo: nil, architecture: architecture_id)
+        end
         all_flag = main_object.project.flags.find_by(flag: flag, repo: nil, architecture: nil)
       elsif variant == 'default'
         same_flag = main_object.project.flags.find_by(flag: flag, repo: repo, architecture: architecture_id)
