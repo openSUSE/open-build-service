@@ -3594,6 +3594,7 @@ if ($ex == 0) {
   }
   @d = ('ARCHPKGS') if $buildinfo->{'file'} =~ /PKGBUILD$/;
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
+  @d = ('DOCKER') if $buildinfo->{'file'} =~ /Dockerfile$/;
   push @d, 'OTHER';
   for my $d ('.', @d) {
     my @files = sort(ls("$buildroot/.build.packages/$d"));
