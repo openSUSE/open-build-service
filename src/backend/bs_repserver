@@ -44,7 +44,6 @@ use Data::Dumper;
 use Digest::MD5 ();
 use List::Util;
 use Symbol;
-use JSON::XS ();
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -66,9 +65,9 @@ use BSNotify;
 
 use BSSolv;
 
-use BSSched::ProjPacks;
 use BSRepServer;
 use BSRepServer::BuildInfo;
+use BSRepServer::Containerinfo;
 use BSDispatcher::Constraints;
 use BSCando;
 use Build;
@@ -1784,65 +1783,6 @@ sub notify_jobresult {
   }
 }
 
-sub containerinfo2obsbinlnk {
-  my ($dir, $containerinfo, $packid) = @_;
-  return undef unless -e "$dir/$containerinfo";
-  return undef unless (-s _) < 100000;
-  my $m = readstr("$dir/$containerinfo");
-  my $d;
-  eval { $d = JSON::XS::decode_json($m); };
-  return undef unless $d && ref($d) eq 'HASH';
-  my $tags = $d->{'tags'};
-  $tags = [] unless $tags && ref($tags) eq 'ARRAY';
-  for (@$tags) {
-    $_ = undef unless defined($_) && ref($_) eq '';
-  }
-  @$tags = grep {defined($_)} @$tags;
-  my $name = $d->{'name'};
-  $name = undef unless defined($name) && ref($name) eq '';
-  my $file = $d->{'file'};
-  $file = undef unless defined($file) && ref($file) eq '';
-  return undef unless defined($name) && defined($file);
-  eval {
-    BSVerify::verify_simple($file);
-    BSVerify::verify_filename($file);
-  };
-  return undef if $@;
-  return undef unless $file =~ /\.tar(?:\.[^\.]+)?$/s;
-  my $lnk = {};
-  $lnk->{'name'} = "container:$file";
-  $lnk->{'name'} =~ s/\.tar(?:\.[^\.]+)?$//;	# strip tar.xz
-  $lnk->{'name'} =~ s/-[^-]+$//;		# strip version
-  $lnk->{'version'} = defined($d->{'version'}) ? $d->{'version'} : '0';
-  $lnk->{'arch'} = 'noarch';
-  $lnk->{'source'} = $lnk->{'name'};
-  # add self-provides
-  push @{$lnk->{'provides'}}, "$lnk->{'name'} = $lnk->{'version'}";
-
-  push @{$lnk->{'provides'}}, "container:$name" if "container:$name" ne $lnk->{'name'};
-  for my $tag (@$tags) {
-    push @{$lnk->{'provides'}}, "container:$name:$tag";
-  }
-  eval {
-    BSVerify::verify_nevraquery($lnk);
-  };
-  return undef if $@;
-  my $annotation = {};
-  $annotation->{'repo'} = $d->{'repos'} if $d->{'repos'};
-  if (%$annotation) {
-    eval { $lnk->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation) };
-    warn($@) if $@;
-  }
-  local *F;
-  return undef unless open(F, '<', "$dir/$file");
-  my $ctx = Digest::MD5->new;
-  $ctx->addfile(*F);
-  close F;
-  $lnk->{'hdrmd5'} = $ctx->hexdigest();
-  $lnk->{'path'} = "../$packid/$file";
-  return $lnk;
-}
-
 sub putjob {
   my ($cgi, $arch, $job, $jobid) = @_;
 
@@ -1962,7 +1902,7 @@ sub putjob {
     for my $file (@$uploaded) {
       my $prefix = $file->{'name'};
       next unless $prefix =~ s/\.containerinfo$//;
-      my $obsbinlink = containerinfo2obsbinlnk($dir, "$prefix.containerinfo", $info->{'package'});
+      my $obsbinlink = BSRepServer::Containerinfo::containerinfo2obsbinlnk($dir, "$prefix.containerinfo", $info->{'package'});
       next unless $obsbinlink;
       BSUtil::store("$dir/$prefix.obsbinlnk", undef, $obsbinlink);
       my @s = stat("$dir/$prefix.obsbinlnk");
