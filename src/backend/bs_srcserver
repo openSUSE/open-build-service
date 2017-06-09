@@ -3205,18 +3205,22 @@ sub copyproject {
   return $BSStdServer::return_ok;
 }
 
-sub freezeproject {
+sub freezeprojectlink {
   my ($cgi, $projid) = @_;
-  my @frozen;
   my %origins;
-  my @packids = findpackages($projid, undef, undef, \%origins);
-  for my $packid (@packids) {
-    next if !$origins{$packid} || $origins{$packid} eq $projid;
-    my $rev = getrev($projid, $packid);
-    lsrev_expanded($rev);
-    push @frozen, { name => $packid, srcmd5 => $rev->{'srcmd5'}, 'vrev' => $rev->{'vrev'} };
+  my $proj = BSRevision::readproj_local($projid);
+  my @frozen;
+  for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
+    my @frozenp;
+    my @lpackids = findpackages($projid, undef, -1);
+    for my $packid (sort(@lpackids)) {
+      my $rev = getrev($projid, $packid);
+      lsrev_expanded($rev);
+      push @frozenp, { name => $packid, srcmd5 => $rev->{'srcmd5'}, 'vrev' => $rev->{'vrev'} };
+    }
+    push @frozen, { 'project' => $lprojid, 'package' => \@frozenp };
   }
-  my $frozenlinks = { 'frozenlink' => [ { 'package' => \@frozen } ] };
+  my $frozenlinks = { 'frozenlink' => \@frozen };
   mkdir_p($uploaddir);
   writexml("$uploaddir/freezeproject.$$", undef, $frozenlinks, $BSXML::frozenlinks);
   $cgi->{'comment'} ||= 'freeze project';
@@ -5889,7 +5893,7 @@ my $dispatches = [
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? makeoriginolder:bool? resign:bool? noservice:bool?' => \&copyproject,
   'POST:/source/$project cmd=move oproject:project' => \&moveproject,
-  'POST:/source/$project cmd=freeze user:? comment:? requestid:num?' => \&freezeproject,
+  'POST:/source/$project cmd=freezelink user:? comment:? requestid:num?' => \&freezeprojectlink,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package* withchangesmd5:bool?' => \&getprojectsourceinfo,
   '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist,
