@@ -43,7 +43,7 @@ class UserLdapStrategy
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
-      Rails.logger.debug("Unable to connect to LDAP server")
+      Rails.logger.info("Unable to connect to LDAP server")
       return "Unable to connect to LDAP server"
     end
     user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
@@ -52,7 +52,7 @@ class UserLdapStrategy
       dn = entry.dn
     end
     if dn.empty?
-      Rails.logger.debug("User not found in ldap")
+      Rails.logger.info("User not found in ldap")
       return "User not found in ldap"
     end
 
@@ -73,7 +73,7 @@ class UserLdapStrategy
     begin
       ldap_con.modify(dn, entry)
     rescue LDAP::ResultError
-      Rails.logger.debug("Error #{ldap_con.err} for #{login} mail/password changing")
+      Rails.logger.info("Error #{ldap_con.err} for #{login} mail/password changing")
       return "Failed to update entry for #{login}: error #{ldap_con.err}"
     end
 
@@ -82,7 +82,7 @@ class UserLdapStrategy
       begin
         ldap_con.modrdn(dn, "#{CONFIG['ldap_name_attr']}=#{newlogin}", true)
       rescue LDAP::ResultError
-        Rails.logger.debug("Error #{ldap_con.err} for #{login} dn name changing")
+        Rails.logger.info("Error #{ldap_con.err} for #{login} dn name changing")
         return "Failed to update dn name for #{login}: error #{ldap_con.err}"
       end
     end
@@ -100,7 +100,7 @@ class UserLdapStrategy
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
-      Rails.logger.debug("Unable to connect to LDAP server")
+      Rails.logger.info("Unable to connect to LDAP server")
       return "Unable to connect to LDAP server"
     end
     case CONFIG['ldap_auth_mech']
@@ -125,7 +125,7 @@ class UserLdapStrategy
     begin
       ldap_con.add("#{CONFIG['ldap_name_attr']}=#{login},#{CONFIG['ldap_entry_base']}", entry)
     rescue LDAP::ResultError
-      Rails.logger.debug("Error #{ldap_con.err} for #{login}")
+      Rails.logger.info("Error #{ldap_con.err} for #{login}")
       return "Failed to add a new entry for #{login}: error #{ldap_con.err}"
     end
     nil
@@ -140,7 +140,7 @@ class UserLdapStrategy
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
-      Rails.logger.debug("Unable to connect to LDAP server")
+      Rails.logger.info("Unable to connect to LDAP server")
       return "Unable to connect to LDAP server"
     end
     user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
@@ -149,13 +149,13 @@ class UserLdapStrategy
       dn = entry.dn
     end
     if dn.empty?
-      Rails.logger.debug("User not found in ldap")
+      Rails.logger.info("User not found in ldap")
       return "User not found in ldap"
     end
     begin
       ldap_con.delete(dn)
     rescue LDAP::ResultError
-      Rails.logger.debug("Failed to delete: error #{ldap_con.err} for #{login}")
+      Rails.logger.info("Failed to delete: error #{ldap_con.err} for #{login}")
       return "Failed to delete the entry #{login}: error #{ldap_con.err}"
     end
     nil
@@ -170,7 +170,7 @@ class UserLdapStrategy
     end
     result = search_ldap(CONFIG['ldap_group_search_base'], filter)
     if result.nil?
-      Rails.logger.debug("Fail to find group: #{group} in LDAP")
+      Rails.logger.info("Fail to find group: #{group} in LDAP")
       return false
     else
       Rails.logger.debug("group dn: #{result[0]}")
@@ -185,7 +185,7 @@ class UserLdapStrategy
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
-      Rails.logger.debug("Unable to connect to LDAP server")
+      Rails.logger.info("Unable to connect to LDAP server")
       return
     end
     Rails.logger.debug("Search: #{filter}")
@@ -210,7 +210,7 @@ class UserLdapStrategy
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
-      Rails.logger.debug("Unable to connect to LDAP server")
+      Rails.logger.info("Unable to connect to LDAP server")
       return result
     end
 
@@ -230,7 +230,7 @@ class UserLdapStrategy
         end
       end
       if user_dn.empty?
-        Rails.logger.debug("Failed to find #{user} in ldap")
+        Rails.logger.info("Failed to find #{user} in ldap")
         return result
       end
       Rails.logger.debug("User dn: #{user_dn} user_memberof_attr: #{user_memberof_attr}")
@@ -268,7 +268,7 @@ class UserLdapStrategy
         end
       end
       if group_dn.empty?
-        Rails.logger.debug("Failed to find #{group} in ldap")
+        Rails.logger.info("Failed to find #{group} in ldap")
         next
       end
 
@@ -303,7 +303,7 @@ class UserLdapStrategy
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
-      Rails.logger.debug("Unable to connect to LDAP server")
+      Rails.logger.info("Unable to connect to LDAP server")
       return "Unable to connect to LDAP server"
     end
     user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
@@ -312,7 +312,7 @@ class UserLdapStrategy
       dn = entry.dn
     end
     if dn.empty?
-      Rails.logger.debug("User not found in ldap")
+      Rails.logger.info("User not found in ldap")
       return "User not found in ldap"
     end
 
@@ -330,7 +330,7 @@ class UserLdapStrategy
     begin
       ldap_con.modify(dn, entry)
     rescue LDAP::ResultError
-      Rails.logger.debug("Error #{ldap_con.err} for #{login}")
+      Rails.logger.info("Error #{ldap_con.err} for #{login}")
       return ldap_con.err.to_s
     end
 
@@ -413,7 +413,7 @@ class UserLdapStrategy
       end
       ldap_con = @@ldap_search_con
       if ldap_con.nil?
-        Rails.logger.debug("Unable to connect to LDAP server")
+        Rails.logger.info("Unable to connect to LDAP server")
         return
       end
 
@@ -428,7 +428,7 @@ class UserLdapStrategy
           user = entry.to_hash
         end
       rescue
-        Rails.logger.debug("Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}")
+        Rails.logger.info("Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}")
         @@ldap_search_con.unbind
         @@ldap_search_con = nil
         if ldap_first_try
@@ -439,14 +439,14 @@ class UserLdapStrategy
       end
     end
     if user.nil?
-      Rails.logger.debug("User not found in ldap")
+      Rails.logger.info("User not found in ldap")
       return
     end
     # Attempt to authenticate user
     case CONFIG['ldap_authenticate']
     when :local then
       unless authenticate_with_local(password, user)
-        Rails.logger.debug("Unable to local authenticate #{user['dn']}")
+        Rails.logger.info("Unable to local authenticate #{user['dn']}")
         return
       end
     when :ldap then
@@ -456,7 +456,7 @@ class UserLdapStrategy
       # Don't match the passwd locally, try to bind to the ldap server
       user_con = initialize_ldap_con(user['dn'], password)
       if user_con.nil?
-        Rails.logger.debug("Unable to connect to LDAP server as #{user['dn']} using credentials supplied")
+        Rails.logger.info("Unable to connect to LDAP server as #{user['dn']} using credentials supplied")
         return
       else
         # Redo the search as the user for situations where the anon search may not be able to see attributes
@@ -500,7 +500,7 @@ class UserLdapStrategy
       begin
         ldapgroups = UserLdapStrategy.render_grouplist_ldap(grouplist, login)
       rescue Exception
-        Rails.logger.debug "Error occurred in searching user_group in ldap."
+        Rails.logger.info "Error occurred in searching user_group in ldap."
       end
     end
     ldapgroups
@@ -517,7 +517,7 @@ class UserLdapStrategy
     begin
       render_grouplist_ldap(grouplist, user).any?
     rescue Exception
-      Rails.logger.debug "Error occurred in searching user_group in ldap."
+      Rails.logger.info "Error occurred in searching user_group in ldap."
       false
     end
   end
@@ -528,7 +528,7 @@ class UserLdapStrategy
       # check whether current user is in this group
       return true if user_in_group_ldap?(login, r.group)
     end
-    Rails.logger.debug "Failed with local_permission_check_with_ldap"
+    Rails.logger.info "Failed with local_permission_check_with_ldap"
     false
   end
 
@@ -540,7 +540,7 @@ class UserLdapStrategy
       # check whether current user is in this group
       return true if user_in_group_ldap?(login, rel.group)
     end
-    Rails.logger.debug "Failed with local_role_check_with_ldap"
+    Rails.logger.info "Failed with local_role_check_with_ldap"
     false
   end
 
@@ -594,7 +594,7 @@ class UserLdapStrategy
       if !conn.nil? && conn.bound?
         conn.unbind
       end
-      Rails.logger.debug("Not bound as #{user_name}: #{conn.err2string(conn.err)}")
+      Rails.logger.info("Not bound as #{user_name}: #{conn.err2string(conn.err)}")
       return
     end
     Rails.logger.debug("Bound as #{user_name}")
