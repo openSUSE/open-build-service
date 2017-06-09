@@ -62,6 +62,11 @@ sub containerinfo2obsbinlnk {
   @$tags = grep {defined($_)} @$tags;
   my $name = $d->{'name'};
   $name = undef unless defined($name) && ref($name) eq '';
+  if (!defined($name) && @$tags) {
+    # no name specified, get it from first tag
+    $name = $tags->[0];
+    $name =~ s/[:\/]/-/g;
+  }
   my $file = $d->{'file'};
   $file = undef unless defined($file) && ref($file) eq '';
   return undef unless defined($name) && defined($file);
@@ -70,20 +75,16 @@ sub containerinfo2obsbinlnk {
     BSVerify::verify_filename($file);
   };
   return undef if $@;
-  return undef unless $file =~ /\.tar(?:\.[^\.]+)?$/s;
   my $lnk = {};
-  $lnk->{'name'} = "container:$file";
-  $lnk->{'name'} =~ s/\.tar(?:\.[^\.]+)?$//;    # strip tar.xz
-  $lnk->{'name'} =~ s/-[^-]+$//;                # strip version
+  $lnk->{'name'} = "container:$name";
   $lnk->{'version'} = defined($d->{'version'}) ? $d->{'version'} : '0'; 
-  $lnk->{'arch'} = 'noarch';
+  $lnk->{'arch'} = defined($d->{'arch'}) ? $d->{'arch'} : 'noarch';
+  # need to have a source so that it goes into the :full tree
   $lnk->{'source'} = $lnk->{'name'};
   # add self-provides
   push @{$lnk->{'provides'}}, "$lnk->{'name'} = $lnk->{'version'}";
-
-  push @{$lnk->{'provides'}}, "container:$name" if "container:$name" ne $lnk->{'name'};
   for my $tag (@$tags) {
-    push @{$lnk->{'provides'}}, "container:$name:$tag";
+    push @{$lnk->{'provides'}}, "container:$tag" unless "container:$tag" eq $lnk->{'name'};
   }
   eval {
     BSVerify::verify_nevraquery($lnk);
