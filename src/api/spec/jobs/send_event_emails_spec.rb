@@ -38,10 +38,14 @@ RSpec.describe SendEventEmails, type: :job do
       expect(DigestEmail.all.count).to eq(2)
 
       digest_email_for_user = DigestEmail.find_by(event_subscription: subscription4)
-      digest_email_for_group = DigestEmail.find_by(event_subscription: subscription5)
 
       expect(digest_email_for_user.body_html).to include('how are things?', 'good thanks!')
       expect(digest_email_for_user.body_text).to include('how are things?', 'good thanks!')
+
+      digest_email_for_group = DigestEmail.find_by(event_subscription: subscription5)
+
+      expect(digest_email_for_group.body_html).to include('how are things?', 'good thanks!')
+      expect(digest_email_for_group.body_text).to include('how are things?', 'good thanks!')
     end
   end
 end

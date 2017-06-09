@@ -36,17 +36,17 @@ RSpec.describe SendDigestEmails, type: :job do
     subject! { SendDigestEmails.new.perform }
 
     it 'sends a digest email to the user' do
-      email = ActionMailer::Base.deliveries.find { |email| email.to.first == digest_user.email }
+      digest_email = ActionMailer::Base.deliveries.find { |email| email.to.first == digest_user.email }
 
-      expect(email.text_part.body.raw_source).to eq(digest_email1.body_text)
-      expect(email.html_part.body.raw_source).to eq(digest_email1.body_html)
+      expect(digest_email.text_part.body.raw_source).to eq(digest_email1.body_text)
+      expect(digest_email.html_part.body.raw_source).to eq(digest_email1.body_html)
     end
 
     it 'sends a digest email to the group' do
-      email = ActionMailer::Base.deliveries.find { |email| email.to.first == digest_group.email }
+      digest_email = ActionMailer::Base.deliveries.find { |email| email.to.first == digest_group.email }
 
-      expect(email.text_part.body.raw_source).to eq(digest_email2.body_text)
-      expect(email.html_part.body.raw_source).to eq(digest_email2.body_html)
+      expect(digest_email.text_part.body.raw_source).to eq(digest_email2.body_text)
+      expect(digest_email.html_part.body.raw_source).to eq(digest_email2.body_html)
     end
   end
 end

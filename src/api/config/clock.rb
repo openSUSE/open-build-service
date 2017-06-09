@@ -70,4 +70,8 @@ module Clockwork
   every(1.week, 'consistency check') do
     ConsistencyCheckJob.new.delay.perform
   end
+
+  every(1.day, 'clean old digest emails') do
+    CleanupDigestEmails.perform_later
+  end
 end

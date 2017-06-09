@@ -1,6 +1,4 @@
 class SendEventEmails
-  #include ActionController::Rendering
-
   def perform
     Event::Base.where(mails_sent: false).order(:created_at).limit(1000).lock(true).each do |event|
       event.mails_sent = true
@@ -32,7 +30,7 @@ class SendEventEmails
 
   def add_event_to_digest_subscription(event, subscription)
     digest_email = DigestEmail.find_or_create_by(event_subscription: subscription)
-    event_email = EventMailer.email_for_event([subscription.subscriber], event)
+    event_email = EventMailer.email_for_event([subscription.subscriber], event, layout: false)
 
     # Process html part of email
     if digest_email.body_html.blank?

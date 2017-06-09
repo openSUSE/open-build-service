@@ -2,9 +2,6 @@
 # that users (or services) would like to know about
 module Event
   class Base < ApplicationRecord
-    has_many :digest_email_events, foreign_key: :event_id
-    has_many :digest_emails, through: :digest_email_events
-
     scope :not_in_queue, -> { where(queued: false) }
 
     self.inheritance_column = 'eventtype'

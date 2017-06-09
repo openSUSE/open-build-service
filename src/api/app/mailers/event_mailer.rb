@@ -17,7 +17,9 @@ class EventMailer < ActionMailer::Base
     'OBS Notification <' + ::Configuration.admin_email + '>'
   end
 
-  def email_for_event(subscribers, event)
+  def email_for_event(subscribers, event, opts = {})
+    opts[:layout] ||= true
+
     begin
       @e = event.expanded_payload
     rescue Project::UnknownObjectError, Package::UnknownObjectError
@@ -33,12 +35,22 @@ class EventMailer < ActionMailer::Base
     to = subscribers.map(&:display_name).sort
     origin = event.originator ? event.originator.display_name : mail_sender
 
-    mail(to: to,
-         subject: event.subject,
-         from: origin,
-         date: event.created_at) do |format|
-      format.html { render event.template_name, layout: false }
-      format.text { render event.template_name, layout: false }
+    mail_opts = {
+      to: to,
+      subject: event.subject,
+      from: origin,
+      date: event.created_at
+    }
+
+    mail(mail_opts) do |format|
+
+      if template_exists?('event_mailer/' + event.template_name, formats: [:html])
+        format.html { render event.template_name, layout: opts[:layout] }
+      end
+
+      if template_exists?('event_mailer/' + event.template_name, formats: [:text])
+        format.text { render event.template_name, layout: opts[:layout] }
+      end
     end
   end
 end
