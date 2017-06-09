@@ -13,15 +13,12 @@ module Webui::BuildresultHelper
       theclass = ' '
     end
 
-    result = content_tag(:td, class: [theclass, "buildstatus", "nowrap"]) do
+    content_tag(:td, class: [theclass, "buildstatus", "nowrap"]) do
       if code.in?(["-", "unresolvable", "blocked", "excluded", "scheduled"])
         concat link_to(code, '#', title: link_title, id: status_id, class: code)
       else
         concat link_to(code.gsub(/\s/, '&nbsp;'),
-                       {
-                         action: :live_build_log, package: package_name, project: @project.to_s,
-                         arch: arch, controller: 'package', repository: repo
-                       },
+                       package_live_build_log_path(project: @project.to_s, package: package_name, repository: repo, arch: arch),
                        { title: link_title, rel: 'nofollow' }
                       )
       end
@@ -31,7 +28,5 @@ module Webui::BuildresultHelper
         concat sprite_tag('help', title: Buildresult.status_description(status['code']))
       end
     end
-
-    result
   end
 end
