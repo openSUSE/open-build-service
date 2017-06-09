@@ -176,11 +176,23 @@ sub run_source_update {
 
       BSUtil::printlog("Running command '@run'");
       # call the service
-      if (! open(SERVICE, '-|')) {
+      my $child_pid = open(SERVICE, '-|');
+      die "500 Unable to open pipe: $!\n" unless defined($child_pid);
+      if (! $child_pid) {
         open(STDERR, ">&STDOUT");
         exec(@run);
         die("$run[0]: $!\n");
       }
+
+      local $SIG{ALRM} = sub {
+	kill 'TERM', $child_pid;
+	die "500 timeout while execution of $name\n";
+      };
+
+      # Wait $BSConfig::service_timeout or per default 7200 sec (2 hours) for
+      # service to finish
+      BSUtil::printlog("Waiting $BSConfig::service_timeout for service($child_pid) to finish\n") if $verbose;
+      alarm($BSConfig::service_timeout);
 
       # collect output
       my $output = '';
@@ -192,6 +204,7 @@ sub run_source_update {
 
       if (close SERVICE) {
         # SUCCESS, move files inside and add prefix
+        BSUtil::printlog('Service succeed') if $verbose;
         for my $file (grep {!/^[:\.]/} ls("$myworkdir/out")) {
 	  next if -l "$myworkdir/out/$file" || ! -f _;	# only plain files for now
 	  my $tfile = $file;
@@ -201,12 +214,15 @@ sub run_source_update {
         }
       } else { 
         # FAILURE, Create error file
+        BSUtil::printlog("Service failed: $!") if $verbose;
 	$output =~ s/[\r\n\s]+$//s;
         BSUtil::cleandir('.');
         die("500 remote execution error in $name detected\n") if $? >> 8 == 3;
 	BSUtil::writestr('_service_error', undef, "service $name failed:\n$output\n");
 	$error = 1;
       }
+
+      alarm(0);
 
       # delete no longer needed outdir
       rm_rf("$myworkdir/out");
