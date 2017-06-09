@@ -238,6 +238,8 @@ Requires:       perl(GD)
 
 Requires:       ghostscript-fonts-std
 
+# for user_ldap_strategy.rb (needs ping from iputils)
+Requires:       iputils
 
 %description -n obs-api
 This is the API server instance, and the web client for the
