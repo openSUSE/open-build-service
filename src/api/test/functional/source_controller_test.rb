@@ -3397,6 +3397,37 @@ EOF
     assert_response :success
   end
 
+  def test_freeze_project_link
+    login_tom
+
+    # create a project link
+    raw_put "/source/home:tom:LINK_TEST/_meta",
+            '<project name="home:tom:LINK_TEST"><title/><description/><link project="BaseDistro2.0:LinkedUpdateProject"/></project>'
+    assert_response :success
+
+    login_Iggy
+    post "/source/home:tom:LINK_TEST?cmd=freezelink"
+    assert_response 403
+
+    login_tom
+    get "/source/home:tom:LINK_TEST/_project/_frozenlinks?meta=1"
+    assert_response 404
+
+    post "/source/home:tom:LINK_TEST?cmd=freezelink"
+    assert_response :success
+
+    get "/source/home:tom:LINK_TEST/_project/_frozenlinks?meta=1"
+    assert_response :success
+    assert_xml_tag tag: "frozenlink", attributes: { project: "BaseDistro2.0:LinkedUpdateProject" }
+    assert_xml_tag tag: "package", attributes: { name: "pack2" }
+    assert_xml_tag tag: "package", attributes: { name: "pack2.linked" }
+    assert_xml_tag tag: "package", attributes: { name: "pack_local" }
+
+    # cleanup
+    delete "/source/home:tom:LINK_TEST"
+    assert_response :success
+  end
+
   def test_delete_and_undelete_permissions
     delete '/source/kde4/kdelibs'
     assert_response 401
