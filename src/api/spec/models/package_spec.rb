@@ -491,8 +491,9 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '#last_build_reason' do
+    let(:path) { "#{CONFIG['source_url']}/build/#{package.project.name}/openSUSE_Leap_42.3/x86_64/#{package.name}/_reason" }
+
     before do
-      path = "#{CONFIG['source_url']}/build/#{package.project.name}/openSUSE_Leap_42.3/x86_64/#{package.name}/_reason"
       stub_request(:get, path).and_return(body:
         %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource></reason>))
     end
@@ -514,6 +515,42 @@ RSpec.describe Package, vcr: true do
 
       it 'for: oldsource' do
         expect(result.oldsource).to eq('1de56fdc419ea4282e35bd388285d370')
+      end
+
+      it 'for: packagechange (one element)' do
+        stub_request(:get, path).and_return(body:
+          %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource>
+            <packagechange change="md5sum" key="libsystemd0-mini"/></reason>))
+        result = package.last_build_reason("openSUSE_Leap_42.3", "x86_64")
+
+        expect(result.packagechange).to eq(
+          [
+            {
+              'change' => 'md5sum',
+              'key'    => 'libsystemd0-mini'
+            }
+          ]
+        )
+      end
+
+      it 'for: packagechange (multiple elements)' do
+        stub_request(:get, path).and_return(body:
+          %(<reason>\n  <explain>source change</explain>  <time>1496387771</time>  <oldsource>1de56fdc419ea4282e35bd388285d370</oldsource>
+            <packagechange change="md5sum" key="libsystemd0-mini"/><packagechange change="md5sum" key="python3-websockets"/></reason>))
+        result = package.last_build_reason("openSUSE_Leap_42.3", "x86_64")
+
+        expect(result.packagechange).to eq(
+          [
+            {
+              'change' => 'md5sum',
+              'key'    => 'libsystemd0-mini'
+            },
+            {
+              'change' => 'md5sum',
+              'key'    => 'python3-websockets'
+            }
+          ]
+        )
       end
     end
   end
