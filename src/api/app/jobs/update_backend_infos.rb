@@ -7,22 +7,23 @@ class UpdateBackendInfos < CreateJob
     self.checked_pkgs = {}
   end
 
-  def update_pkg(pkg)
-    return if checked_pkgs.has_key? pkg.id
-    return if pkg.project.is_locked?
-    pkg.update_backendinfo
-    checked_pkgs[pkg.id] = 1
-    BackendPackage.where(links_to_id: pkg.id).find_each do |p|
-      p = Package.find_by_id p.package_id
-      update_pkg(p) if p
-    end
+  def perform
+    payload = event.payload
+    package = Package.find_by_project_and_name(payload['project'], payload['package'])
+    return unless package # there is nothing we can do
+    update_package(package)
   end
 
-  def perform
-    pl = event.payload
-    pkg = Package.find_by_project_and_name(pl['project'], pl['package'])
-    return unless pkg # there is nothing we can do
-    # dig into recursion
-    update_pkg(pkg)
+  private
+
+  def update_package(package)
+    return if checked_pkgs.has_key?(package.id)
+    return if package.project.is_locked?
+    package.update_backendinfo
+    checked_pkgs[package.id] = 1
+    BackendPackage.where(links_to_id: package.id).find_each do |linked_package|
+      linked_package = Package.find_by_id(linked_package.package_id)
+      update_package(linked_package) if linked_package # dig into recursion
+    end
   end
 end
