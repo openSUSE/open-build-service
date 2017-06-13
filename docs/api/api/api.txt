@@ -420,6 +420,7 @@ POST /source/<project>
   createkey: Generate a new gpg key. If the project already has an own gpg key, the old key is discarded.
   extendkey: Extend the expiration date of gpg keys.
   undelete: undelete the project and all packages existing when the project got removed.
+  freezelink: create/update a freeze of a project link
   showlinked: List all projects linking to this one
   copy: copy the entire project
   move: ADMIN ONLY. schedulers need to be stopped. move all sources and binaries around from oproject.

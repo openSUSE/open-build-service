@@ -170,7 +170,7 @@ class SourceController < ApplicationController
     #--------------------
     valid_commands = %w(
       undelete showlinked remove_flag set_flag createpatchinfo createkey extendkey copy
-      createmaintenanceincident lock unlock release addchannels modifychannels move
+      createmaintenanceincident lock unlock release addchannels modifychannels move freezelink
     )
 
     if params[:cmd] && !params[:cmd].in?(valid_commands)
@@ -913,6 +913,14 @@ class SourceController < ApplicationController
     @project.unlock!(params[:comment])
 
     render_ok
+  end
+
+  # freeze project link, either creating the freeze or updating it
+  # POST /source/<project>?cmd=freezelink
+  def project_command_freezelink
+    path = request.path_info
+    path += build_query_from_hash(params, [:cmd, :user, :comment])
+    pass_to_backend path
   end
 
   # add channel packages and extend repository list
