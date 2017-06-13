@@ -34,6 +34,7 @@ class BsRequest < ApplicationRecord
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
   scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids } ) }
   scope :with_involved_packages, ->(package_ids) { where(bs_request_actions: { target_package_id: package_ids } ) }
+
   scope :in_states, ->(states) { where(state: states) }
   scope :with_types, ->(types) { where('bs_request_actions.type in (?)', types) }
   scope :from_source_project, ->(source_project) { where('bs_request_actions.source_project = ?', source_project) }
@@ -45,10 +46,12 @@ class BsRequest < ApplicationRecord
            ["%#{search}%"] * SEARCHABLE_FIELDS.length].flatten)
   }
 
-  scope :for_users, ->(user_ids) { joins(:reviews).where(reviews: { reviewable_id: user_ids, reviewable_type: 'User' }) }
-  scope :for_projects, ->(project_ids) { joins(:reviews).where(reviews: { reviewable_id: project_ids, reviewable_type: 'Project' }) }
-  scope :for_packages, ->(package_ids) { joins(:reviews).where(reviews: { reviewable_id: package_ids, reviewable_type: 'Package' }) }
-  scope :for_groups, ->(group_ids) { joins(:reviews).where(reviews: { reviewable_id: group_ids, reviewable_type: 'Group' }) }
+  scope :with_actions_and_reviews, -> { joins(:bs_request_actions).left_outer_joins(:reviews).distinct.order(priority: :asc, id: :desc) }
+
+  scope :for_users, ->(user_ids) { where(reviews: { reviewable_id: user_ids, reviewable_type: 'User' }) }
+  scope :for_projects, ->(project_ids) { where(reviews: { reviewable_id: project_ids, reviewable_type: 'Project' }) }
+  scope :for_packages, ->(package_ids) { where(reviews: { reviewable_id: package_ids, reviewable_type: 'Package' }) }
+  scope :for_groups, ->(group_ids) { where(reviews: { reviewable_id: group_ids, reviewable_type: 'Group' }) }
 
   before_save :assign_number
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy

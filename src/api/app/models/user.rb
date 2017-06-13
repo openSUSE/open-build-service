@@ -740,7 +740,7 @@ class User < ApplicationRecord
           BsRequest.for_groups(groups.pluck(:id))
         )
       )
-    ).joins(:bs_request_actions).where(state: :review, reviews: { state: :new }).where.not(creator: login)
+    ).joins(:reviews).joins(:bs_request_actions).where(state: :review, reviews: { state: :new }).where.not(creator: login)
     search ? result.do_search(search) : result
   end
 
@@ -756,8 +756,7 @@ class User < ApplicationRecord
     package_ids = involved_packages.pluck(:id)
 
     result = BsRequest.with_actions.with_involved_projects(project_ids)
-                      .or(BsRequest.in_states(:new).with_actions
-                                    .with_involved_packages(package_ids))
+                      .or(BsRequest.with_actions.with_involved_packages(package_ids))
                       .in_states(:new)
 
     search ? result.do_search(search) : result
@@ -771,12 +770,22 @@ class User < ApplicationRecord
 
   # list of all requests
   def requests(search = nil)
-    BsRequest.collection(
-      user: login,
-      states: VALID_REQUEST_STATES,
-      roles: %w(creator maintainer reviewer),
-      search: search
-    ).includes(:bs_request_actions)
+    bs_requests_table = BsRequest.arel_table
+    bs_actions_table = BsRequestAction.arel_table
+    reviews_table = Review.arel_table
+
+    result =
+      BsRequest.in_states(VALID_REQUEST_STATES).with_actions_and_reviews
+               .where(bs_requests_table[:creator].eq(login)
+                 .or(bs_actions_table[:target_project_id].in(involved_projects.pluck(:id)))
+                 .or(bs_actions_table[:target_package_id].in(involved_packages.pluck(:id)))
+                 .or(reviews_table[:state].eq(:new)
+                     .and(reviews_table[:reviewable_id].eq(id).and(reviews_table[:reviewable_type].eq('User'))
+                     .or(reviews_table[:reviewable_id].in(involved_projects.pluck(:id)).and(reviews_table[:reviewable_type].eq('Project')))
+                     .or(reviews_table[:reviewable_id].in(involved_packages.pluck(:id)).and(reviews_table[:reviewable_type].eq('Package')))
+                     .or(reviews_table[:reviewable_id].in(groups.pluck(:id)).and(reviews_table[:reviewable_type].eq('Group'))))))
+
+    search ? result.do_search(search) : result
   end
 
   # lists running maintenance updates where this user is involved in

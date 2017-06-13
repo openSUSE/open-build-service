@@ -93,6 +93,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'SourceController#update_project_meta'                                    => 98.09,
       'UserLdapStrategy::find_with_ldap'                                        => 122.14,
       'User::find_with_credentials'                                             => 101.42,
+      'User#requests'                                                           => 112.04,
       'Webui::WebuiController#check_user'                                       => 80.99,
       'UserLdapStrategy::render_grouplist_ldap'                                 => 98.25,
       'Webui::PackageController#branch'                                         => 121.12,
