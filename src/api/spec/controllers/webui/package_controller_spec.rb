@@ -764,7 +764,7 @@ EOT
       end
 
       it do
-        expect(flash[:error]).to eq('Error while saving the Meta file: package validation error: ' +
+        expect(flash[:error]).to eq('Error while saving the Meta file: package validation error: 1:114: FATAL: ' +
                                     'Opening and ending tag mismatch: package line 1 and paaaaackage.')
       end
       it { expect(response).to have_http_status(:bad_request) }
