@@ -32,7 +32,9 @@ class Kiwi::Image < ApplicationRecord
     xml = Xmlhash.parse(xml_string)
     new_image = new(name: xml['name'], md5_last_revision: md5)
     order = 1
-    xml["repository"].each do |repository|
+    repositories = xml["repository"]
+    repositories = [xml["repository"]] if xml["repository"].is_a?(Hash)
+    repositories.each do |repository|
       attributes = {
         repo_type:   repository['type'],
         source_path: repository['source']['path'],
@@ -50,6 +52,31 @@ class Kiwi::Image < ApplicationRecord
       order += 1
     end
     new_image
+  end
+
+  def to_xml
+    kiwi_file = package.kiwi_image_file
+    return nil unless kiwi_file
+    kiwi_body = package.source_file(kiwi_file)
+
+    xml_repos = repositories.map(&:to_xml).join("\n")
+
+    doc = Nokogiri::XML::DocumentFragment.parse(kiwi_body)
+    doc.xpath("image/repository").remove
+
+    image = doc.at_css('image')
+    image.first_element_child.after(xml_repos)
+
+    # Reparser for pretty printing
+    Nokogiri::XML(doc.to_xml, &:noblanks).to_xml
+  end
+
+  def write_to_backend
+    Package.transaction do
+      package.save_file({ filename: package.kiwi_image_file, file: to_xml })
+      self.md5_last_revision = package.kiwi_file_md5
+      save!
+    end
   end
 end
 

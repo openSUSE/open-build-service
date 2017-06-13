@@ -9,3 +9,4 @@
   %ul
     - @repositories.each do |repository|
       = render partial: 'repository_entry', locals: {repository: repository}
+    = button_to('Edit', kiwi_image_repositories_edit_path(@image), method: :get)

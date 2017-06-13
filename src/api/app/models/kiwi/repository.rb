@@ -3,6 +3,7 @@ class Kiwi::Repository < ApplicationRecord
   #### Includes and extends
 
   #### Constants
+  REPO_TYPES = ['apt-deb', 'rpm-dir', 'rpm-md', 'yast2'].freeze
 
   #### Self config
 
@@ -33,7 +34,8 @@ class Kiwi::Repository < ApplicationRecord
 
   #### Instance methods (public and then protected/private)
   def name
-    attributes['alias'] || source_path.tr('/', '_')
+    return source_path.to_s.tr('/', '_') if attributes['alias'].blank?
+    attributes['alias']
   end
 
   def source_path_format
@@ -48,6 +50,24 @@ class Kiwi::Repository < ApplicationRecord
     end
 
     errors.add(:source_path, "has an invalid format")
+  end
+
+  def to_xml
+    repo_attributes = { type: repo_type }
+    repo_attributes[:status] = 'replaceable' if replaceable
+    repo_attributes[:priority] = priority if priority.present?
+    repo_attributes[:alias] = self.alias if self.alias.present?
+    if username.present?
+      repo_attributes[:username] = username
+      repo_attributes[:password] = password
+    end
+
+    builder = Nokogiri::XML::Builder.new
+    builder.repository(repo_attributes) do |repo|
+      repo.source(path: source_path)
+    end
+
+    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   #### Alias of methods

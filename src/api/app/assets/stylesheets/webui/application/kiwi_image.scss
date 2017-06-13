@@ -1,0 +1,50 @@
+.kiwi-repository-container {
+  display: inline-block;
+  width: 44%;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px;
+  margin: 1em;
+
+  .nested-fields {
+    div {
+      label { font-weight: bold; }
+
+      .field {
+        display: inline-block;
+
+        label { display: block; }
+      }
+      &.single {
+        .field {
+          margin-left: 5px;
+          width: 98%;
+
+          input { width: 98%; }
+        }
+      }
+      &.double {
+        .field {
+          margin-left: 5px;
+          width: 48%;
+
+          input { width: 96%; }
+        }
+      }
+      &.triple {
+        .field {
+          margin-left: 5px;
+          width: 31%;
+
+          input { width: 96%; }
+          select { width: 100%; }
+        }
+      }
+      &.single, &.double, &.triple { margin-bottom: 0.5em; }
+    }
+  }
+}
+
+#kiwi_repository_update_form_save {
+  margin-left: 1em;
+}
