@@ -216,8 +216,9 @@ GEM
       atomic (>= 1.0.0)
       dalli
       peek
-    peek-mysql2 (1.1.0)
-      atomic (>= 1.0.0)
+    peek-mysql2 (1.2.0)
+      concurrent-ruby
+      concurrent-ruby-ext
       mysql2
       peek
     pkg-config (1.2.3)
