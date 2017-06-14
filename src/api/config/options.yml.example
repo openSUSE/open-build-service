@@ -64,6 +64,7 @@ kerberos_mode: false
 
 # see http://colszowka.heroku.com/2011/02/22/setting-up-your-custom-hoptoad-notifier-endpoint-for-free-using-errbit-on-heroku
 #errbit_api_key: api_key_of_your_app
+#errbit_project_id:
 #errbit_host: installation.of.errbit.com
 
 ##################
