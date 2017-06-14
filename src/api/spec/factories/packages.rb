@@ -58,6 +58,32 @@ FactoryGirl.define do
       end
     end
 
+    factory :package_with_kiwi_file do
+      transient do
+        kiwi_file_content '<?xml version="1.0" encoding="UTF-8"?>
+<image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
+  <description type="system">
+    <author>Christian Bruckmayer</author>
+    <contact>noemail@example.com</contact>
+    <specification>Tiny, minimalistic appliances</specification>
+  </description>
+</image>'
+      end
+
+      after(:create) do |package, evaluator|
+        # NOTE: Enable global write through when writing new VCR cassetes.
+        # ensure the backend knows the project
+        if CONFIG['global_write_through']
+          package_name = CGI.escape(package.name)
+          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{package_name}/#{package_name}.kiwi", evaluator.kiwi_file_content)
+        end
+      end
+    end
+
+    factory :package_with_kiwi_image do
+      kiwi_image
+    end
+
     factory :package_with_failed_comment_attribute do
       after(:create) do |package|
         create(:project_status_package_fail_comment_attrib, package: package)
