@@ -62,3 +62,4 @@
 //= require codemirror/modes/yaml.js
 //= require codemirror/modes/yaml.js
 //= require webui/application/cm2/use-codemirror
+

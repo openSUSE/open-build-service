@@ -1,3 +1,5 @@
+<% content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index-prjconf')) %>
+
 <% @pagetitle = "Project Configuration of #{@project}" %>
 <% @metarobots = 'noindex' %>
 <% project_bread_crumb 'Project Configuration' %>
@@ -9,6 +11,6 @@
   <% if User.current.can_modify_project?(@project) %>
     <%= render partial: "shared/editor", locals: {text: @content, mode: 'prjconf', save: {url: url_for(controller: 'project', action: 'save_prjconf'), method: 'POST', data: {project: @project.name, submit: 'config'}}} %>
   <% else %>
-    <%= render partial: "shared/editor", locals: {text: @content, mode: 'prjconf', read_only: true} %>
+    <%= render partial: "shared/editor", locals: {text: @content, mode: 'prjconf', style: {read_only: true}} %>
   <% end %>
 </div>

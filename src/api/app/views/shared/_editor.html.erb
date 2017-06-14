@@ -1,19 +1,17 @@
 <% save ||= {} %>
-<% read_only ||= false %>
-
+<% style ||= {read_only: false} %>
 <% uid ||= next_codemirror_uid %>
 
-<% content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index')) %>
-<% content_for(:head_style, codemirror_style(read_only: read_only)) %>
+<% content_for(:head_style, codemirror_style(style)) %>
 
-<% unless read_only %>
+<% unless style[:read_only] %>
     <div id="top_<%= uid %>">
       <div class="toolbar">
     <span style="float:left;">
       <input type="button" class="tools buttons small save inactive" value="Save" id="save_<%= uid %>"/>
       <input type="button" id="undo_<%= uid %>" value="undo" class="tools
       buttons undo" style="background:transparent;" onclick="editors[<%= uid %>].Undo(this);"/>
-      
+
       <input type="button" id="redo_<%= uid %>" value="redo" class="tools
       buttons redo" style="background:transparent;" onclick="editors[<%= uid %>].Redo(this);"/>
 
@@ -36,7 +34,7 @@
       &nbsp;&nbsp;
 -->
     </span>
- 
+
     <span style="float:right;">
 
       <select class="tools select" id="fontsize_<%= uid %>" onchange="editors[<%= uid %>].updateFontsize(this)">
@@ -76,7 +74,7 @@
     content_tag(:textarea, text, id: "editor_#{uid}",
                 style: 'display: inline-block', class: 'editor', cols: '0', rows: '0', data: data) %>
 
-<% unless read_only %>
+<% unless style[:read_only] %>
     <div id="bottom_<%= uid %>">
       <div class="toolbar">
     <span style="float:left;">
@@ -115,5 +113,5 @@
 <% end %>
 
 <% content_for :ready_function do %>
-    use_codemirror(<%= uid %>, <%= read_only %>, '<%= mode %>');
+    use_codemirror(<%= uid %>, <%= style[:read_only] %>, '<%= mode %>');
 <% end %>

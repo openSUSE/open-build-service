@@ -90,7 +90,11 @@ module OBSApi
 
     config.assets.js_compressor = :uglifier
 
-    config.assets.precompile += %w( webui/application/cm2/index.js )
+    config.assets.precompile +=
+      %w( webui/application/cm2/index.js
+          webui/application/cm2/index-diff.js
+          webui/application/cm2/index-xml.js
+          webui/application/cm2/index-prjconf.js )
 
     config.assets.precompile +=
       %w( dataTables/back_disabled.png
