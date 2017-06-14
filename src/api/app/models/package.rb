@@ -1438,7 +1438,13 @@ class Package < ApplicationRecord
       arch: arch
     ).to_s).xpath('reason')
 
-    PackageBuildReason.new(Hash.from_xml(xml_data.to_s)['reason'])
+    data = Hash.from_xml(xml_data.to_s)['reason']
+
+    # ensure that if 'packagechange' exists, it is an Array and not a Hash
+    # Bugreport: https://github.com/openSUSE/open-build-service/issues/3230
+    data['packagechange'] = [data['packagechange']] if data && data['packagechange'].is_a?(Hash)
+
+    PackageBuildReason.new(data)
   end
 
   private
