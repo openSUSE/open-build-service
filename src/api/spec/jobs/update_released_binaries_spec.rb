@@ -32,6 +32,7 @@ RSpec.describe UpdateReleasedBinaries, vcr: true do
   context "when perform raises an exception" do
     before do
       allow(BinaryRelease).to receive(:update_binary_releases).and_raise('FakeExceptionMessage')
+      allow($stdout).to receive(:write) # Needed to avoid the puts of the error method
     end
 
     subject { UpdateReleasedBinaries.new(event) }
