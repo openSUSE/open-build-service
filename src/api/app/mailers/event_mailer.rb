@@ -17,39 +17,40 @@ class EventMailer < ActionMailer::Base
     'OBS Notification <' + ::Configuration.admin_email + '>'
   end
 
-  def event(subscribers, e)
-    subscribers = subscribers.to_a
+  def email_for_event(subscribers, event, opts = {})
+    opts[:layout] ||= true
 
-    set_headers
     begin
-      @e = e.expanded_payload
+      @e = event.expanded_payload
     rescue Project::UnknownObjectError, Package::UnknownObjectError
-      # object got removed already
-      return
+      return # object got removed already
     end
 
-    headers(e.custom_headers)
-
-    template_name = e.template_name
-    orig = e.originator
-
-    # no need to tell user about this own actions
-    # TODO: make configurable?
-    subscribers.delete(orig)
+    subscribers = subscribers.to_a
     return if subscribers.empty?
 
-    tos = subscribers.map(&:display_name)
+    set_headers
+    headers(event.custom_headers)
 
-    if orig
-      orig = orig.display_name
-    else
-      orig = mail_sender
+    to = subscribers.map(&:display_name).sort
+    origin = event.originator ? event.originator.display_name : mail_sender
+
+    mail_opts = {
+      to: to,
+      subject: event.subject,
+      from: origin,
+      date: event.created_at
+    }
+
+    mail(mail_opts) do |format|
+
+      if template_exists?('event_mailer/' + event.template_name, formats: [:html])
+        format.html { render event.template_name, layout: opts[:layout] }
+      end
+
+      if template_exists?('event_mailer/' + event.template_name, formats: [:text])
+        format.text { render event.template_name, layout: opts[:layout] }
+      end
     end
-
-    mail(to: tos.sort,
-         subject: e.subject,
-         from: orig,
-         date: e.created_at,
-         template_name: template_name)
   end
 end

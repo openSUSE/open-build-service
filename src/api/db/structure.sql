@@ -418,6 +418,18 @@ CREATE TABLE `delayed_jobs` (
   KEY `index_delayed_jobs_on_queue` (`queue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `digest_emails` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_subscription_id` int(11) NOT NULL,
+  `email_sent` tinyint(1) DEFAULT '0',
+  `body_text` text,
+  `body_html` text,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_digest_emails_on_event_subscription_id` (`event_subscription_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `distribution_icons` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -539,6 +551,7 @@ CREATE TABLE `groups` (
   `title` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `parent_id` int(11) DEFAULT NULL,
   `email` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `digest_email_enabled` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `groups_parent_id_index` (`parent_id`) USING BTREE,
   KEY `index_groups_on_title` (`title`) USING BTREE
@@ -1124,6 +1137,7 @@ CREATE TABLE `users` (
   `adminnote` text CHARACTER SET utf8,
   `state` enum('unconfirmed','confirmed','locked','deleted','subaccount') COLLATE utf8_bin DEFAULT 'unconfirmed',
   `owner_id` int(11) DEFAULT NULL,
+  `digest_email_enabled` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)) USING BTREE,
   KEY `users_password_index` (`password`) USING BTREE
@@ -1228,6 +1242,9 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170509123922'),
 ('20170511120355'),
 ('20170516140442'),
+('20170601083100'),
+('20170601123232'),
+('20170601123244'),
 ('20170607110443');
 
 

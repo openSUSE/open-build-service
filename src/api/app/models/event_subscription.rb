@@ -13,6 +13,10 @@ class EventSubscription < ApplicationRecord
     end
   end
 
+  def digest_email_enabled?
+    subscriber.digest_email_enabled
+  end
+
   def receiver_role
     read_attribute(:receiver_role).to_sym
   end
