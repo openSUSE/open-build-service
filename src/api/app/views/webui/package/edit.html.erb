@@ -8,9 +8,9 @@
 
 <%= form_tag :action => :save do %>
   <p>
-    <strong>Title:</strong><br/>
+    <label for="title"><strong>Title:</strong></label><br/>
     <%= text_field_tag( 'title', @package.title, :size => 80 ) %><br/>
-    <strong>Description:</strong>
+    <label for="description"><strong>Description:</strong></label>
     <% if params[:spec_count] == "1" %>
       <%= link_to('Import from specfile', {:action => 'import_spec', :project => @project, :package => @package, :import => 'description'}, {:id => 'import-spec-link', :remote => true}) %>
       <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
