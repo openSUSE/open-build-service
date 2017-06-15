@@ -39,6 +39,10 @@ class Flag < ApplicationRecord
     errors.add(:flag, "Flag already exists") if flag_exists
   end
 
+  enum status: { enable: 0, disable: 1 }
+  # add a suffix to prevent conflicts with rails instance method 'lock!'
+  enum flag: { useforbuild: 0, sourceaccess: 1, binarydownload: 2, debuginfo: 3, build: 4, publish: 5, access: 6, lock: 7 }, _suffix: true
+
   def self.default_status(flag_name)
     case flag_name
     when 'lock', 'debuginfo'
@@ -55,24 +59,26 @@ class Flag < ApplicationRecord
   end
 
   def compute_status(variant)
-    all_flag = main_object.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag)
-    repo_flag = main_object.flags.find_by("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo)
-    arch_flag = main_object.flags.find_by("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id)
-    same_flag = main_object.flags.find_by("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id)
+    flag_enum_id = Flag.flags[flag]
+
+    all_flag = main_object.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag_enum_id)
+    repo_flag = main_object.flags.find_by("flag = ? AND repo = ? AND architecture_id IS NULL", flag_enum_id, repo)
+    arch_flag = main_object.flags.find_by("flag = ? AND repo IS NULL AND architecture_id = ?", flag_enum_id, architecture_id)
+    same_flag = main_object.flags.find_by("flag = ? AND repo = ? AND architecture_id = ?", flag_enum_id, repo, architecture_id)
     if main_object.kind_of? Package
       if variant == 'effective'
-        same_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id) unless
+        same_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id = ?", flag_enum_id, repo, architecture_id) unless
           all_flag || same_flag || repo_flag || arch_flag
-        repo_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo) unless
+        repo_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id IS NULL", flag_enum_id, repo) unless
           all_flag || repo_flag || arch_flag
-        arch_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id) unless
+        arch_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id = ?", flag_enum_id, architecture_id) unless
           all_flag || arch_flag
-        all_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag) unless all_flag
+        all_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag_enum_id) unless all_flag
       elsif variant == 'default'
-        same_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id = ?", flag, repo, architecture_id) unless same_flag
-        repo_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id IS NULL", flag, repo) unless repo_flag
-        arch_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id = ?", flag, architecture_id) unless arch_flag
-        all_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag) unless all_flag
+        same_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id = ?", flag_enum_id, repo, architecture_id) unless same_flag
+        repo_flag = main_object.project.flags.find_by("flag = ? AND repo = ? AND architecture_id IS NULL", flag_enum_id, repo) unless repo_flag
+        arch_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id = ?", flag_enum_id, architecture_id) unless arch_flag
+        all_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag_enum_id) unless all_flag
       end
     end
 
@@ -90,7 +96,7 @@ class Flag < ApplicationRecord
         return all_flag.status if all_flag
       end
       if main_object.kind_of? Package
-        all_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag)
+        all_flag = main_object.project.flags.find_by("flag = ? AND repo IS NULL AND architecture_id IS NULL", flag_enum_id)
         return all_flag.status if all_flag
       end
     end
@@ -181,13 +187,13 @@ end
 # Table name: flags
 #
 #  id              :integer          not null, primary key
-#  status          :string(7)        not null
 #  repo            :string(255)
 #  project_id      :integer          indexed
 #  package_id      :integer          indexed
 #  architecture_id :integer          indexed
 #  position        :integer          not null
-#  flag            :string(14)       not null, indexed
+#  status          :integer          not null
+#  flag            :integer          not null, indexed
 #
 # Indexes
 #

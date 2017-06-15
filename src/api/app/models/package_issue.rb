@@ -7,6 +7,9 @@ class PackageIssue < ApplicationRecord
     joins('LEFT JOIN package_kinds ON package_kinds.package_id = package_issues.package_id').where('package_kinds.kind = "patchinfo"')
   }
 
+  # add a suffix to prevent conflicts with rails instance method 'chenged?'
+  enum change: { added: 0, deleted: 1, changed: 2, kept: 3 }, _suffix: true
+
   def self.sync_relations(package, issues)
     retries = 10
     begin
@@ -44,7 +47,7 @@ end
 #  id         :integer          not null, primary key
 #  package_id :integer          not null, indexed => [issue_id]
 #  issue_id   :integer          not null, indexed, indexed => [package_id]
-#  change     :string(7)
+#  change     :integer
 #
 # Indexes
 #

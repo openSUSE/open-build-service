@@ -123,8 +123,10 @@ class Relationship < ApplicationRecord
     # {projecs: [p1,p2], whitelist: { u1: [p1], u2: [p1,p2], u3: [p2] } }
     forbidden_projects = Rails.cache.fetch('forbidden_projects') do
       forbidden_projects_hash = {projects: [], whitelist: {}}
-      Relationship.find_by_sql("SELECT ur.project_id, ur.user_id from flags f,
-                relationships ur where f.flag = 'access' and f.status = 'disable' and ur.project_id = f.project_id").each do |r|
+      Relationship.find_by_sql([
+        "SELECT ur.project_id, ur.user_id from flags f, relationships ur where f.flag = '?' and " +
+        "f.status = '?' and ur.project_id = f.project_id", Flag.flags["access"], Flag.statuses["disable"]
+      ]).each do |r|
         forbidden_projects_hash[:projects] << r.project_id
         if r.user_id
           forbidden_projects_hash[:whitelist][r.user_id] ||= []

@@ -42,6 +42,8 @@ class Configuration < ApplicationRecord
                     :download_on_demand, :enforce_project_keys,
                     :cleanup_empty_projects, :disable_publish_for_branches]
 
+  enum registration: { allow: 0, confirmation: 1, deny: 2 }
+
   class << self
     def map_value(key, value)
       if key.in?(ON_OFF_OPTIONS)
@@ -118,7 +120,6 @@ end
 #  created_at                           :datetime
 #  updated_at                           :datetime
 #  name                                 :string(255)      default("")
-#  registration                         :string(12)       default("allow")
 #  anonymous                            :boolean          default(TRUE)
 #  default_access_disabled              :boolean          default(FALSE)
 #  allow_user_to_create_home_project    :boolean          default(TRUE)
@@ -143,4 +144,5 @@ end
 #  api_url                              :string(255)
 #  unlisted_projects_filter             :string(255)      default("^home:.+")
 #  unlisted_projects_filter_description :string(255)      default("home projects")
+#  registration                         :integer          default("allow")
 #

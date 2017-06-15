@@ -15,6 +15,8 @@ class IssueTracker < ApplicationRecord
   # FIXME: issues_updated should not be hidden, but it should also not break our api
   DEFAULT_RENDER_PARAMS = {except: [:id, :password, :user, :issues_updated], dasherize: true, skip_types: true, skip_instruct: true}
 
+  enum kind: { other: 0, bugzilla: 1, cve: 2, fate: 3, trac: 4, launchpad: 5, sourceforge: 6, github: 7 }
+
   def self.write_to_backend
     IssueTracker.first.delay.write_to_backend
   end
@@ -376,7 +378,6 @@ end
 #
 #  id             :integer          not null, primary key
 #  name           :string(255)      not null
-#  kind           :string(11)       not null
 #  description    :string(255)
 #  url            :string(255)      not null
 #  show_url       :string(255)
@@ -386,4 +387,5 @@ end
 #  label          :text(65535)      not null
 #  issues_updated :datetime         not null
 #  enable_fetch   :boolean          default(FALSE)
+#  kind           :integer          not null
 #

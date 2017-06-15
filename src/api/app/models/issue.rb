@@ -12,6 +12,8 @@ class Issue < ApplicationRecord
 
   scope :stateless, -> { where(state: nil) }
 
+  enum state: { OPEN: 0, CLOSED: 1, UNKOWN: 2 }
+
   def self.find_or_create_by_name_and_tracker( name, issue_tracker_name, force_update = nil )
     find_by_name_and_tracker(name, issue_tracker_name, {
       force_update:   force_update,
@@ -153,7 +155,7 @@ end
 #  owner_id         :integer          indexed
 #  created_at       :datetime
 #  updated_at       :datetime
-#  state            :string(7)
+#  state            :integer
 #
 # Indexes
 #

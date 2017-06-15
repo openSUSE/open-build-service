@@ -1,6 +1,8 @@
 class ReleaseTarget < ApplicationRecord
   belongs_to :repository
   belongs_to :target_repository, class_name: 'Repository'
+
+  enum trigger: { manual: 0, allsucceeded: 1, maintenance: 2 }
 end
 
 # == Schema Information
@@ -10,7 +12,7 @@ end
 #  id                   :integer          not null, primary key
 #  repository_id        :integer          not null, indexed
 #  target_repository_id :integer          not null, indexed
-#  trigger              :string(12)
+#  trigger              :integer
 #
 # Indexes
 #

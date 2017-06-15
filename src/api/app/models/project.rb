@@ -124,6 +124,8 @@ class Project < ApplicationRecord
   validate :valid_name
   validates :kind, inclusion: { in: %w(standard maintenance maintenance_incident maintenance_release) }
 
+  enum kind: { standard: 0, maintenance: 1, maintenance_incident: 2, maintenance_release: 3 }
+
   def self.image_templates
     Project.local_image_templates + remote_image_templates
   end
@@ -1696,8 +1698,8 @@ end
 #  remoteproject   :string(255)
 #  develproject_id :integer          indexed
 #  delta           :boolean          default(TRUE), not null
-#  kind            :string(20)       default("standard")
 #  url             :string(255)
+#  kind            :integer          default("standard")
 #
 # Indexes
 #

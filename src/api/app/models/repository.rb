@@ -43,6 +43,11 @@ class Repository < ApplicationRecord
     end
   end
 
+  enum rebuild: { transitive: 0, direct: 1, local: 2 }
+  # add a suffix to prevent conflicts with rails instance method 'all'
+  enum block: { all: 0, local: 1, never: 2 }, _suffix: true
+  enum linkedbuild: { off: 0, localdep: 1, all: 2 }, _suffix: true
+
   # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
   def self.find_by_project_and_name( project, repo )
     result = not_remote.joins(:project).find_by(projects: {name: project}, name: repo)
@@ -227,10 +232,10 @@ end
 #  db_project_id       :integer          not null, indexed => [name, remote_project_name]
 #  name                :string(255)      not null, indexed => [db_project_id, remote_project_name]
 #  remote_project_name :string(255)      default(""), not null, indexed => [db_project_id, name], indexed
-#  rebuild             :string(10)
-#  block               :string(5)
-#  linkedbuild         :string(8)
 #  hostsystem_id       :integer          indexed
+#  rebuild             :integer
+#  block               :integer
+#  linkedbuild         :integer
 #
 # Indexes
 #
