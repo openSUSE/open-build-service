@@ -54,6 +54,8 @@ class User < ApplicationRecord
   # users have 0..1 user_registration records assigned to them
   has_one :user_registration
 
+  has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notifications::RssFeedItem', dependent: :destroy
+
   scope :all_without_nobody, -> { where("login != ?", nobody_login) }
 
   validates :login, :password, :password_hash_type, :state,
