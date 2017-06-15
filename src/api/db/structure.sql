@@ -711,6 +711,22 @@ CREATE TABLE `messages` (
   KEY `user` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `group_id` int(11) DEFAULT NULL,
+  `type` varchar(255) NOT NULL,
+  `event_type` varchar(255) NOT NULL,
+  `event_payload` text NOT NULL,
+  `subscription_receiver_role` varchar(255) NOT NULL,
+  `delivered` tinyint(1) DEFAULT '0',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_notifications_on_user_id` (`user_id`),
+  KEY `index_notifications_on_group_id` (`group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `package_issues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `package_id` int(11) NOT NULL,
@@ -1228,6 +1244,5 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170509123922'),
 ('20170511120355'),
 ('20170516140442'),
-('20170607110443');
-
-
+('20170607110443'),
+('20170614083014');
