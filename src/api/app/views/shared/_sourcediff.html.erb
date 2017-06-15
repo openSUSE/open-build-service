@@ -6,8 +6,7 @@
    div_opts[:class] = "table_wrapper #{css_class}" %>
 
 <% next_codemirror_uid %>
-<% content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index')) %>
-<% content_for(:head_style, codemirror_style(height: 'auto', width: editor_width, no_border: true)) %>
+<% content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index-diff')) %>
 
 <%= content_tag(:div, div_opts) do %>
 <% if filenames && filenames.length > 0 %>
@@ -15,12 +14,12 @@
     <tbody>
       <% last_file_id = nil %>
       <% filenames.each_with_index do |filename, index| %>
-        <% file_element = files[filename] 
+        <% file_element = files[filename]
            file_id = "#{valid_xml_id(filename)}_#{css_id}_#{index}"
 	   file_diff_text = file_element['diff'] || {}
            file_diff_text = file_diff_text['_content'] || ''
            file_state = file_element['state'].capitalize
-           is_expanded = file_state != 'Deleted' && !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec') || filename.ends_with?('.changes')) 
+           is_expanded = file_state != 'Deleted' && !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec') || filename.ends_with?('.changes'))
         %>
         <tr id="diff_headline_<%= file_id %>">
           <td style="width: 16px"><%# NOTE: Hand-crafted value for both '[+]' and '[-]' %>
@@ -60,7 +59,7 @@
           <% if is_expanded %>
             <tr id="diff_view_<%= file_id %>">
               <td colspan="3">
-                <%= render :partial => 'shared/editor', :locals => {:text => file_diff_text, :mode => 'diff', read_only: true} %>
+                <%= render :partial => 'shared/editor', :locals => {:text => file_diff_text, :mode => 'diff', style: { width: editor_width, no_border: true, read_only: true }} %>
               </td>
             </tr>
           <% else %>

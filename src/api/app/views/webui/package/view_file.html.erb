@@ -1,3 +1,5 @@
+<% content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index')) %>
+
 <% @pagetitle = "File #{@filename} of Package #{@package}" %>
 <% package_bread_crumb(@filename) %>
 
@@ -17,10 +19,10 @@
     <% end %>
 
     <%= render partial: "shared/editor", locals: {text: @file, mode: guess_code_class(@filename),
-			save: {url: url_for(controller: :package, action: :save_file, method: :post), 
+			save: {url: url_for(controller: :package, action: :save_file, method: :post),
 			method: 'POST',
 			data: {project: @project.name, package: @package.name, submit: 'file', comment: '', filename: @filename, rev: @rev}}} %>
     <%# TODO: Provide a comments field thru a callback!! %>
 <% else %>
-    <%= render partial: "shared/editor", locals: {text: @file, mode: guess_code_class(@filename), read_only: true} %>
+    <%= render partial: "shared/editor", locals: {text: @file, mode: guess_code_class(@filename), style: {read_only: true}} %>
 <% end %>
