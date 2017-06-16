@@ -5,6 +5,18 @@ class EventSubscription < ApplicationRecord
   validates :receiver_role, inclusion: { in: [:all, :maintainer, :bugowner, :reader, :source_maintainer,
                                               :target_maintainer, :reviewer, :commenter, :creator] }
 
+  scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }
+  scope :defaults, ->{ where(user_id: nil, group_id: nil) }
+  scope :for_subscriber, lambda { |subscriber|
+    if subscriber.kind_of? User
+      where(user: subscriber)
+    elsif subscriber.kind_of? Group
+      where(group: subscriber)
+    else
+      defaults
+    end
+  }
+
   def subscriber
     if user_id.present?
       user
@@ -13,59 +25,22 @@ class EventSubscription < ApplicationRecord
     end
   end
 
+  def subscriber=(subscriber)
+    if subscriber.is_a? User
+      self.user = subscriber
+    elsif subscriber.is_a? Group
+      self.group = subscriber
+    end
+  end
+
+  def event_class
+    # NOTE: safe_ is required here because for some reason we were getting an uninitialized constant error
+    # from this line from the functional tests (though not in rspec or in rails server)
+    eventtype.safe_constantize
+  end
+
   def receiver_role
     read_attribute(:receiver_role).to_sym
-  end
-
-  def self._get_role_rule(relation, role)
-    all_rule = nil
-    relation.each do |r|
-      if r.receiver_role == role
-        return r
-      end
-      if r.receiver_role == :all
-        all_rule = r
-      end
-    end
-    all_rule
-  end
-
-  def self._get_rel(eventtype)
-    EventSubscription.where(eventtype: eventtype)
-  end
-
-  # returns boolean if the eventtype is set for the role
-  def self.subscription_value(eventtype, role, subscriber)
-    rel = _get_rel(eventtype)
-
-    # check user or group config first
-    if subscriber
-      rule = _get_role_rule(filter_relationships(rel, subscriber), role)
-      return rule.receive if rule
-    end
-
-    # now global default
-    rule = _get_role_rule(rel.where(user_id: nil, group_id: nil), role)
-    return rule.receive if rule
-
-    # if nothing set, nothing is set. Thank you captain obvious!
-    false
-  end
-
-  def self.update_subscription(eventtype, role, subscriber, value)
-    rel = _get_rel(eventtype)
-    rel = filter_relationships(rel, subscriber)
-    rule = rel.where(receiver_role: role).first_or_create
-    rule.receive = value
-    rule.save
-  end
-
-  def self.filter_relationships(rel, obj)
-    return rel.where(user: obj) if obj.kind_of? User
-    return rel.where(group: obj) if obj.kind_of? Group
-    return rel.where(user_id: nil, group_id: nil) if obj.nil?
-
-    raise "Unable to filter by #{obj.class}"
   end
 end
 

@@ -133,26 +133,6 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     flash_message.must_equal 'Notifications settings updated'
   end
 
-  def test_notification_settings_for_events # this test was dropped
-    login_adrian to: user_notifications_path
-
-    page.must_have_text 'Events to get email for'
-    page.must_have_checked_field('Event::RequestStatechange_creator')
-    uncheck('Event::RequestStatechange_creator')
-    check('Event::CommentForPackage_maintainer')
-    check('Event::CommentForPackage_commenter')
-    check('Event::CommentForProject_maintainer')
-    check('Event::CommentForProject_commenter')
-    click_button 'Update'
-    flash_message.must_equal 'Notifications settings updated'
-    page.must_have_text 'Events to get email for'
-    page.must_have_unchecked_field('Event::RequestStatechange_creator')
-    page.must_have_checked_field('Event::CommentForPackage_maintainer')
-    page.must_have_checked_field('Event::CommentForPackage_commenter')
-    page.must_have_checked_field('Event::CommentForProject_maintainer')
-    page.must_have_checked_field('Event::CommentForProject_commenter')
-  end
-
   def test_that_require_login_works # spec/controllers/webui/users_spec.rb
     logout
     visit users_path

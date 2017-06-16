@@ -81,9 +81,9 @@ OBSApi::Application.routes.draw do
       post 'configuration/interconnect' => :create_interconnect
     end
 
-    controller 'webui/notifications' do
+    controller 'webui/subscriptions' do
       get 'notifications' => :index
-      patch 'notifications' => :bulk_update, as: 'bulk_update_notifications'
+      put 'notifications' => :update
     end
 
     controller 'webui/architectures' do
@@ -331,9 +331,6 @@ OBSApi::Application.routes.draw do
       post 'user/do_login' => :do_login
       get 'user/edit/:user' => :edit, constraints: cons, as: 'user_edit'
 
-      post 'user/notifications' => :update_notifications
-      get 'user/notifications' => :notifications
-
       get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
       get 'user/icon/:icon' => :user_icon, constraints: cons, as: 'user_icon'
       # Only here to make old /home url's work
@@ -343,6 +340,9 @@ OBSApi::Application.routes.draw do
       get 'home/home_project' => :home_project
       get 'user/:user/icon' => :icon, constraints: cons
     end
+
+    get 'user/notifications' => :index, constraints: cons, controller: 'webui/users/subscriptions'
+    put 'user/notifications' => :update, constraints: cons, controller: 'webui/users/subscriptions'
 
     # Hardcoding this routes is necessary because we rely on the :user parameter
     # in check_display_user before filter. Overwriting of the parameter is not
