@@ -1,3 +1,5 @@
+require 'builder'
+
 class Webui::PatchinfoController < Webui::WebuiController
   include Webui::PackageHelper
   before_action :set_project

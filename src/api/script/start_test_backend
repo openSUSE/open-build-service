@@ -3,6 +3,7 @@ ENV['RAILS_ENV'] ||= 'test'
 ENV['origin_RAILS_ENV'] ||= ENV['RAILS_ENV']
 ENV['LC_ALL'] = 'C'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
+require 'builder'
 
 include TestBackendTasks
 
