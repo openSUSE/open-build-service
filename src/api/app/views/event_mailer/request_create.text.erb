@@ -5,14 +5,14 @@ Description:
 <%= event['description']%>
 
 <%-end-%>
-<%= render partial: 'actions', locals: { event: event } %>
+<%= render partial: 'event_mailer/actions', locals: { event: event } %>
 
 To REVIEW against the previous version:
    osc request show --diff <%= event['number']%>
 
 To ACCEPT the request:
    osc request accept <%= event['number']%> --message="reviewed ok."
-   
+
 To DECLINE the request:
    osc request decline <%= event['number']%> --message="declined for reason xyz (see ... for background / policy / ...)."
 

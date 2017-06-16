@@ -1,8 +1,8 @@
 Actions:
 <% event['actions'].each do |a| -%>
 <% if %w(submit maintenance_incident maintenance_release).include? a['type'] -%>
-<%= render partial: 'submit_action', locals: { a: a } -%>
+<%= render partial: 'event_mailer/submit_action', locals: { a: a } -%>
 <% else -%>
-<%= render partial: "#{a['type']}_action", locals: { a: a } -%>
+<%= render partial: "event_mailer/#{a['type']}_action", locals: { a: a } -%>
 <% end -%>
 <% end -%>

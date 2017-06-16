@@ -16,16 +16,21 @@ class SendEventEmails
       subscribers = event.subscribers
       next if subscribers.empty?
       EventMailer.event(subscribers, event).deliver_now
-
-      event.subscriptions.each do |subscription|
-        Notifications::RssFeedItem.create(
-          subscriber: subscription.subscriber,
-          event_type: event.eventtype,
-          event_payload: event.payload,
-          subscription_receiver_role: subscription.receiver_role
-        )
-      end
+      create_rss_notifications(event)
     end
     true
+  end
+
+  private
+
+  def create_rss_notifications(event)
+    event.subscriptions.each do |subscription|
+      Notifications::RssFeedItem.create(
+        subscriber: subscription.subscriber,
+        event_type: event.eventtype,
+        event_payload: event.payload,
+        subscription_receiver_role: subscription.receiver_role
+      )
+    end
   end
 end

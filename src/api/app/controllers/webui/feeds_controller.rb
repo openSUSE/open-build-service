@@ -42,8 +42,7 @@ class Webui::FeedsController < Webui::WebuiController
   end
 
   def notifications
-    @host = ::Configuration.obs_url
-    @configuration = ::Configuration.first    
+    @configuration = ::Configuration.first
     @user = User.current
     @notifications = User.current.combined_rss_feed_items
   end

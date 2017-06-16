@@ -1,15 +1,12 @@
 class Notifications::Base < ApplicationRecord
   self.table_name = "notifications"
 
-  belongs_to :user
-  belongs_to :group
+  belongs_to :subscriber, polymorphic: true
 
-  def subscriber=(subscriber)
-    if subscriber.is_a? User
-      self.user = subscriber
-    elsif subscriber.is_a? Group
-      self.group = subscriber
-    end
+  serialize :event_payload, Hash
+
+  def event
+    @event ||= event_type.constantize.new(event_payload)
   end
 end
 

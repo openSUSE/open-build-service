@@ -20,6 +20,18 @@ class Notifications::RssFeedItem < Notifications::Base
       end
     end
   end
+
+  def title
+    event.subject
+  end
+
+  def description
+    ApplicationController.renderer.new.render(
+      template: "event_mailer/#{event.template_name}",
+      layout: false,
+      format: :txt,
+      assigns: { e: event.expanded_payload, host: ::Configuration.obs_url, configuration: ::Configuration.first })
+  end
 end
 
 # == Schema Information
