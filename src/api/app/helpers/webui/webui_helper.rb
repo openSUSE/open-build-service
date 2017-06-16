@@ -36,8 +36,7 @@ module Webui::WebuiHelper
     user = User.find_by_login!(user) unless user.is_a? User
     alt ||= user.realname
     alt = user.login if alt.empty?
-    image_tag(url_for(controller: '/webui/user', action: :user_icon, icon: user.login, size: size),
-              width: size, height: size, alt: alt, class: css_class)
+    image_tag(user_icon_path(icon: user.login, size: size), width: size, height: size, alt: alt, class: css_class)
   end
 
   def fuzzy_time(time, with_fulltime = true)

@@ -3,8 +3,7 @@ module Webui::Packages::JobHistoryHelper
 
   def job_history_breadcrumb(project, package, *args)
     args.insert(0, link_to_if(params['action'] != 'show', package,
-                              controller: '/webui/package', action: :show,
-                              project: project, package: package ))
+                              package_show_path(project: project, package: package)))
     project_bread_crumb( *args )
   end
 
