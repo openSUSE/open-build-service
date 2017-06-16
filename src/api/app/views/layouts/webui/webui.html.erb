@@ -37,6 +37,7 @@
       <% end %>
     <% end %>
     <%= csrf_meta_tag %>
+    <%= auto_discovery_link_tag(:rss, user_rss_notifications_url(format: :rss), { title: 'Notifications' }) %>
   </head>
   <body>
     <div class="overlay"></div>
