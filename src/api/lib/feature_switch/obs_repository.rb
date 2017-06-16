@@ -13,7 +13,8 @@ module Feature
       #
       def active_features
         data = read_file(@yaml_file_name).with_indifferent_access
-        data['features'] = DEFAULTS.merge(data['features'])
+        data[@environment]['features'] = DEFAULTS.merge(data[@environment]['features'])
+        data['features'] = DEFAULTS.merge(data[@environment]['features'])
         get_active_features(data, @environment)
       end
     end
