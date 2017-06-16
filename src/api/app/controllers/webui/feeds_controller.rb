@@ -40,4 +40,11 @@ class Webui::FeedsController < Webui::WebuiController
     @commits = @commits.where(["datetime <= ?", @finish]) unless @finish.nil?
     @commits = @commits.order("datetime desc")
   end
+
+  def notifications
+    @host = ::Configuration.obs_url
+    @configuration = ::Configuration.first    
+    @user = User.current
+    @notifications = User.current.combined_rss_feed_items
+  end
 end

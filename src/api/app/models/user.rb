@@ -904,6 +904,12 @@ class User < ApplicationRecord
     address.format
   end
 
+  def combined_rss_feed_items
+    Notification::RssFeedItem.where(subscriber: self).or(
+      Notification::RssFeedItem.where(subscriber: groups)
+    ).order(created_at: :desc, id: :desc).limit(Notification::RssFeedItem::MAX_ITEMS_PER_USER)
+  end
+
   private
 
   def can_modify_project_internal(project, ignore_lock)
