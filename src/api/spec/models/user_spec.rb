@@ -513,8 +513,11 @@ RSpec.describe User do
         end
       end
 
-      it 'returns a BsRequest::ActiveRecord_Relation' do
-        expect(subject.class).to eq(BsRequest::ActiveRecord_Relation)
+      it 'returns an ActiveRecord::Relation of bs requests' do
+        expect(subject).to be_a_kind_of(ActiveRecord::Relation)
+        subject.each do |item|
+          expect(item).to be_instance_of(BsRequest)
+        end
       end
 
       it 'does include reviews where the user is not the creator of the request' do
