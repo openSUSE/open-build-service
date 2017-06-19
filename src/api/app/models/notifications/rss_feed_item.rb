@@ -5,17 +5,14 @@ class Notifications::RssFeedItem < Notifications::Base
   def self.cleanup
     User.all_without_nobody.find_in_batches batch_size: 500 do |batch|
       batch.each do |user|
-        if user.is_active?
-          ids = user.rss_feed_items.pluck(:id).slice(MAX_ITEMS_PER_USER..-1)
-          user.rss_feed_items.where(id: ids).delete_all
-        else
-          user.rss_feed_items.delete_all
-        end
+        offset = user.is_active? ? MAX_ITEMS_PER_USER : 0
+        ids = user.rss_feed_items.offset(offset).pluck(:id)
+        user.rss_feed_items.where(id: ids).delete_all
       end
     end
     Group.find_in_batches batch_size: 500 do |batch|
       batch.each do |group|
-        ids = group.rss_feed_items.pluck(:id).slice(MAX_ITEMS_PER_GROUP..-1)
+        ids = group.rss_feed_items.offset(MAX_ITEMS_PER_GROUP).pluck(:id)
         group.rss_feed_items.where(id: ids).delete_all
       end
     end
