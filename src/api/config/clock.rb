@@ -31,6 +31,10 @@ module Clockwork
     end
   end
 
+  every(1.hour, 'cleanup notifications') do
+    CleanupNotifications.perform_later
+  end
+
   every(30.seconds, 'send notifications') do
     ::Event::NotifyBackends.trigger_delayed_sent
     SendEventEmails.new.delay.perform

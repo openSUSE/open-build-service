@@ -28,5 +28,29 @@ RSpec.describe SendEventEmails, type: :job do
       expect(email.to).to match_array([user.email, group.email])
       expect(email.subject).to include('New comment')
     end
+
+    it "creates an rss notification for user's email" do
+      notification = Notifications::Base.find_by(user: user)
+
+      expect(notification.type).to eq('Notifications::RssFeedItem')
+      expect(notification.event_type).to eq('Event::CommentForProject')
+      expect(notification.event_payload).to include('how are things?')
+      expect(notification.subscription_receiver_role).to eq('all')
+      expect(notification.delivered).to be_falsey
+    end
+
+    it "creates an rss notification for group's email" do
+      notification = Notifications::RssFeedItem.find_by(group: group)
+
+      expect(notification.type).to eq('Notifications::RssFeedItem')
+      expect(notification.event_type).to eq('Event::CommentForProject')
+      expect(notification.event_payload).to include('how are things?')
+      expect(notification.subscription_receiver_role).to eq('all')
+      expect(notification.delivered).to be_falsey
+    end
+
+    it 'only creates two notifications' do
+      expect(Notifications::Base.count).to eq(2)
+    end
   end
 end
