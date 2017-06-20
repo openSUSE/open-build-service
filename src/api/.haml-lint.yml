@@ -5,5 +5,4 @@ exclude:
 
 linters:
   InstanceVariables:
-    exclude:
-      - "app/views/**/*"
+    enabled: false
