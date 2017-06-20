@@ -24,12 +24,6 @@ linters:
   SpaceInsideHashAttributes:
     enabled: false
 
-  # Offense count: 2
-  FinalNewline:
-    exclude:
-      - "app/views/webui/package/_rpmlint_log.html.haml"
-      - "app/views/webui/theme/bratwurst/webui/package/show.html.haml"
-
   # Offense count: 1
   MultilineScript:
     exclude:
