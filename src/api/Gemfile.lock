@@ -141,11 +141,6 @@ GEM
       rubocop (>= 0.49.0)
       sysexits (~> 1.1)
     hashdiff (0.3.4)
-    html2haml (2.2.0)
-      erubis (~> 2.7.0)
-      haml (>= 4.0, < 6)
-      nokogiri (>= 1.6.0)
-      ruby_parser (~> 3.5)
     i18n (0.8.4)
     innertube (1.1.0)
     joiner (0.3.4)
@@ -423,7 +418,6 @@ DEPENDENCIES
   gssapi
   haml (~> 4.0)
   haml_lint
-  hoptoad_notifier (~> 2.3)
   jquery-datatables-rails
   jquery-rails
   jquery-ui-rails (~> 4.2.1)
