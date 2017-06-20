@@ -1,8 +1,14 @@
 require 'rails_helper'
 
-RSpec.describe Kiwi::Image, type: :model do
+# WARNING: Some tests require real backend answers, so make sure you uncomment
+# this line and start a test backend.
+# CONFIG['global_write_through'] = true
+
+RSpec.describe Kiwi::Image, type: :model, vcr: true do
   include_context 'a kiwi image xml'
   include_context 'an invalid kiwi image xml'
+
+  let(:kiwi_image) { create(:kiwi_image) }
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:name) }
@@ -74,6 +80,35 @@ RSpec.describe Kiwi::Image, type: :model do
       subject { Kiwi::Image.build_from_xml(invalid_kiwi_xml, 'some_md5') }
 
       it { expect(subject.valid?).to be_falsey }
+    end
+  end
+
+  describe '.to_xml' do
+    context 'without kiwi image file' do
+      it 'returns nil' do
+        dbl_package = double("Some Package")
+        allow(dbl_package).to receive(:kiwi_image_file)
+        allow(kiwi_image).to receive(:package).and_return(dbl_package)
+
+        expect(kiwi_image.to_xml).to be_nil
+      end
+    end
+
+    context 'with kiwi image file' do
+      before do
+        dbl_package = double('Some Package')
+        allow(dbl_package).to receive(:kiwi_image_file).and_return('fake_filename.kiwi')
+        allow(dbl_package).to receive_messages(source_file: kiwi_xml)
+        allow(kiwi_image).to receive(:package).and_return(dbl_package)
+      end
+
+      subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
+
+      it { expect(subject.errors).to be_empty }
+      it { expect(subject.xpath('.//image').length).to be(1) }
+      it { expect(subject.xpath('.//image/description').length).to be(1) }
+      it { expect(subject.xpath('.//image/packages/package').length).to be(20) }
+      it { expect(subject.xpath('.//image/repository').length).to be(0) }
     end
   end
 end

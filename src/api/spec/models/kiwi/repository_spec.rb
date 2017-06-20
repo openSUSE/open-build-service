@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'rantly/rspec_extensions'
 
 RSpec.describe Kiwi::Repository, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  let(:kiwi_repository) { create(:kiwi_repository) }
 
   describe 'validations' do
     context 'for source_path' do
@@ -66,5 +66,13 @@ RSpec.describe Kiwi::Repository, type: :model do
     it { is_expected.to validate_numericality_of(:order).is_greater_than_or_equal_to(1) }
     it { is_expected.to allow_value(nil).for(:imageinclude) }
     it { is_expected.to allow_value(nil).for(:prefer_license) }
+  end
+
+  describe '.to_xml' do
+    let(:kiwi_repository) { create(:kiwi_repository) }
+
+    subject { kiwi_repository.to_xml }
+
+    it { expect(subject).to eq("<repository type=\"apt-deb\">\n  <source path=\"http://example.com/\"/>\n</repository>\n") }
   end
 end
