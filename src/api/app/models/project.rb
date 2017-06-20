@@ -122,6 +122,15 @@ class Project < ApplicationRecord
   validate :valid_name
   validates :kind, inclusion: { in: %w(standard maintenance maintenance_incident maintenance_release) }
 
+  def self.deleted?(project_name)
+    return false if find_by_name(project_name)
+
+    response = ProjectFile.new(project_name: project_name, name: '_history').to_s(deleted: 1)
+    return false unless response
+
+    !Xmlhash.parse(response).empty?
+  end
+
   def self.image_templates
     Project.local_image_templates + remote_image_templates
   end

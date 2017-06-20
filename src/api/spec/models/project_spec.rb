@@ -369,4 +369,30 @@ RSpec.describe Project, vcr: true do
       end
     end
   end
+
+  describe '#deleted?' do
+    it 'returns false if the project exists in the app' do
+      expect(Project.deleted?(project.name)).to be_falsey
+    end
+
+    it 'returns false if backend responds with nothing' do
+      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return(nil)
+      expect(Project.deleted?('never-existed-before')).to be_falsey
+    end
+
+    it 'returns false if revision list element of _history file is empty' do
+      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return("<revisionlist>\n</revisionlist>\n")
+      expect(Project.deleted?('never-existed-before')).to be_falsey
+    end
+
+    it 'returns true if _history element has elements' do
+      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return(
+        "<revisionlist>\n  <revision rev=\"1\" vrev=\"\">\n    <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>\n    " \
+        "<version></version>\n    <time>1498113679</time>\n    <user>Admin</user>\n    <comment>1</comment>\n  " \
+        "</revision>\n</revisionlist>\n"
+      )
+
+      expect(Project.deleted?('very-nice-project-name')).to be_truthy
+    end
+  end
 end
