@@ -727,4 +727,60 @@ RSpec.describe User do
       end
     end
   end
+
+  describe '#combined_rss_feed_items' do
+    let(:max_items_per_user) { Notification::RssFeedItem::MAX_ITEMS_PER_USER }
+    let(:max_items_per_group) { Notification::RssFeedItem::MAX_ITEMS_PER_GROUP }
+    let(:group) { create(:group) }
+    let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
+
+    context 'with a lot notifications from the user' do
+      before do
+        create_list(:rss_notification, max_items_per_group, subscriber: group)
+        create_list(:rss_notification, max_items_per_user + 5, subscriber: confirmed_user)
+        create_list(:rss_notification, 3, subscriber: user)
+      end
+
+      subject { confirmed_user.combined_rss_feed_items }
+
+      it { expect(subject.count).to be(max_items_per_user) }
+      it { expect(subject.any? { |x| x.subscriber != confirmed_user }).to be_falsey }
+      it { expect(subject.any? { |x| x.subscriber == group }).to be_falsey }
+      it { expect(subject.any? { |x| x.subscriber == user }).to be_falsey }
+    end
+
+    context 'with a lot notifications from the group' do
+      before do
+        create_list(:rss_notification, 5, subscriber: confirmed_user)
+        create_list(:rss_notification, max_items_per_group - 1, subscriber: group)
+        create_list(:rss_notification, 3, subscriber: user)
+      end
+
+      subject { confirmed_user.combined_rss_feed_items }
+
+      it { expect(subject.count).to be(max_items_per_user) }
+      it { expect(subject.select { |x| x.subscriber == confirmed_user }.length).to eq(1) }
+      it { expect(subject.select { |x| x.subscriber == group }.length).to eq(max_items_per_user - 1) }
+      it { expect(subject.any? { |x| x.subscriber == user }).to be_falsey }
+    end
+
+    context 'with a notifications mixed' do
+      let(:batch) { max_items_per_user / 4 }
+
+      before do
+        create_list(:rss_notification, max_items_per_user + batch, subscriber: confirmed_user)
+        create_list(:rss_notification, batch, subscriber: group)
+        create_list(:rss_notification, batch, subscriber: confirmed_user)
+        create_list(:rss_notification, batch, subscriber: group)
+        create_list(:rss_notification, 3, subscriber: user)
+      end
+
+      subject { confirmed_user.combined_rss_feed_items }
+
+      it { expect(subject.count).to be(max_items_per_user) }
+      it { expect(subject.select { |x| x.subscriber == confirmed_user }.length).to be >= batch * 2 }
+      it { expect(subject.select { |x| x.subscriber == group }.length).to eq(batch * 2) }
+      it { expect(subject.any? { |x| x.subscriber == user }).to be_falsey }
+    end
+  end
 end

@@ -11,7 +11,7 @@ class Group < ApplicationRecord
   has_many :event_subscriptions, dependent: :destroy, inverse_of: :group
   has_many :reviews, dependent: :nullify, as: :reviewable
 
-  has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notifications::RssFeedItem', dependent: :destroy
+  has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
 
   validates :title,
             format: { with:    %r{\A[\w\.\-]*\z},

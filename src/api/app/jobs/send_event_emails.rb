@@ -25,7 +25,7 @@ class SendEventEmails
 
   def create_rss_notifications(event)
     event.subscriptions.each do |subscription|
-      Notifications::RssFeedItem.create(
+      Notification::RssFeedItem.create(
         subscriber: subscription.subscriber,
         event_type: event.eventtype,
         event_payload: event.payload,

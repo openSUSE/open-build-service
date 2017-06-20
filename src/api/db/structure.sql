@@ -713,8 +713,6 @@ CREATE TABLE `messages` (
 
 CREATE TABLE `notifications` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `group_id` int(11) DEFAULT NULL,
   `type` varchar(255) NOT NULL,
   `event_type` varchar(255) NOT NULL,
   `event_payload` text NOT NULL,
@@ -722,9 +720,10 @@ CREATE TABLE `notifications` (
   `delivered` tinyint(1) DEFAULT '0',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  `subscriber_type` varchar(255) DEFAULT NULL,
+  `subscriber_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_notifications_on_user_id` (`user_id`),
-  KEY `index_notifications_on_group_id` (`group_id`)
+  KEY `index_notifications_on_subscriber_type_and_subscriber_id` (`subscriber_type`,`subscriber_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `package_issues` (
@@ -1514,6 +1513,5 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('6'),
 ('7'),
 ('8'),
-('9');
-
-
+('9'),
+('20170619111734');
