@@ -131,6 +131,35 @@ class Project < ApplicationRecord
     !Xmlhash.parse(response).empty?
   end
 
+  def self.restore(project_name, backend_opts = {})
+    backend_opts[:cmd] = 'undelete'
+
+    query = Backend::Connection.build_query_from_hash(backend_opts, [:cmd, :user, :comment])
+    Backend::Connection.post "/source/#{CGI.escape(project_name)}#{query}"
+
+    # read meta data from backend to restore database object
+    project = Project.new(name: project_name)
+
+    Project.transaction do
+      project.update_from_xml!(Xmlhash.parse(project.meta.to_s))
+      project.store
+
+      # restore all package meta data objects in DB
+      backend_packages = Collection.find(:package, match: "@project='#{project_name}'")
+      backend_packages.each('package') do |package|
+        package = project.packages.new(name: package.value(:name))
+        package_meta = Xmlhash.parse(PackageMetaFile.new(project_name: project_name, package_name: package.name).to_s)
+
+        Package.transaction do
+          package.update_from_xml(package_meta)
+          package.store
+        end
+      end
+    end
+
+    project
+  end
+
   def self.image_templates
     Project.local_image_templates + remote_image_templates
   end

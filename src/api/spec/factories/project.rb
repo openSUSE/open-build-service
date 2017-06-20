@@ -35,6 +35,48 @@ FactoryGirl.define do
       end
     end
 
+    factory :project_with_packages do
+      transient do
+        package_name nil
+        package_title nil
+        package_description nil
+        package_count 2
+        create_patchinfo false
+        maintainer nil
+      end
+
+      after(:create) do |project, evaluator|
+        evaluator.package_count.times do |index|
+          package_title = nil
+          if evaluator.package_title
+            package_title = "#{evaluator.package_title}_#{index}"
+          end
+
+          package_description = nil
+          if evaluator.package_description
+            package_description = "#{evaluator.package_description}_#{index}"
+          end
+
+          package_name = nil
+          if evaluator.package_name
+            package_name = "#{evaluator.package_name}_#{index}"
+          end
+
+          new_package = create(:package, {
+            project:     project,
+            name:        package_name,
+            title:       package_title,
+            description: package_description
+          }.compact)
+          project.packages << new_package
+          if evaluator.create_patchinfo
+            create(:relationship_project_user, project: project, user: evaluator.maintainer)
+            Patchinfo.new.create_patchinfo(project.name, new_package.name, comment: 'Fake comment', force: true)
+          end
+        end
+      end
+    end
+
     factory :forbidden_project do
       after(:create) do |project|
         create(:access_flag, status: 'disable', project: project)
