@@ -570,7 +570,7 @@ class Project < ApplicationRecord
   def update_from_xml(xmlhash, force = nil)
     update_from_xml!(xmlhash, force)
     { }
-  rescue APIException => e
+  rescue APIException, ActiveRecord::RecordInvalid => e
     { error: e.message }
   end
 
