@@ -13,7 +13,8 @@ RSpec.describe Backend::File, vcr: true do
     File.open(File.expand_path(Rails.root.join("spec/support/files/hello_world"))) { |file| file }
   end
   let(:somefile_txt_url) { "/source/#{user.home_project_name}/#{package_with_file.name}/somefile.txt" }
-  let(:mock_full_path) do
+
+  before do
     # Needed because full_path is only defined in subclasses of Backend::File
     allow_any_instance_of(Backend::File).to receive(:full_path) do
       URI.encode(somefile_txt_url)
@@ -103,8 +104,6 @@ RSpec.describe Backend::File, vcr: true do
         before do
           login user
 
-          mock_full_path
-
           subject.file
         end
 
@@ -119,8 +118,6 @@ RSpec.describe Backend::File, vcr: true do
     context 'with a backend error' do
       before do
         allow(Backend::Connection).to receive(:get).and_raise(StandardError, 'message')
-
-        mock_full_path
       end
 
       it { expect(subject.file).to be_nil }
@@ -144,8 +141,6 @@ RSpec.describe Backend::File, vcr: true do
       before do
         login user
 
-        mock_full_path
-
         subject.file
       end
 
@@ -159,8 +154,6 @@ RSpec.describe Backend::File, vcr: true do
       before do
         login user
 
-        mock_full_path
-
         subject.file
       end
 
@@ -173,8 +166,6 @@ RSpec.describe Backend::File, vcr: true do
       before do
         login user
 
-        mock_full_path
-
         @previous_content = subject.to_s
         subject.save({}, 'hello') # Change the content of the file
       end
@@ -186,8 +177,6 @@ RSpec.describe Backend::File, vcr: true do
   describe '#save!' do
     context 'with a string as content' do
       before do
-        mock_full_path
-
         @previous_content = subject.to_s
         subject.save!({}, 'hello') # Change the content of the file with a string
       end
@@ -198,8 +187,6 @@ RSpec.describe Backend::File, vcr: true do
 
     context 'with a file as content' do
       before do
-        mock_full_path
-
         @previous_content = subject.to_s
 
         subject.file = File.open(fake_file.path)
@@ -215,8 +202,6 @@ RSpec.describe Backend::File, vcr: true do
     context 'with a backend error' do
       before do
         allow(Backend::Connection).to receive(:put).and_raise(StandardError, 'message')
-
-        mock_full_path
       end
 
       it "left the object invalid if errors are present" do
@@ -233,8 +218,6 @@ RSpec.describe Backend::File, vcr: true do
 
   describe '#destroy!' do
     before do
-      mock_full_path
-
       subject.destroy!
     end
 
@@ -249,8 +232,6 @@ RSpec.describe Backend::File, vcr: true do
     context 'with a backend error' do
       before do
         allow(Backend::Connection).to receive(:delete).and_raise(StandardError, 'message')
-
-        mock_full_path
 
         subject.file
 
