@@ -4,6 +4,7 @@ class EventSubscription < ApplicationRecord
 
   validates :receiver_role, inclusion: { in: [:all, :maintainer, :bugowner, :reader, :source_maintainer,
                                               :target_maintainer, :reviewer, :commenter, :creator] }
+  validates :channel, inclusion: { in: ['disabled', 'instant_email', 'daily_email'] }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }
   scope :defaults, ->{ where(user_id: nil, group_id: nil) }
@@ -56,6 +57,7 @@ end
 #  updated_at    :datetime
 #  receive       :boolean          default(TRUE), not null
 #  group_id      :integer          indexed
+#  channel       :string(255)      not null
 #
 # Indexes
 #
