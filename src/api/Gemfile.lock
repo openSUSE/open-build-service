@@ -132,7 +132,8 @@ GEM
       activesupport (>= 4.2.0)
     gssapi (1.2.0)
       ffi (>= 1.0.1)
-    haml (4.0.7)
+    haml (5.0.1)
+      temple (>= 0.8.0)
       tilt
     haml_lint (0.26.0)
       haml (>= 4.0, < 5.1)
@@ -342,6 +343,7 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     sysexits (1.2.0)
+    temple (0.8.0)
     test-unit (3.2.4)
       power_assert
     thinking-sphinx (3.3.0)
@@ -416,7 +418,7 @@ DEPENDENCIES
   flot-rails
   font-awesome-rails
   gssapi
-  haml (~> 4.0)
+  haml
   haml_lint
   jquery-datatables-rails
   jquery-rails
