@@ -165,39 +165,35 @@ module ActionDispatch
         if !headers.has_key?("HTTP_AUTHORIZATION") && IntegrationTest.basic_auth
           headers["HTTP_AUTHORIZATION"] = IntegrationTest.basic_auth
         end
+
         headers
       end
 
-      alias_method :real_process, :process_with_kwargs
+      alias_method :real_process, :process
 
-      def process_with_kwargs(http_method, path, *args)
+      def process(http_method, path, params: nil, headers: nil, env: nil, xhr: false, as: nil)
         CONFIG['global_write_through'] = true
         # Hack to pass the APIMatcher (config/routes.rb) without
         # explicitly setting format: xml
         self.accept = 'text/xml,application/xml'
-        if kwarg_request?(args)
-          parameters = args[0]
-          parameters[:headers] = add_auth(parameters[:headers])
-          real_process(http_method, path, parameters)
-        else
-          real_process(http_method, path, params: args[0], headers: add_auth(args[1]))
-        end
+
+        real_process(http_method, path, params: params, headers: add_auth(headers), env: env, xhr: xhr, as: as)
       end
 
-      def raw_post(path, data, parameters = {}, rack_env = nil)
+      def raw_post(path, data)
+        rack_env = {}
+        rack_env['CONTENT_TYPE'] ||= 'application/octet-stream'
+        rack_env['CONTENT_LENGTH'] = data.length
+        rack_env['RAW_POST_DATA'] = data
+        process(:post, path, env: add_auth(rack_env))
+      end
+
+      def raw_put(path, data)
         rack_env ||= {}
         rack_env['CONTENT_TYPE'] ||= 'application/octet-stream'
         rack_env['CONTENT_LENGTH'] = data.length
         rack_env['RAW_POST_DATA'] = data
-        process_with_kwargs(:post, path, parameters, add_auth(rack_env))
-      end
-
-      def raw_put(path, data, parameters = {}, rack_env = nil)
-        rack_env ||= {}
-        rack_env['CONTENT_TYPE'] ||= 'application/octet-stream'
-        rack_env['CONTENT_LENGTH'] = data.length
-        rack_env['RAW_POST_DATA'] = data
-        process_with_kwargs(:put, path, parameters, add_auth(rack_env))
+        process(:put, path, env: add_auth(rack_env))
       end
     end
   end

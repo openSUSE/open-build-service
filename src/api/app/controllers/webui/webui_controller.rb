@@ -74,10 +74,6 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
-  rescue_from ActionController::RedirectBackError do
-    redirect_to root_path
-  end
-
   # FIXME: This is more than stupid. Why do we tell the user that something isn't found
   # just because there is some data missing to compute the request? Someone needs to read
   # http://guides.rubyonrails.org/active_record_validations.html

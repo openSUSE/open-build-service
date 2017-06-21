@@ -1570,7 +1570,7 @@ class SourceController < ApplicationController
   def private_branch_command
     ret = BranchPackage.new(params).branch
     if ret[:text]
-      render ret
+      render plain: ret[:text]
     else
       Event::BranchCommand.create project: params[:project], package: params[:package],
                                   targetproject: params[:target_project], targetpackage: params[:target_package],
