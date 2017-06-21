@@ -694,7 +694,6 @@ Style/PercentLiteralDelimiters:
     - 'src/api/app/controllers/source_controller.rb'
     - 'src/api/app/controllers/webui/monitor_controller.rb'
     - 'src/api/app/models/package.rb'
-    - 'src/api/config/initializers/hoptoad.rb'
     - 'src/api/lib/engines/base.rb'
     - 'src/api/script/start_test_backend'
     - 'src/api/test/functional/source_controller_test.rb'

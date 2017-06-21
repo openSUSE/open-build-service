@@ -14,11 +14,11 @@ class CreateJob
 
   def error(job, exception)
     if Rails.env.test?
-      # make debug output useful in test suite, not just showing backtrace to HoptoaddNotifier
+      # make debug output useful in test suite, not just showing backtrace to Airbrake
       Rails.logger.debug "ERROR: #{exception.inspect}: #{exception.backtrace}"
       puts exception.inspect, exception.backtrace
       return
     end
-    HoptoadNotifier.notify(exception, {failed_job: job.inspect})
+    Airbrake.notify(exception, {failed_job: job.inspect})
   end
 end

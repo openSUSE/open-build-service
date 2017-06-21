@@ -225,7 +225,7 @@ class Webui::RequestController < Webui::WebuiController
         end
       end
     rescue APIException => e
-      HoptoadNotifier.notify(e, { failed_job: "Failed to forward BsRequest '#{params[:number]}'" })
+      Airbrake.notify(e, { failed_job: "Failed to forward BsRequest '#{params[:number]}'" })
       flash[:error] = "Unable to forward submit: #{e.message}"
       redirect_to(request_show_path(params[:number])) && return
     end

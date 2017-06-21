@@ -25,16 +25,16 @@ class UpdateNotificationEvents
     rescue ActiveRecord::StatementInvalid => e
       retries -= 1
       retry if retries > 0
-      HoptoadNotifier.notify(e, {failed_job: "RETRYED 10 times: #{type.inspect}: #{data}"})
+      Airbrake.notify(e, {failed_job: "RETRYED 10 times: #{type.inspect}: #{data}"})
       return
     rescue => e
       if Rails.env.test?
-        # make debug output useful in test suite, not just showing backtrace to HoptoaddNotifier
+        # make debug output useful in test suite, not just showing backtrace to Airbrake
         Rails.logger.error "ERROR: #{e.inspect}: #{e.backtrace}"
         Rails.logger.info e.inspect
         Rails.logger.info e.backtrace
       end
-      HoptoadNotifier.notify(e, {failed_job: type.inspect})
+      Airbrake.notify(e, {failed_job: type.inspect})
       return
     end
 
