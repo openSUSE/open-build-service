@@ -140,9 +140,11 @@ class ConsistencyCheckJob < ApplicationJob
     meta = Backend::Connection.get("/source/#{project}/_meta").body
     project = Project.new(name: project)
     project.commit_opts = {no_backend_write: 1}
-    project.update_from_xml(Xmlhash.parse(meta))
+    project.update_from_xml!(Xmlhash.parse(meta))
     project.save!
     return ""
+  rescue APIException
+    # FIXME: Check if we want to do something in this case
   rescue ActiveRecord::RecordInvalid
     Backend::Connection.delete("/source/#{project}")
     return "DELETED #{project} on backend due to invalid data\n"
