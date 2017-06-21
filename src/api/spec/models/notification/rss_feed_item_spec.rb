@@ -82,4 +82,23 @@ RSpec.describe Notification::RssFeedItem do
       it { expect { Notification::RssFeedItem.cleanup }.to change { unconfirmed_user.rss_feed_items.count }.by(-greater_than_max_items_per_user) }
     end
   end
+
+  describe '#title' do
+    subject { create(:rss_notification, event_type: 'Event::DeletePackage', event_payload: payload) }
+
+    it { expect(subject.title).to eq(delete_package_event.subject) }
+  end
+
+  describe '#description' do
+    let(:rendered_view) do
+      ApplicationController.renderer.new.render(
+        template: "event_mailer/#{delete_package_event.template_name}",
+        layout: false,
+        format: :txt,
+        assigns: { e: delete_package_event.expanded_payload, host: ::Configuration.obs_url, configuration: ::Configuration.first })
+    end
+    subject { create(:rss_notification, event_type: 'Event::DeletePackage', event_payload: payload) }
+
+    it { expect(subject.description).to eq(rendered_view) }
+  end
 end
