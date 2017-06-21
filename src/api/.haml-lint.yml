@@ -2,8 +2,3 @@ inherits_from: .haml-lint_todo.yml
 
 exclude:
 - 'vendor/bundle/**/*'
-
-linters:
-  InstanceVariables:
-    exclude:
-      - "app/views/**/*"
