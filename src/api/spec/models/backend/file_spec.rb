@@ -5,9 +5,6 @@ require 'rails_helper'
 
 RSpec.describe Backend::File, vcr: true do
   let(:user) { create(:user, login: 'user') }
-  let(:fake_filename) { 'fake_filename' }
-  let(:backend_file_without_name) { described_class.new }
-  let(:backend_file_with_name) { described_class.new(name: fake_filename) }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: user.home_project) }
   let(:fake_file) do
     File.open(File.expand_path(Rails.root.join("spec/support/files/hello.txt"))) { |file| file }
@@ -25,22 +22,22 @@ RSpec.describe Backend::File, vcr: true do
 
   describe '#initialize' do
     context 'without any param' do
-      subject { backend_file_without_name }
+      subject { Backend::File.new }
 
       it { expect(subject.name).to be_blank }
       it { expect(subject.response).to be_empty }
     end
 
     context 'with a name' do
-      subject { backend_file_with_name }
+      subject { Backend::File.new(name: 'fake_filename') }
 
-      it { expect(subject.name).to eq(fake_filename) }
+      it { expect(subject.name).to eq('fake_filename') }
       it { expect(subject.response).to be_empty }
     end
   end
 
   describe '#file=' do
-    subject { backend_file_with_name }
+    subject { Backend::File.new(name: 'fake_filename') }
 
     before do
       @input_stream = File.open(fake_file.path)
@@ -56,7 +53,7 @@ RSpec.describe Backend::File, vcr: true do
   end
 
   describe '#file_from_path' do
-    subject { backend_file_with_name }
+    subject { Backend::File.new(name: 'fake_filename') }
 
     context 'with a well formed filename' do
       before do
@@ -85,7 +82,7 @@ RSpec.describe Backend::File, vcr: true do
 
   describe '#file' do
     context 'with a file already loaded' do
-      subject { backend_file_with_name }
+      subject { Backend::File.new(name: 'fake_filename') }
 
       before do
         subject.file_from_path(fake_file.path)
@@ -100,14 +97,14 @@ RSpec.describe Backend::File, vcr: true do
 
     context 'without a file already loaded' do
       context 'and an invalid object' do
-        subject { backend_file_without_name }
+        subject { Backend::File.new }
 
         it { expect(subject.file).to be_nil }
         it { expect(subject.valid?).to be_falsy }
       end
 
       context 'and a valid object' do
-        subject { backend_file_with_name }
+        subject { Backend::File.new(name: 'fake_filename') }
 
         before do
           login user
@@ -126,7 +123,7 @@ RSpec.describe Backend::File, vcr: true do
     end
 
     context 'with a backend error' do
-      subject { backend_file_with_name }
+      subject { Backend::File.new(name: 'fake_filename') }
 
       before do
         allow(Backend::Connection).to receive(:get).and_raise(StandardError, 'message')
@@ -150,7 +147,7 @@ RSpec.describe Backend::File, vcr: true do
 
   describe '#to_s' do
     context 'with an existing file in the backend' do
-      subject { backend_file_with_name }
+      subject { Backend::File.new(name: 'fake_filename') }
 
       before do
         login user
@@ -167,7 +164,7 @@ RSpec.describe Backend::File, vcr: true do
     context 'without an existing file in the backend' do
       let(:somefile_txt_url) { "/source/#{user.home_project_name}/fake_package/somefile.txt" }
 
-      subject { backend_file_with_name }
+      subject { Backend::File.new(name: 'fake_filename') }
 
       before do
         login user
@@ -183,7 +180,7 @@ RSpec.describe Backend::File, vcr: true do
 
   describe '#reload' do
     context 'with an existing file in the backend' do
-      subject { backend_file_with_name }
+      subject { Backend::File.new(name: 'fake_filename') }
 
       before do
         login user
@@ -200,7 +197,7 @@ RSpec.describe Backend::File, vcr: true do
 
   describe '#save!' do
     context 'with a string as content' do
-      subject { backend_file_with_name }
+      subject { Backend::File.new(name: 'fake_filename') }
 
       before do
         mock_full_path
@@ -214,7 +211,7 @@ RSpec.describe Backend::File, vcr: true do
     end
 
     context 'with a file as content' do
-      subject { backend_file_with_name }
+      subject { Backend::File.new(name: 'fake_filename') }
 
       before do
         mock_full_path
@@ -232,7 +229,7 @@ RSpec.describe Backend::File, vcr: true do
 
   describe '#save' do
     context 'with a backend error' do
-      subject { backend_file_with_name }
+      subject { Backend::File.new(name: 'fake_filename') }
 
       before do
         allow(Backend::Connection).to receive(:put).and_raise(StandardError, 'message')
@@ -253,7 +250,7 @@ RSpec.describe Backend::File, vcr: true do
   end
 
   describe '#destroy!' do
-    subject { backend_file_with_name }
+    subject { Backend::File.new(name: 'fake_filename') }
 
     before do
       mock_full_path
@@ -270,7 +267,7 @@ RSpec.describe Backend::File, vcr: true do
 
   describe '#destroy' do
     context 'with a backend error' do
-      subject { backend_file_with_name }
+      subject { Backend::File.new(name: 'fake_filename') }
 
       before do
         allow(Backend::Connection).to receive(:delete).and_raise(StandardError, 'message')
