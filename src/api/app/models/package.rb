@@ -607,7 +607,7 @@ class Package < ApplicationRecord
         if Rails.env.test?
           raise e
         else
-          HoptoadNotifier.notify(e, { failed_job: "Couldn't store channel" })
+          Airbrake.notify(e, { failed_job: "Couldn't store channel" })
         end
       end
     else
