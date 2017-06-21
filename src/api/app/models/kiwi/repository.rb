@@ -13,6 +13,7 @@ class Kiwi::Repository < ApplicationRecord
   belongs_to :image
 
   #### Callbacks macros: before_save, after_save, etc.
+  before_update :not_outdated
 
   #### Scopes (first the default_scope macro if is used)
 
@@ -71,6 +72,12 @@ class Kiwi::Repository < ApplicationRecord
   end
 
   #### Alias of methods
+
+  private
+
+  def not_outdated
+    !image.package.kiwi_image_outdated?
+  end
 end
 
 # == Schema Information

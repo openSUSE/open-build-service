@@ -68,9 +68,16 @@ RSpec.describe Kiwi::Repository, type: :model do
     it { is_expected.to allow_value(nil).for(:prefer_license) }
   end
 
-  describe '.to_xml' do
-    let(:kiwi_repository) { create(:kiwi_repository) }
+  context 'do not update with outdated image' do
+    let(:kiwi_repository) { create(:kiwi_repository_with_package) }
+    before do
+      allow_any_instance_of(Package).to receive(:kiwi_image_outdated?) { true }
+    end
 
+    it { expect{ kiwi_repository.update_attributes!(priority: 3) }.to raise_error(ActiveRecord::RecordNotSaved, 'Failed to save the record') }
+  end
+
+  describe '.to_xml' do
     subject { kiwi_repository.to_xml }
 
     it { expect(subject).to eq("<repository type=\"apt-deb\">\n  <source path=\"http://example.com/\"/>\n</repository>\n") }
