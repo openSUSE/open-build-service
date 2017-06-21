@@ -1,0 +1,235 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title/>
+          <description/>
+          <person userid="kugelblitz" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title></title>
+          <description></description>
+          <person userid="kugelblitz" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:titan/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title/>
+          <description/>
+          <person userid="titan" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '133'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title></title>
+          <description></description>
+          <person userid="titan" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:titan/goal/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>In a Glass Darkly</title>
+          <description>Facilis quia culpa veritatis repudiandae ducimus natus nobis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>In a Glass Darkly</title>
+          <description>Facilis quia culpa veritatis repudiandae ducimus natus nobis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:titan/goal/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>In a Glass Darkly</title>
+          <description>Facilis quia culpa veritatis repudiandae ducimus natus nobis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>In a Glass Darkly</title>
+          <description>Facilis quia culpa veritatis repudiandae ducimus natus nobis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title>Françoise Sagan</title>
+          <description>Voluptatem nobis dolore itaque quia nihil modi et alias.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '179'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iYmFsbCIgcHJvamVjdD0iaG9tZTprdWdlbGJsaXR6Ij4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPlZvbHVwdGF0ZW0gbm9iaXMgZG9sb3JlIGl0YXF1ZSBxdWlhIG5paGlsIG1vZGkgZXQgYWxpYXMuPC9kZXNjcmlwdGlvbj4KPC9wYWNrYWdlPgo=
+    http_version: 
+  recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title>Françoise Sagan</title>
+          <description>Voluptatem nobis dolore itaque quia nihil modi et alias.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '179'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iYmFsbCIgcHJvamVjdD0iaG9tZTprdWdlbGJsaXR6Ij4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPlZvbHVwdGF0ZW0gbm9iaXMgZG9sb3JlIGl0YXF1ZSBxdWlhIG5paGlsIG1vZGkgZXQgYWxpYXMuPC9kZXNjcmlwdGlvbj4KPC9wYWNrYWdlPgo=
+    http_version: 
+  recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
+recorded_with: VCR 3.0.3

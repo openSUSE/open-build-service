@@ -1,4 +1,8 @@
 require 'rails_helper'
+# WARNING: If you change changerequest tests make sure you uncomment this line
+# and start a test backend. Some of the methods require real backend answers
+# for projects/packages.
+# CONFIG['global_write_through'] = true
 
 RSpec.describe Webui::RequestController, vcr: true do
   let(:submitter) { create(:confirmed_user, login: 'kugelblitz' ) }
@@ -8,6 +12,8 @@ RSpec.describe Webui::RequestController, vcr: true do
   let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
   let(:source_project) { submitter.home_project }
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
+  let(:devel_project) { create(:project, name: 'devel:project') }
+  let(:devel_package) { create(:package_with_file, name: 'goal', project: devel_project) }
   let(:bs_request) { create(:bs_request, description: "Please take this", creator: submitter.login) }
   let(:create_submit_request) do
     bs_request.bs_request_actions.delete_all
@@ -159,6 +165,62 @@ RSpec.describe Webui::RequestController, vcr: true do
                                        accepted:                'Approve' }
         expect(flash[:error]).to eq("Not permitted to change review state: The request is neither in state review nor new")
         expect(request_with_review.reload.state).to eq(:declined)
+      end
+    end
+  end
+
+  describe "POST #changerequest" do
+    before do
+      create_submit_request
+    end
+    context "with valid parameters" do
+      it 'accepts' do
+        login(receiver)
+        post :changerequest, params: {
+          number: bs_request.number, accepted: 'accepted'
+        }
+        expect(bs_request.reload.state).to eq(:accepted)
+      end
+      it 'declines' do
+        login(receiver)
+        post :changerequest, params: {
+          number: bs_request.number, declined: 'declined'
+        }
+        expect(bs_request.reload.state).to eq(:declined)
+      end
+      it 'revokes' do
+        login(submitter)
+        post :changerequest, params: {
+          number: bs_request.number, revoked: 'revoked'
+        }
+        expect(bs_request.reload.state).to eq(:revoked)
+      end
+      it 'adds submitter as maintainer' do
+        login(receiver)
+        post :changerequest, params: {
+          number: bs_request.number, accepted: 'accepted', add_submitter_as_maintainer_0: "#{target_project}_#_#{target_package}"
+        }
+        expect(bs_request.reload.state).to eq(:accepted)
+        expect(target_package.relationships.map(&:user_id).include?(submitter.id)).to be_truthy
+      end
+      it 'forwards' do
+        login(receiver)
+        expect {
+          post :changerequest, params: {
+              number: bs_request.number, accepted: 'accepted',
+              forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
+              description: 'blah blah blah'
+            }}.to change { BsRequest.count }.by(1)
+        expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
+      end
+    end
+    context "with invalid parameters" do
+      it 'without request' do
+        login(receiver)
+        post :changerequest, params: {
+          number: 1899, accepted: 'accepted'
+        }
+        expect(flash[:error]).to eq('Can\'t find request 1899')
       end
     end
   end
