@@ -4243,10 +4243,11 @@ sub add_daemondata {
 sub add_localworkerstatus {
   my ($cgi, $ws, $type, $lock) = @_;
   return $ws if $cgi->{'type'} && !grep {$_ eq $type} @{$cgi->{'type'}};
+  return $ws if $cgi->{'arch'} && !grep {$_ eq $type} @{$cgi->{'arch'}};
   return $ws if $type eq 'servicedispatch' && !$BSConfig::servicedispatch;
-  return $ws if $type ne 'srcserver' && $type ne 'servicedispatch' && $type ne 'deltastore' && ! -e $lock;
+  return $ws if $type ne 'srcserver' && ! -e $lock;
   my $daemondata = {'state' => 'dead', 'type' => $type};
-  if ($type eq 'srcserver' || $type eq 'servicedispatch' || $type eq 'deltastore') {
+  if ($type eq 'srcserver') {
     my $req = $BSServer::request;
     $daemondata->{'starttime'} = $req->{'server'}->{'starttime'} if $req && $req->{'server'};
     if ($req && $req->{'conf'} && $req->{'conf'}->{'handoffpath'}) {
