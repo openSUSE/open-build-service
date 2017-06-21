@@ -62,4 +62,28 @@ RSpec.describe Webui::FeedsController do
   describe "GET latest_updates" do
     skip
   end
+
+  describe 'GET #notifications' do
+    let(:user) { create(:confirmed_user) }
+
+    context 'with a working token' do
+      before do
+        user.create_rss_token
+        get :notifications, params: { token: user.rss_token.string, format: 'rss' }
+      end
+
+      it { expect(assigns(:notifications)).to eq(user.combined_rss_feed_items) }
+      it { expect(response).to have_http_status(:success) }
+      it { is_expected.to render_template("webui/feeds/notifications") }
+    end
+
+    context 'with an invalid token' do
+      before do
+        get :notifications, params: { token: 'faken_token', format: 'rss' }
+      end
+
+      it { expect(flash[:error]).to eq("Unknown Token for RSS feed") }
+      it { is_expected.to redirect_to(root_url) }
+    end
+  end
 end
