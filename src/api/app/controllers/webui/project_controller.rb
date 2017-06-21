@@ -95,6 +95,8 @@ class Webui::ProjectController < Webui::WebuiController
   def new
     @project = Project.new
     @project.name = params[:name] if params[:name]
+
+    @show_restore_message = params[:restore_option] && Project.deleted?(params[:name])
   end
 
   def new_incident
@@ -300,6 +302,11 @@ class Webui::ProjectController < Webui::WebuiController
     @project = Project.new(project_params)
     authorize(@project, :create?)
 
+    if Project.deleted?(@project.name) && !params[:restore_option_provided]
+      redirect_to(new_project_path(name: @project.name, restore_option: true))
+      return
+    end
+
     @project.relationships.build(user: User.current,
                                  role: Role.find_by_title('maintainer'))
 
@@ -325,6 +332,21 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to action: 'show', project: @project.name
     else
       flash[:error] = "Failed to save project '#{@project}'. #{@project.errors.full_messages.to_sentence}."
+      redirect_back(fallback_location: root_path)
+    end
+  end
+
+  def restore
+    project = Project.new(name: params[:project])
+    authorize(project, :create?)
+
+    if Project.deleted?(project.name)
+      project = Project.restore(project.name)
+
+      flash[:notice] = "Project '#{project}' was restored successfully"
+      redirect_to action: 'show', project: project.name
+    else
+      flash[:error] = "Project was never deleted."
       redirect_back(fallback_location: root_path)
     end
   end

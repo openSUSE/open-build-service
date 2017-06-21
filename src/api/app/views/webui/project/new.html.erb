@@ -12,4 +12,19 @@
     requested via <a href="mailto:<%= @configuration['admin_email'] %>">email</a>.
   </p>
 <% end %>
+
+<% if @show_restore_message %>
+  <div id="project-restore-hint" class="flash-message">
+    <div class="ui-state-highlight ui-corner-all ui-widget-shadow">
+      <p>
+        A project with the same name existed in the past. You can restore the old state instead of starting from
+        scratch. <%= link_to 'Click here', projects_restore_path(project: @project.name), method: :post %>
+        if you want to restore the project. If you want to start from scratch, click the 'Create Project' button
+        again. <strong>(Be aware that starting from scratch would mean that you'd delete the old state of the project
+        and it can never get restored again!)</strong>
+      </p>
+    </div>
+  </div>
+<% end %>
+
 <%= render partial: 'form', locals: { project: @project, configuration: @configuration }%>

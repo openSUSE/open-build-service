@@ -26,6 +26,9 @@
       <% end %>
       <%= check_box_tag :disable_publishing, false %>
       <label for="disable_publishing">Disable build results publishing.</label>
+      <% if @show_restore_message %>
+        <%= hidden_field_tag :restore_option_provided, true %>
+      <% end %>
       <br/>
     </p>
     <p><%= submit_tag "Create Project" %></p>
