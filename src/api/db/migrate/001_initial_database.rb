@@ -40,8 +40,8 @@ class InitialDatabase < ActiveRecord::Migration
       t.integer "group_id"
       t.index ["attrib_namespace_id", "user_id", "group_id"], name: "attrib_namespace_user_role_all_index", unique: true, using: :btree
       t.index ["attrib_namespace_id"], name: "index_attrib_namespace_modifiable_bies_on_attrib_namespace_id", using: :btree
-      t.index ["group_id"], name: "bs_group_id", using: :btree
       t.index ["user_id"], name: "bs_user_id", using: :btree
+      t.index ["group_id"], name: "bs_group_id", using: :btree
     end
 
     create_table "attrib_namespaces", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -52,12 +52,12 @@ class InitialDatabase < ActiveRecord::Migration
     create_table "attrib_type_modifiable_bies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
       t.integer "attrib_type_id", null: false
       t.integer "user_id"
-      t.integer "group_id"
+      t.integer "group_id", options: "AFTER user_id"
       t.integer "role_id"
       t.index ["attrib_type_id", "user_id", "group_id", "role_id"], name: "attrib_type_user_role_all_index", unique: true, using: :btree
+      t.index ["user_id"], name: "user_id", using: :btree
       t.index ["group_id"], name: "group_id", using: :btree
       t.index ["role_id"], name: "role_id", using: :btree
-      t.index ["user_id"], name: "user_id", using: :btree
     end
 
     create_table "attrib_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -143,11 +143,11 @@ class InitialDatabase < ActiveRecord::Migration
       t.datetime "created_at"
       t.string   "target_repository"
       t.index ["bs_request_id"], name: "bs_request_id", using: :btree
-      t.index ["source_package"], name: "index_bs_request_actions_on_source_package", using: :btree
-      t.index ["source_project"], name: "index_bs_request_actions_on_source_project", using: :btree
-      t.index ["target_package"], name: "index_bs_request_actions_on_target_package", using: :btree
-      t.index ["target_project", "source_project"], name: "index_bs_request_actions_on_target_project_and_source_project", using: :btree
       t.index ["target_project"], name: "index_bs_request_actions_on_target_project", using: :btree
+      t.index ["target_package"], name: "index_bs_request_actions_on_target_package", using: :btree
+      t.index ["source_project"], name: "index_bs_request_actions_on_source_project", using: :btree
+      t.index ["source_package"], name: "index_bs_request_actions_on_source_package", using: :btree
+      t.index ["target_project", "source_project"], name: "index_bs_request_actions_on_target_project_and_source_project", using: :btree
     end
 
     create_table "bs_request_histories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -193,11 +193,11 @@ class InitialDatabase < ActiveRecord::Migration
       t.string  "package"
       t.string  "binaryarch"
       t.string  "supportstatus"
-      t.index ["architecture_id"], name: "architecture_id", using: :btree
-      t.index ["channel_binary_list_id"], name: "channel_binary_list_id", using: :btree
-      t.index ["name", "channel_binary_list_id"], name: "index_channel_binaries_on_name_and_channel_binary_list_id", using: :btree
       t.index ["project_id", "package"], name: "index_channel_binaries_on_project_id_and_package", using: :btree
+      t.index ["channel_binary_list_id"], name: "channel_binary_list_id", using: :btree
       t.index ["repository_id"], name: "repository_id", using: :btree
+      t.index ["architecture_id"], name: "architecture_id", using: :btree
+      t.index ["name", "channel_binary_list_id"], name: "index_channel_binaries_on_name_and_channel_binary_list_id", using: :btree
     end
 
     create_table "channel_binary_lists", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -205,10 +205,10 @@ class InitialDatabase < ActiveRecord::Migration
       t.integer "project_id"
       t.integer "repository_id"
       t.integer "architecture_id"
-      t.index ["architecture_id"], name: "architecture_id", using: :btree
       t.index ["channel_id"], name: "channel_id", using: :btree
       t.index ["project_id"], name: "project_id", using: :btree
       t.index ["repository_id"], name: "repository_id", using: :btree
+      t.index ["architecture_id"], name: "architecture_id", using: :btree
     end
 
     create_table "channel_targets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -235,11 +235,11 @@ class InitialDatabase < ActiveRecord::Migration
       t.datetime "created_at"
       t.datetime "updated_at"
       t.integer  "user_id",                     null: false
+      t.index ["user_id"], name: "user_id", using: :btree
       t.index ["bs_request_id"], name: "index_comments_on_bs_request_id", using: :btree
       t.index ["package_id"], name: "index_comments_on_package_id", using: :btree
       t.index ["parent_id"], name: "parent_id", using: :btree
       t.index ["project_id"], name: "index_comments_on_project_id", using: :btree
-      t.index ["user_id"], name: "user_id", using: :btree
     end
 
     create_table "configurations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -345,10 +345,10 @@ class InitialDatabase < ActiveRecord::Migration
       t.datetime "created_at"
       t.datetime "updated_at"
       t.boolean  "project_logged",               default: false
-      t.index ["created_at"], name: "index_events_on_created_at", using: :btree
-      t.index ["eventtype"], name: "index_events_on_eventtype", using: :btree
-      t.index ["project_logged"], name: "index_events_on_project_logged", using: :btree
       t.index ["queued"], name: "index_events_on_queued", using: :btree
+      t.index ["project_logged"], name: "index_events_on_project_logged", using: :btree
+      t.index ["eventtype"], name: "index_events_on_eventtype", using: :btree
+      t.index ["created_at"], name: "index_events_on_created_at", using: :btree
     end
 
     create_table "flags", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -359,8 +359,8 @@ class InitialDatabase < ActiveRecord::Migration
       t.integer "architecture_id"
       t.integer "position",                   null: false
       t.column  "flag", "enum('useforbuild','sourceaccess','binarydownload','debuginfo','build','publish','access','lock')", limit: 14, null: false, collation: "utf8_general_ci"
-      t.index ["architecture_id"], name: "architecture_id", using: :btree
       t.index ["flag"], name: "index_flags_on_flag", using: :btree
+      t.index ["architecture_id"], name: "architecture_id", using: :btree
       t.index ["package_id"], name: "index_flags_on_package_id", using: :btree
       t.index ["project_id"], name: "index_flags_on_project_id", using: :btree
     end
@@ -368,8 +368,8 @@ class InitialDatabase < ActiveRecord::Migration
     create_table "group_request_requests", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
       t.integer "bs_request_action_group_id"
       t.integer "bs_request_id"
-      t.index ["bs_request_action_group_id"], name: "index_group_request_requests_on_bs_request_action_group_id", using: :btree
       t.index ["bs_request_id"], name: "index_group_request_requests_on_bs_request_id", using: :btree
+      t.index ["bs_request_action_group_id"], name: "index_group_request_requests_on_bs_request_action_group_id", using: :btree
     end
 
     create_table "groups", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -390,7 +390,7 @@ class InitialDatabase < ActiveRecord::Migration
       t.index ["role_id"], name: "role_id", using: :btree
     end
 
-    create_table "groups_users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    create_table "groups_users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
       t.integer  "group_id",   default: 0,    null: false
       t.integer  "user_id",    default: 0,    null: false
       t.datetime "created_at"
@@ -426,9 +426,9 @@ class InitialDatabase < ActiveRecord::Migration
       t.datetime "created_at"
       t.datetime "updated_at"
       t.column   "state", "enum('OPEN','CLOSED','UNKNOWN')", limit: 7,              collation: "utf8_general_ci"
+      t.index ["owner_id"], name: "owner_id", using: :btree
       t.index ["issue_tracker_id"], name: "issue_tracker_id", using: :btree
       t.index ["name", "issue_tracker_id"], name: "index_issues_on_name_and_issue_tracker_id", using: :btree
-      t.index ["owner_id"], name: "owner_id", using: :btree
     end
 
     create_table "linked_projects", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -467,8 +467,8 @@ class InitialDatabase < ActiveRecord::Migration
       t.integer "package_id",           null: false
       t.integer "issue_id",             null: false
       t.column  "change", "enum('added','deleted','changed','kept')", limit: 7
-      t.index ["issue_id"], name: "index_package_issues_on_issue_id", using: :btree
       t.index ["package_id", "issue_id"], name: "index_package_issues_on_package_id_and_issue_id", using: :btree
+      t.index ["issue_id"], name: "index_package_issues_on_issue_id", using: :btree
       t.index ["package_id"], name: "index_package_issues_on_package_id", using: :btree
     end
 
@@ -536,12 +536,12 @@ class InitialDatabase < ActiveRecord::Migration
       t.datetime "datetime"
       t.string   "event_type"
       t.text     "additional_info", limit: 65535
-      t.index ["bs_request_id"], name: "index_project_log_entries_on_bs_request_id", using: :btree
-      t.index ["datetime"], name: "index_project_log_entries_on_datetime", using: :btree
-      t.index ["event_type"], name: "index_project_log_entries_on_event_type", using: :btree
-      t.index ["package_name"], name: "index_project_log_entries_on_package_name", using: :btree
       t.index ["project_id"], name: "project_id", using: :btree
       t.index ["user_name"], name: "index_project_log_entries_on_user_name", using: :btree
+      t.index ["package_name"], name: "index_project_log_entries_on_package_name", using: :btree
+      t.index ["bs_request_id"], name: "index_project_log_entries_on_bs_request_id", using: :btree
+      t.index ["event_type"], name: "index_project_log_entries_on_event_type", using: :btree
+      t.index ["datetime"], name: "index_project_log_entries_on_datetime", using: :btree
     end
 
     create_table "projects", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -556,11 +556,11 @@ class InitialDatabase < ActiveRecord::Migration
       t.integer  "maintenance_project_id"
       t.integer  "develproject_id"
       t.boolean  "delta",                                default: true, null: false
+      t.index ["name"], name: "projects_name_index", unique: true, length: { name: 255 }, using: :btree
+      t.index ["updated_at"], name: "updated_at_index", using: :btree
       t.index ["develproject_id"], name: "devel_project_id_index", using: :btree
       t.index ["maintenance_project_id"], name: "index_db_projects_on_maintenance_project_id", using: :btree
-      t.index ["name"], name: "projects_name_index", unique: true, length: { name: 255 }, using: :btree
       t.index ["type_id"], name: "type_id", using: :btree
-      t.index ["updated_at"], name: "updated_at_index", using: :btree
     end
 
     create_table "ratings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -579,13 +579,13 @@ class InitialDatabase < ActiveRecord::Migration
       t.integer "role_id",    null: false
       t.integer "user_id"
       t.integer "group_id"
-      t.index ["group_id"], name: "group_id", using: :btree
-      t.index ["package_id", "role_id", "group_id"], name: "index_relationships_on_package_id_and_role_id_and_group_id", unique: true, using: :btree
-      t.index ["package_id", "role_id", "user_id"], name: "index_relationships_on_package_id_and_role_id_and_user_id", unique: true, using: :btree
       t.index ["project_id", "role_id", "group_id"], name: "index_relationships_on_project_id_and_role_id_and_group_id", unique: true, using: :btree
       t.index ["project_id", "role_id", "user_id"], name: "index_relationships_on_project_id_and_role_id_and_user_id", unique: true, using: :btree
+      t.index ["package_id", "role_id", "group_id"], name: "index_relationships_on_package_id_and_role_id_and_group_id", unique: true, using: :btree
+      t.index ["package_id", "role_id", "user_id"], name: "index_relationships_on_package_id_and_role_id_and_user_id", unique: true, using: :btree
       t.index ["role_id"], name: "role_id", using: :btree
       t.index ["user_id"], name: "user_id", using: :btree
+      t.index ["group_id"], name: "group_id", using: :btree
     end
 
     create_table "release_targets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -605,8 +605,8 @@ class InitialDatabase < ActiveRecord::Migration
       t.column  "linkedbuild", "enum('off','localdep','all')", limit: 8,               collation: "utf8_general_ci"
       t.integer "hostsystem_id"
       t.index ["db_project_id", "name", "remote_project_name"], name: "projects_name_index", unique: true, using: :btree
-      t.index ["hostsystem_id"], name: "hostsystem_id", using: :btree
       t.index ["remote_project_name"], name: "remote_project_name_index", using: :btree
+      t.index ["hostsystem_id"], name: "hostsystem_id", using: :btree
     end
 
     create_table "repository_architectures", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -629,13 +629,13 @@ class InitialDatabase < ActiveRecord::Migration
       t.string   "by_package"
       t.datetime "created_at",                  null: false
       t.datetime "updated_at",                  null: false
-      t.index ["bs_request_id"], name: "bs_request_id", using: :btree
-      t.index ["by_group"], name: "index_reviews_on_by_group", using: :btree
-      t.index ["by_package", "by_project"], name: "index_reviews_on_by_package_and_by_project", using: :btree
-      t.index ["by_project"], name: "index_reviews_on_by_project", using: :btree
-      t.index ["by_user"], name: "index_reviews_on_by_user", using: :btree
       t.index ["creator"], name: "index_reviews_on_creator", using: :btree
       t.index ["reviewer"], name: "index_reviews_on_reviewer", using: :btree
+      t.index ["by_user"], name: "index_reviews_on_by_user", using: :btree
+      t.index ["by_group"], name: "index_reviews_on_by_group", using: :btree
+      t.index ["by_project"], name: "index_reviews_on_by_project", using: :btree
+      t.index ["by_package", "by_project"], name: "index_reviews_on_by_package_and_by_project", using: :btree
+      t.index ["bs_request_id"], name: "bs_request_id", using: :btree
       t.index ["state", "by_project"], name: "index_reviews_on_state_and_by_project", using: :btree
       t.index ["state", "by_user"], name: "index_reviews_on_state_and_by_user", using: :btree
       t.index ["state"], name: "index_reviews_on_state", using: :btree
@@ -681,8 +681,8 @@ class InitialDatabase < ActiveRecord::Migration
       t.integer "time"
       t.string  "key",                           collation: "utf8_general_ci"
       t.float   "value", limit: 24, null: false
-      t.index ["key"], name: "index_status_histories_on_key", using: :btree
       t.index ["time", "key"], name: "index_status_histories_on_time_and_key", using: :btree
+      t.index ["key"], name: "index_status_histories_on_key", using: :btree
     end
 
     create_table "status_messages", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -691,8 +691,8 @@ class InitialDatabase < ActiveRecord::Migration
       t.text     "message",    limit: 65535, collation: "utf8_general_ci"
       t.integer  "user_id"
       t.integer  "severity"
-      t.index ["deleted_at", "created_at"], name: "index_status_messages_on_deleted_at_and_created_at", using: :btree
       t.index ["user_id"], name: "user", using: :btree
+      t.index ["deleted_at", "created_at"], name: "index_status_messages_on_deleted_at_and_created_at", using: :btree
     end
 
     create_table "taggings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -700,9 +700,9 @@ class InitialDatabase < ActiveRecord::Migration
       t.string  "taggable_type", collation: "utf8_general_ci"
       t.integer "tag_id"
       t.integer "user_id"
-      t.index ["tag_id"], name: "tag_id", using: :btree
       t.index ["taggable_id", "taggable_type", "tag_id", "user_id"], name: "taggings_taggable_id_index", unique: true, using: :btree
       t.index ["taggable_type"], name: "index_taggings_on_taggable_type", using: :btree
+      t.index ["tag_id"], name: "tag_id", using: :btree
       t.index ["user_id"], name: "user_id", using: :btree
     end
 
@@ -716,9 +716,9 @@ class InitialDatabase < ActiveRecord::Migration
       t.string  "string"
       t.integer "user_id",    null: false
       t.integer "package_id"
+      t.index ["user_id"], name: "user_id", using: :btree
       t.index ["package_id"], name: "package_id", using: :btree
       t.index ["string"], name: "index_tokens_on_string", unique: true, using: :btree
-      t.index ["user_id"], name: "user_id", using: :btree
     end
 
     create_table "updateinfo_counter", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -761,75 +761,14 @@ class InitialDatabase < ActiveRecord::Migration
       t.integer "project_id",             null: false
       t.index ["user_id"], name: "watched_projects_users_fk_1", using: :btree
     end
-    # rubocop:enable Style/ExtraSpacing
 
-    execute <<-SQL
-      INSERT INTO `architectures` VALUES (1,'aarch64',0),(2,'armv4l',0),(3,'armv5l',0),(4,'armv6l',0),(5,'armv7l',1),(6,'armv5el',0),(7,'armv6el',0),(8,'armv7el',0),(9,'armv8el',0),(10,'hppa',0),(11,'i586',1),(12,'i686',0),(13,'ia64',0),(14,'local',0),(15,'m68k',0),(16,'mips',0),(17,'mips32',0),(18,'mips64',0),(19,'ppc',0),(20,'ppc64',0),(21,'ppc64p7',0),(22,'ppc64le',0),(23,'s390',0),(24,'s390x',0),(25,'sparc',0),(26,'sparc64',0),(27,'sparc64v',0),(28,'sparcv8',0),(29,'sparcv9',0),(30,'sparcv9v',0),(31,'x86_64',1);
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `attrib_allowed_values` VALUES (1,9,'DisableDevel'),(2,9,'BugownerOnly'),(3,17,'Stable'),(4,17,'Testing'),(5,17,'Development'),(6,17,'Private');
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `attrib_namespace_modifiable_bies` VALUES (1,1,1,NULL);
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `attrib_namespaces` VALUES (1,'OBS');
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `attrib_type_modifiable_bies` VALUES (1,1,1,NULL,NULL),(2,2,1,NULL,NULL),(3,3,1,NULL,NULL),(4,4,1,NULL,NULL),(5,5,1,NULL,NULL),(6,6,1,NULL,NULL),(7,7,1,NULL,NULL),(8,8,1,NULL,NULL),(9,9,1,NULL,NULL),(10,10,NULL,NULL,2),(11,11,NULL,NULL,2),(12,12,NULL,NULL,2),(13,13,NULL,NULL,2),(14,14,NULL,NULL,2),(15,15,NULL,NULL,2),(16,16,NULL,NULL,2),(17,16,NULL,NULL,3),(18,16,NULL,NULL,4),(19,17,NULL,NULL,2);
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `attrib_types` VALUES (1,'VeryImportantProject',NULL,NULL,0,1,0),(2,'UpdateProject',NULL,NULL,1,1,0),(3,'RejectRequests',NULL,NULL,NULL,1,0),(4,'ApprovedRequestSource',NULL,NULL,0,1,0),(5,'Maintained',NULL,NULL,0,1,0),(6,'MaintenanceProject',NULL,NULL,0,1,0),(7,'MaintenanceIdTemplate',NULL,NULL,1,1,0),(8,'ScreenShots',NULL,NULL,NULL,1,0),(9,'OwnerRootProject',NULL,NULL,NULL,1,0),(10,'RequestCloned',NULL,NULL,1,1,0),(11,'ProjectStatusPackageFailComment',NULL,NULL,1,1,0),(12,'InitializeDevelPackage',NULL,NULL,0,1,0),(13,'BranchTarget',NULL,NULL,0,1,0),(14,'BranchRepositoriesFromProject',NULL,NULL,1,1,0),(15,'AutoCleanup',NULL,NULL,1,1,0),(16,'Issues',NULL,NULL,0,1,0),(17,'QualityCategory',NULL,NULL,1,1,0);
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `configurations` VALUES (1,'Open Build Service','  <p class=\"description\">\n    The <a href=\"http://openbuildservice.org\">Open Build Service (OBS)</a>\n    is an open and complete distribution development platform that provides a transparent infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.\n    Supporting also Fedora, Debian, Ubuntu, RedHat and other Linux distributions.\n  </p>\n  <p class=\"description\">\n    The OBS is developed under the umbrella of the <a href=\"http://www.opensuse.org\">openSUSE project</a>. Please find further informations on the <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service\">openSUSE Project wiki pages</a>.\n  </p>\n\n  <p class=\"description\">\n    The Open Build Service developer team is greeting you. In case you use your OBS productive in your facility, please do us a favor and add yourself at <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service_installations\">this wiki page</a>. Have fun and fast build times!\n  </p>\n','2014-04-10 07:43:54','2014-04-10 07:43:54','private','allow',1,0,1,0,1,0,1,1,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'unconfigured@openbuildservice.org');
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `db_project_types` VALUES (1,'standard'),(2,'maintenance'),(3,'maintenance_incident'),(4,'maintenance_release');
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `delayed_jobs` VALUES (1,0,0,'--- !ruby/object:Delayed::PerformableMethod\nobject: !ruby/ActiveRecord:Configuration\n  attributes:\n    id: 1\n    title: Open Build Service\n    description: |2\n        <p class=\"description\">\n          The <a href=\"http://openbuildservice.org\">Open Build Service (OBS)</a>\n          is an open and complete distribution development platform that provides a transparent infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.\n          Supporting also Fedora, Debian, Ubuntu, RedHat and other Linux distributions.\n        </p>\n        <p class=\"description\">\n          The OBS is developed under the umbrella of the <a href=\"http://www.opensuse.org\">openSUSE project</a>. Please find further informations on the <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service\">openSUSE Project wiki pages</a>.\n        </p>\n\n        <p class=\"description\">\n          The Open Build Service developer team is greeting you. In case you use your OBS productive in your facility, please do us a favor and add yourself at <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service_installations\">this wiki page</a>. Have fun and fast build times!\n        </p>\n    created_at: &1 2014-04-10 07:43:54.835203910 Z\n    updated_at: *1\n    name: private\n    registration: allow\n    anonymous: true\n    default_access_disabled: false\n    allow_user_to_create_home_project: true\n    disallow_group_creation: false\n    change_password: true\n    hide_private_options: false\n    gravatar: true\n    enforce_project_keys: true\n    download_on_demand: true\n    download_url: \n    ymp_url: \n    bugzilla_url: \n    http_proxy: \n    no_proxy: \n    theme: \n    obs_url: \n    cleanup_after_days: \n    admin_email: unconfigured@openbuildservice.org\nmethod_name: :write_to_backend\nargs: []\n',NULL,'2014-04-10 07:43:54',NULL,NULL,NULL,NULL);
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `issue_trackers` VALUES (1,'boost','trac','Boost Trac','https://svn.boost.org/trac/boost/','https://svn.boost.org/trac/boost/ticket/@@@','boost#(\\d+)',NULL,NULL,'boost#@@@','2014-04-10 07:43:54',0),(2,'bco','bugzilla','Clutter Project Bugzilla','http://bugzilla.clutter-project.org/','http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@','bco#(\\d+)',NULL,NULL,'bco#@@@','2014-04-10 07:43:54',0),(3,'RT','other','CPAN Bugs','https://rt.cpan.org/','http://rt.cpan.org/Public/Bug/Display.html?id=@@@','RT#(\\d+)',NULL,NULL,'RT#@@@','2014-04-10 07:43:55',0),(4,'cve','cve','CVE Numbers','http://cve.mitre.org/','http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@','(CVE-\\d\\d\\d\\d-\\d+)',NULL,NULL,'@@@','2014-04-10 07:43:55',0),(5,'deb','bugzilla','Debian Bugzilla','http://bugs.debian.org/','http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@','deb#(\\d+)',NULL,NULL,'deb#@@@','2014-04-10 07:43:55',0),(6,'fdo','bugzilla','Freedesktop.org Bugzilla','https://bugs.freedesktop.org/','https://bugs.freedesktop.org/show_bug.cgi?id=@@@','fdo#(\\d+)',NULL,NULL,'fdo#@@@','2014-04-10 07:43:55',0),(7,'GCC','bugzilla','GCC Bugzilla','http://gcc.gnu.org/bugzilla/','http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@','GCC#(\\d+)',NULL,NULL,'GCC#@@@','2014-04-10 07:43:55',0),(8,'bgo','bugzilla','Gnome Bugzilla','https://bugzilla.gnome.org/','https://bugzilla.gnome.org/show_bug.cgi?id=@@@','bgo#(\\d+)',NULL,NULL,'bgo#@@@','2014-04-10 07:43:55',0),(9,'bio','bugzilla','Icculus.org Bugzilla','https://bugzilla.icculus.org/','https://bugzilla.icculus.org/show_bug.cgi?id=@@@','bio#(\\d+)',NULL,NULL,'bio#@@@','2014-04-10 07:43:55',0),(10,'bko','bugzilla','Kernel.org Bugzilla','https://bugzilla.kernel.org/','https://bugzilla.kernel.org/show_bug.cgi?id=@@@','(?:Kernel|K|bko)#(\\d+)',NULL,NULL,'bko#@@@','2014-04-10 07:43:55',0),(11,'kde','bugzilla','KDE Bugzilla','https://bugs.kde.org/','https://bugs.kde.org/show_bug.cgi?id=@@@','kde#(\\d+)',NULL,NULL,'kde#@@@','2014-04-10 07:43:55',0),(12,'lp','launchpad','Launchpad.net Bugtracker','https://bugs.launchpad.net/bugs/','https://bugs.launchpad.net/bugs/@@@','b?lp#(\\d+)',NULL,NULL,'lp#@@@','2014-04-10 07:43:55',0),(13,'Meego','bugzilla','Meego Bugs','https://bugs.meego.com/','https://bugs.meego.com/show_bug.cgi?id=@@@','Meego#(\\d+)',NULL,NULL,'Meego#@@@','2014-04-10 07:43:55',0),(14,'bmo','bugzilla','Mozilla Bugzilla','https://bugzilla.mozilla.org/','https://bugzilla.mozilla.org/show_bug.cgi?id=@@@','bmo#(\\d+)',NULL,NULL,'bmo#@@@','2014-04-10 07:43:55',0),(15,'bnc','bugzilla','Novell Bugzilla','https://bugzilla.novell.com/','https://bugzilla.novell.com/show_bug.cgi?id=@@@','(?:bnc|BNC)\\s*[#:]\\s*(\\d+)',NULL,NULL,'bnc#@@@','2014-04-10 07:43:55',1),(16,'ITS','other','OpenLDAP Issue Tracker','http://www.openldap.org/its/','http://www.openldap.org/its/index.cgi/Contrib?id=@@@','ITS#(\\d+)',NULL,NULL,'ITS#@@@','2014-04-10 07:43:55',0),(17,'i','bugzilla','OpenOffice.org Bugzilla','http://openoffice.org/bugzilla/','http://openoffice.org/bugzilla/show_bug.cgi?id=@@@','i#(\\d+)',NULL,NULL,'boost#@@@','2014-04-10 07:43:55',0),(18,'fate','fate','openSUSE Feature Database','https://features.opensuse.org/','https://features.opensuse.org/@@@','(?:fate|Fate|FATE)\\s*#\\s*(\\d+)',NULL,NULL,'fate#@@@','2014-04-10 07:43:55',0),(19,'rh','bugzilla','RedHat Bugzilla','https://bugzilla.redhat.com/','https://bugzilla.redhat.com/show_bug.cgi?id=@@@','rh#(\\d+)',NULL,NULL,'rh#@@@','2014-04-10 07:43:55',0),(20,'bso','bugzilla','Samba Bugzilla','https://bugzilla.samba.org/','https://bugzilla.samba.org/show_bug.cgi?id=@@@','bso#(\\d+)',NULL,NULL,'bso#@@@','2014-04-10 07:43:55',0),(21,'sf','sourceforge','SourceForge.net Tracker','http://sf.net/support/','http://sf.net/support/tracker.php?aid=@@@','sf#(\\d+)',NULL,NULL,'sf#@@@','2014-04-10 07:43:55',0),(22,'Xamarin','bugzilla','Xamarin Bugzilla','http://bugzilla.xamarin.com/index.cgi','http://bugzilla.xamarin.com/show_bug.cgi?id=@@@','Xamarin#(\\d+)',NULL,NULL,'Xamarin#@@@','2014-04-10 07:43:55',0),(23,'bxo','bugzilla','XFCE Bugzilla','https://bugzilla.xfce.org/','https://bugzilla.xfce.org/show_bug.cgi?id=@@@','bxo#(\\d+)',NULL,NULL,'bxo#@@@','2014-04-10 07:43:55',0);
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `projects` VALUES (1,'deleted',NULL,NULL,'2014-04-10 07:43:54','2014-04-10 07:43:54',NULL,NULL,1,NULL,NULL,1);
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `repositories` VALUES (1,1,'deleted',NULL,NULL,NULL,NULL,NULL);
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `roles` VALUES (1,'Admin',NULL,1),(2,'maintainer',NULL,0),(3,'bugowner',NULL,0),(4,'reviewer',NULL,0),(5,'downloader',NULL,0),(6,'reader',NULL,0);
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `roles_static_permissions` VALUES (1,1),(1,2),(1,3),(5,3),(1,4),(6,4),(1,5),(6,5),(1,6),(1,7),(1,8),(1,9),(1,10),(2,10),(1,11),(2,11),(1,12),(2,12),(1,13),(2,13);
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `roles_users` VALUES (1,1,'2014-04-10 07:43:53');
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `static_permissions` VALUES (5,'access'),(12,'change_package'),(10,'change_project'),(13,'create_package'),(11,'create_project'),(3,'download_binaries'),(8,'global_change_package'),(6,'global_change_project'),(9,'global_create_package'),(7,'global_create_project'),(2,'set_download_counters'),(4,'source_access'),(1,'status_message_create');
-    SQL
-
-    execute <<-SQL
-      INSERT INTO `users` VALUES (1,'2014-04-10 07:43:53','2014-04-10 07:43:53',NULL,0,'Admin','root@localhost','OBS Instance Superuser','8dc6e1b924b5375fc825e1541ffe6c8d','md5','ED7B9A1ON7','osQq6OKjF0f8I',2,NULL),(2,'2014-04-10 07:43:53','2014-04-10 07:43:53',NULL,0,'_nobody_','nobody@localhost','Anonymous User','65a8f83fa5cd130e57dc6ce026e047d6','md5','EYyHjNODSr','osEJSjdDGtlBY',3,NULL);
-    SQL
+    execute "ALTER TABLE `schema_migrations` CHARACTER SET utf8 COLLATE=utf8_bin;"
+    execute "ALTER TABLE `schema_migrations` CHANGE `version` `version` varchar(255) CHARACTER SET utf8 NOT NULL;"
+    execute "ALTER TABLE `schema_migrations` CHANGE `version` `version` varchar(255) CHARACTER SET utf8 NOT NULL;"
+    execute "ALTER TABLE `schema_migrations` DROP PRIMARY KEY;"
+    add_index :schema_migrations, [:version], name: "unique_schema_migrations", unique: true
+    execute "ALTER TABLE groups_users CHANGE id id INT(11) AUTO_INCREMENT NOT NULL AFTER email;"
+    execute "ALTER TABLE repository_architectures CHANGE id id INT(11) AUTO_INCREMENT NOT NULL AFTER position;"
 
     add_foreign_key "attrib_allowed_values", "attrib_types", name: "attrib_allowed_values_ibfk_1"
     add_foreign_key "attrib_default_values", "attrib_types", name: "attrib_default_values_ibfk_1"
@@ -915,6 +854,79 @@ class InitialDatabase < ActiveRecord::Migration
     add_foreign_key "tokens", "users", name: "tokens_ibfk_1"
     add_foreign_key "user_registrations", "users", name: "user_registrations_ibfk_1"
     add_foreign_key "watched_projects", "users", name: "watched_projects_ibfk_1"
+    # rubocop:enable Style/ExtraSpacing
+
+    execute <<-SQL
+      INSERT INTO `architectures` VALUES (1,'aarch64',0),(2,'armv4l',0),(3,'armv5l',0),(4,'armv6l',0),(5,'armv7l',1),(6,'armv5el',0),(7,'armv6el',0),(8,'armv7el',0),(9,'armv8el',0),(10,'hppa',0),(11,'i586',1),(12,'i686',0),(13,'ia64',0),(14,'local',0),(15,'m68k',0),(16,'mips',0),(17,'mips32',0),(18,'mips64',0),(19,'ppc',0),(20,'ppc64',0),(21,'ppc64p7',0),(22,'ppc64le',0),(23,'s390',0),(24,'s390x',0),(25,'sparc',0),(26,'sparc64',0),(27,'sparc64v',0),(28,'sparcv8',0),(29,'sparcv9',0),(30,'sparcv9v',0),(31,'x86_64',1);
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `users` VALUES (1,'2014-04-10 07:43:53','2014-04-10 07:43:53',NULL,0,'Admin','root@localhost','OBS Instance Superuser','8dc6e1b924b5375fc825e1541ffe6c8d','md5','ED7B9A1ON7','osQq6OKjF0f8I',2,NULL),(2,'2014-04-10 07:43:53','2014-04-10 07:43:53',NULL,0,'_nobody_','nobody@localhost','Anonymous User','65a8f83fa5cd130e57dc6ce026e047d6','md5','EYyHjNODSr','osEJSjdDGtlBY',3,NULL);
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `roles` VALUES (1,'Admin',NULL,1),(2,'maintainer',NULL,0),(3,'bugowner',NULL,0),(4,'reviewer',NULL,0),(5,'downloader',NULL,0),(6,'reader',NULL,0);
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `attrib_namespaces` VALUES (1,'OBS');
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `attrib_namespace_modifiable_bies` VALUES (1,1,1,NULL);
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `attrib_types` VALUES (1,'VeryImportantProject',NULL,NULL,0,1,0),(2,'UpdateProject',NULL,NULL,1,1,0),(3,'RejectRequests',NULL,NULL,NULL,1,0),(4,'ApprovedRequestSource',NULL,NULL,0,1,0),(5,'Maintained',NULL,NULL,0,1,0),(6,'MaintenanceProject',NULL,NULL,0,1,0),(7,'MaintenanceIdTemplate',NULL,NULL,1,1,0),(8,'ScreenShots',NULL,NULL,NULL,1,0),(9,'OwnerRootProject',NULL,NULL,NULL,1,0),(10,'RequestCloned',NULL,NULL,1,1,0),(11,'ProjectStatusPackageFailComment',NULL,NULL,1,1,0),(12,'InitializeDevelPackage',NULL,NULL,0,1,0),(13,'BranchTarget',NULL,NULL,0,1,0),(14,'BranchRepositoriesFromProject',NULL,NULL,1,1,0),(15,'AutoCleanup',NULL,NULL,1,1,0),(16,'Issues',NULL,NULL,0,1,0),(17,'QualityCategory',NULL,NULL,1,1,0);
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `attrib_allowed_values` VALUES (1,9,'DisableDevel'),(2,9,'BugownerOnly'),(3,17,'Stable'),(4,17,'Testing'),(5,17,'Development'),(6,17,'Private');
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `attrib_type_modifiable_bies` VALUES (1,1,1,NULL,NULL),(2,2,1,NULL,NULL),(3,3,1,NULL,NULL),(4,4,1,NULL,NULL),(5,5,1,NULL,NULL),(6,6,1,NULL,NULL),(7,7,1,NULL,NULL),(8,8,1,NULL,NULL),(9,9,1,NULL,NULL),(10,10,NULL,NULL,2),(11,11,NULL,NULL,2),(12,12,NULL,NULL,2),(13,13,NULL,NULL,2),(14,14,NULL,NULL,2),(15,15,NULL,NULL,2),(16,16,NULL,NULL,2),(17,16,NULL,NULL,3),(18,16,NULL,NULL,4),(19,17,NULL,NULL,2);
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `configurations` VALUES (1,'Open Build Service','  <p class=\"description\">\n    The <a href=\"http://openbuildservice.org\">Open Build Service (OBS)</a>\n    is an open and complete distribution development platform that provides a transparent infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.\n    Supporting also Fedora, Debian, Ubuntu, RedHat and other Linux distributions.\n  </p>\n  <p class=\"description\">\n    The OBS is developed under the umbrella of the <a href=\"http://www.opensuse.org\">openSUSE project</a>. Please find further informations on the <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service\">openSUSE Project wiki pages</a>.\n  </p>\n\n  <p class=\"description\">\n    The Open Build Service developer team is greeting you. In case you use your OBS productive in your facility, please do us a favor and add yourself at <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service_installations\">this wiki page</a>. Have fun and fast build times!\n  </p>\n','2014-04-10 07:43:54','2014-04-10 07:43:54','private','allow',1,0,1,0,1,0,1,1,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'unconfigured@openbuildservice.org');
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `db_project_types` VALUES (1,'standard'),(2,'maintenance'),(3,'maintenance_incident'),(4,'maintenance_release');
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `delayed_jobs` VALUES (1,0,0,'--- !ruby/object:Delayed::PerformableMethod\nobject: !ruby/ActiveRecord:Configuration\n  attributes:\n    id: 1\n    title: Open Build Service\n    description: |2\n        <p class=\"description\">\n          The <a href=\"http://openbuildservice.org\">Open Build Service (OBS)</a>\n          is an open and complete distribution development platform that provides a transparent infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.\n          Supporting also Fedora, Debian, Ubuntu, RedHat and other Linux distributions.\n        </p>\n        <p class=\"description\">\n          The OBS is developed under the umbrella of the <a href=\"http://www.opensuse.org\">openSUSE project</a>. Please find further informations on the <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service\">openSUSE Project wiki pages</a>.\n        </p>\n\n        <p class=\"description\">\n          The Open Build Service developer team is greeting you. In case you use your OBS productive in your facility, please do us a favor and add yourself at <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service_installations\">this wiki page</a>. Have fun and fast build times!\n        </p>\n    created_at: &1 2014-04-10 07:43:54.835203910 Z\n    updated_at: *1\n    name: private\n    registration: allow\n    anonymous: true\n    default_access_disabled: false\n    allow_user_to_create_home_project: true\n    disallow_group_creation: false\n    change_password: true\n    hide_private_options: false\n    gravatar: true\n    enforce_project_keys: true\n    download_on_demand: true\n    download_url: \n    ymp_url: \n    bugzilla_url: \n    http_proxy: \n    no_proxy: \n    theme: \n    obs_url: \n    cleanup_after_days: \n    admin_email: unconfigured@openbuildservice.org\nmethod_name: :write_to_backend\nargs: []\n',NULL,'2014-04-10 07:43:54',NULL,NULL,NULL,NULL);
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `issue_trackers` VALUES (1,'boost','trac','Boost Trac','https://svn.boost.org/trac/boost/','https://svn.boost.org/trac/boost/ticket/@@@','boost#(\\d+)',NULL,NULL,'boost#@@@','2014-04-10 07:43:54',0),(2,'bco','bugzilla','Clutter Project Bugzilla','http://bugzilla.clutter-project.org/','http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@','bco#(\\d+)',NULL,NULL,'bco#@@@','2014-04-10 07:43:54',0),(3,'RT','other','CPAN Bugs','https://rt.cpan.org/','http://rt.cpan.org/Public/Bug/Display.html?id=@@@','RT#(\\d+)',NULL,NULL,'RT#@@@','2014-04-10 07:43:55',0),(4,'cve','cve','CVE Numbers','http://cve.mitre.org/','http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@','(CVE-\\d\\d\\d\\d-\\d+)',NULL,NULL,'@@@','2014-04-10 07:43:55',0),(5,'deb','bugzilla','Debian Bugzilla','http://bugs.debian.org/','http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@','deb#(\\d+)',NULL,NULL,'deb#@@@','2014-04-10 07:43:55',0),(6,'fdo','bugzilla','Freedesktop.org Bugzilla','https://bugs.freedesktop.org/','https://bugs.freedesktop.org/show_bug.cgi?id=@@@','fdo#(\\d+)',NULL,NULL,'fdo#@@@','2014-04-10 07:43:55',0),(7,'GCC','bugzilla','GCC Bugzilla','http://gcc.gnu.org/bugzilla/','http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@','GCC#(\\d+)',NULL,NULL,'GCC#@@@','2014-04-10 07:43:55',0),(8,'bgo','bugzilla','Gnome Bugzilla','https://bugzilla.gnome.org/','https://bugzilla.gnome.org/show_bug.cgi?id=@@@','bgo#(\\d+)',NULL,NULL,'bgo#@@@','2014-04-10 07:43:55',0),(9,'bio','bugzilla','Icculus.org Bugzilla','https://bugzilla.icculus.org/','https://bugzilla.icculus.org/show_bug.cgi?id=@@@','bio#(\\d+)',NULL,NULL,'bio#@@@','2014-04-10 07:43:55',0),(10,'bko','bugzilla','Kernel.org Bugzilla','https://bugzilla.kernel.org/','https://bugzilla.kernel.org/show_bug.cgi?id=@@@','(?:Kernel|K|bko)#(\\d+)',NULL,NULL,'bko#@@@','2014-04-10 07:43:55',0),(11,'kde','bugzilla','KDE Bugzilla','https://bugs.kde.org/','https://bugs.kde.org/show_bug.cgi?id=@@@','kde#(\\d+)',NULL,NULL,'kde#@@@','2014-04-10 07:43:55',0),(12,'lp','launchpad','Launchpad.net Bugtracker','https://bugs.launchpad.net/bugs/','https://bugs.launchpad.net/bugs/@@@','b?lp#(\\d+)',NULL,NULL,'lp#@@@','2014-04-10 07:43:55',0),(13,'Meego','bugzilla','Meego Bugs','https://bugs.meego.com/','https://bugs.meego.com/show_bug.cgi?id=@@@','Meego#(\\d+)',NULL,NULL,'Meego#@@@','2014-04-10 07:43:55',0),(14,'bmo','bugzilla','Mozilla Bugzilla','https://bugzilla.mozilla.org/','https://bugzilla.mozilla.org/show_bug.cgi?id=@@@','bmo#(\\d+)',NULL,NULL,'bmo#@@@','2014-04-10 07:43:55',0),(15,'bnc','bugzilla','Novell Bugzilla','https://bugzilla.novell.com/','https://bugzilla.novell.com/show_bug.cgi?id=@@@','(?:bnc|BNC)\\s*[#:]\\s*(\\d+)',NULL,NULL,'bnc#@@@','2014-04-10 07:43:55',1),(16,'ITS','other','OpenLDAP Issue Tracker','http://www.openldap.org/its/','http://www.openldap.org/its/index.cgi/Contrib?id=@@@','ITS#(\\d+)',NULL,NULL,'ITS#@@@','2014-04-10 07:43:55',0),(17,'i','bugzilla','OpenOffice.org Bugzilla','http://openoffice.org/bugzilla/','http://openoffice.org/bugzilla/show_bug.cgi?id=@@@','i#(\\d+)',NULL,NULL,'boost#@@@','2014-04-10 07:43:55',0),(18,'fate','fate','openSUSE Feature Database','https://features.opensuse.org/','https://features.opensuse.org/@@@','(?:fate|Fate|FATE)\\s*#\\s*(\\d+)',NULL,NULL,'fate#@@@','2014-04-10 07:43:55',0),(19,'rh','bugzilla','RedHat Bugzilla','https://bugzilla.redhat.com/','https://bugzilla.redhat.com/show_bug.cgi?id=@@@','rh#(\\d+)',NULL,NULL,'rh#@@@','2014-04-10 07:43:55',0),(20,'bso','bugzilla','Samba Bugzilla','https://bugzilla.samba.org/','https://bugzilla.samba.org/show_bug.cgi?id=@@@','bso#(\\d+)',NULL,NULL,'bso#@@@','2014-04-10 07:43:55',0),(21,'sf','sourceforge','SourceForge.net Tracker','http://sf.net/support/','http://sf.net/support/tracker.php?aid=@@@','sf#(\\d+)',NULL,NULL,'sf#@@@','2014-04-10 07:43:55',0),(22,'Xamarin','bugzilla','Xamarin Bugzilla','http://bugzilla.xamarin.com/index.cgi','http://bugzilla.xamarin.com/show_bug.cgi?id=@@@','Xamarin#(\\d+)',NULL,NULL,'Xamarin#@@@','2014-04-10 07:43:55',0),(23,'bxo','bugzilla','XFCE Bugzilla','https://bugzilla.xfce.org/','https://bugzilla.xfce.org/show_bug.cgi?id=@@@','bxo#(\\d+)',NULL,NULL,'bxo#@@@','2014-04-10 07:43:55',0);
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `projects` VALUES (1,'deleted',NULL,NULL,'2014-04-10 07:43:54','2014-04-10 07:43:54',NULL,NULL,1,NULL,NULL,1);
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `repositories` VALUES (1,1,'deleted',NULL,NULL,NULL,NULL,NULL);
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `roles_users` VALUES (1,1,'2014-04-10 07:43:53');
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `static_permissions` VALUES (5,'access'),(12,'change_package'),(10,'change_project'),(13,'create_package'),(11,'create_project'),(3,'download_binaries'),(8,'global_change_package'),(6,'global_change_project'),(9,'global_create_package'),(7,'global_create_project'),(2,'set_download_counters'),(4,'source_access'),(1,'status_message_create');
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `roles_static_permissions` VALUES (1,1),(1,2),(1,3),(5,3),(1,4),(6,4),(1,5),(6,5),(1,6),(1,7),(1,8),(1,9),(1,10),(2,10),(1,11),(2,11),(1,12),(2,12),(1,13),(2,13);
+    SQL
+
+    execute <<-SQL
+      INSERT INTO `schema_migrations` VALUES (20141302101042),(10),(11),(12),(13),(14),(15),(16),(17),(18),(19),(2),(20),(20090701125033),(20090703100900),(20090716174522),(20090717114240),(20091017210000),(20091022210000),(20091022310000),(20091029100000),(20091030060000),(20091102060000),(20091111191005),(20091115101346),(20091117144409),(20091117152223),(20091118000000),(20091119000000),(20091119090108),(20091119090620),(20091124194151),(20091206194902),(20091209193452),(20091209211754),(20091226112028),(20091229115736),(20100102150000),(20100104170000),(20100109145739),(20100125100000),(20100202132416),(20100302100000),(20100304100000),(20100315100000),(20100316100000),(20100316100001),(20100327100000),(20100329191407),(20100423144748),(20100426144748),(20100428144748),(20100429144748),(20100506115929),(20100507115929),(20100530180617),(20100609100000),(20100609200000),(20100614121047),(20100629095208),(20100702082339),(20100705124948),(20100705133839),(20100705141045),(20100707061034),(20100805100000),(20100812100000),(20100827100000),(20100903100000),(20100927110821),(20100927132716),(20100927133955),(20100928081344),(20101110100000),(20110117000000),(20110131100000),(20110202100000),(20110202110000),(20110302100000),(20110303100000),(20110309100000),(20110318112742),(20110321000000),(20110322000000),(20110323000000),(2011033000000),(20110331001200),(20110404085232),(20110404085325),(20110404090700),(20110405151201),(20110502100000),(20110519000000),(20110527000000),(20110615083665),(20110615083666),(20110627001200),(20110703001200),(20110711001200),(20110719142500),(20110725105426),(20110728072502),(20111005000000),(20111116100002),(20111117162400),(20111122000000),(20111123000000),(20111206000000),(20111206151500),(20111207000000),(20111213000000),(20111215094300),(20111303000000),(20120110094300),(20120110104300),(20120111094300),(20120112094300),(20120112194300),(20120119194300),(20120119204300),(20120119204301),(20120120104301),(20120120114301),(20120124114301),(20120124114302),(20120124114303),(20120216114303),(20120217114303),(20120217114304),(20120220114304),(20120222105426),(20120223105426),(20120304205014),(20120312204300),(20120313113554),(20120313131909),(20120319104301),(20120319133739),(20120320134850),(20120407173644),(20120411112931),(20120411121152),(20120417115800),(20120418121859),(20120529150500),(20120903122955),(20120904122955),(20120907114304),(20121014124846),(20121015121807),(20121112104534),(20121112110642),(20121114093616),(20121120110642),(20121120124300),(20121121142111),(20121124032111),(20121130103300),(20121130143300),(20121213140751),(20121213144129),(20121216151549),(20121220151549),(20130111085930),(20130220160000),(20130301100000),(20130409123324),(20130410124738),(20130414061002),(20130603100244),(20130610100244),(20130612151549),(20130618083665),(20130621083665),(20130626160000),(20130627193722),(20130702083665),(20130702203665),(20130723055536),(20130725123636),(20130726144516),(20130802183104),(20130802183717),(20130802190951),(20130805073101),(20130807071147),(20130814071147),(20130816183104),(20130817082602),(20130819114303),(20130820151442),(20130830043205),(20130903114302),(20130904071147),(20130910162318),(20130917124132),(20130920090004),(20130930130128),(20131005225515),(20131006000000),(20131006162847),(20131020151037),(20131020165316),(20131021063641),(20131022114302),(20131023063641),(20131027122410),(20131028085325),(20131029112259),(20131105112259),(20131106112233),(20131111090310),(20131111193512),(20131111194720),(20131112140033),(20131120193512),(20131123113417),(20131124071042),(20131125071042),(20131125101042),(20131126074753),(20131126205430),(20131127091624),(20131209095749),(20131209103450),(20131210182719),(20131218071042),(20140113110551),(20140123063641),(20140123071042),(20140124071042),(21),(22),(23),(24),(25),(26),(27),(28),(29),(3),(30),(31),(32),(33),(34),(35),(36),(37),(38),(39),(4),(40),(41),(42),(43),(44),(45),(46),(47),(48),(5),(6),(7),(8),(9);
+    SQL
   end
   # rubocop:enable Metrics/AbcSize
   # rubocop:enable MethodLength
