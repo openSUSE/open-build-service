@@ -1094,6 +1094,7 @@ CREATE TABLE `tokens` (
   `string` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `user_id` int(11) NOT NULL,
   `package_id` int(11) DEFAULT NULL,
+  `type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_tokens_on_string` (`string`) USING BTREE,
   KEY `user_id` (`user_id`) USING BTREE,
@@ -1476,6 +1477,8 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170516140442'),
 ('20170607110443'),
 ('20170614083014'),
+('20170619111734'),
+('20170621083718'),
 ('20170621100321'),
 ('20170621103748'),
 ('20170628115727'),
@@ -1513,5 +1516,6 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('6'),
 ('7'),
 ('8'),
-('9'),
-('20170619111734');
+('9');
+
+

@@ -60,7 +60,6 @@ end
 #  created_at    :datetime
 #  updated_at    :datetime
 #  group_id      :integer          indexed
-#  receive       :boolean
 #  channel       :integer          default("disabled"), not null
 #
 # Indexes

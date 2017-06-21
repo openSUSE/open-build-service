@@ -42,8 +42,14 @@ class Webui::FeedsController < Webui::WebuiController
   end
 
   def notifications
-    @configuration = ::Configuration.first
-    @user = User.current
-    @notifications = User.current.combined_rss_feed_items
+    token = Token::Rss.find_by_string(params[:token])
+    if token
+      @configuration = ::Configuration.first
+      @user = token.user
+      @notifications = token.user.combined_rss_feed_items
+    else
+      flash[:error] = "Unknown Token for RSS feed"
+      redirect_back(fallback_location: root_path)
+    end
   end
 end
