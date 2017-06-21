@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :notification do
     event_type 'FakeEventType'
-    event_payload 'FakeJsonPayload'
+    event_payload { { fake: 'payload' } }
     subscription_receiver_role 'owner'
   end
 
