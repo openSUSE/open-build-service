@@ -33,13 +33,13 @@ RSpec.describe Kiwi::Repository, type: :model do
         it { is_expected.not_to allow_value(format).for(:source_path) }
       end
 
-      it "not valid" do
+      it "not valid when protocol is not valid" do
         property_of {
-          string = sized(range(3, 199)) { string(/./) }
+          string = sized(range(3, 199)) { string(/[\w]/) }
           index = range(0, (string.length - 4))
           string[index] = ':'
           string[index + 1] = string[index + 2] = '/'
-          guard !%w(ftp http https plain).include?(string[0..index - 1])
+          guard !%w(ftp http https plain dir iso smb this).include?(string[0..index - 1])
           string
         }.check(3) { |string|
           is_expected.not_to allow_value(string).for(:source_path)
@@ -47,11 +47,11 @@ RSpec.describe Kiwi::Repository, type: :model do
       end
 
       ['ftp', 'http', 'https', 'plain'].each do |protocol|
-        it "not valid" do
+        it "not valid when has `{`" do
           property_of {
-            string = sized(range(1, 199)) { string(/./) }
+            string = sized(range(1, 199)) { string(/[\w]/) }
             index = range(0, (string.length - 2))
-            uri_character = sized(1) { string(/[@]/) }
+            uri_character = sized(1) { string(/[{]/) }
             string[index] = uri_character
             protocol + '://' + string
           }.check(3) { |string|
