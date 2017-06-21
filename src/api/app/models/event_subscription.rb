@@ -1,10 +1,10 @@
 class EventSubscription < ApplicationRecord
+  enum channel: %i(disabled instant_email)
+
   belongs_to :user, inverse_of: :event_subscriptions
   belongs_to :group, inverse_of: :event_subscriptions
 
-  validates :receiver_role, inclusion: { in: [:all, :maintainer, :bugowner, :reader, :source_maintainer,
-                                              :target_maintainer, :reviewer, :commenter, :creator] }
-  validates :channel, inclusion: { in: ['disabled', 'instant_email', 'daily_email'] }
+  validates :receiver_role, inclusion: { in: %i(all maintainer bugowner reader source_maintainer target_maintainer reviewer commenter creator) }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }
   scope :defaults, ->{ where(user_id: nil, group_id: nil) }
@@ -43,6 +43,10 @@ class EventSubscription < ApplicationRecord
   def receiver_role
     read_attribute(:receiver_role).to_sym
   end
+
+  def enabled?
+    !disabled?
+  end
 end
 
 # == Schema Information
@@ -55,9 +59,9 @@ end
 #  user_id       :integer          indexed
 #  created_at    :datetime
 #  updated_at    :datetime
-#  receive       :boolean          default(TRUE), not null
 #  group_id      :integer          indexed
-#  channel       :string(255)      not null
+#  receive       :boolean
+#  channel       :integer          default("disabled"), not null
 #
 # Indexes
 #

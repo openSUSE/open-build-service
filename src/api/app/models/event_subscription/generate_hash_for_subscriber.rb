@@ -40,7 +40,7 @@ class EventSubscription
           subscriber: subscriber,
           eventtype: event_class.to_s,
           receiver_role: role,
-          receive: false
+          channel: 'disabled'
         )
       end
     end

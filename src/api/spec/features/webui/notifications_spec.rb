@@ -8,12 +8,12 @@ RSpec.feature 'Notifications', type: :feature, js: true do
 
       expect(page).to have_content('Events to get email for')
 
-      %w(subscriptions_8_receive
-         subscriptions_7_receive
-         subscriptions_14_receive
-         subscriptions_15_receive
-      ).each do |checkbox|
-        check(checkbox)
+      %w(subscriptions_8_channel
+         subscriptions_7_channel
+         subscriptions_14_channel
+         subscriptions_15_channel
+      ).each do |select_id|
+        select('instant_email', from: select_id)
       end
 
       click_button 'Update'
@@ -23,13 +23,13 @@ RSpec.feature 'Notifications', type: :feature, js: true do
       user_id = user.is_admin? ? nil : user.id
 
       expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForPackage',
-                                       receiver_role: 'commenter', receive: true)).to be true
+                                       receiver_role: 'commenter', channel: 'instant_email')).to be true
       expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForProject',
-                                      receiver_role: 'maintainer', receive: true)).to be true
+                                      receiver_role: 'maintainer', channel: 'instant_email')).to be true
       expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForRequest',
-                                       receiver_role: 'reviewer', receive: true)).to be true
+                                       receiver_role: 'reviewer', channel: 'instant_email')).to be true
       expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::BuildFail',
-                                       receiver_role: 'maintainer', receive: true)).to be true
+                                       receiver_role: 'maintainer', channel: 'instant_email')).to be true
     end
   end
 

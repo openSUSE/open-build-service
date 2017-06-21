@@ -16,7 +16,7 @@ class EventSubscription
           subscription_params[:eventtype],
           subscription_params[:receiver_role]
         )
-        subscription.receive = subscription_params[:receive]
+        subscription.channel = subscription_params[:channel]
         subscription.save!
       end
     end

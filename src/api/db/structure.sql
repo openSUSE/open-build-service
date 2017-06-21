@@ -467,9 +467,8 @@ CREATE TABLE `event_subscriptions` (
   `user_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
-  `receive` tinyint(1) NOT NULL DEFAULT '1',
   `group_id` int(11) DEFAULT NULL,
-  `channel` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `channel` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `index_event_subscriptions_on_user_id` (`user_id`) USING BTREE,
   KEY `index_event_subscriptions_on_group_id` (`group_id`)
@@ -1479,6 +1478,7 @@ INSERT INTO schema_migrations (version) VALUES
 ('20170607110443'),
 ('20170614083014'),
 ('20170621100321'),
+('20170621103748'),
 ('21'),
 ('22'),
 ('23'),
