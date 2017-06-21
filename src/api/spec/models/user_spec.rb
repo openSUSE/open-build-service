@@ -45,69 +45,6 @@ RSpec.describe User do
     it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user.') }
   end
 
-  shared_examples 'updates notifications' do
-    before do
-      # If the parameter is the User class, the user_id has to be nil
-      @id = object.instance_of?(User) ? object.id : nil
-    end
-
-    context 'when valid'do
-      it 'updates one global notification' do
-        object.update_notifications(input)
-        expect(
-          EventSubscription.exists?(user_id: @id, eventtype: 'Event::RequestCreate', receiver_role: 'source_maintainer', receive: true)
-        ).to be true
-      end
-
-      it 'does not update User notification when Event disabled' do
-        object.update_notifications({ })
-        expect(
-          EventSubscription.exists?(user_id: @id, eventtype: 'Event::RequestCreate', receiver_role: 'source_maintainer', receive: false)
-        ).to be true
-      end
-
-      context 'for more than one User notification' do
-        before do
-          input['Event::CommentForPackage'] = { commenter: '1' }
-          object.update_notifications(input)
-        end
-
-        it 'creates an EventSubscription for the maintainer' do
-          expect(
-            EventSubscription.exists?(user_id: @id, eventtype: 'Event::RequestCreate', receiver_role: 'source_maintainer', receive: true)
-          ).to be true
-        end
-
-        it 'creates an EventSubscription for a commenter' do
-          expect(
-            EventSubscription.exists?(user_id: @id, eventtype: 'Event::CommentForPackage', receiver_role: 'commenter', receive: true)
-          ).to be true
-        end
-      end
-    end
-
-    context 'when invalid'do
-      it 'does not update User notification' do
-        object.update_notifications({ 'Event::InvalidEvent' => { source_maintainer: '1' } })
-        expect(
-          EventSubscription.exists?(user_id: @id, eventtype: 'Event::RequestCreate', receiver_role: 'source_maintainer', receive: true)
-        ).to be false
-      end
-    end
-  end
-
-  context '.update_notifications' do
-    it_behaves_like 'updates notifications' do
-      let(:object) { User }
-    end
-  end
-
-  context '#update_notifications' do
-    it_behaves_like 'updates notifications' do
-      let(:object) { admin_user }
-    end
-  end
-
   describe 'password validation' do
     shared_examples 'tests for password related methods for encryption with' do |hash_type|
       let(:user) { create(:user, password_hash_type: hash_type) }

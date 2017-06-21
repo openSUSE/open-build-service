@@ -175,15 +175,6 @@ class User < ApplicationRecord
     ApplicationRecord.record_timestamps = old_state
   end
 
-  def self.update_notifications(params, user = nil)
-    Event::Base.notification_events.each do |event_type|
-      values = params[event_type.to_s] || {}
-      event_type.receiver_roles.each do |role|
-        EventSubscription.update_subscription(event_type.to_s, role, user, !values[role].nil?)
-      end
-    end
-  end
-
   def self.create_user_with_fake_pw!(attributes = {})
     create!(attributes.merge(password: SecureRandom.base64(48)))
   end
@@ -905,10 +896,6 @@ class User < ApplicationRecord
     address = Mail::Address.new email
     address.display_name = realname
     address.format
-  end
-
-  def update_notifications(params)
-    User.update_notifications(params, self)
   end
 
   private

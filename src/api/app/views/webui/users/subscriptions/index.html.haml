@@ -1,0 +1,15 @@
+- @pagetitle = "#{User.current.to_s.capitalize}'s Notifications"
+- @crumb_list = [@pagetitle]
+%h2= @pagetitle
+
+= form_tag(user_notifications_path, method: :put, id: 'notification_form') do
+  - unless @groups_users.empty?
+    %h3 Get mails if in group ...
+    %ul{ style: "list-style-type:none;" }
+      - @groups_users.each do |group_user|
+        %li
+          = check_box_tag group_user.group, '1', group_user.email
+          = label_tag group_user.group.title
+
+  = render partial: 'webui/subscriptions/subscriptions_form'
+  %p= submit_tag 'Update'

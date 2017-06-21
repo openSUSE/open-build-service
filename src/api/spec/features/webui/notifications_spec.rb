@@ -8,10 +8,10 @@ RSpec.feature 'Notifications', type: :feature, js: true do
 
       expect(page).to have_content('Events to get email for')
 
-      %w(Event::CommentForPackage_commenter
-         Event::CommentForProject_maintainer
-         Event::CommentForRequest_reviewer
-         Event::BuildFail_maintainer
+      %w(subscriptions_8_receive
+         subscriptions_7_receive
+         subscriptions_14_receive
+         subscriptions_15_receive
       ).each do |checkbox|
         check(checkbox)
       end

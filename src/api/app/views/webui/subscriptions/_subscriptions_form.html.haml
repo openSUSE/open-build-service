@@ -1,0 +1,13 @@
+%h3 Events to get email for ...
+- i = 0
+- @subscriptions_form.subscriptions_by_event.each do |event_class, subscriptions|
+  = field_set_tag event_class.description do
+    %ul.horizontal-list
+      - subscriptions.each do |subscription|
+        = fields_for "subscriptions[#{i}]", subscription do |f|
+          %li
+            = f.check_box :receive
+            = f.hidden_field :eventtype
+            = f.hidden_field :receiver_role
+            = f.label :receive, subscription.receiver_role
+            - i += 1
