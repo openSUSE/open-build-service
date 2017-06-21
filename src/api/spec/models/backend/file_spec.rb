@@ -10,16 +10,10 @@ RSpec.describe Backend::File, vcr: true do
   let(:backend_file_with_name) { described_class.new(name: fake_filename) }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: user.home_project) }
   let(:fake_file) do
-    Tempfile.open([fake_filename, '.txt']) do |file|
-      file.write("hello")
-      file
-    end
+    File.open(File.expand_path(Rails.root.join("spec/support/files/hello.txt"))) { |file| file }
   end
   let(:fake_file_without_extension) do
-    Tempfile.open(fake_filename) do |file|
-      file.write("hello world!")
-      file
-    end
+    File.open(File.expand_path(Rails.root.join("spec/support/files/hello_world"))) { |file| file }
   end
   let(:somefile_txt_url) { "/source/#{user.home_project_name}/#{package_with_file.name}/somefile.txt" }
   let(:mock_full_path) do
@@ -58,7 +52,7 @@ RSpec.describe Backend::File, vcr: true do
     end
 
     it { expect(subject.file.class).to eq(Tempfile) }
-    it { expect(File.open(subject.file.path).read).to eq("hello") }
+    it { expect(File.open(subject.file.path).read).to eq("hello\n") }
   end
 
   describe '#file_from_path' do
@@ -72,8 +66,8 @@ RSpec.describe Backend::File, vcr: true do
       it { expect(subject.file.class).to eq(File) }
       it { expect(subject.response[:type]).to eq("text/plain") }
       it { expect(subject.response[:status]).to eq(200) }
-      it { expect(subject.response[:size]).to eq(5) }
-      it { expect(File.open(subject.file.path).read).to eq("hello") }
+      it { expect(subject.response[:size]).to eq(6) }
+      it { expect(File.open(subject.file.path).read).to eq("hello\n") }
     end
 
     context 'with a file without extension' do
@@ -84,8 +78,8 @@ RSpec.describe Backend::File, vcr: true do
       it { expect(subject.file.class).to eq(File) }
       it { expect(subject.response[:type]).to be_nil }
       it { expect(subject.response[:status]).to eq(200) }
-      it { expect(subject.response[:size]).to eq(12) }
-      it { expect(File.open(subject.file.path).read).to eq("hello world!") }
+      it { expect(subject.response[:size]).to eq(13) }
+      it { expect(File.open(subject.file.path).read).to eq("hello world!\n") }
     end
   end
 
@@ -100,8 +94,8 @@ RSpec.describe Backend::File, vcr: true do
       it { expect(subject.file.class).to eq(File) }
       it { expect(subject.response[:type]).to eq("text/plain") }
       it { expect(subject.response[:status]).to eq(200) }
-      it { expect(subject.response[:size]).to eq(5) }
-      it { expect(File.open(subject.file.path).read).to eq("hello") }
+      it { expect(subject.response[:size]).to eq(6) }
+      it { expect(File.open(subject.file.path).read).to eq("hello\n") }
     end
 
     context 'without a file already loaded' do
@@ -216,7 +210,7 @@ RSpec.describe Backend::File, vcr: true do
       end
 
       it { expect(File.open(subject.file.path).read).not_to eq(@previous_content) }
-      it { expect(File.open(subject.file.path).read).to eq('hello') }
+      it { expect(File.open(subject.file.path).read).to eq("hello") }
     end
 
     context 'with a file as content' do
@@ -232,7 +226,7 @@ RSpec.describe Backend::File, vcr: true do
       end
 
       it { expect(File.open(subject.file.path).read).not_to eq(@previous_content) }
-      it { expect(File.open(subject.file.path).read).to eq('hello') }
+      it { expect(File.open(subject.file.path).read).to eq("hello\n") }
     end
   end
 
