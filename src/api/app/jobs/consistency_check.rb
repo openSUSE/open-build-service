@@ -143,8 +143,8 @@ class ConsistencyCheckJob < ApplicationJob
     project.update_from_xml!(Xmlhash.parse(meta))
     project.save!
     return ""
-  rescue APIException
-    # FIXME: Check if we want to do something in this case
+  rescue APIException => e
+    return "Invalid project meta data hosted in src server for project #{project}: #{e}"
   rescue ActiveRecord::RecordInvalid
     Backend::Connection.delete("/source/#{project}")
     return "DELETED #{project} on backend due to invalid data\n"
