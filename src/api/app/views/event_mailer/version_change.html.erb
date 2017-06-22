@@ -1,0 +1,9 @@
+<p>
+  @subject: [obs update] Package <%= event['package']%> in <%= event['project']%> updated to <%= event['newversion']%>
+  <br>
+  User <%= event['user']%> updated package <%= event['package']%> in <%= event['project']%><%= event['oldversion']-%> from <%= event['oldversion']%> to <%= event['newversion']%>.
+</p>
+
+<p>Comment: <%= event['comment'] %></p>
+
+<p><%= event['files'] %></p>

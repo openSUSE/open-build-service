@@ -6,6 +6,24 @@ class Notification < ApplicationRecord
   def event
     @event ||= event_type.constantize.new(event_payload)
   end
+
+  def event_expanded_payload
+    event.expanded_payload
+  end
+
+  def template_name
+    event_type.gsub('Event::', '').underscore
+  end
+
+  private
+
+  def parsed_event_payload
+    Yajl::Parser.parse(event_payload)
+  end
+
+  def event
+    event_type.constantize.new(parsed_event_payload.merge(eventtype: event_type))
+  end
 end
 
 # == Schema Information
