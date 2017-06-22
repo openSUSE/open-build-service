@@ -1401,12 +1401,13 @@ class Package < ApplicationRecord
 
   def backend_build_command(command, build_project, params)
     begin
+      Project.find_by(name: build_project).check_write_access!
       # Note: This list needs to keep in sync with the backend code
       permitted_params = params.permit(:repository, :arch, :package, :code, :wipe)
 
       # do not use project.name because we missuse the package source container for build container operations
       Backend::Connection.post("/build/#{URI.escape(build_project)}?cmd=#{command}&#{permitted_params.to_h.to_query}")
-    rescue ActiveXML::Transport::Error, Timeout::Error => e
+    rescue ActiveXML::Transport::Error, Timeout::Error, Project::WritePermissionError => e
       errors.add(:base, e.message)
       return false
     end
