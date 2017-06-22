@@ -2,13 +2,13 @@
 # that users (or services) would like to know about
 module Event
   class Base < ApplicationRecord
-    scope :not_in_queue, -> { where(queued: false) }
+    scope :not_sent_to_bus, -> { where(queued: false) }
 
     self.inheritance_column = 'eventtype'
     self.table_name = 'events'
 
     class << self
-      attr_accessor :description, :raw_type
+      attr_accessor :description, :amqp_name
       @payload_keys = nil
       @create_jobs = nil
       @classnames = nil
@@ -82,8 +82,8 @@ module Event
       self.class.receiver_roles
     end
 
-    def raw_type
-      self.class.raw_type
+    def amqp_name(config)
+      config.fetch('prefix', 'opensuse.obs') + '.' + self.class.amqp_name
     end
 
     def initialize(_attribs)
@@ -128,7 +128,7 @@ module Event
       @payload ||= Yajl::Parser.parse(read_attribute(:payload))
     end
 
-    def notify_backend
+    def send_to_bus(exchange, config)
       return false if queued
       self.queued = true
       begin
@@ -137,15 +137,14 @@ module Event
         # if someone else saved it too, better don't send it
         return false
       end
-      return false unless self.class.raw_type
-      # tell the backend to tell the (old) plugins
+
+      # if the exchange is nil, there is no bus configured and
+      # we just fake queue
+      return true if exchange.nil?
+
       p = payload
-      p['time'] = created_at.to_i
-      logger.debug "notify_backend #{self.class.name} #{p.inspect}"
-      ret = Backend::Connection.post("/notify_plugins/#{self.class.raw_type}",
-                                     Yajl::Encoder.encode(p),
-                                     'Content-Type' => 'application/json')
-      Xmlhash.parse(ret.body)['code'] == 'ok'
+      p['created_at'] = created_at.to_i
+      exchange.publish(Yajl::Encoder.encode(p), routing_key: amqp_name(config))
     end
 
     after_create :perform_create_jobs

@@ -29,8 +29,7 @@ use strict;
 
 #
 # Backend notifications are always routed through the source server. The API
-# is processing them via /lastnotifications route and afterwards delivers
-# them to the backend notifiy plugins via /notify_plugins.
+# is processing them via /lastnotifications route
 #
 sub notify {
   my ($type, $p, $payload) = @_;
@@ -57,32 +56,6 @@ sub notify {
     die($@) if $payload;	# payload transfers are fatal
     warn($@) if $@;
   }
-}
-
-#
-# this is called from the /notify_plugins route that the API calls for all
-# events (no matter the origin) if the API is configured to do so.
-#
-sub notify_plugins($$) {
-  my ($type, $paramRef) = @_;
-
-  return unless $BSConfig::notification_plugin;
-
-  my $plugins = $BSConfig::notification_plugin;
-  $plugins = [ split(' ', $plugins) ] unless ref($plugins);	# compat
-  for my $plugin (@$plugins) {
-    my $notifier = loadPackage($plugin);
-    $notifier->notify($type, $paramRef);
-  }
-}
-
-sub loadPackage {
-  my ($plugin) = @_;
-  eval {
-     require "plugins/$plugin.pm";
-  };
-  warn("error: $@") if $@;
-  return $plugin->new();
 }
 
 1;

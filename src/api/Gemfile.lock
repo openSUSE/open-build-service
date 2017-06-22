@@ -49,6 +49,7 @@ GEM
       activerecord (>= 3.0.0)
     addressable (2.5.0)
       public_suffix (~> 2.0, >= 2.0.2)
+    amq-protocol (2.2.0)
     annotate (2.7.1)
       activerecord (>= 3.2, < 6.0)
       rake (>= 10.4)
@@ -57,6 +58,8 @@ GEM
     ast (2.3.0)
     atomic (1.1.99)
     builder (3.2.3)
+    bunny (2.6.3)
+      amq-protocol (>= 2.0.1)
     capybara (2.13.0)
       addressable
       mime-types (>= 1.16)
@@ -383,6 +386,7 @@ DEPENDENCIES
   acts_as_tree
   annotate
   bundler
+  bunny
   capybara
   capybara_minitest_spec
   chunky_png
@@ -458,4 +462,4 @@ DEPENDENCIES
   yajl-ruby
 
 BUNDLED WITH
-   1.13.7
+   1.13.6

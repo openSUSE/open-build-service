@@ -5,8 +5,8 @@ module Event
   end
 
   class CreateProject < Project
-    self.raw_type = 'SRCSRV_CREATE_PROJECT'
     self.description = 'Project is created'
+    self.amqp_name = 'project.create'
     payload_keys :sender
 
     create_jobs :cleanup_cache_lines
@@ -17,28 +17,28 @@ module Event
   end
 
   class UpdateProjectConfig < Project
-    self.raw_type = 'SRCSRV_UPDATE_PROJECT_CONFIG'
     self.description = 'Project _config was updated'
+    self.amqp_name = 'project.update_project_config'
     payload_keys :sender, :files, :comment
   end
 
   class UndeleteProject < Project
-    self.raw_type = 'SRCSRV_UNDELETE_PROJECT'
     self.description = 'Project was undeleted'
+    self.amqp_name = 'project.undelete'
     payload_keys :comment, :sender
 
     create_jobs :cleanup_cache_lines
   end
 
   class UpdateProject < Project
-    self.raw_type = 'SRCSRV_UPDATE_PROJECT'
     self.description = 'Project meta was updated'
+    self.amqp_name = 'project.update'
     payload_keys :sender
   end
 
   class DeleteProject < Project
-    self.raw_type = 'SRCSRV_DELETE_PROJECT'
     self.description = 'Project was deleted'
+    self.amqp_name = 'project.delete'
     payload_keys :comment, :requestid, :sender
 
     create_jobs :cleanup_cache_lines

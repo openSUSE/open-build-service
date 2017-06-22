@@ -36,7 +36,7 @@ module Clockwork
   end
 
   every(30.seconds, 'send notifications') do
-    ::Event::NotifyBackends.trigger_delayed_sent
+    ::Event::SendToBus.trigger_delayed_send
     SendEventEmails.new.delay.perform
   end
 
