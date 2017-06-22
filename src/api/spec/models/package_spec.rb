@@ -434,7 +434,7 @@ RSpec.describe Package, vcr: true do
     let(:params) { ActionController::Parameters.new(arch: 'x86') }
     let(:backend_url) { "#{CONFIG['source_url']}/build/#{package.project.name}?cmd=rebuild&arch=x86" }
 
-    subject { package.backend_build_command(:rebuild, params) }
+    subject { package.backend_build_command(:rebuild, package.project.name, params) }
 
     context 'backend response is successful' do
       before { stub_request(:post, backend_url) }
@@ -444,6 +444,23 @@ RSpec.describe Package, vcr: true do
 
     context 'backend response fails' do
       before { stub_request(:post, backend_url).and_raise(ActiveXML::Transport::Error) }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'user has no access rights for the project' do
+      let(:other_project) { create(:project) }
+
+      before do
+        # check_write_access! depends on the Rails env. We have to workaround this here.
+        allow(Rails.env).to receive(:test?).and_return false
+        # also check_write_access! relies on User.current
+        login(user)
+
+        allow(Backend::Connection).to receive(:post).never
+      end
+
+      subject { package.backend_build_command(:rebuild, other_project.name, params) }
 
       it { is_expected.to be_falsey }
     end
