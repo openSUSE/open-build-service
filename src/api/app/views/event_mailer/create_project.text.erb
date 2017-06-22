@@ -1,4 +1,4 @@
-A new Project was created: <%= @e['project']%>
+A new Project was created: <%= event['project']%>
 
-<%= url_for(project: @e['project'], controller: 'webui/project', action: :show, only_path: false, host: @host) %>
+<%= url_for(project: event['project'], controller: 'webui/project', action: :show, only_path: false, host: @host) %>
 

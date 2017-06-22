@@ -1,5 +1,5 @@
-Visit <%= url_for(controller: 'webui/request', action: :show, number: @e['number'], host: @host, only_path: false) %>
+Visit <%= url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false) %>
 
-<%= @e['commenter'].realname %> wrote in request <%= @e['number'] %>:
+<%= event['commenter'].realname %> wrote in request <%= event['number'] %>:
 
-<%= @e['comment_body'] %>
+<%= event['comment_body'] %>

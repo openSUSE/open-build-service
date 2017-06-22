@@ -1,12 +1,12 @@
-Visit <%= url_for(controller: 'webui/request', action: :show, number: @e['number'], host: @host, only_path: false) %>
+Visit <%= url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false) %>
 
-State of request <%= @e['number']%> was changed by <%= @e['who']%>:
+State of request <%= event['number']%> was changed by <%= event['who']%>:
 
-  <%= @e['oldstate']%> -> <%= @e['state']%>
+  <%= event['oldstate']%> -> <%= event['state']%>
 
-<% if @e['comment'].present? -%>
+<% if event['comment'].present? -%>
 Comment:
-  <%= @e['comment'] %>
+  <%= event['comment'] %>
 
 <% end -%>
-<%= render partial: 'actions' %>
+<%= render partial: 'actions', locals: { event: event } %>

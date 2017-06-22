@@ -1,22 +1,22 @@
 <% bystring = ''
-   if @e['by_user']
-     bystring = "by user #{@e['by_user']}"
-   elsif @e['by_group']
-     bystring = "by group #{@e['by_group']}"
-   elsif @e['by_package']
-     bystring = "by package maintainers of #{@e['by_project']}/#{@e['by_package']}"
+   if event['by_user']
+     bystring = "by user #{event['by_user']}"
+   elsif event['by_group']
+     bystring = "by group #{event['by_group']}"
+   elsif event['by_package']
+     bystring = "by package maintainers of #{event['by_project']}/#{event['by_package']}"
    else
-     bystring = "by project maintainers of #{@e['by_project']}"
+     bystring = "by project maintainers of #{event['by_project']}"
    end -%>
-Request <%= @e['number'] %> (by <%= @e['author'] %>) requires a review <%= bystring %>
-  Visit <%= url_for(controller: 'webui/request', action: :show, number: @e['number'], host: @host, only_path: false) %>
+Request <%= event['number'] %> (by <%= event['author'] %>) requires a review <%= bystring %>
+  Visit <%= url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false) %>
 
-<% if @e['comment'] -%>
-Review reason set by <%= @e['who'] %>:
-<%= @e['comment'] %>
+<% if event['comment'] -%>
+Review reason set by <%= event['who'] %>:
+<%= event['comment'] %>
 
 <% end -%>
 Request description:
-<%= @e['description'] %>
+<%= event['description'] %>
 
-<%= render partial: 'actions' -%>
+<%= render partial: 'actions', locals: { event: event } -%>

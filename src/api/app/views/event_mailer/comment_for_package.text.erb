@@ -1,5 +1,5 @@
-Visit <%= url_for(project: @e['project'], package: @e['package'], controller: 'webui/package', action: :show, only_path: false, host: @host) %>
+Visit <%= url_for(project: event['project'], package: event['package'], controller: 'webui/package', action: :show, only_path: false, host: @host) %>
 
-<%= @e['commenter'].realname %> wrote in package <%= @e['project'] %>/<%= @e['package'] %>:
+<%= event['commenter'].realname %> wrote in package <%= event['project'] %>/<%= event['package'] %>:
 
-<%= @e['comment_body'] %>
+<%= event['comment_body'] %>

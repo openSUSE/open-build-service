@@ -1,13 +1,13 @@
-@subject: Build success of <%= @e['project']%>/<%= @e['package']%> <%= @e['repository']%>/<%= @e['arch']%>
-Package <%= @e['package']%> (version <%= @e['versrel']%>.<%= @e['bcnt']%>) of 
-project <%= @e['project']%> built successfully for <%= @e['repository']%> / <%= @e['arch']%>. 
+@subject: Build success of <%= event['project']%>/<%= event['package']%> <%= event['repository']%>/<%= event['arch']%>
+Package <%= event['package']%> (version <%= event['versrel']%>.<%= event['bcnt']%>) of
+project <%= event['project']%> built successfully for <%= event['repository']%> / <%= event['arch']%>.
 
 
 Review the build log:
-   osc remotebuildlog <%= @e['project']%> <%= @e['package']%> <%= @e['repository']%> <%= @e['arch']%> | less
+   osc remotebuildlog <%= event['project']%> <%= event['package']%> <%= event['repository']%> <%= event['arch']%> | less
 
 Check out the package for editing:
-   osc checkout <%= @e['project']%> <%= @e['package']%>
+   osc checkout <%= event['project']%> <%= event['package']%>
 
-Download repository: 
-   http://download.opensuse.org/repositories/<%= @e['project']%>/<%= @e['repository']%>/
+Download repository:
+   http://download.opensuse.org/repositories/<%= event['project']%>/<%= event['repository']%>/

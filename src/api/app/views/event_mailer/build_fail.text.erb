@@ -1,11 +1,11 @@
-Visit <%= url_for(controller: 'webui/package', action: :live_build_log, project: @e['project'], package: @e['package'], repository: @e['repository'], arch: @e['arch'], only_path: false, host: @host) %>
+Visit <%= url_for(controller: 'webui/package', action: :live_build_log, project: event['project'], package: event['package'], repository: event['repository'], arch: event['arch'], only_path: false, host: @host) %>
 
-Package <%= @e['project'] %>/<%= @e['package']%> failed to build in <%= @e['repository']%>/<%= @e['arch']%>
+Package <%= event['project'] %>/<%= event['package']%> failed to build in <%= event['repository']%>/<%= event['arch']%>
 
 Check out the package for editing:
-  osc checkout <%= @e['project']%> <%= @e['package']%>
-<% if @e['faillog'] -%>
+  osc checkout <%= event['project']%> <%= event['package']%>
+<% if event['faillog'] -%>
 
 Last lines of build log:
-<%= @e['faillog'] %>
+<%= event['faillog'] %>
 <% end %>

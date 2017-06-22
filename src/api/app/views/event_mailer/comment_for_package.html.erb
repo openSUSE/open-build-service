@@ -1,5 +1,5 @@
-<p>Visit <%= link_to(*[url_for(project: @e['project'], package: @e['package'], controller: 'webui/package', action: :show, only_path: false, host: @host)]*2) %></p>
+<p>Visit <%= link_to(*[url_for(project: event['project'], package: event['package'], controller: 'webui/package', action: :show, only_path: false, host: @host)]*2) %></p>
 
-<p><%= @e['commenter'].realname %> wrote in package <%= @e['project'] %>/<%= @e['package'] %>:</p>
+<p><%= event['commenter'].realname %> wrote in package <%= event['project'] %>/<%= event['package'] %>:</p>
 
-<div><%= comment_body(@e['comment_body']) %></div>
+<div><%= comment_body(event['comment_body']) %></div>
