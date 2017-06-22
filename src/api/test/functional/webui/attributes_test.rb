@@ -136,18 +136,6 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:ScreenShots')
   end
 
-  def test_package_attribute # spec/features/webui/attributes_spec.rb
-    login_king
-
-    add(project: 'Apache',
-        package: 'apache2',
-        name: 'OBS:ScreenShots',
-        value: 'Screenshot1.png')
-    delete(project: 'Apache',
-           package: 'apache2',
-           name: 'OBS:ScreenShots')
-  end
-
   def test_attrib_with_single_value
     login_king
 
