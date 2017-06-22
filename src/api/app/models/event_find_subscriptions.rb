@@ -12,7 +12,7 @@ class EventFindSubscriptions
     @toconsider = @subscriptions.where('user_id is null AND group_id is null').to_a
     @event.class.receiver_roles.each do |r|
       unless receiver_role_set(r)
-        @toconsider << EventSubscription.new(eventtype: @event.class.name, receiver_role: r, receive: false)
+        @toconsider << EventSubscription.new(eventtype: @event.class.name, receiver_role: r, channel: 'disabled')
       end
     end
 
@@ -66,7 +66,7 @@ class EventFindSubscriptions
 
     receivers.each do |ug|
       # add a default
-      nes = EventSubscription.new(eventtype: r.eventtype, receiver_role: r.receiver_role, receive: r.receive)
+      nes = EventSubscription.new(eventtype: r.eventtype, receiver_role: r.receiver_role, channel: r.channel)
       if ug.kind_of? User
         nes.user = ug
       else
@@ -88,8 +88,8 @@ class EventFindSubscriptions
     end
 
     # without further information, we prefer those that want mail
-    return -1 if x.receive && !y.receive
-    return 1 if y.receive && !x.receive
+    return -1 if x.enabled? && y.disabled?
+    return 1 if y.enabled? && x.disabled?
 
     -1
   end
@@ -114,7 +114,7 @@ class EventFindSubscriptions
     subscribers_and_subscriptions.each do |_subscriber, subscriptions|
       priority_subscription = sort_subscriptions_by_priority(subscriptions).first
 
-      if priority_subscription.receive
+      if priority_subscription.enabled?
         subscriptions_to_receive << priority_subscription
       end
     end

@@ -31,7 +31,7 @@ RSpec.describe EventSubscription::GenerateHashForSubscriber do
             expect(subscription.persisted?).to be_falsey
             expect(subscription.subscriber).to eq(user)
             expect(subscription.eventtype).to eq(event_class.to_s)
-            expect(subscription.receive).to be_falsey
+            expect(subscription.channel).to eq('disabled')
           end
         end
       end
@@ -57,7 +57,7 @@ RSpec.describe EventSubscription::GenerateHashForSubscriber do
             expect(subscription.user).to be_nil
             expect(subscription.group).to be_nil
             expect(subscription.eventtype).to eq(event_class.to_s)
-            expect(subscription.receive).to be_falsey
+            expect(subscription.channel).to eq('disabled')
           end
         end
       end

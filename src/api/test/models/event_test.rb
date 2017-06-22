@@ -28,7 +28,7 @@ class EventTest < ActionDispatch::IntegrationTest
   end
 
   test 'receive roles for build failure' do
-    assert_equal [:maintainer, :bugowner, :reader], events(:build_fails_with_deleted_user_and_request).receiver_roles
+    assert_equal %i(maintainer bugowner reader), events(:build_fails_with_deleted_user_and_request).receiver_roles
   end
 
   def users_for_event(e)
@@ -45,7 +45,7 @@ class EventTest < ActionDispatch::IntegrationTest
     # for this test we don't want fixtures to interfere
     EventSubscription.delete_all
 
-    all_get_events = EventSubscription.create eventtype: 'Event::CreatePackage', receiver_role: :maintainer
+    all_get_events = EventSubscription.create eventtype: 'Event::CreatePackage', receiver_role: :maintainer, channel: :instant_email
 
     e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
                                      {'project' => 'kde4',
@@ -58,7 +58,7 @@ class EventTest < ActionDispatch::IntegrationTest
 
     # now fred configures it off
     EventSubscription.create eventtype: 'Event::CreatePackage',
-                             user: users(:fred), receiver_role: :all, receive: false
+                             user: users(:fred), receiver_role: :all, channel: :disabled
 
     # fred, fredlibs and king are maintainer, adrian is in test_group - fred disabled it
     assert_equal %w(fredlibs king), users_for_event(e)
@@ -71,7 +71,7 @@ class EventTest < ActionDispatch::IntegrationTest
     # now fredlibs configures on
     EventSubscription.create eventtype: 'Event::CreatePackage',
                              user: users(:fredlibs),
-                             receiver_role: :all, receive: true
+                             receiver_role: :all, channel: :instant_email
 
     assert_equal %w(fredlibs), users_for_event(e)
   end
@@ -94,7 +94,7 @@ class EventTest < ActionDispatch::IntegrationTest
       # travis is not using libxdiff and I am too lazy to package it for ubuntu
       should.gsub!(/\n@@ -0,0 \+1,1 @@\n/, "\n@@ -0,0 +1 @@\n")
     end
-    assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
+    assert_equal should, email.encoded.lines.map(&:chomp).reject { |l| l =~ %r{^Date:} }.join("\n")
   end
 
   test 'notifications are sent' do
@@ -126,7 +126,7 @@ class EventTest < ActionDispatch::IntegrationTest
     EventSubscription.delete_all
 
     # just one subsciption
-    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
+    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy), channel: :instant_email
 
     assert_equal %w(Iggy), users_for_event(events(:build_failure_for_iggy))
   end
@@ -136,7 +136,7 @@ class EventTest < ActionDispatch::IntegrationTest
     EventSubscription.delete_all
 
     # just one subsciption
-    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
+    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred), channel: :instant_email
 
     assert_equal %w(fred), users_for_event(events(:build_failure_for_reader))
   end
@@ -146,7 +146,7 @@ class EventTest < ActionDispatch::IntegrationTest
     EventSubscription.delete_all
 
     # just one subsciption
-    EventSubscription.create eventtype: 'Event::ServiceFail', receiver_role: :maintainer, user: users(:Iggy)
+    EventSubscription.create eventtype: 'Event::ServiceFail', receiver_role: :maintainer, user: users(:Iggy), channel: :instant_email
 
     assert_equal %w(Iggy), users_for_event(events(:service_failure_for_iggy))
   end
