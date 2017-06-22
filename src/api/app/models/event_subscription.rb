@@ -1,5 +1,5 @@
 class EventSubscription < ApplicationRecord
-  enum channel: %i(disabled instant_email)
+  enum channel: %i(disabled instant_email daily_email)
 
   belongs_to :user, inverse_of: :event_subscriptions
   belongs_to :group, inverse_of: :event_subscriptions
