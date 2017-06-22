@@ -1344,22 +1344,23 @@ class Package < ActiveRecord::Base
     self
   end
 
+  #### WARNING: these operations run in build object, not this package object
   def rebuild(params)
-    backend_build_command(:rebuild, params.slice(:package, :arch, :repository))
+    backend_build_command(:rebuild, params[:project], params.slice(:package, :arch, :repository))
   end
 
   def wipe_binaries(params)
-    backend_build_command(:wipe, params.slice(:package, :arch, :repository))
+    backend_build_command(:wipe, params[:project], params.slice(:package, :arch, :repository))
   end
 
   def abort_build(params)
-    backend_build_command(:abortbuild, params.slice(:package, :arch, :repository))
+    backend_build_command(:abortbuild, params[:project], params.slice(:package, :arch, :repository))
   end
 
-  def backend_build_command(command, params)
+  def backend_build_command(command, build_project, params)
     begin
-      Suse::Backend.post("/build/#{URI.escape(project.name)}?cmd=#{command}&#{params.to_query}", '')
-    rescue ActiveXML::Transport::Error, Timeout::Error => e
+      Suse::Backend.post("/build/#{URI.escape(build_project)}?cmd=#{command}&#{params.to_query}", '')
+    rescue ActiveXML::Transport::Error, Timeout::Error, Project::WritePermissionError => e
       errors.add(:base, e.message)
       return false
     end
