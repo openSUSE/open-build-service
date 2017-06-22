@@ -17,16 +17,16 @@ RSpec.describe SendEventEmails, type: :job do
     let!(:comment) { create(:comment_project, body: "Hey @#{user.login} how are things?", user: comment_author) }
 
     context 'with no errors being raised' do
-      let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: user) }
-      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group) }
-      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: comment_author) }
+      let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: user, channel: :instant_email) }
+      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group, channel: :daily_email) }
+      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: comment_author, channel: :instant_email) }
 
       subject! { SendEventEmails.new.perform }
 
       it 'sends an email to the subscribers' do
         email = ActionMailer::Base.deliveries.first
 
-        expect(email.to).to match_array([user.email, group.email])
+        expect(email.to).to match_array([user.email])
         expect(email.subject).to include('New comment')
       end
 
@@ -50,8 +50,17 @@ RSpec.describe SendEventEmails, type: :job do
         expect(notification.delivered).to be_falsey
       end
 
-      it 'only creates two notifications' do
-        expect(Notification.count).to eq(2)
+      it 'creates a daily_email notification for the group' do
+        notification = Notification::DailyEmailItem.find_by(subscriber: group)
+
+        expect(notification.event_type).to eq('Event::CommentForProject')
+        expect(notification.event_payload['comment_body']).to include('how are things?')
+        expect(notification.subscription_receiver_role).to eq('all')
+        expect(notification.delivered).to be_falsey
+      end
+
+      it 'only creates three notifications' do
+        expect(Notification.count).to eq(3)
       end
     end
 

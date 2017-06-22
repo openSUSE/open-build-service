@@ -1,0 +1,30 @@
+<% bystring = ''
+   if event['by_user']
+     bystring = "by user #{event['by_user']}"
+   elsif event['by_group']
+     bystring = "by group #{event['by_group']}"
+   elsif event['by_package']
+     bystring = "by package maintainers of #{event['by_project']}/#{event['by_package']}"
+   else
+     bystring = "by project maintainers of #{event['by_project']}"
+   end -%>
+<p>
+  Request <%= event['number'] %> (by <%= event['author'] %>) requires a review <%= bystring %>
+  <br>
+  Visit <%= url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false) %>
+</p>
+
+<% if event['comment'] -%>
+<p>
+  Review reason set by <%= event['who'] %>:
+  <br>
+  <%= event['comment'] %>
+</p>
+<% end -%>
+
+<p>
+  Request description:
+  <%= event['description'] %>
+</p>
+<br>
+<%= render partial: 'actions', locals: { event: event } -%>

@@ -1,14 +1,6 @@
-class Notification < ApplicationRecord
-  belongs_to :subscriber, polymorphic: true
-
-  serialize :event_payload, Hash
-
-  def event
-    @event ||= event_type.constantize.new(event_payload)
-  end
-
-  def template_name
-    event_type.gsub('Event::', '').underscore
+class Notification::DailyEmailItem < Notification
+  def self.cleanup
+    where(delivered: true).delete_all
   end
 end
 

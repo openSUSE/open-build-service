@@ -1,0 +1,26 @@
+<p>
+  @subject: Build success of <%= event['project']%>/<%= event['package']%> <%= event['repository']%>/<%= event['arch']%>
+  <br>
+  Package <%= event['package']%> (version <%= event['versrel']%>.<%= event['bcnt']%>) of
+  <br>
+  project <%= event['project']%> built successfully for <%= event['repository']%> / <%= event['arch']%>.
+  <br>
+</p>
+
+<p>
+  Review the build log:
+  <br>
+     osc remotebuildlog <%= event['project']%> <%= event['package']%> <%= event['repository']%> <%= event['arch']%> | less
+</p>
+
+<p>
+  Check out the package for editing:
+  <br>
+     osc checkout <%= event['project']%> <%= event['package']%>
+</p>
+
+<p>
+  Download repository:
+  <br>
+     http://download.opensuse.org/repositories/<%= event['project']%>/<%= event['repository']%>/
+</p>

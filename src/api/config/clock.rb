@@ -40,6 +40,10 @@ module Clockwork
     SendEventEmails.new.delay(queue: 'mailers').perform
   end
 
+  every(1.day, 'send daily notification emails') do
+    SendDailyEmails.new.delay(queue: 'daily_mailers').perform
+  end
+
   every(17.seconds, 'fetch notifications', thread: true) do
     ActiveRecord::Base.connection_pool.with_connection do |_|
       # this will return if there is already a thread running

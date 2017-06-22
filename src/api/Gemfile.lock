@@ -113,6 +113,7 @@ GEM
     docile (1.1.5)
     erubi (1.6.0)
     escape_utils (1.2.1)
+    eventmachine (1.0.9.1)
     execjs (2.7.0)
     factory_girl (4.8.0)
       activesupport (>= 3.0.0)
@@ -180,6 +181,16 @@ GEM
       nokogiri (>= 1.5.9)
     mail (2.6.6)
       mime-types (>= 1.16, < 4)
+    mailcatcher (0.2.4)
+      eventmachine
+      haml
+      i18n
+      json
+      mail
+      sinatra
+      skinny (>= 0.1.2)
+      sqlite3-ruby
+      thin
     metaclass (0.0.4)
     method_source (0.8.2)
     middleware (0.1.0)
@@ -200,6 +211,7 @@ GEM
     momentjs-rails (2.17.1)
       railties (>= 3.1)
     mousetrap-rails (1.4.6)
+    mustermann (1.0.0)
     mysql2 (0.4.6)
     nio4r (2.1.0)
     nokogiri (1.8.0)
@@ -240,6 +252,8 @@ GEM
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     rack (2.0.3)
+    rack-protection (2.0.0)
+      rack
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (5.1.1)
@@ -334,8 +348,16 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.1)
+    sinatra (2.0.0)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.0)
+      tilt (~> 2.0)
     single_test (0.6.0)
       rake
+    skinny (0.2.4)
+      eventmachine (~> 1.0.0)
+      thin (>= 1.5, < 1.7)
     slop (3.6.0)
     sprite-factory (1.7.1)
     sprockets (3.7.1)
@@ -345,10 +367,17 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
+    sqlite3 (1.3.13)
+    sqlite3-ruby (1.3.3)
+      sqlite3 (>= 1.3.3)
     sysexits (1.2.0)
     temple (0.8.0)
     test-unit (3.2.4)
       power_assert
+    thin (1.6.2)
+      daemons (>= 1.0.9)
+      eventmachine (>= 1.0.0)
+      rack (>= 1.0.0)
     thinking-sphinx (3.3.0)
       activerecord (>= 3.1.0)
       builder (>= 2.1.2)
@@ -430,6 +459,7 @@ DEPENDENCIES
   jquery-ui-rails (~> 4.2.1)
   kaminari
   launchy
+  mailcatcher
   minitest
   minitest-fail-fast
   minitest-reporters

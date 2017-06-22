@@ -64,7 +64,7 @@ gem 'peek-dalli'
 gem 'peek-mysql2'
 # for kerberos authentication
 gem "gssapi", require: false
-
+gem 'mailcatcher'
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'

@@ -1,40 +1,44 @@
 class SendEventEmails
-  # we don't need this outside of the migration - but we need to be able
-  # to load old jobs from the database (and mark their events) before deleting
-  # (see 20151030130011_mark_events)
-  attr_accessor :event
-
   def perform
     Event::Base.where(mails_sent: false).order(created_at: :asc).limit(1000).each do |event|
-      subscribers = event.subscribers
-
-      if subscribers.empty?
+      if event.subscribers.empty?
         event.update_attributes(mails_sent: true)
         next
       end
 
       begin
-        create_rss_notifications(event)
-        EventMailer.event(subscribers, event).deliver_now
+        event.subscriptions.each do |subscription|
+          create_daily_email_notification(event, subscription) if subscription.daily_email?
+          create_rss_notification(event, subscription)
+        end
+
+        subscribers_instant_email = event.subscriptions.select(&:instant_email?).map(&:subscriber)
+        EventMailer.event(subscribers_instant_email, event).deliver_now if subscribers_instant_email.any?
       rescue StandardError => e
         Airbrake.notify(e, { event_id: event.id })
       ensure
         event.update_attributes(mails_sent: true)
       end
     end
-    true
   end
 
   private
 
-  def create_rss_notifications(event)
-    event.subscriptions.each do |subscription|
-      Notification::RssFeedItem.create(
-        subscriber: subscription.subscriber,
-        event_type: event.eventtype,
-        event_payload: event.payload,
-        subscription_receiver_role: subscription.receiver_role
-      )
-    end
+  def create_rss_notification(event, subscription)
+    Notification::RssFeedItem.create(
+      subscriber: subscription.subscriber,
+      event_type: event.eventtype,
+      event_payload: event.payload,
+      subscription_receiver_role: subscription.receiver_role
+    )
+  end
+
+  def create_daily_email_notification(event, subscription)
+    Notification::DailyEmailItem.create(
+      subscriber: subscription.subscriber,
+      event_type: event.eventtype,
+      event_payload: event.payload,
+      subscription_receiver_role: subscription.receiver_role
+    )
   end
 end
