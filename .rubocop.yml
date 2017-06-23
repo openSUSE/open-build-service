@@ -9,6 +9,10 @@ AllCops:
     - 'src/api/lib/templates/**/*'
     - 'src/api/vendor/bundle/**/*'
     - 'docs/api/restility/**/*'
+    - 'src/api/test/fixtures/backend/**/*'
+    - 'src/api/files/*'
+    - 'dist/**/*'
+    - 'src/backend/**/*'
 
 #################### Layout ###########################
 
