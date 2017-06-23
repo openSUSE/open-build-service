@@ -1,15 +1,15 @@
-Committer: <%= @e['user']%>
-New Revision: <%= @e['rev']%>
+Committer: <%= event['user']%>
+New Revision: <%= event['rev']%>
 
 Log:
-<%= @e['comment']%>
+<%= event['comment']%>
 
-<%= @e['files']%>
+<%= event['files']%>
 
-<%= @e['diff']%>
+<%= event['diff']%>
 
 To compare against the previous version:
-   osc rdiff <%= @e['project']%> <%= @e['package']%>
+   osc rdiff <%= event['project']%> <%= event['package']%>
 
 Check out the package for editing:
-   osc checkout <%= @e['project']%> <%= @e['package']%>
+   osc checkout <%= event['project']%> <%= event['package']%>

@@ -1,13 +1,13 @@
-@subject: <%= @e['type']%>-Request <%= @e['number']%> Changed
+@subject: <%= event['type']%>-Request <%= event['number']%> Changed
 
-<%= @e['type']%>-Request was changed, new state: <%= @e['state']%>
-<% if @e['sourceproject']-%>
-Source 
-  project:  <%= @e['sourceproject']%>
-  package:  <%= @e['sourcepackage']%>
-<% if @e['sourcerevision']-%>  revision: <%= @e['sourcerevision']%><%-end-%>>
+<%= event['type']%>-Request was changed, new state: <%= event['state']%>
+<% if event['sourceproject']-%>
+Source
+  project:  <%= event['sourceproject']%>
+  package:  <%= event['sourcepackage']%>
+<% if event['sourcerevision']-%>  revision: <%= event['sourcerevision']%><%-end-%>>
 
 Target:
-  project: <%= @e['targetproject']%>
-  package: <%= @e['targetpackage']%>
+  project: <%= event['targetproject']%>
+  package: <%= event['targetpackage']%>
 <%-end-%>

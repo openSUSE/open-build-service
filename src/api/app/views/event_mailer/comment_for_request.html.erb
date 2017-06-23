@@ -1,5 +1,5 @@
-<p>Visit <%= link_to(*[url_for(controller: 'webui/request', action: :show, number: @e['number'], host: @host, only_path: false)]*2) %></p>
+<p>Visit <%= link_to(*[url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false)]*2) %></p>
 
-<p><%= @e['commenter'].realname %> wrote in request <%= @e['number'] %>:</p>
+<p><%= event['commenter'].realname %> wrote in request <%= event['number'] %>:</p>
 
-<div><%= comment_body(@e['comment_body']) %></div>
+<div><%= comment_body(event['comment_body']) %></div>

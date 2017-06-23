@@ -1,6 +1,6 @@
-@subject: [obs update] Package <%= @e['package']%> in <%= @e['project']%> updated to <%= @e['newversion']%>
-User <%= @e['user']%> updated package <%= @e['package']%> in <%= @e['project']%><%= @e['oldversion']-%> from <%= @e['oldversion']%> to <%= @e['newversion']%>.
+@subject: [obs update] Package <%= event['package']%> in <%= event['project']%> updated to <%= event['newversion']%>
+User <%= event['user']%> updated package <%= event['package']%> in <%= event['project']%><%= event['oldversion']-%> from <%= event['oldversion']%> to <%= event['newversion']%>.
 
-Comment: <%= @e['comment'] %>
+Comment: <%= event['comment'] %>
 
-<%= @e['files'] %>
+<%= event['files'] %>

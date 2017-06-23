@@ -1,20 +1,20 @@
-Visit <%= url_for(controller: 'webui/request', action: :show, number: @e['number'], host: @host, only_path: false) %>
+Visit <%= url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false) %>
 
-<% if @e['description']-%>
+<% if event['description']-%>
 Description:
-<%= @e['description']%>
+<%= event['description']%>
 
 <%-end-%>
-<%= render partial: 'actions' %>
+<%= render partial: 'actions', locals: { event: event } %>
 
 To REVIEW against the previous version:
-   osc request show --diff <%= @e['number']%>
+   osc request show --diff <%= event['number']%>
 
 To ACCEPT the request:
-   osc request accept <%= @e['number']%> --message="reviewed ok."
+   osc request accept <%= event['number']%> --message="reviewed ok."
    
 To DECLINE the request:
-   osc request decline <%= @e['number']%> --message="declined for reason xyz (see ... for background / policy / ...)."
+   osc request decline <%= event['number']%> --message="declined for reason xyz (see ... for background / policy / ...)."
 
 To REVOKE the request:
-   osc request revoke <%= @e['number']%> --message="retracted because ..., sorry / thx / see better version ..."
+   osc request revoke <%= event['number']%> --message="retracted because ..., sorry / thx / see better version ..."

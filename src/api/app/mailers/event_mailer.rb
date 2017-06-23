@@ -22,7 +22,7 @@ class EventMailer < ActionMailer::Base
 
     set_headers
     begin
-      @e = e.expanded_payload
+      locals = { event: e.expanded_payload }
     rescue Project::UnknownObjectError, Package::UnknownObjectError
       # object got removed already
       return
@@ -49,7 +49,15 @@ class EventMailer < ActionMailer::Base
     mail(to: tos.sort,
          subject: e.subject,
          from: orig,
-         date: e.created_at,
-         template_name: template_name)
+         date: e.created_at) do |format|
+
+      if template_exists?("event_mailer/#{template_name}", formats: [:html])
+        format.html { render template_name, locals: locals }
+      end
+
+      if template_exists?("event_mailer/#{template_name}", formats: [:text])
+        format.text { render template_name, locals: locals }
+      end
+    end
   end
 end
