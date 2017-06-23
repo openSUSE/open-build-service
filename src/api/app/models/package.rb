@@ -1345,25 +1345,28 @@ class Package < ApplicationRecord
     self
   end
 
+  #### WARNING: these operations run in build object, not this package object
   def rebuild(params)
-    backend_build_command(:rebuild, params.slice(:package, :arch, :repository))
+    backend_build_command(:rebuild, params[:project], params.slice(:package, :arch, :repository))
   end
 
   def wipe_binaries(params)
-    backend_build_command(:wipe, params.slice(:package, :arch, :repository))
+    backend_build_command(:wipe, params[:project], params.slice(:package, :arch, :repository))
   end
 
   def abort_build(params)
-    backend_build_command(:abortbuild, params.slice(:package, :arch, :repository))
+    backend_build_command(:abortbuild, params[:project], params.slice(:package, :arch, :repository))
   end
 
-  def backend_build_command(command, params)
+  def backend_build_command(command, build_project, params)
     begin
+      Project.find_by(name: build_project).check_write_access!
       # Note: This list needs to keep in sync with the backend code
       permitted_params = params.permit(:repository, :arch, :package, :code, :wipe)
 
-      Suse::Backend.post("/build/#{URI.escape(project.name)}?cmd=#{command}&#{permitted_params.to_h.to_query}")
-    rescue ActiveXML::Transport::Error, Timeout::Error => e
+      # do not use project.name because we missuse the package source container for build container operations
+      Suse::Backend.post("/build/#{URI.escape(build_project)}?cmd=#{command}&#{permitted_params.to_h.to_query}")
+    rescue ActiveXML::Transport::Error, Timeout::Error, Project::WritePermissionError => e
       errors.add(:base, e.message)
       return false
     end
