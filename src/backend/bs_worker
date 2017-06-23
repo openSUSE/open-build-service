@@ -1444,8 +1444,8 @@ sub getbinaries_kiwiproduct {
       }
       $binfilterprpa = "$projid/$repoid/$arch";
     }
-    my $prpdir = "$projid/$repoid";
-    my $ddir = "$srcdir/repos/$prpdir";
+    my $prp = "$projid/$repoid";
+    my $ddir = "$srcdir/repos/$prp";
     mkdir_p($ddir);
     my $res;
     my $server =  $prp2server{"$projid/$repoid"} || $buildinfo->{'reposerver'};
@@ -1468,7 +1468,7 @@ sub getbinaries_kiwiproduct {
 	  unlink("$ddir/$rarch/$name");
 	  link_or_copy("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name") || die("link $localkiwi/build/$projid/$repoid/$arch/$packid/$name $ddir/$rarch/$name: $!\n");
 	}
-        $kiwiorigins->{"obs://$prpdir/$rarch/$name"} = $prpap;
+        $kiwiorigins->{"obs://$prp/$rarch/$name"} = $prpap;
 	push @$res, {'name' => "$rarch/$name"};
       }
     } else {
@@ -1627,7 +1627,7 @@ sub getbinaries_kiwiproduct {
       if ($bvl && !@bad) {
 	for (@good) {
 	  rename("$ddir/$_.new.rpm", "$ddir/$_") || die("rename $ddir/$_.new.rpm $ddir/$_: $!\n");
-          $kiwiorigins->{"obs://$prpdir/$_"} = $prpap;
+          $kiwiorigins->{"obs://$prp/$_"} = $prpap;
 	}
         $res = [ map {{'name' => $_}} @good ];
       } else {
@@ -1667,7 +1667,7 @@ sub getbinaries_kiwiproduct {
 	    return undef if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
 	    return undef if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
 	    mkdir_p("$param->{'directory'}/$rarch");
-            $kiwiorigins->{"obs://$prpdir/$rarch/$name"} = $prpap;
+            $kiwiorigins->{"obs://$prp/$rarch/$name"} = $prpap;
 	    return "$rarch/$name";
 	  },
 	  'receiver' => \&BSHTTP::cpio_receiver,
@@ -1696,7 +1696,7 @@ sub getbinaries_kiwiproduct {
       my $id = $knownmd5{$f->{'name'}};
       $id ||= Build::queryhdrmd5("$ddir/$f->{'name'}");
       $id ||= 'deaddeaddeaddeaddeaddeaddeaddead';
-      $meta{"$prpap/$n.$rarch"} = $id;
+      $meta{"$prpap/$name"} = "$id  $prpap/$n.$rarch";
     }
   }
   $binariesdownloadsize += $downloadsizek;
@@ -1704,11 +1704,8 @@ sub getbinaries_kiwiproduct {
   manage_cache($cachesize, \@cacheold, [ values %cachenew ]) if $cachedir;
 
   # create meta
-  my @meta;
-  for (sort keys %meta) {
-    push @meta, "$meta{$_}  $_";
-  } 
-  return @meta;
+  my @meta = map {$meta{$_}} sort {substr($meta{$a}, 34) cmp substr($meta{$b}, 34) || $a cmp $b} keys %meta;
+  return BSUtil::unify(@meta);
 }
 
 sub getpreinstallimage_metas {
