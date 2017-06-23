@@ -98,56 +98,58 @@ OBSApi::Application.routes.draw do
       get 'monitor/events' => :events
     end
 
-    controller 'webui/package', format: false, defaults: { format: "html" } do
-      get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
-      get 'package/dependency/:project/:package' => :dependency, constraints: cons
-      get 'package/binary/:project/:package' => :binary, constraints: cons, as: 'package_binary'
-      get 'package/binaries/:project/:package' => :binaries, constraints: cons, as: 'package_binaries'
-      get 'package/users/:project/:package' => :users, as: 'package_users', constraints: cons
-      get 'package/requests/:project/:package' => :requests, as: 'package_requests', constraints: cons
-      get 'package/statistics/:project/:package' => :statistics, as: 'package_statistics', constraints: cons
-      get 'package/commit/:project/:package' => :commit, as: 'package_commit', constraints: cons
-      get 'package/revisions/:project/:package' => :revisions, constraints: cons, as: 'package_view_revisions'
-      post 'package/submit_request/:project/:package' => :submit_request, constraints: cons
-      get 'package/add_person/:project/:package' => :add_person, constraints: cons
-      get 'package/add_group/:project/:package' => :add_group, constraints: cons
-      get 'package/rdiff/:project/:package' => :rdiff, constraints: cons
-      post 'package/save_new/:project' => :save_new, constraints: cons
-      post 'package/branch' => :branch, constraints: cons
-      post 'package/save/:project/:package' => :save, constraints: cons
-      post 'package/remove/:project/:package' => :remove, constraints: cons
-      get 'package/add_file/:project/:package' => :add_file, constraints: cons
-      post 'package/save_file/:project/:package' => :save_file, constraints: cons
-      post 'package/remove_file/:project/:package' => :remove_file, constraints: cons
-      post 'package/save_person/:project/:package' => :save_person, constraints: cons
-      post 'package/save_group/:project/:package' => :save_group, constraints: cons
-      post 'package/remove_role/:project/:package' => :remove_role, constraints: cons
-      get 'package/view_file/:project/:package/(:filename)' => :view_file, constraints: cons, as: 'package_view_file'
-      get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons, as: 'package_live_build_log'
-      defaults format: 'js' do
-        get 'package/linking_packages/:project/:package' => :linking_packages, constraints: cons
-        get 'package/update_build_log/:project/:package/:repository/:arch' => :update_build_log, constraints: cons
-        get 'package/submit_request_dialog/:project/:package' => :submit_request_dialog, constraints: cons
-        get 'package/delete_dialog/:project/:package' => :delete_dialog, constraints: cons
-        post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons
-        get 'package/abort_build/:project/:package' => :abort_build, constraints: cons
-        post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons
-        delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons
+    defaults format: "html" do
+      controller 'webui/package' do
+        get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
+        get 'package/dependency/:project/:package' => :dependency, constraints: cons
+        get 'package/binary/:project/:package' => :binary, constraints: cons, as: 'package_binary'
+        get 'package/binaries/:project/:package' => :binaries, constraints: cons, as: 'package_binaries'
+        get 'package/users/:project/:package' => :users, as: 'package_users', constraints: cons
+        get 'package/requests/:project/:package' => :requests, as: 'package_requests', constraints: cons
+        get 'package/statistics/:project/:package' => :statistics, as: 'package_statistics', constraints: cons
+        get 'package/commit/:project/:package' => :commit, as: 'package_commit', constraints: cons
+        get 'package/revisions/:project/:package' => :revisions, constraints: cons, as: 'package_view_revisions'
+        post 'package/submit_request/:project/:package' => :submit_request, constraints: cons
+        get 'package/add_person/:project/:package' => :add_person, constraints: cons
+        get 'package/add_group/:project/:package' => :add_group, constraints: cons
+        get 'package/rdiff/:project/:package' => :rdiff, constraints: cons
+        post 'package/save_new/:project' => :save_new, constraints: cons
+        post 'package/branch' => :branch, constraints: cons
+        post 'package/save/:project/:package' => :save, constraints: cons
+        post 'package/remove/:project/:package' => :remove, constraints: cons
+        get 'package/add_file/:project/:package' => :add_file, constraints: cons
+        post 'package/save_file/:project/:package' => :save_file, constraints: cons
+        post 'package/remove_file/:project/:package' => :remove_file, constraints: cons
+        post 'package/save_person/:project/:package' => :save_person, constraints: cons
+        post 'package/save_group/:project/:package' => :save_group, constraints: cons
+        post 'package/remove_role/:project/:package' => :remove_role, constraints: cons
+        get 'package/view_file/:project/:package/(:filename)' => :view_file, constraints: cons, as: 'package_view_file'
+        get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons, as: 'package_live_build_log'
+        defaults format: 'js' do
+          get 'package/linking_packages/:project/:package' => :linking_packages, constraints: cons
+          get 'package/update_build_log/:project/:package/:repository/:arch' => :update_build_log, constraints: cons
+          get 'package/submit_request_dialog/:project/:package' => :submit_request_dialog, constraints: cons
+          get 'package/delete_dialog/:project/:package' => :delete_dialog, constraints: cons
+          post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons
+          get 'package/abort_build/:project/:package' => :abort_build, constraints: cons
+          post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons
+          delete 'package/wipe_binaries/:project/:package' => :wipe_binaries, constraints: cons
+        end
+        get 'package/devel_project/:project/:package' => :devel_project, constraints: cons
+        get 'package/buildresult' => :buildresult, constraints: cons
+        get 'package/rpmlint_result' => :rpmlint_result, constraints: cons
+        get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
+        get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
+        post 'package/save_meta/:project/:package' => :save_meta, constraints: cons
+        # compat route
+        get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
+        get 'package/edit/:project/:package' => :edit, constraints: cons
+        # compat routes
+        get 'package/repositories/:project/:package', to: redirect('/repositories/%{project}/%{package}'), constraints: cons
+        get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
+        # compat route
+        get 'package/files/:project/:package' => :show, constraints: cons
       end
-      get 'package/devel_project/:project/:package' => :devel_project, constraints: cons
-      get 'package/buildresult' => :buildresult, constraints: cons
-      get 'package/rpmlint_result' => :rpmlint_result, constraints: cons
-      get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
-      get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
-      post 'package/save_meta/:project/:package' => :save_meta, constraints: cons
-      # compat route
-      get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
-      get 'package/edit/:project/:package' => :edit, constraints: cons
-      # compat routes
-      get 'package/repositories/:project/:package', to: redirect('/repositories/%{project}/%{package}'), constraints: cons
-      get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
-      # compat route
-      get 'package/files/:project/:package' => :show, constraints: cons
     end
 
     resources :packages, only: [], param: :name do

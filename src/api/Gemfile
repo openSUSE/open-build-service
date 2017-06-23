@@ -2,7 +2,7 @@
 # This preamble is the current preamble for Rails 3 apps; edit as needed.
 source 'https://rubygems.org'
 
-gem 'rails', '~> 5.0.1'
+gem 'rails', '~> 5.1.1'
 
 # as our database
 gem 'mysql2'
@@ -11,7 +11,7 @@ gem 'nokogiri'
 # for delayed tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
 # to fill errbit
-gem 'hoptoad_notifier', "~> 2.3"
+gem 'airbrake'
 # as JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
 gem 'yajl-ruby'
 # to search the database
@@ -19,7 +19,7 @@ gem 'thinking-sphinx', '> 3.1'
 # to paginate search results
 gem 'kaminari'
 # as abstract HTML of the bratwurst 'theme'
-gem 'haml', '~> 4.0'
+gem 'haml'
 # to avoid tilt downgrade
 gem 'tilt', '>= 1.4.1'
 # to use markdown in the comment system

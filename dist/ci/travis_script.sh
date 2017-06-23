@@ -35,6 +35,7 @@ if test -z "$SUBTEST"; then
       jshint .
       ;;
     rspec)
+      bundle exec rails assets:precompile &> /dev/null
       bundle exec rspec
       ;;
     backend)
