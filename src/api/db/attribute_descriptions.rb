@@ -2,6 +2,7 @@
 def update_all_attrib_type_descriptions
   ans = AttribNamespace.find_by_name "OBS"
 
+  # rubocop:disable Metrics/LineLength
   d = {
     "VeryImportantProject"            => "Mark this project as very important. For instance for the project list in the web interface.",
     "UpdateProject"                   => "Mark this project as frozen, updates are handled via the project defined in the value.",
@@ -27,6 +28,7 @@ def update_all_attrib_type_descriptions
     "PlannedReleaseDate"              => "A timestamp for the planned release date of an incident.",
     "MakeOriginOlder"                 => "Initialize packages by making the build results newer then updated ones"
   }
+  # rubocop:enable Metrics/LineLength
 
   for k in d.keys do
     at = ans.attrib_types.where(name: k).first

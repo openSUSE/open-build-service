@@ -172,6 +172,7 @@ Metrics/ClassLength:
 # Checks the length of lines in the source code.
 Metrics/LineLength:
   Max: 150
+  IgnoredPatterns: ['\A#']
 
 # Checks if the length a module exceeds some maximum value
 Metrics/ModuleLength:

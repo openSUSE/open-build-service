@@ -49,7 +49,9 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
         history.create(p) if history
       end
 
+      # rubocop:disable Metrics/LineLength
       s = OldHistory.find_by_sql "SELECT id,bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, created_at ASC"
+      # rubocop:enable Metrics/LineLength
       oldid = nil
       puts "Converting #{s.length} request history elements into new structure"
       puts "This can take some time..." if s.length > 1000

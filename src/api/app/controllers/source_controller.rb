@@ -1579,7 +1579,9 @@ class SourceController < ApplicationController
     end
   end
 
+  # rubocop:disable Metrics/LineLength
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
+  # rubocop:enable Metrics/LineLength
   def package_command_branch
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
 
