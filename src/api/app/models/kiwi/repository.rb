@@ -13,7 +13,6 @@ class Kiwi::Repository < ApplicationRecord
   belongs_to :image
 
   #### Callbacks macros: before_save, after_save, etc.
-  before_update :not_outdated
 
   #### Scopes (first the default_scope macro if is used)
 
@@ -27,6 +26,7 @@ class Kiwi::Repository < ApplicationRecord
   validates :repo_type, inclusion: { in: %w(apt-deb rpm-dir rpm-md yast2) }
   validates :replaceable, inclusion: { in: [true, false] }
   validates :imageinclude, :prefer_license, inclusion: { in: [true, false] }, allow_nil: true
+  validate :not_outdated, on: :update
 
   #### Class methods using self. (public and then private)
 
@@ -76,7 +76,7 @@ class Kiwi::Repository < ApplicationRecord
   private
 
   def not_outdated
-    !image.package.kiwi_image_outdated?
+    errors.add(:base, 'Image configuration has changed') if image.package.kiwi_image_outdated?
   end
 end
 
