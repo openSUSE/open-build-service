@@ -80,6 +80,7 @@ bundle.ruby2.4 exec rake.ruby2.4 db:create db:setup || exit 1
 
 for suite in "rake.ruby2.4 test:api" "rake.ruby2.4 test:webui" "rake.ruby2.4 test:spider" "rspec.ruby2.4"; do
   rm -f log/test.log
+  bundle.ruby2.4 exec rails assets:precompile
   if ! bundle.ruby2.4 exec $suite; then
     # dump log only in package builds
     [[ -n "$RPM_BUILD_ROOT" ]] && cat log/test.log
