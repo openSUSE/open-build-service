@@ -55,7 +55,7 @@ gem 'coffee-rails'
 # bind keyboard shortcuts to actions
 gem 'mousetrap-rails'
 # for issue tracker communication
-gem 'xmlrpc'
+gem 'xmlrpc', '~> 0.2.1'
 # Multiple feature switch
 gem 'feature'
 # for profiling
