@@ -20,13 +20,16 @@ if test -z "$SUBTEST"; then
   export TESTOPTS="-v"
   case $TEST_SUITE in
     api)
+      bundle exec rails assets:precompile &> /dev/null
       bundle exec rails test:api
       ;;
     webui)
+      bundle exec rails assets:precompile &> /dev/null
       bundle exec rails test:webui
       ;;
     spider)
       unset DO_COVERAGE
+      bundle exec rails assets:precompile &> /dev/null
       bundle exec rails test:spider
       ;;
     linter)
@@ -44,6 +47,7 @@ if test -z "$SUBTEST"; then
       ;;
     *)
       make -C ../../ rubocop
+      bundle exec rails assets:precompile &> /dev/null
       bundle exec rails test:api
       bundle exec rails test:webui
       bundle exec rspec
