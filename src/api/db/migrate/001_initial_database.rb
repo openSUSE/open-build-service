@@ -1,8 +1,9 @@
 class InitialDatabase < ActiveRecord::Migration
   # rubocop:disable Metrics/AbcSize
   # rubocop:disable MethodLength
+  # rubocop:disable Metrics/LineLength
   def self.up
-    # rubocop:disable Style/ExtraSpacing
+    # rubocop:disable Layout/ExtraSpacing
     create_table "architectures", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
       t.string  "name",                      null: false, collation: "utf8_general_ci"
       t.boolean "available", default: false
@@ -854,7 +855,7 @@ class InitialDatabase < ActiveRecord::Migration
     add_foreign_key "tokens", "users", name: "tokens_ibfk_1"
     add_foreign_key "user_registrations", "users", name: "user_registrations_ibfk_1"
     add_foreign_key "watched_projects", "users", name: "watched_projects_ibfk_1"
-    # rubocop:enable Style/ExtraSpacing
+    # rubocop:enable Layout/ExtraSpacing
 
     execute <<-SQL
       INSERT INTO `architectures` VALUES (1,'aarch64',0),(2,'armv4l',0),(3,'armv5l',0),(4,'armv6l',0),(5,'armv7l',1),(6,'armv5el',0),(7,'armv6el',0),(8,'armv7el',0),(9,'armv8el',0),(10,'hppa',0),(11,'i586',1),(12,'i686',0),(13,'ia64',0),(14,'local',0),(15,'m68k',0),(16,'mips',0),(17,'mips32',0),(18,'mips64',0),(19,'ppc',0),(20,'ppc64',0),(21,'ppc64p7',0),(22,'ppc64le',0),(23,'s390',0),(24,'s390x',0),(25,'sparc',0),(26,'sparc64',0),(27,'sparc64v',0),(28,'sparcv8',0),(29,'sparcv9',0),(30,'sparcv9v',0),(31,'x86_64',1);
@@ -930,6 +931,7 @@ class InitialDatabase < ActiveRecord::Migration
   end
   # rubocop:enable Metrics/AbcSize
   # rubocop:enable MethodLength
+  # rubocop:enable Metrics/LineLength
 
   def self.down
     raise ActiveRecord::IrreversibleMigration

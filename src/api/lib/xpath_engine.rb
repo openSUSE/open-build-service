@@ -22,7 +22,7 @@ class XpathEngine
       'released_binary' => 'released_binaries'
     }
 
-    # rubocop:disable Style/AlignHash
+    # rubocop:disable Layout/AlignHash
     @attribs = {
       'packages' => {
         '@project' => {cpart: 'projects.name',
@@ -237,7 +237,7 @@ class XpathEngine
         'submit/source/@package' => { empty: true }
       }
     }
-    # rubocop:enable Style/AlignHash
+    # rubocop:enable Layout/AlignHash
 
     @operators = [:eq, :and, :or, :neq, :gt, :lt, :gteq, :lteq]
 

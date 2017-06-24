@@ -2,7 +2,7 @@ language: ruby
 cache: bundler
 rvm: 2.4.0
 install:
-  - bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle} --without=development 
+  - bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle} --without=development
 gemfile: src/api/Gemfile
 before_install: dist/ci/travis_before_install.sh
 before_script: dist/ci/travis_before_script.sh
@@ -25,9 +25,9 @@ matrix:
       bundler: true
       directories:
         - tmp/rubocop_cache
-    before_install: 
+    before_install:
       - npm install -g jshint
-      - gem install rubocop -v 0.47.1
+      - gem install rubocop -v 0.49.1
 notifications:
   irc:
      channels:

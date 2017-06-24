@@ -9,14 +9,15 @@ AllCops:
     - 'src/api/lib/templates/**/*'
     - 'src/api/vendor/bundle/**/*'
     - 'docs/api/restility/**/*'
+    - 'src/api/test/fixtures/backend/**/*'
+    - 'src/api/files/*'
+    - 'dist/**/*'
+    - 'src/backend/**/*'
 
-# Find uses of alias where alias_method would be more appropriate (or is simply preferred due to configuration), and vice versa.
-# It also finds uses of alias :symbol rather than alias bareword.
-Style/Alias:
-  EnforcedStyle: 'prefer_alias_method'
+#################### Layout ###########################
 
 # Align the elements of a hash literal if they span more than one line.
-Style/AlignHash:
+Layout/AlignHash:
   # Alignment of entries using hash rocket as separator.
   EnforcedHashRocketStyle: table
   # Alignment of entries using colon as separator.
@@ -26,8 +27,36 @@ Style/AlignHash:
   EnforcedLastArgumentHashStyle: ignore_implicit
 
 # Alignment of parameters in multi-line method calls.
-Style/AlignParameters:
+Layout/AlignParameters:
   EnforcedStyle: with_first_parameter
+
+# This cop checks how the 'when's of a case expression are indented in relation to its `case` or `end` keyword.
+Layout/CaseIndentation:
+  Enabled: true
+
+# Checks for extra/unnecessary whitespace
+Layout/ExtraSpacing:
+  Enabled: true
+
+# Checks the indentation of the first element in an array
+Layout/IndentArray:
+  Enabled: true
+
+# Checks the indentation of the first line of the right-hand-side of a multi-line assignment.
+Layout/IndentAssignment:
+  Enabled: true
+  IndentationWidth: 2
+
+# Checks for spaces inside square brackets
+Layout/SpaceInsideBrackets:
+  Enabled: true
+
+#################### Style ###########################
+
+# Find uses of alias where alias_method would be more appropriate (or is simply preferred due to configuration), and vice versa.
+# It also finds uses of alias :symbol rather than alias bareword.
+Style/Alias:
+  EnforcedStyle: 'prefer_alias_method'
 
 # Use && and || instead of `and` and `or`
 Style/AndOr:
@@ -36,10 +65,6 @@ Style/AndOr:
 
 # Only allow comments written in ASCII
 Style/AsciiComments:
-  Enabled: true
-
-# This cop checks how the 'when's of a case expression are indented in relation to its `case` or `end` keyword.
-Style/CaseIndentation:
   Enabled: true
 
 # Use ` or %x around command literals.
@@ -64,10 +89,6 @@ Style/EachWithObject:
 Style/EmptyElse:
   EnforcedStyle: both
 
-# Checks for extra/unnecessary whitespace
-Style/ExtraSpacing:
-  Enabled: true
-
 # Use guard clause instead of wrapping the code inside a conditional expression
 Style/GuardClause:
   Enabled: true
@@ -75,15 +96,6 @@ Style/GuardClause:
 # Use `elsif` instead of `else` with only an `if` node inside
 Style/IfInsideElse:
   Enabled: true
-
-# Checks the indentation of the first element in an array
-Style/IndentArray:
-  Enabled: true
-
-# Checks the indentation of the first line of the right-hand-side of a multi-line assignment.
-Style/IndentAssignment:
-  Enabled: true
-  IndentationWidth: 2
 
 # Use Kernel#loop for infinite loops
 Style/InfiniteLoop:
@@ -131,10 +143,6 @@ Style/RaiseArgs:
 Style/RescueModifier:
   Enabled: true
 
-# Checks for spaces inside square brackets
-Style/SpaceInsideBrackets:
-  Enabled: true
-
 # Use symbols as procs when possible
 Style/SymbolProc:
   Enabled: true
@@ -160,6 +168,11 @@ Style/ZeroLengthPredicate:
 # Checks if the length a class exceeds some maximum value
 Metrics/ClassLength:
   Severity: refactor
+
+# Checks the length of lines in the source code.
+Metrics/LineLength:
+  Max: 150
+  IgnoredPatterns: ['\A#']
 
 # Checks if the length a module exceeds some maximum value
 Metrics/ModuleLength:
