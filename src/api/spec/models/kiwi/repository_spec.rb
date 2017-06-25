@@ -74,8 +74,10 @@ RSpec.describe Kiwi::Repository, type: :model do
       allow_any_instance_of(Package).to receive(:kiwi_image_outdated?) { true }
     end
 
-    it { expect{ kiwi_repository.update_attributes!(priority: 3) }.to raise_error(
-      ActiveRecord::RecordInvalid, 'Validation failed: Image configuration has changed') }
+    it {
+      expect{ kiwi_repository.update_attributes!(priority: 3) }.to raise_error(
+        ActiveRecord::RecordInvalid, 'Validation failed: Image configuration has changed')
+    }
   end
 
   describe '.to_xml' do
