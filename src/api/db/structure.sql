@@ -1154,7 +1154,7 @@ CREATE TABLE `watched_projects` (
   CONSTRAINT `watched_projects_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-INSERT INTO schema_migrations (version) VALUES
+INSERT INTO `schema_migrations` (version) VALUES
 ('1'),
 ('10'),
 ('11'),
