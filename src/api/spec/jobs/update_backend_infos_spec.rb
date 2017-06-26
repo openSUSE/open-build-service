@@ -15,10 +15,10 @@ RSpec.describe UpdateBackendInfos, vcr: true do
 
   context "properly set" do
     let(:other_package) { create(:package, name: 'OtherFakePackage') }
-    let(:backend_package) { BackendPackage.create(package: other_package, links_to: package) }
 
     before do
-      allow(subject).to receive(:update_package)
+      allow_any_instance_of(Package).to receive(:update_backendinfo)
+      BackendPackage.create(package: other_package, links_to: package)
     end
 
     subject { UpdateBackendInfos.new(event) }
