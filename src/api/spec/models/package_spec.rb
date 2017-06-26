@@ -602,4 +602,34 @@ RSpec.describe Package, vcr: true do
       end
     end
   end
+
+  describe '.kiwi_image_outdated?' do
+    context 'without a kiwi_image' do
+      it { expect(package.kiwi_image_outdated?).to be_nil }
+    end
+
+    context 'with a kiwi_image' do
+      let!(:kiwi_image_with_package) { create(:kiwi_image, package: package) }
+
+      context 'with same md5' do
+        before do
+          allow_any_instance_of(Package).to receive(:kiwi_file_md5) { kiwi_image_with_package.md5_last_revision }
+        end
+
+        it { expect(kiwi_image_with_package.package.kiwi_image_outdated?).to be(false) }
+      end
+
+      context 'with different md5' do
+        before do
+          loop do
+            different_md5 = Faker::Crypto.md5
+            break unless kiwi_image_with_package.md5_last_revision == different_md5
+          end
+          allow(kiwi_image_with_package).to receive(:kiwi_file_md5) { different_md5 }
+        end
+
+        it { expect(kiwi_image_with_package.package.kiwi_image_outdated?).to be(true) }
+      end
+    end
+  end
 end
