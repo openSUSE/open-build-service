@@ -15,7 +15,7 @@ RSpec.describe Notification::RssFeedItem do
     let(:greater_than_max_items_per_group) { max_items_per_group + 5 }
 
     context 'without any RSS items' do
-      it { expect { Notification::RssFeedItem.cleanup }.not_to change { Notification::RssFeedItem.count } }
+      it { expect{ Notification::RssFeedItem.cleanup }.not_to(change{ Notification::RssFeedItem.count }) }
     end
 
     context 'with a single users' do
@@ -24,7 +24,7 @@ RSpec.describe Notification::RssFeedItem do
           create_list(:rss_notification, max_items_per_user, subscriber: user)
         end
 
-        it { expect { Notification::RssFeedItem.cleanup }.not_to change { Notification::RssFeedItem.count } }
+        it { expect { Notification::RssFeedItem.cleanup }.not_to(change { Notification::RssFeedItem.count }) }
       end
 
       context 'and enough RSS items' do
@@ -95,7 +95,8 @@ RSpec.describe Notification::RssFeedItem do
         template: "event_mailer/#{delete_package_event.template_name}",
         layout: false,
         format: :txt,
-        assigns: { e: delete_package_event.expanded_payload, host: ::Configuration.obs_url, configuration: ::Configuration.first })
+        assigns: { host: ::Configuration.obs_url, configuration: ::Configuration.first },
+        locals: { event: delete_package_event })
     end
     subject { create(:rss_notification, event_type: 'Event::DeletePackage', event_payload: payload) }
 

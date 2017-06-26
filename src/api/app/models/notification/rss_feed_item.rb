@@ -27,7 +27,8 @@ class Notification::RssFeedItem < Notification
       template: "event_mailer/#{event.template_name}",
       layout: false,
       format: :txt,
-      assigns: { e: event.expanded_payload, host: ::Configuration.obs_url, configuration: ::Configuration.first })
+      assigns: { host: ::Configuration.obs_url, configuration: ::Configuration.first },
+      locals: { event: event})
   end
 end
 

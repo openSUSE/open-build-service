@@ -13,7 +13,7 @@ xml.rss version: '2.0' do
         xml.description notification.description
         xml.category "#{notification.event_type}/#{notification.subscription_receiver_role}"
         xml.pubDate notification.created_at
-        xml.author "#{@configuration['title']}"
+        xml.author @configuration['title'].to_s
       end
     end
   end
