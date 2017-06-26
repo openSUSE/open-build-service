@@ -41,9 +41,9 @@ Airbrake.configure do |c|
   # NOTE: This option *does not* work if you don't set the 'environment' option.
   # https://github.com/airbrake/airbrake-ruby#ignore_environments
   if CONFIG['errbit_api_key'].blank? || CONFIG['errbit_project_id'].blank?
-    c.ignore_environments = %w(production development test)
+    c.ignore_environments = %w(production development test migrate)
   else
-    c.ignore_environments = %w(development test)
+    c.ignore_environments = %w(development test migrate)
   end
 
   # A list of parameters that should be filtered out of what is sent to
