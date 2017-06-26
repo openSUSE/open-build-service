@@ -1,4 +1,4 @@
-class ExtendXamarinMatching < ActiveRecord::Migration
+class ExtendXamarinMatching < ActiveRecord::Migration[4.2]
   def up
     ActiveRecord::Base.transaction do
       t = IssueTracker.find_by_name('Xamarin')

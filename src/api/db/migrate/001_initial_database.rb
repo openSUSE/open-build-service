@@ -1,4 +1,4 @@
-class InitialDatabase < ActiveRecord::Migration
+class InitialDatabase < ActiveRecord::Migration[4.2]
   # rubocop:disable Metrics/AbcSize
   # rubocop:disable MethodLength
   # rubocop:disable Metrics/LineLength

@@ -1,4 +1,4 @@
-class SimplifyUserStates < ActiveRecord::Migration
+class SimplifyUserStates < ActiveRecord::Migration[4.2]
   def self.up
     # new state enum
     execute "ALTER TABLE users add column new_state enum('unconfirmed', 'confirmed', 'locked', 'deleted') DEFAULT 'unconfirmed'"

@@ -1,4 +1,4 @@
-class AddMakeoriginolderOption < ActiveRecord::Migration
+class AddMakeoriginolderOption < ActiveRecord::Migration[4.2]
   def self.up
     add_column :bs_request_actions, :makeoriginolder, :boolean, default: false
   end

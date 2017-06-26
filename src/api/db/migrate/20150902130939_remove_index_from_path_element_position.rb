@@ -1,4 +1,4 @@
-class RemoveIndexFromPathElementPosition < ActiveRecord::Migration
+class RemoveIndexFromPathElementPosition < ActiveRecord::Migration[4.2]
   def self.up
     remove_index :path_elements, name: :parent_repo_pos_index
   end
