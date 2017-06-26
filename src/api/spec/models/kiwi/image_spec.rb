@@ -15,6 +15,18 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     it { is_expected.to have_one(:package) }
     it { is_expected.to have_many(:repositories) }
     it { is_expected.to accept_nested_attributes_for(:repositories) }
+
+    context 'with an outdated image' do
+      let(:kiwi_image_with_package) { create(:kiwi_image_with_package) }
+      before do
+        allow_any_instance_of(Package).to receive(:kiwi_image_outdated?) { true }
+      end
+
+      it {
+        expect{ kiwi_image_with_package.update_attributes!(name: 'Other name') }.to raise_error(
+          ActiveRecord::RecordInvalid, 'Validation failed: Image configuration has changed')
+      }
+    end
   end
 
   describe '.build_from_xml' do

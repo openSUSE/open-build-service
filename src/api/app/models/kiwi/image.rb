@@ -18,6 +18,7 @@ class Kiwi::Image < ApplicationRecord
 
   #### Validations macros
   validates :name, presence: true
+  validate :not_outdated, on: :update
   accepts_nested_attributes_for :repositories
 
   #### Class methods using self. (public and then private)
@@ -77,6 +78,12 @@ class Kiwi::Image < ApplicationRecord
       self.md5_last_revision = package.kiwi_file_md5
       save!
     end
+  end
+
+  private
+
+  def not_outdated
+    errors.add(:base, 'Image configuration has changed') if package && package.kiwi_image_outdated?
   end
 end
 

@@ -76,7 +76,7 @@ RSpec.describe Kiwi::Repository, type: :model do
 
     it {
       expect{ kiwi_repository.update_attributes!(priority: 3) }.to raise_error(
-        ActiveRecord::RecordInvalid, 'Validation failed: Image configuration has changed')
+        ActiveRecord::RecordInvalid, 'Validation failed: Image is invalid')
     }
   end
 

@@ -26,7 +26,7 @@ class Kiwi::Repository < ApplicationRecord
   validates :repo_type, inclusion: { in: %w(apt-deb rpm-dir rpm-md yast2) }
   validates :replaceable, inclusion: { in: [true, false] }
   validates :imageinclude, :prefer_license, inclusion: { in: [true, false] }, allow_nil: true
-  validate :not_outdated, on: :update
+  validates_associated :image, on: :update
 
   #### Class methods using self. (public and then private)
 
@@ -72,12 +72,6 @@ class Kiwi::Repository < ApplicationRecord
   end
 
   #### Alias of methods
-
-  private
-
-  def not_outdated
-    errors.add(:base, 'Image configuration has changed') if image.package.kiwi_image_outdated?
-  end
 end
 
 # == Schema Information
