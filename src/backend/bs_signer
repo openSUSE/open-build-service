@@ -460,6 +460,16 @@ sub signjob {
 	  }
 	  die("sign $jobdir/$signfile failed\n");
 	}
+	if ($signfile =~ /\.AppImage$/ && -e "$jobdir/$signfile.zsync") {
+	  print("regenerating zsync file\n");
+	  # re-generate zsync data
+	  if (system('zsyncmake', '-o', "$jobdir/$signfile.zsync.new", "$jobdir/$signfile")) {
+	    print("zync file recreation failed: $?\n");
+	    unlink("$jobdir/$signfile.zsync.new");
+	  } else {
+	    rename("$jobdir/$signfile.zsync.new", "$jobdir/$signfile.zsync");
+	  }
+	}
       }
     };
     if ($@) {
