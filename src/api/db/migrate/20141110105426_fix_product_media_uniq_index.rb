@@ -8,7 +8,7 @@ require File.join(Rails.root, 'app/jobs/update_package_meta_job.rb')
 #       to go with any risk
 #
 
-class FixProductMediaUniqIndex < ActiveRecord::Migration
+class FixProductMediaUniqIndex < ActiveRecord::Migration[4.2]
   def self.up
     drop_table :product_media
     create_table :product_media do |t|

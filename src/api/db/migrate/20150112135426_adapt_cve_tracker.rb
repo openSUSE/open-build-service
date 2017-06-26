@@ -1,4 +1,4 @@
-class AdaptCveTracker < ActiveRecord::Migration
+class AdaptCveTracker < ActiveRecord::Migration[4.2]
   def up
     ActiveRecord::Base.transaction do
       t = IssueTracker.find_by_name('cve')

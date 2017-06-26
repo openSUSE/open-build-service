@@ -1,4 +1,4 @@
-class AddGithubIssueParser < ActiveRecord::Migration
+class AddGithubIssueParser < ActiveRecord::Migration[4.2]
   def self.up
     # rubocop:disable Metrics/LineLength
     execute "alter table issue_trackers modify column kind enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge', 'github') not null;"

@@ -1,4 +1,4 @@
-class AddDefaultTrackerConfiguration < ActiveRecord::Migration
+class AddDefaultTrackerConfiguration < ActiveRecord::Migration[4.2]
   def self.up
     add_column :configurations, :default_tracker, :string, default: "bnc"
   end

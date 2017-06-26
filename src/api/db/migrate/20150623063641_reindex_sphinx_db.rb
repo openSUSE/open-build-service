@@ -1,5 +1,4 @@
-
-class ReindexSphinxDb < ActiveRecord::Migration
+class ReindexSphinxDb < ActiveRecord::Migration[4.2]
   def self.up
     rake = "rake"
     rake = "rake.ruby2.4" if File.exist?("/usr/bin/rake.ruby2.4")

@@ -3,7 +3,7 @@ class TempMI < ActiveRecord::Base
   self.table_name = 'maintenance_incidents'
 end
 
-class MultipleIncidentCounters < ActiveRecord::Migration
+class MultipleIncidentCounters < ActiveRecord::Migration[4.2]
   def self.up
     create_table :incident_updateinfo_counter_values do |t|
       t.references :updateinfo_counter, null: false

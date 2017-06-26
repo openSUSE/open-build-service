@@ -1,7 +1,7 @@
 require 'delayed_job'
 require File.join(Rails.root, 'app/jobs/update_package_meta_job.rb')
 
-class AddChannelIndex < ActiveRecord::Migration
+class AddChannelIndex < ActiveRecord::Migration[4.2]
   def self.up
     # broken db? better parse again everything
     Channel.all.destroy_all

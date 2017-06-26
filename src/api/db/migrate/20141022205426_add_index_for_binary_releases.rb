@@ -1,4 +1,4 @@
-class AddIndexForBinaryReleases < ActiveRecord::Migration
+class AddIndexForBinaryReleases < ActiveRecord::Migration[4.2]
   def self.up
     add_index :binary_releases, [:binary_name, :binary_arch]
 
