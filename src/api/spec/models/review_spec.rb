@@ -66,27 +66,27 @@ RSpec.describe Review do
     context 'with valid attributes' do
       it 'sets user association when by_user object exists' do
         review = create(:review, by_user: user.login)
-        expect(review.reviewable).to eq(user)
+        expect(review.user).to eq(user)
         expect(review.by_user).to eq(user.login)
       end
 
       it 'sets group association when by_group object exists' do
         review = create(:review, by_group: group.title)
-        expect(review.reviewable).to eq(group)
+        expect(review.group).to eq(group)
         expect(review.by_group).to eq(group.title)
       end
 
       it 'sets project association when by_project object exists' do
         review = create(:review, by_project: project.name)
-        expect(review.reviewable).to eq(project)
+        expect(review.project).to eq(project)
         expect(review.by_project).to eq(project.name)
       end
 
       it 'sets package and project associations when by_package and by_project object exists' do
         review = create(:review, by_project: project.name, by_package: package.name)
-        expect(review.reviewable).to eq(package)
+        expect(review.package).to eq(package)
         expect(review.by_package).to eq(package.name)
-        expect(review.reviewable.project).to eq(project)
+        expect(review.project).to eq(project)
         expect(review.by_project).to eq(project.name)
       end
     end
@@ -94,31 +94,31 @@ RSpec.describe Review do
     context 'with invalid attributes' do
       it 'does not set user association when by_user object does not exist' do
         review = Review.new(by_user: 'not-existent')
-        expect(review.reviewable).to eq(nil)
+        expect(review.user).to eq(nil)
         expect(review.valid?).to eq(false)
       end
 
       it 'does not set group association when by_group object does not exist' do
         review = Review.new(by_group: 'not-existent')
-        expect(review.reviewable).to eq(nil)
+        expect(review.group).to eq(nil)
         expect(review.valid?).to eq(false)
       end
 
       it 'does not set project association when by_project object does not exist' do
         review = Review.new(by_project: 'not-existent')
-        expect(review.reviewable).to eq(nil)
+        expect(review.project).to eq(nil)
         expect(review.valid?).to eq(false)
       end
 
       it 'does not set project and package associations when by_project and by_package object does not exist' do
         review = Review.new(by_project: 'not-existent', by_package: 'not-existent')
-        expect(review.reviewable).to eq(nil)
+        expect(review.package).to eq(nil)
         expect(review.valid?).to eq(false)
       end
 
       it 'does not set package association when by_project parameter is missing' do
         review = Review.new(by_package: package.name)
-        expect(review.reviewable).to eq(nil)
+        expect(review.package).to eq(nil)
         expect(review.valid?).to eq(false)
       end
     end

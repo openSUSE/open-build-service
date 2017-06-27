@@ -9,7 +9,7 @@ class Group < ApplicationRecord
   has_many :group_maintainers, inverse_of: :group, dependent: :destroy
   has_many :relationships, dependent: :destroy, inverse_of: :group
   has_many :event_subscriptions, dependent: :destroy, inverse_of: :group
-  has_many :reviews, dependent: :nullify, as: :reviewable
+  has_many :reviews, dependent: :nullify
 
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notifications::RssFeedItem', dependent: :destroy
 
@@ -166,7 +166,7 @@ end
 #  id         :integer          not null, primary key
 #  created_at :datetime
 #  updated_at :datetime
-#  title      :string(200)      default(""), not null, indexed
+#  title      :string(200)      indexed
 #  parent_id  :integer          indexed
 #  email      :string(255)
 #

@@ -89,7 +89,7 @@ class Project < ApplicationRecord
 
   has_many :project_log_entries, dependent: :delete_all
 
-  has_many :reviews, dependent: :nullify, as: :reviewable
+  has_many :reviews, dependent: :nullify
 
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_project_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
