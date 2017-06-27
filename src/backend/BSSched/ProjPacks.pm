@@ -1340,4 +1340,50 @@ sub runningfetchprojpacks {
   return \%running;
 }
 
+sub get_remoteproject_resume {
+  my ($gctx, $handle, $error, $projpacksin) = @_;
+  my $projid = $handle->{'_projid'};
+  delete $gctx->{'remotemissing'}->{$projid};
+  if ($error) {
+    chomp $error;
+    warn("$error\n");
+    return;
+  }
+  BSSched::Remote::remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'});
+  $gctx->{'remotemissing'}->{$projid} = 1 if !$gctx->{'projpacks'}->{$projid} && !$gctx->{'remoteprojs'}->{$projid};
+  BSSched::Lookat::setchanged($gctx, $handle->{'_changeprp'}, $handle->{'_changetype'}, $handle->{'_changelevel'});
+}
+
+sub get_remoteproject {
+  my ($gctx, $doasync, $projid) = @_;
+
+  my $myarch = $gctx->{'arch'};
+  print "getting data for remote project '$projid' from $BSConfig::srcserver\n";
+  my @args;
+  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
+  push @args, "project=$projid";
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getprojpack",
+  };
+  if ($doasync) {
+    $param->{'async'} = { %$doasync, '_resume' => \&get_remoteproject_resume, '_projid' => $projid};
+  }
+  my $projpacksin;
+  eval {
+    if ($usestorableforprojpack) {
+      $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, \&BSUtil::fromstorable, 'view=storable', 'withconfig', 'withremotemap', 'remotemaponly', "arch=$myarch", @args);
+    } else {
+      $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, $BSXML::projpack, 'withconfig', 'withremotemap', 'remotemaponly', "arch=$myarch", @args);
+    }
+  };
+  return 0 if !$@ && $projpacksin && $param->{'async'};
+  delete $gctx->{'remotemissing'}->{$projid};
+  if ($@) {
+    warn($@) if $@;
+    return;
+  }
+  BSSched::Remote::remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'});
+  $gctx->{'remotemissing'}->{$projid} = 1 if !$gctx->{'projpacks'}->{$projid} && !$gctx->{'remoteprojs'}->{$projid};
+}
+
 1;

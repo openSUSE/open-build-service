@@ -141,6 +141,7 @@ sub updateremoteprojs {
   my ($gctx, $needremoteproj) = @_;
 
   my $remoteprojs = $gctx->{'remoteprojs'};
+  my $remotemissing = $gctx->{'remotemissing'};
   for my $projid (keys %$remoteprojs) {
     my $or = $remoteprojs->{$projid};
     next if $or && $or->{'partition'};  # XXX how do we update them?
@@ -154,7 +155,7 @@ sub updateremoteprojs {
   }
   for my $projid (sort keys %$needremoteproj) {
     my $r = $needremoteproj->{$projid};
-    fetchremoteproj($gctx, $r, $projid) if $r && !$remoteprojs->{$projid};
+    fetchremoteproj($gctx, $r, $projid) if $r && !$remoteprojs->{$projid} && !exists($remotemissing->{$projid});
   }
 }
 
@@ -260,6 +261,8 @@ sub fetchremoteproj {
   return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
   my $remoteprojs = $gctx->{'remoteprojs'};
   return $remoteprojs->{$projid} if exists $remoteprojs->{$projid};
+  my $remotemissing = $gctx->{'remotemissing'};
+  return undef if $remotemissing->{$projid};
   return fetchremote_sync($gctx, $projid);	# force in missing entry
 }
 
@@ -313,6 +316,18 @@ sub remotemap2remoteprojs {
       $gctx->{'retryevents'}->addretryevent({'type' => 'project', 'project' => $projid}) if $error =~ /interconnect error:/;
     }
     $remoteprojs->{$projid} = $proj;
+  }
+  # update remotemissing map
+  my $projpacks = $gctx->{'projpacks'};
+  for my $projid (keys %{$gctx->{'remotemissing'}}) {
+    if ($projpacks->{$projid}) {
+      delete $gctx->{'remotemissing'}->{$projid};
+    } elsif ($remoteprojs->{$projid}) {
+      if (!defined($remoteprojs->{$projid}->{'config'})) {
+        next unless $gctx->{'remotemissing'}->{$projid};	# keep the "in progress" flag
+      }
+      delete $gctx->{'remotemissing'}->{$projid};
+    }
   }
 }
 

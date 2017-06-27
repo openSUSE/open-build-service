@@ -58,9 +58,16 @@ sub getconfig {
   return BSRepServer::ProjPacks::getconfig($ctx->{'gctx'}, $projid, $repoid, $arch, $configpath);
 }
 
-sub get_path_projpacks {
-  my ($ctx, $projid, $path) = @_;
-  return BSRepServer::ProjPacks::get_path_projpacks($ctx->{'gctx'}, $projid, $path);
+sub append_info_path {
+  my ($ctx, $info, $path) = @_;
+  # make sure we know about the path elements
+  BSRepServer::ProjPacks::get_path_projpacks($ctx->{'gctx'}, $ctx->{'project'}, $path);
+  # append path to info
+  splice(@{$info->{'path'}}, -$info->{'extrapathlevel'}) if $info->{'extrapathlevel'};
+  delete $info->{'extrapathlevel'};
+  push(@{$info->{'path'}}, @$path);
+  $info->{'extrapathlevel'} = @$path if @$path;
+  return 1;
 }
 
 sub setup {

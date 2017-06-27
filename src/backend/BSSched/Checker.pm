@@ -1064,8 +1064,58 @@ sub getconfig {
   return BSSched::ProjPacks::getconfig($ctx->{'gctx'}, $projid, $repoid, $arch, $configpath);
 }
 
-sub get_path_projpacks {
-  my ($ctx, $projid, $path) = @_;
+sub append_info_path {
+  my ($ctx, $info, $path) = @_;
+
+  my $gctx = $ctx->{'gctx'};
+  my $projid = $ctx->{'project'};
+
+  # append path to info
+  my @oldpath;
+  if ($info->{'extrapathlevel'}) {
+    @oldpath = @{$info->{'path'}};	# create copy
+    @oldpath = splice(@oldpath, -$info->{'extrapathlevel'});
+  }
+  if (!BSUtil::identical(\@oldpath, $path)) {
+    print "append_info_path: different path\n";
+    # path has changed. remove old one
+    splice(@{$info->{'path'}}, -$info->{'extrapathlevel'}) if $info->{'extrapathlevel'};
+    delete $info->{'extrapathlevel'};
+    # add new one
+    push @{$info->{'path'}}, @$path;
+    $info->{'extrapathlevel'} = @$path if @$path;
+    $gctx->{'prj_depsort_needed'} = 1;
+  } else {
+    print "append_info_path: same path\n";
+  }
+
+  # check if we have missing remotemap entries
+  my $projpacks = $gctx->{'projpacks'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  my $remotemissing = $gctx->{'remotemissing'};
+  my $ret = 1;
+  my @missing;
+  for my $pe (@$path) {
+    my $pr = $pe->{'project'};
+    next if $projpacks->{$pr} || ($remoteprojs->{$pr} && defined($remoteprojs->{$pr}->{'config'})) || $remotemissing->{$pr};
+    $ret = 0;
+    next if defined $remotemissing->{$pr};
+    push @missing, $pr;
+  }
+  @missing = BSUtil::unify(@missing);
+  for my $projid (@missing) {
+    my $asyncmode = $gctx->{'asyncmode'};
+    my $async;
+    if ($asyncmode) {
+      $async = {
+	'_changeprp' => $ctx->{'changeprp'},
+	'_changetype' => $ctx->{'changetype'} || 'high',
+	'_changelevel' => $ctx->{'changelevel'} || 1,
+      };
+    }
+    BSSched::ProjPacks::get_remoteproject($gctx, $async, $projid);
+  }
+  return $ret;
 }
 
 1;

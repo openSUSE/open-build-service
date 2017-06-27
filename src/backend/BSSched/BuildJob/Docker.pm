@@ -69,7 +69,7 @@ sub urlmapper {
   my ($ctx, $url) = @_;
   $url =~ s/\/+$//;
   my $kiwiurlmapcache = {};
-  for my $prp (%{$BSConfig::prp_ext_map || {}}) {
+  for my $prp (sort keys %{$BSConfig::prp_ext_map || {}}) {
     my $u = $BSConfig::prp_ext_map->{$prp};
     $u =~ s/\/+$//;
     $kiwiurlmapcache->{$u} = $prp;
@@ -113,7 +113,6 @@ sub check {
 
   my @deps = @{$info->{'dep'} || []};
 
-  my @newpath;
   my $cdep;	# container dependency
   my $cprp;	# container prp
   my $cbdep;	# container bdep for job
@@ -143,11 +142,10 @@ sub check {
 
     # generate bdep entry
     $cbdep = {'name' => $cdeps[0], 'noinstall' => 1};
-    ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2);
     $cprp = $cpool->pkg2reponame($p);
     $cmeta = $cpool->pkg2pkgid($p) . "  $cprp/$cdeps[0]";
     if ($ctx->{'dobuildinfo'}) {
-      ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2) if $cprp;
+      ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2);
       my $d = $cpool->pkg2data($p);
       $cbdep->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
       $cbdep->{'version'} = $d->{'version'};
@@ -156,7 +154,8 @@ sub check {
       $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
     }
 
-    # add container repositories
+    # append container repositories to path
+    my @newpath;
     if (defined &BSSolv::pool::pkg2annotation) {
       my $annotation_xml = $cpool->pkg2annotation($p);
       if ($annotation_xml) {
@@ -183,11 +182,11 @@ sub check {
 	}
       }
     }
-    $ctx->get_path_projpacks($projid, \@newpath) if @newpath;
+    my $r = $ctx->append_info_path($info, \@newpath);
+    return ('delayed', 'remotemap entry missing') unless $r;
   }
-  unshift @newpath, @{$info->{'path'} || []};
   
-  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @newpath;
+  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
 
   # get config from docker path
   my @configpath = @aprps;
@@ -294,7 +293,7 @@ sub check {
   push @new_meta, $cmeta if $cmeta;
   @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
-  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'docker', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp, \@newpath ]);
+  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'docker', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp]);
   if ($BSConfig::enable_download_on_demand && $state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;
@@ -317,16 +316,12 @@ sub build {
   my $edep2pkg = $data->[3];
   my $cbdep = $data->[4];
   my $cprp = $data->[5];
-  my $newpath = $data->[6];
-  my $reason = $data->[7];
+  my $reason = $data->[6];
 
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
-
-  # fixup path in info
-  $info = { %$info, 'path' => $newpath } if @$newpath;
 
   if (!@{$repo->{'path'} || []}) {
     # repo has no path, use docker repositories also for docker system setup
