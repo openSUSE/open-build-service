@@ -5,5 +5,7 @@
         layout: false
       )
     %>
-  <p>---</p>
+  <% unless notification == notifications.last %>
+    <p>---</p>
+  <% end %>
 <% end %>
