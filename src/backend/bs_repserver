@@ -2664,7 +2664,7 @@ sub kiwiurlmapper {
   $url =~ s/\/+$//;
   if (!$kiwiurlmapcache) {
     $kiwiurlmapcache = {};
-    for my $prp (%{$BSConfig::prp_ext_map || {}}) {
+    for my $prp (sort keys %{$BSConfig::prp_ext_map || {}}) {
       my $u = $BSConfig::prp_ext_map->{$prp};
       $u =~ s/\/+$//;
       $kiwiurlmapcache->{$u} = $prp;
