@@ -33,6 +33,7 @@ if test -z "$SUBTEST"; then
       bundle exec rails test:spider
       ;;
     linter)
+      unset DO_COVERAGE
       make -C ../../ rubocop
       bundle exec rake haml_lint
       jshint .
