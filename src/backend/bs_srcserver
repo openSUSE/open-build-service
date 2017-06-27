@@ -963,6 +963,10 @@ sub getprojpack {
     $cgi->{'ignoredisable'} = 1;
     $cgi->{'nopackages'} = 1 unless @{$packids || []};
   }
+  if ($cgi->{'remotemaponly'}) {
+    die("getprojpack remotemaponly makes no sense with packages\n") if @{$packids || []};
+    $cgi->{'withremotemap'} = 1;
+  }
   my $partition = $cgi->{'partition'};
   die("No such partition '$partition'\n") if $partition && $BSConfig::partitionservers && !$BSConfig::partitionservers->{$partition};
   my $remotemap = $cgi->{'withremotemap'} ? {} : undef;
@@ -1027,6 +1031,7 @@ sub getprojpack {
         $remotemap->{$projid} = {%$r, 'proto' => 1} if $r;
       }
     }
+    next if $cgi->{'remotemaponly'};
     if (!$proj && $cgi->{'parseremote'} && $cgi->{'project'} && $remotemap && $remotemap->{$projid}) {
       $proj = $remotemap->{$projid};
     }
@@ -5952,7 +5957,7 @@ my $dispatches = [
   '/published/$project/$repository/$arch:filename/$filename/$subfilename:filename view:?' => \&published,
 
   # scheduler calls
-  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool? parseremote:bool? buildinfo:bool? partition:? view:?' => \&getprojpack,
+  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? remotemaponly:bool? noremote:bool? parseremote:bool? buildinfo:bool? partition:? view:?' => \&getprojpack,
   'POST:/relsync $project $repository $arch' => \&postrelsync,
   '/relsync $project $repository $arch' => \&getrelsync,
 
