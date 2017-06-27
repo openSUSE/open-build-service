@@ -1138,6 +1138,12 @@ sub getbinary_repository {
     my $dodurl = $repo->dodurl();
     my %rnames = $repo ? $repo->pkgnames() : ();
     my $p = $rnames{$bin};
+    if (!$p && $dodurl && $bin =~ /^(.*)\.($binsufsre)$/ && $rnames{$1}) {
+      # check for future dod package path
+      $p = $rnames{$1};
+      my $suf = $2;
+      undef $p unless $pool->pkg2pkgid($p) eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0' && $pool->pkg2path($p) =~ /\.\Q$suf\E$/;
+    }
     die("404 no such binary '$bin'\n") unless $p;
     $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
     if ($dodurl && $pool->pkg2pkgid($p) eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
