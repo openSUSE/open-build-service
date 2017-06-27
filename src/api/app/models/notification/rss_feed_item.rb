@@ -17,19 +17,6 @@ class Notification::RssFeedItem < Notification
       end
     end
   end
-
-  def title
-    event.subject
-  end
-
-  def description
-    ApplicationController.renderer.new.render(
-      template: "event_mailer/#{event.template_name}",
-      layout: false,
-      format: :txt,
-      assigns: { host: ::Configuration.obs_url, configuration: ::Configuration.first },
-      locals: { event: event})
-  end
 end
 
 # == Schema Information

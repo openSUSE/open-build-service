@@ -47,6 +47,7 @@ class Webui::FeedsController < Webui::WebuiController
       @configuration = ::Configuration.first
       @user = token.user
       @notifications = token.user.combined_rss_feed_items
+      @host = ::Configuration.obs_url
     else
       flash[:error] = "Unknown Token for RSS feed"
       redirect_back(fallback_location: root_path)
