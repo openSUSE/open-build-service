@@ -665,6 +665,7 @@ usermod -a -G docker obsservicerun
 %config /srv/www/obs/api/config/environments/production.rb
 %config /srv/www/obs/api/config/environments/test.rb
 %config /srv/www/obs/api/config/environments/stage.rb
+%config /srv/www/obs/api/config/environments/migration.rb
 
 %dir %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/log
 %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/tmp
