@@ -76,7 +76,7 @@ class Package < ApplicationRecord
 
   has_many :binary_releases, dependent: :delete_all, foreign_key: 'release_package_id'
 
-  has_many :reviews, dependent: :nullify, as: :reviewable
+  has_many :reviews, dependent: :nullify
 
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_package_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
@@ -1504,7 +1504,7 @@ end
 #
 # Foreign Keys
 #
-#  fk_rails_9a47aff19d  (kiwi_image_id => kiwi_images.id)
-#  packages_ibfk_3      (develpackage_id => packages.id)
-#  packages_ibfk_4      (project_id => projects.id)
+#  fk_rails_...     (kiwi_image_id => kiwi_images.id)
+#  packages_ibfk_3  (develpackage_id => packages.id)
+#  packages_ibfk_4  (project_id => projects.id)
 #
