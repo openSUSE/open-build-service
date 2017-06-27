@@ -440,12 +440,22 @@ RSpec.describe Package, vcr: true do
       before { stub_request(:post, backend_url) }
 
       it { is_expected.to be_truthy }
+
+      it 'has no errors' do
+        subject
+        expect(package.errors.details).to eq({})
+      end
     end
 
     context 'backend response fails' do
       before { stub_request(:post, backend_url).and_raise(ActiveXML::Transport::Error) }
 
       it { is_expected.to be_falsey }
+
+      it 'has errors' do
+        subject
+        expect(package.errors.details).to eq({:base => [{:error => "Exception from WebMock"}]})
+      end
     end
 
     context 'user has no access rights for the project' do
@@ -463,6 +473,11 @@ RSpec.describe Package, vcr: true do
       subject { package.backend_build_command(:rebuild, other_project.name, params) }
 
       it { is_expected.to be_falsey }
+
+      it 'has errors' do
+        subject
+        expect(package.errors.details).to eq({:base=>[{:error=>"No permission to modify project '#{other_project}' for user '#{user}'"}]})
+      end
     end
   end
 
