@@ -209,7 +209,6 @@ Layout/MultilineHashBraceLayout:
   Exclude:
     - 'src/api/app/controllers/source_controller.rb'
     - 'src/api/app/controllers/webui/request_controller.rb'
-    - 'src/api/app/jobs/project_status_calculator.rb'
     - 'src/api/app/models/binary_release.rb'
     - 'src/api/app/models/package.rb'
     - 'src/api/app/models/project.rb'
