@@ -76,7 +76,7 @@ class Package < ApplicationRecord
 
   has_many :binary_releases, dependent: :delete_all, foreign_key: 'release_package_id'
 
-  has_many :reviews, dependent: :nullify, as: :reviewable
+  has_many :reviews, dependent: :nullify, foreign_key: :by_package, primary_key: :name
 
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_package_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
