@@ -33,6 +33,7 @@ if test -z "$SUBTEST"; then
       bundle exec rails test:spider
       ;;
     linter)
+      unset DO_COVERAGE
       make -C ../../ rubocop
       bundle exec rake haml_lint
       jshint .
@@ -46,13 +47,15 @@ if test -z "$SUBTEST"; then
       make test_unit
       ;;
     *)
+      unset DO_COVERAGE
       make -C ../../ rubocop
       bundle exec rails assets:precompile &> /dev/null
+      export DO_COVERAGE=1
       bundle exec rails test:api
       bundle exec rails test:webui
       bundle exec rspec
-      jshint .
       unset DO_COVERAGE
+      jshint .
       bundle exec rails test:spider
       ;;
   esac
