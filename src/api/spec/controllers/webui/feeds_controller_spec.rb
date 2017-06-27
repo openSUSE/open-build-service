@@ -65,16 +65,30 @@ RSpec.describe Webui::FeedsController do
 
   describe 'GET #notifications' do
     let(:user) { create(:confirmed_user) }
+    let(:payload) {
+      { author: "heino", description: "I want this role", number: 1899,
+        actions: [{action_id: 2004, type: "add_role", person: "heino", role: "maintainer", targetproject: user.home_project.to_param}],
+        state: "new",
+        when: "2017-06-27T10:34:30",
+        who: "heino"}
+    }
+    let!(:rss_notification) { create(:rss_notification, event_payload: payload, subscriber: user, event_type: 'Event::RequestCreate') }
 
     context 'with a working token' do
+      render_views
       before do
+        ::Configuration.update(obs_url: 'http://localhost')
         user.create_rss_token
         get :notifications, params: { token: user.rss_token.string, format: 'rss' }
+      end
+      after do
+        ::Configuration.update(obs_url: nil)
       end
 
       it { expect(assigns(:notifications)).to eq(user.combined_rss_feed_items) }
       it { expect(response).to have_http_status(:success) }
       it { is_expected.to render_template("webui/feeds/notifications") }
+      it { expect(response.body).to match(/heino wants to be maintainer in project/) }
     end
 
     context 'with an invalid token' do
