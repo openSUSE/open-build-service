@@ -1,8 +1,8 @@
 record_0:
   bs_request_id: 9991
   type: submit
-  target_project_id: 998483895
-  target_package_id: 691693709
+  target_project_object: kde4
+  target_package_object: kde4_kdelibs
   source_project_id: 0
   source_package_id: 0
   target_project: kde4
@@ -73,8 +73,8 @@ record_7:
   type: submit
   target_project_id: 0
   target_package_id: 0
-  source_project_id: 998483895
-  source_package_id: 691693709
+  source_project_object: kde4
+  source_package_object: kde4_kdelibs
   target_project: NeitherExisting
   target_package: unknown
   source_project: kde4
