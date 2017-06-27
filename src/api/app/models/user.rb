@@ -38,7 +38,7 @@ class User < ApplicationRecord
   has_many :messages
   has_many :tokens, dependent: :destroy, inverse_of: :user
 
-  has_many :reviews, dependent: :nullify, as: :reviewable
+  has_many :reviews, dependent: :nullify, foreign_key: :by_user, primary_key: :login
 
   has_many :event_subscriptions, inverse_of: :user
 
@@ -734,13 +734,13 @@ class User < ApplicationRecord
 
   # lists reviews involving this user
   def involved_reviews(search = nil)
-    result = BsRequest.for_users(id).or(
-      BsRequest.for_projects(involved_projects.pluck(:id)).or(
-        BsRequest.for_packages(involved_packages.pluck(:id)).or(
-          BsRequest.for_groups(groups.pluck(:id))
+    result = BsRequest.where(reviews: { by_user: login }).or(
+      BsRequest.where(reviews: { by_package: involved_packages.pluck(:name) }).or(
+        BsRequest.where(reviews: { by_project: involved_projects.pluck(:name) }).or(
+          BsRequest.where(reviews: { by_group: groups.pluck(:title) })
         )
       )
-    ).joins(:reviews).joins(:bs_request_actions).where(state: :review, reviews: { state: :new }).where.not(creator: login)
+    ).with_actions_and_reviews.where(state: :review, reviews: { state: :new }).where.not(creator: login)
     search ? result.do_search(search) : result
   end
 
@@ -780,10 +780,10 @@ class User < ApplicationRecord
                  .or(bs_actions_table[:target_project_id].in(involved_projects.pluck(:id)))
                  .or(bs_actions_table[:target_package_id].in(involved_packages.pluck(:id)))
                  .or(reviews_table[:state].eq(:new)
-                     .and(reviews_table[:reviewable_id].eq(id).and(reviews_table[:reviewable_type].eq('User'))
-                     .or(reviews_table[:reviewable_id].in(involved_projects.pluck(:id)).and(reviews_table[:reviewable_type].eq('Project')))
-                     .or(reviews_table[:reviewable_id].in(involved_packages.pluck(:id)).and(reviews_table[:reviewable_type].eq('Package')))
-                     .or(reviews_table[:reviewable_id].in(groups.pluck(:id)).and(reviews_table[:reviewable_type].eq('Group'))))))
+                     .and(reviews_table[:by_user].eq(login)
+                     .or(reviews_table[:by_project].in(involved_projects.pluck(:name)))
+                     .or(reviews_table[:by_package].in(involved_packages.pluck(:name)))
+                     .or(reviews_table[:by_group].in(groups.pluck(:title))))))
 
     search ? result.do_search(search) : result
   end

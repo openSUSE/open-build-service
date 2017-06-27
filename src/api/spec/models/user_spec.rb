@@ -538,6 +538,11 @@ RSpec.describe User do
         let!(:review_of_another_subject) {
           create(:review, by_project: other_package.project.name, by_package: other_package.name, bs_request: request_of_another_subject)
         }
+
+        let!(:relationship_project_user) { create(:relationship_project_user, user: admin_user, project: package.project) }
+        it 'show the reviews for project maintainer' do
+          expect(admin_user.involved_reviews).to include(request_with_same_creator_and_reviewer)
+        end
       end
     end
 

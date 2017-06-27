@@ -22,7 +22,11 @@ class Review < ApplicationRecord
   validate :validate_non_symmetric_assignment
   validate :validate_not_self_assigned
 
-  belongs_to :reviewable, polymorphic: true
+  belongs_to :user, foreign_key: :by_user, primary_key: :login
+  belongs_to :group, foreign_key: :by_group, primary_key: :title
+  belongs_to :project, foreign_key: :by_project, primary_key: :name
+  belongs_to :package, foreign_key: :by_package, primary_key: :name
+
   belongs_to :review_assigned_from, class_name: 'Review', foreign_key: :review_id
   has_one :review_assigned_to, class_name: 'Review', foreign_key: :review_id
 
@@ -39,8 +43,6 @@ class Review < ApplicationRecord
       self.state = :new
     end
   end
-
-  before_validation :set_reviewable_association
 
   def validate_non_symmetric_assignment
     return unless review_assigned_from && review_assigned_from == review_assigned_to
@@ -101,23 +103,23 @@ class Review < ApplicationRecord
       errors.add(:base, 'it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package.')
     end
 
-    if by_user && !reviewable
+    if by_user && !user
       errors.add(:by_user, "#{by_user} not found")
     end
 
-    if by_group && !reviewable
+    if by_group && !group
       errors.add(:by_group, "#{by_group} not found")
     end
 
-    if by_project && !reviewable
+    if by_project && !project
       # must be a local project or we can't ask
       errors.add(:by_project, "#{by_project} not found")
     end
 
-    if by_package && !by_project
+    if by_package && !package
       errors.add(:unknown, 'by_package defined, but missing by_project')
     end
-    return unless by_package && !reviewable
+    return unless by_package && !package
 
     # must be a local package. maybe we should rewrite in case the
     # package comes via local project link...
@@ -213,20 +215,6 @@ class Review < ApplicationRecord
   end
 
   private
-
-  # The authoritative storage are the by_ attributes as even when a record (project, package ...) got deleted
-  # the review should still be usable, however, the entity association is nullified
-  def set_reviewable_association
-    if by_package && by_project
-      self.reviewable = Package.find_by_project_and_name(by_project, by_package)
-    elsif by_project
-      self.reviewable = Project.find_by_name(by_project)
-    elsif by_user
-      self.reviewable = User.find_by(login: by_user)
-    elsif by_group
-      self.reviewable = Group.find_by(title: by_group)
-    end
-  end
 
   def validate_reviewer_fields
     (by_user && (by_group || by_project || by_package)) || (by_group && (by_project || by_package))
