@@ -83,6 +83,20 @@ namespace :db do
       end
       File.open("#{Rails.root}/db/structure.sql", "w+") { |f| f << new_structure }
     end
+
+    desc "Verify that structure.sql in git is up to date"
+    task verify: :environment do
+      puts "Running rails db:migrate"
+      Rake::Task["db:migrate"].invoke
+      puts "Diffing the db/structure.sql"
+      sh %{git diff --quiet db/structure.sql} do |ok, _|
+        unless ok
+          abort "Generated structure.sql differs from structure.sql stored in git. " +
+            "Please run rake db:migrate and check the differences."
+        end
+      end
+      puts "Everything looks fine!"
+    end
   end
 
   desc 'Create the database, load the structure, and initialize with the seed data'
