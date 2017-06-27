@@ -43,7 +43,7 @@ We are using priority labels from **P1** to **P4** for our issues. So if you are
 * P4: Low  - Fix this when you don't see any issues with the other priorities.
 
 # How to contribute documentation
-The Open Build Service documentation is hosted in a separated repository called [obs-docu](https://github.com/openSUSE/obs-docu). Please send pull-requests against this repository. 
+The Open Build Service documentation is hosted in a separated repository called [obs-docu](https://github.com/openSUSE/obs-docu). Please send pull-requests against this repository.
 
 # How to conduct yourself when contributing
 The Open Build Service is part of the openSUSE project. We follow all the [openSUSE Guiding
@@ -122,5 +122,12 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
     ```
     vagrant ssh
     ```
+13. Changed an email? Test it with mailcatcher:
+
+    ```
+    vagrant exec script/start_mailcatcher
+    ```
+
+    Then open [localhost:1080](http://localhost:1080) in your browser to view all emails that have been sent.
 
 Happy Hacking! - :heart: Your Open Build Service Team
