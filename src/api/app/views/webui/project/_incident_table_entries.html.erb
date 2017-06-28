@@ -42,7 +42,7 @@
                 <% requests_out = BsRequest.list(roles: %w(source), states: %w(new review declined),
                                                           types: %w(maintenance_release), project: incident.name) %>
                 <% if requests_out.present? %>
-                    <% requests_out.order('bs_requests.number').each do |rq_out| %>
+                    <% requests_out.sort {|x,y| x.number <=> y.number}.each do |rq_out| %>
                         <% text = "Release request in state '#{rq_out['state']}'" %>
                         <%= link_to(sprite_tag(map_request_state_to_flag(rq_out['state'].to_s), title: text),
                               request_show_path(rq_out["number"])) %>
