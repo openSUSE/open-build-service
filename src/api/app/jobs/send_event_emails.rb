@@ -5,7 +5,7 @@ class SendEventEmails
   attr_accessor :event
 
   def perform
-    Event::Base.where(mails_sent: false).order(:created_at).limit(1000).lock(true).each do |event|
+    Event::Base.where(mails_sent: false).order(:created_at).limit(1000).each do |event|
       event.mails_sent = true
       begin
         event.save!
