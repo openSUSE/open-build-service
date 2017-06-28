@@ -20,6 +20,12 @@ module CommentEvent
     return [] unless payload['commenters']
     User.find(payload['commenters'])
   end
+
+  def custom_headers
+    h = super
+    h['X-OBS-Request-Commenter'] = originator.login
+    h
+  end
 end
 
 class Event::CommentForProject < ::Event::Project

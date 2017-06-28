@@ -21,5 +21,10 @@ RSpec.describe EventMailer do
     it 'has a subject' do
       expect(mail.subject).to eq "New comment in project #{comment.commentable.name} by #{comment.user.login}"
     end
+
+    it 'has custom headers' do
+      expect(mail['X-OBS-Request-Commenter'].value).to eq(comment.user.login)
+      expect(mail['Message-ID'].value).to eq('<notrandom@build.example.com>')
+    end
   end
 end
