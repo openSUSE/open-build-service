@@ -312,3 +312,8 @@ IssueTracker.where(name: 'osc').first_or_create(description: 'OBS CLI Issues',
                                                 regex: 'osc#(\d+)',
                                                 url: 'https://api.github.com/repos/openSUSE/osc/issues',
                                                 label: 'osc#@@@', show_url: 'https://github.com/openSUSE/osc/issues/@@@')
+IssueTracker.where(name: 'lf').first_or_create(description: 'Linux Foundation Bugzilla',
+                                                kind: 'bugzilla',
+                                                regex: 'lf#(\d+)',
+                                                url: 'https://developerbugs.linuxfoundation.org',
+                                                label: 'lf#@@@', show_url: 'https://developerbugs.linuxfoundation.org/show_bug.cgi?id=@@@')
