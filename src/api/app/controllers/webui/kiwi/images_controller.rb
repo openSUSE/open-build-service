@@ -28,7 +28,7 @@ module Webui
       end
 
       def show
-        render json: { is_outdated: @image.package.kiwi_image_outdated? }
+        render json: { is_outdated: @image.outdated? }
       end
 
       private

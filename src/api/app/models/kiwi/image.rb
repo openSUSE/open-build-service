@@ -3,13 +3,24 @@ class Kiwi::Image < ApplicationRecord
   #### Includes and extends
 
   #### Constants
+  DEFAULT_KIWI_BODY = '<?xml version="1.0" encoding="utf-8"?>
+<image schemaversion="6.2" name="suse-13.2-live">
+  <description type="system">
+  </description>
+  <preferences>
+    <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
+  </preferences>
+  <packages type="bootstrap">
+  </packages>
+</image>
+'
 
   #### Self config
 
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
-  has_one :package, foreign_key: 'kiwi_image_id', dependent: :nullify
+  has_one :package, foreign_key: 'kiwi_image_id', dependent: :nullify, inverse_of: :kiwi_image
   has_many :repositories, -> { order(order: :asc) }, dependent: :destroy, index_errors: true
 
   #### Callbacks macros: before_save, after_save, etc.
@@ -56,16 +67,19 @@ class Kiwi::Image < ApplicationRecord
   end
 
   def to_xml
-    kiwi_file = package.kiwi_image_file
-    return nil unless kiwi_file
-    kiwi_body = package.source_file(kiwi_file)
-
-    xml_repos = repositories.map(&:to_xml).join("\n")
+    if package
+      kiwi_file = package.kiwi_image_file
+      return nil unless kiwi_file
+      kiwi_body = package.source_file(kiwi_file)
+    else
+      kiwi_body = DEFAULT_KIWI_BODY
+    end
 
     doc = Nokogiri::XML::DocumentFragment.parse(kiwi_body)
-    doc.xpath("image/repository").remove
-
     image = doc.at_css('image')
+
+    doc.xpath("image/repository").remove
+    xml_repos = repositories.map(&:to_xml).join("\n")
     image.first_element_child.after(xml_repos)
 
     # Reparser for pretty printing
@@ -73,6 +87,8 @@ class Kiwi::Image < ApplicationRecord
   end
 
   def write_to_backend
+    return false unless package
+
     Package.transaction do
       package.save_file({ filename: package.kiwi_image_file, file: to_xml })
       self.md5_last_revision = package.kiwi_file_md5
@@ -80,10 +96,16 @@ class Kiwi::Image < ApplicationRecord
     end
   end
 
+  def outdated?
+    return false unless package
+
+    package.kiwi_image_outdated?
+  end
+
   private
 
   def not_outdated
-    errors.add(:base, 'Image configuration has changed') if package && package.kiwi_image_outdated?
+    errors.add(:base, 'Image configuration has changed') if outdated?
   end
 end
 
