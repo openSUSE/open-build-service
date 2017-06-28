@@ -855,7 +855,7 @@ class User < ApplicationRecord
     Rails.cache.fetch("requests_for_#{login}", expires_in: 2.minutes) do
       declined_requests.count +
       incoming_requests.count +
-      BsRequest.collection(user: login, roles: %w(reviewer), reviewstates: %w(new), states: %w(review)).count
+      involved_reviews.count
     end
   end
 

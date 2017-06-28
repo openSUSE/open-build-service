@@ -112,7 +112,7 @@ class UserTest < ActiveSupport::TestCase
 
   def test_user_requests
     assert_equal 0, users(:user4).nr_of_requests_that_need_work
-    assert_equal 2, users(:tom).nr_of_requests_that_need_work
+    assert_equal 1, users(:tom).nr_of_requests_that_need_work
     assert_equal 3, users(:adrian).nr_of_requests_that_need_work
     assert_equal 4, users(:fred).nr_of_requests_that_need_work
   end
