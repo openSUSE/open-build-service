@@ -1,5 +1,5 @@
 class Notifications::DailyEmailItem < Notifications::Base
   def self.cleanup
-    raise NotImplementedError
+    where(delivered: true).delete_all
   end
 end
