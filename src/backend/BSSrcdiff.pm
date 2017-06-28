@@ -882,7 +882,7 @@ my @simclasses = (
   'dsc',
   'changes',
   '(?:diff?|patch)(?:\.gz|\.bz2|\.xz)?',
-  '(?:tar|tar\.gz|tar\.bz2|tar\.xz|tgz|tbz|gem|obscpio)',
+  '(?:tar|tar\.gz|tar\.bz2|tar\.xz|tgz|tbz|gem|obscpio|livebuild)',
 );
 
 sub findsim {
@@ -1048,7 +1048,7 @@ sub srcdiff {
     } else {
       $d .= "\n++++++ $f (new)\n";
     }
-    if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio)$/) {
+    if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
       if (defined $of) {
 	my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
 	for my $r (@r) {
@@ -1095,7 +1095,7 @@ sub unifieddiff {
     } else {
       $d .= "Index: $f\n" . ("=" x 67) . "\n";
     }
-    if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio)$/) {
+    if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
       my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
       for my $r (@r) {
         $d .= adddiffheader($r, "$r->{'name'}$orevb", "$r->{'name'}$revb");
@@ -1107,7 +1107,7 @@ sub unifieddiff {
   }
   for my $f (@added) {
     $d .= "Index: $f\n" . ("=" x 67) . "\n";
-    if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio)$/) {
+    if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
       my @r = tardiff(undef, fn($pnew, $f), %opts);
       for my $r (@r) {
         $d .= adddiffheader($r, "$r->{'name'} (added)", "$r->{'name'}$revb");
@@ -1144,7 +1144,7 @@ sub datadiff {
       delete $r->{'state'};
       push @added, {'state' => 'added', 'diff' => $r, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
     } elsif ($old->{$of} ne $new->{$f}) {
-      if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio)$/) {
+      if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
 	my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
         if (@r == 0 && $f ne $of) {
 	  # (almost) identical tars but renamed
