@@ -125,7 +125,7 @@ class ProjectStatusCalculator
 
   # parse the jobhistory and put the result in a format we can cache
   def parse_jobhistory(dname, repo, arch)
-    uri = '/build/%s/%s/%s/_jobhistory?code=lastfailures' % [CGI.escape(dname), CGI.escape(repo), arch]
+    uri = "/build/#{CGI.escape(dname)}/#{CGI.escape(repo)}/#{arch}/_jobhistory?code=lastfailures"
 
     ret = []
     d = Backend::Connection.get(uri).body

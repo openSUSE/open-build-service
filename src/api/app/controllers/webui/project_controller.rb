@@ -982,7 +982,7 @@ class Webui::ProjectController < Webui::WebuiController
     dproject = dp.project
     currentpack['develproject'] = dproject
     currentpack['develpackage'] = dp.name
-    key = '%s/%s' % [dproject, dp.name]
+    key = "#{dproject}/#{dp.name}"
     if @submits.has_key? key
       currentpack['requests_to'].concat(@submits[key])
     end
