@@ -57,10 +57,6 @@ module Clockwork
     BackendPackage.refresh_dirty
   end
 
-  every(10.minutes, 'project log rotates') do
-    ProjectLogRotate.new.delay.perform
-  end
-
   every(1.day, 'clean old events') do
     CleanupEvents.perform_later
   end

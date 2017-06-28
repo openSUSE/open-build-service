@@ -87,8 +87,6 @@ class Project < ApplicationRecord
 
   has_many :comments, as: :commentable, dependent: :destroy
 
-  has_many :project_log_entries, dependent: :delete_all
-
   has_many :reviews, dependent: :nullify
 
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_project_id'
