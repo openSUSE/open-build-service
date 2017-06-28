@@ -1,5 +1,6 @@
 require_dependency 'has_relationships'
 
+# rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
   include FlagHelper
   include CanRenderModel
@@ -1245,14 +1246,34 @@ class Project < ApplicationRecord
   end
 
   def open_requests
-    reviews = BsRequest.collection(project: name, states: %w(review)).map(&:number)
-    targets = BsRequest.collection(project: name, states: %w(new)).map(&:number)
-    incidents = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_incident)).map(&:number)
+    reviews = BsRequest.with_involved_projects(id)
+                       .or(BsRequest.with_source_projects(id))
+                       .with_actions_and_reviews
+                       .where(state: :review, reviews: { state: :new })
+                       .pluck(:number)
 
+    targets = BsRequest.with_involved_projects(id)
+                       .or(BsRequest.with_source_projects(id))
+                       .in_states(:new).with_actions
+                       .pluck(:number)
+
+    incidents = BsRequest.with_involved_projects(id)
+                         .or(BsRequest.with_source_projects(id))
+                         .in_states(:new)
+                         .with_types(:maintenance_incident)
+                         .with_actions
+                         .pluck(:number)
+
+    maintenance_release = []
     if is_maintenance?
-      maintenance_release = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_release), subprojects: true).map(&:number)
-    else
-      maintenance_release = []
+      project_pattern_name = name + ':%'
+
+      maintenance_release = BsRequest.with_target_subprojects(project_pattern_name)
+                                     .or(BsRequest.with_source_subprojects(project_pattern_name))
+                                     .in_states(:new)
+                                     .with_types(:maintenance_release)
+                                     .with_actions
+                                     .pluck(:number)
     end
 
     { reviews: reviews, targets: targets, incidents: incidents, maintenance_release: maintenance_release }
@@ -1681,6 +1702,7 @@ class Project < ApplicationRecord
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
 
 # == Schema Information
 #

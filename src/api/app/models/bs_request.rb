@@ -34,6 +34,10 @@ class BsRequest < ApplicationRecord
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
   scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids } ) }
   scope :with_involved_packages, ->(package_ids) { where(bs_request_actions: { target_package_id: package_ids } ) }
+  scope :with_source_projects, ->(project_ids) { where(bs_request_actions: { source_project_id: project_ids }) }
+
+  scope :with_source_subprojects, ->(project_name) { where('bs_request_actions.source_project like ?', project_name) }
+  scope :with_target_subprojects, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
 
   scope :in_states, ->(states) { where(state: states) }
   scope :with_types, ->(types) { where('bs_request_actions.type in (?)', types) }
