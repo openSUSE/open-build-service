@@ -567,6 +567,7 @@ our $buildinfo = [
 	    'server',	# internal
 	    'url',	# external
      ]],
+	'containerannotation',	# temporary hack
 	'expanddebug',
 	'followupfile',	# for two-stage builds
 	'masterdispatched',	# dispatched through a master dispatcher

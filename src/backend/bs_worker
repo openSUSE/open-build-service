@@ -2303,6 +2303,10 @@ sub getbinaries {
       push @{$buildinfo->{'containerurl'}}, "obs:/$repo->{'project'}/$repo->{'repository'}/$res->[0]->{'name'}";
       push @meta, "$res->[0]->{'md5'}  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
     }
+    if ($buildinfo->{'containerannotation'}) {
+      mkdir_p("$srcdir/containers");
+      writestr("$srcdir/containers/annotation", undef, $buildinfo->{'containerannotation'});
+    }
   }
 
   if (!$kiwimode) {

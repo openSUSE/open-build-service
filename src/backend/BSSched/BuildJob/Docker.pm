@@ -161,6 +161,7 @@ sub check {
       if ($annotation_xml) {
 	my $annotation = BSUtil::fromxml($annotation_xml, $BSXML::binannotation, 1);
 	if ($annotation) {
+	  $cbdep->{'annotation'} = $annotation_xml;
 	  for my $r (@{$annotation->{'repo'} || []}) {
 	    my $url = $r->{'url'};
 	    next unless $url;
@@ -332,6 +333,7 @@ sub build {
     $ctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx, 'expander' => $xp}, ref($ctx);
     $ctx->{'extrabdeps'} = [ $cbdep ] if $cbdep;
     $ctx->{'containerpath'} = [ $cprp ] if $cbdep && $cprp;
+    $ctx->{'containerannotation'} = delete $cbdep->{'annotation'} if $cbdep;
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
   if ($ctx->{'dobuildinfo'}) {
@@ -354,9 +356,11 @@ sub build {
     push @bdeps, $cbdep if $cbdep;
     $ctx = bless { %$ctx, 'extrabdeps' => \@bdeps, 'realctx' => $ctx}, ref($ctx);
     $ctx->{'containerpath'} = [ $cprp ] if $cbdep && $cprp;
+    $ctx->{'containerannotation'} = delete $cbdep->{'annotation'} if $cbdep;
   } elsif ($cbdep) {
     $ctx = bless { %$ctx, 'extrabdeps' => [ $cbdep ], 'realctx' => $ctx}, ref($ctx);
     $ctx->{'containerpath'} = [ $cprp ] if $cbdep && $cprp;
+    $ctx->{'containerannotation'} = delete $cbdep->{'annotation'} if $cbdep;
   }
   # repo has a configured path, expand docker build system with it
   return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
