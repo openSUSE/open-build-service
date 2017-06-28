@@ -1,4 +1,6 @@
-xml.product(name: my_model.name, originproject: my_model.package.project.name) do
+xml.product(name: my_model.name,
+            originproject: my_model.package.project.name,
+            originpackage: my_model.package.name) do
 
   xml.cpe(my_model.cpe)
 
