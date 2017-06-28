@@ -853,7 +853,7 @@ class User < ApplicationRecord
 
   def nr_of_requests_that_need_work
     Rails.cache.fetch("requests_for_#{login}", expires_in: 2.minutes) do
-      BsRequest.collection(user: login, states: %w(declined), roles: %w(creator)).count +
+      declined_requests.count +
       BsRequest.collection(user: login, states: %w(new), roles: %w(maintainer)).count +
       BsRequest.collection(user: login, roles: %w(reviewer), reviewstates: %w(new), states: %w(review)).count
     end
