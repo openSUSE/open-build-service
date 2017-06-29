@@ -164,10 +164,11 @@ sub get_projpacks {
     }
     if ($@ || !$projpacksin) {
       print $@ if $@;
-      if (@args) {
+      if (grep {!/^partition=/} @args) {
 	print "retrying...\n";
-	get_projpacks($gctx, undef);
 	$gctx->{'get_projpacks_postprocess_needed'} = 1;	# just in case...
+	get_projpacks($gctx, undef);
+	get_projpacks_postprocess($gctx) if $gctx->{'get_projpacks_postprocess_needed'};
 	return 1;
       }
       die("could not get project/package information, aborting due to testmode\n") if $gctx->{'testmode'};
