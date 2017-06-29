@@ -7,12 +7,14 @@ RSpec.describe EventFindSubscriptions do
     let!(:user2) { create(:confirmed_user) }
     let!(:group1) { create(:group) }
     let!(:group2) { create(:group) }
+    let!(:group3) { create(:group, email: '') }
 
     let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: comment_author) }
     let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: user1) }
     let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: user2) }
     let!(:subscription4) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group1) }
     let!(:subscription5) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group2) }
+    let!(:subscription6) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group3) }
 
     let!(:comment) { create(:comment_project, body: "Hey @#{user1.login} how are things?", user: comment_author) }
     let(:event) { Event::CommentForProject.first }
@@ -25,6 +27,10 @@ RSpec.describe EventFindSubscriptions do
 
     it 'does not include the author of the comment' do
       expect(subject).not_to include(subscription1)
+    end
+
+    it 'does not include the group with no email set' do
+      expect(subject).not_to include(subscription6)
     end
   end
 end

@@ -106,6 +106,7 @@ class EventFindSubscriptions
     subscribers_and_subscriptions = Hash.new
 
     @toconsider.each do |subscription|
+      next if subscription.subscriber.email.blank?
       subscribers_and_subscriptions[subscription.subscriber] ||= []
       subscribers_and_subscriptions[subscription.subscriber] << subscription
     end
