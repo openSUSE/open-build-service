@@ -8,7 +8,7 @@
       = comment_body(comment)
       = render partial: 'webui/comment/links', locals: { comment: comment }
       = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
-  .comment_new.grid_16.alpha.omega
+  .comment_new.alpha.omega
     = render partial: 'webui/comment/new', locals: { commentable: commentable }
 - content_for :ready_function do
   setup_comment_page();
