@@ -21,7 +21,7 @@ class Product < ApplicationRecord
   def self.all_products( project, expand = nil )
     return project.expand_all_products if expand
 
-    joins(:package).where("packages.project_id = ? and packages.name = '_product'", project.id)
+    joins(package: :package_kinds).where(packages: {project: project}, package_kinds: {kind: 'product'})
   end
 
   def to_axml(_opts = {})
