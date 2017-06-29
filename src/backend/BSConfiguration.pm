@@ -88,5 +88,6 @@ $BSConfig::rundir                   = $BSConfig::rundir                   || "$B
 $BSConfig::servicetempdir           = $BSConfig::servicetempdir           || "$BSConfig::bsdir/service";
 $BSConfig::scm_cache_high_watermark = $BSConfig::scm_cache_high_watermark || 80;
 $BSConfig::scm_cache_low_watermark  = $BSConfig::scm_cache_low_watermark  || 70;
+$BSConfig::service_timeout          = $BSConfig::service_timeout          || 3600;
 
 1;

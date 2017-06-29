@@ -146,7 +146,7 @@ sub runservice {
       'data'      => \&BSHTTP::cpio_sender,
       'cpiofiles' => \@send,
       'directory' => $odir,
-      'timeout'   => 3600,
+      'timeout'   => $BSConfig::service_timeout,
       'withmd5'   => 1,
       'receiver' => \&BSHTTP::cpio_receiver,
     }, undef);
