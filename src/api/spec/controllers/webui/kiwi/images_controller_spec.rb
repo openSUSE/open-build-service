@@ -50,10 +50,10 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
   end
 
   describe 'GET #show' do
-    let(:package) { create(:package_with_kiwi_image, name: 'fake_package', project: project) }
+    let(:kiwi_image) { create(:kiwi_image_with_package, name: 'fake_package', project: project, with_kiwi_file: true) }
 
     before do
-      get :show, params: { id: package.kiwi_image_id }
+      get :show, params: { id: kiwi_image }
     end
 
     it { expect(response.content_type).to eq("application/json") }

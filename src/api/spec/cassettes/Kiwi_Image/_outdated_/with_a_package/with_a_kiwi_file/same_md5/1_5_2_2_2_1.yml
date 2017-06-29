@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Noli Me Tangere</title>
+          <title>Endless Night</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '102'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Noli Me Tangere</title>
+          <title>Endless Night</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 13:18:11 GMT
+  recorded_at: Thu, 29 Jun 2017 12:51:30 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Eaque sed a et atque sapiente asperiores. Pariatur at rem. Ducimus animi
-        explicabo quisquam. Eaque excepturi expedita.
+      string: Nihil et non asperiores incidunt placeat. Optio eum quaerat fuga molestias.
+        Maiores saepe adipisci. Fugit id doloremque voluptate ut nemo.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,16 +72,16 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 13:18:11 GMT
+  recorded_at: Thu, 29 Jun 2017 12:51:30 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/_meta?user=_nobody_
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_file/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_image" project="fake_project">
-          <title>The Cricket on the Hearth</title>
-          <description>Non eius laudantium cupiditate laborum et et dolor.</description>
+        <package name="package_with_kiwi_file" project="fake_project">
+          <title>Blithe Spirit</title>
+          <description>Dicta voluptas non pariatur molestiae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,25 +102,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '173'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_image" project="fake_project">
-          <title>The Cricket on the Hearth</title>
-          <description>Non eius laudantium cupiditate laborum et et dolor.</description>
+        <package name="package_with_kiwi_file" project="fake_project">
+          <title>Blithe Spirit</title>
+          <description>Dicta voluptas non pariatur molestiae.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 13:18:11 GMT
+  recorded_at: Thu, 29 Jun 2017 12:51:30 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/_meta
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_file/_meta
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_image" project="fake_project">
-          <title>The Cricket on the Hearth</title>
-          <description>Non eius laudantium cupiditate laborum et et dolor.</description>
+        <package name="package_with_kiwi_file" project="fake_project">
+          <title>Blithe Spirit</title>
+          <description>Dicta voluptas non pariatur molestiae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -141,19 +141,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '173'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_image" project="fake_project">
-          <title>The Cricket on the Hearth</title>
-          <description>Non eius laudantium cupiditate laborum et et dolor.</description>
+        <package name="package_with_kiwi_file" project="fake_project">
+          <title>Blithe Spirit</title>
+          <description>Dicta voluptas non pariatur molestiae.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 13:18:11 GMT
+  recorded_at: Thu, 29 Jun 2017 12:51:30 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/package_with_kiwi_image.kiwi
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_file/package_with_kiwi_file.kiwi
     body:
       encoding: UTF-8
       string: |
@@ -186,29 +186,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>3822662924706b810ffb158183355052</srcmd5>
+        <revision rev="28" vrev="28">
+          <srcmd5>c89de9a0b4429864bbc184287d720a9d</srcmd5>
           <version>unknown</version>
-          <time>1498742291</time>
+          <time>1498740690</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 13:18:11 GMT
+  recorded_at: Thu, 29 Jun 2017 12:51:30 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/_meta?user=_nobody_
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_file/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_image" project="fake_project">
-          <title>The Cricket on the Hearth</title>
-          <description>Non eius laudantium cupiditate laborum et et dolor.</description>
+        <package name="package_with_kiwi_file" project="fake_project">
+          <title>Blithe Spirit</title>
+          <description>Dicta voluptas non pariatur molestiae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -229,19 +229,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '173'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_image" project="fake_project">
-          <title>The Cricket on the Hearth</title>
-          <description>Non eius laudantium cupiditate laborum et et dolor.</description>
+        <package name="package_with_kiwi_file" project="fake_project">
+          <title>Blithe Spirit</title>
+          <description>Dicta voluptas non pariatur molestiae.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 13:18:11 GMT
+  recorded_at: Thu, 29 Jun 2017 12:51:30 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_file
     body:
       encoding: US-ASCII
       string: ''
@@ -268,14 +268,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="3" vrev="3" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1498742218" />
+        <directory name="package_with_kiwi_file" rev="28" vrev="28" srcmd5="c89de9a0b4429864bbc184287d720a9d">
+          <entry name="package_with_kiwi_file.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1498736048" />
         </directory>
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 13:18:11 GMT
+  recorded_at: Thu, 29 Jun 2017 12:51:30 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_file
     body:
       encoding: US-ASCII
       string: ''
@@ -302,14 +302,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="3" vrev="3" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1498742218" />
+        <directory name="package_with_kiwi_file" rev="28" vrev="28" srcmd5="c89de9a0b4429864bbc184287d720a9d">
+          <entry name="package_with_kiwi_file.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1498736048" />
         </directory>
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 13:18:11 GMT
+  recorded_at: Thu, 29 Jun 2017 12:51:30 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_file
     body:
       encoding: US-ASCII
       string: ''
@@ -336,14 +336,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="3" vrev="3" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1498742218" />
+        <directory name="package_with_kiwi_file" rev="28" vrev="28" srcmd5="c89de9a0b4429864bbc184287d720a9d">
+          <entry name="package_with_kiwi_file.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1498736048" />
         </directory>
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 13:18:11 GMT
+  recorded_at: Thu, 29 Jun 2017 12:51:30 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_file
     body:
       encoding: US-ASCII
       string: ''
@@ -370,14 +370,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="3" vrev="3" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1498742218" />
+        <directory name="package_with_kiwi_file" rev="28" vrev="28" srcmd5="c89de9a0b4429864bbc184287d720a9d">
+          <entry name="package_with_kiwi_file.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1498736048" />
         </directory>
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 13:18:12 GMT
+  recorded_at: Thu, 29 Jun 2017 12:51:30 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_file
     body:
       encoding: US-ASCII
       string: ''
@@ -404,9 +404,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="3" vrev="3" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1498742218" />
+        <directory name="package_with_kiwi_file" rev="28" vrev="28" srcmd5="c89de9a0b4429864bbc184287d720a9d">
+          <entry name="package_with_kiwi_file.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1498736048" />
         </directory>
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 13:18:12 GMT
+  recorded_at: Thu, 29 Jun 2017 12:51:30 GMT
 recorded_with: VCR 3.0.3

@@ -74,8 +74,8 @@ FactoryGirl.define do
         # NOTE: Enable global write through when writing new VCR cassetes.
         # ensure the backend knows the project
         if CONFIG['global_write_through']
-          package_name = CGI.escape(package.name)
-          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{package_name}/#{package_name}.kiwi", evaluator.kiwi_file_content)
+          full_path = "/source/#{package.project.name}/#{package.name}/#{package.name}.kiwi"
+          Backend::Connection.put(URI.escape(full_path), evaluator.kiwi_file_content)
         end
       end
     end

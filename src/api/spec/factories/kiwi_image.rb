@@ -1,15 +1,24 @@
 FactoryGirl.define do
   factory :kiwi_image, class: Kiwi::Image do
     name { Faker::Name.name }
-    md5_last_revision { Faker::Crypto.md5 }
+    md5_last_revision nil
 
     factory :kiwi_image_with_package do
       transient do
-        package_name { 'package_with_kiwi_image' }
+        package_name 'package_with_kiwi_image'
+        with_kiwi_file false
+        file_content { Kiwi::Image::DEFAULT_KIWI_BODY }
+        project nil
       end
 
       after(:create) do |image, evaluator|
-        image.package = create(:package, name: evaluator.package_name)
+        if evaluator.with_kiwi_file
+          image.package =
+            create(:package_with_kiwi_file, name: evaluator.package_name, project: evaluator.project, kiwi_file_content: evaluator.file_content)
+          image.md5_last_revision = image.package.kiwi_file_md5
+        else
+          image.package = create(:package, name: evaluator.package_name, project: evaluator.project)
+        end
         image.save
       end
     end

@@ -96,6 +96,26 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
   end
 
   describe '.to_xml' do
+    context 'without a package' do
+      context 'without any repository' do
+        it { expect(kiwi_image.to_xml).to eq(Kiwi::Image::DEFAULT_KIWI_BODY) }
+      end
+
+      context 'with some repositories' do
+        before do
+          kiwi_image.repositories << create(:kiwi_repository)
+        end
+
+        subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
+
+        it { expect(subject.errors).to be_empty }
+        it { expect(subject.xpath('.//image').length).to be(1) }
+        it { expect(subject.xpath('.//image/description').length).to be(1) }
+        it { expect(subject.xpath('.//image/packages').length).to be(1) }
+        it { expect(subject.xpath('.//image/repository').length).to be(1) }
+      end
+    end
+
     context 'without kiwi image file' do
       it 'returns nil' do
         dbl_package = double("Some Package")
@@ -121,6 +141,51 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.xpath('.//image/description').length).to be(1) }
       it { expect(subject.xpath('.//image/packages/package').length).to be(20) }
       it { expect(subject.xpath('.//image/repository').length).to be(0) }
+    end
+  end
+
+  describe '.write_to_backend' do
+    context 'without a package' do
+      it { expect(kiwi_image.write_to_backend).to be(false) }
+      it 'will not call save! method' do
+        expect(kiwi_image).not_to receive(:save!)
+        kiwi_image.write_to_backend
+      end
+    end
+  end
+
+  describe '.outdated?' do
+    context 'without a package' do
+      it { expect(kiwi_image.outdated?).to be(false) }
+    end
+
+    context 'with a package' do
+      let(:project) { create(:project, name: 'fake_project') }
+
+      context 'without a kiwi file' do
+        let(:kiwi_image_with_package) { create(:kiwi_image_with_package, project: project, package_name: 'package_without_kiwi_file') }
+
+        it { expect(kiwi_image_with_package.outdated?).to be(true) }
+      end
+
+      context 'with a kiwi file' do
+        let(:kiwi_image_with_package_with_kiwi_file) do
+          create(:kiwi_image_with_package, project: project, package_name: 'package_with_kiwi_file', with_kiwi_file: true)
+        end
+
+        context 'different md5' do
+          before do
+            kiwi_image_with_package_with_kiwi_file.md5_last_revision = 'FAKE md5'
+            kiwi_image_with_package_with_kiwi_file.save
+          end
+
+          it { expect(kiwi_image_with_package_with_kiwi_file.outdated?).to be(true) }
+        end
+
+        context 'same md5' do
+          it { expect(kiwi_image_with_package_with_kiwi_file.outdated?).to be(false) }
+        end
+      end
     end
   end
 end
