@@ -22,7 +22,11 @@ class Review < ApplicationRecord
   validate :validate_non_symmetric_assignment
   validate :validate_not_self_assigned
 
-  belongs_to :reviewable, polymorphic: true
+  belongs_to :user
+  belongs_to :group
+  belongs_to :project
+  belongs_to :package
+
   belongs_to :review_assigned_from, class_name: 'Review', foreign_key: :review_id
   has_one :review_assigned_to, class_name: 'Review', foreign_key: :review_id
 
@@ -101,15 +105,15 @@ class Review < ApplicationRecord
       errors.add(:base, 'it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package.')
     end
 
-    if by_user && !reviewable
+    if by_user && !user
       errors.add(:by_user, "#{by_user} not found")
     end
 
-    if by_group && !reviewable
+    if by_group && !group
       errors.add(:by_group, "#{by_group} not found")
     end
 
-    if by_project && !reviewable
+    if by_project && !project
       # must be a local project or we can't ask
       errors.add(:by_project, "#{by_project} not found")
     end
@@ -117,7 +121,7 @@ class Review < ApplicationRecord
     if by_package && !by_project
       errors.add(:unknown, 'by_package defined, but missing by_project')
     end
-    return unless by_package && !reviewable
+    return unless by_package && !package
 
     # must be a local package. maybe we should rewrite in case the
     # package comes via local project link...
@@ -217,15 +221,10 @@ class Review < ApplicationRecord
   # The authoritative storage are the by_ attributes as even when a record (project, package ...) got deleted
   # the review should still be usable, however, the entity association is nullified
   def set_reviewable_association
-    if by_package && by_project
-      self.reviewable = Package.find_by_project_and_name(by_project, by_package)
-    elsif by_project
-      self.reviewable = Project.find_by_name(by_project)
-    elsif by_user
-      self.reviewable = User.find_by(login: by_user)
-    elsif by_group
-      self.reviewable = Group.find_by(title: by_group)
-    end
+    self.package = Package.find_by_project_and_name(by_project, by_package)
+    self.project = Project.find_by_name(by_project)
+    self.user = User.find_by(login: by_user)
+    self.group = Group.find_by(title: by_group)
   end
 
   def validate_reviewer_fields
@@ -237,35 +236,40 @@ end
 #
 # Table name: reviews
 #
-#  id              :integer          not null, primary key
-#  bs_request_id   :integer          indexed
-#  creator         :string(255)      indexed
-#  reviewer        :string(255)      indexed
-#  reason          :text(65535)
-#  state           :string(255)      indexed => [by_project], indexed => [by_user]
-#  by_user         :string(255)      indexed, indexed => [state]
-#  by_group        :string(255)      indexed
-#  by_project      :string(255)      indexed => [by_package], indexed, indexed => [state]
-#  by_package      :string(255)      indexed => [by_project]
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
-#  review_id       :integer          indexed
-#  reviewable_type :string(255)      indexed => [reviewable_id]
-#  reviewable_id   :integer          indexed => [reviewable_type]
+#  id            :integer          not null, primary key
+#  bs_request_id :integer          indexed
+#  creator       :string(255)      indexed
+#  reviewer      :string(255)      indexed
+#  reason        :text(65535)
+#  state         :string(255)      indexed => [by_project], indexed => [by_user]
+#  by_user       :string(255)      indexed, indexed => [state]
+#  by_group      :string(255)      indexed
+#  by_project    :string(255)      indexed => [by_package], indexed, indexed => [state]
+#  by_package    :string(255)      indexed => [by_project]
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  review_id     :integer          indexed
+#  user_id       :integer          indexed
+#  group_id      :integer          indexed
+#  project_id    :integer          indexed
+#  package_id    :integer          indexed
 #
 # Indexes
 #
-#  bs_request_id                                       (bs_request_id)
-#  index_reviews_on_by_group                           (by_group)
-#  index_reviews_on_by_package_and_by_project          (by_package,by_project)
-#  index_reviews_on_by_project                         (by_project)
-#  index_reviews_on_by_user                            (by_user)
-#  index_reviews_on_creator                            (creator)
-#  index_reviews_on_review_id                          (review_id)
-#  index_reviews_on_reviewable_type_and_reviewable_id  (reviewable_type,reviewable_id)
-#  index_reviews_on_reviewer                           (reviewer)
-#  index_reviews_on_state_and_by_project               (state,by_project)
-#  index_reviews_on_state_and_by_user                  (state,by_user)
+#  bs_request_id                               (bs_request_id)
+#  index_reviews_on_by_group                   (by_group)
+#  index_reviews_on_by_package_and_by_project  (by_package,by_project)
+#  index_reviews_on_by_project                 (by_project)
+#  index_reviews_on_by_user                    (by_user)
+#  index_reviews_on_creator                    (creator)
+#  index_reviews_on_group_id                   (group_id)
+#  index_reviews_on_package_id                 (package_id)
+#  index_reviews_on_project_id                 (project_id)
+#  index_reviews_on_review_id                  (review_id)
+#  index_reviews_on_reviewer                   (reviewer)
+#  index_reviews_on_state_and_by_project       (state,by_project)
+#  index_reviews_on_state_and_by_user          (state,by_user)
+#  index_reviews_on_user_id                    (user_id)
 #
 # Foreign Keys
 #
