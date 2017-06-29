@@ -918,17 +918,20 @@ class SourceController < ApplicationController
   # freeze project link, either creating the freeze or updating it
   # POST /source/<project>?cmd=freezelink
   def project_command_freezelink
-    path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :user, :comment])
-    pass_to_backend path
+    pass_to_backend(request.path_info + build_query_from_hash(params, [:cmd, :user, :comment]))
   end
 
   # add channel packages and extend repository list
   # POST /source/<project>?cmd=addchannels
   def project_command_addchannels
-    mode = :add_disabled
-    mode = :skip_disabled if params[:mode] == "skip_disabled"
-    mode = :enable_all    if params[:mode] == "enable_all"
+    mode = case params[:mode]
+           when "skip_disabled"
+             :skip_disabled
+           when "enable_all"
+             :enable_all
+           else
+             :add_disabled
+    end
 
     @project.packages.each do |pkg|
       pkg.add_channels(mode)
