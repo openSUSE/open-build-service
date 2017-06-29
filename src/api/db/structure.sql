@@ -713,8 +713,6 @@ CREATE TABLE `messages` (
 
 CREATE TABLE `notifications` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `group_id` int(11) DEFAULT NULL,
   `type` varchar(255) NOT NULL,
   `event_type` varchar(255) NOT NULL,
   `event_payload` text NOT NULL,
@@ -722,9 +720,10 @@ CREATE TABLE `notifications` (
   `delivered` tinyint(1) DEFAULT '0',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  `subscriber_type` varchar(255) DEFAULT NULL,
+  `subscriber_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_notifications_on_user_id` (`user_id`),
-  KEY `index_notifications_on_group_id` (`group_id`)
+  KEY `index_notifications_on_subscriber_type_and_subscriber_id` (`subscriber_type`,`subscriber_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `package_issues` (
@@ -1095,6 +1094,7 @@ CREATE TABLE `tokens` (
   `string` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `user_id` int(11) NOT NULL,
   `package_id` int(11) DEFAULT NULL,
+  `type` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_tokens_on_string` (`string`) USING BTREE,
   KEY `user_id` (`user_id`) USING BTREE,
@@ -1477,6 +1477,8 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170516140442'),
 ('20170607110443'),
 ('20170614083014'),
+('20170619111734'),
+('20170621083718'),
 ('20170621100321'),
 ('20170621103748'),
 ('20170628115727'),

@@ -266,7 +266,7 @@ class PersonController < ApplicationController
   # GET /person/<login>/token
   def tokenlist
     user = User.get_by_login(params[:login])
-    @list = user.tokens
+    @list = user.service_tokens
   end
 
   # POST /person/<login>/token
@@ -280,7 +280,7 @@ class PersonController < ApplicationController
     if params[:project] || params[:package]
       pkg = Package.get_by_project_and_name( params[:project], params[:package] )
     end
-    @token = Token.create( user: user, package: pkg )
+    @token = Token::Service.create( user: user, package: pkg )
   end
 
   class TokenNotFound < APIException
@@ -291,7 +291,7 @@ class PersonController < ApplicationController
   def delete_token
     user = User.get_by_login(params[:login])
 
-    token = Token.where( user_id: user.id, id: params[:id] ).first
+    token = Token::Service.where( user_id: user.id, id: params[:id] ).first
     raise TokenNotFound, "Specified token \"#{params[:id]}\" got not found" unless token
     token.destroy
     render_ok

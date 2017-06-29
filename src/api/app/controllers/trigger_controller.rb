@@ -19,7 +19,7 @@ class TriggerController < ApplicationController
       return
     end
 
-    token = Token.find_by_string auth[6..-1]
+    token = Token::Service.find_by_string(auth[6..-1])
 
     unless token
       render_error message: "Token not found", status: 404

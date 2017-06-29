@@ -1,10 +1,4 @@
-class Token < ApplicationRecord
-  belongs_to :user, foreign_key: 'user_id', inverse_of: :service_tokens
-  belongs_to :package, inverse_of: :tokens
-
-  has_secure_token :string
-
-  validates :user_id, presence: true
+class Token::Service < Token
 end
 
 # == Schema Information

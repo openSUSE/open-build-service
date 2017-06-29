@@ -19,4 +19,4 @@ Review reason set by <%= event['who'] %>:
 Request description:
 <%= event['description'] %>
 
-<%= render partial: 'actions', locals: { event: event } -%>
+<%= render partial: 'event_mailer/actions', locals: { event: event } -%>

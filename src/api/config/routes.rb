@@ -58,6 +58,7 @@ OBSApi::Application.routes.draw do
       get 'main/news' => :news, as: :news_feed
       get 'main/latest_updates' => :latest_updates, as: :latest_updates_feed
       get 'project/latest_commits/:project' => :commits, defaults: { format: 'atom' }, constraints: cons, as: 'commits_feed'
+      get 'user/feed/:token' => :notifications, defaults: { format: 'rss' }, as: :user_rss_notifications
     end
 
     resources :attribs, constraints: cons, only: [:create, :update, :destroy], controller: 'webui/attribute' do
@@ -351,6 +352,10 @@ OBSApi::Application.routes.draw do
     # possible for nested resources atm.
     controller 'webui/users/bs_requests' do
       get 'users/(:user)/requests' => :index, as: 'user_requests'
+    end
+
+    controller 'webui/users/rss_tokens' do
+      post 'users/rss_tokens' => :create, as: 'user_rss_token'
     end
 
     controller 'webui/groups' do

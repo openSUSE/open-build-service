@@ -40,4 +40,17 @@ class Webui::FeedsController < Webui::WebuiController
     @commits = @commits.where(["datetime <= ?", @finish]) unless @finish.nil?
     @commits = @commits.order("datetime desc")
   end
+
+  def notifications
+    token = Token::Rss.find_by_string(params[:token])
+    if token
+      @configuration = ::Configuration.first
+      @user = token.user
+      @notifications = token.user.combined_rss_feed_items
+      @host = ::Configuration.obs_url
+    else
+      flash[:error] = "Unknown Token for RSS feed"
+      redirect_back(fallback_location: root_path)
+    end
+  end
 end

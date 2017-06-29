@@ -30,27 +30,27 @@ RSpec.describe SendEventEmails, type: :job do
     end
 
     it "creates an rss notification for user's email" do
-      notification = Notifications::Base.find_by(user: user)
+      notification = Notification.find_by(subscriber: user)
 
-      expect(notification.type).to eq('Notifications::RssFeedItem')
+      expect(notification.type).to eq('Notification::RssFeedItem')
       expect(notification.event_type).to eq('Event::CommentForProject')
-      expect(notification.event_payload).to include('how are things?')
+      expect(notification.event_payload['comment_body']).to include('how are things?')
       expect(notification.subscription_receiver_role).to eq('all')
       expect(notification.delivered).to be_falsey
     end
 
     it "creates an rss notification for group's email" do
-      notification = Notifications::RssFeedItem.find_by(group: group)
+      notification = Notification::RssFeedItem.find_by(subscriber: group)
 
-      expect(notification.type).to eq('Notifications::RssFeedItem')
+      expect(notification.type).to eq('Notification::RssFeedItem')
       expect(notification.event_type).to eq('Event::CommentForProject')
-      expect(notification.event_payload).to include('how are things?')
+      expect(notification.event_payload['comment_body']).to include('how are things?')
       expect(notification.subscription_receiver_role).to eq('all')
       expect(notification.delivered).to be_falsey
     end
 
     it 'only creates two notifications' do
-      expect(Notifications::Base.count).to eq(2)
+      expect(Notification.count).to eq(2)
     end
   end
 end

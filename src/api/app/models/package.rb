@@ -124,9 +124,9 @@ class Package < ApplicationRecord
   validate :valid_name
 
   has_one :backend_package, foreign_key: :package_id, dependent: :destroy, inverse_of: :package
-  has_one :token, foreign_key: :package_id, dependent: :destroy
+  has_one :token, class_name: 'Token::Service', foreign_key: :package_id, dependent: :destroy
 
-  has_many :tokens, dependent: :destroy, inverse_of: :package
+  has_many :tokens, class_name: 'Token::Service', dependent: :destroy, inverse_of: :package
 
   def self.check_access?(package)
     return false if package.nil?

@@ -31,7 +31,7 @@ To REVIEW against the previous version:
 
 To ACCEPT the request:
    osc request accept REQUESTID --message="reviewed ok."
-   
+
 To DECLINE the request:
    osc request decline REQUESTID --message="declined for reason xyz (see ... for background / policy / ...)."
 

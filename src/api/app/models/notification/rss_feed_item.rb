@@ -1,21 +1,18 @@
-class Notifications::RssFeedItem < Notifications::Base
+class Notification::RssFeedItem < Notification
   MAX_ITEMS_PER_USER = 10
   MAX_ITEMS_PER_GROUP = 10
 
   def self.cleanup
     User.all_without_nobody.find_in_batches batch_size: 500 do |batch|
       batch.each do |user|
-        if user.is_active?
-          ids = user.rss_feed_items.pluck(:id).slice(MAX_ITEMS_PER_USER..-1)
-          user.rss_feed_items.where(id: ids).delete_all
-        else
-          user.rss_feed_items.delete_all
-        end
+        offset = user.is_active? ? MAX_ITEMS_PER_USER : 0
+        ids = user.rss_feed_items.offset(offset).pluck(:id)
+        user.rss_feed_items.where(id: ids).delete_all
       end
     end
     Group.find_in_batches batch_size: 500 do |batch|
       batch.each do |group|
-        ids = group.rss_feed_items.pluck(:id).slice(MAX_ITEMS_PER_GROUP..-1)
+        ids = group.rss_feed_items.offset(MAX_ITEMS_PER_GROUP).pluck(:id)
         group.rss_feed_items.where(id: ids).delete_all
       end
     end
@@ -27,8 +24,6 @@ end
 # Table name: notifications
 #
 #  id                         :integer          not null, primary key
-#  user_id                    :integer          indexed
-#  group_id                   :integer          indexed
 #  type                       :string(255)      not null
 #  event_type                 :string(255)      not null
 #  event_payload              :text(65535)      not null
@@ -36,9 +31,10 @@ end
 #  delivered                  :boolean          default(FALSE)
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
+#  subscriber_type            :string(255)      indexed => [subscriber_id]
+#  subscriber_id              :integer          indexed => [subscriber_type]
 #
 # Indexes
 #
-#  index_notifications_on_group_id  (group_id)
-#  index_notifications_on_user_id   (user_id)
+#  index_notifications_on_subscriber_type_and_subscriber_id  (subscriber_type,subscriber_id)
 #

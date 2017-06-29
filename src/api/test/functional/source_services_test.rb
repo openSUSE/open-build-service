@@ -498,12 +498,12 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     doc = REXML::Document.new(@response.body)
     alltoken = doc.elements['//data'].text
-    assert_equal 40, alltoken.length
+    assert_equal 24, alltoken.length
     post '/person/tom/token?cmd=create&project=home:tom&package=service'
     assert_response :success
     doc = REXML::Document.new(@response.body)
     token = doc.elements['//data'].text
-    assert_equal 40, token.length
+    assert_equal 24, token.length
 
     # ANONYMOUS
     reset_auth

@@ -45,6 +45,9 @@
         %br/
       = link_to(sprited_text('email', 'Change your notifications'), user_notifications_path)
       %br/
+      - if @displayed_user.rss_token
+        = link_to(sprited_text('feeds', 'RSS for notifications'), user_rss_notifications_path(token: @displayed_user.rss_token.string, format: 'rss'), { title: 'RSS Feed for Notifications' })
+        %br/
 
 .grid_12.omega.box.box-shadow
   #involved

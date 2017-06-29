@@ -36,7 +36,8 @@ class User < ApplicationRecord
   has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
   has_many :messages
-  has_many :tokens, dependent: :destroy, inverse_of: :user
+  has_many :service_tokens, class_name: 'Token::Service', dependent: :destroy, inverse_of: :user
+  has_one :rss_token, class_name: 'Token::Rss', dependent: :destroy
 
   has_many :reviews, dependent: :nullify, as: :reviewable
 
@@ -54,7 +55,7 @@ class User < ApplicationRecord
   # users have 0..1 user_registration records assigned to them
   has_one :user_registration
 
-  has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notifications::RssFeedItem', dependent: :destroy
+  has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
 
   scope :all_without_nobody, -> { where("login != ?", nobody_login) }
 
@@ -902,6 +903,12 @@ class User < ApplicationRecord
     address = Mail::Address.new email
     address.display_name = realname
     address.format
+  end
+
+  def combined_rss_feed_items
+    Notification::RssFeedItem.where(subscriber: self).or(
+      Notification::RssFeedItem.where(subscriber: groups)
+    ).order(created_at: :desc, id: :desc).limit(Notification::RssFeedItem::MAX_ITEMS_PER_USER)
   end
 
   private
