@@ -80,10 +80,6 @@ FactoryGirl.define do
       end
     end
 
-    factory :package_with_kiwi_image do
-      kiwi_image
-    end
-
     factory :package_with_failed_comment_attribute do
       after(:create) do |package|
         create(:project_status_package_fail_comment_attrib, package: package)

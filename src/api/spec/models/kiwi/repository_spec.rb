@@ -68,18 +68,6 @@ RSpec.describe Kiwi::Repository, type: :model do
     it { is_expected.to allow_value(nil).for(:prefer_license) }
   end
 
-  context 'do not update with outdated image' do
-    let(:kiwi_repository) { create(:kiwi_repository_with_package) }
-    before do
-      allow_any_instance_of(Package).to receive(:kiwi_image_outdated?) { true }
-    end
-
-    it {
-      expect{ kiwi_repository.update_attributes!(priority: 3) }.to raise_error(
-        ActiveRecord::RecordInvalid, 'Validation failed: Image is invalid')
-    }
-  end
-
   describe '.to_xml' do
     subject { kiwi_repository.to_xml }
 

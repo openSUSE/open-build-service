@@ -1,13 +1,48 @@
 ---
 http_interactions:
 - request:
+    method: get
+    uri: http://localhost:3200/source/fake_project/package_without_kiwi_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'fake_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'fake_project' does not exist</summary>
+          <details>404 project 'fake_project' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Thu, 29 Jun 2017 14:45:34 GMT
+- request:
     method: put
     uri: http://localhost:3200/source/fake_project/_meta
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Dying of the Light</title>
+          <title>Oh! To be in England</title>
           <description/>
         </project>
     headers:
@@ -29,24 +64,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Dying of the Light</title>
+          <title>Oh! To be in England</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Wed, 14 Jun 2017 13:43:40 GMT
+  recorded_at: Thu, 29 Jun 2017 14:46:52 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Architecto tenetur provident sint quam ut. Reprehenderit ipsam et rerum
-        ut. Ad dolore voluptatum. Aut minima cumque illo. Molestiae eum voluptas nisi
-        ipsam.
+      string: Et distinctio nostrum autem. Nostrum harum aut et repellat. Incidunt
+        sunt omnis aliquid cumque placeat. Laboriosam est sit doloribus est et in.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -73,7 +107,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 14 Jun 2017 13:43:40 GMT
+  recorded_at: Thu, 29 Jun 2017 14:46:52 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_without_kiwi_file/_meta?user=_nobody_
@@ -81,8 +115,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>The Last Enemy</title>
-          <description>Fugiat est molestias et.</description>
+          <title>The Road Less Traveled</title>
+          <description>Voluptatem aliquam natus consequatur sit nihil.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -103,16 +137,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '194'
     body:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>The Last Enemy</title>
-          <description>Fugiat est molestias et.</description>
+          <title>The Road Less Traveled</title>
+          <description>Voluptatem aliquam natus consequatur sit nihil.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 14 Jun 2017 13:43:40 GMT
+  recorded_at: Thu, 29 Jun 2017 14:46:53 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_without_kiwi_file/_meta
@@ -120,8 +154,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>The Last Enemy</title>
-          <description>Fugiat est molestias et.</description>
+          <title>The Road Less Traveled</title>
+          <description>Voluptatem aliquam natus consequatur sit nihil.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -142,47 +176,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '194'
     body:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>The Last Enemy</title>
-          <description>Fugiat est molestias et.</description>
+          <title>The Road Less Traveled</title>
+          <description>Voluptatem aliquam natus consequatur sit nihil.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 14 Jun 2017 13:43:40 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/fake_project/package_without_kiwi_file
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '100'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_without_kiwi_file" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: 
-  recorded_at: Wed, 14 Jun 2017 13:43:40 GMT
+  recorded_at: Thu, 29 Jun 2017 14:46:53 GMT
 recorded_with: VCR 3.0.3
