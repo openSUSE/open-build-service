@@ -36,6 +36,7 @@ class EventMailer < ActionMailer::Base
     # no need to tell user about this own actions
     # TODO: make configurable?
     subscribers.delete(orig)
+    subscribers.reject! { |subscriber| subscriber.email.blank? }
     return if subscribers.empty?
 
     tos = subscribers.map(&:display_name)
