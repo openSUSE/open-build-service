@@ -5899,6 +5899,7 @@ my $dispatches = [
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? makeoriginolder:bool? resign:bool? noservice:bool?' => \&copyproject,
   'POST:/source/$project cmd=move oproject:project' => \&moveproject,
   'POST:/source/$project cmd=freezelink user:? comment:? requestid:num?' => \&freezeprojectlink,
+  'POST:/source/$project cmd=notifypackagechange' => \&notifypackagechange,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package* withchangesmd5:bool?' => \&getprojectsourceinfo,
   '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist,
