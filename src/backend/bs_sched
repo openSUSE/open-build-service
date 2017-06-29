@@ -1113,9 +1113,7 @@ eval {
       $lastschedinfo = $now;
     }
 
-    if (delete $gctx->{'prj_depsort_needed'}) {
-      BSSched::ProjPacks::get_projpacks_postprocess($gctx);
-    }
+    BSSched::ProjPacks::get_projpacks_postprocess($gctx) if $gctx->{'get_projpacks_postprocess_needed'};
   }
 
 };

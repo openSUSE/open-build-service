@@ -1084,7 +1084,8 @@ sub append_info_path {
     # add new one
     push @{$info->{'path'}}, @$path;
     $info->{'extrapathlevel'} = @$path if @$path;
-    $gctx->{'prj_depsort_needed'} = 1;
+    # we changed dependencies, trigger a postprocess
+    $gctx->{'get_projpacks_postprocess_needed'} = 1;
   } else {
     print "append_info_path: same path\n";
   }

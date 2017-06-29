@@ -167,7 +167,7 @@ sub get_projpacks {
       if (@args) {
 	print "retrying...\n";
 	get_projpacks($gctx, undef);
-	get_projpacks_postprocess($gctx);       # just in case...
+	$gctx->{'get_projpacks_postprocess_needed'} = 1;	# just in case...
 	return 1;
       }
       die("could not get project/package information, aborting due to testmode\n") if $gctx->{'testmode'};
@@ -593,6 +593,7 @@ sub clone_projpacks_part {
 sub postprocess_needed_check {
   my ($gctx, $projid, $oldprojdata) = @_;
 
+  return 1 if $gctx->{'get_projpacks_postprocess_needed'};
   my $projpacks = $gctx->{'projpacks'};
   return 0 if !defined($oldprojdata) && !$projpacks->{$projid};
   return 1 unless $oldprojdata && $oldprojdata->{'package'};            # sanity
@@ -627,6 +628,7 @@ sub postprocess_needed_check {
 sub get_projpacks_postprocess {
   my ($gctx) = @_;
 
+  delete $gctx->{'get_projpacks_postprocess_needed'};
   BSSched::Remote::beginwatchcollection($gctx);
 
   #print Dumper($projpacks);
