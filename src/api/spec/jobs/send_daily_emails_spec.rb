@@ -32,26 +32,26 @@ RSpec.describe SendDailyEmails, type: :job do
     end
 
     let!(:notification1) do
-      Notifications::DailyEmailItem.create(
+      Notification::DailyEmailItem.create(
         subscriber: subscription1.subscriber,
         event_type: event1.eventtype,
-        event_payload: event1.read_attribute(:payload),
+        event_payload: event1.payload,
         subscription_receiver_role: subscription1.receiver_role
       )
     end
     let!(:notification2) do
-      Notifications::DailyEmailItem.create(
+      Notification::DailyEmailItem.create(
         subscriber: subscription2.subscriber,
         event_type: event2.eventtype,
-        event_payload: event2.read_attribute(:payload),
+        event_payload: event2.payload,
         subscription_receiver_role: subscription2.receiver_role
       )
     end
     let!(:notification3) do
-      Notifications::DailyEmailItem.create(
+      Notification::DailyEmailItem.create(
         subscriber: subscription1.subscriber,
         event_type: event3.eventtype,
-        event_payload: event3.read_attribute(:payload),
+        event_payload: event3.payload,
         subscription_receiver_role: subscription1.receiver_role
       )
     end

@@ -1,9 +1,10 @@
 class SendDailyEmails
   def perform
-    user_notifications = Notifications::DailyEmailItem.where(group: nil, delivered: false).order(created_at: :desc).group_by(&:user)
+    notifications = Notification::DailyEmailItem.where(delivered: false).order(created_at: :desc).group_by(&:subscriber)
 
-    user_notifications.each do  |user, notifications|
-      DailyEmailMailer.notifications(user, notifications).deliver_now if notifications.any?
+    notifications.each do  |subscriber, notifications|
+      DailyEmailMailer.notifications(subscriber, notifications).deliver_now if notifications.any?
+
       notifications.each do |notification|
         notification.update_attributes(delivered: true)
       end

@@ -34,10 +34,10 @@ RSpec.describe SendEventEmails, type: :job do
     end
 
     it 'creates a daily_email notification for the group' do
-      notification = Notification::DailyEmailItem.find_by(group: group)
+      notification = Notification::DailyEmailItem.find_by(subscriber: group)
 
       expect(notification.event_type).to eq('Event::CommentForProject')
-      expect(notification.event_payload).to include('how are things?')
+      expect(notification.event_payload['comment_body']).to include('how are things?')
       expect(notification.subscription_receiver_role).to eq('all')
       expect(notification.delivered).to be_falsey
     end
@@ -45,7 +45,6 @@ RSpec.describe SendEventEmails, type: :job do
     it "creates an rss notification for user's email" do
       notification = Notification.find_by(subscriber: user)
 
-      expect(notification.type).to eq('Notification::RssFeedItem')
       expect(notification.event_type).to eq('Event::CommentForProject')
       expect(notification.event_payload['comment_body']).to include('how are things?')
       expect(notification.subscription_receiver_role).to eq('all')
@@ -53,9 +52,8 @@ RSpec.describe SendEventEmails, type: :job do
     end
 
     it "creates an rss notification for group's email" do
-      notification = Notification.find_by(subscriber: group)
+      notification = Notification::RssFeedItem.find_by(subscriber: group)
 
-      expect(notification.type).to eq('Notification::RssFeedItem')
       expect(notification.event_type).to eq('Event::CommentForProject')
       expect(notification.event_payload['comment_body']).to include('how are things?')
       expect(notification.subscription_receiver_role).to eq('all')

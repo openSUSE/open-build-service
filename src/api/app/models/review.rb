@@ -269,6 +269,6 @@ end
 #
 # Foreign Keys
 #
-#  fk_rails_813a4fb24f  (review_id => reviews.id)
-#  reviews_ibfk_1       (bs_request_id => bs_requests.id)
+#  fk_rails_...    (review_id => reviews.id)
+#  reviews_ibfk_1  (bs_request_id => bs_requests.id)
 #

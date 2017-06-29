@@ -33,10 +33,10 @@ class SendEventEmails
   private
 
   def create_rss_notification(event, subscription)
-    Notifications::RssFeedItem.create(
+    Notification::RssFeedItem.create(
       subscriber: subscription.subscriber,
       event_type: event.eventtype,
-      event_payload: event.read_attribute(:payload),
+      event_payload: event.payload,
       subscription_receiver_role: subscription.receiver_role
     )
   end

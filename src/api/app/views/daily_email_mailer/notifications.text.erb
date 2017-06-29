@@ -1,7 +1,7 @@
 <% notifications.each do |notification| %>
 <%= render(
       template: "event_mailer/#{notification.template_name}",
-      locals: { event: notification.event_expanded_payload },
+      locals: { event: notification.event.expanded_payload },
       layout: false
     )
   %>
