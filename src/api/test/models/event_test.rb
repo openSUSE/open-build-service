@@ -119,7 +119,7 @@ class EventTest < ActionDispatch::IntegrationTest
     f.save
     CleanupEvents.new.perform
     assert Event::Base.count == firstcount, 'mail must be sent first'
-    f.mail_sent = true
+    f.mails_sent = true
     f.save
     CleanupEvents.new.perform
     assert Event::Base.count != firstcount, 'now its gone'
