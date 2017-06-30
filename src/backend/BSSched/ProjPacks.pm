@@ -99,6 +99,39 @@ sub checkbuildrepoid {
   die("ERROR: source server repository id($projpacksin->{'repoid'}) does not match my repository id($buildrepoid)") unless $buildrepoid eq $projpacksin->{'repoid'};
 }
 
+=head2 get_projpacks_all_sync -   get/update project/package information of all packages
+
+ This is used as emergency fallback when we hit some problem.
+
+=cut
+
+sub get_projpacks_all_sync {
+  my ($gctx) = @_;
+  my $myarch = $gctx->{'arch'};
+  my @args = ('withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch");
+  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
+  my $projpacksin;
+  while (1) {
+    my $param = {
+      'uri' => "$BSConfig::srcserver/getprojpack",
+    };
+    eval {
+      if ($usestorableforprojpack) {
+        $projpacksin = $gctx->{'rctx'}->xrpc($gctx, undef, $param, \&BSUtil::fromstorable, 'view=storable', @args);
+      } else {
+        $projpacksin = $gctx->{'rctx'}->xrpc($gctx, undef, $param, $BSXML::projpack, @args);
+      }
+    };
+    last if !$@ && $projpacksin;
+    print $@ if $@;
+    printf("could not get project/package information, sleeping 1 minute\n");
+    sleep(60);
+    print "retrying...\n";
+  }
+  update_projpacks($gctx, $projpacksin);
+  get_projpacks_postprocess($gctx);	# just in case
+  return 1;
+}
 
 =head2 get_projpacks -   get/update project/package information
 
@@ -119,9 +152,15 @@ sub get_projpacks {
 
   $projid ||= $testprojid;
 
-  my @args;
+  my @args = ('withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch");
   push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
-  if (@packids) {
+  if (!defined($projid)) {
+    print "getting data for all projects from $BSConfig::srcserver\n";
+  } elsif (!@packids) {
+    print "getting data for project '$projid' from $BSConfig::srcserver\n";
+    push @args, "project=$projid";
+    push @args, 'nopackages' if $testprojid && $projid ne $testprojid;
+  } else {
     print "getting data for project '$projid' package '".join("', '", @packids)."' from $BSConfig::srcserver\n";
     push @args, "project=$projid";
     for my $packid (@packids) {
@@ -131,59 +170,36 @@ sub get_projpacks {
       }
       push @args, "package=$packid";
     }
-  } elsif (defined($projid)) {
-    print "getting data for project '$projid' from $BSConfig::srcserver\n";
-    push @args, "project=$projid";
-  } else {
-    print "getting data for all projects from $BSConfig::srcserver\n";
-  }
-  my $projpacksin;
-  while (1) {
-    push @args, 'nopackages' if $testprojid && $projid ne $testprojid;
-    for my $tries (4, 3, 2, 1, 0) {
-      my $param = {
-	'uri' => "$BSConfig::srcserver/getprojpack",
-      };
-      if ($doasync) {
-	$param->{'async'} = { %$doasync, '_resume' => \&get_projpacks_resume, '_projid' => $projid, '_changeprp' => $projid };
-	$param->{'async'}->{'_packids'} = [ @packids ] if @packids;
-      }
-      eval {
-	if ($usestorableforprojpack) {
-	  $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, \&BSUtil::fromstorable, 'view=storable', 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
-	} else {
-	  $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
-	}
-      };
-      return 0 if !$@ && $projpacksin && $param->{'async'};
-      last unless $@ || !$projpacksin;
-      last unless $tries && defined($projid);
-      print $@ if $@;
-      print "retrying...\n";
-      sleep(60);
-    }
-    if ($@ || !$projpacksin) {
-      print $@ if $@;
-      if (grep {!/^partition=/} @args) {
-	print "retrying...\n";
-	$gctx->{'get_projpacks_postprocess_needed'} = 1;	# just in case...
-	get_projpacks($gctx, undef);
-	get_projpacks_postprocess($gctx) if $gctx->{'get_projpacks_postprocess_needed'};
-	return 1;
-      }
-      die("could not get project/package information, aborting due to testmode\n") if $gctx->{'testmode'};
-      printf("could not get project/package information, sleeping 1 minute\n");
-      sleep(60);
-      print "retrying...\n";
-      next;
-    }
-    last;
   }
 
+  my $projpacksin;
+  for my $tries (4, 3, 2, 1, 0) {
+    my $param = {
+      'uri' => "$BSConfig::srcserver/getprojpack",
+    };
+    if ($doasync) {
+      $param->{'async'} = { %$doasync, '_resume' => \&get_projpacks_resume, '_projid' => $projid, '_changeprp' => $projid };
+      $param->{'async'}->{'_packids'} = [ @packids ] if @packids;
+    }
+    eval {
+      if ($usestorableforprojpack) {
+	$projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, \&BSUtil::fromstorable, 'view=storable', @args);
+      } else {
+	$projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, $BSXML::projpack, @args);
+      }
+    };
+    return 0 if !$@ && $projpacksin && $param->{'async'};	# in progress
+    last unless $@ || !$projpacksin;
+    print $@ if $@;
+    die("could not get project/package information, aborting due to testmode\n") if $gctx->{'testmode'};
+    return get_projpacks_all_sync($gctx) unless $tries;		# do it the hard way
+    print "retrying after 1 minute...\n";
+    sleep(60);
+  }
   update_projpacks($gctx, $projpacksin, $projid, \@packids);
 
   if ($testprojid) {
-    my $proj = $projpacks->{$projid};
+    my $proj = $projpacks->{$projid} || {};
     for my $repo (@{$proj->{'repository'} || []}) {
       for my $path (@{$repo->{'path'} || []}) {
 	next if $path->{'project'} eq $testprojid;
