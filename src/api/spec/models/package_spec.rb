@@ -99,8 +99,6 @@ RSpec.describe Package, vcr: true do
     end
 
     context 'with no delete permission' do
-      let(:other_user) { create(:user) }
-
       before do
         login(other_user)
       end
@@ -433,6 +431,10 @@ RSpec.describe Package, vcr: true do
   describe '#backend_build_command' do
     let(:params) { ActionController::Parameters.new(arch: 'x86') }
     let(:backend_url) { "#{CONFIG['source_url']}/build/#{package.project.name}?cmd=rebuild&arch=x86" }
+
+    before do
+      login(user)
+    end
 
     subject { package.backend_build_command(:rebuild, package.project.name, params) }
 

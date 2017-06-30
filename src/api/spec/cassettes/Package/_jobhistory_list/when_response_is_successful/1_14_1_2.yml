@@ -119,4 +119,43 @@ http_interactions:
         </package>
     http_version: 
   recorded_at: Wed, 03 May 2017 20:07:57 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/test_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>Frequent Hearses</title>
+          <description>Consequuntur nesciunt nihil velit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>Frequent Hearses</title>
+          <description>Consequuntur nesciunt nihil velit.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 30 Jun 2017 12:16:12 GMT
 recorded_with: VCR 3.0.3
