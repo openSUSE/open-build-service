@@ -15,6 +15,7 @@ Airbrake.configure do |c|
   # https://github.com/airbrake/airbrake-ruby#project_id--project_key
   c.project_id  = CONFIG['errbit_project_id']
   c.project_key = CONFIG['errbit_api_key']
+  c.app_version = CONFIG['version']
 
   # Configures the root directory of your project. Expects a String or a
   # Pathname, which represents the path to your project. Providing this option
