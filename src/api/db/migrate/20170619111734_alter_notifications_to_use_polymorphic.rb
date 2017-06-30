@@ -4,7 +4,13 @@ class AlterNotificationsToUsePolymorphic < ActiveRecord::Migration[5.0]
 
     Notification.find_in_batches batch_size: 500 do |batch|
       batch.each do |notification|
-        notification.subscriber = notification.user || notification.group
+        if notification.user_id
+          notification.subscriber_type = 'User'
+          notification.subscriber_id = notification.user_id
+        else
+          notification.subscriber_type = 'Group'
+          notification.subscriber_id = notification.group_id
+        end
         notification.save!
       end
     end
