@@ -212,7 +212,20 @@ Debug Options
 
  --dump-memstats <architecture> [what]
 
+Backend Configuration
+=====================
+
  --query-config <variable>
+
+Dispatcher Maintenance
+======================
+
+ --list-badhosts
+   List all marked badhosts from bs_dispatch
+
+ --drop-badhosts
+   Drop information about badhosts in bs_dispatch
+
 ";
 }
 my $emptymd5 = 'd41d8cd98f00b204e9800998ecf8427e';
