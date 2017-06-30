@@ -14,6 +14,7 @@ X-Mailer: OBS Notification System
 X-OBS-URL: http://localhost
 Auto-Submitted: auto-generated
 X-OBS-event-type: comment_for_project
+X-OBS-Request-Commenter: tom
 
 
 Content-Type: text/plain;
