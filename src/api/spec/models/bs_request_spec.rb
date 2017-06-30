@@ -88,4 +88,104 @@ RSpec.describe BsRequest do
       end
     end
   end
+
+  describe '#update_cache' do
+    RSpec.shared_examples 'after_commit callback' do
+      it 'touches the user' do
+        Timecop.travel(1.minute)
+        cache_key = user.cache_key
+        request.state = :review
+        request.save
+        user.reload
+        expect(user.cache_key).not_to eq(cache_key)
+      end
+    end
+
+    context 'creator of bs_request' do
+      let!(:request) { create(:bs_request, creator: user.login) }
+      let(:user) { create(:admin_user) }
+
+      include_examples 'after_commit callback'
+    end
+
+    context 'direct maintainer of a target_project' do
+      let(:target_project) { create(:project) }
+      let(:source_package) { create(:package) }
+      let(:source_project) { source_package.project }
+
+      let!(:request) do
+        create(:bs_request_with_submit_action,
+               target_project: target_project.name,
+               source_project: source_project.name,
+               source_package: source_package.name)
+      end
+
+      let!(:relationship_project_user) { create(:relationship_project_user, project: target_project) }
+      let(:user) { relationship_project_user.user }
+
+      include_examples 'after_commit callback'
+    end
+
+    context 'group maintainer of a target_project' do
+      let(:target_project) { create(:project) }
+      let(:source_package) { create(:package) }
+      let(:source_project) { source_package.project }
+
+      let!(:request) do
+        create(:bs_request_with_submit_action,
+               target_project: target_project.name,
+               source_project: source_project.name,
+               source_package: source_package.name)
+      end
+
+      let(:relationship_project_group) { create(:relationship_project_group, project: target_project) }
+      let(:group) { relationship_project_group.group }
+      let!(:groups_user) { create(:groups_user, group: group) }
+      let(:user) { groups_user.user }
+
+      include_examples 'after_commit callback'
+    end
+
+    context 'direct maintainer of a target_package' do
+      let(:target_package) { create(:package) }
+      let(:target_project) { target_package.project }
+      let(:source_package) { create(:package) }
+      let(:source_project) { source_package.project }
+
+      let!(:request) do
+        create(:bs_request_with_submit_action,
+               target_project: target_project.name,
+               target_package: target_package.name,
+               source_project: source_project.name,
+               source_package: source_package.name)
+      end
+
+      let!(:relationship_package_user) { create(:relationship_package_user, package: target_package) }
+      let(:user) { relationship_package_user.user }
+
+      include_examples 'after_commit callback'
+    end
+
+    context 'group maintainer of a target_package' do
+      let(:target_package) { create(:package) }
+      let(:target_project) { target_package.project }
+      let(:source_package) { create(:package) }
+      let(:source_project) { source_package.project }
+
+      let!(:request) do
+        create(:bs_request_with_submit_action,
+               target_project: target_project.name,
+               target_package: target_package.name,
+               source_project: source_project.name,
+               source_package: source_package.name)
+      end
+
+      let(:relationship_package_group) { create(:relationship_package_group, package: target_package) }
+      let(:group) { relationship_package_group.group }
+      let!(:groups_user) { create(:groups_user, group: group) }
+      let(:user) { groups_user.user }
+
+      include_examples 'after_commit callback'
+    end
+  end
 end

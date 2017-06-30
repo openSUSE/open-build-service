@@ -852,7 +852,7 @@ class User < ApplicationRecord
   end
 
   def nr_of_requests_that_need_work
-    Rails.cache.fetch("requests_for_#{login}", expires_in: 2.minutes) do
+    Rails.cache.fetch("requests_for_#{cache_key}") do
       declined_requests.count +
       incoming_requests.count +
       involved_reviews.count

@@ -42,8 +42,11 @@ class BsRequestAction < ApplicationRecord
 
   scope :bs_request_ids_of_involved_projects, ->(project_ids) { where(target_project_id: project_ids).select(:bs_request_id) }
   scope :bs_request_ids_of_involved_packages, ->(package_ids) { where(target_package_id: package_ids).select(:bs_request_id) }
-
   scope :bs_request_ids_by_source_projects, ->(project_name) { where(source_project: project_name).select(:bs_request_id) }
+
+  scope :with_target_package, -> { where.not(target_package_id: nil) }
+  scope :with_target_project, -> { where.not(target_project_id: nil) }
+
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
 
