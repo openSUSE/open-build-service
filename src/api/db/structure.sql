@@ -239,6 +239,8 @@ CREATE TABLE `bs_request_actions` (
   KEY `index_bs_request_actions_on_source_project_id` (`source_project_id`),
   KEY `index_bs_request_actions_on_bs_request_id_and_target_project_id` (`bs_request_id`,`target_project_id`),
   KEY `index_bs_request_actions_on_bs_request_id_and_target_package_id` (`bs_request_id`,`target_package_id`),
+  KEY `index_bs_request_actions_on_target_project_id` (`target_project_id`),
+  KEY `index_bs_request_actions_on_target_package_id` (`target_package_id`),
   CONSTRAINT `bs_request_actions_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -1488,6 +1490,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170621103748'),
 ('20170627111730'),
 ('20170628115727'),
+('20170630121602'),
 ('20170630144825'),
 ('21'),
 ('22'),
