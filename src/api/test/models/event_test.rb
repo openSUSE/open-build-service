@@ -114,11 +114,7 @@ class EventTest < ActionDispatch::IntegrationTest
     f.queued = true
     f.save
     CleanupEvents.new.perform
-    assert Event::Base.count == firstcount, 'queuing is not enough'
-    f.project_logged = true
-    f.save
-    CleanupEvents.new.perform
-    assert Event::Base.count == firstcount, 'mail must be sent first'
+    assert Event::Base.count == firstcount, 'queuing is not enough, mail must be sent first'
     f.mails_sent = true
     f.save
     CleanupEvents.new.perform

@@ -2,10 +2,6 @@
 <% @layouttype = 'custom' %>
 <% project_bread_crumb 'Overview' %>
 
-<% content_for :content_for_head do -%>
-    <%= auto_discovery_link_tag(:atom, commits_feed_path(project: @project, format: 'atom'), { title: "Commits for #{@project}" }) %>
-<% end %>
-
 <div class="grid_16 alpha omega box box-shadow">
   <%= render partial: 'tabs' %>
   <div class="grid_10 alpha">
