@@ -40,16 +40,16 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 03 May 2017 14:37:41 GMT
+  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/test_package/_meta?user=_nobody_
+    uri: http://localhost:3200/source/home:tom/package_with_files/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="test_package" project="home:tom">
-          <title>Cover Her Face</title>
-          <description>Earum dicta consectetur omnis itaque beatae provident.</description>
+        <package name="package_with_files" project="home:tom">
+          <title>Cabbages and Kings</title>
+          <description>Harum consequatur unde explicabo vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '169'
     body:
       encoding: UTF-8
       string: |
-        <package name="test_package" project="home:tom">
-          <title>Cover Her Face</title>
-          <description>Earum dicta consectetur omnis itaque beatae provident.</description>
+        <package name="package_with_files" project="home:tom">
+          <title>Cabbages and Kings</title>
+          <description>Harum consequatur unde explicabo vel.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 03 May 2017 14:37:41 GMT
+  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/test_package/_meta
+    uri: http://localhost:3200/source/home:tom/package_with_files/_meta
     body:
       encoding: UTF-8
       string: |
-        <package name="test_package" project="home:tom">
-          <title>Cover Her Face</title>
-          <description>Earum dicta consectetur omnis itaque beatae provident.</description>
+        <package name="package_with_files" project="home:tom">
+          <title>Cabbages and Kings</title>
+          <description>Harum consequatur unde explicabo vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,63 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '169'
     body:
       encoding: UTF-8
       string: |
-        <package name="test_package" project="home:tom">
-          <title>Cover Her Face</title>
-          <description>Earum dicta consectetur omnis itaque beatae provident.</description>
+        <package name="package_with_files" project="home:tom">
+          <title>Cabbages and Kings</title>
+          <description>Harum consequatur unde explicabo vel.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 03 May 2017 14:37:41 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:tom/openSUSE_Tumbleweed/x86_64/_jobhistory?limit=100&package=test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home tom' has no repository 'openSUSE_Tumbleweed'
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '194'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:tom' has no repository 'openSUSE_Tumbleweed'</summary>
-          <details>404 project 'home:tom' has no repository 'openSUSE_Tumbleweed'</details>
-        </status>
-    http_version: 
-  recorded_at: Wed, 03 May 2017 14:37:41 GMT
+  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/test_package/_meta?user=tom
+    uri: http://localhost:3200/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:tom">
-          <title>In Dubious Battle</title>
-          <description>Tenetur quos ipsam rerum veritatis excepturi.</description>
-        </package>
+      string: Deleniti animi repellat quia similique occaecati aliquid. Exercitationem
+        voluptas rem veniam at et id consectetur. Illum neque molestiae quibusdam
+        porro laboriosam. Quasi est accusantium quibusdam qui magni consectetur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,14 +146,58 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <package name="test_package" project="home:tom">
-          <title>In Dubious Battle</title>
-          <description>Tenetur quos ipsam rerum veritatis excepturi.</description>
-        </package>
+        <revision rev="11" vrev="11">
+          <srcmd5>cb8eb263b4b9fecd91ef3a1a7a2c21ca</srcmd5>
+          <version>unknown</version>
+          <time>1498824968</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:11 GMT
+  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Harum nam est fuga sed. Doloribus explicabo facere qui voluptatibus.
+        Ipsa facilis aut aspernatur eum sapiente odit.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="12" vrev="12">
+          <srcmd5>a446c8d6d1bc9e4e186e867588684efc</srcmd5>
+          <version>unknown</version>
+          <time>1498824968</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
 recorded_with: VCR 3.0.3
