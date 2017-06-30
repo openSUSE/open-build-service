@@ -69,5 +69,29 @@ FactoryGirl.define do
         request.save!
       end
     end
+
+    factory :bs_request_with_maintenance_release_action do
+      after(:create) do |request, evaluator|
+        request.bs_request_actions.delete_all
+        request.bs_request_actions << create(
+          :bs_request_action_maintenance_release,
+          target_project: evaluator.target_project,
+          target_package: evaluator.target_package,
+          source_project: evaluator.source_project,
+          source_package: evaluator.source_package)
+      end
+    end
+
+    factory :bs_request_with_maintenance_incident_action do
+      after(:create) do |request, evaluator|
+        request.bs_request_actions.delete_all
+        request.bs_request_actions << create(
+          :bs_request_action_maintenance_incident,
+          target_project: evaluator.target_project,
+          target_package: evaluator.target_package,
+          source_project: evaluator.source_project,
+          source_package: evaluator.source_package)
+      end
+    end
   end
 end

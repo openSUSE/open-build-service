@@ -287,4 +287,86 @@ RSpec.describe Project, vcr: true do
       }
     end
   end
+
+  describe '#open_requests' do
+    shared_examples 'with_open_requests' do
+      let(:admin_user) { create(:admin_user, login: 'king') }
+      let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
+      let(:other_project) { create(:project) }
+      let(:package) { create(:package) }
+      let(:other_package) { create(:package) }
+
+      let!(:review) do
+        create(:review_bs_request, creator: admin_user.login, target_project: project.name, source_project: other_project.name,
+               target_package: package.name, source_package: other_package.name, reviewer: confirmed_user)
+      end
+
+      let!(:target) { create(:bs_request, creator: confirmed_user.login, source_project: project.name) }
+      let!(:other_target) do
+        create(:bs_request_with_submit_action, creator: admin_user.login, target_project: project.name, source_project: other_project.name,
+                                                                          target_package: package.name, source_package: other_package.name)
+      end
+      let!(:declined_target) do
+        create(:declined_bs_request, creator: confirmed_user.login, target_project: other_project.name, source_project: project.name,
+                                                                          target_package: package.name, source_package: other_package.name)
+      end
+
+      let!(:incident) do
+        create(:bs_request_with_maintenance_incident_action, creator: admin_user.login, target_project: project.name,
+               source_project: subproject.name, target_package: other_package, source_package: package.name)
+      end
+      let(:accepted_incident) do
+        create(:bs_request_with_maintenance_incident_action, creator: admin_user.login, target_project: project.name,
+               source_project: subproject.name, target_package: other_package, source_package: package.name)
+      end
+
+      let!(:release) do
+        create(:bs_request_with_maintenance_release_action, creator: admin_user.login, target_project: other_project.name,
+               source_project: subproject.name, target_package: other_package, source_package: package.name)
+      end
+      let!(:other_release) do
+        create(:bs_request_with_maintenance_release_action, creator: admin_user.login, target_project: subproject.name,
+               source_project: other_project.name, target_package: package.name, source_package: other_package.name)
+      end
+
+      before do
+        accepted_incident.state = :accepted
+        accepted_incident.save!
+      end
+
+      subject { project.open_requests }
+
+      it 'does include reviews' do
+        expect(subject[:reviews]).to eq([review.number])
+      end
+      it 'does include targets' do
+        expect(subject[:targets]).to eq([incident, other_target, target].pluck(:number))
+      end
+      it 'does include incidents' do
+        expect(subject[:incidents]).to eq([incident.number])
+      end
+    end
+
+    context 'without a maintenance project' do
+      it_behaves_like 'with_open_requests' do
+        let(:project) { create(:project, name: 'sandman') }
+        let(:subproject) { create(:project, name: 'sandman:dreams')}
+
+        it 'does not include maintenance_release' do
+          expect(subject[:maintenance_release]).to eq([])
+        end
+      end
+    end
+
+    context 'with a maintenance project' do
+      it_behaves_like 'with_open_requests' do
+        let(:project) { create(:project, name: 'battlestar', kind: 'maintenance')}
+        let(:subproject) { create(:project, name: 'battlestar:ebony')}
+
+        it 'does include maintenance_release' do
+          expect(subject[:maintenance_release]).to eq([other_release.number, release.number])
+        end
+      end
+    end
+  end
 end
