@@ -16,7 +16,6 @@ class SendEventEmails
       subscribers = event.subscribers
       next if subscribers.empty?
       EventMailer.event(subscribers, event).deliver_now
-      create_rss_notifications(event)
     end
     true
   end
