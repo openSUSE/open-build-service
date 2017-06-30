@@ -35,6 +35,10 @@ module Clockwork
     CleanupNotifications.perform_later
   end
 
+  every(1.day, 'cleanup project log entries') do
+    ProjectLogEntry.clean_older_than(10.days.ago)
+  end
+
   every(30.seconds, 'send notifications') do
     ::Event::NotifyBackends.trigger_delayed_sent
     SendEventEmails.new.delay(queue: 'mailers').perform

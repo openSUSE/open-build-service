@@ -2,6 +2,10 @@ module Event
   class Project < Base
     self.description = 'Project was touched'
     payload_keys :project
+
+    def needs_logging?
+      true
+    end
   end
 
   class CreateProject < Project

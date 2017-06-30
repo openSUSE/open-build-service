@@ -20,10 +20,7 @@ class SendEventEmails
       EventMailer.event(subscribers, event).deliver_now
 
       create_rss_notifications(event)
-
-      if needs_logging?(event)
-        create_project_log_entry(event)
-      end
+      event.create_project_log_entry if event.needs_logging?
     end
     true
   end
