@@ -591,6 +591,8 @@ if (-d "$buildroot" && $check_build) {
                   } elsif ($prap eq ".meta.success") {
                     # unchecked for now
 		    check_package_meta($pra, $prap, "$pra/$prap/.meta.success");
+		  } elsif ($prap eq "_deltas") {
+		    # unchecked for now
                   } else {
 		    warn ("ERROR: strange file $pra/$prap");
 		  }
