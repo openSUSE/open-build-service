@@ -25,7 +25,7 @@ class Product < ApplicationRecord
   end
 
   def to_axml(_opts = {})
-    Rails.cache.fetch('xml_product_%d' % id) do
+    Rails.cache.fetch("xml_product_#{id}") do
       # CanRenderModel
       render_xml
     end

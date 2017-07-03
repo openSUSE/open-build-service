@@ -835,7 +835,7 @@ class Package < ApplicationRecord
   end
 
   def to_axml(_opts = {})
-    Rails.cache.fetch('xml_package_%d' % id) do
+    Rails.cache.fetch("xml_package_#{id}") do
       # CanRenderModel
       render_xml
     end

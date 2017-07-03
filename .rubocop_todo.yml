@@ -802,20 +802,6 @@ Style/For:
     - 'src/api/test/unit/debug_flag_test.rb'
     - 'src/api/test/unit/publish_flag_test.rb'
 
-# Offense count: 10
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: format, sprintf, percent
-Style/FormatString:
-  Exclude:
-    - 'src/api/app/controllers/webui/project_controller.rb'
-    - 'src/api/app/helpers/webui/project_helper.rb'
-    - 'src/api/app/jobs/project_status_calculator.rb'
-    - 'src/api/app/models/issue.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/app/models/product.rb'
-    - 'src/api/config/initializers/logging.rb'
-
 # Offense count: 8
 # Configuration parameters: SupportedStyles.
 # SupportedStyles: annotated, template

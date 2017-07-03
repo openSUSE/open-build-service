@@ -129,7 +129,7 @@ class Issue < ApplicationRecord
   end
 
   def to_axml(_opts = {})
-    Rails.cache.fetch('issue_%d' % id) do
+    Rails.cache.fetch("issue_#{id}") do
       render_axml
     end
   end
