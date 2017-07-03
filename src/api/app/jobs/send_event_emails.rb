@@ -7,22 +7,17 @@ class SendEventEmails
 
   def perform
     Event::Base.where(mails_sent: false).order(:created_at).limit(1000).each do |event|
-      event.mails_sent = true
-      begin
-        event.save!
-      rescue ActiveRecord::StaleObjectError
-        # if someone else saved it too, better don't continue - we're not alone
-        next
-      end
       subscribers = event.subscribers
       next if subscribers.empty?
+
+      event.mails_sent = true
+      event.save
 
       EventMailer.event(subscribers, event).deliver_now
 
       create_rss_notifications(event)
       event.create_project_log_entry if event.needs_logging?
     end
-    true
   end
 
   private
@@ -36,14 +31,5 @@ class SendEventEmails
         subscription_receiver_role: subscription.receiver_role
       )
     end
-  end
-
-  def needs_logging?(event)
-    !event.project_logged && (event.class < Event::Project || event.class < Event::Package)
-  end
-
-  def create_project_log_entry(event)
-    ProjectLogEntry.create_from(event)
-    event.update_attributes(project_logged: true)
   end
 end
