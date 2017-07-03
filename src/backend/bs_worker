@@ -2300,7 +2300,7 @@ sub getbinaries {
       die("Error\n") unless ref($res);
       $res = [ grep {$_->{'name'} ne '.errors'} @$res ];
       die("getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
-      push @{$buildinfo->{'containerurl'}}, "obs:/$repo->{'project'}/$repo->{'repository'}/$res->[0]->{'name'}";
+      push @{$buildinfo->{'containerurl'}}, "dir://./containers/$repo->{'project'}/$repo->{'repository'}/$res->[0]->{'name'}";
       push @meta, "$res->[0]->{'md5'}  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
     }
     if ($buildinfo->{'containerannotation'}) {
@@ -2918,22 +2918,7 @@ sub dobuild {
       }
     }
     for my $containerurl (@{$buildinfo->{'containerurl'} || []}) {
-      # compat code ahead, to be removed
-      my $cdep = (grep {/^container:/} @{$kiwi->{'deps'} || []})[0];
-      if ($cdep) {
-        # convert back to kiwi name
-        $cdep =~ s/^container://;
-        $cdep =~ s/:([^:\/]+)$/#$1/;
-	my $cdepdir = @{$kiwi->{'containerpath'} || []} ? "$kiwi->{'containerpath'}->[0]->{'project'}/$kiwi->{'containerpath'}->[0]->{'repository'}" : '_obsrepositories';
-	mkdir_p("$srcdir/containers/$cdepdir");
-	if ($containerurl =~ /^obs:\/(.*)/) {
-	  print "link $srcdir/containers/$1 $srcdir/containers/$cdepdir/$cdep\n";
-	  link("$srcdir/containers/$1", "$srcdir/containers/$cdepdir/$cdep");
-	}
-        next;
-      }
-
-      push @args, '--kiwi-parameter', "--set-container-derived-from", "--kiwi-parameter", $containerurl;
+      push @args, '--kiwi-parameter', "--set-container-derived-from=$containerurl";
     }
   }
   qsystem(@args);
