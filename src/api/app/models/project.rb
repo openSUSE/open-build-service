@@ -148,7 +148,7 @@ class Project < ApplicationRecord
       backend_packages = Collection.find(:package, match: "@project='#{project_name}'")
       backend_packages.each('package') do |package|
         package = project.packages.new(name: package.value(:name))
-        package_meta = Xmlhash.parse(PackageMetaFile.new(project_name: project_name, package_name: package.name).to_s)
+        package_meta = Xmlhash.parse(package.meta.to_s)
 
         Package.transaction do
           package.update_from_xml(package_meta)
