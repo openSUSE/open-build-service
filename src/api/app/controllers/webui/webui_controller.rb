@@ -16,6 +16,7 @@ class Webui::WebuiController < ActionController::Base
   before_action :check_user
   before_action :check_anonymous
   before_action :require_configuration
+  before_action :set_tasks
   after_action :clean_cache
 
   # We execute both strategies here. The default rails strategy (resetting the session)
@@ -274,6 +275,10 @@ class Webui::WebuiController < ActionController::Base
   end
 
   private
+
+  def set_tasks
+    @tasks = User.current.nr_of_requests_that_need_work unless User.current.is_nobody?
+  end
 
   def require_configuration
     @configuration = ::Configuration.first
