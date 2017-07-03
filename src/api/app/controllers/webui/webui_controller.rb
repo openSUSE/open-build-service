@@ -277,7 +277,7 @@ class Webui::WebuiController < ActionController::Base
   private
 
   def set_tasks
-    @tasks = User.current.nr_of_requests_that_need_work unless User.current.is_nobody?
+    @tasks = User.current.tasks unless User.current.is_nobody?
   end
 
   def require_configuration

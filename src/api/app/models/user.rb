@@ -851,7 +851,7 @@ class User < ApplicationRecord
     to_s
   end
 
-  def nr_of_requests_that_need_work
+  def tasks
     Rails.cache.fetch("requests_for_#{cache_key}") do
       declined_requests.count +
       incoming_requests.count +
