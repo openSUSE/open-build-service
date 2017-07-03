@@ -119,6 +119,8 @@ group :test do
   gem 'rails-controller-testing'
   # To generate random data
   gem 'rantly', '>= 1.1.0'
+  # To ensure consistent Git commits
+  gem 'git-cop'
 end
 
 # Gems used only during development not required in production environments by default.
