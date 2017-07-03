@@ -52,5 +52,13 @@ RSpec.describe SendEventEmails, type: :job do
     it 'only creates two notifications' do
       expect(Notification.count).to eq(2)
     end
+
+    it 'creates a project log entry for the event' do
+      expect(ProjectLogEntry.count).to eq(1)
+    end
+
+    it 'marks the event as logged' do
+      expect(Event::CommentForProject.first.project_logged).to be_truthy
+    end
   end
 end

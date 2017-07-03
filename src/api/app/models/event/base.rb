@@ -263,6 +263,18 @@ module Event
       p ||= ::Project.find_by_name(project)
       obj_roles(p, role)
     end
+
+    def create_project_log_entry
+      return if project_logged
+
+      ProjectLogEntry.create_from(self)
+      update_attributes(project_logged: true)
+    end
+
+    # This is overriden by Event::Project and Event::Package
+    def needs_logging?
+      false
+    end
   end
 end
 
