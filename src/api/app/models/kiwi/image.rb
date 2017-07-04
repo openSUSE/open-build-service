@@ -77,6 +77,8 @@ class Kiwi::Image < ApplicationRecord
     doc = Nokogiri::XML::DocumentFragment.parse(kiwi_body)
     image = doc.at_css('image')
 
+    return nil unless image && image.first_element_child
+
     doc.xpath("image/repository").remove
     xml_repos = repositories.map(&:to_xml).join("\n")
     image.first_element_child.after(xml_repos)
@@ -89,7 +91,8 @@ class Kiwi::Image < ApplicationRecord
     return false unless package
 
     Package.transaction do
-      package.save_file({ filename: package.kiwi_image_file, file: to_xml })
+      file_name = package.kiwi_image_file || "#{package.name}.kiwi"
+      package.save_file({ filename: file_name, file: to_xml })
       self.md5_last_revision = package.kiwi_file_md5
       save!
     end

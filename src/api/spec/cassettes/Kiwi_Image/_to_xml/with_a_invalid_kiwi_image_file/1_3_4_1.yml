@@ -40,16 +40,16 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:44 GMT
+  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_file/_meta?user=_nobody_
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_file" project="home:tom">
-          <title>The Cricket on the Hearth</title>
-          <description>Voluptatem voluptatum magni molestiae eius.</description>
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Eyeless in Gaza</title>
+          <description>Nisi vero at quisquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '156'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_file" project="home:tom">
-          <title>The Cricket on the Hearth</title>
-          <description>Voluptatem voluptatum magni molestiae eius.</description>
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Eyeless in Gaza</title>
+          <description>Nisi vero at quisquam.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:44 GMT
+  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_file/_meta
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_file" project="home:tom">
-          <title>The Cricket on the Hearth</title>
-          <description>Voluptatem voluptatum magni molestiae eius.</description>
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Eyeless in Gaza</title>
+          <description>Nisi vero at quisquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,32 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '156'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_file" project="home:tom">
-          <title>The Cricket on the Hearth</title>
-          <description>Voluptatem voluptatum magni molestiae eius.</description>
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Eyeless in Gaza</title>
+          <description>Nisi vero at quisquam.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:44 GMT
+  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_file/package_with_kiwi_file.kiwi
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
     body:
       encoding: UTF-8
-      string: |
-        <?xml version="1.0" encoding="utf-8"?>
-        <image schemaversion="6.2" name="suse-13.2-live">
-          <description type="system">
-          </description>
-          <preferences>
-            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
-          </preferences>
-          <packages type="bootstrap">
-          </packages>
-        </image>
+      string: Invalid content for a xml file
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -158,25 +148,25 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>c89de9a0b4429864bbc184287d720a9d</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>cc9055a3d19c2afd5ddc517b2c4424aa</srcmd5>
           <version>unknown</version>
-          <time>1499175284</time>
+          <time>1499175286</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:44 GMT
+  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_file/_meta?user=_nobody_
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_file" project="home:tom">
-          <title>The Cricket on the Hearth</title>
-          <description>Voluptatem voluptatum magni molestiae eius.</description>
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Eyeless in Gaza</title>
+          <description>Nisi vero at quisquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -197,19 +187,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '156'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_kiwi_file" project="home:tom">
-          <title>The Cricket on the Hearth</title>
-          <description>Voluptatem voluptatum magni molestiae eius.</description>
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Eyeless in Gaza</title>
+          <description>Nisi vero at quisquam.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_file
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
     body:
       encoding: US-ASCII
       string: ''
@@ -232,18 +222,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '230'
+      - '231'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="2" vrev="2" srcmd5="c89de9a0b4429864bbc184287d720a9d">
-          <entry name="package_with_kiwi_file.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499175284" />
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="cc9055a3d19c2afd5ddc517b2c4424aa">
+          <entry name="package_with_kiwi_image.kiwi" md5="238ce2170f6c9dee03b0c02df0253866" size="30" mtime="1499175286" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_file
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
     body:
       encoding: US-ASCII
       string: ''
@@ -266,18 +256,49 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '230'
+      - '231'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="2" vrev="2" srcmd5="c89de9a0b4429864bbc184287d720a9d">
-          <entry name="package_with_kiwi_file.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499175284" />
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="cc9055a3d19c2afd5ddc517b2c4424aa">
+          <entry name="package_with_kiwi_image.kiwi" md5="238ce2170f6c9dee03b0c02df0253866" size="30" mtime="1499175286" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_file
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '30'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: Invalid content for a xml file
+    http_version: 
+  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
+- request:
+    method: delete
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image?comment&user=tom
     body:
       encoding: US-ASCII
       string: ''
@@ -300,13 +321,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '230'
+      - '21'
     body:
       encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_file" rev="2" vrev="2" srcmd5="c89de9a0b4429864bbc184287d720a9d">
-          <entry name="package_with_kiwi_file.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499175284" />
-        </directory>
+      string: '<status code="ok" />
+
+'
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
 recorded_with: VCR 3.0.3

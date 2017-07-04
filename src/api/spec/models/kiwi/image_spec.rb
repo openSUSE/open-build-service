@@ -8,6 +8,8 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
   include_context 'a kiwi image xml'
   include_context 'an invalid kiwi image xml'
 
+  let(:user) { create(:user, login: 'tom') }
+  let(:project) { user.home_project }
   let(:kiwi_image) { create(:kiwi_image) }
 
   describe 'validations' do
@@ -83,7 +85,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     end
   end
 
-  describe '.to_xml' do
+  describe '#to_xml' do
     context 'without a package' do
       context 'without any repository' do
         it { expect(kiwi_image.to_xml).to eq(Kiwi::Image::DEFAULT_KIWI_BODY) }
@@ -105,21 +107,26 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     end
 
     context 'without kiwi image file' do
-      it 'returns nil' do
-        dbl_package = double("Some Package")
-        allow(dbl_package).to receive(:kiwi_image_file)
-        allow(kiwi_image).to receive(:package).and_return(dbl_package)
+      after do
+        login user
+        subject.package.destroy
+        logout
+      end
 
-        expect(kiwi_image.to_xml).to be_nil
+      subject { create(:kiwi_image_with_package, project: project) }
+
+      it 'returns nil' do
+        expect(subject.to_xml).to be_nil
       end
     end
 
     context 'with kiwi image file' do
-      before do
-        dbl_package = double('Some Package')
-        allow(dbl_package).to receive(:kiwi_image_file).and_return('fake_filename.kiwi')
-        allow(dbl_package).to receive_messages(source_file: kiwi_xml)
-        allow(kiwi_image).to receive(:package).and_return(dbl_package)
+      let(:kiwi_image) { create(:kiwi_image_with_package, project: project, with_kiwi_file: true, file_content: kiwi_xml) }
+
+      after do
+        login user
+        kiwi_image.package.destroy
+        logout
       end
 
       subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
@@ -129,6 +136,33 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.xpath('.//image/description').length).to be(1) }
       it { expect(subject.xpath('.//image/packages/package').length).to be(20) }
       it { expect(subject.xpath('.//image/repository').length).to be(0) }
+    end
+
+    context 'with a invalid kiwi image file' do
+      after do
+        login user
+        subject.package.destroy
+        logout
+      end
+
+      subject { create(:kiwi_image_with_package, project: project, with_kiwi_file: true, file_content: 'Invalid content for a xml file') }
+
+      it { expect(subject.to_xml).to be_nil }
+    end
+
+    context 'with a invalid kiwi image file (without image children)' do
+      after do
+        login user
+        subject.package.destroy
+        logout
+      end
+
+      subject do
+        create(:kiwi_image_with_package, project: project,
+               with_kiwi_file: true, file_content: 'Invalid content for a kiwi xml file<image></image>')
+      end
+
+      it { expect(subject.to_xml).to be_nil }
     end
   end
 
@@ -140,6 +174,33 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         kiwi_image.write_to_backend
       end
     end
+
+    context 'with a package' do
+      before do
+        login user
+
+        subject.write_to_backend
+      end
+
+      after do
+        subject.package.destroy
+        logout
+      end
+
+      context 'without a kiwi file' do
+        subject { create(:kiwi_image_with_package, project: project) }
+
+        it { expect(subject.outdated?).to be(false) }
+        it { expect(subject.package.kiwi_image_file).to eq("#{subject.package.name}.kiwi") }
+      end
+
+      context 'with a kiwi file' do
+        subject { create(:kiwi_image_with_package, project: project, with_kiwi_file: true, kiwi_file_name: 'other_file_name.kiwi') }
+
+        it { expect(subject.outdated?).to be(false) }
+        it { expect(subject.package.kiwi_image_file).to eq('other_file_name.kiwi') }
+      end
+    end
   end
 
   describe '.outdated?' do
@@ -148,8 +209,6 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     end
 
     context 'with a package' do
-      let(:project) { create(:project, name: 'fake_project') }
-
       context 'without a kiwi file' do
         let(:kiwi_image_with_package) { create(:kiwi_image_with_package, project: project, package_name: 'package_without_kiwi_file') }
 
