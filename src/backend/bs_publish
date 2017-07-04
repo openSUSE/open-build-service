@@ -49,6 +49,7 @@ use BSXML;
 use BSNotify;
 use BSVerify;
 use BSStdRunner;
+use BSUrlmapper;
 
 use strict;
 
@@ -131,9 +132,11 @@ sub fillpkgdescription {
     }
   }
   return unless $hit;
-  my $data = Build::query("$extrep/$hit", 'description' => 1);
-  $pkg->{'description'} = str2utf8($data->{'description'});
-  $pkg->{'summary'} = str2utf8($data->{'summary'}) if defined $data->{'summary'};
+  eval {
+    my $data = Build::query("$extrep/$hit", 'description' => 1);
+    $pkg->{'description'} = str2utf8($data->{'description'});
+    $pkg->{'summary'} = str2utf8($data->{'summary'}) if defined $data->{'summary'};
+  };
 }
 
 
@@ -417,8 +420,6 @@ sub createrepo_rpmmd {
 
   my %options = map {$_ => 1} @{$options || []};
   my @repotags = @{$data->{'repotags'} || []};
-  my $prp_ext = "$projid/$repoid";
-  $prp_ext =~ s/:/:\//g;
   print "    running createrepo\n";
   my $createrepo_bin = $BSConfig::createrepo ? $BSConfig::createrepo : 'createrepo';
   my $modifyrepo_bin = $BSConfig::modifyrepo ? $BSConfig::modifyrepo : 'modifyrepo';
@@ -526,7 +527,7 @@ sub createrepo_rpmmd {
   }
 
   my $title = $data->{'repoinfo'}->{'title'};
-  my $downloadurl = get_downloadurl("$projid/$repoid", $prp_ext);
+  my $downloadurl = BSUrlmapper::get_downloadurl("$projid/$repoid");
   if (-x "/usr/bin/repoview") {
     my @downloadurlarg;
     @downloadurlarg = ("-u$downloadurl") if $downloadurl;
@@ -564,7 +565,7 @@ sub createrepo_rpmmd {
     if ($BSConfig::sign) {
       print FILE "gpgcheck=1\n";
       if (-e "$extrep/repodata/repomd.xml.key") {
-        print FILE "gpgkey=$downloadurl/repodata/repomd.xml.key\n";
+        print FILE "gpgkey=${downloadurl}repodata/repomd.xml.key\n";
       } else {
         die("neither a project key is available nor gpg_standard_key is set\n") unless defined($BSConfig::gpg_standard_key);
         print FILE "gpgkey=$BSConfig::gpg_standard_key\n";
@@ -1081,9 +1082,7 @@ sub createpatterns_ymp {
         $r->{'summary'} = $nprojpack{$sprojid}->{'title'};
         $r->{'description'} = $nprojpack{$sprojid}->{'description'};
       }
-      my $sprp_ext = "$sprojid/$srepoid";
-      $sprp_ext =~ s/:/:\//g;
-      my $url = get_downloadurl("$sprojid/$srepoid", $sprp_ext);
+      my $url = BSUrlmapper::get_downloadurl("$sprojid/$srepoid");
       next unless defined $url;
       $r->{'url'} = $url;
       push @repos, $r;
@@ -1093,17 +1092,17 @@ sub createpatterns_ymp {
     for my $entry (@{$pat->{'rpm:requires'}->{'rpm:entry'} || []}) {
       next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
       push @software, {'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
-      fillpkgdescription($software[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+      fillpkgdescription($software[-1], $extrep, $repoinfo, $entry->{'name'});
     }
     for my $entry (@{$pat->{'rpm:recommends'}->{'rpm:entry'} || []}) {
       next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
       push @software, {'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
-      fillpkgdescription($software[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+      fillpkgdescription($software[-1], $extrep, $repoinfo, $entry->{'name'});
     }
     for my $entry (@{$pat->{'rpm:suggests'}->{'rpm:entry'} || []}) {
       next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
       push @software, {'recommended' => 'false', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
-      fillpkgdescription($software[-1], "$extrepodir/$prp_ext", $repoinfo, $entry->{'name'});
+      fillpkgdescription($software[-1], $extrep, $repoinfo, $entry->{'name'});
     }
     $group->{'software'} = { 'item' => \@software };
     $ymp->{'group'} = [ $group ];
@@ -1190,51 +1189,14 @@ sub sync_to_stage {
   }
 }
 
-sub map_to_extrep {
-  my ($prp, $prp_ext) = @_;
-  
-  my $extrep = "$extrepodir/$prp_ext";
-  return $extrep unless $BSConfig::publishredirect;
-  if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
-    for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
-      if ($prp =~ /^$key/) {
-	$extrep = $BSConfig::publishredirect->{$key};
-	last;
-      }
-    }
-  } elsif (exists($BSConfig::publishredirect->{$prp})) {
-    $extrep = $BSConfig::publishredirect->{$prp};
-  }
-  $extrep = $extrep->($prp, $prp_ext) if $extrep && ref($extrep) eq 'CODE';
-  return $extrep;
-}
-
-sub get_downloadurl {
-  my ($prp, $prp_ext) = @_;
-  if ($BSConfig::prp_ext_map && exists $BSConfig::prp_ext_map->{$prp}) {
-    return $BSConfig::prp_ext_map->{$prp};
-  }
-  my $extrep = map_to_extrep($prp, $prp_ext);
-  $extrep = [ $extrep ] unless ref $extrep;
-  return $extrep->[2] if $extrep->[2];
-  return undef unless $BSConfig::repodownload;
-  if ($extrep->[0] =~ /^\Q$BSConfig::bsdir\E\/repos\/(.*)$/) {
-    my $url = "$BSConfig::repodownload/$1/";
-    $url =~ s!//$!/!;
-    return $url;
-  }
-  return "$BSConfig::repodownload/$prp_ext/";
-}
-
 sub deleterepo {
   my ($projid, $repoid, $dbgsplit) = @_;
   my $prp = "$projid/$repoid";
   print "    deleting repository\n";
+  my $extrep = BSUrlmapper::get_extrep($prp);
+  return unless $extrep;
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
-  my $extrep = map_to_extrep($prp, $prp_ext);
-  return unless $extrep;
-  $extrep = $extrep->[0] if ref $extrep;
   $extrep .= $dbgsplit if $dbgsplit;
   $prp_ext .= $dbgsplit if $dbgsplit;
 
@@ -1390,11 +1352,10 @@ sub publish {
     BSVerify::verify_filename($subdir);
   }
 
+  my $extrep = BSUrlmapper::get_extrep($prp);
+  return unless $extrep;
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
-  my $extrep = map_to_extrep($prp, $prp_ext);
-  return unless $extrep;
-  $extrep = $extrep->[0] if ref $extrep;
   $extrep .= $dbgsplit if $dbgsplit;
   $prp_ext .= $dbgsplit if $dbgsplit;
 

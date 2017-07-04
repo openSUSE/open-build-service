@@ -24,6 +24,7 @@ use Data::Dumper;
 use Build;
 use BSSolv;
 use BSConfiguration;
+use BSUrlmapper;
 use BSSched::DoD;       	# for dodcheck
 
 
@@ -63,32 +64,6 @@ sub new {
 
 sub expand {
   return 1, splice(@_, 3);
-}
-
-sub urlmapper {
-  my ($ctx, $url) = @_;
-  $url =~ s/\/+$//;
-  my $kiwiurlmapcache = {};
-  for my $prp (sort keys %{$BSConfig::prp_ext_map || {}}) {
-    my $u = $BSConfig::prp_ext_map->{$prp};
-    $u =~ s/\/+$//;
-    $kiwiurlmapcache->{$u} = $prp;
-  }
-  my $prp = $kiwiurlmapcache->{$url};
-  return $prp if $prp;
-  if ($BSConfig::repodownload && $url =~ /^\Q$BSConfig::repodownload\E\/(.+\/.+)/) {
-    my @p = split('/', $1);
-    while (@p > 1 && $p[0] =~ /:$/) {
-      splice(@p, 0, 2, "$p[0]$p[1]");
-    }
-    my $project = shift(@p);
-    while (@p > 1 && $p[0] =~ /:$/) {
-      splice(@p, 0, 2, "$p[0]$p[1]");
-    }
-    my $repository = shift(@p);
-    return "$project/$repository" if $project && $repository;
-  }
-  return undef;
 }
 
 =head2 check - TODO: add summary
@@ -173,7 +148,8 @@ sub check {
 	      if ($Build::Kiwi::urlmapper) {
 	        $urlprp = $Build::Kiwi::urlmapper->($url);
 	      } else {
-	        $urlprp = urlmapper($ctx, $url);
+		$ctx->{'urlmappercache'} ||= {};
+	        $urlprp = BSUrlmapper::urlmapper($url, $ctx->{'urlmappercache'});
 	      }
 	      return ('broken', "repository url '$url' cannot be handled") unless $urlprp;
 	    }

@@ -62,6 +62,7 @@ use BSXPathKeys;
 use BSDB;
 use BSDBIndex;
 use BSNotify;
+use BSUrlmapper;
 
 use BSSolv;
 
@@ -2664,35 +2665,7 @@ sub getjobhistory {
   return ($ret, $BSXML::jobhistlist);
 }
 
-my $kiwiurlmapcache;
-sub kiwiurlmapper {
-  my ($url) = @_;
-  $url =~ s/\/+$//;
-  if (!$kiwiurlmapcache) {
-    $kiwiurlmapcache = {};
-    for my $prp (sort keys %{$BSConfig::prp_ext_map || {}}) {
-      my $u = $BSConfig::prp_ext_map->{$prp};
-      $u =~ s/\/+$//;
-      $kiwiurlmapcache->{$u} = $prp;
-    }
-  }
-  my $prp = $kiwiurlmapcache->{$url};
-  return $prp if $prp;
-  if ($BSConfig::repodownload && $url =~ /^\Q$BSConfig::repodownload\E\/(.+\/.+)/) {
-    my @p = split('/', $1);
-    while (@p > 1 && $p[0] =~ /:$/) {
-      splice(@p, 0, 2, "$p[0]$p[1]");
-    }
-    my $project = shift(@p);
-    while (@p > 1 && $p[0] =~ /:$/) {
-      splice(@p, 0, 2, "$p[0]$p[1]");
-    }
-    my $repository = shift(@p);
-    return "$project/$repository" if $project && $repository;
-  }
-  return undef;
-}
-$Build::Kiwi::urlmapper = \&kiwiurlmapper;
+$Build::Kiwi::urlmapper = \&BSUrlmapper::urlmapper;
 
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
@@ -3198,20 +3171,10 @@ sub publisheddir {
       @res = BSUtil::unify(@res);
     }
   } elsif (!defined($arch)) {
-    my $prp_ext = "$projid/$repoid";
-    $prp_ext =~ s/:/:\//g;
-    my $extrep = "$extrepodir/$prp_ext";
-    if ($BSConfig::publishredirect && $BSConfig::publishredirect->{"$projid/$repoid"}) {
-      $extrep = $BSConfig::publishredirect->{"$projid/$repoid"};
-    }
+    my $extrep = BSUrlmapper::get_extrep("$projid/$repoid");
     @res = listpublished($extrep, 1);
   } else {
-    my $prp_ext = "$projid/$repoid";
-    $prp_ext =~ s/:/:\//g;
-    my $extrep = "$extrepodir/$prp_ext";
-    if ($BSConfig::publishredirect && $BSConfig::publishredirect->{"$projid/$repoid"}) {
-      $extrep = $BSConfig::publishredirect->{"$projid/$repoid"};
-    }
+    my $extrep = BSUrlmapper::get_extrep("$projid/$repoid");
     return publishedfile($cgi, $projid, $repoid, undef, $arch) if -f "$extrep/$arch";
     if ($cgi->{'view'} && $cgi->{'view'} eq 'ymp') {
       my $binaryname = $arch;
@@ -3297,9 +3260,7 @@ sub makeymp {
       $r->{'summary'} = $nprojpack{$pa->{'project'}}->{'title'};
       $r->{'description'} = $nprojpack{$pa->{'project'}}->{'description'};
     }
-    my $prp_ext = "$pa->{'project'}/$pa->{'repository'}";
-    $prp_ext =~ s/:/:\//g;
-    my $url = BSRepServer::get_downloadurl("$pa->{'project'}/$pa->{'repository'}", $prp_ext);
+    my $url = BSUrlmapper::get_downloadurl("$pa->{'project'}/$pa->{'repository'}");
     next unless defined $url;
     $r->{'url'} = $url;
     push @repos, $r;
@@ -3361,12 +3322,7 @@ sub fileinfo {
 sub publishedfile {
   my ($cgi, $projid, $repoid, $arch, $filename, $subfilename) = @_;
   $filename .= "/$subfilename" if defined $subfilename;
-  my $prp_ext = "$projid/$repoid";
-  $prp_ext =~ s/:/:\//g;
-  my $extrep = "$extrepodir/$prp_ext";
-  if ($BSConfig::publishredirect && $BSConfig::publishredirect->{"$projid/$repoid"}) {
-    $extrep = $BSConfig::publishredirect->{"$projid/$repoid"};
-  }
+  my $extrep = BSUrlmapper::get_extrep("$projid/$repoid");
   $extrep .= "/$arch" if defined $arch;
   if (-d "$extrep/$filename") {
     return publisheddir($cgi, $projid, $repoid, "$arch/$filename");

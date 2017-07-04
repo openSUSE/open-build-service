@@ -94,7 +94,6 @@ BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BS
 my $_reporoot = "$bsdir/build";
 my $_jobsdir = "$bsdir/jobs";
 my $_eventdir = "$bsdir/events";
-my $_extrepodir = "$bsdir/repos";
 my $_dodsdir = "$bsdir/dods";
 my $_rundir = $BSConfig::rundir || "$bsdir/run";
 my $_infodir = "$bsdir/info";
@@ -388,7 +387,6 @@ my $gctx = {
   'myjobsdir' => "$_jobsdir/$_myarch",
   'eventdir' => $_eventdir,
   'myeventdir' => $_myeventdir,
-  'extrepodir' => $_extrepodir,
   'dodsdir' => $_dodsdir,
   'rundir' => $_rundir,
   'infodir' => $_infodir,

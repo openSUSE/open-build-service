@@ -15,8 +15,6 @@ my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
 my $reporoot = "$BSConfig::bsdir/build";
-my $extrepodir = "$BSConfig::bsdir/repos";
-my $extrepodb = "$BSConfig::bsdir/db/published";
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
@@ -29,43 +27,6 @@ sub getconfig {
   my $bconf = Build::read_config($arch, [split("\n", $config)]);
   $bconf->{'binarytype'} ||= 'UNDEFINED';
   return $bconf;
-}
-
-sub map_to_extrep {
-  my ($prp, $prp_ext) = @_;
-
-  my $extrep = "$extrepodir/$prp_ext";
-  return $extrep unless $BSConfig::publishredirect;
-  if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
-    for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
-      if ($prp =~ /^$key/) {
-        $extrep = $BSConfig::publishredirect->{$key};
-        last;
-      }
-    }
-  } elsif (exists($BSConfig::publishredirect->{$prp})) {
-    $extrep = $BSConfig::publishredirect->{$prp};
-  }
-  $extrep = $extrep->($prp, $prp_ext) if $extrep && ref($extrep) eq 'CODE';
-  return $extrep;
-}
-
-sub get_downloadurl {
-  my ($prp, $prp_ext) = @_;
-  if ($BSConfig::prp_ext_map && exists $BSConfig::prp_ext_map->{$prp}) {
-    return $BSConfig::prp_ext_map->{$prp};
-  }
-  my $extrep = map_to_extrep($prp, $prp_ext);
-  $extrep = [ $extrep ] unless ref $extrep;
-  return $extrep->[2] if $extrep->[2];
-  BSConfiguration::check_configuration_once();
-  return undef unless $BSConfig::repodownload;
-  if ($extrep->[0] =~ /^\Q$BSConfig::bsdir\E\/repos\/(.*)$/) {
-    my $url = "$BSConfig::repodownload/$1/";
-    $url =~ s!//$!/!;
-    return $url;
-  }
-  return "$BSConfig::repodownload/$prp_ext/";
 }
 
 sub addrepo_remote {

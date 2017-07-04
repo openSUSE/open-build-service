@@ -26,6 +26,7 @@ use BSConfiguration;
 use BSRPC ':https';
 use BSUtil;
 use BSXML;
+use BSUrlmapper;
 use Build;
 
 use BSRepServer;
@@ -149,22 +150,19 @@ sub addpreinstallimg {
     my $images = BSRepServer::getpreinstallimages($prpa);
     next unless $images;
     for my $img (@$images) {
-     next if @{$img->{'hdrmd5s'} || []} < $bestimgn;
-     next unless $img->{'sizek'} && $img->{'hdrmd5'};
-     next if grep {!$preimghdrmd5s->{$_}} @{$img->{'hdrmd5s'} || []}; 
-     next if $prpa eq "$projid/$repoid/$arch" && $packid && $img->{'package'} eq $packid;
-     $img->{'prpa'} = $prpa;
-     $bestimg = $img;
-     $bestimgn = @{$img->{'hdrmd5s'} || []}; 
+      next if @{$img->{'hdrmd5s'} || []} < $bestimgn;
+      next unless $img->{'sizek'} && $img->{'hdrmd5'};
+      next if grep {!$preimghdrmd5s->{$_}} @{$img->{'hdrmd5s'} || []}; 
+      next if $prpa eq "$projid/$repoid/$arch" && $packid && $img->{'package'} eq $packid;
+      $img->{'prpa'} = $prpa;
+      $bestimg = $img;
+      $bestimgn = @{$img->{'hdrmd5s'} || []}; 
    }
   }
   return unless $bestimg;
   my $pi = {'package' => $bestimg->{'package'}, 'filename' => "_preinstallimage.$bestimg->{'hdrmd5'}", 'binary' => $bestimg->{'bins'}, 'hdrmd5' => $bestimg->{'hdrmd5'}};
   ($pi->{'project'}, $pi->{'repository'}) = split('/', $bestimg->{'prpa'}, 3);
-  my $rprp = "$pi->{'project'}/$pi->{'repository'}";
-  my $rprp_ext = $rprp;
-  $rprp_ext =~ s/:/:\//g;
-  my $rurl = BSRepServer::get_downloadurl($rprp, $rprp_ext);
+  my $rurl = BSUrlmapper::get_downloadurl("$pi->{'project'}/$pi->{'repository'}");
   $pi->{'url'} = $rurl if $rurl;
   $binfo->{'preinstallimage'} = $pi;
 }
@@ -175,10 +173,7 @@ sub addurltopath {
   for my $r (@{$binfo->{'path'}}) {
     delete $r->{'server'};
     next if $remoteprojs->{$r->{'project'}};	# what to do with those?
-    my $rprp = "$r->{'project'}/$r->{'repository'}";
-    my $rprp_ext = $rprp;
-    $rprp_ext =~ s/:/:\//g;
-    my $rurl = BSRepServer::get_downloadurl($rprp, $rprp_ext);
+    my $rurl = BSUrlmapper::get_downloadurl("$r->{'project'}/$r->{'repository'}");
     $r->{'url'} = $rurl if $rurl;
   }
 }
@@ -197,7 +192,7 @@ sub fixupbuildinfo {
     unshift @{$binfo->{'path'}}, @{delete $binfo->{'containerpath'}};
   }
   addurltopath($ctx, $binfo);
-  # never use the subpacks from the full tree
+  # never use the subpacks calculated from the full tree
   $binfo->{'subpack'} = $info->{'subpacks'} if $info->{'subpacks'};
   $binfo->{'subpack'} = [ sort @{$binfo->{'subpack'} } ] if $binfo->{'subpack'};
   $binfo->{'downloadurl'} = $BSConfig::repodownload if defined $BSConfig::repodownload;

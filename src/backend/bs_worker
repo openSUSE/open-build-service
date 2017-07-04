@@ -2619,11 +2619,7 @@ sub createchannel {
   writestr("$dir/._channel", "$dir/_channel", $c);
 }
 
-sub kiwiurlmapper {
-  my ($url) = @_;
-  return '_obsrepositories';
-}
-$Build::Kiwi::urlmapper = \&kiwiurlmapper unless $Build::Kiwi::urlmapper;
+$Build::Kiwi::urlmapper = sub {return '_obsrepositories'}  unless $Build::Kiwi::urlmapper;
 
 sub dobuild {
   my ($buildinfo) = @_;

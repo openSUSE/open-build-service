@@ -36,7 +36,6 @@ package BSSched::PublishRepo;
 #   reporoot
 #   projpacks
 #   myjobsdir
-#   extrepodir
 
 use strict;
 use warnings;
@@ -45,8 +44,10 @@ use Fcntl qw(:DEFAULT :flock);
 use Digest::MD5 ();
 
 use BSUtil;
-use Build::Rpm;
 use BSConfiguration;
+use BSUrlmapper;
+use Build::Rpm;		# for verscmp
+
 use BSSched::ProjPacks;		# for orderpackids
 use BSSched::BuildJob::DeltaRpm;
 use BSSched::EventSource::Directory;  # sendpublishevent
@@ -293,24 +294,6 @@ sub prpfinished {
   return '';
 }
 
-sub map_to_extrep {
-  my ($gctx, $prp, $prp_ext) = @_;
-  my $extrep = "$gctx->{'extrepodir'}/$prp_ext";
-  return $extrep unless $BSConfig::publishredirect;
-  if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
-    for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
-      if ($prp =~ /^$key/) {
-	$extrep = $BSConfig::publishredirect->{$key};
-	last;
-      }
-    }
-  } elsif (exists($BSConfig::publishredirect->{$prp})) {
-    $extrep = $BSConfig::publishredirect->{$prp};
-  }
-  $extrep = $extrep->($prp, $prp_ext) if $extrep && ref($extrep) eq 'CODE';
-  return $extrep;
-}
-
 =head2 makedeltas - calculate list of needed delta rpms and create build jobs
 
 make sure that we have all of the deltas we need
@@ -410,10 +393,7 @@ sub makedeltas {
 	if (!$oldbins{"$aprp/$binarch"}) {
 	  $oldbins{"$aprp/$binarch"} = {};
 	  if (!exists($oldbins{$aprp})) {
-	    my $aextrep = $aprp;
-	    $aextrep =~ s/:/:\//g;
-	    $aextrep = map_to_extrep($gctx, $aprp, $aextrep);
-	    $aextrep = $aextrep->[0] if ref $aextrep;
+	    my $aextrep = BSUrlmapper::get_extrep($aprp);
 	    $aextrep = "$aextrep/$subdir" if $subdir && $aextrep && -d "$aextrep/$subdir";
 	    $aextrep = $BSConfig::extradeltarepos->{$aprp} if $BSConfig::extradeltarepos && defined($BSConfig::extradeltarepos->{$aprp});
 	    $oldbins{$aprp} = $aextrep;

@@ -58,6 +58,7 @@ use BSPgp;
 use BSSrcrep;
 use BSRevision;
 use BSKiwiXML;
+use BSUrlmapper;
 
 use BSXPath;
 use BSXPathKeys;
@@ -872,35 +873,7 @@ sub kiwibootcallback {
 }
 $Build::Kiwi::bootcallback = \&kiwibootcallback;
 
-my $kiwiurlmapcache;
-sub kiwiurlmapper {
-  my ($url) = @_;
-  $url =~ s/\/+$//;
-  if (!$kiwiurlmapcache) {
-    $kiwiurlmapcache = {};
-    for my $prp (sort keys %{$BSConfig::prp_ext_map || {}}) {
-      my $u = $BSConfig::prp_ext_map->{$prp};
-      $u =~ s/\/+$//;
-      $kiwiurlmapcache->{$u} = $prp;
-    }
-  }
-  my $prp = $kiwiurlmapcache->{$url};
-  return $prp if $prp;
-  if ($BSConfig::repodownload && $url =~ /^\Q$BSConfig::repodownload\E\/(.+\/.+)/) {
-    my @p = split('/', $1);
-    while (@p > 1 && $p[0] =~ /:$/) {
-      splice(@p, 0, 2, "$p[0]$p[1]");
-    }
-    my $project = shift(@p);
-    while (@p > 1 && $p[0] =~ /:$/) {
-      splice(@p, 0, 2, "$p[0]$p[1]");
-    }
-    my $repository = shift(@p);
-    return "$project/$repository" if $project && $repository;
-  }
-  return undef;
-}
-$Build::Kiwi::urlmapper = \&kiwiurlmapper;
+$Build::Kiwi::urlmapper = \&BSUrlmapper::urlmapper;
 
 #########################################################################
 
@@ -4881,47 +4854,17 @@ sub published {
   return ({'entry' => \@res}, $BSXML::dir);
 }
 
-sub map_to_extrep {
-  my ($prp, $prp_ext) = @_;
-  
-  my $extrep = "$extrepodir/$prp_ext";
-  return $extrep unless $BSConfig::publishredirect;
-  if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
-    for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
-      if ($prp =~ /^$key/) {
-        $extrep = $BSConfig::publishredirect->{$key};
-        last;
-      }    
-    }    
-  } elsif (exists($BSConfig::publishredirect->{$prp})) {
-    $extrep = $BSConfig::publishredirect->{$prp};
-  }
-  $extrep = $extrep->($prp, $prp_ext) if $extrep && ref($extrep) eq 'CODE';
-  return $extrep;
-}
-
 sub published_path {
   my ($cgi, $projid, $repoid) = @_;
   my $medium = $cgi->{'medium'};
   my $prp = "$projid/$repoid";
-  my $prp_ext = $prp;
   my $ret = {'project' => $projid, 'repository' => $repoid};
   $ret->{'medium'} = $medium if $medium;
-  $prp_ext =~ s/:/:\//g;
-  my $extrep = map_to_extrep($prp, $prp_ext);
-  $extrep = [ $extrep ] unless ref $extrep;
-  my ($path, $url) = ($extrep->[1], $extrep->[2]);
+
   # update to get fresh version of repodownload
   BSConfiguration::check_configuration_once();
-  if ($BSConfig::prp_ext_map && $BSConfig::prp_ext_map->{$prp}) {
-    $url = $BSConfig::prp_ext_map->{$prp} unless defined $url;
-  }
-  if ($extrep->[0] =~ /^\Q$BSConfig::bsdir\E\/repos\/(.*)$/) {
-    $path = $1 unless defined $path;
-    if ($BSConfig::repodownload) {
-      $url = "$BSConfig::repodownload/".BSRPC::urlencode($1) unless defined $url;
-    }
-  }
+  my ($path, $url) = BSUrlmapper::get_path_downloadurl($prp);
+
   if ($cgi->{'filename'}) {
     # called from getbinary
     my $bin = $cgi->{'filename'};
@@ -4939,11 +4882,12 @@ sub published_path {
     } elsif ($bin =~ /-Media\d+$/) {
       $medium = $bin;
     }
-    if (defined $p) {
+    if (defined($p) && !$medium) {
       $path .= "/$p" if defined $path;
-      $url .= "/".BSRPC::urlencode($p) if defined $url;
+      $url .= BSRPC::urlencode($p) if defined $url;
     }
   }
+
   if ($medium && $medium =~ /\.iso$/) {
     $medium = "iso/$medium";
   } elsif ($medium) {
@@ -4978,8 +4922,9 @@ sub published_path {
   }
   if ($medium) {
     $path .= "/$medium" if defined $path;
-    $url .= "/".BSRPC::urlencode($medium) if defined $url;
+    $url .= BSRPC::urlencode($medium) if defined $url;
   }
+  $url =~ s/([^\/])\/$/$1/ if defined $url;		# compat
   $ret->{'path'} = $path if defined $path;
   $ret->{'url'} = $url if defined $url;
   return ($ret, $BSXML::publishedpath);
@@ -5715,7 +5660,7 @@ sub orderkiwirepos_for_prio {
     if ($url =~ /^obs:\/\/\/?([^\/]+)\/([^\/]+)\/?$/) {
       $prp = "$1/$2";
     } else {
-      $prp = kiwiurlmapper($url);
+      $prp = BSUrlmapper::urlmapper($url);
     }
     $prp ||= ':unknown/unknown';
     push @prps, $prp;
