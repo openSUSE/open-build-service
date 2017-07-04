@@ -94,9 +94,6 @@ class Project < ApplicationRecord
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_project_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
 
-  has_many :source_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'source_project_id'
-  has_many :source_of_bs_requests, through: :source_of_bs_request_actions, source: :bs_request
-
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
 
   scope :maintenance, -> { where("kind = 'maintenance'") }

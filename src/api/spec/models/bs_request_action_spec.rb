@@ -48,15 +48,5 @@ RSpec.describe BsRequestAction do
       action = BsRequestAction.create(target_project: project.name)
       expect(action.target_project_object).to eq(project)
     end
-
-    it 'sets source_package_object to package if source_package and source_project parameters provided' do
-      action = BsRequestAction.create(source_project: project.name, source_package: package.name)
-      expect(action.source_package_object).to eq(package)
-    end
-
-    it 'sets source_project_object to project if target_project parameter provided' do
-      action = BsRequestAction.create(source_project: project.name)
-      expect(action.source_project_object).to eq(project)
-    end
   end
 end
