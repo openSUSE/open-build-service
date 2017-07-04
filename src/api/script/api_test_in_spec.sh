@@ -65,9 +65,10 @@ EOF
 # migration test
 export RAILS_ENV=migrate
 bundle.ruby2.4 exec rake.ruby2.4 db:create || exit 1
+mv db/structure.sql db/structure.sql.git
 xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=$MYSQL_SOCKET
 bundle.ruby2.4 exec rake.ruby2.4 db:migrate db:structure:dump db:drop || exit 1
-if test `diff db/structure.sql{.git,} | wc -l` -gt 0 ; then
+if ! diff db/structure.sql{.git,}; then
   echo "ERROR: Migration is producing a different structure.sql"
   diff -u db/structure.sql{,.git}
   exit 1
