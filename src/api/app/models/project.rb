@@ -898,7 +898,7 @@ class Project < ApplicationRecord
   # this function is making the products uniq
   def expand_all_products
     p_map = Hash.new
-    products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", id).to_a
+    products = Product.all_products( self ).to_a
     products.each { |p| p_map[p.cpe] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
     linking_to.each do |lp|
