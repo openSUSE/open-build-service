@@ -1015,6 +1015,13 @@ class Package < ApplicationRecord
     ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
       _add_channel(mode, cb, "Listed in #{project_name} #{name}")
     end
+    # Invalidate cache after adding first batch of channels. This is needed because
+    # we add channels for linked packages before calling store, which would update the
+    # timestamp used for caching.
+    # rubocop:disable Rails/SkipsModelValidations
+    project.touch
+    # rubocop:enable Rails/SkipsModelValidations
+
     # and all possible existing local links
     if opkg.project.is_maintenance_release? && opkg.is_link?
       opkg = opkg.project.packages.find_by_name opkg.linkinfo["package"]
