@@ -31,7 +31,7 @@ class BsRequest < ApplicationRecord
 
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
   # Scopes for collections
-  scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
+  scope :with_actions, -> { includes(:bs_request_actions).references(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
   scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids }) }
   scope :with_involved_packages, ->(package_ids) { where(bs_request_actions: { target_package_id: package_ids }) }
 
@@ -39,7 +39,9 @@ class BsRequest < ApplicationRecord
   scope :with_target_subprojects, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
 
   scope :in_states, ->(states) { where(state: states) }
-  scope :with_types, ->(types) { joins(:bs_request_actions).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc) }
+  scope :with_types, lambda { |types|
+    includes(:bs_request_actions).references(:references).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc)
+  }
   scope :from_source_project, ->(source_project) { where(bs_request_actions: { source_project: source_project }) }
   scope :in_ids, ->(ids) { where(id: ids) }
   scope :not_creator, ->(login) { where.not(creator: login) }
