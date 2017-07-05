@@ -9,18 +9,18 @@
 #   and its symbolic link
 # /(usr/)sbin/rcobsapidelayed
 #
-#    This program is free software; you can redistribute it and/or modify 
-#    it under the terms of the GNU General Public License as published by 
-#    the Free Software Foundation; either version 2 of the License, or 
-#    (at your option) any later version. 
-# 
-#    This program is distributed in the hope that it will be useful, 
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of 
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-#    GNU General Public License for more details. 
-# 
-#    You should have received a copy of the GNU General Public License 
-#    along with this program; if not, write to the Free Software 
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 ### BEGIN INIT INFO
@@ -64,8 +64,9 @@ case "$1" in
         run_in_api script/delayed_job.api.rb --queue=releasetracking start -i 1000
         run_in_api script/delayed_job.api.rb --queue=issuetracking start -i 1010
         run_in_api script/delayed_job.api.rb --queue=mailers start -i 1020
-        # to be removed later. This is just for processing old jobs without default queue
-        run_in_api script/delayed_job.api.rb start -i 1030
+        # The default queue used by ActiveJob (jobs scheduled with .perform_later)
+        run_in_api script/delayed_job.api.rb --queue=default start -i 1030
+        run_in_api script/delayed_job.api.rb --queue=project_log_rotate start -i 1040
 	rc_status -v
 	echo -n "Starting OBS api clock daemon "
         run_in_api $CLOCKWORKD --log-dir=log -l -c config/clock.rb start
@@ -78,8 +79,8 @@ case "$1" in
         run_in_api script/delayed_job.api.rb --queue=releasetracking stop -i 1000
         run_in_api script/delayed_job.api.rb --queue=issuetracking stop -i 1010
         run_in_api script/delayed_job.api.rb --queue=mailers stop -i 1020
-        # to be removed later. This is just for processing old jobs without default queue
-        run_in_api script/delayed_job.api.rb stop -i 1030
+        run_in_api script/delayed_job.api.rb --queue=default stop -i 1030
+        run_in_api script/delayed_job.api.rb --queue=project_log_rotate stop -i 1040
 	rc_status -v
 	echo -n "Shutting down OBS api clock daemon "
         run_in_api $CLOCKWORKD -l -c config/clock.rb stop

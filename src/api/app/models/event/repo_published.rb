@@ -12,7 +12,6 @@ end
 #  eventtype      :string(255)      not null, indexed
 #  payload        :text(65535)
 #  queued         :boolean          default(FALSE), not null, indexed
-#  lock_version   :integer          default(0), not null
 #  created_at     :datetime         indexed
 #  updated_at     :datetime
 #  project_logged :boolean          default(FALSE), indexed
