@@ -103,7 +103,8 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::PatchinfoController#save'                                         => 271.56,
       'Webui::RequestController#show'                                           => 97.07,
       'Webui::SearchController#set_parameters'                                  => 92.27,
-      'Project::UpdateFromXmlCommand#run'                                       => 88.22
+      'Project::UpdateFromXmlCommand#run'                                       => 88.22,
+      'Project#open_requests'                                                   => 87.69
   }
 
   test 'code complexity' do

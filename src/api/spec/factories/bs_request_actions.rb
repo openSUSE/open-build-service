@@ -13,5 +13,11 @@ FactoryGirl.define do
     factory :bs_request_action_submit, class: BsRequestActionSubmit do
       type 'submit'
     end
+    factory :bs_request_action_maintenance_incident, class: BsRequestActionMaintenanceIncident do
+      type 'maintenance_incident'
+    end
+    factory :bs_request_action_maintenance_release, class: BsRequestActionMaintenanceRelease do
+      type 'maintenance_release'
+    end
   end
 end

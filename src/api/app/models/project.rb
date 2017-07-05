@@ -1,5 +1,6 @@
 require_dependency 'has_relationships'
 
+# rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
   include FlagHelper
   include CanRenderModel
@@ -1242,12 +1243,29 @@ class Project < ApplicationRecord
   end
 
   def open_requests
-    reviews = BsRequest.collection(project: name, states: %w(review)).map(&:number)
-    targets = BsRequest.collection(project: name, states: %w(new)).map(&:number)
-    incidents = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_incident)).map(&:number)
+    reviews = BsRequest.where(id: BsRequestAction.where(target_project_id: id).select(:bs_request_id)).or(
+      BsRequest.where(id: BsRequestAction.where(source_project: name).select(:bs_request_id)).or(
+        BsRequest.where(id: Review.where(state: :new, project_id: id).select(:bs_request_id))
+      )
+    ).in_states(:review).distinct.order(priority: :asc, id: :desc).pluck(:number)
+
+    targets = BsRequest.with_involved_projects(id)
+                       .or(BsRequest.from_source_project(name))
+                       .in_states(:new).with_actions
+                       .pluck(:number)
+
+    incidents = BsRequest.with_involved_projects(id)
+                         .or(BsRequest.from_source_project(name))
+                         .in_states(:new)
+                         .with_types(:maintenance_incident)
+                         .pluck(:number)
 
     if is_maintenance?
-      maintenance_release = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_release), subprojects: true).map(&:number)
+      maintenance_release = BsRequest.with_target_subprojects(name + ':%')
+                                     .or(BsRequest.with_source_subprojects(name + ':%'))
+                                     .in_states(:new)
+                                     .with_types(:maintenance_release)
+                                     .pluck(:number)
     else
       maintenance_release = []
     end
@@ -1678,6 +1696,7 @@ class Project < ApplicationRecord
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
 
 # == Schema Information
 #

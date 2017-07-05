@@ -16,6 +16,8 @@ record_1:
   type: submit
   target_project: home:Iggy
   target_package: apache2
+  target_project_object: home:Iggy
+  target_package_object: apache2
   source_project: Apache
   source_package: apache2
   source_rev: '1'
@@ -47,6 +49,8 @@ record_4:
   type: submit
   target_project: kde4
   target_package: apache2
+  target_project_object: kde4
+  target_package_object: apache2
   source_project: Apache
   source_package: apache2
   source_rev: '1'
@@ -84,6 +88,8 @@ record_8:
   type: submit
   target_project: Apache
   target_package: BranchPack
+  target_project_object: Apache
+  target_package_object: BranchPack
   source_project: home:Iggy:branches:kde4
   source_package: BranchPack
   source_rev: '1'
@@ -94,6 +100,8 @@ record_9:
   type: submit
   target_project: Apache
   target_package: BranchPack
+  target_project_object: Apache
+  target_package_object: BranchPack
   source_project: home:Iggy:branches:kde4
   source_package: BranchPack
   source_rev: '1'
@@ -104,6 +112,8 @@ record_10:
   type: maintenance_incident
   target_project: My:Maintenance
   target_package: pack2
+  target_project_object: My_Maintenance
+  target_package_object: pack2
   source_project: BaseDistro2.0
   source_package: pack2
   source_rev: '1'
@@ -114,6 +124,8 @@ record_11:
   type: maintenance_release
   target_project: My:Maintenance:Temporary
   target_package: pack2
+  target_project_object: My:Maintenance:Temporary
+  target_package_object: pack2
   source_project: BaseDistro2.0
   source_package: pack2
   source_rev: '1'

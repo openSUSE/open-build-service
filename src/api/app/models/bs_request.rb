@@ -31,13 +31,18 @@ class BsRequest < ApplicationRecord
 
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
   # Scopes for collections
-  scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
-  scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids } ) }
-  scope :with_involved_packages, ->(package_ids) { where(bs_request_actions: { target_package_id: package_ids } ) }
+  scope :with_actions, -> { includes(:bs_request_actions).references(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
+  scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids }) }
+  scope :with_involved_packages, ->(package_ids) { where(bs_request_actions: { target_package_id: package_ids }) }
+
+  scope :with_source_subprojects, ->(project_name) { where('bs_request_actions.source_project like ?', project_name) }
+  scope :with_target_subprojects, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
 
   scope :in_states, ->(states) { where(state: states) }
-  scope :with_types, ->(types) { where('bs_request_actions.type in (?)', types) }
-  scope :from_source_project, ->(source_project) { where('bs_request_actions.source_project = ?', source_project) }
+  scope :with_types, lambda { |types|
+    includes(:bs_request_actions).references(:references).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc)
+  }
+  scope :from_source_project, ->(source_project) { where(bs_request_actions: { source_project: source_project }) }
   scope :in_ids, ->(ids) { where(id: ids) }
   scope :not_creator, ->(login) { where.not(creator: login) }
   # Searching capabilities using dataTable (1.9)
@@ -1151,9 +1156,8 @@ class BsRequest < ApplicationRecord
     types = opts[:types] || []
     review_states = opts[:review_states] || ['new']
     # Setup the collection based on params
-    requests = with_actions
+    requests = types.blank? ? with_actions : with_types(types)
     requests = requests.in_states(states) unless states.blank?
-    requests = requests.with_types(types) unless types.blank?
     unless opts[:source_project].blank?
       requests = requests.from_source_project(opts[:source_project])
     end
