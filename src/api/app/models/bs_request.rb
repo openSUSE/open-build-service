@@ -39,7 +39,7 @@ class BsRequest < ApplicationRecord
   scope :with_target_subprojects, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
 
   scope :in_states, ->(states) { where(state: states) }
-  scope :with_types, ->(types) { where(bs_request_actions: { type: types}) }
+  scope :with_types, ->(types) { joins(:bs_request_actions).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc) }
   scope :from_source_project, ->(source_project) { where(bs_request_actions: { source_project: source_project }) }
   scope :in_ids, ->(ids) { where(id: ids) }
   scope :not_creator, ->(login) { where.not(creator: login) }
@@ -1154,9 +1154,8 @@ class BsRequest < ApplicationRecord
     types = opts[:types] || []
     review_states = opts[:review_states] || ['new']
     # Setup the collection based on params
-    requests = with_actions
+    requests = types.blank? ? with_actions : with_types(types)
     requests = requests.in_states(states) unless states.blank?
-    requests = requests.with_types(types) unless types.blank?
     unless opts[:source_project].blank?
       requests = requests.from_source_project(opts[:source_project])
     end

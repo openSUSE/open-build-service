@@ -1258,7 +1258,6 @@ class Project < ApplicationRecord
                          .or(BsRequest.from_source_project(name))
                          .in_states(:new)
                          .with_types(:maintenance_incident)
-                         .with_actions
                          .pluck(:number)
 
     if is_maintenance?
@@ -1266,7 +1265,6 @@ class Project < ApplicationRecord
                                      .or(BsRequest.with_source_subprojects(name + ':%'))
                                      .in_states(:new)
                                      .with_types(:maintenance_release)
-                                     .with_actions
                                      .pluck(:number)
     else
       maintenance_release = []
