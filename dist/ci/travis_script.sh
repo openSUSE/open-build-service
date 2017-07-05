@@ -36,6 +36,7 @@ if test -z "$SUBTEST"; then
       bundle exec rake db:structure:verify
       make -C ../../ rubocop
       bundle exec rake haml_lint
+      bundle exec git-cop --police
       jshint .
       ;;
     rspec)

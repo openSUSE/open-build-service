@@ -1,3 +1,13 @@
+GIT
+  remote: https://github.com/Ana06/git-cop.git
+  revision: e9c3087efc9794e3ae12d28509da74e0b5d90cfd
+  branch: travis-ci
+  specs:
+    git-cop (1.1.0)
+      refinements (~> 4.1)
+      runcom (~> 1.1)
+      thor (~> 0.19)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -278,6 +288,7 @@ GEM
     rantly (1.1.0)
     rdoc (5.1.0)
     redcarpet (3.4.0)
+    refinements (4.1.0)
     responders (2.4.0)
       actionpack (>= 4.2.0, < 5.3)
       railties (>= 4.2.0, < 5.3)
@@ -314,6 +325,8 @@ GEM
     ruby-progressbar (1.8.1)
     ruby_parser (3.9.0)
       sexp_processor (~> 4.1)
+    runcom (1.1.0)
+      refinements (~> 4.1)
     safe_yaml (1.0.4)
     sanitize (4.5.0)
       crass (~> 1.0.2)
@@ -422,6 +435,7 @@ DEPENDENCIES
   flog (> 4.1.0)
   flot-rails
   font-awesome-rails
+  git-cop!
   gssapi
   haml
   haml_lint

@@ -25,12 +25,75 @@ In particular, this community seeks the following types of contributions:
 * A developer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will review your pull-request
   * If the pull request gets a positive review the reviewer will merge it
 
-We tag our commits depending on the area that is affected by the change. Those are
-* [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and it's views
+
+## How to write proper commit messages
+
+### Tag your commits
+
+We tag our commits depending on the area that is affected by the change. **All commits should start with at least one tag** from:
+
 * [api]     - Changes in api related parts of app/model/ and lib/ as well as app/controllers/*.rb and it's views
 * [backend] - Changes in the perl-written backend of OBS
 * [ci]      - Changes that affect our test suite
+* [dist]    - Modifies something inside /dist directory
 * [doc]     - Any documentation related changes
+* [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and it's views
+
+In case of having more than one tag, they should be **alphabetically** ordered.
+
+
+### Useful commit subject with maximum 50 characters in imperative mode
+
+Commit subject/title should have **maximum 50 characters**, you can have as much information as you want in the commit body. Try to make the commit message useful, avoiding writing things such as the number of issue it is fixing. Nobody can remember issues numbers.
+
+The commit message should be writen in imperative mode and **start by one of the following words**:
+
+- Fix
+- Add
+- Change
+- Update
+- Remove
+- Refactor
+- Merge
+- Split
+- Enable
+- Disable
+
+*Do not end the summary line with a period.*
+
+
+### Write proper commit descriptions
+
+Writing a proper commit description/body is important. There is always some more useful information to add.
+
+- **Leave empty lines between the commit subject/title** and the commit body/description. Separate also commit description/body paragraphs with empty lines and end them with a period.
+- Each line of the commit body is no longer than **72 characters**.
+- **Avoid meaningless words/phrases** such as: *obviously*, *basically*, *simply*, *of course*, *everyone knows*, *easy*.
+- When writing lists in your commit body, do not use `*` or `•`. **Use `-` for lists** instead.
+- End the commit message with a separate line in which you **mention the issue you are fixing** if any. Include the whole Github link, and not only the number. Use one of the following words:
+ - Close
+ - Fix
+ - Resolve
+
+
+### Example
+
+```
+[api][ci] Short (50 chars or less) commit title
+
+Commit subject/description, detailed text explaining the changes. Wrap
+it to 72 characters. Leave an empty line separating the commit
+title/subject from the body. Do not use meaningless word/phrases. End
+paragraphs with a period.
+
+Separate paragraphs with empty lines.
+
+  - When writing lists use `-`.
+
+  - And only `-`. Do not use `*` or `•`.
+  
+Fix https://github.com/openSUSE/open-build-service/issues/1
+```
 
 # How to contribute issues
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
