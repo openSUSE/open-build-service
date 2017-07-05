@@ -1501,7 +1501,7 @@ end
 #
 # Foreign Keys
 #
-#  fk_rails_9a47aff19d  (kiwi_image_id => kiwi_images.id)
-#  packages_ibfk_3      (develpackage_id => packages.id)
-#  packages_ibfk_4      (project_id => projects.id)
+#  fk_rails_...     (kiwi_image_id => kiwi_images.id)
+#  packages_ibfk_3  (develpackage_id => packages.id)
+#  packages_ibfk_4  (project_id => projects.id)
 #
