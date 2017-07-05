@@ -7,7 +7,12 @@ class SendEventEmails
   def perform
     Event::Base.where(mails_sent: false).order(created_at: :asc).limit(1000).each do |event|
       subscribers = event.subscribers
-      next if subscribers.empty?
+
+      if subscribers.empty?
+        event.update_attributes(mails_sent: true)
+        next
+      end
+
       create_rss_notifications(event)
       EventMailer.event(subscribers, event).deliver_now
       event.update_attributes(mails_sent: true)
