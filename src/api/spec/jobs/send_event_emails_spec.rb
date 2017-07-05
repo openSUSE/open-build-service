@@ -14,43 +14,80 @@ RSpec.describe SendEventEmails, type: :job do
     let!(:comment_author) { create(:confirmed_user) }
     let!(:group) { create(:group) }
 
-    let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: user) }
-    let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group) }
-    let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: comment_author) }
-
     let!(:comment) { create(:comment_project, body: "Hey @#{user.login} how are things?", user: comment_author) }
 
-    subject! { SendEventEmails.new.perform }
+    context 'with no errors being raised' do
+      let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: user) }
+      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group) }
+      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: comment_author) }
 
-    it 'sends an email to the subscribers' do
-      email = ActionMailer::Base.deliveries.first
+      subject! { SendEventEmails.new.perform }
 
-      expect(email.to).to match_array([user.email, group.email])
-      expect(email.subject).to include('New comment')
+      it 'sends an email to the subscribers' do
+        email = ActionMailer::Base.deliveries.first
+
+        expect(email.to).to match_array([user.email, group.email])
+        expect(email.subject).to include('New comment')
+      end
+
+      it "creates an rss notification for user's email" do
+        notification = Notification.find_by(subscriber: user)
+
+        expect(notification.type).to eq('Notification::RssFeedItem')
+        expect(notification.event_type).to eq('Event::CommentForProject')
+        expect(notification.event_payload['comment_body']).to include('how are things?')
+        expect(notification.subscription_receiver_role).to eq('all')
+        expect(notification.delivered).to be_falsey
+      end
+
+      it "creates an rss notification for group's email" do
+        notification = Notification::RssFeedItem.find_by(subscriber: group)
+
+        expect(notification.type).to eq('Notification::RssFeedItem')
+        expect(notification.event_type).to eq('Event::CommentForProject')
+        expect(notification.event_payload['comment_body']).to include('how are things?')
+        expect(notification.subscription_receiver_role).to eq('all')
+        expect(notification.delivered).to be_falsey
+      end
+
+      it 'only creates two notifications' do
+        expect(Notification.count).to eq(2)
+      end
     end
 
-    it "creates an rss notification for user's email" do
-      notification = Notification.find_by(subscriber: user)
+    context 'with an error being raised' do
+      let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: user) }
+      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group) }
+      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: comment_author) }
 
-      expect(notification.type).to eq('Notification::RssFeedItem')
-      expect(notification.event_type).to eq('Event::CommentForProject')
-      expect(notification.event_payload['comment_body']).to include('how are things?')
-      expect(notification.subscription_receiver_role).to eq('all')
-      expect(notification.delivered).to be_falsey
+      before do
+        allow(EventMailer).to receive(:event).and_raise(StandardError)
+        allow(Airbrake).to receive(:notify)
+      end
+
+      subject! { SendEventEmails.new.perform }
+
+      it 'updates the event mails_sent = true' do
+        event = Event::CommentForProject.first
+        expect(event.mails_sent).to be_truthy
+      end
+
+      it 'notifies airbrake' do
+        expect(Airbrake).to have_received(:notify)
+      end
     end
 
-    it "creates an rss notification for group's email" do
-      notification = Notification::RssFeedItem.find_by(subscriber: group)
+    context 'with no subscriptions for the event' do
+      subject! { SendEventEmails.new.perform }
 
-      expect(notification.type).to eq('Notification::RssFeedItem')
-      expect(notification.event_type).to eq('Event::CommentForProject')
-      expect(notification.event_payload['comment_body']).to include('how are things?')
-      expect(notification.subscription_receiver_role).to eq('all')
-      expect(notification.delivered).to be_falsey
-    end
+      it 'updates the event mails_sent = true' do
+        event = Event::CommentForProject.first
+        expect(event.mails_sent).to be_truthy
+      end
 
-    it 'only creates two notifications' do
-      expect(Notification.count).to eq(2)
+      it 'sends no emails' do
+        expect(ActionMailer::Base.deliveries.count).to eq(0)
+      end
     end
   end
 end

@@ -13,9 +13,14 @@ class SendEventEmails
         next
       end
 
-      create_rss_notifications(event)
-      EventMailer.event(subscribers, event).deliver_now
-      event.update_attributes(mails_sent: true)
+      begin
+        create_rss_notifications(event)
+        EventMailer.event(subscribers, event).deliver_now
+      rescue StandardError => e
+        Airbrake.notify(e, { event_id: event.id })
+      ensure
+        event.update_attributes(mails_sent: true)
+      end
     end
     true
   end
