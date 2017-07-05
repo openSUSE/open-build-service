@@ -39,8 +39,6 @@ class BsRequestAction < ApplicationRecord
 
   belongs_to :target_package_object, class_name: 'Package', foreign_key: 'target_package_id'
   belongs_to :target_project_object, class_name: 'Project', foreign_key: 'target_project_id'
-  belongs_to :source_package_object, class_name: 'Package', foreign_key: 'source_package_id'
-  belongs_to :source_project_object, class_name: 'Project', foreign_key: 'source_project_id'
 
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
@@ -53,7 +51,7 @@ class BsRequestAction < ApplicationRecord
                      conditions: -> { where.not(type: ['add_role', 'maintenance_incident']) }
   }
 
-  before_validation :set_source_and_target_associations
+  before_validation :set_target_associations
 
   #### Class methods using self. (public and then private)
 
@@ -969,9 +967,7 @@ class BsRequestAction < ApplicationRecord
     end
   end
 
-  def set_source_and_target_associations
-    self.source_package_object = Package.find_by_project_and_name(source_project, source_package)
-    self.source_project_object = Project.find_by_name(source_project)
+  def set_target_associations
     self.target_package_object = Package.find_by_project_and_name(target_project, target_package)
     self.target_project_object = Project.find_by_name(target_project)
   end
@@ -1002,8 +998,6 @@ end
 #  makeoriginolder       :boolean          default(FALSE)
 #  target_package_id     :integer          indexed => [bs_request_id], indexed
 #  target_project_id     :integer          indexed => [bs_request_id], indexed
-#  source_package_id     :integer          indexed
-#  source_project_id     :integer          indexed
 #
 # Indexes
 #
@@ -1011,9 +1005,7 @@ end
 #  index_bs_request_actions_on_bs_request_id_and_target_package_id  (bs_request_id,target_package_id)
 #  index_bs_request_actions_on_bs_request_id_and_target_project_id  (bs_request_id,target_project_id)
 #  index_bs_request_actions_on_source_package                       (source_package)
-#  index_bs_request_actions_on_source_package_id                    (source_package_id)
 #  index_bs_request_actions_on_source_project                       (source_project)
-#  index_bs_request_actions_on_source_project_id                    (source_project_id)
 #  index_bs_request_actions_on_target_package                       (target_package)
 #  index_bs_request_actions_on_target_package_id                    (target_package_id)
 #  index_bs_request_actions_on_target_project                       (target_project)
