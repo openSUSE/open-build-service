@@ -127,6 +127,8 @@ group :development do
   gem 'unicorn-rails' # webrick won't work
   # for annotating models with schema info
   gem 'annotate'
+  # for intercepting and viewing sent emails
+  gem 'mailcatcher'
 end
 
 group :development, :test do
