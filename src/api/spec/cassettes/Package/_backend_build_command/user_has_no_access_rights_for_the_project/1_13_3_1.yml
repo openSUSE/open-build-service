@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:05 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/test_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Where Angels Fear to Tread</title>
-          <description>Nesciunt labore architecto eveniet in dolor nihil accusantium et.</description>
+          <title>The Little Foxes</title>
+          <description>Tenetur ipsum cumque autem voluptate magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Where Angels Fear to Tread</title>
-          <description>Nesciunt labore architecto eveniet in dolor nihil accusantium et.</description>
+          <title>The Little Foxes</title>
+          <description>Tenetur ipsum cumque autem voluptate magnam.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:05 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/test_package/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Where Angels Fear to Tread</title>
-          <description>Nesciunt labore architecto eveniet in dolor nihil accusantium et.</description>
+          <title>The Little Foxes</title>
+          <description>Tenetur ipsum cumque autem voluptate magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,24 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Where Angels Fear to Tread</title>
-          <description>Nesciunt labore architecto eveniet in dolor nihil accusantium et.</description>
+          <title>The Little Foxes</title>
+          <description>Tenetur ipsum cumque autem voluptate magnam.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:05 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/_meta
+    uri: http://localhost:3200/source/other_project/_meta
     body:
       encoding: UTF-8
       string: |
-        <project name="project_1">
-          <title>The Millstone</title>
+        <project name="other_project">
+          <title>An Instant In The Wind</title>
           <description/>
         </project>
     headers:
@@ -148,23 +148,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '99'
+      - '112'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_1">
-          <title>The Millstone</title>
+        <project name="other_project">
+          <title>An Instant In The Wind</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:05 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/_config
+    uri: http://localhost:3200/source/other_project/_config
     body:
       encoding: UTF-8
-      string: Consequatur nam consequatur. Et dicta eaque non eius modi qui vitae.
-        Sint beatae expedita et cumque.
+      string: Labore reprehenderit porro sed rerum est at ex. Dolorem illum non voluptates.
+        Et reprehenderit voluptatem vel ipsam exercitationem minus deserunt.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -191,5 +191,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:05 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:05 GMT
 recorded_with: VCR 3.0.3

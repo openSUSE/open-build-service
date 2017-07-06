@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:15:59 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/test_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>A Scanner Darkly</title>
-          <description>Asperiores consequatur eum tempora.</description>
+          <title>The Doors of Perception</title>
+          <description>Eos maxime minima dolor nisi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>A Scanner Darkly</title>
-          <description>Asperiores consequatur eum tempora.</description>
+          <title>The Doors of Perception</title>
+          <description>Eos maxime minima dolor nisi.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:15:59 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/test_package/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>A Scanner Darkly</title>
-          <description>Asperiores consequatur eum tempora.</description>
+          <title>The Doors of Perception</title>
+          <description>Eos maxime minima dolor nisi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,14 +109,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>A Scanner Darkly</title>
-          <description>Asperiores consequatur eum tempora.</description>
+          <title>The Doors of Perception</title>
+          <description>Eos maxime minima dolor nisi.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:15:59 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:02 GMT
 recorded_with: VCR 3.0.3

@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:04 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:54 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/test_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Consider Phlebas</title>
-          <description>Dolorum nihil molestias necessitatibus dolores adipisci vel assumenda repudiandae.</description>
+          <title>Death Be Not Proud</title>
+          <description>Sunt velit dignissimos cumque officia vel omnis consequuntur maxime.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '206'
+      - '194'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Consider Phlebas</title>
-          <description>Dolorum nihil molestias necessitatibus dolores adipisci vel assumenda repudiandae.</description>
+          <title>Death Be Not Proud</title>
+          <description>Sunt velit dignissimos cumque officia vel omnis consequuntur maxime.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:04 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:54 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/test_package/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Consider Phlebas</title>
-          <description>Dolorum nihil molestias necessitatibus dolores adipisci vel assumenda repudiandae.</description>
+          <title>Death Be Not Proud</title>
+          <description>Sunt velit dignissimos cumque officia vel omnis consequuntur maxime.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,14 +109,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '206'
+      - '194'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Consider Phlebas</title>
-          <description>Dolorum nihil molestias necessitatibus dolores adipisci vel assumenda repudiandae.</description>
+          <title>Death Be Not Proud</title>
+          <description>Sunt velit dignissimos cumque officia vel omnis consequuntur maxime.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:04 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:54 GMT
 recorded_with: VCR 3.0.3

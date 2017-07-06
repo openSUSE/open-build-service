@@ -40,16 +40,16 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 07 Mar 2017 09:33:33 GMT
+  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_meta?user=_nobody_
+    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title/>
-          <description/>
+          <title>An Acceptable Time</title>
+          <description>Quis aut officia perferendis repellendus minus vitae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '123'
+      - '194'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>An Acceptable Time</title>
+          <description>Quis aut officia perferendis repellendus minus vitae.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 07 Mar 2017 09:33:33 GMT
+  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_broken_service/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title/>
-          <description/>
+          <title>An Acceptable Time</title>
+          <description>Quis aut officia perferendis repellendus minus vitae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '123'
+      - '194'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>An Acceptable Time</title>
+          <description>Quis aut officia perferendis repellendus minus vitae.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 07 Mar 2017 09:33:33 GMT
+  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_broken_service/_service
@@ -148,16 +148,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="13" vrev="13">
-          <srcmd5>59028d26104e6ea8d040b8ed38659da8</srcmd5>
+        <revision rev="16" vrev="16">
+          <srcmd5>de1f75f07a7096e47734d832a5a7dd72</srcmd5>
           <version>unknown</version>
-          <time>1488879213</time>
+          <time>1499340818</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 07 Mar 2017 09:33:33 GMT
+  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_broken_service
@@ -185,21 +185,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '361'
+      - '411'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_broken_service" rev="13" vrev="13" srcmd5="59028d26104e6ea8d040b8ed38659da8">
-          <serviceinfo code="failed" xsrcmd5="331a8ad53a6ba88d1f3b911fe938efaa">
-            <error>service error: service in progress</error>
+        <directory name="package_with_broken_service" rev="16" vrev="16" srcmd5="de1f75f07a7096e47734d832a5a7dd72">
+          <serviceinfo code="failed" xsrcmd5="d6a1494599a9a5cab62c57e007be4d1f">
+            <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
           </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1488878898" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1499338186" />
         </directory>
     http_version: 
-  recorded_at: Tue, 07 Mar 2017 09:33:33 GMT
+  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_serviceerror?rev=331a8ad53a6ba88d1f3b911fe938efaa
+    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_serviceerror?rev=d6a1494599a9a5cab62c57e007be4d1f
     body:
       encoding: US-ASCII
       string: ''
@@ -218,55 +218,16 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '20'
+      - '92'
       Cache-Control:
       - no-cache
       Connection:
       - close
     body:
       encoding: UTF-8
-      string: 'service in progress
-
-'
-    http_version: 
-  recorded_at: Tue, 07 Mar 2017 09:33:33 GMT
-- request:
-    method: put
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_meta?user=tom
-    body:
-      encoding: UTF-8
       string: |
-        <package name="package_with_broken_service" project="home:tom">
-          <title>A Swiftly Tilting Planet</title>
-          <description>Qui non culpa ratione.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '169'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_broken_service" project="home:tom">
-          <title>A Swiftly Tilting Planet</title>
-          <description>Qui non culpa ratione.</description>
-        </package>
+        service daemon error:
+         400 remote error: document element must be 'services', was 'service'
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:12 GMT
+  recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
 recorded_with: VCR 3.0.3

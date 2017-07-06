@@ -1,0 +1,378 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/fake_project/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="fake_project">
+          <title>The Heart Is a Lonely Hunter</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '117'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="fake_project">
+          <title>The Heart Is a Lonely Hunter</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/fake_project/_config
+    body:
+      encoding: UTF-8
+      string: Aut repellat iste dolorem quo non amet. Est nihil tempore. Rerum aliquam
+        ut quia consequatur corporis sint. Laudantium quam veritatis eos.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="fake_project">
+          <title>Blue Remembered Earth</title>
+          <description>Magni deserunt aut commodi impedit libero.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '186'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="fake_project">
+          <title>Blue Remembered Earth</title>
+          <description>Magni deserunt aut commodi impedit libero.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="fake_project">
+          <title>Blue Remembered Earth</title>
+          <description>Magni deserunt aut commodi impedit libero.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '186'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="fake_project">
+          <title>Blue Remembered Earth</title>
+          <description>Magni deserunt aut commodi impedit libero.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/package_with_kiwi_image.kiwi
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="utf-8"?>
+        <image schemaversion="6.2" name="suse-13.2-live">
+          <description type="system">
+          </description>
+          <preferences>
+            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
+          </preferences>
+          <packages type="bootstrap">
+          </packages>
+        </image>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>3822662924706b810ffb158183355052</srcmd5>
+          <version>unknown</version>
+          <time>1499329687</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="fake_project">
+          <title>Blue Remembered Earth</title>
+          <description>Magni deserunt aut commodi impedit libero.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '186'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="fake_project">
+          <title>Blue Remembered Earth</title>
+          <description>Magni deserunt aut commodi impedit libero.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499329572" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499329572" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499329572" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499329572" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+recorded_with: VCR 3.0.3

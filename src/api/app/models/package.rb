@@ -11,7 +11,7 @@ class Package < ApplicationRecord
   include CanRenderModel
   include HasRelationships
   has_many :relationships, dependent: :destroy, inverse_of: :package
-  belongs_to :kiwi_image, class_name: 'Kiwi::Image'
+  belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package
   accepts_nested_attributes_for :kiwi_image
 
   include HasRatings
@@ -344,7 +344,8 @@ class Package < ApplicationRecord
   end
 
   def kiwi_image_outdated?
-    kiwi_image && (kiwi_image.md5_last_revision != kiwi_file_md5)
+    return true if kiwi_file_md5.nil? || !kiwi_image
+    kiwi_image.md5_last_revision != kiwi_file_md5
   end
 
   def master_product_object
