@@ -9,7 +9,6 @@ class UserLdapStrategyTest < ActiveSupport::TestCase
     a = UserLdapStrategy.authenticate_with_local("", {})
     assert a == false
 
-    require 'base64'
     test_entry = {
       'userPassword'     => [],
       'CLR_userPassword' => ['test'],

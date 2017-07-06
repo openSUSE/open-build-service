@@ -65,7 +65,6 @@ class UserLdapStrategy
       when :cleartext then
         entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [newpassword])
       when :md5 then
-        require 'base64'
         entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], ["{MD5}" + Base64.b64encode(Digest::MD5.digest(newpassword)).chomp])
       end
     end
@@ -106,7 +105,6 @@ class UserLdapStrategy
     when :cleartext then
       ldap_password = password
     when :md5 then
-      require 'base64'
       ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
     entry = [
@@ -318,7 +316,6 @@ class UserLdapStrategy
     when :cleartext then
       ldap_password = password
     when :md5 then
-      require 'base64'
       ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
     entry = [
@@ -349,7 +346,6 @@ class UserLdapStrategy
         authenticated = true
       end
     when :md5 then
-      require 'base64'
       if ldap_password == "{MD5}" + Base64.encode64(Digest::MD5.digest(password))
         authenticated = true
       end

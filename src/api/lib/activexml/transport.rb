@@ -64,7 +64,6 @@ module ActiveXML
 
     # TODO: put lots of stuff into base class
 
-    require 'base64'
     require 'net/https'
     require 'net/http'
 
