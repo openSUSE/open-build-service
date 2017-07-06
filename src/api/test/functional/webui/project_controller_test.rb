@@ -486,14 +486,6 @@ XML
     page.must_have_text 'Include version updates' # just don't crash
   end
 
-  def verify_email(fixture_name, email)
-    should = load_fixture("event_mailer/#{fixture_name}").chomp
-    lines = email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }
-    lines.select! { |l| l !~ %r{^ boundary=} }
-    lines.select! { |l| l !~ %r{^----==_mimepart} }
-    assert_equal should, lines.join("\n")
-  end
-
   def test_successful_comment_creation
     login_tom to: '/project/show/home:Iggy'
     SendEventEmails.new.perform
@@ -504,7 +496,8 @@ XML
       SendEventEmails.new.perform
     end
     email = ActionMailer::Base.deliveries.last
-    verify_email('project_comment', email)
+    assert_equal %w(Iggy@pop.org homer@nospam.net), email.to
+    assert_equal 'New comment in project home:Iggy by tom', email.subject
   end
 
   def test_unsuccessful_comment_creation

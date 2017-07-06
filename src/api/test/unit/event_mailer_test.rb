@@ -7,16 +7,10 @@ class EventMailerTest < ActionMailer::TestCase
     Timecop.return
   end
 
-  def verify_email(fixture_name, email)
-    should = load_fixture("event_mailer/#{fixture_name}").chomp
-    assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
-  end
-
   test "commit event" do
     mail = EventMailer.event([users(:adrian)], events(:pack1_commit))
     assert_equal "BaseDistro/pack1 r1 commited", mail.subject
     assert_equal ["adrian@example.com"], mail.to
-    assert_equal read_fixture('commit_event').join, mail.body.to_s
   end
 
   test 'maintainer mails for build failure' do
@@ -27,8 +21,9 @@ class EventMailerTest < ActionMailer::TestCase
     EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
     Backend::Connection.wait_for_scheduler_start
 
-    mail = EventMailer.event([users(:Iggy)], events(:build_failure_for_iggy))
-    verify_email('build_fail', mail)
+    email = EventMailer.event([users(:Iggy)], events(:build_failure_for_iggy))
+    assert_equal %w(Iggy@pop.org), email.to
+    assert_equal 'Build failure of home:Iggy/TestPack in 10.2/i586', email.subject
   end
 
   test 'reader mails for build failure' do
@@ -39,8 +34,9 @@ class EventMailerTest < ActionMailer::TestCase
     EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
     Backend::Connection.wait_for_scheduler_start
 
-    mail = EventMailer.event([users(:fred)], events(:build_failure_for_reader))
-    verify_email('build_fail_reader', mail)
+    email = EventMailer.event([users(:fred)], events(:build_failure_for_reader))
+    assert_equal 'Build failure of home:Iggy/TestPack in 10.2/i586', email.subject
+    assert_equal %w(fred@feuerstein.de), email.to
   end
 
   test 'group emails' do
