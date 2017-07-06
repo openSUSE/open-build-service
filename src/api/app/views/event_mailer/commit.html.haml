@@ -1,0 +1,18 @@
+%p
+  Committer: #{event['user']}
+  %br/
+  New Revision: #{event['rev']}
+%p
+  Log:
+  %br/
+  = event['comment']
+%p= event['files']
+%p= event['diff']
+%p
+  To compare against the previous version:
+  %br/
+  osc rdiff #{event['project']} #{event['package']}
+%p
+  Check out the package for editing:
+  %br/
+  osc checkout #{event['project']} #{event['package']}

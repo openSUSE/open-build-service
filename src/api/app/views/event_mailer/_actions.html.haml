@@ -1,0 +1,7 @@
+Actions:
+%br/
+- event['actions'].each do |a|
+  - if %w(submit maintenance_incident maintenance_release).include? a['type']
+    = render partial: 'event_mailer/submit_action', locals: { a: a }
+  - else
+    = render partial: "event_mailer/#{a['type']}_action", locals: { a: a }

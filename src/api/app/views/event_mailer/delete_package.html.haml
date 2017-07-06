@@ -1,0 +1,10 @@
+%p
+  @subject: [obs del] Package #{event['package']} from #{event['project']} deleted
+  %br/
+  Package #{event['package']} from project #{event['project']} was deleted
+  %br/
+  by user #{event['sender']}.
+%p= event['comment']
+- if event['requestid']
+  %p
+    Check delete request: osc request log #{event['requestid']}

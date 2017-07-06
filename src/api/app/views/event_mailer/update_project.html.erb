@@ -1,7 +1,0 @@
-<p>
-  @subject: [obs update] Project <%= event['project']%> updated
-  <br>
-  Project data of project <%= event['project']%> was updated.
-</p>
-
-<p><%= url_for(project: event['project'], controller: 'webui/project', action: :show, only_path: false, host: @host) %></p>
