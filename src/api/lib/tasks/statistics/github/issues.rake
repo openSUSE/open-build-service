@@ -1,5 +1,3 @@
-require 'net/http'
-
 namespace :statistics do
   namespace :github do
     desc 'Export the number of issues merged per week to a file'

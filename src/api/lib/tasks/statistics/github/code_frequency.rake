@@ -1,5 +1,3 @@
-require 'net/http'
-
 namespace :statistics do
   namespace :github do
     desc 'Exports the number of additions and deletions per week to a file'

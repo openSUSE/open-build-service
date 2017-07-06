@@ -1,4 +1,3 @@
-require 'net/http'
 require 'benchmark'
 require 'api_exception'
 
