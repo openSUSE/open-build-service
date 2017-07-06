@@ -231,6 +231,7 @@ OBSApi::Application.routes.draw do
       get 'project/delete_dialog' => :delete_dialog
       get 'project/new' => :new, as: 'new_project'
       post 'project/create' => :create, constraints: cons, as: 'projects_create'
+      post 'project/restore' => :restore, constraints: cons, as: 'projects_restore'
       patch 'project/update' => :update, constraints: cons
       delete 'project/destroy' => :destroy
       get 'project/rebuild_time/:project' => :rebuild_time, constraints: cons, as: 'project_rebuild_time'

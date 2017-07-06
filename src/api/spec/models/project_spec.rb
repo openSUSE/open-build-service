@@ -369,4 +369,88 @@ RSpec.describe Project, vcr: true do
       end
     end
   end
+
+  describe '.deleted?' do
+    it 'returns false if the project exists in the app' do
+      expect(Project.deleted?(project.name)).to be_falsey
+    end
+
+    it 'returns false if backend responds with nothing' do
+      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return(nil)
+      expect(Project.deleted?('never-existed-before')).to be_falsey
+    end
+
+    it 'returns false if revision list element of _history file is empty' do
+      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return("<revisionlist>\n</revisionlist>\n")
+      expect(Project.deleted?('never-existed-before')).to be_falsey
+    end
+
+    it 'returns true if _history element has elements' do
+      allow_any_instance_of(ProjectFile).to receive(:to_s).with(deleted: 1).and_return(
+        "<revisionlist>\n  <revision rev=\"1\" vrev=\"\">\n    <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>\n    " \
+        "<version></version>\n    <time>1498113679</time>\n    <user>Admin</user>\n    <comment>1</comment>\n  " \
+        "</revision>\n</revisionlist>\n"
+      )
+
+      expect(Project.deleted?('very-nice-project-name')).to be_truthy
+    end
+  end
+
+  describe '.restore' do
+    let(:admin_user) { create(:admin_user, login: 'Admin') }
+    let(:deleted_project) {
+      create(
+        :project_with_packages,
+        {
+          name:                'project_used_for_restoration',
+          title:               'restoration_project_title',
+          package_title:       'restoration_title',
+          package_description: 'restoration_desc',
+          package_name:        'restoration_package'
+        }
+      )
+    }
+
+    before do
+      login admin_user
+    end
+
+    it 'sets the user that restored the project in the history element' do
+      deleted_project.destroy!
+      Project.restore(deleted_project.name, user: admin_user.login)
+
+      meta = Xmlhash.parse(ProjectFile.new(project_name: deleted_project.name, name: '_history').to_s(deleted: 1))
+      expect(meta['revision'].last['user']).to eq(admin_user.login)
+    end
+
+    it 'project meta gets properly updated' do
+      old_project_meta_xml = ProjectMetaFile.new(project_name: deleted_project.name).to_s
+      deleted_project.destroy!
+
+      restored_project = Project.restore(deleted_project.name)
+      expect(restored_project.meta.to_s).to eq(old_project_meta_xml)
+    end
+
+    context 'on a project with packages' do
+      let(:package1) { deleted_project.packages.first }
+      let(:package1_meta_before_deletion) { package1.render_xml }
+      let(:package2) { deleted_project.packages.last }
+      let(:package2_meta_before_deletion) { package2.render_xml }
+
+      before do
+        deleted_project.destroy!
+      end
+
+      subject { Project.restore('project_used_for_restoration') }
+
+      it 'creates package records in the database' do
+        expect(subject.packages.size).to eq(2)
+      end
+
+      context 'verifies the meta of restored packages' do
+        it { expect(subject.packages.find_by(name: package1.name).render_xml).to eq(package1_meta_before_deletion) }
+        it { expect(subject.packages.find_by(name: package2.name).render_xml).to eq(package2_meta_before_deletion) }
+      end
+    end
+  end
 end

@@ -524,6 +524,20 @@ RSpec.describe Package, vcr: true do
     end
   end
 
+  describe '#meta' do
+    it 'returns a PackageMetaFile object' do
+      expect(package.meta).to be_a(PackageMetaFile)
+    end
+
+    it 'has the correct project name set' do
+      expect(package.meta.project_name).to eq(package.project.name)
+    end
+
+    it 'has the correct package name set' do
+      expect(package.meta.package_name).to eq(package.name)
+    end
+  end
+
   describe '#last_build_reason' do
     let(:path) { "#{CONFIG['source_url']}/build/#{package.project.name}/openSUSE_Leap_42.3/x86_64/#{package.name}/_reason" }
 

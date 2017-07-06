@@ -253,11 +253,72 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #new' do
     before do
       login user
-      get :new, params: { name: 'ProjectName' }
     end
 
-    it { expect(assigns(:project)).to be_a(Project) }
-    it { expect(assigns(:project).name).to eq('ProjectName') }
+    context 'with a project name' do
+      before do
+        get :new, params: { name: 'ProjectName' }
+      end
+
+      it { expect(assigns(:project)).to be_a(Project) }
+      it { expect(assigns(:project).name).to eq('ProjectName') }
+    end
+
+    context 'for projects that never existed before' do
+      before do
+        get :new, params: { name: apache_project.name, restore_option: true }
+      end
+
+      it 'does not show a restoration hint' do
+        expect(assigns(:show_restore_message)).to eq(false)
+      end
+    end
+
+    context 'for deleted projects' do
+      before do
+        allow(Project).to receive(:deleted?).and_return(true)
+        get :new, params: { name: apache_project.name, restore_option: true }
+      end
+
+      it 'shows a hint for restoring the deleted project' do
+        expect(assigns(:show_restore_message)).to eq(true)
+      end
+    end
+  end
+
+  describe 'POST #restore' do
+    let(:fake_project) { create(:project) }
+
+    before do
+      login admin_user
+    end
+
+    it 'forbids project creation on invalid permissions' do
+      login user
+
+      post :restore, params: { project: 'not-allowed-to-create' }
+
+      expect(Project.find_by_name('not-allowed-to-create')).to eq(nil)
+      expect(flash[:error]).to match(/not authorized to create/)
+    end
+
+    it 'restores a project' do
+      allow(Project).to receive(:deleted?).and_return(true)
+      allow(Project).to receive(:restore).and_return(fake_project)
+
+      post :restore, params: { project: 'project_name' }
+
+      expect(flash[:notice]).to match(/restored/)
+      expect(response).to redirect_to(project_show_path(project: fake_project.name))
+    end
+
+    it 'shows an error if project was never deleted' do
+      allow(Project).to receive(:deleted?).and_return(false)
+      post :restore, params: { project: 'project_name' }
+
+      expect(flash[:error]).to match(/never deleted/)
+      expect(response).to redirect_to(root_path)
+    end
   end
 
   describe 'GET #show' do

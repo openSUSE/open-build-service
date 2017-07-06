@@ -985,29 +985,7 @@ class SourceController < ApplicationController
       raise CmdExecutionNoPermission, "no permission to execute command 'undelete'"
     end
 
-    path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :user, :comment])
-    pass_to_backend path
-
-    # read meta data from backend to restore database object
-    path = request.path_info + '/_meta'
-    prj = Project.new(name: params[:project])
-    Project.transaction do
-      prj.update_from_xml!(Xmlhash.parse(backend_get(path)))
-      prj.store
-    end
-
-    # restore all package meta data objects in DB
-    backend_pkgs = Collection.find :package, match: "@project='#{params[:project]}'"
-    backend_pkgs.each('package') do |package|
-      Package.transaction do
-        path = Package.source_path(params[:project], package.value(:name), '_meta')
-        p = Xmlhash.parse(backend_get(path))
-        pkg = prj.packages.new(name: p['name'])
-        pkg.update_from_xml(p)
-        pkg.store
-      end
-    end
+    Project.restore(params[:project])
   end
 
   # POST /source/<project>?cmd=release
