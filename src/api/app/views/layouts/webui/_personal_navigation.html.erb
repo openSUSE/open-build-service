@@ -1,12 +1,11 @@
 <div class="grid_6 omega" style="text-align: right">
   <% if User.current && !User.current.is_nobody? %>
-    <% nr_requests_that_need_work = User.current.nr_of_requests_that_need_work -%>
-    <% if nr_requests_that_need_work > 0 -%>
+    <% if @tasks > 0 -%>
       <%= link_to(user_show_path(User.current), :id  => 'link-to-user-home') do %>
 	<%= User.current.login %>
       <% end %>
       <%= link_to(user_show_path(User.current), title: 'where an action is requested from you') do %>
-	 <%= '(' + pluralize(nr_requests_that_need_work, 'task') + ')' %>
+	 <%= '(' + pluralize(@tasks, 'task') + ')' %>
       <% end %>
      <% else -%>
        <%= link_to(user_show_path(User.current), :id => 'link-to-user-home') do %>

@@ -39,10 +39,10 @@ class Relationship < ApplicationRecord
   }, if: 'group.present?'
 
   # don't use "is not null" - it won't be in index
-  scope :projects, -> { where("project_id is not null") }
-  scope :packages, -> { where("package_id is not null") }
-  scope :groups, -> { where("group_id is not null") }
-  scope :users, -> { where("user_id is not null") }
+  scope :projects, -> { where.not(project_id: nil) }
+  scope :packages, -> { where.not(package_id: nil) }
+  scope :groups, -> { where.not(group_id: nil) }
+  scope :users, -> { where.not(user_id: nil) }
   scope :with_users_and_roles_query, lambda {
     joins(:role, :user).order('roles.title, users.login')
   }

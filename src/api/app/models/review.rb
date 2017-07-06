@@ -50,6 +50,7 @@ class Review < ApplicationRecord
   end
 
   before_validation :set_reviewable_association
+  after_commit :update_cache
 
   def validate_non_symmetric_assignment
     return unless review_assigned_from && review_assigned_from == review_assigned_to
@@ -234,6 +235,26 @@ class Review < ApplicationRecord
 
   def validate_reviewer_fields
     (by_user && (by_group || by_project || by_package)) || (by_group && (by_project || by_package))
+  end
+
+  def update_cache
+    if user_id
+      user_ids = [user_id]
+    elsif group_id
+      user_ids = GroupsUser.where(group_id: group_id).pluck(:user_id)
+    elsif package_id
+      user_ids = Relationship.joins(:groups_users).where(package_id: package_id).groups.pluck('groups_users.user_id')
+      user_ids += Relationship.where(package_id: package_id).users.pluck(:user_id)
+    elsif project_id
+      user_ids = Relationship.joins(:groups_users).where(project_id: project_id).groups.pluck('groups_users.user_id')
+      user_ids += Relationship.where(project_id: project_id).users.pluck(:user_id)
+    end
+
+    # rubocop:disable Rails/SkipsModelValidations
+    # Skipping Model validations in this case is fine as we only want to touch
+    # the associated user models to invalidate the cache keys
+    User.where(id: user_ids).update_all(updated_at: Time.now)
+    # rubocop:enable Rails/SkipsModelValidations
   end
 end
 

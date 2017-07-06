@@ -316,4 +316,73 @@ RSpec.describe Review do
       it { expect(review.errors[:review_id].count).to eq(0) }
     end
   end
+
+  describe '#update_caches' do
+    RSpec.shared_examples 'after_commit callback' do
+      it 'touches the user' do
+        Timecop.travel(1.minute)
+        cache_key = user.cache_key
+        review.state = :accepted
+        review.save
+        user.reload
+        expect(user.cache_key).not_to eq(cache_key)
+      end
+    end
+
+    context 'by_user' do
+      let!(:review) { create(:user_review) }
+      let(:user) { review.user }
+
+      include_examples 'after_commit callback'
+    end
+
+    context 'by_group' do
+      let(:groups_user) { create(:groups_user) }
+      let(:group) { groups_user.group }
+      let(:user) { groups_user.user }
+      let!(:review) { create(:review, by_group: group) }
+
+      include_examples 'after_commit callback'
+    end
+
+    context 'by_package with a direct relationship' do
+      let(:relationship_package_user) { create(:relationship_package_user)}
+      let(:package) { relationship_package_user.package }
+      let(:user) { relationship_package_user.user }
+      let!(:review) { create(:review, by_package: package, by_project: package.project) }
+
+      include_examples 'after_commit callback'
+    end
+
+    context 'by_package with a group relationship' do
+      let(:relationship_package_group) { create(:relationship_package_group)}
+      let(:package) { relationship_package_group.package }
+      let(:group) { relationship_package_group.group }
+      let(:groups_user) { create(:groups_user, group: group)}
+      let!(:user) { groups_user.user }
+      let!(:review) { create(:review, by_package: package, by_project: package.project) }
+
+      include_examples 'after_commit callback'
+    end
+
+    context 'by_project with a direct relationship' do
+      let(:relationship_project_user) { create(:relationship_project_user)}
+      let(:project) { relationship_project_user.project }
+      let(:user) { relationship_project_user.user }
+      let!(:review) { create(:review, by_project: project) }
+
+      include_examples 'after_commit callback'
+    end
+
+    context 'by_project with a group relationship' do
+      let(:relationship_project_group) { create(:relationship_project_group)}
+      let(:project) { relationship_project_group.project }
+      let(:group) { relationship_project_group.group }
+      let(:groups_user) { create(:groups_user, group: group)}
+      let!(:user) { groups_user.user }
+      let!(:review) { create(:review, by_project: project) }
+
+      include_examples 'after_commit callback'
+    end
+  end
 end

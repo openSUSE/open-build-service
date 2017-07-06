@@ -111,10 +111,10 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_user_requests
-    assert_equal 0, users(:user4).nr_of_requests_that_need_work
-    assert_equal 2, users(:tom).nr_of_requests_that_need_work
-    assert_equal 3, users(:adrian).nr_of_requests_that_need_work
-    assert_equal 4, users(:fred).nr_of_requests_that_need_work
+    assert_equal 0, users(:user4).tasks
+    assert_equal 1, users(:tom).tasks
+    assert_equal 3, users(:adrian).tasks
+    assert_equal 4, users(:fred).tasks
   end
 
   def test_update_globalroles
