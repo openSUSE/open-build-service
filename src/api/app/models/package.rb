@@ -1292,7 +1292,8 @@ class Package < ApplicationRecord
   end
 
   def self.verify_file!(pkg, name, content)
-    raise IllegalFileName, "'#{name}' is not a valid filename" if (!name.present? || !(name =~ %r{^[^\/]+$}))
+    # Prohibit dotfiles (files with leading .) and files with a / character in the name
+    raise IllegalFileName, "'#{name}' is not a valid filename" if (!name.present? || !(name =~ /^[^\.\/][^\/]+$/))
 
     # file is an ActionDispatch::Http::UploadedFile and Suse::Validator.validate
     # will call to_s therefore we have to read the content first

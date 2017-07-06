@@ -383,7 +383,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         it "fails with a backend error message" do
           do_request(project: source_project, package: source_package, filename: ".test")
           expect(response).to expected_failure_response
-          expect(flash[:error]).to eq("Error while creating '.test' file: filename '.test' is illegal.")
+          expect(flash[:error]).to eq("Error while creating '.test' file: '.test' is not a valid filename.")
         end
       end
 
