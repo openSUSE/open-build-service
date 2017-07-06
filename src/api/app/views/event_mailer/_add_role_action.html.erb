@@ -1,0 +1,6 @@
+<% if a['group'].blank? -%>
+- <%= a['person'] %> wants to be <%= a['role'] %> in <%= project_or_package_text(a['targetproject'], a['targetpackage']) -%>
+<% else -%>
+- Group <%= a['group'] %> wants to be <%= a['role'] %> in <%= project_or_package_text(a['targetproject'], a['targetpackage']) -%>
+<% end -%>
+<br>
