@@ -47,8 +47,13 @@ class BsRequest < ApplicationRecord
   scope :not_creator, ->(login) { where.not(creator: login) }
   # Searching capabilities using dataTable (1.9)
   scope :do_search, lambda {|search|
-    where([SEARCHABLE_FIELDS.map { |field| "#{field} like ?" }.join(' or '),
-           ["%#{search}%"] * SEARCHABLE_FIELDS.length].flatten)
+    includes(:bs_request_actions)
+      .references(:bs_request_actions)
+      .where(
+        [
+          SEARCHABLE_FIELDS.map { |field| "#{field} like ?" }.join(' or '), ["%#{search}%"] * SEARCHABLE_FIELDS.length
+        ].flatten
+      )
   }
 
   scope :with_actions_and_reviews, -> { joins(:bs_request_actions).left_outer_joins(:reviews).distinct.order(priority: :asc, id: :desc) }

@@ -753,8 +753,11 @@ class User < ApplicationRecord
 
   # list incoming requests involving this user
   def incoming_requests(search = nil)
-    result = BsRequest.with_involved_projects(involved_projects.pluck(:id)).or(
-      BsRequest.with_involved_packages(involved_packages.pluck(:id))
+    project_ids = involved_projects.pluck(:id)
+    package_ids = involved_packages.pluck(:id)
+
+    result = BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_projects(project_ids)).or(
+      BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(package_ids))
     ).with_actions.in_states(:new)
 
     search ? result.do_search(search) : result
@@ -768,20 +771,26 @@ class User < ApplicationRecord
 
   # list of all requests
   def requests(search = nil)
-    bs_requests_table = BsRequest.arel_table
-    bs_actions_table = BsRequestAction.arel_table
-    reviews_table = Review.arel_table
+    project_ids = involved_projects.pluck(:id)
+    package_ids = involved_packages.pluck(:id)
 
-    result =
-      BsRequest.in_states(VALID_REQUEST_STATES).with_actions_and_reviews
-               .where(bs_requests_table[:creator].eq(login)
-                 .or(bs_actions_table[:target_project_id].in(involved_projects.pluck(:id)))
-                 .or(bs_actions_table[:target_package_id].in(involved_packages.pluck(:id)))
-                 .or(reviews_table[:state].eq(:new)
-                     .and(reviews_table[:user_id].eq(id)
-                     .or(reviews_table[:project_id].in(involved_projects.pluck(:id)))
-                     .or(reviews_table[:package_id].in(involved_packages.pluck(:id)))
-                     .or(reviews_table[:group_id].in(groups.pluck(:id))))))
+    actions = BsRequestAction.bs_request_ids_of_involved_projects(project_ids).or(
+      BsRequestAction.bs_request_ids_of_involved_packages(package_ids)
+    )
+
+    reviews = Review.bs_request_ids_of_involved_users(id).or(
+      Review.bs_request_ids_of_involved_projects(project_ids).or(
+        Review.bs_request_ids_of_involved_packages(package_ids).or(
+          Review.bs_request_ids_of_involved_groups(groups.pluck(:id))
+        )
+      )
+    ).where(state: :new)
+
+    result = BsRequest.where(creator: login).or(
+      BsRequest.where(id: actions).or(
+        BsRequest.where(id: reviews)
+      )
+    ).with_actions
 
     search ? result.do_search(search) : result
   end

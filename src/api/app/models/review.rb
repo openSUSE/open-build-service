@@ -38,6 +38,11 @@ class Review < ApplicationRecord
     left_outer_joins(:history_elements_assigned).having('COUNT(history_elements.id) = 0').group('reviews.id')
   }
 
+  scope :bs_request_ids_of_involved_projects, ->(project_ids) { where(project_id: project_ids, state: :new).select(:bs_request_id) }
+  scope :bs_request_ids_of_involved_packages, ->(package_ids) { where(package_id: package_ids, state: :new).select(:bs_request_id) }
+  scope :bs_request_ids_of_involved_groups, ->(group_ids) { where(group_id: group_ids, state: :new).select(:bs_request_id) }
+  scope :bs_request_ids_of_involved_users, ->(user_ids) { where(user_id: user_ids).select(:bs_request_id) }
+
   before_validation(on: :create) do
     if read_attribute(:state).nil?
       self.state = :new
