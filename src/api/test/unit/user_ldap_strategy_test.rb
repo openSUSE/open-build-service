@@ -9,7 +9,6 @@ class UserLdapStrategyTest < ActiveSupport::TestCase
     a = UserLdapStrategy.authenticate_with_local("", {})
     assert a == false
 
-    require 'digest/md5'
     require 'base64'
     test_entry = {
       'userPassword'     => [],

@@ -65,7 +65,6 @@ class UserLdapStrategy
       when :cleartext then
         entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [newpassword])
       when :md5 then
-        require 'digest/md5'
         require 'base64'
         entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], ["{MD5}" + Base64.b64encode(Digest::MD5.digest(newpassword)).chomp])
       end
@@ -107,7 +106,6 @@ class UserLdapStrategy
     when :cleartext then
       ldap_password = password
     when :md5 then
-      require 'digest/md5'
       require 'base64'
       ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
@@ -320,7 +318,6 @@ class UserLdapStrategy
     when :cleartext then
       ldap_password = password
     when :md5 then
-      require 'digest/md5'
       require 'base64'
       ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
@@ -352,7 +349,6 @@ class UserLdapStrategy
         authenticated = true
       end
     when :md5 then
-      require 'digest/md5'
       require 'base64'
       if ldap_password == "{MD5}" + Base64.encode64(Digest::MD5.digest(password))
         authenticated = true
@@ -389,7 +385,6 @@ class UserLdapStrategy
     ldap_info = Array.new
     # use cache to check the password firstly
     key = "ldap_cache_userpasswd:" + login
-    require 'digest/md5'
     if Rails.cache.exist?(key)
       ar = Rails.cache.read(key)
       if ar[0] == Digest::MD5.digest(password)

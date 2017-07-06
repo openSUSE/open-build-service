@@ -1,6 +1,4 @@
 # vim: sw=2 et
-require 'digest/md5'
-
 module Webui::WebuiHelper
   include ActionView::Helpers::JavaScriptHelper
   include ActionView::Helpers::AssetTagHelper
