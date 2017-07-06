@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_one_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title/>
-          <description/>
+          <title>A Summer Bird-Cage</title>
+          <description>Odio neque rerum ullam architecto perspiciatis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '117'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>A Summer Bird-Cage</title>
+          <description>Odio neque rerum ullam architecto perspiciatis.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_one_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title/>
-          <description/>
+          <title>A Summer Bird-Cage</title>
+          <description>Odio neque rerum ullam architecto perspiciatis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '117'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>A Summer Bird-Cage</title>
+          <description>Odio neque rerum ullam architecto perspiciatis.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_one_file/_service
     body:
       encoding: UTF-8
-      string: "<service/>"
+      string: "<services/>"
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,20 +144,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>1b5e732162384f7004249782bb25553b</srcmd5>
+        <revision rev="16" vrev="16">
+          <srcmd5>79826c804ee494940cb182d8f00c220e</srcmd5>
           <version>unknown</version>
-          <time>1479294157</time>
+          <time>1499340717</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_one_file
@@ -183,16 +183,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '242'
+      - '244'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="1b5e732162384f7004249782bb25553b">
+        <directory name="package_with_one_file" rev="16" vrev="16" srcmd5="79826c804ee494940cb182d8f00c220e">
           <serviceinfo code="running" />
-          <entry name="_service" md5="1d2c8d7ebd4aba94dd22a1418c257977" size="10" mtime="1479294157" />
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1499338180" />
         </directory>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_one_file
@@ -218,16 +218,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '388'
+      - '289'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="1b5e732162384f7004249782bb25553b">
-          <serviceinfo code="failed" xsrcmd5="c8ccf19d498db7143f14b25517ff5919">
-            <error> 400 remote error: document element must be 'services', was 'service'</error>
-          </serviceinfo>
-          <entry name="_service" md5="1d2c8d7ebd4aba94dd22a1418c257977" size="10" mtime="1479294157" />
+        <directory name="package_with_one_file" rev="16" vrev="16" srcmd5="79826c804ee494940cb182d8f00c220e">
+          <serviceinfo code="succeeded" xsrcmd5="2712adaded7f950c53739989d4fc41ce" />
+          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1499338180" />
         </directory>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:37 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 recorded_with: VCR 3.0.3

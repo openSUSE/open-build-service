@@ -11,8 +11,8 @@ RSpec.describe Package, vcr: true do
   let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: home_project) }
-  let(:package_with_broken_service) { create(:package_with_broken_service, name: "package_with_broken_service", project: user.home_project) }
-  let(:package_with_service) { create(:package_with_service, name: "package_with_service", project: user.home_project) }
+  let(:package_with_broken_service) { create(:package_with_broken_service, name: 'package_with_broken_service', project: home_project) }
+  let(:package_with_service) { create(:package_with_service, name: 'package_with_service', project: home_project) }
   let(:services) { package.services }
   let(:group_bugowner) { create(:group, title: 'senseless_group') }
   let(:group) { create(:group, title: 'my_test_group') }
@@ -37,11 +37,11 @@ RSpec.describe Package, vcr: true do
       </resultlist>')
   end
 
-  context '#save_file' do
-    before do
-      login(user)
-    end
+  before do
+    login(user)
+  end
 
+  context '#save_file' do
     it 'calls #addKiwiImport if filename ends with kiwi.txz' do
       expect_any_instance_of(Service).to receive(:addKiwiImport).once
       package.save_file({ filename: 'foo.kiwi.txz' })
@@ -65,10 +65,6 @@ RSpec.describe Package, vcr: true do
 
   context '#delete_file' do
     let(:url) { "#{CONFIG['source_url']}/source/#{home_project.name}/#{package_with_file.name}" }
-
-    before do
-      login(user)
-    end
 
     context 'with delete permission' do
       context 'with default options' do
@@ -126,10 +122,6 @@ RSpec.describe Package, vcr: true do
   end
 
   context '#maintainers' do
-    before do
-      login(user)
-    end
-
     it 'returns an array with user objects to all maintainers for a package' do
       # first of all, we add a user who is not a maintainer but a bugowner
       # he/she should not be recognized by package.maintainers
@@ -432,10 +424,6 @@ RSpec.describe Package, vcr: true do
     let(:params) { ActionController::Parameters.new(arch: 'x86') }
     let(:backend_url) { "#{CONFIG['source_url']}/build/#{package.project.name}?cmd=rebuild&arch=x86" }
 
-    before do
-      login(user)
-    end
-
     subject { package.backend_build_command(:rebuild, package.project.name, params) }
 
     context 'backend response is successful' do
@@ -461,13 +449,11 @@ RSpec.describe Package, vcr: true do
     end
 
     context 'user has no access rights for the project' do
-      let(:other_project) { create(:project) }
+      let(:other_project) { create(:project, name: 'other_project') }
 
       before do
         # check_write_access! depends on the Rails env. We have to workaround this here.
         allow(Rails.env).to receive(:test?).and_return false
-        # also check_write_access! relies on User.current
-        login(user)
 
         allow(Backend::Connection).to receive(:post).never
       end

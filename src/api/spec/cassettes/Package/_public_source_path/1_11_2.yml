@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Cabbages and Kings</title>
-          <description>Harum consequatur unde explicabo vel.</description>
+          <title>Oh! To be in England</title>
+          <description>Voluptatem ut velit facilis nihil officia sunt reiciendis aspernatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '203'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Cabbages and Kings</title>
-          <description>Harum consequatur unde explicabo vel.</description>
+          <title>Oh! To be in England</title>
+          <description>Voluptatem ut velit facilis nihil officia sunt reiciendis aspernatur.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Cabbages and Kings</title>
-          <description>Harum consequatur unde explicabo vel.</description>
+          <title>Oh! To be in England</title>
+          <description>Voluptatem ut velit facilis nihil officia sunt reiciendis aspernatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,24 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '203'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Cabbages and Kings</title>
-          <description>Harum consequatur unde explicabo vel.</description>
+          <title>Oh! To be in England</title>
+          <description>Voluptatem ut velit facilis nihil officia sunt reiciendis aspernatur.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:04 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Deleniti animi repellat quia similique occaecati aliquid. Exercitationem
-        voluptas rem veniam at et id consectetur. Illum neque molestiae quibusdam
-        porro laboriosam. Quasi est accusantium quibusdam qui magni consectetur.
+      string: Velit totam sunt ratione explicabo unde. Repellat error labore occaecati
+        ut eum distinctio ex. Velit dolores ut libero odit iste facere delectus. Magnam
+        temporibus neque.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -146,27 +146,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="11" vrev="11">
-          <srcmd5>cb8eb263b4b9fecd91ef3a1a7a2c21ca</srcmd5>
+        <revision rev="301" vrev="301">
+          <srcmd5>c54b26f82ad5879e432d99ab4a78e529</srcmd5>
           <version>unknown</version>
-          <time>1498824968</time>
+          <time>1499340724</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:04 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Harum nam est fuga sed. Doloribus explicabo facere qui voluptatibus.
-        Ipsa facilis aut aspernatur eum sapiente odit.
+      string: Et illum magni fugiat tenetur non. Ut maiores et labore quis aliquid.
+        Maxime qui ea sit in sit repellendus ullam. Molestias nemo explicabo alias
+        voluptatibus consequatur sunt et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -186,18 +187,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="12" vrev="12">
-          <srcmd5>a446c8d6d1bc9e4e186e867588684efc</srcmd5>
+        <revision rev="302" vrev="302">
+          <srcmd5>285af27f8ab46890a8b484e786654835</srcmd5>
           <version>unknown</version>
-          <time>1498824968</time>
+          <time>1499340724</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:04 GMT
 recorded_with: VCR 3.0.3

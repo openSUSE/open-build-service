@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Officiis exercitationem temporibus quas fuga iusto pariatur ut.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Maxime est atque dolor vero.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '198'
+      - '181'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Officiis exercitationem temporibus quas fuga iusto pariatur ut.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Maxime est atque dolor vero.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Officiis exercitationem temporibus quas fuga iusto pariatur ut.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Maxime est atque dolor vero.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '198'
+      - '181'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Officiis exercitationem temporibus quas fuga iusto pariatur ut.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Maxime est atque dolor vero.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Perspiciatis molestiae magnam. Quis quam qui vel numquam. Sed minus
-        totam rerum dolorem saepe. Sit eveniet corrupti voluptates eum.
+      string: Consequatur quibusdam qui. Consequatur voluptatibus magnam tenetur natus
+        atque voluptatem corporis. Optio ipsam molestias illo illum nesciunt.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,28 +145,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="9" vrev="9">
-          <srcmd5>b39478852c9ceca268a8c9988794e187</srcmd5>
+        <revision rev="299" vrev="299">
+          <srcmd5>c5498e09ae64ea056ee25dfe02b1a02c</srcmd5>
           <version>unknown</version>
-          <time>1498824968</time>
+          <time>1499340723</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Facilis aspernatur non autem voluptatibus distinctio. Repudiandae qui
-        sunt doloremque occaecati ut molestiae reprehenderit. Illum qui dignissimos
-        beatae. Non quia eius et.
+      string: Ut sequi expedita. Dignissimos aperiam voluptas sequi nobis maxime.
+        Non sed aperiam qui doloribus voluptas. Quo eligendi esse. Voluptatem sint
+        enim dolorum ut rerum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -186,18 +186,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="10" vrev="10">
-          <srcmd5>daee6105864afd9c7d9297b793dc620a</srcmd5>
+        <revision rev="300" vrev="300">
+          <srcmd5>53708e2bd097a7180b08ac983c63316d</srcmd5>
           <version>unknown</version>
-          <time>1498824968</time>
+          <time>1499340723</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 recorded_with: VCR 3.0.3

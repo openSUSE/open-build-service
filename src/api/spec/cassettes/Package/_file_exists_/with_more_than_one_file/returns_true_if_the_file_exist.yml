@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title/>
-          <description/>
+          <title>Everything is Illuminated</title>
+          <description>Sint alias qui officia quod nemo quas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '114'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Everything is Illuminated</title>
+          <description>Sint alias qui officia quod nemo quas.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title/>
-          <description/>
+          <title>Everything is Illuminated</title>
+          <description>Sint alias qui officia quod nemo quas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '114'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Everything is Illuminated</title>
+          <description>Sint alias qui officia quod nemo quas.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Est quia eaque. A sint odit corporis. Dignissimos vero qui sit omnis
-        ipsa eos culpa.
+      string: Aliquam neque omnis. Incidunt iste tempore ipsam animi id. Velit atque
+        libero qui a ut facere vel. Quia rerum voluptate autem et atque quis corporis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,27 +145,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>c9d208c9aaedc0a9dfcbebed26cf7421</srcmd5>
+        <revision rev="272" vrev="272">
+          <srcmd5>f79ed4e471d888ded8fcf651729293d7</srcmd5>
           <version>unknown</version>
-          <time>1479294156</time>
+          <time>1499340717</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Animi accusantium tempora dolor dolorem. Illo quo porro ut qui. Natus
-        omnis aut esse occaecati dignissimos non labore. Quaerat dicta voluptas hic.
+      string: Saepe occaecati aut ut. Amet porro itaque. Reiciendis totam sapiente.
+        Est totam earum ea voluptatum quas perferendis dolores.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,20 +185,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>930c907cbdfcbdafcd8b5b9a03834092</srcmd5>
+        <revision rev="273" vrev="273">
+          <srcmd5>a9cfdb4abde3ae06f088c585ead3befc</srcmd5>
           <version>unknown</version>
-          <time>1479294156</time>
+          <time>1499340717</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_files
@@ -224,17 +224,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '400'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="7" vrev="7" srcmd5="930c907cbdfcbdafcd8b5b9a03834092">
-          <entry name="_config" md5="f65d38e991d26eacb19cfdfce678802c" size="84" mtime="1479294156" />
-          <entry name="_icon" md5="ef73f36c2e741dcbc48b5bda996fef37" size="134" mtime="1479294155" />
-          <entry name="somefile.txt" md5="13f1b4824451e410a34f8e54a32c2203" size="146" mtime="1479294156" />
+        <directory name="package_with_files" rev="273" vrev="273" srcmd5="a9cfdb4abde3ae06f088c585ead3befc">
+          <entry name="_config" md5="3e60b068845b14d0bfaac9f7c9916aa8" size="149" mtime="1499340717" />
+          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
+          <entry name="somefile.txt" md5="a2e2ace0a5e7eef8c3f0dc00e5db989b" size="125" mtime="1499340717" />
         </directory>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_files
@@ -260,15 +260,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '400'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="7" vrev="7" srcmd5="930c907cbdfcbdafcd8b5b9a03834092">
-          <entry name="_config" md5="f65d38e991d26eacb19cfdfce678802c" size="84" mtime="1479294156" />
-          <entry name="_icon" md5="ef73f36c2e741dcbc48b5bda996fef37" size="134" mtime="1479294155" />
-          <entry name="somefile.txt" md5="13f1b4824451e410a34f8e54a32c2203" size="146" mtime="1479294156" />
+        <directory name="package_with_files" rev="273" vrev="273" srcmd5="a9cfdb4abde3ae06f088c585ead3befc">
+          <entry name="_config" md5="3e60b068845b14d0bfaac9f7c9916aa8" size="149" mtime="1499340717" />
+          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
+          <entry name="somefile.txt" md5="a2e2ace0a5e7eef8c3f0dc00e5db989b" size="125" mtime="1499340717" />
         </directory>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 recorded_with: VCR 3.0.3

@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Precious Bane</title>
-          <description>Est odit ut aut quia.</description>
+          <title>The Road Less Traveled</title>
+          <description>Fugiat aut exercitationem explicabo unde aliquid sit sed amet.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '198'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Precious Bane</title>
-          <description>Est odit ut aut quia.</description>
+          <title>The Road Less Traveled</title>
+          <description>Fugiat aut exercitationem explicabo unde aliquid sit sed amet.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Precious Bane</title>
-          <description>Est odit ut aut quia.</description>
+          <title>The Road Less Traveled</title>
+          <description>Fugiat aut exercitationem explicabo unde aliquid sit sed amet.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,24 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '198'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Precious Bane</title>
-          <description>Est odit ut aut quia.</description>
+          <title>The Road Less Traveled</title>
+          <description>Fugiat aut exercitationem explicabo unde aliquid sit sed amet.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Quaerat non minus dignissimos iure et. Explicabo dicta laboriosam ut
-        occaecati soluta consectetur. Nobis iste quia quam modi sint et. Dicta commodi
-        at unde quo. Suscipit expedita laudantium provident ex hic ducimus illo.
+      string: Aliquam omnis ducimus consequatur praesentium. Rerum qui non magni aspernatur
+        voluptatibus et. Recusandae reprehenderit expedita labore ipsam id. Aut eligendi
+        sapiente nam autem consequatur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -146,27 +146,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>faec995ef23146dcd7c585515d99afd4</srcmd5>
+        <revision rev="276" vrev="276">
+          <srcmd5>f41bee1a3b7ecad3c9ab14c45937275f</srcmd5>
           <version>unknown</version>
-          <time>1498824967</time>
+          <time>1499340718</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Dolorem atque praesentium quis magnam beatae eveniet aliquid. Id labore
-        eius aut recusandae tempora neque. Ipsa neque qui consequatur.
+      string: Et architecto voluptatibus corrupti. Et rerum eos molestiae expedita.
+        Quae et harum magni. Aut dolorum in ipsam dignissimos non sint aliquam. Veniam
+        quia porro quidem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -186,18 +187,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>46dfa4afdc51e7aff1af2befc1789329</srcmd5>
+        <revision rev="277" vrev="277">
+          <srcmd5>50649bd831c10638caba50ff68f2a541</srcmd5>
           <version>unknown</version>
-          <time>1498824967</time>
+          <time>1499340718</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 recorded_with: VCR 3.0.3

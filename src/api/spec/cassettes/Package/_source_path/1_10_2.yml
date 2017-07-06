@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>A Many-Splendoured Thing</title>
-          <description>Aut rerum expedita laboriosam dolorum animi quas officia in.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Unde dolorem dolorum non iure doloribus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '198'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>A Many-Splendoured Thing</title>
-          <description>Aut rerum expedita laboriosam dolorum animi quas officia in.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Unde dolorem dolorum non iure doloribus.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>A Many-Splendoured Thing</title>
-          <description>Aut rerum expedita laboriosam dolorum animi quas officia in.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Unde dolorem dolorum non iure doloribus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,24 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '198'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>A Many-Splendoured Thing</title>
-          <description>Aut rerum expedita laboriosam dolorum animi quas officia in.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Unde dolorem dolorum non iure doloribus.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Qui voluptas quo ut. Sed dolorem aut perspiciatis qui autem quos. Et
-        saepe omnis nisi voluptates aperiam. Qui quis dignissimos repudiandae enim
-        voluptatem. Totam et ut ut atque.
+      string: Non rerum sit iure magni omnis vero. Fugit earum dolore. Provident molestiae
+        dolorem ratione. Est accusantium rem. Suscipit ab consequatur nemo eveniet.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -146,28 +145,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>c4a1ddb94adbd9c08a75df06f5ac279f</srcmd5>
+        <revision rev="278" vrev="278">
+          <srcmd5>fcd4c98c92ae87f07305d0abbe4839ed</srcmd5>
           <version>unknown</version>
-          <time>1498824967</time>
+          <time>1499340718</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Quidem voluptas officiis et qui. Incidunt qui harum temporibus in. Minima
-        libero nihil quia dolor. Sunt nesciunt enim distinctio est ut sed voluptatem.
-        Magni libero non saepe atque voluptas facere quas.
+      string: Facere et pariatur libero non magni architecto amet. Et cumque praesentium
+        debitis. Minus rerum vel. Omnis est fugit aut alias dolorem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -187,18 +185,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>ca6a77e59f124bd177a199fee663e6da</srcmd5>
+        <revision rev="279" vrev="279">
+          <srcmd5>0e5434cf0fc5218e065d2950d6617213</srcmd5>
           <version>unknown</version>
-          <time>1498824967</time>
+          <time>1499340718</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 recorded_with: VCR 3.0.3

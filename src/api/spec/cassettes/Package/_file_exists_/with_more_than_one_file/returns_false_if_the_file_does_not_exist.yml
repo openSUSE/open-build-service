@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title/>
-          <description/>
+          <title>Where Angels Fear to Tread</title>
+          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '114'
+      - '202'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Where Angels Fear to Tread</title>
+          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title/>
-          <description/>
+          <title>Where Angels Fear to Tread</title>
+          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,24 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '114'
+      - '202'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title></title>
-          <description></description>
+          <title>Where Angels Fear to Tread</title>
+          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Et ut cupiditate. Est sequi excepturi placeat et beatae eos voluptas.
-        Aut ad facere cumque. Est excepturi neque perspiciatis quam. Officiis voluptatem
-        magni ullam quibusdam nihil sint.
+      string: Laboriosam placeat aliquam ut vel. Omnis dignissimos earum dolore similique
+        vel ut. Vel totam ea rerum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -146,28 +145,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>7624b67743a009927994f2d9cc1c2f2d</srcmd5>
+        <revision rev="274" vrev="274">
+          <srcmd5>d19f373bff6aa9cfe7a1285bfc5da2fd</srcmd5>
           <version>unknown</version>
-          <time>1479294156</time>
+          <time>1499340717</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Et iure accusantium similique dignissimos. Voluptas facilis earum voluptates
-        qui quia. Deserunt omnis odit optio vel. Dolor dignissimos ut nihil et quia
-        qui quod.
+      string: Quasi occaecati impedit aut. Quaerat voluptas occaecati nostrum. Temporibus
+        ipsum debitis qui. Est mollitia fuga sed sunt minima recusandae. Earum ad
+        rerum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -187,20 +186,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>591e926bad81adca65b43fba77066b79</srcmd5>
+        <revision rev="275" vrev="275">
+          <srcmd5>38029ff3699ce6dc27228970fd4dbdba</srcmd5>
           <version>unknown</version>
-          <time>1479294156</time>
+          <time>1499340717</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_files
@@ -226,17 +225,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '401'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="5" vrev="5" srcmd5="591e926bad81adca65b43fba77066b79">
-          <entry name="_config" md5="468f8f1cb4912c807e5d43baa32e7588" size="184" mtime="1479294156" />
-          <entry name="_icon" md5="ef73f36c2e741dcbc48b5bda996fef37" size="134" mtime="1479294155" />
-          <entry name="somefile.txt" md5="4abe13bcb6bf47553afb6348fc0add0c" size="162" mtime="1479294156" />
+        <directory name="package_with_files" rev="275" vrev="275" srcmd5="38029ff3699ce6dc27228970fd4dbdba">
+          <entry name="_config" md5="42b800b4f1f2a9a0a5cd23dfb4a27144" size="103" mtime="1499340717" />
+          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
+          <entry name="somefile.txt" md5="6d3fd6eb3c35a438ff2dea0f39c26f6c" size="156" mtime="1499340717" />
         </directory>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_files
@@ -262,15 +261,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '401'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="5" vrev="5" srcmd5="591e926bad81adca65b43fba77066b79">
-          <entry name="_config" md5="468f8f1cb4912c807e5d43baa32e7588" size="184" mtime="1479294156" />
-          <entry name="_icon" md5="ef73f36c2e741dcbc48b5bda996fef37" size="134" mtime="1479294155" />
-          <entry name="somefile.txt" md5="4abe13bcb6bf47553afb6348fc0add0c" size="162" mtime="1479294156" />
+        <directory name="package_with_files" rev="275" vrev="275" srcmd5="38029ff3699ce6dc27228970fd4dbdba">
+          <entry name="_config" md5="42b800b4f1f2a9a0a5cd23dfb4a27144" size="103" mtime="1499340717" />
+          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
+          <entry name="somefile.txt" md5="6d3fd6eb3c35a438ff2dea0f39c26f6c" size="156" mtime="1499340717" />
         </directory>
     http_version: 
-  recorded_at: Wed, 16 Nov 2016 11:02:36 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
 recorded_with: VCR 3.0.3

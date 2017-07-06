@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:06 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Facere iste voluptas molestiae incidunt repellendus ea iusto.</description>
+          <title>Dance Dance Dance</title>
+          <description>Dicta quis quaerat dolorem unde sed quo excepturi qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '191'
+      - '185'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Facere iste voluptas molestiae incidunt repellendus ea iusto.</description>
+          <title>Dance Dance Dance</title>
+          <description>Dicta quis quaerat dolorem unde sed quo excepturi qui.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Facere iste voluptas molestiae incidunt repellendus ea iusto.</description>
+          <title>Dance Dance Dance</title>
+          <description>Dicta quis quaerat dolorem unde sed quo excepturi qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '191'
+      - '185'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Facere iste voluptas molestiae incidunt repellendus ea iusto.</description>
+          <title>Dance Dance Dance</title>
+          <description>Dicta quis quaerat dolorem unde sed quo excepturi qui.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Minus soluta est dolores voluptas autem odio. Sunt omnis fugiat et ab.
-        Reiciendis id dolor. Ea totam voluptatem alias. Maxime et facere nihil sit.
+      string: Quisquam voluptas molestiae explicabo ipsum et. Nulla totam maiores
+        ut. Esse eaque soluta officiis impedit dignissimos.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,27 +145,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>0153028d5d433648525fad5ee4371fa2</srcmd5>
+        <revision rev="280" vrev="280">
+          <srcmd5>55934a396ff042d6a38aec405a3358c5</srcmd5>
           <version>unknown</version>
-          <time>1498824967</time>
+          <time>1499340718</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Praesentium est et. Alias autem totam iste voluptatem laboriosam. Et
-        beatae reprehenderit quo error.
+      string: Nostrum enim aut illo ipsam. Porro recusandae amet cumque. Corporis
+        culpa voluptatum vitae qui est placeat.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,18 +185,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>c4d8c021482383db47da76f7b6c63c6a</srcmd5>
+        <revision rev="281" vrev="281">
+          <srcmd5>f5e348dbf8f89bd18f999797907a32ad</srcmd5>
           <version>unknown</version>
-          <time>1498824967</time>
+          <time>1499340718</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:07 GMT
+  recorded_at: Thu, 06 Jul 2017 11:31:58 GMT
 recorded_with: VCR 3.0.3

@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Rerum numquam quia qui natus doloremque.</description>
+          <title>Blood's a Rover</title>
+          <description>Placeat officia accusantium voluptatem et quos esse.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '181'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Rerum numquam quia qui natus doloremque.</description>
+          <title>Blood's a Rover</title>
+          <description>Placeat officia accusantium voluptatem et quos esse.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Rerum numquam quia qui natus doloremque.</description>
+          <title>Blood's a Rover</title>
+          <description>Placeat officia accusantium voluptatem et quos esse.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,23 +109,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '181'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Rerum numquam quia qui natus doloremque.</description>
+          <title>Blood's a Rover</title>
+          <description>Placeat officia accusantium voluptatem et quos esse.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Est dicta distinctio. Totam voluptates placeat unde. Sunt deserunt nesciunt.
-        Et omnis magni fugit.
+      string: Explicabo dolores voluptas ab voluptatem voluptatibus sit. Minus velit
+        laborum sunt nihil. Numquam veniam dolorum dolor assumenda minus nihil ut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,27 +145,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>43efe6d5332bf0f4295d4acbf9143fe1</srcmd5>
+        <revision rev="297" vrev="297">
+          <srcmd5>345c45d3a4158c51abcaeae7180af913</srcmd5>
           <version>unknown</version>
-          <time>1498824968</time>
+          <time>1499340723</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Ut repellat sunt. Similique qui blanditiis inventore saepe eaque. Aperiam
-        repellendus voluptas.
+      string: Tempore earum placeat aspernatur officiis. Eos deleniti non est. Architecto
+        cupiditate vel nostrum. Libero rerum sapiente quo consectetur velit deserunt
+        culpa.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,18 +186,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>341aca18c66920a618e4a5283a1648c0</srcmd5>
+        <revision rev="298" vrev="298">
+          <srcmd5>1dfd868efa34d26ce7d0c270c510ebca</srcmd5>
           <version>unknown</version>
-          <time>1498824968</time>
+          <time>1499340723</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 30 Jun 2017 12:16:08 GMT
+  recorded_at: Thu, 06 Jul 2017 11:32:03 GMT
 recorded_with: VCR 3.0.3
