@@ -1281,9 +1281,9 @@ class Project < ApplicationRecord
   end
 
   def open_requests
-    reviews = BsRequest.where(id: BsRequestAction.where(target_project_id: id).select(:bs_request_id)).or(
-      BsRequest.where(id: BsRequestAction.where(source_project: name).select(:bs_request_id)).or(
-        BsRequest.where(id: Review.where(state: :new, project_id: id).select(:bs_request_id))
+    reviews = BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_projects(id)).or(
+      BsRequest.where(id: BsRequestAction.bs_request_ids_by_source_projects(name)).or(
+        BsRequest.where(id: Review.bs_request_ids_of_involved_projects(id))
       )
     ).in_states(:review).distinct.order(priority: :asc, id: :desc).pluck(:number)
 
