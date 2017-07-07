@@ -19,11 +19,8 @@
 = form_tag(user_rss_token_path, id: 'generate_rss_token_form', method: :post) do
   %p
     - if @user.rss_token
-      For accessing to your RSS feed of notifications use the following url
+      To access your RSS feeds, use the following url:
       = link_to(user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), target: '_blank')
-      %br/
-      %br/
-      Whenever you need to re-create the feed url just do it here
     - else
-      No feed url exists already for your notifications
-  %p= submit_tag 'Generate Url'
+      No feed url exists for your notifications.
+  %p= submit_tag "#{@user.rss_token ? 'Regenerate Url' : 'Generate Url'}"
