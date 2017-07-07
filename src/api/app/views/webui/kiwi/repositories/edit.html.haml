@@ -18,7 +18,7 @@
       dataType: 'json',
       success: function(json) {
         var is_outdated = json['is_outdated'];
-        if (is_outdated && !confirm("This repositories have been modified meanwhile you were editing.\nDo you want to apply the changes anyway?"))
+        if (is_outdated && !confirm("These repositories have been modified while you were editing them.\nDo you want to apply the changes anyway?"))
           return;
         $('#kiwi_repository_update_form').submit();
       }
