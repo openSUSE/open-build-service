@@ -128,7 +128,7 @@ class StatusController < ApplicationController
 
   def project
     dbproj = Project.get_by_name(params[:project])
-    @packages = ProjectStatusCalculator.new(dbproj).calc_status
+    @packages = ProjectStatus::Calculator.new(dbproj).calc_status
     find_relationships_for_packages(@packages)
   end
 

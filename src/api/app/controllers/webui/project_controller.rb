@@ -933,7 +933,7 @@ class Webui::ProjectController < Webui::WebuiController
     @name2id = Hash.new
 
     @prj_status = Rails.cache.fetch("prj_status-#{@api_obj}", expires_in: 5.minutes) do
-      ProjectStatusCalculator.new(@api_obj).calc_status(pure_project: true)
+      ProjectStatus::Calculator.new(@api_obj).calc_status(pure_project: true)
     end
 
     status_filter_packages
