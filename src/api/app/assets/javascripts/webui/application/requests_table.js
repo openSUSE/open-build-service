@@ -44,7 +44,7 @@ $( document ).ready(function() {
       table.api().ajax.reload(function(){
         reload_button.show();
         loading_spinner.hide();
-      }, false);
+      });
     });
 
     // 3. Type dropdown (if it exists)
