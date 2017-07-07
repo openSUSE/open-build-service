@@ -59,11 +59,12 @@ is($eq->events_in_queue,2,"Checking number of events in queue");
 #
 #}
 
+my $gotevent;
 eval {
   local *STDOUT;
   my $out = undef;
   open(STDOUT,">",\$out);
-  $eq->process_events();
+  $gotevent = $eq->process_events();
 };
 #print "$@\n";
 

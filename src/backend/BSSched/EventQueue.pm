@@ -108,6 +108,7 @@ sub new {
 sub process_events {
   my ($ectx) = @_;
 
+  my $gotevent = 0;
   my $gctx = $ectx->{'gctx'};
 
   $ectx->order() if @{$ectx->{_events}};
@@ -120,6 +121,7 @@ sub process_events {
     # (delayed)fetchprojpacks, delay event processing until we updated the projpack data.
     if ($ev->{'type'} eq 'uploadbuild' || $ev->{'type'} eq 'import') {
       if (BSSched::EventHandler::event_uploadbuildimport_delay($ectx, $ev)) {
+	$gotevent = 1;    # still have an event to process
 	next;
       }
     }
@@ -161,6 +163,8 @@ sub process_events {
   $ectx->{'fetchprojpacks_nodelay'} = {};
   $ectx->{'deepcheck'} = {};
   $ectx->{'lowprioproject'} = {};
+
+  return $gotevent;
 }
 
 =head2 process_one - process a single event

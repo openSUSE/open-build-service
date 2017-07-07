@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 13;                      # last test to print
+use Test::More tests => 19;                      # last test to print
 use Data::Dumper;
 use FindBin;
 
@@ -124,32 +124,35 @@ $eq->add_events({});
 {
 	local *STDOUT;
 	open STDOUT, '>', \$out or die "Can't open STDOUT: $!";
-	$eq->process_events();
+	$got = $eq->process_events();
 }
 
 $expected = "remote event unknown
 unknown event type 'unknown'
 ";
 is($out,$expected,"Checking output one unknown event");
+is($got,0,"Checking result one unknown event");
 
 # check for empty event queue
 {
 	local *STDOUT;
 	open STDOUT, '>', \$out or die "Can't open STDOUT: $!";
-	$eq->process_events();
+    $got = $eq->process_events();
 }
 
 $expected = "";
 is($out,$expected,"Checking empty event queue");
+is($got,0,"Checking result empty event queue");
 
 {
 	local *STDOUT;
 	open STDOUT, '>', \$out or die "Can't open STDOUT: $!";
-        $eq->process_one({});
+    $got = $eq->process_one({});
 }
 $expected = "";$expected = "unknown event type 'unknown'
 ";
 is($out,$expected,"Checking output of process_one with empty event");
+is($got,1,"Checking result of process_one with empty event");
 
 
 
@@ -160,36 +163,39 @@ $eq->{initialstartup} = 1;
 {
 	local *STDOUT;
 	open STDOUT, '>', \$out or die "Can't open STDOUT: $!";
-        $eq->process_one({});
+    $got = $eq->process_one({});
 }
 $expected = "unknown event type 'unknown'
 ";
 is($out, $expected, "Checking output of one unknown event on initialstartup");
+is($got, 1        , "Checking result of one unknown event on initialstartup");
 
 
 # ...
 {
 	local *STDOUT;
 	open STDOUT, '>', \$out or die "Can't open STDOUT: $!";
-	$eq->process_one({type=>'exit'});
+    $got = $eq->process_one({type=>'exit'});
 }
 #  print '$expected = "'.$out.'";';
 $expected = "WARNING: there was an exit event, but we ignore it directly after starting the scheduler.
 ";
 
 is($out, $expected, "Checking output of exit event on initialstartup");
+ok(! defined($got), "Checking result of exit event on initialstartup");
 
 
 # ...
 {
 	local *STDOUT;
 	open STDOUT, '>', \$out or die "Can't open STDOUT: $!";
-	$eq->process_one({type=>'exitcomplete'});
+    $got = $eq->process_one({type=>'exitcomplete'});
 }
 $expected = "WARNING: there was an exit event, but we ignore it directly after starting the scheduler.
 ";
 
 is($out, $expected, "Checking output of exitcomplete event on initialstartup");
+ok(! defined($got), "Checking result of exitcomplete event on initialstartup");
 
 
 

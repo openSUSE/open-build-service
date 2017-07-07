@@ -800,7 +800,10 @@ eval {
       die if $testprojid;
       
       eval {
-        $ev_queue->process_events();
+        if ($ev_queue->process_events()) {
+          # could not process all events, re-run
+          $gotevent = 1;
+        }
       };
       if ($@) {
         warn($@);
