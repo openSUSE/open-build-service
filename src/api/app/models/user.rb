@@ -742,13 +742,13 @@ class User < ApplicationRecord
         )
       )
     ).with_actions_and_reviews.where(state: :review, reviews: { state: :new }).where.not(creator: login)
-    search ? result.do_search(search) : result
+    search.present? ? result.do_search(search) : result
   end
 
   # list requests involving this user
   def declined_requests(search = nil)
     result = requests_created.in_states(:declined).with_actions
-    search ? result.do_search(search) : result
+    search.present? ? result.do_search(search) : result
   end
 
   # list incoming requests involving this user
@@ -760,13 +760,13 @@ class User < ApplicationRecord
       BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(package_ids))
     ).with_actions.in_states(:new)
 
-    search ? result.do_search(search) : result
+    search.present? ? result.do_search(search) : result
   end
 
   # list outgoing requests involving this user
   def outgoing_requests(search = nil)
     result = requests_created.in_states([:new, :review]).with_actions
-    search ? result.do_search(search) : result
+    search.present? ? result.do_search(search) : result
   end
 
   # list of all requests
@@ -792,7 +792,7 @@ class User < ApplicationRecord
       )
     ).with_actions
 
-    search ? result.do_search(search) : result
+    search.present? ? result.do_search(search) : result
   end
 
   # lists running maintenance updates where this user is involved in
