@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 require_relative '../../test_helper'
-require 'faker'
 
 class Webui::LoginTest < Webui::IntegrationTest
   #
