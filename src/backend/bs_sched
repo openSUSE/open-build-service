@@ -798,12 +798,8 @@ eval {
     # process all collected events
     if ($ev_queue->events_in_queue()) {
       die if $testprojid;
-      
       eval {
-        if ($ev_queue->process_events()) {
-          # could not process all events, re-run
-          $gotevent = 1;
-        }
+        $ev_queue->process_events();
       };
       if ($@) {
         warn($@);
@@ -848,6 +844,7 @@ eval {
 	print "Test mode, all sources and events processed, exiting...\n";
         my $ectx = BSSched::EventQueue->new($gctx);
         BSSched::EventHandler::event_exit($ectx, { 'type' => 'exitcomplete' });
+	# notreached
       }
       BSUtil::printlog("waiting for an event...");
       exit 0 if $testprojid;

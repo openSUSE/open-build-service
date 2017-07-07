@@ -106,13 +106,13 @@ sub new {
 =cut
 
 sub process_events {
-  my ($ectx) = @_;
+  my ($ectx, $norerun) = @_;
 
-  my $gotevent = 0;
   my $gctx = $ectx->{'gctx'};
 
   $ectx->order() if @{$ectx->{_events}};
 
+  my @delayed;
   while (@{$ectx->{_events}}) {
     my $ev = shift @{$ectx->{_events}};
     $ev->{'type'} ||= 'unknown';
@@ -121,7 +121,7 @@ sub process_events {
     # (delayed)fetchprojpacks, delay event processing until we updated the projpack data.
     if ($ev->{'type'} eq 'uploadbuild' || $ev->{'type'} eq 'import') {
       if (BSSched::EventHandler::event_uploadbuildimport_delay($ectx, $ev)) {
-	$gotevent = 1;    # still have an event to process
+	push @delayed, $ev;
 	next;
       }
     }
@@ -157,14 +157,18 @@ sub process_events {
     BSSched::ProjPacks::do_fetchprojpacks($gctx,
 					  $ectx->{'fetchprojpacks'}, $ectx->{'fetchprojpacks_nodelay'},
 					  $ectx->{'deepcheck'}, $ectx->{'lowprioproject'});
+  } else {
+    $norerun = 1;
   }
 
   $ectx->{'fetchprojpacks'} = {};
   $ectx->{'fetchprojpacks_nodelay'} = {};
   $ectx->{'deepcheck'} = {};
   $ectx->{'lowprioproject'} = {};
-
-  return $gotevent;
+  if (@delayed) {
+    push @{$ectx->{_events}}, @delayed;
+    process_events($ectx, 1) unless $norerun;	# check delayed events again after do_fetchprojpacks;
+  }
 }
 
 =head2 process_one - process a single event
