@@ -188,7 +188,7 @@ sub cleanup_job {
   }
 
   # if this is the chroot case, get rid of it after the build
-  if ((!$vm || $vm =~ /lxc/) && $cleanup_chroot) {
+  if ((!$vm || $vm eq 'lxc') && $cleanup_chroot) {
       printf "Removing buildroot $buildroot";
       rm_rf($buildroot);
       mkdir_p($buildroot);
@@ -201,7 +201,7 @@ sub kill_job {
   # same args as in the build call
   if ($vm =~ /(xen|kvm|zvm|emulator)/) {
     push @args, '--root', "$buildroot/.mount";
-    if ($vm =~ /emulator/) {
+    if ($vm eq 'emulator') {
       push @args, '--vm-type', 'emulator';
       push @args, '--vm-disk', $vm_root;
       push @args, '--emulator-script', $emulator_script if $emulator_script;
@@ -212,8 +212,8 @@ sub kill_job {
     }
   } else {
     push @args, '--root', $buildroot;
-    push @args, '--vm-type', 'lxc' if $vm =~ /lxc/;
-    push @args, '--vm-type', 'docker' if $vm =~ /docker/;
+    push @args, '--vm-type', 'lxc' if $vm eq 'lxc';
+    push @args, '--vm-type', 'docker' if $vm eq 'docker';
   }
   if (system("$statedir/build/build", @args, "--kill")) {
     return 0;
@@ -427,7 +427,7 @@ while (@ARGV) {
     next;
   }
   if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm|docker|pvm|openstack)$/) {
-    $vm = "--$1";
+    $vm = $1;
     shift @ARGV;
     next;
   }
@@ -2831,13 +2831,9 @@ sub dobuild {
   if ($vm =~ /(xen|kvm|zvm|emulator|pvm)/) {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
     push @args, '--root', "$buildroot/.mount";
-    if ($vm =~ /emulator/) {
-      push @args, '--vm-type', 'emulator';
-      push @args, '--vm-disk', $vm_root;
-      push @args, '--emulator-script', $emulator_script if $emulator_script;
-    } else {
-      push @args, $vm, "$vm_root";
-    }
+    push @args, '--vm-type', $vm;
+    push @args, '--vm-disk', $vm_root;
+    push @args, '--emulator-script', $emulator_script if $vm eq 'emulator' && $emulator_script;
     push @args, '--swap', "$vm_swap";
     push @args, '--statistics';
     push @args, '--vm-watchdog';
@@ -2856,7 +2852,7 @@ sub dobuild {
     push @args, '--vm-worker', $vm_worker_name if $vm_worker_name;
     push @args, '--vm-worker-nr', $vm_worker_instance if $vm_worker_instance;
     push @args, '--vm-enable-console' if $vm_enable_console;
-  } elsif ($vm eq "--openstack" or $vm eq "openstack") {
+  } elsif ($vm eq "openstack") {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
     push @args, '--root',     "$buildroot/.mount";
     push @args, "--vm-server", "$vm_server";
@@ -2869,7 +2865,7 @@ sub dobuild {
   } else {
     print "VM-TYPE not detected";
     push @args, '--root', $buildroot;
-    push @args, '--vm-type', $1 if $vm =~ /(lxc|docker|openstack)/;
+    push @args, '--vm-type', $vm if $vm;
   }
   push @args, '--clean';
   push @args, '--changelog';
@@ -3174,7 +3170,7 @@ sub discardjob {
 sub startbuild {
   my ($cgi, $jobid) = @_;
 
-  if ($vm =~ /xen/ && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $xenstore_maxsize) {
+  if ($vm eq 'xen' && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $xenstore_maxsize) {
     die("xenstore too big:".(-s '/var/lib/xenstored/tdb')."\n");
   }
   unlink("job.new.$$");
