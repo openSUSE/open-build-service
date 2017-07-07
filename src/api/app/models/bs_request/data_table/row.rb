@@ -2,7 +2,7 @@ class BsRequest
   module DataTable
     class Row
       attr_accessor :request
-      delegate :created_at, :number, :creator, :priority, to: :request
+      delegate :updated_at, :id, :created_at, :number, :creator, :priority, to: :request
 
       def initialize(request)
         @request = request
