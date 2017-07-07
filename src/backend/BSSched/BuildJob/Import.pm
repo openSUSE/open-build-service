@@ -152,6 +152,9 @@ sub jobfinished {
   $changed->{$prp} = 2 if $useforbuildenabled;
   my $repounchanged = $gctx->{'repounchanged'};
   delete $repounchanged->{$prp} if $useforbuildenabled;
+  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
+  $changed->{$prp} ||= 1;
+  unlink("$gdst/:repodone");
 }
 
 1;
