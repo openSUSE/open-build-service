@@ -221,6 +221,9 @@ sub wipe_all {
   my @args;
   if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
     push @args, '--root', "$buildroot/.mount";
+    push @args, '--vm-type', $vm;
+    push @args, '--vm-disk', $vm_root;
+    push @args, '--vm-swap', $vm_swap;
   } else {
     push @args, '--root', $buildroot;
   }
@@ -2828,8 +2831,8 @@ sub dobuild {
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
     push @args, '--vm-disk', $vm_root;
+    push @args, '--vm-swap', $vm_swap;
     push @args, '--emulator-script', $emulator_script if $vm eq 'emulator' && $emulator_script;
-    push @args, '--vm-swap', "$vm_swap";
     push @args, '--statistics';
     push @args, '--vm-watchdog';
     my $vmmemory = $vm_memory ? $vm_memory : readstr("$buildroot/memory", 1);
@@ -2849,13 +2852,13 @@ sub dobuild {
     push @args, '--vm-enable-console' if $vm_enable_console;
   } elsif ($vm eq 'openstack') {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
-    push @args, '--root',     "$buildroot/.mount";
-    push @args, "--vm-type",   "openstack";
-    push @args, "--vm-disk",   "$vm_root";
-    push @args, "--vm-server", "$vm_server";
-    push @args, "--vm-worker", "$vm_worker_name";
-    push @args, "--vm-swap",   "$vm_swap";
-    push @args, "--vm-kernel", "$vm_kernel";
+    push @args, '--root',      "$buildroot/.mount";
+    push @args, "--vm-type",   $vm;
+    push @args, "--vm-disk",   $vm_root;
+    push @args, "--vm-swap",   $vm_swap;
+    push @args, "--vm-server", $vm_server;
+    push @args, "--vm-worker", $vm_worker_name;
+    push @args, "--vm-kernel", $vm_kernel;
     push @args, "--openstack-flavor", "$openstack_flavor";
   } else {
     print "VM-TYPE $vm not detected" if $vm;
