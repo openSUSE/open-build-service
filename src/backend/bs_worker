@@ -708,8 +708,7 @@ my $workerinfo = {};
 # host labels
 $workerinfo->{'hostlabel'} = \@hostlabel if @hostlabel;
 # sandbox
-$workerinfo->{'sandbox'} = 'chroot';
-$workerinfo->{'sandbox'} = $1 if $vm =~ /(xen|kvm|emulator|lxc|zvm|docker|pvm)/;
+$workerinfo->{'sandbox'} = $vm || 'chroot';
 # build host owner
 $workerinfo->{'owner'} = $owner if $owner;
 # linux kernel
