@@ -37,6 +37,7 @@ Configuration.first_or_create(name: "private", title: "Open Build Service") do |
     Have fun and fast build times!
   </p>
 EOT
+  conf.obs_url = 'http://localhost:3000'
 end
 
 puts "Seeding roles table..."
