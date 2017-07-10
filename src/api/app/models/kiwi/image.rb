@@ -20,8 +20,9 @@ class Kiwi::Image < ApplicationRecord
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
-  has_one :package, foreign_key: 'kiwi_image_id', dependent: :nullify, inverse_of: :kiwi_image
+  has_one :package, foreign_key: 'kiwi_image_id', class_name: '::Package', dependent: :nullify, inverse_of: :kiwi_image
   has_many :repositories, -> { order(order: :asc) }, dependent: :destroy, index_errors: true
+  has_many :package_groups, dependent: :destroy, index_errors: true
 
   #### Callbacks macros: before_save, after_save, etc.
 
