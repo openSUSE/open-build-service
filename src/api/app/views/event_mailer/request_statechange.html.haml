@@ -1,0 +1,14 @@
+%p
+  Visit #{url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false)}
+%p
+  State of request #{event['number']} was changed by #{event['who']}:
+%p
+  = event['oldstate']
+  \-&gt; #{event['state']}
+- if event['comment'].present?
+  %p
+    Comment:
+    %br/
+    = event['comment']
+%br/
+= render partial: 'actions', locals: { event: event }

@@ -13,11 +13,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     reset_auth
   end
 
-  def verify_email(fixture_name, myid, email)
-    should = load_fixture("event_mailer/#{fixture_name}").gsub('REQUESTID', myid).chomp
-    assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
-  end
-
   def test_request_event
     login_Iggy
 
@@ -36,7 +31,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     assert_equal "Request #{myid} created by Iggy (add_role home:tom)", email.subject
     assert_equal %w(tschmidt@example.com), email.to # tom is maintainer
-    verify_email('request_event', myid, email)
   end
 
   def test_very_large_request_event
@@ -83,7 +77,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     assert_equal "Request #{myid} created by Iggy (set_bugowner home:tom)", email.subject
     assert_equal %w(tschmidt@example.com), email.to
-    verify_email('set_bugowner_event', myid, email)
 
     ActionMailer::Base.deliveries.clear
 
@@ -101,7 +94,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     end
 
     assert_equal "Request #{myid} changed to declined (set_bugowner home:tom)", email.subject
-    verify_email('tom_declined', myid, email)
   end
 
   def test_devel_package_event
@@ -125,7 +117,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
     # what we want to test here is that tom - as devel package maintainer gets an email too
-    verify_email('tom_gets_mail_too', myid, email)
   end
 
   def test_repository_delete_request
@@ -143,6 +134,5 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
     # what we want to test here is that tom - as devel package maintainer gets an email too
-    verify_email('repo_delete_request', myid, email)
   end
 end

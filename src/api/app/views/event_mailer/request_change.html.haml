@@ -1,0 +1,22 @@
+%p
+  @subject: #{event['type']}-Request #{event['number']} Changed
+%p
+  = event['type']
+  \-Request was changed, new state: #{event['state']}
+- if event['sourceproject']
+  %p
+    Source
+    %br/
+    project:  #{event['sourceproject']}
+    %br/
+    package:  #{event['sourcepackage']}
+    %br/
+    - if event['sourcerevision']
+      revision: #{event['sourcerevision']}
+    \&gt;
+  %p
+    Target:
+    %br/
+    project: #{event['targetproject']}
+    %br/
+    package: #{event['targetpackage']}
