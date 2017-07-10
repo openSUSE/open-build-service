@@ -101,7 +101,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
 
     # verify meta data created by create_package_descr
     package_seen = {}
-    IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro3/BaseDistro3_repo/repodata/*-primary.xml.gz") do |io|
+    IO.popen("gunzip -cd #{ENV['OBS_BACKEND_TEMP']}/data/repos/BaseDistro3/BaseDistro3_repo/repodata/*-primary.xml.gz") do |io|
       hashed = Xmlhash.parse(io.read)
       hashed.elements("package").each do |p|
         next unless (p["name"] == "package" && p["arch"] == "i586") || (p["name"] == "package_newweaktags" && p["arch"] == "x86_64")
@@ -145,7 +145,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
 
     # master tags
     hashed = nil
-    IO.popen("cat #{Rails.root}/tmp/backend_data/repos/BaseDistro3/BaseDistro3_repo/repodata/repomd.xml") do |io|
+    IO.popen("cat #{ENV['OBS_BACKEND_TEMP']}/data/repos/BaseDistro3/BaseDistro3_repo/repodata/repomd.xml") do |io|
       hashed = Xmlhash.parse(io.read)
     end
     if File.exist? '/var/adm/fillup-templates'

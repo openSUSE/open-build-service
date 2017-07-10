@@ -179,7 +179,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
     # find scheduler job and compare it with buildinfo
 # FIXME: to be implemented, compare scheduler job with rep server job
-#   jobfile=File.new("#{Rails.root}/tmp/backend_data/jobs/i586/home:Iggy::10.2::TestPack-#{srcmd5}")
+#   jobfile=File.new("#{ENV['OBS_BACKEND_TEMP']}/data/jobs/i586/home:Iggy::10.2::TestPack-#{srcmd5}")
 #   schedulerjob = Document.new(jobfile).root
 #   schedulerjob.elements.each do |jobnode|
 #     puts "test", jobnode.inspect

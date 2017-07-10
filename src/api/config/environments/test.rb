@@ -1,6 +1,7 @@
 # Settings specified here will take precedence over those in config/environment.rb
 
 ENV['CACHENAMESPACE'] ||= "obs-api-test-#{Time.now.to_i}"
+ENV['OBS_BACKEND_TEMP'] ||= Dir.mktmpdir("obsbackend", '/var/tmp')
 
 Rails.application.configure do
   config.active_support.test_order = :sorted # switch to :random ?

@@ -703,7 +703,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'entry', attributes: { name: 'primary.xml.gz' }
     assert_xml_tag tag: 'entry', attributes: { name: 'repomd.xml' }
     assert_xml_tag tag: 'entry', attributes: { name: 'updateinfo.xml.gz' } # by modifyrepo
-    IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro3Channel/channel_repo/repodata/updateinfo.xml.gz") do |io|
+    IO.popen("gunzip -cd #{ENV['OBS_BACKEND_TEMP']}/data/repos/BaseDistro3Channel/channel_repo/repodata/updateinfo.xml.gz") do |io|
       node = Xmlhash.parse(io.read)
     end
     assert_equal "UpdateInfoTagNew-patch_name-#{Time.now.year}-1", node['update']['id']
