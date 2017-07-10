@@ -239,7 +239,6 @@ class PersonController < ApplicationController
     if CONFIG['ldap_mode'] == :on
       ldap_password = Base64.decode64(password)
       if CONFIG['ldap_ssl'] == :on
-        require 'base64'
         begin
           logger.debug( "Using LDAP to change password for #{login}" )
           result = UserLdapStrategy.change_password_ldap(login, ldap_password)

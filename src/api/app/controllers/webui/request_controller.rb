@@ -1,5 +1,3 @@
-require 'base64'
-
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 

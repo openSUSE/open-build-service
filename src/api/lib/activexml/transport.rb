@@ -64,10 +64,6 @@ module ActiveXML
 
     # TODO: put lots of stuff into base class
 
-    require 'base64'
-    require 'net/https'
-    require 'net/http'
-
     attr_accessor :target_uri
     attr_accessor :details
 

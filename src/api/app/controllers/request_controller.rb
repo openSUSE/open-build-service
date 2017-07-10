@@ -1,4 +1,3 @@
-require 'base64'
 require_dependency 'event/all'
 
 include MaintenanceHelper
