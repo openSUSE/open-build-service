@@ -1,10 +1,9 @@
 .kiwi-repository-container {
-  display: inline-block;
-  width: 44%;
+  width: 80%;
   border: 1px solid #ddd;
   border-radius: 6px;
-  padding: 10px;
-  margin: 1em;
+  padding: 10px 10px 10px 25px;
+  margin: 1em auto;
 
   .nested-fields {
     div {
@@ -20,7 +19,7 @@
           margin-left: 5px;
           width: 98%;
 
-          input { width: 98%; }
+          input { width: 97%; }
         }
       }
       &.double {
@@ -36,7 +35,10 @@
           margin-left: 5px;
           width: 31%;
 
-          input { width: 96%; }
+          input {
+            width: 98%;
+            margin-left: 2px;
+          }
           select { width: 100%; }
         }
       }
