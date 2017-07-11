@@ -280,13 +280,6 @@ class Webui::WebuiController < ActionController::Base
     @tasks = User.current.tasks unless User.current.is_nobody?
   end
 
-  def load_kiwi_image(id)
-    @image = ::Kiwi::Image.find(id)
-  rescue ActiveRecord::RecordNotFound
-    flash[:error] = "KIWI image '#{id}' does not exist"
-    redirect_back(fallback_location: root_path)
-  end
-
   def require_configuration
     @configuration = ::Configuration.first
   end

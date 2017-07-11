@@ -24,18 +24,49 @@ module Webui
           end
         end
 
-        redirect_to kiwi_image_repositories_path(package.kiwi_image)
+        redirect_to kiwi_image_path(package.kiwi_image)
       end
 
       def show
+        @repositories = @image.repositories.order(:order)
+        @package = @image.package
+        @project = @package.project
+      end
+
+      def edit
+        @repositories = @image.repositories.order(:order)
+        @package = @image.package
+        @project = @package.project
+      end
+
+      def update
+        ::Kiwi::Image.transaction do
+          @image.update_attributes!(image_params)
+          @image.write_to_backend
+        end
+        redirect_to action: :show
+      rescue => e
+        flash[:error] = "Cannot update repositories for kiwi image: #{@image.errors.full_messages.to_sentence} #{e.message}"
+        redirect_back(fallback_location: root_path)
+      end
+
+      def is_outdated
         render json: { is_outdated: @image.outdated? }
       end
 
       private
 
+      def image_params
+        params.require(:kiwi_image).permit(repositories_attributes:
+                                      [:id, :priority, :repo_type, :source_path, :alias,
+                                       :username, :password, :prefer_license, :imageinclude, :replaceable])
+      end
+
       def set_image
-        params.require(:id)
-        load_kiwi_image(params[:id])
+        @image = ::Kiwi::Image.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        flash[:error] = "KIWI image '#{params[:id]}' does not exist"
+        redirect_back(fallback_location: root_path)
       end
     end
   end

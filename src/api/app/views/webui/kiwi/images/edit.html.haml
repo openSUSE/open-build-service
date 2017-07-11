@@ -7,14 +7,14 @@
   %p There are no repositories.
 - else
   %div
-    = form_for @image, as: :image, url: kiwi_image_repositories_update_path(@image), method: :post, html: { id: 'kiwi_repository_update_form' } do |f|
+    = form_for @image, html: { id: 'kiwi_repository_update_form' } do |f|
       = f.fields_for :repositories do |repository_fields|
         = render 'repository_fields', f: repository_fields
       = button_tag('Save', id: 'kiwi_repository_update_form_save', type: 'button', disabled: true)
 
 :javascript
   function save_repositories() {
-    $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
+    $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :is_outdated, id: @image)}",
       dataType: 'json',
       success: function(json) {
         var is_outdated = json['is_outdated'];

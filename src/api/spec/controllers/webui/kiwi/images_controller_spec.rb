@@ -6,6 +6,10 @@ require 'rails_helper'
 
 RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
   let(:project) { create(:project, name: 'fake_project') }
+  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:kiwi_image_with_package_with_kiwi_file) do
+    create(:kiwi_image_with_package, name: 'package_with_valid_kiwi_file', project: user.home_project, with_kiwi_file: true)
+  end
 
   describe 'GET #import_from_package' do
     context 'without a kiwi file' do
@@ -29,7 +33,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
           get :import_from_package, params: { package_id: kiwi_image.package.id }
         end
 
-        it { expect(response).to redirect_to(kiwi_image_repositories_path(kiwi_image)) }
+        it { expect(response).to redirect_to(kiwi_image_path(kiwi_image)) }
       end
 
       context 'that is an invalid kiwi file' do
@@ -49,14 +53,93 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
     end
   end
 
-  describe 'GET #show' do
+  describe 'GET #is_outdated' do
     let(:kiwi_image) { create(:kiwi_image_with_package, name: 'fake_package', project: project, with_kiwi_file: true) }
 
     before do
-      get :show, params: { id: kiwi_image }
+      login user
+      get :is_outdated, params: { id: kiwi_image }
     end
 
     it { expect(response.content_type).to eq("application/json") }
     it { expect(response).to have_http_status(:ok) }
+  end
+
+  describe 'GET #show' do
+    before do
+      login user
+    end
+
+    subject { get :show, params: { id: kiwi_image_with_package_with_kiwi_file.id } }
+
+    it { expect(subject).to have_http_status(:success) }
+    it { expect(subject).to render_template(:show) }
+  end
+
+  describe 'GET #edit' do
+    subject { get :edit, params: { id: kiwi_image_with_package_with_kiwi_file.id } }
+
+    it { expect(subject).to have_http_status(:success) }
+    it { expect(subject).to render_template(:edit) }
+  end
+
+  describe 'POST #update' do
+    let(:kiwi_repository) { create(:kiwi_repository, image: kiwi_image_with_package_with_kiwi_file) }
+
+    before do
+      login user
+    end
+
+    context 'with invalid repositories data' do
+      let(:invalid_repositories_update_params) do
+        {
+          id:         kiwi_image_with_package_with_kiwi_file.id,
+          kiwi_image: {
+            repositories_attributes: {
+              '0' => {
+                id:        kiwi_repository.id,
+                repo_type: 'apt2-deb'
+                }
+            }
+          }
+        }
+      end
+
+      subject { post :update, params: invalid_repositories_update_params }
+
+      it do
+        expect(subject.request.flash[:error]).to(
+          start_with('Cannot update repositories for kiwi image: Repositories[0] repo type is not included in the list')
+        )
+      end
+      it { expect(subject).to redirect_to(root_path) }
+    end
+
+    context 'with valid repositories data' do
+      let(:update_params) do
+        {
+          id:         kiwi_image_with_package_with_kiwi_file.id,
+          kiwi_image: { repositories_attributes: { '0' => {
+            id:             kiwi_repository.id,
+            repo_type:      'apt-deb',
+            priority:       '',
+            alias:          '',
+            source_path:    'http://',
+            username:       '',
+            password:       '',
+            prefer_license: 0,
+            imageinclude:   0,
+            replaceable:    0
+          }}}
+        }
+      end
+
+      before do
+        post :update, params: update_params
+      end
+
+      it { expect(response).to redirect_to(action: :show) }
+      it { expect(flash[:error]).to be_nil }
+    end
   end
 end
