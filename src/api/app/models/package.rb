@@ -42,7 +42,7 @@ class Package < ApplicationRecord
   class IllegalFileName < APIException; setup 'invalid_file_name_error'; end
   class PutFileNoPermission < APIException; setup 403; end
 
-  belongs_to :project, inverse_of: :packages
+  belongs_to :project, inverse_of: :packages, touch: true
   delegate :name, to: :project, prefix: true
   delegate :repositories, to: :project
   delegate :architectures, to: :project
@@ -86,8 +86,6 @@ class Package < ApplicationRecord
   before_destroy :update_project_for_product
   before_destroy :remove_linked_packages
   before_destroy :remove_devel_packages
-
-  after_destroy :delete_cache_lines
 
   after_save :write_to_backend
   before_update :update_activity
@@ -1017,6 +1015,13 @@ class Package < ApplicationRecord
     ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
       _add_channel(mode, cb, "Listed in #{project_name} #{name}")
     end
+    # Invalidate cache after adding first batch of channels. This is needed because
+    # we add channels for linked packages before calling store, which would update the
+    # timestamp used for caching.
+    # rubocop:disable Rails/SkipsModelValidations
+    project.touch
+    # rubocop:enable Rails/SkipsModelValidations
+
     # and all possible existing local links
     if opkg.project.is_maintenance_release? && opkg.is_link?
       opkg = opkg.project.packages.find_by_name opkg.linkinfo["package"]
@@ -1152,10 +1157,6 @@ class Package < ApplicationRecord
       bp.error = nil
       bp.links_to = nil
     end
-  end
-
-  def delete_cache_lines
-    CacheLine.cleanup_package(project.name, name)
   end
 
   def remove_linked_packages

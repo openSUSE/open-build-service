@@ -12,10 +12,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi').to_timeout
   end
 
-  teardown do
-    Timecop.return
-  end
-
   #   Usually updates are patches for most recent package releases.
   #   In addition kgraft updates also need to patch previously released
   #   package submissions.
@@ -39,8 +35,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   # home:king:branches:BaseDistro2.0/BaseDistro2.Channel - branched channel inject placeholder
   #
   def test_kgraft_update_setup
-    Timecop.freeze(2010, 7, 12)
-
     # setup 'My:Maintenance' as a maintenance project by fetching it's meta and set a type
     login_king
     get '/source/My:Maintenance/_meta'
@@ -50,11 +44,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
              "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
-    Timecop.freeze(1)
     # setup a maintained distro
     post '/source/BaseDistro2.0/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
-    Timecop.freeze(1)
     post '/source/BaseDistro2.0/_attribute',
          params: "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> "\
                  "</attribute> </attributes>"
@@ -71,7 +63,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # create maintenance incident for first kernel update
-    Timecop.freeze(1)
     post '/source', params: { cmd: 'createmaintenanceincident' }
     assert_response :success
     assert_xml_tag( tag: 'data', attributes: { name: 'targetproject' } )
@@ -79,7 +70,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     kernel_incident_project = data.elements['/status/data'].text
     kernel_incident_id = kernel_incident_project.gsub( /^My:Maintenance:/, '')
     # submit packages via mbranch
-    Timecop.freeze(1)
     post '/source', params: { cmd: 'branch', package: 'pack2', target_project: kernel_incident_project, add_repositories: 1 }
     assert_response :success
     get "/source/#{kernel_incident_project}/_meta"
@@ -94,7 +84,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # create a GA update patch
-    Timecop.freeze(1)
     post '/source/BaseDistro2.0/kgraft-GA', params: { cmd: 'branch', missingok: 1, extend_package_names: 1, add_repositories: 1, ignoredevel: 1 }
     assert_response :success
     raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-GA.BaseDistro2.0/package.spec",
@@ -136,7 +125,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     ### Here starts the kgraft team
     # create a update patch based on former kernel incident
-    Timecop.freeze(1)
     post '/source/' + kernel_incident_project + '/kgraft-incident-' + kernel_incident_id, params: { cmd: 'branch', target_project: "home:king:branches:BaseDistro2.0", maintenance: 1 }
     assert_response :success
     raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernel_incident_project.tr( ':', '_')}/packageNew.spec",
