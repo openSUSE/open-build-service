@@ -45,7 +45,7 @@ module Webui
           @image.write_to_backend
         end
         redirect_to action: :show
-      rescue => e
+      rescue ActiveRecord::RecordInvalid, Timeout::Error => e
         flash[:error] = "Cannot update repositories for kiwi image: #{@image.errors.full_messages.to_sentence} #{e.message}"
         redirect_back(fallback_location: root_path)
       end
