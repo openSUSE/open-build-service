@@ -29,20 +29,12 @@ module Webui
 
       def show
         respond_to do |format|
-          format.html do
-            @repositories = @image.repositories.order(:order)
-            @package = @image.package
-            @project = @package.project
-          end
+          format.html
           format.json { render json: { is_outdated: @image.outdated? } }
         end
       end
 
-      def edit
-        @repositories = @image.repositories.order(:order)
-        @package = @image.package
-        @project = @package.project
-      end
+      def edit; end
 
       def update
         ::Kiwi::Image.transaction do

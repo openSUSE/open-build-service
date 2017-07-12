@@ -9,15 +9,15 @@
 <div class="box-header header-tabs" id="package_tabs">
   <ul>
     <%= tab 'kiwi', 'Kiwi', controller: 'kiwi/images', action: 'show', selected: true %>
-    <% if @package.name == "patchinfo" %>
+    <% if @image.package.name == "patchinfo" %>
       <%= tab 'details', 'Details', controller: '/webui/patchinfo', action: 'show' %>
     <% end %>
-    <%= tab 'overview', 'Overview', controller: '/webui/package', action: 'show' %>
+    <%= tab 'overview', 'Overview', controller: '/webui/package', action: 'show', package: @image.package %>
     <% unless @spider_bot %>
       <%= tab 'repositories', 'Repositories', controller: '/webui/repositories', action: 'index' %>
-      <%= tab 'revisions', 'Revisions', :controller => '/webui/package', :action => 'revisions' %>
-      <%= tab 'requests', "Requests", :controller => '/webui/package', :action => 'requests' %>
-      <%= tab 'users', 'Users', :controller => '/webui/package', :action => 'users' %>
+      <%= tab 'revisions', 'Revisions', :controller => '/webui/package', :action => 'revisions', package: @image.package %>
+      <%= tab 'requests', "Requests", :controller => '/webui/package', :action => 'requests', package: @image.package %>
+      <%= tab 'users', 'Users', :controller => '/webui/package', :action => 'users', package: @image.package %>
     <% end %>
     <% if is_advanced_tab? %>
       <%= content_for :ready_function do %>
@@ -30,8 +30,8 @@
   <% unless @spider_bot %>
     <div id="advanced_tabs" class="hidden">
       <ul>
-        <%= tab 'attributes', 'Attributes', controller: '/webui/attribute', :package => @package, :project => @project, :action => 'index' %>
-        <%= tab 'meta', 'Meta', :controller => '/webui/package', :action => 'meta' %>
+        <%= tab 'attributes', 'Attributes', controller: '/webui/attribute', :package => @image.package, :project => @image.package.project , :action => 'index' %>
+        <%= tab 'meta', 'Meta', :controller => '/webui/package', :action => 'meta', package: @image.package %>
       </ul>
     </div>
   <% end %>

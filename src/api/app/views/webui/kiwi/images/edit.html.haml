@@ -3,7 +3,7 @@
 %h2
   = @image.name
 %h3 Repositories
-- if @repositories.empty?
+- if @image.repositories.empty?
   %p There are no repositories.
 - else
   %div
