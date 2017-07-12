@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Heart Is a Lonely Hunter</title>
+          <title>The Painted Veil</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '117'
+      - '105'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Heart Is a Lonely Hunter</title>
+          <title>The Painted Veil</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:01 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Aut repellat iste dolorem quo non amet. Est nihil tempore. Rerum aliquam
-        ut quia consequatur corporis sint. Laudantium quam veritatis eos.
+      string: Qui animi cum. In quia libero. Cumque rerum dolores ipsam nostrum perspiciatis.
+        Perspiciatis enim autem voluptates laudantium. Accusamus nostrum qui.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,7 +72,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:01 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/_meta?user=_nobody_
@@ -80,8 +80,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Blue Remembered Earth</title>
-          <description>Magni deserunt aut commodi impedit libero.</description>
+          <title>The House of Mirth</title>
+          <description>Dolores ab est occaecati sit quibusdam praesentium culpa.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,16 +102,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '198'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Blue Remembered Earth</title>
-          <description>Magni deserunt aut commodi impedit libero.</description>
+          <title>The House of Mirth</title>
+          <description>Dolores ab est occaecati sit quibusdam praesentium culpa.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:01 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/_meta
@@ -119,8 +119,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Blue Remembered Earth</title>
-          <description>Magni deserunt aut commodi impedit libero.</description>
+          <title>The House of Mirth</title>
+          <description>Dolores ab est occaecati sit quibusdam praesentium culpa.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -141,16 +141,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '198'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Blue Remembered Earth</title>
-          <description>Magni deserunt aut commodi impedit libero.</description>
+          <title>The House of Mirth</title>
+          <description>Dolores ab est occaecati sit quibusdam praesentium culpa.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:01 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -190,16 +190,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
+        <revision rev="1" vrev="1">
           <srcmd5>3822662924706b810ffb158183355052</srcmd5>
           <version>unknown</version>
-          <time>1499329687</time>
+          <time>1499944381</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:01 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_kiwi_image/_meta?user=_nobody_
@@ -207,8 +207,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Blue Remembered Earth</title>
-          <description>Magni deserunt aut commodi impedit libero.</description>
+          <title>The House of Mirth</title>
+          <description>Dolores ab est occaecati sit quibusdam praesentium culpa.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -229,16 +229,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '198'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Blue Remembered Earth</title>
-          <description>Magni deserunt aut commodi impedit libero.</description>
+          <title>The House of Mirth</title>
+          <description>Dolores ab est occaecati sit quibusdam praesentium culpa.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
@@ -268,11 +268,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499329572" />
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499944375" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
@@ -302,11 +302,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499329572" />
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499944375" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
@@ -336,11 +336,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499329572" />
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499944375" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_kiwi_image
@@ -370,9 +370,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499329572" />
+        <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499944375" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 recorded_with: VCR 3.0.3

@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Moving Toyshop</title>
+          <title>Shall not Perish</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '105'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Moving Toyshop</title>
+          <title>Shall not Perish</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Pariatur blanditiis quae omnis. Ipsa consectetur consequuntur minima
-        quaerat quis libero sint. Iure et unde rerum.
+      string: Facere adipisci illum. Nostrum non in aliquid repudiandae quia dolore
+        dolorum. Autem inventore ad. Molestiae corporis rerum est libero praesentium.
+        Repellendus similique natus quisquam voluptas.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,7 +73,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/_meta?user=_nobody_
@@ -80,8 +81,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Little Hands Clapping</title>
-          <description>Provident inventore aut et omnis quaerat aliquid earum qui.</description>
+          <title>The Green Bay Tree</title>
+          <description>Error ad commodi voluptatum cumque sunt sed nam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,16 +103,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '210'
+      - '196'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Little Hands Clapping</title>
-          <description>Provident inventore aut et omnis quaerat aliquid earum qui.</description>
+          <title>The Green Bay Tree</title>
+          <description>Error ad commodi voluptatum cumque sunt sed nam.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/_meta
@@ -119,8 +120,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Little Hands Clapping</title>
-          <description>Provident inventore aut et omnis quaerat aliquid earum qui.</description>
+          <title>The Green Bay Tree</title>
+          <description>Error ad commodi voluptatum cumque sunt sed nam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -141,16 +142,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '210'
+      - '196'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Little Hands Clapping</title>
-          <description>Provident inventore aut et omnis quaerat aliquid earum qui.</description>
+          <title>The Green Bay Tree</title>
+          <description>Error ad commodi voluptatum cumque sunt sed nam.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -222,16 +223,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
+        <revision rev="2" vrev="2">
           <srcmd5>6ccfa0805f62f6fba78db7bc8b4082ba</srcmd5>
           <version>unknown</version>
-          <time>1499329687</time>
+          <time>1499944382</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file
@@ -261,11 +262,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="4" vrev="4" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1499329573" />
+        <directory name="package_with_invalid_kiwi_file" rev="2" vrev="2" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1499944382" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:03 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -338,7 +339,7 @@ http_interactions:
           </repository>
         </image>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:03 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file
@@ -368,9 +369,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="4" vrev="4" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1499329573" />
+        <directory name="package_with_invalid_kiwi_file" rev="2" vrev="2" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1499944382" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:03 GMT
 recorded_with: VCR 3.0.3

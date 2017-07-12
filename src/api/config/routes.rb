@@ -195,7 +195,6 @@ OBSApi::Application.routes.draw do
 
     Feature.with(:kiwi_image_editor) do
       controller 'webui/kiwi/images' do
-        get 'kiwi_images/:id/is_outdated' => :is_outdated, as: 'is_outdated'
         get 'package/:package_id/kiwi_images/import_from_package' => :import_from_package, as: 'import_kiwi_image'
       end
 

@@ -53,27 +53,24 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
     end
   end
 
-  describe 'GET #is_outdated' do
-    let(:kiwi_image) { create(:kiwi_image_with_package, name: 'fake_package', project: project, with_kiwi_file: true) }
-
-    before do
-      login user
-      get :is_outdated, params: { id: kiwi_image }
-    end
-
-    it { expect(response.content_type).to eq("application/json") }
-    it { expect(response).to have_http_status(:ok) }
-  end
-
   describe 'GET #show' do
     before do
       login user
     end
 
-    subject { get :show, params: { id: kiwi_image_with_package_with_kiwi_file.id } }
+    context "json" do
+      subject { get :show, params: { format: :json, id: kiwi_image_with_package_with_kiwi_file.id } }
 
-    it { expect(subject).to have_http_status(:success) }
-    it { expect(subject).to render_template(:show) }
+      it { expect(subject.content_type).to eq("application/json") }
+      it { expect(subject).to have_http_status(:success) }
+    end
+
+    context "html" do
+      subject { get :show, params: { id: kiwi_image_with_package_with_kiwi_file.id } }
+
+      it { expect(subject).to have_http_status(:success) }
+      it { expect(subject).to render_template(:show) }
+    end
   end
 
   describe 'GET #edit' do

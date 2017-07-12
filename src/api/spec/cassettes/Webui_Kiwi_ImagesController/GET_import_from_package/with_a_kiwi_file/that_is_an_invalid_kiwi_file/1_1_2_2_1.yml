@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Skull Beneath the Skin</title>
+          <title>After Many a Summer Dies the Swan</title>
           <description/>
         </project>
     headers:
@@ -29,24 +29,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '115'
+      - '122'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Skull Beneath the Skin</title>
+          <title>After Many a Summer Dies the Swan</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Ut in maxime assumenda perspiciatis. Dolorum molestiae voluptatem unde
-        et eius voluptate qui. At rem id magni consequatur dolorem aperiam est. Hic
-        iste est error qui enim molestiae occaecati.
+      string: Ut cumque tempora sed. Est modi totam reiciendis sint est. Aliquid nisi
+        officiis amet ut labore est. At libero quam qui quidem deserunt.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -73,7 +72,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/_meta?user=_nobody_
@@ -81,8 +80,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>If Not Now, When?</title>
-          <description>Ipsam quod ut debitis quidem et tempore rerum.</description>
+          <title>The Widening Gyre</title>
+          <description>Dolorem in sed porro sunt ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -103,16 +102,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '193'
+      - '176'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>If Not Now, When?</title>
-          <description>Ipsam quod ut debitis quidem et tempore rerum.</description>
+          <title>The Widening Gyre</title>
+          <description>Dolorem in sed porro sunt ut.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/_meta
@@ -120,8 +119,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>If Not Now, When?</title>
-          <description>Ipsam quod ut debitis quidem et tempore rerum.</description>
+          <title>The Widening Gyre</title>
+          <description>Dolorem in sed porro sunt ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -142,16 +141,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '193'
+      - '176'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>If Not Now, When?</title>
-          <description>Ipsam quod ut debitis quidem et tempore rerum.</description>
+          <title>The Widening Gyre</title>
+          <description>Dolorem in sed porro sunt ut.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -223,16 +222,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
+        <revision rev="1" vrev="1">
           <srcmd5>6ccfa0805f62f6fba78db7bc8b4082ba</srcmd5>
           <version>unknown</version>
-          <time>1499329687</time>
+          <time>1499944382</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file
@@ -262,11 +261,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="3" vrev="3" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1499329573" />
+        <directory name="package_with_invalid_kiwi_file" rev="1" vrev="1" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1499944382" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -339,7 +338,7 @@ http_interactions:
           </repository>
         </image>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file
@@ -369,9 +368,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="3" vrev="3" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1499329573" />
+        <directory name="package_with_invalid_kiwi_file" rev="1" vrev="1" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1499944382" />
         </directory>
     http_version: 
-  recorded_at: Thu, 06 Jul 2017 08:28:07 GMT
+  recorded_at: Thu, 13 Jul 2017 11:13:02 GMT
 recorded_with: VCR 3.0.3
