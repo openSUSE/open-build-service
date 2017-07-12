@@ -3474,7 +3474,7 @@ sub sourcebranch {
     BSSrcServer::Access::checksourceaccess($oprojid, $opackid) if $opackid eq $packid && $oprojid ne $projid;
   };
   $l->{'package'} = $opackid if $@;
-  $l->{'missingok'} = "true" if defined $cgi->{'missingok'} && $orev->{'srcmd5'} eq $BSSrcrep::emptysrcmd5;
+  $l->{'missingok'} = 'true' if defined $cgi->{'missingok'} && !exists($orev->{'rev'}) && $orev->{'srcmd5'} eq $BSSrcrep::emptysrcmd5;
   $l->{'rev'} = $cgi->{'orev'} if defined $cgi->{'orev'};
   $l->{'baserev'} = $orev->{'srcmd5'};
   if ($cgi->{'extendvrev'}) {
