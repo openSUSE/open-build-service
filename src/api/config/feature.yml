@@ -12,3 +12,6 @@ test:
   <<: *default
   features:
     kiwi_image_editor: true
+
+migrate:
+  <<: *default
