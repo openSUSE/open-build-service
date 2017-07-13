@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:47 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Eyeless in Gaza</title>
-          <description>Nisi vero at quisquam.</description>
+          <title>Little Hands Clapping</title>
+          <description>Et aut non totam soluta quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Eyeless in Gaza</title>
-          <description>Nisi vero at quisquam.</description>
+          <title>Little Hands Clapping</title>
+          <description>Et aut non totam soluta quia.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:47 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Eyeless in Gaza</title>
-          <description>Nisi vero at quisquam.</description>
+          <title>Little Hands Clapping</title>
+          <description>Et aut non totam soluta quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Eyeless in Gaza</title>
-          <description>Nisi vero at quisquam.</description>
+          <title>Little Hands Clapping</title>
+          <description>Et aut non totam soluta quia.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:48 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -151,13 +151,13 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>cc9055a3d19c2afd5ddc517b2c4424aa</srcmd5>
           <version>unknown</version>
-          <time>1499175286</time>
+          <time>1499944368</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:48 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=_nobody_
@@ -165,8 +165,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Eyeless in Gaza</title>
-          <description>Nisi vero at quisquam.</description>
+          <title>Little Hands Clapping</title>
+          <description>Et aut non totam soluta quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -187,16 +187,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Eyeless in Gaza</title>
-          <description>Nisi vero at quisquam.</description>
+          <title>Little Hands Clapping</title>
+          <description>Et aut non totam soluta quia.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:48 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -227,10 +227,10 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="cc9055a3d19c2afd5ddc517b2c4424aa">
-          <entry name="package_with_kiwi_image.kiwi" md5="238ce2170f6c9dee03b0c02df0253866" size="30" mtime="1499175286" />
+          <entry name="package_with_kiwi_image.kiwi" md5="238ce2170f6c9dee03b0c02df0253866" size="30" mtime="1499944368" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:48 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -261,10 +261,10 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="cc9055a3d19c2afd5ddc517b2c4424aa">
-          <entry name="package_with_kiwi_image.kiwi" md5="238ce2170f6c9dee03b0c02df0253866" size="30" mtime="1499175286" />
+          <entry name="package_with_kiwi_image.kiwi" md5="238ce2170f6c9dee03b0c02df0253866" size="30" mtime="1499944368" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:48 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -295,7 +295,7 @@ http_interactions:
       encoding: UTF-8
       string: Invalid content for a xml file
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:48 GMT
 - request:
     method: delete
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image?comment&user=tom
@@ -328,5 +328,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:46 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:48 GMT
 recorded_with: VCR 3.0.3

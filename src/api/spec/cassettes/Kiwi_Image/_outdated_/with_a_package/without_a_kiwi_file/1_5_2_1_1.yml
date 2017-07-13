@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:43 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_without_kiwi_file/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Dolore odit maiores nesciunt iste placeat.</description>
+          <title>Wildfire at Midnight</title>
+          <description>Illum voluptas quis deserunt id ex natus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Dolore odit maiores nesciunt iste placeat.</description>
+          <title>Wildfire at Midnight</title>
+          <description>Illum voluptas quis deserunt id ex natus.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:43 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_without_kiwi_file/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Dolore odit maiores nesciunt iste placeat.</description>
+          <title>Wildfire at Midnight</title>
+          <description>Illum voluptas quis deserunt id ex natus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Dolore odit maiores nesciunt iste placeat.</description>
+          <title>Wildfire at Midnight</title>
+          <description>Illum voluptas quis deserunt id ex natus.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:43 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_without_kiwi_file/_meta?user=_nobody_
@@ -126,8 +126,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Dolore odit maiores nesciunt iste placeat.</description>
+          <title>Wildfire at Midnight</title>
+          <description>Illum voluptas quis deserunt id ex natus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -148,16 +148,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Dolore odit maiores nesciunt iste placeat.</description>
+          <title>Wildfire at Midnight</title>
+          <description>Illum voluptas quis deserunt id ex natus.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:43 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_without_kiwi_file
@@ -190,5 +190,5 @@ http_interactions:
         <directory name="package_without_kiwi_file" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:43 GMT
 recorded_with: VCR 3.0.3

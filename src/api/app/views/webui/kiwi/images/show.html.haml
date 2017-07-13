@@ -3,10 +3,10 @@
 %h2
   = @image.name
 %h3 Repositories
-- if @repositories.empty?
+- if @image.repositories.empty?
   %p There are no repositories.
 - else
   %ul
-    - @repositories.each do |repository|
+    - @image.repositories.each do |repository|
       = render partial: 'repository_entry', locals: {repository: repository}
     = button_to('Edit', edit_kiwi_image_path(@image), method: :get)

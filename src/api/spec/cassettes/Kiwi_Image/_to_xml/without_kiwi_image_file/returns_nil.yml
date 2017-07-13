@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:48 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Arms and the Man</title>
-          <description>Sunt doloremque praesentium ipsa.</description>
+          <title>A Monstrous Regiment of Women</title>
+          <description>Eveniet minus odit vero unde.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Arms and the Man</title>
-          <description>Sunt doloremque praesentium ipsa.</description>
+          <title>A Monstrous Regiment of Women</title>
+          <description>Eveniet minus odit vero unde.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:48 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Arms and the Man</title>
-          <description>Sunt doloremque praesentium ipsa.</description>
+          <title>A Monstrous Regiment of Women</title>
+          <description>Eveniet minus odit vero unde.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Arms and the Man</title>
-          <description>Sunt doloremque praesentium ipsa.</description>
+          <title>A Monstrous Regiment of Women</title>
+          <description>Eveniet minus odit vero unde.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:49 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=_nobody_
@@ -126,8 +126,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Arms and the Man</title>
-          <description>Sunt doloremque praesentium ipsa.</description>
+          <title>A Monstrous Regiment of Women</title>
+          <description>Eveniet minus odit vero unde.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -148,16 +148,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Arms and the Man</title>
-          <description>Sunt doloremque praesentium ipsa.</description>
+          <title>A Monstrous Regiment of Women</title>
+          <description>Eveniet minus odit vero unde.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:49 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -190,7 +190,7 @@ http_interactions:
         <directory name="package_with_kiwi_image" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:49 GMT
 - request:
     method: delete
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image?comment&user=tom
@@ -223,5 +223,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:45 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:49 GMT
 recorded_with: VCR 3.0.3

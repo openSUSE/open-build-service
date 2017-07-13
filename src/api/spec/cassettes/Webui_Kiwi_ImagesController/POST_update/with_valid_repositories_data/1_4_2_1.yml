@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>That Good Night</title>
-          <description>Occaecati autem eos nisi aut voluptates.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Itaque harum ab earum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>That Good Night</title>
-          <description>Occaecati autem eos nisi aut voluptates.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Itaque harum ab earum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>That Good Night</title>
-          <description>Occaecati autem eos nisi aut voluptates.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Itaque harum ab earum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>That Good Night</title>
-          <description>Occaecati autem eos nisi aut voluptates.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Itaque harum ab earum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:57 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -154,20 +154,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="91" vrev="91">
+        <revision rev="5" vrev="5">
           <srcmd5>3822662924706b810ffb158183355052</srcmd5>
           <version>unknown</version>
-          <time>1499781201</time>
+          <time>1499944378</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -175,8 +175,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>That Good Night</title>
-          <description>Occaecati autem eos nisi aut voluptates.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Itaque harum ab earum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -197,16 +197,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>That Good Night</title>
-          <description>Occaecati autem eos nisi aut voluptates.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Itaque harum ab earum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -232,15 +232,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '234'
+      - '232'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="91" vrev="91" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499780227" />
+        <directory name="package_with_kiwi_image" rev="5" vrev="5" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499944375" />
         </directory>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -266,15 +266,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '234'
+      - '232'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="91" vrev="91" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499780227" />
+        <directory name="package_with_kiwi_image" rev="5" vrev="5" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499944375" />
         </directory>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -300,15 +300,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '234'
+      - '232'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="91" vrev="91" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499780227" />
+        <directory name="package_with_kiwi_image" rev="5" vrev="5" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499944375" />
         </directory>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -349,7 +349,7 @@ http_interactions:
           </packages>
         </image>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi?user=tom
@@ -392,20 +392,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="92" vrev="92">
+        <revision rev="6" vrev="6">
           <srcmd5>88792064750ef72970002ca9f6b87453</srcmd5>
           <version>unknown</version>
-          <time>1499781201</time>
+          <time>1499944378</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -413,8 +413,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>That Good Night</title>
-          <description>Occaecati autem eos nisi aut voluptates.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Itaque harum ab earum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -435,16 +435,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>That Good Night</title>
-          <description>Occaecati autem eos nisi aut voluptates.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Itaque harum ab earum.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -470,15 +470,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '234'
+      - '232'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="92" vrev="92" srcmd5="88792064750ef72970002ca9f6b87453">
-          <entry name="package_with_kiwi_image.kiwi" md5="4d00b9b2f2e5b4fa171a358f6896e0df" size="361" mtime="1499780599" />
+        <directory name="package_with_kiwi_image" rev="6" vrev="6" srcmd5="88792064750ef72970002ca9f6b87453">
+          <entry name="package_with_kiwi_image.kiwi" md5="4d00b9b2f2e5b4fa171a358f6896e0df" size="361" mtime="1499944377" />
         </directory>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image?nofilename=1&view=info&withchangesmd5=1
@@ -504,15 +504,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '197'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_with_kiwi_image" rev="92" vrev="92" srcmd5="88792064750ef72970002ca9f6b87453" verifymd5="88792064750ef72970002ca9f6b87453">
-          <revtime>1499781201</revtime>
+        <sourceinfo package="package_with_kiwi_image" rev="6" vrev="6" srcmd5="88792064750ef72970002ca9f6b87453" verifymd5="88792064750ef72970002ca9f6b87453">
+          <revtime>1499944378</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -538,15 +538,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '234'
+      - '232'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="92" vrev="92" srcmd5="88792064750ef72970002ca9f6b87453">
-          <entry name="package_with_kiwi_image.kiwi" md5="4d00b9b2f2e5b4fa171a358f6896e0df" size="361" mtime="1499780599" />
+        <directory name="package_with_kiwi_image" rev="6" vrev="6" srcmd5="88792064750ef72970002ca9f6b87453">
+          <entry name="package_with_kiwi_image.kiwi" md5="4d00b9b2f2e5b4fa171a358f6896e0df" size="361" mtime="1499944377" />
         </directory>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -570,7 +570,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '328'
+      - '327'
       Cache-Control:
       - no-cache
       Connection:
@@ -578,15 +578,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="35bb56b4004eace27ac6106eb5ef65f9">
+        <sourcediff key="a77a5ba5d837173c27e6a3519af2edae">
           <old project="home:tom" package="package_with_kiwi_image" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="package_with_kiwi_image" rev="26" srcmd5="88792064750ef72970002ca9f6b87453" />
+          <new project="home:tom" package="package_with_kiwi_image" rev="4" srcmd5="88792064750ef72970002ca9f6b87453" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -612,13 +612,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '234'
+      - '232'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="92" vrev="92" srcmd5="88792064750ef72970002ca9f6b87453">
-          <entry name="package_with_kiwi_image.kiwi" md5="4d00b9b2f2e5b4fa171a358f6896e0df" size="361" mtime="1499780599" />
+        <directory name="package_with_kiwi_image" rev="6" vrev="6" srcmd5="88792064750ef72970002ca9f6b87453">
+          <entry name="package_with_kiwi_image.kiwi" md5="4d00b9b2f2e5b4fa171a358f6896e0df" size="361" mtime="1499944377" />
         </directory>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:21 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:58 GMT
 recorded_with: VCR 3.0.3

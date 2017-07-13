@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:47 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:46 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>The Man Within</title>
-          <description>Fugit commodi est consequatur voluptatem.</description>
+          <title>The Torment of Others</title>
+          <description>Illum libero reiciendis et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>The Man Within</title>
-          <description>Fugit commodi est consequatur voluptatem.</description>
+          <title>The Torment of Others</title>
+          <description>Illum libero reiciendis et.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:47 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:47 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>The Man Within</title>
-          <description>Fugit commodi est consequatur voluptatem.</description>
+          <title>The Torment of Others</title>
+          <description>Illum libero reiciendis et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>The Man Within</title>
-          <description>Fugit commodi est consequatur voluptatem.</description>
+          <title>The Torment of Others</title>
+          <description>Illum libero reiciendis et.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:47 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:47 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -193,13 +193,13 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>3b7c0eccefd397bfcd94c8bcae463d83</srcmd5>
           <version>unknown</version>
-          <time>1499175287</time>
+          <time>1499944367</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:47 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:47 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=_nobody_
@@ -207,8 +207,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>The Man Within</title>
-          <description>Fugit commodi est consequatur voluptatem.</description>
+          <title>The Torment of Others</title>
+          <description>Illum libero reiciendis et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -229,16 +229,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>The Man Within</title>
-          <description>Fugit commodi est consequatur voluptatem.</description>
+          <title>The Torment of Others</title>
+          <description>Illum libero reiciendis et.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:47 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:47 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -269,10 +269,10 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="3b7c0eccefd397bfcd94c8bcae463d83">
-          <entry name="package_with_kiwi_image.kiwi" md5="6d277da727049aaa4aea085ef15287c1" size="1789" mtime="1499175286" />
+          <entry name="package_with_kiwi_image.kiwi" md5="6d277da727049aaa4aea085ef15287c1" size="1789" mtime="1499944364" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:47 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:47 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -303,10 +303,10 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_with_kiwi_image" rev="1" vrev="1" srcmd5="3b7c0eccefd397bfcd94c8bcae463d83">
-          <entry name="package_with_kiwi_image.kiwi" md5="6d277da727049aaa4aea085ef15287c1" size="1789" mtime="1499175286" />
+          <entry name="package_with_kiwi_image.kiwi" md5="6d277da727049aaa4aea085ef15287c1" size="1789" mtime="1499944364" />
         </directory>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:47 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:47 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -379,7 +379,7 @@ http_interactions:
           </repository>
         </image>
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:47 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:47 GMT
 - request:
     method: delete
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image?comment&user=tom
@@ -412,5 +412,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 04 Jul 2017 13:34:48 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:47 GMT
 recorded_with: VCR 3.0.3

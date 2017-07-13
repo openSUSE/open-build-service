@@ -3,7 +3,7 @@
 %h2
   = @image.name
 %h3 Repositories
-- if @repositories.empty?
+- if @image.repositories.empty?
   %p There are no repositories.
 - else
   %div
@@ -14,7 +14,7 @@
 
 :javascript
   function save_repositories() {
-    $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :is_outdated, id: @image)}",
+    $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
       dataType: 'json',
       success: function(json) {
         var is_outdated = json['is_outdated'];

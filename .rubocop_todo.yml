@@ -971,7 +971,6 @@ Style/PerlBackrefs:
 Style/PredicateName:
   Exclude:
     - 'spec/**/*'
-    - 'src/api/app/controllers/webui/kiwi/images_controller.rb'
     - 'src/api/app/helpers/webui/webui_helper.rb'
     - 'src/api/app/models/bs_request.rb'
     - 'src/api/app/models/bs_request_action.rb'

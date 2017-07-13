@@ -28,16 +28,13 @@ module Webui
       end
 
       def show
-        @repositories = @image.repositories.order(:order)
-        @package = @image.package
-        @project = @package.project
+        respond_to do |format|
+          format.html
+          format.json { render json: { is_outdated: @image.outdated? } }
+        end
       end
 
-      def edit
-        @repositories = @image.repositories.order(:order)
-        @package = @image.package
-        @project = @package.project
-      end
+      def edit; end
 
       def update
         ::Kiwi::Image.transaction do
@@ -48,10 +45,6 @@ module Webui
       rescue ActiveRecord::RecordInvalid, Timeout::Error => e
         flash[:error] = "Cannot update repositories for kiwi image: #{@image.errors.full_messages.to_sentence} #{e.message}"
         redirect_back(fallback_location: root_path)
-      end
-
-      def is_outdated
-        render json: { is_outdated: @image.outdated? }
       end
 
       private

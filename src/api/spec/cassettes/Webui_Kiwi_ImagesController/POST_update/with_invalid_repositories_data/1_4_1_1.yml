@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:23 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:56 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Oh! To be in England</title>
-          <description>Minus ipsa eligendi quod aut.</description>
+          <title>No Country for Old Men</title>
+          <description>Dolor dolor tempora velit odit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '172'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Oh! To be in England</title>
-          <description>Minus ipsa eligendi quod aut.</description>
+          <title>No Country for Old Men</title>
+          <description>Dolor dolor tempora velit odit.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:23 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:56 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Oh! To be in England</title>
-          <description>Minus ipsa eligendi quod aut.</description>
+          <title>No Country for Old Men</title>
+          <description>Dolor dolor tempora velit odit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '172'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Oh! To be in England</title>
-          <description>Minus ipsa eligendi quod aut.</description>
+          <title>No Country for Old Men</title>
+          <description>Dolor dolor tempora velit odit.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:23 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:56 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -154,20 +154,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="94" vrev="94">
+        <revision rev="2" vrev="2">
           <srcmd5>3822662924706b810ffb158183355052</srcmd5>
           <version>unknown</version>
-          <time>1499781203</time>
+          <time>1499944376</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:23 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:56 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -175,8 +175,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Oh! To be in England</title>
-          <description>Minus ipsa eligendi quod aut.</description>
+          <title>No Country for Old Men</title>
+          <description>Dolor dolor tempora velit odit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -197,16 +197,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '172'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Oh! To be in England</title>
-          <description>Minus ipsa eligendi quod aut.</description>
+          <title>No Country for Old Men</title>
+          <description>Dolor dolor tempora velit odit.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:23 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:56 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -232,13 +232,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '234'
+      - '232'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="94" vrev="94" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499780227" />
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="3822662924706b810ffb158183355052">
+          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1499944375" />
         </directory>
     http_version: 
-  recorded_at: Tue, 11 Jul 2017 13:53:23 GMT
+  recorded_at: Thu, 13 Jul 2017 11:12:56 GMT
 recorded_with: VCR 3.0.3
