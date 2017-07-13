@@ -1,0 +1,24 @@
+%p
+  - if show_source_fields
+    %label{ for: 'linked_project' }
+      %strong Name of original project:
+    %br/
+    = text_field_tag 'linked_project', nil, size: 80, id: 'linked_project', required: true
+    %br/
+    %label{ for: 'linked_package' }
+      %strong Name of package in original project:
+    %br/
+    = text_field_tag 'linked_package', nil, size: 80, id: 'linked_package', required: true
+    %br/
+  - else
+    = hidden_field_tag(:linked_project, @project.name)
+    = hidden_field_tag(:linked_package, @package.name)
+  %label{ for: 'target_package' }
+    %strong New package name:
+  %br/
+  = text_field_tag 'target_package', @package.try(:name), size: 80, maxlength: 200
+  %br/
+  = hidden_field_tag 'target_project', target_project.name if target_project
+  %br/
+  = check_box_tag 'current_revision', false
+  %label{ for: 'current_revision' } Stay on current revision
