@@ -19,7 +19,7 @@ RSpec.feature "Watchlists", type: :feature, js: true do
     expect(page).to have_css("a span.project-link", count: 0)
 
     expect(page).to have_css("#menu-favorites", text: "Add this project to Watchlist")
-    find(:css, "#toggle_watch > span.desc").click
+    find(:css, "#toggle-watch > span.desc").click
 
     page.execute_script("$('#menu-favorites').show();")
     expect(page).to have_css("a span.project-link", text: user.home_project_name)
@@ -28,7 +28,7 @@ RSpec.feature "Watchlists", type: :feature, js: true do
     visit project_show_path(project: project.name)
     page.execute_script("$('#menu-favorites').show();")
     expect(page).to have_css("#menu-favorites", text: "Add this project to Watchlist")
-    find(:css, "#toggle_watch > span.desc").click
+    find(:css, "#toggle-watch > span.desc").click
 
     page.execute_script("$('#menu-favorites').show();")
     expect(page).to have_css("a span.project-link", text: user.home_project_name)
@@ -46,7 +46,7 @@ RSpec.feature "Watchlists", type: :feature, js: true do
     expect(page).to have_css("a span.project-link", count: 1)
     expect(page).to have_css("#menu-favorites", text: "Remove this project from Watchlist")
 
-    find(:css, "#toggle_watch > span.desc").click
+    find(:css, "#toggle-watch > span.desc").click
 
     visit project_show_path(project: "brian_s_watched_project")
     page.execute_script("$('#menu-favorites').show();")

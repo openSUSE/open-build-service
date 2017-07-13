@@ -12,22 +12,22 @@ class Webui::WatchlistTest < Webui::IntegrationTest
     page.execute_script("$('#menu-favorites').show();")
 
     find(:css, '#menu-favorites').must_have_text %r{Add this project to Watchlist}
-    find(:css, '#toggle_watch > span.desc').click
+    find(:css, '#toggle-watch > span.desc').click
     page.execute_script("$('#menu-favorites').show();")
 
     find(:css, '#menu-favorites span.project-link').text.must_equal 'BaseDistro'
     find(:css, '#menu-favorites').must_have_text %r{Remove this project from Watchlist}
-    find(:css, '#toggle_watch > span.desc').click
+    find(:css, '#toggle-watch > span.desc').click
 
     page.execute_script("$('#menu-favorites').show();")
     find(:css, '#menu-favorites').must_have_text %r{Add this project to Watchlist}
-    find(:css, '#toggle_watch > span.desc').click
+    find(:css, '#toggle-watch > span.desc').click
 
     visit project_show_path(project: 'My:Maintenance')
 
     page.execute_script("$('#menu-favorites').show();")
     find(:css, '#menu-favorites').must_have_text %r{Add this project to Watchlist}
-    find(:css, '#toggle_watch > span.desc').click
+    find(:css, '#toggle-watch > span.desc').click
 
     page.execute_script("$('#menu-favorites').show();")
     first(:css, 'span.icons-project').click
@@ -36,7 +36,7 @@ class Webui::WatchlistTest < Webui::IntegrationTest
 
     # teardown
     page.execute_script("$('#menu-favorites').show();")
-    find(:css, '#toggle_watch > span.desc').click
+    find(:css, '#toggle-watch > span.desc').click
 
     page.execute_script("$('#menu-favorites').show();")
     within('#menu-favorites') do
@@ -44,7 +44,7 @@ class Webui::WatchlistTest < Webui::IntegrationTest
     end
 
     page.execute_script("$('#menu-favorites').show();")
-    find(:css, '#toggle_watch > span.desc').click
+    find(:css, '#toggle-watch > span.desc').click
     all(:css, 'span.icons-project').count.must_equal 0
   end
 end

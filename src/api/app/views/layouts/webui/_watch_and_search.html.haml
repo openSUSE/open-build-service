@@ -5,7 +5,7 @@
         List of projects you are watching
     - if params[:project]
       %li
-        %a#toggle_watch{ href: project_toggle_watch_path(params[:project]) }
+        %a#toggle-watch{ href: project_toggle_watch_path(params[:project]) }
           - if User.current.watches? params[:project]
             %span
               Remove this project from Watchlist
