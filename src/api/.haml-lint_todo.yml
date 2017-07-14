@@ -81,6 +81,7 @@ linters:
   RepeatedId:
     exclude:
       - "app/views/webui/search/owner.html.haml"
+      - "app/views/layouts/webui/_personal_navigation.html.haml"
 
   # Offense count: 3
   HtmlAttributes:
