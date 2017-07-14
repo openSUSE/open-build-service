@@ -7,14 +7,6 @@ set -xe
 # Everything happens here
 pushd src/api
 
-# Which test suite should run? By default: all
-if [ -z $1 ]; then
-  TEST_SUITE="all"
-else
-  TEST_SUITE="$1"
-fi
-
-
 if test -z "$SUBTEST"; then
   export DO_COVERAGE=1
   export TESTOPTS="-v"
@@ -47,14 +39,8 @@ if test -z "$SUBTEST"; then
       make test_unit
       ;;
     *)
-      make -C ../../ rubocop
-      bundle exec rails assets:precompile &> /dev/null
-      bundle exec rails test:api
-      bundle exec rails test:webui
-      bundle exec rspec
-      jshint .
-      unset DO_COVERAGE
-      bundle exec rails test:spider
+      echo "ERROR: test suite is not matching"
+      exit 1
       ;;
   esac
 fi

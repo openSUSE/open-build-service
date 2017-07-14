@@ -41,7 +41,7 @@ cp config/options.yml{.example,}
 cp config/thinking_sphinx.yml{.example,}
 touch config/test.sphinx.conf
 cat > config/database.yml <<EOF
-migrate:
+development:
   adapter:  mysql2
   host:     localhost
   database: api_25
@@ -63,15 +63,12 @@ EOF
 /usr/sbin/memcached $MEMCACHED_USER -l 127.0.0.1 -d -P $MEMCACHED_PID_FILE || exit 1
 
 # migration test
-export RAILS_ENV=migrate
+export RAILS_ENV=development
 bundle.ruby2.4 exec rake.ruby2.4 db:create || exit 1
+mv db/structure.sql db/structure.sql.git
 xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=$MYSQL_SOCKET
 bundle.ruby2.4 exec rake.ruby2.4 db:migrate db:structure:dump db:drop || exit 1
-if test `diff db/structure.sql{.git,} | wc -l` -gt 0 ; then
-  echo "ERROR: Migration is producing a different structure.sql"
-  diff -u db/structure.sql{,.git}
-  exit 1
-fi
+./script/compare_structure_sql.sh db/structure.sql.git db/structure.sql || exit 1
 
 # entire test suite
 export RAILS_ENV=test
