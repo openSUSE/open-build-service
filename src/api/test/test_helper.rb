@@ -14,7 +14,6 @@ if ENV['DO_COVERAGE']
   SimpleCov.start 'rails' do
     # NOTE: Keep filters in sync with spec/support/coverage.rb
     add_filter '/app/indices/'
-    add_filter '/app/models/user_ldap_strategy.rb'
     add_filter '/lib/templates/'
     add_filter '/lib/memory_debugger.rb'
     add_filter '/lib/memory_dumper.rb'
