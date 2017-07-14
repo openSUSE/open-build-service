@@ -1,0 +1,3 @@
+- if @configuration['download_url']
+  - url = "#{@configuration['download_url']}/#{project.to_s.gsub(/:/,':/')}/#{repository}"
+  = link_to(sprited_text('drive_web', 'Go to download repository'), url)
