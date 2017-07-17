@@ -32,6 +32,7 @@ my $frozenlinks_cache;
 our $getrev = \&BSSrcServer::Local::getrev;
 our $findpackages = \&BSSrcServer::Local::findpackages;
 our $readpackage = \&BSSrcServer::Local::readpackage;
+our $readproject = \&BSSrcServer::Local::readproject;
 
 #############################################################################
 
@@ -62,21 +63,22 @@ sub getrev_projlink {
 
   my $collect_error;
   $linked ||= [];
-  my $frozen = get_frozenlinks($projid);
-  for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
+  my $frozen = get_frozenlinks($projid) || {};
+  for my $link (@{$proj->{'link'} || []}) {
+    my $lprojid = $link->{'project'};
     next if $lprojid eq $projid;
     next if grep {$_->{'project'} eq $lprojid && $_->{'package'} eq $packid} @$linked;
     push @$linked, {'project' => $lprojid, 'package' => $packid};
     my $frozenp = $frozen->{'/all'} || $frozen->{$lprojid};
     my $rev;
-    if ($frozenp->{$packid} && !($revid && $revid =~ /^[0-9a-f]{32}$/)) {
+    if ($frozenp && $frozenp->{$packid} && !($revid && $revid =~ /^[0-9a-f]{32}$/)) {
       eval {
-        $rev = $getrev->($lprojid, $packid, $frozenp->{$packid}->{'srcmd5'}, $linked, $missingok);
+        $rev = $getrev->($lprojid, $packid, $frozenp->{$packid}->{'srcmd5'}, $linked);
         $rev->{'vrev'} = $frozenp->{$packid}->{'vrev'} if defined $frozenp->{$packid}->{'vrev'};
       };
     } else {
       eval {
-        $rev = $getrev->($lprojid, $packid, $revid, $linked, $missingok);
+        $rev = $getrev->($lprojid, $packid, $revid, $linked);
       };
     }
     next if $collect_error;
@@ -96,6 +98,11 @@ sub getrev_projlink {
     BSSrcrep::copytree($projid, $packid, $lprojid, $packid, $rev->{'srcmd5'});
     $rev->{'originproject'} ||= $lprojid;
     $rev->{'project'} = $projid;
+    if ($link->{'vrevmode'}) {
+      $rev->{'vrev'} ||= 0;
+      die("vrevmode error for $rev->{'vrev'}\n") unless $rev->{'vrev'} =~ s/^(\d+).*?$/($1+1)/e;
+      $rev->{'vrev'} .= '.1' if $link->{'vrevmode'} eq 'extend';
+    }
     return $rev;
   }
   die($collect_error) if $collect_error;
@@ -105,7 +112,7 @@ sub getrev_projlink {
 sub findpackages_projlink {
   my ($projid, $proj, $nonfatal, $origins) = @_;
 
-  my $frozen = get_frozenlinks($projid);
+  my $frozen = get_frozenlinks($projid) || {};
   my %checked = ($projid => 1);
   my @todo = map {$_->{'project'}} @{$proj->{'link'}};
   my %packids;
@@ -166,6 +173,29 @@ sub enable_frozenlinks_cache {
 
 sub disable_frozenlinks_cache {
   $frozenlinks_cache = undef;
+}
+
+sub getnewvrev {
+  my ($projid, $proj) = @_;
+  my %seen = ($projid => 1);
+  my $max = 0;
+  my ($maxvrevmode, $vrevmode);
+  my @todo = map {($_, 0)} @{$proj->{'link'} || []};
+  while (@todo) {
+    my ($link, $level) = splice(@todo, 0, 2);
+    my $lprojid = $link->{'project'};
+    next if $seen{$lprojid};
+    $seen{$lprojid} = 1;
+    if ($link->{'vrevmode'}) {
+      $vrevmode = $link->{'vrevmode'} if !$level;
+      $level++;
+      ($max, $maxvrevmode) = ($level, $vrevmode) if $max < $level;
+    }
+    my $lproj = $readproject->($lprojid, undef, undef, 1);
+    unshift @todo, map {($_, $level)} @{$lproj->{'link'} || []} if $lproj;
+  }
+  $max .= '.1' if $maxvrevmode && $maxvrevmode eq 'extend';
+  return $max;
 }
 
 1;

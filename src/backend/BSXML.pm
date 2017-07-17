@@ -143,6 +143,7 @@ our $proj = [
         'url',
      [[	'link' =>
 	    'project',
+	    'vrevmode',
      ]],
 	'remoteurl',
 	'remoteproject',
@@ -303,6 +304,7 @@ our $projpack = [
 	    'patternmd5',
 	 [[ 'link' =>
 		'project',
+		'vrevmode',
 	 ]],
 	    'remoteurl',
 	    'remoteproject',

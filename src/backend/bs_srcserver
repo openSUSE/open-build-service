@@ -475,7 +475,14 @@ sub getrev {
     return $rev if $rev;
   }
   return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
-  return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok;
+  if ($missingok) {
+    $rev = { 'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5 };
+    if ($proj && $proj->{'link'}) {
+      my $vrev = BSSrcServer::Projlink::getnewvrev($projid, $proj);
+      $rev->{'vrev'} = $vrev if $vrev;
+    }
+    return $rev;
+  }
   die("404 package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
   die("404 project '$projid' does not exist\n");
 }
