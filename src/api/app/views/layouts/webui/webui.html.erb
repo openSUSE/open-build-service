@@ -8,7 +8,7 @@
 
     <%= favicon_link_tag %>
 
-    <title><%= "(#{@tasks}) " if @tasks.to_i > 0 %> <%= "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
+    <title><%= "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
 
     <%= stylesheet_link_tag 'webui/application' %>
     <% if content_for?(:head_style) -%>
