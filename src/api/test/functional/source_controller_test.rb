@@ -4038,7 +4038,7 @@ EOF
     assert_response :success
     before_deltastore = @response.body
 
-    deltastore = "#{Rails.root}/tmp/backend_data/sources/deltapack/deltastore"
+    deltastore = "#{ENV['OBS_BACKEND_TEMP']}/data/sources/deltapack/deltastore"
 
     assert_not File.exist?(deltastore)
     run_deltastore
@@ -4048,7 +4048,7 @@ EOF
     assert_response :success
     assert_equal before_deltastore, @response.body
 
-    assert 0, run_admin("--show-delta-file #{Rails.root}/tmp/backend_data/sources/deltapack/c1b8dd35488695c3c248f0acd447b4d5-archive.obscpio")
+    assert 0, run_admin("--show-delta-file #{ENV['OBS_BACKEND_TEMP']}/data/sources/deltapack/c1b8dd35488695c3c248f0acd447b4d5-archive.obscpio")
 
     delete '/source/home:tom:deltastore'
     assert_response :success

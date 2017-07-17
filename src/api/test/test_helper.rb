@@ -76,7 +76,7 @@ def backend_config
   if ENV['origin_RAILS_ENV'] == 'development'
     backend_dir_suffix = "_development"
   end
-  "#{Rails.root}/tmp/backend_config#{backend_dir_suffix}"
+  "#{ENV['OBS_BACKEND_TEMP']}/config#{backend_dir_suffix}"
 end
 
 def backend_data
@@ -84,7 +84,7 @@ def backend_data
   if ENV['origin_RAILS_ENV'] == 'development'
     backend_dir_suffix = "_development"
   end
-  "#{Rails.root}/tmp/backend_data#{backend_dir_suffix}"
+  "#{ENV['OBS_BACKEND_TEMP']}/data#{backend_dir_suffix}"
 end
 
 def inject_build_job(project, package, repo, arch, extrabinary = nil)

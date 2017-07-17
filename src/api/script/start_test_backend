@@ -2,6 +2,7 @@
 ENV['RAILS_ENV'] ||= 'test'
 ENV['origin_RAILS_ENV'] ||= ENV['RAILS_ENV']
 ENV['LC_ALL'] = 'C'
+backendtempdir = ENV['OBS_BACKEND_TEMP']
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 require 'builder'
 
@@ -17,8 +18,8 @@ if ENV['origin_RAILS_ENV'] == 'development'
   port_service_server = 6202
   backend_dir_suffix = "_development"
 end
-backend_config = "#{Rails.root}/tmp/backend_config#{backend_dir_suffix}"
-backend_data   = "#{Rails.root}/tmp/backend_data#{backend_dir_suffix}"
+backend_config = "#{backendtempdir}/config#{backend_dir_suffix}"
+backend_data   = "#{backendtempdir}/data#{backend_dir_suffix}"
 require File.expand_path(File.dirname(__FILE__)) + '/../test/test_helper'
 
 Backend::Connection.do_not_start_test_backend
