@@ -20,8 +20,11 @@ class Kiwi::Image < ApplicationRecord
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
-  has_one :package, foreign_key: 'kiwi_image_id', dependent: :nullify, inverse_of: :kiwi_image
+  has_one :package, foreign_key: 'kiwi_image_id', class_name: '::Package', dependent: :nullify, inverse_of: :kiwi_image
   has_many :repositories, -> { order(order: :asc) }, dependent: :destroy, index_errors: true
+  has_many :package_groups, -> { order(:id) }, dependent: :destroy, index_errors: true
+  has_many :kiwi_packages, -> { where(kiwi_package_groups: { kiwi_type: Kiwi::PackageGroup.kiwi_types[:image], pattern_type: 'onlyRequired' }) },
+           through: :package_groups, source: :packages
 
   #### Callbacks macros: before_save, after_save, etc.
 
@@ -61,6 +64,27 @@ class Kiwi::Image < ApplicationRecord
 
       new_image.repositories.build(attributes)
       order += 1
+    end
+    package_groups = xml["packages"]
+    package_groups = [xml["packages"]] if xml["packages"].is_a?(Hash)
+    package_groups.each do |package_group_xml|
+      attributes = {
+        kiwi_type:    package_group_xml['type'],
+        profiles:     package_group_xml['profiles '],
+        pattern_type: package_group_xml['patternType']
+      }
+      package_group = Kiwi::PackageGroup.new(attributes)
+      package_group_xml['package'].each do |package|
+        attributes = {
+          name:     package['name'],
+          arch:     package['arch'],
+          replaces: package['replaces']
+        }
+        attributes['bootinclude'] = package['bootinclude'] == 'true' if package.key?('bootinclude')
+        attributes['bootdelete'] = package['bootdelete'] == 'true' if package.key?('bootdelete')
+        package_group.packages.build(attributes)
+      end
+      new_image.package_groups << package_group
     end
     new_image
   end

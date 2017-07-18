@@ -10,3 +10,11 @@
     - @image.repositories.each do |repository|
       = render partial: 'repository_entry', locals: {repository: repository}
     = button_to('Edit', edit_kiwi_image_path(@image), method: :get)
+
+%h3 Packages
+- if @image.kiwi_packages.empty?
+  %p There are no packages.
+- else
+  %p
+    %strong
+      = @image.kiwi_packages.pluck(:name).join(', ')

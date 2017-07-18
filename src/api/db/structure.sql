@@ -628,6 +628,32 @@ CREATE TABLE `kiwi_images` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `kiwi_package_groups` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `kiwi_type` int(11) NOT NULL,
+  `profiles` varchar(255) DEFAULT NULL,
+  `pattern_type` varchar(255) DEFAULT NULL,
+  `image_id` bigint(20) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_kiwi_package_groups_on_image_id` (`image_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `kiwi_packages` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `arch` varchar(255) DEFAULT NULL,
+  `replaces` varchar(255) DEFAULT NULL,
+  `bootinclude` tinyint(1) DEFAULT NULL,
+  `bootdelete` tinyint(1) DEFAULT NULL,
+  `package_group_id` bigint(20) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_kiwi_packages_on_package_group_id` (`package_group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `kiwi_repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `image_id` int(11) DEFAULT NULL,
@@ -1248,6 +1274,8 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170630144825'),
 ('20170704125123'),
 ('20170704133728'),
-('20170704212201');
+('20170704212201'),
+('20170710133627'),
+('20170710134059');
 
 

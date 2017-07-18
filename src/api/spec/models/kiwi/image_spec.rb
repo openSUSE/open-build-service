@@ -75,6 +75,25 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
           replaceable: false,
           username: nil
         )
+        expect(subject.package_groups.first).to have_attributes(
+          kiwi_type: 'image',
+          pattern_type: 'onlyRequired',
+          profiles: nil
+        )
+        expect(subject.package_groups.first.packages.first).to have_attributes(
+          name: 'e2fsprogs',
+          arch: nil,
+          replaces: nil,
+          bootinclude: nil,
+          bootdelete: nil
+        )
+        expect(subject.package_groups.first.packages.last).to have_attributes(
+          name: 'gfxboot-devel',
+          arch: nil,
+          replaces: nil,
+          bootinclude: true,
+          bootdelete: nil
+        )
       end
     end
 

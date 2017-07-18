@@ -6,6 +6,8 @@
   });
 <% end %>
 
+<% kiwi_image_breadcrumb(@image, @image.name) %>
+
 <div class="box-header header-tabs" id="package_tabs">
   <ul>
     <%= tab 'kiwi', 'Kiwi', controller: 'kiwi/images', action: 'show', selected: true %>
