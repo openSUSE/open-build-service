@@ -143,6 +143,10 @@ class Channel < ApplicationRecord
     tpkg.branch_from(cp.project.name, cp.name, nil, nil, comment)
     tpkg.sources_changed(wait_for_update: true)
 
+    # rubocop:disable Rails/SkipsModelValidations
+    project.touch
+    # rubocop:enable Rails/SkipsModelValidations
+
     tpkg
   end
 
