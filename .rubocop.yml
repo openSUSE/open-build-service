@@ -30,27 +30,6 @@ Layout/AlignHash:
 Layout/AlignParameters:
   EnforcedStyle: with_first_parameter
 
-# This cop checks how the 'when's of a case expression are indented in relation to its `case` or `end` keyword.
-Layout/CaseIndentation:
-  Enabled: true
-
-# Checks for extra/unnecessary whitespace
-Layout/ExtraSpacing:
-  Enabled: true
-
-# Checks the indentation of the first element in an array
-Layout/IndentArray:
-  Enabled: true
-
-# Checks the indentation of the first line of the right-hand-side of a multi-line assignment.
-Layout/IndentAssignment:
-  Enabled: true
-  IndentationWidth: 2
-
-# Checks for spaces inside square brackets
-Layout/SpaceInsideBrackets:
-  Enabled: true
-
 #################### Style ###########################
 
 # Find uses of alias where alias_method would be more appropriate (or is simply preferred due to configuration), and vice versa.
@@ -58,110 +37,21 @@ Layout/SpaceInsideBrackets:
 Style/Alias:
   EnforcedStyle: 'prefer_alias_method'
 
-# Use && and || instead of `and` and `or`
-Style/AndOr:
-  Enabled: true
-  EnforcedStyle: always
-
-# Only allow comments written in ASCII
-Style/AsciiComments:
-  Enabled: true
-
 # Use ` or %x around command literals.
 Style/CommandLiteral:
   EnforcedStyle: percent_x
 
-# TODO: Someday we should add copyrights
-Style/Copyright:
-  Enabled: false
-  Notice: '^Copyright (\(c\) )?2[0-9]{3} .+'
-  AutocorrectNotice: ''
-
-# Avoid using double negation (!!) to convert something to a boolean value
-Style/DoubleNegation:
-  Enabled: true
-
-# Replace inject with each_with_object
-Style/EachWithObject:
-  Enabled: true
-
-# Avoid empty else statements.
-Style/EmptyElse:
-  EnforcedStyle: both
-
-# Use guard clause instead of wrapping the code inside a conditional expression
-Style/GuardClause:
-  Enabled: true
-
-# Use `elsif` instead of `else` with only an `if` node inside
-Style/IfInsideElse:
-  Enabled: true
-
-# Use Kernel#loop for infinite loops
-Style/InfiniteLoop:
-  Enabled: true
-
-# Checks for parentheses around the arguments in method definitions
-Style/MethodDefParentheses:
-  Enabled: true
-
 # Checks for chaining of a block after another block that spans multiple lines.
 Style/MultilineBlockChain:
-  Enabled: true
   Exclude:
     - 'src/api/spec/models/project_spec.rb'
     - 'src/api/spec/models/package_spec.rb'
     - 'src/api/spec/helpers/webui/package_helper_spec.rb'
     - 'src/api/spec/models/kiwi/repository_spec.rb'
-
-# Use ! instead not
-Style/Not:
-  Enabled: true
-
-# Use 0o for octal literals
-Style/NumericLiteralPrefix:
-  Enabled: true
-
+    
 # Checks for redundant `return` expressions
 Style/RedundantReturn:
   Enabled: false
-
-# Checks for redundant uses of `self`
-Style/RedundantSelf:
-  Enabled: true
-
-# This cop checks for uses of `fail` and `raise`
-Style/SignalException:
-  Enabled: true
-
-# Enforces passing the exception class and exception message instead
-# of constructing a new exception instance when raising errors
-Style/RaiseArgs:
-  Enabled: true
-
-# Checks for uses of rescue in its modifier form
-Style/RescueModifier:
-  Enabled: true
-
-# Use symbols as procs when possible
-Style/SymbolProc:
-  Enabled: true
-
-# Checks for the presence of parentheses around ternary conditions
-Style/TernaryParentheses:
-  Enabled: true
-
-# Checks for strings that are just an interpolated expression.
-Style/UnneededInterpolation:
-  Enabled: true
-
-# Checks for all variables to use the configured style, snake_case or camelCase, for their names.
-Style/VariableName:
-  Enabled: true
-
-# Checks for predicates than can be replaced by receiver.empty? and !receiver.empty?
-Style/ZeroLengthPredicate:
-  Enabled: true
 
 ##################### Metrics ##################################
 
@@ -180,70 +70,14 @@ Metrics/ModuleLength:
 
 ##################### Lint ##################################
 
-# Configuration parameters: AllowSafeAssignment. It is true by default.
-Lint/AssignmentInCondition:
-  Enabled: true
-
 # Align ends correctly.
 Lint/EndAlignment:
   EnforcedStyleAlignWith: variable
 
-# checks for private or protected access modifiers which are applied to a
-# singleton method, as they do not make it private/protected.
-Lint/IneffectiveAccessModifier:
-  Enabled: true
-
-# This cop looks for error classes inheriting from `Exception`.
-Lint/InheritException:
-  Enabled: true
-
-# checks for literals used as the conditions or as operands in and/or expressions serving as the conditions of if/while/until.
-Lint/LiteralInCondition:
-  Enabled: true
-
-# Use Kernel#loop with break rather than begin/end/until(or while)
-Lint/Loop:
-  Enabled: true
-
 # Checks for nested method definitions
 Lint/NestedMethodDefinition:
-  Enabled: true
   Exclude:
     - 'src/api/test/functional/tag_controller_test.rb'
-
-# Checks for space between a the name of a called method and a left parenthesis.
-Lint/ParenthesesAsGroupedExpression:
-  Enabled: true
-
-# checks for unused block arguments.
-Lint/UnusedBlockArgument:
-  Enabled: true
-
-# Checks for access modifiers without any code
-Lint/UselessAccessModifier:
-  Enabled: true
-
-# Checks for every useless assignment to local variable in every scope
-Lint/UselessAssignment:
-  Enabled: true
-
-##################### Performance ###############################
-
-# Use yield instead of having a &block parameter and block.call
-Performance/RedundantBlockCall:
-  Enabled: true
-
-# Identifies uses of `Regexp#match` and `String#match where `=~` could be used as well
-Performance/RedundantMatch:
-  Enabled: true
-
-# Identifies places where Hash#merge! can be replaced by Hash#[]=
-Performance/RedundantMerge:
-  Enabled: true
-
-# Identifies places where gsub can be replaced by tr or delete.
-Performance/StringReplacement:
-  Enabled: true
 
 ##################### Rails ##################################
 
@@ -255,18 +89,8 @@ Rails/Exit:
   Exclude:
     - 'src/api/lib/memory_dumper.rb'
 
-# Use `find_by` instead `where.first` and `where.take`
-Rails/FindBy:
-  Enabled: true
-
-# Identify usages of http methods like `get`, `post`, `put`, `path` without the usage of keyword arguments in your tests and change them to use
-# keyword arguments.
-Rails/HttpPositionalArguments:
-  Enabled: true
-
 # Requires each table column to have a default value
 Rails/NotNullColumn:
-  Enabled: true
   Exclude:
     - 'src/api/db/migrate/20121121142111_watchlist_use_ids.rb'
     - 'src/api/db/migrate/20131020151037_make_comment_users_ids.rb'
@@ -283,26 +107,8 @@ Rails/Output:
 
 # Checks for the use of methods which skip validations.
 Rails/SkipsModelValidations:
-  Enabled: true
   Exclude:
     - 'src/api/db/migrate/*'
     - 'src/api/app/jobs/*'
     - 'src/api/spec/models/bs_request_action_spec.rb'
     - 'src/api/spec/models/review_spec.rb'
-
-# Checks for the use of old-style attribute validation macros.
-Rails/Validation:
-  Enabled: true
-
-Bundler/OrderedGems:
-  Enabled: true
-
-##################### Security ##################################
-
-# checks for the use of *Kernel#eval* as it is a serious security risk.
-Security/Eval:
-  Enabled: true
-
-# Checks for uses of YAML methods with potential security issues leading to remote code execution when loading from an untrusted source.
-Security/YAMLLoad:
-  Enabled: true
