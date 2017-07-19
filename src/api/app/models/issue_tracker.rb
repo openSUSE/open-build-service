@@ -244,13 +244,17 @@ class IssueTracker < ApplicationRecord
 
   def parse_github_issue(js, create = nil)
     issue = nil
-    if create
-      issue = Issue.find_or_create_by_name_and_tracker(js["number"].to_s, name)
-    else
-      issue = Issue.find_by_name_and_tracker(js["number"].to_s, name)
-      return if issue.nil?
+    begin
+      if create
+        issue = Issue.find_or_create_by_name_and_tracker(js["number"].to_s, name)
+      else
+        issue = Issue.find_by_name_and_tracker(js["number"].to_s, name)
+        return if issue.nil?
+      end
+    rescue TypeError => e
+      Airbrake.notify(e, { json_data: js })
+      raise
     end
-
     if js["state"] == "open"
       issue.state = "OPEN"
     else
