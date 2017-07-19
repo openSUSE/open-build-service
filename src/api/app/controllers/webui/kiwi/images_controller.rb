@@ -50,9 +50,29 @@ module Webui
       private
 
       def image_params
-        params.require(:kiwi_image).permit(repositories_attributes:
-                                      [:id, :priority, :repo_type, :source_path, :alias,
-                                       :username, :password, :prefer_license, :imageinclude, :replaceable])
+        repositories_attributes = [
+          :id,
+          :priority,
+          :repo_type,
+          :source_path,
+          :alias,
+          :username,
+          :password,
+          :prefer_license,
+          :imageinclude,
+          :replaceable
+        ]
+
+        package_groups_attributes = [
+          :id,
+          :_destroy,
+          packages_attributes: [:id, :name, :arch, :replaces, :bootdelete, :bootinclude, :_destroy]
+        ]
+
+        params.require(:kiwi_image).permit(
+          repositories_attributes: repositories_attributes,
+          package_groups_attributes: package_groups_attributes
+        )
       end
 
       def set_image

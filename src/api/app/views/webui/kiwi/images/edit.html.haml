@@ -1,19 +1,50 @@
-= render partial: 'webui/kiwi/tabs'
-
-%h2
-  = @image.name
+- @layouttype = 'custom'
 
 = form_for @image, html: { id: 'kiwi_image_update_form' } do |f|
 
-  %h3 Repositories
-  - if @image.repositories.empty?
-    %p There are no repositories.
-  - else
-    %div
-      = f.fields_for :repositories do |repository_fields|
-        = render 'repository_fields', f: repository_fields
+  .grid_16.alpha.omega.box.box-shadow
+    = render partial: 'webui/kiwi/tabs'
+    %h2
+      = @image.name
+    %ul.horizontal-list
+      %li
+        = button_tag('Save', id: 'kiwi_image_update_form_save', type: 'button', disabled: true)
 
-  = button_tag('Save', id: 'kiwi_image_update_form_save', type: 'button', disabled: true)
+  .grid_16.alpha.omega.box.box-shadow
+    %h3 Repositories
+    - if @image.repositories.empty?
+      %p There are no repositories.
+    - else
+      %div
+        = f.fields_for :repositories do |repository_fields|
+          = render 'repository_fields', f: repository_fields
+
+  .grid_16.alpha.omega.box.box-shadow
+    %h3 Packages
+    - if @image.kiwi_packages.empty?
+      %p There are no packages.
+    - else
+      %div
+        = f.fields_for :package_groups do |package_group_fields|
+          %h6
+            = package_group_fields.object.kiwi_type
+            = package_group_fields.object.profiles
+            = package_group_fields.object.pattern_type
+          %table.package_group_table
+            %thead
+              %tr
+                %th Action
+                %th Name
+                %th Arch
+                %th Replaces
+                %th bootinclude
+                %th bootdelete
+            %tbody
+              = package_group_fields.fields_for :packages do |kiwi_package_fields|
+                = render 'package_fields', f: kiwi_package_fields
+          %p
+            = link_to_add_association 'Add package', package_group_fields, :packages, data: {"association-insertion-node" => "tbody", "association-insertion-method" => "append"}
+
 
 :javascript
   function save_image() {
