@@ -1,4 +1,7 @@
 class UpdatePackageMetaJob < ApplicationJob
+  # NOTE: Its important that this job run in queue 'default' in order to avoid concurrency
+  queue_as :default
+
   def scan_links
     names = Package.distinct.order(:name).pluck(:name)
     while !names.empty?
