@@ -7,6 +7,11 @@ class UpdateBackendInfos < CreateJob
     self.checked_pkgs = {}
   end
 
+  # NOTE: Its important that this job run in queue 'default' in order to avoid concurrency
+  def self.job_queue
+    'default'
+  end
+
   def perform
     payload = event.payload
     package = Package.find_by_project_and_name(payload['project'], payload['package'])
