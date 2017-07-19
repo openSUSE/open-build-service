@@ -106,7 +106,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
       it do
         expect(subject.request.flash[:error]).to(
-          start_with('Cannot update repositories for kiwi image: Repositories[0] repo type is not included in the list')
+          start_with('Cannot update kiwi image: Repositories[0] repo type is not included in the list')
         )
       end
       it { expect(subject).to redirect_to(root_path) }

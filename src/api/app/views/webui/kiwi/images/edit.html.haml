@@ -2,31 +2,34 @@
 
 %h2
   = @image.name
-%h3 Repositories
-- if @image.repositories.empty?
-  %p There are no repositories.
-- else
-  %div
-    = form_for @image, html: { id: 'kiwi_repository_update_form' } do |f|
+
+= form_for @image, html: { id: 'kiwi_image_update_form' } do |f|
+
+  %h3 Repositories
+  - if @image.repositories.empty?
+    %p There are no repositories.
+  - else
+    %div
       = f.fields_for :repositories do |repository_fields|
         = render 'repository_fields', f: repository_fields
-      = button_tag('Save', id: 'kiwi_repository_update_form_save', type: 'button', disabled: true)
+
+  = button_tag('Save', id: 'kiwi_image_update_form_save', type: 'button', disabled: true)
 
 :javascript
-  function save_repositories() {
+  function save_image() {
     $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
       dataType: 'json',
       success: function(json) {
         var is_outdated = json['is_outdated'];
-        if (is_outdated && !confirm("These repositories have been modified while you were editing them.\nDo you want to apply the changes anyway?"))
+        if (is_outdated && !confirm("This image has been modified while you were editing it.\nDo you want to apply the changes anyway?"))
           return;
-        $('#kiwi_repository_update_form').submit();
+        $('#kiwi_image_update_form').submit();
       }
     });
   }
 
-  $('#kiwi_repository_update_form_save').click(save_repositories);
+  $('#kiwi_image_update_form_save').click(save_image);
 
-  $('#kiwi_repository_update_form').change(function() {
-    $(this).find('#kiwi_repository_update_form_save').prop('disabled', false);
+  $('#kiwi_image_update_form').change(function() {
+    $(this).find('#kiwi_image_update_form_save').prop('disabled', false);
   });
