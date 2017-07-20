@@ -1,6 +1,6 @@
 - @layouttype = 'custom'
 
-= form_for @image, html: { id: 'kiwi_image_update_form' } do |f|
+= form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
 
   .grid_16.alpha.omega.box.box-shadow
     = render partial: 'webui/kiwi/tabs'
@@ -8,7 +8,7 @@
       = @image.name
     %ul.horizontal-list
       %li
-        = button_tag('Save', id: 'kiwi_image_update_form_save', type: 'button', disabled: true)
+        = button_tag('Save', id: 'kiwi-image-update-form-save', type: 'button', disabled: true)
 
   .grid_16.alpha.omega.box.box-shadow
     %h3 Repositories
@@ -54,13 +54,13 @@
         var is_outdated = json['is_outdated'];
         if (is_outdated && !confirm("This image has been modified while you were editing it.\nDo you want to apply the changes anyway?"))
           return;
-        $('#kiwi_image_update_form').submit();
+        $('#kiwi-image-update-form').submit();
       }
     });
   }
 
-  $('#kiwi_image_update_form_save').click(save_image);
+  $('#kiwi-image-update-form-save').click(save_image);
 
-  $('#kiwi_image_update_form').change(function() {
-    $(this).find('#kiwi_image_update_form_save').prop('disabled', false);
+  $('#kiwi-image-update-form').change(function() {
+    $(this).find('#kiwi-image-update-form-save').prop('disabled', false);
   });
