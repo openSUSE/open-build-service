@@ -41,7 +41,7 @@
   - unless @groups.blank?
     %h3
       Group Roles #{image_tag 'ajax-loader.gif', id: 'group_spinner', class: 'hidden'}
-    %table.compact.stripe#group_table
+    %table.compact.stripe#group-table
       %thead
         %tr
           %td Group name
@@ -81,7 +81,7 @@
     'paging': false,
     });
   - if @groups && @groups.length > 0
-    $('#group_table').dataTable({
+    $('#group-table').dataTable({
     'columns': [
     null,
     - @roles.length.times do
