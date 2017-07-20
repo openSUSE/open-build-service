@@ -1,0 +1,24 @@
+.clearfix
+  %div{ style: 'min-width: 50%; float: left' }
+    %h3
+      Build Flag #{image_tag 'ajax-loader.gif', id: 'spinner_flag_table_build', class: 'spinner hidden'}
+      %span.flagerror#error_flag_table_build
+    = render partial: 'shared/repositories_flag_table', locals: { flags: @build }
+  %div{ style: 'min-width: 50%; float: left' }
+    %h3
+      Publish Flag #{image_tag 'ajax-loader.gif', id: 'spinner_flag_table_publish', class: 'spinner hidden'}
+      %span.flagerror#error_flag_table_publish
+    = render partial: 'shared/repositories_flag_table', locals: { flags: @publish }
+.clearfix
+  %div{ style: 'min-width: 50%; float: left' }
+    %h3
+      Debuginfo
+      Flag #{image_tag 'ajax-loader.gif', id: 'spinner_flag_table_debuginfo', class: 'spinner hidden'}
+      %span.flagerror#error_flag_table_debuginfo
+    = render partial: 'shared/repositories_flag_table', locals: { flags: @debuginfo }
+  %div{ style: 'min-width: 50%; float: left' }
+    %h3
+      Use for Build
+      Flag #{image_tag 'ajax-loader.gif', id: 'spinner_flag_table_useforbuild', class: 'spinner hidden'}
+      %span.flagerror#error_flag_table_useforbuild
+    = render partial: 'shared/repositories_flag_table', locals: { flags: @useforbuild }

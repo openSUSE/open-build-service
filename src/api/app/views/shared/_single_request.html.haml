@@ -1,0 +1,19 @@
+- cp = common_parts(req)
+- source_package = cp[:source_package]
+- source_project = cp[:source_project]
+- request_type = cp[:request_type]
+%tr{ class: "request-#{req.priority}", id: "tr_request_#{req.id}" }
+  %td.nowrap
+    %span.hidden= req.created_at.to_i - req.number
+    = fuzzy_time(req.created_at)
+  %td.request_source
+    = project_or_package_link(project: source_project, package: source_package, creator: req.creator, trim_to: 80, short: true)
+  %td.nowrap= user_with_realname_and_icon(req['creator'], short: true)
+  %td.nowrap= request_type
+  %td.nowrap= req.state
+  %td.nowrap
+    %span.hidden= priority_number(req.priority)
+    %span{ title: priority_description(req.priority) }= req.priority
+  %td
+    = link_to(sprite_tag('req-showdiff', title: "Show request ##{req.number}"),
+      { controller: :request, action: :show, number: req.number }, { class: 'request_link' })
