@@ -832,6 +832,7 @@ sub findfile {
   return $files{'snapcraft.yaml'} if $files{'snapcraft.yaml'} && $ext eq 'snapcraft';
   return $files{'appimage.yml'} if $files{'appimage.yml'} && $ext eq 'appimage';
   return $files{'Dockerfile'} if $files{'Dockerfile'} && $ext eq 'docker';
+  return $files{'fissile.yml'} if $files{'fissile.yml'} && $ext eq 'fissile';
 
   if ($ext eq 'arch') {
     return $files{'PKGBUILD'} if $files{'PKGBUILD'};

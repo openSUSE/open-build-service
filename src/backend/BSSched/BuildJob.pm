@@ -881,9 +881,12 @@ sub create {
   # a new one. expand usedforbuild. write info file.
   my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($info->{'file'});
 
+  my $kiwimode;
+  $kiwimode = $buildtype if $buildtype eq 'kiwi' || $buildtype eq 'docker' || $buildtype eq 'fissile';
+
   my $syspath;
   my $searchpath = path2buildinfopath($gctx, $ctx->{'prpsearchpath'});
-  if ($buildtype eq 'kiwi' || $buildtype eq 'docker') {
+  if ($kiwimode) {
     # switch searchpath to kiwi info path
     $syspath = $searchpath if @$searchpath;
     $searchpath = path2buildinfopath($gctx, [ expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
@@ -910,7 +913,7 @@ sub create {
   unshift @bdeps, @{$info->{'dep'} || []}, @{$ctx->{'extradeps'} || []};
   push @bdeps, '--ignoreignore--' if @sysdeps;
 
-  if ($buildtype eq 'kiwi' || $buildtype eq 'docker' || $buildtype eq 'buildenv') {
+  if ($kiwimode || $buildtype eq 'buildenv') {
     @bdeps = (1, @$edeps);      # reuse edeps packages, no need to expand again
   } else {
     @bdeps = Build::get_build($bconf, $subpacks, @bdeps);
@@ -938,8 +941,8 @@ sub create {
   # do DoD checking
   if (!$ctx->{'isreposerver'} && $BSConfig::enable_download_on_demand) {
     my $dods;
-    if ($buildtype eq 'kiwi' || $buildtype eq 'docker') {
-      # for kiwi the image packages are already checked (they come from a different pool anyway)
+    if ($kiwimode) {
+      # image packages are already checked (they come from a different pool anyway)
       $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @pdeps, @vmdeps, @sysdeps);
     } else {
       $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @pdeps, @vmdeps, @bdeps, @sysdeps);
@@ -977,7 +980,7 @@ sub create {
     $_->{'runscripts'} = 1 if $runscripts{$n};
     $_->{'notmeta'} = 1 unless $edeps{$n};
     if (@sysdeps) {
-      $_->{'installonly'} = 1 if $sysdeps{$n} && !$bdeps{$n} && $buildtype ne 'kiwi' && $buildtype ne 'docker';
+      $_->{'installonly'} = 1 if $sysdeps{$n} && !$bdeps{$n} && !$kiwimode;
       $_->{'noinstall'} = 1 if $bdeps{$n} && !($sysdeps{$n} || $vmdeps{$n} || $pdeps{$n});
     }
     if ($dobuildinfo) {

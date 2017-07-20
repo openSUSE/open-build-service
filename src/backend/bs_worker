@@ -2184,6 +2184,7 @@ sub getbinaries {
   my $kiwimode;
   $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
   $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
+  $kiwimode = 'fissile' if $buildinfo->{'file'} eq 'fissile.yml';
 
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
@@ -2638,6 +2639,7 @@ sub dobuild {
   $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
   $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
   $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
+  $kiwimode = 'fissile' if $buildinfo->{'file'} eq 'fissile.yml';
   my $kiwiorigins = {};
   my $stats = {};
   my $deltamode;
@@ -2727,6 +2729,7 @@ sub dobuild {
     $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
     $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
     $kiwimode = 'docker' if $buildinfo->{'file'} eq 'Dockerfile';
+    $kiwimode = 'fissile' if $buildinfo->{'file'} eq 'fissile.yml';
     @meta = split("\n", readstr("$srcdir/meta"));
   } else {
     my $needsslcert;

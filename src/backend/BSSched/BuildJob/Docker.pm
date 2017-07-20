@@ -30,7 +30,7 @@ use BSSched::DoD;       	# for dodcheck
 
 =head1 NAME
 
-BSSched::BuildJob::Docker - A Class to handle Docker image builds
+BSSched::BuildJob::Docker - A Class to handle Docker and Fissile image builds
 
 =head1 SYNOPSIS
 
@@ -73,7 +73,7 @@ sub expand {
 =cut
 
 sub check {
-  my ($self, $ctx, $packid, $pdata, $info) = @_;
+  my ($self, $ctx, $packid, $pdata, $info, $buildtype) = @_;
 
   my $gctx = $ctx->{'gctx'};
   my $myarch = $gctx->{'arch'};
@@ -172,7 +172,7 @@ sub check {
   my $bconf = $ctx->getconfig($projid, $repoid, $myarch, \@configpath);
   if (!$bconf) {
     if ($ctx->{'verbose'}) {
-      print "      - $packid (docker)\n";
+      print "      - $packid ($buildtype)\n";
       print "        no config\n";
     }
     return ('broken', 'no config');
@@ -185,7 +185,7 @@ sub check {
   for my $aprp (@aprps) {
     if (!$ctx->checkprpaccess($aprp)) {
       if ($ctx->{'verbose'}) {
-        print "      - $packid (docker)\n";
+        print "      - $packid ($buildtype)\n";
         print "        repository $aprp is unavailable";
       }
       return ('broken', "repository $aprp is unavailable");
@@ -199,7 +199,7 @@ sub check {
 	next;
       }
       if ($ctx->{'verbose'}) {
-        print "      - $packid (docker)\n";
+        print "      - $packid ($buildtype)\n";
         print "        $error\n";
       }
       return ('broken', $error);
@@ -222,7 +222,7 @@ sub check {
   BSSched::BuildJob::add_expanddebug($ctx, 'docker image expansion', $xp) if $expanddebug;
   if (!$eok) {
     if ($ctx->{'verbose'}) {
-      print "      - $packid (docker)\n";
+      print "      - $packid ($buildtype)\n";
       print "        unresolvable:\n";
       print "            $_\n" for @edeps;
     }
@@ -258,7 +258,7 @@ sub check {
   }
   if (@blocked) {
     if ($ctx->{'verbose'}) {
-      print "      - $packid (docker)\n";
+      print "      - $packid ($buildtype)\n";
       if (@blocked < 11) {
 	print "        blocked (@blocked)\n";
       } else {
@@ -270,7 +270,7 @@ sub check {
   push @new_meta, $cmeta if $cmeta;
   @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
-  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'docker', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp]);
+  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, $buildtype, \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp]);
   if ($BSConfig::enable_download_on_demand && $state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;

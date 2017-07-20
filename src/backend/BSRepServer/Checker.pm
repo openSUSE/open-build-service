@@ -34,6 +34,7 @@ my %handlers = (
   'kiwi-product'    => BSSched::BuildJob::KiwiProduct->new(),
   'kiwi-image'      => BSSched::BuildJob::KiwiImage->new(),
   'docker'          => BSSched::BuildJob::Docker->new(),
+  'fissile'         => BSSched::BuildJob::Docker->new(),
   'buildenv'        => BSSched::BuildJob::BuildEnv->new(),
   'unknown'         => BSSched::BuildJob::Unknown->new(),
   'default'         => BSSched::BuildJob::Package->new(),
