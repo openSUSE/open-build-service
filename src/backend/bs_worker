@@ -754,6 +754,14 @@ if ($vm_swap) {
   my $size = device_size($vm_swap);
   $hw->{'swap'} = $size if $size;
 }
+
+if ($vm =~ /openstack/) {
+  $hw->{'processors'} = $hw->{'jobs'} = $jobs if $jobs;
+  $hw->{'memory'} = $vm_memory if $vm_memory;
+  $hw->{'swap'} = $vmdisk_swapsize if $vmdisk_swapsize;
+  $hw->{'disk'} = $vmdisk_rootsize if $vmdisk_rootsize;
+}
+
 $workerinfo->{'hardware'} = $hw;
 
 sub stream_logfile {
