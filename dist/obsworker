@@ -273,6 +273,16 @@ if [ "$OBS_VM_TYPE" = "openstack" ]; then
         export OS_PASSWORD
     fi
 
+    if [ -n "$OBS_OPENSTACK_DISK_SIZE" ];then
+        VMDISK_ROOT_FILESIZE="--vmdisk-rootsize ${OBS_OPENSTACK_DISK_SIZE}"
+    fi
+
+    if [ -n "$OBS_OPENSTACK_SWAP_SIZE" ];then
+        VMDISK_SWAP_FILESIZE="--vmdisk-swapsize ${OBS_OPENSTACK_SWAP_SIZE}"
+    fi
+    if [ -n "$OBS_OPENSTACK_MEMORY_SIZE" ];then
+        MEMORY="--vm-memory ${OBS_OPENSTACK_MEMORY_SIZE}"
+    fi
 fi
 
 check_vmcp()
@@ -402,6 +412,7 @@ case "$1" in
         done
         OBS_WORKER_OPT1="$OBS_WORKER_OPT"
         I=0
+        [ -z "$OBS_WORKER_PREFIX" ] && OBS_WORKER_PREFIX=worker
         while test "$NUM" -gt "$I"; do
             if [ 0"$OBS_WORKER_PORTBASE" -gt 0 ]; then
                 port="--port $((OBS_WORKER_PORTBASE + I))"
@@ -442,11 +453,11 @@ case "$1" in
 		# Without a worker being defined, we would not be in this loop.
                 VM_SERVER="--vm-server $OBS_WORKER_CONTROL_INSTANCE"
                 VM_FLAVOR="--openstack-flavor $OBS_WORKER_OS_FLAVOR"
-		WORKER="--vm-worker worker$I"
-                VM_KERNEL="--vm-kernel worker$I-grub-image"
-                VM_DISK="--device worker$I-root"
-                VM_SWAP="--swap worker$I-swap"
-		OBS_WORKER_OPT="$OBS_WORKER_OPT1 $WORKER $VM_KERNEL $VM_DISK $VM_SWAP $VM_SERVER $VM_FLAVOR "
+		WORKER="--vm-worker $OBS_WORKER_PREFIX$I"
+                VM_KERNEL="--vm-kernel $OBS_WORKER_PREFIX$I-grub-image"
+                VM_DISK="--device $OBS_WORKER_PREFIX$I-root"
+                VM_SWAP="--swap $OBS_WORKER_PREFIX$I-swap"
+		OBS_WORKER_OPT="$OBS_WORKER_OPT1 $WORKER $VM_KERNEL $VM_DISK $VM_SWAP $VM_SERVER $VM_FLAVOR $VMDISK_ROOT_FILESIZE $VMDISK_SWAP_FILESIZE "
 	    elif [ -n "$vmopt" -a "$OBS_VM_TYPE" = 'zvm' ]; then
 		mkdir -p $R
 		# Without a worker being defined, we would not be in this loop.
