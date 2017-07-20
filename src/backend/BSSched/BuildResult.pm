@@ -130,9 +130,10 @@ sub compile_exportfilter {
   my ($filter) = @_;
   return undef unless $filter;
   my @res;
-  for (@$filter) {
+  for my $f (@$filter) {
     eval {
-      push @res, [ qr/$_->[0]/, $_->[1] ];
+      BSVerify::verify_arch($_) for @{$f->[1] || []};
+      push @res, [ qr/$f->[0]/, $f->[1] ];
     };
   }
   return \@res;
