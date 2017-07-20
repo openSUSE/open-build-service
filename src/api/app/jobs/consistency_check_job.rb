@@ -48,7 +48,11 @@ class ConsistencyCheckJob < ApplicationJob
       @errors << project_meta_check(project, fix)
     rescue Project::UnknownObjectError
       # specified but does not exist in api. does it also not exist in backend?
-      @errors << import_project_from_backend(ENV['project'])
+      answer = import_project_from_backend(ENV['project'])
+      unless answer.blank?
+        @errors << answer
+        return
+      end
       project = Project.get_by_name(ENV['project'])
     end
     # check backend side
