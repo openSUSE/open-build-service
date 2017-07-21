@@ -4,7 +4,7 @@
 -          'save-group' => url_for(action: 'save_group'),
 -          'project' => @project.name }
 - data[:package] = @package.name if @package
-= content_tag(:div, id: 'involved_users', data: data) do
+#involved_users{ data: data }
   - if @users.present?
     %h3
       User Roles #{image_tag 'ajax-loader.gif', id: 'user_spinner', class: 'hidden'}
@@ -20,7 +20,7 @@
           %tr{ id: "user-#{valid_xml_id(user.login)}" }
             %td= user_with_realname_and_icon(user)
             - @roles.each do |role|
-              = content_tag(:td, data: { user: user.login, role: role.title, type: 'user' }) do
+              %td{ data: { user: user.login, role: role.title, type: 'user' } }
                 - if defined? @package
                   = check_box_tag('user_' + role.title + '_' + user.login, '',
                     @package.user_has_role?(user, role), disabled: !user_is_maintainer, class: 'trigger')
