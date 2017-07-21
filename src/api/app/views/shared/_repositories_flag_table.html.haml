@@ -1,4 +1,5 @@
-%table.flag_table{ 'data-flag' => flags['all'].first.flag, id: "flag_table_#{flags['all'].first.flag}" }
+- first_flag = flags['all'].first.flag
+%table.flag_table{ 'data-flag' => first_flag, id: "flag_table_#{first_flag}" }
   %tr
     %th Repository
     %th{ style: 'width: 6ex' } All
@@ -23,6 +24,6 @@
           = render partial: 'shared/repositories_flag_table_column', locals: { flag: flag }
 - content_for :ready_function do
   :plain
-    $( '.flag_spinner_trigger_#{flags['all'].first.flag}' ).click(function() {
-      $( '#spinner_flag_table_#{flags['all'].first.flag}' ).show();
+    $( '.flag_spinner_trigger_#{h(first_flag)}' ).click(function() {
+      $( '#spinner_flag_table_#{h(first_flag)}' ).show();
     });
