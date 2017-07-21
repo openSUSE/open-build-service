@@ -22,6 +22,7 @@
         %td{ class: index == 0 ? 'allrow' : nil }
           = render partial: 'shared/repositories_flag_table_column', locals: { flag: flag }
 - content_for :ready_function do
-  $( '.flag_spinner_trigger_#{flags['all'].first.flag}' ).click(function() {
-  $( '#spinner_flag_table_#{flags['all'].first.flag}' ).show();
-  });
+  :plain
+    $( '.flag_spinner_trigger_#{flags['all'].first.flag}' ).click(function() {
+      $( '#spinner_flag_table_#{flags['all'].first.flag}' ).show();
+    });
