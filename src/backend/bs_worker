@@ -690,8 +690,8 @@ $workerinfo->{'sandbox'} = $1 if $vm =~ /(xen|kvm|emulator|lxc|zvm|docker|pvm)/;
 $workerinfo->{'owner'} = $owner if $owner;
 # linux kernel
 my $str = readstr('/proc/version');
-if ($str =~ /^Linux version ([^-]*)-([^-]*)-([^ ]*) /s) {
-  $workerinfo->{'linux'} = { 'version' => "$1-$2", 'flavor' => $3 };
+if ($str =~ /^Linux version ([^ ]*)-([^- ]*) /s) {
+  $workerinfo->{'linux'} = { 'version' => "$1", 'flavor' => $2 };
 }
 my $hw = {'cpu' => {}, 'processors' => 0};
 # memory, undefined in non vm mode since no guarantees are exist
