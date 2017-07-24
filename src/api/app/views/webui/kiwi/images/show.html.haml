@@ -1,20 +1,27 @@
-= render partial: 'webui/kiwi/tabs'
+- @layouttype = 'custom'
 
-%h2
-  = @image.name
-%h3 Repositories
-- if @image.repositories.empty?
-  %p There are no repositories.
-- else
-  %ul
-    - @image.repositories.each do |repository|
-      = render partial: 'repository_entry', locals: {repository: repository}
-    = button_to('Edit', edit_kiwi_image_path(@image), method: :get)
+.grid_16.alpha.omega.box.box-shadow
+  = render partial: 'webui/kiwi/tabs'
+  %h2
+    = @image.name
+  %ul.horizontal-list
+    %li
+      = link_to(sprited_text('brick_edit', 'Edit image'), edit_kiwi_image_path(@image))
 
-%h3 Packages
-- if @image.kiwi_packages.empty?
-  %p There are no packages.
-- else
-  %p
-    %strong
-      = @image.kiwi_packages.pluck(:name).join(', ')
+.grid_16.alpha.omega.box.box-shadow
+  %h3 Repositories
+  - if @image.repositories.empty?
+    %p There are no repositories.
+  - else
+    %ul
+      - @image.repositories.each do |repository|
+        = render partial: 'repository_entry', locals: {repository: repository}
+
+.grid_16.alpha.omega.box.box-shadow
+  %h3 Packages
+  - if @image.kiwi_packages.empty?
+    %p There are no packages.
+  - else
+    %p
+      %strong
+        = @image.kiwi_packages.pluck(:name).join(', ')

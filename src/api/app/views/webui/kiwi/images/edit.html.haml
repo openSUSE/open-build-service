@@ -1,32 +1,66 @@
-= render partial: 'webui/kiwi/tabs'
+- @layouttype = 'custom'
 
-%h2
-  = @image.name
-%h3 Repositories
-- if @image.repositories.empty?
-  %p There are no repositories.
-- else
-  %div
-    = form_for @image, html: { id: 'kiwi_repository_update_form' } do |f|
-      = f.fields_for :repositories do |repository_fields|
-        = render 'repository_fields', f: repository_fields
-      = button_tag('Save', id: 'kiwi_repository_update_form_save', type: 'button', disabled: true)
+= form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
+
+  .grid_16.alpha.omega.box.box-shadow
+    = render partial: 'webui/kiwi/tabs'
+    %h2
+      = @image.name
+    %ul.horizontal-list
+      %li
+        = button_tag('Save', id: 'kiwi-image-update-form-save', type: 'button', disabled: true)
+
+  .grid_16.alpha.omega.box.box-shadow
+    %h3 Repositories
+    - if @image.repositories.empty?
+      %p There are no repositories.
+    - else
+      %div
+        = f.fields_for :repositories do |repository_fields|
+          = render 'repository_fields', f: repository_fields
+
+  .grid_16.alpha.omega.box.box-shadow
+    %h3 Packages
+    - if @image.kiwi_packages.empty?
+      %p There are no packages.
+    - else
+      %div
+        = f.fields_for :package_groups do |package_group_fields|
+          %h6
+            = package_group_fields.object.kiwi_type
+            = package_group_fields.object.profiles
+            = package_group_fields.object.pattern_type
+          %table.package_group_table
+            %thead
+              %tr
+                %th Action
+                %th Name
+                %th Arch
+                %th Replaces
+                %th bootinclude
+                %th bootdelete
+            %tbody
+              = package_group_fields.fields_for :packages do |kiwi_package_fields|
+                = render 'package_fields', f: kiwi_package_fields
+          %p
+            = link_to_add_association 'Add package', package_group_fields, :packages, data: {"association-insertion-node" => "tbody", "association-insertion-method" => "append"}
+
 
 :javascript
-  function save_repositories() {
+  function save_image() {
     $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
       dataType: 'json',
       success: function(json) {
         var is_outdated = json['is_outdated'];
-        if (is_outdated && !confirm("These repositories have been modified while you were editing them.\nDo you want to apply the changes anyway?"))
+        if (is_outdated && !confirm("This image has been modified while you were editing it.\nDo you want to apply the changes anyway?"))
           return;
-        $('#kiwi_repository_update_form').submit();
+        $('#kiwi-image-update-form').submit();
       }
     });
   }
 
-  $('#kiwi_repository_update_form_save').click(save_repositories);
+  $('#kiwi-image-update-form-save').click(save_image);
 
-  $('#kiwi_repository_update_form').change(function() {
-    $(this).find('#kiwi_repository_update_form_save').prop('disabled', false);
+  $('#kiwi-image-update-form').change(function() {
+    $(this).find('#kiwi-image-update-form-save').prop('disabled', false);
   });

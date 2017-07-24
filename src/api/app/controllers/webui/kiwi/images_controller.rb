@@ -43,16 +43,36 @@ module Webui
         end
         redirect_to action: :show
       rescue ActiveRecord::RecordInvalid, Timeout::Error => e
-        flash[:error] = "Cannot update repositories for kiwi image: #{@image.errors.full_messages.to_sentence} #{e.message}"
+        flash[:error] = "Cannot update kiwi image: #{@image.errors.full_messages.to_sentence} #{e.message}"
         redirect_back(fallback_location: root_path)
       end
 
       private
 
       def image_params
-        params.require(:kiwi_image).permit(repositories_attributes:
-                                      [:id, :priority, :repo_type, :source_path, :alias,
-                                       :username, :password, :prefer_license, :imageinclude, :replaceable])
+        repositories_attributes = [
+          :id,
+          :priority,
+          :repo_type,
+          :source_path,
+          :alias,
+          :username,
+          :password,
+          :prefer_license,
+          :imageinclude,
+          :replaceable
+        ]
+
+        package_groups_attributes = [
+          :id,
+          :_destroy,
+          packages_attributes: [:id, :name, :arch, :replaces, :bootdelete, :bootinclude, :_destroy]
+        ]
+
+        params.require(:kiwi_image).permit(
+          repositories_attributes: repositories_attributes,
+          package_groups_attributes: package_groups_attributes
+        )
       end
 
       def set_image

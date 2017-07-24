@@ -24,7 +24,7 @@ class Kiwi::Image < ApplicationRecord
   has_many :repositories, -> { order(order: :asc) }, dependent: :destroy, index_errors: true
   has_many :package_groups, -> { order(:id) }, dependent: :destroy, index_errors: true
   has_many :kiwi_packages, -> { where(kiwi_package_groups: { kiwi_type: Kiwi::PackageGroup.kiwi_types[:image], pattern_type: 'onlyRequired' }) },
-           through: :package_groups, source: :packages
+           through: :package_groups, source: :packages, inverse_of: :kiwi_image
 
   #### Callbacks macros: before_save, after_save, etc.
 
@@ -33,6 +33,8 @@ class Kiwi::Image < ApplicationRecord
   #### Validations macros
   validates :name, presence: true
   accepts_nested_attributes_for :repositories
+  accepts_nested_attributes_for :package_groups, allow_destroy: true
+  accepts_nested_attributes_for :kiwi_packages, allow_destroy: true
 
   #### Class methods using self. (public and then private)
 

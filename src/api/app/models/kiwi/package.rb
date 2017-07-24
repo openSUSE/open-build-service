@@ -1,5 +1,6 @@
 class Kiwi::Package < ApplicationRecord
   belongs_to :package_group
+  has_one :kiwi_image, through: :package_groups
 
   validates :name, presence: true
 end
