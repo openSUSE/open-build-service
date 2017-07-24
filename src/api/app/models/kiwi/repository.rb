@@ -23,7 +23,7 @@ class Kiwi::Repository < ApplicationRecord
   validates :order, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   # TODO: repo_type value depends on packagemanager element
   # https://doc.opensuse.org/projects/kiwi/doc/#sec.description.repository
-  validates :repo_type, inclusion: { in: %w(apt-deb rpm-dir rpm-md yast2) }
+  validates :repo_type, inclusion: { in: REPO_TYPES }
   validates :replaceable, inclusion: { in: [true, false] }
   validates :imageinclude, :prefer_license, inclusion: { in: [true, false] }, allow_nil: true
   validates_associated :image, on: :update
