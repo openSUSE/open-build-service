@@ -38,8 +38,8 @@
         $.ajax({
           url: '#{ url_for(controller: controller, action: 'rpmlint_result') }',
           data: {
-            \#{raw("'project': '#{project}',") if defined?(project)}
-            \#{raw("'package': '#{package}',") if defined?(package)}
+            \#{raw("'project': '#{h project}',") if defined?(project)}
+            \#{raw("'package': '#{h package}',") if defined?(package)}
             \#{raw("'index': '#{index}',") if defined?(index)}
           },
           success: function(data) {
@@ -67,8 +67,8 @@
       $.ajax({
         url: '#{ url_for(controller: controller, action: 'buildresult') }',
         data: {
-          \#{raw("'project': '#{project}',") if defined?(project)}
-          \#{raw("'package': '#{package}',") if defined?(package)}
+          \#{raw("'project': '#{h project}',") if defined?(project)}
+          \#{raw("'package': '#{h package}',") if defined?(package)}
           \#{raw("'index': '#{index}',") if defined?(index)}
         },
         success: function(data) {
