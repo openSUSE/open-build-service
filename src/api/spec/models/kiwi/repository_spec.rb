@@ -83,8 +83,19 @@ RSpec.describe Kiwi::Repository, type: :model do
   end
 
   describe '#to_xml' do
-    subject { kiwi_repository.to_xml }
+    context 'without username/password' do
+      subject { kiwi_repository.to_xml }
 
-    it { expect(subject).to eq("<repository type=\"apt-deb\">\n  <source path=\"http://example.com/\"/>\n</repository>\n") }
+      it { expect(subject).to eq("<repository type=\"apt-deb\">\n  <source path=\"http://example.com/\"/>\n</repository>\n") }
+    end
+
+    context 'with username/password' do
+      subject { create(:kiwi_repository, username: 'my_user', password: 'my_password').to_xml }
+
+      it do
+        expect(subject).to eq("<repository type=\"apt-deb\" username=\"my_user\" password=\"my_password\">\n  " +
+                              "<source path=\"http://example.com/\"/>\n</repository>\n")
+      end
+    end
   end
 end
