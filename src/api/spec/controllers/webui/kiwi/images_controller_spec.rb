@@ -82,6 +82,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
   describe 'POST #update' do
     let(:kiwi_repository) { create(:kiwi_repository, image: kiwi_image_with_package_with_kiwi_file) }
+    let(:kiwi_package) { create(:kiwi_package, image: kiwi_image_with_package_with_kiwi_file) }
 
     before do
       login user
@@ -137,6 +138,69 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
       it { expect(response).to redirect_to(action: :show) }
       it { expect(flash[:error]).to be_nil }
+    end
+
+    context 'with invalid package: empty name' do
+      let(:invalid_packages_update_params) do
+        {
+          id:         kiwi_image_with_package_with_kiwi_file.id,
+          kiwi_image: {
+            package_groups_attributes: {
+              '0' => {
+                id:                  kiwi_package.package_group.id,
+                packages_attributes: {
+                  '0' => {
+                    id:   kiwi_package.id,
+                    name: "",
+                    arch: "x86"
+                  }
+                }
+              }
+            }
+          }
+        }
+      end
+
+      subject { post :update, params: invalid_packages_update_params }
+
+      it do
+        expect(subject.request.flash[:error]).to(
+          start_with("Cannot update kiwi image: Package groups[0] packages name can't be blank")
+        )
+      end
+
+      it { expect(subject).to redirect_to(root_path) }
+    end
+
+    context 'with valid packages data' do
+      let(:update_params) do
+        {
+          id:         kiwi_image_with_package_with_kiwi_file.id,
+          kiwi_image: {
+            package_groups_attributes: {
+              '0' => {
+                id:                  kiwi_package.package_group.id,
+                packages_attributes: {
+                  '0' => {
+                    id:   kiwi_package.id,
+                    name: kiwi_package.name,
+                    arch: "x86-876"
+                  }
+                }
+              }
+            }
+          }
+        }
+      end
+
+      before do
+        post :update, params: update_params
+        kiwi_package.reload
+      end
+
+      it { expect(response).to redirect_to(action: :show) }
+      it { expect(flash[:error]).to be_nil }
+      it { expect(kiwi_package.arch).to eq("x86-876") }
     end
   end
 end
