@@ -4,7 +4,7 @@
 -          'save-group' => url_for(action: 'save_group'),
 -          'project' => @project.name }
 - data[:package] = @package.name if @package
-#involved_users{ data: data }
+#involved-users{ data: data }
   - if @users.present?
     %h3
       User Roles #{image_tag 'ajax-loader.gif', id: 'user_spinner', class: 'hidden'}
