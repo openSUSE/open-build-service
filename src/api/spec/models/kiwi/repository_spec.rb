@@ -4,6 +4,20 @@ require 'rantly/rspec_extensions'
 RSpec.describe Kiwi::Repository, type: :model do
   let(:kiwi_repository) { create(:kiwi_repository) }
 
+  describe '#name' do
+    context 'with an alias' do
+      subject { create(:kiwi_repository, alias: 'my_alias_repo') }
+
+      it { expect(subject.name).to eq('my_alias_repo') }
+    end
+
+    context 'without alias' do
+      subject { create(:kiwi_repository, alias: nil, source_path: 'http://example.org/my_repo') }
+
+      it { expect(subject.name).to eq('http:__example.org_my_repo') }
+    end
+  end
+
   describe 'validations' do
     context 'for source_path' do
       it { is_expected.to validate_presence_of(:source_path) }
@@ -68,7 +82,7 @@ RSpec.describe Kiwi::Repository, type: :model do
     it { is_expected.to allow_value(nil).for(:prefer_license) }
   end
 
-  describe '.to_xml' do
+  describe '#to_xml' do
     subject { kiwi_repository.to_xml }
 
     it { expect(subject).to eq("<repository type=\"apt-deb\">\n  <source path=\"http://example.com/\"/>\n</repository>\n") }
