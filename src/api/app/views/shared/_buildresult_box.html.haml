@@ -18,6 +18,12 @@
 - if controller == 'package'
   %div{ class: "result_display_#{index}", id: "result_display_#{index}_1" }
 
+- ajax_data = []
+- ajax_data.push("'project': '#{h(project)}'") if defined?(project)
+- ajax_data.push("'package': '#{h(package)}'") if defined?(package)
+- ajax_data.push("'index': '#{index}'") if defined?(index)
+- ajax_data = raw(ajax_data.join ', ')
+
 = javascript_tag do
   - if controller == 'package'
     :plain
@@ -37,11 +43,7 @@
         $('#result_reload_#{index}_1').hide();
         $.ajax({
           url: '#{ url_for(controller: controller, action: 'rpmlint_result') }',
-          data: {
-            \#{raw("'project': '#{h project}',") if defined?(project)}
-            \#{raw("'package': '#{h package}',") if defined?(package)}
-            \#{raw("'index': '#{index}',") if defined?(index)}
-          },
+          data: {#{ajax_data}},
           success: function(data) {
             $('#result_display_#{index}_1').html(data);
           },
@@ -66,11 +68,7 @@
       $('#result_reload_#{index}_0').hide();
       $.ajax({
         url: '#{ url_for(controller: controller, action: 'buildresult') }',
-        data: {
-          \#{raw("'project': '#{h project}',") if defined?(project)}
-          \#{raw("'package': '#{h package}',") if defined?(package)}
-          \#{raw("'index': '#{index}',") if defined?(index)}
-        },
+        data: {#{ajax_data}},
         success: function(data) {
           $('#result_display_#{index}_0').html(data);
         },
