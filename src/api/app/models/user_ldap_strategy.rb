@@ -336,12 +336,13 @@ class UserLdapStrategy
     ldap_servers = CONFIG['ldap_servers'].split(":")
 
     max_ldap_attempts = CONFIG.has_key?('ldap_max_attempts') ? CONFIG['ldap_max_attempts'] : 10
+    # Do 10 attempts to connect to one of the configured LDAP servers. LDAP server
+    # to connect to is chosen randomly.
     max_ldap_attempts.times do
       server = ldap_servers[rand(ldap_servers.length)]
       conn = try_ldap_con(server, user_name, password)
-      if !conn.nil? && conn.bound?
-        return conn
-      end
+
+      return conn if conn.try(:bound?)
     end
 
     Rails.logger.error("Unable to bind to any LDAP server: #{CONFIG['ldap_servers']}")
@@ -372,9 +373,7 @@ class UserLdapStrategy
       end
       conn.bind(user_name, password)
     rescue LDAP::ResultError
-      if !conn.nil? && conn.bound?
-        conn.unbind
-      end
+      conn.unbind if conn.try(:bound?)
       Rails.logger.info("Not bound as #{user_name}: #{conn.err2string(conn.err)}")
       return
     end
