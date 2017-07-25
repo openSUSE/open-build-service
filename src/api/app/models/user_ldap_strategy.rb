@@ -15,20 +15,6 @@ class UserLdapStrategy
     local_permission_check_with_ldap(groups.where("role_id in (?)", roles))
   end
 
-  # This method returns all groups assigned to the given user via ldap - including
-  # the ones he gets by being assigned through group inheritance.
-  def all_groups_ldap(group_ldap)
-    result = Array.new
-    for group in group_ldap
-      result << group.ancestors_and_self
-    end
-
-    result.flatten!
-    result.uniq!
-
-    result
-  end
-
   def groups(user)
     render_grouplist_ldap(Group.all, user.login)
   end
@@ -316,21 +302,6 @@ class UserLdapStrategy
                       expires_in: 2.minutes)
     Rails.logger.debug("login success for checking with ldap server")
     ldap_info
-  end
-
-  def groups_ldap
-    Rails.logger.debug "List the groups #{login} is in"
-    ldapgroups = Array.new
-    # check with LDAP
-    if Configuration.ldapgroup_enabled?
-      grouplist = Group.all
-      begin
-        ldapgroups = UserLdapStrategy.render_grouplist_ldap(grouplist, login)
-      rescue Exception
-        Rails.logger.info "Error occurred in searching user_group in ldap."
-      end
-    end
-    ldapgroups
   end
 
   def user_in_group_ldap?(user, group)
