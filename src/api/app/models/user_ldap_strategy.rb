@@ -334,12 +334,9 @@ class UserLdapStrategy
     return unless defined?(CONFIG['ldap_servers'])
     require 'ldap'
     ldap_servers = CONFIG['ldap_servers'].split(":")
-    count = 0
 
     max_ldap_attempts = CONFIG.has_key?('ldap_max_attempts') ? CONFIG['ldap_max_attempts'] : 10
-
-    while count < max_ldap_attempts
-      count += 1
+    max_ldap_attempts.times do
       server = ldap_servers[rand(ldap_servers.length)]
       conn = try_ldap_con(server, user_name, password)
       if !conn.nil? && conn.bound?
