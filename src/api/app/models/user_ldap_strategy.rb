@@ -349,23 +349,25 @@ class UserLdapStrategy
     nil
   end
 
+  def self.ldap_port
+    return CONFIG['ldap_port'] if CONFIG['ldap_port']
+
+    CONFIG['ldap_ssl'] == :on ? 636 : 389
+  end
+  private_class_method :ldap_port
+
   def self.try_ldap_con(server, user_name, password)
     # implicitly turn array into string
     user_name = [user_name].flatten.join('')
 
     Rails.logger.debug("Connecting to #{server} as '#{user_name}'")
+    port = ldap_port
+
     begin
-      if CONFIG.has_key?('ldap_ssl') && CONFIG['ldap_ssl'] == :on
-        port = CONFIG.has_key?('ldap_port') ? CONFIG['ldap_port'] : 636
-        conn = LDAP::SSLConn.new(server, port)
+      if CONFIG['ldap_ssl'] == :on || CONFIG['ldap_start_tls'] == :on
+        conn = LDAP::SSLConn.new(server, port, CONFIG['ldap_start_tls'] == :on)
       else
-        port = CONFIG.has_key?('ldap_port') ? CONFIG['ldap_port'] : 389
-        # Use LDAP StartTLS. By default start_tls is off.
-        if CONFIG.has_key?('ldap_start_tls') && CONFIG['ldap_start_tls'] == :on
-          conn = LDAP::SSLConn.new(server, port, true)
-        else
-          conn = LDAP::Conn.new(server, port)
-        end
+        conn = LDAP::Conn.new(server, port)
       end
       conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
       if CONFIG.has_key?('ldap_referrals') && CONFIG['ldap_referrals'] == :off
