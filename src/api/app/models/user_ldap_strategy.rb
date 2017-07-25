@@ -359,7 +359,7 @@ class UserLdapStrategy
   # convert distinguished name to user principal name
   # see also: http://technet.microsoft.com/en-us/library/cc977992.aspx
   def self.dn2user_principal_name(dn)
-    upn = String.new
+    upn = ''
     # implicitly convert array to string
     dn = [dn].flatten.join(',')
     begin
@@ -370,6 +370,7 @@ class UserLdapStrategy
     rescue
       # if we run into unexpected input just return an empty string
     end
+
     upn
   end
 
@@ -500,9 +501,9 @@ class UserLdapStrategy
   def user_in_group_ldap?(user, group)
     grouplist = []
     if group.kind_of? String
-      grouplist.push Group.find_by_title(group)
+      grouplist << Group.find_by_title(group)
     else
-      grouplist.push group
+      grouplist << group
     end
 
     begin
