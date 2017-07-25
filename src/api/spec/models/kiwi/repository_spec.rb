@@ -4,6 +4,20 @@ require 'rantly/rspec_extensions'
 RSpec.describe Kiwi::Repository, type: :model do
   let(:kiwi_repository) { create(:kiwi_repository) }
 
+  describe '#name' do
+    context 'with an alias' do
+      subject { create(:kiwi_repository, alias: 'my_alias_repo') }
+
+      it { expect(subject.name).to eq('my_alias_repo') }
+    end
+
+    context 'without alias' do
+      subject { create(:kiwi_repository, alias: nil, source_path: 'http://example.org/my_repo') }
+
+      it { expect(subject.name).to eq('http:__example.org_my_repo') }
+    end
+  end
+
   describe 'validations' do
     context 'for source_path' do
       it { is_expected.to validate_presence_of(:source_path) }
@@ -61,16 +75,27 @@ RSpec.describe Kiwi::Repository, type: :model do
       end
     end
 
-    it { is_expected.to validate_inclusion_of(:repo_type).in_array(%w(apt-deb rpm-dir rpm-md yast2)) }
+    it { is_expected.to validate_inclusion_of(:repo_type).in_array(Kiwi::Repository::REPO_TYPES) }
     it { is_expected.to validate_numericality_of(:priority).is_greater_than_or_equal_to(0).is_less_than(100) }
     it { is_expected.to validate_numericality_of(:order).is_greater_than_or_equal_to(1) }
     it { is_expected.to allow_value(nil).for(:imageinclude) }
     it { is_expected.to allow_value(nil).for(:prefer_license) }
   end
 
-  describe '.to_xml' do
-    subject { kiwi_repository.to_xml }
+  describe '#to_xml' do
+    context 'without username/password' do
+      subject { kiwi_repository.to_xml }
 
-    it { expect(subject).to eq("<repository type=\"apt-deb\">\n  <source path=\"http://example.com/\"/>\n</repository>\n") }
+      it { expect(subject).to eq("<repository type=\"apt-deb\">\n  <source path=\"http://example.com/\"/>\n</repository>\n") }
+    end
+
+    context 'with username/password' do
+      subject { create(:kiwi_repository, username: 'my_user', password: 'my_password').to_xml }
+
+      it do
+        expect(subject).to eq("<repository type=\"apt-deb\" username=\"my_user\" password=\"my_password\">\n  " +
+                              "<source path=\"http://example.com/\"/>\n</repository>\n")
+      end
+    end
   end
 end
