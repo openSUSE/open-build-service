@@ -335,10 +335,9 @@ class UserLdapStrategy
     require 'ldap'
     ldap_servers = CONFIG['ldap_servers'].split(":")
 
-    max_ldap_attempts = CONFIG['ldap_max_attempts'] || 10
     # Do 10 attempts to connect to one of the configured LDAP servers. LDAP server
     # to connect to is chosen randomly.
-    max_ldap_attempts.times do
+    (CONFIG['ldap_max_attempts'] || 10).times do
       server = ldap_servers[rand(ldap_servers.length)]
       conn = try_ldap_con(server, user_name, password)
 
