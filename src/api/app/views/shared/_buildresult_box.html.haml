@@ -6,17 +6,18 @@
 .box-header.header-tabs
   %ul{id: "result_select_#{index}"}
     %li.selected
-      %a{class: "result_select_link_#{index}", href: '#', id: "result_select_link_#{index}_0"} Build Results
+      %a{ class: "result_select_link_#{index}", href: '#', id: "result_select_link_#{index}_0" } Build Results
       = sprite_tag('reload', title: 'Reload', onclick: 'update_build_result()', class: "result_reload_#{index}", id: "result_reload_#{index}_0")
       = image_tag('ajax-loader.gif', id: "result_spinner_#{index}_0")
     - if controller == 'package'
       %li
-        %a{class: "result_select_link_#{index}", href: '#', id: "result_select_link_#{index}_1"} Rpmlint Results
+        %a{ class: "result_select_link_#{index}", href: '#', id: "result_select_link_#{index}_1" } Rpmlint Results
         = sprite_tag('reload', title: 'Reload', onclick: 'update_rpmlint_result()', class: "result_reload_#{index}", id: "result_reload_#{index}_1", style: 'display: none')
         = image_tag('ajax-loader.gif', id: "result_spinner_#{index}_1", class: 'hidden')
-%div{class: "result_display_#{index}", id: "result_display_#{index}_0"}
+%div{ class: "result_display_#{index}", id: "result_display_#{index}_0" }
 - if controller == 'package'
-  %div{class: "result_display_#{index}", id: "result_display_#{index}_1"}
+  %div{ class: "result_display_#{index}", id: "result_display_#{index}_1" }
+
 = javascript_tag do
   - if controller == 'package'
     :plain
@@ -35,7 +36,7 @@
         $('#result_spinner_#{index}_1').show();
         $('#result_reload_#{index}_1').hide();
         $.ajax({
-          url: '#{url_for(controller: controller, action: 'rpmlint_result')}',
+          url: '#{ url_for(controller: controller, action: 'rpmlint_result') }',
           data: {
             \#{raw("'project': '#{project}',") if defined?(project)}
             \#{raw("'package': '#{package}',") if defined?(package)}
@@ -58,13 +59,13 @@
 
       $('#result_display_#{index}_1').hide();
       update_rpmlint_result();
-  :plain
 
+  :plain
     function update_build_result() {
       $('#result_spinner_#{index}_0').show();
       $('#result_reload_#{index}_0').hide();
       $.ajax({
-        url: '#{url_for(controller: controller, action: 'buildresult')}',
+        url: '#{ url_for(controller: controller, action: 'buildresult') }',
         data: {
           \#{raw("'project': '#{project}',") if defined?(project)}
           \#{raw("'package': '#{package}',") if defined?(package)}

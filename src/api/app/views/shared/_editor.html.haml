@@ -9,24 +9,6 @@
         %input.tools.buttons.small.save.inactive{ id: "save_#{uid}", type: 'button', value: 'Save' }/
         %input.tools.buttons.undo{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);", style: 'background: transparent', type: 'button', value: 'undo' }/
         %input.tools.buttons.redo{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);", style: 'background: transparent', type: 'button', value: 'redo' }/
-        /
-          span class="text">search:</span>
-          <input type="button" class="tools buttons small" value="off" id="search_disable_<haml_loud> uid </haml_loud>"  />
-          <input disabled="disabled" type="text"  class="tools inputs"
-          style="background:transparent" id="search_<haml_loud> uid </haml_loud>"  autocomplete="off" placeholder="type or select" onkeydown="this.style.background = '';" />
-          <span id="prenex_<haml_loud> uid </haml_loud>" style="display:none;">
-          <input type="button" class="tools buttons prev" value="&#9668;"
-          id="prev_<haml_loud> uid </haml_loud>" onclick="editors[<haml_loud> uid </haml_loud>].Prev(this)" />
-          <input type="button" class="tools buttons next" value="&#9658;"
-          id="next_<haml_loud> uid </haml_loud>" onclick="editors[<haml_loud> uid </haml_loud>].Next(this)" />
-          </span>
-          <input type="button" class="tools buttons" style="width:36px;" value="find" id="find_<haml_loud> uid </haml_loud>" />
-          \&nbsp;
-          <span class="text">replace:</span>
-          <input disabled="disabled" type="text" class="tools inputs" style="background:transparent" id="replace_<haml_loud> uid </haml_loud>"  autocomplete="off" />
-          <input type="button" class="tools buttons medium" value="replace" onclick="editors[<haml_loud> uid </haml_loud>].Replace(this);" />
-          <input type="button" class="tools buttons medium" value="replace all" onclick="editors[<haml_loud> uid </haml_loud>].ReplaceAll(this);" />
-          \&nbsp;&nbsp;
       %span{ style: 'float: right' }
         %select.tools.select{ id: "fontsize_#{uid}", onchange: "editors[#{uid}].updateFontsize(this)" }
           %option{ value: '8pt' } 8pt

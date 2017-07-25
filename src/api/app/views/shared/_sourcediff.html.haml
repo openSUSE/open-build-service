@@ -31,8 +31,7 @@
             %td{ style: 'width: 1%' }= file_state
             %td
               /
-                Most files don't exist when the package is linked, so keeping in mind the statement below don't even bother
-                to try to show them...
+                Most files don't exist when the package is linked, so keeping in mind the statement below don't even bother to try to show them
               - unless @linkinfo
                 - rev = source[:rev]
                 - rev = (rev.to_i - 1).to_s if file_element['state'] == 'deleted'
