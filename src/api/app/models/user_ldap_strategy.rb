@@ -291,46 +291,6 @@ class UserLdapStrategy
     result
   end
 
-  # This static method tries to update the password with the given login in the
-  # active directory server.  Return the error msg if any error occurred
-  def self.change_password_ldap(login, password)
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      Rails.logger.info("Unable to connect to LDAP server")
-      return "Unable to connect to LDAP server"
-    end
-    user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
-    dn = String.new
-    ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
-      dn = entry.dn
-    end
-    if dn.empty?
-      Rails.logger.info("User not found in ldap")
-      return "User not found in ldap"
-    end
-
-    case CONFIG['ldap_auth_mech']
-    when :cleartext then
-      ldap_password = password
-    when :md5 then
-      ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
-    end
-    entry = [
-      LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [ldap_password])
-    ]
-    begin
-      ldap_con.modify(dn, entry)
-    rescue LDAP::ResultError
-      Rails.logger.info("Error #{ldap_con.err} for #{login}")
-      return ldap_con.err.to_s
-    end
-
-    return
-  end
-
   def self.authenticate_with_local(password, entry)
     if !entry.key?(CONFIG['ldap_auth_attr']) || entry[CONFIG['ldap_auth_attr']].empty?
       Rails.logger.info("Failed to get attr:#{CONFIG['ldap_auth_attr']}")

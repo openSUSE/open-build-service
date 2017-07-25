@@ -237,23 +237,9 @@ class PersonController < ApplicationController
 
     # change password to LDAP if LDAP is enabled
     if CONFIG['ldap_mode'] == :on
-      ldap_password = Base64.decode64(password)
-      if CONFIG['ldap_ssl'] == :on
-        begin
-          logger.debug( "Using LDAP to change password for #{login}" )
-          result = UserLdapStrategy.change_password_ldap(login, ldap_password)
-        rescue Exception
-          logger.debug "CONFIG['ldap_mode'] selected but 'ruby-ldap' module not installed."
-        end
-        if result
-          render_error status: 404, errorcode: 'change_passwd_failure', message: "Failed to change password to ldap: #{result}"
-          return
-        end
-      else
-        render_error status: 404, errorcode: 'change_passwd_no_security', message: "LDAP mode enabled, the user password can only" +
-                                                                                            " be changed with CONFIG['ldap_ssl'] enabling."
-        return
-      end
+      render_error status: 404, errorcode: 'change_passwd_failure',
+                                message: "LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it."
+      return
     end
 
     # update password in users db
