@@ -74,7 +74,7 @@ class UserLdapStrategy
 
     if user
       # search user
-      if CONFIG.has_key?('ldap_user_filter')
+      if CONFIG['ldap_user_filter']
         filter = "(&(#{CONFIG['ldap_search_attr']}=#{user})#{CONFIG['ldap_user_filter']})"
       else
         filter = "(#{CONFIG['ldap_search_attr']}=#{user})"
@@ -83,7 +83,7 @@ class UserLdapStrategy
       user_memberof_attr = String.new
       ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         user_dn = entry.dn
-        if CONFIG.has_key?('ldap_user_memberof_attr') && entry.attrs.include?(CONFIG['ldap_user_memberof_attr'])
+        if CONFIG['ldap_user_memberof_attr'].in?(entry.attrs)
           user_memberof_attr = entry.vals(CONFIG['ldap_user_memberof_attr'])
         end
       end
@@ -121,7 +121,7 @@ class UserLdapStrategy
       Rails.logger.debug("Search group: #{filter}")
       ldap_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         group_dn = entry.dn
-        if CONFIG.has_key?('ldap_group_member_attr') && entry.attrs.include?(CONFIG['ldap_group_member_attr'])
+        if CONFIG['ldap_group_member_attr'].in?(entry.attrs)
           group_member_attr = entry.vals(CONFIG['ldap_group_member_attr'])
         end
       end
@@ -335,7 +335,7 @@ class UserLdapStrategy
     require 'ldap'
     ldap_servers = CONFIG['ldap_servers'].split(":")
 
-    max_ldap_attempts = CONFIG.has_key?('ldap_max_attempts') ? CONFIG['ldap_max_attempts'] : 10
+    max_ldap_attempts = CONFIG['ldap_max_attempts'] || 10
     # Do 10 attempts to connect to one of the configured LDAP servers. LDAP server
     # to connect to is chosen randomly.
     max_ldap_attempts.times do
@@ -370,7 +370,7 @@ class UserLdapStrategy
         conn = LDAP::Conn.new(server, port)
       end
       conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
-      if CONFIG.has_key?('ldap_referrals') && CONFIG['ldap_referrals'] == :off
+      if CONFIG['ldap_referrals'] == :off
         conn.set_option(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF)
       end
       conn.bind(user_name, password)
