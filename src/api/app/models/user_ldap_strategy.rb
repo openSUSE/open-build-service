@@ -301,15 +301,10 @@ class UserLdapStrategy
   end
 
   def user_in_group_ldap?(user, group)
-    grouplist = []
-    if group.kind_of? String
-      grouplist << Group.find_by_title(group)
-    else
-      grouplist << group
-    end
+    group = (group.kind_of?(String) ? Group.find_by_title(group) : group)
 
     begin
-      render_grouplist_ldap(grouplist, user).any?
+      render_grouplist_ldap([group], user).any?
     rescue Exception
       Rails.logger.info "Error occurred in searching user_group in ldap."
       false
