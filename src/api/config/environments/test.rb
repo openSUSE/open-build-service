@@ -60,7 +60,9 @@ OBSApi::Application.configure do
   end
 
   # TODO: This shouldn't be needed when we switch to RSpec completely
-  config.action_dispatch.rescue_responses.merge!('ActionController::InvalidAuthenticityToken' => 950 )
+  config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 950
+
+  config.active_job.queue_adapter = :test
 end
 
 CONFIG['source_host'] = "localhost"
