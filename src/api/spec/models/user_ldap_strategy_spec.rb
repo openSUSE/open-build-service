@@ -27,4 +27,64 @@ RSpec.describe UserLdapStrategy do
       end
     end
   end
+
+  describe '.authenticate_with_local' do
+    context "with ldap auth method ':cleartext'" do
+      before do
+        stub_const('CONFIG', CONFIG.merge({
+          'ldap_auth_mech' => :cleartext,
+          'ldap_auth_attr' => 'CLR_userPassword'
+        }))
+      end
+
+      it 'validates a correct password' do
+        expect(UserLdapStrategy.authenticate_with_local("cleartext_pw",
+                                                        { 'CLR_userPassword' => ['cleartext_pw'] })).to be true
+      end
+
+      it 'does not validate an incorrect password' do
+        expect(UserLdapStrategy.authenticate_with_local("wrong_pw",
+                                                        { 'CLR_userPassword' => ['cleartext_pw'] })).to be false
+      end
+    end
+
+    context "with ldap auth method ':md5'" do
+      before do
+        stub_const('CONFIG', CONFIG.merge({
+          'ldap_auth_mech' => :md5,
+          'ldap_auth_attr' => 'MD5_userPassword'
+        }))
+      end
+
+      it 'validates a correct password' do
+        expect(UserLdapStrategy.authenticate_with_local("my_password",
+                                                        { 'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"] })).to be true
+      end
+
+      it 'does not validate an incorrect password' do
+        expect(UserLdapStrategy.authenticate_with_local("wrong_pw",
+                                                        { 'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"] })).to be false
+      end
+    end
+
+    context "with an unknown ldap auth method" do
+      it 'does not validate' do
+        expect(UserLdapStrategy.authenticate_with_local("cleartext_pw",
+                                                        { 'CLR_userPassword' => ['cleartext_pw'] })).to be false
+      end
+    end
+
+    context "when 'ldap_auth_attr' is empty" do
+      before do
+        stub_const('CONFIG', CONFIG.merge({
+          'ldap_auth_mech' => :cleartext
+        }))
+      end
+
+      it 'returns false' do
+        expect(UserLdapStrategy.authenticate_with_local("cleartext_pw",
+                                                        { 'CLR_userPassword' => ['cleartext_pw'] })).to be false
+      end
+    end
+  end
 end
