@@ -83,11 +83,6 @@ class Attrib < ApplicationRecord
       (attrib_type.value_count && (attrib_type.value_count != values.length)) # If value_count != values.length
   end
 
-  def cachekey
-    key = "#{attrib_type.attrib_namespace.name}|#{attrib_type.name}"
-    key + "|#{binary}" if binary
-  end
-
   def update_with_associations(values = [], issues = [])
     will_save = false
 
