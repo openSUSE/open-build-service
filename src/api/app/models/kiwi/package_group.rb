@@ -6,7 +6,7 @@ class Kiwi::PackageGroup < ApplicationRecord
   # exist in Active Record, such as "delete"
   enum kiwi_type: %i[bootstrap delete docker image iso lxc oem pxe split testsuite vmx], _prefix: :type
 
-  validates :kiwi_type, presence: true, inclusion: { in: kiwi_types.keys }
+  validates :kiwi_type, presence: true
 
   accepts_nested_attributes_for :packages, reject_if: :all_blank, allow_destroy: true
 end
