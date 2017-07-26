@@ -43,12 +43,12 @@ RSpec.describe "Package" do
       click_link('Home Project')
     end
     click_link('Branch existing package')
-    fill_in 'linked_project', with: 'openSUSE.org:OBS:Server:Unstable'
+    fill_in 'linked_project', with: 'openSUSE.org:openSUSE:Tools'
     fill_in 'linked_package', with: 'build'
     # Do not wait for autocomplete
     page.execute_script("$('input[type=\"submit\"]').prop('disabled', false)")
     click_button('Create Branch')
-    expect(page).to have_content('Service currently running')
+    expect(page).to have_content('build.spec')
   end
 
   it 'should be able to delete' do
