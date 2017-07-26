@@ -1484,6 +1484,9 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.tar(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
 	  $p = "$bin";
+        } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256)?$/) {
+          # esp. for Go builds
+          $p = "$bin";
         } elsif ($bin =~ /\.squashfs$/) {
 	  $p = "$bin";	# for simpleimage builds
 	} elsif ($bin =~ /\.diff\.(?:gz)(?:\.sha256)?$/) {
