@@ -162,9 +162,9 @@ class UserLdapStrategy
     ldap_password = entry[CONFIG['ldap_auth_attr']][0]
 
     case CONFIG['ldap_auth_mech']
-    when :cleartext then
+    when :cleartext
       ldap_password == password
-    when :md5 then
+    when :md5
       ldap_password == "{MD5}" + Base64.encode64(Digest::MD5.digest(password))
     else
       Rails.logger.error("Unknown ldap_auth_mech setting: #{CONFIG['ldap_auth_mech']}")
