@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'ldap'
 
 RSpec.describe UserLdapStrategy do
   let(:dn_string_no_uid)   { 'cn=jsmith,ou=Promotions,dc=noam,dc=com' }
@@ -84,6 +85,59 @@ RSpec.describe UserLdapStrategy do
       it 'returns false' do
         expect(UserLdapStrategy.authenticate_with_local("cleartext_pw",
                                                         { 'CLR_userPassword' => ['cleartext_pw'] })).to be false
+      end
+    end
+  end
+
+  describe '.initialize_ldap_con' do
+    context 'when no ldap_servers are configured' do
+      it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be nil }
+    end
+
+    context 'when ldap servers are configured' do
+      let(:ldap_mock) { double(:ldap) }
+
+      before do
+        stub_const('CONFIG', CONFIG.merge({ 'ldap_servers' => 'my_ldap_server.com' }))
+
+        allow(ldap_mock).to receive(:set_option).with(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF)
+        allow(ldap_mock).to receive(:set_option).with(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
+      end
+
+      context 'for SSL' do
+        before do
+          stub_const('CONFIG', CONFIG.merge({ 'ldap_ssl' => :on }))
+
+          allow(LDAP::SSLConn).to receive(:new).with(
+            'my_ldap_server.com', 636, false
+          ).and_return(ldap_mock)
+        end
+
+        it_should_behave_like 'a ldap connection'
+      end
+
+      context 'configured for TSL' do
+        before do
+          stub_const('CONFIG', CONFIG.merge({ 'ldap_start_tls' => :on }))
+
+          allow(LDAP::SSLConn).to receive(:new).with(
+            'my_ldap_server.com', 636, true
+          ).and_return(ldap_mock)
+        end
+
+        it_should_behave_like 'a ldap connection'
+      end
+
+      context 'not configured for TSL or SSL' do
+        before do
+          stub_const('CONFIG', CONFIG.merge({ 'ldap_ssl' => :off }))
+
+          allow(LDAP::Conn).to receive(:new).with(
+            'my_ldap_server.com', 389
+          ).and_return(ldap_mock)
+        end
+
+        it_should_behave_like 'a ldap connection'
       end
     end
   end
