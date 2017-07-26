@@ -94,6 +94,25 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
           bootinclude: true,
           bootdelete: nil
         )
+        expect(subject.package_groups.last).to have_attributes(
+          kiwi_type: 'delete',
+          pattern_type: nil,
+          profiles: nil
+        )
+        expect(subject.package_groups.last.packages.first).to have_attributes(
+          name: 'e2fsprogss',
+          arch: nil,
+          replaces: nil,
+          bootinclude: nil,
+          bootdelete: nil
+        )
+        expect(subject.package_groups.last.packages.last).to have_attributes(
+          name: 'bbb_base',
+          arch: nil,
+          replaces: nil,
+          bootinclude: nil,
+          bootdelete: nil
+        )
       end
     end
 
