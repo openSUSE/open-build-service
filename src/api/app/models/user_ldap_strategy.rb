@@ -15,146 +15,8 @@ class UserLdapStrategy
     local_permission_check_with_ldap(groups.where("role_id in (?)", roles))
   end
 
-  # This method returns all groups assigned to the given user via ldap - including
-  # the ones he gets by being assigned through group inheritance.
-  def all_groups_ldap(group_ldap)
-    result = Array.new
-    for group in group_ldap
-      result << group.ancestors_and_self
-    end
-
-    result.flatten!
-    result.uniq!
-
-    result
-  end
-
   def groups(user)
     render_grouplist_ldap(Group.all, user.login)
-  end
-
-  # This static method tries to update the entry with the given info in the
-  # active directory server.  Return the error msg if any error occurred
-  def self.update_entry_ldap(login, newlogin, newemail, newpassword)
-    Rails.logger.debug(" Modifying #{login} to #{newlogin} #{newemail} using ldap")
-
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      Rails.logger.info("Unable to connect to LDAP server")
-      return "Unable to connect to LDAP server"
-    end
-    user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
-    dn = String.new
-    ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
-      dn = entry.dn
-    end
-    if dn.empty?
-      Rails.logger.info("User not found in ldap")
-      return "User not found in ldap"
-    end
-
-    # Update mail/password info
-    entry = [
-      LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_mail_attr'], [newemail])
-    ]
-    if newpassword
-      case CONFIG['ldap_auth_mech']
-      when :cleartext then
-        entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [newpassword])
-      when :md5 then
-        entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], ["{MD5}" + Base64.b64encode(Digest::MD5.digest(newpassword)).chomp])
-      end
-    end
-    begin
-      ldap_con.modify(dn, entry)
-    rescue LDAP::ResultError
-      Rails.logger.info("Error #{ldap_con.err} for #{login} mail/password changing")
-      return "Failed to update entry for #{login}: error #{ldap_con.err}"
-    end
-
-    # Update the dn name if it is changed
-    if login != newlogin
-      begin
-        ldap_con.modrdn(dn, "#{CONFIG['ldap_name_attr']}=#{newlogin}", true)
-      rescue LDAP::ResultError
-        Rails.logger.info("Error #{ldap_con.err} for #{login} dn name changing")
-        return "Failed to update dn name for #{login}: error #{ldap_con.err}"
-      end
-    end
-
-    nil
-  end
-
-  # This static method tries to add the new entry with the given name/password/mail info in the
-  # active directory server.  Return the error msg if any error occurred
-  def self.new_entry_ldap(login, password, mail)
-    require 'ldap'
-    Rails.logger.debug("Add new entry for #{login} using ldap")
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      Rails.logger.info("Unable to connect to LDAP server")
-      return "Unable to connect to LDAP server"
-    end
-    case CONFIG['ldap_auth_mech']
-    when :cleartext then
-      ldap_password = password
-    when :md5 then
-      ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
-    end
-    entry = [
-      LDAP.mod(LDAP::LDAP_MOD_ADD, 'objectclass', CONFIG['ldap_object_class']),
-      LDAP.mod(LDAP::LDAP_MOD_ADD, CONFIG['ldap_name_attr'], [login]),
-      LDAP.mod(LDAP::LDAP_MOD_ADD, CONFIG['ldap_auth_attr'], [ldap_password]),
-      LDAP.mod(LDAP::LDAP_MOD_ADD, CONFIG['ldap_mail_attr'], [mail])
-    ]
-    # Added required sn attr
-    if CONFIG.has_key('ldap_sn_attr_required') && CONFIG['ldap_sn_attr_required'] == :on
-      entry << LDAP.mod(LDAP::LDAP_MOD_ADD, 'sn', [login])
-    end
-
-    begin
-      ldap_con.add("#{CONFIG['ldap_name_attr']}=#{login},#{CONFIG['ldap_entry_base']}", entry)
-    rescue LDAP::ResultError
-      Rails.logger.info("Error #{ldap_con.err} for #{login}")
-      return "Failed to add a new entry for #{login}: error #{ldap_con.err}"
-    end
-    nil
-  end
-
-  # This static method tries to delete the entry with the given login in the
-  # active directory server.  Return the error msg if any error occurred
-  def self.delete_entry_ldap(login)
-    Rails.logger.debug("Deleting #{login} using ldap")
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      Rails.logger.info("Unable to connect to LDAP server")
-      return "Unable to connect to LDAP server"
-    end
-    user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
-    dn = String.new
-    ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
-      dn = entry.dn
-    end
-    if dn.empty?
-      Rails.logger.info("User not found in ldap")
-      return "User not found in ldap"
-    end
-    begin
-      ldap_con.delete(dn)
-    rescue LDAP::ResultError
-      Rails.logger.info("Failed to delete: error #{ldap_con.err} for #{login}")
-      return "Failed to delete the entry #{login}: error #{ldap_con.err}"
-    end
-    nil
   end
 
   # This static method tries to find a group with the given gorup_title to check whether the group is in the LDAP server.
@@ -289,46 +151,6 @@ class UserLdapStrategy
     end
 
     result
-  end
-
-  # This static method tries to update the password with the given login in the
-  # active directory server.  Return the error msg if any error occurred
-  def self.change_password_ldap(login, password)
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      Rails.logger.info("Unable to connect to LDAP server")
-      return "Unable to connect to LDAP server"
-    end
-    user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
-    dn = String.new
-    ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
-      dn = entry.dn
-    end
-    if dn.empty?
-      Rails.logger.info("User not found in ldap")
-      return "User not found in ldap"
-    end
-
-    case CONFIG['ldap_auth_mech']
-    when :cleartext then
-      ldap_password = password
-    when :md5 then
-      ldap_password = "{MD5}" + Base64.b64encode(Digest::MD5.digest(password)).chomp
-    end
-    entry = [
-      LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [ldap_password])
-    ]
-    begin
-      ldap_con.modify(dn, entry)
-    rescue LDAP::ResultError
-      Rails.logger.info("Error #{ldap_con.err} for #{login}")
-      return ldap_con.err.to_s
-    end
-
-    return
   end
 
   def self.authenticate_with_local(password, entry)
@@ -481,21 +303,6 @@ class UserLdapStrategy
                       expires_in: 2.minutes)
     Rails.logger.debug("login success for checking with ldap server")
     ldap_info
-  end
-
-  def groups_ldap
-    Rails.logger.debug "List the groups #{login} is in"
-    ldapgroups = Array.new
-    # check with LDAP
-    if Configuration.ldapgroup_enabled?
-      grouplist = Group.all
-      begin
-        ldapgroups = UserLdapStrategy.render_grouplist_ldap(grouplist, login)
-      rescue Exception
-        Rails.logger.info "Error occurred in searching user_group in ldap."
-      end
-    end
-    ldapgroups
   end
 
   def user_in_group_ldap?(user, group)
