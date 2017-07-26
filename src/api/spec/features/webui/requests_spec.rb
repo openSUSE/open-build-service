@@ -229,4 +229,31 @@ RSpec.feature "Requests", type: :feature, js: true do
       expect(page).to have_text("Request #{request_2.id} (new)")
     end
   end
+
+  describe 'shows the correct auto accepted message' do
+    before do
+      bs_request.accept_at = Time.now
+      bs_request.save
+    end
+
+    scenario 'when request is in a final state' do
+      bs_request.state = :accepted
+      bs_request.save
+      visit request_show_path(bs_request)
+      expect(page).to have_text("Auto-accept was set to #{I18n.localize bs_request.accept_at, format: :only_date}.")
+    end
+
+    scenario 'when request auto_accept is in the past and not in a final state' do
+      visit request_show_path(bs_request)
+      expect(page).to have_text("This request will be automatically accepted when it enters the 'new' state.")
+    end
+
+    scenario 'when request auto_accept is in the future and not in a final state' do
+      bs_request.accept_at = DateTime.now + 1.day
+      bs_request.save
+      visit request_show_path(bs_request)
+      expect(page).
+        to have_text("This request will be automatically accepted in #{ApplicationController.helpers.time_ago_in_words(bs_request.accept_at)}.")
+    end
+  end
 end
