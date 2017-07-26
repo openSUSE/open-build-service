@@ -32,7 +32,7 @@ class Kiwi::Image < ApplicationRecord
 
   #### Validations macros
   validates :name, presence: true
-  accepts_nested_attributes_for :repositories
+  accepts_nested_attributes_for :repositories, allow_destroy: true
   accepts_nested_attributes_for :package_groups, allow_destroy: true
   accepts_nested_attributes_for :kiwi_packages, allow_destroy: true
 

@@ -8,7 +8,7 @@
       = @image.name
     %ul.horizontal-list
       %li
-        = link_to(sprited_text('brick_edit', 'Edit image'), edit_kiwi_image_path(@image))
+        = button_tag('Save', id: 'kiwi-image-update-form-save', type: 'button', disabled: true)
 
   .grid_16.alpha.omega.box.box-shadow
     %h3 Repositories
@@ -28,8 +28,27 @@
       %p There are no packages.
     - else
       %div
-        = f.fields_for @image.default_package_group do |package_group_fields|
+        = f.fields_for :package_groups, @image.default_package_group do |package_group_fields|
           = package_group_fields.fields_for :packages do |kiwi_package_fields|
             = render 'package_fields', f: kiwi_package_fields
           %p
             = link_to_add_association 'Add package', package_group_fields, :packages
+
+:javascript
+  function save_image() {
+    $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
+      dataType: 'json',
+      success: function(json) {
+        var is_outdated = json['is_outdated'];
+        if (is_outdated && !confirm("This image has been modified while you were editing it.\nDo you want to apply the changes anyway?"))
+          return;
+        $('#kiwi-image-update-form').submit();
+      }
+    });
+  }
+
+  $('#kiwi-image-update-form-save').click(save_image);
+
+  $('#kiwi-image-update-form').change(function() {
+    $(this).find('#kiwi-image-update-form-save').prop('disabled', false);
+  });

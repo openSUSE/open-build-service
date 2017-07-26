@@ -52,6 +52,7 @@ module Webui
       def image_params
         repositories_attributes = [
           :id,
+          :_destroy,
           :priority,
           :repo_type,
           :source_path,
