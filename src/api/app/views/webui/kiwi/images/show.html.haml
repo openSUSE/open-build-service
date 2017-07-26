@@ -22,6 +22,10 @@
   - if @image.kiwi_packages.empty?
     %p There are no packages.
   - else
-    %p
-      %strong
-        = @image.kiwi_packages.pluck(:name).join(', ')
+    %div
+      = form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
+        = f.fields_for @image.default_package_group do |package_group_fields|
+          = package_group_fields.fields_for :packages do |kiwi_package_fields|
+            = render 'package_fields', f: kiwi_package_fields
+          %p
+            = link_to_add_association 'Add package', package_group_fields, :packages

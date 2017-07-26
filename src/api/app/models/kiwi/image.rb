@@ -129,6 +129,10 @@ class Kiwi::Image < ApplicationRecord
 
     package.kiwi_image_outdated?
   end
+
+  def default_package_group
+    package_groups.find_or_create_by(kiwi_type: :image, pattern_type: 'onlyRequired')
+  end
 end
 
 # == Schema Information
