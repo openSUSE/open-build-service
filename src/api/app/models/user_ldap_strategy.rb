@@ -359,7 +359,7 @@ class UserLdapStrategy
   # convert distinguished name to user principal name
   # see also: http://technet.microsoft.com/en-us/library/cc977992.aspx
   def self.dn2user_principal_name(dn)
-    upn = String.new
+    upn = ''
     # implicitly convert array to string
     dn = [dn].flatten.join(',')
     begin
@@ -370,6 +370,7 @@ class UserLdapStrategy
     rescue
       # if we run into unexpected input just return an empty string
     end
+
     upn
   end
 
@@ -500,9 +501,9 @@ class UserLdapStrategy
   def user_in_group_ldap?(user, group)
     grouplist = []
     if group.kind_of? String
-      grouplist.push Group.find_by_title(group)
+      grouplist << Group.find_by_title(group)
     else
-      grouplist.push group
+      grouplist << group
     end
 
     begin
@@ -514,25 +515,15 @@ class UserLdapStrategy
   end
 
   def local_permission_check_with_ldap(group_relationships)
-    group_relationships.each do |r|
-      return false if r.group.nil?
-      # check whether current user is in this group
-      return true if user_in_group_ldap?(login, r.group)
-    end
-    Rails.logger.info "Failed with local_permission_check_with_ldap"
-    false
+    relationship_groups_contains_user?(group_relationships, 'local_permission_check_with_ldap')
   end
 
   def local_role_check_with_ldap(role, object)
     Rails.logger.debug "Checking role with ldap: object #{object.name}, role #{role.title}"
-    rels = object.relationships.groups.where(role_id: role.id).includes(:group)
-    for rel in rels
-      return false if rel.group.nil?
-      # check whether current user is in this group
-      return true if user_in_group_ldap?(login, rel.group)
-    end
-    Rails.logger.info "Failed with local_role_check_with_ldap"
-    false
+
+    relationship_groups_contains_user?(
+      object.relationships.groups.where(role_id: role.id).includes(:group), 'local_role_check_with_ldap'
+    )
   end
 
   # this method returns a ldap object using the provided user name
@@ -590,5 +581,19 @@ class UserLdapStrategy
     end
     Rails.logger.debug("Bound as #{user_name}")
     conn
+  end
+
+  private
+
+  def relationship_groups_contains_user?(relationships, method_name)
+    relationships.each do |relationship|
+      return false if relationship.group.nil?
+      # check whether current user is in this group
+      return true if user_in_group_ldap?(login, relationship.group)
+    end
+
+    Rails.logger.info "Failed with #{method_name}"
+
+    false
   end
 end
