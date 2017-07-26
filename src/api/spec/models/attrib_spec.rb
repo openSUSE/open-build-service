@@ -5,6 +5,10 @@ RSpec.describe Attrib, :type => :model do
   let(:project) { create(:project) }
   let(:package) { create(:package) }
 
+  describe "#fullname" do
+    it { expect(attribute.fullname).to eq("#{attribute.namespace}:#{attribute.name}") }
+  end
+
   context "#container=" do
     context "assigning a project" do
       before do
