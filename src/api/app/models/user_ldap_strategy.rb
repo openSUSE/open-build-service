@@ -41,14 +41,13 @@ class UserLdapStrategy
     if @@ldap_search_con.nil?
       @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
     end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
+    if @@ldap_search_con.nil?
       Rails.logger.info("Unable to connect to LDAP server")
       return
     end
     Rails.logger.debug("Search: #{filter}")
-    result = Array.new
-    ldap_con.search(search_base, LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
+    result = []
+    @@ldap_search_con.search(search_base, LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
       result << entry.dn
       result << entry.attrs
     end
