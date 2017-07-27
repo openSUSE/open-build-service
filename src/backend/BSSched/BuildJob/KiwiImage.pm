@@ -129,7 +129,21 @@ sub check {
     }
   }
   return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
-  $pool->createwhatprovides();
+
+  my $unorderedrepos = 0;
+  if (!grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []}) {
+    if ($bconf->{"expandflags:unorderedimagerepos"} || grep {$_ eq '--unorderedimagerepos'} @{$info->{'dep'} || []}) {
+      $unorderedrepos = 1;
+      return ('broken', 'repo must have a path for unorderedrepos mode') unless $repo->{'path'};
+    }
+  }
+  if ($unorderedrepos) {
+    return('broken', 'perl-BSSolv does not support unordered repos') unless defined &BSSolv::repo::setpriority;
+    $pool->createwhatprovides(1);
+  } else {
+    $pool->createwhatprovides();
+  }
+
   my $bconfignore = $bconf->{'ignore'};
   my $bconfignoreh = $bconf->{'ignoreh'};
   delete $bconf->{'ignore'};
@@ -250,7 +264,7 @@ sub check {
   push @new_meta, $cmeta if $cmeta;
   @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
-  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-image', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp ]);
+  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-image', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp, $unorderedrepos ]);
   if ($BSConfig::enable_download_on_demand && $state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;
@@ -273,7 +287,8 @@ sub build {
   my $edep2pkg = $data->[3];
   my $cbdep = $data->[4];
   my $cprp = $data->[5];
-  my $reason = $data->[6];
+  my $unorderedrepos = $data->[6];
+  my $reason = $data->[7];
 
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
@@ -291,7 +306,11 @@ sub build {
     $ctx->{'containerpath'} = [ $cprp ] if $cbdep && $cprp;
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
-  if ($ctx->{'dobuildinfo'}) {
+
+  # clone the ctx so we can change it
+  $ctx = bless { %$ctx, 'realctx' => $ctx}, ref($ctx);
+
+  if ($ctx->{'dobuildinfo'} || $unorderedrepos) {
     # need to dump the image packages first...
     my @bdeps;
     for my $n (@$edeps) {
@@ -300,21 +319,25 @@ sub build {
       my $d = $epool->pkg2data($p);
       my $prp = $epool->pkg2reponame($p);
       ($b->{'project'}, $b->{'repository'}) = split('/', $prp, 2) if $prp;
-      $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
-      $b->{'version'} = $d->{'version'};
-      $b->{'release'} = $d->{'release'} if defined $d->{'release'};
-      $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
+      if ($ctx->{'dobuildinfo'}) {
+        $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+        $b->{'version'} = $d->{'version'};
+        $b->{'release'} = $d->{'release'} if defined $d->{'release'};
+        $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
+      }
       $b->{'noinstall'} = 1;
       push @bdeps, $b;
     }
+    $ctx->{'extrabdeps'} = \@bdeps;
     $edeps = [];
-    push @bdeps, $cbdep if $cbdep;
-    $ctx = bless { %$ctx, 'extrabdeps' => \@bdeps, 'realctx' => $ctx}, ref($ctx);
-    $ctx->{'containerpath'} = [ $cprp ] if $cbdep && $cprp;
-  } elsif ($cbdep) {
-    $ctx = bless { %$ctx, 'extrabdeps' => [ $cbdep ], 'realctx' => $ctx}, ref($ctx);
-    $ctx->{'containerpath'} = [ $cprp ] if $cbdep && $cprp;
   }
+
+  # add container deps
+  if ($cbdep) {
+    push @{$ctx->{'extrabdeps'}}, $cbdep;
+    $ctx->{'containerpath'} = [ $cprp ] if $cprp;
+  }
+
   # repo has a configured path, expand kiwi build system with it
   return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
 }
