@@ -21,7 +21,7 @@ class UserLdapStrategy
 
   # This static method tries to find a group with the given gorup_title to check whether the group is in the LDAP server.
   def self.find_group_with_ldap(group)
-    result = search_ldap(CONFIG['ldap_group_search_base'], group)
+    result = search_ldap(group)
     if result.nil?
       Rails.logger.info("Fail to find group: #{group} in LDAP")
       return false
@@ -32,7 +32,7 @@ class UserLdapStrategy
   end
 
   # This static method performs the search with the given search_base, filter
-  def self.search_ldap(search_base, group)
+  def self.search_ldap(group)
     if @@ldap_search_con.nil?
       @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
     end
@@ -43,7 +43,7 @@ class UserLdapStrategy
     filter = ldap_group_filter(group)
     Rails.logger.debug("Search: #{filter}")
     result = []
-    @@ldap_search_con.search(search_base, LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
+    @@ldap_search_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
       result << entry.dn
       result << entry.attrs
     end
