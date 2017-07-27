@@ -9,6 +9,18 @@ RSpec.describe Attrib, :type => :model do
     it { expect(attribute.fullname).to eq("#{attribute.namespace}:#{attribute.name}") }
   end
 
+  describe "#container" do
+    context "attribute with project" do
+      it { expect(attribute.container).to eq(attribute.project) }
+    end
+
+    context "attribute with package" do
+      let(:attribute_with_package) { create(:attrib, package: package) }
+
+      it { expect(attribute_with_package.container).to eq(package) }
+    end
+  end
+
   context "#container=" do
     context "assigning a project" do
       before do
