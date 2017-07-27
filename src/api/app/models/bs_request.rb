@@ -941,8 +941,8 @@ class BsRequest < ApplicationRecord
   end
 
   def self.delayed_auto_accept
-    BsRequest.to_accept.each do |r|
-      r.delay.auto_accept
+    to_accept.each do |request|
+      BsRequestAutoAcceptJob.perform_later(request.id)
     end
   end
 
