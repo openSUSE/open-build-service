@@ -35,7 +35,7 @@
             = link_to_add_association 'Add package', package_group_fields, :packages
 
 :javascript
-  function save_image() {
+  function saveImage() {
     $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
       dataType: 'json',
       success: function(json) {
@@ -47,7 +47,7 @@
     });
   }
 
-  $('#kiwi-image-update-form-save').click(save_image);
+  $('#kiwi-image-update-form-save').click(saveImage);
 
   function enableSave(){
     $('#kiwi-image-update-form-save').prop('disabled', false);
