@@ -3154,6 +3154,14 @@ sub copyproject {
 	delete $lastorev->{'rev'};
 	$lastorev = BSFileDB::fdb_add_i("$projectsdir/$oprojid.pkg/$packid.rev", $srcrevlay, $lastorev);
       }
+      if ($packid ne '_product') {
+	my $omb = BSSrcServer::Multibuild::getmultibuild($oprojid, $packid);
+	my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $packid);
+	if ($mb || $omb) {
+          BSSrcServer::Multibuild::setmultibuild($projid, $packid, $mb);
+          notify_repservers('package', $projid, $packid) if $cgi->{'withbinaries'};
+	}
+      }
     }
     # XXX: does this make any sense?
     if ($cgi->{'withbinaries'}) {
@@ -3164,21 +3172,23 @@ sub copyproject {
 	  next unless grep {$_ eq $arch} @{$orepo->{'arch'} || []};
 
 	  # same source and target repo/arch in both projects exists
-	  my @args;
-	  push @args, "cmd=copy";
-	  push @args, "oproject=$oprojid";
-	  push @args, "opackage=$packid"; # same package name
-	  push @args, "orepository=$repo->{'name'}"; # same repo name
-	  push @args, 'resign=1' if $cgi->{'resign'};
-	  my $param = {
-	    'uri' => "$reposerver/build/$projid/$repo->{'name'}/$arch/$packid",
-	    'request' => 'POST',
-	  };
-	  eval {
-	    # ignore failures for now
-	    BSWatcher::rpc($param, undef, @args);
-	  };
-          warn($@) if $@;
+	  for my $mpackid (BSSrcServer::Multibuild::addmultibuildpackages($projid, undef, $packid)) {
+	    my @args;
+	    push @args, "cmd=copy";
+	    push @args, "oproject=$oprojid";
+	    push @args, "opackage=$mpackid"; # same package name
+	    push @args, "orepository=$repo->{'name'}"; # same repo name
+	    push @args, 'resign=1' if $cgi->{'resign'};
+	    my $param = {
+	      'uri' => "$reposerver/build/$projid/$repo->{'name'}/$arch/$mpackid",
+	      'request' => 'POST',
+	    };
+	    eval {
+	      # ignore failures for now
+	      BSWatcher::rpc($param, undef, @args);
+	    };
+	    warn($@) if $@;
+	  }
 	}
       }
     }
