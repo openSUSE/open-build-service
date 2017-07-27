@@ -37,7 +37,7 @@ class UserLdapStrategy
   end
 
   # This static method performs the search with the given search_base, filter
-  def self.search_ldap(search_base, filter, required_attr = nil)
+  def self.search_ldap(search_base, filter)
     if @@ldap_search_con.nil?
       @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
     end
@@ -51,9 +51,6 @@ class UserLdapStrategy
     ldap_con.search(search_base, LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
       result << entry.dn
       result << entry.attrs
-      if required_attr && entry.attrs.include?(required_attr)
-        result << entry.vals(required_attr)
-      end
     end
 
     return if result.empty?
