@@ -139,13 +139,14 @@ sub prunemultibuild {
 
 sub getmultibuild {
   my ($projid, $packid) = @_;
-  return undef if $packid =~ /:/;		# master packages only
+  return undef if $packid eq '_product' || $packid =~ /:/;	# master packages only
   my $mc = getcache($projid);
   return $mc->{$packid};
 }
 
 sub setmultibuild {
   my ($projid, $packid, $mb) = @_;
+  return if $packid eq '_product' || $packid =~ /:/;		# master packages only
   local *F;
   BSUtil::lockopen(\*F, '>>', "$projectsdir/$projid.pkg/:multibuild");
   my $mc = getcache($projid, 1);
