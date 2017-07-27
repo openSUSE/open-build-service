@@ -76,4 +76,31 @@ RSpec.describe Attrib, :type => :model do
       it { expect(attribute_with_package.project).to eq(package.project) }
     end
   end
+
+  describe "#update_with_associations" do
+    context "without issues and without values" do
+      it { expect(attribute.update_with_associations).to be false }
+
+      context "add an issue" do
+        let(:issue_tracker) { create(:issue_tracker) }
+        let(:issue) { create(:issue, issue_tracker_id: issue_tracker.id) }
+        let(:attrib_type_issue) { create(:attrib_type_with_namespace, issue_list: true) }
+        let(:attribute_with_type_issue) { create(:attrib, project: project, attrib_type: attrib_type_issue ) }
+
+        subject { attribute_with_type_issue.update_with_associations([], [issue]) }
+
+        it { expect(subject).to be true }
+        it { expect{ subject }.to change{ attribute_with_type_issue.issues.count }.by(1) }
+      end
+
+      context "add a value" do
+        let(:attrib_value) { build(:attrib_value) }
+
+        subject { attribute.update_with_associations([attrib_value], []) }
+
+        it { expect(subject).to be true }
+        it { expect{ subject }.to change{ attribute.values.count }.by(1) }
+      end
+    end
+  end
 end
