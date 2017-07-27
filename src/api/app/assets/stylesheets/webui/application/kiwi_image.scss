@@ -3,8 +3,17 @@
 }
 
 .kiwi_fields {
-  margin-left: 20px;
-  margin-top: 10px;
+  margin-left: 10px;
+  margin-top: 5px;
   display: inline-block;
+}
+
+.kiwi_list_item {
   font-weight: bold;
+  padding: 5px;
+  &:hover {
+    color: #fff;
+    background-color: #690;
+    border-radius: 3px;
+  }
 }

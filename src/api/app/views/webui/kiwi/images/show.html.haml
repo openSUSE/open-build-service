@@ -10,7 +10,7 @@
       %li
         = button_tag('Save', id: 'kiwi-image-update-form-save', type: 'button', disabled: true)
 
-  .grid_16.alpha.omega.box.box-shadow
+  .grid_16.alpha.omega.box.box-shadow{ id: 'kiwi_repositories_list' }
     %h3 Repositories
     - if @image.repositories.empty?
       %p There are no repositories.
@@ -19,8 +19,7 @@
         = f.fields_for :repositories do |repository_fields|
           = render 'repository_fields', f: repository_fields
         %p
-          = link_to_add_association 'Add repository', f, :repositories
-
+          = link_to_add_association(sprite_tag("drive_add", title: 'Add repository') + ' Add repository', f, :repositories)
 
   .grid_16.alpha.omega.box.box-shadow
     %h3 Packages
@@ -32,9 +31,10 @@
           = package_group_fields.fields_for :packages do |kiwi_package_fields|
             = render 'package_fields', f: kiwi_package_fields
           %p
-            = link_to_add_association 'Add package', package_group_fields, :packages
+            = link_to_add_association(sprite_tag("package_add", title: 'Add package') + ' Add package', package_group_fields, :packages)
 
 :javascript
+  // Save image
   function saveImage() {
     $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
       dataType: 'json',
@@ -49,9 +49,62 @@
 
   $('#kiwi-image-update-form-save').click(saveImage);
 
+  // Enable save button
   function enableSave(){
     $('#kiwi-image-update-form-save').prop('disabled', false);
   }
 
   $('#kiwi-image-update-form').change(enableSave);
   $('.remove_fields').click(enableSave);
+
+  // Show edit dialog
+  $('.repository_edit').click(function(){
+    var dialog = $("#repository_edit_" + $(this).attr("data-id"));
+    dialog.removeClass('hidden');
+    $('.overlay').show();
+  });
+
+  $('.close-dialog').click(function(){
+    var dialog = $(this).parents('.dialog');
+    var name = $("#repository_name_" + dialog.attr("data-id"));
+    name.text("ana");
+  });
+
+  // Edit dialog for Repositories
+  function editDialog(){
+    var fields = $(this).parents('.nested-fields');
+    var dialog = fields.find('.dialog');
+    dialog.removeClass('hidden');
+    $('.overlay').show();
+  }
+  $('.repository_edit').click(editDialog);
+
+  function closeDialog(){
+    var fields = $(this).parents('.nested-fields');
+    var name = fields.find(".kiwi_repository_name");
+    var dialog = fields.find('.dialog');
+    var alias = dialog.find("[id$='alias']");
+    if (alias.val() != '') {
+      name.text(alias.val());
+    }
+    else {
+      var source_path = dialog.find("[id$='source_path']");
+      name.text(source_path.val().replace(/\//g, '_'));
+    }
+    $('.overlay').hide();
+    dialog.addClass('hidden');
+  }
+  $('#kiwi_repositories_list .close-dialog').click(closeDialog);
+
+  function hoverListItem() {
+    $(this).find('.kiwi_actions').toggle();
+  }
+  $('.kiwi_list_item').hover(hoverListItem, hoverListItem);
+
+  // After inserting new repositories add the Callbacks
+  $('#kiwi_repositories_list').on('cocoon:after-insert', function(e, addedFields) {
+    $('.overlay').show();
+    $(addedFields).find('.repository_edit').click(editDialog);
+    $(addedFields).find('.close-dialog').click(closeDialog);
+    $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
+  });
