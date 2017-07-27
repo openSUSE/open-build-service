@@ -74,7 +74,7 @@ class UserLdapStrategy
 
     if user
       # search user
-      if CONFIG.has_key?('ldap_user_filter')
+      if CONFIG['ldap_user_filter']
         filter = "(&(#{CONFIG['ldap_search_attr']}=#{user})#{CONFIG['ldap_user_filter']})"
       else
         filter = "(#{CONFIG['ldap_search_attr']}=#{user})"
@@ -83,7 +83,7 @@ class UserLdapStrategy
       user_memberof_attr = String.new
       ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         user_dn = entry.dn
-        if CONFIG.has_key?('ldap_user_memberof_attr') && entry.attrs.include?(CONFIG['ldap_user_memberof_attr'])
+        if CONFIG['ldap_user_memberof_attr'].in?(entry.attrs)
           user_memberof_attr = entry.vals(CONFIG['ldap_user_memberof_attr'])
         end
       end
@@ -121,7 +121,7 @@ class UserLdapStrategy
       Rails.logger.debug("Search group: #{filter}")
       ldap_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         group_dn = entry.dn
-        if CONFIG.has_key?('ldap_group_member_attr') && entry.attrs.include?(CONFIG['ldap_group_member_attr'])
+        if CONFIG['ldap_group_member_attr'].in?(entry.attrs)
           group_member_attr = entry.vals(CONFIG['ldap_group_member_attr'])
         end
       end
@@ -213,40 +213,35 @@ class UserLdapStrategy
     # @@ldap_search_con.bound? doesn't catch it as well. So when an error occurs, we
     # simply it try it a seccond time, which forces the ldap connection to
     # reinitialize (@@ldap_search_con is unbound and nil).
-    ldap_first_try = true
     user = nil
     user_filter = String.new
-    1.times do
-      if @@ldap_search_con.nil?
-        @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-      end
-      ldap_con = @@ldap_search_con
-      if ldap_con.nil?
-        Rails.logger.info("Unable to connect to LDAP server")
-        return
-      end
 
-      if CONFIG.has_key?('ldap_user_filter')
-        user_filter = "(&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
-      else
-        user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
-      end
-      Rails.logger.debug("Search for #{CONFIG['ldap_search_base']} #{user_filter}")
-      begin
-        ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
-          user = entry.to_hash
-        end
-      rescue
-        Rails.logger.info("Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}")
-        @@ldap_search_con.unbind
-        @@ldap_search_con = nil
-        if ldap_first_try
-          ldap_first_try = false
-          redo
-        end
-        return
-      end
+    if @@ldap_search_con.nil?
+      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
     end
+    ldap_con = @@ldap_search_con
+    if ldap_con.nil?
+      Rails.logger.info("Unable to connect to LDAP server")
+      return
+    end
+
+    if CONFIG.has_key?('ldap_user_filter')
+      user_filter = "(&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
+    else
+      user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
+    end
+    Rails.logger.debug("Search for #{CONFIG['ldap_search_base']} #{user_filter}")
+    begin
+      ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
+        user = entry.to_hash
+      end
+    rescue
+      Rails.logger.info("Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}")
+      @@ldap_search_con.unbind
+      @@ldap_search_con = nil
+      return
+    end
+
     if user.nil?
       Rails.logger.info("User not found in ldap")
       return
@@ -301,15 +296,10 @@ class UserLdapStrategy
   end
 
   def user_in_group_ldap?(user, group)
-    grouplist = []
-    if group.kind_of? String
-      grouplist << Group.find_by_title(group)
-    else
-      grouplist << group
-    end
+    group = (group.kind_of?(String) ? Group.find_by_title(group) : group)
 
     begin
-      render_grouplist_ldap(grouplist, user).any?
+      render_grouplist_ldap([group], user).any?
     rescue Exception
       Rails.logger.info "Error occurred in searching user_group in ldap."
       false
@@ -335,10 +325,9 @@ class UserLdapStrategy
     require 'ldap'
     ldap_servers = CONFIG['ldap_servers'].split(":")
 
-    max_ldap_attempts = CONFIG.has_key?('ldap_max_attempts') ? CONFIG['ldap_max_attempts'] : 10
     # Do 10 attempts to connect to one of the configured LDAP servers. LDAP server
     # to connect to is chosen randomly.
-    max_ldap_attempts.times do
+    (CONFIG['ldap_max_attempts'] || 10).times do
       server = ldap_servers[rand(ldap_servers.length)]
       conn = try_ldap_con(server, user_name, password)
 
@@ -370,7 +359,7 @@ class UserLdapStrategy
         conn = LDAP::Conn.new(server, port)
       end
       conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
-      if CONFIG.has_key?('ldap_referrals') && CONFIG['ldap_referrals'] == :off
+      if CONFIG['ldap_referrals'] == :off
         conn.set_option(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF)
       end
       conn.bind(user_name, password)
