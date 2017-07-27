@@ -62,4 +62,18 @@ RSpec.describe Attrib, :type => :model do
       end
     end
   end
+
+  describe "#project" do
+    context "attribute with project" do
+      let(:attribute_with_project) { create(:attrib, project: project) }
+
+      it { expect(attribute_with_project.project).to eq(project) }
+    end
+
+    context "attribute with package" do
+      let(:attribute_with_package) { create(:attrib, package: package) }
+
+      it { expect(attribute_with_package.project).to eq(package.project) }
+    end
+  end
 end
