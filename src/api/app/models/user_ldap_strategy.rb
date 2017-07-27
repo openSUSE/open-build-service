@@ -59,6 +59,7 @@ class UserLdapStrategy
     return if result.empty?
     result
   end
+  private_class_method :search_ldap
 
   # This static method performs the search with the given grouplist, user to return the groups that the user in
   def self.render_grouplist_ldap(grouplist, user = nil)
