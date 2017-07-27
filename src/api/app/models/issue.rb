@@ -57,8 +57,7 @@ class Issue < ApplicationRecord
 
   after_create :fetch_issues
   def fetch_issues
-    # inject update jobs after issue got created
-    issue_tracker.delay(queue: 'issuetracking').fetch_issues
+    IssueTrackerFetchIssuesJob.perform_later(issue_tracker.id)
   end
 
   def fetch_updates
