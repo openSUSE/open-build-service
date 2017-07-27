@@ -334,40 +334,40 @@ class UserLdapStrategy
     return unless defined?(CONFIG['ldap_servers'])
     require 'ldap'
     ldap_servers = CONFIG['ldap_servers'].split(":")
-    count = 0
 
     max_ldap_attempts = CONFIG.has_key?('ldap_max_attempts') ? CONFIG['ldap_max_attempts'] : 10
-
-    while count < max_ldap_attempts
-      count += 1
+    # Do 10 attempts to connect to one of the configured LDAP servers. LDAP server
+    # to connect to is chosen randomly.
+    max_ldap_attempts.times do
       server = ldap_servers[rand(ldap_servers.length)]
       conn = try_ldap_con(server, user_name, password)
-      if !conn.nil? && conn.bound?
-        return conn
-      end
+
+      return conn if conn.try(:bound?)
     end
 
     Rails.logger.error("Unable to bind to any LDAP server: #{CONFIG['ldap_servers']}")
     nil
   end
 
+  def self.ldap_port
+    return CONFIG['ldap_port'] if CONFIG['ldap_port']
+
+    CONFIG['ldap_ssl'] == :on ? 636 : 389
+  end
+  private_class_method :ldap_port
+
   def self.try_ldap_con(server, user_name, password)
     # implicitly turn array into string
     user_name = [user_name].flatten.join('')
 
     Rails.logger.debug("Connecting to #{server} as '#{user_name}'")
+    port = ldap_port
+
     begin
-      if CONFIG.has_key?('ldap_ssl') && CONFIG['ldap_ssl'] == :on
-        port = CONFIG.has_key?('ldap_port') ? CONFIG['ldap_port'] : 636
-        conn = LDAP::SSLConn.new(server, port)
+      if CONFIG['ldap_ssl'] == :on || CONFIG['ldap_start_tls'] == :on
+        conn = LDAP::SSLConn.new(server, port, CONFIG['ldap_start_tls'] == :on)
       else
-        port = CONFIG.has_key?('ldap_port') ? CONFIG['ldap_port'] : 389
-        # Use LDAP StartTLS. By default start_tls is off.
-        if CONFIG.has_key?('ldap_start_tls') && CONFIG['ldap_start_tls'] == :on
-          conn = LDAP::SSLConn.new(server, port, true)
-        else
-          conn = LDAP::Conn.new(server, port)
-        end
+        conn = LDAP::Conn.new(server, port)
       end
       conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
       if CONFIG.has_key?('ldap_referrals') && CONFIG['ldap_referrals'] == :off
@@ -375,9 +375,7 @@ class UserLdapStrategy
       end
       conn.bind(user_name, password)
     rescue LDAP::ResultError
-      if !conn.nil? && conn.bound?
-        conn.unbind
-      end
+      conn.unbind if conn.try(:bound?)
       Rails.logger.info("Not bound as #{user_name}: #{conn.err2string(conn.err)}")
       return
     end

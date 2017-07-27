@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'ldap'
 
 RSpec.describe UserLdapStrategy do
   let(:dn_string_no_uid)   { 'cn=jsmith,ou=Promotions,dc=noam,dc=com' }
@@ -84,6 +85,48 @@ RSpec.describe UserLdapStrategy do
       it 'returns false' do
         expect(UserLdapStrategy.authenticate_with_local("cleartext_pw",
                                                         { 'CLR_userPassword' => ['cleartext_pw'] })).to be false
+      end
+    end
+  end
+
+  describe '.initialize_ldap_con' do
+    context 'when no ldap_servers are configured' do
+      it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be nil }
+    end
+
+    context 'when ldap servers are configured' do
+      before do
+        stub_const('CONFIG', CONFIG.merge({ 'ldap_servers' => 'my_ldap_server.com' }))
+      end
+
+      context 'for SSL' do
+        include_context 'setup ldap mock', for_ssl: true
+
+        before do
+          stub_const('CONFIG', CONFIG.merge({ 'ldap_ssl' => :on }))
+        end
+
+        it_should_behave_like 'a ldap connection'
+      end
+
+      context 'configured for TSL' do
+        include_context 'setup ldap mock', for_ssl: true, start_tls: true
+
+        before do
+          stub_const('CONFIG', CONFIG.merge({ 'ldap_start_tls' => :on }))
+        end
+
+        it_should_behave_like 'a ldap connection'
+      end
+
+      context 'not configured for TSL or SSL' do
+        include_context 'setup ldap mock'
+
+        before do
+          stub_const('CONFIG', CONFIG.merge({ 'ldap_ssl' => :off }))
+        end
+
+        it_should_behave_like 'a ldap connection'
       end
     end
   end
