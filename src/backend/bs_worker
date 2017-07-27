@@ -2221,6 +2221,18 @@ sub getbinaries {
   }
   @todo = grep {!/^container:/} @todo if $kiwimode;
 
+  # unordered repositories feature
+  my %todo_origins;
+  if ($kiwimode && $buildinfo->{'syspath'}) {
+    for (@{$buildinfo->{'bdep'} || []}) {
+      next unless $_->{'project'} && $_->{'repository'};
+      next if $_->{'repoarch'} || '' eq 'src';
+      next if $_->{'name'} =~ /^container:/;
+      next if !$_->{'noinstall'} && $_->{'notmeta'};
+      $todo_origins{$_->{'name'}} = "$_->{'project'}/$_->{'repository'}";
+    }
+  }
+
   my %bvls;		# bvl cache, the query is not free
   my ($imagefile, $imagebins);
   if (@todo && !$kiwimode && $preinstallimagedata && $Build::Features::preinstallimage) {
@@ -2246,16 +2258,21 @@ sub getbinaries {
 
   for my $repo (@{$buildinfo->{'path'} || []}) {
     my $ddir = $dir;
+    my $repoprp = "$repo->{'project'}/$repo->{'repository'}";
     if ($kiwimode) {
-      $ddir = "$srcdir/repos/$repo->{'project'}/$repo->{'repository'}";
+      $ddir = "$srcdir/repos/$repoprp";
       mkdir_p($ddir);
     }
-    next if !@todo;
+    my @todo_repo = @todo;
+    if ($kiwimode && %todo_origins) {
+      @todo_repo = grep {!$todo_origins{$_} || $todo_origins{$_} eq $repoprp} @todo_repo;
+    }
+    next if !@todo_repo;
     my $nometa = 0;
     $nometa = 1 if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-    my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, \@todo, $bvls{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"});
+    my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, \@todo_repo, $bvls{"$repoprp/$buildinfo->{'arch'}"});
     for (sort keys %$got) {
       my $gotpkg = $got->{$_};
       $done{$_} = $gotpkg->{'name'};
@@ -2273,7 +2290,7 @@ sub getbinaries {
 	my $f = $got->{$n};
 	if (!$bdep_notmeta{$n}) {
 	  my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
-	  push @meta, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
+	  push @meta, "$id  $repoprp/$n";
 	}
 	if (!$buildinfo->{'syspath'} && !$bdep_noinstall{$n}) {
           if (!-e "$dir/$f->{'name'}") {
