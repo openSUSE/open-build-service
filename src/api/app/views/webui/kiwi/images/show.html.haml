@@ -49,6 +49,9 @@
 
   $('#kiwi-image-update-form-save').click(save_image);
 
-  $('#kiwi-image-update-form').change(function() {
-    $(this).find('#kiwi-image-update-form-save').prop('disabled', false);
-  });
+  function enableSave(){
+    $('#kiwi-image-update-form-save').prop('disabled', false);
+  }
+
+  $('#kiwi-image-update-form').change(enableSave);
+  $('.remove_fields').click(enableSave);
