@@ -18,4 +18,14 @@ RSpec.describe Configuration do
     Configuration.title
     expect(Configuration.count).to eq(1)
   end
+
+  describe '#delayed_write_to_backend' do
+    let(:configuration) { create(:configuration) }
+
+    subject { configuration.delayed_write_to_backend }
+
+    it 'queues a job to write to the backend' do
+      expect { subject }.to have_enqueued_job(ConfigurationWriteToBackendJob).with(configuration.id)
+    end
+  end
 end

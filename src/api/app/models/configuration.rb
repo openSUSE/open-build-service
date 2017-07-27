@@ -96,7 +96,7 @@ class Configuration < ApplicationRecord
   # the database or in migrations when there is no backend
   # running
   def delayed_write_to_backend
-    delay.write_to_backend
+    ConfigurationWriteToBackendJob.perform_later(id)
   end
 
   def write_to_backend
