@@ -45,7 +45,7 @@ module Webui::WebuiHelper
     human_time_ago = time_ago_in_words(time) + ' ago'
 
     if with_fulltime
-      raw("<span title='#{time.utc.strftime('%Y-%m-%d %H:%M UTC')}' class='fuzzy-time'>#{human_time_ago}</span>")
+      raw("<span title='#{l time.utc}' class='fuzzy-time'>#{human_time_ago}</span>")
     else
       human_time_ago
     end

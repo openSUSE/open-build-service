@@ -51,9 +51,9 @@
         <% if @accept_at -%>
             <li><%= sprite_tag('exclamation', title: '') %>
               <% if BsRequest::FINAL_REQUEST_STATES.include?(@state) %>
-                The request auto-accept was set to
-                <span title='<%= @accept_at.utc.strftime('%Y-%m-%d %H:%M UTC') %>' class='fuzzy-time'>
-                  <%= @accept_at.utc.strftime('%Y-%m-%d') %>.
+                Auto-accept was set to
+                <span title='<%= l @accept_at %>' class='fuzzy-time'>
+                  <%= l @accept_at, format: :only_date %>.
                 </span>
               <% elsif @accept_at.past? %>
                 This request will be automatically accepted when it enters the 'new' state.

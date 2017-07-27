@@ -20,4 +20,7 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  time:
+    formats:
+      only_date: '%Y-%m-%d'
+      default: '%Y-%m-%d %H:%M UTC'
