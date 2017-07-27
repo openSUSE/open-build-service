@@ -95,46 +95,35 @@ RSpec.describe UserLdapStrategy do
     end
 
     context 'when ldap servers are configured' do
-      let(:ldap_mock) { double(:ldap) }
-
       before do
         stub_const('CONFIG', CONFIG.merge({ 'ldap_servers' => 'my_ldap_server.com' }))
-
-        allow(ldap_mock).to receive(:set_option).with(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF)
-        allow(ldap_mock).to receive(:set_option).with(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
       end
 
       context 'for SSL' do
+        include_context 'setup ldap mock', for_ssl: true
+
         before do
           stub_const('CONFIG', CONFIG.merge({ 'ldap_ssl' => :on }))
-
-          allow(LDAP::SSLConn).to receive(:new).with(
-            'my_ldap_server.com', 636, false
-          ).and_return(ldap_mock)
         end
 
         it_should_behave_like 'a ldap connection'
       end
 
       context 'configured for TSL' do
+        include_context 'setup ldap mock', for_ssl: true, start_tls: true
+
         before do
           stub_const('CONFIG', CONFIG.merge({ 'ldap_start_tls' => :on }))
-
-          allow(LDAP::SSLConn).to receive(:new).with(
-            'my_ldap_server.com', 636, true
-          ).and_return(ldap_mock)
         end
 
         it_should_behave_like 'a ldap connection'
       end
 
       context 'not configured for TSL or SSL' do
+        include_context 'setup ldap mock'
+
         before do
           stub_const('CONFIG', CONFIG.merge({ 'ldap_ssl' => :off }))
-
-          allow(LDAP::Conn).to receive(:new).with(
-            'my_ldap_server.com', 389
-          ).and_return(ldap_mock)
         end
 
         it_should_behave_like 'a ldap connection'
