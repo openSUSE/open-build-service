@@ -102,10 +102,6 @@ class EventTest < ActionDispatch::IntegrationTest
     assert e.notify_backend
   end
 
-  test 'sent all' do
-    Event::NotifyBackends.trigger_delayed_sent
-  end
-
   test 'cleanup job' do
     firstcount = Event::Base.count
     CleanupEvents.new.perform
