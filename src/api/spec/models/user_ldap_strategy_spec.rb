@@ -130,4 +130,63 @@ RSpec.describe UserLdapStrategy do
       end
     end
   end
+
+  describe '.find_group_with_ldap' do
+    context 'when there is no connection' do
+      it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be false }
+    end
+
+    context 'when there is a connection' do
+      include_context 'setup ldap mock', for_ssl: true
+
+      before do
+        stub_const('CONFIG', CONFIG.merge({
+          'ldap_search_user'      => 'tux',
+          'ldap_search_auth'      => 'tux_password',
+          'ldap_group_title_attr' => 'ldap_group'
+        }))
+
+        allow(ldap_mock).to receive(:bind).with('tux', 'tux_password')
+        allow(ldap_mock).to receive(:bound?).and_return(true)
+      end
+
+      after do
+        # rspec-mocks doubles are not designed to last longer than for one
+        # example. Therefore we have to clear the stored connection.
+        UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
+      end
+
+      context "with 'ldap_group_objectclass_attr' configured" do
+        before do
+          allow(ldap_mock).to receive(:search).with(
+            'ou=OBSGROUPS,dc=EXAMPLE,dc=COM', LDAP::LDAP_SCOPE_SUBTREE, '(&(ldap_group=any_group)(objectclass=groupOfNames))'
+          ).and_yield(double(dn: 'some_dn', attrs: 'some_attr'))
+        end
+
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be true }
+      end
+
+      context "without 'ldap_group_objectclass_attr' configured" do
+        before do
+          stub_const('CONFIG', CONFIG.reject { |key, _| key == 'ldap_group_objectclass_attr' })
+
+          allow(ldap_mock).to receive(:search).with(
+            'ou=OBSGROUPS,dc=EXAMPLE,dc=COM', LDAP::LDAP_SCOPE_SUBTREE, '(ldap_group=any_group)'
+          ).and_yield(double(dn: 'some_dn', attrs: 'some_attr'))
+        end
+
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be true }
+      end
+
+      context 'when there is no result' do
+        before do
+          allow(ldap_mock).to receive(:search).with(
+            'ou=OBSGROUPS,dc=EXAMPLE,dc=COM', LDAP::LDAP_SCOPE_SUBTREE, '(&(ldap_group=any_group)(objectclass=groupOfNames))'
+          )
+        end
+
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be false }
+      end
+    end
+  end
 end
