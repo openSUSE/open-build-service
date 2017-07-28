@@ -11,6 +11,7 @@
 
       .dialog-content
         %p
+          = f.hidden_field :order
           = f.label :repo_type, 'Type:'
           = f.select :repo_type, Kiwi::Repository::REPO_TYPES
           = f.label :priority, 'Priority:'

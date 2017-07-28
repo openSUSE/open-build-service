@@ -61,7 +61,8 @@ module Webui
           :password,
           :prefer_license,
           :imageinclude,
-          :replaceable
+          :replaceable,
+          :order
         ]
 
         package_groups_attributes = [
