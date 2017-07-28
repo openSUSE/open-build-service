@@ -613,4 +613,15 @@ RSpec.describe Package, vcr: true do
       end
     end
   end
+
+  describe '#sources_changed' do
+    let!(:project) { create(:project, name: 'apache') }
+    let!(:package) { create(:package_with_file, name: 'mod_ssl', project: project) }
+
+    subject { package.sources_changed }
+
+    it 'queues a job' do
+      expect { subject }.to have_enqueued_job(PackageUpdateIfDirtyJob).with(package.id)
+    end
+  end
 end
