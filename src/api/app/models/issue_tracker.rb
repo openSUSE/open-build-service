@@ -171,7 +171,7 @@ class IssueTracker < ApplicationRecord
   def self.update_all_issues
     IssueTracker.all.each do |t|
       next unless t.enable_fetch
-      t.delay(queue: "issuetracking").update_issues
+      IssueTrackerUpdateIssuesJob.perform_later(t.id)
     end
   end
 
