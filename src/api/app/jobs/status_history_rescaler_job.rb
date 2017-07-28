@@ -1,6 +1,6 @@
-class StatusHistoryRescaler
+class StatusHistoryRescalerJob < ApplicationJob
   # this is called from a delayed job triggered by clockwork
-  def rescale
+  def perform
     maxtime = StatusHistory.maximum(:time)
     if maxtime
       StatusHistory.where("time < ?", maxtime - 365 * 24 * 3600).delete_all
@@ -43,7 +43,7 @@ class StatusHistoryRescaler
 
     curmintime = StatusHistory.minimum(:time)
 
-    while !allitems.empty?
+    until allitems.empty?
       items = find_start_items(allitems, curmintime + offset)
 
       if items.length > 1

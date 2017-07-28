@@ -22,7 +22,7 @@ module Clockwork
   end
 
   every(49.minutes, 'rescale history') do
-    StatusHistoryRescaler.new.delay.rescale
+    StatusHistoryRescalerJob.perform_later
   end
 
   every(1.day, 'optimize history', thread: true) do
