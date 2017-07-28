@@ -87,7 +87,8 @@ sub check {
   my $prpnotready = $gctx->{'prpnotready'};
   my $neverblock = $ctx->{'isreposerver'} || ($repo->{'block'} || '' eq 'never');
 
-  my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'});
+  my %aprpprios;
+  my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'}, \%aprpprios);
   # get config from kiwi path
   my @configpath = @aprps;
   # always put ourselfs in front
@@ -134,11 +135,11 @@ sub check {
   if (!grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []}) {
     if ($bconf->{"expandflags:unorderedimagerepos"} || grep {$_ eq '--unorderedimagerepos'} @{$info->{'dep'} || []}) {
       $unorderedrepos = 1;
-      return ('broken', 'repo must have a path for unorderedrepos mode') unless $repo->{'path'};
     }
   }
   if ($unorderedrepos) {
     return('broken', 'perl-BSSolv does not support unordered repos') unless defined &BSSolv::repo::setpriority;
+    $_->setpriority($aprpprios{$_->name()} || 0) for $pool->repos();
     $pool->createwhatprovides(1);
   } else {
     $pool->createwhatprovides();
@@ -301,7 +302,7 @@ sub build {
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    $ctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx, 'expander' => $xp}, ref($ctx);
+    $ctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx, 'expander' => $xp, 'unorderedrepos' => $unorderedrepos}, ref($ctx);
     $ctx->{'extrabdeps'} = [ $cbdep ] if $cbdep;
     $ctx->{'containerpath'} = [ $cprp ] if $cbdep && $cprp;
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);

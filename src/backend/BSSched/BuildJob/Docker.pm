@@ -155,6 +155,7 @@ sub check {
 	    }
 	    my ($pr, $rp) = split('/', $urlprp, 2);
 	    push @newpath, {'project' => $pr, 'repository' => $rp};
+	    $newpath[-1]->{'priority'} = $r->{'priority'} if defined $r->{'priority'};
 	  }
 	}
       }
@@ -163,7 +164,9 @@ sub check {
     return ('delayed', 'remotemap entry missing') unless $r;
   }
   
-  my @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$info->{'path'} || []};
+  
+  my %aprpprios;
+  my @aprps = BSSched::BuildJob::expandkiwipath($info, undef, %aprpprios);
 
   # get config from docker path
   my @configpath = @aprps;
@@ -211,11 +214,11 @@ sub check {
   if (!grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []}) {
     if ($bconf->{"expandflags:unorderedimagerepos"} || grep {$_ eq '--unorderedimagerepos'} @{$info->{'dep'} || []}) {
       $unorderedrepos = 1;
-      return ('broken', 'repo must have a path for unorderedrepos mode') unless $repo->{'path'};
     }
   }
   if ($unorderedrepos) {
     return ('broken', 'perl-BSSolv does not support unordered repos') unless defined &BSSolv::repo::setpriority;
+    $_->setpriority($aprpprios{$_->name()} || 0) for $pool->repos();
     $pool->createwhatprovides(1);
   } else {
     $pool->createwhatprovides();
@@ -321,7 +324,7 @@ sub build {
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    $ctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx, 'expander' => $xp}, ref($ctx);
+    $ctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx, 'expander' => $xp, 'unorderedrepos' => $unorderedrepos}, ref($ctx);
     $ctx->{'extrabdeps'} = [ $cbdep ] if $cbdep;
     $ctx->{'containerpath'} = [ $cprp ] if $cbdep && $cprp;
     $ctx->{'containerannotation'} = delete $cbdep->{'annotation'} if $cbdep;

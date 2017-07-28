@@ -2223,7 +2223,7 @@ sub getbinaries {
 
   # unordered repositories feature
   my %todo_origins;
-  if ($kiwimode && $buildinfo->{'syspath'}) {
+  if ($kiwimode) {
     for (@{$buildinfo->{'bdep'} || []}) {
       next unless $_->{'project'} && $_->{'repository'};
       next if $_->{'repoarch'} || '' eq 'src';
@@ -2296,6 +2296,7 @@ sub getbinaries {
           if (!-e "$dir/$f->{'name'}") {
 	    link_or_copy("$ddir/$f->{'name'}", "$dir/$f->{'name'}") || die("link_or_copy $ddir/$f->{'name'} $dir/$f->{'name'}: $!\n");
 	  }
+	  unlink("$ddir/$f->{'name'}") if $bdep_notmeta{$n};
 	}
       }
     }

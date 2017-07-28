@@ -970,6 +970,7 @@ sub create {
   my %edeps = map {$_ => 1} @$edeps;
   my %sysdeps = map {$_ => 1} @sysdeps;
 
+  my $needextradata = $dobuildinfo || $ctx->{'unorderedrepos'};
   @bdeps = BSUtil::unify(@pdeps, @vmdeps, @$edeps, @bdeps, @sysdeps);
   @bdeps = () if $buildtype eq 'buildenv';
   for (@bdeps) {
@@ -983,16 +984,18 @@ sub create {
       $_->{'installonly'} = 1 if $sysdeps{$n} && !$bdeps{$n} && !$kiwimode;
       $_->{'noinstall'} = 1 if $bdeps{$n} && !($sysdeps{$n} || $vmdeps{$n} || $pdeps{$n});
     }
-    if ($dobuildinfo) {
+    if ($needextradata) {
       my $p = $ctx->{'dep2pkg'}->{$n};
       my $prp = $pool->pkg2reponame($p);
       ($_->{'project'}, $_->{'repository'}) = split('/', $prp, 2) if $prp;
-      my $d = $pool->pkg2data($p);
-      $_->{'epoch'}      = $d->{'epoch'} if $d->{'epoch'};
-      $_->{'version'}    = $d->{'version'};
-      $_->{'release'}    = $d->{'release'} if defined $d->{'release'};
-      $_->{'arch'}       = $d->{'arch'} if $d->{'arch'};
-      $_->{'preimghdrmd5'} = $d->{'hdrmd5'} if !$_->{'noinstall'} &&  $d->{'hdrmd5'};
+      if ($dobuildinfo) {
+        my $d = $pool->pkg2data($p);
+        $_->{'epoch'}      = $d->{'epoch'} if $d->{'epoch'};
+        $_->{'version'}    = $d->{'version'};
+        $_->{'release'}    = $d->{'release'} if defined $d->{'release'};
+        $_->{'arch'}       = $d->{'arch'} if $d->{'arch'};
+        $_->{'preimghdrmd5'} = $d->{'hdrmd5'} if !$_->{'noinstall'} &&  $d->{'hdrmd5'};
+      }
     }
   }
   if ($info->{'extrasource'}) {
@@ -1213,14 +1216,19 @@ sub diffsortedmd5 {
 =cut
 
 sub expandkiwipath {
-  my ($info, $prpsearchpath) = @_;
+  my ($info, $prpsearchpath, $prios) = @_;
   my @path;
   for (@{$info->{'path'} || []}) {
     if ($_->{'project'} eq '_obsrepositories') {
       push @path, @{$prpsearchpath || []}; 
     } else {
-      push @path, "$_->{'project'}/$_->{'repository'}";
-    }    
+      my $prp = "$_->{'project'}/$_->{'repository'}";
+      push @path, $prp;
+      if ($prios) {
+        my $prio = $_->{'priority'} || 0;
+        $prios->{$prp} = $prio if !defined($prios->{$prp}) || $prio > $prios->{$prp};
+      }
+    }
   }
   return @path;
 }
