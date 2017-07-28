@@ -21,7 +21,7 @@
         %p
           = link_to_add_association(sprite_tag("drive_add", title: 'Add repository') + ' Add repository', f, :repositories)
 
-  .grid_16.alpha.omega.box.box-shadow
+  .grid_16.alpha.omega.box.box-shadow{ id: 'kiwi_packages_list' }
     %h3 Packages
     - if @image.kiwi_packages.empty?
       %p There are no packages.
@@ -113,5 +113,10 @@
     $('.overlay').show();
     $(addedFields).find('.repository_edit').click(editDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
+    $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
+  });
+
+  // After inserting new packages add the Callbacks
+  $('#kiwi_packages_list').on('cocoon:after-insert', function(e, addedFields) {
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
   });

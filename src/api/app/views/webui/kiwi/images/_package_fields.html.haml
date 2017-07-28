@@ -1,4 +1,7 @@
 .nested-fields.kiwi_fields
-  = f.object.name
-  = f.text_field :name, class: "#{'hidden' if f.object.name.present? }"
-  = link_to_remove_association sprite_tag("req-decline", title: 'remove'), f
+  .kiwi_list_item
+    %span.kiwi_repository_name
+      = f.object.name
+      = f.text_field :name, class: "#{'hidden' if f.object.name.present? }"
+    %span.kiwi_actions.hidden
+      = link_to_remove_association sprite_tag("req-decline", title: 'remove'), f
