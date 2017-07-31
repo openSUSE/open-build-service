@@ -229,7 +229,15 @@ sub set_suf_and_filter_exports {
 sub update_bininfo_merge {
   my ($gdst, $packid, $bininfo) = @_;
   my $gbininfo = {};
-  $gbininfo = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
+  if (-e "$gdst/:bininfo.merge") {
+    if (-s _ > 100000) {
+      # quite big. better merge now.
+      read_gbininfo($gdst);
+      $gbininfo = BSUtil::retrieve("$gdst/:bininfo.merge", 1) if -e "$gdst/:bininfo.merge";
+    } else {
+      $gbininfo = BSUtil::retrieve("$gdst/:bininfo.merge", 1);
+    }
+  }
   if ($gbininfo) {
     if ($bininfo) {
       # currently not needed, maybe later
