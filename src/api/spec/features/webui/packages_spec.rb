@@ -48,7 +48,7 @@ RSpec.feature "Packages", type: :feature, js: true do
 
     scenario 'has derived packages' do
       # Trigger branch creation
-      branched_project
+      branched_project.update_packages_if_dirty
 
       visit package_show_path(project: user.home_project, package: package)
       expect(page).to have_text("1 derived package")
