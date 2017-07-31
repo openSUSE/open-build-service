@@ -896,7 +896,7 @@ class Project < ApplicationRecord
     projects = []
 
     maintained_projects.each do |mp|
-      mp.project.expand_all_projects.each do |p|
+      mp.project.expand_all_projects(allow_remote_projects: false).each do |p|
         projects << p
       end
     end
