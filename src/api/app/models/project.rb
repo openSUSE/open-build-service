@@ -806,18 +806,22 @@ class Project < ApplicationRecord
   end
 
   def exists_package?(name, opts = {})
-    Rails.cache.fetch(['exists_package', cache_key, name, opts]) do
-      if opts[:follow_project_links]
-        pkg = find_package(name)
-      else
-        pkg = packages.find_by_name(name)
+    if opts[:follow_project_links]
+      # Look for any package with name in all our linked projects
+      pkg = Package.find_by(project: expand_linking_to, name: name)
+      # FIXME: Mimics the behavior of find_package below, but why is accesss only
+      # checked in the case of follow_project_links?
+      if pkg
+        return false unless Package.check_access?(pkg)
       end
-      if pkg.nil?
-        # local project, but package may be in a linked remote one
-        opts[:allow_remote_packages] && Package.exists_on_backend?(name, self.name)
-      else # if we could fetch the project, the package is fine accesswise
-        true
-      end
+    else
+      pkg = packages.find_by_name(name)
+    end
+    if pkg.nil?
+      # local project, but package may be in a linked remote one
+      opts[:allow_remote_packages] && Package.exists_on_backend?(name, self.name)
+    else # if we could fetch the project, the package is fine accesswise
+      true
     end
   end
 
@@ -867,6 +871,10 @@ class Project < ApplicationRecord
       all_repositories.concat(repository.expand_all_repositories)
     end
     all_repositories.uniq
+  end
+
+  def expand_linking_to
+    expand_all_projects(allow_remote_projects: false).map(&:id)
   end
 
   def expand_all_projects(project_map: {}, allow_remote_projects: true)
