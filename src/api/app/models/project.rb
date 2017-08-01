@@ -178,7 +178,7 @@ class Project < ApplicationRecord
   end
 
   def self.load_from_remote(project, path)
-    Rails.cache.fetch("remote_image_templates_#{project.cache_key}", expires_in: 1.hour) do
+    Rails.cache.fetch("remote_image_templates_#{project.id}", expires_in: 1.hour) do
       begin
         return ActiveXML.backend.load_external_url("#{project.remoteurl}#{path}")
       rescue OpenSSL::SSL::SSLError

@@ -322,7 +322,7 @@ module Webui::WebuiHelper
     # only care for database entries
     prj = Project.where(name: opts[:project]).select(:id, :name, :updated_at).first
     # Expires in 2 hours so that changes of local and remote packages eventually result in an update
-    Rails.cache.fetch(['project_or_package_link', prj.try(:cache_key), opts], expires_in: 2.hours) do
+    Rails.cache.fetch(['project_or_package_link', prj.try(:id), opts], expires_in: 2.hours) do
       if prj && opts[:creator]
         opts[:project_text] ||= format_projectname(opts[:project], opts[:creator])
       end
