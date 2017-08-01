@@ -1,4 +1,6 @@
-class ProjectLogRotate
+class ProjectLogRotateJob < ApplicationJob
+  queue_as :project_log_rotate
+
   def perform
     event_classes = [Event::Package, Event::Project]
     event_types = event_classes.flat_map(&:descendants).map(&:name)
@@ -18,6 +20,5 @@ class ProjectLogRotate
 
     # Clean up old entries
     ProjectLogEntry.clean_older_than oldest_date
-    true
   end
 end

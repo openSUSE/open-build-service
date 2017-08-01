@@ -37,7 +37,7 @@ module Clockwork
 
   every(30.seconds, 'send notifications') do
     EventNotifyBackend.perform_later
-    SendEventEmails.new.delay(queue: 'mailers').perform
+    SendEventEmailsJob.perform_later
   end
 
   every(17.seconds, 'fetch notifications', thread: true) do
@@ -58,7 +58,7 @@ module Clockwork
   end
 
   every(10.minutes, 'project log rotates') do
-    ProjectLogRotate.new.delay(queue: 'project_log_rotate').perform
+    ProjectLogRotateJob.perform_later
   end
 
   every(1.day, 'clean old events') do

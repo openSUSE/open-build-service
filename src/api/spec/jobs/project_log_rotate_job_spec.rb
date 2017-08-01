@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ProjectLogRotate, type: :job do
+RSpec.describe ProjectLogRotateJob, type: :job do
   include ActiveJob::TestHelper
 
   describe '#perform' do
@@ -19,7 +19,7 @@ RSpec.describe ProjectLogRotate, type: :job do
       end
     end
 
-    subject! { ProjectLogRotate.new.perform }
+    subject! { ProjectLogRotateJob.new.perform }
 
     it 'creates a ProjectLogEntry' do
       expect(ProjectLogEntry.count).to eq(10)

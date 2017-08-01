@@ -1,8 +1,5 @@
-class SendEventEmails
-  # we don't need this outside of the migration - but we need to be able
-  # to load old jobs from the database (and mark their events) before deleting
-  # (see 20151030130011_mark_events)
-  attr_accessor :event
+class SendEventEmailsJob < ApplicationJob
+  queue_as :mailers
 
   def perform
     Event::Base.where(mails_sent: false).order(created_at: :asc).limit(1000).each do |event|

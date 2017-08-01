@@ -80,10 +80,10 @@ class EventTest < ActionDispatch::IntegrationTest
     User.current = users(:Iggy)
     req = bs_requests(:submit_from_home_project)
     myid = req.number
-    SendEventEmails.new.perform # empty queue
+    SendEventEmailsJob.new.perform # empty queue
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview by_user: 'tom', comment: 'Can you check that?'
-      SendEventEmails.new.perform
+      SendEventEmailsJob.new.perform
     end
     email = ActionMailer::Base.deliveries.last
 
@@ -156,10 +156,10 @@ class EventTest < ActionDispatch::IntegrationTest
     User.current = users(:Iggy)
     req = bs_requests(:submit_from_home_project)
     myid = req.number
-    SendEventEmails.new.perform # empty queue
+    SendEventEmailsJob.new.perform # empty queue
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview by_project: 'home:Iggy', by_package: 'TestPack', comment: 'Can you check that?'
-      SendEventEmails.new.perform
+      SendEventEmailsJob.new.perform
     end
     email = ActionMailer::Base.deliveries.last
 
@@ -171,7 +171,7 @@ class EventTest < ActionDispatch::IntegrationTest
     ActionMailer::Base.deliveries.clear
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview by_project: 'Apache', by_package: 'apache2', comment: 'Can you check that?'
-      SendEventEmails.new.perform
+      SendEventEmailsJob.new.perform
     end
     email = ActionMailer::Base.deliveries.last
 

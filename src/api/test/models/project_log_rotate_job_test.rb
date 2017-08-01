@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class ProjectLogRotateTest < ActiveSupport::TestCase
+class ProjectLogRotateJobTest < ActiveSupport::TestCase
   fixtures :all
 
   test "#perform" do
@@ -27,7 +27,7 @@ class ProjectLogRotateTest < ActiveSupport::TestCase
       assert recent_logged_events > 0
       assert old_entries > 0
 
-      ProjectLogRotate.new.perform
+      ProjectLogRotateJob.new.perform
 
       # -1 because one event points to a deleted project
       expected_entries = total_entries - old_entries + recent_events - recent_logged_events - 1
