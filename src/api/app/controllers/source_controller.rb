@@ -1006,7 +1006,10 @@ class SourceController < ApplicationController
       render_ok
     else
       # inject as job
-      @project.delay.do_project_release(params)
+      ProjectDoProjectReleaseJob.perform_later(
+        @project.id,
+        params.slice(:project, :targetproject, :targetreposiory, :repository, :setrelease, :user).permit!.to_h
+      )
       render_invoked
     end
   end
