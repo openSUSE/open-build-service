@@ -37,7 +37,7 @@ module Clockwork
 
   every(30.seconds, 'send notifications') do
     EventNotifyBackend.perform_later
-    SendEventEmails.new.delay(queue: 'mailers').perform
+    SendEventEmailsJob.perform_later
   end
 
   every(17.seconds, 'fetch notifications', thread: true) do

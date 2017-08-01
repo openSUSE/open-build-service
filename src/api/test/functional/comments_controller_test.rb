@@ -87,11 +87,11 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     # body can't be empty
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
-    SendEventEmails.new.perform
+    SendEventEmailsJob.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_request_comment_path(id: 2), params: 'Hallo'
       assert_response :success
-      SendEventEmails.new.perform
+      SendEventEmailsJob.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -103,11 +103,11 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     # just check if adrian gets the mail too - he's a commenter now
     login_dmayr
-    SendEventEmails.new.perform
+    SendEventEmailsJob.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_request_comment_path(id: 2), params: 'Hallo'
       assert_response :success
-      SendEventEmails.new.perform
+      SendEventEmailsJob.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -117,7 +117,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_request_comment_path(id: 2), params: 'Hallo @fred'
       assert_response :success
-      SendEventEmails.new.perform
+      SendEventEmailsJob.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -127,7 +127,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_request_comment_path(id: 2), params: 'Is Fred listening now?'
       assert_response :success
-      SendEventEmails.new.perform
+      SendEventEmailsJob.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -144,11 +144,11 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     # body can't be empty
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
-    SendEventEmails.new.perform
+    SendEventEmailsJob.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_project_comment_path(project: 'Apache'), params: 'Beautiful project'
       assert_response :success
-      SendEventEmails.new.perform
+      SendEventEmailsJob.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -170,11 +170,11 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     # body can't be empty
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
-    SendEventEmails.new.perform
+    SendEventEmailsJob.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_package_comment_path(project: 'kde4', package: 'kdebase'), params: "Hola, estoy aprendiendo español"
       assert_response :success
-      SendEventEmails.new.perform
+      SendEventEmailsJob.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -187,12 +187,12 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_a_comment_that_only_mentioned_people_will_notice
     login_tom
-    SendEventEmails.new.perform
+    SendEventEmailsJob.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       # Trolling
       post create_package_comment_path(project: 'BaseDistro', package: 'pack1'), params: "I preffer Apache1, don't you? @fred"
       assert_response :success
-      SendEventEmails.new.perform
+      SendEventEmailsJob.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
