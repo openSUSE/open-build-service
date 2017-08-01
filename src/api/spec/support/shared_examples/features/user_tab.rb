@@ -113,7 +113,7 @@ RSpec.shared_examples 'user tab' do
       fill_in("Group:", with: other_group.title)
       click_button("Add group")
       expect(page).to have_text("Added group #{other_group.title} with role maintainer")
-      within("#group_table") do
+      within("#group-table") do
         # existing group plus new one
         expect(find_all("tbody tr").count).to eq 2
       end
@@ -124,7 +124,7 @@ RSpec.shared_examples 'user tab' do
       click_button("Add group")
       expect(page).to have_text("Relationship already exists")
       click_link("Users")
-      within("#group_table") do
+      within("#group-table") do
         expect(find_all("tbody tr").count).to eq 2
       end
     end

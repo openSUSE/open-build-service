@@ -195,12 +195,12 @@ function change_role(obj) {
     var role = td.data("role");
 
     var url;
-    var data = {project: $('#involved_users').data("project"), package: $('#involved_users').data("package"), role: role};
+    var data = {project: $('#involved-users').data("project"), package: $('#involved-users').data("package"), role: role};
     data[type + 'id'] = td.data(type);
     if (obj.is(':checked')) {
-        url = $('#involved_users').data("save-" + type);
+        url = $('#involved-users').data("save-" + type);
     } else {
-        url = $('#involved_users').data("remove");
+        url = $('#involved-users').data("remove");
     }
 
     $('#' + type + '_spinner').show();

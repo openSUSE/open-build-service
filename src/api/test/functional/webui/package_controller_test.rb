@@ -236,7 +236,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     fill_in 'groupid', with: 'test_group'
     click_button 'Add group'
     flash_message.must_equal 'Added group test_group with role maintainer'
-    within('#group_table_wrapper') do
+    within('#group-table_wrapper') do
       page.must_have_link 'test_group'
     end
     logout
