@@ -156,7 +156,7 @@ class RequestController < ApplicationController
 
     # cache the diff (in the backend)
     @req.bs_request_actions.each do |a|
-      a.delay.webui_infos
+      BsRequestActionWebuiInfosJob.perform_later(a.id)
     end
 
     render xml: xml
