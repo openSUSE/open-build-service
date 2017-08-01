@@ -62,8 +62,8 @@ module ProjectStatus
         relationships_to_xml(xml, :persons, :person, :userid)
         relationships_to_xml(xml, :groups, :group, :groupid)
 
-        xml.error(error) if @error
-        xml.link(project: @links_to.project, package: @links_to.name) if @links_to
+        xml.error(error) if error
+        xml.link(project: links_to.project, package: links_to.name) if links_to
       end
     end
 
