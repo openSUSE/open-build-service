@@ -58,7 +58,7 @@ module Clockwork
   end
 
   every(10.minutes, 'project log rotates') do
-    ProjectLogRotate.new.delay(queue: 'project_log_rotate').perform
+    ProjectLogRotateJob.perform_later
   end
 
   every(1.day, 'clean old events') do
