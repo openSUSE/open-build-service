@@ -50,11 +50,15 @@
         <% end %>
         <% if @accept_at -%>
             <li><%= sprite_tag('exclamation', title: '') %>
-               <% if Time.now > Time.parse(@accept_at.to_s) %>
-                 This request will get accepted automatically when it enters the 'new' state!
+              <% if BsRequest::FINAL_REQUEST_STATES.include?(@state) %>
+                Auto-accept was set to
+                <span title='<%= l @accept_at %>' class='fuzzy-time'>
+                  <%= l @accept_at, format: :only_date %>.
+                </span>
+              <% elsif @accept_at.past? %>
+                This request will be automatically accepted when it enters the 'new' state.
               <% else %>
-               This request will get accepted in
-              <%= distance_of_time_in_words(Time.now, Time.parse(@accept_at.to_s)) %> automatically!
+                This request will be automatically accepted in <%= time_ago_in_words(@accept_at) %>.
               <% end %>
             </li>
         <% end -%>

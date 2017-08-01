@@ -29,6 +29,8 @@ class BsRequest < ApplicationRecord
     'bs_request_actions.type'
   ]
 
+  FINAL_REQUEST_STATES = %w(accepted declined superseded revoked)
+
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
   # Scopes for collections
   scope :with_actions, -> { includes(:bs_request_actions).references(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
