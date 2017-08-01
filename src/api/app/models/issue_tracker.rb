@@ -16,7 +16,8 @@ class IssueTracker < ApplicationRecord
   DEFAULT_RENDER_PARAMS = {except: [:id, :password, :user, :issues_updated], dasherize: true, skip_types: true, skip_instruct: true}
 
   def self.write_to_backend
-    IssueTracker.first.delay.write_to_backend
+    issue_tracker = IssueTracker.first
+    IssueTrackerWriteToBackendJob.perform_later(issue_tracker.id)
   end
 
   def write_to_backend
@@ -170,7 +171,7 @@ class IssueTracker < ApplicationRecord
   def self.update_all_issues
     IssueTracker.all.each do |t|
       next unless t.enable_fetch
-      t.delay(queue: "issuetracking").update_issues
+      IssueTrackerUpdateIssuesJob.perform_later(t.id)
     end
   end
 
