@@ -620,8 +620,8 @@ RSpec.describe Package, vcr: true do
 
     subject { package.sources_changed }
 
-    it 'queues a job' do
-      expect { subject }.to have_enqueued_job(PackageUpdateIfDirtyJob).with(package.id)
+    it 'creates a BackendPackge for the Package' do
+      expect { subject }.to change { BackendPackage.count }.by(1)
     end
   end
 end
