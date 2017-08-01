@@ -20,12 +20,17 @@ RSpec.describe Configuration do
   end
 
   describe '#delayed_write_to_backend' do
-    let(:configuration) { create(:configuration) }
+    let(:configuration) { build(:configuration) }
 
-    subject { configuration.delayed_write_to_backend }
+    before do
+      allow(Configuration).to receive(:find).and_return(configuration)
+      allow(configuration).to receive(:write_to_backend)
+    end
 
-    it 'queues a job to write to the backend' do
-      expect { subject }.to have_enqueued_job(ConfigurationWriteToBackendJob).with(configuration.id)
+    subject! { configuration.delayed_write_to_backend }
+
+    it 'writes to the backend' do
+      expect(configuration).to have_received(:write_to_backend)
     end
   end
 end
