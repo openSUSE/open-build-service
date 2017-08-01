@@ -191,6 +191,9 @@ class Package < ApplicationRecord
       pkg = prj.packages.find_by_name(package) if pkg.nil?
     end
 
+    # FIXME: Why is this returning nil (the package is not found) if _ANY_ of the
+    # linking projects is remote? What if one of the linking projects is local
+    # and the other one remote?
     if pkg.nil? && opts[:follow_project_links]
       # in case we link to a remote project we need to assume that the
       # backend may be able to find it even when we don't have the package local

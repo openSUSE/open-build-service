@@ -869,7 +869,7 @@ class Project < ApplicationRecord
     all_repositories.uniq
   end
 
-  def expand_all_projects(project_map = {}, allow_remote_projects = true)
+  def expand_all_projects(project_map: {}, allow_remote_projects: true)
     # cycle check
     return [] if project_map[self]
     project_map[self] = 1
@@ -883,7 +883,7 @@ class Project < ApplicationRecord
           projects << lp.linked_remote_project_name
         end
       else
-        lp.linked_db_project.expand_all_projects(project_map, allow_remote_projects).each do |p|
+        lp.linked_db_project.expand_all_projects(project_map: project_map, allow_remote_projects: allow_remote_projects).each do |p|
           projects << p
         end
       end
@@ -896,7 +896,7 @@ class Project < ApplicationRecord
     projects = []
 
     maintained_projects.each do |mp|
-      mp.project.expand_all_projects.each do |p|
+      mp.project.expand_all_projects(allow_remote_projects: false).each do |p|
         projects << p
       end
     end

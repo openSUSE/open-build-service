@@ -87,7 +87,7 @@ class Owner
   end
 
   def self.find_assignees(rootproject, binary_name, limit = 1, devel = true, filter = %w(maintainer bugowner), webui_mode = false)
-    projects = rootproject.expand_all_projects
+    projects = rootproject.expand_all_projects(allow_remote_projects: false)
     instances_without_definition = []
     maintainers = []
     pkg = nil
@@ -146,7 +146,7 @@ class Owner
   end
 
   def self.find_containers_without_definition(rootproject, devel = true, filter = %w(maintainer bugowner))
-    projects = rootproject.expand_all_projects
+    projects = rootproject.expand_all_projects(allow_remote_projects: false)
     roles = []
     filter.each do |f|
       roles << Role.find_by_title!(f)
@@ -204,7 +204,7 @@ class Owner
   end
 
   def self.find_containers(rootproject, owner, devel = true, filter = %w(maintainer bugowner))
-    projects = rootproject.expand_all_projects
+    projects = rootproject.expand_all_projects(allow_remote_projects: false)
 
     roles = []
     filter.each do |f|
@@ -288,7 +288,7 @@ class Owner
     return m, (limit - 1), already_checked if m
 
     # no match, loop about projects below with this package container name
-    pkg.project.expand_all_projects.each do |prj|
+    pkg.project.expand_all_projects(allow_remote_projects: false).each do |prj|
       p = prj.packages.find_by_name(pkg.name )
       next if p.nil? || already_checked[p.id]
 
