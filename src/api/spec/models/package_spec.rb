@@ -613,4 +613,15 @@ RSpec.describe Package, vcr: true do
       end
     end
   end
+
+  describe '#sources_changed' do
+    let!(:project) { create(:project, name: 'apache') }
+    let!(:package) { create(:package_with_file, name: 'mod_ssl', project: project) }
+
+    subject { package.sources_changed }
+
+    it 'creates a BackendPackge for the Package' do
+      expect { subject }.to change { BackendPackage.count }.by(1)
+    end
+  end
 end

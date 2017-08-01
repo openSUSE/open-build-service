@@ -460,7 +460,7 @@ class Package < ApplicationRecord
       retries = 10
       begin
         # NOTE: Its important that this job run in queue 'default' in order to avoid concurrency
-        delay(queue: 'default').update_if_dirty
+        PackageUpdateIfDirtyJob.perform_later(id)
       rescue ActiveRecord::StatementInvalid
         # mysql lock errors in delayed job handling... we need to retry
         retries -= 1
