@@ -64,7 +64,6 @@ module ProjectStatus
       return if mypackages.has_key? dbpack.id
       pack = PackInfo.new(dbpack)
       pack.backend_package = dbpack.backend_package
-      pack.links_to = pack.backend_package.links_to_id
 
       if dbpack.develpackage
         add_recursively(mypackages, dbpack.develpackage)
@@ -91,8 +90,8 @@ module ProjectStatus
       list.each do |project_id, project_name, package_name|
         package_info = mypackages[package_name]
         package_info.project = project_name
-        if package_info.links_to
-          package_info.links_to = mypackages[package_info.links_to]
+        if package_info.links_to_id
+          package_info.links_to = mypackages[package_info.links_to_id]
         end
         projects[project_id] = project_name
       end
