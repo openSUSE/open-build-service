@@ -50,8 +50,8 @@ module ProjectStatus
         opts[:verifymd5] = verifymd5
       end
       xml.package(opts) do
-        fails.each do |repo, tuple|
-          xml.failure(repo: repo, time: tuple[0], srcmd5: tuple[1])
+        fails.each do |repository, _architecture, time, md5|
+          xml.failure(repo: repository, time: time, srcmd5: md5)
         end
         if develpack
           xml.develpack(proj: develpack.project, pack: develpack.name) do
@@ -62,8 +62,8 @@ module ProjectStatus
         relationships_to_xml(xml, :persons, :person, :userid)
         relationships_to_xml(xml, :groups, :group, :groupid)
 
-        xml.error(error) if @error
-        xml.link(project: @links_to.project, package: @links_to.name) if @links_to
+        xml.error(error) if error
+        xml.link(project: links_to.project, package: links_to.name) if links_to
       end
     end
 
