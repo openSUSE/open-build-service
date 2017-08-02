@@ -58,11 +58,11 @@ $(document).ready(function(){
 
   // Edit dialog for Repositories
   $('.repository_edit').click(editDialog);
-  $('#kiwi_repositories_list .close-dialog').click(closeDialog);
+  $('#kiwi-repositories-list .close-dialog').click(closeDialog);
   $('.kiwi_list_item').hover(hoverListItem, hoverListItem);
 
   // After inserting new repositories add the Callbacks
-  $('#kiwi_repositories_list').on('cocoon:after-insert', function(e, addedFields) {
+  $('#kiwi-repositories-list').on('cocoon:after-insert', function(e, addedFields) {
     $('.overlay').show();
     $(addedFields).find('.repository_edit').click(editDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
