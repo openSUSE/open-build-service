@@ -55,13 +55,6 @@ $(document).ready(function(){
   $('#kiwi-image-update-form').change(enableSave);
   $('.remove_fields').click(enableSave);
 
-  // Show edit dialog
-  $('.repository_edit').click(function(){
-    var dialog = $("#repository_edit_" + $(this).attr("data-id"));
-    dialog.removeClass('hidden');
-    $('.overlay').show();
-  });
-
   // Edit dialog for Repositories and Packages
   $('.repository_edit, .package_edit').click(editDialog);
   $('#kiwi-repositories-list .close-dialog, #kiwi-packages-list .close-dialog').click(closeDialog);
