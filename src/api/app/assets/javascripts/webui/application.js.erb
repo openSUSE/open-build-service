@@ -41,8 +41,8 @@
 //= require webui/application/repository_tab
 //= require webui/application/user
 //= require webui/application/requests_table
-<% require_asset 'webui/application/image_templates' if Feature.active?(:image_templates) %>
-<% require_asset 'webui/application/kiwi_editor' if Feature.active?(:kiwi_image_editor) %>
+//= require webui/application/image_templates
+//= require webui/application/kiwi_editor
 
 function remove_dialog() {
     $(this).parents('.dialog:visible').remove();

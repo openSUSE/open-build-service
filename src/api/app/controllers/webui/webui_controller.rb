@@ -274,6 +274,10 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
+  def feature_active?(feature)
+    raise ActionController::RoutingError, 'Not found' if Feature.inactive?(feature)
+  end
+
   private
 
   def set_tasks
