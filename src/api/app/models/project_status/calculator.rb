@@ -51,7 +51,7 @@ module ProjectStatus
     end
 
     def update_jobhistory(proj, mypackages)
-      prjpacks = Hash.new
+      prjpacks = {}
       dname = proj.name
       mypackages.each_value do |package|
         if package.project == dname
@@ -95,9 +95,7 @@ module ProjectStatus
     def calc_status(opts = {})
       mypackages = Hash.new
 
-      unless @dbproj
-        return mypackages
-      end
+      mypackages = {}
 
       @dbproj.packages.select([:id, :name, :project_id, :develpackage_id]).includes(:develpackage).load.each do |dbpack|
         add_recursively(mypackages, dbpack)
@@ -106,7 +104,7 @@ module ProjectStatus
       check_md5(mypackages.values)
 
       list = Project.joins(:packages).where(packages: {id: mypackages.keys}).pluck("projects.id as pid, projects.name, packages.id")
-      projects = Hash.new
+      projects = {}
       list.each do |pid, pname, id|
         obj = mypackages[id]
         obj.project = pname
