@@ -32,7 +32,7 @@ class Kiwi::Image < ApplicationRecord
 
   #### Validations macros
   validates :name, presence: true
-  accepts_nested_attributes_for :repositories
+  accepts_nested_attributes_for :repositories, allow_destroy: true
   accepts_nested_attributes_for :package_groups, allow_destroy: true
   accepts_nested_attributes_for :kiwi_packages, allow_destroy: true
 
@@ -128,6 +128,10 @@ class Kiwi::Image < ApplicationRecord
     return false unless package
 
     package.kiwi_image_outdated?
+  end
+
+  def default_package_group
+    package_groups.find_or_create_by(kiwi_type: :image, pattern_type: 'onlyRequired')
   end
 end
 

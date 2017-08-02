@@ -73,13 +73,6 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
     end
   end
 
-  describe 'GET #edit' do
-    subject { get :edit, params: { id: kiwi_image_with_package_with_kiwi_file.id } }
-
-    it { expect(subject).to have_http_status(:success) }
-    it { expect(subject).to render_template(:edit) }
-  end
-
   describe 'POST #update' do
     let(:kiwi_repository) { create(:kiwi_repository, image: kiwi_image_with_package_with_kiwi_file) }
     let(:kiwi_package) { create(:kiwi_package, image: kiwi_image_with_package_with_kiwi_file) }

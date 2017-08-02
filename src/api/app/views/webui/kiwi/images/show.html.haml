@@ -1,27 +1,34 @@
 - @layouttype = 'custom'
 
-.grid_16.alpha.omega.box.box-shadow
-  = render partial: 'webui/kiwi/tabs'
-  %h2
-    = @image.name
-  %ul.horizontal-list
-    %li
-      = link_to(sprited_text('brick_edit', 'Edit image'), edit_kiwi_image_path(@image))
+= form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
 
-.grid_16.alpha.omega.box.box-shadow
-  %h3 Repositories
-  - if @image.repositories.empty?
-    %p There are no repositories.
-  - else
-    %ul
-      - @image.repositories.each do |repository|
-        = render partial: 'repository_entry', locals: {repository: repository}
+  .grid_16.alpha.omega.box.box-shadow
+    = render partial: 'webui/kiwi/tabs'
+    %h2
+      = @image.name
+    %ul.horizontal-list
+      %li
+        = button_tag('Save', id: 'kiwi-image-update-form-save', type: 'button', disabled: true)
 
-.grid_16.alpha.omega.box.box-shadow
-  %h3 Packages
-  - if @image.kiwi_packages.empty?
-    %p There are no packages.
-  - else
-    %p
-      %strong
-        = @image.kiwi_packages.pluck(:name).join(', ')
+  .grid_16.alpha.omega.box.box-shadow#kiwi-repositories-list
+    %h3 Repositories
+    - if @image.repositories.empty?
+      %p There are no repositories.
+    - else
+      %div
+        = f.fields_for :repositories do |repository_fields|
+          = render 'repository_fields', f: repository_fields
+        %p
+          = link_to_add_association(sprite_tag("drive_add", title: 'Add repository') + ' Add repository', f, :repositories)
+
+  .grid_16.alpha.omega.box.box-shadow#kiwi-packages-list
+    %h3 Packages
+    - if @image.kiwi_packages.empty?
+      %p There are no packages.
+    - else
+      %div
+        = f.fields_for :package_groups, @image.default_package_group do |package_group_fields|
+          = package_group_fields.fields_for :packages do |kiwi_package_fields|
+            = render 'package_fields', f: kiwi_package_fields
+          %p
+            = link_to_add_association(sprite_tag("package_add", title: 'Add package') + ' Add package', package_group_fields, :packages)

@@ -198,7 +198,7 @@ OBSApi::Application.routes.draw do
         get 'package/:package_id/kiwi_images/import_from_package' => :import_from_package, as: 'import_kiwi_image'
       end
 
-      resources :kiwi_images, only: [:show, :edit, :update], controller: 'webui/kiwi/images'
+      resources :kiwi_images, only: [:show, :update], controller: 'webui/kiwi/images'
     end
 
     controller 'webui/project' do

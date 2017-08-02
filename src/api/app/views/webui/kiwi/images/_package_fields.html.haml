@@ -1,7 +1,7 @@
-%tr.nested-fields
-  %td= link_to_remove_association "Remove", f
-  %td= f.text_field :name
-  %td= f.text_field :arch
-  %td= f.text_field :replaces
-  %td= f.check_box :bootinclude
-  %td= f.check_box :bootdelete
+.nested-fields.kiwi_fields
+  .kiwi_list_item
+    %span.kiwi_repository_name
+      = f.object.name
+      = f.text_field :name, class: "#{'hidden' if f.object.name.present? }"
+    %span.kiwi_actions.hidden
+      = link_to_remove_association sprite_tag("req-decline", title: 'remove'), f

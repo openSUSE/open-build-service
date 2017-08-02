@@ -34,8 +34,6 @@ module Webui
         end
       end
 
-      def edit; end
-
       def update
         ::Kiwi::Image.transaction do
           @image.update_attributes!(image_params)
@@ -52,6 +50,7 @@ module Webui
       def image_params
         repositories_attributes = [
           :id,
+          :_destroy,
           :priority,
           :repo_type,
           :source_path,
@@ -60,7 +59,8 @@ module Webui
           :password,
           :prefer_license,
           :imageinclude,
-          :replaceable
+          :replaceable,
+          :order
         ]
 
         package_groups_attributes = [
