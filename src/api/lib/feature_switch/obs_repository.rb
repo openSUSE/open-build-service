@@ -8,9 +8,12 @@ module Feature
       # @return [Array<Symbol>] list of active features
       #
       def active_features
-        data = read_file(@yaml_file_name)
-        data[@environment]['features'] = data[@environment]['features']
-        get_active_features(data, @environment)
+        if User.current && (User.current.is_staff? || User.current.is_admin?)
+          data = read_file(@yaml_file_name).with_indifferent_access
+          get_active_features(data, :beta)
+        else
+          super
+        end
       end
     end
   end

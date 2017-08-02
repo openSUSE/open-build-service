@@ -12,3 +12,8 @@ test:
   features:
     <<: *default
     kiwi_image_editor: true
+
+beta:
+  features:
+    <<: *default
+    kiwi_image_editor: true
