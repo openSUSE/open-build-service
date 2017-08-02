@@ -105,13 +105,13 @@ module ProjectStatus
 
       list = Project.joins(:packages).where(packages: { id: mypackages.keys }).pluck('projects.id, projects.name, packages.id')
       projects = {}
-      list.each do |pid, pname, id|
-        obj = mypackages[id]
-        obj.project = pname
-        if obj.links_to
-          obj.links_to = mypackages[obj.links_to]
+      list.each do |project_id, project_name, package_name|
+        package_info = mypackages[package_name]
+        package_info.project = project_name
+        if package_info.links_to
+          package_info.links_to = mypackages[package_info.links_to]
         end
-        projects[pid] = pname
+        projects[project_id] = project_name
       end
 
       projects.each do |id, _|
