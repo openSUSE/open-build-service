@@ -94,12 +94,4 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     delete '/issue_trackers/test'
     assert_response :success
   end
-
-  def test_update_job
-    IssueTracker.write_to_backend
-
-    f = IssueTracker.find_by_name!("RT")
-    f.update_issues
-    f.enforced_update_all_issues
-  end
 end

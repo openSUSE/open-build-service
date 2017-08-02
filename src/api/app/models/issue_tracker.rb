@@ -12,19 +12,19 @@ class IssueTracker < ApplicationRecord
   validates :name, :regex, uniqueness: true
   validates :kind, inclusion: { in: %w(other bugzilla cve fate trac launchpad sourceforge github) }
 
+  if CONFIG['global_write_through']
+    after_save :delayed_write_to_backend
+    after_save :update_package_meta
+  end
+
   # FIXME: issues_updated should not be hidden, but it should also not break our api
   DEFAULT_RENDER_PARAMS = {except: [:id, :password, :user, :issues_updated], dasherize: true, skip_types: true, skip_instruct: true}
 
-  def self.write_to_backend
-    issue_tracker = IssueTracker.first
-    IssueTrackerWriteToBackendJob.perform_later(issue_tracker.id)
+  def delayed_write_to_backend
+    IssueTrackerWriteToBackendJob.perform_later
   end
 
-  def write_to_backend
-    path = "/issue_trackers"
-    logger.debug "Write issue tracker information to backend..."
-    Backend::Connection.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
-
+  def update_package_meta
     # We need to parse again ALL sources ...
     UpdatePackageMetaJob.perform_later
   end

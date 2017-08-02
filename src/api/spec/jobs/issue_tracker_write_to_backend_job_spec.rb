@@ -15,7 +15,7 @@ RSpec.describe IssueTrackerWriteToBackendJob, type: :job, vcr: true do
       allow(Backend::Connection).to receive(:put_source)
     end
 
-    subject! { IssueTrackerWriteToBackendJob.new.perform(issue_tracker.id) }
+    subject! { IssueTrackerWriteToBackendJob.new.perform }
 
     it 'writes to the backend' do
       expect(Backend::Connection).to have_received(:put_source)

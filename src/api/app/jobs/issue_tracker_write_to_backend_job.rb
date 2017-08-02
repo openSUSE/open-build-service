@@ -1,7 +1,9 @@
 class IssueTrackerWriteToBackendJob < ApplicationJob
   queue_as :quick
 
-  def perform(issue_tracker_id)
-    IssueTracker.find(issue_tracker_id).write_to_backend
+  def perform
+    path = "/issue_trackers"
+    logger.debug "Write issue tracker information to backend..."
+    Backend::Connection.put_source(path, IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
   end
 end

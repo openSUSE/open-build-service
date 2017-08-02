@@ -55,7 +55,6 @@ class IssueTrackersController < ApplicationController
 
     respond_to do |format|
       if @issue_tracker
-        IssueTracker.write_to_backend
         format.xml  { render xml: @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS), status: :created, location: @issue_tracker }
         format.json { render json: @issue_tracker.to_json(IssueTracker::DEFAULT_RENDER_PARAMS), status: :created, location: @issue_tracker }
       else
@@ -94,7 +93,6 @@ class IssueTrackersController < ApplicationController
         ret = @issue_tracker.update_attributes(attribs)
       end
       if ret
-        IssueTracker.write_to_backend
         format.xml  { head :ok }
         format.json { head :ok }
       else
@@ -113,7 +111,6 @@ class IssueTrackersController < ApplicationController
       render_error(status: 404, errorcode: "not_found", message: "Unable to find issue tracker '#{params[:id]}'") && return
     end
     @issue_tracker.destroy
-    IssueTracker.write_to_backend
 
     respond_to do |format|
       format.xml  { head :ok }
