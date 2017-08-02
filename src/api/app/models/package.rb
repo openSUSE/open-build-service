@@ -42,7 +42,7 @@ class Package < ApplicationRecord
   class IllegalFileName < APIException; setup 'invalid_file_name_error'; end
   class PutFileNoPermission < APIException; setup 403; end
 
-  belongs_to :project, inverse_of: :packages, touch: true
+  belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true
   delegate :repositories, to: :project
   delegate :architectures, to: :project
