@@ -103,7 +103,7 @@ module ProjectStatus
 
       check_md5(mypackages.values)
 
-      list = Project.joins(:packages).where(packages: {id: mypackages.keys}).pluck("projects.id as pid, projects.name, packages.id")
+      list = Project.joins(:packages).where(packages: { id: mypackages.keys }).pluck('projects.id, projects.name, packages.id')
       projects = {}
       list.each do |pid, pname, id|
         obj = mypackages[id]
