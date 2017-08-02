@@ -34,8 +34,6 @@ module Webui
         end
       end
 
-      def edit; end
-
       def update
         ::Kiwi::Image.transaction do
           @image.update_attributes!(image_params)
