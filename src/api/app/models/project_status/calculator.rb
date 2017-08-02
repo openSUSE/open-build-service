@@ -93,7 +93,7 @@ module ProjectStatus
     end
 
     def calc_status(opts = {})
-      mypackages = Hash.new
+      return {} unless @dbproj
 
       mypackages = {}
 
