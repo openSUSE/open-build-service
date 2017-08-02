@@ -14,11 +14,11 @@ module ProjectStatus
       # we avoid going back in versions by avoiding going back in time
       # the last built version wins (repos may have different versions)
       @versiontime = nil
-      @failed = Hash.new
+      @failed = {}
 
       # only set from status controller
-      @groups = Array.new
-      @persons = Array.new
+      @groups = []
+      @persons = []
     end
 
     def add_person(login, role)
