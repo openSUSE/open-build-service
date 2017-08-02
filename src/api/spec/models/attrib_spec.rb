@@ -21,7 +21,7 @@ RSpec.describe Attrib, :type => :model do
     end
   end
 
-  context "#container=" do
+  describe "#container=" do
     context "assigning a project" do
       before do
         attribute.container = project
