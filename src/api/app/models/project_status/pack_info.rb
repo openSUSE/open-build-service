@@ -1,7 +1,7 @@
 module ProjectStatus
   class PackInfo
-    attr_accessor :bp, :project
-    delegate :srcmd5, :verifymd5, :changesmd5, :maxmtime, :error, to: :bp
+    attr_accessor :backend_package, :project
+    delegate :srcmd5, :verifymd5, :changesmd5, :maxmtime, :error, to: :backend_package
     attr_accessor :links_to
     attr_reader :name, :package_id
     attr_accessor :develpack
