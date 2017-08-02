@@ -3720,6 +3720,7 @@ if (!$testmode) {
 } else {
   print "testmode, not sending anything\n";
   print Dumper(\@send);
+  BSUtil::appendstr('testmode.log', BSUtil::isotime(time).": $buildinfo->{'arch'}/$buildinfo->{'job'}: $code\n");
 }
 
 unlink("$buildroot/.build.log");
