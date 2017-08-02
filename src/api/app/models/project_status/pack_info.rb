@@ -1,13 +1,8 @@
 module ProjectStatus
   class PackInfo
-    attr_accessor :backend_package, :project
+    attr_accessor :backend_package, :project, :links_to, :develpack, :failed_comment, :upstream_version, :upstream_url, :declined_request
+    attr_reader :name, :package_id, :version, :release, :versiontime, :failed, :groups, :persons
     delegate :srcmd5, :verifymd5, :changesmd5, :maxmtime, :error, to: :backend_package
-    attr_accessor :links_to
-    attr_reader :name, :package_id
-    attr_accessor :develpack
-    attr_accessor :failed_comment, :upstream_version, :upstream_url, :declined_request
-    attr_reader :version, :release, :versiontime
-    attr_reader :failed, :groups, :persons
 
     def initialize(db_pack)
       @name = db_pack.name
