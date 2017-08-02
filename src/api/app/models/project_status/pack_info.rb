@@ -1,7 +1,8 @@
 module ProjectStatus
   class PackInfo
     attr_accessor :bp, :project
-    attr_accessor :srcmd5, :verifymd5, :changesmd5, :maxmtime, :error, :links_to
+    delegate :srcmd5, :verifymd5, :changesmd5, :maxmtime, :error, to: :bp
+    attr_accessor :links_to
     attr_reader :name, :package_id
     attr_accessor :develpack
     attr_accessor :failed_comment, :upstream_version, :upstream_url, :declined_request
@@ -78,7 +79,7 @@ module ProjectStatus
     end
 
     def set_versrel(versrel, time)
-      return if @versiontime && @versiontime > time
+      return if @versiontime && @versiontime.to_i > time.to_i
       versrel = versrel.split('-')
       @versiontime = time
       @version = versrel[0..-2].join('-')

@@ -1,22 +1,5 @@
 module ProjectStatus
   class Calculator
-    def check_md5(packages)
-      # remap
-      ph = {}
-      packages.each { |p| ph[p.package_id] = p }
-      packages = Package.where(id: ph.keys).includes(:backend_package).references(:backend_packages)
-      packages.each do |p|
-        obj = ph[p.id]
-        obj.bp = p.backend_package
-        obj.srcmd5 = obj.bp.srcmd5
-        obj.verifymd5 = obj.bp.verifymd5
-        obj.error = obj.bp.error
-        obj.links_to = obj.bp.links_to_id
-        obj.changesmd5 = obj.bp.changesmd5
-        obj.maxmtime = obj.bp.maxmtime.to_i
-      end
-    end
-
     # parse the jobhistory and put the result in a format we can cache
     def parse_jobhistory(dname, repo, arch)
       uri = "/build/#{CGI.escape(dname)}/#{CGI.escape(repo)}/#{arch}/_jobhistory?code=lastfailures"
@@ -80,6 +63,8 @@ module ProjectStatus
     def add_recursively(mypackages, dbpack)
       return if mypackages.has_key? dbpack.id
       pack = PackInfo.new(dbpack)
+      pack.bp = dbpack.backend_package
+      pack.links_to = pack.bp.links_to_id
 
       if dbpack.develpackage
         add_recursively(mypackages, dbpack.develpackage)
@@ -97,11 +82,9 @@ module ProjectStatus
 
       mypackages = {}
 
-      @dbproj.packages.select([:id, :name, :project_id, :develpackage_id]).includes(:develpackage).load.each do |dbpack|
+      @dbproj.packages.select([:id, :name, :project_id, :develpackage_id]).includes(:develpackage, :backend_package).load.each do |dbpack|
         add_recursively(mypackages, dbpack)
       end
-
-      check_md5(mypackages.values)
 
       list = Project.joins(:packages).where(packages: { id: mypackages.keys }).pluck('projects.id, projects.name, packages.id')
       projects = {}
