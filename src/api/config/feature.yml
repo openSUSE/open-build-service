@@ -1,14 +1,14 @@
-production: &default
-  features:
+production:
+  features: &default
     image_templates: true
     kiwi_image_editor: false
 
 development:
-  <<: *default
   features:
+    <<: *default
     kiwi_image_editor: true
 
 test:
-  <<: *default
   features:
+    <<: *default
     kiwi_image_editor: true
