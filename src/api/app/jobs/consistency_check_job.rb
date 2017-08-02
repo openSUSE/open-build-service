@@ -2,14 +2,7 @@ require 'api_exception'
 require 'xmlhash'
 
 class ConsistencyCheckJob < ApplicationJob
-  def fix
-    perform(true)
-  end
-
-  def init
-    User.current ||= User.get_default_admin
-    @errors = ""
-  end
+  queue_as :consistency_check
 
   def perform(fix = nil)
     init
@@ -68,6 +61,17 @@ class ConsistencyCheckJob < ApplicationJob
     end
     @errors << package_existence_consistency_check(project, fix)
     puts @errors unless @errors.blank?
+  end
+
+  private
+
+  def fix
+    perform(true)
+  end
+
+  def init
+    User.current ||= User.get_default_admin
+    @errors = ""
   end
 
   def project_meta_check(project, fix = nil)

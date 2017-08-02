@@ -20,7 +20,6 @@ require 'workers/import_requests'
 task(importrequests: :environment) { ImportRequestsDelayedJob.new.perform }
 
 require(File.join(File.dirname(__FILE__), 'app/jobs/application_job.rb'))
-require(File.join(File.dirname(__FILE__), 'app/jobs/consistency_check.rb'))
 task(check_project: :environment) { ConsistencyCheckJob.new.check_project }
 task(fix_project: :environment) { ConsistencyCheckJob.new.fix_project }
 

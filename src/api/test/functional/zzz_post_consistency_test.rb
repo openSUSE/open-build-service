@@ -1,5 +1,4 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_consistency_helper"
-require File.join(Rails.root, 'app/jobs/consistency_check.rb')
 
 class ZZZPostConsistency < ActionDispatch::IntegrationTest
   require 'source_controller'

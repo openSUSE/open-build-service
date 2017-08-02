@@ -2,7 +2,6 @@
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/MethodLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
-require File.join(Rails.root, 'app/jobs/consistency_check.rb')
 require 'source_controller'
 
 class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
