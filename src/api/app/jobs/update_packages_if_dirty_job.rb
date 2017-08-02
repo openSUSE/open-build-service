@@ -1,4 +1,6 @@
 class UpdatePackagesIfDirtyJob < ApplicationJob
+  queue_as :quick
+
   self.priority = 10
 
   def perform(project_id)
