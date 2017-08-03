@@ -21,12 +21,7 @@ class UserLdapStrategy
 
   # This static method tries to find a group with the given gorup_title to check whether the group is in the LDAP server.
   def self.find_group_with_ldap(group)
-    if CONFIG.has_key?('ldap_group_objectclass_attr')
-      filter = "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
-    else
-      filter = "(#{CONFIG['ldap_group_title_attr']}=#{group})"
-    end
-    result = search_ldap(CONFIG['ldap_group_search_base'], filter)
+    result = search_ldap(group)
     if result.nil?
       Rails.logger.info("Fail to find group: #{group} in LDAP")
       return false
@@ -37,28 +32,35 @@ class UserLdapStrategy
   end
 
   # This static method performs the search with the given search_base, filter
-  def self.search_ldap(search_base, filter, required_attr = nil)
+  def self.search_ldap(group)
     if @@ldap_search_con.nil?
       @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
     end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
+    if @@ldap_search_con.nil?
       Rails.logger.info("Unable to connect to LDAP server")
       return
     end
+    filter = ldap_group_filter(group)
     Rails.logger.debug("Search: #{filter}")
-    result = Array.new
-    ldap_con.search(search_base, LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
+    result = []
+    @@ldap_search_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
       result << entry.dn
       result << entry.attrs
-      if required_attr && entry.attrs.include?(required_attr)
-        result << entry.vals(required_attr)
-      end
     end
 
     return if result.empty?
     result
   end
+  private_class_method :search_ldap
+
+  def self.ldap_group_filter(group)
+    if CONFIG.has_key?('ldap_group_objectclass_attr')
+      "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
+    else
+      "(#{CONFIG['ldap_group_title_attr']}=#{group})"
+    end
+  end
+  private_class_method :ldap_group_filter
 
   # This static method performs the search with the given grouplist, user to return the groups that the user in
   def self.render_grouplist_ldap(grouplist, user = nil)
@@ -108,16 +110,10 @@ class UserLdapStrategy
         raise ArgumentError, "illegal parameter type to UserLdapStrategy#render_grouplist_ldap?: #{eachgroup.class.name}"
       end
 
-      # search group
-      if CONFIG.has_key?('ldap_group_objectclass_attr')
-        filter = "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
-      else
-        filter = "(#{CONFIG['ldap_group_title_attr']}=#{group})"
-      end
-
       # clean group_dn, group_member_attr
       group_dn = ""
       group_member_attr = ""
+      filter = ldap_group_filter(group)
       Rails.logger.debug("Search group: #{filter}")
       ldap_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         group_dn = entry.dn
