@@ -3,7 +3,7 @@ require 'rails_helper'
 # this line and start a test backend.
 # CONFIG['global_write_through'] = true
 
-RSpec.describe UpdateBackendInfos, vcr: true do
+RSpec.describe UpdateBackendInfosJob, vcr: true do
   let(:project) { create(:project_with_package, name: 'FakeProject', package_name: 'FakePackage') }
   let(:package) { project.packages.first }
   let(:user) { create(:admin_user, login: 'myself') }
@@ -18,7 +18,7 @@ RSpec.describe UpdateBackendInfos, vcr: true do
 
   context "when properly set" do
     context "behaves like a CreateJob and runs update_package" do
-      subject { UpdateBackendInfos.new(event) }
+      subject { UpdateBackendInfosJob.new(event) }
 
       after do
         Delayed::Job.enqueue subject
@@ -33,7 +33,7 @@ RSpec.describe UpdateBackendInfos, vcr: true do
       let(:other_package) { create(:package, name: 'OtherFakePackage', project: project) }
       let(:run_the_job) do
         Timecop.travel(Time.now + 30.days) do
-          Delayed::Job.enqueue(UpdateBackendInfos.new(event))
+          Delayed::Job.enqueue(UpdateBackendInfosJob.new(event))
         end
       end
       let!(:backend_package) { package.backend_package }
@@ -58,7 +58,7 @@ RSpec.describe UpdateBackendInfos, vcr: true do
       allow(subject).to receive(:update_package)
     end
 
-    subject { UpdateBackendInfos.new(event_without_package) }
+    subject { UpdateBackendInfosJob.new(event_without_package) }
 
     after do
       Delayed::Job.enqueue subject
@@ -74,7 +74,7 @@ RSpec.describe UpdateBackendInfos, vcr: true do
       allow($stdout).to receive(:write) # Needed to avoid the puts of the error method
     end
 
-    subject { UpdateBackendInfos.new(event) }
+    subject { UpdateBackendInfosJob.new(event) }
 
     it 'runs #error' do
       is_expected.to receive(:error)
