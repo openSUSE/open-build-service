@@ -31,11 +31,11 @@
           %option{ id: "php_#{uid}", value: 'application/x-httpd-php-open' } php
           %option{ id: "xml_#{uid}", value: 'xml' } xml
           %option{ id: "x_#{uid}", selected: 'selected', value: '' } ---
-= data = {}
-= data['save-url'] = save[:url] if save[:url]
-= data['save-method'] = save[:method] if save[:method]
-= data['data'] = save[:data] if save[:data]
-= text = force_utf8_and_transform_nonprintables(text)
+- data = {}
+- data['save-url'] = save[:url] if save[:url]
+- data['save-method'] = save[:method] if save[:method]
+- data['data'] = save[:data] if save[:data]
+- text = force_utf8_and_transform_nonprintables(text)
 = content_tag(:textarea, text, id: "editor_#{uid}",
   style: 'display: inline-block', class: 'editor', cols: '0', rows: '0', data: data)
 - unless style[:read_only]
