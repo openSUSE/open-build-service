@@ -2660,7 +2660,9 @@ XML
     # the backend has to be up before we can accept
     Backend::Connection.start_test_backend
     BsRequest.delayed_auto_accept
-
+    # Run delayed jobs for newly created bs request.
+    # NOTE: bs requests are now identified by their number attribute
+    BsRequestAutoAcceptJob.new.perform(BsRequest.find_by_number(id).id)
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(tag: 'accept_at', content: '2010-07-13 14:00:21 UTC')
@@ -2673,8 +2675,8 @@ XML
     # the other one got close because the target does not exist anymore
     get "/request/#{id2}"
     assert_response :success
-    assert_xml_tag(tag: 'state', attributes: { name: 'revoked', when: '2010-07-14T00:00:00', who: 'Iggy' })
-    assert_xml_tag(tag: 'comment', content: 'Permission problem')
+    assert_xml_tag(tag: 'state', attributes: { name: 'declined', when: '2010-07-14T00:00:00', who: 'Iggy' })
+    assert_xml_tag(tag: 'comment', content: "The target package 'TestPack' has been removed")
 
     # good, now revive to fix the state of the union
     post '/source/home:Iggy/TestPack?cmd=undelete'
