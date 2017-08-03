@@ -25,12 +25,41 @@ In particular, this community seeks the following types of contributions:
 * A developer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will review your pull-request
   * If the pull request gets a positive review the reviewer will merge it
 
-We tag our commits depending on the area that is affected by the change. Those are
-* [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and it's views
-* [api]     - Changes in api related parts of app/model/ and lib/ as well as app/controllers/\*.rb and it's views
-* [backend] - Changes in the perl-written backend of OBS
-* [ci]      - Changes that affect our test suite
-* [doc]     - Any documentation related changes
+
+## How to write proper commit messages
+
+- **Tag your commits**
+
+  We tag our commits depending on the area that is affected by the change. All commits should start with at least one tag from:
+
+  * [api]     - Changes in api related parts of app/model/ and lib/ as well as app/controllers/\*.rb and it's views
+  * [backend] - Changes in the perl-written backend of OBS
+  * [ci]      - Changes that affect our test suite
+  * [dist]    - Modifies something inside /dist directory
+  * [doc]     - Any documentation related changes
+  * [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and it's views
+
+  In case of having more than one tag, they should be alphabetically ordered.
+  
+- **Leave a blank line between the commit subject and body**
+
+  Tools like rebase could not work properly otherwise.
+
+- **Preferably include a commit description**
+  
+  There is always some useful information to add in your commit. If you don't include a commit description, more likely you are missing something.
+
+- **Try that the commit subject is not longer than 50 characters**
+
+- **Try that each line of the commit body is not longer than 72 characters**
+
+- **Try to avoid meaningless words/phrases**
+
+  When possible avoid using words/phrases such as _obviously_, _basically_, _simply_, _of course_, _everyone knows_ and _easy_.
+
+- **Preferably use `-` for lists**
+
+  Do not use `*` as it is also used for _emphasis_.
 
 # How to contribute issues
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
