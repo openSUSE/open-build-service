@@ -1,13 +1,13 @@
 require 'rails_helper'
 
-RSpec.describe UpdateReleasedBinaries, vcr: true do
+RSpec.describe UpdateReleasedBinariesJob, vcr: true do
   let(:project) { create(:project_with_repository) }
   let(:repository) { project.repositories.first }
   let(:event) { Event::Packtrack.new('project' => project.name, 'repo' => repository.name, 'payload' => 'fake_payload') }
   let(:event_without_repo) { Event::Packtrack.new('project' => project.name, 'repo' => nil, 'payload' => 'fake_payload') }
 
   context "properly set" do
-    subject { UpdateReleasedBinaries.new(event) }
+    subject { UpdateReleasedBinariesJob.new(event) }
 
     after do
       Delayed::Job.enqueue subject
@@ -19,7 +19,7 @@ RSpec.describe UpdateReleasedBinaries, vcr: true do
   end
 
   context "without a repo properly set" do
-    subject { UpdateReleasedBinaries.new(event_without_repo) }
+    subject { UpdateReleasedBinariesJob.new(event_without_repo) }
 
     after do
       Delayed::Job.enqueue subject
@@ -35,7 +35,7 @@ RSpec.describe UpdateReleasedBinaries, vcr: true do
       allow($stdout).to receive(:write) # Needed to avoid the puts of the error method
     end
 
-    subject { UpdateReleasedBinaries.new(event) }
+    subject { UpdateReleasedBinariesJob.new(event) }
 
     it 'runs #error' do
       is_expected.to receive(:error)
