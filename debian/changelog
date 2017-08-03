@@ -1,3 +1,16 @@
+open-build-service (2.7.4-1) unstable; urgency=medium
+
+  * Merging upstream version 2.7.4.
+  * debian/control: Drop memcached depends from obs-server.
+  * debian/control: make obs-server recommends: on gnupg2. (Closes:#859711)
+  * debian/control: make obs-server recommends: on dpkg-dev.
+    (Closes:#855828)
+  * Refreshed gemfile-tweaks.patch. (Closes:#869051)
+  * Refreshed drop-ruby-hoptoad-notifier.patch.
+  * obs-utils: ship obs_mirror_project.
+
+ -- Andrew Lee (李健秋) <ajqlee@debian.org>  Fri, 04 Aug 2017 03:40:11 +0800
+
 open-build-service (2.7.1-10) unstable; urgency=medium
 
   * Fix logrotate, refine postrm, prerm script to ensure config and log
