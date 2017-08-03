@@ -62,6 +62,13 @@ $(document).ready(function(){
 
   // After inserting new repositories add the Callbacks
   $('#kiwi-repositories-list').on('cocoon:after-insert', function(e, addedFields) {
+    var lastOrder = 0;
+    var orders = $(this).find("[id$='order']");
+    var lastNode = $(orders[orders.length - 2]);
+    if (lastNode.length > 0) {
+      lastOrder = parseInt(lastNode.val());
+    }
+    $(addedFields).find("[id$='order']").val(lastOrder + 1);
     $('.overlay').show();
     $(addedFields).find('.repository_edit').click(editDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
