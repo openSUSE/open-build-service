@@ -1,11 +1,8 @@
 class UpdateReleasedBinariesJob < CreateJob
-  attr_accessor :event
+  queue_as :releasetracking
 
-  def self.job_queue
-    'releasetracking'
-  end
-
-  def perform
+  def perform(event_id)
+    event = Event::Base.find(event_id)
     pl = event.payload
     repo = Repository.find_by_project_and_name(pl['project'], pl['repo'])
     return unless repo
