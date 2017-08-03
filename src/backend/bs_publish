@@ -808,7 +808,7 @@ sub createrepo_staticlinks {
         # kiwi appliance
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
-      } elsif (/^(.*)-(\d+\.\d+\.\d+)?(\.\w+)?-Build\d+\.\d+(\.(raw.install.raw.xz|raw.xz|box|json|install.iso|tbz|tgz|vmx|vmdk|vhdfixed.xz|iso|qcow2|qcow2.xz|ova)?(?:\.sha256)?)$/s) {
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)?(\.\w+)?-Build\d+\.\d+(\.(raw.install.raw.xz|raw.xz|box|json|install.iso|tbz|tgz|vmx|vmdk|vdi|vhdfixed.xz|iso|qcow2|qcow2.xz|ova)?(?:\.sha256)?)$/s) {
         # kiwi appliance
         my $profile = $3 || "";
         $link = "$1$profile$4";
@@ -1477,7 +1477,7 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.dsc(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.(?:box|json|ovf|qcow2|qcow2\.xz|vhdfixed.xz|vmx|vmdk)(?:\.sha256)?$/) {
+	} elsif ($bin =~ /\.(?:box|json|ovf|qcow2|qcow2\.xz|vdi|vhdfixed.xz|vmx|vmdk)(?:\.sha256)?$/) {
 	  $p = "$bin";
         } elsif ($bin =~ /^(.*)\.packages$/) {
 	  $p = "$bin";
@@ -2109,6 +2109,23 @@ publishprog_done:
     if ($extrep =~ /\Q$extrepodir\E\/(.+)$/) {
       sync_to_stage($prp, $1, $dbgsplit);
     }
+  }
+
+  # support for regex usage in $BSConfig::unpublishedhook
+  my $unpublish_prp = $prp;
+  if ($BSConfig::unpublishedhook_use_regex || $BSConfig::unpublishedhook_use_regex) {
+    for my $key (sort {$b cmp $a} keys %{$BSConfig::unpublishedhook}) {
+      if ($prp =~ /^$key/) {
+        $unpublish_prp = $key;
+        last;
+      }
+    }
+  }
+  if ($BSConfig::unpublishedhook && $BSConfig::unpublishedhook->{$unpublish_prp}) {
+    my $hook = $BSConfig::unpublishedhook->{$unpublish_prp};
+    $hook = [ $hook ] unless ref $hook;
+    print "    calling unpublished hook @$hook\n";
+    qsystem(@$hook, $prp, $extrep, @db_deleted) && warn("    @$hook failed: $?\n");
   }
 
   # support for regex usage in $BSConfig::publishedhook

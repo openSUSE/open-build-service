@@ -30,3 +30,7 @@ UseRemoteInstance_pop_path:
   parent_id: BaseDistro_repo
   repository_id: UseRemoteInstance_pop
   position: 1
+kde4_repo:
+  parent_id: 98
+  repository_id: 86
+  position: 1

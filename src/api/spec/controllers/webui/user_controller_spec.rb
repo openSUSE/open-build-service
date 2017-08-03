@@ -70,10 +70,31 @@ RSpec.describe Webui::UserController do
   describe "POST #do_login" do
     before do
       request.env["HTTP_REFERER"] = search_url # Needed for the redirect_to :back
-      post :do_login, {username: user.login, password: 'buildservice'}
     end
 
-    it { expect(response).to redirect_to search_url }
+    it 'logs in users with correct credentials' do
+      post :do_login, {username: user.login, password: 'buildservice'}
+      expect(response).to redirect_to search_url
+    end
+
+    it 'tells users about wrong credentials' do
+      post :do_login, {username: user.login, password: 'password123'}
+      expect(response).to redirect_to user_login_path
+      expect(flash[:error]).to eq("Authentication failed")
+    end
+
+    it 'tells users about wrong state' do
+      user.update_attribute('state', User::STATES['locked'])
+      post :do_login, {username: user.login, password: 'buildservice'}
+      expect(response).to redirect_to root_path
+      expect(flash[:error]).to eq("Your account is disabled. Please contact the adminsitrator for details.")
+    end
+
+    it 'assigns the current user' do
+      post :do_login, {username: user.login, password: 'buildservice'}
+      expect(User.current).to eq(user)
+      expect(session[:login]).to eq(user.login)
+    end
   end
 
   describe "GET #home" do

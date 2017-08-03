@@ -211,7 +211,7 @@ class Webui::WebuiController < ActionController::Base
         return
       end
 
-      # If the user logs in for the first time (before we have a User with that login)
+      # The user does not exist in our database, create her.
       unless User.where(login: user_login).exists?
         logger.debug "Creating user #{user_login}"
         chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
@@ -224,9 +224,15 @@ class Webui::WebuiController < ActionController::Base
                      password_confirmation: fakepw)
       end
 
-      User.current = User.find_by_login(user_login)
+      # The user exists, check if shes active and update the info
+      User.current = User.find_by(login: user_login)
+      unless User.current.is_active?
+        session[:login] = nil
+        User.current = User.find_nobody!
+        redirect_to(CONFIG['proxy_auth_logout_page'], error: "Your account is disabled. Please contact the adminsitrator for details.")
+        return
+      end
       User.current.update_user_info_from_proxy_env(request.env)
-      return
     end
 
     User.current = User.find_by_login(session[:login]) if session[:login]

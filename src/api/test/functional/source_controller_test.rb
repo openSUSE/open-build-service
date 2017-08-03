@@ -333,7 +333,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # Change description
     xml = @response.body
-    new_desc = 'Changed description'
+    new_desc = 'Changed description 1'
     doc = ActiveXML::Node.new(xml)
     d = doc.find_first('description')
     d.text = new_desc
@@ -583,7 +583,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # Change description
     xml = @response.body
-    new_desc = 'Changed description'
+    new_desc = 'Changed description 2'
     doc = REXML::Document.new(xml)
     d = doc.elements['//description']
     d.text = new_desc
@@ -848,13 +848,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_put_package_meta_with_invalid_permissions
     login_tom
     # The user is valid, but has weak permissions
-
-    get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs')
+    get url_for(controller: :source, action: :show_package_meta, project: 'kde4', package: 'kdelibs')
     assert_response :success
 
     # Change description
     xml = @response.body
-    new_desc = 'Changed description'
+    new_desc = 'Changed description 4'
     olddoc = REXML::Document.new(xml)
     doc = REXML::Document.new(xml)
     d = doc.elements['//description']
@@ -907,7 +906,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     end
     # Change description
     xml = @response.body
-    new_desc = 'Changed description'
+    new_desc = 'Changed description 3'
     doc = REXML::Document.new(xml)
     d = doc.elements['//description']
     d.text = new_desc
@@ -1786,6 +1785,18 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # delete entire project
+    prepare_request_with_user 'fredlibs', 'buildservice'
+    get '/source/kde4/_meta'
+    assert_response :success
+    meta_before_delete = @response.body
+    # kind of stupid, but do_change_project_meta_test modifies backend data and does not clean up
+    put '/source/kde4/_meta', meta_before_delete
+    assert_response :success
+    get '/source/kde4/_project/_history?meta=1'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    revision = node.each(:revision).last.value :rev
+    expected_revision = revision.to_i + 1
     delete '/source/kde4?user=illegal&comment=drop%20project'
     assert_response :success
 
@@ -1816,9 +1827,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'user', :content => 'fredlibs')
     assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'comment', :content => 'drop project')
     get '/source/kde4/_project/_history?meta=1&deleted=1'
-    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'user', :content => 'fredlibs')
-    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'comment', :content => 'drop project')
     assert_response :success
+    assert_xml_tag(parent: { tag: 'revision' }, tag: 'user', content: 'fredlibs')
+    assert_xml_tag(parent: { tag: 'revision' }, tag: 'comment', content: 'drop project')
+    # there must be only one change
+    node = ActiveXML::Node.new(@response.body)
+    revision = node.each(:revision).last.value :rev
+    assert_equal expected_revision, revision.to_i
 
     prepare_request_with_user 'fredlibs', 'buildservice'
     # undelete project
@@ -1833,10 +1848,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/kde4'
     assert_response :success
     get '/source/kde4/_project'
-
     assert_response :success
     get '/source/kde4/_meta'
     assert_response :success
+    assert_equal meta_before_delete, @response.body
     get '/source/kde4/kdelibs'
     assert_response :success
     get '/source/kde4/kdelibs/_meta'

@@ -547,4 +547,61 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.all(:link, 'Trigger Rebuild')[0].click
     find('#flash-messages').must_have_text('Triggered rebuild for BaseDistro2.0/pack2.linked successfully.')
   end
+
+  def test_revert_to_revision
+    use_js
+    login_king
+    # create test package
+    visit project_show_path(project: "BaseDistro2.0")
+    click_link "Create package"
+    fill_in 'name', with: 'tst_pack'
+    click_button "Save changes"
+
+    # add 6 new revision to source package
+    6.times { |i| put '/source/BaseDistro2.0/tst_pack/rev_file_test', "revision #{(i + 1)}" }
+    # check latest revision
+    visit project_show_path(project: "BaseDistro2.0")
+    click_link "tst_pack"
+    click_link "rev_file_test"
+    page.must_have_text "revision 6"
+
+    # go to revision page and select second last revision (rev5)
+    visit package_view_revisions_path(project: 'BaseDistro2.0', package: 'tst_pack', meta: '0')
+    within('div#commit_item_5') do
+      click_link "Files changed"
+    end
+
+    # create "revert to revision" submit request
+    page.must_have_text "Changes of Revision 5"
+    click_link "Revert BaseDistro2.0 / tst_pack to revision 5"
+
+    # use same project, but set different target package name
+    page.must_have_text "Create Submit Request"
+    fill_in 'targetproject', with: 'BaseDistro2.0'
+    fill_in 'targetpackage', with: 'tst_pack_rev5'
+    fill_in 'description', with: 'testing revert to revision 5'
+    click_button 'Ok'
+
+    # check that request was submitted
+    page.wont_have_selector '.dialog' # wait for the reload
+    requestid = flash_message.gsub(%r{Created submit request (\d*) to BaseDistro2.0}, '\1').to_i
+
+    # open request from project page and accept it
+    visit project_show_path(project: "BaseDistro2.0")
+    click_link "open request"
+    find("a[href='/request/show/#{requestid}']").click
+    page.must_have_text "testing revert to revision 5"
+    page.must_have_text "Submit package BaseDistro2.0 / tst_pack (revision 5) to package BaseDistro2.0 / tst_pack_rev5"
+    click_button "Accept request"
+
+    # go to reverted package
+    visit project_show_path(project: "BaseDistro2.0")
+    click_link "tst_pack_rev5"
+    page.must_have_text "testing revert to revision 5"
+
+    # verify that correct revision was reverted
+    click_link "rev_file_test"
+    page.wont_have_text "revision 6" # from the latest revision
+    page.must_have_text "revision 5" # from the reverted revision
+  end
 end

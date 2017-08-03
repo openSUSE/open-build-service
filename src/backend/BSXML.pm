@@ -140,6 +140,7 @@ our $proj = [
 	 [],
         'title',
         'description',
+        'url',
      [[	'link' =>
 	    'project',
      ]],
@@ -730,6 +731,7 @@ our $worker = [
           [ 'flag' ],
         ],
         'processors',
+        'jobs',         # compat for OBS 2.8 worker
 	'memory',	# in MBytes
 	'swap',		# in MBytes
 	'disk',		# in MBytes

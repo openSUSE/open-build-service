@@ -58,7 +58,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     super(opts)
   end
 
-  def _merge_pkg_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject = nil, request = nil)
+  def _merge_pkg_into_maintenance_incident(incidentProject)
     # recreate package based on link target and throw everything away, except source changes
     # silently as maintenance teams requests ...
     new_pkg = nil
@@ -86,17 +86,17 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       end
 
       # use specified release project if defined
-    elsif releaseproject
+    elsif target_releaseproject
       package_name = source_package
       package_name = linkinfo['package'] if linkinfo
 
-      branch_params = {:target_project => incidentProject.name,
-                       :olinkrev => 'base',
-                       :maintenance => 1,
-                       :force => 1,
-                       :comment => 'Initial new branch',
-                       :project => releaseproject, :package => package_name}
-      branch_params[:requestid] = request.id if request
+      branch_params = {target_project: incidentProject.name,
+                       olinkrev: 'base',
+                       requestid: bs_request.number,
+                       maintenance: 1,
+                       force: 1,
+                       comment: 'Initial new branch',
+                       project: target_releaseproject, package: package_name}
       # accept branching from former update incidents or GM (for kgraft case)
       linkprj = Project.find_by_name(linkinfo['project']) if linkinfo
       if defined?(linkprj) && linkprj
@@ -117,13 +117,12 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       # linked to an existing package in an external project
       linked_project = linkinfo['project']
       linked_package = linkinfo['package']
-
-      branch_params = {:target_project => incidentProject.name,
-                       :olinkrev => 'base',
-                       :maintenance => 1,
-                       :force => 1,
-                       :project => linked_project, :package => linked_package}
-      branch_params[:requestid] = request.id if request
+      branch_params = {target_project: incidentProject.name,
+                       olinkrev: 'base',
+                       requestid: bs_request.number,
+                       maintenance: 1,
+                       force: 1,
+                       project: linked_project, package: linked_package}
       ret = BranchPackage.new(branch_params).branch
       new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
     else
@@ -142,21 +141,22 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       end
     end
 
-    # backend copy of current sources, but keep link
+    # backend copy of submitted sources, but keep link
     cp_params = {
       cmd:            "copy",
       user:           User.current.login,
       oproject:       source_project,
       opackage:       source_package,
+      requestid:      bs_request.number,
       keeplink:       1,
       expand:         1,
       withacceptinfo: 1,
       comment:        "Maintenance incident copy from project #{source_project}"
     }
-    cp_params[:requestid] = request.number if request
+    cp_params[:orev] = source_rev if source_rev
     cp_path = "/source/#{CGI.escape(incidentProject.name)}/#{CGI.escape(new_pkg.name)}"
     cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage,
-                                                               :keeplink, :expand, :comment,
+                                                               :orev, :keeplink, :expand, :comment,
                                                                :requestid, :withacceptinfo])
     result = Suse::Backend.post cp_path, nil
     result = Xmlhash.parse(result.body)
@@ -166,10 +166,10 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     new_pkg
   end
 
-  def merge_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject = nil, request = nil)
+  def merge_into_maintenance_incident(incidentProject)
     # copy all or selected packages and project source files from base project
     # we don't branch from it to keep the link target.
-    pkg = _merge_pkg_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject, request)
+    pkg = _merge_pkg_into_maintenance_incident(incidentProject)
 
     incidentProject.save!
     incidentProject.store(comment: "maintenance_incident request #{self.bs_request.number}", request: self.bs_request)
@@ -181,9 +181,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     incident_project = Project.get_by_name(self.target_project)
 
     # the incident got created before
-    self.target_package = merge_into_maintenance_incident(incident_project,
-                                                          self.source_project, self.source_package,
-                                                          self.target_releaseproject, self.bs_request)
+    self.target_package = merge_into_maintenance_incident(incident_project)
 
     # update action with real target project
     self.target_project = incident_project.name

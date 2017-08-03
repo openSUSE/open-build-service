@@ -1,0 +1,30 @@
+#
+# openSUSE Build Service 2.7.4
+#
+
+Updaters from OBS 2.7.0 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+This release fixes a few bugs and a security issue caused by to loose API
+attribute permission checks.
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* none
+
+Bugfixes:
+=========
+
+* [api] Fix API permission check for creating and changing (POST) attributes
+* [api] Fix API permission check for deleting (DELETE) attributes
+* [webui] Invalidate cached session in LDAP mode
+* [api][webui] Fail ldap authentification with empty password
+* [webui] Fix repository removal when updating project meta fails with an error
+

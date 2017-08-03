@@ -452,6 +452,9 @@ class UserLdapStrategy
         return nil
       end
     when :ldap then
+      # ruby-ldap returns true if password is empty
+      # https://github.com/ruby-ldap/ruby-net-ldap/issues/5
+      return unless password.present?
       # Don't match the passwd locally, try to bind to the ldap server
       user_con= initialize_ldap_con(user['dn'], password)
       if user_con.nil?
