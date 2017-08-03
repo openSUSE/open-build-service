@@ -1,5 +1,25 @@
-#kiwi-image-update-form-save {
-  margin-left: 1em;
+#kiwi-save {
+  float: right;
+  margin-right: 18px;
+  padding-bottom: 0;
+
+  #kiwi-image-update-form-save {
+    margin-left: 0.5em;
+    color: #a4a4a4;
+
+    img { opacity: 0.5; }
+
+    &.enabled {
+      color: #690;
+
+      img { opacity: 1; }
+
+      &:hover {
+        color: #069;
+        cursor: pointer;
+      }
+    }
+  }
 }
 
 .kiwi_fields {
@@ -11,6 +31,7 @@
 .kiwi_list_item {
   font-weight: bold;
   padding: 5px;
+
   &:hover {
     color: #fff;
     background-color: #690;
