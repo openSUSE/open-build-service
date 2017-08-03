@@ -30,6 +30,7 @@ We tag our commits depending on the area that is affected by the change. Those a
 * [api]     - Changes in api related parts of app/model/ and lib/ as well as app/controllers/\*.rb and it's views
 * [backend] - Changes in the perl-written backend of OBS
 * [ci]      - Changes that affect our test suite
+* [dist]    - Modifies something inside /dist directory
 * [doc]     - Any documentation related changes
 
 # How to contribute issues
