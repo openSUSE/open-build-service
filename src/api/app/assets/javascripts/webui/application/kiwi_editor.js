@@ -25,9 +25,9 @@ function closeDialog() {
   var fields = $(this).parents('.nested-fields');
   var name = fields.find('.kiwi_element_name');
   var dialog = fields.find('.dialog');
-  var name_package = dialog.find("[id$='name']").val();
-  if (name_package != '') {
-    name.text(name_package);
+  var namePackage = dialog.find("[id$='name']").val();
+  if (namePackage != '') {
+    name.text(namePackage);
   }
   else {
     var alias = dialog.find("[id$='alias']");
