@@ -2660,7 +2660,9 @@ XML
     # the backend has to be up before we can accept
     Backend::Connection.start_test_backend
     BsRequest.delayed_auto_accept
-
+    # Run delayed jobs for newly created bs request.
+    # NOTE: bs requests are now identified by their number attribute
+    BsRequestAutoAcceptJob.new.perform(BsRequest.find_by_number(id).id)
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(tag: 'accept_at', content: '2010-07-13 14:00:21 UTC')
