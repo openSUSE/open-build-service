@@ -67,6 +67,7 @@ case "$1" in
         # The default queue used by ActiveJob (jobs scheduled with .perform_later)
         run_in_api script/delayed_job.api.rb --queue=default start -i 1030
         run_in_api script/delayed_job.api.rb --queue=project_log_rotate start -i 1040
+        run_in_api script/delayed_job.api.rb --queue=consistency_check start -i 1050
 	rc_status -v
 	echo -n "Starting OBS api clock daemon "
         run_in_api $CLOCKWORKD --log-dir=log -l -c config/clock.rb start
@@ -81,6 +82,7 @@ case "$1" in
         run_in_api script/delayed_job.api.rb --queue=mailers stop -i 1020
         run_in_api script/delayed_job.api.rb --queue=default stop -i 1030
         run_in_api script/delayed_job.api.rb --queue=project_log_rotate stop -i 1040
+        run_in_api script/delayed_job.api.rb --queue=consistency_check stop -i 1050
 	rc_status -v
 	echo -n "Shutting down OBS api clock daemon "
         run_in_api $CLOCKWORKD -l -c config/clock.rb stop
