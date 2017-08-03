@@ -125,13 +125,14 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
 
   describe '#to_xml' do
     context 'without a package' do
-      context 'without any repository' do
+      context 'without any repository or package' do
         it { expect(kiwi_image.to_xml).to eq(Kiwi::Image::DEFAULT_KIWI_BODY) }
       end
 
-      context 'with some repositories' do
+      context 'with some repositories and packages' do
         before do
           kiwi_image.repositories << create(:kiwi_repository)
+          kiwi_image.package_groups << create(:kiwi_package_group_non_empty)
         end
 
         subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
@@ -140,6 +141,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         it { expect(subject.xpath('.//image').length).to be(1) }
         it { expect(subject.xpath('.//image/description').length).to be(1) }
         it { expect(subject.xpath('.//image/packages').length).to be(1) }
+        it { expect(subject.xpath('.//image/packages/package').length).to be(2) }
         it { expect(subject.xpath('.//image/repository').length).to be(1) }
       end
     end
@@ -172,7 +174,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.errors).to be_empty }
       it { expect(subject.xpath('.//image').length).to be(1) }
       it { expect(subject.xpath('.//image/description').length).to be(1) }
-      it { expect(subject.xpath('.//image/packages/package').length).to be(20) }
+      it { expect(subject.xpath('.//image/packages/package').length).to be(0) }
       it { expect(subject.xpath('.//image/repository').length).to be(0) }
     end
 

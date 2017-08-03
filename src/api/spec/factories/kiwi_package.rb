@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :kiwi_package, class: Kiwi::Package do
     transient do
-      image { create(:image) }
+      image { create(:kiwi_image) }
     end
 
     package_group { create(:kiwi_package_group, image: image) }

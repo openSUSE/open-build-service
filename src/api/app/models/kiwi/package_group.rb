@@ -9,6 +9,21 @@ class Kiwi::PackageGroup < ApplicationRecord
   validates :kiwi_type, presence: true
 
   accepts_nested_attributes_for :packages, reject_if: :all_blank, allow_destroy: true
+
+  def to_xml
+    group_attributes = { type: kiwi_type }
+    group_attributes[:profiles] = profiles if profiles.present?
+    group_attributes[:patternType] = pattern_type if pattern_type.present?
+
+    builder = Nokogiri::XML::Builder.new
+    builder.packages(group_attributes) do |group|
+      packages.each do |package|
+        group.package(package.to_h)
+      end
+    end
+
+    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT
+  end
 end
 
 # == Schema Information

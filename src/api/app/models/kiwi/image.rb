@@ -10,8 +10,6 @@ class Kiwi::Image < ApplicationRecord
   <preferences>
     <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
   </preferences>
-  <packages type="bootstrap">
-  </packages>
 </image>
 '
 
@@ -104,6 +102,10 @@ class Kiwi::Image < ApplicationRecord
     image = doc.at_css('image')
 
     return nil unless image && image.first_element_child
+
+    doc.xpath("image/packages").remove
+    xml_packages = package_groups.map(&:to_xml).join("\n")
+    image.first_element_child.after(xml_packages)
 
     doc.xpath("image/repository").remove
     xml_repos = repositories.map(&:to_xml).join("\n")

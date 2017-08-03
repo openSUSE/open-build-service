@@ -3,6 +3,15 @@ class Kiwi::Package < ApplicationRecord
   has_one :kiwi_image, through: :package_groups
 
   validates :name, presence: true
+
+  def to_h
+    hash = { name: name }
+    hash[:arch] = arch if arch.present?
+    hash[:replaces] = replaces if replaces.present?
+    hash[:bootinclude] = bootinclude if bootinclude.present?
+    hash[:bootdelete] = bootdelete if bootdelete.present?
+    hash
+  end
 end
 
 # == Schema Information
