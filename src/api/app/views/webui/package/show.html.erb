@@ -113,7 +113,7 @@
                   <%= link_to(sprited_text('package_delete', 'Delete package'), { :action => :delete_dialog, :package => @package, :project => @project }, :remote => true, id: 'delete-package') %>
                 </li>
                 <% Feature.with(:kiwi_image_editor) do %>
-                  <% if @package.kiwi_image? %>
+                  <% if @package.kiwi_image? && policy(@package).update? %>
                     <li>
                       <%= link_to(sprited_text('package_edit', 'Edit KIWI'), import_kiwi_image_path(@package.id), id: 'edit-kiwi') %>
                     </li>
