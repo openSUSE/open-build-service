@@ -101,6 +101,7 @@ Depends: apt-utils,
          ${misc:Depends},
          ${shlibs:Depends}
 Recommends: createrepo,
+            dpkg-dev,
             gnupg2,
             lvm2,
             obs-signd,
