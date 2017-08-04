@@ -1,22 +1,5 @@
 module ProjectStatus
   class Calculator
-    def check_md5(packages)
-      # remap
-      ph = {}
-      packages.each { |p| ph[p.package_id] = p }
-      packages = Package.where(id: ph.keys).includes(:backend_package).references(:backend_packages)
-      packages.each do |p|
-        obj = ph[p.id]
-        obj.bp = p.backend_package
-        obj.srcmd5 = obj.bp.srcmd5
-        obj.verifymd5 = obj.bp.verifymd5
-        obj.error = obj.bp.error
-        obj.links_to = obj.bp.links_to_id
-        obj.changesmd5 = obj.bp.changesmd5
-        obj.maxmtime = obj.bp.maxmtime.to_i
-      end
-    end
-
     # parse the jobhistory and put the result in a format we can cache
     def parse_jobhistory(dname, repo, arch)
       uri = "/build/#{CGI.escape(dname)}/#{CGI.escape(repo)}/#{arch}/_jobhistory?code=lastfailures"
@@ -51,7 +34,7 @@ module ProjectStatus
     end
 
     def update_jobhistory(proj, mypackages)
-      prjpacks = Hash.new
+      prjpacks = {}
       dname = proj.name
       mypackages.each_value do |package|
         if package.project == dname
@@ -80,6 +63,7 @@ module ProjectStatus
     def add_recursively(mypackages, dbpack)
       return if mypackages.has_key? dbpack.id
       pack = PackInfo.new(dbpack)
+      pack.backend_package = dbpack.backend_package
 
       if dbpack.develpackage
         add_recursively(mypackages, dbpack.develpackage)
@@ -93,45 +77,23 @@ module ProjectStatus
     end
 
     def calc_status(opts = {})
-      mypackages = Hash.new
+      return {} unless @dbproj
 
-      unless @dbproj
-        return mypackages
-      end
+      mypackages = {}
 
-      @dbproj.packages.select([:id, :name, :project_id, :develpackage_id]).includes(:develpackage).load.each do |dbpack|
+      @dbproj.packages.select([:id, :name, :project_id, :develpackage_id]).includes(:develpackage, :backend_package).load.each do |dbpack|
         add_recursively(mypackages, dbpack)
       end
 
-      check_md5(mypackages.values)
-
-      links = Array.new
-      # find links
-      mypackages.each_value.each do |package|
-        if package.project == @dbproj.name && package.links_to_id
-          links << package.links_to_id
+      list = Project.joins(:packages).where(packages: { id: mypackages.keys }).pluck('projects.id, projects.name, packages.id')
+      projects = {}
+      list.each do |project_id, project_name, package_name|
+        package_info = mypackages[package_name]
+        package_info.project = project_name
+        if package_info.links_to_id
+          package_info.links_to = mypackages[package_info.links_to_id]
         end
-      end
-      links = Package.where(id: links).includes(:project).to_a
-
-      tocheck = Array.new
-      links.each do |pack|
-        pack = PackInfo.new(pack)
-        next if mypackages.has_key? pack.key
-        tocheck << pack
-        mypackages[pack.key] = pack
-      end
-      check_md5(tocheck)
-
-      list = Project.joins(:packages).where(packages: {id: mypackages.keys}).pluck("projects.id as pid, projects.name, packages.id")
-      projects = Hash.new
-      list.each do |pid, pname, id|
-        obj = mypackages[id]
-        obj.project = pname
-        if obj.links_to
-          obj.links_to = mypackages[obj.links_to]
-        end
-        projects[pid] = pname
+        projects[project_id] = project_name
       end
 
       projects.each do |id, _|

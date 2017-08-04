@@ -1,12 +1,8 @@
 module ProjectStatus
   class PackInfo
-    attr_accessor :bp, :project
-    attr_accessor :srcmd5, :verifymd5, :changesmd5, :maxmtime, :error, :links_to
-    attr_reader :name, :package_id
-    attr_accessor :develpack
-    attr_accessor :failed_comment, :upstream_version, :upstream_url, :declined_request
-    attr_reader :version, :release, :versiontime
-    attr_reader :failed, :groups, :persons
+    attr_accessor :backend_package, :project, :links_to, :develpack, :failed_comment, :upstream_version, :upstream_url, :declined_request
+    attr_reader :name, :package_id, :version, :release, :versiontime, :failed, :groups, :persons
+    delegate :srcmd5, :verifymd5, :changesmd5, :maxmtime, :error, :links_to_id, to: :backend_package
 
     def initialize(db_pack)
       @name = db_pack.name
@@ -18,11 +14,11 @@ module ProjectStatus
       # we avoid going back in versions by avoiding going back in time
       # the last built version wins (repos may have different versions)
       @versiontime = nil
-      @failed = Hash.new
+      @failed = {}
 
       # only set from status controller
-      @groups = Array.new
-      @persons = Array.new
+      @groups = []
+      @persons = []
     end
 
     def add_person(login, role)
@@ -33,11 +29,8 @@ module ProjectStatus
       @groups << [title, role]
     end
 
-    def to_xml(options = {})
-      # return packages not having sources
-      return if srcmd5.blank?
-      xml = options[:builder] ||= Builder::XmlMarkup.new(indent: options[:indent])
-      opts = {
+    def header
+      options = {
         project:    project,
         name:       name,
         version:    version,
@@ -47,38 +40,13 @@ module ProjectStatus
         release:    release
       }
       unless verifymd5.blank? || verifymd5 == srcmd5
-        opts[:verifymd5] = verifymd5
+        options[:verifymd5] = verifymd5
       end
-      xml.package(opts) do
-        fails.each do |repository, _architecture, time, md5|
-          xml.failure(repo: repository, time: time, srcmd5: md5)
-        end
-        if develpack
-          xml.develpack(proj: develpack.project, pack: develpack.name) do
-            develpack.to_xml(builder: xml)
-          end
-        end
-
-        relationships_to_xml(xml, :persons, :person, :userid)
-        relationships_to_xml(xml, :groups, :group, :groupid)
-
-        xml.error(error) if error
-        xml.link(project: links_to.project, package: links_to.name) if links_to
-      end
-    end
-
-    def relationships_to_xml(builder, arrayname, elementname, tag)
-      arr = send(arrayname)
-      return if arr.empty?
-      builder.send(arrayname) do
-        arr.each do |element, role_name|
-          builder.send(elementname, tag => element, :role => role_name)
-        end
-      end
+      options
     end
 
     def set_versrel(versrel, time)
-      return if @versiontime && @versiontime > time
+      return if @versiontime && @versiontime.to_i > time.to_i
       versrel = versrel.split('-')
       @versiontime = time
       @version = versrel[0..-2].join('-')

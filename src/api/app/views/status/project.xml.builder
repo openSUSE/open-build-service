@@ -1,7 +1,6 @@
 
 xml.packages do
-  @packages.each do |name,pkg|
-    pkg.to_xml(:builder => xml)
+  @packages.each do |_name, package|
+    render(partial: 'package', locals: { builder: xml, package: package })
   end
 end
-
