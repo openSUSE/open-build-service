@@ -24,5 +24,9 @@
         = f.check_box :bootdelete
         = f.label :bootdelete
 
+      %p#flash-messages
+        %p.ui-state-error.ui-widget-shadow.hidden
+          The name can not be empty!
+
       .dialog-buttons
         = link_to('Continue', '#', title: 'Continue', class: 'close-dialog')

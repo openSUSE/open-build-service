@@ -21,6 +21,8 @@
         %p
           = f.label :source_path, 'Source:'
           = f.text_field :source_path
+          %span.small-text
+            Write a valid source path
 
         %p
           = f.label :username, 'User:'
@@ -35,6 +37,10 @@
         = f.label :imageinclude, 'Image include'
         = f.check_box :replaceable
         = f.label :replaceable
+
+      %p#flash-messages
+        %p.ui-state-error.ui-widget-shadow.hidden
+          The source path can not be empty!
 
       .dialog-buttons
         = link_to('Continue', '#', title: 'Continue', class: 'close-dialog')

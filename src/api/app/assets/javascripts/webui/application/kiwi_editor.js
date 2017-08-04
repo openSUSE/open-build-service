@@ -28,22 +28,38 @@ function editDialog(){
 
 function closeDialog() {
   var fields = $(this).parents('.nested-fields');
+  var is_repository = fields.parents('#kiwi-repositories-list').size() == 1;
   var name = fields.find('.kiwi_element_name');
   var dialog = fields.find('.dialog');
-  var namePackage = dialog.find("[id$='name']").val();
-  if (namePackage != '') {
-    name.text(namePackage);
-  }
-  else {
-    var alias = dialog.find("[id$='alias']");
-    if (alias.val() != '') {
-      name.text(alias.val());
+  
+  if(is_repository) {
+    var source_path = dialog.find("[id$='source_path']");
+    if(source_path.val() != '') {
+      var alias = dialog.find("[id$='alias']");
+      if (alias.val() != '') {
+        name.text(alias.val());
+      }
+      else {
+        name.text(source_path.val().replace(/\//g, '_'));
+      }
     }
     else {
-      var source_path = dialog.find("[id$='source_path']");
-      name.text(source_path.val().replace(/\//g, '_'));
+      fields.find(".ui-state-error").removeClass('hidden');
+      return false;
     }
   }
+  else {
+    var namePackage = dialog.find("[id$='name']").val();
+    if(namePackage != '') {
+      name.text(namePackage);
+    }
+    else {
+      fields.find(".ui-state-error").removeClass('hidden');
+      return false;
+    }
+  }
+  
+  fields.find(".ui-state-error").addClass('hidden');
   $('.overlay').hide();
   dialog.addClass('hidden');
 }
