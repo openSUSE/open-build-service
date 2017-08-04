@@ -1,7 +1,4 @@
-class AcceptRequestsJob
-  def initialize
-  end
-
+class AcceptRequestsJob < ApplicationJob
   def perform
     User.current = User.find_by_login('Admin')
     BsRequest.to_accept.each do |r|
