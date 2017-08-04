@@ -1,5 +1,5 @@
 class CreateJob < ApplicationJob
-  def perform(event_id)
+  def perform(_event_id)
     raise NotImplementedError
   end
 
@@ -20,6 +20,6 @@ class CreateJob < ApplicationJob
       Rails.logger.debug "ERROR: #{exception.inspect}: #{exception.backtrace}"
       puts exception.inspect, exception.backtrace
     end
-    Airbrake.notify(exception, {failed_job: self.job_id})
+    Airbrake.notify(exception, {failed_job: job_id})
   end
 end

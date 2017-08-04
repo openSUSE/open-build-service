@@ -156,7 +156,7 @@ module Event
         job_obj = job_class.new
         raise("#{job.to_s.camelize} is not a CreateJob") unless job_obj.is_a?(CreateJob)
 
-        job_class.perform_later(self.id)
+        job_class.perform_later(id)
 
         self.undone_jobs += 1
       end
