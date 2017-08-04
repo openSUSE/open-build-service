@@ -8,8 +8,7 @@ OBSApi::Application.load_tasks
 
 require(File.join(File.dirname(__FILE__), 'config', 'boot'))
 
-require 'workers/update_issues'
-task(updateissues: :environment) { Delayed::Job.enqueue UpdateIssuesJob.new }
+task(updateissues: :environment) { IssueTrackerUpdateIssuesJob.perform_later }
 
 task(updatepackagemeta: :environment) { UpdatePackageMetaJob.new.perform }
 
