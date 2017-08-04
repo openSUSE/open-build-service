@@ -1,4 +1,4 @@
-#!/usr/bin/env rake2.3
+#!/usr/bin/env rake.ruby2.4
 # Add your own tasks in files placed in lib/tasks ending in .rake,
 # for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
 
@@ -8,21 +8,8 @@ OBSApi::Application.load_tasks
 
 require(File.join(File.dirname(__FILE__), 'config', 'boot'))
 
-task(updateissues: :environment) { IssueTrackerUpdateIssuesJob.perform_later }
-
-task(updatepackagemeta: :environment) { UpdatePackageMetaJob.new.perform }
-
-# write directly to backend, for initial bootup in obsapisetup
-task(writeconfiguration: :environment) { ::Configuration.first.write_to_backend }
-
-require 'workers/import_requests'
-task(importrequests: :environment) { ImportRequestsDelayedJob.new.perform }
-
-require(File.join(File.dirname(__FILE__), 'app/jobs/application_job.rb'))
-task(check_project: :environment) { ConsistencyCheckJob.new.check_project }
-task(fix_project: :environment) { ConsistencyCheckJob.new.fix_project }
-
 unless Rails.env.production?
+  require 'single_test/tasks'
   require 'rubocop/rake_task'
   require 'haml_lint/rake_task'
 
@@ -31,8 +18,4 @@ unless Rails.env.production?
   end
 
   HamlLint::RakeTask.new
-end
-
-if Rails.env.test?
-  require 'single_test/tasks'
 end
