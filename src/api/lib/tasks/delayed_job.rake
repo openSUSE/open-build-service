@@ -3,7 +3,7 @@ require 'workers/update_issues.rb'
 
 namespace :jobs do
   desc "Inject a job to write issue tracker information to backend"
-  task(issuetrackers: :environment) { IssueTracker.write_to_backend }
+  task(issuetrackers: :environment) { IssueTracker.first.save! }
 
   desc "Update issue data of all changed issues in remote tracker"
   task(updateissues: :environment) {
