@@ -1,17 +1,22 @@
+var canSave = false;
+
 function saveImage() {
-  $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
-    dataType: 'json',
-    success: function(json) {
-      var is_outdated = json.is_outdated;
-      if (is_outdated && !confirm("This image has been modified while you were editing it.\nDo you want to apply the changes anyway?"))
-        return;
-      $('#kiwi-image-update-form').submit();
-    }
-  });
+  if (canSave) {
+    $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
+      dataType: 'json',
+      success: function(json) {
+        var is_outdated = json.is_outdated;
+        if (is_outdated && !confirm("This image has been modified while you were editing it.\nDo you want to apply the changes anyway?"))
+          return;
+        $('#kiwi-image-update-form').submit();
+      }
+    });
+  }
 }
 
 function enableSave(){
-  $('#kiwi-image-update-form-save').prop('disabled', false);
+  canSave = true;
+  $('#kiwi-image-update-form-save').addClass('enabled');
 }
 
 function editDialog(){
