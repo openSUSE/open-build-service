@@ -188,4 +188,35 @@ RSpec.describe BsRequest do
       include_examples 'after_commit callback'
     end
   end
+
+  describe '.delayed_auto_accept' do
+    let!(:project) { create(:project) }
+    let!(:admin) { create(:admin_user) }
+
+    let(:target_package) { create(:package) }
+    let(:target_project) { target_package.project }
+    let(:source_package) { create(:package) }
+    let(:source_project) { source_package.project }
+
+    let!(:request) do
+      create(:bs_request_with_submit_action,
+             target_project: target_project.name,
+             target_package: target_package.name,
+             source_project: source_project.name,
+             source_package: source_package.name,
+             creator: admin.login)
+    end
+
+    before do
+      allow(BsRequest).to receive(:to_accept).and_return([request])
+      allow(BsRequest).to receive(:find).and_return(request)
+      allow(request).to receive(:auto_accept)
+    end
+
+    subject! { BsRequest.delayed_auto_accept }
+
+    it 'calls auto_accept on the request' do
+      expect(request).to have_received(:auto_accept)
+    end
+  end
 end
