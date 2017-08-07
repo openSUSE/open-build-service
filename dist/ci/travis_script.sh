@@ -29,6 +29,7 @@ if test -z "$SUBTEST"; then
       make -C ../../ rubocop
       bundle exec rake haml_lint
       jshint .
+      bundle exec git-cop --police
       ;;
     rspec)
       bundle exec rails assets:precompile &> /dev/null

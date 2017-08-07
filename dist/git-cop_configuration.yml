@@ -1,0 +1,55 @@
+:commit_author_email:
+  :enabled: true
+  :severity: :error
+:commit_author_name_capitalization:
+  :enabled: false
+:commit_author_name_parts:
+  :enabled: false
+:commit_body_bullet:
+  :enabled: true
+  :severity: :warn
+  :blacklist:
+    - "\\*"
+    - "•"
+:commit_body_bullet_capitalization:
+  :enabled: false
+:commit_body_issue_tracker_link:
+  :enabled: false
+:commit_body_leading_line:
+  :enabled: true
+  :severity: :error
+:commit_body_leading_space:
+  :enabled: false
+:commit_body_line_length:
+  :enabled: true
+  :severity: :warn
+  :length: 72
+:commit_body_paragraph_capitalization:
+  :enabled: false
+:commit_body_phrase:
+  :enabled: true
+  :severity: :warn
+  :blacklist:
+    - obviously
+    - basically
+    - simply
+    - of course
+    - everyone knows
+    - easy
+:commit_body_presence:
+  :enabled: true
+  :severity: :warn
+  :minimum: 1
+:commit_body_single_bullet:
+  :enabled: false
+:commit_subject_length:
+  :enabled: true
+  :severity: :warn
+  :length: 50
+:commit_subject_prefix:
+  :enabled: true
+  :severity: :error
+  :whitelist:
+    - \A(?!\s)(\[api\])?(\[backend\])?(\[ci\])?(\[dist\])?(\[doc\])?(\[webui\])? [a-zA-Z]
+:commit_subject_suffix:
+  :enabled: false
