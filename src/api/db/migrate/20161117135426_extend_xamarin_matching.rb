@@ -5,7 +5,8 @@ class ExtendXamarinMatching < ActiveRecord::Migration[4.2]
       t.regex = '(?:bxc|Xamarin)#(\d+)'
       t.save
       Delayed::Worker.delay_jobs = true
-      IssueTracker.write_to_backend
+      # trigger IssueTracker delayed jobs
+      IssueTracker.first.try(:save)
     end
   end
 
@@ -15,7 +16,8 @@ class ExtendXamarinMatching < ActiveRecord::Migration[4.2]
       t.regex = 'Xamarin#(\d+)'
       t.save
       Delayed::Worker.delay_jobs = true
-      IssueTracker.write_to_backend
+      # trigger IssueTracker delayed jobs
+      IssueTracker.first.try(:save)
     end
   end
 end
