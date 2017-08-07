@@ -4,7 +4,7 @@ class Event::Packtrack < Event::Base
   payload_keys :project, :repo, :payload
 
   # for package tracking in first place
-  create_jobs :update_released_binaries
+  create_jobs :update_released_binaries_job
 end
 
 # == Schema Information

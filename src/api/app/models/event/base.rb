@@ -151,13 +151,13 @@ module Event
       save
       Rails.logger.debug "PCJ #{inspect} #{create_jobs.inspect}"
       create_jobs.each do |job|
-        eclass = job.to_s.camelize.safe_constantize
-        raise "#{job.to_s.camelize} does not map to a constant" if eclass.nil?
-        djob = eclass.new(self)
-        raise("#{job.to_s.camelize} is not a CreateJob") unless djob.is_a?(CreateJob)
-        opts = {}
-        opts = { queue: eclass.job_queue } if eclass.methods.include? :job_queue
-        Delayed::Job.enqueue djob, opts
+        job_class = job.to_s.camelize.safe_constantize
+        raise "#{job.to_s.camelize} does not map to a constant" if job_class.nil?
+        job_obj = job_class.new
+        raise("#{job.to_s.camelize} is not a CreateJob") unless job_obj.is_a?(CreateJob)
+
+        job_class.perform_later(id)
+
         self.undone_jobs += 1
       end
       save if self.undone_jobs > 0

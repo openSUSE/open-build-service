@@ -1,10 +1,12 @@
-class CreateJob
-  def initialize(event)
-    self.event = event
+class CreateJob < ApplicationJob
+  def perform(_event_id)
+    raise NotImplementedError
   end
 
-  def after(job)
-    event = job.payload_object.event
+  after_perform do |job|
+    event_id = job.arguments.first
+    event = Event::Base.find(event_id)
+
     # in test suite the undone_jobs are 0 as the delayed jobs are not delayed
     event.with_lock do
       event.undone_jobs -= 1
@@ -12,13 +14,12 @@ class CreateJob
     end
   end
 
-  def error(job, exception)
+  rescue_from(StandardError) do |exception|
     if Rails.env.test?
       # make debug output useful in test suite, not just showing backtrace to Airbrake
       Rails.logger.debug "ERROR: #{exception.inspect}: #{exception.backtrace}"
       puts exception.inspect, exception.backtrace
-      return
     end
-    Airbrake.notify(exception, {failed_job: job.inspect})
+    Airbrake.notify(exception, {failed_job: job_id})
   end
 end
