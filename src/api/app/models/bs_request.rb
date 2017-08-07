@@ -1,6 +1,5 @@
 require 'xmlhash'
 require 'event'
-require 'workers/accept_requests'
 
 include MaintenanceHelper
 
@@ -730,7 +729,7 @@ class BsRequest < ApplicationRecord
 
       # we want to check right now if pre-approved requests can be processed
       if go_new_state == :new && accept_at
-        Delayed::Job.enqueue AcceptRequestsJob.new
+        AcceptRequestsJob.perform_later
       end
     end
   end
