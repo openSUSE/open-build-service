@@ -1138,8 +1138,12 @@ class SourceController < ApplicationController
       @project.do_project_copy(params)
       render_ok
     else
-      # inject as job
-      @project.delay.do_project_copy(params)
+      job_params =
+        params.slice(
+          :cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder, :makeoriginolder, :noservice
+        ).permit!.to_h
+
+      ProjectDoProjectCopyJob.perform_later(@project.id, job_params)
       render_invoked
     end
   end
