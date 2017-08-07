@@ -55,13 +55,15 @@ class Kiwi::Repository < ApplicationRecord
 
   def to_xml
     repo_attributes = { type: repo_type }
-    repo_attributes[:status] = 'replaceable' if replaceable
     repo_attributes[:priority] = priority if priority.present?
     repo_attributes[:alias] = self.alias if self.alias.present?
     if username.present?
       repo_attributes[:username] = username
       repo_attributes[:password] = password
     end
+    repo_attributes[:status] = 'replaceable' if replaceable
+    repo_attributes[:imageinclude] = true if imageinclude
+    repo_attributes['prefer-license'] = true if prefer_license
 
     builder = Nokogiri::XML::Builder.new
     builder.repository(repo_attributes) do |repo|
