@@ -89,7 +89,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'RequestController#render_request_collection'                             => 85.91,
       'SearchController#find_attribute'                                         => 97.33,
       'SearchController#search'                                                 => 81.15,
-      'SourceController#project_command_copy'                                   => 133.93,
+      'SourceController#project_command_copy'                                   => 138.83,
       'SourceController#update_project_meta'                                    => 98.09,
       'UserLdapStrategy::find_with_ldap'                                        => 122.14,
       'User::find_with_credentials'                                             => 101.42,
