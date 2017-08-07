@@ -97,5 +97,32 @@ RSpec.describe Kiwi::Repository, type: :model do
                               "<source path=\"http://example.com/\"/>\n</repository>\n")
       end
     end
+
+    context 'with prefer_license' do
+      subject { create(:kiwi_repository, prefer_license: true).to_xml }
+
+      it do
+        expect(subject).to eq("<repository type=\"apt-deb\" prefer-license=\"true\">\n  " +
+                              "<source path=\"http://example.com/\"/>\n</repository>\n")
+      end
+    end
+
+    context 'with imageinclude' do
+      subject { create(:kiwi_repository, imageinclude: true).to_xml }
+
+      it do
+        expect(subject).to eq("<repository type=\"apt-deb\" imageinclude=\"true\">\n  " +
+                              "<source path=\"http://example.com/\"/>\n</repository>\n")
+      end
+    end
+
+    context 'with alias' do
+      subject { create(:kiwi_repository, alias: 'example').to_xml }
+
+      it do
+        expect(subject).to eq("<repository type=\"apt-deb\" alias=\"example\">\n  " +
+                              "<source path=\"http://example.com/\"/>\n</repository>\n")
+      end
+    end
   end
 end
