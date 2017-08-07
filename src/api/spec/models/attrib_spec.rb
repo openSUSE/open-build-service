@@ -23,18 +23,19 @@ RSpec.describe Attrib do
     end
 
     describe "#validate_value_count" do
-      let(:attrib_value) { build(:attrib_value, value: 'Random value 1') }
-      let(:attrib_allowed_value) { build(:attrib_allowed_value, value: 'Random value 2') }
+      let(:attrib_value) { build(:attrib_value, value: 'Not allowed value') }
+      let(:attrib_allowed_value) { build(:attrib_allowed_value, value: 'Allowed value') }
       let(:attrib_type) { create(:attrib_type_with_namespace, allowed_values: [attrib_allowed_value]) }
 
       subject { build(:attrib, project: project, attrib_type: attrib_type, values: [attrib_value]) }
 
-      it { expect(subject.errors.full_messages).to match_array(["Values Value 'Random value 1' is not allowed. Please use one of: Random value 2"]) }
+      it {
+        expect(subject.errors.full_messages).to match_array(["Values Value 'Not allowed value' is not allowed. Please use one of: Allowed value"])
+      }
     end
 
     describe "#validate_issues" do
-      let(:issue_tracker) { create(:issue_tracker) }
-      let(:issue) { create(:issue, issue_tracker_id: issue_tracker.id) }
+      let(:issue) { create(:issue_with_tracker) }
       let(:attrib_type) { create(:attrib_type_with_namespace, issue_list: false) }
 
       subject { build(:attrib, project: project, attrib_type: attrib_type, issues: [issue]) }
