@@ -24,7 +24,9 @@ class BsRequest < ApplicationRecord
     'bs_requests.creator',
     'bs_requests.priority',
     'bs_request_actions.target_project',
+    'bs_request_actions.target_package',
     'bs_request_actions.source_project',
+    'bs_request_actions.source_package',
     'bs_request_actions.type'
   ]
 
