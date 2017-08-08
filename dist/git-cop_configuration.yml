@@ -45,7 +45,7 @@
 :commit_subject_length:
   :enabled: true
   :severity: :warn
-  :length: 50
+  :length: 60
 :commit_subject_prefix:
   :enabled: true
   :severity: :error
