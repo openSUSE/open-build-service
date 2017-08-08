@@ -50,6 +50,11 @@
   :enabled: true
   :severity: :error
   :whitelist:
-    - \A(?!\s)(\[api\])?(\[backend\])?(\[ci\])?(\[dist\])?(\[doc\])?(\[webui\])? [a-zA-Z]
+    # Commit header is allowed to start with either
+    #   * api, backend, ci, dist, doc, frontend and webui tags in edgy brackets in any order
+    # or
+    #   * 'Update' or 'Upgrade' (needed by depfu gem)
+    # In both cases they should be followed by the actual commit message subject
+    - \A(?!\s)(?:Update|Upgrade|\[api\]|\[backend\]|\[ci\]|\[dist\]|\[doc\]|\[frontend\]|\[webui\])+ \S+
 :commit_subject_suffix:
   :enabled: false
