@@ -50,6 +50,8 @@
   :enabled: true
   :severity: :error
   :whitelist:
+    # Allow api, backend, ci, dist, doc, frontend and webui tags in edgy brackets in any order,
+    # followed by the actual commit message of alphabetical characters
     - \A(?!\s)(?:\[api\]|\[backend\]|\[ci\]|\[dist\]|\[doc\]|\[frontend\]|\[webui\])+ [a-zA-Z]
 :commit_subject_suffix:
   :enabled: false
