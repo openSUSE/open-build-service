@@ -10,7 +10,8 @@ class NewSuseBugzillas < ActiveRecord::Migration[4.2]
     t.show_url = "https://bugzilla.opensuse.org/show_bug.cgi?id=@@@"
     t.save
     Delayed::Worker.delay_jobs = true
-    IssueTracker.write_to_backend
+    # trigger IssueTracker delayed jobs
+    IssueTracker.first.try(:save)
   end
 
   def down
@@ -24,6 +25,7 @@ class NewSuseBugzillas < ActiveRecord::Migration[4.2]
     t.show_url = "https://bugzilla.novell.com/show_bug.cgi?id=@@@"
     t.save
     Delayed::Worker.delay_jobs = true
-    IssueTracker.write_to_backend
+    # trigger IssueTracker delayed jobs
+    IssueTracker.first.try(:save)
   end
 end

@@ -7,7 +7,8 @@ class AdaptCveTracker < ActiveRecord::Migration[4.2]
       t.show_url = "http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-@@@"
       t.save
       Delayed::Worker.delay_jobs = true
-      IssueTracker.write_to_backend
+      # trigger IssueTracker delayed jobs
+      IssueTracker.first.try(:save)
 
       t.issues.each do |i|
         i.name.gsub!(/^CVE-/, '')
@@ -25,7 +26,8 @@ class AdaptCveTracker < ActiveRecord::Migration[4.2]
       t.show_url = "http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@"
       t.save
       Delayed::Worker.delay_jobs = true
-      IssueTracker.write_to_backend
+      # trigger IssueTracker delayed jobs
+      IssueTracker.first.try(:save)
 
       t.issues.each do |i|
         i.name = "CVE-" + i.name
