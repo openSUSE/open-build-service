@@ -193,17 +193,6 @@ class UserLdapStrategy
   def self.find_with_ldap(login, password)
     Rails.logger.debug("Looking for #{login} using ldap")
     ldap_info = Array.new
-    # use cache to check the password firstly
-    key = "ldap_cache_userpasswd:" + login
-    if Rails.cache.exist?(key)
-      ar = Rails.cache.read(key)
-      if ar[0] == Digest::MD5.digest(password)
-        ldap_info[0] = ar[1]
-        ldap_info[1] = ar[2]
-        Rails.logger.debug("login success for checking with ldap cache")
-        return ldap_info
-      end
-    end
 
     # When the server closes the connection, @@ldap_search_con.nil? doesn't catch it
     # @@ldap_search_con.bound? doesn't catch it as well. So when an error occurs, we
