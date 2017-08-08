@@ -8,13 +8,13 @@
 # Configuration details:
 # https://github.com/airbrake/airbrake-ruby#configuration
 Airbrake.configure do |c|
-  c.host = CONFIG['errbit_host']
+  c.host = CONFIG['errbit_host'] || ENV['ERRBIT_HOST']
   # You must set both project_id & project_key. To find your project_id and
   # project_key navigate to your project's General Settings and copy the values
   # from the right sidebar.
   # https://github.com/airbrake/airbrake-ruby#project_id--project_key
-  c.project_id  = CONFIG['errbit_project_id']
-  c.project_key = CONFIG['errbit_api_key']
+  c.project_id  = CONFIG['errbit_project_id'] || ENV['ERRBIT_PROJECT_ID']
+  c.project_key = CONFIG['errbit_api_key'] || ENV['ERRBIT_API_KEY']
   c.app_version = CONFIG['version']
 
   # Configures the root directory of your project. Expects a String or a
@@ -41,10 +41,10 @@ Airbrake.configure do |c|
   # unwanted environments such as :test.
   # NOTE: This option *does not* work if you don't set the 'environment' option.
   # https://github.com/airbrake/airbrake-ruby#ignore_environments
-  if CONFIG['errbit_api_key'].blank? || CONFIG['errbit_project_id'].blank?
+  if c.host.blank? || c.project_key.blank? || c.project_id.blank?
     c.ignore_environments = %w(production development test)
   else
-    c.ignore_environments = %w(development test)
+    c.ignore_environments = %w(development)
   end
 
   # A list of parameters that should be filtered out of what is sent to
