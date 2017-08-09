@@ -169,6 +169,28 @@ class User < ApplicationRecord
     create!(attributes.merge(password: SecureRandom.base64(48)))
   end
 
+  def self.create_ldap_user(attributes = {})
+    user = User.create(attributes.merge(
+      # Generate and store a 24 char fake pw in the OBS DB that no-one knows
+      password:  SecureRandom.base64,
+      state:     User.default_user_state,
+      adminnote: "User created via LDAP"
+    ))
+
+    if user.errors.empty?
+      logger.debug("Created new user...")
+      return user
+    else
+      logger.debug("Creating User failed with: ")
+      all_errors = user.errors.full_messages.map do |msg|
+        logger.debug(msg)
+        msg
+      end
+      logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{all_errors.join(', ')}")
+      return
+    end
+  end
+
   # This static method tries to find a user with the given login and password
   # in the database. Returns the user or nil if he could not be found
   def self.find_with_credentials(login, password)
@@ -203,7 +225,7 @@ class User < ApplicationRecord
       begin
         require 'ldap'
         logger.debug( "Using LDAP to find #{login}" )
-        ldap_info = UserLdapStrategy.find_with_ldap( login, password )
+        ldap_info = UserLdapStrategy.find_with_ldap(login, password)
       rescue LoadError
         logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
       rescue
@@ -220,37 +242,16 @@ class User < ApplicationRecord
         user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
         user.save if user.changed?
         return user
-      end
-
-      # still in LDAP mode, user authentificated, but not existing in OBS yet
-      if ::Configuration.registration == "deny"
-        logger.debug( "No user found in database, creation disabled" )
+      elsif ::Configuration.registration == "deny"
+        logger.debug("No user found in database, creation disabled")
         return
-      end
-      logger.debug( "No user found in database, creating" )
-      logger.debug( "Email: #{ldap_info[0]}" )
-      logger.debug( "Name : #{ldap_info[1]}" )
-      # Generate and store a 24 char fake pw in the OBS DB that no-one knows
-      password = SecureRandom.base64
-      user = User.create( login: login,
-                          password: password,
-                          email: ldap_info[0])
-      unless user.errors.empty?
-        logger.debug("Creating User failed with: ")
-        all_errors = user.errors.full_messages.map do |msg|
-          logger.debug(msg)
-          msg
-        end
-        logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{all_errors.join(', ')}")
-        return
-      end
-      user.realname = ldap_info[1]
-      user.state = User.default_user_state
-      user.adminnote = "User created via LDAP"
-      logger.debug( "saving new user..." )
-      user.save
+      else
+        logger.debug("No user found in database, creating")
+        logger.debug("Email: #{ldap_info[0]}")
+        logger.debug("Name : #{ldap_info[1]}")
 
-      return user
+        return create_ldap_user(login: login, email: ldap_info[0], realname: ldap_info[1])
+      end
     end
   end
 
