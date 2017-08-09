@@ -50,28 +50,28 @@ module Clockwork
     CleanupNotifications.perform_later
   end
 
-  every(1.day, 'optimize history', thread: true ) do
+  every(1.day, 'optimize history', thread: true, at: '05:00' ) do
     ActiveRecord::Base.connection_pool.with_connection do |sql|
       sql.execute 'optimize table status_histories;'
     end
   end
 
-  every(1.day, 'refresh dirties') do
+  every(1.day, 'refresh dirties', at: '23:00') do
     # inject a delayed job for every dirty project
     BackendPackage.refresh_dirty
   end
 
-  every(1.day, 'clean old events') do
+  every(1.day, 'clean old events', at: '00:00') do
     CleanupEvents.perform_later
   end
 
-  every(1.day, 'create cleanup requests') do
+  every(1.day, 'create cleanup requests', at: '06:00' ) do
     User.current = User.get_default_admin
     ProjectCreateAutoCleanupRequests.perform_later
   end
 
   # check for new breakages between api and backend due to dull code
-  every(1.week, 'consistency check') do
+  every(1.week, 'consistency check', at: 'Sunday 03:00') do
     ConsistencyCheckJob.perform_later
   end
 end
