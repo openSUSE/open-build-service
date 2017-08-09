@@ -170,12 +170,7 @@ class User < ApplicationRecord
   end
 
   def self.create_ldap_user(attributes = {})
-    user = User.create(attributes.merge(
-      # Generate and store a 24 char fake pw in the OBS DB that no-one knows
-      password:  SecureRandom.base64,
-      state:     User.default_user_state,
-      adminnote: "User created via LDAP"
-    ))
+    user = create_user_with_fake_pw!(attributes.merge(state: default_user_state, adminnote: "User created via LDAP"))
 
     if user.errors.empty?
       logger.debug("Created new user...")
