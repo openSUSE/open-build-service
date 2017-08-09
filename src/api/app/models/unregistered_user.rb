@@ -85,6 +85,7 @@ end
 #  password_hash_type  :string(20)       default("md5"), not null
 #  password_salt       :string(10)       default("1234512345"), not null
 #  adminnote           :text(65535)
+#  external            :boolean          default(FALSE)
 #  state               :string(11)       default("unconfirmed")
 #  owner_id            :integer
 #
