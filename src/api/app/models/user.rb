@@ -172,18 +172,10 @@ class User < ApplicationRecord
   def self.create_ldap_user(attributes = {})
     user = create_user_with_fake_pw!(attributes.merge(state: default_user_state, adminnote: "User created via LDAP"))
 
-    if user.errors.empty?
-      logger.debug("Created new user...")
-      return user
-    else
-      logger.debug("Creating User failed with: ")
-      all_errors = user.errors.full_messages.map do |msg|
-        logger.debug(msg)
-        msg
-      end
-      logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{all_errors.join(', ')}")
-      return
-    end
+    return user if user.errors.empty?
+
+    logger.info("Cannot create ldap userid: '#{login}' on OBS. Full log: #{user.errors.full_messages.to_sentence}")
+    return
   end
 
   # This static method tries to find a user with the given login and password
