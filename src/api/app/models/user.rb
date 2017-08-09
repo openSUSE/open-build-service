@@ -165,17 +165,6 @@ class User < ApplicationRecord
     ::Configuration.registration == 'confirmation' ? 'unconfirmed' : 'confirmed'
   end
 
-  # This method allows to execute a block while deactivating timestamp
-  # updating.
-  def self.execute_without_timestamps
-    old_state = ApplicationRecord.record_timestamps
-    ApplicationRecord.record_timestamps = false
-
-    yield
-
-    ApplicationRecord.record_timestamps = old_state
-  end
-
   def self.create_user_with_fake_pw!(attributes = {})
     create!(attributes.merge(password: SecureRandom.base64(48)))
   end
@@ -252,7 +241,7 @@ class User < ApplicationRecord
     # Otherwise increase the login count - if the user could be found - and return nil
     if user
       user.login_failure_count = user.login_failure_count + 1
-      execute_without_timestamps { user.save! }
+      user.save!
     end
 
     return
@@ -916,9 +905,7 @@ class User < ApplicationRecord
   end
 
   def mark_login!
-    user.last_logged_in_at = Time.now
-    user.login_failure_count = 0
-    User.execute_without_timestamps { user.save! }
+    update_attributes(last_logged_in_at: Time.now, login_failure_count: 0)
   end
 
   private
