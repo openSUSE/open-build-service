@@ -954,10 +954,7 @@ class Project < ApplicationRecord
     products
   end
 
-  def add_repository_with_targets(repo_name, source_repo, add_target_repos = [], opts = {})
-    return if repositories.where(name: repo_name).exists?
-    trepo = repositories.create name: repo_name
-
+  def add_repository_targets(trepo, source_repo, add_target_repos = [], opts = {})
     trepo.clone_repository_from(source_repo)
     trepo.rebuild = opts[:rebuild] if opts[:rebuild]
     trepo.rebuild = source_repo.rebuild if opts[:rebuild] == "copy"
@@ -971,7 +968,9 @@ class Project < ApplicationRecord
 
     # add repository targets
     add_target_repos.each do |repo|
-      trepo.release_targets.create(target_repository: repo, trigger: trigger)
+      unless trepo.release_targets.where(target_repository: repo).exists?
+        trepo.release_targets.create(target_repository: repo, trigger: trigger)
+      end
     end
   end
 
@@ -989,6 +988,8 @@ class Project < ApplicationRecord
     skip_repos = []
     a = project.find_attribute('OBS', 'BranchSkipRepositories')
     skip_repos = a.values.map(&:value) if a
+
+    # create repository objects first
     project.repositories.each do |repo|
       next if skip_repos.include? repo.name
       repo_name = opts[:extend_names] ? repo.extended_name : repo.name
@@ -996,6 +997,18 @@ class Project < ApplicationRecord
       pkg_to_enable.enable_for_repository(repo_name) if pkg_to_enable
       next if repositories.find_by_name(repo_name)
 
+      if repositories.where(name: repo_name).exists?
+        skip_repos.push(repo_name)
+        next
+      end
+
+      repositories.create name: repo_name
+    end
+
+    # fill up with data, might refer to a local one
+    project.repositories.each do |repo|
+      repo_name = opts[:extend_names] ? repo.extended_name : repo.name
+      next if skip_repos.include? repo.name
       # copy target repository when operating on a channel
       targets = repo.release_targets if (pkg_to_enable && pkg_to_enable.is_channel?)
       # base is a maintenance incident, take its target instead (kgraft case)
@@ -1012,8 +1025,13 @@ class Project < ApplicationRecord
         # must happen to the right repos in the update project
         target_repos = Repository.find_by_project_and_path(update_project, repo)
       end
-
-      add_repository_with_targets(repo_name, repo, target_repos, opts)
+      trepo = repositories.find_by_name repo_name
+      unless trepo
+        # channel case
+        next unless is_maintenance_incident?
+        trepo = repositories.create(name: repo_name)
+      end
+      add_repository_targets(trepo, repo, target_repos, opts)
     end
 
     branch_copy_flags(project)

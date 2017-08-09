@@ -166,12 +166,31 @@ class Repository < ApplicationRecord
     name == "images"
   end
 
+  def has_local_path?
+    path_elements.each do |pe|
+      return true if pe.link.project == project
+    end
+
+    false
+  end
+
   def clone_repository_from(source_repository)
     source_repository.repository_architectures.each do |ra|
       repository_architectures.create architecture: ra.architecture, position: ra.position
     end
 
-    if source_repository.is_kiwi_type?
+    position = 1
+    if source_repository.has_local_path?
+      # don't link to the original external repo, but use the repo from this project
+      # pointing to this external repo.
+      source_repository.path_elements.each do |spe|
+        if spe.link.project == source_repository.project
+          local_repository = project.repositories.find_by_name(spe.link.name)
+          path_elements.create(link: local_repository, position: position)
+          position += 1
+        end
+      end
+    elsif source_repository.is_kiwi_type?
       # kiwi builds need to copy path elements
       source_repository.path_elements.each do |pa|
         path_elements.create(link: pa.link, position: pa.position)
@@ -186,7 +205,7 @@ class Repository < ApplicationRecord
     end
 
     # we build against the other repository by default
-    path_elements.create(link: source_repository, position: 1)
+    path_elements.create(link: source_repository, position: position)
   end
 
   def download_url(file)

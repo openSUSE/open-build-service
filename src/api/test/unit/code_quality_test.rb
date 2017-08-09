@@ -62,6 +62,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BranchPackage#create_branch_packages'                                    => 224.13,
       'BranchPackage#check_for_update_project'                                  => 103.23,
       'BranchPackage#determine_details_about_package_to_branch'                 => 101.48,
+      'Project#branch_local_repositories'                                       => 83.53,
       'BranchPackage#lookup_incident_pkg'                                       => 83.09,
       'BranchPackage#extend_packages_to_link'                                   => 80.23,
       'BsRequest#change_review_state'                                           => 207.93,

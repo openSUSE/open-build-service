@@ -168,7 +168,10 @@ class Channel < ApplicationRecord
       next unless mode == :enable_all || !ct.disabled
       # add repositories
       unless cp.project.repositories.find_by_name(repo_name)
-        tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository])
+        unless tpkg.project.repositories.where(name: repo_name).exists?
+          trepo = tpkg.project.repositories.create(name: repo_name)
+          tpkg.project.add_repository_targets(trepo, ct.repository, [ct.repository])
+        end
       end
       # enable package
       tpkg.enable_for_repository repo_name
