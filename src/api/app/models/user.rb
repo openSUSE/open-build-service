@@ -181,13 +181,11 @@ class User < ApplicationRecord
   # This static method tries to find a user with the given login and password
   # in the database. Returns the user or nil if he could not be found
   def self.find_with_credentials(login, password)
-    # Find user
-    user = if CONFIG['ldap_mode'] == :on
-             find_with_credentials_via_ldap(login, password)
-           else
-             find_by_login(login)
-           end
+    if CONFIG['ldap_mode'] == :on
+      return find_with_credentials_via_ldap(login, password)
+    end
 
+    user = find_by_login(login)
     # If the user could be found and the passwords equal then return the user
     if user && user.password_equals?(password)
       user.mark_login!
@@ -228,6 +226,7 @@ class User < ApplicationRecord
         # Check for ldap updates
         user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
         user.save if user.changed?
+
         return user
       elsif ::Configuration.registration == "deny"
         logger.debug("No user found in database, creation disabled")
@@ -237,7 +236,10 @@ class User < ApplicationRecord
         logger.debug("Email: #{ldap_info[0]}")
         logger.debug("Name : #{ldap_info[1]}")
 
-        return create_ldap_user(login: login, email: ldap_info[0], realname: ldap_info[1])
+        user = create_ldap_user(login: login, email: ldap_info[0], realname: ldap_info[1])
+        user.mark_login!
+
+        return user
       end
     end
   end
