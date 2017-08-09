@@ -788,4 +788,19 @@ RSpec.describe User do
       it { expect(subject.any? { |x| x.subscriber == user }).to be_falsey }
     end
   end
+
+  describe '.mark_login!' do
+    before do
+      user.update_attributes!(login_failure_count: 7, last_logged_in_at: 3.hours.ago)
+      user.mark_login!
+    end
+
+    it "updates the 'last_logged_in_at'" do
+      expect(user.last_logged_in_at).to be > 30.seconds.ago
+    end
+
+    it "resets the 'login_failure_count'" do
+      expect(user.reload.login_failure_count).to eq 0
+    end
+  end
 end
