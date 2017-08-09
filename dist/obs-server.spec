@@ -342,6 +342,9 @@ install -m 0644 %{SOURCE2} %{buildroot}/srv/www/obs/api/config
 # drop testcases for now
 rm -rf %{buildroot}/srv/www/obs/api/spec
 
+# drop assets, we generate them during installation
+rm -rf /srv/www/obs/api/public/assets
+
 # fail when Makefiles created a directory
 if ! test -L %{buildroot}/usr/lib/obs/server/build; then
   echo "/usr/lib/obs/server/build is not a symlink!"
@@ -489,6 +492,12 @@ chown root.www %{secret_key_file}
 sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/database.yml
 touch /srv/www/obs/api/log/production.log
 chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
+
+# generate assets
+pushd .
+cd /srv/www/obs/api/
+RAILS_ENV=production bundle.ruby2.4 exec rake.ruby2.4 assets:clean assets:precompile
+popd
 
 %restart_on_update apache2
 %restart_on_update memcached
