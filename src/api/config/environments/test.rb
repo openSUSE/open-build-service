@@ -75,9 +75,6 @@ CONFIG['response_schema_validation'] = true
 # we set this to true
 CONFIG['global_write_through'] = false
 
-# make sure we have invalid setup for errbit
-CONFIG['errbit_api_key'] = 'INVALID'
-
 CONFIG['frontend_host'] = "localhost"
 CONFIG['frontend_port'] = 3203
 CONFIG['frontend_protocol'] = 'http'
