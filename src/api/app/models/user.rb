@@ -206,6 +206,11 @@ class User < ApplicationRecord
     user = find_by_login(login)
     ldap_info = nil
 
+    if user.nil? && ::Configuration.registration == "deny"
+      logger.debug("No user found in database, creation disabled")
+      return
+    end
+
     if CONFIG['ldap_mode'] == :on
       begin
         require 'ldap'
@@ -221,26 +226,19 @@ class User < ApplicationRecord
     if ldap_info
       # We've found an ldap authenticated user - find or create an OBS userDB entry.
       if user
-        user.mark_login!
-
         # Check for ldap updates
         user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
         user.save if user.changed?
-
-        return user
-      elsif ::Configuration.registration == "deny"
-        logger.debug("No user found in database, creation disabled")
-        return
       else
         logger.debug("No user found in database, creating")
         logger.debug("Email: #{ldap_info[0]}")
         logger.debug("Name : #{ldap_info[1]}")
 
         user = create_ldap_user(login: login, email: ldap_info[0], realname: ldap_info[1])
-        user.mark_login!
-
-        return user
       end
+
+      user.mark_login!
+      return user
     end
   end
 
