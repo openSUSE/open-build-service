@@ -192,14 +192,13 @@ class UserLdapStrategy
   # credentials are correctly found using LDAP.
   def self.find_with_ldap(login, password)
     Rails.logger.debug("Looking for #{login} using ldap")
-    ldap_info = Array.new
 
     # When the server closes the connection, @@ldap_search_con.nil? doesn't catch it
     # @@ldap_search_con.bound? doesn't catch it as well. So when an error occurs, we
     # simply it try it a seccond time, which forces the ldap connection to
     # reinitialize (@@ldap_search_con is unbound and nil).
     user = nil
-    user_filter = String.new
+    user_filter = ''
 
     if @@ldap_search_con.nil?
       @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
@@ -220,7 +219,7 @@ class UserLdapStrategy
       ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
         user = entry.to_hash
       end
-    rescue
+    rescue StandardError
       Rails.logger.info("Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}")
       @@ldap_search_con.unbind
       @@ldap_search_con = nil
@@ -262,20 +261,20 @@ class UserLdapStrategy
 
     # Only collect the required user information *AFTER* we successfully
     # completed the authentication!
+    ldap_info = []
+
     if user[CONFIG['ldap_mail_attr']]
       ldap_info[0] = String.new(user[CONFIG['ldap_mail_attr']][0])
     else
       ldap_info[0] = dn2user_principal_name(user['dn'])
     end
+
     if user[CONFIG['ldap_name_attr']]
       ldap_info[1] = String.new(user[CONFIG['ldap_name_attr']][0])
     else
       ldap_info[1] = login
     end
 
-    Rails.cache.write(key,
-                      [Digest::MD5.digest(password), ldap_info[0], ldap_info[1]],
-                      expires_in: 2.minutes)
     Rails.logger.debug("login success for checking with ldap server")
     ldap_info
   end
