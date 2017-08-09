@@ -217,11 +217,8 @@ class User < ApplicationRecord
         user.mark_login!
 
         # Check for ldap updates
-        if user.email != ldap_info[0] || user.realname != ldap_info[1]
-          user.email = ldap_info[0]
-          user.realname = ldap_info[1]
-          user.save
-        end
+        user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
+        user.save if user.changed?
         return user
       end
 
