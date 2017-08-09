@@ -241,6 +241,7 @@ class User < ApplicationRecord
       user.realname = ldap_info[1]
       user.state = User.default_user_state
       user.adminnote = "User created via LDAP"
+      user.external = true
       logger.debug( "saving new user..." )
       user.save
     end
@@ -970,6 +971,7 @@ end
 #  password_hash_type  :string(20)       default("md5"), not null
 #  password_salt       :string(10)       default("1234512345"), not null
 #  adminnote           :text(65535)
+#  external            :boolean          default(FALSE)
 #  state               :string(11)       default("unconfirmed")
 #  owner_id            :integer
 #

@@ -1155,6 +1155,7 @@ CREATE TABLE `users` (
   `password_hash_type` varchar(20) COLLATE utf8_bin NOT NULL DEFAULT 'md5',
   `password_salt` varchar(10) CHARACTER SET utf8 NOT NULL DEFAULT '1234512345',
   `adminnote` text CHARACTER SET utf8,
+  `external` tinyint(1) DEFAULT '0',
   `state` enum('unconfirmed','confirmed','locked','deleted','subaccount') COLLATE utf8_bin DEFAULT 'unconfirmed',
   `owner_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -1276,6 +1277,9 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170704133728'),
 ('20170704212201'),
 ('20170710133627'),
-('20170710134059');
+('20170710134059'),
+('20170809101453'),
+('20170809114854'),
+('20170809115240');
 
 
