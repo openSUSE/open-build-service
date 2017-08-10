@@ -223,23 +223,23 @@ class User < ApplicationRecord
       end
     end
 
-    if ldap_info
-      # We've found an ldap authenticated user - find or create an OBS userDB entry.
-      if user
-        # Check for ldap updates
-        user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
-        user.save if user.changed?
-      else
-        logger.debug("No user found in database, creating")
-        logger.debug("Email: #{ldap_info[0]}")
-        logger.debug("Name : #{ldap_info[1]}")
+    return unless ldap_info
 
-        user = create_ldap_user(login: login, email: ldap_info[0], realname: ldap_info[1])
-      end
+    # We've found an ldap authenticated user - find or create an OBS userDB entry.
+    if user
+      # Check for ldap updates
+      user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
+      user.save if user.changed?
+    else
+      logger.debug("No user found in database, creating")
+      logger.debug("Email: #{ldap_info[0]}")
+      logger.debug("Name : #{ldap_info[1]}")
 
-      user.mark_login!
-      return user
+      user = create_ldap_user(login: login, email: ldap_info[0], realname: ldap_info[1])
     end
+
+    user.mark_login!
+    user
   end
 
   def self.current
