@@ -4,6 +4,10 @@
   height: auto;
 }
 
+.action_display .CodeMirror-scroll {
+  max-height: 800px;
+}
+
 .CodeMirror-scroll {
   overflow-y: hidden;
   overflow-x: auto;
