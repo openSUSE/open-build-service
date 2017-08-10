@@ -38,7 +38,8 @@ RSpec.shared_context 'an ldap connection that returns a user' do
 end
 
 RSpec.shared_context 'setup ldap mock with user mock' do |opts|
-  let(:ldap_mock) { double(:ldap) }
+  include_context 'setup ldap mock'
+
   let(:ldap_user_mock) { double(:ldap_user) }
 
   before do
@@ -46,10 +47,6 @@ RSpec.shared_context 'setup ldap mock with user mock' do |opts|
     expected_port = (opts[:for_ssl] ? 636 : 389)
     connection = (opts[:for_ssl] ? LDAP::SSLConn : LDAP::Conn)
 
-    stub_const('CONFIG', CONFIG.merge({ 'ldap_servers' => 'my_ldap_server.com' }))
-
-    allow(ldap_mock).to receive(:set_option).with(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF)
-    allow(ldap_mock).to receive(:set_option).with(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
     allow(ldap_user_mock).to receive(:set_option).with(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF)
     allow(ldap_user_mock).to receive(:set_option).with(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
 
