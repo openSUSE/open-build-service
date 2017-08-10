@@ -345,19 +345,8 @@ RSpec.describe UserLdapStrategy do
       context 'ldap_authenticate = :ldap' do
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
-
-        let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
-
-        before do
-          stub_const('CONFIG', CONFIG.merge({ 'ldap_mail_attr' => 'sn' }))
-
-          allow(ldap_mock).to receive(:search).and_yield(ldap_user)
-          allow(ldap_mock).to receive(:unbind)
-
-          allow(ldap_user_mock).to receive(:bind).with('tux', 'tux_password')
-          allow(ldap_user_mock).to receive(:bound?).and_return(true)
-          allow(ldap_user_mock).to receive(:search).and_yield(ldap_user)
-          allow(ldap_user_mock).to receive(:unbind)
+        include_context 'mock searching a user' do
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
         end
 
         after do
@@ -374,48 +363,26 @@ RSpec.describe UserLdapStrategy do
       context 'ldap_authenticate = :ldap and user connection returning nil' do
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
-
-        let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
+        include_context 'mock searching a user' do
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
+        end
 
         before do
-          stub_const('CONFIG', CONFIG.merge({ 'ldap_mail_attr' => 'sn' }))
-
-          allow(ldap_mock).to receive(:search).and_yield(ldap_user)
-          allow(ldap_mock).to receive(:unbind)
-
-          allow(ldap_user_mock).to receive(:bind).with('tux', 'tux_password')
           allow(ldap_user_mock).to receive(:bound?).and_return(false)
-          allow(ldap_user_mock).to receive(:search).and_yield(ldap_user)
-          allow(ldap_user_mock).to receive(:unbind)
         end
 
         after do
           UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
-        subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
-
-        it 'returns nil' do
-          is_expected.to be_nil
-        end
+        it { expect(UserLdapStrategy.find_with_ldap('tux', 'tux_password')).to be_nil }
       end
 
       context 'ldap_authenticate = :ldap and the users ldap_mail_attr is not set' do
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
-
-        let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux' }) }
-
-        before do
-          stub_const('CONFIG', CONFIG.merge({ 'ldap_mail_attr' => 'sn' }))
-
-          allow(ldap_mock).to receive(:search).and_yield(ldap_user)
-          allow(ldap_mock).to receive(:unbind)
-
-          allow(ldap_user_mock).to receive(:bind).with('tux', 'tux_password')
-          allow(ldap_user_mock).to receive(:bound?).and_return(true)
-          allow(ldap_user_mock).to receive(:search).and_yield(ldap_user)
-          allow(ldap_user_mock).to receive(:unbind)
+        include_context 'mock searching a user' do
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux' }) }
         end
 
         after do
@@ -432,22 +399,14 @@ RSpec.describe UserLdapStrategy do
       context 'ldap_authenticate = :ldap and the users ldap_name_attr is set' do
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
-
-        let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'], 'fn' => 'SJ' }) }
+        include_context 'mock searching a user' do
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'], 'fn' => 'SJ' }) }
+        end
 
         before do
           stub_const('CONFIG', CONFIG.merge({
-            'ldap_mail_attr' => 'sn',
             'ldap_name_attr' => 'fn'
           }))
-
-          allow(ldap_mock).to receive(:search).and_yield(ldap_user)
-          allow(ldap_mock).to receive(:unbind)
-
-          allow(ldap_user_mock).to receive(:bind).with('tux', 'tux_password')
-          allow(ldap_user_mock).to receive(:bound?).and_return(true)
-          allow(ldap_user_mock).to receive(:search).and_yield(ldap_user)
-          allow(ldap_user_mock).to receive(:unbind)
         end
 
         after do

@@ -64,3 +64,16 @@ RSpec.shared_context 'setup ldap mock with user mock' do |opts|
     end
   end
 end
+
+RSpec.shared_context 'mock searching a user' do
+  before do
+    stub_const('CONFIG', CONFIG.merge({ 'ldap_mail_attr' => 'sn' }))
+    allow(ldap_mock).to receive(:search).and_yield(ldap_user)
+    allow(ldap_mock).to receive(:unbind)
+
+    allow(ldap_user_mock).to receive(:bind).with('tux', 'tux_password')
+    allow(ldap_user_mock).to receive(:bound?).and_return(true)
+    allow(ldap_user_mock).to receive(:search).and_yield(ldap_user)
+    allow(ldap_user_mock).to receive(:unbind)
+  end
+end
