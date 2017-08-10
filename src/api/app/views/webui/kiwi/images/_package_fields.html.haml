@@ -1,8 +1,8 @@
 .nested-fields.kiwi_fields
   .kiwi_list_item
-    %span.kiwi_element_name= f.object.name
+    %span
+      = link_to f.object.name, '#', class: "package_edit kiwi_element_name"
     %span.kiwi_actions.hidden
-      = link_to sprite_tag("drive_edit", title: 'Edit Package'), '#', class: "package_edit"
       = link_to_remove_association sprite_tag("req-decline", title: 'remove'), f
 
   .dialog.darkgrey_box{ style: "width: 500px; left: 45%;", class: "#{'hidden' if f.object.name.present?}" }
