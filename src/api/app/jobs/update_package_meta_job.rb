@@ -18,7 +18,6 @@ class UpdatePackageMetaJob < ApplicationJob
         next unless pkg
         pkg.update_if_dirty
       end
-
     end
   end
 
