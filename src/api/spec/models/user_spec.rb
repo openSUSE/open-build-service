@@ -788,4 +788,44 @@ RSpec.describe User do
       it { expect(subject.any? { |x| x.subscriber == user }).to be_falsey }
     end
   end
+
+  describe '.mark_login!' do
+    before do
+      user.update_attributes!(login_failure_count: 7, last_logged_in_at: 3.hours.ago)
+      user.mark_login!
+    end
+
+    it "updates the 'last_logged_in_at'" do
+      expect(user.last_logged_in_at).to be > 30.seconds.ago
+    end
+
+    it "resets the 'login_failure_count'" do
+      expect(user.reload.login_failure_count).to eq 0
+    end
+  end
+
+  describe '#find_with_credentials' do
+    let(:user) { create(:user, login: 'login_test', login_failure_count: 7, last_logged_in_at: 3.hours.ago)}
+
+    context 'when user exists' do
+      subject { User.find_with_credentials(user.login, 'buildservice') }
+
+      it { is_expected.to eq user }
+      it { expect(subject.login_failure_count).to eq 0 }
+      it { expect(subject.last_logged_in_at).to be > 30.seconds.ago }
+    end
+
+    context 'when user does not exist' do
+      it { expect(User.find_with_credentials('unknown', 'buildservice')).to be nil }
+    end
+
+    context 'when user exist but password was incorrect' do
+      before do
+        @found_user = User.find_with_credentials(user.login, '_buildservice')
+      end
+
+      it { expect(@found_user).to be nil }
+      it { expect(user.reload.login_failure_count).to eq 8 }
+    end
+  end
 end

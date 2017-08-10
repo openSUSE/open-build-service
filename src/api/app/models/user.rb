@@ -165,17 +165,6 @@ class User < ApplicationRecord
     ::Configuration.registration == 'confirmation' ? 'unconfirmed' : 'confirmed'
   end
 
-  # This method allows to execute a block while deactivating timestamp
-  # updating.
-  def self.execute_without_timestamps
-    old_state = ApplicationRecord.record_timestamps
-    ApplicationRecord.record_timestamps = false
-
-    yield
-
-    ApplicationRecord.record_timestamps = old_state
-  end
-
   def self.create_user_with_fake_pw!(attributes = {})
     create!(attributes.merge(password: SecureRandom.base64(48)))
   end
@@ -202,10 +191,7 @@ class User < ApplicationRecord
     if ldap_info
       # We've found an ldap authenticated user - find or create an OBS userDB entry.
       if user
-        # stuff without affect to update_at
-        user.last_logged_in_at = Time.now
-        user.login_failure_count = 0
-        execute_without_timestamps { user.save! }
+        user.mark_login!
 
         # Check for ldap updates
         if user.email != ldap_info[0] || user.realname != ldap_info[1]
@@ -247,9 +233,7 @@ class User < ApplicationRecord
 
     # If the user could be found and the passwords equal then return the user
     if user && user.password_equals?(password)
-      user.last_logged_in_at = Time.now
-      user.login_failure_count = 0
-      execute_without_timestamps { user.save! }
+      user.mark_login!
 
       return user
     end
@@ -257,7 +241,7 @@ class User < ApplicationRecord
     # Otherwise increase the login count - if the user could be found - and return nil
     if user
       user.login_failure_count = user.login_failure_count + 1
-      execute_without_timestamps { user.save! }
+      user.save!
     end
 
     return
@@ -918,6 +902,10 @@ class User < ApplicationRecord
     Notification::RssFeedItem.where(subscriber: self).or(
       Notification::RssFeedItem.where(subscriber: groups)
     ).order(created_at: :desc, id: :desc).limit(Notification::RssFeedItem::MAX_ITEMS_PER_USER)
+  end
+
+  def mark_login!
+    update_attributes(last_logged_in_at: Time.now, login_failure_count: 0)
   end
 
   private
