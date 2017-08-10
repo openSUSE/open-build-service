@@ -11,7 +11,7 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job do
       allow(request_action).to receive(:webui_infos)
     end
 
-    subject! { BsRequestActionWebuiInfosJob.new.perform(request_action.id) }
+    subject! { BsRequestActionWebuiInfosJob.new.perform(request_action) }
 
     it 'calls webui_infos on the request_action' do
       expect(request_action).to have_received(:webui_infos)
