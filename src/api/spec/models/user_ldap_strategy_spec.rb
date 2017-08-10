@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'ldap'
 
 RSpec.describe UserLdapStrategy do
   let(:dn_string_no_uid)   { 'cn=jsmith,ou=Promotions,dc=noam,dc=com' }
