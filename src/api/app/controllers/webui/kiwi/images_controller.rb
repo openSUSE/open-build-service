@@ -1,6 +1,7 @@
 module Webui
   module Kiwi
     class ImagesController < WebuiController
+      before_action -> { feature_active?(:kiwi_image_editor) }
       before_action :set_image, except: [:import_from_package]
       before_action :authorize_update, except: [:import_from_package]
 

@@ -4,19 +4,19 @@ require "browser_helper"
 # CONFIG['global_write_through'] = true
 
 RSpec.feature "ImageTemplates", type: :feature, js: true do
-  let(:admin) { create(:admin_user, login: 'admin') }
+  let!(:user) { create(:confirmed_user, login: 'tom') }
 
   context "branching" do
-    let(:project) { create(:project, name: "my_project") }
-    let!(:attrib) { create(:template_attrib, project: project) }
+    let!(:project) { create(:project, name: "my_project") }
     let!(:package1) { create(:package_with_file, project: project, name: "first_package") }
     let!(:package2) { create(:package_with_file, project: project, name: "second_package") }
+    let!(:attrib) { create(:template_attrib, project: project) }
 
     scenario "branch image template" do
       visit image_templates_path
       expect(page).to have_css("input.create_appliance[disabled]")
 
-      login(admin)
+      login(user)
       visit root_path
       find('.proceed_text > a', text: "New Image").click
 
@@ -31,26 +31,48 @@ RSpec.feature "ImageTemplates", type: :feature, js: true do
 
       click_button("Create appliance")
       expect(page).to have_text("Successfully branched package")
-      expect(page).to have_text("home:admin:branches:my_project > custom_name")
+      expect(page).to have_text("home:tom:branches:my_project > custom_name")
     end
   end
 
   context 'feature switch' do
-    before do
-      login admin
-    end
+    context 'privileged user' do
+      let(:admin) { create(:admin_user, login: 'admin') }
+      before do
+        login admin
+      end
 
-    scenario 'enabled' do
-      Feature.run_with_activated(:image_templates) do
-        visit root_path
-        expect(page).to have_link("New Image")
+      scenario 'disabled' do
+        Feature.run_with_deactivated(:image_templates) do
+          visit root_path
+          expect(page).to have_link("New Image")
+          visit image_templates_path
+          expect(page.status_code).to eq(200)
+        end
       end
     end
 
-    scenario 'disabled' do
-      Feature.run_with_deactivated(:image_templates) do
-        visit root_path
-        expect(page).not_to have_link("New Image")
+    context 'unprivileged user' do
+      before do
+        login user
+      end
+
+      scenario 'enabled' do
+        Feature.run_with_activated(:image_templates) do
+          visit root_path
+          expect(page).to have_link("New Image")
+          visit image_templates_path
+          expect(page.status_code).to eq(200)
+        end
+      end
+
+      scenario 'disabled' do
+        Feature.run_with_deactivated(:image_templates) do
+          visit root_path
+          expect(page).not_to have_link("New Image")
+          visit image_templates_path
+          expect(page.status_code).to eq(404)
+        end
       end
     end
   end

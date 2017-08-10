@@ -69,9 +69,7 @@ OBSApi::Application.routes.draw do
       end
     end
 
-    Feature.with(:image_templates) do
-      resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
-    end
+    resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
 
     resources :download_repositories, constraints: cons, only: [:create, :update, :destroy], controller: 'webui/download_on_demand'
 
@@ -193,13 +191,11 @@ OBSApi::Application.routes.draw do
       delete 'flag/:project(/:package)/:flag' => :remove_flag, constraints: cons
     end
 
-    Feature.with(:kiwi_image_editor) do
-      controller 'webui/kiwi/images' do
-        get 'package/:package_id/kiwi_images/import_from_package' => :import_from_package, as: 'import_kiwi_image'
-      end
-
-      resources :kiwi_images, only: [:show, :update], controller: 'webui/kiwi/images'
+    controller 'webui/kiwi/images' do
+      get 'package/:package_id/kiwi_images/import_from_package' => :import_from_package, as: 'import_kiwi_image'
     end
+
+    resources :kiwi_images, only: [:show, :update], controller: 'webui/kiwi/images'
 
     controller 'webui/project' do
       get 'project/' => :index, as: 'projects'
@@ -675,13 +671,11 @@ OBSApi::Application.routes.draw do
 
     get '/404' => 'main#notfound'
 
-    Feature.with(:image_templates) do
-      scope 'public' do
-        resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
-      end
-
+    scope 'public' do
       resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
     end
+
+    resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
 
     ### /projects
     get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
