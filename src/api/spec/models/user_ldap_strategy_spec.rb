@@ -200,15 +200,13 @@ RSpec.describe UserLdapStrategy do
       }))
     end
 
-    after do
-      # rspec-mocks doubles are not designed to last longer than for one
-      # example. Therefore we have to clear the stored connection.
-      UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
-    end
-
     context 'ldap doesnt connect' do
       before do
         allow(UserLdapStrategy).to receive(:initialize_ldap_con).and_return(nil)
+      end
+
+      after do
+        UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
       end
 
       subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
@@ -223,6 +221,10 @@ RSpec.describe UserLdapStrategy do
 
         before do
           allow(ldap_mock).to receive(:search)
+        end
+
+        after do
+          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
@@ -240,6 +242,10 @@ RSpec.describe UserLdapStrategy do
           stub_const('CONFIG', CONFIG.merge({'ldap_user_filter' => nil }))
 
           allow(ldap_mock).to receive(:search)
+        end
+
+        after do
+          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
@@ -260,6 +266,10 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:unbind)
         end
 
+        after do
+          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
+        end
+
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns nil' do
@@ -276,6 +286,10 @@ RSpec.describe UserLdapStrategy do
         before do
           stub_const('CONFIG', CONFIG.merge({ 'ldap_authenticate' => :local }))
           allow(ldap_mock).to receive(:search).and_yield(ldap_user)
+        end
+
+        after do
+          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
@@ -296,6 +310,10 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:search).and_yield(ldap_user)
         end
 
+        after do
+          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
+        end
+
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns nil' do
@@ -311,6 +329,10 @@ RSpec.describe UserLdapStrategy do
 
         before do
           allow(ldap_mock).to receive(:search).and_yield(ldap_user)
+        end
+
+        after do
+          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
         subject! { UserLdapStrategy.find_with_ldap('tux', nil) }
@@ -339,8 +361,6 @@ RSpec.describe UserLdapStrategy do
         end
 
         after do
-          # rspec-mocks doubles are not designed to last longer than for one
-          # example. Therefore we have to clear the stored connection.
           UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
@@ -370,8 +390,6 @@ RSpec.describe UserLdapStrategy do
         end
 
         after do
-          # rspec-mocks doubles are not designed to last longer than for one
-          # example. Therefore we have to clear the stored connection.
           UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
@@ -401,8 +419,6 @@ RSpec.describe UserLdapStrategy do
         end
 
         after do
-          # rspec-mocks doubles are not designed to last longer than for one
-          # example. Therefore we have to clear the stored connection.
           UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
@@ -435,8 +451,6 @@ RSpec.describe UserLdapStrategy do
         end
 
         after do
-          # rspec-mocks doubles are not designed to last longer than for one
-          # example. Therefore we have to clear the stored connection.
           UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
