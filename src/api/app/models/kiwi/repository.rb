@@ -40,6 +40,7 @@ class Kiwi::Repository < ApplicationRecord
   end
 
   def source_path_format
+    return if source_path == 'obsrepositories:/'
     return if source_path =~ /^(dir|iso|smb|this):\/\/.+/
     return if source_path =~ /\A#{URI.regexp(['ftp', 'http', 'https', 'plain'])}\z/
     if source_path =~ /^obs:\/\/([^\/]+)\/([^\/]+)$/
