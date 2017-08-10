@@ -222,10 +222,6 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:search)
         end
 
-        after do
-          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
-        end
-
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns nil because the user was not found' do
@@ -241,10 +237,6 @@ RSpec.describe UserLdapStrategy do
           stub_const('CONFIG', CONFIG.merge({'ldap_user_filter' => nil }))
 
           allow(ldap_mock).to receive(:search)
-        end
-
-        after do
-          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
@@ -265,10 +257,6 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:unbind)
         end
 
-        after do
-          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
-        end
-
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns nil' do
@@ -285,10 +273,6 @@ RSpec.describe UserLdapStrategy do
         before do
           stub_const('CONFIG', CONFIG.merge({ 'ldap_authenticate' => :local }))
           allow(ldap_mock).to receive(:search).and_yield(ldap_user)
-        end
-
-        after do
-          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
@@ -309,10 +293,6 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:search).and_yield(ldap_user)
         end
 
-        after do
-          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
-        end
-
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns nil' do
@@ -330,10 +310,6 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:search).and_yield(ldap_user)
         end
 
-        after do
-          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
-        end
-
         subject! { UserLdapStrategy.find_with_ldap('tux', nil) }
 
         it 'returns nil' do
@@ -346,10 +322,6 @@ RSpec.describe UserLdapStrategy do
         include_context 'an ldap connection'
         include_context 'mock searching a user' do
           let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
-        end
-
-        after do
-          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
@@ -370,10 +342,6 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_user_mock).to receive(:bound?).and_return(false)
         end
 
-        after do
-          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
-        end
-
         it { expect(UserLdapStrategy.find_with_ldap('tux', 'tux_password')).to be_nil }
       end
 
@@ -382,10 +350,6 @@ RSpec.describe UserLdapStrategy do
         include_context 'an ldap connection'
         include_context 'mock searching a user' do
           let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux' }) }
-        end
-
-        after do
-          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
@@ -406,10 +370,6 @@ RSpec.describe UserLdapStrategy do
           stub_const('CONFIG', CONFIG.merge({
             'ldap_name_attr' => 'fn'
           }))
-        end
-
-        after do
-          UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
         end
 
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }

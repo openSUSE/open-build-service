@@ -23,6 +23,12 @@ RSpec.shared_context 'setup ldap mock' do |opts|
       ).and_return(ldap_mock)
     end
   end
+
+  # rspec-mocks doubles are not designed to last longer than for one
+  # example. Therefore we have to clear the stored connection.
+  after do
+    UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
+  end
 end
 
 RSpec.shared_context 'an ldap connection' do
