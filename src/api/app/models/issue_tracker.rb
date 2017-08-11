@@ -85,8 +85,11 @@ class IssueTracker < ApplicationRecord
 
     return unless private_fetch_issues(ids)
 
-    self.issues_updated = @update_time_stamp
-    save!
+    # skip callbacks to avoid scheduling expensive jobs
+
+# rubocop:disable Rails/SkipsModelValidations
+    update_columns(issues_updated: @update_time_stamp)
+# rubocop:enable Rails/SkipsModelValidations
   end
 
   def update_issues_github
@@ -101,9 +104,10 @@ class IssueTracker < ApplicationRecord
 
     parse_github_issues(ActiveSupport::JSON.decode(response.body))
 
-    # done
-    self.issues_updated = mtime - 1.second
-    save
+    # we skip callbacks to avoid scheduling expensive jobs
+# rubocop:disable Rails/SkipsModelValidations
+    update_columns(issues_updated: mtime - 1.second)
+# rubocop:enable Rails/SkipsModelValidations
   end
 
   def update_issues_cve
@@ -124,9 +128,10 @@ class IssueTracker < ApplicationRecord
     listener.set_tracker(self)
     parser = Nokogiri::XML::SAX::Parser.new(listener)
     parser.parse_io(unzipedio)
-    # done
-    self.issues_updated = mtime - 1.second
-    save
+    # we skip callbacks to avoid scheduling expensive jobs
+# rubocop:disable Rails/SkipsModelValidations
+    update_columns(issues_updated: mtime - 1.second)
+# rubocop:enable Rails/SkipsModelValidations
   end
 
   def update_issues
@@ -150,8 +155,10 @@ class IssueTracker < ApplicationRecord
 
     if private_fetch_issues(ids)
       # don't use "last_change_time" from bugzilla, since we may have different clocks
-      self.issues_updated = @update_time_stamp
-      save!
+      # and skip callbacks to avoid scheduling expensive jobs
+# rubocop:disable Rails/SkipsModelValidations
+      update_columns(issues_updated: @update_time_stamp)
+# rubocop:enable Rails/SkipsModelValidations
       return true
     end
     false
