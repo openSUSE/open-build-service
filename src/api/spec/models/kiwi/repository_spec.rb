@@ -22,6 +22,10 @@ RSpec.describe Kiwi::Repository, type: :model do
     context 'for source_path' do
       it { is_expected.to validate_presence_of(:source_path) }
 
+      it "obsrepositories should be valid" do
+        is_expected.to allow_value('obsrepositories:/').for(:source_path)
+      end
+
       ['dir', 'iso', 'smb', 'this'].each do |protocol|
         it "valid" do
           property_of {
