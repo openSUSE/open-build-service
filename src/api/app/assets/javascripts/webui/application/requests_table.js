@@ -10,9 +10,10 @@ $( document ).ready(function() {
       order: [[0,'desc']],
       info: false,
       columnDefs: [
-        // We only allow ordering for created, requester and priority.
-        // Columns: created, source, target, requester, type, priority.
-        { orderable: false, targets: [1,2,4,6,] }
+        // We dont allow ordering by the request link.
+        // Columns: created, source, target, requester, type, priority, request link.
+        // First column has index 0.
+        { orderable: false, targets: [6] }
       ],
       paging: 25,
       pageLength: 25,

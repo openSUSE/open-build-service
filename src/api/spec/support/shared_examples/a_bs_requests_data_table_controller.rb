@@ -29,6 +29,14 @@ RSpec.shared_examples 'a bs requests data table controller' do
     end
   end
 
+  context 'with :order parameter set to a column number of a composite column' do
+    let(:context_params) { { order: { '0' => { column: 2 } } } }
+
+    it 'respects sort by column target_project and target_package parameter' do
+      expect(assigns(:requests_data_table).rows.first.request).to eq(request4)
+    end
+  end
+
   context 'with a search value parameter set' do
     let(:context_params) { { search: { value: 'critical' } } }
 
