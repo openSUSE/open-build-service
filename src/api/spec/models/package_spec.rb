@@ -624,4 +624,57 @@ RSpec.describe Package, vcr: true do
       expect { subject }.to change { BackendPackage.count }.by(1)
     end
   end
+
+  describe '#commit_message' do
+    let(:changes_file) {
+      '-------------------------------------------------------------------
+Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+- Temporary hack'
+    }
+
+    let(:project) { create(:project, name: 'home:foo:Apache') }
+    let(:package) { create(:package_with_changes_file, project: project, name: 'package_with_changes_file') }
+
+    context 'with a diff to the target package changes file' do
+      let(:target_project)  { create(:project, name: 'Apache')}
+      let!(:target_package) {
+        create(:package_with_changes_file, project: target_project, name: 'package_with_changes_file', changes_file_content: changes_file)
+      }
+      subject { package.commit_message(target_project, target_package) }
+
+      it { expect(subject).to include('- Testing the submit diff') }
+      it { expect(subject).not_to include('- Temporary hack') }
+      it { expect(subject).not_to include('Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org') }
+      it { expect(subject).not_to include('Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org') }
+      it { expect(subject).not_to include('-------------------------------------------------------------------') }
+    end
+
+    context 'with no diff to the target package changes file' do
+      subject { package.commit_message(nil, nil) }
+
+      it { expect(subject).to include('- Testing the submit diff') }
+      it { expect(subject).to include('- Temporary hack') }
+      it { expect(subject).not_to include('Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org') }
+      it { expect(subject).not_to include('Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org') }
+      it { expect(subject).not_to include('-------------------------------------------------------------------') }
+    end
+
+    context 'of a package without a changes file' do
+      let(:package) { create(:package, project: project, name: 'apache2') }
+
+      it { expect(package.commit_message(nil, nil)).to eq('') }
+    end
+
+    context 'of a package with more than one changes file' do
+      before do
+        if CONFIG['global_write_through']
+          full_path = "/source/#{package.project.name}/#{package.name}/lorem.changes"
+          Backend::Connection.put(URI.escape(full_path), 'Lorem ipsum dolorem')
+        end
+      end
+
+      it { expect(package.commit_message(nil, nil)).to include('Lorem ipsum dolorem') }
+    end
+  end
 end
