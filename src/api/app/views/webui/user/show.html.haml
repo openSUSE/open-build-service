@@ -33,14 +33,14 @@
   / edit
   - if @is_displayed_user
     %p
-      - if CONFIG['proxy_auth_mode'] == :on
-        - unless CONFIG['proxy_auth_account_page'].blank?
-          = link_to sprited_text('user_edit', 'Edit your account'), "#{CONFIG['proxy_auth_account_page']}"
+      - if @configuration.accounts_editable?
+        - if @account_edit_link.present?
+          = link_to sprited_text('user_edit', 'Edit your account'), @account_edit_link
           %br/
-      - else
-        = link_to(sprited_text('user_edit', 'Edit your account'), { controller: 'user', action: 'save_dialog', user: User.current }, {id: 'save_dialog', remote: true})
+        - else
+          = link_to(sprited_text('user_edit', 'Edit your account'), { controller: 'user', action: 'save_dialog', user: User.current }, {id: 'save_dialog', remote: true})
         %br/
-      - if @configuration['change_password'] && CONFIG['proxy_auth_mode'] != :on
+      - if @configuration.passwords_changable?
         = link_to(sprited_text('key', 'Change your password'), { controller: 'user', action: 'password_dialog', user: User.current }, {id: 'password_dialog', remote: true})
         %br/
       = link_to(sprited_text('email', 'Change your notifications'), user_notifications_path)
