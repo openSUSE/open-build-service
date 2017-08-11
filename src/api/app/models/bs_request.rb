@@ -1180,7 +1180,7 @@ class BsRequest < ApplicationRecord
       requests = extend_query_for_group(opts[:group], requests, roles, review_states)
     end
     requests = requests.in_ids(opts[:ids]) if opts[:ids]
-    requests = requests.do_search(opts[:search]) if opts[:search]
+    requests = requests.do_search(opts[:search]) if opts[:search].present?
     requests
   end
 
