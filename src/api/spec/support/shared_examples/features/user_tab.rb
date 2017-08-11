@@ -1,6 +1,7 @@
 RSpec.shared_examples 'user tab' do
   let!(:other_user) { create(:confirmed_user, login: "other_user") }
   let!(:user_tab_user) { create(:confirmed_user, login: "user_tab_user") }
+  let(:reader) { create(:confirmed_user, login: "reader_user") }
   # default to prevent "undefined local variable or method `package'" error
   let!(:package) { nil }
   let!(:project) { nil }
@@ -12,6 +13,14 @@ RSpec.shared_examples 'user tab' do
              package: package,
              user:    user_tab_user,
              role:    Role.find_by_title('bugowner')
+            )
+    }
+    let!(:reader_user_role) {
+      create(:relationship,
+             project: project,
+             package: package,
+             user:    reader,
+             role:    Role.find_by_title('reader')
             )
     }
 
@@ -41,8 +50,8 @@ RSpec.shared_examples 'user tab' do
       click_button("Add user")
       expect(page).to have_text("Added user #{other_user.login} with role maintainer")
       within("#user-table") do
-        # package / project owner plus other user
-        expect(find_all("tbody tr").count).to eq 2
+        # package / project owner plus other user and reader
+        expect(find_all("tbody tr").count).to eq 3
       end
 
       # Adding a user twice...
@@ -52,8 +61,15 @@ RSpec.shared_examples 'user tab' do
       expect(page).to have_text("Relationship already exists")
       click_link("Users")
       within("#user-table") do
-        expect(find_all("tbody tr").count).to eq 2
+        expect(find_all("tbody tr").count).to eq 3
       end
+    end
+
+    scenario "Remove user from package / project" do
+      expect(page).to have_css('a', text: "#{reader.realname} (reader_user)")
+      find("#user-reader_user a.remove-user").click
+      expect(page).to have_text("Removed user reader_user")
+      expect(page).not_to have_css('a', text: "#{reader.realname} (reader_user)")
     end
 
     scenario "Add role to user" do
