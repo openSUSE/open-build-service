@@ -19,7 +19,7 @@ class Webui::LoginTest < Webui::IntegrationTest
   def change_user_real_name(new_name)
     find(:id, 'save_dialog').click
 
-    fill_in "realname", with: new_name
+    fill_in "Name:", with: new_name
     find(:css, "form[action='#{user_save_path}'] input[name='commit']").click
 
     flash_message.must_equal "User data for user '#{current_user}' successfully updated."

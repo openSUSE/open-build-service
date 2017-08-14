@@ -869,10 +869,8 @@ class User < ApplicationRecord
     watched_project_names.include? name
   end
 
-  def update_globalroles(global_role_titles)
-    roles.replace(
-      Role.where(title: global_role_titles) + roles.where(global: false)
-    )
+  def update_globalroles(global_roles)
+    roles.replace(global_roles + roles.where(global: false))
   end
 
   # returns the gravatar image as string or :none

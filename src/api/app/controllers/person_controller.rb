@@ -201,7 +201,7 @@ class PersonController < ApplicationController
       new_globalroles << e.to_s
     end
 
-    user.update_globalroles( new_globalroles )
+    user.update_globalroles(Role.global.where(title: new_globalroles))
   end
 
   private :update_globalroles

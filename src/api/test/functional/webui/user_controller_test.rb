@@ -4,7 +4,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
   def test_edit # spec/controllers/webui/user_controller_spec.rb
     login_king to: user_edit_path(user: 'tom')
 
-    fill_in 'realname', with: 'Tom Thunder'
+    fill_in 'Name:', with: 'Tom Thunder'
     click_button 'Update'
 
     find('#flash-messages').must_have_text("User data for user 'tom' successfully updated.")
