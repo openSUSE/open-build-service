@@ -2,6 +2,8 @@ class UpdatePackageMetaJob < ApplicationJob
   # NOTE: Its important that this job run in queue 'default' in order to avoid concurrency
   queue_as :default
 
+  # FIXME: find out what the difference is between calling the backend and asking the database.
+  # On first glance this looks like BackendPackage.links. Is it?
   def scan_links
     names = Package.distinct.order(:name).pluck(:name)
     while !names.empty?
@@ -25,7 +27,8 @@ class UpdatePackageMetaJob < ApplicationJob
     # while the delayed job runs can update our work
     scan_links
 
-    BackendPackage.not_links.delete_all
+    # delete all BackendPackages of patchinfo Packages that are not links
+    BackendPackage.not_links.joins(package: :package_kinds).where(package_kinds: {kind: :patchinfo}).delete_all
 
     BackendPackage.refresh_dirty
   end
