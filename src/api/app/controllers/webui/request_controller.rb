@@ -187,52 +187,6 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to action: 'show', number: params[:number]
   end
 
-  def accept_request
-    flash[:notice] = "Request #{params[:number]} accepted"
-
-    # Check if we have to forward this request to other projects / packages
-    params.keys.grep(/^forward_.*/).each do |fwd|
-      forward_request_to(fwd)
-    end
-  end
-
-  def forward_request_to(fwd)
-    tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
-
-    req = nil
-    begin
-      BsRequest.transaction do
-        req = BsRequest.new( state: "new")
-        req.description = params[:description]
-        @req.bs_request_actions.each do |action|
-          rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']
-
-          opts = { source_project: action.target_project,
-                   source_package: action.target_package,
-                   source_rev:     rev,
-                   target_project: tgt_prj,
-                   target_package: tgt_pkg }
-          if params[:sourceupdate]
-            opts[:sourceupdate] = params[:sourceupdate]
-          end
-          action = BsRequestActionSubmit.new(opts)
-          req.bs_request_actions << action
-          action.bs_request = req
-
-          req.save!
-        end
-      end
-    rescue APIException => e
-      Airbrake.notify(e, { failed_job: "Failed to forward BsRequest '#{params[:number]}'" })
-      flash[:error] = "Unable to forward submit: #{e.message}"
-      redirect_to(request_show_path(params[:number])) && return
-    end
-
-    target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
-    request_link = ActionController::Base.helpers.link_to(req.number, request_show_path(req.number))
-    flash[:notice] += " and forwarded to #{target_link} (request #{request_link})"
-  end
-
   def diff
     # just for compatibility. OBS 1.X used this route for show
     redirect_to action: :show, number: params[:number]
@@ -452,4 +406,51 @@ class Webui::RequestController < Webui::WebuiController
 
     false
   end
+
+  def accept_request
+    flash[:notice] = "Request #{params[:number]} accepted"
+
+    # Check if we have to forward this request to other projects / packages
+    params.keys.grep(/^forward_.*/).each do |fwd|
+      forward_request_to(fwd)
+    end
+  end
+
+  def forward_request_to(fwd)
+    tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
+
+    req = nil
+    begin
+      BsRequest.transaction do
+        req = BsRequest.new( state: "new")
+        req.description = params[:description]
+        @req.bs_request_actions.each do |action|
+          rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']
+
+          opts = { source_project: action.target_project,
+                   source_package: action.target_package,
+                   source_rev:     rev,
+                   target_project: tgt_prj,
+                   target_package: tgt_pkg }
+          if params[:sourceupdate]
+            opts[:sourceupdate] = params[:sourceupdate]
+          end
+          action = BsRequestActionSubmit.new(opts)
+          req.bs_request_actions << action
+          action.bs_request = req
+
+          req.save!
+        end
+      end
+    rescue APIException => e
+      Airbrake.notify(e, { failed_job: "Failed to forward BsRequest '#{params[:number]}'" })
+      flash[:error] = "Unable to forward submit: #{e.message}"
+      redirect_to(request_show_path(params[:number])) && return
+    end
+
+    target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
+    request_link = ActionController::Base.helpers.link_to(req.number, request_show_path(req.number))
+    flash[:notice] += " and forwarded to #{target_link} (request #{request_link})"
+  end
+
 end
