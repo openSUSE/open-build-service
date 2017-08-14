@@ -169,68 +169,23 @@ class User < ApplicationRecord
     create!(attributes.merge(password: SecureRandom.base64(48)))
   end
 
+  def self.create_ldap_user(attributes = {})
+    user = create_user_with_fake_pw!(attributes.merge(state: default_user_state, adminnote: "User created via LDAP"))
+
+    return user if user.errors.empty?
+
+    logger.info("Cannot create ldap userid: '#{login}' on OBS. Full log: #{user.errors.full_messages.to_sentence}")
+    return
+  end
+
   # This static method tries to find a user with the given login and password
   # in the database. Returns the user or nil if he could not be found
   def self.find_with_credentials(login, password)
-    # Find user
-    user = find_by_login(login)
-    ldap_info = nil
-
     if CONFIG['ldap_mode'] == :on
-      begin
-        require 'ldap'
-        logger.debug( "Using LDAP to find #{login}" )
-        ldap_info = UserLdapStrategy.find_with_ldap( login, password )
-      rescue LoadError
-        logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
-      rescue
-        logger.debug "#{login} not found in LDAP."
-      end
+      return find_with_credentials_via_ldap(login, password)
     end
 
-    if ldap_info
-      # We've found an ldap authenticated user - find or create an OBS userDB entry.
-      if user
-        user.mark_login!
-
-        # Check for ldap updates
-        if user.email != ldap_info[0] || user.realname != ldap_info[1]
-          user.email = ldap_info[0]
-          user.realname = ldap_info[1]
-          user.save
-        end
-        return user
-      end
-
-      # still in LDAP mode, user authentificated, but not existing in OBS yet
-      if ::Configuration.registration == "deny"
-        logger.debug( "No user found in database, creation disabled" )
-        return
-      end
-      logger.debug( "No user found in database, creating" )
-      logger.debug( "Email: #{ldap_info[0]}" )
-      logger.debug( "Name : #{ldap_info[1]}" )
-      # Generate and store a 24 char fake pw in the OBS DB that no-one knows
-      password = SecureRandom.base64
-      user = User.create( login: login,
-                          password: password,
-                          email: ldap_info[0])
-      unless user.errors.empty?
-        logger.debug("Creating User failed with: ")
-        all_errors = user.errors.full_messages.map do |msg|
-          logger.debug(msg)
-          msg
-        end
-        logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{all_errors.join(', ')}")
-        return
-      end
-      user.realname = ldap_info[1]
-      user.state = User.default_user_state
-      user.adminnote = "User created via LDAP"
-      logger.debug( "saving new user..." )
-      user.save
-    end
-
+    user = find_by_login(login)
     # If the user could be found and the passwords equal then return the user
     if user && user.password_equals?(password)
       user.mark_login!
@@ -245,6 +200,46 @@ class User < ApplicationRecord
     end
 
     return
+  end
+
+  def self.find_with_credentials_via_ldap(login, password)
+    user = find_by_login(login)
+    ldap_info = nil
+
+    if user.nil? && ::Configuration.registration == "deny"
+      logger.debug("No user found in database, creation disabled")
+      return
+    end
+
+    if CONFIG['ldap_mode'] == :on
+      begin
+        require 'ldap'
+        logger.debug( "Using LDAP to find #{login}" )
+        ldap_info = UserLdapStrategy.find_with_ldap(login, password)
+      rescue LoadError
+        logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
+      rescue
+        logger.debug "#{login} not found in LDAP."
+      end
+    end
+
+    return unless ldap_info
+
+    # We've found an ldap authenticated user - find or create an OBS userDB entry.
+    if user
+      # Check for ldap updates
+      user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
+      user.save if user.changed?
+    else
+      logger.debug("No user found in database, creating")
+      logger.debug("Email: #{ldap_info[0]}")
+      logger.debug("Name : #{ldap_info[1]}")
+
+      user = create_ldap_user(login: login, email: ldap_info[0], realname: ldap_info[1])
+    end
+
+    user.mark_login!
+    user
   end
 
   def self.current
