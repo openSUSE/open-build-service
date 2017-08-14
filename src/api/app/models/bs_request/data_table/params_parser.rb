@@ -9,12 +9,11 @@ class BsRequest
 
       def parsed_params
         {
-          draw:           draw,
-          search:         search,
-          offset:         offset,
-          limit:          limit,
-          sort_column:    sort_column,
-          sort_direction: sort_direction
+          draw:   draw,
+          search: search,
+          offset: offset,
+          limit:  limit,
+          sort:   sort
         }
       end
 
@@ -40,18 +39,25 @@ class BsRequest
         @requested_params.fetch(:order, {}).fetch('0', {})
       end
 
-      def sort_column
+      def sort_columns
         # defaults to :created_at
         {
-            0 => :created_at,
-            3 => :creator,
-            5 => :priority
+            0 => %w(bs_requests.created_at),
+            1 => %w(bs_request_actions.source_project bs_request_actions.source_package),
+            2 => %w(bs_request_actions.target_project bs_request_actions.target_package),
+            3 => %w(bs_requests.creator),
+            4 => %w(bs_request_actions.type),
+            5 => %w(bs_requests.priority)
         }[order_params.fetch(:column, nil).to_i]
       end
 
       def sort_direction
         # defaults to :desc
         order_params[:dir].try(:to_sym) == :asc ? :asc : :desc
+      end
+
+      def sort
+        sort_columns.map { |column| "#{column} #{sort_direction.upcase}" }.join(', ')
       end
     end
   end

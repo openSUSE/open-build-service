@@ -12,7 +12,7 @@ class BsRequest
           request_query
           .offset(@params[:offset])
           .limit(@params[:limit])
-          .reorder(@params[:sort_column] => @params[:sort_direction])
+          .reorder(@params[:sort])
           .includes(:bs_request_actions)
       end
 

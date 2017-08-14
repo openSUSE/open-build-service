@@ -11,10 +11,10 @@ class BsRequest
 
       def requests
         @requests ||=
-          requests_query(params[:search])
-          .offset(params[:offset])
-          .limit(params[:limit])
-          .reorder(params[:sort_column] => params[:sort_direction])
+          requests_query(@params[:search])
+          .offset(@params[:offset])
+          .limit(@params[:limit])
+          .reorder(@params[:sort])
           .includes(:bs_request_actions)
       end
 
