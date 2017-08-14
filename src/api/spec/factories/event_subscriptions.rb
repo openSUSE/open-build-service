@@ -6,6 +6,12 @@ FactoryGirl.define do
       channel :instant_email
     end
 
+    factory :event_subscription_request_created do
+      eventtype 'Event::RequestCreate'
+      receiver_role "all"
+      channel :instant_email
+    end
+
     user
   end
 end

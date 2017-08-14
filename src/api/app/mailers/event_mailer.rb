@@ -19,6 +19,7 @@ class EventMailer < ActionMailer::Base
 
   def event(subscribers, e)
     subscribers = subscribers.to_a
+    return if subscribers.empty?
 
     set_headers
     begin
@@ -32,12 +33,6 @@ class EventMailer < ActionMailer::Base
 
     template_name = e.template_name
     orig = e.originator
-
-    # no need to tell user about this own actions
-    # TODO: make configurable?
-    subscribers.delete(orig)
-    return if subscribers.empty?
-
     tos = subscribers.map(&:display_name)
 
     if orig

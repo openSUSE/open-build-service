@@ -1,0 +1,314 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:user_7/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_7">
+          <title/>
+          <description/>
+          <person userid="user_7" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_7">
+          <title></title>
+          <description></description>
+          <person userid="user_7" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:18 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:user_8/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_8">
+          <title/>
+          <description/>
+          <person userid="user_8" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_8">
+          <title></title>
+          <description></description>
+          <person userid="user_8" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:18 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_1/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>For Whom the Bell Tolls</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>For Whom the Bell Tolls</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:19 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_1/_config
+    body:
+      encoding: UTF-8
+      string: Voluptas voluptatum in doloribus nisi cupiditate nesciunt. Qui iure
+        et error similique nihil. Culpa ullam a officiis provident fuga.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:19 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:user_15/_meta?user=user_15
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_15">
+          <title/>
+          <description/>
+          <person userid="user_15" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_15">
+          <title></title>
+          <description></description>
+          <person userid="user_15" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:11:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:user_16/_meta?user=user_16
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_16">
+          <title/>
+          <description/>
+          <person userid="user_16" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_16">
+          <title></title>
+          <description></description>
+          <person userid="user_16" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:11:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_5/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>Fair Stood the Wind for France</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '116'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>Fair Stood the Wind for France</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:11:33 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/project_5/_config
+    body:
+      encoding: UTF-8
+      string: Odio voluptatum nisi vero id. Esse maiores atque consequatur debitis.
+        Ipsam unde accusantium velit cupiditate dicta incidunt sit. Atque sequi sint
+        laudantium dolor.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:11:33 GMT
+recorded_with: VCR 3.0.3
