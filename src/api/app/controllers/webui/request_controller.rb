@@ -184,7 +184,7 @@ class Webui::RequestController < Webui::WebuiController
       accept_request if changestate == 'accepted'
     end
 
-    redirect_to action: 'show', number: params[:number]
+    redirect_to(request_show_path(params[:number]))
   end
 
   def diff
@@ -445,12 +445,11 @@ class Webui::RequestController < Webui::WebuiController
     rescue APIException => e
       Airbrake.notify(e, { failed_job: "Failed to forward BsRequest '#{params[:number]}'" })
       flash[:error] = "Unable to forward submit: #{e.message}"
-      redirect_to(request_show_path(params[:number])) && return
+      return
     end
 
     target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
     request_link = ActionController::Base.helpers.link_to(req.number, request_show_path(req.number))
     flash[:notice] += " and forwarded to #{target_link} (request #{request_link})"
   end
-
 end
