@@ -121,11 +121,11 @@ class UserTest < ActiveSupport::TestCase
     user = User.find_by(login: "tom")
     user.roles << Role.create(title: "local_role", global: false)
     user.roles << Role.create(title: "global_role_1", global: true)
-    user.roles << Role.create(title: "global_role_2", global: true)
-    user.save!
+    global_role2 = Role.create(title: "global_role_2", global: true)
+    user.roles << global_role2
 
-    user.update_globalroles(["global_role_2", "Admin"])
-    user.save!
+    user.update_globalroles([global_role2, Role.global.where(title: 'Admin').first])
+
     updated_roles = user.reload.roles.map(&:title)
     assert updated_roles.include?("global_role_2")
     assert updated_roles.include?("Admin")

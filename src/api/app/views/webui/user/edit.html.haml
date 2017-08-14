@@ -7,22 +7,19 @@
 %h2
   = "Editing User Data for User #{@displayed_user.login}"
 
-= form_tag(action: "save") do
+= form_for(@displayed_user, url: user_save_path, method: 'post') do |f|
+  = f.hidden_field(:login)
   %p
-    = hidden_field_tag("user", @displayed_user.login)
-    = label_tag(:realname, "Name:")
+    = f.label(:realname, "Name:")
     %br
-    = text_field_tag(:realname, @displayed_user.realname)
+    = f.text_field(:realname)
   %p
-    = label_tag(:email, "e-Mail:")
+    = f.label(:email, "e-Mail:")
     %br
-    = text_field_tag(:email, @displayed_user.email, required: true, email: true)
+    = f.text_field(:email, required: true, email: true)
   %p
-    = label_tag(:globalrole, "Admin:")
-    = check_box_tag("globalrole", "Admin", @displayed_user.is_admin?)
+    = f.collection_check_boxes(:role_ids, Role.global, :id, :title)
   %p
-    - @states.each do |state|
-      = label_tag("state_#{state}", state)
-      = radio_button_tag(:state, state, (state.to_s == @displayed_user.state))
+    = f.collection_radio_buttons(:state, user_states_for_edit, :to_s, :to_s)
   %p
-    = submit_tag("Update")
+    = f.submit("Update")

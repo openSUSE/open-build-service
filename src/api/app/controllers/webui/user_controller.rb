@@ -2,7 +2,7 @@ require 'base64'
 require 'event'
 
 class Webui::UserController < Webui::WebuiController
-  before_action :check_display_user, only: [:show, :edit, :requests, :list_my, :delete, :save, :confirm, :admin, :lock]
+  before_action :check_display_user, only: [:show, :edit, :requests, :list_my, :delete, :confirm, :admin, :lock]
   before_action :require_login, only: [:edit, :save, :notifications, :update_notifications, :index]
   before_action :require_admin, only: [:edit, :delete, :lock, :confirm, :admin, :index]
 
@@ -111,18 +111,20 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def save
+    @displayed_user = User.find_by_login(params[:user][:login])
+
     unless User.current.is_admin?
       if User.current != @displayed_user
         flash[:error] = "Can't edit #{@displayed_user.login}"
-        redirect_back(fallback_location: root_path) && return
+        redirect_back(fallback_location: root_path)
+        return
       end
     end
-    @displayed_user.realname = params[:realname]
-    @displayed_user.email = params[:email]
+
+    @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!)
     if User.current.is_admin?
-      @displayed_user.state = params[:state] if params[:state]
-      # FIXME: If we ever have more than one global this, and the view, has to be fixed
-      @displayed_user.update_globalroles([params[:globalrole]].compact)
+      @displayed_user.assign_attributes(params[:user].slice(:state).permit!)
+      @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids])) unless params[:user][:role_ids].nil?
     end
 
     begin
@@ -136,8 +138,6 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def edit
-    @roles = Role.global_roles
-    @states = %w(confirmed unconfirmed deleted locked)
   end
 
   def delete
@@ -165,7 +165,6 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def save_dialog
-    @roles = Role.global_roles
     render_dialog
   end
 
