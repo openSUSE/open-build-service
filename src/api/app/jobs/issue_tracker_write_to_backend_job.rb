@@ -1,3 +1,5 @@
+require 'builder'
+
 class IssueTrackerWriteToBackendJob < ApplicationJob
   queue_as :quick
 
