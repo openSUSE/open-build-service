@@ -1,0 +1,581 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_1/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="home:tom">
+          <title>The Painted Veil</title>
+          <description>Assumenda iusto vitae architecto eaque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="home:tom">
+          <title>The Painted Veil</title>
+          <description>Assumenda iusto vitae architecto eaque.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_1/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="home:tom">
+          <title>The Painted Veil</title>
+          <description>Assumenda iusto vitae architecto eaque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="home:tom">
+          <title>The Painted Veil</title>
+          <description>Assumenda iusto vitae architecto eaque.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22package_1%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package package_1</title>
+          <description>This project was created for package package_1 via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '258'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package package_1</title>
+          <description>This project was created for package package_1 via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_1/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="home:tom:branches:home:tom">
+          <title>The Painted Veil</title>
+          <description>Assumenda iusto vitae architecto eaque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="home:tom:branches:home:tom">
+          <title>The Painted Veil</title>
+          <description>Assumenda iusto vitae architecto eaque.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_1?cmd=branch&opackage=package_1&oproject=home:tom&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="13" vrev="13">
+          <srcmd5>83a26953292465b9db7b73e54859d7e0</srcmd5>
+          <version>unknown</version>
+          <time>1502716618</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_1/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="home:tom:branches:home:tom">
+          <title>The Painted Veil</title>
+          <description>Assumenda iusto vitae architecto eaque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="home:tom:branches:home:tom">
+          <title>The Painted Veil</title>
+          <description>Assumenda iusto vitae architecto eaque.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '422'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_1" rev="13" vrev="13" srcmd5="83a26953292465b9db7b73e54859d7e0">
+          <linkinfo project="home:tom" package="package_1" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c688657843e10f988f2fb32c79413ce4" lsrcmd5="83a26953292465b9db7b73e54859d7e0" />
+          <entry name="_link" md5="702b2f782cb222a3f9124aa00cdb6bf4" size="116" mtime="1502709813" />
+        </directory>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package package_1</title>
+          <description>This project was created for package package_1 via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:home:tom">
+          <title>Branch project for package package_1</title>
+          <description>This project was created for package package_1 via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer" />
+          <publish>
+            <disable />
+          </publish>
+        </project>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_1?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '280'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="package_1" rev="13" vrev="13" srcmd5="c688657843e10f988f2fb32c79413ce4" lsrcmd5="83a26953292465b9db7b73e54859d7e0" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <linked project="home:tom" package="package_1" />
+          <revtime>1502716618</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '422'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_1" rev="13" vrev="13" srcmd5="83a26953292465b9db7b73e54859d7e0">
+          <linkinfo project="home:tom" package="package_1" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c688657843e10f988f2fb32c79413ce4" lsrcmd5="83a26953292465b9db7b73e54859d7e0" />
+          <entry name="_link" md5="702b2f782cb222a3f9124aa00cdb6bf4" size="116" mtime="1502709813" />
+        </directory>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_1?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '336'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="70b464082de3e62d63555bc335e56b0c">
+          <old project="home:tom:branches:home:tom" package="package_1" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:home:tom" package="package_1" rev="12" srcmd5="83a26953292465b9db7b73e54859d7e0" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_1?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '356'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="621bcc5ec62dd8d1f56fae23f62e53de">
+          <old project="home:tom" package="package_1" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:home:tom" package="package_1" rev="c688657843e10f988f2fb32c79413ce4" srcmd5="c688657843e10f988f2fb32c79413ce4" />
+          <files />
+        </sourcediff>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package='package_1')
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '95'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+          <package name="package_1" project="home:tom:branches:home:tom" />
+        </collection>
+    http_version: 
+  recorded_at: Mon, 14 Aug 2017 13:16:58 GMT
+recorded_with: VCR 3.0.3
