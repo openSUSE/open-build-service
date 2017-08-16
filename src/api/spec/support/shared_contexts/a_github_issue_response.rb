@@ -1,0 +1,55 @@
+RSpec.shared_context 'a github issue response' do
+  let(:js) do
+    {
+     'url'            => 'https://api.github.com/repos/openSUSE/open-build-service/issues/3607',
+     'repository_url' => 'https://api.github.com/repos/openSUSE/open-build-service',
+     'labels_url'     => 'https://api.github.com/repos/openSUSE/open-build-service/issues/3607/labels{/name}',
+     'comments_url'   => 'https://api.github.com/repos/openSUSE/open-build-service/issues/3607/comments',
+     'events_url'     => 'https://api.github.com/repos/openSUSE/open-build-service/issues/3607/events',
+     'html_url'       => 'https://github.com/openSUSE/open-build-service/issues/3607',
+     'id'             => 250_551_816,
+     'number'         => 3607,
+     'title'          => 'Statistics::MaintenanceStatisticsController GET #index with a project with
+ maintenance statistics with a remote project forwards the request to the remote instance',
+     'user'           =>
+                         {'login'               => 'hennevogel',
+                          'id'                  => 514785,
+                          'avatar_url'          => 'https://avatars1.githubusercontent.com/u/514785?v=4',
+                          'gravatar_id'         => '',
+                          'url'                 => 'https://api.github.com/users/hennevogel',
+                          'html_url'            => 'https://github.com/hennevogel',
+                          'followers_url'       => 'https://api.github.com/users/hennevogel/followers',
+                          'following_url'       => 'https://api.github.com/users/hennevogel/following{/other_user}',
+                          'gists_url'           => 'https://api.github.com/users/hennevogel/gists{/gist_id}',
+                          'starred_url'         => 'https://api.github.com/users/hennevogel/starred{/owner}{/repo}',
+                          'subscriptions_url'   => 'https://api.github.com/users/hennevogel/subscriptions',
+                          'organizations_url'   => 'https://api.github.com/users/hennevogel/orgs',
+                          'repos_url'           => 'https://api.github.com/users/hennevogel/repos',
+                          'events_url'          => 'https://api.github.com/users/hennevogel/events{/privacy}',
+                          'received_events_url' => 'https://api.github.com/users/hennevogel/received_events',
+                          'type'                => 'User',
+                          'site_admin'          => false},
+     'labels'         =>
+                         [{'id'      => 661_901_824,
+                           'url'     => 'https://api.github.com/repos/openSUSE/open-build-service/labels/flickering',
+                           'name'    => 'flickering',
+                           'color'   => 'FF0080',
+                           'default' => false},
+                          {'id'      => 273_955_462,
+                           'url'     => 'https://api.github.com/repos/openSUSE/open-build-service/labels/Test%20Suite',
+                           'name'    => 'Test Suite',
+                           'color'   => 'FEE0C6',
+                           'default' => false}],
+     'state'          => 'open',
+     'locked'         => false,
+     'assignee'       => nil,
+     'assignees'      => [],
+     'milestone'      => nil,
+     'comments'       => 0,
+     'created_at'     => '2017-08-16T08:38:59Z',
+     'updated_at'     => '2017-08-16T08:39:11Z',
+     'closed_at'      => nil,
+     'body'           => 'it fails'
+    }
+  end
+end
