@@ -1,3 +1,5 @@
+# -*- SkipSchemaAnnotations
+
 require_relative 'base'
 require_relative 'package'
 require_relative 'project'
