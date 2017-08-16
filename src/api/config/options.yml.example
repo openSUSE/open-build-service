@@ -141,19 +141,6 @@ ldap_auth_mech: :md5
 # This is a string
 ldap_auth_attr: userPassword
 
-# Whether to update the user info to LDAP server, it does not take effect
-# when ldap_mode is not set.
-# Since adding new entry operation are more depend on your slapd db define, it might not
-# compatiable with all LDAP server settings, you can use other LDAP client tools for your specific usage
-ldap_update_support: :off
-# ObjectClass, used for adding new entry
-ldap_object_class: inetOrgPerson
-# Base dn for the new added entry
-ldap_entry_base: ou=OBSUSERS,dc=EXAMPLE,dc=COM
-# Does sn attribute required, it is a necessary attribute for most of people objectclass,
-# used for adding new entry
-ldap_sn_attr_required: :on
-
 # Whether to search group info from ldap, it does not take effect
 # when LDAP_GROUP_SUPPOR is not set.
 # Please also set below LDAP_GROUP_* configs correctly to ensure the operation works properly
