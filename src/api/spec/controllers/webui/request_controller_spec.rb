@@ -173,6 +173,7 @@ RSpec.describe Webui::RequestController, vcr: true do
     before do
       create_submit_request
     end
+
     context "with valid parameters" do
       it 'accepts' do
         login(receiver)
@@ -181,6 +182,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         }
         expect(bs_request.reload.state).to eq(:accepted)
       end
+
       it 'declines' do
         login(receiver)
         post :changerequest, params: {
@@ -188,6 +190,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         }
         expect(bs_request.reload.state).to eq(:declined)
       end
+
       it 'revokes' do
         login(submitter)
         post :changerequest, params: {
@@ -195,6 +198,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         }
         expect(bs_request.reload.state).to eq(:revoked)
       end
+
       it 'adds submitter as maintainer' do
         login(receiver)
         post :changerequest, params: {
@@ -203,6 +207,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         expect(bs_request.reload.state).to eq(:accepted)
         expect(target_package.relationships.map(&:user_id).include?(submitter.id)).to be_truthy
       end
+
       it 'forwards' do
         login(receiver)
         expect {
@@ -214,6 +219,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
       end
     end
+
     context "with invalid parameters" do
       it 'without request' do
         login(receiver)
@@ -221,6 +227,25 @@ RSpec.describe Webui::RequestController, vcr: true do
           number: 1899, accepted: 'accepted'
         }
         expect(flash[:error]).to eq('Can\'t find request 1899')
+      end
+    end
+
+    context "when forwarding the request fails" do
+      before do
+        allow(BsRequestActionSubmit).to receive(:new).and_raise(APIException, 'some error')
+        login(receiver)
+      end
+
+      it 'accepts the parent request and reports an error for the forwarded request' do
+        expect {
+          post :changerequest, params: {
+              number: bs_request.number, accepted: 'accepted',
+              forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
+              description: 'blah blah blah'
+            }}.not_to change(BsRequest, :count)
+        expect(bs_request.reload.state).to eq(:accepted)
+        expect(flash[:notice]).to match("Request \\d accepted")
+        expect(flash[:error]).to eq('Unable to forward submit: some error')
       end
     end
   end
