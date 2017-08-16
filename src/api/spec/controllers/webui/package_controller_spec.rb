@@ -1164,4 +1164,33 @@ EOT
       }
     end
   end
+
+  describe '#rpmlint_result' do
+    let(:fake_build_result) {
+      Buildresult.new(
+        '
+        <resultlist state="eb0459ee3b000176bb3944a67b7c44fa">
+          <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="building" state="building">
+            <status package="my_package" code="excluded" />
+          </result>
+          <result project="home:tom" repository="images" arch="armv7l" code="unknown" state="unknown" />
+          <result project="home:tom" repository="images" arch="x86_64" code="building" state="building">
+            <status package="my_package" code="signing" />
+          </result>
+        </resultlist>
+        '
+      )
+    }
+
+    before do
+      allow(Buildresult).to receive(:find).and_return(fake_build_result)
+      post :rpmlint_result, xhr: true, params: { package: source_package, project: source_project }
+    end
+
+    it { expect(response).to have_http_status(:success) }
+    it { expect(assigns(:repo_list)).to include(['images', 'images']) }
+    it { expect(assigns(:repo_list)).not_to include(['openSUSE_Tumbleweed', 'openSUSE_Tumbleweed']) }
+    it { expect(assigns(:repo_arch_hash)['images']).to include('x86_64') }
+    it { expect(assigns(:repo_arch_hash)['images']).not_to include('armv7l') }
+  end
 end
