@@ -6,10 +6,13 @@
   height: 10em;
   width: 26em;
   margin-left: -13em;
+
+  input[type='text'] { width: 95%; }
   /* TODO: Agree on a common way to use dialogs. Without this adjustment the width of 95% gets applied to the branching dialog and this looks weird */
   input[name="target_package"] {
-    width: 300px;
+    width: 220px;
   }
+
   .dialog-content {
     overflow: auto;
     max-height: 400px;
@@ -17,10 +20,12 @@
       width: 95%;
     }
   }
+
   .dialog-buttons {
     text-align: center;
     padding-top: 10px;
     padding-bottom: 10px;
+
     a, input {
       font-size: 1.2em;
       padding: 3px 1ex;
@@ -36,16 +41,15 @@
         color: #666;
       }
     }
+
     .close-dialog {
       border-radius: 5px;
       border: 1px solid #eee;
-      padding: 8px;
-      /* Make it look like the default option*/
-      font-weight: bold;
-      font-size: 1.2em;
     }
   }
 }
+
+#package_branch_dialog { font-size: 16px; }
 
 .overlay {
   display: none;

@@ -15,7 +15,6 @@
     = hidden_field_tag(:linked_package, @package.name)
   %label{ for: 'target_package' }
     %strong New package name:
-  %br/
   = text_field_tag 'target_package', @package.try(:name), size: 80, maxlength: 200
   %br/
   = hidden_field_tag 'target_project', target_project.name if target_project
