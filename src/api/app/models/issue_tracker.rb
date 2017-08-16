@@ -259,8 +259,8 @@ class IssueTracker < ApplicationRecord
         issue = Issue.find_by_name_and_tracker(js["number"].to_s, name)
         return if issue.nil?
       end
-    rescue TypeError => e
-      Airbrake.notify(e, { json_data: js })
+    rescue TypeError
+      logger.debug "[IssueTracker#parse_github_issue] cannot parse json response:\n#{js}"
       raise
     end
     if js["state"] == "open"
