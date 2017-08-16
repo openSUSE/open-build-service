@@ -6,6 +6,8 @@ class Comment < ApplicationRecord
   belongs_to :user, inverse_of: :comments
 
   validates :body, :commentable, :user, presence: true
+  # FIXME: this probably should be MEDIUMTEXT(16MB) instead of text (64KB)
+  validates :body, length: { maximum: 65535 }
 
   validate :validate_parent_id
 
