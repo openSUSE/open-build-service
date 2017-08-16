@@ -121,26 +121,28 @@ RSpec.describe Webui::UserController do
       context "with valid data" do
         before do
           login user
-          post :save, params: { user: user, realname: 'another real name', email: 'new_valid@email.es' }
+          post :save, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es', state: 'locked' }}
           user.reload
         end
 
         it { expect(flash[:success]).to eq("User data for user '#{user.login}' successfully updated.") }
         it { expect(user.realname).to eq('another real name') }
         it { expect(user.email).to eq('new_valid@email.es') }
+        it { expect(user.state).to eq('confirmed') }
         it { is_expected.to redirect_to user_show_path(user) }
       end
 
       context "with invalid data" do
         before do
           login user
-          post :save, params: { user: user, realname: "another real name", email: "" }
+          post :save, params: { user: { login: user.login, realname: "another real name", email: "" }}
           user.reload
         end
 
         it { expect(flash[:error]).to eq("Couldn't update user: Validation failed: Email must be given, Email must be a valid email address..") }
         it { expect(user.realname).to eq(user.realname) }
         it { expect(user.email).to eq(user.email) }
+        it { expect(user.state).to eq('confirmed') }
         it { is_expected.to redirect_to user_show_path(user) }
       end
     end
@@ -148,8 +150,7 @@ RSpec.describe Webui::UserController do
     context "when user is trying to update another user's profile" do
       before do
         login user
-        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to(root_url)
-        post :save, params: { user: non_admin_user, realname: 'another real name', email: 'new_valid@email.es' }
+        post :save, params: { user: { login: non_admin_user.login, realname: 'another real name', email: 'new_valid@email.es' }}
         non_admin_user.reload
       end
 
@@ -160,15 +161,73 @@ RSpec.describe Webui::UserController do
     end
 
     context "when admin is updating another user's profile" do
+      let(:old_global_role)  { create(:role, global: true, title: 'old_global_role') }
+      let(:new_global_roles) { create_list(:role, 2, global: true) }
+      let(:local_roles)      { create_list(:role, 2) }
+
       before do
+        user.roles << old_global_role
+        user.roles << local_roles
+
         login admin_user
-        post :save, params: { user: user, realname: 'another real name', email: 'new_valid@email.es' }
+        post :save, params: {
+          user: {
+            login: user.login, realname: 'another real name', email: 'new_valid@email.es', state: 'locked', role_ids: new_global_roles.pluck(:id)
+          }
+        }
         user.reload
       end
 
       it { expect(user.realname).to eq('another real name') }
       it { expect(user.email).to eq('new_valid@email.es') }
+      it { expect(user.state).to eq('locked') }
       it { is_expected.to redirect_to user_show_path(user) }
+      it "updates the user's roles" do
+        expect(user.roles).not_to include(old_global_role)
+        expect(user.roles).to include(*new_global_roles)
+      end
+      it 'does not remove non global roles' do
+        expect(user.roles).to include(*local_roles)
+      end
+    end
+
+    context 'when roles parameter is empty' do
+      let(:old_global_role) { create(:role, global: true, title: 'old_global_role') }
+      let(:local_roles)     { create_list(:role, 2) }
+
+      before do
+        user.roles << old_global_role
+        user.roles << local_roles
+
+        login admin_user
+        # Rails form helper sends an empty string in an array if no checkbox was marked
+        post :save, params: { user: { login: user.login, email: 'new_valid@email.es', role_ids: [""] }}
+        user.reload
+      end
+
+      it "drops all global roles" do
+        expect(user.roles).to match_array local_roles
+      end
+    end
+
+    context "when state and roles are not passed as parameter" do
+      let(:old_global_role) { create(:role, global: true, title: 'old_global_role') }
+
+      before do
+        user.roles << old_global_role
+
+        login admin_user
+        post :save, params: { user: { login: user.login, email: 'new_valid@email.es' }}
+        user.reload
+      end
+
+      it 'keeps the old state' do
+        expect(user.state).to eq('confirmed')
+      end
+
+      it "does not drop the roles" do
+        expect(user.roles).to match_array old_global_role
+      end
     end
   end
 
