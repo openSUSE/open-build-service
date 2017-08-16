@@ -487,6 +487,8 @@ Metrics/AbcSize:
 # Configuration parameters: CountComments, ExcludedMethods.
 Metrics/BlockLength:
   Max: 931
+  Exclude:
+    - 'src/api/spec/controllers/webui/package_controller_spec.rb'
 
 # Offense count: 26
 # Configuration parameters: CountBlocks.
