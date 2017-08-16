@@ -8,34 +8,32 @@ class UpdateNotificationEvents
   end
 
   def create_events
-    retries = 10
-    data = type = nil
-    begin
-      Event::Base.transaction do
-        @last.elements('notification') do |e|
-          type = e['type']
-          data = {}
-          e.elements('data') do |d|
-            data[d['key']] = d['_content']
-          end
+    Event::Base.transaction do
+      data = type = nil
+      @last.elements('notification') do |e|
+        type = e['type']
+        data = {}
+        e.elements('data') do |d|
+          data[d['key']] = d['_content']
+        end
+        retries = 10
+        begin
           event = Event::Factory.new_from_type(type, data)
           event.save!
+        rescue ActiveRecord::StatementInvalid => e
+          retries -= 1
+          retry if retries > 0
+          Airbrake.notify("Failed to create Event : #{type.inspect}: #{data} #{e}")
+        rescue => e
+          if Rails.env.test?
+            # make debug output useful in test suite, not just showing backtrace to Airbrake
+            Rails.logger.error "ERROR: #{e.inspect}: #{e.backtrace}"
+            Rails.logger.info e.inspect
+            Rails.logger.info e.backtrace
+          end
+          Airbrake.notify("Failed to create Event : #{type.inspect}: #{data} #{e}")
         end
       end
-    rescue ActiveRecord::StatementInvalid => e
-      retries -= 1
-      retry if retries > 0
-      Airbrake.notify(e, {failed_job: "RETRYED 10 times: #{type.inspect}: #{data}"})
-      return
-    rescue => e
-      if Rails.env.test?
-        # make debug output useful in test suite, not just showing backtrace to Airbrake
-        Rails.logger.error "ERROR: #{e.inspect}: #{e.backtrace}"
-        Rails.logger.info e.inspect
-        Rails.logger.info e.backtrace
-      end
-      Airbrake.notify(e, {failed_job: type.inspect})
-      return
     end
 
     BackendInfo.lastnotification_nr = Integer(@last['next'])
