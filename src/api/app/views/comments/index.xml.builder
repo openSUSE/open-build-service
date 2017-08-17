@@ -1,3 +1,3 @@
-xml.comments(request: @obj.number) do 
+xml.comments(@header) do
   render(partial: 'comments', locals: { builder: xml, comments: @comments })
 end
