@@ -1385,7 +1385,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # leave a comment
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: reqid), params: 'Release it now!'
+      post create_request_comment_path(request_number: reqid), params: 'Release it now!'
       assert_response :success
       SendEventEmailsJob.new.perform
     end
@@ -1398,7 +1398,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # now leave another comment and hope the assi gets it too
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: reqid), params: 'Slave, can you release it? The master is gone'
+      post create_request_comment_path(request_number: reqid), params: 'Slave, can you release it? The master is gone'
       assert_response :success
       SendEventEmailsJob.new.perform
     end
@@ -1406,7 +1406,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
     assert_equal %w(dirkmueller@example.com fred@feuerstein.de homer@nospam.net test_group@testsuite.org), email.to.sort
 
-    get comments_request_path(id: reqid)
+    get comments_request_path(request_number: reqid)
     assert_xml_tag tag: 'comment', attributes: { who: 'king' }, content: 'Release it now!'
 
     #### blocked attempt to release packages

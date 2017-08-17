@@ -28,7 +28,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   def test_show_request_comments
     login_tom
-    get comments_request_path(id: 4)
+    get comments_request_path(request_number: 4)
     assert_response :success
     assert_xml_tag tag: 'comment', attributes: { who: 'tom', parent: '300' }
   end
@@ -38,7 +38,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response 401 # no anonymous deletes
 
     login_tom
-    get comments_request_path(id: 4)
+    get comments_request_path(request_number: 4)
     assert_response :success
     assert_xml_tag tag: 'comment', attributes: { who: 'tom', parent: '300' }
 
@@ -48,7 +48,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     delete comment_delete_path(301)
     assert_response :success
 
-    get comments_request_path(id: 4)
+    get comments_request_path(request_number: 4)
     assert_response :success
     assert_no_xml_tag tag: 'comment', attributes: { who: 'tom', parent: '300' }
     assert_xml_tag tag: 'comment', attributes: { who: '_nobody_', id: '301' }, content: 'This comment has been deleted'
@@ -75,21 +75,21 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_create_request_comment
-    post create_request_comment_path(id: 2)
+    post create_request_comment_path(request_number: 2)
     assert_response 401 # no anonymous comments
 
     login_adrian
-    post create_request_comment_path(id: 2000)
+    post create_request_comment_path(request_number: 2000)
     assert_response 404
 
-    post create_request_comment_path(id: 2)
+    post create_request_comment_path(request_number: 2)
     assert_response 400
     # body can't be empty
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
     SendEventEmailsJob.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: 2), params: 'Hallo'
+      post create_request_comment_path(request_number: 2), params: 'Hallo'
       assert_response :success
       SendEventEmailsJob.new.perform
     end
@@ -98,14 +98,14 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'Request 2 commented by adrian (submit NeitherExisting/unknown, delete NeitherExisting/unknown2)', email.subject
     assert_equal ['tschmidt@example.com'], email.to
 
-    get comments_request_path(id: 2)
+    get comments_request_path(request_number: 2)
     assert_xml_tag tag: 'comment', attributes: { who: 'adrian' }, content: 'Hallo'
 
     # just check if adrian gets the mail too - he's a commenter now
     login_dmayr
     SendEventEmailsJob.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: 2), params: 'Hallo'
+      post create_request_comment_path(request_number: 2), params: 'Hallo'
       assert_response :success
       SendEventEmailsJob.new.perform
     end
@@ -115,7 +115,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     # now to something fancy
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: 2), params: 'Hallo @fred'
+      post create_request_comment_path(request_number: 2), params: 'Hallo @fred'
       assert_response :success
       SendEventEmailsJob.new.perform
     end
@@ -125,7 +125,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     # and check if @fred becomes a 'commenter' for ever
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      post create_request_comment_path(id: 2), params: 'Is Fred listening now?'
+      post create_request_comment_path(request_number: 2), params: 'Is Fred listening now?'
       assert_response :success
       SendEventEmailsJob.new.perform
     end

@@ -32,7 +32,7 @@ class CommentsController < ApplicationController
       @obj = User.find_by!(login: params[:user_login])
       @header = { user: @obj.login }
     else
-      @obj = BsRequest.find_by_number!(params[:id])
+      @obj = BsRequest.find_by_number!(params[:request_number])
       @header = { request: @obj.number }
     end
   end

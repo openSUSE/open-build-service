@@ -46,7 +46,7 @@ RSpec.describe CommentsController, type: :controller do
 
       before do
         login user
-        get :index, format: :xml, params: { id: object.number }
+        get :index, format: :xml, params: { request_number: object.number }
       end
 
       include_examples 'request comment index'

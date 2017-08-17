@@ -716,8 +716,8 @@ OBSApi::Application.routes.draw do
   end
 
   controller :comments do
-    get 'comments/request/:id' => :index, constraints: cons, as: :comments_request
-    post 'comments/request/:id' => :create, constraints: cons, as: :create_request_comment
+    get 'comments/request/:request_number' => :index, constraints: cons, as: :comments_request
+    post 'comments/request/:request_number' => :create, constraints: cons, as: :create_request_comment
     get 'comments/package/:project/:package' => :index, constraints: cons, as: :comments_package
     post 'comments/package/:project/:package' => :create, constraints: cons, as: :create_package_comment
     get 'comments/project/:project' => :index, constraints: cons, as: :comments_project
