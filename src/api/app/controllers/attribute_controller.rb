@@ -184,10 +184,7 @@ class AttributeController < ApplicationController
     # exec
     if params[:rev] || @attribute_container.nil?
       # old or remote instance entry
-      path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package] || '_project')}/_attribute?meta=1"
-      path += "&rev=#{CGI.escape(params[:rev])}" if params[:rev]
-      answer = Backend::Connection.get(path)
-      render xml: answer.body.to_s
+      render xml: Backend::Api.attribute(params[:project], params[:package], params[:rev])
       return
     end
 
