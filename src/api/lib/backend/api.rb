@@ -8,9 +8,9 @@ module Backend
       Backend::Connection.get(path).body
     end
 
-    # Returns a file list filtered by a regexp (from src/api/app/controllers/build/file_controller.rb)
-    def self.file_list_by_regexp(project, repository, arch, package, regexp)
-      Backend::Connection.get("/build/#{project}/#{repository}/#{arch}/#{package}").body.match(regexp)
+    # Returns a file list (from src/api/app/controllers/build/file_controller.rb)
+    def self.file_list(project, repository, arch, package)
+      Backend::Connection.get("/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(arch)}/#{CGI.escape(package)}").body
     end
   end
 end
