@@ -1,9 +1,8 @@
 class CommentsController < ApplicationController
-  before_action :find_obj, only: [:show_comments, :create]
+  before_action :find_obj, only: [:index, :create]
 
-  def show_comments
+  def index
     @comments = @obj.comments.order(:id)
-    render "show_#{@template}_comments"
   end
 
   def create
@@ -23,15 +22,15 @@ class CommentsController < ApplicationController
   def find_obj
     if params[:project]
       if params[:package]
-        @template = 'package'
         @obj = Package.get_by_project_and_name(params[:project], params[:package])
+        @header = { project: @obj.project.name, package: @obj.name }
       else
-        @template = 'project'
         @obj = Project.get_by_name(params[:project])
+        @header = { project: @obj.name }
       end
     else
-      @template = 'request'
       @obj = BsRequest.find_by_number!(params[:id])
+      @header = { request: @obj.number }
     end
   end
 end
