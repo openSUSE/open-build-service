@@ -1197,4 +1197,21 @@ EOT
     it { expect(assigns(:repo_arch_hash)['openSUSE_Leap_42_1']).to include('x86_64') }
     it { expect(assigns(:repo_arch_hash)['openSUSE_Leap_42_1']).not_to include('armv7l') }
   end
+
+  describe 'GET #submit_request_dialog' do
+    let(:package) { create(:package_with_changes_file, project: source_project, name: 'package_with_changes_file') }
+
+    before do
+      login(user)
+      get :submit_request_dialog,
+          xhr: true,
+          params: { project: source_project, package: package, targetpackage: source_package, targetproject: source_project }
+    end
+
+    it { expect(assigns(:package)).to eq(package) }
+    it { expect(assigns(:project)).to eq(source_project) }
+    it { expect(assigns(:tpkg)).to eq(source_package.name) }
+    it { expect(assigns(:tprj)).to eq(source_project.name) }
+    it { expect(assigns(:description)).to eq("- Testing the submit diff\n- Temporary hack") }
+  end
 end

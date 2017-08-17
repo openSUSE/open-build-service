@@ -349,6 +349,28 @@ class Package < ApplicationRecord
     nil
   end
 
+  def changes_files
+    result = []
+    dir_hash.elements('entry') do |e|
+      result << e['name'] if e['name'] =~ /.changes$/
+    end
+    result
+  end
+
+  def commit_message(target_project, target_package)
+    result = ''
+    changes_files.each do |changes_file|
+      source_changes = PackageFile.new(package_name: name, project_name: project.name, name: changes_file).to_s
+      target_changes = PackageFile.new(package_name: target_package, project_name: target_project, name: changes_file).to_s
+      result << source_changes.try(:chomp, target_changes)
+    end
+    # Remove header and empty lines
+    result.gsub!('-------------------------------------------------------------------', '')
+    result.gsub!(/(Mon|Tue|Wed|Thu|Fri|Sat|Sun) ([A-Z][a-z]{2}) ( ?[0-9]|[0-3][0-9]) .*/, '')
+    result.gsub!(/^$\n/, '')
+    result
+  end
+
   def kiwi_image_outdated?
     return true if kiwi_file_md5.nil? || !kiwi_image
     kiwi_image.md5_last_revision != kiwi_file_md5

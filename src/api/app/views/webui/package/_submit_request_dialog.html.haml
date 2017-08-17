@@ -34,7 +34,7 @@
 
         = label_tag(:description, 'Description:')
         %br/
-        ~ text_area_tag(:description, '', size: '40x3')
+        ~ text_area_tag(:description, @description, size: '40x3')
         %br/
 
         %span.hidden#supersede-display

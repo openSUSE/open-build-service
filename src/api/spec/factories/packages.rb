@@ -58,6 +58,31 @@ FactoryGirl.define do
       end
     end
 
+    factory :package_with_changes_file do
+      transient do
+        changes_file_content '
+-------------------------------------------------------------------
+Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+
+- Testing the submit diff
+
+-------------------------------------------------------------------
+Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+- Temporary hack'
+        changes_file_name { "#{name}.changes" }
+      end
+
+      after(:create) do |package, evaluator|
+        # NOTE: Enable global write through when writing new VCR cassetes.
+        # ensure the backend knows the project
+        if CONFIG['global_write_through']
+          full_path = "/source/#{package.project.name}/#{package.name}/#{evaluator.changes_file_name}"
+          Backend::Connection.put(URI.escape(full_path), evaluator.changes_file_content)
+        end
+      end
+    end
+
     factory :package_with_kiwi_file do
       transient do
         kiwi_file_content '<?xml version="1.0" encoding="UTF-8"?>

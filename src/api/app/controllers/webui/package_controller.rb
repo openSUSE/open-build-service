@@ -243,6 +243,8 @@ class Webui::PackageController < Webui::WebuiController
     @tprj = params[:targetproject] if params[:targetproject] # allow to override by parameter
     @tpkg = params[:targetpackage] if params[:targetpackage] # allow to override by parameter
 
+    @description = @package.commit_message(@tprj, @tpkg)
+
     render_dialog
   end
 
