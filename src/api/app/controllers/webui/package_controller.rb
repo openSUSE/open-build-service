@@ -933,8 +933,8 @@ class Webui::PackageController < Webui::WebuiController
     @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
     repos = [] # Temp var
     @buildresult.elements('result') do |result|
-      if result.value('status') &&
-          result.value('status').value('code') != 'excluded'
+      if result.value('repository') != 'images' &&
+          (result.value('status') && result.value('status').value('code') != 'excluded')
         hash_key = valid_xml_id(elide(result.value('repository'), 30))
         @repo_arch_hash[hash_key] ||= []
         @repo_arch_hash[hash_key] << result['arch']
