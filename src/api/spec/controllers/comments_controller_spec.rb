@@ -7,7 +7,7 @@ RSpec.describe CommentsController, type: :controller do
 
     RSpec.shared_examples 'request comment index' do
       it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:obj)).to eq(comment.commentable) }
+      it { expect(assigns(:obj)).to eq(object) }
       it {
         expect(response.body).
           to include("<comment who=\"#{comment.user}\" when=\"#{comment.created_at}\" id=\"#{comment.id}\">#{comment.body}</comment>")
@@ -16,41 +16,54 @@ RSpec.describe CommentsController, type: :controller do
 
     context 'of a project' do
       let(:comment) { create(:comment_project) }
-      let(:project) { comment.commentable }
+      let(:object) { comment.commentable }
 
       before do
         login user
-        get :index, format: :xml, params: { project: project }
+        get :index, format: :xml, params: { project: object }
       end
 
       include_examples 'request comment index'
-      it { expect(response.body).to include("<comments project=\"#{project.name}\">") }
+      it { expect(response.body).to include("<comments project=\"#{object.name}\">") }
     end
 
     context 'of a package' do
       let(:comment) { create(:comment_package) }
-      let(:package) { comment.commentable }
+      let(:object) { comment.commentable }
 
       before do
         login user
-        get :index, format: :xml, params: { package: package, project: package.project }
+        get :index, format: :xml, params: { package: object, project: object.project.name }
       end
 
       include_examples 'request comment index'
-      it { expect(response.body).to include("<comments project=\"#{package.project.name}\" package=\"#{package.name}\">") }
+      it { expect(response.body).to include("<comments project=\"#{object.project.name}\" package=\"#{object.name}\">") }
     end
 
     context 'of a bs_request' do
       let(:comment) { create(:comment_request) }
-      let(:bs_request) { comment.commentable }
+      let(:object) { comment.commentable }
 
       before do
         login user
-        get :index, format: :xml, params: { id: bs_request.number }
+        get :index, format: :xml, params: { id: object.number }
       end
 
       include_examples 'request comment index'
-      it { expect(response.body).to include("<comments request=\"#{bs_request.number}\">") }
+      it { expect(response.body).to include("<comments request=\"#{object.number}\">") }
+    end
+
+    context 'of a user' do
+      let!(:comment) { create(:comment_request, user: user) }
+      let(:object) { user }
+
+      before do
+        login user
+        get :index, format: :xml, params: { user_login: user.login }
+      end
+
+      include_examples 'request comment index'
+      it { expect(response.body).to include("<comments user=\"#{user.login}\">") }
     end
   end
 end

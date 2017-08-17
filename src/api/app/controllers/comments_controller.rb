@@ -28,6 +28,9 @@ class CommentsController < ApplicationController
         @obj = Project.get_by_name(params[:project])
         @header = { project: @obj.name }
       end
+    elsif params[:user_login]
+      @obj = User.find_by!(login: params[:user_login])
+      @header = { user: @obj.login }
     else
       @obj = BsRequest.find_by_number!(params[:id])
       @header = { request: @obj.number }
