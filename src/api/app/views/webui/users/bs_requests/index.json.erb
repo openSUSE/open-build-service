@@ -5,8 +5,8 @@
   "data": [
     <% @requests_data_table.rows.each.with_index do |row,index | %>
       [
+        "<%= escape_javascript(fuzzy_time(row.created_at, false)) %>",
         <% cache "request-table-row-#{row.id}-#{row.updated_at.to_i}" do %>
-          "<%= escape_javascript(fuzzy_time(row.created_at, false)) %>",
           "<%= escape_javascript(project_or_package_link(project: row.source_project, package: row.source_package, creator: row.creator, trim_to: 40, short: true)) %>",
           "<%= escape_javascript(target_project_link(row)) %>",
           "<%= escape_javascript(user_with_realname_and_icon(row.creator, short: true)) %>",
