@@ -36,6 +36,8 @@ RSpec.feature "Projects", type: :feature, js: true do
   end
 
   describe "creating packages in projects owned by user, eg. home projects" do
+    let(:very_long_description) { Faker::Lorem.paragraphs(250) }
+
     before do
       login user
       visit project_show_path(project: user.home_project)
@@ -46,13 +48,13 @@ RSpec.feature "Projects", type: :feature, js: true do
     scenario "with valid data" do
       fill_in "name", with: "coolstuff"
       fill_in "title", with: "cool stuff everyone needs"
-      fill_in "description", with: "some description"
+      fill_in "description", with: very_long_description
       click_button "Save changes"
 
       expect(page).to have_text("Package 'coolstuff' was created successfully")
       expect(page.current_path).to eq(package_show_path(project: user.home_project_name, package: "coolstuff"))
       expect(find(:css, "h3#package_title")).to have_text("cool stuff everyone needs")
-      expect(find(:css, "pre#description-text")).to have_text("some description")
+      expect(find(:css, "pre#description-text")).to have_text(very_long_description)
     end
 
     scenario "with invalid data (validation fails)" do
