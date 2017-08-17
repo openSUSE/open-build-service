@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'webmock/rspec'
 
 RSpec.describe IssueTracker do
   describe '.update_all_issues' do
@@ -16,30 +17,42 @@ RSpec.describe IssueTracker do
     end
   end
 
-  describe '#parse_github_issue' do
-    context 'with a valid response from github' do
+  describe '#update_issues_github' do
+    let!(:issue_tracker) { create(:issue_tracker, enable_fetch: true, url: 'http://api.a-fake-url.com/repos/openSUSE/open-build-service/issues') }
+    let!(:issue) do
+      # This line is necessary to prevent the issue after_create method from querying github
+      allow_any_instance_of(Issue).to receive(:fetch_issues)
+      create(:issue, name: '3628', issue_tracker: issue_tracker)
+    end
+
+    context 'with a 200 response from github' do
       include_context 'a github issue response'
 
-      let!(:issue_tracker) { create(:issue_tracker, enable_fetch: true) }
-      let!(:issue) { create(:issue, name: js['number'], issue_tracker: issue_tracker) }
+      before do
+        stub_request(:get, /api.a-fake-url.com*/).to_return(body: github_issues_json, status: 200)
+      end
 
-      subject! { issue_tracker.send(:parse_github_issue, js) }
+      subject! do
+        issue_tracker.update_issues_github
+      end
 
       it 'updates issue' do
         issue.reload
-        expect(issue.summary).to eq(js['title'])
+        expect(issue.summary).to eq('[ci] Trying fix flickering test in test_helper')
       end
     end
 
-    context 'with an invalid response from github' do
-      let(:js) { [] }
-      let!(:issue_tracker) { create(:issue_tracker, enable_fetch: true) }
-      let!(:issue) { create(:issue, name: '123', issue_tracker: issue_tracker) }
+    context 'with a 404 response from github' do
+      before do
+        stub_request(:get, /api.a-fake-url.com*/).to_return(status: 404)
+      end
 
-      subject { issue_tracker.send(:parse_github_issue, js) }
+      subject! do
+        issue_tracker.update_issues_github
+      end
 
-      it 'raises TypeError' do
-        expect{ subject }.to raise_error(TypeError)
+      it 'returns nil' do
+        is_expected.to be_nil
       end
     end
   end
