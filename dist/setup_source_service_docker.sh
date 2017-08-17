@@ -24,15 +24,58 @@ if [ "$SUSE" == "opensuse" ]; then
   zypper ar --refresh -n --no-gpg-checks $downloadserver/repositories/OBS:/Server:/Unstable/$SUSE\_$VERSION/OBS:Server:Unstable.repo
 
   docker_install="obs-source-service-docker-image"
-elif [ "$SUSE" == "SLE" ]; then
-  echo "SLE not supported yet by the installer"
-  exit
+elif [ "$SUSE" == "SLE" -o "$SUSE" == "sles" ]; then
+  SUSE=SLE_
+  VERSION=${VERSION/-/_}
+  echo "Adding repository for source service containment"
+  zypper ar --refresh -n --no-gpg-checks -t rpm-md $downloadserver/repositories/OBS:/Server:/Unstable/containment/ Containment
+  docker_install="obs-source-service-docker-image"
   # If we are on a SLE the download server and repositories must be different. 
   # Must be clarified. Until clarification the installer only works on openSUSE Distributions.
 else
   echo "Something wrong with the OS brand. Must be SLE or opensuse ($SUSE)."
   exit
 fi
+
+function check_vg_opts {
+  VG_NAME="`echo $HOSTNAME|perl -p -e 's/-/_/g'`_docker"
+
+  if [ -z "$PV_DEVICE" ];then
+    echo "Please enter pv device"
+    read PV_DEVICE
+  fi
+
+  if [ -z "$NON_INTERACTIVE_MODE" ];then
+    echo "PV device $PV_DEVICE is used"
+    echo "VG name $VG_NAME is used."
+    echo "Please confirm with 'yes'"
+    read YES
+  else
+    YES=yes
+  fi
+
+  if [[ $YES != 'yes' ]];then
+    exit 1
+  fi
+}
+
+function install_docker_vg {
+  # setup is now done by docker daemon
+
+cat <<EOF > /etc/docker/daemon.json
+{
+  "storage-driver": "devicemapper",
+   "storage-opts": [
+    "dm.directlvm_device=$PV_DEVICE",
+    "dm.thinp_percent=95",
+    "dm.thinp_metapercent=1",
+    "dm.thinp_autoextend_threshold=80",
+    "dm.thinp_autoextend_percent=20",
+    "dm.directlvm_device_force=false"
+   ]
+}
+EOF
+}
 
 echo "Refreshing repositories"
 zypper -n --gpg-auto-import-keys ref -s
@@ -50,7 +93,6 @@ chown obsrun:obsrun /srv/obs/run
 
 echo "set extended acl feature on /srv/obs/run/"
 setfacl -m u:obsservicerun:rwx /srv/obs/run/
-
 
 echo "Setting correct bsservicegroup"
 if grep -q "^our \$bsservicegroup =.*" /usr/lib/obs/server/BSConfig.pm; then
@@ -78,6 +120,10 @@ grep -q -P '^obsservicerun:' /etc/subuid || \
   echo "obsservicerun:"$(($( id -u obsservicerun ) - $DAEMON_UID ))":65536" >> /etc/subuid
 grep -q -P '^obsrun:' /etc/subgid || \
   echo "obsrun:"$(($( id -g obsservicerun ) - $DAEMON_GID ))":65536" >> /etc/subgid
+
+check_vg_opts
+
+install_docker_vg
 
 echo "enable and start docker"
 systemctl enable docker
