@@ -100,6 +100,12 @@ class IssueTracker < ApplicationRecord
     mtime = Time.now
 
     response = follow_redirects(url)
+
+    if response.code != '200'
+      logger.debug "[IssueTracker#update_issues_github] ##{id} could not connect to github.\nUrl: #{url}\nResponse: #{response.body}"
+      return
+    end
+
     return if response.blank?
 
     parse_github_issues(ActiveSupport::JSON.decode(response.body))
