@@ -19,6 +19,9 @@ $( document ).ready(function() {
       pageLength: 25,
       pagingType: "full_numbers",
       processing: true,
+      language: {
+         processing: '<img src="<%= asset_path "ajax-loader.gif" %>"> Processing...'
+      },
       serverSide: true,
       ajax: {
         url: url,
