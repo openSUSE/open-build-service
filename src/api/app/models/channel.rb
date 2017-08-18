@@ -132,18 +132,16 @@ class Channel < ApplicationRecord
   end
 
   def branch_channel_package_into_project(project, comment = nil)
-    cp = package
-
     # create a package container
-    tpkg = Package.new(name: name, title: cp.title, description: cp.description)
-    project.packages << tpkg
-    tpkg.store({comment: comment})
+    target_package = Package.new(name: name, title: package.title, description: package.description)
+    project.packages << target_package
+    target_package.store({comment: comment})
 
     # branch sources
-    tpkg.branch_from(cp.project.name, cp.name, nil, nil, comment)
-    tpkg.sources_changed(wait_for_update: true)
+    target_package.branch_from(package.project.name, package.name, nil, nil, comment)
+    target_package.sources_changed(wait_for_update: true)
 
-    tpkg
+    target_package
   end
 
   def is_active?
@@ -153,11 +151,10 @@ class Channel < ApplicationRecord
     channel_targets.where(disabled: false).present?
   end
 
-  def add_channel_repos_to_project(tpkg, mode = nil)
-    cp = package
+  def add_channel_repos_to_project(target_package, mode = nil)
     if channel_targets.empty?
       # not defined in channel, so take all from project
-      tpkg.project.branch_to_repositories_from(cp.project, cp, {extend_names: true})
+      target_package.project.branch_to_repositories_from(package.project, package, {extend_names: true})
       return
     end
 
@@ -167,11 +164,14 @@ class Channel < ApplicationRecord
       repo_name = ct.repository.extended_name
       next unless mode == :enable_all || !ct.disabled
       # add repositories
-      unless cp.project.repositories.find_by_name(repo_name)
-        tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository])
+      unless package.project.repositories.find_by_name(repo_name)
+        unless target_package.project.repositories.where(name: repo_name).exists?
+          target_repo = target_package.project.repositories.create(name: repo_name)
+          target_package.project.add_repository_targets(target_repo, ct.repository, [ct.repository])
+        end
       end
       # enable package
-      tpkg.enable_for_repository repo_name
+      target_package.enable_for_repository repo_name
     end
   end
 end

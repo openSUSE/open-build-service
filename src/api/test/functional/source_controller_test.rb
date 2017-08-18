@@ -4070,7 +4070,8 @@ EOF
     assert_equal({ 'code' => 'unknown_package', 'summary' => 'home:tom/bar' }, Xmlhash.parse(@response.body))
   end
 
-  def test_issue_328
+  def test_repository_with_local_references
+    # used to be obs#328
     login_tom
     # create a new project with images repo referencing the other
     put('/source/home:tom:threeatatime/_meta', params: '<project name="home:tom:threeatatime"> <title/> <description/>
@@ -4092,8 +4093,28 @@ EOF
                    parent: { tag: "repository", attributes: { name: "standard" } }
     assert_xml_tag tag: "repository", attributes: {name: "standard2"}
 
+    raw_put('/source/home:tom:threeatatime/dummy/_meta', '<package name="dummy" project="home:tom:threeatatime"><title/><description/></package>')
+    assert_response :success
+    post '/source/home:tom:threeatatime/dummy?cmd=branch'
+    assert_response :success
+
+    get '/source/home:tom:branches:home:tom:threeatatime/_meta'
+    assert_response :success
+    assert_xml_tag tag: "path", attributes: { project: "home:tom:branches:home:tom:threeatatime", repository: "standard"},
+                   parent: { tag: "repository", attributes: { name: "images" } }
+    assert_xml_tag tag: "path", attributes: { project: "home:tom:branches:home:tom:threeatatime", repository: "standard2"},
+                   parent: { tag: "repository", attributes: { name: "standard" } }
+    assert_xml_tag tag: "path", attributes: { project: "home:tom:threeatatime", repository: "standard2"},
+                   parent: { tag: "repository", attributes: { name: "standard2" } }
+    assert_xml_tag tag: "repository", attributes: {name: "standard2"}
+
+    delete "/source/home:tom:branches:home:tom:threeatatime?force=1"
+    assert_response :success
     delete "/source/home:tom:threeatatime?force=1"
     assert_response :success
+
+    get '/source/home:tom:threeatatime'
+    assert_response 404
   end
 
   def test_config_file
