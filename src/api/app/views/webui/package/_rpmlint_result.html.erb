@@ -1,7 +1,7 @@
 <% index ||= '' %>
 <p>
   <% unless @repo_list.empty? %>
-  <%= select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_list)) %>
+  <%= select_tag("rpmlint_repo_select_#{index}", options_for_select(@repo_list.sort)) %>
   <% i = 0 %>
   <% @repo_arch_hash.each do |repo, arches| %>
     <%= select_tag("rpmlint_arch_select_#{index}_#{repo}", options_for_select(arches.reverse), :class => "rpmlint_arch_select_#{index}") %>
