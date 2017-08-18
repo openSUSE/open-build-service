@@ -26,17 +26,17 @@ class Relationship < ApplicationRecord
 
   validates :package, presence: {
     message: "Neither package nor project exists"
-  }, unless: 'project.present?'
+  }, unless: proc { |relationship| relationship.project.present? }
   validates :package, absence: {
     message: "Package and project can not exist at the same time"
-  }, if: 'project.present?'
+  }, if: proc { |relationship| relationship.project.present? }
 
   validates :user, presence: {
     message: "Neither user nor group exists"
-  }, unless: 'group.present?'
+  }, unless: proc { |relationship| relationship.group.present? }
   validates :user, absence: {
     message: "User and group can not exist at the same time"
-  }, if: 'group.present?'
+  }, if: proc { |relationship| relationship.group.present? }
 
   # don't use "is not null" - it won't be in index
   scope :projects, -> { where.not(project_id: nil) }
