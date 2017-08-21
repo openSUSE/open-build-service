@@ -341,11 +341,11 @@ GEM
     sexp_processor (4.9.0)
     shoulda-matchers (3.1.2)
       activesupport (>= 4.0.0)
-    simplecov (0.14.1)
+    simplecov (0.15.0)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
-    simplecov-html (0.10.1)
+    simplecov-html (0.10.2)
     single_test (0.6.0)
       rake
     slop (3.6.0)
