@@ -1,9 +1,10 @@
-#kiwi-save {
+.kiwi-button {
   float: right;
   margin-right: 18px;
   padding-bottom: 0;
 
-  #kiwi-image-update-form-save {
+  #kiwi-image-update-form-save,
+  #kiwi-image-update-form-revert {
     margin-left: 0.5em;
     color: #a4a4a4;
 

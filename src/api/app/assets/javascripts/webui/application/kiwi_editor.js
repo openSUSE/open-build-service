@@ -17,6 +17,7 @@ function saveImage() {
 function enableSave(){
   canSave = true;
   $('#kiwi-image-update-form-save').addClass('enabled');
+  $('#kiwi-image-update-form-revert').addClass('enabled');
 }
 
 function editDialog(){
@@ -77,6 +78,11 @@ function hoverListItem() {
 $(document).ready(function(){
   // Save image
   $('#kiwi-image-update-form-save').click(saveImage);
+
+  // Revert image
+  $('#kiwi-image-update-form-revert').click(function(){
+    location.reload();
+  });
 
   // Enable save button
   $('#kiwi-image-update-form').change(enableSave);
