@@ -1,7 +1,10 @@
 .nested-fields.kiwi_fields
   .kiwi_list_item
     %span
-      = link_to f.object.name, '#', class: "package_edit kiwi_element_name"
+      = link_to '#', class: "package_edit kiwi_element_name" do
+        = f.object.name
+        - if f.object.arch.present?
+          %small (#{f.object.arch})
     %span.kiwi_actions.hidden
       = link_to_remove_association sprite_tag("req-decline", title: 'remove'), f
 

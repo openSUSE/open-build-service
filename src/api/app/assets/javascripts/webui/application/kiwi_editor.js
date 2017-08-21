@@ -31,7 +31,7 @@ function closeDialog() {
   var is_repository = fields.parents('#kiwi-repositories-list').size() == 1;
   var name = fields.find('.kiwi_element_name');
   var dialog = fields.find('.dialog');
-  
+
   if(is_repository) {
     var source_path = dialog.find("[id$='source_path']");
     if(source_path.val() != '') {
@@ -52,13 +52,19 @@ function closeDialog() {
     var namePackage = dialog.find("[id$='name']").val();
     if(namePackage != '') {
       name.text(namePackage);
+
+      arch = dialog.find("[id$='arch']").val();
+      if(arch != '') {
+        name.append(" <small>(" + arch + ")</small>");
+      }
+
     }
     else {
       fields.find(".ui-state-error").removeClass('hidden');
       return false;
     }
   }
-  
+
   fields.find(".ui-state-error").addClass('hidden');
   $('.overlay').hide();
   dialog.addClass('hidden');
