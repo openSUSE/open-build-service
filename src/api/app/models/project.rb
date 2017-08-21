@@ -68,9 +68,6 @@ class Project < ApplicationRecord
   has_many :linked_by, -> { order(:position) }, class_name: 'LinkedProject', foreign_key: :linked_db_project_id, dependent: :delete_all
   has_many :linked_by_projects, through: :linked_by, class_name: 'Project', source: :project
 
-  has_many :taggings, as: :taggable, dependent: :delete_all
-  has_many :tags, through: :taggings
-
   has_many :flags, dependent: :delete_all, inverse_of: :project
 
   # optional

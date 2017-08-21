@@ -25,9 +25,6 @@ class User < ApplicationRecord
 
   PASSWORD_HASH_TYPES = ['md5', 'md5crypt', 'sha256crypt']
 
-  has_many :taggings, dependent: :destroy
-  has_many :tags, through: :taggings
-
   has_many :watched_projects, dependent: :destroy, inverse_of: :user
   has_many :groups_users, inverse_of: :user
   has_many :roles_users, inverse_of: :user
