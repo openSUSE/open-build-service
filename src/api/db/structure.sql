@@ -184,13 +184,6 @@ CREATE TABLE `binary_releases` (
   CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `blacklist_tags` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
 CREATE TABLE `bs_request_action_accept_infos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `bs_request_action_id` int(11) DEFAULT NULL,
@@ -380,15 +373,6 @@ CREATE TABLE `configurations` (
   `unlisted_projects_filter_description` varchar(255) COLLATE utf8_bin DEFAULT 'home projects',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `db_projects_tags` (
-  `db_project_id` int(11) NOT NULL,
-  `tag_id` int(11) NOT NULL,
-  UNIQUE KEY `projects_tags_all_index` (`db_project_id`,`tag_id`) USING BTREE,
-  KEY `tag_id` (`tag_id`) USING BTREE,
-  CONSTRAINT `db_projects_tags_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
-  CONSTRAINT `db_projects_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `delayed_jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1083,29 +1067,6 @@ CREATE TABLE `status_messages` (
   KEY `index_status_messages_on_deleted_at_and_created_at` (`deleted_at`,`created_at`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `taggings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `taggable_id` int(11) DEFAULT NULL,
-  `taggable_type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `tag_id` int(11) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `taggings_taggable_id_index` (`taggable_id`,`taggable_type`,`tag_id`,`user_id`) USING BTREE,
-  KEY `index_taggings_on_taggable_type` (`taggable_type`) USING BTREE,
-  KEY `tag_id` (`tag_id`) USING BTREE,
-  KEY `user_id` (`user_id`) USING BTREE,
-  CONSTRAINT `taggings_ibfk_1` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`),
-  CONSTRAINT `taggings_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `tags` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `tags_name_unique_index` (`name`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
 CREATE TABLE `tokens` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `string` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -1276,6 +1237,10 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170704133728'),
 ('20170704212201'),
 ('20170710133627'),
-('20170710134059');
+('20170710134059'),
+('20170821110838'),
+('20170821110918'),
+('20170821110941'),
+('20170821110946');
 
 
