@@ -6,7 +6,7 @@ FactoryGirl.define do
       attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'Maintained') }
     end
 
-    factory :maintainance_project_attrib do
+    factory :maintenance_project_attrib do
       attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject') }
     end
 

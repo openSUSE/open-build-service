@@ -124,7 +124,7 @@ FactoryGirl.define do
       end
 
       after(:create) do |project, evaluator|
-        create(:maintainance_project_attrib, project: project)
+        create(:maintenance_project_attrib, project: project)
         if evaluator.target_project
           create(:maintained_project, project: evaluator.target_project, maintenance_project: project)
           CONFIG['global_write_through'] ? project.store : project.save!
