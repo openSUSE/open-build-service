@@ -136,6 +136,7 @@ class Webui::ProjectController < Webui::WebuiController
         req.bs_request_actions << action
         action.bs_request = req
 
+        req.set_add_revision
         req.save!
       end
       flash[:success] = 'Created maintenance incident request'
