@@ -1658,5 +1658,61 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { is_expected.to be_falsey }
     end
   end
+
+  describe '#status' do
+    let!(:package) { create(:package, project: apache_project, name: 'mod_rewrite') }
+
+    before do
+      get :status, params: params
+    end
+
+    context 'no params set' do
+      let(:params) { { project: apache_project.name } }
+
+      it_behaves_like 'a project status controller'
+    end
+
+    context 'param format=json set' do
+      let(:params) { { project: apache_project.name, format: 'json' } }
+
+      it_behaves_like 'a project status controller'
+    end
+
+    context 'param filter_devel is set' do
+      let(:params) { { project: apache_project.name, filter_devel: 'No Project' } }
+
+      it { expect(assigns[:filter]).to eq('_none_') }
+    end
+
+    context 'param ignore_pending is set' do
+      let(:params) { { project: apache_project.name, ignore_pending: true } }
+
+      it { expect(assigns[:ignore_pending]).to be_truthy }
+    end
+
+    context 'param limit_to_fails is set' do
+      let(:params) { { project: apache_project.name, limit_to_fails: 'false' } }
+
+      it { expect(assigns[:limit_to_fails]).to be_falsey }
+    end
+
+    context 'param limit_to_old is set' do
+      let(:params) { { project: apache_project.name, limit_to_old: 'true' } }
+
+      it { expect(assigns[:limit_to_old]).to be_truthy }
+    end
+
+    context 'param include_versions is set' do
+      let(:params) { { project: apache_project.name, include_versions: 'true' } }
+
+      it { expect(assigns[:include_versions]).to be_truthy }
+    end
+
+    context 'param filter_for_user is set' do
+      let(:params) { { project: apache_project.name, filter_for_user: admin_user.login } }
+
+      it { expect(assigns[:filter_for_user]).to eq(admin_user.login) }
+    end
+  end
 end
 # rubocop:enable Metrics/BlockLength
