@@ -32,12 +32,12 @@ module ValidationHelper
     end
 
     begin
-      r = Backend::Connection.get("/source/#{CGI.escape(project)}/#{name}/_history?deleted=1&meta=1")
+      revisions_list = Backend::Api.revisions_list(project, name)
     rescue
       raise Package::UnknownObjectError, "#{project}/#{name}"
     end
 
-    data = ActiveXML::Node.new(r.body.to_s)
+    data = ActiveXML::Node.new(revisions_list)
     lastrev = data.each('revision').last
     metapath = "/source/#{CGI.escape(project)}/#{name}/_meta"
     if lastrev
@@ -56,12 +56,12 @@ module ValidationHelper
 
   def validate_visibility_of_deleted_project(project)
     begin
-      r = Backend::Connection.get("/source/#{CGI.escape(project)}/_project/_history?deleted=1&meta=1")
+      revisions_list = Backend::Api.revisions_list(project)
     rescue
       raise Project::UnknownObjectError, project.to_s
     end
 
-    data = ActiveXML::Node.new(r.body.to_s)
+    data = ActiveXML::Node.new(revisions_list)
     lastrev = data.each(:revision).last
     raise Project::UnknownObjectError, project.to_s unless lastrev
 

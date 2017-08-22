@@ -12,5 +12,10 @@ module Backend
     def self.file_list(project, repository, arch, package)
       Backend::Connection.get("/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(arch)}/#{CGI.escape(package)}").body
     end
+
+    # Returns the revisions list for a package / project using mrev (from src/api/app/helpers/validation_helper.rb)
+    def self.revisions_list(project, package = nil)
+      Backend::Connection.get("/source/#{CGI.escape(project)}/#{CGI.escape(package || '_project')}/_history?deleted=1&meta=1").body
+    end
   end
 end
