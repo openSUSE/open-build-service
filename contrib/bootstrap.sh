@@ -16,7 +16,7 @@ function copy_example_file {
 }
 
 function check_for_databases {
-  echo "show databases" | mysql -u root --password=opensuse|grep -q api_ && return 0 || return 1
+  echo "show databases" | mysql -u root --password=opensuse | grep -q api_ && return 0 || return 1
 }
 
 function _prepare_bound_directory() {
@@ -76,8 +76,9 @@ zypper -q -n install --replacefiles \
   ruby2.4-rubygem-nokogiri \
   ruby2.4-rubygem-ruby-ldap \
   ruby2.4-rubygem-xmlhash \
-  ruby2.4-rubygem-thinking-sphinx\
-  ruby2.4-rubygem-foreman\
+  ruby2.4-rubygem-thinking-sphinx \
+  ruby2.4-rubygem-thor-0_19 \
+  ruby2.4-rubygem-foreman \
   perl-GD \
   perl-XML-Parser \
   perl-Devel-Cover \
