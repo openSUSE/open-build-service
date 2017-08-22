@@ -30,7 +30,10 @@
           %p
             = link_to_add_association(sprite_tag("package_add", title: 'Add package') + ' Add package', package_group_fields, :packages)
 
-  .grid_2.alpha.omega.box.box-shadow#kiwi-save
+  .grid_2.alpha.omega.box.box-shadow.kiwi-button
     %h3
       #kiwi-image-update-form-save= sprite_tag("page_save", title: 'Save') + ' Save'
+  .grid_2.alpha.omega.box.box-shadow.kiwi-button
+    %h3
+      #kiwi-image-update-form-revert= sprite_tag("page_refresh", title: 'Revert') + ' Revert'
 
