@@ -36,19 +36,16 @@ module ValidationHelper
     rescue
       raise Package::UnknownObjectError, "#{project}/#{name}"
     end
-
     data = ActiveXML::Node.new(revisions_list)
     lastrev = data.each('revision').last
-    metapath = "/source/#{CGI.escape(project)}/#{name}/_meta"
-    if lastrev
-      srcmd5 = lastrev.value('srcmd5')
-      metapath += "?rev=#{srcmd5}" # only add revision if package has some
-    end
 
-    r = Backend::Connection.get(metapath)
-    raise Package::UnknownObjectError, "#{project}/#{name}" unless r
+    query = { deleted: 1 }
+    query[:rev] = lastrev.value('srcmd5') if lastrev
+    meta = PackageMetaFile.new(project_name: project, package_name: name).to_s(query)
+    raise Package::UnknownObjectError, "#{project}/#{name}" unless meta
+
     return true if User.current.is_admin?
-    if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'sourceaccess')
+    if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'sourceaccess')
       raise Package::ReadSourceAccessError, "#{project}/#{name}"
     end
     true
@@ -60,16 +57,14 @@ module ValidationHelper
     rescue
       raise Project::UnknownObjectError, project.to_s
     end
-
     data = ActiveXML::Node.new(revisions_list)
     lastrev = data.each(:revision).last
     raise Project::UnknownObjectError, project.to_s unless lastrev
 
-    metapath = "/source/#{CGI.escape(project)}/_project/_meta?rev=#{lastrev.value('srcmd5')}&deleted=1"
-    r = Backend::Connection.get(metapath)
-    raise Project::UnknownObjectError unless r
+    meta = Backend::Api.meta_from_deleted_project(project, lastrev.value('srcmd5'))
+    raise Project::UnknownObjectError unless meta
     return true if User.current.is_admin?
     # FIXME: actually a per user checking would be more accurate here
-    raise Project::UnknownObjectError, project.to_s if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'access')
+    raise Project::UnknownObjectError, project.to_s if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'access')
   end
 end
