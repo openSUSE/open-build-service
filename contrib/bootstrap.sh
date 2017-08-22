@@ -77,6 +77,7 @@ zypper -q -n install --replacefiles \
   ruby2.4-rubygem-ruby-ldap \
   ruby2.4-rubygem-xmlhash \
   ruby2.4-rubygem-thinking-sphinx\
+  ruby2.4-rubygem-thor-0_19 \
   ruby2.4-rubygem-foreman\
   perl-GD \
   perl-XML-Parser \
