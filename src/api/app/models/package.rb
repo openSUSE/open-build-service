@@ -187,7 +187,11 @@ class Package < ApplicationRecord
     return pkg if pkg
 
     prj = internal_get_project(project)
-    return unless prj # remote prjs
+    unless prj
+      # access check according to remote project
+      raise ReadAccessError, project unless Project.find_remote_project(project)
+      return
+    end
 
     if pkg.nil? && opts[:follow_project_links]
       pkg = prj.find_package(package, opts[:check_update_project])

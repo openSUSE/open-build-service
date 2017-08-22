@@ -919,33 +919,24 @@ class BsRequestAction < ApplicationRecord
     return
   end
 
+  def is_target_maintainer?(user = User.current)
+    if target_package
+      tpkg = Package.find_by_project_and_name(target_project, target_package)
+      if tpkg
+        return user.can_modify_package?(tpkg)
+      end
+    end
+    tprj = Project.find_by_name(target_project)
+    tprj && user.can_modify_project?(tprj)
+  end
+
   def source_access_check!
-    sp = Package.find_by_project_and_name(source_project, source_package)
-    if sp.nil?
-      # either not there or read permission problem
-      if Package.exists_on_backend?(source_package, source_project)
-        # user is not allowed to read the source, but when he can write
-        # the target, the request creator (who must have permissions to read source)
-        # wanted the target owner to review it
-        tprj = Project.find_by_name(target_project)
-        if tprj.nil? || !User.current.can_modify_project?(tprj)
-          # produce an error for the source
-          Package.get_by_project_and_name(source_project, source_package)
-        end
-        return
-      end
-      if Project.exists_by_name(source_project)
-        # it is a remote project
-        return
-      end
-      # produce the same exception for webui
-      Package.get_by_project_and_name(source_project, source_package)
-    end
-    if sp.class == String
-      # a remote package
-      return
-    end
-    sp.check_source_access!
+    # check if we are maintainer in the target, so we are allowed
+    # to see the diff, since the request could not have been constructed
+    return if is_target_maintainer?
+
+    # not being a maintainer in target, run standard permission check
+    Package.get_by_project_and_name(source_project, source_package, {use_source: true})
   end
 
   def check_for_expand_errors!(add_revision)
