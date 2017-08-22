@@ -35,9 +35,9 @@ function closeDialog() {
 
   if(is_repository) {
     var source_path = dialog.find("[id$='source_path']");
-    if(source_path.val() != '') {
+    if(source_path.val() !== '') {
       var alias = dialog.find("[id$='alias']");
-      if (alias.val() != '') {
+      if (alias.val() !== '') {
         name.text(alias.val());
       }
       else {
@@ -51,7 +51,7 @@ function closeDialog() {
   }
   else {
     var namePackage = dialog.find("[id$='name']").val();
-    if(namePackage != '') {
+    if(namePackage !== '') {
       name.text(namePackage);
 
       arch = dialog.find("[id$='arch']").val();
@@ -66,9 +66,39 @@ function closeDialog() {
     }
   }
 
+  addDefault(dialog);
+
   fields.find(".ui-state-error").addClass('hidden');
   $('.overlay').hide();
   dialog.addClass('hidden');
+}
+
+function revertDialog() {
+  var fields = $(this).parents('.nested-fields');
+  var dialog = fields.find('.dialog');
+
+  $.each(dialog.find('input:visible, select:visible'), function(index, input) {
+    if (input.type === 'checkbox') {
+      $(input).prop('checked', input.getAttribute('data-default') === 'true');
+    }
+    else {
+      $(input).val(input.getAttribute('data-default'));
+    }
+  });
+
+  $('.overlay').hide();
+  dialog.addClass('hidden');
+}
+
+function addDefault(dialog) {
+  $.each(dialog.find('input:visible, select:visible'), function(index, input) {
+    if (input.type === 'checkbox') {
+      input.setAttribute('data-default', input.checked);
+    }
+    else {
+      input.setAttribute('data-default', $(input).val());
+    }
+  });
 }
 
 function hoverListItem() {
@@ -91,6 +121,7 @@ $(document).ready(function(){
   // Edit dialog for Repositories and Packages
   $('.repository_edit, .package_edit').click(editDialog);
   $('#kiwi-repositories-list .close-dialog, #kiwi-packages-list .close-dialog').click(closeDialog);
+  $('.revert-dialog').click(revertDialog);
   $('#kiwi-repositories-list .kiwi_list_item, #kiwi-packages-list .kiwi_list_item').hover(hoverListItem, hoverListItem);
 
   // After inserting new repositories add the Callbacks
@@ -105,6 +136,7 @@ $(document).ready(function(){
     $('.overlay').show();
     $(addedFields).find('.repository_edit').click(editDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
+    $(addedFields).find('.revert-dialog').click(revertDialog);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
   });
 
@@ -113,6 +145,7 @@ $(document).ready(function(){
     $('.overlay').show();
     $(addedFields).find('.package_edit').click(editDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
+    $(addedFields).find('.revert-dialog').click(revertDialog);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
   });
 });

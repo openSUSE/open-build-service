@@ -15,16 +15,16 @@
       .dialog-content
         %p
           = f.label :name, 'Name:'
-          = f.text_field :name
+          = f.text_field :name, data: { default: f.object.name }
         %p
           = f.label :arch, 'Arch:'
-          = f.text_field :arch
+          = f.text_field :arch, data: { default: f.object.arch }
           = f.label :replaces, 'Replaces:'
-          = f.text_field :replaces
+          = f.text_field :replaces, data: { default: f.object.replaces }
       %p
-        = f.check_box :bootinclude
+        = f.check_box :bootinclude, data: { default: f.object.bootinclude }
         = f.label :bootinclude
-        = f.check_box :bootdelete
+        = f.check_box :bootdelete, data: { default: f.object.bootdelete }
         = f.label :bootdelete
 
       %p#flash-messages
@@ -33,3 +33,4 @@
 
       .dialog-buttons
         = link_to('Continue', '#', title: 'Continue', class: 'close-dialog')
+        = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog')
