@@ -1,42 +1,53 @@
+# Machine config
+dist: trusty
+sudo: required
+services:
+  - memcached
+
+# Language and app config
 language: ruby
 cache: bundler
+gemfile: src/api/Gemfile
 rvm: 2.4.1
+
+# Github config
 branches:
   except:
     # starting with depfu/
     - /^depfu\/.*/
+
+# Scripts
 install:
   - bundle install --jobs=3 --retry=3 --deployment --path=${BUNDLE_PATH:-vendor/bundle} --without=development
-gemfile: src/api/Gemfile
 before_install: dist/ci/travis_before_install.sh
 before_script: dist/ci/travis_before_script.sh
 after_failure: dist/ci/travis_after_failure.sh
-script:
-  - "dist/ci/travis_script.sh $TEST_SUITE"
-dist: trusty
-sudo: required
-env:
-  - TEST_SUITE=rspec
-  - TEST_SUITE=api
-  - TEST_SUITE=webui
-  - TEST_SUITE=spider
-  - TEST_SUITE=backend
-matrix:
-  fast_finish: true
-  include:
-    env: TEST_SUITE=linter
-    cache:
-      bundler: true
-      directories:
-        - tmp/rubocop_cache
-    before_install:
-      - npm install -g jshint
-      - gem install rubocop -v 0.49.1
+script: "dist/ci/travis_script.sh $TEST_SUITE"
+
+# Notifications
 notifications:
   irc:
      channels:
        - "chat.freenode.net#opensuse-buildservice"
      on_success: change
      on_failure: change
-services:
-  - memcached
+
+# Jobs matrix and stages 
+jobs:
+  include:
+    - stage: Linters
+      env: TEST_SUITE=linter
+      cache:
+        bundler: true
+        directories:
+          - tmp/rubocop_cache
+      before_install:
+        - npm install -g jshint
+        - gem install rubocop -v 0.49.1
+    - stage: test
+      env: TEST_SUITE=rspec
+    - env: TEST_SUITE=api
+    - env: TEST_SUITE=webui
+    - env: TEST_SUITE=spider
+    - env: TEST_SUITE=backend
+  fast_finish: true
