@@ -23,7 +23,6 @@ class ApplicationController < ActionController::Base
 
   # skip the filter for the user stuff
   before_action :extract_user
-  before_action :setup_backend
   before_action :shutup_rails
   before_action :validate_params
   before_action :require_login
@@ -102,12 +101,6 @@ class ApplicationController < ActionController::Base
     valid_project_name!(params[:project])
     # important because otherwise the filter chain is stopped
     true
-  end
-
-  def setup_backend
-    # initialize backend on every request
-    Backend::Connection.host = CONFIG['source_host']
-    Backend::Connection.port = CONFIG['source_port']
   end
 
   def add_api_version
