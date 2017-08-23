@@ -72,4 +72,34 @@ RSpec.describe PersonController, vcr: false do
       end
     end
   end
+
+  describe 'POST #register' do
+    context 'when in LDAP mode' do
+      before do
+        stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+      end
+
+      subject! { post :register }
+
+      it 'sets an error code' do
+        expect(response.header['X-Opensuse-Errorcode']).to eq('permission_denied')
+      end
+    end
+  end
+
+  describe 'POST #command' do
+    context 'with param cmd = register' do
+      context 'when in LDAP mode' do
+        before do
+          stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+        end
+
+        subject! { post :command, params: { cmd: 'register' } }
+
+        it 'sets an error code' do
+          expect(response.header['X-Opensuse-Errorcode']).to eq('permission_denied')
+        end
+      end
+    end
+  end
 end
