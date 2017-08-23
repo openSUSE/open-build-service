@@ -87,6 +87,12 @@ class PersonController < ApplicationController
     login = params[:login]
     user = User.find_by_login(login) if login
 
+    unless ::Configuration.accounts_editable?
+      render_error(status: 403, errorcode: 'change_userinfo_no_permission',
+                   message: "no permission to change userinfo for user #{user.login}")
+      return
+    end
+
     if user
       unless user.login == User.current.login || User.current.is_admin?
         logger.debug "User has no permission to change userinfo"

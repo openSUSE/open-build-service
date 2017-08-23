@@ -5,9 +5,25 @@ require 'rails_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe PersonController, vcr: false do
-  describe 'POST #post_userinfo' do
-    let(:user) { create(:confirmed_user) }
+  let(:user) { create(:confirmed_user) }
+  let(:admin_user) { create(:admin_user) }
 
+  shared_examples "not allowed to change user details" do
+    it 'sets an error code' do
+      subject
+      expect(response.header['X-Opensuse-Errorcode']).to eq('change_userinfo_no_permission')
+    end
+
+    it 'does not change users real name' do
+      expect { subject }.not_to(change { user.realname })
+    end
+
+    it 'does not change users email address' do
+      expect { subject }.not_to(change { user.email })
+    end
+  end
+
+  describe 'POST #post_userinfo' do
     context 'when in LDAP mode' do
       before do
         login user
@@ -17,6 +33,42 @@ RSpec.describe PersonController, vcr: false do
 
       it 'user is not allowed to change their password' do
         expect(response.header['X-Opensuse-Errorcode']).to eq('change_password_no_permission')
+      end
+    end
+  end
+
+  describe 'PUT #put_userinfo' do
+    let(:xml) {
+      <<-XML_DATA
+        <userinfo>
+          <realname>test name</realname>
+          <email>test@test.de</email>
+        </userinfo>
+      XML_DATA
+    }
+
+    context 'when in LDAP mode' do
+      before do
+        stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+        request.env["RAW_POST_DATA"] = xml
+      end
+
+      subject { put :put_userinfo, params: { login: user.login, format: :xml } }
+
+      context 'as an admin' do
+        before do
+          login admin_user
+        end
+
+        it_should_behave_like "not allowed to change user details"
+      end
+
+      context 'as a user' do
+        before do
+          login user
+        end
+
+        it_should_behave_like "not allowed to change user details"
       end
     end
   end
