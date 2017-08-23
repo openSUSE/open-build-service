@@ -23,7 +23,7 @@ backend_config = "#{backendtempdir}/config#{backend_dir_suffix}"
 backend_data   = "#{backendtempdir}/data#{backend_dir_suffix}"
 require File.expand_path(File.dirname(__FILE__)) + '/../test/test_helper'
 
-Backend::Connection.do_not_start_test_backend
+Backend::Test.do_not_start_test_backend
 
 ENV['PERL5LIB'] = "#{Rails.root}/../backend:#{Rails.root}/../backend/build"
 

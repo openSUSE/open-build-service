@@ -116,7 +116,7 @@ class ApplicationController < ActionController::Base
 
   def volley_backend_path(path)
     logger.debug "[backend] VOLLEY: #{path}"
-    Backend::Connection.start_test_backend
+    Backend::Test.start
     backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
     backend_http.read_timeout = 1000
 
@@ -361,7 +361,7 @@ class ApplicationController < ActionController::Base
   end
 
   def backend
-    Backend::Connection.start_test_backend if Rails.env.test?
+    Backend::Test.start if Rails.env.test?
     @backend ||= ActiveXML.backend
   end
 

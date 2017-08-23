@@ -37,7 +37,7 @@ module Backend
       end
 
       def get(path, in_headers = {})
-        start_test_backend
+        Backend::Test.start
         @start_of_last = Time.now
         logger.debug "[backend] GET: #{path}"
         timeout = in_headers.delete('Timeout') || 1000
@@ -59,7 +59,7 @@ module Backend
       end
 
       def put_or_post(method, path, data, in_headers)
-        start_test_backend
+        Backend::Test.start
         @start_of_last = Time.now
         logger.debug "[backend] #{method}: #{path}"
         timeout = in_headers.delete('Timeout')
@@ -105,7 +105,7 @@ module Backend
       end
 
       def delete(path, in_headers = {})
-        start_test_backend
+        Backend::Test.start
         @start_of_last = Time.now
         logger.debug "[backend] DELETE: #{path}"
         timeout = in_headers.delete('Timeout') || 1000
@@ -181,8 +181,6 @@ module Backend
         end
       end
 
-      @backend = nil
-
       public
 
       def without_global_write_through
@@ -193,52 +191,6 @@ module Backend
 
       ensure
         CONFIG['global_write_through'] = before
-      end
-
-      def test_backend?
-        (!@backend.nil? && @backend != :dont)
-      end
-
-      def do_not_start_test_backend
-        @backend = :dont
-      end
-
-      def start_test_backend
-        # do_not_start_test_backend
-        return unless Rails.env.test?
-        return if @backend
-        return if ENV['BACKEND_STARTED']
-        print "Starting test backend..."
-        @backend = IO.popen("#{Rails.root}/script/start_test_backend")
-        logger.debug "Test backend started with pid: #{@backend.pid}"
-        loop do
-          line = @backend.gets
-          raise 'Backend died' unless line
-          break if line =~ /DONE NOW/
-          logger.debug line.strip
-        end
-        puts "done"
-        CONFIG['global_write_through'] = true
-        WebMock.disable_net_connect!(allow_localhost: true)
-        ENV['BACKEND_STARTED'] = '1'
-        at_exit do
-          puts "Killing test backend"
-          Process.kill "INT", @backend.pid
-          @backend = nil
-        end
-      end
-
-      def wait_for_scheduler_start
-        # make sure it's actually tried to start
-        start_test_backend
-        Rails.logger.debug 'Wait for scheduler thread to finish start'
-        counter = 0
-        marker = Rails.root.join('tmp', 'scheduler.done')
-        while counter < 100
-          return if ::File.exist?(marker)
-          sleep 0.5
-          counter += 1
-        end
       end
     end
   end

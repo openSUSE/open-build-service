@@ -2,7 +2,7 @@ require_relative '../../test_helper'
 
 class Webui::CommitsFeedTest < Webui::IntegrationTest
   def setup
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
     reset_auth
   end
 

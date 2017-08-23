@@ -685,7 +685,7 @@ END
   end
 
   def test_handle_project_links
-    Backend::Connection.start_test_backend
+    Backend::Test.start
     User.current = users( :Iggy )
 
     # project A

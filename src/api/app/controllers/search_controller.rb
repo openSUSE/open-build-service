@@ -72,7 +72,7 @@ class SearchController < ApplicationController
   end
 
   def owner
-    Backend::Connection.start_test_backend if Rails.env.test?
+    Backend::Test.start if Rails.env.test?
 
     obj = nil
     obj = params[:binary] unless params[:binary].blank?

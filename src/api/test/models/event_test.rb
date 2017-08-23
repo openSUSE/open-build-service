@@ -10,7 +10,7 @@ class EventTest < ActionDispatch::IntegrationTest
     # ensure that the backend got started or we read, process and forget the indexed data.
     # of course only if our timing is bad :/
     super
-    Backend::Connection.start_test_backend
+    Backend::Test.start
   end
 
   test 'find nothing' do

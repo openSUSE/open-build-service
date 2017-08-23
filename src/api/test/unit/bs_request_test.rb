@@ -142,7 +142,7 @@ eos
   end
 
   def check_user_targets(user, *trues)
-    Backend::Connection.start_test_backend
+    Backend::Test.start
     User.current = User.find_by_login(user)
     BsRequest.all.each do |r|
       # puts r.render_xml

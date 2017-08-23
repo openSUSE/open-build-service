@@ -272,7 +272,7 @@ module Webui
       Capybara.current_driver = :rack_test
 # crude work around - one day I will dig into why this is necessary
       Minitest::Spec.new('MINE') unless Minitest::Spec.current
-      Backend::Connection.start_test_backend
+      Backend::Test.start
       # Capybara.current_driver = Capybara.javascript_driver
       @starttime = Time.now
       WebMock.disable_net_connect!(allow_localhost: true)
@@ -448,10 +448,6 @@ module ActionDispatch
       raise ArgumentError, 'we need a :controller' unless hash.has_key?(:controller)
       raise ArgumentError, 'we need a :action' unless hash.has_key?(:action)
       super(hash)
-    end
-
-    def wait_for_scheduler_start
-      Backend::Connection.wait_for_scheduler_start
     end
 
     def login_king

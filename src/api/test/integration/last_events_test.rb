@@ -5,7 +5,7 @@ class LastEventsTest < ActionDispatch::IntegrationTest
     # ensure that the backend got started or we read, process and forget the indexed data.
     # of course only if our timing is bad :/
     super
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
   end
 
   test "update lastevents" do

@@ -8,7 +8,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
     reset_auth
   end
 
@@ -201,7 +201,7 @@ XML
   end
 
   def test_submit_request_of_new_package
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
 
     prepare_request_with_user 'Iggy', 'buildservice'
     post '/source/home:Iggy/NEW_PACKAGE', params: { cmd: :branch }
@@ -2658,7 +2658,7 @@ XML
     # now time travel and accept
     Timecop.freeze(2.days)
     # the backend has to be up before we can accept
-    Backend::Connection.start_test_backend
+    Backend::Test.start
     BsRequest.delayed_auto_accept
     # Run delayed jobs for newly created bs request.
     # NOTE: bs requests are now identified by their number attribute

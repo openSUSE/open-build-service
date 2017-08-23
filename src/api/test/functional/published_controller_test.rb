@@ -4,7 +4,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
     run_publisher
     reset_auth
   end
