@@ -1,3 +1,6 @@
+require 'benchmark'
+require 'api_exception'
+require_dependency 'logger'
 require_dependency 'connection'
 require_dependency 'file'
 require_dependency 'api'

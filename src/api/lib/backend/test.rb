@@ -10,12 +10,12 @@ module Backend
       return if ENV['BACKEND_STARTED']
       print "Starting test backend..."
       @backend = IO.popen("#{Rails.root}/script/start_test_backend")
-      logger.debug "Test backend started with pid: #{@backend.pid}"
+      Rails.logger.debug "Test backend started with pid: #{@backend.pid}"
       loop do
         line = @backend.gets
         raise 'Backend died' unless line
         break if line =~ /DONE NOW/
-        logger.debug line.strip
+        Rails.logger.debug line.strip
       end
       puts "done"
       CONFIG['global_write_through'] = true
