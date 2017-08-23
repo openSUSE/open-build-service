@@ -90,16 +90,6 @@ module Backend
         query.empty? ? "" : "?#{query.compact.join('&')}"
       end
 
-      def without_global_write_through
-        before = CONFIG['global_write_through']
-        CONFIG['global_write_through'] = false
-
-        yield
-
-      ensure
-        CONFIG['global_write_through'] = before
-      end
-
       private
 
       def put_or_post(method, path, data, in_headers)

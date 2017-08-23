@@ -43,5 +43,14 @@ module Backend
     def self.do_not_start_test_backend
       @backend = :dont
     end
+
+    # Run the block code deactivating the global_write_through flag
+    def self.without_global_write_through
+      before = CONFIG['global_write_through']
+      CONFIG['global_write_through'] = false
+      yield
+    ensure
+      CONFIG['global_write_through'] = before
+    end
   end
 end
