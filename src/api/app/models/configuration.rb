@@ -7,6 +7,7 @@ class Configuration < ApplicationRecord
 
   validates :name, :title, :description, presence: true
 
+  # note: do not add defaults here. It must be either the options.yml content or nil
   OPTIONS_YML = {
     title:                                nil,
     description:                          nil,
@@ -33,8 +34,8 @@ class Configuration < ApplicationRecord
     cleanup_empty_projects:               nil,
     disable_publish_for_branches:         nil,
     admin_email:                          nil,
-    unlisted_projects_filter:             '^home:.+',
-    unlisted_projects_filter_description: 'home projects'
+    unlisted_projects_filter:             nil,
+    unlisted_projects_filter_description: nil
   }
   ON_OFF_OPTIONS = [:anonymous, :default_access_disabled,
                     :allow_user_to_create_home_project, :disallow_group_creation,
