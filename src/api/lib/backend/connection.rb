@@ -144,13 +144,10 @@ module Backend
 
       private
 
-      def now
-        Time.now.strftime "%Y%m%dT%H%M%S"
-      end
-
       def write_backend_log(method, host, port, path, response)
         raise "write backend log without start time" unless @start_of_last
         timedelta = Time.now - @start_of_last
+        now = Time.now.strftime "%Y%m%dT%H%M%S"
         @start_of_last = nil
         @backend_logger.info "#{now} #{method} #{host}:#{port}#{path} #{response.code} #{timedelta}"
         @backend_time += timedelta
