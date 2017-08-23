@@ -117,7 +117,7 @@ class Configuration < ApplicationRecord
 
     path = '/configuration'
     logger.debug 'Writing configuration.xml to backend...'
-    Backend::Connection.put_source(path, render_xml)
+    Backend::Connection.put(path, render_xml)
   end
 end
 

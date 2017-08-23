@@ -12,13 +12,13 @@ RSpec.describe IssueTrackerWriteToBackendJob, type: :job, vcr: true do
     let!(:issue) { create(:issue, name: '123', issue_tracker_id: issue_tracker.id, created_at: 4.days.ago) }
 
     before do
-      allow(Backend::Connection).to receive(:put_source)
+      allow(Backend::Connection).to receive(:put)
     end
 
     subject! { IssueTrackerWriteToBackendJob.new.perform }
 
     it 'writes to the backend' do
-      expect(Backend::Connection).to have_received(:put_source)
+      expect(Backend::Connection).to have_received(:put)
     end
   end
 end

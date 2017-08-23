@@ -106,8 +106,8 @@ class ApplicationController < ActionController::Base
 
   def setup_backend
     # initialize backend on every request
-    Backend::Connection.source_host = CONFIG['source_host']
-    Backend::Connection.source_port = CONFIG['source_port']
+    Backend::Connection.host = CONFIG['source_host']
+    Backend::Connection.port = CONFIG['source_port']
   end
 
   def add_api_version

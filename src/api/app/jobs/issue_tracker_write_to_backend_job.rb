@@ -6,6 +6,6 @@ class IssueTrackerWriteToBackendJob < ApplicationJob
   def perform
     path = "/issue_trackers"
     logger.debug "Write issue tracker information to backend..."
-    Backend::Connection.put_source(path, IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
+    Backend::Connection.put(path, IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
   end
 end

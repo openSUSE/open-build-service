@@ -620,7 +620,7 @@ class Project < ApplicationRecord
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
       query[:lowprio] = '1' if @commit_opts[:lowprio]
       logger.debug "Writing #{name} to backend"
-      Backend::Connection.put_source(source_path('_meta', query), to_axml)
+      Backend::Connection.put(source_path('_meta', query), to_axml)
       logger.tagged('backend_sync') { logger.debug "Saved Project #{name}" }
     elsif @commit_opts[:no_backend_write]
       logger.tagged('backend_sync') { logger.warn "Not saving Project #{name}, backend_write is off " }
@@ -1063,7 +1063,7 @@ class Project < ApplicationRecord
         prjconf = source_file('_config')
         unless prjconf =~ /^Type:/
           prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-          Backend::Connection.put_source(source_path('_config'), prjconf)
+          Backend::Connection.put(source_path('_config'), prjconf)
         end
       else
         path_elements = local_project_meta.create_element("path")
@@ -1524,7 +1524,7 @@ class Project < ApplicationRecord
     prjconf = source_file('_config')
     return if prjconf =~ /^Type:/
     prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-    Backend::Connection.put_source(source_path('_config'), prjconf)
+    Backend::Connection.put(source_path('_config'), prjconf)
   end
 
   def self.validate_remote_permissions(request_data)

@@ -14,7 +14,7 @@ module HasAttributes
     path = attribute_url + "?meta=1&user=#{CGI.escape(login)}"
     path += "&comment=#{CGI.escape(comment)}" if comment
     begin
-      Backend::Connection.put_source(path, render_attribute_axml)
+      Backend::Connection.put(path, render_attribute_axml)
     rescue ActiveXML::Transport::Error => e
       raise AttributeSaveError, e.summary
     end
