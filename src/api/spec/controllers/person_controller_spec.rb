@@ -8,20 +8,18 @@ RSpec.describe PersonController, vcr: false do
   let(:user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
 
-  let!(:old_realname) { user.realname }
-  let!(:old_email) { user.email }
-
   shared_examples "not allowed to change user details" do
     it 'sets an error code' do
+      subject
       expect(response.header['X-Opensuse-Errorcode']).to eq('change_userinfo_no_permission')
     end
 
     it 'does not change users real name' do
-      expect(user.realname).to eq(old_realname)
+      expect { subject }.not_to(change { user.realname })
     end
 
     it 'does not change users email address' do
-      expect(user.email).to eq(old_email)
+      expect { subject }.not_to(change { user.email })
     end
   end
 
@@ -55,12 +53,11 @@ RSpec.describe PersonController, vcr: false do
         request.env["RAW_POST_DATA"] = xml
       end
 
+      subject { put :put_userinfo, params: { login: user.login, format: :xml } }
+
       context 'as an admin' do
         before do
           login admin_user
-
-          put :put_userinfo, params: { login: user.login, format: :xml }
-          user.reload
         end
 
         it_should_behave_like "not allowed to change user details"
@@ -69,9 +66,6 @@ RSpec.describe PersonController, vcr: false do
       context 'as a user' do
         before do
           login user
-
-          put :put_userinfo, params: { login: user.login, format: :xml }
-          user.reload
         end
 
         it_should_behave_like "not allowed to change user details"
