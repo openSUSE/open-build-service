@@ -60,9 +60,6 @@ class Package < ApplicationRecord
 
   has_many :messages, as: :db_object, dependent: :delete_all
 
-  has_many :taggings, as: :taggable, dependent: :delete_all
-  has_many :tags, through: :taggings
-
   has_many :flags, -> { order(:position) }, dependent: :delete_all, inverse_of: :package
 
   belongs_to :develpackage, class_name: 'Package', foreign_key: 'develpackage_id'
