@@ -60,6 +60,7 @@ class Webui::UserController < Webui::WebuiController
     if User.current == @displayed_user
       @reviews = @displayed_user.involved_reviews.exists?
       @patchinfos = @displayed_user.involved_patchinfos
+      @account_edit_link = CONFIG['proxy_auth_account_page']
     end
   end
 
@@ -114,14 +115,17 @@ class Webui::UserController < Webui::WebuiController
     @displayed_user = User.find_by_login(params[:user][:login])
 
     unless User.current.is_admin?
-      if User.current != @displayed_user
+      if User.current != @displayed_user || !@configuration.accounts_editable?
         flash[:error] = "Can't edit #{@displayed_user.login}"
         redirect_back(fallback_location: root_path)
         return
       end
     end
 
-    @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!)
+    if @configuration.accounts_editable?
+      @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!)
+    end
+
     if User.current.is_admin?
       @displayed_user.assign_attributes(params[:user].slice(:state).permit!)
       @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids])) unless params[:user][:role_ids].nil?
@@ -226,6 +230,12 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def change_password
+    unless @configuration.passwords_changable?
+      flash[:error] = "You're not authorized to change your password."
+      redirect_back fallback_location: root_path
+      return
+    end
+
     # check the valid of the params
     unless User.current.password_equals?(params[:password])
       errmsg = 'The value of current password does not match your current password. Please enter the password and try again.'

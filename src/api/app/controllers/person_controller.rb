@@ -51,7 +51,7 @@ class PersonController < ApplicationController
     if params[:cmd] == "change_password"
       login ||= @http_user.login
       password = request.raw_post.to_s.chomp
-      if login != @http_user.login && !@http_user.is_admin?
+      if (login != User.current.login && !User.current.is_admin?) || !::Configuration.passwords_changable?
         render_error status: 403, errorcode: "change_password_no_permission",
                      message: "No permission to change password for user #{login}"
         return

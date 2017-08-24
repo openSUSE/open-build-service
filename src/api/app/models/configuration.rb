@@ -72,6 +72,19 @@ class Configuration < ApplicationRecord
   end
   # End of class methods
 
+  def ldap_enabled?
+    CONFIG['ldap_mode'] == :on
+  end
+
+  def passwords_changable?
+    change_password && CONFIG['proxy_auth_mode'] != :on && CONFIG['ldap_mode'] != :on
+  end
+
+  def accounts_editable?
+    (CONFIG['proxy_auth_mode'] != :on || (CONFIG['proxy_auth_mode'] == :on && !CONFIG['proxy_auth_account_page'].blank?)) && \
+      CONFIG['ldap_mode'] != :on
+  end
+
   def update_from_options_yml
     # strip the not set ones
     attribs = ::Configuration::OPTIONS_YML.clone
