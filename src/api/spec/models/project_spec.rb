@@ -453,4 +453,20 @@ RSpec.describe Project, vcr: true do
       end
     end
   end
+
+  describe "#destroy" do
+    context 'avoid regressions of the issue #3665' do
+      let(:admin_user) { create(:admin_user, login: 'Admin') }
+      let(:images_repository) { create(:repository, name: "images", project: project) }
+      let(:apache_repository) { create(:repository, name: "Apache", project: project) }
+      let!(:path_element) { create(:path_element, parent_id: images_repository.id, repository_id: apache_repository.id, position: 1)}
+
+      before do
+        login admin_user
+        project.destroy!
+      end
+
+      it { expect(Project.deleted?(project.name)).to be_truthy }
+    end
+  end
 end

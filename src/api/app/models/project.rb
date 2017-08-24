@@ -31,6 +31,7 @@ class Project < ApplicationRecord
   end
 
   before_destroy :cleanup_before_destroy
+  after_destroy_commit :delete_on_backend
 
   after_save :discard_cache
   after_rollback :reset_cache
@@ -245,7 +246,6 @@ class Project < ApplicationRecord
 
     revoke_requests # Revoke all requests that have this project as source/target
     cleanup_packages # Deletes packages (only in DB)
-    delete_on_backend # Deletes the project in the backend
   end
   private :cleanup_before_destroy
 
@@ -650,6 +650,7 @@ class Project < ApplicationRecord
     self.commit_opts = {}
     true
   end
+  private :delete_on_backend
 
   def store(opts = {})
     self.commit_opts = opts if opts.present?
