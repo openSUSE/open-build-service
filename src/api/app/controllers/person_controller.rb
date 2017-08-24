@@ -155,6 +155,15 @@ class PersonController < ApplicationController
   end
 
   def internal_register
+    if ::Configuration.ldap_enabled?
+      render_error(
+        status: 403,
+        errorcode: 'permission_denied',
+        message: "User accounts can not be registered via OBS when in LDAP mode. Please refer to your LDAP server to create new users."
+      )
+      return
+    end
+
     xml = REXML::Document.new( request.raw_post )
 
     logger.debug( "register XML: #{request.raw_post}" )
