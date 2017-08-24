@@ -25,7 +25,7 @@ class EventMailerTest < ActionMailer::TestCase
 
     # just one subsciption
     EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
-    Backend::Connection.wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
 
     mail = EventMailer.event([users(:Iggy)], events(:build_failure_for_iggy))
     verify_email('build_fail', mail)
@@ -37,7 +37,7 @@ class EventMailerTest < ActionMailer::TestCase
 
     # just one subsciption
     EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
-    Backend::Connection.wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
 
     mail = EventMailer.event([users(:fred)], events(:build_failure_for_reader))
     verify_email('build_fail_reader', mail)

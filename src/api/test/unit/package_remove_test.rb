@@ -5,7 +5,7 @@ class PackageRemoveTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
-    Backend::Connection.start_test_backend
+    Backend::Test.start
   end
 
   def test_delete_on_backend

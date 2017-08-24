@@ -7,7 +7,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
   def setup
     prepare_request_valid_user
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
   end
 
   def test_index

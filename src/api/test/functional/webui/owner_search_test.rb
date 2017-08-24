@@ -9,7 +9,7 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
   def setup
     @attrib = Attrib.find_or_create_by!(attrib_type: AttribType.where(name: "OwnerRootProject").first,
                    project: Project.where(name: "home:Iggy").first)
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
   end
 
   def visit_owner_search

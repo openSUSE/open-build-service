@@ -6,9 +6,9 @@ module APIInstrumentation
 
     def append_info_to_payload(payload)
       super
-      payload[:backend_runtime] = Backend::Connection.runtime * 1000
+      payload[:backend_runtime] = Backend::Logger.runtime * 1000
       payload[:xml_runtime] = ActiveXML::Node.runtime * 1000
-      Backend::Connection.reset_runtime
+      Backend::Logger.reset_runtime
       ActiveXML::Node.reset_runtime
       runtime = { view: payload[:view_runtime], db: payload[:db_runtime], backend: payload[:backend_runtime], xml: payload[:xml_runtime] }
       response.headers["X-Opensuse-Runtimes"] = Yajl::Encoder.encode(runtime)

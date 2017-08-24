@@ -685,7 +685,7 @@ END
   end
 
   def test_handle_project_links
-    Backend::Connection.start_test_backend
+    Backend::Test.start
     User.current = users( :Iggy )
 
     # project A
@@ -1232,7 +1232,7 @@ END
   end
 
   def test_all_packages_from_projects_inherited_by_two_levels_and_two_links_in_project
-    Backend::Connection.without_global_write_through do
+    Backend::Test.without_global_write_through do
       parent2 = projects('BaseDistro2.0')
       parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
       child = projects('Apache')
@@ -1257,7 +1257,7 @@ END
   end
 
   def test_linked_packages_does_not_return_packages_overwritten_by_the_actual_project
-    Backend::Connection.without_global_write_through do
+    Backend::Test.without_global_write_through do
       parent = projects('BaseDistro2.0')
       child = projects('BaseDistro2.0_LinkedUpdateProject')
 
@@ -1272,7 +1272,7 @@ END
   end
 
   def test_linked_packages_does_not_return_packages_overwritten_by_the_actual_project_inherited_from_two_levels
-    Backend::Connection.without_global_write_through do
+    Backend::Test.without_global_write_through do
       parent2 = projects('BaseDistro2.0')
       parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
       child = projects('Apache')
@@ -1296,7 +1296,7 @@ END
   end
 
   def test_linked_packages_returns_overwritten_packages_from_the_project_with_the_highest_position
-    Backend::Connection.without_global_write_through do
+    Backend::Test.without_global_write_through do
       base_distro = projects('BaseDistro2.0')
       base_distro_update = projects('BaseDistro2.0_LinkedUpdateProject')
 

@@ -5,7 +5,7 @@ class AAAPreConsistency < ActionDispatch::IntegrationTest
 
   def test_resubmit_fixtures
     login_king
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
 
     ConsistencyCheckJob.new.perform
 

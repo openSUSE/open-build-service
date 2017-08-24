@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
   def setup
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
     reset_auth
   end
 

@@ -8,7 +8,7 @@ class Webui::SearchController < Webui::WebuiController
   end
 
   def owner
-    Backend::Connection.start_test_backend if Rails.env.test?
+    Backend::Test.start if Rails.env.test?
 
     # If the search is too short, return
     return if @search_text.blank?

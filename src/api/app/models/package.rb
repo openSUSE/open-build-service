@@ -815,7 +815,7 @@ class Package < ApplicationRecord
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
       # the request number is the requestid parameter in the backend api
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
-      Backend::Connection.put_source(source_path('_meta', query), to_axml)
+      Backend::Connection.put(source_path('_meta', query), to_axml)
       logger.tagged('backend_sync') { logger.debug "Saved Package #{project.name}/#{name}" }
     elsif @commit_opts[:no_backend_write]
       logger.tagged('backend_sync') { logger.warn "Not saving Package #{project.name}/#{name}, backend_write is off " }

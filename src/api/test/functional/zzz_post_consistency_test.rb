@@ -5,13 +5,13 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
     reset_auth
   end
 
   def test_resubmit_fixtures
     login_king
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
 
     ConsistencyCheckJob.new.perform
 

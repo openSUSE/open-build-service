@@ -13,7 +13,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
   def setup
     Timecop.freeze(2010, 7, 12)
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
     reset_auth
   end
 

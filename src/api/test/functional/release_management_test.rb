@@ -6,7 +6,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
 
   def setup
     reset_auth
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
   end
 
   def test_move_entire_project

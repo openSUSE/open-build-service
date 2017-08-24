@@ -23,7 +23,6 @@ class ApplicationController < ActionController::Base
 
   # skip the filter for the user stuff
   before_action :extract_user
-  before_action :setup_backend
   before_action :shutup_rails
   before_action :validate_params
   before_action :require_login
@@ -104,19 +103,13 @@ class ApplicationController < ActionController::Base
     true
   end
 
-  def setup_backend
-    # initialize backend on every request
-    Backend::Connection.source_host = CONFIG['source_host']
-    Backend::Connection.source_port = CONFIG['source_port']
-  end
-
   def add_api_version
     response.headers["X-Opensuse-APIVersion"] = (CONFIG['version']).to_s
   end
 
   def volley_backend_path(path)
     logger.debug "[backend] VOLLEY: #{path}"
-    Backend::Connection.start_test_backend
+    Backend::Test.start
     backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
     backend_http.read_timeout = 1000
 
@@ -361,7 +354,7 @@ class ApplicationController < ActionController::Base
   end
 
   def backend
-    Backend::Connection.start_test_backend if Rails.env.test?
+    Backend::Test.start if Rails.env.test?
     @backend ||= ActiveXML.backend
   end
 

@@ -140,7 +140,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   end
 
   def setup
-    wait_for_scheduler_start
+    Backend::Test.start(wait_for_scheduler: true)
   end
 
   def test_spider_anonymously
