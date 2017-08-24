@@ -36,8 +36,8 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
   scenario "edit account information" do
     click_link("Edit your account")
 
-    fill_in "realname", with: "John Doe"
-    fill_in "email", with: "john.doe@opensuse.org"
+    fill_in "user_realname", with: "John Doe"
+    fill_in "user_email", with: "john.doe@opensuse.org"
     click_button("Ok")
 
     expect(page).to have_text("User data for user 'Jim' successfully updated.")
