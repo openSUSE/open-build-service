@@ -27,7 +27,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
   end
 
   scenario 'maintenance workflow' do
-    # Step1: The user branches a package
+    # Step 1: The user branches a package
     ####################################
     login(user)
 
@@ -54,6 +54,16 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     click_button('Ok')
     expect(page).to have_css("#flash-messages", text: "Created maintenance incident request")
 
+    # Check that sending maintenance updates adds the source revision
+    new_bs_request_action = BsRequestAction.where(
+      type:                  "maintenance_incident",
+      target_project:        maintenance_project.name,
+      target_releaseproject: update_project.name,
+      source_project:        "#{user.home_project}:branches:#{update_project.name}",
+      source_package:        package.name
+    )
+    expect(new_bs_request_action.pluck(:source_rev).first).not_to be nil
+
     logout
 
     # Step 3: The maintenance coordinator accepts the request
@@ -67,7 +77,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     click_button('accept_request_button')
     expect(page).to have_css("#flash-messages", text: "Request #{BsRequest.last.number} accepted")
 
-    # Step 3: The maintenance coordinator edits the patchinfo file
+    # Step 4: The maintenance coordinator edits the patchinfo file
     ##############################################################
     # FIXME: Editing patchinfos should be it's own spec...
     visit(patchinfo_edit_patchinfo_path(package: 'patchinfo', project: 'MaintenanceProject:0'))
@@ -89,7 +99,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
 
     logout
 
-    # Step 4: The user adds an additional fix to the incident
+    # Step 5: The user adds an additional fix to the incident
     #########################################################
     login(user)
     visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
@@ -102,7 +112,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
 
     logout
 
-    # Step 5: The maintenance coordinator adds the new submit to the running incident
+    # Step 6: The maintenance coordinator adds the new submit to the running incident
     #################################################################################
     login(maintenance_coord_user)
 
@@ -127,7 +137,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
 
     click_button('accept_request_button')
 
-    # Step 6: The maintenance coordinator releases the request
+    # Step 7: The maintenance coordinator releases the request
     ##########################################################
     visit project_show_path('MaintenanceProject:0')
     click_link('Request to release')
