@@ -1,6 +1,80 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://localhost:3200/source/home:moi/_meta?user=moi
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:moi">
+          <title/>
+          <description/>
+          <person userid="moi" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:moi">
+          <title></title>
+          <description></description>
+          <person userid="moi" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 24 Aug 2017 13:38:13 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:moi/_project/_history?deleted=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '31'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+        </revisionlist>
+    http_version: 
+  recorded_at: Thu, 24 Aug 2017 13:43:59 GMT
+- request:
     method: get
     uri: http://localhost:3200/build/home:moi/_result?code=unresolvable&view=status
     body:
@@ -36,7 +110,38 @@ http_interactions:
           <details>404 project 'home:moi' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Tue, 16 Feb 2016 16:00:23 GMT
+  recorded_at: Thu, 24 Aug 2017 13:43:59 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:moi/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '12'
+    body:
+      encoding: UTF-8
+      string: "<keyinfo />\n"
+    http_version: 
+  recorded_at: Thu, 24 Aug 2017 13:43:59 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:moi/_result?view=summary
@@ -73,129 +178,5 @@ http_interactions:
           <details>404 project 'home:moi' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Tue, 16 Feb 2016 16:00:24 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:moi/_keyinfo?withsslcert=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '12'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 09 Jan 2017 11:14:00 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:moi/_keyinfo?withsslcert=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '12'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 09 Jan 2017 11:14:00 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:moi/_keyinfo
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '12'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 13 Feb 2017 16:21:48 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:moi/_keyinfo?donotcreatecert=1&withsslcert=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '12'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 08 May 2017 21:59:26 GMT
+  recorded_at: Thu, 24 Aug 2017 13:43:59 GMT
 recorded_with: VCR 3.0.3
