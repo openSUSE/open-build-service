@@ -115,5 +115,19 @@ module Backend
       path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/#{CGI.escape(package)}/#{CGI.escape(file)}"
       Backend::Connection.get("#{path}?view=publishedpath").body
     end
+
+    # Copy a package into another project
+    def self.copy_package(target_project, target_package, source_project, source_package, login, options = {})
+      path = "/source/#{CGI.escape(target_project)}/#{CGI.escape(target_package)}"
+      query_hash = { cmd: :copy, oproject: source_project, opackage: source_package, user: login }
+      query_hash.merge!(options.slice(:keeplink, :expand, :comment))
+      path += "?#{query_hash.to_query}"
+      Backend::Connection.post(path)
+    end
+
+    # Writes the link information of a package
+    def self.write_link_of_package(project, package, login, xml)
+      Backend::Connection.put("/source/#{CGI.escape(project)}/#{CGI.escape(package)}/_link?user=#{CGI.escape(login)}", xml)
+    end
   end
 end
