@@ -88,7 +88,7 @@ module Build
       return if request.query_string
       # check if binary exists and for size
       regexp = /name=["']#{Regexp.quote params[:filename]}["'].*size=["']([^"']*)["']/
-      @regexp ||= Backend::Api.file_list(params[:project], params[:repository], params[:arch], params[:package]).match(regexp)
+      @regexp ||= Backend::Api.binary_files_list(params[:project], params[:repository], params[:arch], params[:package]).match(regexp)
     end
 
     def process_regexp

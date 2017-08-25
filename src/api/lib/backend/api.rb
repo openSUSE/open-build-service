@@ -16,7 +16,7 @@ module Backend
     end
 
     # Returns a file list (from src/api/app/controllers/build/file_controller.rb)
-    def self.file_list(project, repository, arch, package)
+    def self.binary_files_list(project, repository, arch, package)
       Backend::Connection.get("/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(arch)}/#{CGI.escape(package)}").body
     end
 
