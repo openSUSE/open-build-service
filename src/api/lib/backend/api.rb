@@ -15,9 +15,16 @@ module Backend
       Backend::Connection.put(path, xml)
     end
 
-    # Returns a file list (from src/api/app/controllers/build/file_controller.rb)
+    # Returns a file list of binaries (from src/api/app/controllers/build/file_controller.rb)
     def self.binary_files_list(project, repository, arch, package)
       Backend::Connection.get("/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(arch)}/#{CGI.escape(package)}").body
+    end
+
+    # Returns a file list of the sources for a package
+    def self.file_list(project, package, options = {})
+      path = "/source/#{CGI.escape(project)}/#{CGI.escape(package)}"
+      path += "?#{options.to_query}" if options.present?
+      Backend::Connection.get(path).body
     end
 
     # Returns the revisions list for a package / project using mrev (from src/api/app/helpers/validation_helper.rb)
