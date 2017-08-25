@@ -45,5 +45,16 @@ module Backend
       Backend::Connection.delete("/notificationpayload/#{key}")
     end
 
+    # Returns the patchinfo for that reference
+    def self.patchinfo(reference)
+      Backend::Connection.get("/source/#{CGI.escape(reference)}/_patchinfo").body
+    end
+
+    # Writes the patchinfo
+    def self.write_patchinfo(project, package, login, xml, comment = nil)
+      path = "/source/#{CGI.escape(project)}/#{CGI.escape(package)}/_patchinfo?user=#{CGI.escape(login)}"
+      path += "&comment=#{CGI.escape(comment)}" if comment
+      Backend::Connection.put(path, xml)
+    end
   end
 end

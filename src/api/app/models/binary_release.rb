@@ -86,12 +86,12 @@ class BinaryRelease < ApplicationRecord
         end
         if binary["patchinforef"]
           begin
-            pi = Patchinfo.new(Backend::Connection.get("/source/#{binary["patchinforef"]}/_patchinfo").body)
+            patchinfo = Patchinfo.new(Backend::Api.patchinfo(binary["patchinforef"]))
           rescue ActiveXML::Transport::NotFoundError
             # patchinfo disappeared meanwhile
           end
           # no database object on purpose, since it must also work for historic releases...
-          hash[:binary_maintainer] = pi.to_hash['packager'] if pi && pi.to_hash['packager']
+          hash[:binary_maintainer] = patchinfo.to_hash['packager'] if patchinfo && patchinfo.to_hash['packager']
         end
 
         # new entry, also for modified binaries.
