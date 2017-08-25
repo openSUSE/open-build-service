@@ -32,7 +32,7 @@
         %pre
           = @project.key_info.fingerprint
       .dialog-buttons
+        = remove_dialog_tag('Close')
         = link_to('GPG Key', project_public_key_path(project_name: @project.name), class: 'close-dialog')
         - if @project.key_info.ssl_certificate.present?
           = link_to('SSL Cert.', project_ssl_certificate_path(project_name: @project.name), class: 'close-dialog')
-        = remove_dialog_tag('Close')

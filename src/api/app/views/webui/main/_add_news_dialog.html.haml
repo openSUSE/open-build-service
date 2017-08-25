@@ -11,6 +11,4 @@
           = label_tag(:severity, "Severity:")
           %br/
           = select_tag(:severity, options_for_select([['Information', 0], ['Green', 1], ['Yellow', 2], ['Red', 3]]))
-        .dialog-buttons
-          = submit_tag('Ok')
-          = remove_dialog_tag('Cancel')
+        = render partial: '/webui/shared/dialog_action_buttons'

@@ -17,20 +17,17 @@
       <% end %>
     </div>
       <%= form_tag({:controller => :package, :action => :remove}, :method => :post) do %>
-          <%= hidden_field_tag(:project, @project) %>
-          <%= hidden_field_tag(:package, @package) %>
-          <%- if @package.develpackages.any? %>
-            <p>
-              <label for="force">
-                Delete anyway?
-              </label>
-              <input id="force" name="force" type="checkbox" />
-            </p>
-          <% end %>
-          <div class="dialog-buttons">
-            <%= submit_tag('Ok') %>
-            <%= remove_dialog_tag('Cancel') %>
-          </div>
+        <%= hidden_field_tag(:project, @project) %>
+        <%= hidden_field_tag(:package, @package) %>
+        <%- if @package.develpackages.any? %>
+          <p>
+            <label for="force">
+              Delete anyway?
+            </label>
+            <input id="force" name="force" type="checkbox" />
+          </p>
+        <% end %>
+        <%= render partial: '/webui/shared/dialog_action_buttons' %>
       <% end %>
   </div>
 </div>
