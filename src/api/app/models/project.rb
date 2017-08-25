@@ -677,11 +677,6 @@ class Project < ApplicationRecord
   end
   private :reset_cache # whoever changes the project, needs to store it too
 
-  # for the HasAttributes mixing
-  def attribute_url
-    "/source/#{CGI.escape(name)}/_project/_attribute"
-  end
-
   # Give me the first ancestor of that project
   def parent
     project = nil

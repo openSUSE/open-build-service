@@ -10,14 +10,11 @@ module HasAttributes
   end
 
   def write_attributes(comment = nil)
-    login = User.current.login
-    path = attribute_url + "?meta=1&user=#{CGI.escape(login)}"
-    path += "&comment=#{CGI.escape(comment)}" if comment
-    begin
-      Backend::Connection.put(path, render_attribute_axml)
-    rescue ActiveXML::Transport::Error => e
-      raise AttributeSaveError, e.summary
-    end
+    project_name = is_a?(Project) ? name : project.name
+    package_name = is_a?(Package) ? name : nil
+    Backend::Api.write_attributes(project_name, package_name, User.current.login, render_attribute_axml, comment)
+  rescue ActiveXML::Transport::Error => e
+    raise AttributeSaveError, e.summary
   end
 
   def store_attribute_axml(attrib, binary = nil)

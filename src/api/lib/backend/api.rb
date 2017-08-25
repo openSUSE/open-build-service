@@ -8,6 +8,13 @@ module Backend
       Backend::Connection.get(path).body
     end
 
+    # Writes the xml for attributes (from src/api/app/mixins/has_attributes.rb)
+    def self.write_attributes(project, package, login, xml, comment)
+      path = "/source/#{CGI.escape(project)}/#{CGI.escape(package || '_project')}/_attribute?meta=1&user=#{CGI.escape(login)}"
+      path += "&comment=#{CGI.escape(comment)}" if comment
+      Backend::Connection.put(path, xml)
+    end
+
     # Returns a file list (from src/api/app/controllers/build/file_controller.rb)
     def self.file_list(project, repository, arch, package)
       Backend::Connection.get("/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(arch)}/#{CGI.escape(package)}").body
@@ -27,5 +34,6 @@ module Backend
     def self.trigger_services(project, package, user)
       Backend::Connection.post("/source/#{CGI.escape(project)}/#{CGI.escape(package)}?cmd=runservice&user=#{CGI.escape(user)}")
     end
+
   end
 end
