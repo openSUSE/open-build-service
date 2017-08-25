@@ -96,7 +96,7 @@ class Webui::ProjectController < Webui::WebuiController
     @project = Project.new
     @project.name = params[:name] if params[:name]
 
-    @show_restore_message = params[:restore_option] && Project.deleted?(params[:name])
+    #@show_restore_message = params[:restore_option] && Project.deleted?(params[:name])
   end
 
   def new_incident
@@ -303,10 +303,10 @@ class Webui::ProjectController < Webui::WebuiController
     @project = Project.new(project_params)
     authorize(@project, :create?)
 
-    if Project.deleted?(@project.name) && !params[:restore_option_provided]
-      redirect_to(new_project_path(name: @project.name, restore_option: true))
-      return
-    end
+    #if Project.deleted?(@project.name) && !params[:restore_option_provided]
+    #  redirect_to(new_project_path(name: @project.name, restore_option: true))
+    #  return
+    #end
 
     @project.relationships.build(user: User.current,
                                  role: Role.find_by_title('maintainer'))
