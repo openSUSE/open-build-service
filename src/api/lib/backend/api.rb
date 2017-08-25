@@ -99,5 +99,21 @@ module Backend
     def self.last_notifications(start)
       Backend::Connection.get("/lastnotifications?start=#{CGI.escape(start.to_s)}&block=1").body
     end
+
+    # Writes a Project configuration
+    def self.write_project_configuration(project, configuration)
+      Backend::Connection.put("/source/#{CGI.escape(project)}/_config", configuration)
+    end
+
+    # Returns the download url for a repository
+    def self.download_url_for_repository(project, repository)
+      Backend::Connection.get("/published/#{CGI.escape(project)}/#{CGI.escape(repository)}?view=publishedpath").body
+    end
+
+    # Returns the download url for a package
+    def self.download_url_for_package(project, repository, package, architecture, file)
+      path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/#{CGI.escape(package)}/#{CGI.escape(file)}"
+      Backend::Connection.get("#{path}?view=publishedpath").body
+    end
   end
 end
