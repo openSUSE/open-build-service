@@ -94,5 +94,10 @@ module Backend
     def self.run_service(project, package, login)
       Backend::Connection.post("/source/#{CGI.escape(project)}/#{CGI.escape(package)}?cmd=runservice&user=#{CGI.escape(login)}")
     end
+
+    # Returns the latest notifications specifying a starting point
+    def self.last_notifications(start)
+      Backend::Connection.get("/lastnotifications?start=#{CGI.escape(start.to_s)}&block=1").body
+    end
   end
 end
