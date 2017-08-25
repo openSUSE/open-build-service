@@ -67,5 +67,10 @@ module Backend
       project_list = projects.map { |project| "@project='#{CGI.escape(project.name)}'" }.join('+or+')
       Backend::Connection.post("/search/published/binary/id?match=(@name='#{CGI.escape(name)}'+and+(#{project_list}))").body
     end
+
+    # Returns the jobs history for a project
+    def self.job_history(project, repository, arch)
+      Backend::Connection.get("/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(arch)}/_jobhistory?code=lastfailures").body
+    end
   end
 end

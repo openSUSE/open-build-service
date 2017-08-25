@@ -2,15 +2,10 @@ module ProjectStatus
   class Calculator
     # parse the jobhistory and put the result in a format we can cache
     def parse_jobhistory(dname, repo, arch)
-      uri = "/build/#{CGI.escape(dname)}/#{CGI.escape(repo)}/#{arch}/_jobhistory?code=lastfailures"
+      data = Xmlhash.parse(Backend::Api.job_history(dname, repo, arch))
+      return [] if data.blank?
 
       ret = []
-      d = Backend::Connection.get(uri).body
-
-      return [] if d.blank?
-
-      data = Xmlhash.parse(d)
-
       data.elements('jobhist') do |p|
         line = {
           'name'      => p['package'],
