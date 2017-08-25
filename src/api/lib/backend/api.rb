@@ -79,5 +79,20 @@ module Backend
     def self.job_history(project, repository, arch)
       Backend::Connection.get("/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(arch)}/_jobhistory?code=lastfailures").body
     end
+
+    # Runs the command waitservice for that project/package
+    def self.wait_service(project, package)
+      Backend::Connection.post("/source/#{CGI.escape(project)}/#{CGI.escape(package)}?cmd=waitservice")
+    end
+
+    # Runs the command mergeservice for that project/package
+    def self.merge_service(project, package, login)
+      Backend::Connection.post("/source/#{CGI.escape(project)}/#{CGI.escape(package)}?cmd=mergeservice&user=#{CGI.escape(login)}")
+    end
+
+    # Runs the command runservice for that project/package
+    def self.run_service(project, package, login)
+      Backend::Connection.post("/source/#{CGI.escape(project)}/#{CGI.escape(package)}?cmd=runservice&user=#{CGI.escape(login)}")
+    end
   end
 end
