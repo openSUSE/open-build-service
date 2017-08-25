@@ -35,5 +35,15 @@ module Backend
       Backend::Connection.post("/source/#{CGI.escape(project)}/#{CGI.escape(package)}?cmd=runservice&user=#{CGI.escape(user)}")
     end
 
+    # Returns the notification payload for that key (from src/api/app/models/binary_release.rb)
+    def self.notification_payload(key)
+      Backend::Connection.get("/notificationpayload/#{key}").body
+    end
+
+    # Deletes the notification payload for that key (from src/api/app/models/binary_release.rb)
+    def self.delete_notification_payload(key)
+      Backend::Connection.delete("/notificationpayload/#{key}")
+    end
+
   end
 end
