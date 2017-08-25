@@ -69,7 +69,7 @@ my $extrepodb = "$BSConfig::bsdir/db/published";
 
 my $myeventdir = "$eventdir/publish";
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm udeb deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 
@@ -126,7 +126,7 @@ sub fillpkgdescription {
       $hit = $p;
       last;
     }
-    if ($pn =~ /^\Q$name\E_([^_]+)_[^_]+\.deb$/) {
+    if ($pn =~ /^\Q$name\E_([^_]+)_[^_]+\.u?deb$/) {
       $hit = $p;
       last;
     }
@@ -228,7 +228,7 @@ sub updatebinaryindex {
     my $n;
     if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
       $n = $1;
-    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.u?deb$/) {
       $n = $1;
     } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
       $n = $1;
@@ -242,7 +242,7 @@ sub updatebinaryindex {
     my $n;
     if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
       $n = $1;
-    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.u?deb$/) {
       $n = $1;
     } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
       $n = $1;
@@ -868,9 +868,9 @@ sub createrepo_staticlinks {
       if (/^(.*)-([^-]*)-[^-]*\.rpm$/s) {
         $link = "$1.rpm";
         $link = "$1-$2.rpm" if $versioned;
-      } elsif (/^(.*)_([^_]*)-[^_]*\.deb$/s) {
-        $link = "$1.deb";
-        $link = "${1}_$2.deb" if $versioned;
+      } elsif (/^(.*)_([^_]*)-[^_]*\.(u?deb)$/s) {
+        $link = "$1.$3";
+        $link = "${1}_$2.$3" if $versioned;
       } elsif (/^(.*)-([^-]*)-([^-]*)-([^-]*)\.(AppImage?(\.zsync)?)$/s) {
         # name version "release.glibcX.Y" arch suffix
         $link = "$1-latest-$4.$5";
@@ -1450,7 +1450,7 @@ sub publish {
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
 	$p = "$1/$bin";
 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
-      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.deb$/) {
+      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.u?deb$/) {
 	$p = "$1/$bin";
       } elsif ($bin =~ /\.(?:AppImage|AppImage.zsync|snap|exe)?$/) {
 	$p = "$bin";
@@ -1460,7 +1460,7 @@ sub publish {
 	next unless $q;
 	$p = "$q->{'arch'}/$q->{'name'}-$q->{'version'}-$q->{'release'}.$q->{'arch'}.rpm";
       } elsif ($bin =~ /\.deb$/) {
-	# legacy format
+	# legacy format XXX no udeb handling
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	$p = "$q->{'arch'}/$q->{'name'}_$q->{'version'}";
 	$p .= "-$q->{'release'}" if defined $q->{'release'};
