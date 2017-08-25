@@ -96,13 +96,7 @@ class Owner
     deepest = (limit < 0)
 
     # binary search via all projects
-    prjlist = projects.map { |p| "@project='#{CGI.escape(p.name)}'" }
-    path = "/search/published/binary/id?match=(@name='" + CGI.escape(binary_name) + "'"
-    path += "+and+("
-    path += prjlist.join("+or+")
-    path += "))"
-    answer = Backend::Connection.post path
-    data = Xmlhash.parse(answer.body)
+    data = Xmlhash.parse(Backend::Api.binary_search(projects, binary_name))
     # found binary package?
     return [] if data["matches"].to_i.zero?
 
