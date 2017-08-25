@@ -56,5 +56,10 @@ module Backend
       path += "&comment=#{CGI.escape(comment)}" if comment
       Backend::Connection.put(path, xml)
     end
+
+    # It writes the configuration XML
+    def self.write_configuration(xml)
+      Backend::Connection.put('/configuration', xml)
+    end
   end
 end
