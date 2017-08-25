@@ -51,7 +51,7 @@ class PersonController < ApplicationController
     if params[:cmd] == "change_password"
       login ||= @http_user.login
       password = request.raw_post.to_s.chomp
-      if login != @http_user.login && !@http_user.is_admin?
+      if (login != User.current.login && !User.current.is_admin?) || !::Configuration.passwords_changable?
         render_error status: 403, errorcode: "change_password_no_permission",
                      message: "No permission to change password for user #{login}"
         return
@@ -86,6 +86,12 @@ class PersonController < ApplicationController
   def put_userinfo
     login = params[:login]
     user = User.find_by_login(login) if login
+
+    unless ::Configuration.accounts_editable?
+      render_error(status: 403, errorcode: 'change_userinfo_no_permission',
+                   message: "no permission to change userinfo for user #{user.login}")
+      return
+    end
 
     if user
       unless user.login == User.current.login || User.current.is_admin?
@@ -149,6 +155,15 @@ class PersonController < ApplicationController
   end
 
   def internal_register
+    if ::Configuration.ldap_enabled?
+      render_error(
+        status: 403,
+        errorcode: 'permission_denied',
+        message: "User accounts can not be registered via OBS when in LDAP mode. Please refer to your LDAP server to create new users."
+      )
+      return
+    end
+
     xml = REXML::Document.new( request.raw_post )
 
     logger.debug( "register XML: #{request.raw_post}" )

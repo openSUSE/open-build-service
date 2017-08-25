@@ -229,6 +229,43 @@ RSpec.describe Webui::UserController do
         expect(user.roles).to match_array old_global_role
       end
     end
+
+    context "when LDAP mode is enabled" do
+      let!(:old_realname) { user.realname }
+      let!(:old_email) { user.email }
+      let(:http_request) {
+        post :save, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es' } }
+      }
+
+      before do
+        stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+      end
+
+      describe "as an admin user" do
+        before do
+          login admin_user
+
+          http_request
+          user.reload
+        end
+
+        it { expect(user.realname).to eq(old_realname) }
+        it { expect(user.email).to eq(old_email) }
+      end
+
+      describe "as a user" do
+        before do
+          login user
+
+          http_request
+          user.reload
+        end
+
+        it { expect(controller).to set_flash[:error] }
+        it { expect(user.realname).to eq(old_realname) }
+        it { expect(user.email).to eq(old_email) }
+      end
+    end
   end
 
   describe "GET #delete" do
@@ -301,8 +338,17 @@ RSpec.describe Webui::UserController do
     skip
   end
 
-  describe "GET #change_password" do
-    skip
+  describe "POST #change_password" do
+    before do
+      login non_admin_user
+
+      stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
+      post :change_password
+    end
+
+    it 'shows an error message when in LDAP mode' do
+      expect(controller).to set_flash[:error]
+    end
   end
 
   describe "GET #autocomplete" do
