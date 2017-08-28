@@ -134,5 +134,10 @@ module Backend
     def self.notify_plugin(plugin, payload)
       Backend::Connection.post("/notify_plugins/#{plugin}", Yajl::Encoder.encode(payload), 'Content-Type' => 'application/json').body
     end
+
+    # Returns the KeyInfo file for the project
+    def self.key_info(project)
+      Backend::Connection.get("/source/#{CGI.escape(project)}/_keyinfo?withsslcert=1&donotcreatecert=1").body
+    end
   end
 end
