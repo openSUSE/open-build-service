@@ -749,19 +749,13 @@ sub getbinarylist {
     my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
     @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
     @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
-    my $counter = 0;
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
-      if ($BSStdServer::isajax) {
+      if ($BSStdServer::isajax || @files > 1000) {
+	# do not waste file descriptors
 	push @files, {'name' => $_, 'filename' => "$reporoot/$prp/$arch/$packid/$_"};
 	next;
       }
-      if ($counter > 1000) {
-        # avoid fd limit
-        push @files, {'name' => $_, 'filename' => "$reporoot/$prp/$arch/$packid/$_"};
-        next;
-      }
-      $counter++;
       my $fd = gensym;
       next unless open($fd, '<', "$reporoot/$prp/$arch/$packid/$_");
       push @files, {'name' => $_, 'filename' => $fd};
