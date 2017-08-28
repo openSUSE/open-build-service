@@ -139,5 +139,9 @@ module Backend
     def self.key_info(project)
       Backend::Connection.get("/source/#{CGI.escape(project)}/_keyinfo?withsslcert=1&donotcreatecert=1").body
     end
+
+    def self.move_project(source_project, target_project)
+      Backend::Connection.post("/source/#{CGI.escape(target_project)}?cmd=move&oproject=#{CGI.escape(source_project)}")
+    end
   end
 end
