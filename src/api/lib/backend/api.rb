@@ -129,5 +129,10 @@ module Backend
     def self.write_link_of_package(project, package, login, xml)
       Backend::Connection.put("/source/#{CGI.escape(project)}/#{CGI.escape(package)}/_link?user=#{CGI.escape(login)}", xml)
     end
+
+    # Notifies a certain plugin with the payload
+    def self.notify_plugin(plugin, payload)
+      Backend::Connection.post("/notify_plugins/#{plugin}", Yajl::Encoder.encode(payload), 'Content-Type' => 'application/json').body
+    end
   end
 end
