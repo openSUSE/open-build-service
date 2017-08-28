@@ -788,11 +788,6 @@ class Package < ApplicationRecord
     end
   end
 
-  # for the HasAttributes mixing
-  def attribute_url
-    source_path('_attribute')
-  end
-
   def store(opts = {})
     # no write access check here, since this operation may will disable this permission ...
     self.commit_opts = opts if opts

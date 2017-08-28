@@ -20,15 +20,14 @@ class BinaryRelease < ApplicationRecord
   #### Class methods using self. (public and then private)
   def self.update_binary_releases(repository, key, time = Time.now)
     begin
-      body = Backend::Connection.get("/notificationpayload/#{key}").body
-      pt = ActiveSupport::JSON.decode(body)
+      notification_payload = ActiveSupport::JSON.decode(Backend::Api.notification_payload(key))
     rescue ActiveXML::Transport::NotFoundError
       logger.error("Payload got removed for #{key}")
       return
     end
-    update_binary_releases_via_json(repository, pt, time)
+    update_binary_releases_via_json(repository, notification_payload, time)
     # drop it
-    Backend::Connection.delete("/notificationpayload/#{key}")
+    Backend::Api.delete_notification_payload(key)
   end
 
   def self.update_binary_releases_via_json(repository, json, time = Time.now)
@@ -87,12 +86,12 @@ class BinaryRelease < ApplicationRecord
         end
         if binary["patchinforef"]
           begin
-            pi = Patchinfo.new(Backend::Connection.get("/source/#{binary["patchinforef"]}/_patchinfo").body)
+            patchinfo = Patchinfo.new(Backend::Api.patchinfo(binary["patchinforef"]))
           rescue ActiveXML::Transport::NotFoundError
             # patchinfo disappeared meanwhile
           end
           # no database object on purpose, since it must also work for historic releases...
-          hash[:binary_maintainer] = pi.to_hash['packager'] if pi && pi.to_hash['packager']
+          hash[:binary_maintainer] = patchinfo.to_hash['packager'] if patchinfo && patchinfo.to_hash['packager']
         end
 
         # new entry, also for modified binaries.

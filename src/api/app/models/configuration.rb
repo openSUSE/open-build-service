@@ -115,9 +115,8 @@ class Configuration < ApplicationRecord
   def write_to_backend
     return unless CONFIG['global_write_through']
 
-    path = '/configuration'
     logger.debug 'Writing configuration.xml to backend...'
-    Backend::Connection.put(path, render_xml)
+    Backend::Api.write_configuration(render_xml)
   end
 end
 
