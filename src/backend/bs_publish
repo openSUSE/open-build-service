@@ -715,6 +715,19 @@ sub createrepo_debian {
   }
   compress_and_rename("$extrep/Sources");
   createrelease_debian($extrep, $projid, $repoid, $data, $options);
+
+  my $udebs="$extrep/debian-installer";
+  mkdir_p("$udebs") unless -d "$udebs";
+  if (qsystem('chdir', $udebs, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-t','udeb','-m', '..', '/dev/null')) {
+      die("    dpkg-scanpackages for udebs failed: $?\n");
+  }
+  compress_and_rename("$udebs/Packages");
+
+  if ( -e "$udebs/Packages") {
+      createrelease_debian($udebs, $projid, $repoid, $data, $options);
+  } else {
+      rmdir("$udebs");
+  }
 }
 
 sub createrelease_debian {
