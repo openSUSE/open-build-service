@@ -920,6 +920,8 @@ class BsRequestAction < ApplicationRecord
   end
 
   def source_access_check!
+    return if Project.unscoped.is_remote_project?(source_project, true)
+
     sp = Package.find_by_project_and_name(source_project, source_package)
     if sp.nil?
       # either not there or read permission problem
@@ -928,22 +930,14 @@ class BsRequestAction < ApplicationRecord
         # the target, the request creator (who must have permissions to read source)
         # wanted the target owner to review it
         tprj = Project.find_by_name(target_project)
-        if tprj.nil? || !User.current.can_modify_project?(tprj)
+        if tprj.nil? || (User.current && !User.current.can_modify_project?(tprj))
           # produce an error for the source
           Package.get_by_project_and_name(source_project, source_package)
         end
         return
       end
-      if Project.exists_by_name(source_project)
-        # it is a remote project
-        return
-      end
       # produce the same exception for webui
       Package.get_by_project_and_name(source_project, source_package)
-    end
-    if sp.class == String
-      # a remote package
-      return
     end
     sp.check_source_access!
   end
