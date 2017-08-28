@@ -1294,6 +1294,16 @@ sub getprojpack {
 	$pinfo->{'srcmd5'} = $rev->{'srcmd5'};
 	$pinfo->{'rev'} = $rev->{'rev'};
 	$pinfo->{'revtime'} = $rev->{'time'} if $rev->{'time'};
+	# need the relsynctag/releasename for packages from a project link
+	if ($rev->{'originproject'} && !%$pack) {
+	  # XXX: what about remote projects?
+	  my $lpack = BSRevision::readpack_local($rev->{'originproject'}, $rev->{'package'}, 1);
+	  if ($lpack) {
+	    for (qw{bcntsynctag releasename}) {
+	      $pinfo->{$_} = $lpack->{$_} if $lpack->{$_};
+	    }
+	  }
+	}
 	my $files;
 	eval {
 	  my $linkinfo = {};
