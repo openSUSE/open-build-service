@@ -685,6 +685,21 @@ sub deleterepo_susetags {
   qsystem('rm', '-rf', "$extrep/descr") if -d "$extrep/descr";
 }
 
+sub compress_and_rename {
+  my($file) =@_;
+  if (-f "$file.new") {
+    unlink("$file");
+    link("$file.new", "$file");
+    qsystem('gzip', '-9', '-n', '-f', "$file.new") && print "    gzip $file.new failed: $?\n";
+    unlink("$file.new");
+    unlink("$file.gz");
+    rename("$file.new.gz", "$file.gz");
+  } else {
+    unlink("$file");
+    unlink("$file.gz");
+  }
+}
+
 sub createrepo_debian {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
@@ -692,33 +707,18 @@ sub createrepo_debian {
   if (qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')) {
       die("    dpkg-scanpackages failed: $?\n");
   }
-  if (-f "$extrep/Packages.new") {
-    unlink("$extrep/Packages");
-    link("$extrep/Packages.new", "$extrep/Packages");
-    qsystem('gzip', '-9', '-n', '-f', "$extrep/Packages.new") && print "    gzip Packages.new failed: $?\n";
-    unlink("$extrep/Packages.new");
-    unlink("$extrep/Packages.gz");
-    rename("$extrep/Packages.new.gz", "$extrep/Packages.gz");
-  } else {
-    unlink("$extrep/Packages");
-    unlink("$extrep/Packages.gz");
-  }
+  compress_and_rename("$extrep/Packages");
 
   print "    running dpkg-scansources\n";
   if (qsystem('chdir', $extrep, 'stdout', 'Sources.new', 'dpkg-scansources', '.', '/dev/null')) {
       die("    dpkg-scansources failed: $?\n");
   }
-  if (-f "$extrep/Sources.new") {
-    unlink("$extrep/Sources");
-    link("$extrep/Sources.new", "$extrep/Sources");
-    qsystem('gzip', '-9', '-n', '-f', "$extrep/Sources.new") && print "    gzip Sources.new failed: $?\n";
-    unlink("$extrep/Sources.new");
-    unlink("$extrep/Sources.gz");
-    rename("$extrep/Sources.new.gz", "$extrep/Sources.gz");
-  } else {
-    unlink("$extrep/Sources");
-    unlink("$extrep/Sources.gz");
-  }
+  compress_and_rename("$extrep/Sources");
+  createrelease_debian($extrep, $projid, $repoid, $data, $options);
+}
+
+sub createrelease_debian {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $date = POSIX::ctime(time());
