@@ -25,3 +25,14 @@ Bugfixes:
 * [api] fix config change of some /configuration values
 * [backend] fix for new linux version format in bs_worker
 
+Notes for OBS setups with LDAP authentication:
+==============================================
+
+Once LDAP mode is activated users can only log in via LDAP. To give admin rights to newly created LDAP users
+run following commands:
+
+'cd /srv/www/obs/api'
+
+'bundle exec rake user:give_admin_rights tux RAILS_ENV=production'
+
+See also http://openbuildservice.org/help/manuals/obs-admin-guide/obs.cha.administration.html#_obs_ldap_configuration
