@@ -55,7 +55,7 @@ class UpdateNotificationEvents
         nr = 1 if nr.zero?
 
         begin
-          @last = Xmlhash.parse(Backend::Connection.get("/lastnotifications?start=#{nr}&block=1").body)
+          @last = Xmlhash.parse(Backend::Api.last_notifications(nr))
         rescue Net::ReadTimeout, EOFError, ActiveXML::Transport::Error
           return
         end

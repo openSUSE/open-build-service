@@ -15,9 +15,16 @@ module Backend
       Backend::Connection.put(path, xml)
     end
 
-    # Returns a file list (from src/api/app/controllers/build/file_controller.rb)
-    def self.file_list(project, repository, arch, package)
+    # Returns a file list of binaries (from src/api/app/controllers/build/file_controller.rb)
+    def self.binary_files_list(project, repository, arch, package)
       Backend::Connection.get("/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(arch)}/#{CGI.escape(package)}").body
+    end
+
+    # Returns a file list of the sources for a package
+    def self.file_list(project, package, options = {})
+      path = "/source/#{CGI.escape(project)}/#{CGI.escape(package)}"
+      path += "?#{options.to_query}" if options.present?
+      Backend::Connection.get(path).body
     end
 
     # Returns the revisions list for a package / project using mrev (from src/api/app/helpers/validation_helper.rb)
@@ -66,6 +73,47 @@ module Backend
     def self.binary_search(projects, name)
       project_list = projects.map { |project| "@project='#{CGI.escape(project.name)}'" }.join('+or+')
       Backend::Connection.post("/search/published/binary/id?match=(@name='#{CGI.escape(name)}'+and+(#{project_list}))").body
+    end
+
+    # Returns the jobs history for a project
+    def self.job_history(project, repository, arch)
+      Backend::Connection.get("/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(arch)}/_jobhistory?code=lastfailures").body
+    end
+
+    # Runs the command waitservice for that project/package
+    def self.wait_service(project, package)
+      Backend::Connection.post("/source/#{CGI.escape(project)}/#{CGI.escape(package)}?cmd=waitservice")
+    end
+
+    # Runs the command mergeservice for that project/package
+    def self.merge_service(project, package, login)
+      Backend::Connection.post("/source/#{CGI.escape(project)}/#{CGI.escape(package)}?cmd=mergeservice&user=#{CGI.escape(login)}")
+    end
+
+    # Runs the command runservice for that project/package
+    def self.run_service(project, package, login)
+      Backend::Connection.post("/source/#{CGI.escape(project)}/#{CGI.escape(package)}?cmd=runservice&user=#{CGI.escape(login)}")
+    end
+
+    # Returns the latest notifications specifying a starting point
+    def self.last_notifications(start)
+      Backend::Connection.get("/lastnotifications?start=#{CGI.escape(start.to_s)}&block=1").body
+    end
+
+    # Writes a Project configuration
+    def self.write_project_configuration(project, configuration)
+      Backend::Connection.put("/source/#{CGI.escape(project)}/_config", configuration)
+    end
+
+    # Returns the download url for a repository
+    def self.download_url_for_repository(project, repository)
+      Backend::Connection.get("/published/#{CGI.escape(project)}/#{CGI.escape(repository)}?view=publishedpath").body
+    end
+
+    # Returns the download url for a package
+    def self.download_url_for_package(project, repository, package, architecture, file)
+      path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/#{CGI.escape(package)}/#{CGI.escape(file)}"
+      Backend::Connection.get("#{path}?view=publishedpath").body
     end
   end
 end
