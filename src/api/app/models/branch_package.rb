@@ -127,10 +127,8 @@ class BranchPackage
       tpkg.store
 
       if p[:local_link]
-        # rubocop:disable Metrics/LineLength
         # copy project local linked packages
-        Backend::Connection.post "/source/#{tpkg.project.name}/#{tpkg.name}?cmd=copy&oproject=#{CGI.escape(p[:link_target_project].name)}&opackage=#{CGI.escape(p[:package].name)}&user=#{CGI.escape(User.current.login)}"
-        # rubocop:enable Metrics/LineLength
+        Backend::Api.copy_package(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.current.login)
         # and fix the link
         ret = ActiveXML::Node.new(tpkg.source_file('_link'))
         ret.delete_attribute('project') # its a local link, project name not needed
@@ -139,7 +137,7 @@ class BranchPackage
         linked_package = params[:target_package] if params[:target_package] && params[:package] == ret.value('package')
         linked_package += '.' + p[:link_target_project].name.tr(':', '_') if @extend_names
         ret.set_attribute('package', linked_package)
-        Backend::Connection.put tpkg.source_path('_link', user: User.current.login), ret.dump_xml
+        Backend::Api.write_link_of_package(tpkg.project.name, tpkg.name, User.current.login, ret.dump_xml)
       else
         opackage = p[:package]
         opackage = p[:package].name if p[:package].is_a? Package
@@ -159,14 +157,12 @@ class BranchPackage
         # fetch newer sources from devel package, if defined
         if p[:copy_from_devel] && p[:copy_from_devel].project != tpkg.project && !p[:rev]
           if p[:copy_from_devel].project.is_maintenance_incident?
-            msg = "fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}"
+            msg = "fetch updates from open incident project #{p[:copy_from_devel].project.name}"
           else
-            msg = "fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
+            msg = "fetch updates from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
           end
-          # TODO: make this a query hash
-          # rubocop:disable Metrics/LineLength
-          Backend::Connection.post tpkg.source_path + "?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(User.current.login)}&comment=#{msg}"
-          # rubocop:enable Metrics/LineLength
+          Backend::Api.copy_package(tpkg.project.name, tpkg.name,  p[:copy_from_devel].project.name, p[:copy_from_devel].name,
+                                    User.current.login, { comment: msg, keeplink: 1, expand: 1})
         end
       end
       tpkg.sources_changed

@@ -1041,14 +1041,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=move&oproject=<project>
   def project_command_move
-    project_name = params[:oproject]
-
-    commit = { login:   User.current.login,
-               lowprio: 1,
-               comment: "Project move from #{params[:oproject]} to #{params[:project]}"
-             }
-    commit[:comment] = params[:comment] unless params[:comment].blank?
-
     unless User.current.is_admin?
       raise CmdExecutionNoPermission, "Admin permissions required. STOP SCHEDULER BEFORE."
     end
@@ -1056,14 +1048,18 @@ class SourceController < ApplicationController
       raise ProjectExists, "Target project exists already."
     end
 
-    project = Project.get_by_name(project_name)
     begin
+      project = Project.get_by_name(params[:oproject])
+      commit = { login:   User.current.login,
+                 lowprio: 1,
+                 comment: "Project move from #{params[:oproject]} to #{params[:project]}"
+               }
+      commit[:comment] = params[:comment] unless params[:comment].blank?
+      Backend::Api.move_project(params[:oproject], params[:project])
       project.name = params[:project]
-
-      Backend::Connection.post "/source/#{URI.escape(project.name)}?cmd=move&oproject=#{CGI.escape(project_name)}"
       project.store(commit)
       # update meta data in all packages, they contain the project name as well
-      project.packages.each {|p| p.store(commit)}
+      project.packages.each {|package| package.store(commit)}
     rescue
       render_error status: 400, errorcode: 'move_failed',
         message: 'Move operation failed'

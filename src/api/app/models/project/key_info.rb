@@ -14,9 +14,8 @@ class Project
     CACHE_EXPIRY_TIME = 5.minutes
 
     def self.find_by_project(project)
-      response = Rails.cache.fetch("key_info_project_#{project.cache_key}", expires_in: CACHE_EXPIRY_TIME) do
-        Backend::Connection.get(backend_url(project.name)).body
-      end
+      response = key_info_for_project(project)
+
       parsed_response = Xmlhash.parse(response)
 
       return unless parsed_response['pubkey'].present?
@@ -40,8 +39,10 @@ class Project
       new(key_info_params)
     end
 
-    def self.backend_url(project_name)
-      "/source/#{project_name}/_keyinfo?withsslcert=1&donotcreatecert=1"
+    def self.key_info_for_project(project)
+      Rails.cache.fetch("key_info_project_#{project.cache_key}", expires_in: CACHE_EXPIRY_TIME) do
+        Backend::Api.key_info(project.name)
+      end
     end
   end
 end

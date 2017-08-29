@@ -135,13 +135,11 @@ module Event
 
       return false unless self.class.raw_type
       # tell the backend to tell the (old) plugins
-      p = payload
-      p['time'] = created_at.to_i
-      logger.debug "notify_backend #{self.class.name} #{p.inspect}"
-      ret = Backend::Connection.post("/notify_plugins/#{self.class.raw_type}",
-                                     Yajl::Encoder.encode(p),
-                                     'Content-Type' => 'application/json')
-      Xmlhash.parse(ret.body)['code'] == 'ok'
+      updated_payload = payload
+      updated_payload['time'] = created_at.to_i
+      logger.debug "notify_backend #{self.class.name} #{updated_payload.inspect}"
+      response = Backend::Api.notify_plugin(self.class.raw_type, updated_payload)
+      Xmlhash.parse(response)['code'] == 'ok'
     end
 
     after_create :perform_create_jobs

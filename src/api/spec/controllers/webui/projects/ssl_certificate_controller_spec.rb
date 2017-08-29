@@ -4,13 +4,13 @@ require 'webmock/rspec'
 RSpec.describe Webui::Projects::SslCertificateController, type: :controller do
   describe 'GET #show' do
     let(:project) { create(:project, name: "test_project", title: "Test Project") }
-    let(:backend_url) { "#{CONFIG['source_url']}#{Project::KeyInfo.backend_url(project.name)}" }
     let(:gpg_public_key) { Faker::Lorem.characters(1024) }
 
     before do
       Rails.cache.clear
       # NOTE: we're not using VCR here because the backend does not have the obs signer setup by default
-      stub_request(:get, backend_url).and_return(body: keyinfo_response)
+      keyinfo_url = "#{CONFIG['source_url']}/source/#{CGI.escape(project.name)}/_keyinfo?withsslcert=1&donotcreatecert=1"
+      stub_request(:get, keyinfo_url).and_return(body: keyinfo_response)
 
       get :show, params: { project_name: project.name }
     end
