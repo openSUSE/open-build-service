@@ -1,6 +1,406 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://localhost:3200/source/home:package_test_user/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title/>
+          <description/>
+          <person userid="package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="package_test_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 29 Aug 2017 15:42:59 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:package_test_user/test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Tenetur quaerat velit temporibus voluptatem aut rerum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '202'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Tenetur quaerat velit temporibus voluptatem aut rerum.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 29 Aug 2017 15:42:59 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:package_test_user/test_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Tenetur quaerat velit temporibus voluptatem aut rerum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '202'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Tenetur quaerat velit temporibus voluptatem aut rerum.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 29 Aug 2017 15:42:59 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:package_test_user/test_package/_config
+    body:
+      encoding: UTF-8
+      string: Facere illo commodi quis et est maxime. Nulla ullam rerum ut. Ullam
+        modi inventore perferendis voluptatibus sit. Quia magnam et omnis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>2e88478fbed2b1aff6e84b1474d7e740</srcmd5>
+          <version>unknown</version>
+          <time>1504021379</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 29 Aug 2017 15:42:59 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:package_test_user/test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Minus similique animi quas dolorum. Nobis inventore quam. Similique
+        asperiores sit iste at qui. Sunt magnam et dolores cumque.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>28ef7e52414845f687a034a5febe6382</srcmd5>
+          <version>unknown</version>
+          <time>1504021379</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 29 Aug 2017 15:42:59 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_package_test_user/_meta?user=other_package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_package_test_user">
+          <title/>
+          <description/>
+          <person userid="other_package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="other_package_test_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 29 Aug 2017 15:42:59 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>That Good Night</title>
+          <description>Ducimus enim et vitae dolore.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '179'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>That Good Night</title>
+          <description>Ducimus enim et vitae dolore.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 29 Aug 2017 15:42:59 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>That Good Night</title>
+          <description>Ducimus enim et vitae dolore.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '179'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>That Good Night</title>
+          <description>Ducimus enim et vitae dolore.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 29 Aug 2017 15:42:59 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_config
+    body:
+      encoding: UTF-8
+      string: Aliquam voluptas minima animi. Sint debitis id quas. Suscipit repellat
+        molestiae blanditiis quod unde aut eum. Cum ut fugit mollitia est voluptatum.
+        Sequi quidem magnam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>7bf9fe6635dc954f4469f6b019828289</srcmd5>
+          <version>unknown</version>
+          <time>1504021379</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 29 Aug 2017 15:42:59 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Nam ex omnis inventore dolor dolore maxime. Unde sint repellendus et
+        sed nesciunt eum. Vitae ducimus cumque aspernatur. Tenetur quis est quam consequatur.
+        Libero hic est beatae.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>ed9c5fa22670df49186fdcf729eb8cf3</srcmd5>
+          <version>unknown</version>
+          <time>1504021379</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 29 Aug 2017 15:42:59 GMT
+- request:
     method: get
     uri: http://localhost:3200/source/home:package_test_user/test_package?nofilename=1&view=info&withchangesmd5=1
     body:
@@ -15,8 +415,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -25,16 +425,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '186'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
+        <sourceinfo package="test_package" rev="2" vrev="2" srcmd5="28ef7e52414845f687a034a5febe6382" verifymd5="28ef7e52414845f687a034a5febe6382">
+          <revtime>1504021379</revtime>
+        </sourceinfo>
     http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
+  recorded_at: Tue, 29 Aug 2017 15:43:04 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:package_test_user/test_package
@@ -50,8 +449,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -60,16 +459,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
+        <directory name="test_package" rev="2" vrev="2" srcmd5="28ef7e52414845f687a034a5febe6382">
+          <entry name="_config" md5="27a40af3f15a9168ee9dbf35d9a83feb" size="134" mtime="1504021379" />
+          <entry name="somefile.txt" md5="d542484704000bf4291a7ed5cb70af8e" size="126" mtime="1504021379" />
+        </directory>
     http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
+  recorded_at: Tue, 29 Aug 2017 15:43:04 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:package_test_user/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -87,8 +486,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -97,16 +496,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '333'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
+        <sourcediff key="8cc00b69d7095a65269543672f7af295">
+          <old project="home:package_test_user" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:package_test_user" package="test_package" rev="2" srcmd5="28ef7e52414845f687a034a5febe6382" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
     http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
+  recorded_at: Tue, 29 Aug 2017 15:43:04 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:package_test_user/test_package
@@ -122,8 +524,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -132,19 +534,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
+        <directory name="test_package" rev="2" vrev="2" srcmd5="28ef7e52414845f687a034a5febe6382">
+          <entry name="_config" md5="27a40af3f15a9168ee9dbf35d9a83feb" size="134" mtime="1504021379" />
+          <entry name="somefile.txt" md5="d542484704000bf4291a7ed5cb70af8e" size="126" mtime="1504021379" />
+        </directory>
     http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
+  recorded_at: Tue, 29 Aug 2017 15:43:04 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?expand=1
+    uri: http://localhost:3200/source/home:package_test_user/test_package?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -157,8 +559,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -167,16 +569,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
+        <directory name="test_package" rev="2" vrev="2" srcmd5="28ef7e52414845f687a034a5febe6382">
+          <entry name="_config" md5="27a40af3f15a9168ee9dbf35d9a83feb" size="134" mtime="1504021379" />
+          <entry name="somefile.txt" md5="d542484704000bf4291a7ed5cb70af8e" size="126" mtime="1504021379" />
+        </directory>
     http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
+  recorded_at: Tue, 29 Aug 2017 15:43:04 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:package_test_user/test_package
@@ -184,16 +586,18 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      Content-Type:
+      - text/plain
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - identity
       Accept:
       - "*/*"
       User-Agent:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -202,51 +606,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
+        <directory name="test_package" rev="2" vrev="2" srcmd5="28ef7e52414845f687a034a5febe6382">
+          <entry name="_config" md5="27a40af3f15a9168ee9dbf35d9a83feb" size="134" mtime="1504021379" />
+          <entry name="somefile.txt" md5="d542484704000bf4291a7ed5cb70af8e" size="126" mtime="1504021379" />
+        </directory>
     http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?expand=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
+  recorded_at: Tue, 29 Aug 2017 15:43:04 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:package_test_user/test_package/_service
@@ -265,7 +634,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'home package_test_user' does not exist
+      message: _service  no such file
     headers:
       Content-Type:
       - text/xml
@@ -274,16 +643,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '122'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
+          <summary>_service: no such file</summary>
+          <details>404 _service: no such file</details>
         </status>
     http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:18 GMT
+  recorded_at: Tue, 29 Aug 2017 15:43:04 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:package_test_user/test_package
@@ -299,8 +668,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -309,16 +678,61 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
+        <directory name="test_package" rev="2" vrev="2" srcmd5="28ef7e52414845f687a034a5febe6382">
+          <entry name="_config" md5="27a40af3f15a9168ee9dbf35d9a83feb" size="134" mtime="1504021379" />
+          <entry name="somefile.txt" md5="d542484704000bf4291a7ed5cb70af8e" size="126" mtime="1504021379" />
+        </directory>
     http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:19 GMT
+  recorded_at: Tue, 29 Aug 2017 15:43:04 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:package_test_user/test_package/_history
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '395'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>2e88478fbed2b1aff6e84b1474d7e740</srcmd5>
+            <version>unknown</version>
+            <time>1504021379</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="2" vrev="2">
+            <srcmd5>28ef7e52414845f687a034a5febe6382</srcmd5>
+            <version>unknown</version>
+            <time>1504021379</time>
+            <user>unknown</user>
+          </revision>
+        </revisionlist>
+    http_version: 
+  recorded_at: Tue, 29 Aug 2017 15:43:04 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:package_test_user/_result?package=test_package&view=status
@@ -336,8 +750,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home package_test_user' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -346,19 +760,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '56'
     body:
       encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
     http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:19 GMT
+  recorded_at: Tue, 29 Aug 2017 15:43:05 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_1/i586/test_package/_jobstatus
+    uri: http://localhost:3200/build/home:package_test_user/package_test_repository/i586/test_package/_jobstatus
     body:
       encoding: US-ASCII
       string: ''
@@ -374,7 +786,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'home package_test_user' does not exist
+      message: project 'home package_test_user' has no repository 'package_test_repository'
     headers:
       Content-Type:
       - text/xml
@@ -383,199 +795,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '230'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
+          <summary>project 'home:package_test_user' has no repository 'package_test_repository'</summary>
+          <details>404 project 'home:package_test_user' has no repository 'package_test_repository'</details>
         </status>
     http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:19 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_1/i586/test_package/_log?view=entry
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 07 Jul 2017 07:14:19 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_2/i586/test_package/_jobstatus
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 11 Aug 2017 08:27:32 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_2/i586/test_package/_log?view=entry
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 11 Aug 2017 08:27:32 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_4/i586/test_package/_jobstatus
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 11 Aug 2017 10:29:46 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:package_test_user/repository_4/i586/test_package/_log?view=entry
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home package_test_user' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:package_test_user' does not exist</summary>
-          <details>404 project 'home:package_test_user' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Fri, 11 Aug 2017 10:29:46 GMT
+  recorded_at: Tue, 29 Aug 2017 15:43:05 GMT
 recorded_with: VCR 3.0.3
