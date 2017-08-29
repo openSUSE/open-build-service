@@ -687,7 +687,7 @@ sub deleterepo_susetags {
 
 sub compress_and_rename {
   my($file) =@_;
-  if (-f "$file.new") {
+  if (-s "$file.new") {
     unlink("$file");
     link("$file.new", "$file");
     qsystem('gzip', '-9', '-n', '-f', "$file.new") && print "    gzip $file.new failed: $?\n";
@@ -695,6 +695,7 @@ sub compress_and_rename {
     unlink("$file.gz");
     rename("$file.new.gz", "$file.gz");
   } else {
+    unlink("$file.new");
     unlink("$file");
     unlink("$file.gz");
   }
