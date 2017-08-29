@@ -90,7 +90,7 @@ RSpec.describe BsRequest do
   end
 
   describe '#update_cache' do
-    RSpec.shared_examples 'after_commit callback' do
+    RSpec.shared_examples 'bs_request after_commit callback' do
       it 'touches the user' do
         Timecop.travel(1.minute)
         cache_key = user.cache_key
@@ -105,7 +105,7 @@ RSpec.describe BsRequest do
       let!(:request) { create(:bs_request, creator: user.login) }
       let(:user) { create(:admin_user) }
 
-      include_examples 'after_commit callback'
+      include_examples 'bs_request after_commit callback'
     end
 
     context 'direct maintainer of a target_project' do
@@ -123,7 +123,7 @@ RSpec.describe BsRequest do
       let!(:relationship_project_user) { create(:relationship_project_user, project: target_project) }
       let(:user) { relationship_project_user.user }
 
-      include_examples 'after_commit callback'
+      include_examples 'bs_request after_commit callback'
     end
 
     context 'group maintainer of a target_project' do
@@ -143,7 +143,7 @@ RSpec.describe BsRequest do
       let!(:groups_user) { create(:groups_user, group: group) }
       let(:user) { groups_user.user }
 
-      include_examples 'after_commit callback'
+      include_examples 'bs_request after_commit callback'
     end
 
     context 'direct maintainer of a target_package' do
@@ -163,7 +163,7 @@ RSpec.describe BsRequest do
       let!(:relationship_package_user) { create(:relationship_package_user, package: target_package) }
       let(:user) { relationship_package_user.user }
 
-      include_examples 'after_commit callback'
+      include_examples 'bs_request after_commit callback'
     end
 
     context 'group maintainer of a target_package' do
@@ -185,7 +185,7 @@ RSpec.describe BsRequest do
       let!(:groups_user) { create(:groups_user, group: group) }
       let(:user) { groups_user.user }
 
-      include_examples 'after_commit callback'
+      include_examples 'bs_request after_commit callback'
     end
   end
 
