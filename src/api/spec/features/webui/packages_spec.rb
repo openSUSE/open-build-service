@@ -140,7 +140,7 @@ RSpec.feature "Packages", type: :feature, js: true do
   end
 
   context "triggering package rebuild" do
-    let(:repository) { create(:repository, name: 'package_test_repository', architectures: ["x86_64"]) }
+    let(:repository) { create(:repository, name: 'package_test_repository', project: user.home_project, architectures: ["x86_64"]) }
     let(:rebuild_url) {
       "#{CONFIG['source_url']}/build/#{user.home_project.name}?cmd=rebuild&arch=x86_64&package=#{package.name}&repository=#{repository.name}"
     }
@@ -153,7 +153,6 @@ RSpec.feature "Packages", type: :feature, js: true do
     }
 
     before do
-      user.home_project.repositories << repository
       login(user)
       path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status&package=#{package}&arch=x86_64&repository=#{repository.name}"
       stub_request(:get, path).and_return(body: fake_buildresult)
@@ -179,10 +178,9 @@ RSpec.feature "Packages", type: :feature, js: true do
   end
 
   context "log" do
-    let(:repository) { create(:repository, name: 'package_test_repository', architectures: ["i586"]) }
+    let(:repository) { create(:repository, name: 'package_test_repository', project: user.home_project, architectures: ["i586"]) }
 
     before do
-      user.home_project.repositories << repository
       login(user)
       stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?nostream=1&start=0&end=65536")
         .and_return(body: '[1] this is my dummy logfile -> ümlaut')
