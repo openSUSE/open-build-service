@@ -23,6 +23,11 @@ OBS Appliance users who have setup their LVM can just replace
 their appliance image without data loss. The migration will
 happen automatically.
 
+Upgrading from previous versions:
+=================================
+
+ * Please run this rake task if you notifications table has any rows in it:
+ rake db:convert_notifications_serialization
 
 Features
 ========

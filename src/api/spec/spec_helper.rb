@@ -80,6 +80,10 @@ RSpec.configure do |config|
       config.formatter = 'NyanUnicornFormatter'
     end
   end
+
+  config.before(:suite) do
+    Rails.application.load_tasks
+  end
 end
 
 # We never want the backend to autostart itself...

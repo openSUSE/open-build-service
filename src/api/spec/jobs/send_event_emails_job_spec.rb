@@ -43,6 +43,14 @@ RSpec.describe SendEventEmailsJob, type: :job do
         expect(notification.delivered).to be_falsey
       end
 
+      it "creates an rss notification with the same raw value of the corresponding event's payload" do
+        notification = Notification.find_by(subscriber: user)
+        raw_event_payload = Event::Base.first.attributes_before_type_cast['payload']
+        raw_notification_payload = notification.attributes_before_type_cast['event_payload']
+
+        expect(raw_event_payload).to eq(raw_notification_payload)
+      end
+
       it "creates an rss notification for group's email" do
         notification = Notification::RssFeedItem.find_by(subscriber: group)
 
