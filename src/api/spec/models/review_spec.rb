@@ -318,7 +318,7 @@ RSpec.describe Review do
   end
 
   describe '#update_caches' do
-    RSpec.shared_examples 'after_commit callback' do
+    RSpec.shared_examples 'review after_commit callback' do
       it 'touches the user' do
         Timecop.travel(1.minute)
         cache_key = user.cache_key
@@ -333,7 +333,7 @@ RSpec.describe Review do
       let!(:review) { create(:user_review) }
       let(:user) { review.user }
 
-      include_examples 'after_commit callback'
+      include_examples 'review after_commit callback'
     end
 
     context 'by_group' do
@@ -342,7 +342,7 @@ RSpec.describe Review do
       let(:user) { groups_user.user }
       let!(:review) { create(:review, by_group: group) }
 
-      include_examples 'after_commit callback'
+      include_examples 'review after_commit callback'
     end
 
     context 'by_package with a direct relationship' do
@@ -351,7 +351,7 @@ RSpec.describe Review do
       let(:user) { relationship_package_user.user }
       let!(:review) { create(:review, by_package: package, by_project: package.project) }
 
-      include_examples 'after_commit callback'
+      include_examples 'review after_commit callback'
     end
 
     context 'by_package with a group relationship' do
@@ -362,7 +362,7 @@ RSpec.describe Review do
       let!(:user) { groups_user.user }
       let!(:review) { create(:review, by_package: package, by_project: package.project) }
 
-      include_examples 'after_commit callback'
+      include_examples 'review after_commit callback'
     end
 
     context 'by_project with a direct relationship' do
@@ -371,7 +371,7 @@ RSpec.describe Review do
       let(:user) { relationship_project_user.user }
       let!(:review) { create(:review, by_project: project) }
 
-      include_examples 'after_commit callback'
+      include_examples 'review after_commit callback'
     end
 
     context 'by_project with a group relationship' do
@@ -382,7 +382,7 @@ RSpec.describe Review do
       let!(:user) { groups_user.user }
       let!(:review) { create(:review, by_project: project) }
 
-      include_examples 'after_commit callback'
+      include_examples 'review after_commit callback'
     end
   end
 end
