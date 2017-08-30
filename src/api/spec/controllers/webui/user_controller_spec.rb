@@ -280,8 +280,15 @@ RSpec.describe Webui::UserController do
     skip
   end
 
-  describe "GET #admin" do
-    skip
+  describe "POST #admin" do
+    before do
+      login admin_user
+      post :admin, params: { user: user.login }
+    end
+
+    it 'applies the Admin role properly' do
+      expect(user.roles.find_by(title: 'Admin')).to_not be_nil
+    end
   end
 
   describe "GET #save_dialog" do
