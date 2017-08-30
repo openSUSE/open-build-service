@@ -1,5 +1,11 @@
 var canSave = false;
 
+
+function hideOverlay(dialog) {
+  $('.overlay').hide();
+  dialog.addClass('hidden');
+}
+
 function saveImage() {
   if (canSave) {
     $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
@@ -68,26 +74,36 @@ function closeDialog() {
 
   addDefault(dialog);
 
+  if( /^Add/.test(dialog.find('.box-header').text())) {
+    dialog.find('.box-header').text('Edit '+ dialog.find('.box-header').text().split(' ')[1]);
+  }
+
   fields.find(".ui-state-error").addClass('hidden');
-  $('.overlay').hide();
-  dialog.addClass('hidden');
+
+  hideOverlay(dialog);
 }
 
 function revertDialog() {
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.dialog');
 
-  $.each(dialog.find('input:visible, select:visible'), function(index, input) {
-    if (input.type === 'checkbox') {
-      $(input).prop('checked', input.getAttribute('data-default') === 'true');
-    }
-    else {
-      $(input).val(input.getAttribute('data-default'));
-    }
-  });
+  if( /^Add/.test(dialog.find('.box-header').text())) {
+    hideOverlay(dialog);
 
-  $('.overlay').hide();
-  dialog.addClass('hidden');
+    fields.find('.remove_fields').click();
+  }
+  else {
+    $.each(dialog.find('input:visible, select:visible'), function(index, input) {
+      if (input.type === 'checkbox') {
+        $(input).prop('checked', input.getAttribute('data-default') === 'true');
+      }
+      else {
+        $(input).val(input.getAttribute('data-default'));
+      }
+    });
+
+    hideOverlay(dialog);
+  }
 }
 
 function addDefault(dialog) {
