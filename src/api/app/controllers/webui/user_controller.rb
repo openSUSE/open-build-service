@@ -163,7 +163,7 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def admin
-    @displayed_user.update_globalroles(Role.where(title: 'Admin'))
+    @displayed_user.update_globalroles(@displayed_user.roles.global + Role.where(title: 'Admin'))
     @displayed_user.save
     redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
