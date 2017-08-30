@@ -198,7 +198,30 @@ class User < ApplicationRecord
   # This static method tries to find a user with the given login and password
   # in the database. Returns the user or nil if he could not be found
   def self.find_with_credentials(login, password)
-    # Find user
+    if CONFIG['ldap_mode'] == :on
+      return find_with_credentials_via_ldap(login, password)
+    end
+
+    user = find_by_login(login)
+    # If the user could be found and the passwords equal then return the user
+    if user && user.password_equals?(password)
+      user.last_logged_in_at = Time.now
+      user.login_failure_count = 0
+      execute_without_timestamps { user.save! }
+
+      return user
+    end
+
+    # Otherwise increase the login count - if the user could be found - and return nil
+    if user
+      user.login_failure_count = user.login_failure_count + 1
+      execute_without_timestamps { user.save! }
+    end
+
+    return
+  end
+
+  def self.find_with_credentials_via_ldap(login, password)
     user = find_by_login(login)
     ldap_info = nil
 
@@ -228,6 +251,7 @@ class User < ApplicationRecord
           user.realname = ldap_info[1]
           user.save
         end
+
         return user
       end
 
@@ -259,24 +283,9 @@ class User < ApplicationRecord
       user.adminnote = "User created via LDAP"
       logger.debug( "saving new user..." )
       user.save
-    end
-
-    # If the user could be found and the passwords equal then return the user
-    if user && user.password_equals?(password)
-      user.last_logged_in_at = Time.now
-      user.login_failure_count = 0
-      execute_without_timestamps { user.save! }
 
       return user
     end
-
-    # Otherwise increase the login count - if the user could be found - and return nil
-    if user
-      user.login_failure_count = user.login_failure_count + 1
-      execute_without_timestamps { user.save! }
-    end
-
-    return
   end
 
   def self.current
