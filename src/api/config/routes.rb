@@ -142,7 +142,7 @@ OBSApi::Application.routes.draw do
         post 'package/save_meta/:project/:package' => :save_meta, constraints: cons
         # compat route
         get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
-        get 'package/edit/:project/:package' => :edit, constraints: cons
+        get 'package/edit/:project/:package' => :edit, constraints: cons, as: :package_edit
         # compat routes
         get 'package/repositories/:project/:package', to: redirect('/repositories/%{project}/%{package}'), constraints: cons
         get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
