@@ -275,7 +275,8 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def feature_active?(feature)
-    raise ActionController::RoutingError, 'Not found' if Feature.inactive?(feature)
+    return if Feature.active?(feature)
+    render file: Rails.root.join('public/404'), status: :not_found, layout: false
   end
 
   private
