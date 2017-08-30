@@ -964,7 +964,7 @@ class Webui::PackageController < Webui::WebuiController
       @log = get_rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       @log.encode!(xml: :text)
       render partial: 'rpmlint_log'
-    rescue ActiveXML::Transport::NotFoundError
+    rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error
       render plain: 'No rpmlint log'
     end
   end
