@@ -68,6 +68,10 @@ function closeDialog() {
 
   addDefault(dialog);
 
+  if( /^Add/.test(dialog.find('.box-header').text())) {
+    dialog.find('.box-header').text('Edit '+ dialog.find('.box-header').text().split(' ')[1]);
+  }
+
   fields.find(".ui-state-error").addClass('hidden');
   $('.overlay').hide();
   dialog.addClass('hidden');
@@ -77,17 +81,37 @@ function revertDialog() {
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.dialog');
 
-  $.each(dialog.find('input:visible, select:visible'), function(index, input) {
-    if (input.type === 'checkbox') {
-      $(input).prop('checked', input.getAttribute('data-default') === 'true');
+  if( /^Add/.test(dialog.find('.box-header').text())) {
+    var input_val = 'no_revert';
+    var is_repository = fields.parents('#kiwi-repositories-list').size() === 1;
+
+    if (is_repository) {
+      input_val = dialog.find("[id$='source_path']").val();
     }
     else {
-      $(input).val(input.getAttribute('data-default'));
+      input_val = dialog.find("[id$='name']").val();
     }
-  });
 
-  $('.overlay').hide();
-  dialog.addClass('hidden');
+    if (input_val == '') {
+      $('.overlay').hide();
+      dialog.addClass('hidden');
+
+      fields.find('.remove_fields').click();
+    }
+  }
+  else {
+    $.each(dialog.find('input:visible, select:visible'), function(index, input) {
+      if (input.type === 'checkbox') {
+        $(input).prop('checked', input.getAttribute('data-default') === 'true');
+      }
+      else {
+        $(input).val(input.getAttribute('data-default'));
+      }
+    });
+
+    $('.overlay').hide();
+    dialog.addClass('hidden');
+  }
 }
 
 function addDefault(dialog) {
