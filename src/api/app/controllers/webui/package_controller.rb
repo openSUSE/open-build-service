@@ -586,10 +586,11 @@ class Webui::PackageController < Webui::WebuiController
     @package.description = params[:description]
     if @package.save
       flash[:notice] = "Package data for '#{@package.name}' was saved successfully"
+      redirect_to action: :show, project: params[:project], package: params[:package]
     else
-      flash[:error] = "Failed to save package '#{@package.name}'"
+      flash[:error] = "Failed to save package '#{@package.name}': #{@package.errors.full_messages.to_sentence}"
+      redirect_to action: :edit, project: params[:project], package: params[:package]
     end
-    redirect_to action: :show, project: params[:project], package: params[:package]
   end
 
   def delete_dialog

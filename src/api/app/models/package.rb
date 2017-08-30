@@ -118,6 +118,7 @@ class Package < ApplicationRecord
   validates :name, presence: true, length: { maximum: 200 }
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
+  validates :description, length: { maximum: 65535 }
   validate :valid_name
 
   has_one :backend_package, foreign_key: :package_id, dependent: :destroy, inverse_of: :package
