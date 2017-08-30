@@ -227,6 +227,21 @@ RSpec.describe User do
     end
   end
 
+  describe '#add_globalrole' do
+    before do
+      user.update_globalroles(Role.where(title: 'Staff'))
+      user.add_globalrole(Role.where(title: 'Admin'))
+    end
+
+    it 'adds a global role' do
+      expect(user.roles).to include(Role.find_by(title: 'Admin'))
+    end
+
+    it 'keeps old global roles' do
+      expect(user.roles).to include(Role.find_by(title: 'Staff'))
+    end
+  end
+
   describe '#declined_requests' do
     let(:target_package) { create(:package) }
     let(:source_package) { create(:package) }

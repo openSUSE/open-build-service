@@ -865,6 +865,10 @@ class User < ApplicationRecord
     roles.replace(global_roles + roles.where(global: false))
   end
 
+  def add_globalrole(global_role)
+    update_globalroles(global_role + roles.global)
+  end
+
   # returns the gravatar image as string or :none
   def gravatar_image(size)
     Rails.cache.fetch([self, 'home_face', size, Configuration.first]) do
