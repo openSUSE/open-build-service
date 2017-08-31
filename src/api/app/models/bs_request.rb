@@ -757,7 +757,8 @@ class BsRequest < ApplicationRecord
         by_group:   opts[:by_group],
         by_project: opts[:by_project],
         by_package: opts[:by_package],
-        creator:    User.current.login
+        creator:    User.current.login,
+        reviewer:    User.current.login
       )
       save!
 
