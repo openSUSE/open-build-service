@@ -8,7 +8,7 @@
     %span.kiwi_actions.hidden
       = link_to_remove_association sprite_tag("req-decline", title: 'remove'), f
 
-  .dialog.darkgrey_box{ style: "width: 500px; left: 45%;", class: "#{'hidden' if f.object.name.present?}" }
+  .dialog.darkgrey_box{ style: "width: 500px; left: 45%;", class: "#{'hidden' if f.object.name.present?} #{'new_element' if f.object.new_record?}"}
     .box.box-shadow
       %h2.box-header #{f.object.name.present? ? 'Edit' : 'Add'} package
 

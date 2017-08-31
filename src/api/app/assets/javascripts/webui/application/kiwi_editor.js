@@ -79,6 +79,7 @@ function closeDialog() {
   }
 
   fields.find(".ui-state-error").addClass('hidden');
+  dialog.removeClass('new_element');
 
   hideOverlay(dialog);
 }
@@ -87,7 +88,7 @@ function revertDialog() {
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.dialog');
 
-  if( /^Add/.test(dialog.find('.box-header').text())) {
+  if(dialog.hasClass('new_element')) {
     hideOverlay(dialog);
 
     fields.find('.remove_fields').click();

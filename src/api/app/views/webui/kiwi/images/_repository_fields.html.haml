@@ -5,7 +5,7 @@
     %span.kiwi_actions.hidden
       = link_to_remove_association(sprite_tag("req-decline", title: 'Delete Repository'), f)
 
-  .dialog.darkgrey_box{ style: "width: 500px; left: 45%;", class: "#{'hidden' if f.object.source_path.present?}" }
+  .dialog.darkgrey_box{ style: "width: 500px; left: 45%;", class: "#{'hidden' if f.object.source_path.present?} #{'new_element' if f.object.new_record?}" }
     .box.box-shadow
       %h2.box-header #{f.object.source_path.present? ? 'Edit' : 'Add'} repository
 
