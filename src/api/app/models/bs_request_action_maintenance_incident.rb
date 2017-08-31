@@ -41,8 +41,9 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     releaseproject = releaseproject.update_instance
     unless releaseproject.is_maintenance_release?
       raise NoMaintenanceReleaseTarget, "Maintenance incident request contains release target " +
-                                           "project #{releaseproject.name} with invalid project" +
-                                           "kind \"#{releaseproject.kind}\" for package #{pkg.name}"
+                                           "project #{releaseproject.name} with invalid project " +
+                                           "kind \"#{releaseproject.kind}\" (should be " +
+                                           "\"maintenance_release\") for package #{pkg.name}"
     end
     releaseproject
   end
