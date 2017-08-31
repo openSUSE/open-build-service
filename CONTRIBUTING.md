@@ -163,7 +163,13 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
     vagrant exec make -C src/backend test
     ```
 
-12. Explore the development environment:
+12. Check your commits:
+
+    ```
+    vagrant exec rake git_cop
+    ```
+
+13. Explore the development environment:
 
     ```
     vagrant ssh
