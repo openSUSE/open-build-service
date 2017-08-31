@@ -140,7 +140,7 @@ RSpec.feature "Packages", type: :feature, js: true do
   end
 
   context "triggering package rebuild" do
-    let(:repository) { create(:repository, architectures: ["x86_64"]) }
+    let(:repository) { create(:repository, name: 'package_test_repository', project: user.home_project, architectures: ["x86_64"]) }
     let(:rebuild_url) {
       "#{CONFIG['source_url']}/build/#{user.home_project.name}?cmd=rebuild&arch=x86_64&package=#{package.name}&repository=#{repository.name}"
     }
@@ -153,7 +153,6 @@ RSpec.feature "Packages", type: :feature, js: true do
     }
 
     before do
-      user.home_project.repositories << repository
       login(user)
       path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status&package=#{package}&arch=x86_64&repository=#{repository.name}"
       stub_request(:get, path).and_return(body: fake_buildresult)
@@ -179,10 +178,9 @@ RSpec.feature "Packages", type: :feature, js: true do
   end
 
   context "log" do
-    let(:repository) { create(:repository, architectures: ["i586"]) }
+    let(:repository) { create(:repository, name: 'package_test_repository', project: user.home_project, architectures: ["i586"]) }
 
     before do
-      user.home_project.repositories << repository
       login(user)
       stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?nostream=1&start=0&end=65536")
         .and_return(body: '[1] this is my dummy logfile -> ümlaut')
@@ -197,6 +195,8 @@ RSpec.feature "Packages", type: :feature, js: true do
         .and_return(body: result)
       stub_request(:get, result_path + "&arch=i586&repository=#{repository.name}")
         .and_return(body: result)
+      stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?view=entry")
+        .and_return(headers: {'Content-Type'=> 'text/plain'}, body: '<directory><entry size="1"/></directory>')
       stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log")
         .and_return(headers: {'Content-Type'=> 'text/plain'}, body: '[1] this is my dummy logfile -> ümlaut')
       path = "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/_builddepinfo?package=#{package}&view=revpkgnames"
@@ -213,7 +213,7 @@ RSpec.feature "Packages", type: :feature, js: true do
       visit package_show_path(project: user.home_project, package: package)
       # test reload and wait for the build to finish
       find('.icons-reload').click
-      find('.buildstatus', text: 'succeeded').click
+      find('.buildstatus a', text: 'succeeded').click
       expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
       first(:link, 'Download logfile').click
       # don't bother with the umlaut
