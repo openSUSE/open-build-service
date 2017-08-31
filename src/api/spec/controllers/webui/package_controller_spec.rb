@@ -185,15 +185,31 @@ RSpec.describe Webui::PackageController, vcr: true do
   describe 'POST #save' do
     before do
       login(user)
-      post :save, params: {
-          project: source_project, package: source_package, title: 'New title for package', description: 'New description for package'
-        }
     end
 
-    it { expect(flash[:notice]).to eq("Package data for '#{source_package.name}' was saved successfully") }
-    it { expect(source_package.reload.title).to eq('New title for package') }
-    it { expect(source_package.reload.description).to eq('New description for package') }
-    it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+    context 'valid data' do
+      before do
+        post :save, params: {
+            project: source_project, package: source_package, title: 'New title for package', description: 'New description for package'
+          }
+      end
+
+      it { expect(flash[:notice]).to eq("Package data for '#{source_package.name}' was saved successfully") }
+      it { expect(source_package.reload.title).to eq('New title for package') }
+      it { expect(source_package.reload.description).to eq('New description for package') }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+    end
+
+    context 'invalid data' do
+      before do
+        post :save, params: {
+            project: source_project, package: source_package, title: 'New title for package', description: SecureRandom.hex(32768) # = 65536 chars
+          }
+      end
+
+      it { expect(controller).to set_flash[:error] }
+      it { expect(response).to redirect_to(package_edit_path(project: source_project, package: source_package)) }
+    end
   end
 
   describe "GET #meta" do
