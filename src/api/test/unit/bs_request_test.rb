@@ -108,8 +108,8 @@ class BsRequestTest < ActiveSupport::TestCase
   <state name="review" who="Iggy" when="2012-11-07T21:13:12">
     <comment>No comment</comment>
   </state>
-  <review state="new" by_user="adrian"/>
-  <review state="new" by_group="test_group"/>
+  <review state="new" when="2017-09-01T09:11:11" by_user="adrian"/>
+  <review state="new" when="2017-09-01T09:11:11" by_group="test_group"/>
   <review state="accepted" when="2012-11-07T21:13:12" who="tom" by_user="tom">
     <comment>review1</comment>
   </review>
