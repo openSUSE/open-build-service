@@ -82,15 +82,15 @@ class FullTextSearch
       interface = ThinkingSphinx::RakeInterface.new
 
       begin
-        interface.index
+        interface.sql.index
       rescue => e
         # Something failed, let's try again
-        logger.info "Indexing failed: #{e.message}"
-        logger.info "Retying indexing."
-        interface.index
+        Rails.logger.info "Indexing failed: #{e.message}"
+        Rails.logger.info "Retying indexing."
+        interface.sql.index
       end
       begin
-        interface.start
+        interface.daemon.start
       rescue ThinkingSphinx::SphinxAlreadyRunning, RuntimeError => e
         # Most likely, this means that searchd is already running.
         # Nothing to worry about
