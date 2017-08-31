@@ -64,6 +64,7 @@ RSpec.describe BsRequest do
       it 'updates the old review state to accepted and assigns it' do
         expect(review.state).to eq(:accepted)
         expect(review.review_assigned_to).to eq(request.reviews.last)
+        expect(review.reviewer).to eq(reviewer.login)
         expect(review.history_elements.last.type).to eq('HistoryElement::ReviewAccepted')
       end
     end
