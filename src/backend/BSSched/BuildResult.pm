@@ -132,7 +132,7 @@ sub compile_exportfilter {
   my @res;
   for my $f (@$filter) {
     eval {
-      BSVerify::verify_arch($_) for @{$f->[1] || []};
+      $_ eq '.' || BSVerify::verify_arch($_) for @{$f->[1] || []};
       push @res, [ qr/$f->[0]/, $f->[1] ];
     };
   }
