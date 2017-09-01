@@ -34,7 +34,7 @@ module Clockwork
 
   # Ensure that sphinx's searchd is running and reindex
   every(1.hour, 'reindex sphinx') do
-    FullTextSearch.new.delay.index_and_start unless Rails.env.test? || Rails.env.development?
+    FullTextIndexJob.perform_later
   end
 
   every(1.hour, 'refresh issues') do

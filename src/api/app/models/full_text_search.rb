@@ -1,7 +1,3 @@
-# Make sure that our Package model is properly
-# autoloaded before starting (to avoid problems in clockwork)
-require 'package'
-
 class FullTextSearch
   include ActiveModel::Serializers::JSON
 
@@ -66,38 +62,6 @@ class FullTextSearch
     { 'text' => nil, 'classes' => nil, 'fields' => nil, 'attrib_type_id' => nil,
       'issue_tracker_name' => nil, 'issue_name' => nil,
       'result' => nil, 'total_entries' => nil }
-  end
-
-  # Index Sphinx (it will work both with a running or stopped searchd) and
-  # ensure that searchd is running right afterward.
-  #
-  # This method use 'puts' for logging since it relies on
-  # ThinkingSphinx::RakeInterface which also uses 'puts'
-  #
-  # return [Boolean]  true if no exception is raised
-  def index_and_start
-    # Ensure the connection
-    ApplicationRecord.connection_pool.with_connection do |_|
-      # Use the RakeInterface provided by ThinkingSphinx
-      interface = ThinkingSphinx::RakeInterface.new
-
-      begin
-        interface.index
-      rescue => e
-        # Something failed, let's try again
-        logger.info "Indexing failed: #{e.message}"
-        logger.info "Retying indexing."
-        interface.index
-      end
-      begin
-        interface.start
-      rescue ThinkingSphinx::SphinxAlreadyRunning, RuntimeError => e
-        # Most likely, this means that searchd is already running.
-        # Nothing to worry about
-        Rails.logger.info "Handled exception: #{e.message}"
-      end
-    end
-    true
   end
 
   private
