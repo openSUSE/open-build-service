@@ -442,9 +442,9 @@ class Webui::RequestController < Webui::WebuiController
           req.save!
         end
       end
-    rescue APIException => e
-      Airbrake.notify(e, { failed_job: "Failed to forward BsRequest '#{params[:number]}'" })
-      flash[:error] = "Unable to forward submit: #{e.message}"
+    rescue APIException, ActiveRecord::RecordInvalid => e
+      Airbrake.notify("Failed to forward BsRequest: #{@req.number}: #{req} #{e}")
+      flash[:error] = "Unable to forward submit request: #{e.message}"
       return
     end
 
