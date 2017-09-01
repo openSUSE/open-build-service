@@ -590,6 +590,7 @@ class BsRequest < ApplicationRecord
         review_comment = ""
         history_class = HistoryElement::ReviewAccepted
       end
+      review.reviewer = User.current.try(:login)
       review.save!
 
       review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
@@ -757,7 +758,8 @@ class BsRequest < ApplicationRecord
         by_group:   opts[:by_group],
         by_project: opts[:by_project],
         by_package: opts[:by_package],
-        creator:    User.current.login
+        creator:    User.current.try(:login),
+        reviewer:    User.current.try(:login)
       )
       save!
 

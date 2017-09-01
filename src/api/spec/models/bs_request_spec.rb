@@ -64,9 +64,35 @@ RSpec.describe BsRequest do
       it 'updates the old review state to accepted and assigns it' do
         expect(review.state).to eq(:accepted)
         expect(review.review_assigned_to).to eq(request.reviews.last)
+        expect(review.reviewer).to eq(reviewer.login)
         expect(review.history_elements.last.type).to eq('HistoryElement::ReviewAccepted')
       end
     end
+  end
+
+  describe '#addreview' do
+    let(:reviewer) { create(:confirmed_user) }
+    let(:group) { create(:group)}
+    let!(:request) { create(:bs_request, creator: reviewer.login) }
+
+    before do
+      login(reviewer)
+      request.addreview({ by_group: group.title })
+    end
+
+    subject { Review.last }
+    let(:history_element) { HistoryElement::RequestReviewAdded.last }
+
+    it { expect(subject.state).to eq(:new) }
+    it { expect(subject.by_group).to eq(group.title) }
+    it { expect(subject.reviewer).to eq(reviewer.login) }
+    it { expect(subject.creator).to eq(reviewer.login) }
+
+    it { expect(history_element.request).to eq(request) }
+    it { expect(history_element.user).to eq(reviewer) }
+
+    it { expect(request.state).to eq(:review)}
+    it { expect(request.commenter).to eq(reviewer.login)}
   end
 
   describe '#changestate' do

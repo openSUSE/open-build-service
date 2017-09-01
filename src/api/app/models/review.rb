@@ -160,7 +160,7 @@ class Review < ApplicationRecord
   def _get_attributes
     attributes = { state: state.to_s }
     # old requests didn't have who and when
-    attributes[:when] = created_at.strftime('%Y-%m-%dT%H:%M:%S') if reviewer
+    attributes[:when] = created_at.strftime('%Y-%m-%dT%H:%M:%S')
     attributes[:who] = reviewer if reviewer
     attributes[:by_group] = by_group if by_group
     attributes[:by_user] = by_user if by_user
