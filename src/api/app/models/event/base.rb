@@ -7,12 +7,15 @@ module Event
     self.inheritance_column = 'eventtype'
     self.table_name = 'events'
 
+    before_save :shorten_payload_if_necessary
+
     class << self
       attr_accessor :description, :raw_type
       @payload_keys = nil
       @create_jobs = nil
       @classnames = nil
       @receiver_roles = nil
+      @shortenable_key = nil
 
       def notification_events
         %w(
@@ -38,6 +41,14 @@ module Event
 
         @payload_keys ||= []
         @payload_keys += keys
+      end
+
+      # FIXME: Find a way to get rid of these setter/getter methods for all these class variables
+      def shortenable_key(key = nil)
+        # this function serves both for reading and setting
+        return @shortenable_key if key.nil?
+
+        @shortenable_key = key
       end
 
       def create_jobs(*keys)
@@ -72,6 +83,10 @@ module Event
     # just for convenience
     def payload_keys
       self.class.payload_keys
+    end
+
+    def shortenable_key
+      self.class.shortenable_key
     end
 
     def create_jobs
@@ -256,6 +271,24 @@ module Event
       p = ::Package.find_by_project_and_name(project, package) if package
       p ||= ::Project.find_by_name(project)
       obj_roles(p, role)
+    end
+
+    private
+
+    def shorten_payload_if_necessary
+      return if shortenable_key.nil? # If no shortenable_key is set then we cannot shorten the payload
+
+      max_length = 65535
+      payload_length = attributes_before_type_cast['payload'].length
+
+      return if payload_length <= max_length
+
+      # Shorten the payload so it will fit into the database column
+      char_limit = (payload_length - max_length) + 1
+      payload[shortenable_key.to_s] = payload[shortenable_key.to_s][0..-char_limit]
+
+      # Re-serialize the payload now that its been shortened
+      set_payload(payload, payload_keys)
     end
   end
 end
