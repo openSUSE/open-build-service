@@ -14,7 +14,15 @@ OBSApi::Application.configure do
   # Show full error reports and disable caching
   config.consider_all_requests_local       = true
   config.action_controller.perform_caching = true
-  config.cache_store = :dalli_store, '127.0.0.1:11211', {namespace: 'obs-api', expires_in: 1.hour }
+
+  # Use memcache for cache/session storage
+  if CONFIG['memcached_host']
+    config.cache_store = :mem_cache_store, CONFIG['memcached_host']
+    config.session_store = :mem_cache_store, CONFIG['memcached_host']
+  else
+    config.cache_store = :mem_cache_store
+    config.session_store = :mem_cache_store
+  end
 
   # Don't care if the mailer can't send
   config.action_mailer.raise_delivery_errors = false
@@ -53,7 +61,12 @@ OBSApi::Application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
-  config.peek.adapter = :memcache
+  # memcache store for peek
+  client = CONFIG['memcached_host'].nil? ? Dalli::Client.new : Dalli::Client.new(CONFIG['memcached_host'].to_s)
+  config.peek.adapter = :memcache, {
+    client: client
+  }
+
   # Bullet configuration
   config.after_initialize do
     Bullet.enable = true

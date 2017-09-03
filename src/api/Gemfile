@@ -71,7 +71,7 @@ group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
   # as memcache client
-  gem 'dalli', require: false
+  gem 'dalli'
   # to document ruby code
   gem 'rdoc'
   # to not rely on cron+rake
