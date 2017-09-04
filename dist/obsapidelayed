@@ -69,10 +69,12 @@ case "$1" in
         run_in_api script/delayed_job.api.rb --queue=project_log_rotate start -i 1040
         run_in_api script/delayed_job.api.rb --queue=consistency_check start -i 1050
         rc_status -v
+        echo -n "Starting OBS searchd daemon "
+        run_in_api rails.ruby2.4 ts:start
+        rc_status -v
         echo -n "Starting OBS api clock daemon "
         run_in_api $CLOCKWORKD --log-dir=log -l -c config/clock.rb start
         rc_status -v
-        # searchd got started by clockd
         ;;
     stop)
         echo -n "Shutting down OBS api delayed job handler "
@@ -106,8 +108,8 @@ case "$1" in
     clean-restart)
         $0 stop
         rm -f $API_ROOT/db/sphinx/production/*
-        run_in_api rails.ruby2.4 ts:index
         $0 start
+        run_in_api rails.ruby2.4 ts:index
 
         rc_status
         ;;
