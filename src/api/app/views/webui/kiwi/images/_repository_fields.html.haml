@@ -10,38 +10,43 @@
       %h2.box-header #{f.object.source_path.present? ? 'Edit' : 'Add'} repository
 
       .dialog-content
-        %p
-          = f.hidden_field :order
-          = f.label :repo_type, 'Type:'
-          = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, { data: {default: f.object.repo_type }}
-          = f.label :priority, 'Priority:'
-          = f.number_field :priority, maxlength: 4, style: "width: 50px", in: 0...99, data: { default: f.object.priority }
-          = f.label :alias, 'Alias:'
-          = f.text_field :alias,  style: "width: 170px", data: { default: f.object.alias }
-        %p
-          = f.label :source_path, 'Source:'
-          = f.text_field :source_path, data: { default: f.object.source_path }
-          %span.small-text
-            Write a valid source path
+        .normal-mode
+          %p
+            This is the normal mode!
+        .expert-mode.hidden
+          %p
+            = f.hidden_field :order
+            = f.label :repo_type, 'Type:'
+            = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, { data: {default: f.object.repo_type }}
+            = f.label :priority, 'Priority:'
+            = f.number_field :priority, maxlength: 4, style: "width: 50px", in: 0...99, data: { default: f.object.priority }
+            = f.label :alias, 'Alias:'
+            = f.text_field :alias,  style: "width: 170px", data: { default: f.object.alias }
+          %p
+            = f.label :source_path, 'Source:'
+            = f.text_field :source_path, data: { default: f.object.source_path }
+            %span.small-text
+              Write a valid source path
 
-        %p
-          = f.label :username, 'User:'
-          = f.text_field :username,  style: "width: 170px", data: { default: f.object.username }
-          = f.label :password, 'Password:'
-          = f.text_field :password,  style: "width: 170px", data: { default: f.object.password }
+          %p
+            = f.label :username, 'User:'
+            = f.text_field :username,  style: "width: 170px", data: { default: f.object.username }
+            = f.label :password, 'Password:'
+            = f.text_field :password,  style: "width: 170px", data: { default: f.object.password }
 
-      %p
-        = f.check_box :prefer_license, data: { default: f.object.prefer_license }
-        = f.label :prefer_license
-        = f.check_box :imageinclude, data: { default: f.object.imageinclude }
-        = f.label :imageinclude, 'Image include'
-        = f.check_box :replaceable, data: { default: f.object.replaceable }
-        = f.label :replaceable
+          %p
+            = f.check_box :prefer_license, data: { default: f.object.prefer_license }
+            = f.label :prefer_license
+            = f.check_box :imageinclude, data: { default: f.object.imageinclude }
+            = f.label :imageinclude, 'Image include'
+            = f.check_box :replaceable, data: { default: f.object.replaceable }
+            = f.label :replaceable
 
       %p#flash-messages
         %p.ui-state-error.ui-widget-shadow.hidden
           The source path can not be empty!
 
       .dialog-buttons
+        = link_to('Expert Mode', '#', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle')
         = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog')
         = link_to('Continue', '#', title: 'Continue', class: 'close-dialog')

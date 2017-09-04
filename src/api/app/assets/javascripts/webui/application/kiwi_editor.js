@@ -29,7 +29,14 @@ function enableSave(){
 function editDialog(){
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.dialog');
+  var normal_mode = fields.find('.normal-mode');
+  var expert_mode = fields.find('.expert-mode');
+
   dialog.removeClass('hidden');
+  normal_mode.show();
+  expert_mode.hide();
+  updateModeButton(fields);
+
   $('.overlay').show();
 }
 
@@ -122,6 +129,23 @@ function addDefault(dialog) {
   });
 }
 
+function repositoryModeToggle() {
+  var fields = $(this).parents('.nested-fields');
+
+  var normal_mode = fields.find('.normal-mode');
+  var expert_mode = fields.find('.expert-mode');
+  normal_mode.toggle();
+  expert_mode.toggle();
+
+  updateModeButton(fields);
+}
+
+function updateModeButton(fields) {
+  var toggle_mode_button = fields.find('.kiwi-repository-mode-toggle');
+  var expert_mode = fields.find('.expert-mode');
+  toggle_mode_button.text(expert_mode.is(":visible") ? "Basic Mode" : "Expert Mode");
+}
+
 function hoverListItem() {
   $(this).find('.kiwi_actions').toggle();
 }
@@ -142,6 +166,7 @@ $(document).ready(function(){
   $('.repository_edit, .package_edit').click(editDialog);
   $('#kiwi-repositories-list .close-dialog, #kiwi-packages-list .close-dialog').click(closeDialog);
   $('.revert-dialog').click(revertDialog);
+  $('.kiwi-repository-mode-toggle').click(repositoryModeToggle);
   $('#kiwi-repositories-list .kiwi_list_item, #kiwi-packages-list .kiwi_list_item').hover(hoverListItem, hoverListItem);
 
   // After inserting new repositories add the Callbacks
@@ -157,6 +182,7 @@ $(document).ready(function(){
     $(addedFields).find('.repository_edit').click(editDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
+    $(addedFields).find('.kiwi-repository-mode-toggle').click(repositoryModeToggle);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
   });
 
