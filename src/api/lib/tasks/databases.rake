@@ -1,5 +1,3 @@
-require_relative '../../app/models/application_record'
-
 module Rake
   module TaskManager
     def redefine_task(task_class, *args, &block)
@@ -123,54 +121,11 @@ namespace :db do
     Rake::Task["db:seed"].invoke
   end
 
-  desc "Convert existing notifications to use JSON serialization for the event_payload column"
-  task convert_notifications_serialization: :environment do
-    NotificationForRakeTask.transaction do
-      NotificationForRakeTask.all.find_each do |notification|
-        json = yaml_to_json(notification.event_payload)
-        notification.update_attributes!(event_payload: json)
-      end
-    end
-  end
-end
-
-def yaml_to_json(yaml)
-  YAML.safe_load(yaml)
-      .traverse do |value|
-        if value.is_a? String
-          value.force_encoding('UTF-8')
-        else
-          value
-        end
-      end
-      .to_json
-end
-
-# Notification model only for migration in order to avoid errors coming from the serialization in the actual Notification model
-class NotificationForRakeTask < ::ApplicationRecord
-  self.table_name = 'notifications'
-  self.inheritance_column = :_type_disabled
-end
-
-# Hash extension is used to run force_encoding against each string value in the hash
-# in rake tasks to convert yaml to json serialisation for event payloads
-class Hash
-  def traverse(&block)
-    traverse_value(self, &block)
-  end
-
-  private
-
-  def traverse_value(value, &block)
-    if value.is_a? Hash
-      value.each { |key, sub_value| value[key] = traverse_value(sub_value, &block) }
-
-    elsif value.is_a? Array
-      value.map { |element| traverse_value(element, &block) }
-
-    else
-      yield(value)
-
-    end
+  desc 'Migrate the database (options: VERSION=x, VERBOSE=false, SCOPE=blog)'
+  task migrate: :environment do
+    puts ''
+    puts 'warning: db:migrate only migrates your database structure, not the data contained in it.'
+    puts 'warning for migrating your data run data:migrate'
+    puts ''
   end
 end
