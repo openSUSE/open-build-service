@@ -58,6 +58,7 @@ GEM
     arel (8.0.0)
     ast (2.3.0)
     atomic (1.1.99)
+    bcrypt (3.1.11)
     builder (3.2.3)
     bullet (5.6.1)
       activesupport (>= 3.0.0)
@@ -412,6 +413,7 @@ DEPENDENCIES
   acts_as_tree
   airbrake
   annotate
+  bcrypt
   bullet
   bundler
   capybara

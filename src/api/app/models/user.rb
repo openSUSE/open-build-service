@@ -20,10 +20,11 @@ class UserBasicStrategy
 end
 
 class User < ApplicationRecord
-  include ActiveModel::Dirty
   include CanRenderModel
 
-  PASSWORD_HASH_TYPES = ['md5', 'md5crypt', 'sha256crypt']
+  # disable validations because there can be users which don't have a bcrypt
+  # password yet. this is for backwar compatibility
+  has_secure_password validations: false
 
   has_many :watched_projects, dependent: :destroy, inverse_of: :user
   has_many :groups_users, inverse_of: :user
@@ -56,8 +57,7 @@ class User < ApplicationRecord
 
   scope :all_without_nobody, -> { where("login != ?", nobody_login) }
 
-  validates :login, :password, :password_hash_type, :state,
-            presence: { message: 'must be given' }
+  validates :login, :state, presence: { message: 'must be given' }
 
   validates :login,
             uniqueness: { message: 'is the name of an already existing user.' }
@@ -80,36 +80,10 @@ class User < ApplicationRecord
                       message:     'must be a valid email address.',
                       allow_blank: true }
 
-  # We want to validate the format of the password and only allow alphanumeric
-  # and some punctiation/base64 characters.
-  # The format must only be checked if the password has been set and the record
-  # has not been stored yet.
-  validates :password,
-            format: { with:    %r{\A[\w\.\- /+=!?(){}|~*]+\z},
-                      message: 'must not contain invalid characters.',
-                      if:      Proc.new { |user| user.password_changed? && !user.password_was.nil? } }
-
-  # We want the password to have between 6 and 64 characters.
-  # The length must only be checked if the password has been set and the record
-  # has not been stored yet.
-  validates :password,
-            length: { within:    6..64,
-                      too_long:  'must have between 6 and 64 characters.',
-                      too_short: 'must have between 6 and 64 characters.',
-                      if:        Proc.new { |user| user.password_changed? && !user.password_was.nil? } }
-
-  validates :password_hash_type, inclusion: { in:      PASSWORD_HASH_TYPES,
-                                              message: "%{value} must be in the list of hash types." }
-
-  validate :password_changes_with_hash_type
-  # Checks that the password got updated after password hash type changed
-  def password_changes_with_hash_type
-    # rubocop:disable Style/GuardClause
-    if password_hash_type_changed? && !password_was.nil? && !password_changed?
-      errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
-    end
-    # rubocop:enable Style/GuardClause
-  end
+  # we disabled has_secure_password's validations. therefore we need to do manual validations
+  validate :password_validation
+  validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED }, allow_nil: true
+  validates :password, confirmation: true, allow_blank: true
 
   after_create :create_home_project
   def create_home_project
@@ -144,19 +118,6 @@ class User < ApplicationRecord
     self.login_failure_count = 0 if login_failure_count.nil?
   end
 
-  # After validation, the password should be encrypted
-  after_validation(on: :create) do
-    if errors.empty? && password_changed? && !password_was.nil?
-      # generate a new 10-char long hash only Base64 encoded so things are compatible
-      self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9]
-
-      # write encrypted password to object property
-      write_attribute(:password, hash_string(password))
-    else
-      logger.debug "Error - skipping to create user #{errors.inspect} #{password} #{password_was}"
-    end
-  end
-
   # the default state of a user based on the api configuration
   def self.default_user_state
     ::Configuration.registration == 'confirmation' ? 'unconfirmed' : 'confirmed'
@@ -183,10 +144,9 @@ class User < ApplicationRecord
     end
 
     user = find_by_login(login)
-    # If the user could be found and the passwords equal then return the user
-    if user && user.password_equals?(password)
-      user.mark_login!
 
+    if user.try(:authenticate, password)
+      user.mark_login!
       return user
     end
 
@@ -297,36 +257,6 @@ class User < ApplicationRecord
     errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
   end
 
-  # Overriding the default accessor to ensure ActiveModel::Dirty get's notified
-  # when password_hash_type changes. Changing the password hash type is only
-  # possible if a new password has been provided.
-  def password_hash_type=(value)
-    password_hash_type_will_change!
-    write_attribute(:password_hash_type, value)
-  end
-
-  # Overriding the default accessor to ensure ActiveModel::Dirty get's notified
-  # about changes of password attribute
-  def password=(value)
-    password_will_change!
-    write_attribute(:password, value)
-  end
-
-  # Method to update the password and confirmation at the same time. Call
-  # this method when you update the password from code  - which should really
-  # only be used when data comes from forms.
-  #
-  # A ussage example:
-  #
-  #   user = User.find(1)
-  #   user.update_password "n1C3s3cUreP4sSw0rD"
-  #   user.save
-  #
-  def update_password(pass)
-    password_will_change!
-    self.password = hash_string(pass)
-  end
-
   # This method returns true if the user is assigned the role with one of the
   # role titles given as parameters. False otherwise.
   def has_role?(*role_titles)
@@ -358,8 +288,25 @@ class User < ApplicationRecord
 
   # This method checks whether the given value equals the password when
   # hashed with this user's password hash type. Returns a boolean.
-  def password_equals?(value)
-    hash_string(value) == password
+  def deprecated_password_equals?(value)
+    hash_string(value) == deprecated_password
+  end
+
+  def authenticate(unencrypted_password)
+    # for users without a bcrypt password we need an extra check and convert
+    # the password to a bcrypt one
+    if deprecated_password
+      if deprecated_password_equals?(unencrypted_password)
+        update_attributes(password: unencrypted_password, deprecated_password: nil, deprecated_password_salt: nil, deprecated_password_hash_type: nil)
+        return self
+      end
+
+      return false
+    end
+
+    # it seems that the user is not using a deprecated password so we use bcrypt's
+    # #authenticate method
+    super
   end
 
   # Returns true if the the state transition from "from" state to "to" state
@@ -899,6 +846,11 @@ class User < ApplicationRecord
 
   private
 
+  def password_validation
+    return if password_digest || deprecated_password
+    errors.add(:password, 'can\'t be blank')
+  end
+
   def can_modify_project_internal(project, ignore_lock)
     # The ordering is important because of the lock status check
     return false if !ignore_lock && project.is_locked?
@@ -915,10 +867,10 @@ class User < ApplicationRecord
   def hash_string(value)
     crypt2index = { "md5crypt"    => 1,
                     "sha256crypt" => 5 }
-    if password_hash_type == "md5"
-      Digest::MD5.hexdigest(value + password_salt)
-    elsif crypt2index.keys.include?(password_hash_type)
-      value.crypt("$#{crypt2index[password_hash_type]}$#{password_salt}$").split("$")[3]
+    if deprecated_password_hash_type == "md5"
+      Digest::MD5.hexdigest(value + deprecated_password_salt)
+    elsif crypt2index.keys.include?(deprecated_password_hash_type)
+      value.crypt("$#{crypt2index[deprecated_password_hash_type]}$#{deprecated_password_salt}$").split("$")[3]
     end
   end
 
@@ -935,23 +887,24 @@ end
 #
 # Table name: users
 #
-#  id                  :integer          not null, primary key
-#  created_at          :datetime
-#  updated_at          :datetime
-#  last_logged_in_at   :datetime
-#  login_failure_count :integer          default(0), not null
-#  login               :text(65535)      indexed
-#  email               :string(200)      default(""), not null
-#  realname            :string(200)      default(""), not null
-#  password            :string(100)      default(""), not null, indexed
-#  password_hash_type  :string(20)       default("md5"), not null
-#  password_salt       :string(10)       default("1234512345"), not null
-#  adminnote           :text(65535)
-#  state               :string(11)       default("unconfirmed")
-#  owner_id            :integer
+#  id                            :integer          not null, primary key
+#  created_at                    :datetime
+#  updated_at                    :datetime
+#  last_logged_in_at             :datetime
+#  login_failure_count           :integer          default(0), not null
+#  login                         :text(65535)      indexed
+#  email                         :string(200)      default(""), not null
+#  realname                      :string(200)      default(""), not null
+#  password_digest               :string(255)
+#  deprecated_password           :string(255)      indexed
+#  deprecated_password_hash_type :string(255)
+#  deprecated_password_salt      :string(255)
+#  adminnote                     :text(65535)
+#  state                         :string(11)       default("unconfirmed")
+#  owner_id                      :integer
 #
 # Indexes
 #
 #  users_login_index     (login) UNIQUE
-#  users_password_index  (password)
+#  users_password_index  (deprecated_password)
 #

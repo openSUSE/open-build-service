@@ -24,9 +24,27 @@ RSpec.describe PersonController, vcr: false do
   end
 
   describe 'POST #post_userinfo' do
+    before do
+      login user
+    end
+
+    context 'when using default authentication' do
+      let!(:old_password) { user.password_digest }
+
+      before do
+        request.env["RAW_POST_DATA"] = "password_has_changed"
+        post :post_userinfo, params: { login: user.login, cmd: 'change_password', format: :xml }
+
+        user.reload
+      end
+
+      it 'changes the password' do
+        expect(old_password).to_not eq(user.password_digest)
+      end
+    end
+
     context 'when in LDAP mode' do
       before do
-        login user
         stub_const('CONFIG', CONFIG.merge({ 'ldap_mode' => :on }))
         post :post_userinfo, params: { login: user.login, cmd: 'change_password', format: :xml }
       end

@@ -73,7 +73,7 @@ RSpec.describe Webui::UserController do
     it { is_expected.to render_template("webui/user/edit") }
   end
 
-  describe "POST #do_login" do
+  shared_examples "login" do
     before do
       request.env["HTTP_REFERER"] = search_url # Needed for the redirect_to(root_url)
     end
@@ -100,6 +100,18 @@ RSpec.describe Webui::UserController do
       post :do_login, params: { username: user.login, password: 'buildservice' }
       expect(User.current).to eq(user)
       expect(session[:login]).to eq(user.login)
+    end
+  end
+
+  describe "POST #do_login" do
+    context "with deprecated password" do
+      let(:user) { create(:user_deprecated_password, state: :confirmed) }
+
+      it_behaves_like "login"
+    end
+
+    context "with bcrypt password" do
+      it_behaves_like "login"
     end
   end
 

@@ -1115,15 +1115,16 @@ CREATE TABLE `users` (
   `login` text COLLATE utf8_bin,
   `email` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `realname` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `password` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `password_hash_type` varchar(20) COLLATE utf8_bin NOT NULL DEFAULT 'md5',
-  `password_salt` varchar(10) CHARACTER SET utf8 NOT NULL DEFAULT '1234512345',
+  `password_digest` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `deprecated_password` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `deprecated_password_hash_type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `deprecated_password_salt` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `adminnote` text CHARACTER SET utf8,
   `state` enum('unconfirmed','confirmed','locked','deleted','subaccount') COLLATE utf8_bin DEFAULT 'unconfirmed',
   `owner_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)) USING BTREE,
-  KEY `users_password_index` (`password`) USING BTREE
+  KEY `users_password_index` (`deprecated_password`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `watched_projects` (
@@ -1245,6 +1246,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170821110918'),
 ('20170821110941'),
 ('20170821110946'),
+('20170905081525'),
 ('20170905101113'),
 ('20170911142301'),
 ('20170912140257'),

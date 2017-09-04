@@ -195,28 +195,24 @@ class Webui::UserController < Webui::WebuiController
       return
     end
 
-    # check the valid of the params
-    unless User.current.password_equals?(params[:password])
-      errmsg = 'The value of current password does not match your current password. Please enter the password and try again.'
-    end
-    if params[:new_password] != params[:repeat_password]
-      errmsg = 'The passwords do not match, please try again.'
-    end
-    if params[:password] == params[:new_password]
-      errmsg = 'The new password is the same as your current password. Please enter a new password.'
-    end
-    if errmsg
-      flash[:error] = errmsg
-      redirect_to action: :show, user: User.current
+    user = User.current
+
+    if user.authenticate(params[:password])
+      user.password = params[:new_password]
+      user.password_confirmation = params[:repeat_password]
+
+      if user.save
+        flash[:notice] = "Your password has been changed successfully."
+        redirect_to action: :show, user: user
+      else
+        flash[:error] = "The password could not be changed. #{user.errors.full_messages.to_sentence}"
+        redirect_back fallback_location: root_path
+      end
+    else
+      flash[:error] = "The value of current password does not match your current password. Please enter the password and try again."
+      redirect_back fallback_location: root_path
       return
     end
-
-    user = User.current
-    user.update_password params[:new_password]
-    user.save!
-
-    flash[:success] = 'Your password has been changed successfully.'
-    redirect_to action: :show, user: User.current
   end
 
   def autocomplete

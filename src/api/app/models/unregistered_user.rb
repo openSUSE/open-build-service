@@ -48,9 +48,10 @@ class UnregisteredUser < User
     state = ::Configuration.registration == 'allow' ? "confirmed" : "unconfirmed"
 
     newuser = User.create(
-        login: opts[:login],
-        password: opts[:password],
-        email: opts[:email] )
+        login:                 opts[:login],
+        password:              opts[:password],
+        email:                 opts[:email]
+    )
 
     newuser.realname = opts[:realname] || ""
     newuser.state = state
@@ -73,23 +74,24 @@ end
 #
 # Table name: users
 #
-#  id                  :integer          not null, primary key
-#  created_at          :datetime
-#  updated_at          :datetime
-#  last_logged_in_at   :datetime
-#  login_failure_count :integer          default(0), not null
-#  login               :text(65535)      indexed
-#  email               :string(200)      default(""), not null
-#  realname            :string(200)      default(""), not null
-#  password            :string(100)      default(""), not null, indexed
-#  password_hash_type  :string(20)       default("md5"), not null
-#  password_salt       :string(10)       default("1234512345"), not null
-#  adminnote           :text(65535)
-#  state               :string(11)       default("unconfirmed")
-#  owner_id            :integer
+#  id                            :integer          not null, primary key
+#  created_at                    :datetime
+#  updated_at                    :datetime
+#  last_logged_in_at             :datetime
+#  login_failure_count           :integer          default(0), not null
+#  login                         :text(65535)      indexed
+#  email                         :string(200)      default(""), not null
+#  realname                      :string(200)      default(""), not null
+#  password_digest               :string(255)
+#  deprecated_password           :string(255)      indexed
+#  deprecated_password_hash_type :string(255)
+#  deprecated_password_salt      :string(255)
+#  adminnote                     :text(65535)
+#  state                         :string(11)       default("unconfirmed")
+#  owner_id                      :integer
 #
 # Indexes
 #
 #  users_login_index     (login) UNIQUE
-#  users_password_index  (password)
+#  users_password_index  (deprecated_password)
 #
