@@ -81,6 +81,10 @@ function closeDialog() {
   fields.find(".ui-state-error").addClass('hidden');
   dialog.removeClass('new_element');
 
+  if (!canSave) {
+    enableSave();
+  }
+
   hideOverlay(dialog);
 }
 
@@ -132,7 +136,6 @@ $(document).ready(function(){
   });
 
   // Enable save button
-  $('#kiwi-image-update-form').change(enableSave);
   $('.remove_fields').click(enableSave);
 
   // Edit dialog for Repositories and Packages
