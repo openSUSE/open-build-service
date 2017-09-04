@@ -124,8 +124,6 @@ echo "Setting up signd so bs_signer can be used..."
 cd / && tar xf /vagrant/dist/obs-signd-conf.tar.bz2
 systemctl enable haveged
 systemctl start haveged
-systemctl enable obssignd
-systemctl start obssignd
 
 # configure_database
 copy_example_file database.yml || return 1

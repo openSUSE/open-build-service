@@ -71,10 +71,11 @@ if [ -n "$REDIR_LOG" ]; then
   APPEND_ARR[5]=">$REDIR_LOG/bs_publish.log 2>&1"
   APPEND_ARR[6]=">$REDIR_LOG/bs_service.log 2>&1"
   APPEND_ARR[7]=">$REDIR_LOG/bs_signer.log 2>&1"
+  APPEND_ARR[8]=">$REDIR_LOG/signd.log 2>&1"
   w_count=1
   while [ $w_count -le $WORKER_N ]
   do 
-    index=6+$w_count
+    index=8+$w_count
     APPEND_ARR[$index]=">$REDIR_LOG/bs_worker_$w_count.log 2>&1"
     let w_count=$w_count+1
   done
@@ -103,6 +104,7 @@ if [ ! -f $GIT_HOME/src/backend/BSConfig.pm ]; then
 fi
 perl -pi -e 's/our \$bsserviceuser.*/our \$bsserviceuser="obsrun";/' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/my \$hostname.*/my \$hostname="localhost";/' $GIT_HOME/src/backend/BSConfig.pm
+perl -pi -e 's/my \$frontend =.*/my \$frontend="frontend";/' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/.*our \$gpg_standard_key.*/our \$gpg_standard_key="\/etc\/ourkeyfile.asc";/' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/.*our \$sign .*/our \$sign="\/usr\/bin\/sign";/' $GIT_HOME/src/backend/BSConfig.pm
 
@@ -132,6 +134,9 @@ COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_service ${APPEND_ARR[6]} &"
 eval $COMMAND_STRING
 echo "Starting bs_signer"
 COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_signer ${APPEND_ARR[7]} &"
+eval $COMMAND_STRING
+echo "Starting signd"
+COMMAND_STRING="sudo /usr/sbin/signd ${APPEND_ARR[8]} &"
 eval $COMMAND_STRING
 w_count=1
 while [ $w_count -le $WORKER_N ]
