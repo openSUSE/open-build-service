@@ -162,6 +162,18 @@ sub findcommit {
   return undef;
 }
 
+sub findcommit_meta {
+  my ($bc, $projid, $packid, $ti, $srcmd5) = @_;
+  my $revs = [ BSFileDB::fdb_getall("$projectsdir/$projid.pkg/$packid.mrev", $srcrevlay) ];
+  for my $rev (reverse @$revs) {
+    next if defined($srcmd5) && $rev->{'srcmd5'} ne $srcmd5;
+    if ($ti >= $rev->{'time'}) {
+      return { %$rev, 'project' => $projid, 'package' => $packid };
+    }
+  }
+  return undef;
+}
+
 # find the local commit for an expanded revision
 sub getlocalrev {
   my ($bc, $rev, $ti, $files, $linkinfo, $nofallback) = @_;
@@ -333,11 +345,15 @@ sub blame {
 
   # get local commit
   my $lrev = $rev;
-  if (length($rev->{'rev'}) >= 16) {
+  if (!defined($rev->{'rev'}) || length($rev->{'rev'}) >= 16) {
     my $olinkinfo = {};
-    my $ofiles = BSRevision::lsrev($rev, $olinkinfo);
-    $lrev = getlocalrev($bc, $rev, $now, $ofiles, $olinkinfo);
-    die("could not get local commit for $rev->{'rev'}\n") unless $lrev;
+    if ($meta) {
+      $lrev = findcommit_meta($bc, $rev->{'project'}, $rev->{'package'}, $now, $rev->{'srcmd5'});
+    } else {
+      my $ofiles = BSRevision::lsrev($rev, $olinkinfo);
+      $lrev = getlocalrev($bc, $rev, $now, $ofiles, $olinkinfo);
+    }
+    die("could not get local commit for $rev->{'srcmd5'}\n") unless $lrev;
   }
 
   # get (expanded) files
