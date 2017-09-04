@@ -13,7 +13,7 @@
         %p
           = f.hidden_field :order
           = f.label :repo_type, 'Type:'
-          = f.select :repo_type, options_for_select(Kiwi::Repository::REPO_TYPES), {}, { data: {default: f.object.repo_type }}
+          = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, { data: {default: f.object.repo_type }}
           = f.label :priority, 'Priority:'
           = f.number_field :priority, maxlength: 4, style: "width: 50px", in: 0...99, data: { default: f.object.priority }
           = f.label :alias, 'Alias:'
