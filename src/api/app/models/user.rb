@@ -255,11 +255,6 @@ class User < ApplicationRecord
         return user
       end
 
-      # still in LDAP mode, user authentificated, but not existing in OBS yet
-      if ::Configuration.registration == "deny"
-        logger.debug( "No user found in database, creation disabled" )
-        return
-      end
       logger.debug( "No user found in database, creating" )
       logger.debug( "Email: #{ldap_info[0]}" )
       logger.debug( "Name : #{ldap_info[1]}" )
