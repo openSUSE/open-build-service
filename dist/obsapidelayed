@@ -59,7 +59,7 @@ rc_reset
 
 case "$1" in
     start)
-	echo -n "Starting OBS api delayed job handler "
+        echo -n "Starting OBS api delayed job handler "
         run_in_api script/delayed_job.api.rb --queue=quick start -n $NUM
         run_in_api script/delayed_job.api.rb --queue=releasetracking start -i 1000
         run_in_api script/delayed_job.api.rb --queue=issuetracking start -i 1010
@@ -68,14 +68,16 @@ case "$1" in
         run_in_api script/delayed_job.api.rb --queue=default start -i 1030
         run_in_api script/delayed_job.api.rb --queue=project_log_rotate start -i 1040
         run_in_api script/delayed_job.api.rb --queue=consistency_check start -i 1050
-	rc_status -v
-	echo -n "Starting OBS api clock daemon "
+        rc_status -v
+        echo -n "Starting OBS searchd daemon "
+        run_in_api rails.ruby2.4 ts:start
+        rc_status -v
+        echo -n "Starting OBS api clock daemon "
         run_in_api $CLOCKWORKD --log-dir=log -l -c config/clock.rb start
-	rc_status -v
-        # searchd got started by clockd
-	;;
+        rc_status -v
+        ;;
     stop)
-	echo -n "Shutting down OBS api delayed job handler "
+        echo -n "Shutting down OBS api delayed job handler "
         run_in_api script/delayed_job.api.rb --queue=quick stop -n $NUM
         run_in_api script/delayed_job.api.rb --queue=releasetracking stop -i 1000
         run_in_api script/delayed_job.api.rb --queue=issuetracking stop -i 1010
@@ -83,59 +85,59 @@ case "$1" in
         run_in_api script/delayed_job.api.rb --queue=default stop -i 1030
         run_in_api script/delayed_job.api.rb --queue=project_log_rotate stop -i 1040
         run_in_api script/delayed_job.api.rb --queue=consistency_check stop -i 1050
-	rc_status -v
-	echo -n "Shutting down OBS api clock daemon "
+        rc_status -v
+        echo -n "Shutting down OBS api clock daemon "
         run_in_api $CLOCKWORKD -l -c config/clock.rb stop
-	rc_status -v
-	echo -n "Shutting down OBS searchd daemon "
+        rc_status -v
+        echo -n "Shutting down OBS searchd daemon "
         run_in_api rails.ruby2.4 ts:stop
-	rc_status -v
-	;;
+        rc_status -v
+        ;;
     try-restart|condrestart)
-	if test "$1" = "condrestart"; then
-		echo "${attn} Use try-restart ${done}(LSB)${attn} rather than condrestart ${warn}(RH)${norm}"
-	fi
-	$0 status
-	if test $? = 0; then
-		$0 restart
-	else
-		rc_reset	# Not running is not a failure.
-	fi
-	rc_status
-	;;
+        if test "$1" = "condrestart"; then
+            echo "${attn} Use try-restart ${done}(LSB)${attn} rather than condrestart ${warn}(RH)${norm}"
+        fi
+        $0 status
+        if test $? = 0; then
+            $0 restart
+        else
+            rc_reset # Not running is not a failure.
+        fi
+        rc_status
+        ;;
     clean-restart)
-	$0 stop
+        $0 stop
         rm -f $API_ROOT/db/sphinx/production/*
+        $0 start
         run_in_api rails.ruby2.4 ts:index
-	$0 start
 
-	rc_status
-	;;
+        rc_status
+        ;;
     restart)
-	$0 stop
-	$0 start
+        $0 stop
+        $0 start
 
-	rc_status
-	;;
+        rc_status
+        ;;
     force-reload)
-	echo -n "Reload service OBS api delayed jobs "
-	$0 try-restart
-	rc_status
-	;;
+        echo -n "Reload service OBS api delayed jobs "
+        $0 try-restart
+        rc_status
+        ;;
     reload)
-	## Not supported
-	rc_failed 3
-	rc_status -v
-	;;
+        ## Not supported
+        rc_failed 3
+        rc_status -v
+        ;;
     status)
-	echo -n "Checking for service delayed OBS api jobs "
-	checkproc delayed_job.0
+        echo -n "Checking for service delayed OBS api jobs "
+        checkproc delayed_job.0
         [ $? == $NUM ]
-	rc_status -v
-	;;
+        rc_status -v
+        ;;
     *)
-	echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload}"
-	exit 1
-	;;
+        echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload}"
+        exit 1
+        ;;
 esac
 rc_exit
