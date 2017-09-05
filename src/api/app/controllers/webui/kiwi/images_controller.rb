@@ -21,7 +21,7 @@ module Webui
           package.kiwi_image = ::Kiwi::Image.build_from_xml(package.source_file(kiwi_file), package.kiwi_file_md5)
           unless package.save
             errors = ["Kiwi File '#{kiwi_file}' has errors:", package.kiwi_image.errors.full_messages].join('<br />')
-            redirect_back fallback_location: root_path, error: errors
+            redirect_to package_view_file_path(project: package.project, package: package, filename: kiwi_file), error: errors
             return
           end
         end
@@ -38,7 +38,9 @@ module Webui
 
       def update
         ::Kiwi::Image.transaction do
-          @image.update_attributes!(image_params)
+          cleanup_non_project_repositories!
+
+          @image.update_attributes!(image_params) unless params[:kiwi_image].empty?
           @image.write_to_backend
         end
         redirect_to action: :show
@@ -72,6 +74,7 @@ module Webui
         ]
 
         params.require(:kiwi_image).permit(
+          :use_project_repositories,
           repositories_attributes: repositories_attributes,
           package_groups_attributes: package_groups_attributes
         )
@@ -86,6 +89,13 @@ module Webui
 
       def authorize_update
         authorize @image, :update?
+      end
+
+      def cleanup_non_project_repositories!
+        return unless params[:kiwi_image][:use_project_repositories] == '1'
+
+        @image.repositories.delete_all
+        params[:kiwi_image].delete(:repositories_attributes)
       end
     end
   end

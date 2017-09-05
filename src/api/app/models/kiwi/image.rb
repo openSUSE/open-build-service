@@ -30,6 +30,7 @@ class Kiwi::Image < ApplicationRecord
 
   #### Validations macros
   validates :name, presence: true
+  validate :check_use_project_repositories
   accepts_nested_attributes_for :repositories, allow_destroy: true
   accepts_nested_attributes_for :package_groups, allow_destroy: true
   accepts_nested_attributes_for :kiwi_packages, allow_destroy: true
@@ -45,46 +46,52 @@ class Kiwi::Image < ApplicationRecord
   def self.build_from_xml(xml_string, md5)
     xml = Xmlhash.parse(xml_string)
     new_image = new(name: xml['name'], md5_last_revision: md5)
-    order = 1
     repositories = xml["repository"]
     repositories = [xml["repository"]] if xml["repository"].is_a?(Hash)
-    repositories.each do |repository|
-      attributes = {
-        repo_type:   repository['type'],
-        source_path: repository['source']['path'],
-        priority:    repository['priority'],
-        order:       order,
-        alias:       repository['alias'],
-        replaceable: repository['status'] == 'replaceable',
-        username:    repository['username'],
-        password:    repository['password']
-      }
-      attributes['imageinclude'] = repository['imageinclude'] == 'true' if repository.key?('imageinclude')
-      attributes['prefer_license'] = repository['prefer-license'] == 'true' if repository.key?('prefer-license')
 
-      new_image.repositories.build(attributes)
-      order += 1
+    if repositories
+      new_image.use_project_repositories = repositories.any? { |repository| repository['source']['path'] == 'obsrepositories:/' }
+
+      repositories.reject{ |repository| repository['source']['path'] == 'obsrepositories:/' }.each.with_index(1) do |repository, index|
+        attributes = {
+          repo_type:   repository['type'],
+          source_path: repository['source']['path'],
+          priority:    repository['priority'],
+          order:       index,
+          alias:       repository['alias'],
+          replaceable: repository['status'] == 'replaceable',
+          username:    repository['username'],
+          password:    repository['password']
+        }
+        attributes['imageinclude'] = repository['imageinclude'] == 'true' if repository.key?('imageinclude')
+        attributes['prefer_license'] = repository['prefer-license'] == 'true' if repository.key?('prefer-license')
+
+        new_image.repositories.build(attributes)
+      end
     end
+
     package_groups = xml["packages"]
     package_groups = [xml["packages"]] if xml["packages"].is_a?(Hash)
-    package_groups.each do |package_group_xml|
-      attributes = {
-        kiwi_type:    package_group_xml['type'],
-        profiles:     package_group_xml['profiles '],
-        pattern_type: package_group_xml['patternType']
-      }
-      package_group = Kiwi::PackageGroup.new(attributes)
-      package_group_xml['package'].each do |package|
+    if package_groups
+      package_groups.each do |package_group_xml|
         attributes = {
-          name:     package['name'],
-          arch:     package['arch'],
-          replaces: package['replaces']
+          kiwi_type:    package_group_xml['type'],
+          profiles:     package_group_xml['profiles '],
+          pattern_type: package_group_xml['patternType']
         }
-        attributes['bootinclude'] = package['bootinclude'] == 'true' if package.key?('bootinclude')
-        attributes['bootdelete'] = package['bootdelete'] == 'true' if package.key?('bootdelete')
-        package_group.packages.build(attributes)
+        package_group = Kiwi::PackageGroup.new(attributes)
+        package_group_xml['package'].each do |package|
+          attributes = {
+            name:     package['name'],
+            arch:     package['arch'],
+            replaces: package['replaces']
+          }
+          attributes['bootinclude'] = package['bootinclude'] == 'true' if package.key?('bootinclude')
+          attributes['bootdelete'] = package['bootdelete'] == 'true' if package.key?('bootdelete')
+          package_group.packages.build(attributes)
+        end
+        new_image.package_groups << package_group
       end
-      new_image.package_groups << package_group
     end
     new_image
   end
@@ -108,7 +115,7 @@ class Kiwi::Image < ApplicationRecord
     image.first_element_child.after(xml_packages)
 
     doc.xpath("image/repository").remove
-    xml_repos = repositories.map(&:to_xml).join("\n")
+    xml_repos = repositories_for_xml.map(&:to_xml).join("\n")
     image.first_element_child.after(xml_repos)
 
     # Reparser for pretty printing
@@ -135,15 +142,33 @@ class Kiwi::Image < ApplicationRecord
   def default_package_group
     package_groups.find_or_create_by(kiwi_type: :image, pattern_type: 'onlyRequired')
   end
+
+  private
+
+  def repositories_for_xml
+    if use_project_repositories?
+      [Kiwi::Repository.new(source_path: 'obsrepositories:/', repo_type: 'rpm-md')]
+    else
+      repositories
+    end
+  end
+
+  def check_use_project_repositories
+    return unless use_project_repositories? && repositories.present?
+
+    errors.add(:base,
+               "A repository with source_path=\"obsrepositories:/\" has been set. If you want to use it, please remove the others repositories.")
+  end
 end
 
 # == Schema Information
 #
 # Table name: kiwi_images
 #
-#  id                :integer          not null, primary key
-#  name              :string(255)
-#  md5_last_revision :string(32)
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
+#  id                       :integer          not null, primary key
+#  name                     :string(255)
+#  md5_last_revision        :string(32)
+#  created_at               :datetime         not null
+#  updated_at               :datetime         not null
+#  use_project_repositories :boolean          default(FALSE)
 #

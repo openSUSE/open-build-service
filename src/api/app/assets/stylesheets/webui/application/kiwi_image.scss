@@ -23,6 +23,18 @@
   }
 }
 
+#kiwi-use-project-repositories {
+  margin-bottom: 25px;
+
+  label { vertical-align: text-bottom; }
+
+  #use-project-repositories-text {
+    font-size: 14px;
+
+    img { vertical-align: text-bottom; }
+  }
+}
+
 #kiwi-repositories-list, #kiwi-packages-list {
   padding-left: 10px;
   padding-right: 10px;
