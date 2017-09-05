@@ -27,13 +27,13 @@ class BsRequest
       private
 
       def request_query
-        BsRequest.collection(
+        BsRequest.find_for(
           @params.merge(project: @project.name, package: @package.name)
         )
       end
 
       def request_query_without_search
-        BsRequest.collection(
+        BsRequest.find_for(
           @params.except(:search).merge(project: @project.name, package: @package.name)
         )
       end

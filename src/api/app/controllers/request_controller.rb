@@ -34,7 +34,7 @@ class RequestController < ApplicationController
     params[:review_states] = params[:reviewstates].split(',') if params[:reviewstates]
     params[:ids] = params[:ids].split(',').map(&:to_i) if params[:ids]
 
-    rel = BsRequest.collection(params).includes([:reviews]).
+    rel = BsRequest.find_for(params).includes([:reviews]).
           includes({bs_request_actions: :bs_request_action_accept_info}).
           order('bs_requests.id').references(:bs_requests)
     rel = rel.limit(params[:limit].to_i) if params[:limit].to_i > 0
