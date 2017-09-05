@@ -810,10 +810,10 @@ class Webui::ProjectController < Webui::WebuiController
     @is_incident_project = @project.is_maintenance_incident?
     return unless @is_incident_project
 
-    @open_release_requests = BsRequest.collection(project: @project.name,
+    @open_release_requests = BsRequest::FindFor::Query.new(project: @project.name,
                                   states: %w(new review),
                                   types: %w(maintenance_release),
-                                  roles: %w(source)).pluck(:number)
+                                  roles: %w(source)).all.pluck(:number)
   end
 
   def call_diststats(bdep, jobs)
