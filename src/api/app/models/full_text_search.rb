@@ -13,7 +13,7 @@ class FullTextSearch
   self.ranker = :sph04
   self.per_page = 50
   self.star = false
-  self.max_matches = ThinkingSphinx::Configuration.instance.settings["max_matches"]
+  self.max_matches = 15000
 
   attr_accessor :text, :classes, :fields, :attrib_type_id, :issue_tracker_name, :issue_name
   attr_reader :result

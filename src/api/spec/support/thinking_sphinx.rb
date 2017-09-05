@@ -13,9 +13,9 @@ end
 RSpec.configure do |config|
   config.include SphinxHelpers, type: :feature
 
+  FullTextSearch.max_matches = 1000
+
   config.before(:suite) do
-    # This setting needs to be set for FullTextSearch#search
-    ThinkingSphinx::Configuration.instance.settings["max_matches"] = 1000
     # Ensure sphinx directories exist for the test environment
     ThinkingSphinx::Test.init
     # Configure and start Sphinx, and automatically
