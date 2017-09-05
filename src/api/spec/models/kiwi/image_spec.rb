@@ -116,6 +116,40 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       end
     end
 
+    context 'with source_path' do
+      context 'obsrepositories' do
+        subject { Kiwi::Image.build_from_xml(kiwi_xml_with_obsrepositories, 'some_md5') }
+
+        it { expect(subject.valid?).to be_truthy }
+        it { expect(subject.use_project_repositories?).to be_truthy }
+
+        it { expect(subject.repositories.length).to eq(0) }
+      end
+
+      context 'obsrepositories and others' do
+        subject { Kiwi::Image.build_from_xml(invalid_kiwi_xml_with_obsrepositories, 'some_md5') }
+
+        it { expect(subject.valid?).to be_falsey }
+        it { expect(subject.use_project_repositories?).to be_truthy }
+
+        it { expect(subject.repositories.length).to eq(1) }
+        it 'parses the repository elements of the xml into a KiwiImage model' do
+          expect(subject.repositories[0]).to have_attributes(
+            source_path: 'http://download.opensuse.org/update/13.2/',
+            repo_type: 'apt-deb',
+            priority: 10,
+            order: 1,
+            alias: 'debian',
+            imageinclude: true,
+            password: '123456',
+            prefer_license: true,
+            replaceable: true,
+            username: 'Tom'
+          )
+        end
+      end
+    end
+
     context 'with an invalid Kiwi File' do
       subject { Kiwi::Image.build_from_xml(invalid_kiwi_xml, 'some_md5') }
 

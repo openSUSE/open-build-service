@@ -12,6 +12,9 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
   end
 
   describe 'GET #import_from_package' do
+    include_context 'a kiwi image xml'
+    include_context 'an invalid kiwi image xml'
+
     context 'without a kiwi file' do
       let(:package) { create(:package, name: 'package_without_kiwi_file', project: project) }
 
@@ -37,8 +40,6 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
       end
 
       context 'that is an invalid kiwi file' do
-        include_context 'an invalid kiwi image xml'
-
         let(:package_with_kiwi_file) do
           create(:package_with_kiwi_file, name: 'package_with_invalid_kiwi_file', project: project, kiwi_file_content: invalid_kiwi_xml)
         end
@@ -47,8 +48,49 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
           get :import_from_package, params: { package_id: package_with_kiwi_file.id }
         end
 
-        it { expect(response).to redirect_to(root_path) }
+        it 'redirect to package_view_file_path' do
+          expect(response).to redirect_to(package_view_file_path(project: package_with_kiwi_file.project,
+                                                                    package: package_with_kiwi_file,
+                                                                    filename: "#{package_with_kiwi_file.name}.kiwi"))
+        end
         it { expect(flash[:error]).not_to be_nil }
+      end
+
+      context 'with source_path' do
+        context 'with obsrepository' do
+          let(:package_with_kiwi_file) do
+            create(:package_with_kiwi_file, name: 'package_with_a_kiwi_file',
+                   project: project, kiwi_file_content: kiwi_xml_with_obsrepositories)
+          end
+
+          before do
+            get :import_from_package, params: { package_id: package_with_kiwi_file.id }
+          end
+
+          it 'redirect to kiwi image show' do
+            package_with_kiwi_file.reload
+            expect(response).to redirect_to(kiwi_image_path(package_with_kiwi_file.kiwi_image))
+          end
+        end
+
+        context 'with obsrepository and others' do
+          let(:package_with_kiwi_file) do
+            create(:package_with_kiwi_file, name: 'package_with_invalid_kiwi_file',
+                   project: project, kiwi_file_content: invalid_kiwi_xml_with_obsrepositories)
+          end
+
+          before do
+            get :import_from_package, params: { package_id: package_with_kiwi_file.id }
+          end
+
+          it 'redirect to package_view_file_path' do
+            expect(response).to redirect_to(package_view_file_path(project: package_with_kiwi_file.project,
+                                                                   package: package_with_kiwi_file,
+                                                                   filename: "#{package_with_kiwi_file.name}.kiwi"))
+          end
+
+          it { expect(flash[:error]).to end_with('please remove the others repositories.') }
+        end
       end
     end
   end
@@ -107,30 +149,61 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
     end
 
     context 'with valid repositories data' do
-      let(:update_params) do
-        {
-          id:         kiwi_image_with_package_with_kiwi_file.id,
-          kiwi_image: { repositories_attributes: { '0' => {
-            id:             kiwi_repository.id,
-            repo_type:      'apt-deb',
-            priority:       '',
-            alias:          '',
-            source_path:    'http://',
-            username:       '',
-            password:       '',
-            prefer_license: 0,
-            imageinclude:   0,
-            replaceable:    0
-          }}}
-        }
+      context 'without use_project_repositories' do
+        let(:update_params) do
+          {
+            id:         kiwi_image_with_package_with_kiwi_file.id,
+            kiwi_image: { repositories_attributes: { '0' => {
+              id:             kiwi_repository.id,
+              repo_type:      'apt-deb',
+              priority:       '',
+              alias:          '',
+              source_path:    'http://',
+              username:       '',
+              password:       '',
+              prefer_license: 0,
+              imageinclude:   0,
+              replaceable:    0
+            }}, use_project_repositories: '0' }
+          }
+        end
+
+        before do
+          post :update, params: update_params
+        end
+
+        it { expect(response).to redirect_to(action: :show) }
+        it { expect(flash[:error]).to be_nil }
       end
 
-      before do
-        post :update, params: update_params
-      end
+      context 'with use_project_repositories' do
+        let(:update_params) do
+          {
+            id:         kiwi_image_with_package_with_kiwi_file.id,
+            kiwi_image: { repositories_attributes: { '0' => {
+              id:             kiwi_repository.id,
+              repo_type:      'apt-deb',
+              priority:       '',
+              alias:          '',
+              source_path:    'http://',
+              username:       '',
+              password:       '',
+              prefer_license: 0,
+              imageinclude:   0,
+              replaceable:    0
+            }}, use_project_repositories: '1' }
+          }
+        end
 
-      it { expect(response).to redirect_to(action: :show) }
-      it { expect(flash[:error]).to be_nil }
+        before do
+          kiwi_repository
+          post :update, params: update_params
+        end
+
+        it { expect(response).to redirect_to(action: :show) }
+        it { expect(kiwi_image_with_package_with_kiwi_file.repositories.count).to eq(0) }
+        it { expect(flash[:error]).to be_nil }
+      end
     end
 
     context 'with invalid package: empty name' do
