@@ -39,7 +39,7 @@ class Webui::UserController < Webui::WebuiController
       return
     end
 
-    Rails.logger.debug "Authentificated user '#{user.try(:login)}'"
+    Rails.logger.debug "Authenticated as user '#{user.try(:login)}'"
 
     session[:login] = user.login
     User.current = user
