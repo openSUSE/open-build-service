@@ -4,32 +4,41 @@ class BsRequest
       include UserGroupMixin
 
       def all
-        inner_or = []
-        user = ::User.find_by_login!(user_login)
+        maintainer.or(reviewer.or(creator)).with_actions_and_reviews
+      end
 
-        # user's own submitted requests
-        if roles.empty? || roles.include?('creator')
-          inner_or << "bs_requests.creator = #{quote(user.login)}"
-        end
-        # find requests where user is maintainer in target project
-        @relation, inner_or = extend_query_for_maintainer(user, @relation, roles, inner_or)
-        if roles.empty? || roles.include?('reviewer')
-          @relation = @relation.includes(:reviews).references(:reviews)
+      private
 
-          # requests where the user is reviewer or own requests that are in review by someone else
-          or_in_and = %W(reviews.by_user=#{quote(user.login)})
-
-          # include all groups of user
-          usergroups = user.groups.map { |group| "'#{group.title}'" }
-          or_in_and << "reviews.by_group in (#{usergroups.join(',')})" unless usergroups.blank?
-
-          @relation, inner_or = extend_query_for_involved_reviews(user, or_in_and, @relation, review_states, inner_or)
-        end
-        if inner_or.empty?
-          @relation.none
+      def creator
+        if roles.blank? || roles.include?('creator')
+          BsRequest.where(creator: user.login)
         else
-          @relation.where(inner_or.join(' or '))
+          BsRequest.none
         end
+      end
+
+      def reviewer
+        if roles.blank? || roles.include?('reviewer')
+          super.or(BsRequest.where(id: Review.bs_request_ids_of_involved_users(user.id).where(state: review_states)))
+        else
+          BsRequest.none
+        end
+      end
+
+      def project_ids
+        user.involved_projects.pluck(:id)
+      end
+
+      def package_ids
+        user.involved_packages.pluck(:id)
+      end
+
+      def group_ids
+        user.groups.pluck(:id)
+      end
+
+      def user
+        ::User.find_by_login!(user_login)
       end
     end
   end
