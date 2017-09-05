@@ -7,9 +7,9 @@ mails_sent = Event::Base.where(mails_sent: false).count
 undone_jobs = Event::Base.where.not(undone_jobs: 0).count
 puts "There are currently #{project_logged + mails_sent + undone_jobs} Events to be processed"
 puts "---------Events by type-----------"
-puts "ProjectLogs to create".ljust(30) + project_logged
-puts "Mails to send".ljust(30) + mails_sent
-puts "Backend jobs to do".ljust(30) + undone_jobs
+puts "ProjectLogs to create".ljust(30) + project_logged.to_s
+puts "Mails to send".ljust(30) + mails_sent.to_s
+puts "Backend jobs to do".ljust(30) + undone_jobs.to_s
 
 puts "-------------DJ-STATS-------------"
 puts "There are currently #{Delayed::Job.count} jobs in the queues"
