@@ -66,6 +66,11 @@ class BsRequest < ApplicationRecord
   scope :by_package_reviews, ->(package_ids) { where(reviews: { package: package_ids }) }
   scope :by_group_reviews, ->(group_ids) { where(reviews: { group: group_ids }) }
 
+  scope :for_user, ->(params) { BsRequest::FindFor::User.new(params).all }
+  scope :for_group, ->(params) { BsRequest::FindFor::Group.new(params).all }
+  scope :for_project, ->(params) { BsRequest::FindFor::Project.new(params).all }
+  scope :find_for, ->(params) { BsRequest::FindFor::Query.new(params).all }
+
   before_save :assign_number
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
   has_many :reviews, dependent: :delete_all
@@ -1175,10 +1180,10 @@ class BsRequest < ApplicationRecord
 
     # it's wiser to split the queries
     if opts[:project] && roles.empty? && (states.empty? || states.include?("review"))
-      (BsRequest::FindFor::Query.new(opts.merge(roles: ["reviewer"])).all +
-        BsRequest::FindFor::Query.new(opts.merge(roles: ["target", "source"])).all).uniq
+      (BsRequest.find_for(opts.merge(roles: ["reviewer"])) +
+        BsRequest.find_for(opts.merge(roles: ["target", "source"]))).uniq
     else
-      BsRequest::FindFor::Query.new(opts).all.uniq
+      BsRequest.find_for(opts).uniq
     end
   end
 

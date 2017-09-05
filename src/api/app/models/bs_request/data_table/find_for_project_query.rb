@@ -26,15 +26,15 @@ class BsRequest
       private
 
       def request_query
-        BsRequest::FindFor::Query.new(
+        BsRequest.find_for(
           @params.merge(project: @project.name)
-        ).all
+        )
       end
 
       def request_query_without_search
-        BsRequest::FindFor::Query.new(
+        BsRequest.find_for(
           @params.except(:search).merge(project: @project.name)
-        ).all
+        )
       end
     end
   end

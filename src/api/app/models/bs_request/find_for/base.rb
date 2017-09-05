@@ -33,7 +33,7 @@ class BsRequest
       end
 
       def roles
-        @parameters[:roles] || []
+        [@parameters[:roles]].flatten.compact.map(&:to_s)
       end
 
       def states
@@ -46,6 +46,14 @@ class BsRequest
 
       def review_states
         @parameters[:review_states] || [:new]
+      end
+
+      def search
+        @parameters[:search]
+      end
+
+      def ids
+        @parameters[:ids]
       end
 
       def quote(str)
