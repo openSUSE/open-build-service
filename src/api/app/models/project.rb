@@ -1090,7 +1090,9 @@ class Project < ApplicationRecord
   def sync_repository_pathes
     # check all my repositories and ..
     repositories.each do |repo|
+      cycle_detection = {}
       repo.path_elements.each do |path|
+        next if cycle_detection[path.id]
         # go to all my path elements
         path.link.path_elements.each do |ipe|
           # avoid mixing update code streams with channels
@@ -1102,9 +1104,11 @@ class Project < ApplicationRecord
           repositories.joins(:path_elements).where("path_elements.repository_id = ?", ipe.link).each do |my_repo|
             next if my_repo == repo # do not add my self
             next if repo.path_elements.where(link: my_repo).count > 0    # already exists
-            repo.path_elements.where(position: ipe.position).delete_all  # avoid conflicting entries
-            # add it at the same position
-            repo.path_elements.create(link: my_repo, position: ipe.position)
+            repo.path_elements.where(position: ipe.position).delete_all  # avoid all conflicting entries
+            # note: we don't enforce a unique entry by position atm....
+            # add a single one at the same position
+            new_path = repo.path_elements.create(link: my_repo, position: ipe.position)
+            cycle_detection[new_path.id]
           end
         end
       end
