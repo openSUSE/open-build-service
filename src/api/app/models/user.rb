@@ -203,11 +203,6 @@ class User < ApplicationRecord
     user = find_by_login(login)
     ldap_info = nil
 
-    if user.nil? && ::Configuration.registration == "deny"
-      logger.debug("No user found in database, creation disabled")
-      return
-    end
-
     if CONFIG['ldap_mode'] == :on
       begin
         require 'ldap'

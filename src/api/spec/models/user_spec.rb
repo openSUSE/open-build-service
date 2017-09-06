@@ -876,26 +876,16 @@ RSpec.describe User do
       end
 
       context 'and user is not yet known by OBS' do
-        context 'and new registrations are prohibited' do
-          subject { User.find_with_credentials('new_user', 'tux_password') }
+        subject { User.find_with_credentials('new_user', 'tux_password') }
 
-          it 'creates a new user from the data received by the LDAP server' do
-            expect { subject }.to change{User.count}.by 1
-            expect(subject.email).to eq 'John@obs.de'
-            expect(subject.login).to eq 'new_user'
-            expect(subject.realname).to eq 'new_user'
-            expect(subject.state).to eq 'confirmed'
-            expect(subject.login_failure_count).to eq 0
-            expect(subject.last_logged_in_at).to be > 30.seconds.ago
-          end
-        end
-
-        context 'and new registrations are prohibited' do
-          before do
-            allow(Configuration).to receive(:registration).and_return "deny"
-          end
-
-          it { expect(User.find_with_credentials('new_user', 'tux_password')).to be nil }
+        it 'creates a new user from the data received by the LDAP server' do
+          expect { subject }.to change{User.count}.by 1
+          expect(subject.email).to eq 'John@obs.de'
+          expect(subject.login).to eq 'new_user'
+          expect(subject.realname).to eq 'new_user'
+          expect(subject.state).to eq 'confirmed'
+          expect(subject.login_failure_count).to eq 0
+          expect(subject.last_logged_in_at).to be > 30.seconds.ago
         end
       end
     end
