@@ -3,6 +3,7 @@ module CommentEvent
     base.class_eval do
       payload_keys :commenters, :commenter, :comment_body, :comment_title
       receiver_roles :commenter
+      shortenable_key :comment_body
     end
   end
 
