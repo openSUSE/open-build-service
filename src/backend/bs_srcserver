@@ -1194,6 +1194,12 @@ sub getprojpack {
       }
     }
 
+    my %packages_multibuild;
+    for my $packid (@packages) {
+      next unless $packid =~ /(?<!^_product)(?<!^_patchinfo):./ && $packid =~ /^(.*):/;
+      $packages_multibuild{$1} = 1;
+    }
+
     my @packages_delayed;
     my $packages_pass = 0;
     while (1) {
@@ -1370,12 +1376,12 @@ sub getprojpack {
 	  $meta .= "$files->{$_}  $_\n" for sort keys %$files;
 	  $pinfo->{'verifymd5'} = Digest::MD5::md5_hex($meta);
 	}
+	# get rid of old multibuild packages, this assumes the main package comes first
+	@packages = grep {!/^\Q$packid\E:/} @packages if $packages_multibuild{$packid};
+	# get current multibuild state
 	my $mb = BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, 1);
-	if ($mb) {
-	  # update our idea of the multiversion packages
-	  @packages = grep {!/^\Q$packid\E:/} @packages;
-	  unshift @packages, map {"$packid:$_"} @{$mb->{'package'} || []};
-	}
+	unshift @packages, map {"$packid:$_"} @{$mb->{'package'} || []} if $mb;
+
 	if ($packid eq '_pattern') {
 	  $jinfo->{'patternmd5'} = $pinfo->{'srcmd5'};
 	  $pinfo->{'error'} = 'excluded';
