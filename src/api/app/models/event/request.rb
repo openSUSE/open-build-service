@@ -70,11 +70,15 @@ class Event::Request < ::Event::Base
     end
   end
 
-  def payload_with_diff
-    source_projects = payload['actions'].map { |action| action[:source_project] }.uniq.compact
-    source_projects.each do |source_project|
-      return payload if Project.unscoped.is_remote_project?(source_project, true)
+  def source_from_remote?
+    payload['actions'].each do |action|
+      return true if Project.unscoped.is_remote_project?(action['sourceproject'], true)
     end
+    false
+  end
+
+  def payload_with_diff
+    return payload if source_from_remote?
 
     ret = payload
     payload['actions'].each do |a|
