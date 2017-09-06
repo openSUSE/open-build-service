@@ -74,6 +74,20 @@ class Kiwi::Repository < ApplicationRecord
     builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
+  def obs_source_path?
+    source_path && source_path.match(/^obs:\/\/([^\/]+)\/([^\/]+)$/).present?
+  end
+
+  def project_for_type_obs
+    return '' unless source_path
+    source_path.match(/^obs:\/\/([^\/]+)\/([^\/]+)$/).try(:[], 1)
+  end
+
+  def repository_for_type_obs
+    return '' unless source_path
+    source_path.match(/^obs:\/\/([^\/]+)\/([^\/]+)$/).try(:[], 2)
+  end
+
   #### Alias of methods
 end
 

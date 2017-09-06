@@ -12,10 +12,22 @@
       .dialog-content
         .normal-mode
           %p
-            This is the normal mode!
+            = label_tag 'Project:'
+            = text_field_tag 'target_project', f.object.project_for_type_obs,
+              data: { ajaxurl: url_for(controller: '/webui/project', action: 'autocomplete_projects'), default: f.object.project_for_type_obs }
+          %p
+            = label_tag 'Repository:'
+            %br/
+            = select_tag "target_repo", options_for_select([f.object.repository_for_type_obs]), disabled: !f.object.obs_source_path?,
+              data: { ajaxurl: url_for(controller: '/webui/project', action: :autocomplete_repositories), default: f.object.repository_for_type_obs }
+            %span.ui-autocomplete-loading.hidden
+              = image_tag('ajax-loader.gif')
+          %p
+            = label_tag 'Alias:'
+            = text_field_tag 'alias_for_repo', f.object.alias, data: { default: f.object.alias }
         .expert-mode.hidden
           %p
-            = f.hidden_field :order
+            = f.hidden_field :order, data: { default: f.object.order }
             = f.label :repo_type, 'Type:'
             = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, { data: {default: f.object.repo_type }}
             = f.label :priority, 'Priority:'
