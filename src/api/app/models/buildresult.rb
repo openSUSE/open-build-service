@@ -64,7 +64,19 @@ class Buildresult < ActiveXML::Node
     results = find_hashed(project: project_name, view: 'summary')
     local_build_results = {}
     results.elements('result').sort {|a, b| a['repository'] <=> b['repository']}.each do |result|
-      build = LocalBuildResult.new(repository: result['repository'], architecture: result['arch'], code: result['code'], state: result['state'])
+      state =
+        if result.has_key? 'dirty'
+          'outdated_' + result['state']
+        else
+          result['state']
+        end
+
+      build = LocalBuildResult.new(
+        repository: result['repository'],
+        architecture: result['arch'],
+        code: result['code'],
+        state: state
+      )
 
       build.summary = []
       result['summary'].elements('statuscount').each do |count|

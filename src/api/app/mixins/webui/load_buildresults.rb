@@ -1,4 +1,5 @@
 module Webui::LoadBuildresults
+  # TODO: Make use of the Project#buildresults method and get rid of this duplicated logic
   def fill_status_cache
     @repohash = Hash.new
     @statushash = Hash.new
