@@ -1,10 +1,10 @@
 class BsRequest
   module DataTable
-    class FindForUserQuery
+    class FindForUserOrGroupQuery
       attr_reader :user, :params
 
-      def initialize(user, request_method, params)
-        @user = user
+      def initialize(user_or_group, request_method, params)
+        @user_or_group = user_or_group
         @request_method = request_method
         @params = params
       end
@@ -31,11 +31,15 @@ class BsRequest
       def requests_query(search = nil)
         raise ArgumentError unless valid_request_methods.include?(@request_method)
 
-        @user.send(@request_method, search)
+        @user_or_group.send(@request_method, search)
       end
 
       def valid_request_methods
-        Webui::Users::BsRequestsController::REQUEST_METHODS.values
+        if @user_or_group.is_a?(User)
+          Webui::Users::BsRequestsController::REQUEST_METHODS.values
+        else
+          Webui::Groups::BsRequestsController::REQUEST_METHODS.values
+        end
       end
     end
   end
