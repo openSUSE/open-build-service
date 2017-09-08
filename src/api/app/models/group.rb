@@ -170,6 +170,10 @@ class Group < ApplicationRecord
   def incoming_requests(search = nil)
     BsRequest.find_for(group: title, states: [:new], roles: [:maintainer], search: search)
   end
+
+  def requests(search = nil)
+    BsRequest.find_for(group: title, search: search)
+  end
 end
 
 # == Schema Information

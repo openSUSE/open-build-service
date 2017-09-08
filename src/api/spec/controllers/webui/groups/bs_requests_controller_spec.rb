@@ -25,7 +25,18 @@ RSpec.describe Webui::Groups::BsRequestsController do
              target_package: target_package3)
     end
 
+    # for the reviews and all requests table
+    let(:bs_request) { create(:bs_request, created_at: 1.day.ago) }
+    let!(:review) { create(:review, by_group: group.title, bs_request: bs_request) }
+    let(:another_group) { create(:group) }
+    let(:another_bs_request) { create(:bs_request) }
+    let!(:another_review) { create(:review, by_group: another_group.title, bs_request: another_bs_request) }
+
     before do
+      bs_request.state = :review
+      bs_request.save
+      another_bs_request.state = :review
+      another_bs_request.save
       get :index, params: params
     end
 
@@ -36,18 +47,6 @@ RSpec.describe Webui::Groups::BsRequestsController do
 
     context 'with the dataTableId param set to "reviews_in_table"' do
       let(:context_params) { { dataTableId: 'reviews_in_table' } }
-      let(:bs_request) { create(:bs_request) }
-      let!(:review) { create(:review, by_group: group.title, bs_request: bs_request) }
-      let(:another_group) { create(:group) }
-      let(:another_bs_request) { create(:bs_request) }
-      let!(:another_review) { create(:review, by_group: another_group.title, bs_request: another_bs_request) }
-
-      before do
-        bs_request.state = :review
-        bs_request.save
-        another_bs_request.state = :review
-        another_bs_request.save
-      end
 
       it 'returns those requests' do
         expect(assigns(:requests_data_table).rows.length).to eq(1)
@@ -57,6 +56,21 @@ RSpec.describe Webui::Groups::BsRequestsController do
       it 'assigns the total count of records' do
         expect(assigns(:requests_data_table).records_total).to eq(1)
         expect(assigns(:requests_data_table).count_requests).to eq(1)
+      end
+    end
+
+    context 'with the dataTableId param set to "all_requests_table"' do
+      let(:context_params) { { dataTableId: 'all_requests_table' } }
+
+      it 'returns those requests' do
+        expect(assigns(:requests_data_table).rows.length).to eq(12)
+        expect(assigns(:requests_data_table).rows.first.request).to eq(request1)
+        expect(assigns(:requests_data_table).rows.last.request).to eq(request2)
+      end
+
+      it 'assigns the total count of records' do
+        expect(assigns(:requests_data_table).records_total).to eq(12)
+        expect(assigns(:requests_data_table).count_requests).to eq(12)
       end
     end
   end
