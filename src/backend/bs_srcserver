@@ -1019,7 +1019,7 @@ sub getprojpack {
     if ($cgi->{'buildinfo'}) {
       if (!@res) {
         die("project $projid does not exist\n") unless $proj;
-        die("repository @{keys %$repoids} does not exist\n") unless grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
+        die("repository @{[keys %$repoids]} does not exist in $projid\n") unless grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
       } else {
 	# kiwi projects, we just need the project data and config
 	$packids = undef;
