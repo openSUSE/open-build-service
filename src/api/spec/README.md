@@ -148,8 +148,8 @@ If you require a response from the OBS backend for your new test you need to
 start it with
 
 ```
-vagrant exec rake db:fixtures:load RAILS_ENV=test
-vagrant exec script/start_test_backend
+docker-compose run --rm frontend bundle exec rake db:fixtures:load RAILS_ENV=test
+docker-compose run --rm frontend script/start_test_backend
 ```
 
 We use [VCR](https://github.com/vcr/vcr) to record the response from the backend.

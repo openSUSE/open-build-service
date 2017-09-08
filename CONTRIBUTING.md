@@ -98,19 +98,19 @@ someone doesn't do that, please let any of the [openSUSE
 owners](https://github.com/orgs/openSUSE/teams/owners) know!
 
 # How to setup an OBS development environment
-We are using [Vagrant](https://www.vagrantup.com/) to create our development
+We are using [docker](https://www.docker.com/) to create our development
 environment. All the tools needed for this are available for Linux, MacOS and
-Windows. **Please note** that the OBS backend uses advanced filesystem features
+Windows.
+
+**Please note** that the OBS backend uses advanced filesystem features
 that require an case sensitive filesystem (default in Linux, configurable in MacOS/Windows),
 make sure you run all this from a filesystem that supports this.
 
-1. Install [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). Both tools support Linux, MacOS and Windows.
+1. Install [docker](https://www.docker.com) and [docker-compose](https://docs.docker.com/compose/).
+   There is documentation about this for [openSUSE](https://en.opensuse.org/SDB:Docker) and various
+   [other operating systems](https://docs.docker.com/engine/installation/)
 
-2. Install [vagrant-exec](https://github.com/p0deje/vagrant-exec):
-
-    ```
-    vagrant plugin install vagrant-exec
-    ```
+2. Install [rake](https://github.com/ruby/rake)
 
 3. Clone this code repository:
 
@@ -125,54 +125,41 @@ make sure you run all this from a filesystem that supports this.
    git submodule update
    ```
 
-5. Execute Vagrant:
+5. Build your development environment with:
 
     ```
-    vagrant up
+    rake docker:build
     ```
 
 6. Start your development environment with:
 
     ```
-    vagrant exec foreman start
+    docker-compose up
     ```
 
 7. Check out your OBS frontend:
 You can access the frontend at [localhost:3000](http://localhost:3000). Whatever you change in your cloned repository will have effect in the development environment.
-**Note**: The vagrant instance is configured with a default user 'Admin' and password 'opensuse'.
+**Note**: The development environment is configured with a default user 'Admin' and password 'opensuse'.
 
 8. Building packages:
-     The easiest way to start building is to create an interconnect to build.opensuse.org. All resources, including the base distributions can be used that way directly.
+     The easiest way to start building is to create an interconnect to our reference server. All resources from the openSUSE instance, including the base distributions, can be used that way.
      To set this up, follow these steps:
-     * Login as admin and go to configuration page.
+     * Login as Admin and go to 'Configuration' page.
      * Go to the 'Interconnect' tab and press 'Save changes'. That creates an interconnect to build.opensuse.org.
-     * Switch back to the 'Configuration' tab and press 'Update' to send your changes to the backend.
-     * Restart the backend.
-     * Now you can choose from a wide range of repositories to build your packages and images for.
+     * Now in any other project you can choose from a wide range of distributions to build your packages on the 'Repositories' tab.
 
 9. Changed something in the frontend? Test your changes!
 
     ```
-    vagrant exec rake test
-    vagrant exec rspec
+    rake docker:test:frontend
     ```
 
-11. Changed something in the backend? Test your changes!
+10. Changed something in the backend? Test your changes!
 
     ```
-    vagrant exec make -C src/backend test
+    rake docker:test:backend
     ```
 
-12. Check your commits:
-
-    ```
-    vagrant exec rake git_cop
-    ```
-
-13. Explore the development environment:
-
-    ```
-    vagrant ssh
-    ```
+11. You can find more details about the development environment [in our wiki](https://github.com/openSUSE/open-build-service/wiki/Development-Environment).
 
 Happy Hacking! - :heart: Your Open Build Service Team

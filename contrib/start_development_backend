@@ -104,7 +104,7 @@ if [ ! -f $GIT_HOME/src/backend/BSConfig.pm ]; then
 fi
 perl -pi -e 's/our \$bsserviceuser.*/our \$bsserviceuser="obsrun";/' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/my \$hostname.*/my \$hostname="localhost";/' $GIT_HOME/src/backend/BSConfig.pm
-perl -pi -e 's/my \$frontend =.*/my \$frontend="frontend";/' $GIT_HOME/src/backend/BSConfig.pm
+perl -pi -e 's/\$ipaccess/\$removed_by_start_development_backend /' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/.*our \$gpg_standard_key.*/our \$gpg_standard_key="\/etc\/ourkeyfile.asc";/' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/.*our \$sign .*/our \$sign="\/usr\/bin\/sign";/' $GIT_HOME/src/backend/BSConfig.pm
 

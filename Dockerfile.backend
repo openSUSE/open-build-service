@@ -1,0 +1,25 @@
+FROM openbuildservice/base
+
+# FIXME: https://bugzilla.opensuse.org/show_bug.cgi?id=957818
+RUN rm -rf /var/cache/zypp/*
+
+# Install requirements for running the backend & signd
+RUN zypper -n install --no-recommends --replacefiles \
+  obs-server obs-signd \
+  obs-service-download_src_package obs-service-download_files \
+  obs-service-download_url \
+  obs-service-format_spec_file obs-service-kiwi_import \
+  perl-Devel-Cover \
+  osc
+
+# Add our sign configuration
+ADD dist/obs-signd-conf.tar.bz2 sign
+RUN rm -rf /root/.gnupg; \
+    mv -v /sign/root/.gnupg /root/.gnupg; \
+    mv -v /sign/root/.phrases /root/.phrases; \
+    mv -v /sign/etc/ourkeyfile.asc /sign/etc/sign.conf /etc/; \
+    mv -v /sign/etc/sysconfig/signd /etc/sysconfig/signd
+
+# Run our command
+WORKDIR /obs
+CMD ["contrib/start_development_backend", "-d", "/obs"] 
