@@ -5,8 +5,9 @@ module Webui
       before_action :set_group
 
       REQUEST_METHODS = {
-        'requests_in_table' => :incoming_requests,
-        'reviews_in_table'  => :involved_reviews
+        'all_requests_table' => :requests,
+        'requests_in_table'  => :incoming_requests,
+        'reviews_in_table'   => :involved_reviews
       }
 
       private
