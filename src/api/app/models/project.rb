@@ -1103,12 +1103,19 @@ class Project < ApplicationRecord
           # of my repositories?
           repositories.joins(:path_elements).where("path_elements.repository_id = ?", ipe.link).each do |my_repo|
             next if my_repo == repo # do not add my self
-            next if repo.path_elements.where(link: my_repo).count > 0    # already exists
-            repo.path_elements.where(position: ipe.position).delete_all  # avoid all conflicting entries
-            # note: we don't enforce a unique entry by position atm....
-            # add a single one at the same position
-            new_path = repo.path_elements.create(link: my_repo, position: ipe.position)
-            cycle_detection[new_path.id]
+            next if repo.path_elements.where(link: my_repo).count > 0
+            elements = repo.path_elements.where(position: ipe.position)
+            if elements.count.zero?
+              new_path = repo.path_elements.create(link: my_repo, position: ipe.position)
+              cycle_detection[new_path.id]
+            else
+              PathElement.update(elements.first.id, {position: ipe.position, link: my_repo})
+            end
+            cycle_detection[elements.first.id] = true
+            if elements.count > 1
+              # note: we don't enforce a unique entry by position atm....
+              repo.path_elements.where("position = ipe.position AND NOT id = ?", elements.first.id).delete_all
+            end
           end
         end
       end
