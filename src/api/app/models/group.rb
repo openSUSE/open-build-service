@@ -157,6 +157,19 @@ class Group < ApplicationRecord
     address.display_name = title
     address.format
   end
+
+  def involved_reviews(search = nil)
+    BsRequest.find_for(
+      group: title,
+      roles: [:reviewer],
+      review_states: [:new],
+      states: [:review],
+      search: search)
+  end
+
+  def incoming_requests(search = nil)
+    BsRequest.find_for(group: title, states: [:new], roles: [:maintainer], search: search)
+  end
 end
 
 # == Schema Information

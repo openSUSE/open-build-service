@@ -10,10 +10,12 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
 
     find(:id, 'group-table_wrapper').must_have_text 'Showing 1 to 5 of 5 entries'
     find(:id, 'test_group_empty').click
+    find(:id, 'group-members-tab').click
     find(:id, 'content').must_have_text 'This group does not contain users'
 
     visit groups_path
     find(:id, 'test_group').click
+    find(:id, 'group-members-tab').click
     find(:id, 'group-members-table_wrapper').must_have_text 'Showing 1 to 2 of 2 entries'
     find(:link, 'adrian').click
     assert page.current_url.end_with? user_show_path(user: 'adrian')

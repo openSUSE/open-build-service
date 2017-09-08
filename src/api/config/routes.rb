@@ -349,6 +349,10 @@ OBSApi::Application.routes.draw do
       get 'users/(:user)/requests' => :index, as: 'user_requests'
     end
 
+    controller 'webui/groups/bs_requests' do
+      get 'groups/(:title)/requests' => :index, as: 'group_requests'
+    end
+
     controller 'webui/users/rss_tokens' do
       post 'users/rss_tokens' => :create, as: 'user_rss_token'
     end
