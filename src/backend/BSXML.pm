@@ -1837,4 +1837,20 @@ our $binannotation = [
      ]],
 ];
 
+our $availablebinaries = [
+    'availablebinaries' =>
+     [[ 'packages' =>
+	  [ 'arch' ],
+	  [ 'name' ],
+    ]],
+     [[ 'products' =>
+	  [ 'arch' ],
+	  [ 'name' ],
+    ]],
+     [[ 'patterns' =>
+	  [ 'arch' ],
+	  [ 'name' ],
+    ]],
+];
+
 1;

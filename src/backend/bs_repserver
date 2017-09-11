@@ -457,6 +457,67 @@ sub getrpmheaders {
   return (substr($buf, 0, 96), substr($buf, 96, $hlen - 96), substr($buf, $hlen, $hlen2 - $hlen), $hdrmd5);
 }
 
+sub getavailable {
+my ($projid, $repoid, $arch, $available, $available_pattern, $available_product) = @_;
+  my $pool = BSSolv::pool->new();
+  my $dir = "$reporoot/$projid/$repoid/$arch/:full";
+  my $repo;
+  if (-s "$dir.solv") {
+    eval {$repo = $pool->repofromfile("$projid/$repoid", "$dir.solv");};
+  }
+  if ($repo) {
+    $pool->createwhatprovides();
+    my @pkgs = $repo->pkgnames();
+    while (@pkgs) {
+      my ($name, $p) = splice(@pkgs, 0, 2);
+      my $arch;
+      if (defined(&BSSolv::pool::pkg2arch)) {
+	$arch = $pool->pkg2arch($p);
+      } else {
+	my $d = $pool->pkg2data($p);
+	$arch = $d->{'arch'};
+      }
+      $arch ||= 'noarch';
+      $available->{$name}->{$arch} = 1;
+    }
+    for my $p ($pool->whatprovides('pattern()')) {
+      my $d = $pool->pkg2data($p);
+      my $name;
+      my $visible;
+      for my $prv (@{$d->{'provides'} || []}) {
+	$visible = 1 if $prv =~ /^pattern-visible\(\)/;
+        next unless $prv =~ /^pattern\(\) = ([^\.].*)/;
+        $name ||= $1;
+      }
+      $available_pattern->{$name}->{'noarch'} = 1 if $visible && defined $name;
+    }
+    for my $p ($pool->whatprovides('product()')) {
+      my $d = $pool->pkg2data($p);
+      my $name;
+      for my $prv (@{$d->{'provides'} || []}) {
+        next unless $prv =~ /^product\(\) = ([^\.].*)/;
+        $name ||= $1;
+      }
+      $available_product->{$name}->{'noarch'} = 1 if defined $name;
+    }
+  }
+}
+
+sub processavailable {
+  my ($available) = @_;
+  my %archlist;
+  my @res;
+  for my $bin (sort keys %$available) {
+    my $archlist = join(',', sort keys %{$available->{$bin}});
+    $archlist{$archlist}->{$bin} = 1;
+  }
+  for my $archlist (sort keys %archlist) {
+    my @archs = split(',', $archlist);
+    push @res, {'arch' => \@archs, 'name' => [ sort keys %{$archlist{$archlist}} ]};
+  }
+  return \@res;
+}
+
 sub getbinarylist_repository {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
@@ -657,6 +718,16 @@ sub getbinarylist_repository {
 
   if ($view eq 'binaryversions') {
     return getbinaryversions($cgi, $projid, $repoid, $arch);
+  }
+
+  if ($view eq 'availablebinaries') {
+    my (%available, %available_pattern, %available_product);
+    getavailable($projid, $repoid, $arch, \%available, \%available_pattern, \%available_product);
+    my %res;
+    $res{'packages'} = processavailable(\%available) if %available;
+    $res{'patterns'} = processavailable(\%available_pattern) if %available_pattern;
+    $res{'products'} = processavailable(\%available_product) if %available_product;
+    return (\%res, $BSXML::availablebinaries);
   }
 
   die("unsupported view '$view'\n") if $view && $view ne 'names';
@@ -2498,6 +2569,19 @@ sub docommand {
       unpublish($projid, $repoid, $prparchs{$prp}, $cgi->{'package'} || []);
     }
     return $BSStdServer::return_ok;
+  }
+
+  if ($cmd eq 'availablebinaries') {
+    my (%available, %available_pattern, %available_product);
+    for my $prpa (@$prpas) {
+      my ($projid, $repoid, $arch) = split('/', $prpa);
+      getavailable($projid, $repoid, $arch, \%available, \%available_pattern, \%available_product);
+    }
+    my %res;
+    $res{'packages'} = processavailable(\%available) if %available;
+    $res{'patterns'} = processavailable(\%available_pattern) if %available_pattern;
+    $res{'products'} = processavailable(\%available_product) if %available_product;
+    return (\%res, $BSXML::availablebinaries);
   }
 
   for my $prpa (@$prpas) {

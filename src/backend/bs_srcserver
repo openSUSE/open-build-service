@@ -5868,6 +5868,114 @@ sub checkconstraints {
   return ($ret, $BSXML::dir);
 }
 
+sub getavailable {
+  my ($in, $available) = @_;
+  for my $i (@{$in || []}) {
+    for my $arch (@{$i->{'arch'} || []}) {
+      $available->{$_}->{$arch} = 1 for @{$i->{'name'} || []};
+    }
+  }
+}
+
+sub processavailable {
+  my ($available) = @_;
+  my %archlist;
+  my @res;
+  for my $bin (sort keys %$available) {
+    my $archlist = join(',', sort keys %{$available->{$bin}});
+    $archlist{$archlist}->{$bin} = 1;
+  }
+  for my $archlist (sort keys %archlist) {
+    my @archs = split(',', $archlist);
+    push @res, {'arch' => \@archs, 'name' => [ sort keys %{$archlist{$archlist}} ]};
+  }
+  return \@res;
+}
+
+sub getavailablebinaries {
+  my ($cgi, $projid) = @_;
+  my @path = @{$cgi->{'path'} || []};
+  for my $url (@{$cgi->{'url'} || []}) {
+    if ($url =~ /^obs:\/\/\/?([^\/]+)\/([^\/]+)\/?$/) {
+      push @path, "$1/$2";
+    } else {
+      my $prp = BSUrlmapper::urlmapper($url);
+      push @path, $prp if $prp;
+    }
+  }
+  my @prpa;
+  my @arch;
+  # hack ahead
+  my $proj = BSRevision::readproj_local($projid, 1) || {};
+  for my $repo (@{$proj->{'repository'} || []}) {
+    next unless @{$repo->{'arch'} || []};
+    if (@{$proj->{'repository'} || []} > 1) {
+      next unless $repo->{'name'} && $repo->{'name'} =~ /^images/;
+    }
+    push @arch, @{$repo->{'arch'} || []};
+    if (!@path) {
+      for my $prp (expandsearchpath($projid, $repo->{'name'})) {
+        push @prpa, map {"$prp/$_"} @{$repo->{'arch'} || []};
+      }
+    }
+  }
+  if (@path) {
+    @arch = BSUtil::unify(@arch);
+    for my $prp (@path) {
+      push @prpa, map {"$prp/$_"} @arch;
+    }
+  }
+  @prpa = BSUtil::unify(@prpa);
+
+  # now partition the prpas
+  my %projid2reposerver;
+  my %prpas_by_reposerver;
+  for my $prpa (@prpa) {
+    my ($aprojid, $arepoid, $aarch) = split('/', $prpa, 3);
+    my $reposerver = $projid2reposerver{$aprojid};
+    if (!$reposerver) {
+      # check if it's a remote repo
+      my $proj = BSRevision::readproj_local($aprojid, 1);
+      $proj = BSSrcServer::Remote::remoteprojid($aprojid) if !$proj || $proj->{'remoteurl'};
+      if ($proj->{'remoteurl'}) {
+        next;	# not supported yet
+      } else {
+        $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($aprojid) : $BSConfig::reposerver;
+      }
+      $projid2reposerver{$aprojid} = $reposerver;
+    }
+    push @{$prpas_by_reposerver{$reposerver}}, $prpa;
+  }
+
+  # go get em
+  my (%available, %available_pattern, %available_product);
+  for my $reposerver (sort keys %prpas_by_reposerver) {
+    my @args;
+    push @args, map {"prpa=$_"} @{$prpas_by_reposerver{$reposerver}};
+    push @args, "cmd='availablebinaries'}";
+    my $param = {
+      'uri' => "$reposerver/_command",
+      'timeout' => 30,
+      'request' => 'POST',
+    };
+    my $res;
+    eval {
+      $res = BSWatcher::rpc($param, $BSXML::availablebinaries, @args);
+    };
+    warn($@) if $@;
+    next unless $res;
+    #return ($res, $BSXML::availablebinaries) if keys(%prpas_by_reposerver) == 1;
+    getavailable($res->{'packages'}, \%available) if $res->{'packages'};
+    getavailable($res->{'patterns'}, \%available_pattern) if $res->{'patterns'};
+    getavailable($res->{'products'}, \%available_product) if $res->{'products'};
+  }
+  my %res;
+  $res{'packages'} = processavailable(\%available) if %available;
+  $res{'patterns'} = processavailable(\%available_pattern) if %available_pattern;
+  $res{'products'} = processavailable(\%available_product) if %available_product;
+  return (\%res, $BSXML::availablebinaries);
+}
+
 ####################################################################
 
 my $dispatches = [
@@ -6000,6 +6108,7 @@ my $dispatches = [
   '/build/_workerstatus scheduleronly:bool? daemonsonly:bool? arch*' => \&getworkerstatus,
   'PUT:/build/_dispatchprios' => \&putdispatchprios,
   '/build/_dispatchprios' => \&getdispatchprios,
+  '/build/$project/_availablebinaries url:* path:prp*' => \&getavailablebinaries.
   'POST:/build/$project cmd: repository* arch* package* code:* wipe:*' => \&docommand,
   '/build/$project' => \&getrepositorylist,
   '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:* multibuild:bool? locallink:bool?' => \&getresult,
