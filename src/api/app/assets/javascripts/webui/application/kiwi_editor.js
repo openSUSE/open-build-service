@@ -1,6 +1,5 @@
 var canSave = false;
 
-
 function hideOverlay(dialog) {
   $('.overlay').hide();
   dialog.addClass('hidden');
@@ -101,7 +100,6 @@ function closeDialog() {
       if(arch != '') {
         name.append(" <small>(" + arch + ")</small>");
       }
-
     }
     else {
       fields.find(".ui-state-error").removeClass('hidden');
@@ -282,6 +280,13 @@ $(document).ready(function(){
     $(addedFields).find('.kiwi-repository-mode-toggle').click(repositoryModeToggle);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
     kiwiRepositoriesSetupAutocomplete($(addedFields));
+    $('#no-repositories').hide();
+  });
+
+  $('#kiwi-repositories-list').on('cocoon:after-remove', function() {
+    if ($(this).find('.nested-fields:visible').size() === 0) {
+      $('#no-repositories').show();
+    }
   });
 
   // After inserting new packages add the Callbacks
@@ -291,5 +296,12 @@ $(document).ready(function(){
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
+    $('#no-packages').hide();
+  });
+
+  $('#kiwi-packages-list').on('cocoon:after-remove', function() {
+    if ($(this).find('.nested-fields:visible').size() === 0) {
+      $('#no-packages').show();
+    }
   });
 });

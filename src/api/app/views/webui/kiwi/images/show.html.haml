@@ -18,7 +18,7 @@
         This option will use the repositories from the current project. Others repositories set in this Kiwi Image will be REMOVED.
     #kiwi-repositories-list{ class: "#{'hidden' if f.object.use_project_repositories?}"}
       %hr
-      %p= 'There are no repositories.' if @image.repositories.empty?
+      %p#no-repositories{ class: "#{'hidden' if @image.repositories.present?}" }= 'There are no repositories.'
       = f.fields_for :repositories do |repository_fields|
         = render 'repository_fields', f: repository_fields
       %p
@@ -27,7 +27,7 @@
   .grid_16.alpha.omega.box.box-shadow
     %h3 Packages
     #kiwi-packages-list
-      %p= 'There are no packages.' if @image.kiwi_packages.empty?
+      %p#no-packages{ class: "#{'hidden' if @image.kiwi_packages.present?}" }= 'There are no packages.'
 
       = f.fields_for :package_groups, @image.default_package_group do |package_group_fields|
         = package_group_fields.fields_for :packages do |kiwi_package_fields|
