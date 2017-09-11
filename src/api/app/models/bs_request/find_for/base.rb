@@ -45,7 +45,8 @@ class BsRequest
       end
 
       def review_states
-        @parameters[:review_states] || [:new]
+        result = [@parameters[:review_states]].flatten.compact
+        result.empty? ? [:new] : result
       end
 
       def search
