@@ -469,4 +469,56 @@ RSpec.describe Project, vcr: true do
       it { expect(Project.deleted?(project.name)).to be_truthy }
     end
   end
+
+  describe '#render_relationships' do
+    let!(:project) { create(:project) }
+    let!(:group) { create(:group) }
+    let!(:user) { create(:user) }
+    let!(:role) { Role.find_by_title('bugowner') }
+    let!(:relationship1) do
+      create(:relationship_project_group, project: project, group: group, role: role)
+    end
+    let!(:relationship2) do
+      create(:relationship_project_user, project: project, user: user, role: role)
+    end
+    let(:xml) { double }
+
+    before do
+      allow(xml).to receive(:person)
+      allow(xml).to receive(:group)
+    end
+
+    subject! { project.render_relationships(xml) }
+
+    it { expect(xml).to have_received(:person).with(userid: user.login, role: 'bugowner') }
+    it { expect(xml).to have_received(:group).with(groupid: group.title, role: 'bugowner') }
+  end
+
+  describe '#remove_all_persons' do
+    let!(:project) { create(:project) }
+    let!(:user) { create(:user) }
+    let!(:relationship) do
+      create(:relationship, project: project, user: user)
+    end
+
+    subject! { project.remove_all_persons }
+
+    it 'deletes the relationship' do
+      expect(Relationship.exists?(relationship.id)).to be_falsey
+    end
+  end
+
+  describe '#remove_all_groups' do
+    let!(:project) { create(:project) }
+    let!(:group) { create(:group) }
+    let!(:relationship) do
+      create(:relationship, project: project, group: group)
+    end
+
+    subject! { project.remove_all_groups }
+
+    it 'deletes the relationship' do
+      expect(Relationship.exists?(relationship.id)).to be_falsey
+    end
+  end
 end
