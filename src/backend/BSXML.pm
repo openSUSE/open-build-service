@@ -1812,7 +1812,8 @@ our $publishedpath = [
 
 our $multibuild = [
     'multibuild' =>
-	  [ 'package' ],
+	  [ 'package' ],	# obsolete
+	  [ 'flavor' ],
 ];
 
 our $keyinfo = [

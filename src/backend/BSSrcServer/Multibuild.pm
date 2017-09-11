@@ -164,7 +164,7 @@ sub addmultibuildpackages {
     push @packages, $packid;
     my $mb = $mc->{$packid};
     next unless $mb;
-    my @mbp = map {"$packid:$_"} @{$mb->{'package'} || []};
+    my @mbp = map {"$packid:$_"} @{$mb->{'flavor'} || $mb->{'package'} || []};
     push @packages, @mbp;
     if ($origins) {
       for (@mbp) {

@@ -506,9 +506,14 @@ sub verify_dod {
 
 sub verify_multibuild {
   my ($mb) = @_;
+  die("multibuild cannot have both package and flavor elements\n") if $mb->{'package'} && $mb->{'flavor'};
   for my $packid (@{$mb->{'package'} || []}) {
     verify_packid($packid);
     die("packid $packid is illegal in multibuild\n") if $packid =~ /:/;
+  }
+  for my $packid (@{$mb->{'flavor'} || []}) {
+    verify_packid($packid);
+    die("flavor $packid is illegal in multibuild\n") if $packid =~ /:/;
   }
 }
 

@@ -1380,7 +1380,7 @@ sub getprojpack {
 	@packages = grep {!/^\Q$packid\E:/} @packages if $packages_multibuild{$packid};
 	# get current multibuild state
 	my $mb = BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, 1);
-	unshift @packages, map {"$packid:$_"} @{$mb->{'package'} || []} if $mb;
+	unshift @packages, map {"$packid:$_"} @{$mb->{'flavor'} || $mb->{'package'} || []} if $mb;
 
 	if ($packid eq '_pattern') {
 	  $jinfo->{'patternmd5'} = $pinfo->{'srcmd5'};
@@ -2521,7 +2521,7 @@ sub getfilelist {
   }
   if ($islatestrev && $rev->{'originpackage'}) {
     my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $rev->{'package'}) || {};
-    die("404 package '$packid' does not exist\n") unless grep {"$rev->{'package'}:$_" eq $packid} @{$mb->{'package'} || []};
+    die("404 package '$packid' does not exist\n") unless grep {"$rev->{'package'}:$_" eq $packid} @{$mb->{'flavor'} || $mb->{'package'} || []};
   }
 
   if ($cgi->{'extension'}) {
@@ -4114,7 +4114,7 @@ sub copybuild {
   my %tocopy = ($opackid => $packid);
   if ($cgi->{'multibuild'}) {
     my $mb = BSSrcServer::Multibuild::getmultibuild($oprojid, $opackid) || {};
-    $tocopy{"$opackid:$_"} = "$packid:$_" for @{$mb->{'package'} || []};
+    $tocopy{"$opackid:$_"} = "$packid:$_" for @{$mb->{'flavor'} || $mb->{'package'} || []};
   }
   for $opackid (sort keys %tocopy) {
     my @args;
@@ -5512,7 +5512,7 @@ sub sourceinfo {
     BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files);
     if ($rev->{'originpackage'}) {
       my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $rev->{'package'}) || {};
-      if (!grep {"$rev->{'package'}:$_" eq $packid} @{$mb->{'package'} || []}) {
+      if (!grep {"$rev->{'package'}:$_" eq $packid} @{$mb->{'flavor'} || $mb->{'package'} || []}) {
         $r->{'error'} = "package '$packid' does not exist";
         return $r;
       }
