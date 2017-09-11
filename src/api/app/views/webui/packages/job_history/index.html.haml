@@ -26,7 +26,10 @@
         %td
           = time_tag(Time.at(jobhistory.ready_time))
         %td
-          = jobhistory.reason
+          - if jobhistory.reason == 'source change'
+            = link_to(jobhistory.reason, package_rdiff_path(project: @project.name, package: @package.name, orev: jobhistory.prev_verifymd5, rev: jobhistory.verifymd5))
+          - else
+            = jobhistory.reason
         %td{ class: "status_#{jobhistory.code}" }
           = jobhistory.code
         %td

@@ -495,12 +495,23 @@ RSpec.describe Package, vcr: true do
           <jobhist package='#{package.name}' rev='1' srcmd5='2ac8bd685591b40e412ee99b182f94c2' versrel='7-3' bcnt='1' readytime='1492687344'
           starttime='1492687470' endtime='1492687507' code='succeed' uri='http://127.0.0.1:41355' workerid='vagrant-openSUSE-Leap:1'
           hostarch='x86_64' reason='new build' verifymd5='2ac8bd685591b40e412ee99b182f94c2'/>
+          <jobhist package='#{package.name}' rev='2' srcmd5='597d297d19621de7db926d36d27d4331' versrel='7-3' bcnt='1' readytime='1492687344'
+          starttime='1492687470' endtime='1492687507' code='succeed' uri='http://127.0.0.1:41355' workerid='vagrant-openSUSE-Leap:1'
+          hostarch='x86_64' reason='source change' verifymd5='597d297d19621de7db926d36d27d4331'/>
         </jobhistlist>))
       end
 
-      it { expect(subject.class).to eq(Array) }
-      it { expect(subject.first.class).to eq(LocalJobHistory) }
-      it { expect(subject.first).to have_attributes(local_job_history) }
+      it { expect(subject.last).to have_attributes(local_job_history) }
+
+      it 'returns the jobs in descending order' do
+        expect(subject[0].revision).to eq('2')
+        expect(subject[1].revision).to eq('1')
+      end
+
+      it 'contains the previous verifymd5 value on the job with rev=2' do
+        expect(subject[0].verifymd5).to eq('597d297d19621de7db926d36d27d4331')
+        expect(subject[0].prev_verifymd5).to eq('2ac8bd685591b40e412ee99b182f94c2')
+      end
     end
 
     context 'when response fails' do

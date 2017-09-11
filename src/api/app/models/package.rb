@@ -956,9 +956,13 @@ class Package < ApplicationRecord
                                      limit: limit)
 
     local_jobs_history = []
-    results.elements('jobhist').reverse_each do |result|
+    results.elements('jobhist').each_with_index do |result, index|
+      prev_verifymd5 = results.elements('jobhist')[index - 1].try(:fetch, 'verifymd5', nil)
+
       local_jobs_history << LocalJobHistory.new(revision: result['rev'],
                                                 srcmd5: result['srcmd5'],
+                                                verifymd5: result['verifymd5'],
+                                                prev_verifymd5: prev_verifymd5,
                                                 build_counter: result['bcnt'],
                                                 worker_id: result['workerid'],
                                                 host_arch: result['hostarch'],
@@ -970,7 +974,7 @@ class Package < ApplicationRecord
                                                 code: result['code'])
     end
 
-    local_jobs_history
+    local_jobs_history.reverse
   end
 
   def service_error(revision = nil)
