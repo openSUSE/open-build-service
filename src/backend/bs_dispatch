@@ -712,7 +712,7 @@ sub checkconstraints {
       $workerseen{$workername} = 1;
       push @all_workers, $worker;
       next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker, $constraints);
-      next unless !$constraints || BSDispatcher::Constraints::oracle($worker, $constraints) > 0;
+      next unless BSDispatcher::Constraints::oracle($worker, $constraints);
       $sumworkers++;
       $downworkers++ if $workerstate eq 'down';
     }
@@ -1213,8 +1213,6 @@ while (1) {
       my $tries = 0;
       my $haveassigned;
       my ($project, $repository, $arch) = split('/', $prpa, 3);
-      my $lastoracle = 0;
-      my $lastoracleidle;
       my $constraints;
       if ($info->{'constraintsmd5'}) {
 	my $constraintsmd5 = $ic->{$job}->{'constraintsmd5'};
@@ -1240,13 +1238,7 @@ while (1) {
 	}
       }
       undef $constraints if $constraints && !%$constraints;
-      push @idle, '__lastoracle' if $constraints;
       for my $idle (@idle) {
-	if ($idle eq '__lastoracle') {
-	  last unless $lastoracleidle;
-	  $idle = $lastoracleidle;
-	  $lastoracleidle = '__lastoracle';
-	}
 	next if $badhost{"$project/$info->{'package'}/$arch/$idle"};
 	next if $badhost{"$project/:repo:$info->{'repository'}/$arch/$idle"};
 	my ($harch, $hname) = split(':', $idle, 2);
@@ -1271,25 +1263,7 @@ while (1) {
         if ($harchcando{"$harch/$arch"} && $worker->{hardware} && exists($worker->{hardware}->{nativeonly})) {
            next;	# worker is not supporting the needed personality change
         }
-	if ($constraints) {
-	  my $ora = BSDispatcher::Constraints::oracle($worker, $constraints);
-	  next unless defined($ora) && $ora > 0;
-	  if ($ora < 1) {
-	    if ($lastoracleidle && $lastoracleidle eq '__lastoracle') {
-	      my $widle = $now - $workerinfo_mtime{$idle};
-	      my $jwait = $now - $info->{'readytime'};
-	      $widle = 0 if $widle < 0;
-	      $jwait = 0 if $jwait < 0;
-	      next if $widle / 60 < 1 - $ora && $jwait / 300 < 1 - $ora;
-	    } else {
-	      if ($ora > $lastoracle) {
-		$lastoracleidle = $idle;
-		$lastoracle = $ora;
-	      }
-	      next;
-	    }
-	  }
-	}
+	next unless BSDispatcher::Constraints::oracle($worker, $constraints);
 	last unless -e "$jobsdir/$arch/$job";
 	last if $assigned && $tries >= 5;
 	$tries++;
@@ -1315,10 +1289,10 @@ while (1) {
 	$haveassigned = 1;
 	last;
       }
-      # we have jobs that could not be assigned and have constraints.
+      # we have jobs that could not be assigned.
       # check if non idle workers could build these job or if there are no
       # workers that met the constraints
-      if (!$haveassigned && $constraints) {
+      if (!$haveassigned) {
         if ($info->{'allworkercheck'}++ % 5 == 0) {
 	  if (!$info->{'allworkerchecktime'} || $now - $info->{'allworkerchecktime'} > 300) {
 	    $info->{'allworkerchecktime'} = $now;

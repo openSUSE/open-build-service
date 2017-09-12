@@ -759,6 +759,7 @@ our $worker = [
 	'workerid',
       [ 'buildarch' ],
       [ 'hostlabel' ],
+	'hostlabelfiltermode',
 	'sandbox',
       [ 'linux' =>
         [],
