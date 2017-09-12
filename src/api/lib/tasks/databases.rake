@@ -97,6 +97,22 @@ namespace :db do
       end
       puts "Everything looks fine!"
     end
+
+    desc "Verify that structure.sql does not use any columns with type = bigint"
+    task verify_no_bigint: :environment do
+      puts 'Checking db/structure.sql for bigint'
+
+      bigint_lines = %x{grep "bigint" #{Rails.root}/db/structure.sql}
+
+      unless bigint_lines.blank?
+        abort <<-STR
+          Please do not use bigint column type in db/structure.sql.
+          You may need to call create_table with `id: :integer` to avoid the id column using bigint.
+        STR
+      end
+
+      puts 'Ok'
+    end
   end
 
   desc 'Create the database, load the structure, and initialize with the seed data'

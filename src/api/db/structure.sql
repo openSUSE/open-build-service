@@ -613,7 +613,7 @@ CREATE TABLE `kiwi_images` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `kiwi_package_groups` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `kiwi_type` int(11) NOT NULL,
   `profiles` varchar(255) DEFAULT NULL,
   `pattern_type` varchar(255) DEFAULT NULL,
@@ -626,7 +626,7 @@ CREATE TABLE `kiwi_package_groups` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `kiwi_packages` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `arch` varchar(255) DEFAULT NULL,
   `replaces` varchar(255) DEFAULT NULL,
