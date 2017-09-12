@@ -5952,7 +5952,7 @@ sub getavailablebinaries {
   for my $reposerver (sort keys %prpas_by_reposerver) {
     my @args;
     push @args, map {"prpa=$_"} @{$prpas_by_reposerver{$reposerver}};
-    push @args, "cmd='availablebinaries'}";
+    push @args, "cmd=availablebinaries";
     my $param = {
       'uri' => "$reposerver/_command",
       'timeout' => 30,
