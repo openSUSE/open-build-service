@@ -16,7 +16,7 @@
   .dialog-content {
     overflow: auto;
     max-height: 400px;
-    input:not([type=submit]):not([type=file]) {
+    input:not([type=submit]):not([type=file]):not([type=checkbox]) {
       width: 95%;
     }
   }
@@ -42,7 +42,7 @@
       }
     }
 
-    .close-dialog, .revert-dialog {
+    a {
       border-radius: 5px;
       border: 1px solid #eee;
     }

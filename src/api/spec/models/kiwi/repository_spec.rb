@@ -3,6 +3,9 @@ require 'rantly/rspec_extensions'
 
 RSpec.describe Kiwi::Repository, type: :model do
   let(:kiwi_repository) { create(:kiwi_repository) }
+  let(:non_obs_kiwi_repository) { create(:kiwi_repository, source_path: 'http://example.com/my_repo') }
+  let(:obs_kiwi_repository) { create(:kiwi_repository, source_path: 'obs://home:project/my_obs_repo') }
+  let(:kiwi_repository_without_sourcepath) { build(:kiwi_repository, source_path: nil) }
 
   describe '#name' do
     context 'with an alias' do
@@ -127,6 +130,66 @@ RSpec.describe Kiwi::Repository, type: :model do
         expect(subject).to eq("<repository type=\"apt-deb\" alias=\"example\">\n  " +
                               "<source path=\"http://example.com/\"/>\n</repository>\n")
       end
+    end
+  end
+
+  describe '#obs_source_path?' do
+    context 'with non OBS repository' do
+      subject { non_obs_kiwi_repository.obs_source_path? }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'with a repository without source_path' do
+      subject { kiwi_repository_without_sourcepath.obs_source_path? }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'with an OBS repository' do
+      subject { obs_kiwi_repository.obs_source_path? }
+
+      it { is_expected.to be_truthy }
+    end
+  end
+
+  describe '#project_for_type_obs' do
+    context 'with non OBS repository' do
+      subject { non_obs_kiwi_repository.project_for_type_obs }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'with a repository without source_path' do
+      subject { kiwi_repository_without_sourcepath.project_for_type_obs }
+
+      it { is_expected.to eq('') }
+    end
+
+    context 'with an OBS repository' do
+      subject { obs_kiwi_repository.project_for_type_obs }
+
+      it { is_expected.to eq('home:project') }
+    end
+  end
+
+  describe '#repository_for_type_obs' do
+    context 'with non OBS repository' do
+      subject { non_obs_kiwi_repository.repository_for_type_obs }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'with a repository without source_path' do
+      subject { kiwi_repository_without_sourcepath.repository_for_type_obs }
+
+      it { is_expected.to eq('') }
+    end
+
+    context 'with an OBS repository' do
+      subject { obs_kiwi_repository.repository_for_type_obs }
+
+      it { is_expected.to eq('my_obs_repo') }
     end
   end
 end

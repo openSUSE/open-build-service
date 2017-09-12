@@ -60,6 +60,9 @@
   float: left;
   clear: left;
   width: 100%;
+  &:hover {
+    background-color: #eee;
+  }
 }
 
 .ui-menu .ui-menu-item a.ui-state-hover,
@@ -82,3 +85,15 @@ body .ui-tooltip {
         border-width: 2px;
 }
 
+.ui-front {
+  z-index: 100;
+}
+
+.ui-widget-content {
+  border: 1px solid #aaaaaa;
+  background: #ffffff;
+  color: #222222;
+}
+.ui-widget-content a {
+  color: #222222;
+}
