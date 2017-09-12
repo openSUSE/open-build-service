@@ -386,7 +386,7 @@ end
 
 module ActionDispatch
   class IntegrationTest
-    include TestBackendTasks
+    include Backend::Tests::Tasks
 
     def teardown
       Rails.cache.clear
