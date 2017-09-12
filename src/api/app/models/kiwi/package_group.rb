@@ -42,3 +42,7 @@ end
 #
 #  index_kiwi_package_groups_on_image_id  (image_id)
 #
+# Foreign Keys
+#
+#  fk_rails_...  (image_id => kiwi_images.id)
+#

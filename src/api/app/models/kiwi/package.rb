@@ -32,3 +32,7 @@ end
 #
 #  index_kiwi_packages_on_package_group_id  (package_group_id)
 #
+# Foreign Keys
+#
+#  fk_rails_...  (package_group_id => kiwi_package_groups.id)
+#
