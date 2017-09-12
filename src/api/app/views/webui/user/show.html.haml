@@ -17,19 +17,18 @@
       = mail_to(@displayed_user.email, sprite_tag('email', title: 'Send mail to user'), title: 'Send mail to user')
       = mail_to(@displayed_user.email, nil, title: 'Send mail to user')
   / groups
-  - gs = @displayed_user.groups
-  - unless gs.empty?
+
+  - if @groups.any?
     %p Member of the group
     %ul
-      - gs.each do |group|
+      - @groups.each do |group|
         %li= link_to("#{group.title} (#{group.tasks})", group_show_path(group))
   / roles
-  - grs = @displayed_user.roles.global.pluck(:title)
-  - if grs.present?
+  - if @role_titles.any?
     %p Has the role
     %ul
-      - grs.each do |role|
-        %li= role
+      - @role_titles.each do |title|
+        %li= title
   / edit
   - if @is_displayed_user
     %p
