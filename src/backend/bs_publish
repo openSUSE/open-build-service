@@ -1513,7 +1513,7 @@ sub publish {
 	    $p = $bin;
 	    if ($name eq 'nobuildid') {
 		$p = "repo/$bin";
-		$p =~ s/-Build\d+-/-/;
+		$p =~ s/-Build[\d\.]+-/-/;
 	    } elsif ($bin =~ /.*-Media1(\.license|)$/) {
 	      $p = "$name$1";
 	    } elsif ($bin =~ /-Media3$/) {
