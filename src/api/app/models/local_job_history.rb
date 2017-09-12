@@ -12,5 +12,5 @@ class LocalJobHistory
                 :code,
                 :srcmd5,
                 :verifymd5,
-                :prev_verifymd5
+                :prev_srcmd5
 end
