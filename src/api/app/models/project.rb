@@ -280,7 +280,7 @@ class Project < ApplicationRecord
 
   def number_of_build_problems
     begin
-      result = ActiveXML.backend.direct_http("/build/#{URI.escape(name)}/_result?view=status&code=failed&code=broken&code=unresolvable")
+      result = Backend::Api.build_problems(name)
     rescue ActiveXML::Transport::NotFoundError
       return 0
     end

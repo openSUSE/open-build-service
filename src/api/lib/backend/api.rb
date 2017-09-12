@@ -169,5 +169,11 @@ module Backend
       path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/#{CGI.escape(package)}/_log?view=entry"
       Backend::Connection.get(path).body
     end
+
+    # Returns the log's size for a build
+    def self.build_problems(project)
+      path = "/build/#{CGI.escape(project)}/_result?view=status&code=failed&code=broken&code=unresolvable"
+      Backend::Connection.get(path).body
+    end
   end
 end
