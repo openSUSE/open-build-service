@@ -7,5 +7,7 @@ SimpleCov.start 'rails' do
   add_filter '/lib/memory_debugger.rb'
   add_filter '/lib/memory_dumper.rb'
   merge_timeout 3600
-  formatter SimpleCov::Formatter::Codecov
 end
+# for tracking test coverage
+require 'codecov'
+SimpleCov.formatter = SimpleCov::Formatter::Codecov
