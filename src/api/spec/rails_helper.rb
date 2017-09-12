@@ -2,14 +2,14 @@ ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 # Prevent database truncation if the environment is production
 abort('The Rails environment is running in production mode!') if Rails.env.production?
+# for generating test coverage
+require 'simplecov'
+# support test coverage
+require 'support/coverage'
 # as our base helper
 require 'spec_helper'
 # for rails
 require 'rspec/rails'
-# for generating test coverage
-require 'simplecov'
-# for tracking test coverage
-require 'codecov'
 # for pundit policy
 require 'pundit/rspec'
 
@@ -40,9 +40,6 @@ RSpec.configure do |config|
     end
   end
 end
-
-# support test coverage
-require 'support/coverage'
 
 # support fixtures
 require 'support/factory_girl'
