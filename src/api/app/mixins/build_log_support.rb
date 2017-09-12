@@ -1,8 +1,7 @@
 module BuildLogSupport
   def raw_log_chunk( project, package, repo, arch, start, theend )
     logger.debug "get log chunk #{start}-#{theend}"
-    path = URI.escape("/build/#{project}/#{repo}/#{arch}/#{package}/_log?nostream=1&start=#{start}&end=#{theend}")
-    ActiveXML.backend.direct_http URI(path), timeout: 500
+    Backend::Api.log_chunk(project.to_s, package.to_s, repo, arch, start, theend)
   end
 
   def get_log_chunk( project, package, repo, arch, start, theend )
@@ -25,10 +24,9 @@ module BuildLogSupport
     end
   end
 
-  def get_size_of_log( project, package, repo, arch)
+  def get_size_of_log(project, package, repo, arch)
     logger.debug 'get log entry'
-    path = URI.escape("/build/#{project}/#{repo}/#{arch}/#{package}/_log?view=entry")
-    data = ActiveXML.backend.direct_http URI(path), timeout: 500
+    data = Backend::Api.build_log_size(project.to_s, package.to_s, repo, arch)
     return 0 unless data
     doc = Xmlhash.parse(data)
     doc.elements('entry') do |e|
@@ -38,19 +36,16 @@ module BuildLogSupport
   end
 
   def get_job_status(project, package, repo, arch)
-    path = URI.escape("/build/#{project}/#{repo}/#{arch}/#{package}/_jobstatus")
-    ActiveXML.backend.direct_http URI(path), timeout: 500
+    Backend::Api.job_status(project.to_s, package.to_s, repo, arch)
   end
 
   def get_status(project, package, repo, arch)
-    path = URI.escape("/build/#{project}/_result?view=status&package=#{package}&arch=#{arch}&repository=#{repo}")
-    code = ""
-    data = ActiveXML.backend.direct_http URI(path), timeout: 500
-    return code unless data
+    data = Backend::Api.build_result(project.to_s, package.to_s, repo, arch)
+    return "" unless data
     doc = Xmlhash.parse(data)
     if doc['result'] && doc['result']['status'] && doc['result']['status']['code']
-      code = doc['result']['status']['code']
+      return doc['result']['status']['code']
     end
-    code
+    ""
   end
 end
