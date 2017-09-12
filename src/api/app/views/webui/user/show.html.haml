@@ -17,12 +17,12 @@
       = mail_to(@displayed_user.email, sprite_tag('email', title: 'Send mail to user'), title: 'Send mail to user')
       = mail_to(@displayed_user.email, nil, title: 'Send mail to user')
   / groups
-  - gs = @displayed_user.groups.pluck(:title)
+  - gs = @displayed_user.groups
   - unless gs.empty?
     %p Member of the group
     %ul
       - gs.each do |group|
-        %li= link_to(group, controller: 'groups', action: 'show', title: group)
+        %li= link_to("#{group.title} (#{group.tasks})", group_show_path(group))
   / roles
   - grs = @displayed_user.roles.global.pluck(:title)
   - if grs.present?
