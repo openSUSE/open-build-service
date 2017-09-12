@@ -131,7 +131,7 @@ GEM
       jquery-rails
     font-awesome-rails (4.7.0.2)
       railties (>= 3.2, < 5.2)
-    git-cop (1.6.0)
+    git-cop (1.6.1)
       pastel (~> 0.7)
       refinements (~> 4.2)
       runcom (~> 1.3)
