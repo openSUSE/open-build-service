@@ -508,9 +508,9 @@ RSpec.describe Package, vcr: true do
         expect(subject[1].revision).to eq('1')
       end
 
-      it 'contains the previous verifymd5 value on the job with rev=2' do
-        expect(subject[0].verifymd5).to eq('597d297d19621de7db926d36d27d4331')
-        expect(subject[0].prev_verifymd5).to eq('2ac8bd685591b40e412ee99b182f94c2')
+      it 'contains the previous srcmd5 value on the job with rev=2' do
+        expect(subject[0].srcmd5).to eq('597d297d19621de7db926d36d27d4331')
+        expect(subject[0].prev_srcmd5).to eq('2ac8bd685591b40e412ee99b182f94c2')
       end
     end
 
