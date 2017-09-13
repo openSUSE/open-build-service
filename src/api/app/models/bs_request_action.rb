@@ -168,6 +168,10 @@ class BsRequestAction < ApplicationRecord
     send("#{source_or_target}_project") == pkg.project.name && send("#{source_or_target}_package") == pkg.name
   end
 
+  def is_from_remote?
+    Project.unscoped.is_remote_project?(source_project, true)
+  end
+
   def store_from_xml(hash)
     source = hash.delete('source')
     if source
