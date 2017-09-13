@@ -193,5 +193,14 @@ module Backend
     def self.worker_status
       Backend::Connection.get('/build/_workerstatus').body.force_encoding("UTF-8")
     end
+
+    # Returns the source diff
+    def self.source_diff(project, package, options = {})
+      path = "/source/#{CGI.escape(project)}/#{CGI.escape(package)}"
+      query_hash = { cmd: :diff, view: :xml, withissues: 1 }
+      query_hash.merge!(options.slice(:rev, :orev, :opackage, :oproject, :linkrev, :olinkrev, :expand))
+      path += "?#{query_hash.to_query}"
+      Backend::Connection.post(path).body.force_encoding('UTF-8')
+    end
   end
 end

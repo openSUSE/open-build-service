@@ -423,13 +423,13 @@ class Webui::PackageController < Webui::WebuiController
   class DiffError < APIException
   end
 
-  def get_diff(path)
+  def get_diff(project, package, options = {})
     begin
-      @rdiff = ActiveXML.backend.direct_http URI(path + '&expand=1'), method: 'POST', timeout: 10
+      @rdiff = Backend::Api.source_diff(project, package, options.merge(expand: 1))
     rescue ActiveXML::Transport::Error => e
       flash[:error] = 'Problem getting expanded diff: ' + e.summary
       begin
-        @rdiff = ActiveXML.backend.direct_http URI(path + '&expand=0'), method: 'POST', timeout: 10
+        @rdiff = Backend::Api.source_diff(project, package, options.merge(expand: 0))
       rescue ActiveXML::Transport::Error => e
         flash[:error] = 'Error getting diff: ' + e.summary
         redirect_back(fallback_location: package_show_path(project: @project, package: @package))
@@ -451,12 +451,12 @@ class Webui::PackageController < Webui::WebuiController
 
     @rev = params[:rev] || @last_rev
 
-    query = {'cmd' => 'diff', 'view' => 'xml', 'withissues' => 1}
+    options = {}
     [:orev, :opackage, :oproject, :linkrev, :olinkrev].each do |k|
-      query[k] = params[k] unless params[k].blank?
+      options[k] = params[k] unless params[k].blank?
     end
-    query[:rev] = @rev if @rev
-    return unless get_diff(@package.source_path + "?#{query.to_query}")
+    options[:rev] = @rev if @rev
+    return unless get_diff(@project.name, @package.name, options)
 
     # we only look at [0] because this is a generic function for multi diffs - but we're sure we get one
     filenames = sorted_filenames_from_sourcediff(@rdiff)[0]
