@@ -181,5 +181,12 @@ module Backend
       path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/#{CGI.escape(package)}/rpmlint.log"
       Backend::Connection.get(path).body.force_encoding("UTF-8")
     end
+
+    # Returns the build dependency information
+    def self.build_dependency_info(project, package, repository, architecture)
+      path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/_builddepinfo"
+      path += "?package=#{CGI.escape(package)}&view=pkgnames"
+      Backend::Connection.get(path).body.force_encoding("UTF-8")
+    end
   end
 end
