@@ -269,14 +269,14 @@ sub update_doddata {
       my $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || []})[0];
       my $prp = "$projid/$repo->{'name'}";
       $prpseen{$prp} = 1;
-      $changed ||= update_doddata_prp($gctx, $prp, $doddata);
+      $changed = 1 if update_doddata_prp($gctx, $prp, $doddata);
     }
   }
   # delete no longer existing entries
   for my $prp (sort(keys %$dodprps)) {
     next unless (split('/', $prp, 2))[0] eq $projid;
     next if $prpseen{$prp};
-    $changed ||= update_doddata_prp($gctx, $prp, undef);
+    $changed = 1 if update_doddata_prp($gctx, $prp, undef);
   }
   my $dodsdir = $gctx->{'dodsdir'};
   BSUtil::touch("$dodsdir/.changed") if $changed && -d $dodsdir;
