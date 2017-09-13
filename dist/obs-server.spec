@@ -515,13 +515,13 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/dat
 touch /srv/www/obs/api/log/production.log
 chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
-%restart_on_update apache2
 %restart_on_update memcached
-%restart_on_update obsapisetup
-%restart_on_update obsapidelayed
 
 %postun -n obs-api
 %insserv_cleanup
+%restart_on_update obsapisetup
+%restart_on_update apache2
+%restart_on_update obsapidelayed
 
 %files
 %defattr(-,root,root)
