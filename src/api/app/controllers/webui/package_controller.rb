@@ -954,15 +954,10 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
-  def get_rpmlint_log(project, package, repository, architecture)
-    path = URI.escape("/build/#{project}/#{repository}/#{architecture}/#{package}/rpmlint.log")
-    ActiveXML.backend.direct_http(URI(path), timeout: 500)
-  end
-
   def rpmlint_log
     required_parameters :project, :package, :repository, :architecture
     begin
-      @log = get_rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
+      @log = Backend::Api.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       @log.encode!(xml: :text)
       render partial: 'rpmlint_log'
     rescue ActiveXML::Transport::NotFoundError

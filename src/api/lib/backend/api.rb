@@ -175,5 +175,11 @@ module Backend
       path = "/build/#{CGI.escape(project)}/_result?view=status&code=failed&code=broken&code=unresolvable"
       Backend::Connection.get(path).body
     end
+
+    # Returns the RPMlint log
+    def self.rpmlint_log(project, package, repository, architecture)
+      path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/#{CGI.escape(package)}/rpmlint.log"
+      Backend::Connection.get(path).body.force_encoding("UTF-8")
+    end
   end
 end
