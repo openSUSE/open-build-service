@@ -318,22 +318,23 @@ RSpec.describe Review do
   end
 
   describe '#update_caches' do
-    RSpec.shared_examples 'review after_commit callback' do
-      it 'touches the user' do
+    RSpec.shared_examples "the subject's cache is reset" do
+      before do
         Timecop.travel(1.minute)
-        cache_key = user.cache_key
+        @cache_key = subject.cache_key
         review.state = :accepted
         review.save
-        user.reload
-        expect(user.cache_key).not_to eq(cache_key)
+        subject.reload
       end
+
+      it { expect(subject.cache_key).not_to eq(@cache_key) }
     end
 
     context 'by_user' do
       let!(:review) { create(:user_review) }
-      let(:user) { review.user }
+      subject { review.user }
 
-      include_examples 'review after_commit callback'
+      it_should_behave_like "the subject's cache is reset"
     end
 
     context 'by_group' do
@@ -342,16 +343,21 @@ RSpec.describe Review do
       let(:user) { groups_user.user }
       let!(:review) { create(:review, by_group: group) }
 
-      include_examples 'review after_commit callback'
+      it_should_behave_like "the subject's cache is reset" do
+        subject { user }
+      end
+      it_should_behave_like "the subject's cache is reset" do
+        subject { group }
+      end
     end
 
     context 'by_package with a direct relationship' do
       let(:relationship_package_user) { create(:relationship_package_user)}
       let(:package) { relationship_package_user.package }
-      let(:user) { relationship_package_user.user }
       let!(:review) { create(:review, by_package: package, by_project: package.project) }
+      subject { relationship_package_user.user }
 
-      include_examples 'review after_commit callback'
+      it_should_behave_like "the subject's cache is reset"
     end
 
     context 'by_package with a group relationship' do
@@ -362,16 +368,21 @@ RSpec.describe Review do
       let!(:user) { groups_user.user }
       let!(:review) { create(:review, by_package: package, by_project: package.project) }
 
-      include_examples 'review after_commit callback'
+      it_should_behave_like "the subject's cache is reset" do
+        subject { user }
+      end
+      it_should_behave_like "the subject's cache is reset" do
+        subject { group }
+      end
     end
 
     context 'by_project with a direct relationship' do
       let(:relationship_project_user) { create(:relationship_project_user)}
       let(:project) { relationship_project_user.project }
-      let(:user) { relationship_project_user.user }
       let!(:review) { create(:review, by_project: project) }
+      subject { relationship_project_user.user }
 
-      include_examples 'review after_commit callback'
+      it_should_behave_like "the subject's cache is reset"
     end
 
     context 'by_project with a group relationship' do
@@ -382,7 +393,12 @@ RSpec.describe Review do
       let!(:user) { groups_user.user }
       let!(:review) { create(:review, by_project: project) }
 
-      include_examples 'review after_commit callback'
+      it_should_behave_like "the subject's cache is reset" do
+        subject { user }
+      end
+      it_should_behave_like "the subject's cache is reset" do
+        subject { group }
+      end
     end
   end
 end

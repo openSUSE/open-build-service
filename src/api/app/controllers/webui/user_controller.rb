@@ -55,6 +55,8 @@ class Webui::UserController < Webui::WebuiController
     @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
     @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
     @owned = @displayed_user.owned_packages
+    @groups = @displayed_user.groups
+    @role_titles = @displayed_user.roles.global.pluck(:title)
 
     return unless User.current == @displayed_user
     @is_displayed_user = User.current == @displayed_user

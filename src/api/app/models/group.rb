@@ -174,6 +174,13 @@ class Group < ApplicationRecord
   def requests(search = nil)
     BsRequest.find_for(group: title, search: search)
   end
+
+  def tasks
+    Rails.cache.fetch("requests_for_#{cache_key}") do
+      incoming_requests.count +
+      involved_reviews.count
+    end
+  end
 end
 
 # == Schema Information
