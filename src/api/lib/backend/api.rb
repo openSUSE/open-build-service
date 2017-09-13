@@ -202,5 +202,10 @@ module Backend
       path += "?#{query_hash.to_query}"
       Backend::Connection.post(path).body.force_encoding('UTF-8')
     end
+
+    # Pings the root of the backend
+    def self.root
+      Backend::Connection.get('/').body.force_encoding("UTF-8")
+    end
   end
 end
