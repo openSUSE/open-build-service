@@ -24,7 +24,7 @@ module Backend
     def self.file_list(project, package, options = {})
       path = "/source/#{CGI.escape(project)}/#{CGI.escape(package)}"
       path += "?#{options.to_query}" if options.present?
-      Backend::Connection.get(path).body
+      Backend::Connection.get(path).body.force_encoding("UTF-8")
     end
 
     # Returns the revisions list for a package / project using mrev (from src/api/app/helpers/validation_helper.rb)
