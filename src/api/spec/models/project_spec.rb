@@ -501,6 +501,10 @@ RSpec.describe Project, vcr: true do
       create(:relationship, project: project, user: user)
     end
 
+    before do
+      User.current = user
+    end
+
     subject! { project.remove_all_persons }
 
     it 'deletes the relationship' do
@@ -511,8 +515,13 @@ RSpec.describe Project, vcr: true do
   describe '#remove_all_groups' do
     let!(:project) { create(:project) }
     let!(:group) { create(:group) }
+    let!(:groups_user) { create(:groups_user, group: group) }
     let!(:relationship) do
       create(:relationship, project: project, group: group)
+    end
+
+    before do
+      User.current = groups_user.user
     end
 
     subject! { project.remove_all_groups }
