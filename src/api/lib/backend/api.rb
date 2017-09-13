@@ -207,5 +207,14 @@ module Backend
     def self.root
       Backend::Connection.get('/').body.force_encoding("UTF-8")
     end
+
+    # Runs the command rebuild for that project/package
+    def self.rebuild(project, package, options = {})
+      path = "/build/#{CGI.escape(project)}"
+      query_hash = { cmd: :rebuild, package: package }
+      query_hash.merge!(options.slice(:repository, :arch))
+      path += "?#{query_hash.to_query}"
+      Backend::Connection.post(path)
+    end
   end
 end

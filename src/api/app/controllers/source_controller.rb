@@ -1338,20 +1338,18 @@ class SourceController < ApplicationController
       end
     end
 
-    path = "/build/#{@project.name}?cmd=rebuild&package=#{@package.name}"
+    options = {}
     if repo_name
       if @package && @package.repositories.find_by_name(repo_name).nil?
         render_error status: 400, errorcode: 'unknown_repository',
           message: "Unknown repository '#{repo_name}'"
         return
       end
-      path += "&repository=#{repo_name}"
+      options[:repository] = repo_name
     end
-    if arch_name
-      path += "&arch=#{arch_name}"
-    end
+    options[:arch] = arch_name if arch_name
 
-    backend.direct_http( URI(path), method: 'POST', data: '')
+    Backend::Api.rebuild(@project.name, @package.name, options)
 
     render_ok
   end
