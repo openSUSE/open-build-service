@@ -188,5 +188,10 @@ module Backend
       path += "?package=#{CGI.escape(package)}&view=pkgnames"
       Backend::Connection.get(path).body.force_encoding("UTF-8")
     end
+
+    # Returns the worker's status
+    def self.worker_status
+      Backend::Connection.get('/build/_workerstatus').body.force_encoding("UTF-8")
+    end
   end
 end
