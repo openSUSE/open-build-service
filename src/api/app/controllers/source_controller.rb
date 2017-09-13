@@ -1107,7 +1107,7 @@ class SourceController < ApplicationController
     # create new project object based on oproject
     Project.transaction do
       if oprj.is_a? String # remote project
-        rdata = Xmlhash.parse(backend_get("/source/#{URI.escape(oprj)}/_meta"))
+        rdata = Xmlhash.parse(Backend::Api.meta_from_project(oprj))
         @project = Project.new name: project_name, title: rdata['title'], description: rdata['description']
       else # local project
         @project = Project.new name: project_name, title: oprj.title, description: oprj.description
@@ -1298,25 +1298,24 @@ class SourceController < ApplicationController
     pass_to_backend path
 
     # read meta data from backend to restore database object
-    path = request.path_info + '/_meta'
     prj = Project.find_by_name!(params[:project])
     pkg = prj.packages.new(name: params[:package])
-    pkg.update_from_xml(Xmlhash.parse(backend_get(path)))
+    pkg.update_from_xml(Xmlhash.parse(Backend::Api.meta_from_package(params[:project], params[:package])))
     pkg.store
   end
 
   # FIXME: obsolete this for 3.0
   # POST /source/<project>/<package>?cmd=createSpecFileTemplate
   def package_command_createSpecFileTemplate
-    specfile_path = "#{request.path_info}/#{params[:package]}.spec"
     begin
-      backend_get( specfile_path )
+      # TODO: No need to read the whole file for knowing if it exists already
+      Backend::Api.source_file(params[:project], params[:package], "#{params[:package]}.spec")
       render_error status: 400, errorcode: 'spec_file_exists',
         message: 'SPEC file already exists.'
       return
     rescue ActiveXML::Transport::NotFoundError
-      specfile = File.read "#{Rails.root}/files/specfiletemplate"
-      Backend::Connection.put( specfile_path, specfile )
+      specfile_content = File.read("#{Rails.root}/files/specfiletemplate")
+      Backend::Api.write_source_file(params[:project], params[:package], "#{params[:package]}.spec", specfile_content)
     end
     render_ok
   end

@@ -37,6 +37,16 @@ module Backend
       Backend::Connection.get("/source/#{CGI.escape(project)}/_project/_meta?rev=#{CGI.escape(revision)}&deleted=1").body
     end
 
+    # Returns the meta file from a project
+    def self.meta_from_project(project)
+      Backend::Connection.get("/source/#{CGI.escape(project)}/_project/_meta").body.force_encoding('UTF-8')
+    end
+
+    # Returns the meta file from a project/package
+    def self.meta_from_package(project, package)
+      Backend::Connection.get("/source/#{CGI.escape(project)}/#{CGI.escape(package)}/_meta").body.force_encoding('UTF-8')
+    end
+
     # It triggers all the services of a package (from src/api/app/controllers/webui/package_controller.rb)
     def self.trigger_services(project, package, user)
       Backend::Connection.post("/source/#{CGI.escape(project)}/#{CGI.escape(package)}?cmd=runservice&user=#{CGI.escape(user)}")
@@ -215,6 +225,16 @@ module Backend
       query_hash.merge!(options.slice(:repository, :arch))
       path += "?#{query_hash.to_query}"
       Backend::Connection.post(path)
+    end
+
+    # Returns the content of the source file
+    def self.source_file(project, package, filename)
+      Backend::Connection.get("/source/#{CGI.escape(project)}/#{CGI.escape(package)}/#{CGI.escape(filename)}").body.force_encoding('UTF-8')
+    end
+
+    # Writes the content of the source file
+    def self.write_source_file(project, package, filename, content = '')
+      Backend::Connection.put("/source/#{CGI.escape(project)}/#{CGI.escape(package)}/#{CGI.escape(filename)}", content)
     end
   end
 end
