@@ -1,8 +1,3 @@
 require 'benchmark'
 require 'api_exception'
-require_dependency 'logger'
-require_dependency 'connection'
-require_dependency 'file'
-require_dependency 'api'
-require_dependency 'test'
-require_dependency 'tests/tasks'
+Dir[File.join(__dir__, '**', '*')].each {|file| require_dependency file }
