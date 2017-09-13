@@ -26,6 +26,7 @@ if test -z "$SUBTEST"; then
       ;;
     linter)
       bundle exec rake db:structure:verify
+      bundle exec rake db:structure:verify_no_bigint
       make -C ../../ rubocop
       bundle exec rake haml_lint
       jshint .

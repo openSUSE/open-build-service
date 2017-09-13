@@ -613,29 +613,31 @@ CREATE TABLE `kiwi_images` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `kiwi_package_groups` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `kiwi_type` int(11) NOT NULL,
   `profiles` varchar(255) DEFAULT NULL,
   `pattern_type` varchar(255) DEFAULT NULL,
-  `image_id` bigint(20) DEFAULT NULL,
+  `image_id` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_kiwi_package_groups_on_image_id` (`image_id`)
+  KEY `index_kiwi_package_groups_on_image_id` (`image_id`),
+  CONSTRAINT `fk_rails_c64a679086` FOREIGN KEY (`image_id`) REFERENCES `kiwi_images` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `kiwi_packages` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `arch` varchar(255) DEFAULT NULL,
   `replaces` varchar(255) DEFAULT NULL,
   `bootinclude` tinyint(1) DEFAULT NULL,
   `bootdelete` tinyint(1) DEFAULT NULL,
-  `package_group_id` bigint(20) DEFAULT NULL,
+  `package_group_id` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_kiwi_packages_on_package_group_id` (`package_group_id`)
+  KEY `index_kiwi_packages_on_package_group_id` (`package_group_id`),
+  CONSTRAINT `fk_rails_0ecab3b2cd` FOREIGN KEY (`package_group_id`) REFERENCES `kiwi_package_groups` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `kiwi_repositories` (
@@ -1241,6 +1243,9 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170821110838'),
 ('20170821110918'),
 ('20170821110941'),
-('20170821110946');
+('20170821110946'),
+('20170911142301'),
+('20170912140257'),
+('20170912140713');
 
 
