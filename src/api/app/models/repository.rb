@@ -216,9 +216,9 @@ class Repository < ApplicationRecord
     url + "/" + file unless file.blank?
   end
 
-  def download_url_for_package(package, architecture, filename)
-    Rails.cache.fetch("download_url_for_package_#{project.name}##{name}##{package.name}##{architecture}##{filename}") do
-      xml = Xmlhash.parse(Backend::Api.download_url_for_package(project.name, name, package.name, architecture, filename))
+  def download_url_for_file(package, architecture, filename)
+    Rails.cache.fetch("download_url_for_file_#{project.name}##{name}##{package.name}##{architecture}##{filename}") do
+      xml = Xmlhash.parse(Backend::Api::BuildResults::Binaries.download_url_for_file(project.name, name, package.name, architecture, filename))
       xml.elements('url').last.to_s
     end
   end

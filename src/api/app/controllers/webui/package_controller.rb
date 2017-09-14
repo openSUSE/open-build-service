@@ -166,7 +166,7 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     repo = Repository.find_by_project_and_name(@project.to_s, @repository.to_s)
-    @durl = repo.download_url_for_package(@package, @arch, @filename)
+    @durl = repo.download_url_for_file(@package, @arch, @filename)
     @durl = nil if @durl && !file_available?(@durl) # ignore files not available
     unless User.current.is_nobody? || @durl
       # only use API for logged in users if the mirror is not available
@@ -957,7 +957,7 @@ class Webui::PackageController < Webui::WebuiController
   def rpmlint_log
     required_parameters :project, :package, :repository, :architecture
     begin
-      @log = Backend::Api.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
+      @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       @log.encode!(xml: :text)
       render partial: 'rpmlint_log'
     rescue ActiveXML::Transport::NotFoundError

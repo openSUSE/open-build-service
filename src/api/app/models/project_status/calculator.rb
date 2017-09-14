@@ -2,7 +2,7 @@ module ProjectStatus
   class Calculator
     # parse the jobhistory and put the result in a format we can cache
     def parse_jobhistory(dname, repo, arch)
-      data = Xmlhash.parse(Backend::Api.job_history(dname, repo, arch))
+      data = Xmlhash.parse(Backend::Api::BuildResults::Binaries.job_history(dname, repo, arch))
       return [] if data.blank?
 
       ret = []
