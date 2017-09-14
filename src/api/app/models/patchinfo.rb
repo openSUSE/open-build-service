@@ -206,7 +206,7 @@ class Patchinfo < ActiveXML::Node
     xml = pkg.patchinfo
     xml = update_patchinfo(pkg.project, xml)
 
-    Backend::Api.write_patchinfo(pkg.project.name, pkg.name, User.current.login, xml.dump_xml, 'updated via updatepatchinfo call')
+    Backend::Api::Sources::Package.write_patchinfo(pkg.project.name, pkg.name, User.current.login, xml.dump_xml, 'updated via updatepatchinfo call')
     pkg.sources_changed
   end
 

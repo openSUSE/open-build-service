@@ -12,7 +12,7 @@ module HasAttributes
   def write_attributes(comment = nil)
     project_name = is_a?(Project) ? name : project.name
     if is_a?(Package)
-      Backend::Api.write_attributes(project_name, name, User.current.login, render_attribute_axml, comment)
+      Backend::Api::Sources::Package.write_attributes(project_name, name, User.current.login, render_attribute_axml, comment)
     else
       Backend::Api::Sources::Project.write_attributes(project_name, User.current.login, render_attribute_axml, comment)
     end

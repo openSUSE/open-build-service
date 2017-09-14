@@ -425,11 +425,11 @@ class Webui::PackageController < Webui::WebuiController
 
   def get_diff(project, package, options = {})
     begin
-      @rdiff = Backend::Api.source_diff(project, package, options.merge(expand: 1))
+      @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 1))
     rescue ActiveXML::Transport::Error => e
       flash[:error] = 'Problem getting expanded diff: ' + e.summary
       begin
-        @rdiff = Backend::Api.source_diff(project, package, options.merge(expand: 0))
+        @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 0))
       rescue ActiveXML::Transport::Error => e
         flash[:error] = 'Error getting diff: ' + e.summary
         redirect_back(fallback_location: package_show_path(project: @project, package: @package))
@@ -615,7 +615,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def trigger_services
     begin
-      Backend::Api.trigger_services(@project.name, @package.name, User.current.to_s)
+      Backend::Api::Sources::Package.trigger_services(@project.name, @package.name, User.current.to_s)
       flash[:notice] = 'Services successfully triggered'
     rescue Timeout::Error => e
       flash[:error] = "Services couldn't be triggered: " + e.message

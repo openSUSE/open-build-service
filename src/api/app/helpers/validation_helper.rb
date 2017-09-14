@@ -32,7 +32,7 @@ module ValidationHelper
     end
 
     begin
-      revisions_list = Backend::Api.revisions_list(project, name)
+      revisions_list = Backend::Api::Sources::Package.revisions(project, name)
     rescue
       raise Package::UnknownObjectError, "#{project}/#{name}"
     end

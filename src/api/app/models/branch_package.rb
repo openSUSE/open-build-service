@@ -132,7 +132,7 @@ class BranchPackage
 
       if p[:local_link]
         # copy project local linked packages
-        Backend::Api.copy_package(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.current.login)
+        Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.current.login)
         # and fix the link
         ret = ActiveXML::Node.new(tpkg.source_file('_link'))
         ret.delete_attribute('project') # its a local link, project name not needed
@@ -141,7 +141,7 @@ class BranchPackage
         linked_package = params[:target_package] if params[:target_package] && params[:package] == ret.value('package')
         linked_package += '.' + p[:link_target_project].name.tr(':', '_') if @extend_names
         ret.set_attribute('package', linked_package)
-        Backend::Api.write_link_of_package(tpkg.project.name, tpkg.name, User.current.login, ret.dump_xml)
+        Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.current.login, ret.dump_xml)
       else
         opackage = p[:package]
         opackage = p[:package].name if p[:package].is_a? Package
@@ -165,8 +165,8 @@ class BranchPackage
           else
             msg = "fetch updates from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
           end
-          Backend::Api.copy_package(tpkg.project.name, tpkg.name,  p[:copy_from_devel].project.name, p[:copy_from_devel].name,
-                                    User.current.login, { comment: msg, keeplink: 1, expand: 1})
+          Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name,  p[:copy_from_devel].project.name, p[:copy_from_devel].name,
+                                              User.current.login, { comment: msg, keeplink: 1, expand: 1})
         end
       end
       tpkg.sources_changed

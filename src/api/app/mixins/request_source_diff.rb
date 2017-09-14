@@ -105,7 +105,7 @@ module RequestSourceDiff
       # maintenance_release creates new packages instance, but are changing the source only according to the link
       return if action.target_package && :maintenance_incident == action.action_type
       begin
-        data = Xmlhash.parse(Backend::Api.file_list(action.source_project, spkg))
+        data = Xmlhash.parse(Backend::Api::Sources::Package.files(action.source_project, spkg))
       rescue ActiveXML::Transport::Error
         return
       end

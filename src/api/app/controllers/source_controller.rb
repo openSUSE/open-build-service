@@ -1300,7 +1300,7 @@ class SourceController < ApplicationController
     # read meta data from backend to restore database object
     prj = Project.find_by_name!(params[:project])
     pkg = prj.packages.new(name: params[:package])
-    pkg.update_from_xml(Xmlhash.parse(Backend::Api.meta_from_package(params[:project], params[:package])))
+    pkg.update_from_xml(Xmlhash.parse(Backend::Api::Sources::Package.meta(params[:project], params[:package])))
     pkg.store
   end
 
@@ -1309,13 +1309,13 @@ class SourceController < ApplicationController
   def package_command_createSpecFileTemplate
     begin
       # TODO: No need to read the whole file for knowing if it exists already
-      Backend::Api.source_file(params[:project], params[:package], "#{params[:package]}.spec")
+      Backend::Api::Sources::Package.file(params[:project], params[:package], "#{params[:package]}.spec")
       render_error status: 400, errorcode: 'spec_file_exists',
         message: 'SPEC file already exists.'
       return
     rescue ActiveXML::Transport::NotFoundError
       specfile_content = File.read("#{Rails.root}/files/specfiletemplate")
-      Backend::Api.write_source_file(params[:project], params[:package], "#{params[:package]}.spec", specfile_content)
+      Backend::Api::Sources::Package.write_file(params[:project], params[:package], "#{params[:package]}.spec", specfile_content)
     end
     render_ok
   end
@@ -1348,7 +1348,7 @@ class SourceController < ApplicationController
     end
     options[:arch] = arch_name if arch_name
 
-    Backend::Api.rebuild(@project.name, @package.name, options)
+    Backend::Api::Sources::Package.rebuild(@project.name, @package.name, options)
 
     render_ok
   end

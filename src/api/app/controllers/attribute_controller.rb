@@ -184,7 +184,7 @@ class AttributeController < ApplicationController
     # exec
     if params[:rev] || @attribute_container.nil?
       # old or remote instance entry
-      render xml: Backend::Api.attribute(params[:project], params[:package], params[:rev])
+      render xml: Backend::Api::Sources::Package.attributes(params[:project], params[:package], params[:rev])
       return
     end
 
