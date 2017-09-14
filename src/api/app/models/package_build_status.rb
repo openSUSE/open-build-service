@@ -92,7 +92,7 @@ class PackageBuildStatus
     @buildcode = "unknown"
     begin
       package = CGI.escape(@multibuild_pkg || @pkg.name)
-      resultlist = Xmlhash.parse(Backend::Api.build_result(@pkg.project.name, package, srep['name'], arch))
+      resultlist = Xmlhash.parse(Backend::Api::BuildResults::Status.build_result(@pkg.project.name, package, srep['name'], arch))
       currentcode = nil
       resultlist.elements('result') do |r|
         r.elements('status') { |s| currentcode = s['code'] }
