@@ -11,8 +11,11 @@ module HasAttributes
 
   def write_attributes(comment = nil)
     project_name = is_a?(Project) ? name : project.name
-    package_name = is_a?(Package) ? name : nil
-    Backend::Api.write_attributes(project_name, package_name, User.current.login, render_attribute_axml, comment)
+    if is_a?(Package)
+      Backend::Api.write_attributes(project_name, name, User.current.login, render_attribute_axml, comment)
+    else
+      Backend::Api::Sources::Project.write_attributes(project_name, User.current.login, render_attribute_axml, comment)
+    end
   rescue ActiveXML::Transport::Error => e
     raise AttributeSaveError, e.summary
   end

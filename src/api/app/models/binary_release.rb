@@ -86,7 +86,7 @@ class BinaryRelease < ApplicationRecord
         end
         if binary["patchinforef"]
           begin
-            patchinfo = Patchinfo.new(Backend::Api.patchinfo(binary["patchinforef"]))
+            patchinfo = Patchinfo.new(Backend::Api::Sources::Project.patchinfo(binary["patchinforef"]))
           rescue ActiveXML::Transport::NotFoundError
             # patchinfo disappeared meanwhile
           end

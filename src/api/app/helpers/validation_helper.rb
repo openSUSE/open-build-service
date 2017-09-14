@@ -53,7 +53,7 @@ module ValidationHelper
 
   def validate_visibility_of_deleted_project(project)
     begin
-      revisions_list = Backend::Api.revisions_list(project)
+      revisions_list = Backend::Api::Sources::Project.revisions(project)
     rescue
       raise Project::UnknownObjectError, project.to_s
     end
@@ -61,7 +61,7 @@ module ValidationHelper
     lastrev = data.each(:revision).last
     raise Project::UnknownObjectError, project.to_s unless lastrev
 
-    meta = Backend::Api.meta_from_deleted_project(project, lastrev.value('srcmd5'))
+    meta = Backend::Api::Sources::Project.meta(project, revision: lastrev.value('srcmd5'), deleted: 1)
     raise Project::UnknownObjectError unless meta
     return true if User.current.is_admin?
     # FIXME: actually a per user checking would be more accurate here

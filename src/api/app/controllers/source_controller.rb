@@ -1055,7 +1055,7 @@ class SourceController < ApplicationController
                  comment: "Project move from #{params[:oproject]} to #{params[:project]}"
                }
       commit[:comment] = params[:comment] unless params[:comment].blank?
-      Backend::Api.move_project(params[:oproject], params[:project])
+      Backend::Api::Sources::Project.move(params[:oproject], params[:project])
       project.name = params[:project]
       project.store(commit)
       # update meta data in all packages, they contain the project name as well
@@ -1107,7 +1107,7 @@ class SourceController < ApplicationController
     # create new project object based on oproject
     Project.transaction do
       if oprj.is_a? String # remote project
-        rdata = Xmlhash.parse(Backend::Api.meta_from_project(oprj))
+        rdata = Xmlhash.parse(Backend::Api::Sources::Project.meta(oprj))
         @project = Project.new name: project_name, title: rdata['title'], description: rdata['description']
       else # local project
         @project = Project.new name: project_name, title: oprj.title, description: oprj.description
