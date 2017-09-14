@@ -116,7 +116,7 @@ class Configuration < ApplicationRecord
     return unless CONFIG['global_write_through']
 
     logger.debug 'Writing configuration.xml to backend...'
-    Backend::Api::Sources::Project.write_configuration(render_xml)
+    Backend::Api::Server.write_configuration(render_xml)
   end
 end
 
