@@ -210,7 +210,7 @@ class Repository < ApplicationRecord
 
   def download_url(file)
     url = Rails.cache.fetch("download_url_#{project.name}##{name}") do
-      xml = Xmlhash.parse(Backend::Api.download_url_for_repository(project.name, name))
+      xml = Xmlhash.parse(Backend::Api::Published.download_url_for_repository(project.name, name))
       xml.elements('url').last.to_s
     end
     url + "/" + file unless file.blank?
