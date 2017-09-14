@@ -36,7 +36,6 @@ use Fcntl qw(:DEFAULT :flock);
 use Encode;
 use Storable ();
 use IO::Handle;
-
 use strict;
 
 # should we do a slow fdatasync?
@@ -762,6 +761,16 @@ sub isotime {
   my ($t) = @_;
   my @lt = localtime($t || time());
   return sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
+}
+
+=head2 getdebuglevel - get the current debug level
+
+ BSUtil::getdebuglevel();
+
+=cut
+
+sub getdebuglevel {
+  return $debuglevel;
 }
 
 =head2 setdebuglevel - set the current debug level
