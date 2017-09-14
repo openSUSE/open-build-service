@@ -1,0 +1,79 @@
+#!/bin/bash
+
+
+trap clean_up SIGHUP SIGINT SIGTERM SIGKILL
+
+#function to help with the usage
+function _print_syntax() {
+  me=`basename "$0"`
+  echo "Usage: $me [-d <dir> -w <num>]"
+  echo -e "\t-d <dir>\tDirectory of source code. (default: /obs)"
+  echo -e "\t-w <num>\tNumber of workers that should be spawned. (default: 2)"
+}
+
+#reset OPTIND
+OPTIND=1
+
+#preset GIT_HOME
+GIT_HOME="/obs"
+
+#preset WORKER_COUNT
+WORKER_N=2
+
+#get options and check if there is a space in the dir arguments
+while getopts "d:w:h?" opt; do
+  case "$opt" in
+  d)
+    GIT_HOME=$OPTARG
+    if [[ "$GIT_HOME" =~ [[:space:]] ]]; then
+      echo "Directory may not contain whitespaces"
+      exit
+    fi
+    ;;
+  w)
+    WORKER_N=$OPTARG
+    ;;
+  h|\?)
+    _print_syntax
+    exit 0
+    ;;
+  esac
+done
+
+#check if GIT_HOME exists. If not it does not make any sense to continue.
+if [ ! -d "$GIT_HOME" ]; then
+  echo "There seems to be something wrong. Directory $GIT_HOME not found."
+  echo "Please check if you are pointing to the right directory."
+  exit 1
+fi
+
+w_count=1
+while [ $w_count -le $WORKER_N ]
+do
+  if [ ! -d /srv/obs/run/worker/$w_count ]; then
+    sudo mkdir -p /srv/obs/run/worker/$w_count
+  fi
+  if [ ! -d /var/cache/obs/worker/root_$w_count ]; then
+    sudo mkdir -p /var/cache/obs/worker/root_$w_count
+  fi
+  sudo chown -R obsrun:obsrun /srv/obs/run/
+
+  # We need to wait for the backend to be available...
+  sleep 60
+
+  echo "Starting bs_worker"
+ 
+  COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_$w_count --statedir /srv/obs/run/worker/$w_count --id $HOSTNAME:$w_count --reposerver http://backend:5252 --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 &"
+  eval $COMMAND_STRING
+  let w_count=$w_count+1
+done
+
+# Cleanup function to terminate all backend services
+function clean_up {
+  echo -e "\ncleaning up and exit"
+  sudo killall bs_worker
+  echo -e "Terminated Worker"
+  exit;
+}
+
+wait

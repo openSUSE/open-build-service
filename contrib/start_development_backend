@@ -8,7 +8,6 @@ function _print_syntax() {
   echo "Usage: $me [-d <dir> -l <dir> -w <num> -r <server>]"
   echo -e "\t-d <dir>\tDirectory of source code. If not provided /vagrant ist used"
   echo -e "\t-l <dir>\tDirectory where the logfiles should be put. If not set STDERR and STDOUT will be printed to console"
-  echo -e "\t-w <num>\tNumber of workers that should be spawned. This can reduce the performance of the system!"
   echo -e "\t-r <server>\tRegister to this reposerver. Can be used multiple times."
 }
 
@@ -18,15 +17,10 @@ OPTIND=1
 #preset GIT_HOME
 GIT_HOME="/vagrant"
 
-#preset WORKER_COUNT
-WORKER_N=1
-
 #preset reg_server
 haverep=0
-REP_SERVER_STRING="--reposerver http://localhost:5252"
-
 #get options and check if there is a space in the dir arguments
-while getopts "l:d:w:r:h?" opt; do
+while getopts "l:d:h?" opt; do
   case "$opt" in
   l)
     REDIR_LOG=$OPTARG
@@ -41,13 +35,6 @@ while getopts "l:d:w:r:h?" opt; do
       echo "Directory may not contain whitespaces"
       exit
     fi
-    ;;
-  w)
-    WORKER_N=$OPTARG
-    ;;
-  r)
-    rep_server+=("$OPTARG")
-    haverep=1
     ;;
   h|\?)
     _print_syntax
@@ -72,23 +59,6 @@ if [ -n "$REDIR_LOG" ]; then
   APPEND_ARR[6]=">$REDIR_LOG/bs_service.log 2>&1"
   APPEND_ARR[7]=">$REDIR_LOG/bs_signer.log 2>&1"
   APPEND_ARR[8]=">$REDIR_LOG/signd.log 2>&1"
-  w_count=1
-  while [ $w_count -le $WORKER_N ]
-  do 
-    index=8+$w_count
-    APPEND_ARR[$index]=">$REDIR_LOG/bs_worker_$w_count.log 2>&1"
-    let w_count=$w_count+1
-  done
-fi
-
-if [[ "$haverep" -eq "1" ]]; then
-  REP_SERVER_STRING=""
-  REP_PREFIX="--reposerver http://"
-  REP_POSTFIX=":5252 "
-  for server in "${rep_server[@]}"
-  do
-    REP_SERVER_STRING=$REP_SERVER_STRING$REP_PREFIX$server$REP_POSTFIX
-  done
 fi
 
 #check if GIT_HOME exists. If not it does not make any sense to continue.
@@ -103,7 +73,7 @@ if [ ! -f $GIT_HOME/src/backend/BSConfig.pm ]; then
   cp $GIT_HOME/src/backend/BSConfig.pm.template $GIT_HOME/src/backend/BSConfig.pm
 fi
 perl -pi -e 's/our \$bsserviceuser.*/our \$bsserviceuser="obsrun";/' $GIT_HOME/src/backend/BSConfig.pm
-perl -pi -e 's/my \$hostname.*/my \$hostname="localhost";/' $GIT_HOME/src/backend/BSConfig.pm
+perl -pi -e 's/my \$hostname.*/my \$hostname="backend";/' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/\$ipaccess/\$removed_by_start_development_backend /' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/.*our \$gpg_standard_key.*/our \$gpg_standard_key="\/etc\/ourkeyfile.asc";/' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/.*our \$sign .*/our \$sign="\/usr\/bin\/sign";/' $GIT_HOME/src/backend/BSConfig.pm
@@ -138,24 +108,6 @@ eval $COMMAND_STRING
 echo "Starting signd"
 COMMAND_STRING="sudo /usr/sbin/signd ${APPEND_ARR[8]} &"
 eval $COMMAND_STRING
-w_count=1
-while [ $w_count -le $WORKER_N ]
-do
-  if [ ! -d /srv/obs/run/worker/$w_count ]; then
-    sudo mkdir -p /srv/obs/run/worker/$w_count
-  fi
-  if [ ! -d /var/cache/obs/worker/root_$w_count ]; then
-    sudo mkdir -p /var/cache/obs/worker/root_$w_count
-  fi
-  sudo chown -R obsrun:obsrun /srv/obs/run/
-
-  index=$w_count+6;
-  echo "Starting bs_worker"
- 
-  COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_$w_count --statedir /srv/obs/run/worker/$w_count --id $HOSTNAME:$w_count $REP_SERVER_STRING --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 ${APPEND_ARR[$index]} &"
-  eval $COMMAND_STRING
-  let w_count=$w_count+1
-done
 
 #Cleanup function to terminate all backend services
 function clean_up {
@@ -169,8 +121,6 @@ function clean_up {
   echo -e "Terminated Scheduler"
   sudo killall bs_dispatch
   echo -e "Terminated Dispatcher"
-  sudo killall bs_worker
-  echo -e "Terminated Worker"
   sudo killall bs_publish
   echo -e "Terminated Publisher"
   sudo killall bs_service

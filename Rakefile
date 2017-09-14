@@ -13,6 +13,7 @@ namespace :docker do
     sh "docker build . -t openbuildservice/mariadb:423 -t openbuildservice/mariadb -f Dockerfile.mariadb"
     sh "docker build . -t openbuildservice/memcached:423 -t openbuildservice/memcached -f Dockerfile.memcached"
     sh "docker build . -t openbuildservice/backend:423 -t openbuildservice/backend -f Dockerfile.backend"
+    sh "docker build . -t openbuildservice/worker:423 -t openbuildservice/backend -f Dockerfile.worker"
   end
 
   desc 'Publish our docker containers'
@@ -25,6 +26,8 @@ namespace :docker do
     sh "docker push openbuildservice/memcached"
     sh "docker push openbuildservice/backend:423"
     sh "docker push openbuildservice/backend"
+    sh "docker push openbuildservice/worker:423"
+    sh "docker push openbuildservice/worker"
   end
 
   namespace :test do
