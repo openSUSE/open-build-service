@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+          <title>This Side of Paradise</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '133'
+      - '110'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+          <title>This Side of Paradise</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Deserunt perspiciatis autem quas facilis molestias sint. Fugiat qui
-        libero. Molestias quo cum ut qui at quia.
+      string: Qui consequatur id totam enim inventore hic sunt. Dolores aliquid vel
+        optio minus aut esse ducimus. Voluptate nihil dolore consequuntur ex quis
+        animi. Tempore eum nostrum esse autem iusto et labore.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,16 +73,16 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/_meta?user=tom
+    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+        <package name="package_with_a_kiwi_file" project="fake_project">
+          <title>The Parliament of Man</title>
+          <description>Numquam voluptas voluptatem libero.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,25 +103,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '180'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+        <package name="package_with_a_kiwi_file" project="fake_project">
+          <title>The Parliament of Man</title>
+          <description>Numquam voluptas voluptatem libero.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/_meta
+    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/_meta
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+        <package name="package_with_a_kiwi_file" project="fake_project">
+          <title>The Parliament of Man</title>
+          <description>Numquam voluptas voluptatem libero.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -141,19 +142,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '180'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+        <package name="package_with_a_kiwi_file" project="fake_project">
+          <title>The Parliament of Man</title>
+          <description>Numquam voluptas voluptatem libero.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
+    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
     body:
       encoding: UTF-8
       string: |
@@ -186,17 +187,12 @@ http_interactions:
             <package name="openSUSE-release-dvd"/>
             <package name="gfxboot-devel" bootinclude="true"/>
           </packages>
-          <repository type="wrong" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
-            <source path="http://download.opensuse.org/update/13.2/"/>
-          </repository>
-          <repository type="rpm-dir" priority="wrong" imageinclude="false" prefer-license="false">
-            <source path="http://download.opensuse.org/distribution/13.2/repo/oss/"/>
-          </repository>
-          <repository type="rpm-md" priority="20">
-            <source path="wrong://download.opensuse.org/distribution/13.1/repo/oss/"/>
-          </repository>
+          <packages type="delete">
+            <package name="e2fsprogss"/>
+            <package name="bbb_base"/>
+          </packages>
           <repository type="rpm-md">
-            <source path="http://download.opensuse.org/distribution/12.1/repo/oss/"/>
+            <source path="obsrepositories:/"/>
           </repository>
         </image>
     headers:
@@ -218,23 +214,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>6ccfa0805f62f6fba78db7bc8b4082ba</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>15a2f6f67049560c511dba7a96144445</srcmd5>
           <version>unknown</version>
-          <time>1505165798</time>
+          <time>1505165800</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file
+    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file
     body:
       encoding: US-ASCII
       string: ''
@@ -257,18 +253,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '249'
+      - '235'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="20" vrev="20" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1505142565" />
+        <directory name="package_with_a_kiwi_file" rev="6" vrev="6" srcmd5="15a2f6f67049560c511dba7a96144445">
+          <entry name="package_with_a_kiwi_file.kiwi" md5="b15285e545a4265f25349d8c4dee9919" size="1302" mtime="1505142565" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
+    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
     body:
       encoding: US-ASCII
       string: ''
@@ -287,7 +283,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '1791'
+      - '1302'
       Cache-Control:
       - no-cache
       Connection:
@@ -324,24 +320,19 @@ http_interactions:
             <package name="openSUSE-release-dvd"/>
             <package name="gfxboot-devel" bootinclude="true"/>
           </packages>
-          <repository type="wrong" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
-            <source path="http://download.opensuse.org/update/13.2/"/>
-          </repository>
-          <repository type="rpm-dir" priority="wrong" imageinclude="false" prefer-license="false">
-            <source path="http://download.opensuse.org/distribution/13.2/repo/oss/"/>
-          </repository>
-          <repository type="rpm-md" priority="20">
-            <source path="wrong://download.opensuse.org/distribution/13.1/repo/oss/"/>
-          </repository>
+          <packages type="delete">
+            <package name="e2fsprogss"/>
+            <package name="bbb_base"/>
+          </packages>
           <repository type="rpm-md">
-            <source path="http://download.opensuse.org/distribution/12.1/repo/oss/"/>
+            <source path="obsrepositories:/"/>
           </repository>
         </image>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file
+    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file
     body:
       encoding: US-ASCII
       string: ''
@@ -364,13 +355,91 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '249'
+      - '235'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="20" vrev="20" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1505142565" />
+        <directory name="package_with_a_kiwi_file" rev="6" vrev="6" srcmd5="15a2f6f67049560c511dba7a96144445">
+          <entry name="package_with_a_kiwi_file.kiwi" md5="b15285e545a4265f25349d8c4dee9919" size="1302" mtime="1505142565" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_a_kiwi_file" project="fake_project">
+          <title>The Parliament of Man</title>
+          <description>Numquam voluptas voluptatem libero.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_a_kiwi_file" project="fake_project">
+          <title>The Parliament of Man</title>
+          <description>Numquam voluptas voluptatem libero.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_a_kiwi_file" project="fake_project">
+          <title>The Parliament of Man</title>
+          <description>Numquam voluptas voluptatem libero.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_a_kiwi_file" project="fake_project">
+          <title>The Parliament of Man</title>
+          <description>Numquam voluptas voluptatem libero.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 recorded_with: VCR 3.0.3

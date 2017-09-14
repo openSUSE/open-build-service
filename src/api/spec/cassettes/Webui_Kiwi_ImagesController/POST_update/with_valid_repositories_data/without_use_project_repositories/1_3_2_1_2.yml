@@ -1,0 +1,618 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:38 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Surprised by Joy</title>
+          <description>Odit ipsam commodi omnis ut expedita voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '183'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Surprised by Joy</title>
+          <description>Odit ipsam commodi omnis ut expedita voluptatem.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Surprised by Joy</title>
+          <description>Odit ipsam commodi omnis ut expedita voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '183'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Surprised by Joy</title>
+          <description>Odit ipsam commodi omnis ut expedita voluptatem.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="utf-8"?>
+        <image schemaversion="6.2" name="suse-13.2-live">
+          <description type="system">
+          </description>
+          <preferences>
+            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
+          </preferences>
+        </image>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="75" vrev="75">
+          <srcmd5>82f39606fd3c729f7f16de7d227e6dae</srcmd5>
+          <version>unknown</version>
+          <time>1505242599</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Surprised by Joy</title>
+          <description>Odit ipsam commodi omnis ut expedita voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '183'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Surprised by Joy</title>
+          <description>Odit ipsam commodi omnis ut expedita voluptatem.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="75" vrev="75" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
+          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1505241815" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="75" vrev="75" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
+          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1505241815" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="75" vrev="75" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
+          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1505241815" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '242'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="utf-8"?>
+        <image schemaversion="6.2" name="suse-13.2-live">
+          <description type="system">
+          </description>
+          <preferences>
+            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
+          </preferences>
+        </image>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="utf-8"?>
+        <image schemaversion="6.2" name="suse-13.2-live">
+          <description type="system">
+          </description>
+          <repository type="apt-deb">
+            <source path="http://"/>
+          </repository>
+          <preferences>
+            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
+          </preferences>
+        </image>
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '317'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="76" vrev="76">
+          <srcmd5>991fe64afaa493a2c28cd732651edc5f</srcmd5>
+          <version>unknown</version>
+          <time>1505242599</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Surprised by Joy</title>
+          <description>Odit ipsam commodi omnis ut expedita voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '183'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="home:tom">
+          <title>Surprised by Joy</title>
+          <description>Odit ipsam commodi omnis ut expedita voluptatem.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="76" vrev="76" srcmd5="991fe64afaa493a2c28cd732651edc5f">
+          <entry name="package_with_kiwi_image.kiwi" md5="488c7ab58e125fd012fb488b9c0adf1b" size="317" mtime="1505241819" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="package_with_kiwi_image" rev="76" vrev="76" srcmd5="991fe64afaa493a2c28cd732651edc5f" verifymd5="991fe64afaa493a2c28cd732651edc5f">
+          <revtime>1505242599</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="76" vrev="76" srcmd5="991fe64afaa493a2c28cd732651edc5f">
+          <entry name="package_with_kiwi_image.kiwi" md5="488c7ab58e125fd012fb488b9c0adf1b" size="317" mtime="1505241819" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '328'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="6658dc1e9e4e51e6fb22977508e93347">
+          <old project="home:tom" package="package_with_kiwi_image" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="package_with_kiwi_image" rev="74" srcmd5="991fe64afaa493a2c28cd732651edc5f" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="76" vrev="76" srcmd5="991fe64afaa493a2c28cd732651edc5f">
+          <entry name="package_with_kiwi_image.kiwi" md5="488c7ab58e125fd012fb488b9c0adf1b" size="317" mtime="1505241819" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 18:56:39 GMT
+recorded_with: VCR 3.0.3

@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Odio rerum beatae explicabo non minima pariatur nihil molestiae.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Odio rerum architecto commodi in sed velit saepe.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '187'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Odio rerum beatae explicabo non minima pariatur nihil molestiae.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Odio rerum architecto commodi in sed velit saepe.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Odio rerum beatae explicabo non minima pariatur nihil molestiae.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Odio rerum architecto commodi in sed velit saepe.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '187'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Odio rerum beatae explicabo non minima pariatur nihil molestiae.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Odio rerum architecto commodi in sed velit saepe.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -132,8 +132,6 @@ http_interactions:
           <preferences>
             <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
           </preferences>
-          <packages type="bootstrap">
-          </packages>
         </image>
     headers:
       Accept-Encoding:
@@ -154,20 +152,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>3822662924706b810ffb158183355052</srcmd5>
+        <revision rev="81" vrev="81">
+          <srcmd5>82f39606fd3c729f7f16de7d227e6dae</srcmd5>
           <version>unknown</version>
-          <time>1501677471</time>
+          <time>1505242600</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -175,8 +173,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Odio rerum beatae explicabo non minima pariatur nihil molestiae.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Odio rerum architecto commodi in sed velit saepe.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -197,16 +195,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '187'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Odio rerum beatae explicabo non minima pariatur nihil molestiae.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Odio rerum architecto commodi in sed velit saepe.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -232,15 +230,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '232'
+      - '234'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="7" vrev="7" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1501677467" />
+        <directory name="package_with_kiwi_image" rev="81" vrev="81" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
+          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1505241815" />
         </directory>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -266,15 +264,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '232'
+      - '234'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="7" vrev="7" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1501677467" />
+        <directory name="package_with_kiwi_image" rev="81" vrev="81" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
+          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1505241815" />
         </directory>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -300,15 +298,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '232'
+      - '234'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="7" vrev="7" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1501677467" />
+        <directory name="package_with_kiwi_image" rev="81" vrev="81" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
+          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1505241815" />
         </directory>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -330,7 +328,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '286'
+      - '242'
       Cache-Control:
       - no-cache
       Connection:
@@ -345,11 +343,9 @@ http_interactions:
           <preferences>
             <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
           </preferences>
-          <packages type="bootstrap">
-          </packages>
         </image>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi?user=tom
@@ -360,14 +356,12 @@ http_interactions:
         <image schemaversion="6.2" name="suse-13.2-live">
           <description type="system">
           </description>
-          <repository type="apt-deb">
-            <source path="http://"/>
+          <repository type="rpm-md">
+            <source path="obsrepositories:/"/>
           </repository>
           <preferences>
             <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
           </preferences>
-          <packages type="bootstrap">
-          </packages>
         </image>
     headers:
       Content-Type:
@@ -375,7 +369,7 @@ http_interactions:
       Accept-Encoding:
       - identity
       Content-Length:
-      - '361'
+      - '326'
       Accept:
       - "*/*"
       User-Agent:
@@ -392,20 +386,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '203'
+      - '205'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>88792064750ef72970002ca9f6b87453</srcmd5>
+        <revision rev="82" vrev="82">
+          <srcmd5>2bc4020e2c447b650e17866e9c21b783</srcmd5>
           <version>unknown</version>
-          <time>1501677471</time>
+          <time>1505242600</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:41 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -413,8 +407,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Odio rerum beatae explicabo non minima pariatur nihil molestiae.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Odio rerum architecto commodi in sed velit saepe.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -435,16 +429,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '187'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Odio rerum beatae explicabo non minima pariatur nihil molestiae.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Odio rerum architecto commodi in sed velit saepe.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:41 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -470,15 +464,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '232'
+      - '234'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="8" vrev="8" srcmd5="88792064750ef72970002ca9f6b87453">
-          <entry name="package_with_kiwi_image.kiwi" md5="4d00b9b2f2e5b4fa171a358f6896e0df" size="361" mtime="1501677470" />
+        <directory name="package_with_kiwi_image" rev="82" vrev="82" srcmd5="2bc4020e2c447b650e17866e9c21b783">
+          <entry name="package_with_kiwi_image.kiwi" md5="467dff19a0eaab7288f65cf0a47cc1f3" size="326" mtime="1505241820" />
         </directory>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:41 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image?nofilename=1&view=info&withchangesmd5=1
@@ -504,15 +498,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '197'
+      - '199'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_with_kiwi_image" rev="8" vrev="8" srcmd5="88792064750ef72970002ca9f6b87453" verifymd5="88792064750ef72970002ca9f6b87453">
-          <revtime>1501677471</revtime>
+        <sourceinfo package="package_with_kiwi_image" rev="82" vrev="82" srcmd5="2bc4020e2c447b650e17866e9c21b783" verifymd5="2bc4020e2c447b650e17866e9c21b783">
+          <revtime>1505242600</revtime>
         </sourceinfo>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:41 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -538,15 +532,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '232'
+      - '234'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="8" vrev="8" srcmd5="88792064750ef72970002ca9f6b87453">
-          <entry name="package_with_kiwi_image.kiwi" md5="4d00b9b2f2e5b4fa171a358f6896e0df" size="361" mtime="1501677470" />
+        <directory name="package_with_kiwi_image" rev="82" vrev="82" srcmd5="2bc4020e2c447b650e17866e9c21b783">
+          <entry name="package_with_kiwi_image.kiwi" md5="467dff19a0eaab7288f65cf0a47cc1f3" size="326" mtime="1505241820" />
         </directory>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:41 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -570,7 +564,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '327'
+      - '328'
       Cache-Control:
       - no-cache
       Connection:
@@ -578,15 +572,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="6d51e9b385f6dd0d5fa00cba141d9fdf">
+        <sourcediff key="4351d3ab1e86ca9bea7c24a2e45a2f35">
           <old project="home:tom" package="package_with_kiwi_image" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="package_with_kiwi_image" rev="6" srcmd5="88792064750ef72970002ca9f6b87453" />
+          <new project="home:tom" package="package_with_kiwi_image" rev="78" srcmd5="2bc4020e2c447b650e17866e9c21b783" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:41 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
@@ -612,13 +606,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '232'
+      - '234'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="8" vrev="8" srcmd5="88792064750ef72970002ca9f6b87453">
-          <entry name="package_with_kiwi_image.kiwi" md5="4d00b9b2f2e5b4fa171a358f6896e0df" size="361" mtime="1501677470" />
+        <directory name="package_with_kiwi_image" rev="82" vrev="82" srcmd5="2bc4020e2c447b650e17866e9c21b783">
+          <entry name="package_with_kiwi_image.kiwi" md5="467dff19a0eaab7288f65cf0a47cc1f3" size="326" mtime="1505241820" />
         </directory>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:51 GMT
+  recorded_at: Tue, 12 Sep 2017 18:56:41 GMT
 recorded_with: VCR 3.0.3

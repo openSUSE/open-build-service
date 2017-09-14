@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+          <title>To Sail Beyond the Sunset</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '133'
+      - '114'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+          <title>To Sail Beyond the Sunset</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Deserunt perspiciatis autem quas facilis molestias sint. Fugiat qui
-        libero. Molestias quo cum ut qui at quia.
+      string: Provident a est nemo quisquam et odio et. Exercitationem et vero. A
+        quibusdam velit consequuntur voluptate. Non culpa laudantium consequatur qui
+        aut aut repellendus. Ut nihil suscipit veniam et ex dolor sed.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,16 +73,16 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/_meta?user=tom
+    uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+          <title>A Passage to India</title>
+          <description>Tempore aperiam autem quis ut sed.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,16 +103,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+          <title>A Passage to India</title>
+          <description>Tempore aperiam autem quis ut sed.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/_meta
@@ -119,8 +120,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+          <title>A Passage to India</title>
+          <description>Tempore aperiam autem quis ut sed.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -141,16 +142,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+          <title>A Passage to India</title>
+          <description>Tempore aperiam autem quis ut sed.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -186,17 +187,15 @@ http_interactions:
             <package name="openSUSE-release-dvd"/>
             <package name="gfxboot-devel" bootinclude="true"/>
           </packages>
-          <repository type="wrong" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
+          <packages type="delete">
+            <package name="e2fsprogss"/>
+            <package name="bbb_base"/>
+          </packages>
+          <repository type="apt-deb" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
             <source path="http://download.opensuse.org/update/13.2/"/>
           </repository>
-          <repository type="rpm-dir" priority="wrong" imageinclude="false" prefer-license="false">
-            <source path="http://download.opensuse.org/distribution/13.2/repo/oss/"/>
-          </repository>
-          <repository type="rpm-md" priority="20">
-            <source path="wrong://download.opensuse.org/distribution/13.1/repo/oss/"/>
-          </repository>
           <repository type="rpm-md">
-            <source path="http://download.opensuse.org/distribution/12.1/repo/oss/"/>
+            <source path="obsrepositories:/"/>
           </repository>
         </image>
     headers:
@@ -222,16 +221,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>6ccfa0805f62f6fba78db7bc8b4082ba</srcmd5>
+        <revision rev="22" vrev="22">
+          <srcmd5>febd44ad0e6a0c4271b0197ea7a125e9</srcmd5>
           <version>unknown</version>
-          <time>1505165798</time>
+          <time>1505165799</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file
@@ -261,11 +260,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="20" vrev="20" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1505142565" />
+        <directory name="package_with_invalid_kiwi_file" rev="22" vrev="22" srcmd5="febd44ad0e6a0c4271b0197ea7a125e9">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="b766875b54bc4fbf48bbbf1017104e1e" size="1536" mtime="1505142564" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -287,7 +286,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '1791'
+      - '1536'
       Cache-Control:
       - no-cache
       Connection:
@@ -324,21 +323,19 @@ http_interactions:
             <package name="openSUSE-release-dvd"/>
             <package name="gfxboot-devel" bootinclude="true"/>
           </packages>
-          <repository type="wrong" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
+          <packages type="delete">
+            <package name="e2fsprogss"/>
+            <package name="bbb_base"/>
+          </packages>
+          <repository type="apt-deb" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
             <source path="http://download.opensuse.org/update/13.2/"/>
           </repository>
-          <repository type="rpm-dir" priority="wrong" imageinclude="false" prefer-license="false">
-            <source path="http://download.opensuse.org/distribution/13.2/repo/oss/"/>
-          </repository>
-          <repository type="rpm-md" priority="20">
-            <source path="wrong://download.opensuse.org/distribution/13.1/repo/oss/"/>
-          </repository>
           <repository type="rpm-md">
-            <source path="http://download.opensuse.org/distribution/12.1/repo/oss/"/>
+            <source path="obsrepositories:/"/>
           </repository>
         </image>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_with_invalid_kiwi_file
@@ -368,9 +365,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="20" vrev="20" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1505142565" />
+        <directory name="package_with_invalid_kiwi_file" rev="22" vrev="22" srcmd5="febd44ad0e6a0c4271b0197ea7a125e9">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="b766875b54bc4fbf48bbbf1017104e1e" size="1536" mtime="1505142564" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
 recorded_with: VCR 3.0.3

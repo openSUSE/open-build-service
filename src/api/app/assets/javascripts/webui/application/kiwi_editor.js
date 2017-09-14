@@ -1,6 +1,5 @@
 var canSave = false;
 
-
 function hideOverlay(dialog) {
   $('.overlay').hide();
   dialog.addClass('hidden');
@@ -22,8 +21,7 @@ function saveImage() {
 
 function enableSave(){
   canSave = true;
-  $('#kiwi-image-update-form-save').addClass('enabled');
-  $('#kiwi-image-update-form-revert').addClass('enabled');
+  $('#kiwi-image-update-form-save, #kiwi-image-update-form-revert').addClass('enabled');
 }
 
 function editDialog(){
@@ -60,6 +58,17 @@ function editDialog(){
   $('.overlay').show();
 }
 
+function addRepositoryErrorMessage(source_path, field) {
+  if (source_path == 'obsrepositories:/') {
+    field.text('If you want use obsrepositories:/ as source_path, please check the checkbox "use project repositories".');
+  }
+  else {
+    field.text('The source path can not be empty!');
+  }
+
+  field.removeClass('hidden');
+}
+
 function closeDialog() {
   var fields = $(this).parents('.nested-fields');
   var is_repository = fields.parents('#kiwi-repositories-list').size() == 1;
@@ -68,7 +77,7 @@ function closeDialog() {
 
   if(is_repository) {
     var source_path = dialog.find("[id$='source_path']");
-    if(source_path.val() !== '') {
+    if(source_path.val() !== '' && source_path.val() !== 'obsrepositories:/') {
       var alias = dialog.find("[id$='alias']");
       if (alias.val() !== '') {
         name.text(alias.val());
@@ -78,7 +87,7 @@ function closeDialog() {
       }
     }
     else {
-      fields.find(".ui-state-error").removeClass('hidden');
+      addRepositoryErrorMessage(source_path.val(), fields.find(".ui-state-error"));
       return false;
     }
   }
@@ -91,7 +100,6 @@ function closeDialog() {
       if(arch != '') {
         name.append(" <small>(" + arch + ")</small>");
       }
-
     }
     else {
       fields.find(".ui-state-error").removeClass('hidden');
@@ -233,6 +241,10 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
 $(document).ready(function(){
   // Save image
   $('#kiwi-image-update-form-save').click(saveImage);
+  $('#kiwi_image_use_project_repositories').click(function(){
+    $('#kiwi-repositories-list, #use-project-repositories-text').toggle();
+    enableSave();
+  });
 
   // Revert image
   $('#kiwi-image-update-form-revert').click(function(){
@@ -268,6 +280,13 @@ $(document).ready(function(){
     $(addedFields).find('.kiwi-repository-mode-toggle').click(repositoryModeToggle);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
     kiwiRepositoriesSetupAutocomplete($(addedFields));
+    $('#no-repositories').hide();
+  });
+
+  $('#kiwi-repositories-list').on('cocoon:after-remove', function() {
+    if ($(this).find('.nested-fields:visible').size() === 0) {
+      $('#no-repositories').show();
+    }
   });
 
   // After inserting new packages add the Callbacks
@@ -277,5 +296,12 @@ $(document).ready(function(){
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
+    $('#no-packages').hide();
+  });
+
+  $('#kiwi-packages-list').on('cocoon:after-remove', function() {
+    if ($(this).find('.nested-fields:visible').size() === 0) {
+      $('#no-packages').show();
+    }
   });
 });

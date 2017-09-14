@@ -609,6 +609,7 @@ CREATE TABLE `kiwi_images` (
   `md5_last_revision` varchar(32) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime(6) NOT NULL,
+  `use_project_repositories` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1244,6 +1245,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170821110918'),
 ('20170821110941'),
 ('20170821110946'),
+('20170905101113'),
 ('20170911142301'),
 ('20170912140257'),
 ('20170912140713');

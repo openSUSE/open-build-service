@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Unweaving the Rainbow</title>
+          <title>Time of our Darkness</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Unweaving the Rainbow</title>
+          <title>Time of our Darkness</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 13 Jul 2017 11:13:03 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Velit et maiores dignissimos. Id et vel. Officia ut in et hic architecto
-        aliquam mollitia.
+      string: Iste earum temporibus. Corporis in aut inventore vitae dolorem sequi.
+        Harum unde inventore.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,7 +72,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 13 Jul 2017 11:13:03 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_without_kiwi_file/_meta?user=_nobody_
@@ -80,8 +80,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>Wildfire at Midnight</title>
-          <description>Fugit nostrum omnis unde eveniet accusamus neque pariatur et.</description>
+          <title>The Last Temptation</title>
+          <description>Dignissimos odit enim vero.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,16 +102,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '206'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>Wildfire at Midnight</title>
-          <description>Fugit nostrum omnis unde eveniet accusamus neque pariatur et.</description>
+          <title>The Last Temptation</title>
+          <description>Dignissimos odit enim vero.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 13 Jul 2017 11:13:03 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/fake_project/package_without_kiwi_file/_meta
@@ -119,8 +119,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>Wildfire at Midnight</title>
-          <description>Fugit nostrum omnis unde eveniet accusamus neque pariatur et.</description>
+          <title>The Last Temptation</title>
+          <description>Dignissimos odit enim vero.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -141,16 +141,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '206'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>Wildfire at Midnight</title>
-          <description>Fugit nostrum omnis unde eveniet accusamus neque pariatur et.</description>
+          <title>The Last Temptation</title>
+          <description>Dignissimos odit enim vero.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 13 Jul 2017 11:13:03 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/fake_project/package_without_kiwi_file
@@ -183,5 +183,5 @@ http_interactions:
         <directory name="package_without_kiwi_file" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Thu, 13 Jul 2017 11:13:03 GMT
+  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 recorded_with: VCR 3.0.3
