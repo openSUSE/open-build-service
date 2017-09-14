@@ -24,7 +24,14 @@ function enableSave(){
   $('#kiwi-image-update-form-save, #kiwi-image-update-form-revert').addClass('enabled');
 }
 
-function editDialog(){
+function editPackageDialog(){
+  var fields = $(this).parents('.nested-fields');
+  var dialog = fields.find('.dialog');
+  dialog.removeClass('hidden');
+  $('.overlay').show();
+}
+
+function editRepositoryDialog(){
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.dialog');
   var normal_mode = fields.find('.normal-mode');
@@ -255,7 +262,8 @@ $(document).ready(function(){
   $('.remove_fields').click(enableSave);
 
   // Edit dialog for Repositories and Packages
-  $('.repository_edit, .package_edit').click(editDialog);
+  $('.repository_edit').click(editRepositoryDialog);
+  $('.package_edit').click(editPackageDialog);
   $('#kiwi-repositories-list .close-dialog, #kiwi-packages-list .close-dialog').click(closeDialog);
   $('.revert-dialog').click(revertDialog);
   $('.kiwi-repository-mode-toggle').click(repositoryModeToggle);
@@ -274,7 +282,7 @@ $(document).ready(function(){
     }
     $(addedFields).find("[id$='order']").val(lastOrder + 1);
     $('.overlay').show();
-    $(addedFields).find('.repository_edit').click(editDialog);
+    $(addedFields).find('.repository_edit').click(editRepositoryDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
     $(addedFields).find('.kiwi-repository-mode-toggle').click(repositoryModeToggle);
@@ -292,7 +300,7 @@ $(document).ready(function(){
   // After inserting new packages add the Callbacks
   $('#kiwi-packages-list').on('cocoon:after-insert', function(e, addedFields) {
     $('.overlay').show();
-    $(addedFields).find('.package_edit').click(editDialog);
+    $(addedFields).find('.package_edit').click(editPackageDialog);
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
