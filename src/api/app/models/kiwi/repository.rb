@@ -3,7 +3,7 @@ class Kiwi::Repository < ApplicationRecord
   #### Includes and extends
 
   #### Constants
-  REPO_TYPES = ['apt-deb', 'rpm-dir', 'rpm-md', 'yast2'].freeze
+  REPO_TYPES = ['rpm-md', 'rpm-dir', 'yast2', 'apt-deb'].freeze
 
   #### Self config
 
@@ -43,14 +43,11 @@ class Kiwi::Repository < ApplicationRecord
     return if source_path == 'obsrepositories:/'
     return if source_path =~ /^(dir|iso|smb|this):\/\/.+/
     return if source_path =~ /\A#{URI.regexp(['ftp', 'http', 'https', 'plain'])}\z/
-    if source_path =~ /^obs:\/\/([^\/]+)\/([^\/]+)$/
-      return if Project.valid_name?(Regexp.last_match(1)) && Project.valid_name?(Regexp.last_match(2))
+    if source_path_for_obs_repository?
+      return if repo_type == 'rpm-md'
+      errors.add(:repo_type, "should be 'rpm-md' for obs:// repositories")
     end
-    if source_path =~ /^opensuse:\/\/([^\/]+)\/([^\/]+)$/
-      # $1 must be a project name. $2 must be a repository name
-      return if Project.valid_name?(Regexp.last_match(1)) && Regexp.last_match(2) =~ /\A[^_:\/\000-\037][^:\/\000-\037]*\Z/
-    end
-
+    return if source_path_for_opensuse_repository?
     errors.add(:source_path, "has an invalid format")
   end
 
@@ -86,6 +83,19 @@ class Kiwi::Repository < ApplicationRecord
   def repository_for_type_obs
     return '' unless source_path
     source_path.match(/^obs:\/\/([^\/]+)\/([^\/]+)$/).try(:[], 2)
+  end
+
+  private
+
+  def source_path_for_obs_repository?
+    source_path =~ /^obs:\/\/([^\/]+)\/([^\/]+)$/ && Project.valid_name?(Regexp.last_match(1)) && Project.valid_name?(Regexp.last_match(2))
+  end
+
+  def source_path_for_opensuse_repository?
+    # $1 must be a project name. $2 must be a repository name
+    source_path =~ /^opensuse:\/\/([^\/]+)\/([^\/]+)$/ &&
+    Project.valid_name?(Regexp.last_match(1)) &&
+    Regexp.last_match(2) =~ /\A[^_:\/\000-\037][^:\/\000-\037]*\Z/
   end
 
   #### Alias of methods

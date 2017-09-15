@@ -356,7 +356,7 @@ http_interactions:
         <image schemaversion="6.2" name="suse-13.2-live">
           <description type="system">
           </description>
-          <repository type="apt-deb">
+          <repository type="rpm-md">
             <source path="http://"/>
           </repository>
           <preferences>
