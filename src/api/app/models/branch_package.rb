@@ -72,6 +72,10 @@ class BranchPackage
     # Just requests should be nearly the same
     find_package_targets unless params[:request]
 
+    # it is okay to branch the same package multiple times when having
+    # different link_target_projects
+    @packages.uniq! { |x| x[:target_package] }
+
     @target_project ||= User.current.branch_project_name(params[:project])
 
     #
