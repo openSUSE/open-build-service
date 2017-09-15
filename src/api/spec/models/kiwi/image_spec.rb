@@ -155,6 +155,14 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
 
       it { expect(subject.valid?).to be_falsey }
     end
+
+    context 'with a non xml Kiwi File it creates an empty image' do
+      subject { Kiwi::Image.build_from_xml('', 'some_md5') }
+
+      it { expect(subject.valid?).to be_truthy }
+      it { expect(subject.repositories).to be_empty }
+      it { expect(subject.kiwi_packages).to be_empty }
+    end
   end
 
   describe '#to_xml' do

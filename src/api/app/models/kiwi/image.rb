@@ -45,6 +45,7 @@ class Kiwi::Image < ApplicationRecord
   #### Alias of methods
   def self.build_from_xml(xml_string, md5)
     xml = Xmlhash.parse(xml_string)
+    return new(name: 'New Image: Please provide a name', md5_last_revision: md5) if xml.blank?
     new_image = new(name: xml['name'], md5_last_revision: md5)
     repositories = xml["repository"]
     repositories = [xml["repository"]] if xml["repository"].is_a?(Hash)
