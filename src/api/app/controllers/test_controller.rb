@@ -31,7 +31,7 @@ class TestController < ApplicationController
     @@started = true
     WebMock.disable_net_connect!(allow_localhost: true)
     CONFIG['global_write_through'] = true
-    backend.direct_http(URI("/"))
+    Backend::Api.root
     render_ok
   end
 end

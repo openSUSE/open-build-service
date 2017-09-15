@@ -208,16 +208,6 @@ module ActiveXML
       @http_header.delete key if @http_header.has_key? key
     end
 
-    # TODO: get rid of this very thin wrapper
-    def direct_http( url, opt = {} )
-      defaults = {method: "GET"}
-      opt = defaults.merge opt
-
-      logger.debug "--> direct_http url: #{url}"
-
-      http_do opt[:method], URI.encode(url.to_s, /\+/), opt
-    end
-
     # replaces the parameter parts in the uri from the config file with the correct values
     def substitute_uri( uri, params )
       # logger.debug "[REST] reducing args: #{params.inspect}"

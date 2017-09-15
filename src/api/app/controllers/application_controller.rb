@@ -353,16 +353,6 @@ class ApplicationController < ActionController::Base
     render template: 'status', status: 200
   end
 
-  def backend
-    Backend::Test.start if Rails.env.test?
-    @backend ||= ActiveXML.backend
-  end
-
-  def backend_get( path )
-    # TODO: check why not using SUSE:Backend::get
-    backend.direct_http( URI(path) )
-  end
-
   # Passes control to subroutines determined by action and a request parameter. By
   # default the parameter assumed to contain the command is ':cmd'. Looks for a method
   # named <action>_<command>

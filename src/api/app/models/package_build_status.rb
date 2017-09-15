@@ -92,8 +92,7 @@ class PackageBuildStatus
     @buildcode = "unknown"
     begin
       package = CGI.escape(@multibuild_pkg || @pkg.name)
-      uri = URI("/build/#{CGI.escape(@pkg.project.name)}/_result?package=#{package}&repository=#{CGI.escape(srep['name'])}&arch=#{CGI.escape(arch)}")
-      resultlist = Xmlhash.parse(ActiveXML.backend.direct_http(uri))
+      resultlist = Xmlhash.parse(Backend::Api.build_result(@pkg.project.name, package, srep['name'], arch))
       currentcode = nil
       resultlist.elements('result') do |r|
         r.elements('status') { |s| currentcode = s['code'] }
@@ -125,11 +124,8 @@ class PackageBuildStatus
     missingdeps = []
     # if
     if @eversucceeded
-      # rubocop:disable Metrics/LineLength
-      uri = URI("/build/#{CGI.escape(@pkg.project.name)}/#{CGI.escape(srep['name'])}/#{CGI.escape(arch)}/_builddepinfo?package=#{CGI.escape(@pkg.name)}&view=pkgnames")
-      # rubocop:enable Metrics/LineLength
       begin
-        buildinfo = Xmlhash.parse(ActiveXML.backend.direct_http(uri))
+        buildinfo = Xmlhash.parse(Backend::Api.build_dependency_info(@pkg.project.name, @pkg.name, srep['name'], arch))
       rescue ActiveXML::Transport::Error => e
         # if there is an error, we ignore
         raise FailedToRetrieveBuildInfo, "Can't get buildinfo: #{e.summary}"

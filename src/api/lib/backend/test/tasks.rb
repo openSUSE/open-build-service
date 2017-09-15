@@ -1,5 +1,5 @@
 module Backend
-  module Tests
+  class Test
     module Tasks
       def run_scheduler(arch)
         Rails.logger.debug "RUN_SCHEDULER #{arch}"

@@ -24,7 +24,7 @@ module Backend
     def self.file_list(project, package, options = {})
       path = "/source/#{CGI.escape(project)}/#{CGI.escape(package)}"
       path += "?#{options.to_query}" if options.present?
-      Backend::Connection.get(path).body
+      Backend::Connection.get(path).body.force_encoding("UTF-8")
     end
 
     # Returns the revisions list for a package / project using mrev (from src/api/app/helpers/validation_helper.rb)
@@ -35,6 +35,16 @@ module Backend
     # Returns the meta file from a deleted project (from src/api/app/helpers)
     def self.meta_from_deleted_project(project, revision)
       Backend::Connection.get("/source/#{CGI.escape(project)}/_project/_meta?rev=#{CGI.escape(revision)}&deleted=1").body
+    end
+
+    # Returns the meta file from a project
+    def self.meta_from_project(project)
+      Backend::Connection.get("/source/#{CGI.escape(project)}/_project/_meta").body.force_encoding('UTF-8')
+    end
+
+    # Returns the meta file from a project/package
+    def self.meta_from_package(project, package)
+      Backend::Connection.get("/source/#{CGI.escape(project)}/#{CGI.escape(package)}/_meta").body.force_encoding('UTF-8')
     end
 
     # It triggers all the services of a package (from src/api/app/controllers/webui/package_controller.rb)
@@ -174,6 +184,57 @@ module Backend
     def self.build_problems(project)
       path = "/build/#{CGI.escape(project)}/_result?view=status&code=failed&code=broken&code=unresolvable"
       Backend::Connection.get(path).body
+    end
+
+    # Returns the RPMlint log
+    def self.rpmlint_log(project, package, repository, architecture)
+      path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/#{CGI.escape(package)}/rpmlint.log"
+      Backend::Connection.get(path).body.force_encoding("UTF-8")
+    end
+
+    # Returns the build dependency information
+    def self.build_dependency_info(project, package, repository, architecture)
+      path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/_builddepinfo"
+      path += "?package=#{CGI.escape(package)}&view=pkgnames"
+      Backend::Connection.get(path).body.force_encoding("UTF-8")
+    end
+
+    # Returns the worker's status
+    def self.worker_status
+      Backend::Connection.get('/build/_workerstatus').body.force_encoding("UTF-8")
+    end
+
+    # Returns the source diff
+    def self.source_diff(project, package, options = {})
+      path = "/source/#{CGI.escape(project)}/#{CGI.escape(package)}"
+      query_hash = { cmd: :diff, view: :xml, withissues: 1 }
+      query_hash.merge!(options.slice(:rev, :orev, :opackage, :oproject, :linkrev, :olinkrev, :expand))
+      path += "?#{query_hash.to_query}"
+      Backend::Connection.post(path).body.force_encoding('UTF-8')
+    end
+
+    # Pings the root of the backend
+    def self.root
+      Backend::Connection.get('/').body.force_encoding("UTF-8")
+    end
+
+    # Runs the command rebuild for that project/package
+    def self.rebuild(project, package, options = {})
+      path = "/build/#{CGI.escape(project)}"
+      query_hash = { cmd: :rebuild, package: package }
+      query_hash.merge!(options.slice(:repository, :arch))
+      path += "?#{query_hash.to_query}"
+      Backend::Connection.post(path)
+    end
+
+    # Returns the content of the source file
+    def self.source_file(project, package, filename)
+      Backend::Connection.get("/source/#{CGI.escape(project)}/#{CGI.escape(package)}/#{CGI.escape(filename)}").body.force_encoding('UTF-8')
+    end
+
+    # Writes the content of the source file
+    def self.write_source_file(project, package, filename, content = '')
+      Backend::Connection.put("/source/#{CGI.escape(project)}/#{CGI.escape(package)}/#{CGI.escape(filename)}", content)
     end
   end
 end

@@ -48,9 +48,8 @@ class BsRequestPermissionCheck
     if action.action_type.in?([:submit, :maintenance_incident])
       query = {expand: 1}
       query[:rev] = action.source_rev if action.source_rev
-      url = Package.source_path(action.source_project, action.source_package, nil, query)
       begin
-        ActiveXML.backend.direct_http(url)
+        Backend::Api.file_list(action.source_project, action.source_package, query)
       rescue ActiveXML::Transport::Error
         # rubocop:disable Metrics/LineLength
         raise ExpandError, "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}" : ''} is broken"
@@ -104,8 +103,7 @@ class BsRequestPermissionCheck
   def check_maintenance_release_accept(action)
     if action.source_rev
       # FIXME2.4 we have a directory model
-      url = Package.source_path(action.source_project, action.source_package, nil, expand: 1)
-      c = ActiveXML.backend.direct_http(url)
+      c = Backend::Api.file_list(action.source_project, action.source_package, expand: 1)
       data = REXML::Document.new(c)
       unless action.source_rev == data.elements['directory'].attributes['srcmd5']
         raise SourceChanged, "The current source revision in #{action.source_project}/#{action.source_package}" +
