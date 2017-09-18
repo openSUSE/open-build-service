@@ -19,6 +19,18 @@ FactoryGirl.define do
       end
     end
 
+    factory :user_deprecated_password do
+      after(:create) do |user|
+        user.password_digest = nil
+        user.deprecated_password = "b6ead59da72f491dd29f84a6579d6dc4" # password: buildservice
+        user.deprecated_password_hash_type = "md5"
+        user.deprecated_password_salt = "m/YVlu5w0M"
+
+        # ignore validations because `password_digest` can't be nil
+        user.save!(validate: false)
+      end
+    end
+
     factory :deleted_user do
       login 'deleted'
       state 4
@@ -31,7 +43,7 @@ FactoryGirl.define do
     # This is needed because the salt is random
     # in User.after_validation
     after(:create) do |user|
-      user.update_password('buildservice')
+      user.password = 'buildservice'
       user.save!
     end
   end

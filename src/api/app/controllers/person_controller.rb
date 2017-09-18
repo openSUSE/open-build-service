@@ -258,7 +258,7 @@ class PersonController < ApplicationController
     end
 
     # update password in users db
-    user.update_password( password )
+    user.password = password
     user.save!
   end
   private :change_password

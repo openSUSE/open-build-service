@@ -36,6 +36,8 @@ gem 'escape_utils'
 gem 'sanitize'
 # as authorization system
 gem "pundit"
+# for password hashing
+gem 'bcrypt'
 #
 gem 'responders', '~> 2.0'
 # needed for travis-ci.org, must be global for scripts
