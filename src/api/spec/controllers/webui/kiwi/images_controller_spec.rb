@@ -89,7 +89,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                                                                    filename: "#{package_with_kiwi_file.name}.kiwi"))
           end
 
-          it { expect(flash[:error]).to end_with('please remove the others repositories.') }
+          it { expect(flash[:error]).to end_with('please remove the other repositories.') }
         end
       end
     end

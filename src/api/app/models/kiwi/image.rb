@@ -157,7 +157,7 @@ class Kiwi::Image < ApplicationRecord
     return unless use_project_repositories? && repositories.present?
 
     errors.add(:base,
-               "A repository with source_path=\"obsrepositories:/\" has been set. If you want to use it, please remove the others repositories.")
+               "A repository with source_path=\"obsrepositories:/\" has been set. If you want to use it, please remove the other repositories.")
   end
 end
 
