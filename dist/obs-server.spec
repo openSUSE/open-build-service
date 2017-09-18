@@ -200,6 +200,9 @@ Group:          Productivity/Networking/Web/Utilities
 PreReq:         %insserv_prereq
 Requires(pre):  obs-common
 %endif
+%if 0%{?suse_version} >= 1330
+Requires(pre):  group(www)
+%endif
 
 #For apache
 Requires:       apache2 apache2-mod_xforward rubygem-passenger-apache2 ruby2.4-rubygem-passenger
