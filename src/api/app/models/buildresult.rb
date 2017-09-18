@@ -52,10 +52,6 @@ class Buildresult < ActiveXML::Node
     raise ArgumentError, "code '#{code}' unknown #{AVAIL_STATUS_VALUES.inspect}"
   end
 
-  def self.index2code(index)
-    AVAIL_STATUS_VALUES.key(index)
-  end
-
   def self.final_status?(status)
     status.in?(["succeeded", "failed", "unresolvable", "broken", "disabled", "excluded"])
   end
