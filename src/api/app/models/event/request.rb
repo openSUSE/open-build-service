@@ -71,10 +71,7 @@ class Event::Request < ::Event::Base
   end
 
   def source_from_remote?
-    payload['actions'].each do |action|
-      return true if Project.unscoped.is_remote_project?(action['sourceproject'], true)
-    end
-    false
+    payload['actions'].any? { |action| Project.unscoped.is_remote_project?(action['sourceproject'], true) }
   end
 
   def payload_with_diff
