@@ -1070,6 +1070,12 @@ CREATE TABLE `status_messages` (
   KEY `index_status_messages_on_deleted_at_and_created_at` (`deleted_at`,`created_at`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `table_items` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `tokens` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `string` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -1248,6 +1254,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170905101113'),
 ('20170911142301'),
 ('20170912140257'),
-('20170912140713');
+('20170912140713'),
+('20170918083213');
 
 
