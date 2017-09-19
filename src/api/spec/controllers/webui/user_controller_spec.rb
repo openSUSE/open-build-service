@@ -104,6 +104,16 @@ RSpec.describe Webui::UserController do
   end
 
   describe "POST #do_login" do
+    context "without referrer" do
+      before do
+        post :do_login, params: { username: user.login, password: 'buildservice' }
+      end
+
+      it 'redirects to root path' do
+        expect(response).to redirect_to root_path
+      end
+    end
+
     context "with deprecated password" do
       let(:user) { create(:user_deprecated_password, state: :confirmed) }
 
