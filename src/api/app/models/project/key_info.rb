@@ -41,7 +41,7 @@ class Project
 
     def self.key_info_for_project(project)
       Rails.cache.fetch("key_info_project_#{project.cache_key}", expires_in: CACHE_EXPIRY_TIME) do
-        Backend::Api.key_info(project.name)
+        Backend::Api::Sources::Project.key_info(project.name)
       end
     end
   end

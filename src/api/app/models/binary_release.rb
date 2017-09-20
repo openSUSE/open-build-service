@@ -20,14 +20,14 @@ class BinaryRelease < ApplicationRecord
   #### Class methods using self. (public and then private)
   def self.update_binary_releases(repository, key, time = Time.now)
     begin
-      notification_payload = ActiveSupport::JSON.decode(Backend::Api.notification_payload(key))
+      notification_payload = ActiveSupport::JSON.decode(Backend::Api::Server.notification_payload(key))
     rescue ActiveXML::Transport::NotFoundError
       logger.error("Payload got removed for #{key}")
       return
     end
     update_binary_releases_via_json(repository, notification_payload, time)
     # drop it
-    Backend::Api.delete_notification_payload(key)
+    Backend::Api::Server.delete_notification_payload(key)
   end
 
   def self.update_binary_releases_via_json(repository, json, time = Time.now)
@@ -86,7 +86,7 @@ class BinaryRelease < ApplicationRecord
         end
         if binary["patchinforef"]
           begin
-            patchinfo = Patchinfo.new(Backend::Api.patchinfo(binary["patchinforef"]))
+            patchinfo = Patchinfo.new(Backend::Api::Sources::Project.patchinfo(binary["patchinforef"]))
           rescue ActiveXML::Transport::NotFoundError
             # patchinfo disappeared meanwhile
           end

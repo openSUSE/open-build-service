@@ -199,7 +199,7 @@ class Repository < ApplicationRecord
       prjconf = project.source_file('_config')
       unless prjconf =~ /^Type:/
         prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
-        Backend::Api.write_project_configuration(project.name, prjconf)
+        Backend::Api::Sources::Project.write_configuration(project.name, prjconf)
       end
       return
     end
@@ -210,15 +210,15 @@ class Repository < ApplicationRecord
 
   def download_url(file)
     url = Rails.cache.fetch("download_url_#{project.name}##{name}") do
-      xml = Xmlhash.parse(Backend::Api.download_url_for_repository(project.name, name))
+      xml = Xmlhash.parse(Backend::Api::Published.download_url_for_repository(project.name, name))
       xml.elements('url').last.to_s
     end
     url + "/" + file unless file.blank?
   end
 
-  def download_url_for_package(package, architecture, filename)
-    Rails.cache.fetch("download_url_for_package_#{project.name}##{name}##{package.name}##{architecture}##{filename}") do
-      xml = Xmlhash.parse(Backend::Api.download_url_for_package(project.name, name, package.name, architecture, filename))
+  def download_url_for_file(package, architecture, filename)
+    Rails.cache.fetch("download_url_for_file_#{project.name}##{name}##{package.name}##{architecture}##{filename}") do
+      xml = Xmlhash.parse(Backend::Api::BuildResults::Binaries.download_url_for_file(project.name, name, package.name, architecture, filename))
       xml.elements('url').last.to_s
     end
   end

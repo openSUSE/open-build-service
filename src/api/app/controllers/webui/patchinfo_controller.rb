@@ -164,7 +164,7 @@ class Webui::PatchinfoController < Webui::WebuiController
             return
           end
 
-          Backend::Api.write_patchinfo(@package.project.name, @package.name, User.current.login, xml)
+          Backend::Api::Sources::Package.write_patchinfo(@package.project.name, @package.name, User.current.login, xml)
 
           @package.sources_changed(wait_for_update: true) # wait for indexing for special files
 

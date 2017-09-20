@@ -280,7 +280,7 @@ class Project < ApplicationRecord
 
   def number_of_build_problems
     begin
-      result = Backend::Api.build_problems(name)
+      result = Backend::Api::BuildResults::Status.build_problems(name)
     rescue ActiveXML::Transport::NotFoundError
       return 0
     end

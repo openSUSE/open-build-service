@@ -65,9 +65,9 @@ class Service < ActiveXML::Node
       logger.debug 'Service successfully saved'
       begin
         logger.debug 'Executing waitservice command'
-        Backend::Api.wait_service(init_options[:project], init_options[:package])
+        Backend::Api::Sources::Package.wait_service(init_options[:project], init_options[:package])
         logger.debug 'Executing mergeservice command'
-        Backend::Api.merge_service(init_options[:project], init_options[:package], User.current.login)
+        Backend::Api::Sources::Package.merge_service(init_options[:project], init_options[:package], User.current.login)
       rescue ActiveXML::Transport::Error, Timeout::Error => e
         logger.debug "Error while executing backend command: #{e.message}"
       end
@@ -104,7 +104,7 @@ class Service < ActiveXML::Node
       package = Package.get_by_project_and_name(init_options[:project], init_options[:package],
                                                 use_source: true, follow_project_links: false)
       return false unless User.current.can_modify_package?(package)
-      Backend::Api.run_service(init_options[:project], init_options[:package], User.current.login)
+      Backend::Api::Sources::Package.run_service(init_options[:project], init_options[:package], User.current.login)
       package.sources_changed
     end
     true

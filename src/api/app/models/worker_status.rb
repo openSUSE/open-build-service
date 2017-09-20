@@ -1,7 +1,7 @@
 class WorkerStatus
   def self.hidden
     mydata = Rails.cache.read('workerstatus')
-    ws = ActiveXML::Node.new(mydata || Backend::Api.worker_status)
+    ws = ActiveXML::Node.new(mydata || Backend::Api::BuildResults::Worker.status)
     prjs = Hash.new
     ws.each('building') do |b|
       prjs[b.value(:project)] = 1
@@ -25,7 +25,7 @@ class WorkerStatus
 
   def update_workerstatus_cache
     # do not add hiding in here - this is purely for statistics
-    ret = Backend::Api.worker_status
+    ret = Backend::Api::BuildResults::Worker.status
     wdata = Xmlhash.parse(ret)
     @mytime = Time.now.to_i
     @squeues = Hash.new

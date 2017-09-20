@@ -153,7 +153,7 @@ module Event
       updated_payload = payload
       updated_payload['time'] = created_at.to_i
       logger.debug "notify_backend #{self.class.name} #{updated_payload.inspect}"
-      response = Backend::Api.notify_plugin(self.class.raw_type, updated_payload)
+      response = Backend::Api::Server.notify_plugin(self.class.raw_type, updated_payload)
       Xmlhash.parse(response)['code'] == 'ok'
     end
 

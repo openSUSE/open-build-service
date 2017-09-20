@@ -92,7 +92,7 @@ class PackageBuildStatus
     @buildcode = "unknown"
     begin
       package = CGI.escape(@multibuild_pkg || @pkg.name)
-      resultlist = Xmlhash.parse(Backend::Api.build_result(@pkg.project.name, package, srep['name'], arch))
+      resultlist = Xmlhash.parse(Backend::Api::BuildResults::Status.build_result(@pkg.project.name, package, srep['name'], arch))
       currentcode = nil
       resultlist.elements('result') do |r|
         r.elements('status') { |s| currentcode = s['code'] }
@@ -125,7 +125,7 @@ class PackageBuildStatus
     # if
     if @eversucceeded
       begin
-        buildinfo = Xmlhash.parse(Backend::Api.build_dependency_info(@pkg.project.name, @pkg.name, srep['name'], arch))
+        buildinfo = Xmlhash.parse(Backend::Api::BuildResults::Binaries.build_dependency_info(@pkg.project.name, @pkg.name, srep['name'], arch))
       rescue ActiveXML::Transport::Error => e
         # if there is an error, we ignore
         raise FailedToRetrieveBuildInfo, "Can't get buildinfo: #{e.summary}"
