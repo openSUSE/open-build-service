@@ -40,7 +40,7 @@ RSpec.shared_context 'a kiwi image xml' do
   <repository type="rpm-dir" priority="20" imageinclude="false" prefer-license="false">
     <source path="http://download.opensuse.org/distribution/13.2/repo/oss/"/>
   </repository>
-  <repository type="rpm-md" priority="20">
+  <repository type="yast2" priority="20">
     <source path="http://download.opensuse.org/distribution/13.1/repo/oss/"/>
   </repository>
   <repository type="rpm-md">

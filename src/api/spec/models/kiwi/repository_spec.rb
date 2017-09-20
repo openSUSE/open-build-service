@@ -109,7 +109,9 @@ RSpec.describe Kiwi::Repository, type: :model do
       end
     end
 
-    it { is_expected.to validate_inclusion_of(:repo_type).in_array(Kiwi::Repository::REPO_TYPES) }
+    # We specific the context of the inclusion validation because of a bug in shoulda_matcher.
+    # Remove `.on(:save)` when it's solved.
+    it { is_expected.to validate_inclusion_of(:repo_type).in_array(Kiwi::Repository::REPO_TYPES).on(:save) }
     it { is_expected.to validate_numericality_of(:priority).is_greater_than_or_equal_to(0).is_less_than(100) }
     it { is_expected.to validate_numericality_of(:order).is_greater_than_or_equal_to(1) }
     it { is_expected.to allow_value(nil).for(:imageinclude) }
