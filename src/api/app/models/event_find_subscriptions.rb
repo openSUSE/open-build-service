@@ -8,17 +8,14 @@ class EventFindSubscriptions
     @payload = @event.payload
     @subscriptions = EventSubscription.where(eventtype: @event.class.classnames)
 
-    # 1. generic defaults
+    # Get the defaults
     @toconsider = @subscriptions.where('user_id is null AND group_id is null').to_a
+    # Create defaults for receiver_roles of this Event
     @event.class.receiver_roles.each do |r|
       unless receiver_role_set(r)
         @toconsider << EventSubscription.new(eventtype: @event.class.name, receiver_role: r, channel: 'disabled')
       end
     end
-
-    # 2. user and group specifics
-    generics = @subscriptions
-    @toconsider |= generics.where(receiver_role: :all).to_a
 
     return [] if @toconsider.empty?
 
@@ -37,10 +34,6 @@ class EventFindSubscriptions
   end
 
   def expand_one_rule(r)
-    if r.receiver_role == :all
-      return [r]
-    end
-
     receivers = @event.send("#{r.receiver_role}s")
 
     # fetch database settings

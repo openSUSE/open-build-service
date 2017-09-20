@@ -45,20 +45,17 @@ class EventTest < ActionDispatch::IntegrationTest
     # for this test we don't want fixtures to interfere
     EventSubscription.delete_all
 
-    all_get_events = EventSubscription.create eventtype: 'Event::CreatePackage', receiver_role: :maintainer, channel: :instant_email
+    all_get_events = EventSubscription.create eventtype: 'Event::CommentForProject', receiver_role: :maintainer, channel: :instant_email
 
-    e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
-                                     {'project' => 'kde4',
-                                      'package' => 'kdebase',
-                                      'sender'  => 'tom'})
+    e = Event::CommentForProject.create(commenter: users(:Iggy).id, comment_body: 'hello world', project: 'kde4')
 
     # fred, fredlibs and king are maintainer, adrian is in test_group
     assert_equal %w(fred fredlibs king), users_for_event(e)
     assert_equal %w(test_group), groups_for_event(e)
 
     # now fred configures it off
-    EventSubscription.create eventtype: 'Event::CreatePackage',
-                             user: users(:fred), receiver_role: :all, channel: :disabled
+    EventSubscription.create eventtype: 'Event::CommentForProject',
+                             user: users(:fred), receiver_role: :maintainer, channel: :disabled
 
     # fred, fredlibs and king are maintainer, adrian is in test_group - fred disabled it
     assert_equal %w(fredlibs king), users_for_event(e)
@@ -69,9 +66,9 @@ class EventTest < ActionDispatch::IntegrationTest
     assert_equal [], users_for_event(e)
 
     # now fredlibs configures on
-    EventSubscription.create eventtype: 'Event::CreatePackage',
+    EventSubscription.create eventtype: 'Event::CommentForProject',
                              user: users(:fredlibs),
-                             receiver_role: :all, channel: :instant_email
+                             receiver_role: :maintainer, channel: :instant_email
 
     assert_equal %w(fredlibs), users_for_event(e)
   end

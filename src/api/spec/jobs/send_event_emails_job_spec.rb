@@ -11,15 +11,18 @@ RSpec.describe SendEventEmailsJob, type: :job do
     end
 
     let!(:user) { create(:confirmed_user) }
-    let!(:comment_author) { create(:confirmed_user) }
     let!(:group) { create(:group) }
+    let!(:project) { create(:project, name: 'comment_project', maintainer: [user, group]) }
 
-    let!(:comment) { create(:comment_project, body: "Hey @#{user.login} how are things?", user: comment_author) }
+    let!(:comment_author) { create(:confirmed_user) }
+
+    let!(:comment) { create(:comment_project, commentable: project, body: "Hey @#{user.login} how are things?", user: comment_author) }
+    let!(:user_maintainer) { create(:group) }
 
     context 'with no errors being raised' do
-      let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: user) }
-      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group) }
-      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: comment_author) }
+      let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user) }
+      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group) }
+      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'commenter', user: comment_author) }
 
       subject! { SendEventEmailsJob.new.perform }
 
@@ -36,7 +39,7 @@ RSpec.describe SendEventEmailsJob, type: :job do
         expect(notification.type).to eq('Notification::RssFeedItem')
         expect(notification.event_type).to eq('Event::CommentForProject')
         expect(notification.event_payload['comment_body']).to include('how are things?')
-        expect(notification.subscription_receiver_role).to eq('all')
+        expect(notification.subscription_receiver_role).to eq('maintainer')
         expect(notification.delivered).to be_falsey
       end
 
@@ -46,7 +49,7 @@ RSpec.describe SendEventEmailsJob, type: :job do
         expect(notification.type).to eq('Notification::RssFeedItem')
         expect(notification.event_type).to eq('Event::CommentForProject')
         expect(notification.event_payload['comment_body']).to include('how are things?')
-        expect(notification.subscription_receiver_role).to eq('all')
+        expect(notification.subscription_receiver_role).to eq('maintainer')
         expect(notification.delivered).to be_falsey
       end
 
@@ -56,9 +59,9 @@ RSpec.describe SendEventEmailsJob, type: :job do
     end
 
     context 'with an error being raised' do
-      let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: user) }
-      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group) }
-      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: comment_author) }
+      let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user) }
+      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group) }
+      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'commenter', user: comment_author) }
 
       before do
         allow(EventMailer).to receive(:event).and_raise(StandardError)

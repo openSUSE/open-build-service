@@ -12,6 +12,23 @@ FactoryGirl.define do
       end
     end
 
+    transient do
+      maintainer nil
+    end
+
+    after(:create) do |project, evaluator|
+      if evaluator.maintainer
+        maintainers = [*evaluator.maintainer]
+        maintainers.each do |maintainer|
+          if maintainer.kind_of? User
+            create(:relationship_project_user, project: project, user: maintainer)
+          elsif maintainer.kind_of? Group
+            create(:relationship_project_group, project: project, group: maintainer)
+          end
+        end
+      end
+    end
+
     # remote projects validate additional the description and remoteurl
     factory :remote_project do
       description { Faker::Lorem.sentence }
@@ -22,14 +39,12 @@ FactoryGirl.define do
       transient do
         package_name nil
         create_patchinfo false
-        maintainer nil
       end
 
       after(:create) do |project, evaluator|
         new_package = create(:package, { project: project, name: evaluator.package_name }.compact)
         project.packages << new_package
         if evaluator.create_patchinfo
-          create(:relationship_project_user, project: project, user: evaluator.maintainer)
           Patchinfo.new.create_patchinfo(project.name, new_package.name, comment: 'Fake comment', force: true)
         end
       end
@@ -42,7 +57,6 @@ FactoryGirl.define do
         package_description nil
         package_count 2
         create_patchinfo false
-        maintainer nil
       end
 
       after(:create) do |project, evaluator|
@@ -70,7 +84,6 @@ FactoryGirl.define do
           }.compact)
           project.packages << new_package
           if evaluator.create_patchinfo
-            create(:relationship_project_user, project: project, user: evaluator.maintainer)
             Patchinfo.new.create_patchinfo(project.name, new_package.name, comment: 'Fake comment', force: true)
           end
         end
@@ -120,7 +133,6 @@ FactoryGirl.define do
       transient do
         target_project nil
         create_patchinfo false
-        maintainer nil
       end
 
       after(:create) do |project, evaluator|
@@ -130,7 +142,6 @@ FactoryGirl.define do
           CONFIG['global_write_through'] ? project.store : project.save!
         end
         if evaluator.create_patchinfo
-          create(:relationship_project_user, project: project, user: evaluator.maintainer)
           User.current = evaluator.maintainer
           Patchinfo.new.create_patchinfo(project.name, nil, comment: 'Fake comment', force: true)
           User.current = nil

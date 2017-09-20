@@ -8,15 +8,16 @@ RSpec.describe EventFindSubscriptions do
     let!(:group1) { create(:group) }
     let!(:group2) { create(:group) }
     let!(:group3) { create(:group, email: '') }
+    let!(:project) { create(:project, name: 'comment_project', maintainer: [user1, user2, group1, group2, group3]) }
 
-    let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: comment_author) }
-    let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: user1) }
-    let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: user2) }
-    let!(:subscription4) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group1) }
-    let!(:subscription5) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group2) }
-    let!(:subscription6) { create(:event_subscription_comment_for_project, receiver_role: 'all', user: nil, group: group3) }
+    let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'commenter', user: comment_author) }
+    let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user1) }
+    let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user2) }
+    let!(:subscription4) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group1) }
+    let!(:subscription5) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group2) }
+    let!(:subscription6) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group3) }
 
-    let!(:comment) { create(:comment_project, body: "Hey @#{user1.login} how are things?", user: comment_author) }
+    let!(:comment) { create(:comment_project, commentable: project, body: "Hey @#{user1.login} how are things?", user: comment_author) }
     let(:event) { Event::CommentForProject.first }
 
     subject! { EventFindSubscriptions.new(event).subscriptions }
