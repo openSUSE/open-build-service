@@ -56,4 +56,36 @@ RSpec.describe IssueTracker do
       end
     end
   end
+
+  describe '#fetch_issues' do
+    context 'for an IssueTracker with kind == "bugzilla"' do
+      let!(:issue_tracker) do
+        create(
+          :issue_tracker,
+          kind: 'bugzilla',
+          enable_fetch: true,
+          url: 'http://api.a-fake-url.com/repos/openSUSE/open-build-service/issues'
+        )
+      end
+      let!(:issue) do
+        # This line is necessary to prevent the issue after_create method from querying github
+        allow_any_instance_of(Issue).to receive(:fetch_issues)
+        create(:issue, name: '3628', issue_tracker: issue_tracker)
+      end
+      let(:xmlrpc_client) { double(XMLRPC::Client, timeout: nil) }
+
+      before do
+        allow(XMLRPC::Client).to receive(:new2).and_return(xmlrpc_client)
+        allow(xmlrpc_client).to receive(:timeout=)
+        allow(xmlrpc_client).to receive(:user=)
+        allow(xmlrpc_client).to receive(:password=)
+        allow(xmlrpc_client).to receive(:proxy).and_return(xmlrpc_client)
+        allow(xmlrpc_client).to receive(:get).and_raise(Errno::ECONNRESET)
+      end
+
+      subject! { issue_tracker.fetch_issues }
+
+      it { is_expected.to be_falsey }
+    end
+  end
 end

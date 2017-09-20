@@ -196,11 +196,11 @@ class IssueTracker < ApplicationRecord
     while !ids.blank?
       begin
         result = bugzilla_server.get({ids: ids[0..limit_per_slice], permissive: 1})
-      rescue RuntimeError => e
-        logger.error "Unable to fetch issue #{e.inspect}"
-        return false
       rescue XMLRPC::FaultException => e
         logger.error "Error: #{e.faultCode} #{e.faultString}"
+        return false
+      rescue StandardError => e
+        logger.error "Unable to fetch issue #{e.inspect}"
         return false
       end
       result["bugs"].each { |r| parse_single_bugzilla_issue(r) }
