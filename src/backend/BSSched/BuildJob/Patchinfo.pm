@@ -63,6 +63,28 @@ sub expand {
   return 1, splice(@_, 3);
 }
 
+sub get_bins {
+  my ($d) = @_;
+  my @dd = sort(ls($d));
+  my @d;
+  my $havebinlink;
+  for my $b (@dd) {
+    next if /^::import::/;
+    if ($b =~ /\.obsbinlnk$/) {
+      my $binlnk = BSUtil::retrieve("$d/$b", 1);
+      next unless $binlnk;
+      push @d, $b;
+      my $p = $binlnk->{'path'};
+      $p =~ s/.*\///;
+      push @d, grep {$_ ne $b && /^\Q$p\E/}  @dd;
+      $havebinlink = 1;
+    }
+    push @d, $b if $b =~ /\.rpm$/;
+  }
+  @d = BSUtil::unify(@d) if $havebinlink;
+  return @d;
+}
+
 =head2 check - check if a patchinfo needs to be rebuilt
 
  TODO: add description
@@ -248,7 +270,7 @@ sub check {
       if ($ptype eq 'binary') {
         # like aggregates
         my $d = "$agdst/$apackid";
-        my @d = grep {/\.rpm$/ && !/^::import::/} ls($d);
+        my @d = get_bins($d);
         my $m = '';
         for my $b (sort @d) {
           my @s = stat("$d/$b");
@@ -415,7 +437,7 @@ sub build {
       $target ||= $updateinfodata->{'target'} if $updateinfodata->{'target'};
     } else {
       $from = "$reporoot/$prp/$tocopy";
-      @bins = grep {/\.rpm$/ && !/^::import::/} ls($from);
+      @bins = get_bins($from);
       if (-e "$from/.channelinfo") {
         $channelinfo = BSUtil::retrieve("$from/.channelinfo");
         $target ||= $channelinfo->{'/target'} if $channelinfo->{'/target'};
@@ -451,6 +473,14 @@ sub build {
       if ($ptype eq 'binary') {
         # be extra careful with em, recalculate meta
         $m .= "$bin\0$s[9]/$s[7]/$s[1]\0" if @s;
+      }
+      if ($bin !~ /\.rpm$/) {
+        if (%binaryfilter) {
+          unlink("$jobdatadir/$bin");
+          next;
+	}
+	$donebins{$bin} = $tocopy; 
+	next;
       }
       my $d;
       eval {
