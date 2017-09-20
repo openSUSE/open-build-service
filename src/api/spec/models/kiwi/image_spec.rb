@@ -27,6 +27,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.name).to eq('Christians_openSUSE_13.2_JeOS') }
 
       it 'parses the repository elements of the xml into a KiwiImage model' do
+        subject.valid?
         expect(subject.repositories[0]).to have_attributes(
           source_path: 'http://download.opensuse.org/update/13.2/',
           repo_type: 'apt-deb',
@@ -41,7 +42,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         )
         expect(subject.repositories[1]).to have_attributes(
           source_path: 'http://download.opensuse.org/distribution/13.2/repo/oss/',
-          repo_type: 'rpm-dir',
+          repo_type: 'rpm-md',
           priority: 20,
           order: 2,
           alias: nil,

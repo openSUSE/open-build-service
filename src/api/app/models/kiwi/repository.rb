@@ -3,7 +3,7 @@ class Kiwi::Repository < ApplicationRecord
   #### Includes and extends
 
   #### Constants
-  REPO_TYPES = ['rpm-md', 'rpm-dir', 'yast2', 'apt-deb'].freeze
+  REPO_TYPES = ['rpm-md', 'apt-deb'].freeze
 
   #### Self config
 
@@ -13,6 +13,7 @@ class Kiwi::Repository < ApplicationRecord
   belongs_to :image
 
   #### Callbacks macros: before_save, after_save, etc.
+  before_validation :map_to_allowed_repository_types, on: :create
 
   #### Scopes (first the default_scope macro if is used)
 
@@ -99,7 +100,9 @@ class Kiwi::Repository < ApplicationRecord
     Regexp.last_match(2) =~ /\A[^_:\/\000-\037][^:\/\000-\037]*\Z/
   end
 
-  #### Alias of methods
+  def map_to_allowed_repository_types
+    self.repo_type = 'rpm-md' unless repo_type.in?(REPO_TYPES)
+  end
 end
 
 # == Schema Information
