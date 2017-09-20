@@ -22,6 +22,8 @@ RSpec.describe Kiwi::Repository, type: :model do
   end
 
   describe 'validations' do
+    subject { create(:kiwi_repository) }
+
     context 'for source_path' do
       it { is_expected.to validate_presence_of(:source_path) }
 
@@ -50,6 +52,23 @@ RSpec.describe Kiwi::Repository, type: :model do
         end
       end
 
+      it "obs:// is valid" do
+        property_of {
+          project = []
+          range(1, 3).times do
+            project << string(/[a-zA-Z1-9]/) + sized(range(0, 20)) { string(/[-+\w\.]/) }
+          end
+          repository = []
+          range(1, 3).times do
+            repository << string(/[a-zA-Z1-9]/) + sized(range(0, 20)) { string(/[-+\w\.]/) }
+          end
+          path = "obs://#{project.join(':')}/#{repository.join(':')}"
+          path
+        }.check(3) { |string|
+          is_expected.to allow_value(string).for(:source_path)
+        }
+      end
+
       [nil, 3].each do |format|
         it { is_expected.not_to allow_value(format).for(:source_path) }
       end
@@ -60,14 +79,14 @@ RSpec.describe Kiwi::Repository, type: :model do
           index = range(0, (string.length - 4))
           string[index] = ':'
           string[index + 1] = string[index + 2] = '/'
-          guard !%w(ftp http https plain dir iso smb this).include?(string[0..index - 1])
+          guard !%w(ftp http https plain dir iso smb this obs).include?(string[0..index - 1])
           string
         }.check(3) { |string|
           is_expected.not_to allow_value(string).for(:source_path)
         }
       end
 
-      ['ftp', 'http', 'https', 'plain'].each do |protocol|
+      ['ftp', 'http', 'https', 'plain', 'obs'].each do |protocol|
         it "not valid when has `{`" do
           property_of {
             string = sized(range(1, 199)) { string(/[\w]/) }
@@ -78,6 +97,14 @@ RSpec.describe Kiwi::Repository, type: :model do
           }.check(3) { |string|
             is_expected.not_to allow_value(string).for(:source_path)
           }
+        end
+      end
+
+      context 'when source_path starts with obs://' do
+        it { expect(obs_kiwi_repository).to allow_value("rpm-md").for(:repo_type) }
+
+        Kiwi::Repository::REPO_TYPES.reject {|repo| repo == 'rpm-md' }.each do |type|
+          it { expect(obs_kiwi_repository).not_to allow_value(type).for(:repo_type) }
         end
       end
     end
@@ -93,14 +120,14 @@ RSpec.describe Kiwi::Repository, type: :model do
     context 'without username/password' do
       subject { kiwi_repository.to_xml }
 
-      it { expect(subject).to eq("<repository type=\"apt-deb\">\n  <source path=\"http://example.com/\"/>\n</repository>\n") }
+      it { expect(subject).to eq("<repository type=\"rpm-md\">\n  <source path=\"http://example.com/\"/>\n</repository>\n") }
     end
 
     context 'with username/password' do
       subject { create(:kiwi_repository, username: 'my_user', password: 'my_password').to_xml }
 
       it do
-        expect(subject).to eq("<repository type=\"apt-deb\" username=\"my_user\" password=\"my_password\">\n  " +
+        expect(subject).to eq("<repository type=\"rpm-md\" username=\"my_user\" password=\"my_password\">\n  " +
                               "<source path=\"http://example.com/\"/>\n</repository>\n")
       end
     end
@@ -109,7 +136,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       subject { create(:kiwi_repository, prefer_license: true).to_xml }
 
       it do
-        expect(subject).to eq("<repository type=\"apt-deb\" prefer-license=\"true\">\n  " +
+        expect(subject).to eq("<repository type=\"rpm-md\" prefer-license=\"true\">\n  " +
                               "<source path=\"http://example.com/\"/>\n</repository>\n")
       end
     end
@@ -118,7 +145,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       subject { create(:kiwi_repository, imageinclude: true).to_xml }
 
       it do
-        expect(subject).to eq("<repository type=\"apt-deb\" imageinclude=\"true\">\n  " +
+        expect(subject).to eq("<repository type=\"rpm-md\" imageinclude=\"true\">\n  " +
                               "<source path=\"http://example.com/\"/>\n</repository>\n")
       end
     end
@@ -127,7 +154,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       subject { create(:kiwi_repository, alias: 'example').to_xml }
 
       it do
-        expect(subject).to eq("<repository type=\"apt-deb\" alias=\"example\">\n  " +
+        expect(subject).to eq("<repository type=\"rpm-md\" alias=\"example\">\n  " +
                               "<source path=\"http://example.com/\"/>\n</repository>\n")
       end
     end

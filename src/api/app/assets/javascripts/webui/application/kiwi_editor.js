@@ -39,17 +39,19 @@ function editRepositoryDialog(){
   var source_path = fields.find("[id$='source_path']");
 
   dialog.removeClass('hidden');
-  var matched_source_path = source_path.val().match(/^obs:\/\/([^\/]+)\/([^\/]+)$/);
-  if (matched_source_path) {
+  var matched_obs_source_path = source_path.val().match(/^obs:\/\/([^\/]+)\/([^\/]+)$/);
+  if (matched_obs_source_path) {
     var project_field = fields.find('[name=target_project]');
     var repo_field = fields.find('[name=target_repo]');
     var alias_field = fields.find('[name=alias_for_repo]');
     var expert_repo_alias = fields.find("[id$='alias']");
+    var repo_type_field = fields.find("[id$='repo_type']");
     alias_field.val(expert_repo_alias.val());
-    project_field.val(matched_source_path[1]);
+    project_field.val(matched_obs_source_path[1]);
     repo_field.html('');
-    repo_field.append(new Option(matched_source_path[2]));
-    repo_field.val(matched_source_path[2]);
+    repo_field.append(new Option(matched_obs_source_path[2]));
+    repo_field.val(matched_obs_source_path[2]);
+    repo_type_field.val('rpm-md');
 
     normal_mode.show();
     expert_mode.hide();
@@ -237,6 +239,8 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
     source_path.val("obs://" + project_field.val() + '/' + repo_field.val());
     alias_field.val(repo_field_value + '@' + project_field.val());
     alias_field.trigger("change");
+    var repo_type_field = fields.find("[id$='repo_type']");
+    repo_type_field.val('rpm-md');
   });
 
   alias_field.change(function () {
