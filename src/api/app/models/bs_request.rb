@@ -83,8 +83,8 @@ class BsRequest < ApplicationRecord
   validates :creator, presence: true
   validate :check_supersede_state
   validate :check_creator, on: [:create, :save!]
-  validates :comment, length: { maximum: 300000 }
-  validates :description, length: { maximum: 300000 }
+  validates :comment, length: { maximum: 65535 }
+  validates :description, length: { maximum: 65535 }
 
   after_update :send_state_change
   after_commit :update_cache
