@@ -26,6 +26,10 @@ class Kiwi::PackageGroup < ApplicationRecord
 
     builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT
   end
+
+  def kiwi_type_image?
+    kiwi_type == 'image'
+  end
 end
 
 # == Schema Information
