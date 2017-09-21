@@ -197,33 +197,46 @@ class UserLdapStrategy
     # @@ldap_search_con.bound? doesn't catch it as well. So when an error occurs, we
     # simply it try it a seccond time, which forces the ldap connection to
     # reinitialize (@@ldap_search_con is unbound and nil).
+    ldap_first_try = true
     user = nil
     user_filter = ''
 
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      Rails.logger.info("Unable to connect to LDAP server")
-      return
-    end
-
-    if CONFIG.has_key?('ldap_user_filter')
-      user_filter = "(&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
-    else
-      user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
-    end
-    Rails.logger.debug("Search for #{CONFIG['ldap_search_base']} #{user_filter}")
-    begin
-      ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
-        user = entry.to_hash
+    1.times do # Important! Do not remove this, this block may need to be re-run (by line 235)
+      if @@ldap_search_con.nil?
+        @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
       end
-    rescue StandardError
-      Rails.logger.info("Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}")
-      @@ldap_search_con.unbind
-      @@ldap_search_con = nil
-      return
+
+      ldap_con = @@ldap_search_con
+
+      if ldap_con.nil?
+        Rails.logger.info("Unable to connect to LDAP server")
+        return
+      end
+
+      if CONFIG.has_key?('ldap_user_filter')
+        user_filter = "(&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
+      else
+        user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
+      end
+
+      Rails.logger.debug("Search for #{CONFIG['ldap_search_base']} #{user_filter}")
+
+      begin
+        ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
+          user = entry.to_hash
+        end
+      rescue StandardError
+        Rails.logger.info("Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}")
+        @@ldap_search_con.unbind
+        @@ldap_search_con = nil
+
+        if ldap_first_try
+          ldap_first_try = false
+          redo
+        end
+
+        return
+      end
     end
 
     if user.nil?
