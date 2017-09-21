@@ -4,24 +4,25 @@ class BsRequest
       include UserGroupMixin
 
       def all
-        inner_or = []
-        group = ::Group.find_by_title!(group_title)
+        maintainer.or(reviewer).with_actions_and_reviews
+      end
 
-        # find requests where group is maintainer in target project
-        @relation, inner_or = extend_query_for_maintainer(group, @relation, roles, inner_or)
+      private
 
-        if roles.empty? || roles.include?('reviewer')
-          @relation = @relation.includes(:reviews).references(:reviews)
-          # requests where the user is reviewer or own requests that are in review by someone else
-          or_in_and = %W(reviews.by_group=#{quote(group.title)})
+      def project_ids
+        group.involved_projects.pluck(:id)
+      end
 
-          @relation, inner_or = extend_query_for_involved_reviews(group, or_in_and, @relation, review_states, inner_or)
-        end
-        if inner_or.empty?
-          @relation.none
-        else
-          @relation.where(inner_or.join(' or '))
-        end
+      def package_ids
+        group.involved_packages.pluck(:id)
+      end
+
+      def group_ids
+        group.id
+      end
+
+      def group
+        ::Group.find_by_title!(group_title)
       end
     end
   end
