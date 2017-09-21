@@ -567,6 +567,10 @@ sub event_uploadbuildimport_delay {
   my $info = readxml("$myjobsdir/$ev->{'job'}", $BSXML::buildinfo, 1) || {};
   my $projid = $info->{'project'};
   my $packid = $info->{'package'};
+  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+    # remove multibuild flavor
+    $packid =~ s/(?<!^_product)(?<!^_patchinfo):.*//;
+  }
   return 0 unless defined($projid);
   return 1 if $gctx->{'rctx'}->xrpc_busy($projid);      # delay if getprojpack in progress
   return 0 unless defined($packid);
