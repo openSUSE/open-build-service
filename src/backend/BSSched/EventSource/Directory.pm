@@ -124,15 +124,18 @@ sub sendrepochangeevent {
 =cut
 
 sub sendunblockedevent {
-  my ($gctx, $prp, $arch) = @_;
+  my ($gctx, $prp, $arch, $type) = @_;
 
+  my $eventdir = $gctx->{'eventdir'};
+  return unless -e "$eventdir/$arch/.ping";
+  $type ||= 'unblocked';
   my ($projid, $repoid) = split('/', $prp, 2);
   my $ev = {
-    'type' => 'unblocked',
+    'type' => $type,
     'project' => $projid,
     'repository' => $repoid,
   };
-  sendevent($gctx, $ev, $arch, "unblocked::${projid}::${repoid}");
+  sendevent($gctx, $ev, $arch, "${type}::${projid}::${repoid}");
 }
 
 =head2 sendpublishevent - send a publish event to the publisher

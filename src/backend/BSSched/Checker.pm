@@ -870,6 +870,17 @@ sub checkpkgs {
   # package checking ends here
   $ctx->{'prpchecktime'} = time() - $ctx->{'prpchecktime'};
 
+  # send unblockedevents to other schedulers
+  if ($ctx->{'sendunblockedevents'}) {
+    my $sendunblocked = delete $ctx->{'sendunblockedevents'};
+    for my $prpa (sort keys %{$sendunblocked || {}}) {
+      my $type = $sendunblocked->{$prpa} == 1 ? 'lowunblocked' : 'unblocked';
+      print "    sending $type event to $prpa\n";
+      my ($aprojid, $arepoid, $aarch) = split('/', $prpa, 3);
+      BSSched::EventSource::Directory::sendunblockedevent($gctx, "$aprojid/$arepoid", $aarch, $type);
+    }
+  }
+
   # building jobs may have changed back to excluded, blocked or disabled, remove the jobs
   BSSched::BuildJob::killunwantedjobs($ctx->{'gctx'}, $prp, \%packstatus);
 

@@ -52,6 +52,7 @@ our %event_handlers = (
   'recheck'         => \&BSSched::EventHandler::event_check,
   'admincheck'      => \&BSSched::EventHandler::event_check,
   'unblocked'       => \&BSSched::EventHandler::event_check_med,
+  'lowunblocked'    => \&BSSched::EventHandler::event_check_med,
   'relsync'         => \&BSSched::EventHandler::event_check_med,
   'scanrepo'        => \&BSSched::EventHandler::event_scanrepo,
   'scanprjbinaries' => \&BSSched::EventHandler::event_scanprjbinaries,
@@ -239,13 +240,13 @@ sub event_check_med {
   my ($ectx, $ev) = @_;
 
   my $gctx = $ectx->{'gctx'};
-  my $changed_med = $gctx->{'changed_med'};
+  my $changed = $ev->{'type'} eq 'lowunblocked' ?  $gctx->{'changed_low'} : $gctx->{'changed_med'};
   my $projid = $ev->{'project'};
   my $repoid = $ev->{'repository'};
   return unless defined($projid) && defined($repoid);
   my $prp = "$projid/$repoid";
   print "$prp is $ev->{'type'}\n";
-  $changed_med->{$prp} ||= 1;
+  $changed->{$prp} ||= 1;
 }
 
 =head2 event_scanrepo - TODO: add summary

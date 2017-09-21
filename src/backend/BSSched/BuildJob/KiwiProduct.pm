@@ -25,9 +25,8 @@ use Build;
 use BSSolv;
 use BSConfiguration;
 use BSSched::BuildResult;
-use BSSched::BuildJob;                # for expandkiwipath
-use BSSched::ProjPacks;		          # for orderpackids
-use BSSched::EventSource::Directory;  # for sendunblockedevent
+use BSSched::BuildJob;			# for expandkiwipath
+use BSSched::ProjPacks;			# for orderpackids
 my %bininfo_oldok_cache;
 
 =head1 NAME
@@ -316,7 +315,7 @@ sub check {
       if (!$gbininfo && $arch ne $myarch && $gctx->{'eventdir'} && -d "$gctx->{'eventdir'}/$arch") {
 	# mis-use unblocked to tell other scheduler that it is missing
 	print "    requesting :repoinfo for $aprp/$arch\n" if $ctx->{'verbose'};
-	BSSched::EventSource::Directory::sendunblockedevent($gctx, $aprp, $arch);
+	$ctx->{'sendunblockedevents'}->{"$aprp/$arch"} = 2;
       }
       @apackids = BSUtil::unify(@apackids, sort keys %$gbininfo) if $gbininfo;
 
@@ -420,12 +419,13 @@ sub check {
     # looks good from our side. tell master arch to check it
     if ($markerdir && -e "$markerdir/.waiting_for_$myarch") {
       unlink("$markerdir/.waiting_for_$myarch");
-      BSSched::EventSource::Directory::sendunblockedevent($gctx, $prp, $buildarch);
+      $ctx->{'sendunblockedevents'}->{"$prp/$buildarch"} = 2;
       if ($ctx->{'verbose'}) {
         print "      - $packid (kiwi-product)\n";
         print "        unblocked\n";
       }
     }
+    $ctx->{'sendunblockedevents'}->{"$prp/$buildarch"} ||= 1 unless $ctx->{'isreposerver'};
     return ('excluded', "is built in architecture '$buildarch'");
   }
 
