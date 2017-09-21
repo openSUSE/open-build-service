@@ -49,6 +49,15 @@ module Webui
         redirect_back(fallback_location: root_path)
       end
 
+      def autocomplete_binaries
+        binaries = @image.find_binaries_by_name(params[:term])
+        autocomplete_result = []
+        binaries.each do |package, _|
+          autocomplete_result << {id: package, label: package, value: package}
+        end
+        render json: autocomplete_result
+      end
+
       private
 
       def image_params
