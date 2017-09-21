@@ -21,7 +21,7 @@ class Kiwi::Image < ApplicationRecord
   has_one :package, foreign_key: 'kiwi_image_id', class_name: '::Package', dependent: :nullify, inverse_of: :kiwi_image
   has_many :repositories, -> { order(order: :asc) }, dependent: :destroy, index_errors: true
   has_many :package_groups, -> { order(:id) }, dependent: :destroy, index_errors: true
-  has_many :kiwi_packages, -> { where(kiwi_package_groups: { kiwi_type: Kiwi::PackageGroup.kiwi_types[:image], pattern_type: 'onlyRequired' }) },
+  has_many :kiwi_packages, -> { where(kiwi_package_groups: { kiwi_type: Kiwi::PackageGroup.kiwi_types[:image] }) },
            through: :package_groups, source: :packages, inverse_of: :kiwi_image
 
   #### Callbacks macros: before_save, after_save, etc.
@@ -133,7 +133,7 @@ class Kiwi::Image < ApplicationRecord
   end
 
   def default_package_group
-    package_groups.find_or_create_by(kiwi_type: :image, pattern_type: 'onlyRequired')
+    package_groups.find_or_create_by(kiwi_type: :image)
   end
 
   def self.find_binaries_by_name(query, project, repositories, options = {})
