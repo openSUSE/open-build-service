@@ -9,30 +9,16 @@ class BackendInfo < ApplicationRecord
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
   #### Class methods using self. (public and then private)
-  def self.set_value(key, value)
-    backend_value = BackendInfo.find_or_initialize_by(key: key)
+  #### To define class methods as private use private_class_method
+  def self.lastnotification_nr=(value)
+    backend_value = BackendInfo.find_or_initialize_by(key: 'lastnotification_nr')
     backend_value.value = value
     backend_value.save!
   end
 
-  def self.lastnotification_nr=(nr)
-    set_value('lastnotification_nr', nr.to_s)
-  end
-
-  def self.get_value(key)
-    BackendInfo.where(key: key).pluck(:value)
-  end
-
-  def self.get_integer(key)
-    nr = get_value(key)
-    nr.empty? ? 0 : nr[0].to_i
-  end
-
   def self.lastnotification_nr
-    get_integer('lastnotification_nr')
+    BackendInfo.where(key: 'lastnotification_nr').pluck(:value).first.to_i
   end
-
-  #### To define class methods as private use private_class_method
   #### private
   #### Instance methods (public and then protected/private)
   #### Alias of methods
