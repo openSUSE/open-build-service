@@ -133,7 +133,7 @@ class Kiwi::Image < ApplicationRecord
   end
 
   def default_package_group
-    package_groups.find_or_create_by(kiwi_type: :image)
+    package_groups.type_image
   end
 
   def self.find_binaries_by_name(query, project, repositories, options = {})
