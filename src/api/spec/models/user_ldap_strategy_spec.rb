@@ -378,6 +378,41 @@ RSpec.describe UserLdapStrategy do
           is_expected.to eq(['John', 'S'])
         end
       end
+
+      # This particular case occurs when a connection is made to the server, and stored in
+      # @@ldap_search_con but then the server closes the connection. UserLdapStrategy has no way of
+      # knowing if the connection was closed by the server so we need to make sure that
+      # UserLdapStrategy attempts to reconnect.
+      context 'when the connection is closed by the server' do
+        include_context 'setup ldap mock with user mock'
+        include_context 'an ldap connection'
+        include_context 'mock searching a user' do
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
+        end
+
+        before do
+          times_called = 0
+          # First time LDAP works, second time is raises an error, third time it works etc.
+          allow(ldap_mock).to receive(:search) do
+            raise StandardError if times_called == 1
+            times_called += 1
+          end
+          allow(ldap_mock).to receive(:err).and_return('something went wrong')
+          allow(ldap_mock).to receive(:err2string).and_return('something went wrong')
+          allow(ldap_mock).to receive(:unbind)
+          # This connects to LDAP and stores the connection in a class var
+          UserLdapStrategy.find_with_ldap('tux', 'tux_password')
+        end
+
+        subject! do
+          # This attempts to use the LDAP connection which already exists in the class var
+          UserLdapStrategy.find_with_ldap('tux', 'tux_password')
+        end
+
+        it 'returns nil' do
+          is_expected.to eq(['John', 'tux'])
+        end
+      end
     end
   end
 end
