@@ -469,7 +469,7 @@ class Project < ApplicationRecord
   end
 
   def self.find_remote_project(name, skip_access = false)
-    return if !name || skip_access
+    return unless name
 
     fragments = name.split(/:/)
 
@@ -480,7 +480,7 @@ class Project < ApplicationRecord
       logger.debug "Trying to find local project #{local_project}, remote_project #{remote_project}"
 
       project = Project.find_by(name: local_project)
-      if project && check_access?(project) && project.defines_remote_instance?
+      if project && (skip_access || check_access?(project)) && project.defines_remote_instance?
         logger.debug "Found local project #{project.name} for #{remote_project} with remoteurl #{project.remoteurl}"
         return project, remote_project
       end
