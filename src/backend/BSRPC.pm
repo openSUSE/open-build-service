@@ -370,7 +370,12 @@ sub rpc {
   BSHTTP::gethead(\%headers, $headers);
 
   # process header
-  if ($status =~ /^200[^\d]/) {
+  #
+  # HTTP Status Code Definitions
+  # Successful 2xx
+  # https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+  #
+  if ($status =~ /^2\d\d[^\d]/) {
     undef $status;
   } elsif ($status =~ /^302[^\d]/) {
     # XXX: should we do the redirect if $param->{'ignorestatus'} is defined?
