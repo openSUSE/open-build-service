@@ -70,7 +70,12 @@ case "$1" in
         run_in_api script/delayed_job.api.rb --queue=consistency_check start -i 1050
         rc_status -v
         echo -n "Starting OBS searchd daemon "
-        run_in_api rails.ruby2.4 ts:start
+        FILE_SIZE=`stat -c '%s' /srv/www/obs/api/config/production.sphinx.conf`
+        if [ $FILE_SIZE -eq 0 ];then
+          run_in_api rails.ruby2.4 ts:rebuild
+        else
+          run_in_api rails.ruby2.4 ts:start
+        fi
         rc_status -v
         echo -n "Starting OBS api clock daemon "
         run_in_api $CLOCKWORKD --log-dir=log -l -c config/clock.rb start
