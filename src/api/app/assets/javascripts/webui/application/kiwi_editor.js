@@ -249,6 +249,15 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
   });
 }
 
+function kiwiPackagesSetupAutocomplete(fields) {
+  var package_field = fields.find('[id$=name]');
+
+  package_field.autocomplete({
+    source: package_field.data('ajaxurl'),
+    minLength: 2
+  });
+}
+
 $(document).ready(function(){
   // Save image
   $('#kiwi-image-update-form-save').click(saveImage);
@@ -274,6 +283,9 @@ $(document).ready(function(){
   $('#kiwi-repositories-list .kiwi_list_item, #kiwi-packages-list .kiwi_list_item').hover(hoverListItem, hoverListItem);
   $('[name=target_project]').each(function() {
     kiwiRepositoriesSetupAutocomplete($(this).parents('.nested-fields'));
+  });
+  $('#kiwi-packages-list .nested-fields').each(function() {
+    kiwiPackagesSetupAutocomplete($(this));
   });
 
   // After inserting new repositories add the Callbacks
@@ -308,6 +320,7 @@ $(document).ready(function(){
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
+    kiwiPackagesSetupAutocomplete($(addedFields));
     $('#no-packages').hide();
   });
 
