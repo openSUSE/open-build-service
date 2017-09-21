@@ -60,11 +60,10 @@ use BSUtil;
 =cut
 
 sub new {
-  my $class = shift;
-  my %opt   = @_;
+  my ($class, %opt) = @_;
 
   my $self  = {
-      content =>{
+      content => {
 	errors        => [],
 	context       => {
 	  os          => $^O,
@@ -86,7 +85,6 @@ sub new {
       skip_frames  => 2,
       %opt
     };
-
     return bless $self, $class;
 }
 
@@ -101,40 +99,21 @@ sub new {
 sub add_error {
   my ($self, $error, $backtrace, $skip_frames) = @_;
 
-  if (ref($error)) {
-    if (ref($error) ne 'HASH' ) {
-      die "Unknown error input. Only String or HashRef allowed!";
-    }
-  } else{
-    $error = {
-      message => $error,
-      type    => 'error',
-    }
-  }
+  $error = { message => $error, type => 'error' } unless ref($error);
+  die "Unknown error input. Only String or HashRef allowed!\n" if ref($error) ne 'HASH';
 
+  my @bt;
   if ($backtrace) {
-    my $bt = [];
-    my %opt = ();
-    $self->{skip_frames} = $skip_frames if ( $skip_frames );
+    $self->{skip_frames} = $skip_frames if $skip_frames;
 
-    my $i=$self->{skip_frames};
-    while ( my $ci = Carp::caller_info($i)) {
-      push @$bt,
-        {
-          file     => $ci->{file},
-          line     => $ci->{line},
-          function => $ci->{sub},
-        };
+    my $i = $self->{skip_frames};
+    while (my $ci = Carp::caller_info($i)) {
+      unshift @bt, { file => $ci->{file}, line => $ci->{line}, function => $ci->{sub} };
       $i++;
     }
-    $error->{backtrace} = [reverse @$bt];
   }
-
-  $error->{backtrace} = [] if (ref($error->{backtrace}) ne 'ARRAY');
-
-  push
-    @{$self->{content}->{errors}},
-    $error;
+  $error->{backtrace} = \@bt;
+  push @{$self->{content}->{errors}}, $error;
 }
 
 =head2 send - send messages to Airbrake host
@@ -151,51 +130,42 @@ sub send {
   my $debuglevel   = BSUtil::getdebuglevel();
 
   $opt ||= {};
-
   $content->{context}     = $opt->{context}     || $content->{context};
   $content->{environment} = $opt->{environment} || $content->{environment};
   $content->{session}     = $opt->{session}     || $content->{session};
   $content->{params}      = $opt->{params}      || $content->{params};
 
-  die "No base_url given" unless $self->{base_url};
-  die "No api_key given"  unless $self->{api_key};
+  die "No base_url given\n" unless $self->{base_url};
+  die "No api_key given\n"  unless $self->{api_key};
 
   $self->{base_path} =~ s#/$##;
   $self->{base_url}  =~ s#/$##;
 
-  my $uri  = $self->{base_url} . ($self->{_base_path} || '')."/api/v3/projects/".$self->{project_id}."/notices";
-  my $data = encode_json($self->{content});
+  my $uri  = "$self->{base_url}$self->{base_path}/api/v3/projects/$self->{project_id}/notices";
+  my $data = encode_json($content);
 
-  if ( $debuglevel >= 7 ) {
-    BSUtil::printlog("Sending POST request to '$uri'");
-    BSUtil::printlog("data: $data");
+  if ($debuglevel >= 7) {
+    BSUtil::printlog("Sending POST request to '$uri'", 7);
+    BSUtil::printlog("data: $data", 7);
   }
 
-  my $response = BSRPC::rpc(
-      {
-	 uri => $uri,
-	 request => 'POST',
-	 data    => encode_json($self->{content}),
-	 header  => ["Content-Type: application/json"],
-	 verbose => $debuglevel,
-      },
-      undef, # $xmlargs
-      "key=$self->{api_key}",
-  );
+  my $param = {
+    uri => $uri,
+    request => 'POST',
+    data    => encode_json($self->{content}),
+    header  => ["Content-Type: application/json"],
+    verbose => $debuglevel,
+  };
+  my $response = BSRPC::rpc($param, undef, "key=$self->{api_key}");
 
-  if ( $debuglevel >= 7 ) {
+  if ($debuglevel >= 7) {
     BSUtil::printlog(__PACKAGE__." - received response:", 7);
     BSUtil::printlog($response, 7);
   }
 
   # Cleanup already sent content
   $self->{content}->{errors}      = [];
-  $self->{content}->{session}     = {};
-  $self->{content}->{environment} = {};
-  $self->{content}->{params}      = {};
-
   return decode_json($response);
-
 }
 
 =head2 notify - add_error and send in one step
@@ -210,7 +180,6 @@ sub notify {
   my ($self, $error, $option, $backtrace) = @_;
 
   $self->add_error($error, $backtrace);
-
   return $self->send($option);
 }
 
