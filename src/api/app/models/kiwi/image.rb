@@ -47,52 +47,44 @@ class Kiwi::Image < ApplicationRecord
     xml = Xmlhash.parse(xml_string)
     return new(name: 'New Image: Please provide a name', md5_last_revision: md5) if xml.blank?
     new_image = new(name: xml['name'], md5_last_revision: md5)
-    repositories = xml["repository"]
-    repositories = [xml["repository"]] if xml["repository"].is_a?(Hash)
 
-    if repositories
-      new_image.use_project_repositories = repositories.any? { |repository| repository['source']['path'] == 'obsrepositories:/' }
+    repositories = [xml["repository"]].flatten.compact
+    new_image.use_project_repositories = repositories.any? { |repository| repository['source']['path'] == 'obsrepositories:/' }
+    repositories.reject{ |repository| repository['source']['path'] == 'obsrepositories:/' }.each.with_index(1) do |repository, index|
+      attributes = {
+        repo_type:   repository['type'],
+        source_path: repository['source']['path'],
+        priority:    repository['priority'],
+        order:       index,
+        alias:       repository['alias'],
+        replaceable: repository['status'] == 'replaceable',
+        username:    repository['username'],
+        password:    repository['password']
+      }
+      attributes['imageinclude'] = repository['imageinclude'] == 'true' if repository.key?('imageinclude')
+      attributes['prefer_license'] = repository['prefer-license'] == 'true' if repository.key?('prefer-license')
 
-      repositories.reject{ |repository| repository['source']['path'] == 'obsrepositories:/' }.each.with_index(1) do |repository, index|
-        attributes = {
-          repo_type:   repository['type'],
-          source_path: repository['source']['path'],
-          priority:    repository['priority'],
-          order:       index,
-          alias:       repository['alias'],
-          replaceable: repository['status'] == 'replaceable',
-          username:    repository['username'],
-          password:    repository['password']
-        }
-        attributes['imageinclude'] = repository['imageinclude'] == 'true' if repository.key?('imageinclude')
-        attributes['prefer_license'] = repository['prefer-license'] == 'true' if repository.key?('prefer-license')
-
-        new_image.repositories.build(attributes)
-      end
+      new_image.repositories.build(attributes)
     end
 
-    package_groups = xml["packages"]
-    package_groups = [xml["packages"]] if xml["packages"].is_a?(Hash)
-    if package_groups
-      package_groups.each do |package_group_xml|
+    [xml["packages"]].flatten.compact.each do |package_group_xml|
+      attributes = {
+        kiwi_type:    package_group_xml['type'],
+        profiles:     package_group_xml['profiles '],
+        pattern_type: package_group_xml['patternType']
+      }
+      package_group = Kiwi::PackageGroup.new(attributes)
+      [package_group_xml['package']].flatten.compact.each do |package|
         attributes = {
-          kiwi_type:    package_group_xml['type'],
-          profiles:     package_group_xml['profiles '],
-          pattern_type: package_group_xml['patternType']
+          name:     package['name'],
+          arch:     package['arch'],
+          replaces: package['replaces']
         }
-        package_group = Kiwi::PackageGroup.new(attributes)
-        [package_group_xml['package']].flatten.compact.each do |package|
-          attributes = {
-            name:     package['name'],
-            arch:     package['arch'],
-            replaces: package['replaces']
-          }
-          attributes['bootinclude'] = package['bootinclude'] == 'true' if package.key?('bootinclude')
-          attributes['bootdelete'] = package['bootdelete'] == 'true' if package.key?('bootdelete')
-          package_group.packages.build(attributes)
-        end
-        new_image.package_groups << package_group
+        attributes['bootinclude'] = package['bootinclude'] == 'true' if package.key?('bootinclude')
+        attributes['bootdelete'] = package['bootdelete'] == 'true' if package.key?('bootdelete')
+        package_group.packages.build(attributes)
       end
+      new_image.package_groups << package_group
     end
     new_image
   end
