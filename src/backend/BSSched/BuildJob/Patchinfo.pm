@@ -67,18 +67,18 @@ sub get_bins {
   my @dd = sort(ls($d));
   my @d;
   my $havebinlink;
-  for my $b (@dd) {
-    next if /^::import::/;
-    if ($b =~ /\.obsbinlnk$/) {
-      my $binlnk = BSUtil::retrieve("$d/$b", 1);
+  for my $bin (@dd) {
+    next if $bin =~ /^::import::/;
+    if ($bin =~ /\.obsbinlnk$/) {
+      my $binlnk = BSUtil::retrieve("$d/$bin", 1);
       next unless $binlnk;
-      push @d, $b;
+      push @d, $bin;
       my $p = $binlnk->{'path'};
       $p =~ s/.*\///;
-      push @d, grep {$_ ne $b && /^\Q$p\E/}  @dd;
+      push @d, grep {$_ ne $bin && /^\Q$p\E/}  @dd;
       $havebinlink = 1;
     }
-    push @d, $b if $b =~ /\.rpm$/;
+    push @d, $bin if $bin =~ /\.rpm$/;
   }
   @d = BSUtil::unify(@d) if $havebinlink;
   return @d;
