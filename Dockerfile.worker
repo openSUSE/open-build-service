@@ -1,0 +1,5 @@
+FROM openbuildservice/backend
+
+# Run our command
+WORKDIR /obs
+CMD ["contrib/start_development_worker"] 

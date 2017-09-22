@@ -5,6 +5,15 @@ OBSApi::Application.configure do
   # Code is not reloaded between requests
   config.cache_classes = true
 
+  # Use memcache for cache/session storage
+  if CONFIG['memcached_host']
+    config.cache_store = :mem_cache_store, CONFIG['memcached_host']
+    config.session_store = :mem_cache_store, CONFIG['memcached_host']
+  else
+    config.cache_store = :mem_cache_store
+    config.session_store = :mem_cache_store
+  end
+
   # Use a different logger for distributed setups
   # config.logger        = SyslogLogger.new
   config.log_level = :info
@@ -22,8 +31,6 @@ OBSApi::Application.configure do
 
    # Enable serving of images, stylesheets, and javascripts from an asset server
    # config.action_controller.asset_host                  = "http://assets.example.com"
-
-  config.cache_store = :dalli_store, '127.0.0.1:11211', {namespace: 'obs-api', compress: true, expires_in: 1.day }
 
   # Full error reports are disabled and caching is turned on
   config.consider_all_requests_local       = false
@@ -67,7 +74,12 @@ OBSApi::Application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  config.peek.adapter = :memcache
+  # memcache store for peek
+  client = CONFIG['memcached_host'].nil? ? Dalli::Client.new : Dalli::Client.new(CONFIG['memcached_host'].to_s)
+  config.peek.adapter = :memcache, {
+    client: client
+  }
+
 end
 
 # disabled on production for performance reasons

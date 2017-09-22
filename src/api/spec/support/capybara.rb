@@ -1,3 +1,5 @@
+require 'capybara/poltergeist'
+
 Capybara.default_max_wait_time = 6
 Capybara.save_path = Rails.root.join('tmp', 'capybara')
 
