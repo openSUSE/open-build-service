@@ -13,7 +13,7 @@ namespace :docker do
     sh "docker build . -t openbuildservice/mariadb:423 -t openbuildservice/mariadb -f Dockerfile.mariadb"
     sh "docker build . -t openbuildservice/memcached:423 -t openbuildservice/memcached -f Dockerfile.memcached"
     sh "docker build . -t openbuildservice/backend:423 -t openbuildservice/backend -f Dockerfile.backend"
-    sh "docker build . -t openbuildservice/worker:423 -t openbuildservice/backend -f Dockerfile.worker"
+    sh "docker build . -t openbuildservice/worker:423 -t openbuildservice/worker -f Dockerfile.worker"
   end
 
   desc 'Publish our docker containers'
@@ -41,6 +41,7 @@ namespace :docker do
         sh "docker-compose stop"
       end
     end
+
     desc 'Run our backend tests in the docker container'
     task :backend do
       begin
