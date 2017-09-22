@@ -32,7 +32,6 @@ RSpec.shared_context 'a kiwi image xml' do
   </packages>
   <packages type="delete">
     <package name="e2fsprogss"/>
-    <package name="bbb_base"/>
   </packages>
   <repository type="apt-deb" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
     <source path="http://download.opensuse.org/update/13.2/"/>

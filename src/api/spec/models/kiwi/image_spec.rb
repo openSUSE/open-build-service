@@ -107,13 +107,6 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
           bootinclude: nil,
           bootdelete: nil
         )
-        expect(subject.package_groups.last.packages.last).to have_attributes(
-          name: 'bbb_base',
-          arch: nil,
-          replaces: nil,
-          bootinclude: nil,
-          bootdelete: nil
-        )
       end
     end
 
