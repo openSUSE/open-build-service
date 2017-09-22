@@ -81,7 +81,7 @@ class Kiwi::Image < ApplicationRecord
           pattern_type: package_group_xml['patternType']
         }
         package_group = Kiwi::PackageGroup.new(attributes)
-        package_group_xml['package'].each do |package|
+        [package_group_xml['package']].flatten.compact.each do |package|
           attributes = {
             name:     package['name'],
             arch:     package['arch'],
