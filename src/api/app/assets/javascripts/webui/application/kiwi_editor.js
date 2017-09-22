@@ -259,7 +259,12 @@ $(document).ready(function(){
 
   // Revert image
   $('#kiwi-image-update-form-revert').click(function(){
-    location.reload();
+    if ($(this).hasClass('enabled')) {
+      if (confirm('Attention! All unsaved data will be lost! Continue?')) {
+        window.location = window.location.href;
+        return false;
+      }
+    }
   });
 
   // Enable save button

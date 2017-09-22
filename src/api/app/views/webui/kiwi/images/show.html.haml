@@ -29,15 +29,16 @@
     #kiwi-packages-list
       %p#no-packages{ class: "#{'hidden' if @image.kiwi_packages.present?}" }= 'There are no packages.'
 
-      = f.fields_for :package_groups, @image.default_package_group do |package_group_fields|
-        = package_group_fields.fields_for :packages do |kiwi_package_fields|
-          = render 'package_fields', f: kiwi_package_fields
-        %p
-          = link_to_add_association(sprite_tag("package_add", title: 'Add package') + ' Add package', package_group_fields, :packages)
+      = f.fields_for :package_groups do |package_group_fields|
+        - if package_group_fields.object.kiwi_type == 'image'
+          = package_group_fields.fields_for :packages do |kiwi_package_fields|
+            = render 'package_fields', f: kiwi_package_fields
+          %p
+            = link_to_add_association(sprite_tag("package_add", title: 'Add package') + ' Add package', package_group_fields, :packages)
 
   .grid_2.alpha.omega.box.box-shadow.kiwi-button
     %h3
       #kiwi-image-update-form-save= sprite_tag("page_save", title: 'Save') + ' Save'
   .grid_2.alpha.omega.box.box-shadow.kiwi-button
     %h3
-      #kiwi-image-update-form-revert= sprite_tag("page_refresh", title: 'Revert') + ' Revert'
+      #kiwi-image-update-form-revert{ class: "#{'enabled' if flash[:error]}" }= sprite_tag("page_save", title: 'Revert') + ' Revert'
