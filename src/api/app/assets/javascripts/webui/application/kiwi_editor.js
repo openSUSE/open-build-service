@@ -253,7 +253,24 @@ function kiwiPackagesSetupAutocomplete(fields) {
   var package_field = fields.find('[id$=name]');
 
   package_field.autocomplete({
-    source: package_field.data('ajaxurl'),
+    source: function (request, response) {
+      var repositories = $("#kiwi-repositories-list [id$='source_path']").map(function() { return this.value;}).get();
+      var repository_destroy_fields = $("#kiwi-repositories-list [id$='_destroy']");
+      var using_project_repositories =  $('#kiwi_image_use_project_repositories').prop('checked');
+      repository_destroy_fields.each(function(index, input){ // remove destroyed repositories from the payload
+        if ($(input).val() == "1") {
+          repositories.splice(index, 1);
+        }
+      });
+      var payload = { term: request.term, repositories: repositories };
+      if (using_project_repositories) {
+        payload.use_project_repositories = true;
+      }
+      $.getJSON(package_field.data('ajaxurl'), payload,
+        function (data) {
+          response(data);
+        });
+    },
     minLength: 2
   });
 }

@@ -280,7 +280,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
     before do
       login user
-      allow_any_instance_of(Kiwi::Image).to receive(:binaries_available).and_return(binaries_available_sample)
+      allow(Kiwi::Image).to receive(:binaries_available).and_return(binaries_available_sample)
     end
 
     subject do

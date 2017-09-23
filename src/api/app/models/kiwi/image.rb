@@ -144,31 +144,25 @@ class Kiwi::Image < ApplicationRecord
     package_groups.find_or_create_by(kiwi_type: :image, pattern_type: 'onlyRequired')
   end
 
-  def find_binaries_by_name(query)
+  def self.find_binaries_by_name(query, project, repositories, options = {})
     finder = /\A#{Regexp.quote(query)}/
-    binaries_available.select { |package, _| finder.match(package.to_s) }
+    binaries_available(project, options[:use_project_repositories], repositories).select { |package, _| finder.match(package.to_s) }
   end
 
-  def binaries_available
-    return {} unless package
-    Rails.cache.fetch("kiwi_image_binaries_available_#{md5_last_revision}", expires_in: 5.minutes) do
+  def self.binaries_available(project, use_project_repositories, repositories)
+    Rails.cache.fetch("kiwi_image_binaries_available_#{project}_#{use_project_repositories}_#{repositories}", expires_in: 5.minutes) do
       if use_project_repositories
-        Backend::Api::BuildResults::Binaries.available_in_project(package.project.name)
+        Backend::Api::BuildResults::Binaries.available_in_project(project)
       else
-        Backend::Api::BuildResults::Binaries.available_in_repositories(package.project.name, non_obs_repository_urls, obs_repository_paths)
+        return [] if repositories.blank?
+        obs_repository_paths = repositories.select { |url| url.starts_with?("obs://")}.map {|url| url[6..-1] }
+        non_obs_repository_urls = repositories.reject { |url| url.starts_with?("obs://")}
+        Backend::Api::BuildResults::Binaries.available_in_repositories(project, non_obs_repository_urls, obs_repository_paths)
       end
     end
   end
 
   private
-
-  def non_obs_repository_urls
-    repositories.reject(&:obs_source_path?).map(&:source_path)
-  end
-
-  def obs_repository_paths
-    repositories.select(&:obs_source_path?).map { |repository| "#{repository.project_for_type_obs}/#{repository.repository_for_type_obs}" }
-  end
 
   def repositories_for_xml
     if use_project_repositories?
