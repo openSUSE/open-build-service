@@ -2,34 +2,36 @@
 module Backend
   module Api
     class Server
-      # Returns the notification payload for that key (from src/api/app/models/binary_release.rb)
-      def self.notification_payload(key)
-        Backend::Connection.get("/notificationpayload/#{key}").body
+      extend Backend::ConnectionHelper
+
+      # Returns the notification payload
+      def self.notification_payload(notification)
+        get(["/notificationpayload/:notification", notification])
       end
 
-      # Deletes the notification payload for that key (from src/api/app/models/binary_release.rb)
-      def self.delete_notification_payload(key)
-        Backend::Connection.delete("/notificationpayload/#{key}")
+      # Deletes the notification payload
+      def self.delete_notification_payload(notification)
+        delete(["/notificationpayload/:notification", notification])
       end
 
-      # It writes the configuration XML
-      def self.write_configuration(xml)
-        Backend::Connection.put('/configuration', xml)
+      # It writes the configuration
+      def self.write_configuration(configuration)
+        put('/configuration', data: configuration)
       end
 
       # Returns the latest notifications specifying a starting point
       def self.last_notifications(start)
-        Backend::Connection.get("/lastnotifications?start=#{CGI.escape(start.to_s)}&block=1").body
+        get("/lastnotifications", params: { start: start, block: 1 })
       end
 
       # Notifies a certain plugin with the payload
       def self.notify_plugin(plugin, payload)
-        Backend::Connection.post("/notify_plugins/#{plugin}", Yajl::Encoder.encode(payload), 'Content-Type' => 'application/json').body
+        post(["/notify_plugins/:plugin", plugin], data: Yajl::Encoder.encode(payload), headers: { 'Content-Type' => 'application/json' })
       end
 
       # Pings the root of the backend
       def self.root
-        Backend::Connection.get('/').body.force_encoding("UTF-8")
+        get('/')
       end
     end
   end
