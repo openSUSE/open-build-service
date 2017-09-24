@@ -3,9 +3,11 @@ module Backend
   module Api
     module BuildResults
       class Worker
+        extend Backend::ConnectionHelper
+
         # Returns the worker status
         def self.status
-          Backend::Connection.get('/build/_workerstatus').body.force_encoding("UTF-8")
+          get('/build/_workerstatus')
         end
       end
     end
