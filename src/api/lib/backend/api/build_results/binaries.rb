@@ -3,51 +3,48 @@ module Backend
   module Api
     module BuildResults
       class Binaries
+        extend Backend::ConnectionHelper
+
         # Returns a file list of binaries
         def self.files(project, repository, arch, package)
-          Backend::Connection.get("/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(arch)}/#{CGI.escape(package)}").body
+          get(["/build/:project/:repository/:arch/:package", project, repository, arch, package])
         end
 
         # Returns the jobs history for a project
-        def self.job_history(project, repository, arch)
-          Backend::Connection.get("/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(arch)}/_jobhistory?code=lastfailures").body
+        def self.job_history(project, repository, architecture)
+          get(["/build/:project/:repository/:architecture/_jobhistory", project, repository, architecture], params: { code: :lastfailures })
         end
 
         # Returns the download url for a file of a package
         def self.download_url_for_file(project, repository, package, architecture, file)
-          path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/#{CGI.escape(package)}/#{CGI.escape(file)}"
-          Backend::Connection.get("#{path}?view=publishedpath").body
+          get(["/build/:project/:repository/:architecture/:package/:file", project, repository, architecture, package, file],
+              params: { view: :publishedpath })
         end
 
         # Returns the RPMlint log
         def self.rpmlint_log(project, package, repository, architecture)
-          path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/#{CGI.escape(package)}/rpmlint.log"
-          Backend::Connection.get(path).body.force_encoding("UTF-8")
+          get(["/build/:project/:repository/:architecture/:package/rpmlint.log", project, repository, architecture, package])
         end
 
         # Returns the build dependency information
         def self.build_dependency_info(project, package, repository, architecture)
-          path = "/build/#{CGI.escape(project)}/#{CGI.escape(repository)}/#{CGI.escape(architecture)}/_builddepinfo"
-          path += "?package=#{CGI.escape(package)}&view=pkgnames"
-          Backend::Connection.get(path).body.force_encoding("UTF-8")
+          get(["/build/:project/:repository/:architecture/_builddepinfo", project, repository, architecture],
+              params: { package: package, view: :pkgnames })
         end
 
         # Returns the available binaries for the project
         def self.available_in_project(project)
-          path = "/build/#{CGI.escape(project)}/_availablebinaries"
-          transform_binary_packages_response(Backend::Connection.get(path).body.force_encoding("UTF-8"))
+          transform_binary_packages_response(get(["/build/:project/_availablebinaries", project]))
         end
 
         # Returns the available binaries for the repositories given
         def self.available_in_repositories(project, urls, repositories)
           return {} if repositories.empty? && urls.empty?
-          path = "/build/#{CGI.escape(project)}/_availablebinaries"
-          query = urls.map { |value| value.to_query(:url) }
-          query += repositories.map { |value| value.to_query(:path) }
-          path += "?#{query.join('&')}"
-          transform_binary_packages_response(Backend::Connection.get(path).body.force_encoding("UTF-8"))
+          transform_binary_packages_response(get(["/build/:project/_availablebinaries", project],
+                                                 params: { url: urls, path: repositories }, expand: [:url, :path]))
         end
 
+        # TODO: Move this method that transforms the output into another module
         # Transforms the output of the available_in_repositories, available_in_urls and available_in_project methods to a hash containing
         # the name of the binary as keys and the architectures as the value
         def self.transform_binary_packages_response(response)
