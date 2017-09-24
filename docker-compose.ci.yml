@@ -1,0 +1,20 @@
+version: "2"
+services:
+  rspec:
+    image: openbuildservice/frontend
+    volumes:
+      - .:/obs
+    depends_on:
+      - db
+    command: /obs/contrib/start_rspec
+  db:
+    image: openbuildservice/mariadb
+    volumes:
+      - mysql_vol:/var/lib/mysql_tmpfs/
+      - .:/obs
+    command: /obs/contrib/start_test_db
+volumes:
+  mysql_vol:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
