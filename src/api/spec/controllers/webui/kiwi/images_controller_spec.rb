@@ -145,7 +145,8 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
           start_with('Cannot update kiwi image: Repositories[0] repo type is not included in the list')
         )
       end
-      it { expect(subject).to redirect_to(root_path) }
+      it { expect(subject).to have_http_status(:success) }
+      it { expect(subject).to render_template(:show) }
     end
 
     context 'with valid repositories data' do
@@ -234,8 +235,8 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
           start_with("Cannot update kiwi image: Package groups[0] packages name can't be blank")
         )
       end
-
-      it { expect(subject).to redirect_to(root_path) }
+      it { expect(subject).to have_http_status(:success) }
+      it { expect(subject).to render_template(:show) }
     end
 
     context 'with valid packages data' do
