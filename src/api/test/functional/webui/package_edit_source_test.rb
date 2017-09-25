@@ -214,7 +214,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       upload_from: :local_file,
       upload_path: text_path('broken_link.xml'),
       expect: :error,
-      flash_message: "Error while creating '_link' file: link validation error: Extra content at the end of the document."
+      flash_message: "Error while creating '_link' file: link validation error: 12:1: FATAL: Extra content at the end of the document."
     )
   end
 

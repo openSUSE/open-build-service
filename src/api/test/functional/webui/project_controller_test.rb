@@ -363,13 +363,13 @@ XML
     xml = "<project name='home:adrian'> <title>My Home Project</title </project>"
     page.evaluate_script("editors[0].setValue(\"#{xml}\");")
     click_button("Save")
-    find(:id, 'flash-messages').must_have_text("project validation error: expected '>'")
+    find(:id, 'flash-messages').must_have_text("project validation error: 1:60: FATAL: expected '>'")
 
     xml = "<project name='home:adrian'><title>My Home Project</title></project>"
     page.evaluate_script("editors[0].setValue(\"#{xml}\");")
     click_button("Save")
     find(:id, 'flash-messages').
-      must_have_text("project validation error: Expecting an element description, got nothing")
+      must_have_text("project validation error: 1:0: ERROR: Expecting an element description, got nothing")
 
     # Trigger data reload and verify that nothing was saved
     click_link("Meta")

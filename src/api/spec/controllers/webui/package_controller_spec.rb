@@ -1,4 +1,4 @@
-require "webmock/rspec"
+require 'webmock/rspec'
 require 'rails_helper'
 # WARNING: If you change owner tests make sure you uncomment this line
 # and start a test backend. Some of the Owner methods
@@ -339,16 +339,17 @@ RSpec.describe Webui::PackageController, vcr: true do
         expect { source_package.source_file("remote_file") }.to raise_error ActiveXML::Transport::NotFoundError
 
         created_service = source_package.source_file("_service")
-        expect(created_service).to eq(<<-EOT.strip)
-<services>
-  <service name="download_url">
-    <param name="host">raw.github.com</param>
-    <param name="protocol">https</param>
-    <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
-    <param name="filename">remote_file</param>
-  </service>
-</services>
-EOT
+        expected = <<~EOT
+          <services>
+            <service name="download_url">
+              <param name="host">raw.github.com</param>
+              <param name="protocol">https</param>
+              <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+              <param name="filename">remote_file</param>
+            </service>
+          </services>
+          EOT
+        expect(created_service).to eq(expected.strip)
       end
     end
 
@@ -377,7 +378,7 @@ EOT
       end
 
       it { expect(response).to have_http_status(:found) }
-      it { expect(flash[:error]).to eq("Error while creating '_link' file: link validation error: Start tag expected, '<' not found.") }
+      it { expect(flash[:error]).to include('link validation error') }
       it "does not create a '_link' file" do
         expect { source_package.source_file("_link") }.to raise_error ActiveXML::Transport::NotFoundError
       end
@@ -635,8 +636,7 @@ EOT
       end
 
       it do
-        expect(flash[:error]).to eq('Error while saving the Meta file: package validation error: ' +
-                                    'Opening and ending tag mismatch: package line 1 and paaaaackage.')
+        expect(flash[:error]).to include('package validation error')
       end
       it { expect(response).to have_http_status(:bad_request) }
     end
