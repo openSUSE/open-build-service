@@ -525,7 +525,7 @@ CREATE TABLE `groups_roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `groups_users` (
-  `group_id` int(11) NOT NULL DEFAULT '0',
+  `group_id` int(11) DEFAULT '0',
   `user_id` int(11) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT NULL,
   `email` tinyint(1) DEFAULT '1',
@@ -1251,6 +1251,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170911142301'),
 ('20170912140257'),
 ('20170912140713'),
-('20170921100521');
+('20170921100521'),
+('20170925060940');
 
 
