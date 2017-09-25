@@ -9,24 +9,24 @@ namespace :docker do
 
   desc 'Rebuild our static docker containers'
   task :rebuild do
-    sh "docker build . -t openbuildservice/base:423 -t openbuildservice/base -f Dockerfile.423"
-    sh "docker build . -t openbuildservice/mariadb:423 -t openbuildservice/mariadb -f Dockerfile.mariadb"
-    sh "docker build . -t openbuildservice/memcached:423 -t openbuildservice/memcached -f Dockerfile.memcached"
-    sh "docker build . -t openbuildservice/backend:423 -t openbuildservice/backend -f Dockerfile.backend"
-    sh "docker build . -t openbuildservice/worker:423 -t openbuildservice/worker -f Dockerfile.worker"
+    sh "docker build . -t openbuildservice/base:42.3 -t openbuildservice/base -f Dockerfile.42.3"
+    sh "docker build . -t openbuildservice/mariadb:42.3 -t openbuildservice/mariadb -f Dockerfile.mariadb"
+    sh "docker build . -t openbuildservice/memcached:42.3 -t openbuildservice/memcached -f Dockerfile.memcached"
+    sh "docker build . -t openbuildservice/backend:42.3 -t openbuildservice/backend -f Dockerfile.backend"
+    sh "docker build . -t openbuildservice/worker:42.3 -t openbuildservice/worker -f Dockerfile.worker"
   end
 
   desc 'Publish our docker containers'
   task publish: [:rebuild] do
-    sh "docker push openbuildservice/base:423"
+    sh "docker push openbuildservice/base:42.3"
     sh "docker push openbuildservice/base"
-    sh "docker push openbuildservice/mariadb:423"
+    sh "docker push openbuildservice/mariadb:42.3"
     sh "docker push openbuildservice/mariadb"
-    sh "docker push openbuildservice/memcached:423"
+    sh "docker push openbuildservice/memcached:42.3"
     sh "docker push openbuildservice/memcached"
-    sh "docker push openbuildservice/backend:423"
+    sh "docker push openbuildservice/backend:42.3"
     sh "docker push openbuildservice/backend"
-    sh "docker push openbuildservice/worker:423"
+    sh "docker push openbuildservice/worker:42.3"
     sh "docker push openbuildservice/worker"
   end
 
