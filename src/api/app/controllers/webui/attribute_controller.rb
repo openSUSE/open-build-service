@@ -2,7 +2,6 @@ class Webui::AttributeController < Webui::WebuiController
   helper :all
   before_action :set_container, only: [:index, :new, :edit]
   before_action :set_attribute, only: [:update, :destroy]
-  before_action :set_attribute_by_name, only: [:edit]
 
   # raise an exception if authorize has not yet been called.
   after_action :verify_authorized, except: :index
@@ -23,7 +22,10 @@ class Webui::AttributeController < Webui::WebuiController
   end
 
   def edit
+    @attribute = Attrib.find_by_container_and_fullname(@container, params[:attribute])
+
     authorize @attribute
+
     return unless @attribute.attrib_type.value_count && ( @attribute.attrib_type.value_count > @attribute.values.length )
     (@attribute.attrib_type.value_count - @attribute.values.length).times { @attribute.values.build(attrib: @attribute) }
   end
@@ -92,10 +94,6 @@ class Webui::AttributeController < Webui::WebuiController
     else
       @container = @project
     end
-  end
-
-  def set_attribute_by_name
-    @attribute = Attrib.find_by_container_and_fullname( @container, params[:attribute] )
   end
 
   def set_attribute
