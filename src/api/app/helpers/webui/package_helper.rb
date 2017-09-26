@@ -27,6 +27,7 @@ module Webui::PackageHelper
     return 'makefile' if filename == 'debian.rules'
     return 'baselibs' if filename == 'baselibs.conf'
     return 'spec' if filename =~ /^macros\.\w+/
+    return 'dockerfile' if filename =~ /^(D|d)ockerfile.*$/
 
     ext = Pathname.new(filename).extname.downcase
     case ext

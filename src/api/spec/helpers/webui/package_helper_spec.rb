@@ -184,6 +184,19 @@ RSpec.describe Webui::PackageHelper, type: :helper do
       it_should_behave_like "file with extension", 'html', 'html'
     end
 
+    context "is dockerfile" do
+      it "when it starts with Dockerfile." do
+        property_of {
+          'Dockerfile.' + sized(range(1, 192)) { string(/\w/) }
+        }.check(3) { |filename|
+          expect(guess_code_class(filename)).to eq('dockerfile')
+        }
+      end
+
+      it { expect(guess_code_class('Dockerfile')).to eq('dockerfile') }
+      it { expect(guess_code_class('dockerfile')).to eq('dockerfile') }
+    end
+
     context "css" do
       it_should_behave_like "file with extension", 'css', 'css'
     end
