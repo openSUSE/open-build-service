@@ -4,7 +4,9 @@ require 'fileutils'
 require 'yaml'
 
 namespace :dev do
-  task :prepare do
+  task :prepare, [:old_test_suite] do |_t, args|
+    args.with_defaults(old_test_suite: false)
+
     puts 'Setting up the database configuration...'
     copy_example_file('config/database.yml')
     database_yml = YAML.load_file('config/database.yml') || {}
@@ -17,15 +19,17 @@ namespace :dev do
     puts 'Setting up the application configuration...'
     copy_example_file('config/options.yml')
     options_yml = YAML.load_file('config/options.yml') || {}
-    options_yml['source_host'] = 'backend'
-    options_yml['memcached_host'] = 'cache'
+    options_yml['source_host'] = args.old_test_suite ? 'localhost' : 'backend'
+    options_yml['memcached_host'] = args.old_test_suite ? 'localhost' : 'cache'
     File.open('config/options.yml', 'w') do |f|
       f.write(YAML.dump(options_yml))
     end
   end
 
   desc 'Bootstrap the application'
-  task bootstrap: [:prepare, :environment] do
+  task :bootstrap, [:old_test_suite] => [:prepare, :environment] do |_t, args|
+    args.with_defaults(old_test_suite: false)
+
     puts 'Creating the database...'
     begin
       Rake::Task['db:version'].invoke
@@ -33,12 +37,20 @@ namespace :dev do
       Rake::Task['db:create'].invoke
       Rake::Task['db:setup'].invoke
       Rake::Task['db:seed'].invoke
+      if args.old_test_suite
+        puts 'Old test suite. Loading fixtures...'
+        Rake::Task['db:fixtures:load'].invoke
+      end
     end
 
     if Rails.env.test?
       puts 'Prepare assets'
       Rake::Task['assets:clobber'].invoke
       Rake::Task['assets:precompile'].invoke
+      if args.old_test_suite
+        puts 'Old test suite. Enforcing project keys...'
+        ::Configuration.update(enforce_project_keys: true)
+      end
     end
 
     if Rails.env.development?

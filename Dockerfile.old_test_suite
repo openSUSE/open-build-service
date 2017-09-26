@@ -1,0 +1,59 @@
+FROM openbuildservice/base
+
+# FIXME: https://bugzilla.opensuse.org/show_bug.cgi?id=957818
+RUN rm -rf /var/cache/zypp/*
+
+# Install requirements for the frontend
+RUN zypper -n install --no-recommends --replacefiles \
+  # as search daemon
+  sphinx \
+  # for testing javascript driven pages
+  phantomjs \
+  nodejs \
+  # for accessing the database
+  mariadb-client \
+  # for rspec (it does something with git)
+  git-core \
+  # dependencies for building gems
+  ruby2.4-devel cyrus-sasl-devel openldap2-devel libxml2-devel zlib-devel libxslt-devel \
+  # gems we don't want to build
+  ruby2.4-rubygem-mysql2 \
+  # gems we use that are not in our bundle
+  ruby2.4-rubygem-bundler ruby2.4-rubygem-thor-0_19 ruby2.4-rubygem-foreman
+
+# Install memcached
+RUN zypper -n install --no-recommends --replacefiles memcached
+
+# Install requirements for the backend
+RUN zypper -n install --no-recommends --replacefiles \
+  obs-server obs-signd \
+  obs-service-download_src_package obs-service-download_files \
+  obs-service-download_url \
+  obs-service-format_spec_file obs-service-kiwi_import \
+  perl-Devel-Cover \
+  osc
+
+# Add our sign configuration
+ADD dist/obs-signd-conf.tar.bz2 sign
+RUN rm -rf /root/.gnupg; \
+    mv -v /sign/root/.gnupg /root/.gnupg; \
+    mv -v /sign/root/.phrases /root/.phrases; \
+    mv -v /sign/etc/ourkeyfile.asc /sign/etc/sign.conf /etc/; \
+    mv -v /sign/etc/sysconfig/signd /etc/sysconfig/signd
+
+ADD src/api/Gemfile /obs/src/api/Gemfile
+ADD src/api/Gemfile.lock /obs/src/api/Gemfile.lock
+RUN chown -R frontend /obs/src/api
+
+WORKDIR /obs/src/api
+
+# Set up some convenience ruby binaries...
+RUN for i in ruby gem irb; do ln -s /usr/bin/$i.ruby2.4 ~/bin/$i; done
+
+# Install our bundle
+# FIXME: Retrying bundler if it fails is a workaround for https://github.com/moby/moby/issues/783
+#        which seems to happen on openSUSE (< Tumbleweed 20171001)...
+RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 || bundle install --jobs=3 --retry=3
+
+# Run our command
+CMD ["/bin/bash", "-l"]

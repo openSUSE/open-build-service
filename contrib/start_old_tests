@@ -1,0 +1,10 @@
+#!/bin/bash
+echo "Preparing application..."
+bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test
+echo "Changing source_port to 3200..."
+perl -pi -e 's/source_port: 5352/source_port: 3200/' config/options.yml
+echo "Setup shpinx"
+cp config/thinking_sphinx.yml{.example,}
+touch config/test.sphinx.conf
+echo "Running api test suite..."
+bundle exec rake test:api

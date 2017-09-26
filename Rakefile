@@ -45,6 +45,17 @@ namespace :docker do
         sh 'docker-compose -f docker-compose.ci.yml stop'
       end
     end
+
+    namespace :old do
+      desc 'Run our frontend api old test suite in the docker container'
+      task :api do
+        begin
+          sh "docker-compose -f docker-compose.ci_old.yml up --abort-on-container-exit"
+        ensure
+          sh "docker-compose -f docker-compose.ci_old.yml stop"
+        end
+      end
+    end
   end
 
   namespace :maintainer do
