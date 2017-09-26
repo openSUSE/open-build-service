@@ -29,9 +29,6 @@ if test -z "$SUBTEST"; then
       unset DO_COVERAGE
       bundle exec rails test:spider
       ;;
-    rubocop)
-      bundle exec rails rubocop
-      ;;
     rspec)
       bundle exec rspec
       ;;
@@ -41,9 +38,8 @@ if test -z "$SUBTEST"; then
     backend)
       pushd ../backend
       make test_unit
-      ;; 
+      ;;
     *)
-      bundle exec rails rubocop
       bundle exec rails test:api
       bundle exec rails test:webui
       bundle exec rspec
