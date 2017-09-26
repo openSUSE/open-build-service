@@ -74,7 +74,9 @@ RSpec.configure do |config|
   # Custom formatter, but not in Travis-CI and neither during package build
   unless ENV['TRAVIS'] || ENV['RPM_BUILD_ROOT']
     # users who tend to run test cases manually and may need to debug travis issues
-    unless ['adrian', 'mls'].include? ENV['USER']
+    calling_user = %x(id -u -n)
+    unless ['adrian', 'mls', 'frontend'].include? calling_user.chomp
+      puts "calling user: #{calling_user}"
       config.formatter = 'NyanUnicornFormatter'
     end
   end
