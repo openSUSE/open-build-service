@@ -31,6 +31,41 @@ module Backend
           path += "?package=#{CGI.escape(package)}&view=pkgnames"
           Backend::Connection.get(path).body.force_encoding("UTF-8")
         end
+
+        # Returns the available binaries for the project
+        def self.available_in_project(project)
+          path = "/build/#{CGI.escape(project)}/_availablebinaries"
+          transform_binary_packages_response(Backend::Connection.get(path).body.force_encoding("UTF-8"))
+        end
+
+        # Returns the available binaries for the repositories given
+        def self.available_in_repositories(project, urls, repositories)
+          return {} if repositories.empty? && urls.empty?
+          path = "/build/#{CGI.escape(project)}/_availablebinaries"
+          query = urls.map { |value| value.to_query(:url) }
+          query += repositories.map { |value| value.to_query(:path) }
+          path += "?#{query.join('&')}"
+          transform_binary_packages_response(Backend::Connection.get(path).body.force_encoding("UTF-8"))
+        end
+
+        # Transforms the output of the available_in_repositories, available_in_urls and available_in_project methods to a hash containing
+        # the name of the binary as keys and the architectures as the value
+        def self.transform_binary_packages_response(response)
+          list = {}
+          parsed_response = Xmlhash.parse(response)
+          return list if parsed_response.blank?
+          packages = [parsed_response["packages"]].flatten
+          packages.each do |build|
+            architectures = [build["arch"]].flatten
+            packages = [build["name"]].flatten
+            packages.each do |package|
+              architectures = architectures.concat(list[package]) if list[package]
+              list[package] = architectures.uniq
+            end
+          end
+          list
+        end
+        private_class_method :transform_binary_packages_response
       end
     end
   end

@@ -270,4 +270,52 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
       it { expect(kiwi_package.arch).to eq("x86-876") }
     end
   end
+
+  describe 'GET #autocomplete_binaries' do
+    let(:binaries_available_sample) do
+      { 'apache' => ['i586', 'x86_64'], 'apache2' => ['x86_64'],
+        'appArmor' => ['i586', 'x86_64'], 'bcrypt' => ['x86_64'] }
+    end
+
+    let(:term) { '' }
+
+    before do
+      login user
+      allow(Kiwi::Image).to receive(:binaries_available).and_return(binaries_available_sample)
+    end
+
+    subject do
+      get :autocomplete_binaries, params: { format: :json, id: kiwi_image_with_package_with_kiwi_file.id, term: term }
+    end
+
+    it { expect(subject.content_type).to eq("application/json") }
+    it { expect(subject).to have_http_status(:success) }
+    it do
+      expect(JSON.parse(subject.body)).to eq([{ 'id' => 'apache', 'label' => 'apache', 'value' => 'apache' },
+                                              { 'id' => 'apache2', 'label' => 'apache2', 'value' => 'apache2' },
+                                              { 'id' => 'appArmor', 'label' => 'appArmor', 'value' => 'appArmor' },
+                                              { 'id' => 'bcrypt', 'label' => 'bcrypt', 'value' => 'bcrypt' }])
+    end
+
+    context do
+      let(:term) { 'ap' }
+      it do
+        expect(JSON.parse(subject.body)).to eq([{ 'id' => 'apache', 'label' => 'apache', 'value' => 'apache' },
+                                                { 'id' => 'apache2', 'label' => 'apache2', 'value' => 'apache2' },
+                                                { 'id' => 'appArmor', 'label' => 'appArmor', 'value' => 'appArmor' }])
+      end
+    end
+    context do
+      let(:term) { 'app' }
+      it { expect(JSON.parse(subject.body)).to eq([{ 'id' => 'appArmor', 'label' => 'appArmor', 'value' => 'appArmor' }]) }
+    end
+    context do
+      let(:term) { 'b' }
+      it { expect(JSON.parse(subject.body)).to eq([{ 'id' => 'bcrypt', 'label' => 'bcrypt', 'value' => 'bcrypt' }]) }
+    end
+    context do
+      let(:term) { 'c' }
+      it { expect(JSON.parse(subject.body)).to be_empty }
+    end
+  end
 end

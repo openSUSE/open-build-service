@@ -136,6 +136,24 @@ class Kiwi::Image < ApplicationRecord
     package_groups.find_or_create_by(kiwi_type: :image, pattern_type: 'onlyRequired')
   end
 
+  def self.find_binaries_by_name(query, project, repositories, options = {})
+    finder = /\A#{Regexp.quote(query)}/
+    binaries_available(project, options[:use_project_repositories], repositories).select { |package, _| finder.match(package.to_s) }
+  end
+
+  def self.binaries_available(project, use_project_repositories, repositories)
+    Rails.cache.fetch("kiwi_image_binaries_available_#{project}_#{use_project_repositories}_#{repositories}", expires_in: 5.minutes) do
+      if use_project_repositories
+        Backend::Api::BuildResults::Binaries.available_in_project(project)
+      else
+        return [] if repositories.blank?
+        obs_repository_paths = repositories.select { |url| url.starts_with?("obs://")}.map {|url| url[6..-1] }
+        non_obs_repository_urls = repositories.reject { |url| url.starts_with?("obs://")}
+        Backend::Api::BuildResults::Binaries.available_in_repositories(project, non_obs_repository_urls, obs_repository_paths)
+      end
+    end
+  end
+
   private
 
   def repositories_for_xml

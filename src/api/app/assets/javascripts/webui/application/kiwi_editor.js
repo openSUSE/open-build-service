@@ -249,6 +249,32 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
   });
 }
 
+function kiwiPackagesSetupAutocomplete(fields) {
+  var package_field = fields.find('[id$=name]');
+
+  package_field.autocomplete({
+    source: function (request, response) {
+      var repositories = $("#kiwi-repositories-list [id$='source_path']").map(function() { return this.value;}).get();
+      var repository_destroy_fields = $("#kiwi-repositories-list [id$='_destroy']");
+      var using_project_repositories =  $('#kiwi_image_use_project_repositories').prop('checked');
+      repository_destroy_fields.each(function(index, input){ // remove destroyed repositories from the payload
+        if ($(input).val() == "1") {
+          repositories.splice(index, 1);
+        }
+      });
+      var payload = { term: request.term, repositories: repositories };
+      if (using_project_repositories) {
+        payload.use_project_repositories = true;
+      }
+      $.getJSON(package_field.data('ajaxurl'), payload,
+        function (data) {
+          response(data);
+        });
+    },
+    minLength: 2
+  });
+}
+
 $(document).ready(function(){
   // Save image
   $('#kiwi-image-update-form-save').click(saveImage);
@@ -279,6 +305,9 @@ $(document).ready(function(){
   $('#kiwi-repositories-list .kiwi_list_item, #kiwi-packages-list .kiwi_list_item').hover(hoverListItem, hoverListItem);
   $('[name=target_project]').each(function() {
     kiwiRepositoriesSetupAutocomplete($(this).parents('.nested-fields'));
+  });
+  $('#kiwi-packages-list .nested-fields').each(function() {
+    kiwiPackagesSetupAutocomplete($(this));
   });
 
   // After inserting new repositories add the Callbacks
@@ -313,6 +342,7 @@ $(document).ready(function(){
     $(addedFields).find('.close-dialog').click(closeDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
     $(addedFields).find('.kiwi_list_item').hover(hoverListItem, hoverListItem);
+    kiwiPackagesSetupAutocomplete($(addedFields));
     $('#no-packages').hide();
   });
 

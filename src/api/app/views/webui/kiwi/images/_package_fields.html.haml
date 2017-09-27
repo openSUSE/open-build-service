@@ -15,7 +15,7 @@
       .dialog-content
         %p
           = f.label :name, 'Name:'
-          = f.text_field :name, data: { default: f.object.name }
+          = f.text_field :name, data: { ajaxurl: url_for(controller: '/webui/kiwi/images', action: 'autocomplete_binaries'), default: f.object.name }
         %p
           = f.label :arch, 'Arch:'
           = f.text_field :arch, data: { default: f.object.arch }
