@@ -16,7 +16,7 @@ RSpec.describe EventMailer, vcr: true do
     context 'for an event of type Event::Request' do
       let(:source_project) { create(:project, name: 'source_project') }
       let(:source_package) { create(:package_with_file, name: 'source_package', project: source_project) }
-      let(:target_project) { create(:project, name: 'target_project') }
+      let(:target_project) { create(:project, name: 'target_project', maintainer: receiver) }
       let(:target_package) { create(:package_with_revisions, name: 'target_package', project: target_project) }
       let(:bs_request_action_submit) {
         create(:bs_request_action_submit,

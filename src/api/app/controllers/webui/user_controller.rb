@@ -2,7 +2,7 @@ require 'event'
 
 class Webui::UserController < Webui::WebuiController
   before_action :check_display_user, only: [:show, :edit, :list_my, :delete, :confirm, :admin, :lock]
-  before_action :require_login, only: [:edit, :save, :notifications, :update_notifications, :index]
+  before_action :require_login, only: [:edit, :save, :index]
   before_action :require_admin, only: [:edit, :delete, :lock, :confirm, :admin, :index]
   before_action :kerberos_auth, only: [:login]
 
@@ -223,24 +223,6 @@ class Webui::UserController < Webui::WebuiController
   def tokens
     required_parameters :q
     render json: list_users(params[:q], true)
-  end
-
-  def notifications
-    @user = User.current
-    @groups = User.current.groups_users
-    @notifications = Event::Base.notification_events
-  end
-
-  def update_notifications
-    User.current.groups_users.each do |gu|
-      gu.email = params[gu.group.title] == '1'
-      gu.save
-    end
-
-    User.current.update_notifications(params)
-
-    flash[:notice] = 'Notifications settings updated'
-    redirect_to action: :notifications
   end
 
   protected

@@ -4,7 +4,7 @@ class EventSubscription < ApplicationRecord
   belongs_to :user, inverse_of: :event_subscriptions
   belongs_to :group, inverse_of: :event_subscriptions
 
-  validates :receiver_role, inclusion: { in: %i(all maintainer bugowner reader source_maintainer target_maintainer reviewer commenter creator) }
+  validates :receiver_role, inclusion: { in: %i(maintainer bugowner reader source_maintainer target_maintainer reviewer commenter creator) }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }
   scope :defaults, ->{ where(user_id: nil, group_id: nil) }
