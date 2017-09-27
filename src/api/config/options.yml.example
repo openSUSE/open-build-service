@@ -159,3 +159,30 @@ backup_user: tux
 backup_location: /home/tux
 backup_filename: obs_production.sql.bz2
 backup_port: 22
+
+# Rabbitmq based message bus
+#
+# Connection options -> http://rubybunny.info/articles/connecting.html
+# amqp_options:
+#   host: rabbit.example.com
+#   port: 5672
+#   user: guest
+#   pass: guest
+#   vhost: /vhost
+#
+# Exchange options -> http://rubybunny.info/articles/exchanges.html
+# amqp_exchange_name: pubsub
+# ampq_exchange_options:
+#  type: topic
+#  auto_delete: false
+#  arguments:
+#    persistent: true
+#    passive: true
+#
+# Queue options -> http://rubybunny.info/articles/queues.html
+# amqp_queue_options:
+#   durable: false
+#   auto-delete: false
+#   exclusive: false
+#   arguments:
+#     extension_1: blah
