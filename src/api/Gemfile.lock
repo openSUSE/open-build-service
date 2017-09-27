@@ -160,7 +160,7 @@ GEM
     mime-types (3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
-    mini_portile2 (2.1.0)
+    mini_portile2 (2.3.0)
     minitest (5.9.0)
     minitest-fail-fast (0.1.0)
       minitest (~> 5)
@@ -176,8 +176,8 @@ GEM
     mousetrap-rails (1.4.6)
     mysql2 (0.4.4)
     nio4r (1.2.1)
-    nokogiri (1.7.0.1)
-      mini_portile2 (~> 2.1.0)
+    nokogiri (1.8.1)
+      mini_portile2 (~> 2.3.0)
     nokogumbo (1.4.9)
       nokogiri
     nyan-cat-formatter (0.11)
@@ -388,7 +388,7 @@ DEPENDENCIES
   momentjs-rails
   mousetrap-rails
   mysql2
-  nokogiri (~> 1.7.0.1)
+  nokogiri (~> 1.8.1)
   nyan-cat-formatter
   poltergeist
   pry (>= 0.9.12)
@@ -423,4 +423,4 @@ DEPENDENCIES
   yajl-ruby
 
 BUNDLED WITH
-   1.12.5
+   1.13.6
