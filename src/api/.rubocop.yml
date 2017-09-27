@@ -4,6 +4,7 @@ AllCops:
   UseCache: true
   CacheRootDirectory: tmp/rubocop_cache
   MaxFilesInCache: 2000
+  TargetRubyVersion: 2.4
   Exclude:
     - 'tmp/**/*'
     - 'lib/templates/**/*'

@@ -19,9 +19,7 @@ class SchemaTest < ActiveSupport::TestCase
       if io
         testresult = io.read
         io.close
-        # rubocop:disable Style/NumericPredicate
         assert $? == 0, "#{testfile} does not validate against #{f} -> #{testresult}"
-        # rubocop:enable Style/NumericPredicate
       end
     end
   end
