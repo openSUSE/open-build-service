@@ -554,7 +554,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       let(:jobs_url) do
         # FIXME: Hardcoding urls in test doesn't sound like a good idea
-        "http://backend:5352/build/#{user.home_project.name}/#{repo_for_user_home.name}/x86_64/_jobhistory?limit=0&code=succeeded&code=unchanged"
+        "http://backend:5352/build/#{user.home_project.name}/#{repo_for_user_home.name}/x86_64/_jobhistory?code=succeeded&code=unchanged&limit=0"
       end
       let(:jobs_xml) do
         <<-XML

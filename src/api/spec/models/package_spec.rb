@@ -422,7 +422,7 @@ RSpec.describe Package, vcr: true do
 
   describe '#backend_build_command' do
     let(:params) { ActionController::Parameters.new(arch: 'x86') }
-    let(:backend_url) { "#{CONFIG['source_url']}/build/#{package.project.name}?cmd=rebuild&arch=x86" }
+    let(:backend_url) { "#{CONFIG['source_url']}/build/#{package.project.name}?arch=x86&cmd=rebuild" }
 
     subject { package.backend_build_command(:rebuild, package.project.name, params) }
 
@@ -470,7 +470,7 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '#jobhistory_list' do
-    let(:backend_url) { "#{CONFIG['source_url']}/build/#{home_project}/openSUSE_Tumbleweed/x86_64/_jobhistory?package=#{package}&limit=100" }
+    let(:backend_url) { "#{CONFIG['source_url']}/build/#{home_project}/openSUSE_Tumbleweed/x86_64/_jobhistory?limit=100&package=#{package}" }
 
     subject { package.jobhistory_list(home_project, 'openSUSE_Tumbleweed', 'x86_64') }
 

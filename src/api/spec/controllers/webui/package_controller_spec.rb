@@ -831,8 +831,8 @@ EOT
 
       context "successfully" do
         before do
-          path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status" \
-                 "&package=#{source_package}&arch=i586&repository=#{repo_leap_42_2}"
+          path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?arch=i586" \
+                 "&package=#{source_package}&repository=#{repo_leap_42_2}&view=status"
           stub_request(:get, path).and_return(body:
             %(<resultlist state='123'>
                <result project='#{user.home_project}' repository='#{repo_leap_42_2}' arch='i586'>
@@ -847,8 +847,8 @@ EOT
 
       context "successfully with a package which name that includes '+'" do
         before do
-          path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status" \
-                 "&package=#{source_package_with_plus}&arch=i586&repository=#{repo_leap_42_2}"
+          path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?arch=i586" \
+                 "&package=#{source_package_with_plus}&repository=#{repo_leap_42_2}&view=status"
           stub_request(:get, path).and_return(body:
             %(<resultlist state='123'>
                <result project='#{user.home_project}' repository='#{repo_leap_42_2}' arch='i586'>
@@ -868,8 +868,8 @@ EOT
           repo_leap_45_1
           source_project_with_plus.store
 
-          path = "#{CONFIG['source_url']}/build/#{source_project_with_plus}/_result?view=status" \
-                 "&package=#{package_of_project_with_plus}&arch=i586&repository=#{repo_leap_45_1}"
+          path = "#{CONFIG['source_url']}/build/#{source_project_with_plus}/_result?arch=i586" \
+                 "&package=#{package_of_project_with_plus}&repository=#{repo_leap_45_1}&view=status"
           stub_request(:get, path).and_return(body:
             %(<resultlist state='123'>
                <result project='#{source_project_with_plus}' repository='#{repo_leap_45_1}' arch='i586'>
@@ -948,8 +948,8 @@ EOT
         let(:starttime) { 1.hour.ago.to_i }
 
         before do
-          path = "#{CONFIG['source_url']}/build/#{source_project}/_result?view=status" \
-                 "&package=#{source_package}:multibuild-package&arch=i586&repository=#{repo_leap_42_2}"
+          path = "#{CONFIG['source_url']}/build/#{source_project}/_result?arch=i586" \
+                 "&package=#{source_package}:multibuild-package&repository=#{repo_leap_42_2}&view=status"
           stub_request(:get, path).and_return(body: %(<resultlist state='123'>
                <result project='#{source_project}' repository='#{repo_leap_42_2}' arch='i586' code="unpublished" state="unpublished">
                 <status package="#{source_package}:multibuild-package" code="succeeded" />

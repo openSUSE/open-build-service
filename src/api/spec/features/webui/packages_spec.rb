@@ -154,7 +154,7 @@ RSpec.feature "Packages", type: :feature, js: true do
 
     before do
       login(user)
-      path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status&package=#{package}&arch=x86_64&repository=#{repository.name}"
+      path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?arch=x86_64&package=#{package}&repository=#{repository.name}&view=status"
       stub_request(:get, path).and_return(body: fake_buildresult)
       path = "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/x86_64/_builddepinfo?package=#{package}&view=revpkgnames"
       stub_request(:get, path).and_return(body: '<builddepinfo />')
@@ -182,7 +182,7 @@ RSpec.feature "Packages", type: :feature, js: true do
 
     before do
       login(user)
-      stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?nostream=1&start=0&end=65536")
+      stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?end=65536&nostream=1&start=0")
         .and_return(body: '[1] this is my dummy logfile -> ümlaut')
       result = %(<resultlist state="8da2ae1e32481175f43dc30b811ad9b5">
                               <result project="#{user.home_project}" repository="#{repository.name}" arch="i586" code="published" state="published">
@@ -190,10 +190,10 @@ RSpec.feature "Packages", type: :feature, js: true do
                               </result>
                             </resultlist>
                             )
-      result_path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?view=status&package=#{package}"
-      stub_request(:get, result_path + '&multibuild=1&locallink=1')
+      result_path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?"
+      stub_request(:get, result_path + 'view=status&package=test_package&multibuild=1&locallink=1')
         .and_return(body: result)
-      stub_request(:get, result_path + "&arch=i586&repository=#{repository.name}")
+      stub_request(:get, result_path + "arch=i586&package=#{package}&repository=#{repository.name}&view=status")
         .and_return(body: result)
       stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?view=entry")
         .and_return(headers: {'Content-Type'=> 'text/plain'}, body: '<directory><entry size="1"/></directory>')

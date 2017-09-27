@@ -8,7 +8,7 @@ RSpec.describe Webui::Projects::PublicKeyController, type: :controller do
     before do
       Rails.cache.clear
       # NOTE: we're not using VCR here because the backend does not have the obs signer setup by default
-      keyinfo_url = "#{CONFIG['source_url']}/source/#{CGI.escape(project.name)}/_keyinfo?withsslcert=1&donotcreatecert=1"
+      keyinfo_url = "#{CONFIG['source_url']}/source/#{CGI.escape(project.name)}/_keyinfo?donotcreatecert=1&withsslcert=1"
       stub_request(:get, keyinfo_url).and_return(body: keyinfo_response)
 
       get :show, params: { project_name: project.name }
