@@ -1361,15 +1361,27 @@ RSpec.describe Webui::ProjectController, vcr: true do
               '<resultlist state="073db4412ce71471edaacf7291404276">
                 <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="published" state="published">
                   <status package="c++" code="succeeded" />
-                  <status package="redis" code="succeeded" />
+                  <status package="redis" code="failed" />
+                </result>
+                <result project="home:tom" repository="openSUSE_Tumbleweed" arch="x86_64" code="building" state="building">
+                  <status package="c++" code="unresolvable">
+                    <details>nothing provides foo</details>
+                  </status>
+                  <status package="redis" code="building">
+                    <details>building on obs-node-3</details>
+                  </status>
                 </result>
               </resultlist>')
           end
           let(:statushash) do
             { "openSUSE_Tumbleweed" => {
-                "i586" => {
-                  "c++"   => { "package" => "c++", "code" => "succeeded" },
-                  "redis" => { "package" => "redis", "code" => "succeeded" }
+                "i586"   => {
+                  "c++"   => { "package" => "c++",   "code" => "succeeded" },
+                  "redis" => { "package" => "redis", "code" => "failed" }
+                },
+                "x86_64" => {
+                  "c++"   => { "package" => "c++",   "code" => "unresolvable", "details" => "nothing provides foo" },
+                  "redis" => { "package" => "redis", "code" => "building", "details" => "building on obs-node-3" }
                 }
             }}
           end
@@ -1381,7 +1393,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
           it { expect(assigns(:buildresult_unavailable)).to be_nil }
           it { expect(assigns(:packagenames)).to eq(['c++', 'redis']) }
-          it { expect(assigns(:repohash)).to eq({"openSUSE_Tumbleweed"=>["i586"]}) }
+          it { expect(assigns(:repohash)).to eq({ "openSUSE_Tumbleweed" => ["i586", "x86_64"] }) }
           it { expect(assigns(:statushash)).to eq(statushash) }
           it { expect(response).to have_http_status(:ok) }
         end
