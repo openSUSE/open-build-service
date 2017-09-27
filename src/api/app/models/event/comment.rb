@@ -32,6 +32,11 @@ end
 class Event::CommentForProject < ::Event::Project
   include CommentEvent
   receiver_roles :maintainer
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    'opensuse.obs.project.comment'
+  end
 
   self.description = 'New comment for project created'
 
@@ -43,6 +48,11 @@ end
 class Event::CommentForPackage < ::Event::Package
   include CommentEvent
   receiver_roles :maintainer
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    'opensuse.obs.package.comment'
+  end
 
   self.description = 'New comment for package created'
 
