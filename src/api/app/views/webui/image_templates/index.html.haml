@@ -8,7 +8,7 @@
       %dl.templateslist
         %dt
           = link_to(title_or_name(project), project_show_path(project))
-        - project.packages.each do |template|
+        - project.packages.order_by_name.each do |template|
           %label
             %input{ name: 'image', type: 'radio', class: 'hidden image_template', checked: check_first(first_template), data: { project: project, package: template } }
             - first_template ||= template
