@@ -18,6 +18,7 @@ namespace :dev do
     copy_example_file('config/options.yml')
     options_yml = YAML.load_file('config/options.yml') || {}
     options_yml['source_host'] = 'backend'
+    options_yml['source_port'] = 3200
     options_yml['memcached_host'] = 'cache'
     File.open('config/options.yml', 'w') do |f|
       f.write(YAML.dump(options_yml))
