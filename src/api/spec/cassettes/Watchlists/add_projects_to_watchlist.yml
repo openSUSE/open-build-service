@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kody/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:kody/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -39,7 +39,7 @@ http_interactions:
   recorded_at: Fri, 12 Feb 2016 10:57:07 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kody/_result?view=summary
+    uri: http://backend:5352/build/home:kody/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Fri, 12 Feb 2016 10:57:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kody/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:kody/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -113,7 +113,7 @@ http_interactions:
   recorded_at: Fri, 12 Feb 2016 10:57:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kody/_result?view=summary
+    uri: http://backend:5352/build/home:kody/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -150,7 +150,7 @@ http_interactions:
   recorded_at: Fri, 12 Feb 2016 10:57:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/watchlist_test_project/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/watchlist_test_project/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -187,7 +187,7 @@ http_interactions:
   recorded_at: Fri, 12 Feb 2016 10:57:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/watchlist_test_project/_result?view=summary
+    uri: http://backend:5352/build/watchlist_test_project/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -224,7 +224,7 @@ http_interactions:
   recorded_at: Fri, 12 Feb 2016 10:57:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/watchlist_test_project/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/watchlist_test_project/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -261,7 +261,7 @@ http_interactions:
   recorded_at: Fri, 12 Feb 2016 10:57:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/watchlist_test_project/_result?view=summary
+    uri: http://backend:5352/build/watchlist_test_project/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -298,7 +298,7 @@ http_interactions:
   recorded_at: Fri, 12 Feb 2016 10:57:09 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kody/_keyinfo?withsslcert=1
+    uri: http://backend:5352/source/home:kody/_keyinfo?withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -329,7 +329,7 @@ http_interactions:
   recorded_at: Mon, 09 Jan 2017 11:22:05 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kody/_keyinfo?withsslcert=1
+    uri: http://backend:5352/source/home:kody/_keyinfo?withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -360,7 +360,7 @@ http_interactions:
   recorded_at: Mon, 09 Jan 2017 11:22:05 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kody/_keyinfo?withsslcert=1
+    uri: http://backend:5352/source/home:kody/_keyinfo?withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -391,7 +391,7 @@ http_interactions:
   recorded_at: Mon, 09 Jan 2017 11:22:06 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kody/_keyinfo?withsslcert=1
+    uri: http://backend:5352/source/home:kody/_keyinfo?withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -422,7 +422,7 @@ http_interactions:
   recorded_at: Mon, 09 Jan 2017 11:22:06 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kody/_keyinfo
+    uri: http://backend:5352/source/home:kody/_keyinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -453,7 +453,7 @@ http_interactions:
   recorded_at: Mon, 13 Feb 2017 15:58:03 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kody/_keyinfo?donotcreatecert=1&withsslcert=1
+    uri: http://backend:5352/source/home:kody/_keyinfo?donotcreatecert=1&withsslcert=1
     body:
       encoding: US-ASCII
       string: ''

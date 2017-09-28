@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/_meta
+    uri: http://backend:5352/source/Apache/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:17 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/_config
+    uri: http://backend:5352/source/Apache/_config
     body:
       encoding: UTF-8
       string: Aut sed et aliquam. Qui voluptatem facilis dignissimos fugit sunt. Ut
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:17 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/_meta?user=user_7
+    uri: http://backend:5352/source/Apache/apache2/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
@@ -115,7 +115,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:17 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/_meta
+    uri: http://backend:5352/source/Apache/apache2/_meta
     body:
       encoding: UTF-8
       string: |
@@ -154,7 +154,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:17 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/_config
+    uri: http://backend:5352/source/Apache/apache2/_config
     body:
       encoding: UTF-8
       string: Eos molestias animi qui molestiae. Aut quam enim voluptas quae tempora
@@ -195,7 +195,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:17 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/somefile.txt
+    uri: http://backend:5352/source/Apache/apache2/somefile.txt
     body:
       encoding: UTF-8
       string: Est voluptates non. Labore optio necessitatibus ea qui dolorem ipsum
@@ -236,7 +236,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:17 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/DevelProject/_meta
+    uri: http://backend:5352/source/DevelProject/_meta
     body:
       encoding: UTF-8
       string: |
@@ -275,7 +275,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/DevelProject/_config
+    uri: http://backend:5352/source/DevelProject/_config
     body:
       encoding: UTF-8
       string: Et illo maxime molestiae necessitatibus numquam officia. Deleniti unde
@@ -311,7 +311,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/DevelProject/developmentPackage/_meta?user=user_7
+    uri: http://backend:5352/source/DevelProject/developmentPackage/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
@@ -350,7 +350,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/DevelProject/developmentPackage/_meta
+    uri: http://backend:5352/source/DevelProject/developmentPackage/_meta
     body:
       encoding: UTF-8
       string: |
@@ -389,7 +389,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/DevelProject/developmentPackage/_config
+    uri: http://backend:5352/source/DevelProject/developmentPackage/_config
     body:
       encoding: UTF-8
       string: Consequatur eos ut a quisquam veniam. Architecto est fugit nulla vero
@@ -430,7 +430,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/DevelProject/developmentPackage/somefile.txt
+    uri: http://backend:5352/source/DevelProject/developmentPackage/somefile.txt
     body:
       encoding: UTF-8
       string: Temporibus ea atque tempora id sint. Ad dolorem iste laborum rerum modi
@@ -471,7 +471,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/_meta?user=user_7
+    uri: http://backend:5352/source/Apache/apache2/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
@@ -512,7 +512,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_8/_meta?user=user_8
+    uri: http://backend:5352/source/home:user_8/_meta?user=user_8
     body:
       encoding: UTF-8
       string: |
@@ -553,7 +553,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/Apache/apache2?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/Apache/apache2?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -587,7 +587,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/Apache/apache2
+    uri: http://backend:5352/source/Apache/apache2
     body:
       encoding: US-ASCII
       string: ''
@@ -623,7 +623,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/Apache/apache2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/Apache/apache2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -663,7 +663,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/DevelProject/developmentPackage?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/DevelProject/developmentPackage?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -697,7 +697,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/DevelProject/developmentPackage
+    uri: http://backend:5352/source/DevelProject/developmentPackage
     body:
       encoding: US-ASCII
       string: ''
@@ -732,7 +732,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/DevelProject/developmentPackage?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/DevelProject/developmentPackage?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -772,7 +772,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: get
-    uri: http://localhost:3200/getprojpack?expandedrepos&nopackages&project=Apache&withrepos
+    uri: http://backend:5352/getprojpack?expandedrepos&nopackages&project=Apache&withrepos
     body:
       encoding: US-ASCII
       string: ''
@@ -809,7 +809,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:18 GMT
 - request:
     method: get
-    uri: http://localhost:3200/getprojpack?expandedrepos&nopackages&project=DevelProject&withrepos
+    uri: http://backend:5352/getprojpack?expandedrepos&nopackages&project=DevelProject&withrepos
     body:
       encoding: US-ASCII
       string: ''

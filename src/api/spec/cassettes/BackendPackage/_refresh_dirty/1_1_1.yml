@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/source/project_1/package_1?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/project_1/package_1?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -37,7 +37,7 @@ http_interactions:
   recorded_at: Tue, 25 Jul 2017 12:21:00 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/project_1/package_1
+    uri: http://backend:5352/source/project_1/package_1
     body:
       encoding: US-ASCII
       string: ''
@@ -72,7 +72,7 @@ http_interactions:
   recorded_at: Tue, 25 Jul 2017 12:21:00 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/project_1/package_1?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/project_1/package_1?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -109,7 +109,7 @@ http_interactions:
   recorded_at: Tue, 25 Jul 2017 12:21:00 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/_meta
+    uri: http://backend:5352/source/project_1/_meta
     body:
       encoding: UTF-8
       string: |
@@ -148,7 +148,7 @@ http_interactions:
   recorded_at: Mon, 31 Jul 2017 16:18:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/_config
+    uri: http://backend:5352/source/project_1/_config
     body:
       encoding: UTF-8
       string: Ipsa corporis ducimus non. Fuga hic quisquam vitae nam nihil. Velit
@@ -182,7 +182,7 @@ http_interactions:
   recorded_at: Mon, 31 Jul 2017 16:18:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/package_1/_meta?user=_nobody_
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -221,7 +221,7 @@ http_interactions:
   recorded_at: Mon, 31 Jul 2017 16:18:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/package_1/_meta
+    uri: http://backend:5352/source/project_1/package_1/_meta
     body:
       encoding: UTF-8
       string: |
@@ -260,7 +260,7 @@ http_interactions:
   recorded_at: Mon, 31 Jul 2017 16:18:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/package_1/_config
+    uri: http://backend:5352/source/project_1/package_1/_config
     body:
       encoding: UTF-8
       string: Voluptatem vel rerum in atque. Rem omnis repellat assumenda. Quaerat
@@ -301,7 +301,7 @@ http_interactions:
   recorded_at: Mon, 31 Jul 2017 16:18:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/package_1/somefile.txt
+    uri: http://backend:5352/source/project_1/package_1/somefile.txt
     body:
       encoding: UTF-8
       string: Veniam ducimus eligendi ad eos voluptatem. Ipsa dolorem blanditiis.
@@ -342,7 +342,7 @@ http_interactions:
   recorded_at: Mon, 31 Jul 2017 16:18:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/_meta
+    uri: http://backend:5352/source/apache/_meta
     body:
       encoding: UTF-8
       string: |
@@ -381,7 +381,7 @@ http_interactions:
   recorded_at: Tue, 01 Aug 2017 08:14:38 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/_config
+    uri: http://backend:5352/source/apache/_config
     body:
       encoding: UTF-8
       string: Omnis officiis est enim aut possimus nostrum. Reprehenderit fugiat quo
@@ -415,7 +415,7 @@ http_interactions:
   recorded_at: Tue, 01 Aug 2017 08:14:38 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/mod_ssl/_meta?user=_nobody_
+    uri: http://backend:5352/source/apache/mod_ssl/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -454,7 +454,7 @@ http_interactions:
   recorded_at: Tue, 01 Aug 2017 08:14:38 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/mod_ssl/_meta
+    uri: http://backend:5352/source/apache/mod_ssl/_meta
     body:
       encoding: UTF-8
       string: |
@@ -493,7 +493,7 @@ http_interactions:
   recorded_at: Tue, 01 Aug 2017 08:14:38 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/mod_ssl/_config
+    uri: http://backend:5352/source/apache/mod_ssl/_config
     body:
       encoding: UTF-8
       string: Nostrum sunt eius quisquam nemo veritatis distinctio. Sint neque et
@@ -533,7 +533,7 @@ http_interactions:
   recorded_at: Tue, 01 Aug 2017 08:14:38 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/mod_ssl/somefile.txt
+    uri: http://backend:5352/source/apache/mod_ssl/somefile.txt
     body:
       encoding: UTF-8
       string: Aut dolor est quia ullam voluptatum quia odit. Odit reiciendis repellendus
@@ -573,7 +573,7 @@ http_interactions:
   recorded_at: Tue, 01 Aug 2017 08:14:39 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/apache/mod_ssl?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/apache/mod_ssl?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -607,7 +607,7 @@ http_interactions:
   recorded_at: Tue, 01 Aug 2017 08:14:39 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/apache/mod_ssl
+    uri: http://backend:5352/source/apache/mod_ssl
     body:
       encoding: US-ASCII
       string: ''
@@ -642,7 +642,7 @@ http_interactions:
   recorded_at: Tue, 01 Aug 2017 08:14:39 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/apache/mod_ssl?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/apache/mod_ssl?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''

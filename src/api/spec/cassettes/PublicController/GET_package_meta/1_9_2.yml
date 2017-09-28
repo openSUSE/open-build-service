@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/_meta
+    uri: http://backend:5352/source/public_controller_project/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:31 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/_config
+    uri: http://backend:5352/source/public_controller_project/_config
     body:
       encoding: UTF-8
       string: Cumque asperiores nam ut vel voluptatem nobis voluptatem. Consequuntur
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:31 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -115,7 +115,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:31 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_meta
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -154,7 +154,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:31 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_config
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_config
     body:
       encoding: UTF-8
       string: Deleniti unde quibusdam iure nostrum modi tempora. Eius et veritatis.
@@ -195,7 +195,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:31 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/somefile.txt
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/somefile.txt
     body:
       encoding: UTF-8
       string: Consequatur error ducimus aperiam id sunt ab sint. Et explicabo hic
@@ -236,7 +236,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:31 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_meta
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta
     body:
       encoding: US-ASCII
       string: ''

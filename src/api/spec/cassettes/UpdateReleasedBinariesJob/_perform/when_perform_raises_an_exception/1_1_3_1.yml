@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/project_3/_meta
+    uri: http://backend:5352/source/project_3/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:53:24 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_3/_config
+    uri: http://backend:5352/source/project_3/_config
     body:
       encoding: UTF-8
       string: Blanditiis sint impedit sunt est vitae et perferendis. Molestias enim
@@ -77,7 +77,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:53:24 GMT
 - request:
     method: get
-    uri: http://localhost:3200/notificationpayload/fake_payload
+    uri: http://backend:5352/notificationpayload/fake_payload
     body:
       encoding: US-ASCII
       string: ''
@@ -112,7 +112,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:53:24 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_meta
+    uri: http://backend:5352/source/project_2/_meta
     body:
       encoding: UTF-8
       string: |
@@ -151,7 +151,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:55:04 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_config
+    uri: http://backend:5352/source/project_2/_config
     body:
       encoding: UTF-8
       string: At itaque quisquam possimus voluptas id. Quisquam harum omnis ut. Asperiores

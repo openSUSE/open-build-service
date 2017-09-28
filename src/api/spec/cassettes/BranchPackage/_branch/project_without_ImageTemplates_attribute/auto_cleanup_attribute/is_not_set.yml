@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro/_meta
+    uri: http://backend:5352/source/BaseDistro/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:43 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro/_config
+    uri: http://backend:5352/source/BaseDistro/_config
     body:
       encoding: UTF-8
       string: Dolor fugit et sapiente error quibusdam vero sunt. Provident eius voluptatem
@@ -75,7 +75,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:43 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro/test_package/_meta?user=tom
+    uri: http://backend:5352/source/BaseDistro/test_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -114,7 +114,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:43 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro/test_package/_meta
+    uri: http://backend:5352/source/BaseDistro/test_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -153,7 +153,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:43 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro:Update/_meta
+    uri: http://backend:5352/source/BaseDistro:Update/_meta
     body:
       encoding: UTF-8
       string: |
@@ -192,7 +192,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro:Update/_config
+    uri: http://backend:5352/source/BaseDistro:Update/_config
     body:
       encoding: UTF-8
       string: Reprehenderit eius est aliquam rerum libero aut sit. Voluptatibus et
@@ -227,7 +227,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -268,7 +268,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/openSUSE_Leap/_meta
+    uri: http://backend:5352/source/openSUSE_Leap/_meta
     body:
       encoding: UTF-8
       string: |
@@ -307,7 +307,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/openSUSE_Leap/_config
+    uri: http://backend:5352/source/openSUSE_Leap/_config
     body:
       encoding: UTF-8
       string: Molestiae error asperiores ab nisi. Blanditiis molestiae quas aspernatur
@@ -341,7 +341,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/openSUSE_Leap/apache2/_meta?user=tom
+    uri: http://backend:5352/source/openSUSE_Leap/apache2/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -380,7 +380,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/openSUSE_Leap/apache2/_meta
+    uri: http://backend:5352/source/openSUSE_Leap/apache2/_meta
     body:
       encoding: UTF-8
       string: |
@@ -419,7 +419,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22apache2%22%20and%20linkinfo/@project=%22openSUSE_Leap%22%20and%20@project=%22openSUSE_Leap%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22apache2%22%20and%20linkinfo/@project=%22openSUSE_Leap%22%20and%20@project=%22openSUSE_Leap%22)
     body:
       encoding: UTF-8
       string: ''
@@ -454,7 +454,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -495,7 +495,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -534,7 +534,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -573,7 +573,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2?cmd=branch&opackage=apache2&oproject=openSUSE_Leap&user=tom
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?cmd=branch&opackage=apache2&oproject=openSUSE_Leap&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -614,7 +614,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2
     body:
       encoding: US-ASCII
       string: ''
@@ -649,7 +649,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:44 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -684,7 +684,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2
     body:
       encoding: US-ASCII
       string: ''
@@ -719,7 +719,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -759,7 +759,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/apache2?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/apache2?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -797,7 +797,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -844,7 +844,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
 - request:
     method: delete
-    uri: http://localhost:3200/source/home:tom:branches:openSUSE_Leap?comment&user=tom
+    uri: http://backend:5352/source/home:tom:branches:openSUSE_Leap?comment&user=tom
     body:
       encoding: US-ASCII
       string: ''
@@ -875,7 +875,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro/test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/BaseDistro/test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |

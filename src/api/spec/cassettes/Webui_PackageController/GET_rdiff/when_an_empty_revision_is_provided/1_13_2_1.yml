@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
       string: Sit voluptatem qui laborum quis. Pariatur totam consequatur modi et
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
       string: Rerum enim voluptatum est cumque et at est. Vel ut in sit voluptate
@@ -202,7 +202,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://backend:5352/source/home:tom/package_with_file
     body:
       encoding: US-ASCII
       string: ''
@@ -237,7 +237,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://backend:5352/source/home:tom/package_with_file
     body:
       encoding: US-ASCII
       string: ''
@@ -272,7 +272,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&expand=1&rev=&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&rev=&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -310,7 +310,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:34 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&expand=0&rev=&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=0&rev=&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''

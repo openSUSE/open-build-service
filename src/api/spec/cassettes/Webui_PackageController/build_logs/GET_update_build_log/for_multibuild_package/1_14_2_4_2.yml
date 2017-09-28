@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom/leap_42.2/i586/my_package:multibuild-package/_log?end=65536&nostream=1&start=0
+    uri: http://backend:5352/build/home:tom/leap_42.2/i586/my_package:multibuild-package/_log?end=65536&nostream=1&start=0
     body:
       encoding: US-ASCII
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/_meta
+    uri: http://backend:5352/source/my_project/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 14:16:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/_config
+    uri: http://backend:5352/source/my_project/_config
     body:
       encoding: UTF-8
       string: Expedita delectus neque quo modi voluptas saepe. Quae asperiores temporibus
@@ -75,7 +75,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 14:16:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_1/_meta?user=user_1
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
@@ -116,7 +116,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 14:16:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_2/_meta?user=user_2
+    uri: http://backend:5352/source/home:user_2/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
@@ -157,7 +157,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 14:16:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_3/_meta?user=user_3
+    uri: http://backend:5352/source/home:user_3/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
@@ -198,7 +198,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 14:16:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
+    uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
     body:
       encoding: UTF-8
       string: |

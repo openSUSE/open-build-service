@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 05 Oct 2016 09:32:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 05 Oct 2016 09:32:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package/_meta
+    uri: http://backend:5352/source/home:tom/my_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Wed, 05 Oct 2016 09:32:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_13/_meta
+    uri: http://backend:5352/source/project_13/_meta
     body:
       encoding: UTF-8
       string: |
@@ -160,7 +160,7 @@ http_interactions:
   recorded_at: Wed, 05 Oct 2016 09:32:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_13/package_1/_meta?user=tom
+    uri: http://backend:5352/source/project_13/package_1/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -199,7 +199,7 @@ http_interactions:
   recorded_at: Wed, 05 Oct 2016 09:32:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_13/package_1/_meta
+    uri: http://backend:5352/source/project_13/package_1/_meta
     body:
       encoding: UTF-8
       string: |
@@ -238,7 +238,7 @@ http_interactions:
   recorded_at: Wed, 05 Oct 2016 09:32:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_13/package_1/_meta?user=tom
+    uri: http://backend:5352/source/project_13/package_1/_meta?user=tom
     body:
       encoding: UTF-8
       string: |

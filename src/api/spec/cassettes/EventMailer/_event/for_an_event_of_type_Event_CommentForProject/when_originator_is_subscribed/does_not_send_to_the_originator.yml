@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_17/_meta?user=user_17
+    uri: http://backend:5352/source/home:user_17/_meta?user=user_17
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:21 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_18/_meta?user=user_18
+    uri: http://backend:5352/source/home:user_18/_meta?user=user_18
     body:
       encoding: UTF-8
       string: |
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:21 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_6/_meta
+    uri: http://backend:5352/source/project_6/_meta
     body:
       encoding: UTF-8
       string: |
@@ -120,7 +120,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:21 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_6/_config
+    uri: http://backend:5352/source/project_6/_config
     body:
       encoding: UTF-8
       string: Dolorem ea modi laudantium ut. Doloremque et ea. Voluptatem voluptatibus

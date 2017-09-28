@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:macario/_meta?user=macario
+    uri: http://backend:5352/source/home:macario/_meta?user=macario
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:56 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:macario/_result?view=binarylist
+    uri: http://backend:5352/build/home:macario/_result?view=binarylist
     body:
       encoding: US-ASCII
       string: ''
@@ -78,7 +78,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:macario/patchinfo/_meta?user=macario
+    uri: http://backend:5352/source/home:macario/patchinfo/_meta?user=macario
     body:
       encoding: UTF-8
       string: |
@@ -135,7 +135,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:macario/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=macario
+    uri: http://backend:5352/source/home:macario/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=macario
     body:
       encoding: UTF-8
       string: |-
@@ -181,7 +181,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:56 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo
+    uri: http://backend:5352/source/home:macario/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -215,7 +215,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:56 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:macario/patchinfo?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -249,7 +249,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:56 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo
+    uri: http://backend:5352/source/home:macario/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -283,7 +283,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:56 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo/_patchinfo
+    uri: http://backend:5352/source/home:macario/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -321,7 +321,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:56 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo/_patchinfo
+    uri: http://backend:5352/source/home:macario/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -359,7 +359,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:57 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:macario/_result?view=binarylist
+    uri: http://backend:5352/build/home:macario/_result?view=binarylist
     body:
       encoding: US-ASCII
       string: ''
@@ -394,7 +394,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:57 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo/_patchinfo
+    uri: http://backend:5352/source/home:macario/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -432,7 +432,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:57 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo/_patchinfo
+    uri: http://backend:5352/source/home:macario/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -470,7 +470,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:57 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:macario/patchinfo/_patchinfo?user=macario
+    uri: http://backend:5352/source/home:macario/patchinfo/_patchinfo?user=macario
     body:
       encoding: UTF-8
       string: |
@@ -517,7 +517,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:57 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo
+    uri: http://backend:5352/source/home:macario/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -551,7 +551,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:57 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:macario/patchinfo?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -585,7 +585,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:57 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo
+    uri: http://backend:5352/source/home:macario/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -619,7 +619,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:57 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo/_patchinfo
+    uri: http://backend:5352/source/home:macario/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -658,7 +658,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:57 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/patchinfo/_patchinfo
+    uri: http://backend:5352/source/home:macario/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -697,7 +697,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:57 GMT
 - request:
     method: delete
-    uri: http://localhost:3200/source/home:macario/patchinfo?comment&user=macario
+    uri: http://backend:5352/source/home:macario/patchinfo?comment&user=macario
     body:
       encoding: US-ASCII
       string: ''

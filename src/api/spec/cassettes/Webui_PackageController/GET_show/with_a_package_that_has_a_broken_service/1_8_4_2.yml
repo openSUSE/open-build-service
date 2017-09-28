@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_meta
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_service
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_service
     body:
       encoding: UTF-8
       string: "<service>broken</service>"
@@ -160,7 +160,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:tom/package_with_broken_service?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -194,7 +194,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
     body:
       encoding: US-ASCII
       string: ''
@@ -231,7 +231,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom/package_with_broken_service?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -271,7 +271,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
     body:
       encoding: US-ASCII
       string: ''
@@ -308,7 +308,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service?expand=1&rev=2
+    uri: http://backend:5352/source/home:tom/package_with_broken_service?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -345,7 +345,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
     body:
       encoding: US-ASCII
       string: ''
@@ -382,7 +382,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service?expand=0&rev=2
+    uri: http://backend:5352/source/home:tom/package_with_broken_service?expand=0&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -421,7 +421,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
     body:
       encoding: US-ASCII
       string: ''
@@ -460,7 +460,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_serviceerror?rev=aa60748d63bfa76da2d712d560388f60
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_serviceerror?rev=aa60748d63bfa76da2d712d560388f60
     body:
       encoding: US-ASCII
       string: ''
@@ -493,7 +493,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:48 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_service
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_service
     body:
       encoding: US-ASCII
       string: ''

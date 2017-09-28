@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/build/_workerstatus
+    uri: http://backend:5352/build/_workerstatus
     body:
       encoding: US-ASCII
       string: ''
@@ -52,7 +52,7 @@ http_interactions:
   recorded_at: Wed, 10 Feb 2016 16:04:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:eisendieter/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:eisendieter/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -89,7 +89,7 @@ http_interactions:
   recorded_at: Wed, 10 Feb 2016 16:04:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:eisendieter/_keyinfo?withsslcert=1
+    uri: http://backend:5352/source/home:eisendieter/_keyinfo?withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -120,7 +120,7 @@ http_interactions:
   recorded_at: Mon, 09 Jan 2017 11:06:01 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:eisendieter/_keyinfo?withsslcert=1
+    uri: http://backend:5352/source/home:eisendieter/_keyinfo?withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -151,7 +151,7 @@ http_interactions:
   recorded_at: Mon, 09 Jan 2017 11:06:01 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:eisendieter/_keyinfo
+    uri: http://backend:5352/source/home:eisendieter/_keyinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -182,7 +182,7 @@ http_interactions:
   recorded_at: Mon, 13 Feb 2017 15:54:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:eisendieter/_keyinfo?donotcreatecert=1&withsslcert=1
+    uri: http://backend:5352/source/home:eisendieter/_keyinfo?donotcreatecert=1&withsslcert=1
     body:
       encoding: US-ASCII
       string: ''

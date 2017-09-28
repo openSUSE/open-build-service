@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/_meta
+    uri: http://backend:5352/source/Apache/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:15 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/_config
+    uri: http://backend:5352/source/Apache/_config
     body:
       encoding: UTF-8
       string: Assumenda sint ipsum quam non enim sit tenetur. Qui possimus nisi iure
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:15 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/_meta?user=user_5
+    uri: http://backend:5352/source/Apache/apache2/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
@@ -115,7 +115,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/_meta
+    uri: http://backend:5352/source/Apache/apache2/_meta
     body:
       encoding: UTF-8
       string: |
@@ -154,7 +154,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/_config
+    uri: http://backend:5352/source/Apache/apache2/_config
     body:
       encoding: UTF-8
       string: Soluta rerum ut et beatae sapiente ullam. Libero omnis asperiores ea
@@ -195,7 +195,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/somefile.txt
+    uri: http://backend:5352/source/Apache/apache2/somefile.txt
     body:
       encoding: UTF-8
       string: Aperiam a corporis perspiciatis ipsam sint. Nihil necessitatibus quas
@@ -237,7 +237,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/Apache/apache2?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/Apache/apache2?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -271,7 +271,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/Apache/apache2
+    uri: http://backend:5352/source/Apache/apache2
     body:
       encoding: US-ASCII
       string: ''
@@ -307,7 +307,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/Apache/apache2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/Apache/apache2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -347,7 +347,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta
+    uri: http://backend:5352/source/home:tom/_meta
     body:
       encoding: UTF-8
       string: |
@@ -386,7 +386,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_config
+    uri: http://backend:5352/source/home:tom/_config
     body:
       encoding: UTF-8
       string: A ea facilis porro provident dolorum odio. Unde sunt modi qui ipsa iure
@@ -421,7 +421,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/kiwi/_meta?user=user_5
+    uri: http://backend:5352/source/home:tom/kiwi/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
@@ -460,7 +460,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/kiwi/_meta
+    uri: http://backend:5352/source/home:tom/kiwi/_meta
     body:
       encoding: UTF-8
       string: |
@@ -499,7 +499,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/kiwi/_config
+    uri: http://backend:5352/source/home:tom/kiwi/_config
     body:
       encoding: UTF-8
       string: Ut aliquam reiciendis aut porro consequatur. Non at debitis voluptatem.
@@ -540,7 +540,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/kiwi/somefile.txt
+    uri: http://backend:5352/source/home:tom/kiwi/somefile.txt
     body:
       encoding: UTF-8
       string: Velit recusandae ea aspernatur ipsam qui laborum voluptas. Et ex facere
@@ -581,7 +581,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_6/_meta?user=user_6
+    uri: http://backend:5352/source/home:user_6/_meta?user=user_6
     body:
       encoding: UTF-8
       string: |
@@ -622,7 +622,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:16 GMT
 - request:
     method: get
-    uri: http://localhost:3200/getprojpack?expandedrepos&nopackages&project=Apache&withrepos
+    uri: http://backend:5352/getprojpack?expandedrepos&nopackages&project=Apache&withrepos
     body:
       encoding: US-ASCII
       string: ''

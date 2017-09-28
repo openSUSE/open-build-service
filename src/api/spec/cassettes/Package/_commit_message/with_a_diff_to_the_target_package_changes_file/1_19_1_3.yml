@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/_meta
+    uri: http://backend:5352/source/Apache/_meta
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/_config
+    uri: http://backend:5352/source/Apache/_config
     body:
       encoding: UTF-8
       string: Rem ut quae quo aut. Fugit laudantium ratione non cumque repudiandae.
@@ -117,7 +117,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/package_with_changes_file/_meta?user=tom
+    uri: http://backend:5352/source/Apache/package_with_changes_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -156,7 +156,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/package_with_changes_file/_meta
+    uri: http://backend:5352/source/Apache/package_with_changes_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -195,7 +195,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/package_with_changes_file/package_with_changes_file.changes
+    uri: http://backend:5352/source/Apache/package_with_changes_file/package_with_changes_file.changes
     body:
       encoding: UTF-8
       string: |-
@@ -238,7 +238,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:foo:Apache/_meta
+    uri: http://backend:5352/source/home:foo:Apache/_meta
     body:
       encoding: UTF-8
       string: |
@@ -277,7 +277,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:foo:Apache/_config
+    uri: http://backend:5352/source/home:foo:Apache/_config
     body:
       encoding: UTF-8
       string: Doloremque recusandae quo rerum reprehenderit placeat est. Ducimus voluptate
@@ -312,7 +312,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -351,7 +351,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:foo:Apache/package_with_changes_file/_meta
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -390,7 +390,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
     body:
       encoding: UTF-8
       string: |2-
@@ -439,7 +439,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:foo:Apache/package_with_changes_file
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file
     body:
       encoding: US-ASCII
       string: ''
@@ -474,7 +474,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:foo:Apache/package_with_changes_file/lorem.changes
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/lorem.changes
     body:
       encoding: US-ASCII
       string: ''
@@ -505,7 +505,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/Apache/package_with_changes_file/lorem.changes
+    uri: http://backend:5352/source/Apache/package_with_changes_file/lorem.changes
     body:
       encoding: US-ASCII
       string: ''
@@ -540,7 +540,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
     body:
       encoding: US-ASCII
       string: ''
@@ -581,7 +581,7 @@ http_interactions:
   recorded_at: Wed, 16 Aug 2017 07:28:32 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/Apache/package_with_changes_file/package_with_changes_file.changes
+    uri: http://backend:5352/source/Apache/package_with_changes_file/package_with_changes_file.changes
     body:
       encoding: US-ASCII
       string: ''

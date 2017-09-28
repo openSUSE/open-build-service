@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:34:37 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_service/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:34:37 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_service/_meta
+    uri: http://backend:5352/source/home:tom/package_with_service/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:34:37 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_service/_service
+    uri: http://backend:5352/source/home:tom/package_with_service/_service
     body:
       encoding: UTF-8
       string: "<services/>"
@@ -160,7 +160,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:34:37 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_service
+    uri: http://backend:5352/source/home:tom/package_with_service
     body:
       encoding: US-ASCII
       string: ''
@@ -197,7 +197,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:34:37 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_service/_serviceerror?rev=
+    uri: http://backend:5352/source/home:tom/package_with_service/_serviceerror?rev=
     body:
       encoding: US-ASCII
       string: ''

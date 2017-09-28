@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane:coolstuff/_project/_history?deleted=1
+    uri: http://backend:5352/source/home:Jane:coolstuff/_project/_history?deleted=1
     body:
       encoding: US-ASCII
       string: ''
@@ -35,7 +35,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:22:53 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane:coolstuff/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:Jane:coolstuff/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -72,7 +72,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:22:53 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane:coolstuff/_keyinfo?donotcreatecert=1&withsslcert=1
+    uri: http://backend:5352/source/home:Jane:coolstuff/_keyinfo?donotcreatecert=1&withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -103,7 +103,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:22:53 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane:coolstuff/_result?view=summary
+    uri: http://backend:5352/build/home:Jane:coolstuff/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''

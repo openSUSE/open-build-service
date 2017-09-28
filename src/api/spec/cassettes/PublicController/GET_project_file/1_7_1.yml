@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/_meta
+    uri: http://backend:5352/source/public_controller_project/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:38 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/_config
+    uri: http://backend:5352/source/public_controller_project/_config
     body:
       encoding: UTF-8
       string: Ullam expedita ipsum sit aut possimus exercitationem occaecati. Optio
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:38 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/public_controller_project/_config
+    uri: http://backend:5352/source/public_controller_project/_config
     body:
       encoding: US-ASCII
       string: ''

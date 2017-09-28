@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_meta
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_config
+    uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
       string: Et sint maiores. Nulla minus fugiat sed esse autem. Commodi magni error
@@ -161,7 +161,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/somefile.txt
+    uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
       string: Et ratione qui soluta est. Voluptas qui ratione dicta et repellendus.
@@ -201,7 +201,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/_meta?user=other_package_test_user
+    uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -242,7 +242,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -281,7 +281,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_meta
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -320,7 +320,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_config
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
       string: Error fugit ut odio a. Veniam optio labore est in. Dolorem sit officia
@@ -361,7 +361,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/somefile.txt
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
       string: Fugiat autem aspernatur illum a in. Amet ratione dolor a quo. Ipsum
@@ -401,7 +401,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:44 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/package_test_repository/x86_64/test_package/_jobstatus
+    uri: http://backend:5352/build/home:package_test_user/package_test_repository/x86_64/test_package/_jobstatus
     body:
       encoding: US-ASCII
       string: ''
@@ -438,7 +438,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:45 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/package_test_repository/x86_64/test_package/_log?view=entry
+    uri: http://backend:5352/build/home:package_test_user/package_test_repository/x86_64/test_package/_log?view=entry
     body:
       encoding: US-ASCII
       string: ''
@@ -475,7 +475,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:45 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/package_test_repository/x86_64/test_package/_log?end=65536&nostream=1&start=0
+    uri: http://backend:5352/build/home:package_test_user/package_test_repository/x86_64/test_package/_log?end=65536&nostream=1&start=0
     body:
       encoding: US-ASCII
       string: ''
@@ -512,7 +512,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:45 GMT
 - request:
     method: post
-    uri: http://localhost:3200/build/home:package_test_user?arch=x86_64&cmd=rebuild&package=test_package&repository=package_test_repository
+    uri: http://backend:5352/build/home:package_test_user?arch=x86_64&cmd=rebuild&package=test_package&repository=package_test_repository
     body:
       encoding: UTF-8
       string: ''
@@ -548,7 +548,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 12:41:45 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/_result?package=test_package&repository=package_test_repository&view=status
+    uri: http://backend:5352/build/home:package_test_user/_result?package=test_package&repository=package_test_repository&view=status
     body:
       encoding: US-ASCII
       string: ''

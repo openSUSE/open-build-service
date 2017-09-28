@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:13 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:13 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_meta
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:13 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_config
+    uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
       string: Reiciendis veniam cum. Ipsam tenetur qui et deleniti. Dolor dolorum
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:13 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/somefile.txt
+    uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
       string: Enim molestiae nihil officia fuga aut. Aut sed est. Dicta unde officia
@@ -203,7 +203,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:13 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/_meta?user=other_package_test_user
+    uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -244,7 +244,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:14 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -283,7 +283,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:14 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_meta
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -322,7 +322,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:14 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_config
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
       string: Minima ratione nisi ea dolores. Officia illo quam error id. Eius quia
@@ -363,7 +363,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:14 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/somefile.txt
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
       string: Ullam vitae maiores totam. Aut nulla mollitia tenetur ad assumenda temporibus.
@@ -403,7 +403,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:14 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:package_test_user/test_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -437,7 +437,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -474,7 +474,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:19 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:package_test_user/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:package_test_user/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -514,7 +514,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -551,7 +551,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?expand=1&rev=11
+    uri: http://backend:5352/source/home:package_test_user/test_package?expand=1&rev=11
     body:
       encoding: US-ASCII
       string: ''
@@ -590,7 +590,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -629,7 +629,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_service
+    uri: http://backend:5352/source/home:package_test_user/test_package/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -666,7 +666,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_history
+    uri: http://backend:5352/source/home:package_test_user/test_package/_history
     body:
       encoding: US-ASCII
       string: ''
@@ -765,7 +765,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/_result?package=test_package&view=status
+    uri: http://backend:5352/build/home:package_test_user/_result?package=test_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -800,7 +800,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -837,7 +837,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?rev=11
+    uri: http://backend:5352/source/home:package_test_user/test_package?rev=11
     body:
       encoding: US-ASCII
       string: ''
@@ -876,7 +876,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -915,7 +915,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -952,7 +952,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?rev=11
+    uri: http://backend:5352/source/home:package_test_user/test_package?rev=11
     body:
       encoding: US-ASCII
       string: ''
@@ -991,7 +991,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1030,7 +1030,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1067,7 +1067,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?expand=1&rev=11
+    uri: http://backend:5352/source/home:package_test_user/test_package?expand=1&rev=11
     body:
       encoding: US-ASCII
       string: ''
@@ -1106,7 +1106,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1145,7 +1145,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_service
+    uri: http://backend:5352/source/home:package_test_user/test_package/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -1182,7 +1182,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/_result?package=test_package&view=status
+    uri: http://backend:5352/build/home:package_test_user/_result?package=test_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -1217,7 +1217,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?expand=1
+    uri: http://backend:5352/source/home:package_test_user/test_package?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -1256,7 +1256,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:58 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package/new_file?expand=1
+    uri: http://backend:5352/source/home:package_test_user/test_package/new_file?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -1287,7 +1287,7 @@ http_interactions:
   recorded_at: Wed, 03 May 2017 10:00:58 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1324,7 +1324,7 @@ http_interactions:
   recorded_at: Fri, 16 Jun 2017 14:23:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''

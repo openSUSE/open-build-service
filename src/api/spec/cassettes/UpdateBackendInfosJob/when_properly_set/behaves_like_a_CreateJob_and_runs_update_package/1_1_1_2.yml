@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/source/FakeProject/FakePackage?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/FakeProject/FakePackage?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -37,7 +37,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 10:00:51 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/FakeProject/FakePackage
+    uri: http://backend:5352/source/FakeProject/FakePackage
     body:
       encoding: US-ASCII
       string: ''
@@ -72,7 +72,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 10:00:51 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/FakeProject/FakePackage?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/FakeProject/FakePackage?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_2/_meta?user=user_2
+    uri: http://backend:5352/source/home:user_2/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=user_2
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
@@ -123,7 +123,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
       string: Dolor molestias et omnis illo eum odio. Numquam perferendis ad veritatis
@@ -202,7 +202,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
       string: Repellendus id natus saepe sed. Molestiae facere voluptatum incidunt
@@ -243,7 +243,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_8/_meta
+    uri: http://backend:5352/source/project_8/_meta
     body:
       encoding: UTF-8
       string: |
@@ -282,7 +282,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_8/_config
+    uri: http://backend:5352/source/project_8/_config
     body:
       encoding: UTF-8
       string: Sit similique totam. Occaecati aut voluptatem. Soluta qui et exercitationem
@@ -316,7 +316,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:51 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
+    uri: http://backend:5352/source/home:tom/package_with_file?expand=1
     body:
       encoding: US-ASCII
       string: ''

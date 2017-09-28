@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_config?user=tom
+    uri: http://backend:5352/source/home:tom/_config?user=tom
     body:
       encoding: UTF-8
       string: save config
@@ -35,7 +35,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 10:44:36 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/_config
+    uri: http://backend:5352/source/home:tom/_config
     body:
       encoding: US-ASCII
       string: ''

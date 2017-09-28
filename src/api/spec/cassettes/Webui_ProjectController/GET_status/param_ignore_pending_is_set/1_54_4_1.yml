@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache5/_meta
+    uri: http://backend:5352/source/Apache5/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Wed, 23 Aug 2017 08:07:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache5/_config
+    uri: http://backend:5352/source/Apache5/_config
     body:
       encoding: UTF-8
       string: Voluptatem molestiae quia vel doloremque saepe nostrum laudantium. Sed
@@ -75,7 +75,7 @@ http_interactions:
   recorded_at: Wed, 23 Aug 2017 08:07:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache5/mod_rewrite5/_meta?user=_nobody_
+    uri: http://backend:5352/source/Apache5/mod_rewrite5/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -114,7 +114,7 @@ http_interactions:
   recorded_at: Wed, 23 Aug 2017 08:07:52 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache5/mod_rewrite5/_meta
+    uri: http://backend:5352/source/Apache5/mod_rewrite5/_meta
     body:
       encoding: UTF-8
       string: |

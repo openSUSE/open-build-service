@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:31:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_user/_meta?user=other_user
+    uri: http://backend:5352/source/home:other_user/_meta?user=other_user
     body:
       encoding: UTF-8
       string: |
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:31:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/test_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -123,7 +123,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:31:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/test_package/_meta
+    uri: http://backend:5352/source/home:tom/test_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:31:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_user2/_meta?user=other_user2
+    uri: http://backend:5352/source/home:other_user2/_meta?user=other_user2
     body:
       encoding: UTF-8
       string: |

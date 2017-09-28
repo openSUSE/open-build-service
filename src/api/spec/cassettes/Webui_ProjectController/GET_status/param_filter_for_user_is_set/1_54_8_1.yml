@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache9/_meta
+    uri: http://backend:5352/source/Apache9/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Wed, 23 Aug 2017 08:07:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache9/_config
+    uri: http://backend:5352/source/Apache9/_config
     body:
       encoding: UTF-8
       string: Eum quia quod necessitatibus. Non voluptas iusto repudiandae. Eligendi
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Wed, 23 Aug 2017 08:07:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:admin/_meta?user=admin
+    uri: http://backend:5352/source/home:admin/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
@@ -117,7 +117,7 @@ http_interactions:
   recorded_at: Wed, 23 Aug 2017 08:07:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache9/mod_rewrite9/_meta?user=_nobody_
+    uri: http://backend:5352/source/Apache9/mod_rewrite9/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -156,7 +156,7 @@ http_interactions:
   recorded_at: Wed, 23 Aug 2017 08:07:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache9/mod_rewrite9/_meta
+    uri: http://backend:5352/source/Apache9/mod_rewrite9/_meta
     body:
       encoding: UTF-8
       string: |

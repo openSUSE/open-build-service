@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:moi/_meta?user=moi
+    uri: http://backend:5352/source/home:moi/_meta?user=moi
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Thu, 24 Aug 2017 13:38:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:moi/_project/_history?deleted=1
+    uri: http://backend:5352/source/home:moi/_project/_history?deleted=1
     body:
       encoding: US-ASCII
       string: ''
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Thu, 24 Aug 2017 13:43:59 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:moi/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:moi/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -113,7 +113,7 @@ http_interactions:
   recorded_at: Thu, 24 Aug 2017 13:43:59 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:moi/_keyinfo?donotcreatecert=1&withsslcert=1
+    uri: http://backend:5352/source/home:moi/_keyinfo?donotcreatecert=1&withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -144,7 +144,7 @@ http_interactions:
   recorded_at: Thu, 24 Aug 2017 13:43:59 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:moi/_result?view=summary
+    uri: http://backend:5352/build/home:moi/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''

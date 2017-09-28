@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
       string: Totam esse omnis doloremque nisi qui. Porro minus similique atque accusantium
@@ -161,7 +161,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
       string: Vel ratione perferendis soluta ipsam nam odio. Consequuntur consequatur
@@ -201,7 +201,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_12/_meta
+    uri: http://backend:5352/source/project_12/_meta
     body:
       encoding: UTF-8
       string: |
@@ -240,7 +240,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_12/_config
+    uri: http://backend:5352/source/project_12/_config
     body:
       encoding: UTF-8
       string: Quaerat hic qui quos quis vero quibusdam. Occaecati dolores praesentium
@@ -275,7 +275,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:53 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
+    uri: http://backend:5352/source/home:tom/package_with_file?expand=1
     body:
       encoding: US-ASCII
       string: ''

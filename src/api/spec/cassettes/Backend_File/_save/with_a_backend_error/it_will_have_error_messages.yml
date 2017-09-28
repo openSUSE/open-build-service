@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/_meta?user=user
+    uri: http://backend:5352/source/home:user/_meta?user=user
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/package_with_files/_meta?user=user
+    uri: http://backend:5352/source/home:user/package_with_files/_meta?user=user
     body:
       encoding: UTF-8
       string: |

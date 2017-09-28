@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/_meta
+    uri: http://backend:5352/source/fake_project/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/_config
+    uri: http://backend:5352/source/fake_project/_config
     body:
       encoding: UTF-8
       string: Qui consequatur id totam enim inventore hic sunt. Dolores aliquid vel
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
+    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -115,7 +115,7 @@ http_interactions:
   recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/_meta
+    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -154,7 +154,7 @@ http_interactions:
   recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
+    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
     body:
       encoding: UTF-8
       string: |
@@ -230,7 +230,7 @@ http_interactions:
   recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file
+    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file
     body:
       encoding: US-ASCII
       string: ''
@@ -264,7 +264,7 @@ http_interactions:
   recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
+    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
     body:
       encoding: US-ASCII
       string: ''
@@ -332,7 +332,7 @@ http_interactions:
   recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file
+    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file
     body:
       encoding: US-ASCII
       string: ''
@@ -366,7 +366,7 @@ http_interactions:
   recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
+    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -405,7 +405,7 @@ http_interactions:
   recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
+    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |

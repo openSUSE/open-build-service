@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:54 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/_meta?user=admin
+    uri: http://backend:5352/source/my_project/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:54 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/_meta
+    uri: http://backend:5352/source/my_project/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:54 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/_config
+    uri: http://backend:5352/source/my_project/_config
     body:
       encoding: UTF-8
       string: Laboriosam suscipit est dolorum minima ratione. Ipsam omnis tempore
@@ -156,7 +156,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/first_package/_meta?user=admin
+    uri: http://backend:5352/source/my_project/first_package/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
@@ -195,7 +195,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/first_package/_meta
+    uri: http://backend:5352/source/my_project/first_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -234,7 +234,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/first_package/_config
+    uri: http://backend:5352/source/my_project/first_package/_config
     body:
       encoding: UTF-8
       string: Illo hic optio officia. Sequi asperiores facere. Sint aut sed ex iusto
@@ -275,7 +275,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/first_package/somefile.txt
+    uri: http://backend:5352/source/my_project/first_package/somefile.txt
     body:
       encoding: UTF-8
       string: Nisi ab cupiditate quibusdam ipsum cum. Sed dolor cum qui esse hic.
@@ -315,7 +315,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/second_package/_meta?user=admin
+    uri: http://backend:5352/source/my_project/second_package/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
@@ -354,7 +354,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/second_package/_meta
+    uri: http://backend:5352/source/my_project/second_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -393,7 +393,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/second_package/_config
+    uri: http://backend:5352/source/my_project/second_package/_config
     body:
       encoding: UTF-8
       string: Qui molestias iure ipsum. Voluptatem exercitationem aut maxime excepturi.
@@ -434,7 +434,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/second_package/somefile.txt
+    uri: http://backend:5352/source/my_project/second_package/somefile.txt
     body:
       encoding: UTF-8
       string: Ipsam illo dolore deserunt occaecati qui consequuntur. Totam quia occaecati
@@ -474,7 +474,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/first_package
+    uri: http://backend:5352/source/my_project/first_package
     body:
       encoding: US-ASCII
       string: ''
@@ -509,7 +509,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/first_package
+    uri: http://backend:5352/source/my_project/first_package
     body:
       encoding: US-ASCII
       string: ''
@@ -544,7 +544,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/second_package
+    uri: http://backend:5352/source/my_project/second_package
     body:
       encoding: US-ASCII
       string: ''
@@ -579,7 +579,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/second_package
+    uri: http://backend:5352/source/my_project/second_package
     body:
       encoding: US-ASCII
       string: ''
@@ -614,7 +614,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:55 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/first_package
+    uri: http://backend:5352/source/my_project/first_package
     body:
       encoding: US-ASCII
       string: ''
@@ -649,7 +649,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:57 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/first_package
+    uri: http://backend:5352/source/my_project/first_package
     body:
       encoding: US-ASCII
       string: ''
@@ -684,7 +684,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/second_package
+    uri: http://backend:5352/source/my_project/second_package
     body:
       encoding: US-ASCII
       string: ''
@@ -719,7 +719,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/second_package
+    uri: http://backend:5352/source/my_project/second_package
     body:
       encoding: US-ASCII
       string: ''
@@ -754,7 +754,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/second_package?expand=1
+    uri: http://backend:5352/source/my_project/second_package?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -789,7 +789,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/second_package?rev=4
+    uri: http://backend:5352/source/my_project/second_package?rev=4
     body:
       encoding: US-ASCII
       string: ''
@@ -826,7 +826,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22second_package%22%20and%20linkinfo/@project=%22my_project%22%20and%20@project=%22my_project%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22second_package%22%20and%20linkinfo/@project=%22my_project%22%20and%20@project=%22my_project%22)
     body:
       encoding: UTF-8
       string: ''
@@ -861,7 +861,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:my_project/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:my_project/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -902,7 +902,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:58 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -941,7 +941,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name?cmd=branch&opackage=second_package&oproject=my_project&orev=4c02f372ddcd5ea37fa6b9f87093cb44&user=tom
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=branch&opackage=second_package&oproject=my_project&orev=4c02f372ddcd5ea37fa6b9f87093cb44&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -982,7 +982,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -1021,7 +1021,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
     body:
       encoding: US-ASCII
       string: ''
@@ -1058,7 +1058,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -1093,7 +1093,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
     body:
       encoding: US-ASCII
       string: ''
@@ -1130,7 +1130,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -1170,7 +1170,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -1208,7 +1208,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:30:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:my_project/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:my_project/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -1255,7 +1255,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/second_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/my_project/second_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -1289,7 +1289,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/my_project/second_package
+    uri: http://backend:5352/source/my_project/second_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1324,7 +1324,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/my_project/second_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/my_project/second_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -1364,7 +1364,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
     body:
       encoding: US-ASCII
       string: ''
@@ -1401,7 +1401,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name?expand=1&rev=2
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -1437,7 +1437,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
     body:
       encoding: US-ASCII
       string: ''
@@ -1476,7 +1476,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name/_service
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -1513,7 +1513,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
     body:
       encoding: US-ASCII
       string: ''
@@ -1550,7 +1550,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:my_project/custom_name/_history
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_history
     body:
       encoding: US-ASCII
       string: ''
@@ -1595,7 +1595,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:31:00 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:my_project/_result?package=custom_name&view=status
+    uri: http://backend:5352/build/home:tom:branches:my_project/_result?package=custom_name&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -1630,7 +1630,7 @@ http_interactions:
   recorded_at: Wed, 09 Aug 2017 15:31:01 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/_meta?user=tom
+    uri: http://backend:5352/source/my_project/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -1669,7 +1669,7 @@ http_interactions:
   recorded_at: Thu, 10 Aug 2017 05:56:21 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/first_package/_meta?user=tom
+    uri: http://backend:5352/source/my_project/first_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -1708,7 +1708,7 @@ http_interactions:
   recorded_at: Thu, 10 Aug 2017 05:56:22 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/my_project/second_package/_meta?user=tom
+    uri: http://backend:5352/source/my_project/second_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -1747,7 +1747,7 @@ http_interactions:
   recorded_at: Thu, 10 Aug 2017 05:56:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/_workerstatus
+    uri: http://backend:5352/build/_workerstatus
     body:
       encoding: US-ASCII
       string: ''

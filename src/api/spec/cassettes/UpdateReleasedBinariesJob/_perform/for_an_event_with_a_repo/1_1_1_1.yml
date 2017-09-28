@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/_meta
+    uri: http://backend:5352/source/project_1/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:29:36 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/_config
+    uri: http://backend:5352/source/project_1/_config
     body:
       encoding: UTF-8
       string: Ut fugiat in quo fugit. Odit consequatur quasi voluptas voluptatem.
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:29:36 GMT
 - request:
     method: get
-    uri: http://localhost:3200/notificationpayload/fake_payload
+    uri: http://backend:5352/notificationpayload/fake_payload
     body:
       encoding: US-ASCII
       string: ''
@@ -111,7 +111,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:29:40 GMT
 - request:
     method: get
-    uri: http://localhost:3200/notificationpayload/fake_payload
+    uri: http://backend:5352/notificationpayload/fake_payload
     body:
       encoding: US-ASCII
       string: ''
@@ -146,7 +146,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:29:41 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_meta
+    uri: http://backend:5352/source/project_2/_meta
     body:
       encoding: UTF-8
       string: |
@@ -185,7 +185,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:39:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_config
+    uri: http://backend:5352/source/project_2/_config
     body:
       encoding: UTF-8
       string: Veniam qui aut veritatis voluptates. Neque ut nobis est. Et suscipit
@@ -219,7 +219,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:39:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/_meta
+    uri: http://backend:5352/source/apache/_meta
     body:
       encoding: UTF-8
       string: |
@@ -258,7 +258,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 13:03:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/_config
+    uri: http://backend:5352/source/apache/_config
     body:
       encoding: UTF-8
       string: Aut et ea assumenda. Rem illum sequi. Mollitia voluptatibus quo ut ut.

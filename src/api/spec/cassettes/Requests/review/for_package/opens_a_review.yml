@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
+    uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:19:11 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/package_1/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:kugelblitz/package_1/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test.json?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:package_test_user/test.json?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -37,7 +37,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 10:24:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test.json
+    uri: http://backend:5352/source/home:package_test_user/test.json
     body:
       encoding: US-ASCII
       string: ''
@@ -72,7 +72,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 10:24:20 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:package_test_user/test.json?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:package_test_user/test.json?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -109,7 +109,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 10:24:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test.json
+    uri: http://backend:5352/source/home:package_test_user/test.json
     body:
       encoding: US-ASCII
       string: ''
@@ -144,7 +144,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 10:24:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test.json?expand=1
+    uri: http://backend:5352/source/home:package_test_user/test.json?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -181,7 +181,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 10:24:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test.json
+    uri: http://backend:5352/source/home:package_test_user/test.json
     body:
       encoding: US-ASCII
       string: ''
@@ -218,7 +218,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 10:24:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test.json/_service
+    uri: http://backend:5352/source/home:package_test_user/test.json/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -255,7 +255,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 10:24:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/_result?package=test.json&view=status
+    uri: http://backend:5352/build/home:package_test_user/_result?package=test.json&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -292,7 +292,7 @@ http_interactions:
   recorded_at: Thu, 04 May 2017 10:24:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test.json?expand=0
+    uri: http://backend:5352/source/home:package_test_user/test.json?expand=0
     body:
       encoding: US-ASCII
       string: ''

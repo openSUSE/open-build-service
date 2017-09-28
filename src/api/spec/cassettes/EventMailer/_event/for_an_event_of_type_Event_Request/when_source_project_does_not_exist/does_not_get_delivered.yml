@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_5/_meta?user=user_5
+    uri: http://backend:5352/source/home:user_5/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:15 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/source_project/_meta
+    uri: http://backend:5352/source/source_project/_meta
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:15 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/source_project/_config
+    uri: http://backend:5352/source/source_project/_config
     body:
       encoding: UTF-8
       string: Placeat debitis quidem. Cum fugiat dolor repellat minus perferendis.
@@ -117,7 +117,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/source_project/source_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -156,7 +156,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/source_project/source_package/_meta
+    uri: http://backend:5352/source/source_project/source_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -195,7 +195,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/source_project/source_package/_config
+    uri: http://backend:5352/source/source_project/source_package/_config
     body:
       encoding: UTF-8
       string: Ea velit sint vero. Ad nobis sed reiciendis. Voluptates ipsum tempora
@@ -235,7 +235,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/source_project/source_package/somefile.txt
+    uri: http://backend:5352/source/source_project/source_package/somefile.txt
     body:
       encoding: UTF-8
       string: Quia et inventore neque. Similique vero fugiat ut odio dolorem. Nesciunt
@@ -275,7 +275,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/target_project/_meta
+    uri: http://backend:5352/source/target_project/_meta
     body:
       encoding: UTF-8
       string: |
@@ -314,7 +314,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/target_project/_config
+    uri: http://backend:5352/source/target_project/_config
     body:
       encoding: UTF-8
       string: Nulla laboriosam in necessitatibus et cumque ullam. Nesciunt quia voluptas
@@ -349,7 +349,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/target_project/target_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -388,7 +388,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/target_project/target_package/_meta
+    uri: http://backend:5352/source/target_project/target_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -427,7 +427,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/target_project/target_package/somefile.txt
+    uri: http://backend:5352/source/target_project/target_package/somefile.txt
     body:
       encoding: US-ASCII
       string: '0'
@@ -466,7 +466,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/target_project/target_package/somefile.txt
+    uri: http://backend:5352/source/target_project/target_package/somefile.txt
     body:
       encoding: US-ASCII
       string: '1'
@@ -505,7 +505,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_6/_meta?user=user_6
+    uri: http://backend:5352/source/home:user_6/_meta?user=user_6
     body:
       encoding: UTF-8
       string: |
@@ -546,7 +546,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/source_project/source_package
+    uri: http://backend:5352/source/source_project/source_package
     body:
       encoding: US-ASCII
       string: ''
@@ -583,7 +583,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project
     body:
       encoding: UTF-8
       string: ''
@@ -639,7 +639,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:16 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/source_project/source_package?expand=1
+    uri: http://backend:5352/source/source_project/source_package?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -674,7 +674,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:17 GMT
 - request:
     method: delete
-    uri: http://localhost:3200/source/source_project?comment&user=user_5
+    uri: http://backend:5352/source/source_project?comment&user=user_5
     body:
       encoding: US-ASCII
       string: ''
@@ -705,7 +705,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:17 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/source_project/source_package
+    uri: http://backend:5352/source/source_project/source_package
     body:
       encoding: US-ASCII
       string: ''

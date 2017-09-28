@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/test_package/_service
+    uri: http://backend:5352/source/home:tom/test_package/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -39,7 +39,7 @@ http_interactions:
   recorded_at: Thu, 03 Mar 2016 10:50:53 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/test_package/_service?user=tom
+    uri: http://backend:5352/source/home:tom/test_package/_service?user=tom
     body:
       encoding: UTF-8
       string: |-
@@ -85,7 +85,7 @@ http_interactions:
   recorded_at: Thu, 03 Mar 2016 10:50:53 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/test_package?cmd=runservice&user=tom
+    uri: http://backend:5352/source/home:tom/test_package?cmd=runservice&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -120,7 +120,7 @@ http_interactions:
   recorded_at: Thu, 03 Mar 2016 10:50:54 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/test_package
+    uri: http://backend:5352/source/home:tom/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -157,7 +157,7 @@ http_interactions:
   recorded_at: Thu, 03 Mar 2016 10:50:54 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/test_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:tom/test_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -191,7 +191,7 @@ http_interactions:
   recorded_at: Thu, 03 Mar 2016 10:50:54 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/test_package
+    uri: http://backend:5352/source/home:tom/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -228,7 +228,7 @@ http_interactions:
   recorded_at: Thu, 03 Mar 2016 10:50:54 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -268,7 +268,7 @@ http_interactions:
   recorded_at: Thu, 03 Mar 2016 10:50:54 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/test_package?cmd=waitservice
+    uri: http://backend:5352/source/home:tom/test_package?cmd=waitservice
     body:
       encoding: UTF-8
       string: ''
@@ -303,7 +303,7 @@ http_interactions:
   recorded_at: Thu, 03 Mar 2016 10:50:55 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/test_package?cmd=mergeservice&user=tom
+    uri: http://backend:5352/source/home:tom/test_package?cmd=mergeservice&user=tom
     body:
       encoding: UTF-8
       string: ''

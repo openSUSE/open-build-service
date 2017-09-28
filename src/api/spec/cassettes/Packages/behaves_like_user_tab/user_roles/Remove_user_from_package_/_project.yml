@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user_tab_user/group_test_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -37,7 +37,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:26:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user_tab_user/group_test_package
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -72,7 +72,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:26:47 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:user_tab_user/group_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -109,7 +109,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:26:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user_tab_user/group_test_package
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -144,7 +144,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:26:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user_tab_user/group_test_package?expand=1
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -179,7 +179,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:26:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user_tab_user/group_test_package
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -214,7 +214,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:26:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user_tab_user/group_test_package?expand=0
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=0
     body:
       encoding: US-ASCII
       string: ''
@@ -249,7 +249,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:26:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user_tab_user/group_test_package/_service
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -286,7 +286,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:26:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user_tab_user/group_test_package
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -321,7 +321,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:26:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:user_tab_user/_result?package=group_test_package&view=status
+    uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
     body:
       encoding: US-ASCII
       string: ''

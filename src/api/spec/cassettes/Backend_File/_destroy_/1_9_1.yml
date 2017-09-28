@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/_meta?user=user
+    uri: http://backend:5352/source/home:user/_meta?user=user
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/package_with_files/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:user/package_with_files/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/package_with_files/_meta
+    uri: http://backend:5352/source/home:user/package_with_files/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/package_with_files/_config
+    uri: http://backend:5352/source/home:user/package_with_files/_config
     body:
       encoding: UTF-8
       string: Vel quae ut totam impedit ducimus minima nostrum. Velit molestias itaque
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/package_with_files/somefile.txt
+    uri: http://backend:5352/source/home:user/package_with_files/somefile.txt
     body:
       encoding: UTF-8
       string: Rerum id explicabo et. Qui sint excepturi sit sunt praesentium optio.
@@ -202,7 +202,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:04 GMT
 - request:
     method: delete
-    uri: http://localhost:3200/source/home:user/package_with_files/somefile.txt
+    uri: http://backend:5352/source/home:user/package_with_files/somefile.txt
     body:
       encoding: US-ASCII
       string: ''
@@ -241,7 +241,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:04 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user/package_with_files/somefile.txt
+    uri: http://backend:5352/source/home:user/package_with_files/somefile.txt
     body:
       encoding: US-ASCII
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:gilberto/_meta?user=gilberto
+    uri: http://backend:5352/source/home:gilberto/_meta?user=gilberto
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 09 Aug 2016 11:50:02 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:macario/_meta?user=macario
+    uri: http://backend:5352/source/home:macario/_meta?user=macario
     body:
       encoding: UTF-8
       string: |
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Tue, 09 Aug 2016 11:50:02 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:gilberto/_result?view=binarylist
+    uri: http://backend:5352/build/home:gilberto/_result?view=binarylist
     body:
       encoding: US-ASCII
       string: ''

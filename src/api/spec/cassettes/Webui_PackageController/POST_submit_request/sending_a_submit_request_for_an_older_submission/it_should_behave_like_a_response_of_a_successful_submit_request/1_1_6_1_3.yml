@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
       string: Voluptas itaque provident ut. Necessitatibus sint qui. Aspernatur ad
@@ -161,7 +161,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
       string: Maxime at qui quis nesciunt cumque. Eum praesentium harum dolores eveniet
@@ -201,7 +201,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: US-ASCII
       string: '0'
@@ -240,7 +240,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: US-ASCII
       string: '1'
@@ -279,7 +279,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: US-ASCII
       string: '2'
@@ -318,7 +318,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_22/_meta
+    uri: http://backend:5352/source/project_22/_meta
     body:
       encoding: UTF-8
       string: |
@@ -357,7 +357,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_22/_config
+    uri: http://backend:5352/source/project_22/_config
     body:
       encoding: UTF-8
       string: Rerum et blanditiis iure et. Et omnis adipisci voluptate. Vel ut natus
@@ -391,7 +391,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:59 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1&rev=2
+    uri: http://backend:5352/source/home:tom/package_with_file?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package/_meta
+    uri: http://backend:5352/source/home:tom/my_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93?user=tom
+    uri: http://backend:5352/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93?user=tom
     body:
       encoding: UTF-8
       string: |+
@@ -197,7 +197,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -236,7 +236,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/my_package
+    uri: http://backend:5352/source/home:tom/my_package
     body:
       encoding: US-ASCII
       string: ''
@@ -268,7 +268,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -302,7 +302,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/my_package
+    uri: http://backend:5352/source/home:tom/my_package
     body:
       encoding: US-ASCII
       string: ''
@@ -334,7 +334,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 11:22:23 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''

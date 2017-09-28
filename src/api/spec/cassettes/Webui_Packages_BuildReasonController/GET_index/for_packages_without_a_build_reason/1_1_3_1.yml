@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package
+    uri: http://backend:5352/source/home:tom/package
     body:
       encoding: US-ASCII
       string: ''

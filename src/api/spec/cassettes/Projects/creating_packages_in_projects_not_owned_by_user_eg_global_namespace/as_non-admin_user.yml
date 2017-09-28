@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/build/global_project/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/global_project/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -39,7 +39,7 @@ http_interactions:
   recorded_at: Tue, 24 May 2016 11:41:31 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/global_project/_result?view=summary
+    uri: http://backend:5352/build/global_project/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''

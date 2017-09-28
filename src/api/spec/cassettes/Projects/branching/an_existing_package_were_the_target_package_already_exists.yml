@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_user/_meta
+    uri: http://backend:5352/source/home:other_user/_meta
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_user/branch_test_package/_meta
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_user/branch_test_package/somefile.txt
+    uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
       string: Et expedita eaque quisquam recusandae quam cum. Quia earum officiis
@@ -122,7 +122,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:18 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -157,7 +157,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?view=summary
+    uri: http://backend:5352/build/home:Jane/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -192,7 +192,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:Jane/_meta
+    uri: http://backend:5352/source/home:Jane/_meta
     body:
       encoding: UTF-8
       string: |
@@ -233,7 +233,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:Jane/branch_test_package/_meta
+    uri: http://backend:5352/source/home:Jane/branch_test_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -272,7 +272,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:Jane/branch_test_package/somefile.txt
+    uri: http://backend:5352/source/home:Jane/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
       string: Amet eos ad id est labore. Ut in adipisci accusamus ut magnam consequatur
@@ -313,7 +313,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22branch_test_package%22%20and%20linkinfo/@project=%22home:other_user%22%20and%20@project=%22home:other_user%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22branch_test_package%22%20and%20linkinfo/@project=%22home:other_user%22%20and%20@project=%22home:other_user%22)
     body:
       encoding: UTF-8
       string: ''
@@ -348,7 +348,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?package=branch_test_package&view=status
+    uri: http://backend:5352/build/home:Jane/_result?package=branch_test_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -383,7 +383,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/branch_test_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:Jane/branch_test_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -417,7 +417,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/branch_test_package
+    uri: http://backend:5352/source/home:Jane/branch_test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -451,7 +451,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:Jane/branch_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:Jane/branch_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -491,7 +491,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/branch_test_package
+    uri: http://backend:5352/source/home:Jane/branch_test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -525,7 +525,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/branch_test_package?expand=1&rev=2
+    uri: http://backend:5352/source/home:Jane/branch_test_package?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -561,7 +561,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/branch_test_package
+    uri: http://backend:5352/source/home:Jane/branch_test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -597,7 +597,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/branch_test_package/_history
+    uri: http://backend:5352/source/home:Jane/branch_test_package/_history
     body:
       encoding: US-ASCII
       string: ''
@@ -642,7 +642,7 @@ http_interactions:
   recorded_at: Wed, 25 May 2016 17:18:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?package=branch_test_package&view=status
+    uri: http://backend:5352/build/home:Jane/_result?package=branch_test_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -679,7 +679,7 @@ http_interactions:
   recorded_at: Tue, 14 Jun 2016 15:31:04 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?package=branch_test_package&view=status
+    uri: http://backend:5352/build/home:Jane/_result?package=branch_test_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -716,7 +716,7 @@ http_interactions:
   recorded_at: Tue, 14 Jun 2016 15:31:04 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/branch_test_package/_service
+    uri: http://backend:5352/source/home:Jane/branch_test_package/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -753,7 +753,7 @@ http_interactions:
   recorded_at: Wed, 05 Oct 2016 09:11:09 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/_keyinfo?withsslcert=1
+    uri: http://backend:5352/source/home:Jane/_keyinfo?withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -784,7 +784,7 @@ http_interactions:
   recorded_at: Mon, 09 Jan 2017 11:16:37 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/_keyinfo?withsslcert=1
+    uri: http://backend:5352/source/home:Jane/_keyinfo?withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -815,7 +815,7 @@ http_interactions:
   recorded_at: Mon, 09 Jan 2017 11:16:37 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/_keyinfo
+    uri: http://backend:5352/source/home:Jane/_keyinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -846,7 +846,7 @@ http_interactions:
   recorded_at: Mon, 13 Feb 2017 16:10:54 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?locallink=1&multibuild=1&package=branch_test_package&view=status
+    uri: http://backend:5352/build/home:Jane/_result?locallink=1&multibuild=1&package=branch_test_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -883,7 +883,7 @@ http_interactions:
   recorded_at: Mon, 13 Feb 2017 16:10:54 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/_keyinfo?donotcreatecert=1&withsslcert=1
+    uri: http://backend:5352/source/home:Jane/_keyinfo?donotcreatecert=1&withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -914,7 +914,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 21:12:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/branch_test_package
+    uri: http://backend:5352/source/home:Jane/branch_test_package
     body:
       encoding: US-ASCII
       string: ''

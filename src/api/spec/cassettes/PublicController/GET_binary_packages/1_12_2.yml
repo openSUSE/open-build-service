@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/_meta
+    uri: http://backend:5352/source/public_controller_project/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/_config
+    uri: http://backend:5352/source/public_controller_project/_config
     body:
       encoding: UTF-8
       string: Suscipit sequi nihil. Nesciunt aut sapiente suscipit dicta consequatur
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -115,7 +115,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_meta
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -154,7 +154,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_config
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_config
     body:
       encoding: UTF-8
       string: Dolores quaerat commodi. Harum est aliquid iure dolorem cum magni. Neque
@@ -194,7 +194,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/somefile.txt
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/somefile.txt
     body:
       encoding: UTF-8
       string: Vel assumenda voluptas. Dolores nostrum vitae voluptatibus est. Et ex
@@ -234,7 +234,7 @@ http_interactions:
   recorded_at: Thu, 13 Oct 2016 08:34:37 GMT
 - request:
     method: get
-    uri: http://localhost:3200/search/published/binary/id?match=@project='public_controller_project'%20and%20@package='public_controller_package'
+    uri: http://backend:5352/search/published/binary/id?match=@project='public_controller_project'%20and%20@package='public_controller_package'
     body:
       encoding: US-ASCII
       string: ''

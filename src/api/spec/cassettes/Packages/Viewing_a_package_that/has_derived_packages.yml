@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_meta
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_config
+    uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
       string: Non sit assumenda dolorem corrupti dolore. Fugiat consectetur quaerat
@@ -161,7 +161,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user/test_package/somefile.txt
+    uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
     body:
       encoding: UTF-8
       string: Et quia debitis et nisi ducimus aut. Aut vel commodi corporis qui quidem.
@@ -202,7 +202,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/_meta?user=other_package_test_user
+    uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -243,7 +243,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -282,7 +282,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_meta
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -321,7 +321,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/_config
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
     body:
       encoding: UTF-8
       string: Id ab magni consequatur. Molestiae temporibus harum et quidem et. Rem
@@ -361,7 +361,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:other_package_test_user/branch_test_package/somefile.txt
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
       string: Ipsa velit est molestiae vel repellat tenetur in. Distinctio vel molestiae
@@ -401,7 +401,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:33 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22test_package%22%20and%20linkinfo/@project=%22home:package_test_user%22%20and%20@project=%22home:package_test_user%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22test_package%22%20and%20linkinfo/@project=%22home:package_test_user%22%20and%20@project=%22home:package_test_user%22)
     body:
       encoding: UTF-8
       string: ''
@@ -436,7 +436,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -477,7 +477,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -516,7 +516,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package?cmd=branch&opackage=test_package&oproject=home:package_test_user&user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package?cmd=branch&opackage=test_package&oproject=home:package_test_user&user=package_test_user
     body:
       encoding: UTF-8
       string: ''
@@ -557,7 +557,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -596,7 +596,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -633,7 +633,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -668,7 +668,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -705,7 +705,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -745,7 +745,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -783,7 +783,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
@@ -830,7 +830,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:package_test_user/test_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -864,7 +864,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -899,7 +899,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:package_test_user/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:package_test_user/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -939,7 +939,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -974,7 +974,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package?expand=1&rev=4
+    uri: http://backend:5352/source/home:package_test_user/test_package?expand=1&rev=4
     body:
       encoding: US-ASCII
       string: ''
@@ -1011,7 +1011,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1048,7 +1048,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_service
+    uri: http://backend:5352/source/home:package_test_user/test_package/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -1085,7 +1085,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user/test_package/_history
+    uri: http://backend:5352/source/home:package_test_user/test_package/_history
     body:
       encoding: US-ASCII
       string: ''
@@ -1142,7 +1142,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user/_result?package=test_package&view=status
+    uri: http://backend:5352/build/home:package_test_user/_result?package=test_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -1177,7 +1177,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:34 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1214,7 +1214,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:35 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package?expand=1&rev=2
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -1252,7 +1252,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:35 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1291,7 +1291,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:35 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package/_service
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -1328,7 +1328,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:35 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:package_test_user:branches:home:package_test_user/test_package/_history
+    uri: http://backend:5352/source/home:package_test_user:branches:home:package_test_user/test_package/_history
     body:
       encoding: US-ASCII
       string: ''
@@ -1373,7 +1373,7 @@ http_interactions:
   recorded_at: Fri, 28 Apr 2017 11:53:35 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:package_test_user:branches:home:package_test_user/_result?package=test_package&view=status
+    uri: http://backend:5352/build/home:package_test_user:branches:home:package_test_user/_result?package=test_package&view=status
     body:
       encoding: US-ASCII
       string: ''

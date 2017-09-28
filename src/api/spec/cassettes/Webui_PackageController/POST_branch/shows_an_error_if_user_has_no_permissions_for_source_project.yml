@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22my_package%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22my_package%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
     body:
       encoding: UTF-8
       string: ''

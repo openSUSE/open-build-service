@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -39,7 +39,7 @@ http_interactions:
   recorded_at: Wed, 09 Mar 2016 17:19:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?view=summary
+    uri: http://backend:5352/build/home:Jane/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Wed, 09 Mar 2016 17:19:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?package=coolstuff&view=status
+    uri: http://backend:5352/build/home:Jane/_result?package=coolstuff&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -113,7 +113,7 @@ http_interactions:
   recorded_at: Wed, 09 Mar 2016 17:19:09 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/coolstuff?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:Jane/coolstuff?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -148,7 +148,7 @@ http_interactions:
   recorded_at: Wed, 09 Mar 2016 17:19:09 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/coolstuff
+    uri: http://backend:5352/source/home:Jane/coolstuff
     body:
       encoding: US-ASCII
       string: ''
@@ -183,7 +183,7 @@ http_interactions:
   recorded_at: Wed, 09 Mar 2016 17:19:09 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:Jane/coolstuff?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:Jane/coolstuff?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -220,7 +220,7 @@ http_interactions:
   recorded_at: Wed, 09 Mar 2016 17:19:09 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/coolstuff
+    uri: http://backend:5352/source/home:Jane/coolstuff
     body:
       encoding: US-ASCII
       string: ''
@@ -255,7 +255,7 @@ http_interactions:
   recorded_at: Wed, 09 Mar 2016 17:19:09 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/coolstuff?expand=1
+    uri: http://backend:5352/source/home:Jane/coolstuff?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -292,7 +292,7 @@ http_interactions:
   recorded_at: Wed, 09 Mar 2016 17:19:09 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/coolstuff
+    uri: http://backend:5352/source/home:Jane/coolstuff
     body:
       encoding: US-ASCII
       string: ''
@@ -329,7 +329,7 @@ http_interactions:
   recorded_at: Wed, 09 Mar 2016 17:19:09 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?package=coolstuff&view=status
+    uri: http://backend:5352/build/home:Jane/_result?package=coolstuff&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -366,7 +366,7 @@ http_interactions:
   recorded_at: Wed, 09 Mar 2016 17:19:09 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?package=coolstuff&view=status
+    uri: http://backend:5352/build/home:Jane/_result?package=coolstuff&view=status
     body:
       encoding: US-ASCII
       string: ''

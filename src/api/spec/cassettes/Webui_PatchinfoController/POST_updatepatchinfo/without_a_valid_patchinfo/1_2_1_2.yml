@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:macario/_meta?user=macario
+    uri: http://backend:5352/source/home:macario/_meta?user=macario
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 09 Aug 2016 11:50:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:macario/other_package/_meta?user=macario
+    uri: http://backend:5352/source/home:macario/other_package/_meta?user=macario
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Tue, 09 Aug 2016 11:50:07 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:macario/_result?view=binarylist
+    uri: http://backend:5352/build/home:macario/_result?view=binarylist
     body:
       encoding: US-ASCII
       string: ''
@@ -117,7 +117,7 @@ http_interactions:
   recorded_at: Tue, 09 Aug 2016 11:50:07 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:macario/other_package/_patchinfo
+    uri: http://backend:5352/source/home:macario/other_package/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -152,7 +152,7 @@ http_interactions:
   recorded_at: Tue, 09 Aug 2016 11:50:07 GMT
 - request:
     method: delete
-    uri: http://localhost:3200/source/home:macario/other_package?comment&user=macario
+    uri: http://backend:5352/source/home:macario/other_package?comment&user=macario
     body:
       encoding: US-ASCII
       string: ''
@@ -185,7 +185,7 @@ http_interactions:
   recorded_at: Tue, 09 Aug 2016 11:50:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:macario/_meta
+    uri: http://backend:5352/source/home:macario/_meta
     body:
       encoding: UTF-8
       string: |
@@ -226,7 +226,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:macario/other_package/_meta
+    uri: http://backend:5352/source/home:macario/other_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -265,7 +265,7 @@ http_interactions:
   recorded_at: Tue, 16 Aug 2016 15:48:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:macario/other_package/somefile.txt
+    uri: http://backend:5352/source/home:macario/other_package/somefile.txt
     body:
       encoding: UTF-8
       string: Consequatur reprehenderit minima vel impedit. Facere quis ullam porro

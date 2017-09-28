@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_meta
+    uri: http://backend:5352/source/project_2/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:24:54 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_config
+    uri: http://backend:5352/source/project_2/_config
     body:
       encoding: UTF-8
       string: Mollitia omnis officiis temporibus non. Est sint beatae sit dolorem.
@@ -75,7 +75,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:24:54 GMT
 - request:
     method: get
-    uri: http://localhost:3200/notificationpayload/fake_payload
+    uri: http://backend:5352/notificationpayload/fake_payload
     body:
       encoding: US-ASCII
       string: ''
@@ -110,7 +110,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 12:24:55 GMT
 - request:
     method: get
-    uri: http://localhost:3200/notificationpayload/fake_payload
+    uri: http://backend:5352/notificationpayload/fake_payload
     body:
       encoding: US-ASCII
       string: ''
