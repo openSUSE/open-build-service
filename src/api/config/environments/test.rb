@@ -65,11 +65,8 @@ OBSApi::Application.configure do
   config.active_job.queue_adapter = :inline
 end
 
-CONFIG['source_host'] = "localhost"
-CONFIG['source_port'] = 3200
-CONFIG['source_url'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
-
 CONFIG['response_schema_validation'] = true
+CONFIG['source_url'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
 
 # the default is not to write through, only once the backend started
 # we set this to true
@@ -81,5 +78,4 @@ CONFIG['frontend_protocol'] = 'http'
 CONFIG['frontend_ldap_mode'] = :off
 
 # some defaults enforced
-CONFIG['use_static'] = nil
 CONFIG['apidocs_location'] = File.expand_path("../../docs/api/html/")
