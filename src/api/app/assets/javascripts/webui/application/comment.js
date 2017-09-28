@@ -10,19 +10,6 @@ function sz(t) {
     if (b > t.rows) t.rows = b;
 }
 
-function setup_comment_page() {
-    // setup toggle events
-    $('.togglable_comment').click(function () {
-        var toggleid = $(this).data("toggle");
-        $("#" + toggleid).toggle();
-    });
-
-    // prevent duplicate comment submissions
-    $('.comment_new').submit(function() {
-        $(this).find('input[type="submit"]').prop('disabled', true);
-    });
-}
-
 $(document).ready(function(){
     $('a.delete_link').on('ajax:success', function(event, data, status, xhr){
         $('#flash-messages').remove();
@@ -33,4 +20,18 @@ $(document).ready(function(){
         $('#flash-messages').remove();
         $(response.flash).filter('#flash-messages').insertAfter('#subheader').fadeIn('slow');
     });
+  $('a.supersed_comments_link').on('click', function(){
+    var link = $(this).text();
+    $(this).text(link == 'Show outdated comments' ? 'Hide outdated comments' : 'Show outdated comments');
+    $(this).parent().siblings('.superseded_comments').toggle();
+  });
+  $('.togglable_comment').click(function () {
+      var toggleid = $(this).data("toggle");
+      $("#" + toggleid).toggle();
+  });
+
+  // prevent duplicate comment submissions
+  $('.comment_new').submit(function() {
+      $(this).find('input[type="submit"]').prop('disabled', true);
+  });
 });
