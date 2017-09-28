@@ -59,11 +59,11 @@ do
   sudo chown -R obsrun:obsrun /srv/obs/run/
 
   # We need to wait for the backend to be available...
-  sleep 60
+  sleep 20
 
   echo "Starting bs_worker"
  
-  COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_$w_count --statedir /srv/obs/run/worker/$w_count --id $HOSTNAME:$w_count --reposerver http://backend:5252 --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 &"
+  COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_$w_count --statedir /srv/obs/run/worker/$w_count --id $HOSTNAME:$w_count --reposerver http://backend:3201 --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 &"
   eval $COMMAND_STRING
   let w_count=$w_count+1
 done
