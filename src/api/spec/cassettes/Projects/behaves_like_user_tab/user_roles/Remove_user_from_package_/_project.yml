@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/build/home:user_tab_user/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:user_tab_user/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -39,7 +39,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:24:01 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user_tab_user/_keyinfo?donotcreatecert=1&withsslcert=1
+    uri: http://backend:5352/source/home:user_tab_user/_keyinfo?donotcreatecert=1&withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -70,7 +70,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 08:24:01 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:user_tab_user/_result?view=summary
+    uri: http://backend:5352/build/home:user_tab_user/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''

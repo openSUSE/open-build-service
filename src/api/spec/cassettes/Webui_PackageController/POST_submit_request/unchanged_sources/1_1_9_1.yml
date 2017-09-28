@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
       string: Reiciendis velit et. Esse iure et. Et non sapiente rerum nulla aut ipsam.
@@ -161,7 +161,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:56 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
       string: Quae similique eum laboriosam quasi voluptatem. Est labore deleniti
@@ -202,7 +202,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:56 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://backend:5352/source/home:tom/package_with_file
     body:
       encoding: US-ASCII
       string: ''
@@ -239,7 +239,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:56 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&opackage=package_with_file&oproject=home:tom
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&opackage=package_with_file&oproject=home:tom
     body:
       encoding: UTF-8
       string: ''

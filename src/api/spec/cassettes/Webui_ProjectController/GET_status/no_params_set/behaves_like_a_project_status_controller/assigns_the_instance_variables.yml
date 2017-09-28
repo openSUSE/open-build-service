@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache22/_meta
+    uri: http://backend:5352/source/Apache22/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Wed, 23 Aug 2017 08:07:52 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache22/_config
+    uri: http://backend:5352/source/Apache22/_config
     body:
       encoding: UTF-8
       string: Et magni culpa suscipit odit accusamus iste inventore. Praesentium laudantium
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Wed, 23 Aug 2017 08:07:52 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache22/mod_rewrite3/_meta?user=_nobody_
+    uri: http://backend:5352/source/Apache22/mod_rewrite3/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -115,7 +115,7 @@ http_interactions:
   recorded_at: Wed, 23 Aug 2017 08:07:52 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache22/mod_rewrite3/_meta
+    uri: http://backend:5352/source/Apache22/mod_rewrite3/_meta
     body:
       encoding: UTF-8
       string: |

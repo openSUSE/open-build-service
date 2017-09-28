@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:my_project/_project/_history?deleted=1
+    uri: http://backend:5352/source/home:tom:my_project/_project/_history?deleted=1
     body:
       encoding: US-ASCII
       string: ''

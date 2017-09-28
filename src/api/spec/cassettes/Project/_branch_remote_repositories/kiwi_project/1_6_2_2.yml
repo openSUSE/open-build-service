@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/openSUSE_41/_meta
+    uri: http://backend:5352/source/openSUSE_41/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:27:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/openSUSE_41/_config
+    uri: http://backend:5352/source/openSUSE_41/_config
     body:
       encoding: UTF-8
       string: Temporibus iusto accusantium nesciunt atque quisquam. Et qui praesentium
@@ -75,7 +75,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:27:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/openSUSE.org/_meta
+    uri: http://backend:5352/source/openSUSE.org/_meta
     body:
       encoding: UTF-8
       string: |
@@ -116,7 +116,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:27:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/openSUSE.org/_config
+    uri: http://backend:5352/source/openSUSE.org/_config
     body:
       encoding: UTF-8
       string: Nihil impedit iusto debitis voluptas sed rerum. Ut non aperiam. Ratione
@@ -150,7 +150,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:27:33 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/openSUSE_41/_config
+    uri: http://backend:5352/source/openSUSE_41/_config
     body:
       encoding: US-ASCII
       string: ''
@@ -182,7 +182,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:27:34 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/openSUSE_41/_config
+    uri: http://backend:5352/source/openSUSE_41/_config
     body:
       encoding: UTF-8
       string: |-

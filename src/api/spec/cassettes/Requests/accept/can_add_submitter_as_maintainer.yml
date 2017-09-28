@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
+    uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:19 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/_meta?user=titan
+    uri: http://backend:5352/source/home:titan/_meta?user=titan
     body:
       encoding: UTF-8
       string: |
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/goal/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -123,7 +123,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/goal/_meta
+    uri: http://backend:5352/source/home:titan/goal/_meta
     body:
       encoding: UTF-8
       string: |
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -201,7 +201,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta
     body:
       encoding: UTF-8
       string: |
@@ -240,7 +240,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball
+    uri: http://backend:5352/source/home:kugelblitz/ball
     body:
       encoding: US-ASCII
       string: ''
@@ -275,7 +275,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:25 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&view=xml&withissues=1
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -313,7 +313,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:25 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -346,7 +346,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:25 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    uri: http://backend:5352/build/home:kugelblitz/_result?package=ball&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -381,7 +381,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:26 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball?expand=1
+    uri: http://backend:5352/source/home:kugelblitz/ball?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -416,7 +416,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:26 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball?expand=1
+    uri: http://backend:5352/source/home:kugelblitz/ball?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -449,7 +449,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:26 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=copy&comment=a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20&expand=1&keeplink=1&noservice=1&opackage=ball&oproject=home:kugelblitz&requestid=1&user=titan&withacceptinfo=1
+    uri: http://backend:5352/source/home:titan/goal?cmd=copy&comment=a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20a%20long%20text%20-%20&expand=1&keeplink=1&noservice=1&opackage=ball&oproject=home:kugelblitz&requestid=1&user=titan&withacceptinfo=1
     body:
       encoding: UTF-8
       string: ''
@@ -491,7 +491,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:26 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/goal/_meta?user=titan
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=titan
     body:
       encoding: UTF-8
       string: |
@@ -530,7 +530,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:26 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -563,7 +563,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:26 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:titan/goal?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -597,7 +597,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:26 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -630,7 +630,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:26 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:titan/goal?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -668,7 +668,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:26 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/goal/_meta?user=titan
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=titan
     body:
       encoding: UTF-8
       string: |
@@ -709,7 +709,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:26 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&orev=d41d8cd98f00b204e9800998ecf8427e&rev=d41d8cd98f00b204e9800998ecf8427e&view=xml&withissues=1
+    uri: http://backend:5352/source/home:titan/goal?cmd=diff&orev=d41d8cd98f00b204e9800998ecf8427e&rev=d41d8cd98f00b204e9800998ecf8427e&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -747,7 +747,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -780,7 +780,7 @@ http_interactions:
   recorded_at: Mon, 08 May 2017 15:34:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    uri: http://backend:5352/build/home:kugelblitz/_result?package=ball&view=status
     body:
       encoding: US-ASCII
       string: ''

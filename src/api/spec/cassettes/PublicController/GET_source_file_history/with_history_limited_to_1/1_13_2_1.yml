@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/_meta
+    uri: http://backend:5352/source/public_controller_project/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Tue, 14 Feb 2017 09:40:39 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/_config
+    uri: http://backend:5352/source/public_controller_project/_config
     body:
       encoding: UTF-8
       string: Magnam sit neque nesciunt. Fugit ut libero aliquam. Esse consequatur
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Tue, 14 Feb 2017 09:40:39 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -115,7 +115,7 @@ http_interactions:
   recorded_at: Tue, 14 Feb 2017 09:40:39 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_meta
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -154,7 +154,7 @@ http_interactions:
   recorded_at: Tue, 14 Feb 2017 09:40:39 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_config
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_config
     body:
       encoding: UTF-8
       string: Eos voluptas aspernatur eligendi ab. Id cum dolorem. Nemo magni et sit
@@ -194,7 +194,7 @@ http_interactions:
   recorded_at: Tue, 14 Feb 2017 09:40:39 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/somefile.txt
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/somefile.txt
     body:
       encoding: UTF-8
       string: Labore est necessitatibus cumque facere nobis eveniet. Deserunt animi
@@ -235,7 +235,7 @@ http_interactions:
   recorded_at: Tue, 14 Feb 2017 09:40:39 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/public_controller_project/public_controller_package/_history?limit=1
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_history?limit=1
     body:
       encoding: US-ASCII
       string: ''

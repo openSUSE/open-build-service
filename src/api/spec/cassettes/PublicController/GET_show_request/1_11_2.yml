@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_1/_meta?user=user_1
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |

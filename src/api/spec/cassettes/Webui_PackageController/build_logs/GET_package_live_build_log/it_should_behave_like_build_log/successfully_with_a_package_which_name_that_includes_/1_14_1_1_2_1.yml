@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:46:06 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -90,7 +90,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:46:06 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package++special/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/my_package++special/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -129,7 +129,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package++special/_meta
+    uri: http://backend:5352/source/home:tom/my_package++special/_meta
     body:
       encoding: UTF-8
       string: |
@@ -168,7 +168,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom/_result?arch=i586&package=my_package%2B%2Bspecial&repository=leap_42.2&view=status
+    uri: http://backend:5352/build/home:tom/_result?arch=i586&package=my_package%2B%2Bspecial&repository=leap_42.2&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -204,7 +204,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom/leap_42.2/i586/_builddepinfo?package=my_package%20%20special&view=revpkgnames
+    uri: http://backend:5352/build/home:tom/leap_42.2/i586/_builddepinfo?package=my_package%20%20special&view=revpkgnames
     body:
       encoding: US-ASCII
       string: ''
@@ -235,7 +235,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom/leap_42.2/i586/my_package++special/_jobstatus
+    uri: http://backend:5352/build/home:tom/leap_42.2/i586/my_package++special/_jobstatus
     body:
       encoding: US-ASCII
       string: ''

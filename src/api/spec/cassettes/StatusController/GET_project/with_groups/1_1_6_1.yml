@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/_meta
+    uri: http://backend:5352/source/Apache/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:12 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/_config
+    uri: http://backend:5352/source/Apache/_config
     body:
       encoding: UTF-8
       string: Autem id rerum eum aut et delectus dolore. Laborum expedita nihil qui.
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:12 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/_meta?user=user_1
+    uri: http://backend:5352/source/Apache/apache2/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
@@ -115,7 +115,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:12 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/_meta
+    uri: http://backend:5352/source/Apache/apache2/_meta
     body:
       encoding: UTF-8
       string: |
@@ -154,7 +154,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:12 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/_config
+    uri: http://backend:5352/source/Apache/apache2/_config
     body:
       encoding: UTF-8
       string: Eum recusandae quasi unde minus beatae. Inventore cum explicabo amet
@@ -195,7 +195,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:12 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/Apache/apache2/somefile.txt
+    uri: http://backend:5352/source/Apache/apache2/somefile.txt
     body:
       encoding: UTF-8
       string: Amet aut nulla. Voluptatem aliquid culpa eaque. Assumenda tempora dolor.
@@ -236,7 +236,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:13 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_2/_meta?user=user_2
+    uri: http://backend:5352/source/home:user_2/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
@@ -277,7 +277,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/Apache/apache2?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/Apache/apache2?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -311,7 +311,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/Apache/apache2
+    uri: http://backend:5352/source/Apache/apache2
     body:
       encoding: US-ASCII
       string: ''
@@ -347,7 +347,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:13 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/Apache/apache2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/Apache/apache2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -387,7 +387,7 @@ http_interactions:
   recorded_at: Wed, 02 Aug 2017 08:35:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/getprojpack?expandedrepos&nopackages&project=Apache&withrepos
+    uri: http://backend:5352/getprojpack?expandedrepos&nopackages&project=Apache&withrepos
     body:
       encoding: US-ASCII
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro/_meta
+    uri: http://backend:5352/source/BaseDistro/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro/_config
+    uri: http://backend:5352/source/BaseDistro/_config
     body:
       encoding: UTF-8
       string: Sit iste est sequi. Et vel at dolores asperiores. Et et cum sed labore
@@ -75,7 +75,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro/test_package/_meta?user=tom
+    uri: http://backend:5352/source/BaseDistro/test_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -114,7 +114,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro/test_package/_meta
+    uri: http://backend:5352/source/BaseDistro/test_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -153,7 +153,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:46 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro:Update/_meta
+    uri: http://backend:5352/source/BaseDistro:Update/_meta
     body:
       encoding: UTF-8
       string: |
@@ -192,7 +192,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/BaseDistro:Update/_config
+    uri: http://backend:5352/source/BaseDistro:Update/_config
     body:
       encoding: UTF-8
       string: Porro rerum minus omnis incidunt. Magni animi repudiandae doloribus
@@ -227,7 +227,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -268,7 +268,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:BaseDistro:Update/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -309,7 +309,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:BaseDistro:Update/test_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -348,7 +348,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:BaseDistro:Update/test_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -387,7 +387,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?cmd=branch&missingok=1&opackage=test_package&oproject=BaseDistro:Update&user=tom
+    uri: http://backend:5352/source/home:tom:branches:BaseDistro:Update/test_package?cmd=branch&missingok=1&opackage=test_package&oproject=BaseDistro:Update&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -428,7 +428,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package
+    uri: http://backend:5352/source/home:tom:branches:BaseDistro:Update/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -463,7 +463,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:tom:branches:BaseDistro:Update/test_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -498,7 +498,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package
+    uri: http://backend:5352/source/home:tom:branches:BaseDistro:Update/test_package
     body:
       encoding: US-ASCII
       string: ''
@@ -533,7 +533,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom:branches:BaseDistro:Update/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -573,7 +573,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/home:tom:branches:BaseDistro:Update/test_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -611,7 +611,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:BaseDistro:Update/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -658,7 +658,7 @@ http_interactions:
   recorded_at: Wed, 16 Nov 2016 16:10:47 GMT
 - request:
     method: delete
-    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update?comment&user=tom
+    uri: http://backend:5352/source/home:tom:branches:BaseDistro:Update?comment&user=tom
     body:
       encoding: US-ASCII
       string: ''

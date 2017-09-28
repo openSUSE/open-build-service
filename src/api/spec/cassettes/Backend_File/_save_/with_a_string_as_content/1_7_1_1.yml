@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/_meta?user=user
+    uri: http://backend:5352/source/home:user/_meta?user=user
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:10 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/package_with_files/_meta?user=user
+    uri: http://backend:5352/source/home:user/package_with_files/_meta?user=user
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/package_with_files/_meta
+    uri: http://backend:5352/source/home:user/package_with_files/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/package_with_files/_config
+    uri: http://backend:5352/source/home:user/package_with_files/_config
     body:
       encoding: UTF-8
       string: Laudantium vel sed minima maiores totam veritatis. Voluptatibus libero
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/package_with_files/somefile.txt
+    uri: http://backend:5352/source/home:user/package_with_files/somefile.txt
     body:
       encoding: UTF-8
       string: Nobis quas expedita rerum nihil. Et aut nihil iusto. Odit ex distinctio
@@ -203,7 +203,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user/package_with_files/somefile.txt
+    uri: http://backend:5352/source/home:user/package_with_files/somefile.txt
     body:
       encoding: US-ASCII
       string: ''
@@ -236,7 +236,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user/package_with_files/somefile.txt
+    uri: http://backend:5352/source/home:user/package_with_files/somefile.txt
     body:
       encoding: UTF-8
       string: hello
@@ -275,7 +275,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2017 13:32:11 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:user/package_with_files/somefile.txt
+    uri: http://backend:5352/source/home:user/package_with_files/somefile.txt
     body:
       encoding: US-ASCII
       string: ''

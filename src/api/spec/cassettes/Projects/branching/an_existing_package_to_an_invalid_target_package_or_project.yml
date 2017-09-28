@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -39,7 +39,7 @@ http_interactions:
   recorded_at: Wed, 18 Jan 2017 17:56:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/_keyinfo?withsslcert=1
+    uri: http://backend:5352/source/home:Jane/_keyinfo?withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -70,7 +70,7 @@ http_interactions:
   recorded_at: Wed, 18 Jan 2017 17:56:14 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/_keyinfo?withsslcert=1
+    uri: http://backend:5352/source/home:Jane/_keyinfo?withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -101,7 +101,7 @@ http_interactions:
   recorded_at: Wed, 18 Jan 2017 17:56:14 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?view=summary
+    uri: http://backend:5352/build/home:Jane/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -138,7 +138,7 @@ http_interactions:
   recorded_at: Wed, 18 Jan 2017 17:56:14 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22branch_test_package%22%20and%20linkinfo/@project=%22home:other_user%22%20and%20@project=%22home:other_user%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22branch_test_package%22%20and%20linkinfo/@project=%22home:other_user%22%20and%20@project=%22home:other_user%22)
     body:
       encoding: UTF-8
       string: ''
@@ -173,7 +173,7 @@ http_interactions:
   recorded_at: Wed, 18 Jan 2017 17:56:14 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/_keyinfo
+    uri: http://backend:5352/source/home:Jane/_keyinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -204,7 +204,7 @@ http_interactions:
   recorded_at: Mon, 13 Feb 2017 16:11:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:Jane/_keyinfo?donotcreatecert=1&withsslcert=1
+    uri: http://backend:5352/source/home:Jane/_keyinfo?donotcreatecert=1&withsslcert=1
     body:
       encoding: US-ASCII
       string: ''

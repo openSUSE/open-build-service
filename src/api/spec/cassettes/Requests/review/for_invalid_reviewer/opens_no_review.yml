@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
+    uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
     body:
       encoding: UTF-8
       string: |

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:57 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:57 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/my_package/_meta
+    uri: http://backend:5352/source/home:tom/my_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:57 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_19/_meta
+    uri: http://backend:5352/source/project_19/_meta
     body:
       encoding: UTF-8
       string: |
@@ -160,7 +160,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:57 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_19/_config
+    uri: http://backend:5352/source/project_19/_config
     body:
       encoding: UTF-8
       string: Voluptas sit eveniet non. Ut laudantium quia voluptatem cumque. Accusamus
@@ -194,7 +194,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:57 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/my_package?expand=1
+    uri: http://backend:5352/source/home:tom/my_package?expand=1
     body:
       encoding: US-ASCII
       string: ''

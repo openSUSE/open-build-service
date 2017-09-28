@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/build/maintenance_project/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/maintenance_project/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -39,7 +39,7 @@ http_interactions:
   recorded_at: Wed, 15 Jun 2016 09:04:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/maintenance_project/_result?view=summary
+    uri: http://backend:5352/build/maintenance_project/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Wed, 15 Jun 2016 09:04:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/maintenance_project/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/maintenance_project/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -113,7 +113,7 @@ http_interactions:
   recorded_at: Wed, 15 Jun 2016 09:04:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/maintenance_project/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/maintenance_project/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -150,7 +150,7 @@ http_interactions:
   recorded_at: Wed, 15 Jun 2016 09:04:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/maintenance_project/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/maintenance_project/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -187,7 +187,7 @@ http_interactions:
   recorded_at: Wed, 15 Jun 2016 09:04:47 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/maintenance_project/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/maintenance_project/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''

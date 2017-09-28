@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/source/project_1/package_1
+    uri: http://backend:5352/source/project_1/package_1
     body:
       encoding: US-ASCII
       string: ''
@@ -37,7 +37,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 09:31:11 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/project_2/package_2
+    uri: http://backend:5352/source/project_2/package_2
     body:
       encoding: US-ASCII
       string: ''
@@ -72,7 +72,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:13:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -113,7 +113,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:14:17 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/_meta
+    uri: http://backend:5352/source/project_1/_meta
     body:
       encoding: UTF-8
       string: |
@@ -152,7 +152,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:14:17 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/_config
+    uri: http://backend:5352/source/project_1/_config
     body:
       encoding: UTF-8
       string: Est non sapiente sed nam. Rerum et aliquam consequatur nihil qui vel
@@ -186,7 +186,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:14:17 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/package_1/_meta?user=tom
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -225,7 +225,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:14:17 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/package_1/_meta
+    uri: http://backend:5352/source/project_1/package_1/_meta
     body:
       encoding: UTF-8
       string: |
@@ -264,7 +264,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:14:17 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/package_1/_config
+    uri: http://backend:5352/source/project_1/package_1/_config
     body:
       encoding: UTF-8
       string: Sit praesentium aperiam. Fugit consequatur voluptatem qui. Ea minima
@@ -304,7 +304,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:14:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/package_1/somefile.txt
+    uri: http://backend:5352/source/project_1/package_1/somefile.txt
     body:
       encoding: UTF-8
       string: Doloribus similique earum mollitia optio. Nemo error et sunt id nulla
@@ -345,7 +345,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:14:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_1/package_1/_meta?user=tom
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -384,7 +384,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:14:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_meta
+    uri: http://backend:5352/source/project_2/_meta
     body:
       encoding: UTF-8
       string: |
@@ -423,7 +423,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:18:43 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_config
+    uri: http://backend:5352/source/project_2/_config
     body:
       encoding: UTF-8
       string: Enim animi facilis consectetur suscipit aliquid quia vel. Et impedit
@@ -458,7 +458,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:18:43 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/openvpn/_meta?user=tom
+    uri: http://backend:5352/source/project_2/openvpn/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -497,7 +497,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:18:43 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/openvpn/_meta
+    uri: http://backend:5352/source/project_2/openvpn/_meta
     body:
       encoding: UTF-8
       string: |
@@ -536,7 +536,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:18:43 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/openvpn/_config
+    uri: http://backend:5352/source/project_2/openvpn/_config
     body:
       encoding: UTF-8
       string: Et dolor fugiat quibusdam quas. Voluptatem quia eius in. Soluta in accusantium
@@ -576,7 +576,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:18:43 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/openvpn/somefile.txt
+    uri: http://backend:5352/source/project_2/openvpn/somefile.txt
     body:
       encoding: UTF-8
       string: Et omnis officia. Voluptate rerum quos voluptatem est necessitatibus.
@@ -617,7 +617,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:18:43 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/openvpn/_meta?user=tom
+    uri: http://backend:5352/source/project_2/openvpn/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -656,7 +656,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:18:43 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/project_2/openvpn
+    uri: http://backend:5352/source/project_2/openvpn
     body:
       encoding: US-ASCII
       string: ''
@@ -691,7 +691,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:18:44 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/_meta
+    uri: http://backend:5352/source/apache/_meta
     body:
       encoding: UTF-8
       string: |
@@ -730,7 +730,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:21:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/_config
+    uri: http://backend:5352/source/apache/_config
     body:
       encoding: UTF-8
       string: Aperiam consequuntur et non dicta quo magnam provident. Atque suscipit
@@ -765,7 +765,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:21:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/mod_ssl/_meta?user=tom
+    uri: http://backend:5352/source/apache/mod_ssl/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -804,7 +804,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:21:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/mod_ssl/_meta
+    uri: http://backend:5352/source/apache/mod_ssl/_meta
     body:
       encoding: UTF-8
       string: |
@@ -843,7 +843,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:21:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/mod_ssl/_config
+    uri: http://backend:5352/source/apache/mod_ssl/_config
     body:
       encoding: UTF-8
       string: Nesciunt voluptate voluptatibus et voluptas id est. Saepe placeat voluptas.
@@ -883,7 +883,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:21:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/mod_ssl/somefile.txt
+    uri: http://backend:5352/source/apache/mod_ssl/somefile.txt
     body:
       encoding: UTF-8
       string: Est in occaecati consequatur quasi qui suscipit. Animi veritatis ut
@@ -924,7 +924,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:21:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/mod_ssl/_meta?user=tom
+    uri: http://backend:5352/source/apache/mod_ssl/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -963,7 +963,7 @@ http_interactions:
   recorded_at: Fri, 28 Jul 2017 14:21:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/apache/mod_ssl
+    uri: http://backend:5352/source/apache/mod_ssl
     body:
       encoding: US-ASCII
       string: ''

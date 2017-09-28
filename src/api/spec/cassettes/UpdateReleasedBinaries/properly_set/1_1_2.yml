@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/notificationpayload/fake_payload
+    uri: http://backend:5352/notificationpayload/fake_payload
     body:
       encoding: US-ASCII
       string: ''

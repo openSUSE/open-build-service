@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package
+    uri: http://backend:5352/source/home:tom/package
     body:
       encoding: US-ASCII
       string: ''
@@ -37,7 +37,7 @@ http_interactions:
   recorded_at: Wed, 07 Jun 2017 06:45:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom/repository_1/i586/package/_reason
+    uri: http://backend:5352/build/home:tom/repository_1/i586/package/_reason
     body:
       encoding: US-ASCII
       string: ''
@@ -72,7 +72,7 @@ http_interactions:
   recorded_at: Wed, 07 Jun 2017 06:45:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package
+    uri: http://backend:5352/source/home:tom/package
     body:
       encoding: US-ASCII
       string: ''
@@ -107,7 +107,7 @@ http_interactions:
   recorded_at: Wed, 07 Jun 2017 06:57:33 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom/repository_1/i586/package/_reason
+    uri: http://backend:5352/build/home:tom/repository_1/i586/package/_reason
     body:
       encoding: US-ASCII
       string: ''

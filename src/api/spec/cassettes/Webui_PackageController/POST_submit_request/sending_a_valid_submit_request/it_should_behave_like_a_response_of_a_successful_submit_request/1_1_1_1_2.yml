@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:54 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:54 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:54 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
       string: Cupiditate minima ad laboriosam consectetur aut. Dolorem modi nulla
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:54 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
       string: Officia molestiae sunt velit sed molestiae numquam. Aliquid consequuntur
@@ -203,7 +203,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:55 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_15/_meta
+    uri: http://backend:5352/source/project_15/_meta
     body:
       encoding: UTF-8
       string: |
@@ -242,7 +242,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:55 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_15/_config
+    uri: http://backend:5352/source/project_15/_config
     body:
       encoding: UTF-8
       string: Quae corporis inventore. Consequatur et vitae beatae dolorum mollitia
@@ -276,7 +276,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:55 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
+    uri: http://backend:5352/source/home:tom/package_with_file?expand=1
     body:
       encoding: US-ASCII
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
       string: Distinctio ea quia placeat quia veniam. Impedit accusamus voluptates
@@ -163,7 +163,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
       string: Molestiae odit architecto. Et dolorum vel provident ex aut ut ad. Sint
@@ -204,7 +204,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22package_with_file%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22package_with_file%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
     body:
       encoding: UTF-8
       string: ''
@@ -239,7 +239,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -280,7 +280,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -319,7 +319,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file?cmd=branch&opackage=package_with_file&oproject=home:tom&user=tom
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_file?cmd=branch&opackage=package_with_file&oproject=home:tom&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -360,7 +360,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -399,7 +399,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_file
     body:
       encoding: US-ASCII
       string: ''
@@ -436,7 +436,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_file?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -471,7 +471,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_file
     body:
       encoding: US-ASCII
       string: ''
@@ -508,7 +508,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_file?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -548,7 +548,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:home:tom/package_with_file?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_file?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -586,7 +586,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:45 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -633,7 +633,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:tom/package_with_file?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -667,7 +667,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://backend:5352/source/home:tom/package_with_file
     body:
       encoding: US-ASCII
       string: ''
@@ -702,7 +702,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -742,7 +742,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://backend:5352/source/home:tom/package_with_file
     body:
       encoding: US-ASCII
       string: ''
@@ -777,7 +777,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1&rev=2
+    uri: http://backend:5352/source/home:tom/package_with_file?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -814,7 +814,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://backend:5352/source/home:tom/package_with_file
     body:
       encoding: US-ASCII
       string: ''
@@ -851,7 +851,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:17:46 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file/_service
+    uri: http://backend:5352/source/home:tom/package_with_file/_service
     body:
       encoding: US-ASCII
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/_meta
+    uri: http://backend:5352/source/apache/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Thu, 27 Jul 2017 13:56:14 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/_config
+    uri: http://backend:5352/source/apache/_config
     body:
       encoding: UTF-8
       string: Deleniti laborum harum omnis quo suscipit molestias consequuntur. Ipsa
@@ -76,7 +76,7 @@ http_interactions:
   recorded_at: Thu, 27 Jul 2017 13:56:14 GMT
 - request:
     method: post
-    uri: http://localhost:3200/notify_plugins/SRCSRV_CREATE_PROJECT
+    uri: http://backend:5352/notify_plugins/SRCSRV_CREATE_PROJECT
     body:
       encoding: UTF-8
       string: '{"project":"apache","time":1501163774}'

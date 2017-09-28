@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/openSUSE_41/_meta
+    uri: http://backend:5352/source/openSUSE_41/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/openSUSE_41/_config
+    uri: http://backend:5352/source/openSUSE_41/_config
     body:
       encoding: UTF-8
       string: Dolorem quaerat aut aut libero. Voluptas dolores tenetur qui illo. Quasi
@@ -75,7 +75,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/_meta
+    uri: http://backend:5352/source/project_used_for_restoration/_meta
     body:
       encoding: UTF-8
       string: |
@@ -114,7 +114,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/_config
+    uri: http://backend:5352/source/project_used_for_restoration/_config
     body:
       encoding: UTF-8
       string: Perspiciatis suscipit quis temporibus vitae et dolores aut. Aliquam
@@ -149,7 +149,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_0/_meta?user=Admin
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0/_meta?user=Admin
     body:
       encoding: UTF-8
       string: |
@@ -188,7 +188,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_0/_meta
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0/_meta
     body:
       encoding: UTF-8
       string: |
@@ -227,7 +227,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_0/_meta?user=Admin
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0/_meta?user=Admin
     body:
       encoding: UTF-8
       string: |
@@ -266,7 +266,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_1/_meta?user=Admin
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1/_meta?user=Admin
     body:
       encoding: UTF-8
       string: |
@@ -305,7 +305,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_1/_meta
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1/_meta
     body:
       encoding: UTF-8
       string: |
@@ -344,7 +344,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_1/_meta?user=Admin
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1/_meta?user=Admin
     body:
       encoding: UTF-8
       string: |
@@ -383,7 +383,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: delete
-    uri: http://localhost:3200/source/project_used_for_restoration?comment&user=Admin
+    uri: http://backend:5352/source/project_used_for_restoration?comment&user=Admin
     body:
       encoding: US-ASCII
       string: ''
@@ -414,7 +414,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/project_used_for_restoration?cmd=undelete
+    uri: http://backend:5352/source/project_used_for_restoration?cmd=undelete
     body:
       encoding: UTF-8
       string: ''
@@ -449,7 +449,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/project_used_for_restoration/_meta
+    uri: http://backend:5352/source/project_used_for_restoration/_meta
     body:
       encoding: US-ASCII
       string: ''
@@ -484,7 +484,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/_meta?user=Admin
+    uri: http://backend:5352/source/project_used_for_restoration/_meta?user=Admin
     body:
       encoding: UTF-8
       string: |
@@ -523,7 +523,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: get
-    uri: http://localhost:3200/search/package?match=@project='project_used_for_restoration'
+    uri: http://backend:5352/search/package?match=@project='project_used_for_restoration'
     body:
       encoding: US-ASCII
       string: ''
@@ -566,7 +566,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_0/_meta
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0/_meta
     body:
       encoding: US-ASCII
       string: ''
@@ -601,7 +601,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_0/_meta?user=Admin
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0/_meta?user=Admin
     body:
       encoding: UTF-8
       string: |
@@ -640,7 +640,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_0/_meta?user=Admin
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0/_meta?user=Admin
     body:
       encoding: UTF-8
       string: |
@@ -679,7 +679,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_1/_meta
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1/_meta
     body:
       encoding: US-ASCII
       string: ''
@@ -714,7 +714,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:50 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_1/_meta?user=Admin
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1/_meta?user=Admin
     body:
       encoding: UTF-8
       string: |
@@ -753,7 +753,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 06:48:51 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_used_for_restoration/restoration_package_1/_meta?user=Admin
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1/_meta?user=Admin
     body:
       encoding: UTF-8
       string: |

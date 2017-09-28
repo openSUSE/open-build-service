@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_13/_meta?user=user_13
+    uri: http://backend:5352/source/home:user_13/_meta?user=user_13
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_14/_meta?user=user_14
+    uri: http://backend:5352/source/home:user_14/_meta?user=user_14
     body:
       encoding: UTF-8
       string: |
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_4/_meta
+    uri: http://backend:5352/source/project_4/_meta
     body:
       encoding: UTF-8
       string: |
@@ -123,7 +123,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_4/_config
+    uri: http://backend:5352/source/project_4/_config
     body:
       encoding: UTF-8
       string: Et facere veritatis sit aut ut quae. Laboriosam minima molestiae praesentium
@@ -158,7 +158,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:10:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_9/_meta?user=user_9
+    uri: http://backend:5352/source/home:user_9/_meta?user=user_9
     body:
       encoding: UTF-8
       string: |
@@ -199,7 +199,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:11:31 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_10/_meta?user=user_10
+    uri: http://backend:5352/source/home:user_10/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
@@ -240,7 +240,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:11:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_meta
+    uri: http://backend:5352/source/project_2/_meta
     body:
       encoding: UTF-8
       string: |
@@ -279,7 +279,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:11:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_config
+    uri: http://backend:5352/source/project_2/_config
     body:
       encoding: UTF-8
       string: Delectus modi sunt exercitationem voluptas. Facere repellat aut atque
@@ -314,7 +314,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:11:32 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_11/_meta?user=user_11
+    uri: http://backend:5352/source/home:user_11/_meta?user=user_11
     body:
       encoding: UTF-8
       string: |
@@ -355,7 +355,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:13:22 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_12/_meta?user=user_12
+    uri: http://backend:5352/source/home:user_12/_meta?user=user_12
     body:
       encoding: UTF-8
       string: |
@@ -396,7 +396,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:13:23 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_3/_meta
+    uri: http://backend:5352/source/project_3/_meta
     body:
       encoding: UTF-8
       string: |
@@ -435,7 +435,7 @@ http_interactions:
   recorded_at: Fri, 11 Aug 2017 11:13:23 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_3/_config
+    uri: http://backend:5352/source/project_3/_config
     body:
       encoding: UTF-8
       string: Vel sequi est quidem. Voluptatem ullam quam eligendi vitae molestias.

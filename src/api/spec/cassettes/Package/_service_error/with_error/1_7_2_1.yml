@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_meta
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_service
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_service
     body:
       encoding: UTF-8
       string: "<service>broken</service>"
@@ -160,7 +160,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
     body:
       encoding: US-ASCII
       string: ''
@@ -199,7 +199,7 @@ http_interactions:
   recorded_at: Thu, 06 Jul 2017 11:33:38 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_broken_service/_serviceerror?rev=d6a1494599a9a5cab62c57e007be4d1f
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_serviceerror?rev=d6a1494599a9a5cab62c57e007be4d1f
     body:
       encoding: US-ASCII
       string: ''

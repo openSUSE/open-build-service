@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 10:04:30 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/_workerstatus
+    uri: http://backend:5352/build/_workerstatus
     body:
       encoding: US-ASCII
       string: ''

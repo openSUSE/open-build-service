@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/project_3/_meta
+    uri: http://backend:5352/source/project_3/_meta
     body:
       encoding: UTF-8
       string: |
@@ -41,7 +41,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 13:01:19 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_3/_config
+    uri: http://backend:5352/source/project_3/_config
     body:
       encoding: UTF-8
       string: Consequatur qui veniam earum hic. Occaecati fuga maxime temporibus provident.
@@ -75,7 +75,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 13:01:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/notificationpayload/fake_payload
+    uri: http://backend:5352/notificationpayload/fake_payload
     body:
       encoding: US-ASCII
       string: ''
@@ -110,7 +110,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 13:01:19 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_meta
+    uri: http://backend:5352/source/project_2/_meta
     body:
       encoding: UTF-8
       string: |
@@ -149,7 +149,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 13:01:58 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_2/_config
+    uri: http://backend:5352/source/project_2/_config
     body:
       encoding: UTF-8
       string: Dolorem velit et et ut impedit aut amet. Nesciunt saepe voluptas. Et
@@ -184,7 +184,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 13:01:58 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/_meta
+    uri: http://backend:5352/source/apache/_meta
     body:
       encoding: UTF-8
       string: |
@@ -223,7 +223,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2017 13:03:03 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/apache/_config
+    uri: http://backend:5352/source/apache/_config
     body:
       encoding: UTF-8
       string: Et mollitia voluptas itaque reiciendis alias. Corrupti magni dolorem

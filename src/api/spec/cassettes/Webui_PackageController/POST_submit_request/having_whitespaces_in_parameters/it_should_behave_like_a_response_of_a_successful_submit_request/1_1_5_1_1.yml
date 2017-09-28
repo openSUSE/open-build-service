@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
       string: Magni ut eligendi id. Est quo assumenda quam voluptates minima est.
@@ -161,7 +161,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
       string: Ipsam laborum distinctio magni id nihil. Sequi minima reiciendis autem
@@ -202,7 +202,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_4/_meta
+    uri: http://backend:5352/source/project_4/_meta
     body:
       encoding: UTF-8
       string: |
@@ -241,7 +241,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/project_4/_config
+    uri: http://backend:5352/source/project_4/_config
     body:
       encoding: UTF-8
       string: Est minus quisquam tempora inventore voluptas ratione suscipit. Et nam
@@ -276,7 +276,7 @@ http_interactions:
   recorded_at: Tue, 02 May 2017 14:55:49 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
+    uri: http://backend:5352/source/home:tom/package_with_file?expand=1
     body:
       encoding: US-ASCII
       string: ''

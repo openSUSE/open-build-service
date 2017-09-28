@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Thu, 21 Sep 2017 11:57:18 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Thu, 21 Sep 2017 11:57:19 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Thu, 21 Sep 2017 11:57:19 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
     body:
       encoding: UTF-8
       string: |
@@ -168,7 +168,7 @@ http_interactions:
   recorded_at: Thu, 21 Sep 2017 11:57:19 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -207,7 +207,7 @@ http_interactions:
   recorded_at: Thu, 21 Sep 2017 11:57:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_kiwi_image
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
     body:
       encoding: US-ASCII
       string: ''

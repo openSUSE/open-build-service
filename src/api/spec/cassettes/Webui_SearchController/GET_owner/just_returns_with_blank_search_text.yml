@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:Iggy2/_meta?user=Iggy2
+    uri: http://backend:5352/source/home:Iggy2/_meta?user=Iggy2
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Fri, 15 Jul 2016 11:52:19 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:DevelIggy/_meta?user=DevelIggy
+    uri: http://backend:5352/source/home:DevelIggy/_meta?user=DevelIggy
     body:
       encoding: UTF-8
       string: |
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Fri, 15 Jul 2016 11:52:19 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:Iggy/TestPack/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:Iggy/TestPack/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -123,7 +123,7 @@ http_interactions:
   recorded_at: Fri, 15 Jul 2016 11:52:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:Iggy/TestPack/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:Iggy/TestPack/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Fri, 15 Jul 2016 11:52:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:DevelIggy/DevelPack/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:DevelIggy/DevelPack/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |

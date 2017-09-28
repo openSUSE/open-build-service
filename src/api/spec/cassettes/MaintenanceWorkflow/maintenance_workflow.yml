@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:user_1/_meta?user=user_1
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/ProjectWithRepo/_meta
+    uri: http://backend:5352/source/ProjectWithRepo/_meta
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/ProjectWithRepo/_config
+    uri: http://backend:5352/source/ProjectWithRepo/_config
     body:
       encoding: UTF-8
       string: Minus maiores quaerat veritatis. Atque voluptate hic aut. Velit eos
@@ -116,7 +116,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/ProjectWithRepo:Update/_meta
+    uri: http://backend:5352/source/ProjectWithRepo:Update/_meta
     body:
       encoding: UTF-8
       string: |
@@ -155,7 +155,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/ProjectWithRepo:Update/_config
+    uri: http://backend:5352/source/ProjectWithRepo:Update/_config
     body:
       encoding: UTF-8
       string: Natus ut quaerat. Dolor assumenda vel corrupti. Reprehenderit aut expedita
@@ -190,7 +190,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/ProjectWithRepo:Update/_meta?user=user_1
+    uri: http://backend:5352/source/ProjectWithRepo:Update/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
@@ -231,7 +231,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:maintenance_coord/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/home:maintenance_coord/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -272,7 +272,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject/_meta
+    uri: http://backend:5352/source/MaintenanceProject/_meta
     body:
       encoding: UTF-8
       string: |
@@ -311,7 +311,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject/_config
+    uri: http://backend:5352/source/MaintenanceProject/_config
     body:
       encoding: UTF-8
       string: Maiores voluptatem eos. Blanditiis et velit quo magni. Aperiam qui delectus.
@@ -346,7 +346,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject/_meta?user=user_1
+    uri: http://backend:5352/source/MaintenanceProject/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
@@ -391,7 +391,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject/patchinfo/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -448,7 +448,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=maintenance_coord
     body:
       encoding: ASCII-8BIT
       string: |-
@@ -494,7 +494,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject/patchinfo/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -551,7 +551,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject/patchinfo
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -585,7 +585,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject/patchinfo?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -619,7 +619,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject/patchinfo
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -653,7 +653,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -691,7 +691,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:09 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -732,7 +732,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:09 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/ProjectWithRepo/ProjectWithRepo_package/_meta?user=tom
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -771,7 +771,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/ProjectWithRepo/ProjectWithRepo_package/_meta
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/_meta
     body:
       encoding: UTF-8
       string: |
@@ -810,7 +810,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/ProjectWithRepo/ProjectWithRepo_package/_config
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/_config
     body:
       encoding: UTF-8
       string: Reprehenderit consequatur explicabo ipsam libero. Expedita minima quis
@@ -852,7 +852,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/ProjectWithRepo/ProjectWithRepo_package/somefile.txt
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/somefile.txt
     body:
       encoding: UTF-8
       string: Voluptate qui deserunt culpa laborum est delectus. Et ducimus necessitatibus
@@ -892,7 +892,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/ProjectWithRepo/ProjectWithRepo_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -926,7 +926,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/ProjectWithRepo/ProjectWithRepo_package
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -961,7 +961,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/ProjectWithRepo/ProjectWithRepo_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -1001,7 +1001,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/ProjectWithRepo/ProjectWithRepo_package
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1036,7 +1036,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/ProjectWithRepo/ProjectWithRepo_package?expand=1&rev=2
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package?expand=1&rev=2
     body:
       encoding: US-ASCII
       string: ''
@@ -1071,7 +1071,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/ProjectWithRepo/ProjectWithRepo_package
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1108,7 +1108,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/ProjectWithRepo:Update/ProjectWithRepo_package/_service
+    uri: http://backend:5352/source/ProjectWithRepo:Update/ProjectWithRepo_package/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -1145,7 +1145,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/ProjectWithRepo/ProjectWithRepo_package/_history
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/_history
     body:
       encoding: US-ASCII
       string: ''
@@ -1190,7 +1190,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:13 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -1225,7 +1225,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -1260,7 +1260,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo:Update%22%20and%20starts-with(@project,%22MaintenanceProject:%22))
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo:Update%22%20and%20starts-with(@project,%22MaintenanceProject:%22))
     body:
       encoding: UTF-8
       string: ''
@@ -1295,7 +1295,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
     body:
       encoding: UTF-8
       string: ''
@@ -1330,7 +1330,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -1371,7 +1371,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -1410,7 +1410,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=branch&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&user=tom
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=branch&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -1451,7 +1451,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -1490,7 +1490,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1527,7 +1527,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -1563,7 +1563,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1600,7 +1600,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -1640,7 +1640,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -1678,7 +1678,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:14 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -1735,7 +1735,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1772,7 +1772,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=1
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=1
     body:
       encoding: US-ASCII
       string: ''
@@ -1808,7 +1808,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1847,7 +1847,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_service
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -1884,7 +1884,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -1921,7 +1921,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_history
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_history
     body:
       encoding: US-ASCII
       string: ''
@@ -1960,7 +1960,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -1996,7 +1996,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -2032,7 +2032,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE
     body:
       encoding: UTF-8
       string: dummy
@@ -2071,7 +2071,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -2107,7 +2107,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/_keyinfo?donotcreatecert=1&withsslcert=1
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/_keyinfo?donotcreatecert=1&withsslcert=1
     body:
       encoding: US-ASCII
       string: ''
@@ -2138,7 +2138,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:15 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -2176,7 +2176,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:16 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -2214,7 +2214,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:16 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -2252,7 +2252,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:16 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -2292,7 +2292,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:16 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update
     body:
       encoding: UTF-8
       string: ''
@@ -2339,7 +2339,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:16 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -2376,7 +2376,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:17 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -2412,7 +2412,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:17 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -2450,7 +2450,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:17 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/_workerstatus
+    uri: http://backend:5352/build/_workerstatus
     body:
       encoding: US-ASCII
       string: ''
@@ -2505,7 +2505,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:17 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -2545,7 +2545,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -2593,7 +2593,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -2629,7 +2629,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -2665,7 +2665,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -2703,7 +2703,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=6d8b4e042078d289ced39a1738e21c95
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=6d8b4e042078d289ced39a1738e21c95
     body:
       encoding: US-ASCII
       string: ''
@@ -2742,7 +2742,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=6d8b4e042078d289ced39a1738e21c95
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=6d8b4e042078d289ced39a1738e21c95
     body:
       encoding: US-ASCII
       string: ''
@@ -2779,7 +2779,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/_meta?requestid=1&user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/_meta?requestid=1&user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -2834,7 +2834,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -2872,7 +2872,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo:Update%22%20and%20starts-with(@project,%22MaintenanceProject:%22))
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo:Update%22%20and%20starts-with(@project,%22MaintenanceProject:%22))
     body:
       encoding: UTF-8
       string: ''
@@ -2907,7 +2907,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
     body:
       encoding: UTF-8
       string: ''
@@ -2942,7 +2942,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -2983,7 +2983,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=branch&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=branch&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&user=maintenance_coord
     body:
       encoding: UTF-8
       string: ''
@@ -3024,7 +3024,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:19 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -3065,7 +3065,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -3102,7 +3102,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -3138,7 +3138,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -3175,7 +3175,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -3215,7 +3215,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -3253,7 +3253,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -3300,7 +3300,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -3337,7 +3337,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -3374,7 +3374,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -3411,7 +3411,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
     body:
       encoding: UTF-8
       string: ''
@@ -3446,7 +3446,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -3511,7 +3511,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -3576,7 +3576,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=copy&comment=Maintenance%20incident%20copy%20from%20project%20home:tom:branches:ProjectWithRepo:Update&expand=1&keeplink=1&opackage=ProjectWithRepo_package&oproject=home:tom:branches:ProjectWithRepo:Update&orev=6d8b4e042078d289ced39a1738e21c95&requestid=1&user=maintenance_coord&withacceptinfo=1
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=copy&comment=Maintenance%20incident%20copy%20from%20project%20home:tom:branches:ProjectWithRepo:Update&expand=1&keeplink=1&opackage=ProjectWithRepo_package&oproject=home:tom:branches:ProjectWithRepo:Update&orev=6d8b4e042078d289ced39a1738e21c95&requestid=1&user=maintenance_coord&withacceptinfo=1
     body:
       encoding: UTF-8
       string: ''
@@ -3618,7 +3618,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -3665,7 +3665,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -3703,7 +3703,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -3739,7 +3739,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -3777,7 +3777,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -3817,7 +3817,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -3857,7 +3857,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/_meta?comment=maintenance_incident%20request%201&requestid=1&user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/_meta?comment=maintenance_incident%20request%201&requestid=1&user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -3922,7 +3922,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -3979,7 +3979,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo?comment=generated%20by%20request%20id%201%20accept%20call&user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo?comment=generated%20by%20request%20id%201%20accept%20call&user=maintenance_coord
     body:
       encoding: ASCII-8BIT
       string: |-
@@ -4025,7 +4025,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -4082,7 +4082,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:20 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4116,7 +4116,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -4150,7 +4150,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4184,7 +4184,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4222,7 +4222,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:21 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&orev=ef9928a63930d4797ced0ef2ad58ed0c&rev=96b1040600ed3f57e960243b55548162&view=xml&withissues=1
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&orev=ef9928a63930d4797ced0ef2ad58ed0c&rev=96b1040600ed3f57e960243b55548162&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -4270,7 +4270,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -4306,7 +4306,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -4342,7 +4342,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/MaintenanceProject:0/_result?view=binarylist
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
     body:
       encoding: US-ASCII
       string: ''
@@ -4378,7 +4378,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4416,7 +4416,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4454,7 +4454,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:21 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/MaintenanceProject:0/_result?view=binarylist
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
     body:
       encoding: US-ASCII
       string: ''
@@ -4490,7 +4490,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4528,7 +4528,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4566,7 +4566,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -4613,7 +4613,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -4670,7 +4670,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4704,7 +4704,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -4738,7 +4738,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4772,7 +4772,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4811,7 +4811,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4850,7 +4850,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4889,7 +4889,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/MaintenanceProject:0/_result?view=binarylist
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
     body:
       encoding: US-ASCII
       string: ''
@@ -4925,7 +4925,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -4964,7 +4964,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -5003,7 +5003,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/MaintenanceProject:0/_result?view=binarylist
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
     body:
       encoding: US-ASCII
       string: ''
@@ -5039,7 +5039,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -5078,7 +5078,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -5117,7 +5117,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -5163,7 +5163,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:22 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -5220,7 +5220,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -5254,7 +5254,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -5288,7 +5288,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -5322,7 +5322,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -5360,7 +5360,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -5398,7 +5398,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo/_patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -5436,7 +5436,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:23 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -5472,7 +5472,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:24 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -5510,7 +5510,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:24 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -5548,7 +5548,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:24 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -5586,7 +5586,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:24 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -5626,7 +5626,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:24 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update
     body:
       encoding: UTF-8
       string: ''
@@ -5673,7 +5673,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:24 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -5710,7 +5710,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:24 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -5746,7 +5746,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:24 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -5784,7 +5784,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:25 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -5824,7 +5824,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:26 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -5872,7 +5872,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:26 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -5908,7 +5908,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:26 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -5944,7 +5944,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:26 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -5982,7 +5982,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:26 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -6022,7 +6022,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:26 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -6070,7 +6070,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:26 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -6106,7 +6106,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -6142,7 +6142,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -6180,7 +6180,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -6220,7 +6220,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:27 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6d8b4e042078d289ced39a1738e21c95&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -6268,7 +6268,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -6304,7 +6304,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -6340,7 +6340,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -6378,7 +6378,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=6d8b4e042078d289ced39a1738e21c95
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=6d8b4e042078d289ced39a1738e21c95
     body:
       encoding: US-ASCII
       string: ''
@@ -6417,7 +6417,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:27 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=6d8b4e042078d289ced39a1738e21c95
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=6d8b4e042078d289ced39a1738e21c95
     body:
       encoding: US-ASCII
       string: ''
@@ -6454,7 +6454,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
     body:
       encoding: US-ASCII
       string: ''
@@ -6492,7 +6492,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo:Update%22%20and%20starts-with(@project,%22MaintenanceProject:%22))
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo:Update%22%20and%20starts-with(@project,%22MaintenanceProject:%22))
     body:
       encoding: UTF-8
       string: ''
@@ -6528,7 +6528,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
     body:
       encoding: UTF-8
       string: ''
@@ -6563,7 +6563,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -6610,7 +6610,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=branch&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=branch&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&user=maintenance_coord
     body:
       encoding: UTF-8
       string: ''
@@ -6651,7 +6651,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -6698,7 +6698,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -6735,7 +6735,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -6771,7 +6771,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -6808,7 +6808,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -6848,7 +6848,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -6886,7 +6886,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -6935,7 +6935,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -6972,7 +6972,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -7009,7 +7009,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -7046,7 +7046,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: post
-    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
     body:
       encoding: UTF-8
       string: ''
@@ -7081,7 +7081,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -7146,7 +7146,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -7211,7 +7211,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=copy&comment=Maintenance%20incident%20copy%20from%20project%20home:tom:branches:ProjectWithRepo:Update&expand=1&keeplink=1&opackage=ProjectWithRepo_package&oproject=home:tom:branches:ProjectWithRepo:Update&orev=6d8b4e042078d289ced39a1738e21c95&requestid=2&user=maintenance_coord&withacceptinfo=1
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=copy&comment=Maintenance%20incident%20copy%20from%20project%20home:tom:branches:ProjectWithRepo:Update&expand=1&keeplink=1&opackage=ProjectWithRepo_package&oproject=home:tom:branches:ProjectWithRepo:Update&orev=6d8b4e042078d289ced39a1738e21c95&requestid=2&user=maintenance_coord&withacceptinfo=1
     body:
       encoding: UTF-8
       string: ''
@@ -7253,7 +7253,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -7302,7 +7302,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -7340,7 +7340,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -7376,7 +7376,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -7414,7 +7414,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -7454,7 +7454,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -7494,7 +7494,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:28 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/MaintenanceProject:0/_meta?comment=maintenance_incident%20request%202&requestid=2&user=maintenance_coord
+    uri: http://backend:5352/source/MaintenanceProject:0/_meta?comment=maintenance_incident%20request%202&requestid=2&user=maintenance_coord
     body:
       encoding: UTF-8
       string: |
@@ -7559,7 +7559,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&orev=ef9928a63930d4797ced0ef2ad58ed0c&rev=96b1040600ed3f57e960243b55548162&view=xml&withissues=1
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&orev=ef9928a63930d4797ced0ef2ad58ed0c&rev=96b1040600ed3f57e960243b55548162&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -7607,7 +7607,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -7643,7 +7643,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -7679,7 +7679,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/MaintenanceProject:0/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -7715,7 +7715,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -7749,7 +7749,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/MaintenanceProject:0/_result?view=summary
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -7787,7 +7787,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
     body:
       encoding: US-ASCII
       string: ''
@@ -7825,7 +7825,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -7859,7 +7859,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/MaintenanceProject:0/_result?view=versrel
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=versrel
     body:
       encoding: US-ASCII
       string: ''
@@ -7893,7 +7893,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/MaintenanceProject:0/_result?code=unresolvable&view=status
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -7929,7 +7929,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/MaintenanceProject:0/patchinfo
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
     body:
       encoding: US-ASCII
       string: ''
@@ -7963,7 +7963,7 @@ http_interactions:
   recorded_at: Tue, 22 Aug 2017 12:31:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/MaintenanceProject:0/_result?view=summary
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
+    uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/_meta?user=titan
+    uri: http://backend:5352/source/home:titan/_meta?user=titan
     body:
       encoding: UTF-8
       string: |
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/goal/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -123,7 +123,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/goal/_meta
+    uri: http://backend:5352/source/home:titan/goal/_meta
     body:
       encoding: UTF-8
       string: |
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -201,7 +201,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta
     body:
       encoding: UTF-8
       string: |
@@ -240,7 +240,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:07 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/devel:project/_meta
+    uri: http://backend:5352/source/devel:project/_meta
     body:
       encoding: UTF-8
       string: |
@@ -279,7 +279,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/devel:project/_config
+    uri: http://backend:5352/source/devel:project/_config
     body:
       encoding: UTF-8
       string: Doloremque quod ut. Facilis consequuntur enim et. Excepturi minima ad
@@ -313,7 +313,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/devel:project/goal/_meta?user=titan
+    uri: http://backend:5352/source/devel:project/goal/_meta?user=titan
     body:
       encoding: UTF-8
       string: |
@@ -352,7 +352,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/devel:project/goal/_meta
+    uri: http://backend:5352/source/devel:project/goal/_meta
     body:
       encoding: UTF-8
       string: |
@@ -391,7 +391,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/devel:project/goal/_config
+    uri: http://backend:5352/source/devel:project/goal/_config
     body:
       encoding: UTF-8
       string: Labore a delectus ut eaque. Aperiam quis quod. Autem omnis consectetur
@@ -431,7 +431,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/devel:project/goal/somefile.txt
+    uri: http://backend:5352/source/devel:project/goal/somefile.txt
     body:
       encoding: UTF-8
       string: Sed sit culpa quibusdam assumenda qui sint. Et quo nihil molestias neque.
@@ -471,7 +471,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball?expand=1
+    uri: http://backend:5352/source/home:kugelblitz/ball?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -506,7 +506,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball?expand=1
+    uri: http://backend:5352/source/home:kugelblitz/ball?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -539,7 +539,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=copy&comment=Please%20take%20this&expand=1&keeplink=1&noservice=1&opackage=ball&oproject=home:kugelblitz&requestid=1&user=titan&withacceptinfo=1
+    uri: http://backend:5352/source/home:titan/goal?cmd=copy&comment=Please%20take%20this&expand=1&keeplink=1&noservice=1&opackage=ball&oproject=home:kugelblitz&requestid=1&user=titan&withacceptinfo=1
     body:
       encoding: UTF-8
       string: ''
@@ -581,7 +581,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/goal/_meta?user=titan
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=titan
     body:
       encoding: UTF-8
       string: |
@@ -620,7 +620,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -653,7 +653,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:titan/goal?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -687,7 +687,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -720,7 +720,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:titan/goal?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -758,7 +758,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -791,7 +791,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -826,7 +826,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=devel:project&rev=3
+    uri: http://backend:5352/source/home:titan/goal?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=devel:project&rev=3
     body:
       encoding: UTF-8
       string: ''
@@ -871,7 +871,7 @@ http_interactions:
   recorded_at: Wed, 14 Jun 2017 09:01:08 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal?expand=1&rev=3
+    uri: http://backend:5352/source/home:titan/goal?expand=1&rev=3
     body:
       encoding: US-ASCII
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_one_revision/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_one_revision/_meta
+    uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_one_revision/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_one_revision/somefile.txt
     body:
       encoding: US-ASCII
       string: '0'
@@ -160,7 +160,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_one_revision
+    uri: http://backend:5352/source/home:tom/package_with_one_revision
     body:
       encoding: US-ASCII
       string: ''
@@ -194,7 +194,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -233,7 +233,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/_meta
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/_meta
     body:
       encoding: UTF-8
       string: |
@@ -272,7 +272,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '0'
@@ -311,7 +311,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '1'
@@ -350,7 +350,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '2'
@@ -389,7 +389,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '3'
@@ -428,7 +428,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '4'
@@ -467,7 +467,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '5'
@@ -506,7 +506,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '6'
@@ -545,7 +545,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '7'
@@ -584,7 +584,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '8'
@@ -623,7 +623,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '9'
@@ -662,7 +662,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '10'
@@ -701,7 +701,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '11'
@@ -740,7 +740,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '12'
@@ -779,7 +779,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '13'
@@ -818,7 +818,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '14'
@@ -857,7 +857,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '15'
@@ -896,7 +896,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '16'
@@ -935,7 +935,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '17'
@@ -974,7 +974,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:29 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '18'
@@ -1013,7 +1013,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:30 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions/somefile.txt
     body:
       encoding: US-ASCII
       string: '19'
@@ -1052,7 +1052,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:30 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions
     body:
       encoding: US-ASCII
       string: ''
@@ -1086,7 +1086,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:30 GMT
 - request:
     method: delete
-    uri: http://localhost:3200/source/home:tom/package_with_20_revisions?comment&user=tom
+    uri: http://backend:5352/source/home:tom/package_with_20_revisions?comment&user=tom
     body:
       encoding: US-ASCII
       string: ''
@@ -1119,7 +1119,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 07:15:30 GMT
 - request:
     method: delete
-    uri: http://localhost:3200/source/home:tom/package_with_one_revision?comment&user=tom
+    uri: http://backend:5352/source/home:tom/package_with_one_revision?comment&user=tom
     body:
       encoding: US-ASCII
       string: ''

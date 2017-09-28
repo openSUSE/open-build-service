@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
+    uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:04 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/_meta?user=titan
+    uri: http://backend:5352/source/home:titan/_meta?user=titan
     body:
       encoding: UTF-8
       string: |
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:04 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/goal/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -123,7 +123,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:04 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:04 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball
+    uri: http://backend:5352/source/home:kugelblitz/ball
     body:
       encoding: US-ASCII
       string: ''
@@ -197,7 +197,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&view=xml&withissues=1
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -235,7 +235,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -268,7 +268,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    uri: http://backend:5352/build/home:kugelblitz/_result?package=ball&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -303,7 +303,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    uri: http://backend:5352/build/home:kugelblitz/_result?package=ball&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -338,7 +338,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:kugelblitz/ball
+    uri: http://backend:5352/source/home:kugelblitz/ball
     body:
       encoding: US-ASCII
       string: ''
@@ -373,7 +373,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&view=xml&withissues=1
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -411,7 +411,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -444,7 +444,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    uri: http://backend:5352/build/home:kugelblitz/_result?package=ball&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -479,7 +479,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    uri: http://backend:5352/build/home:kugelblitz/_result?package=ball&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -514,7 +514,7 @@ http_interactions:
   recorded_at: Tue, 20 Sep 2016 13:21:05 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?locallink=1&multibuild=1&package=ball&view=status
+    uri: http://backend:5352/build/home:kugelblitz/_result?locallink=1&multibuild=1&package=ball&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -551,7 +551,7 @@ http_interactions:
   recorded_at: Mon, 13 Feb 2017 15:57:40 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:kugelblitz/_result?locallink=1&multibuild=1&package=ball&view=status
+    uri: http://backend:5352/build/home:kugelblitz/_result?locallink=1&multibuild=1&package=ball&view=status
     body:
       encoding: US-ASCII
       string: ''

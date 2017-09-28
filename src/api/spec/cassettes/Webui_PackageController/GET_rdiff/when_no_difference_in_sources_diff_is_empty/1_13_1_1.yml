@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_config
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
       string: Optio quia dolorem. Inventore maxime non qui. Ratione consectetur dolorum.
@@ -160,7 +160,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
       string: Quam error est ut quod corrupti sit. Qui perspiciatis corrupti optio
@@ -201,7 +201,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://backend:5352/source/home:tom/package_with_file
     body:
       encoding: US-ASCII
       string: ''
@@ -236,7 +236,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://backend:5352/source/home:tom/package_with_file
     body:
       encoding: US-ASCII
       string: ''
@@ -271,7 +271,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:18:33 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&expand=1&opackage=package_with_file&oproject=home:tom&rev=4&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&opackage=package_with_file&oproject=home:tom&rev=4&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''

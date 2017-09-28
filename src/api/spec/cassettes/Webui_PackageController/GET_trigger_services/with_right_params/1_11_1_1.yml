@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:09:11 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_service/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:09:11 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_service/_meta
+    uri: http://backend:5352/source/home:tom/package_with_service/_meta
     body:
       encoding: UTF-8
       string: |
@@ -121,7 +121,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:09:11 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_service/_service
+    uri: http://backend:5352/source/home:tom/package_with_service/_service
     body:
       encoding: UTF-8
       string: "<services/>"
@@ -160,7 +160,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 08:09:11 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/package_with_service?cmd=runservice&user=tom
+    uri: http://backend:5352/source/home:tom/package_with_service?cmd=runservice&user=tom
     body:
       encoding: UTF-8
       string: ''

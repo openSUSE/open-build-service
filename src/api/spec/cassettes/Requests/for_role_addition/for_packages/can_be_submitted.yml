@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
+    uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:24 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/_meta?user=titan
+    uri: http://backend:5352/source/home:titan/_meta?user=titan
     body:
       encoding: UTF-8
       string: |
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:24 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:titan/goal/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -123,7 +123,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:24 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -162,7 +162,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:24 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:titan/_result?package=goal&view=status
+    uri: http://backend:5352/build/home:titan/_result?package=goal&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -197,7 +197,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:25 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal?nofilename=1&view=info&withchangesmd5=1
+    uri: http://backend:5352/source/home:titan/goal?nofilename=1&view=info&withchangesmd5=1
     body:
       encoding: US-ASCII
       string: ''
@@ -231,7 +231,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:25 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -264,7 +264,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:25 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:titan/goal?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:titan/goal?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -302,7 +302,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:25 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -335,7 +335,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:25 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal?expand=1
+    uri: http://backend:5352/source/home:titan/goal?expand=1
     body:
       encoding: US-ASCII
       string: ''
@@ -370,7 +370,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:25 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal
+    uri: http://backend:5352/source/home:titan/goal
     body:
       encoding: US-ASCII
       string: ''
@@ -405,7 +405,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:25 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:titan/_result?package=goal&view=status
+    uri: http://backend:5352/build/home:titan/_result?package=goal&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -440,7 +440,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:25 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:titan/_result?package=goal&view=status
+    uri: http://backend:5352/build/home:titan/_result?package=goal&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -475,7 +475,7 @@ http_interactions:
   recorded_at: Tue, 12 Apr 2016 15:07:25 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:titan/goal/_service
+    uri: http://backend:5352/source/home:titan/goal/_service
     body:
       encoding: US-ASCII
       string: ''
@@ -512,7 +512,7 @@ http_interactions:
   recorded_at: Wed, 05 Oct 2016 09:10:00 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:titan/_result?locallink=1&multibuild=1&package=goal&view=status
+    uri: http://backend:5352/build/home:titan/_result?locallink=1&multibuild=1&package=goal&view=status
     body:
       encoding: US-ASCII
       string: ''

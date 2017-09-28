@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Mon, 14 Aug 2017 13:16:57 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_1/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom/package_1/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Mon, 14 Aug 2017 13:16:57 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_1/_meta
+    uri: http://backend:5352/source/home:tom/package_1/_meta
     body:
       encoding: UTF-8
       string: |
