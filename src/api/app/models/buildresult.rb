@@ -31,7 +31,8 @@ class Buildresult < ActiveXML::Node
       signing:      "The package has been built successfully and is assigned to get signed.",
       finished:     "The package has been built and signed, but has not yet been picked up by the scheduler. This is an " +
                     "intermediate state prior to 'succeeded' or 'failed'.",
-      disabled:     "The package has been disabled from building in project or package metadata.",
+      disabled:     "The package has been disabled from building in project or package metadata. " +
+                    "Packages that depend on this package will be built using any previously created packages, if they still exist.",
       excluded:     "The package build has been disabled in package build description (for example in the .spec file) or " +
                     "does not provide a matching build description for the target.",
       locked:       "The package is frozen",
