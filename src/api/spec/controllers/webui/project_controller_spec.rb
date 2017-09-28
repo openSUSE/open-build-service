@@ -539,7 +539,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with bdep and jobs' do
       let(:bdep_url) do
-        "http://localhost:3200/build/#{user.home_project.name}/#{repo_for_user_home.name}/x86_64/_builddepinfo"
+        # FIXME: Hardcoding urls in test doesn't sound like a good idea
+        "http://backend:5352/build/#{user.home_project.name}/#{repo_for_user_home.name}/x86_64/_builddepinfo"
       end
       let(:bdep_xml) do
         <<-XML
@@ -552,7 +553,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       let(:jobs_url) do
-        "http://localhost:3200/build/#{user.home_project.name}/#{repo_for_user_home.name}/x86_64/_jobhistory?limit=0&code=succeeded&code=unchanged"
+        # FIXME: Hardcoding urls in test doesn't sound like a good idea
+        "http://backend:5352/build/#{user.home_project.name}/#{repo_for_user_home.name}/x86_64/_jobhistory?limit=0&code=succeeded&code=unchanged"
       end
       let(:jobs_xml) do
         <<-XML
