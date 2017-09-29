@@ -52,7 +52,7 @@ RSpec.describe Webui::AttributeController do
 
     context 'with a value_count defined in attrib_type' do
       context 'with the same amount of values, nothing changes' do
-        let(:attrib_type) { create(:attrib_type_with_namespace, value_count: 1) }
+        let(:attrib_type) { create(:attrib_type, value_count: 1) }
         let!(:attrib) { create(:attrib, project: user.home_project, attrib_type: attrib_type, values: [attrib_value]) }
 
         before do
@@ -64,7 +64,7 @@ RSpec.describe Webui::AttributeController do
       end
 
       context 'with more values, nothing changes' do
-        let(:attrib_type) { create(:attrib_type_with_namespace, value_count: 2) }
+        let(:attrib_type) { create(:attrib_type, value_count: 2) }
         let(:attrib_value_2) { build(:attrib_value, value: Faker::Lorem.sentence) }
         let!(:attrib) { create(:attrib, project: user.home_project, attrib_type: attrib_type, values: [attrib_value, attrib_value_2]) }
 
@@ -79,7 +79,7 @@ RSpec.describe Webui::AttributeController do
       end
 
       context 'with less values, it fills up values till value_count' do
-        let(:attrib_type) { create(:attrib_type_with_namespace, value_count: 1) }
+        let(:attrib_type) { create(:attrib_type, value_count: 1) }
         let!(:attrib) { create(:attrib, project: user.home_project, attrib_type: attrib_type, values: [attrib_value]) }
 
         before do
@@ -107,8 +107,8 @@ RSpec.describe Webui::AttributeController do
   end
 
   describe 'POST #create' do
-    let(:attribute_type_0) { create(:attrib_type_with_namespace, value_count: 0) }
-    let(:attribute_type_1) { create(:attrib_type_with_namespace, value_count: 1) }
+    let(:attribute_type_0) { create(:attrib_type, value_count: 0) }
+    let(:attribute_type_1) { create(:attrib_type, value_count: 1) }
     let(:attribute_type_1_name) { "#{attribute_type_1.namespace}:#{attribute_type_1.name}" }
 
     before do
@@ -146,7 +146,7 @@ RSpec.describe Webui::AttributeController do
 
   describe 'PATCH #update' do
     let(:attrib) { create(:attrib, project: user.home_project) }
-    let(:new_attrib_type) { create(:attrib_type_with_namespace) }
+    let(:new_attrib_type) { create(:attrib_type) }
 
     before do
       login user
