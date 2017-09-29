@@ -1356,12 +1356,28 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       context 'with buildresult' do
         context 'with results' do
+          let(:additional_repo) { create(:repository, name: 'openSUSE_42.2', project: user.home_project) }
+          let(:arch_s390x) { Architecture.where(name: 's390x').first }
           let!(:repository_achitecture_i586) { create(:repository_architecture, repository: repo_for_user, architecture: arch_i586) }
           let!(:repository_achitecture_x86_64) { create(:repository_architecture, repository: repo_for_user, architecture: arch_x86_64) }
+          let!(:repository_achitecture_s390x) { create(:repository_architecture, repository: additional_repo, architecture: arch_s390x) }
           let(:fake_buildresult) do
             Buildresult.new(
               '<resultlist state="073db4412ce71471edaacf7291404276">
                 <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="published" state="published">
+                  <status package="c++" code="succeeded" />
+                  <status package="redis" code="failed" />
+                </result>
+                <result project="home:tom" repository="openSUSE_Tumbleweed" arch="x86_64" code="building" state="building"
+                    details="This repo is broken" >
+                  <status package="c++" code="unresolvable">
+                    <details>nothing provides foo</details>
+                  </status>
+                  <status package="redis" code="building">
+                    <details>building on obs-node-3</details>
+                  </status>
+                </result>
+                <result project="home:tom" repository="openSUSE_42.2" arch="s390x" code="published" state="published" dirty="true">
                   <status package="c++" code="succeeded" />
                   <status package="redis" code="succeeded" />
                 </result>
@@ -1369,8 +1385,18 @@ RSpec.describe Webui::ProjectController, vcr: true do
           end
           let(:statushash) do
             { "openSUSE_Tumbleweed" => {
-                "i586" => {
-                  "c++"   => { "package" => "c++", "code" => "succeeded" },
+                "i586"   => {
+                  "c++"   => { "package" => "c++",   "code" => "succeeded" },
+                  "redis" => { "package" => "redis", "code" => "failed" }
+                },
+                "x86_64" => {
+                  "c++"   => { "package" => "c++",   "code" => "unresolvable", "details" => "nothing provides foo" },
+                  "redis" => { "package" => "redis", "code" => "building", "details" => "building on obs-node-3" }
+                }
+            },
+              "openSUSE_42.2"       => {
+                "s390x" => {
+                  "c++"   => { "package" => "c++",   "code" => "succeeded" },
                   "redis" => { "package" => "redis", "code" => "succeeded" }
                 }
             }}
@@ -1383,8 +1409,16 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
           it { expect(assigns(:buildresult_unavailable)).to be_nil }
           it { expect(assigns(:packagenames)).to eq(['c++', 'redis']) }
-          it { expect(assigns(:repohash)).to eq({"openSUSE_Tumbleweed"=>["i586"]}) }
           it { expect(assigns(:statushash)).to eq(statushash) }
+          it { expect(assigns(:repohash)).to eq({ "openSUSE_Tumbleweed" => ["i586", "x86_64"], "openSUSE_42.2" => ["s390x"] }) }
+          it {
+            expect(assigns(:repostatushash)).to eq({ "openSUSE_Tumbleweed" => { "i586" => "published", "x86_64" => "building" },
+                                                     "openSUSE_42.2"       => { "s390x" => "outdated_published" }})
+          }
+          it {
+            expect(assigns(:repostatusdetailshash)).to eq({ "openSUSE_Tumbleweed" => { "x86_64" => "This repo is broken" },
+                                                            "openSUSE_42.2"       => {} })
+          }
           it { expect(response).to have_http_status(:ok) }
         end
 
