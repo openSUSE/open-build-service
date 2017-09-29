@@ -302,7 +302,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
       assert_xml_tag( tag: 'directory', attributes: { count: '0' } )
       get "/source/#{project}?expand=1"
       assert_response :success
-      if $ENABLE_BROKEN_TEST
+      if @ENABLE_BROKEN_TEST
+        puts "blah"
         # FIXME2.4: remote packages get not added yet.
         assert_xml_tag( tag: 'directory', attributes: { count: '1' } )
         assert_xml_tag( tag: 'entry', attributes: { name: 'pack1', originproject: 'BaseDistro2.0' } )

@@ -53,6 +53,9 @@ Style/MultilineBlockChain:
 Style/RedundantReturn:
   Enabled: false
 
+Style/GlobalVars:
+  AllowedVariables: ['$rabbitmq_conn', '$rabbitmq_exchange', '$rabbitmq_channel']
+
 ##################### Metrics ##################################
 
 # Checks if the length a class exceeds some maximum value

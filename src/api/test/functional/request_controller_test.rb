@@ -1228,7 +1228,7 @@ XML
     get '/request?view=collection&user=Iggy&states=new,review'
     assert_response :success
     assert_xml_tag(tag: 'collection', child: { tag: 'request' })
-    if $ENABLE_BROKEN_TEST
+    if @ENABLE_BROKEN_TEST
       # FIXME there is no code in this test creating request from HiddenProject
 
       assert_xml_tag(tag: 'source', attributes: { project: 'HiddenProject', package: 'pack' })
@@ -1255,7 +1255,7 @@ XML
     assert_xml_tag(tag: 'collection', child: { tag: 'request' })
     assert_no_xml_tag(tag: 'target', attributes: { project: 'HiddenProject' })
 
-    return unless $ENABLE_BROKEN_TEST
+    return unless @ENABLE_BROKEN_TEST
 
     # ... but adrian gets it
     login_adrian
@@ -2888,7 +2888,7 @@ XML
     login_Iggy
     post '/request?cmd=create', params: load_backend_file('request/hidden_add_role_fail')
     # should fail as this user shouldn't see the target package at all.
-    assert_response 404 if $ENABLE_BROKEN_TEST
+    assert_response 404 if @ENABLE_BROKEN_TEST
     reset_auth
     login_adrian
     post '/request?cmd=create', params: load_backend_file('request/hidden_add_role')

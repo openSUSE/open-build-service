@@ -69,7 +69,7 @@ end
 
 # uncomment to enable tests which currently are known to fail, but where either the test
 # or the code has to be fixed
-# $ENABLE_BROKEN_TEST=true
+# @ENABLE_BROKEN_TEST=true
 
 def backend_config
   backend_dir_suffix = ""
