@@ -71,7 +71,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       assert_equal expected.inspect, actual.inspect
     elsif file[:expect] == :error
       flash_message_type.must_equal :alert
-      flash_message.must_equal file[:flash_message]
+      flash_message.must_have_text(file[:flash_message])
       page.must_have_text 'Add File to'
     elsif file[:expect] == :service
       flash_message.must_equal "The file '#{file[:name]}' has been successfully saved."
@@ -212,7 +212,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       upload_from: :local_file,
       upload_path: text_path('broken_link.xml'),
       expect: :error,
-      flash_message: "Error while creating '_link' file: link validation error: 12:1: FATAL: Extra content at the end of the document."
+      flash_message: /Error while creating '_link' file: link validation error.*FATAL: Extra content at the end of the document\./
     )
   end
 
