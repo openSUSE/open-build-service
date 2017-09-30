@@ -1,3 +1,4 @@
 src/api/app/assets/javascripts/webui/application/cm2/
 src/api/vendor/assets/javascripts/*.min.js
 src/api/vendor/bundle/
+src/api/lib/backend/doc
