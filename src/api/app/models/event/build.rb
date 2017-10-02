@@ -23,6 +23,11 @@ end
 class Event::BuildSuccess < Event::Build
   self.raw_type = 'BUILD_SUCCESS'
   self.description = 'Package has succeeded building'
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.package.build_success"
+  end
 end
 
 class Event::BuildFail < Event::Build
@@ -31,6 +36,11 @@ class Event::BuildFail < Event::Build
   self.raw_type = 'BUILD_FAIL'
   self.description = 'Package has failed to build'
   receiver_roles :maintainer, :bugowner, :reader
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.package.build_fail"
+  end
 
   def subject
     "Build failure of #{payload['project']}/#{payload['package']} in #{payload['repository']}/#{payload['arch']}"
@@ -74,4 +84,9 @@ end
 class Event::BuildUnchanged < Event::Build
   # no raw_type as it should not go to plugins
   self.description = 'Package has succeeded building with unchanged result'
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.package.build_unchanged"
+  end
 end
