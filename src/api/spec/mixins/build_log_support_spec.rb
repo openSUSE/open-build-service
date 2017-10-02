@@ -18,7 +18,7 @@ RSpec.describe BuildLogSupport do
     end
 
     before do
-      path = "#{CONFIG['source_url']}/build/project_1/repository_1/architecture_1/package_1/_log?nostream=1&start=0&end=65536"
+      path = "#{CONFIG['source_url']}/build/project_1/repository_1/architecture_1/package_1/_log?end=65536&nostream=1&start=0"
       stub_request(:get, path).and_return(body: build_log)
     end
 
@@ -81,7 +81,7 @@ RSpec.describe BuildLogSupport do
   end
 
   describe '#get_status' do
-    let(:path) { "#{CONFIG['source_url']}/build/project_1/_result?view=status&package=package_1&arch=architecture_1&repository=repository_1" }
+    let(:path) { "#{CONFIG['source_url']}/build/project_1/_result?arch=architecture_1&package=package_1&repository=repository_1&view=status" }
 
     subject { instance_with_build_log_support.get_status('project_1', 'package_1', 'repository_1', 'architecture_1') }
 

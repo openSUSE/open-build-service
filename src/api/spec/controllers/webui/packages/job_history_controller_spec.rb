@@ -56,7 +56,7 @@ RSpec.describe Webui::Packages::JobHistoryController, type: :controller, vcr: tr
       before do
         login(user)
         repo_for_source_project
-        path = "#{CONFIG['source_url']}/build/#{user.home_project}/#{repo_for_source_project.name}/i586/_jobhistory?package=#{package}&limit=100"
+        path = "#{CONFIG['source_url']}/build/#{user.home_project}/#{repo_for_source_project.name}/i586/_jobhistory?limit=100&package=#{package}"
         stub_request(:get, path).and_return(body:
         %(<jobhistlist>
           <jobhist package='#{package.name}' rev='1' srcmd5='2ac8bd685591b40e412ee99b182f94c2' versrel='7-3' bcnt='1' readytime='1492687344'
