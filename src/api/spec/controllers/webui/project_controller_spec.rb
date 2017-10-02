@@ -868,6 +868,16 @@ RSpec.describe Webui::ProjectController, vcr: true do
         it { expect(response).to have_http_status(400) }
       end
 
+      context 'with an invalid devel project' do
+        before do
+          post :save_meta, params: { project: user.home_project,
+                                     meta:    '<project name="home:tom"><title/><description/><devel project="non-existant"/></project>' }, xhr: true
+        end
+
+        it { expect(flash.now[:error]).to eq("Project with name 'non-existant' not found") }
+        it { expect(response).to have_http_status(400) }
+      end
+
       context 'with a valid meta' do
         before do
           post :save_meta, params: { project: user.home_project, meta: '<project name="home:tom"><title/><description/></project>' }, xhr: true
