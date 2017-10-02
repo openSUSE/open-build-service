@@ -273,6 +273,12 @@ module Event
       obj_roles(p, role)
     end
 
+    def send_to_bus
+      RabbitmqBus.publish(self.class.message_bus_queue, read_attribute(:payload))
+    rescue Bunny::Exception => e
+      logger.error "Publishing to RabbitMQ failed: #{e.message}"
+    end
+
     private
 
     def shorten_payload_if_necessary
