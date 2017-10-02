@@ -568,8 +568,6 @@ class Webui::ProjectController < Webui::WebuiController
 
     rescue Suse::ValidationError => exception
       errors << exception.message
-    rescue Project::UnknownObjectError => exception
-      errors << "Project with name '#{exception.message}' not found"
     end
 
     if errors.empty?
