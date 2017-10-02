@@ -1,3 +1,5 @@
+require 'rabbitmq_bus'
+
 # This class represents some kind of event within the build service
 # that users (or services) would like to know about
 module Event
