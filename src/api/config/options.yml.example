@@ -162,6 +162,9 @@ backup_port: 22
 
 # Rabbitmq based message bus
 #
+# Prefix of the message bus rooting key
+# amqp_namespace: 'opensuse.obs'
+#
 # Connection options -> http://rubybunny.info/articles/connecting.html
 # amqp_options:
 #   host: rabbit.example.com

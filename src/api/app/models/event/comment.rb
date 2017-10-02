@@ -35,7 +35,7 @@ class Event::CommentForProject < ::Event::Project
   after_commit :send_to_bus
 
   def self.message_bus_queue
-    'opensuse.obs.project.comment'
+    "#{Configuration.amqp_namespace}.project.comment"
   end
 
   self.description = 'New comment for project created'
@@ -51,7 +51,7 @@ class Event::CommentForPackage < ::Event::Package
   after_commit :send_to_bus
 
   def self.message_bus_queue
-    'opensuse.obs.package.comment'
+    "#{Configuration.amqp_namespace}.package.comment"
   end
 
   self.description = 'New comment for package created'
