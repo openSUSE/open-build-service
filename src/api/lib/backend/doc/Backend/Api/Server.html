@@ -104,7 +104,18 @@
   
 </div>
 
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Class that connect to global endpoints of the OBS Backend server</p>
 
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
 
 
 
@@ -122,7 +133,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#delete_notification_payload-class_method" title="delete_notification_payload (class method)">.<strong>delete_notification_payload</strong>(notification)  &#x21d2; Object </a>
+      <a href="#delete_notification_payload-class_method" title="delete_notification_payload (class method)">.<strong>delete_notification_payload</strong>(notification)  &#x21d2; String </a>
     
 
     
@@ -137,7 +148,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Deletes the notification payload.</p>
+<p>Deletes the payload of the notification by Id.</p>
 </div></span>
   
 </li>
@@ -146,7 +157,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#last_notifications-class_method" title="last_notifications (class method)">.<strong>last_notifications</strong>(start)  &#x21d2; Object </a>
+      <a href="#last_notifications-class_method" title="last_notifications (class method)">.<strong>last_notifications</strong>(start)  &#x21d2; String </a>
     
 
     
@@ -161,7 +172,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Returns the latest notifications specifying a starting point.</p>
+<p>Latest notifications specifying a starting point.</p>
 </div></span>
   
 </li>
@@ -170,7 +181,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#notification_payload-class_method" title="notification_payload (class method)">.<strong>notification_payload</strong>(notification)  &#x21d2; Object </a>
+      <a href="#notification_payload-class_method" title="notification_payload (class method)">.<strong>notification_payload</strong>(notification)  &#x21d2; String </a>
     
 
     
@@ -185,7 +196,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Returns the notification payload.</p>
+<p>JSON payload of a notification by Id.</p>
 </div></span>
   
 </li>
@@ -194,7 +205,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#notify_plugin-class_method" title="notify_plugin (class method)">.<strong>notify_plugin</strong>(plugin, payload)  &#x21d2; Object </a>
+      <a href="#notify_plugin-class_method" title="notify_plugin (class method)">.<strong>notify_plugin</strong>(plugin, payload)  &#x21d2; String </a>
     
 
     
@@ -218,7 +229,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#root-class_method" title="root (class method)">.<strong>root</strong>  &#x21d2; Object </a>
+      <a href="#root-class_method" title="root (class method)">.<strong>root</strong>  &#x21d2; String </a>
     
 
     
@@ -233,7 +244,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Pings the root of the backend.</p>
+<p>Pings the root of the source repository server.</p>
 </div></span>
   
 </li>
@@ -242,7 +253,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#write_configuration-class_method" title="write_configuration (class method)">.<strong>write_configuration</strong>(configuration)  &#x21d2; Object </a>
+      <a href="#write_configuration-class_method" title="write_configuration (class method)">.<strong>write_configuration</strong>(configuration)  &#x21d2; String </a>
     
 
     
@@ -257,7 +268,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>It writes the configuration.</p>
+<p>It writes the configuration of the server.</p>
 </div></span>
   
 </li>
@@ -286,7 +297,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="delete_notification_payload-class_method">
   
-    .<strong>delete_notification_payload</strong>(notification)  &#x21d2; <tt>Object</tt> 
+    .<strong>delete_notification_payload</strong>(notification)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -295,13 +306,46 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Deletes the notification payload</p>
+<p>Deletes the payload of the notification by Id.</p>
 
 
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>notification</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Notification identifier.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -309,12 +353,12 @@
       <pre class="lines">
 
 
-13
-14
-15</pre>
+19
+20
+21</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/server.rb', line 13</span>
+      <pre class="code"><span class="info file"># File 'api/server.rb', line 19</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_delete_notification_payload'>delete_notification_payload</span><span class='lparen'>(</span><span class='id identifier rubyid_notification'>notification</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/notificationpayload/:notification</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_notification'>notification</span><span class='rbracket'>]</span><span class='rparen'>)</span>
@@ -327,7 +371,7 @@
       <div class="method_details ">
   <h3 class="signature " id="last_notifications-class_method">
   
-    .<strong>last_notifications</strong>(start)  &#x21d2; <tt>Object</tt> 
+    .<strong>last_notifications</strong>(start)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -336,136 +380,51 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Returns the latest notifications specifying a starting point</p>
+<p>Latest notifications specifying a starting point</p>
 
 
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-23
-24
-25</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'api/server.rb', line 23</span>
-
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_notifications'>last_notifications</span><span class='lparen'>(</span><span class='id identifier rubyid_start'>start</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/lastnotifications</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>start:</span> <span class='id identifier rubyid_start'>start</span><span class='comma'>,</span> <span class='label'>block:</span> <span class='int'>1</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
+    <li>
+      
+        <span class='name'>start</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Starting point for retrieveing the latest notifications.</p>
 </div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="notification_payload-class_method">
+      
+    </li>
   
-    .<strong>notification_payload</strong>(notification)  &#x21d2; <tt>Object</tt> 
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
   
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the notification payload</p>
-
-
-  </div>
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Last notifications</p>
 </div>
-<div class="tags">
+      
+    </li>
   
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-8
-9
-10</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'api/server.rb', line 8</span>
-
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_notification_payload'>notification_payload</span><span class='lparen'>(</span><span class='id identifier rubyid_notification'>notification</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/notificationpayload/:notification</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_notification'>notification</span><span class='rbracket'>]</span><span class='rparen'>)</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="notify_plugin-class_method">
-  
-    .<strong>notify_plugin</strong>(plugin, payload)  &#x21d2; <tt>Object</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Notifies a certain plugin with the payload</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-28
-29
-30</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'api/server.rb', line 28</span>
-
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_notify_plugin'>notify_plugin</span><span class='lparen'>(</span><span class='id identifier rubyid_plugin'>plugin</span><span class='comma'>,</span> <span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/notify_plugins/:plugin</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_plugin'>plugin</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='const'>Yajl</span><span class='op'>::</span><span class='const'>Encoder</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='lparen'>(</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>headers:</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Content-Type</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>application/json</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span><span class='rparen'>)</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="root-class_method">
-  
-    .<strong>root</strong>  &#x21d2; <tt>Object</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Pings the root of the backend</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -480,6 +439,247 @@
     <td>
       <pre class="code"><span class="info file"># File 'api/server.rb', line 33</span>
 
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_notifications'>last_notifications</span><span class='lparen'>(</span><span class='id identifier rubyid_start'>start</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/lastnotifications</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>start:</span> <span class='id identifier rubyid_start'>start</span><span class='comma'>,</span> <span class='label'>block:</span> <span class='int'>1</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="notification_payload-class_method">
+  
+    .<strong>notification_payload</strong>(notification)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>JSON payload of a notification by Id.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>notification</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Notification identifier.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The JSON encoded structure, depending on the event that created the
+notification it will have different payload keys.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'api/server.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_notification_payload'>notification_payload</span><span class='lparen'>(</span><span class='id identifier rubyid_notification'>notification</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/notificationpayload/:notification</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_notification'>notification</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="notify_plugin-class_method">
+  
+    .<strong>notify_plugin</strong>(plugin, payload)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Notifies a certain plugin with the payload</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>plugin</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Plugin identifier.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>payload</span>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Payload to be encoded in JSON.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'api/server.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_notify_plugin'>notify_plugin</span><span class='lparen'>(</span><span class='id identifier rubyid_plugin'>plugin</span><span class='comma'>,</span> <span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/notify_plugins/:plugin</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_plugin'>plugin</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='const'>Yajl</span><span class='op'>::</span><span class='const'>Encoder</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='lparen'>(</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>headers:</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Content-Type</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>application/json</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="root-class_method">
+  
+    .<strong>root</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Pings the root of the source repository server</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Sample of the message</p>
+</div></p>
+      
+      <pre class="example code"><code>&lt;hello name=&quot;Source Repository Server&quot; repoid=&quot;620451873&quot; /&gt;</code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Hello message from the server</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'api/server.rb', line 49</span>
+
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_root'><span class='object_link'><a href="../../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span>
   <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
@@ -491,7 +691,7 @@
       <div class="method_details ">
   <h3 class="signature " id="write_configuration-class_method">
   
-    .<strong>write_configuration</strong>(configuration)  &#x21d2; <tt>Object</tt> 
+    .<strong>write_configuration</strong>(configuration)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -500,13 +700,46 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>It writes the configuration</p>
+<p>It writes the configuration of the server</p>
 
 
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>configuration</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The content to write in the configuration.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -514,12 +747,12 @@
       <pre class="lines">
 
 
-18
-19
-20</pre>
+26
+27
+28</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/server.rb', line 18</span>
+      <pre class="code"><span class="info file"># File 'api/server.rb', line 26</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_configuration'>write_configuration</span><span class='lparen'>(</span><span class='id identifier rubyid_configuration'>configuration</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/configuration</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>data:</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='rparen'>)</span>
