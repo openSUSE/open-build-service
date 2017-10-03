@@ -94,6 +94,8 @@
 <p>Module that holds the wrapping methods for http requests, are mainly used
 for simplify the calculation of urls.</p>
 
+<h2 id="label-Common+parameters">Common parameters</h2>
+
 <p>All the methods need a valid <code>endpoint</code> to connect to, and it
 can be provided in two different ways:</p>
 <ul><li>
@@ -459,12 +461,12 @@ that will be sent.</p>
       <pre class="lines">
 
 
-93
-94
-95</pre>
+91
+92
+93</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'connection_helper.rb', line 93</span>
+      <pre class="code"><span class="info file"># File 'connection_helper.rb', line 91</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="../Backend.html" title="Backend (module)">Backend</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Connection.html" title="Backend::Connection (class)">Connection</a></span></span><span class='period'>.</span><span class='id identifier rubyid_delete'><span class='object_link'><a href="Connection.html#delete-class_method" title="Backend::Connection.delete (method)">delete</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_calculate_url'>calculate_url</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_force_encoding'>force_encoding</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>UTF-8</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
@@ -492,20 +494,7 @@ that will be sent.</p>
   </div>
 </div>
 <div class="tags">
-  
-  <div class="examples">
-    <p class="tag_title">Examples:</p>
-    
-      
-        <p class="example_title"><div class='inline'>
-<p>Few examples of use:</p>
-</div></p>
-      
-      <pre class="example code"><code><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/Apache/_meta</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='int'>42</span><span class='comma'>,</span> <span class='label'>package:</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pack1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pack2</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>expand:</span> <span class='lbracket'>[</span><span class='symbol'>:package</span><span class='rbracket'>]</span><span class='rparen'>)</span>
-<span class='comment'># =&gt; HTTP GET &quot;/source/Apache/_meta?revision=42&amp;package=pack1&amp;package=pack2&quot;</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -659,12 +648,12 @@ that will be sent.</p>
       <pre class="lines">
 
 
-52
-53
-54</pre>
+50
+51
+52</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'connection_helper.rb', line 52</span>
+      <pre class="code"><span class="info file"># File 'connection_helper.rb', line 50</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="../Backend.html" title="Backend (module)">Backend</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Connection.html" title="Backend::Connection (class)">Connection</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get'><span class='object_link'><a href="Connection.html#get-class_method" title="Backend::Connection.get (method)">get</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_calculate_url'>calculate_url</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_force_encoding'>force_encoding</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>UTF-8</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
@@ -859,12 +848,12 @@ that will be sent.</p>
       <pre class="lines">
 
 
-66
-67
-68</pre>
+64
+65
+66</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'connection_helper.rb', line 66</span>
+      <pre class="code"><span class="info file"># File 'connection_helper.rb', line 64</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="../Backend.html" title="Backend (module)">Backend</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Connection.html" title="Backend::Connection (class)">Connection</a></span></span><span class='period'>.</span><span class='id identifier rubyid_post'><span class='object_link'><a href="Connection.html#post-class_method" title="Backend::Connection.post (method)">post</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_calculate_url'>calculate_url</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_force_encoding'>force_encoding</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>UTF-8</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
@@ -1059,12 +1048,12 @@ that will be sent.</p>
       <pre class="lines">
 
 
-80
-81
-82</pre>
+78
+79
+80</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'connection_helper.rb', line 80</span>
+      <pre class="code"><span class="info file"># File 'connection_helper.rb', line 78</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="../Backend.html" title="Backend (module)">Backend</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Connection.html" title="Backend::Connection (class)">Connection</a></span></span><span class='period'>.</span><span class='id identifier rubyid_put'><span class='object_link'><a href="Connection.html#put-class_method" title="Backend::Connection.put (method)">put</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_calculate_url'>calculate_url</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_force_encoding'>force_encoding</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>UTF-8</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
