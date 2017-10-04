@@ -18,7 +18,9 @@ RUN chown -R frontend /obs/src/api
 USER frontend
 WORKDIR /obs/src/api
 
-RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3
+# FIXME: Retrying bundler if it fails is a workaround for https://github.com/moby/moby/issues/783
+#        which seems to happen on openSUSE (< Tumbleweed 20171001)...
+RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 || bundle install --jobs=3 --retry=3
 
 # Run our command
 CMD ["foreman", "start", "-f", "Procfile"] 
