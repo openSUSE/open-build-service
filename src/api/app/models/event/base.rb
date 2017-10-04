@@ -80,6 +80,10 @@ module Event
         subclass.create_jobs(*create_jobs)
         subclass.receiver_roles(*receiver_roles)
       end
+
+      def message_bus_queue
+        raise NotImplementedError
+      end
     end
 
     # just for convenience
