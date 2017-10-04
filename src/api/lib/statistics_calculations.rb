@@ -1,5 +1,5 @@
-module StatisticsCalculations
-  def get_latest_updated(limit = 10, timelimit = Time.at(0), prj_filter = ".*", pkg_filter = ".*")
+class StatisticsCalculations
+  def self.get_latest_updated(limit = 10, timelimit = Time.at(0), prj_filter = ".*", pkg_filter = ".*")
     packages = Package.includes(:project).where(updated_at: timelimit..Time.now).
                where('packages.name REGEXP ? AND projects.name REGEXP ?', pkg_filter, prj_filter).
                references(:project).order("updated_at DESC").limit(limit).

@@ -1,9 +1,9 @@
 require "webmock/rspec"
 require 'rails_helper'
+require 'statistics_calculations'
 
 RSpec.describe StatisticsCalculations do
   describe 'get_latest_updated' do
-    let(:object)    { Object.new.extend(StatisticsCalculations) }
     let(:package_1) { create(:package) }
     let(:package_2) { create(:package, name: 'my_package') }
     let(:package_3) { create(:package) }
@@ -26,7 +26,7 @@ RSpec.describe StatisticsCalculations do
     end
 
     context 'when called with no parameters' do
-      subject { object.get_latest_updated }
+      subject { StatisticsCalculations.get_latest_updated }
 
       it 'returns all projects available' do
         expect(subject[1]).to match_array(project_result_for(package_1.project))
@@ -43,7 +43,7 @@ RSpec.describe StatisticsCalculations do
     end
 
     context 'when limit n is given' do
-      subject { object.get_latest_updated(3) }
+      subject { StatisticsCalculations.get_latest_updated(3) }
 
       it 'returns the newest n packages and projects' do
         expect(subject[0]).to match_array(package_result_for(package_1))
@@ -53,7 +53,7 @@ RSpec.describe StatisticsCalculations do
     end
 
     context 'when timelimit is given' do
-      subject { object.get_latest_updated(10, 65.seconds.ago) }
+      subject { StatisticsCalculations.get_latest_updated(10, 65.seconds.ago) }
 
       it { expect(subject.length).to eq(5) }
 
@@ -67,7 +67,7 @@ RSpec.describe StatisticsCalculations do
     end
 
     context 'when project filter is given' do
-      subject { object.get_latest_updated(10, 125.seconds.ago, 'my_proj') }
+      subject { StatisticsCalculations.get_latest_updated(10, 125.seconds.ago, 'my_proj') }
 
       before do
         # We need to be able to identify the project
@@ -86,7 +86,7 @@ RSpec.describe StatisticsCalculations do
     end
 
     context 'when package filter is given' do
-      subject { object.get_latest_updated(10, 5.minutes.ago, '.*', 'my_pack') }
+      subject { StatisticsCalculations.get_latest_updated(10, 5.minutes.ago, '.*', 'my_pack') }
 
       it { expect(subject.length).to eq(5) }
 

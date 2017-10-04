@@ -1,6 +1,6 @@
-class Webui::FeedsController < Webui::WebuiController
-  include StatisticsCalculations
+require 'statistics_calculations'
 
+class Webui::FeedsController < Webui::WebuiController
   layout false
   before_action :set_project, only: ['commits']
 
@@ -11,7 +11,7 @@ class Webui::FeedsController < Webui::WebuiController
 
   def latest_updates
     raise ActionController::RoutingError, 'expected application/rss' unless request.format == Mime[:rss]
-    @latest_updates = get_latest_updated(10)
+    @latest_updates = StatisticsCalculations.get_latest_updated(10)
   end
 
   def commits
