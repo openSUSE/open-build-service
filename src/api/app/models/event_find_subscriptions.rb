@@ -64,24 +64,14 @@ class EventFindSubscriptions
     table = EventSubscription.arel_table
 
     # First find all the subscriptions that are in the database for Users/Groups
-    rel = EventSubscription.where(eventtype: subscription_to_expand.eventtype, receiver_role: subscription_to_expand.receiver_role)
-    subscriptions = rel.where(table[:user_id].in(user_ids).or(table[:group_id].in(group_ids))).to_a
-
-    # Then instantiate subscriptions for all Users/Groups in memory
-    receivers.each do |receiver|
-      # copy some settings from the original subscription
-      new_subscription = EventSubscription.new(eventtype: subscription_to_expand.eventtype,
-                                               receiver_role: subscription_to_expand.receiver_role,
-                                               channel: subscription_to_expand.channel)
-      if receiver.kind_of? User
-        new_subscription.user = receiver
-      else
-        new_subscription.group = receiver
-      end
-      subscriptions << new_subscription
-    end
-    # Return all EventSubscription we need to consider
-    subscriptions
+    EventSubscription
+      .where(
+        eventtype: subscription_to_expand.eventtype,
+        receiver_role: subscription_to_expand.receiver_role
+      )
+      .where(
+        table[:user_id].in(user_ids).or(table[:group_id].in(group_ids))
+      ).to_a
   end
 
   # Filter out EventSubscriptions that make no sense or that have an EventSubscription
