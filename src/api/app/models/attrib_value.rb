@@ -11,7 +11,7 @@ class AttribValue < ApplicationRecord
   private
 
   def prepare_default_value
-    self.value = default_value if !value || value.blank?
+    value = default_value if value.blank?
   end
 
   def default_value
