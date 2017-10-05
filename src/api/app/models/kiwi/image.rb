@@ -21,7 +21,7 @@ class Kiwi::Image < ApplicationRecord
   has_one :package, foreign_key: 'kiwi_image_id', class_name: '::Package', dependent: :nullify, inverse_of: :kiwi_image
   has_many :repositories, -> { order(order: :asc) }, dependent: :destroy, index_errors: true
   has_many :package_groups, -> { order(:id) }, dependent: :destroy, index_errors: true
-  has_many :kiwi_packages, -> { where(kiwi_package_groups: { kiwi_type: Kiwi::PackageGroup.kiwi_types[:image], pattern_type: 'onlyRequired' }) },
+  has_many :kiwi_packages, -> { where(kiwi_package_groups: { kiwi_type: Kiwi::PackageGroup.kiwi_types[:image] }) },
            through: :package_groups, source: :packages, inverse_of: :kiwi_image
 
   #### Callbacks macros: before_save, after_save, etc.
@@ -31,6 +31,8 @@ class Kiwi::Image < ApplicationRecord
   #### Validations macros
   validates :name, presence: true
   validate :check_use_project_repositories
+  validate :check_package_groups
+  validate :check_package_group_type_image
   accepts_nested_attributes_for :repositories, allow_destroy: true
   accepts_nested_attributes_for :package_groups, allow_destroy: true
   accepts_nested_attributes_for :kiwi_packages, allow_destroy: true
@@ -133,7 +135,7 @@ class Kiwi::Image < ApplicationRecord
   end
 
   def default_package_group
-    package_groups.find_or_create_by(kiwi_type: :image, pattern_type: 'onlyRequired')
+    package_groups.type_image.first || package_groups.create(kiwi_type: :image, pattern_type: 'onlyRequired')
   end
 
   def self.find_binaries_by_name(query, project, repositories, options = {})
@@ -169,6 +171,19 @@ class Kiwi::Image < ApplicationRecord
 
     errors.add(:base,
                "A repository with source_path=\"obsrepositories:/\" has been set. If you want to use it, please remove the other repositories.")
+  end
+
+  def check_package_group_type_image
+    return if package_groups.select(&:kiwi_type_image?).size <= 2
+
+    errors.add(:base, "Having more than 2 package groups with type='image' is not allowed.")
+  end
+
+  def check_package_groups
+    return if package_groups.group_by { |package_group| [package_group.kiwi_type, package_group.pattern_type] }
+                            .select { |_key, value| value.count > 1 }.keys.empty?
+
+    errors.add(:base, "Multiple package groups with same attributes is not allowed.")
   end
 end
 

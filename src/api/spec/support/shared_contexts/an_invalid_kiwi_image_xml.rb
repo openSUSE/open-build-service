@@ -90,4 +90,42 @@ RSpec.shared_context 'an invalid kiwi image xml' do
 </image>
     XML
   end
+
+  let(:invalid_kiwi_xml_with_multiple_package_groups) do
+    <<-XML
+<?xml version="1.0" encoding="UTF-8"?>
+<image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
+  <description type="system">
+    <author>Christian Bruckmayer</author>
+    <contact>noemail@example.com</contact>
+    <specification>Tiny, minimalistic appliances</specification>
+  </description>
+  <packages type="image" patternType="onlyRequired">
+    <package name="e2fsprogs"/>
+    <package name="aaa_base"/>
+    <package name="branding-openSUSE"/>
+    <package name="patterns-openSUSE-base"/>
+  </packages>
+  <packages type="image" patternType="onlyRequired">
+    <package name="e2fsprogs"/>
+    <package name="aaa_base"/>
+    <package name="branding-openSUSE"/>
+    <package name="patterns-openSUSE-base"/>
+  </packages>
+  <packages type="image">
+    <package name="e2fsprogs"/>
+    <package name="aaa_base"/>
+    <package name="branding-openSUSE"/>
+    <package name="patterns-openSUSE-base"/>
+  </packages>
+  <packages type="delete">
+    <package name="e2fsprogss"/>
+    <package name="bbb_base"/>
+  </packages>
+  <repository type="apt-deb" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
+    <source path="http://download.opensuse.org/update/13.2/"/>
+  </repository>
+</image>
+    XML
+  end
 end
