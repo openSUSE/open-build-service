@@ -480,10 +480,10 @@ module ActiveXML
       return
     end
 
-    # stay away from this
-    def internal_data # nodoc
+    def internal_data
       _data
     end
+    protected :internal_data
 
     def marshal_dump
       raise "you don't want to put it in cache - never!"
