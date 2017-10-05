@@ -43,10 +43,5 @@ FactoryGirl.define do
     factory :attrib_with_default_value do
       attrib_type { create(:attrib_type_with_default_value) }
     end
-
-    factory :attrib_with_value do
-      attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment') }
-      values { [build(:attrib_value, value: 'fixed value')] }
-    end
   end
 end
