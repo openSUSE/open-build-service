@@ -38,6 +38,8 @@ module Backend
   #
 
   module ConnectionHelper
+    private
+
     # Performs a http get request to the configured OBS Backend server.
     # @param endpoint [String, Array] Endpoit to connect to.
     # @option options [Hash] :params The parameters to be sent as part of the query in the url.
@@ -91,8 +93,6 @@ module Backend
     def delete(endpoint, options = {})
       Backend::Connection.delete(calculate_url(endpoint, options), options[:headers] || {}).body.force_encoding("UTF-8")
     end
-
-    private
 
     def calculate_url(endpoint, options)
       endpoint = calculate_endpoint(endpoint)
