@@ -809,14 +809,6 @@ Style/For:
 Style/FormatStringToken:
   EnforcedStyle: template
 
-# Offense count: 7
-# Configuration parameters: AllowedVariables.
-Style/GlobalVars:
-  Exclude:
-    - 'src/api/test/functional/interconnect_test.rb'
-    - 'src/api/test/functional/request_controller_test.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
-
 # Offense count: 111
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, UseHashRocketsWithSymbolValues, PreferHashRocketsForNonAlnumEndingSymbols.

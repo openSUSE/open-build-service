@@ -1,3 +1,5 @@
+require 'rabbitmq_bus'
+
 # This class represents some kind of event within the build service
 # that users (or services) would like to know about
 module Event
@@ -77,6 +79,10 @@ module Event
         subclass.payload_keys(*payload_keys)
         subclass.create_jobs(*create_jobs)
         subclass.receiver_roles(*receiver_roles)
+      end
+
+      def message_bus_queue
+        raise NotImplementedError
       end
     end
 
@@ -271,6 +277,12 @@ module Event
       p = ::Package.find_by_project_and_name(project, package) if package
       p ||= ::Project.find_by_name(project)
       obj_roles(p, role)
+    end
+
+    def send_to_bus
+      RabbitmqBus.publish(self.class.message_bus_queue, read_attribute(:payload))
+    rescue Bunny::Exception => e
+      logger.error "Publishing to RabbitMQ failed: #{e.message}"
     end
 
     private

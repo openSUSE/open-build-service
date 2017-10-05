@@ -32,6 +32,11 @@ end
 class Event::CommentForProject < ::Event::Project
   include CommentEvent
   receiver_roles :maintainer
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.project.comment"
+  end
 
   self.description = 'New comment for project created'
 
@@ -43,6 +48,11 @@ end
 class Event::CommentForPackage < ::Event::Package
   include CommentEvent
   receiver_roles :maintainer
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.package.comment"
+  end
 
   self.description = 'New comment for package created'
 
@@ -56,6 +66,11 @@ class Event::CommentForRequest < ::Event::Request
   self.description = 'New comment for request created'
   payload_keys :request_number
   receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.request.comment"
+  end
 
   def subject
     req = BsRequest.find_by_number(payload['number'])

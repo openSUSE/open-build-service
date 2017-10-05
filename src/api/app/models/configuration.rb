@@ -75,6 +75,10 @@ class Configuration < ApplicationRecord
     CONFIG['ldap_mode'] == :on
   end
 
+  def amqp_namespace
+    CONFIG['amqp_namespace'] || 'opensuse.obs'
+  end
+
   def passwords_changable?
     change_password && CONFIG['proxy_auth_mode'] != :on && CONFIG['ldap_mode'] != :on
   end

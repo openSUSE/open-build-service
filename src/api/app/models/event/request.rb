@@ -124,12 +124,22 @@ end
 class Event::RequestChange < Event::Request
   self.raw_type = 'SRCSRV_REQUEST_CHANGE'
   self.description = 'Request XML was updated (admin only)'
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.request.change"
+  end
 end
 
 class Event::RequestCreate < Event::Request
   self.raw_type = 'SRCSRV_REQUEST_CREATE'
   self.description = 'Request created'
   receiver_roles :source_maintainer, :target_maintainer
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.request.create"
+  end
 
   def custom_headers
     base = super
@@ -151,6 +161,11 @@ end
 class Event::RequestDelete < Event::Request
   self.raw_type = 'SRCSRV_REQUEST_DELETE'
   self.description = 'Request was deleted (admin only)'
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.request.delete"
+  end
 end
 
 class Event::RequestStatechange < Event::Request
@@ -158,6 +173,11 @@ class Event::RequestStatechange < Event::Request
   self.description = 'Request state was changed'
   payload_keys :oldstate
   receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.request.state_change"
+  end
 
   def subject
     "Request #{payload['number']} changed to #{payload['state']} (#{actions_summary})"
@@ -169,6 +189,11 @@ class Event::ReviewWanted < Event::Request
 
   payload_keys :reviewers, :by_user, :by_group, :by_project, :by_package
   receiver_roles :reviewer
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.request.review_wanted"
+  end
 
   def subject
     "Request #{payload['number']} requires review (#{actions_summary})"

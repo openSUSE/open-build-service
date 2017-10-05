@@ -363,7 +363,7 @@ EOF
     assert_response :success
     # this is behaving strange as it's creating a TestPack3 pack, but returns a 400
     # as it tries to branch TestPack2 -> TestPack too and fails
-    if $ENABLE_BROKEN_TEST
+    if @ENABLE_BROKEN_TEST
       post '/source/home:Iggy/TestPack', params: { cmd: 'branch', target_package: 'TestPack3' }
       assert_response :success
     end
@@ -1128,7 +1128,7 @@ EOF
     assert_xml_tag tag: 'path', attributes: { project: 'RemoteInstance:home:tom:projectA' }
     assert_no_xml_tag tag: 'path', attributes: { project: 'RemoteInstance:home:tom:projecta' }
 
-    if $ENABLE_BROKEN_TEST
+    if @ENABLE_BROKEN_TEST
 # FIXME: the case insensitive database select is not okay.
 # and switch letter again
       put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projecta' repository='repoA' /> </repository> </project>"
@@ -2831,7 +2831,7 @@ EOF
     assert_xml_tag tag: 'revisionlist', children: { count: 1 }
 
     # FIXME: this is not yet supported in backend
-    if $ENABLE_BROKEN_TEST
+    if @ENABLE_BROKEN_TEST
       # copy with history
       post '/source/home:fred/DELETE', params: { cmd: :copy, oproject: 'home:Iggy', opackage: 'TestPack', withhistory: '1' }
       assert_response :success

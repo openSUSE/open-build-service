@@ -2,6 +2,11 @@ class Event::RepoPublished < Event::Base
   self.raw_type = 'REPO_PUBLISHED'
   self.description = 'Repository was published'
   payload_keys :project, :repo
+  after_commit :send_to_bus
+
+  def self.message_bus_queue
+    "#{Configuration.amqp_namespace}.repo.published"
+  end
 end
 
 # == Schema Information

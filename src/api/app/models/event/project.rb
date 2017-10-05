@@ -8,6 +8,11 @@ module Event
     self.raw_type = 'SRCSRV_CREATE_PROJECT'
     self.description = 'Project is created'
     payload_keys :sender
+    after_commit :send_to_bus
+
+    def self.message_bus_queue
+      "#{Configuration.amqp_namespace}.project.create"
+    end
 
     def subject
       "New Project #{payload['project']}"
@@ -18,24 +23,44 @@ module Event
     self.raw_type = 'SRCSRV_UPDATE_PROJECT_CONFIG'
     self.description = 'Project _config was updated'
     payload_keys :sender, :files, :comment
+    after_commit :send_to_bus
+
+    def self.message_bus_queue
+      "#{Configuration.amqp_namespace}.project.update_project_conf"
+    end
   end
 
   class UndeleteProject < Project
     self.raw_type = 'SRCSRV_UNDELETE_PROJECT'
     self.description = 'Project was undeleted'
     payload_keys :comment, :sender
+    after_commit :send_to_bus
+
+    def self.message_bus_queue
+      "#{Configuration.amqp_namespace}.project.undelete"
+    end
   end
 
   class UpdateProject < Project
     self.raw_type = 'SRCSRV_UPDATE_PROJECT'
     self.description = 'Project meta was updated'
     payload_keys :sender
+    after_commit :send_to_bus
+
+    def self.message_bus_queue
+      "#{Configuration.amqp_namespace}.project.update"
+    end
   end
 
   class DeleteProject < Project
     self.raw_type = 'SRCSRV_DELETE_PROJECT'
     self.description = 'Project was deleted'
     payload_keys :comment, :requestid, :sender
+    after_commit :send_to_bus
+
+    def self.message_bus_queue
+      "#{Configuration.amqp_namespace}.project.delete"
+    end
   end
 end
 
