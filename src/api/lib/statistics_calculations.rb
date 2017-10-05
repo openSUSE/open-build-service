@@ -12,9 +12,8 @@ class StatisticsCalculations
                pluck(:name, :updated_at).
                map { |name, at| [at, name, :project] }
 
-    list = packages + projects
-    list.sort! { |a, b| b[0] <=> a[0] }
-    return list if limit.nil?
-    list.first(limit)
+    list = (packages + projects).sort { |a, b| b[0] <=> a[0] }
+
+    limit ? list.first(limit) : list
   end
 end
