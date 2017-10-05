@@ -2,7 +2,7 @@ class AttribValue < ApplicationRecord
   acts_as_list scope: :attrib
   belongs_to :attrib
 
-  after_initialize :prepare_default_value
+  after_initialize :set_default_value
 
   def to_s
     value
@@ -10,7 +10,7 @@ class AttribValue < ApplicationRecord
 
   private
 
-  def prepare_default_value
+  def set_default_value
     value = default_value if value.blank?
   end
 
@@ -19,10 +19,10 @@ class AttribValue < ApplicationRecord
 
     if attrib
       default = attrib.attrib_type.default_values.find_by(position: position)
-      value = default.value if default
+      default.try(:value).to_s
+    else
+      ""
     end
-
-    value || ""
   end
 end
 
