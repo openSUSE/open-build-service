@@ -49,6 +49,7 @@
 /src/backend/pm_to_blib
 /src/backend/sat-solver
 /src/backend/t/tmp
+docker-compose.override.yml
 
 # All the other crap that fits nowhere specifically
 *~
