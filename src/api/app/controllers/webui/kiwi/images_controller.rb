@@ -30,6 +30,7 @@ module Webui
       end
 
       def show
+        @package_groups = @image.default_package_group
         respond_to do |format|
           format.html
           format.json { render json: { is_outdated: @image.outdated? } }
@@ -46,6 +47,7 @@ module Webui
         redirect_to action: :show
       rescue ActiveRecord::RecordInvalid, Timeout::Error => e
         flash.now[:error] = "Cannot update kiwi image: #{@image.errors.full_messages.to_sentence} #{e.message}"
+        @package_groups = @image.package_groups.select(&:kiwi_type_image?).first
         render action: :show
       end
 
@@ -87,7 +89,7 @@ module Webui
       end
 
       def set_image
-        @image = ::Kiwi::Image.find(params[:id])
+        @image = ::Kiwi::Image.includes(package_groups: :packages).find(params[:id])
       rescue ActiveRecord::RecordNotFound
         flash[:error] = "KIWI image '#{params[:id]}' does not exist"
         redirect_back(fallback_location: root_path)
