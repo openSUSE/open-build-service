@@ -9,6 +9,14 @@ module Webui::RequestHelper
     STATE_COLORS[state.to_s] || ''
   end
 
+  def new_or_update_request(row)
+    if row.target_package_id
+      row.request_type
+    else
+      "#{row.request_type} <small>(new package)</small>".html_safe
+    end
+  end
+
   def merge_opt(res, opt, value)
     res[opt] ||= value
     res[opt] = :multiple if value != res[opt]
@@ -29,6 +37,7 @@ module Webui::RequestHelper
         merge_opt(res, :target_package, ae.target_package)
         merge_opt(res, :target_project, ae.target_project)
         merge_opt(res, :request_type, ae.action_type)
+        res[:target_package_id] ||= ae.target_package_id
       end
 
       res[:request_type] = map_request_type(res[:request_type])

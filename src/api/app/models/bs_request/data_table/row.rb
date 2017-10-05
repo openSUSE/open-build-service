@@ -20,6 +20,10 @@ class BsRequest
         cache[:request_type]
       end
 
+      def target_package_id
+        cache[:target_package_id]
+      end
+
       def target_project
         cache[:target_project]
       end

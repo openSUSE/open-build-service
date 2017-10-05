@@ -609,6 +609,7 @@ Rails/OutputSafety:
     - 'src/api/app/helpers/webui/package_helper.rb'
     - 'src/api/app/helpers/webui/project_helper.rb'
     - 'src/api/app/helpers/webui/webui_helper.rb'
+    - 'src/api/app/helpers/webui/request_helper.rb'
 
 # Offense count: 136
 # Cop supports --auto-correct.
