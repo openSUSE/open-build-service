@@ -5904,18 +5904,20 @@ sub getavailablebinaries {
     }
   }
   my @prpa;
-  my @arch;
+  my @arch = @{$cgi->{'arch'} || []};
+  my %archfilter = map {$_ => 1} @arch;
   # hack ahead
   my $proj = BSRevision::readproj_local($projid, 1) || {};
   for my $repo (@{$proj->{'repository'} || []}) {
-    next unless @{$repo->{'arch'} || []};
+    my @repoarch = @{$repo->{'arch'} || []};
+    next unless @repoarch;
     if (@{$proj->{'repository'} || []} > 1) {
       next unless $repo->{'name'} && $repo->{'name'} =~ /^images/;
     }
-    push @arch, @{$repo->{'arch'} || []};
+    push @arch, @repoarch unless %archfilter;
     if (!@path) {
       for my $prp (expandsearchpath($projid, $repo->{'name'})) {
-        push @prpa, map {"$prp/$_"} @{$repo->{'arch'} || []};
+        push @prpa, map {"$prp/$_"} @repoarch;
       }
     }
   }
@@ -5930,6 +5932,7 @@ sub getavailablebinaries {
   # now partition the prpas
   my %projid2reposerver;
   my %prpas_by_reposerver;
+  my %remoteprojects;
   for my $prpa (@prpa) {
     my ($aprojid, $arepoid, $aarch) = split('/', $prpa, 3);
     my $reposerver = $projid2reposerver{$aprojid};
@@ -5938,7 +5941,8 @@ sub getavailablebinaries {
       my $proj = BSRevision::readproj_local($aprojid, 1);
       $proj = BSSrcServer::Remote::remoteprojid($aprojid) if !$proj || $proj->{'remoteurl'};
       if ($proj->{'remoteurl'}) {
-        next;	# not supported yet
+	$reposerver = "remote://$proj->{'remoteurl'}";
+	$remoteprojects{$aprojid} = $proj;
       } else {
         $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($aprojid) : $BSConfig::reposerver;
       }
@@ -5958,6 +5962,29 @@ sub getavailablebinaries {
       'timeout' => 30,
       'request' => 'POST',
     };
+    if ($reposerver =~ /^remote:\/\//) {
+      my $firstproj;
+      my @remotepath;
+      my @remotearch;
+      for my $prpa (@{$prpas_by_reposerver{$reposerver}}) {
+	my ($aprojid, $arepoid, $aarch) = split('/', $prpa, 3);
+	my $proj = $remoteprojects{$aprojid};
+	next unless $proj;
+	$firstproj ||= $proj;
+	push @remotepath, "$proj->{'remoteproject'}/$arepoid";
+	push @remotearch, $aarch;
+      }
+      next unless $firstproj && @remotepath && @remotearch;
+      $param = {
+	'uri' => "$firstproj->{'remoteurl'}/build/$firstproj->{'remoteproject'}/_availablebinaries",
+	'timeout' => 30,
+	'request' => 'GET',
+        'proxy' => $firstproj->{'remoteproxy'},
+      };
+      @args = ();
+      push @args, map {"path=$_"} BSUtil::unify(@remotepath);
+      push @args, map {"arch=$_"} BSUtil::unify(@remotearch);
+    }
     my $res;
     eval {
       $res = BSWatcher::rpc($param, $BSXML::availablebinaries, @args);
@@ -6108,7 +6135,7 @@ my $dispatches = [
   '/build/_workerstatus scheduleronly:bool? daemonsonly:bool? arch*' => \&getworkerstatus,
   'PUT:/build/_dispatchprios' => \&putdispatchprios,
   '/build/_dispatchprios' => \&getdispatchprios,
-  '/build/$project/_availablebinaries url:* path:prp*' => \&getavailablebinaries,
+  '/build/$project/_availablebinaries url:* path:prp* arch*' => \&getavailablebinaries,
   'POST:/build/$project cmd: repository* arch* package* code:* wipe:*' => \&docommand,
   '/build/$project' => \&getrepositorylist,
   '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:* multibuild:bool? locallink:bool?' => \&getresult,
