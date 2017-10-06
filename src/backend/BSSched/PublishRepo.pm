@@ -198,6 +198,7 @@ sub prpfinished {
     @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne '_buildenv' && $_ ne '_channel' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && !/^\./} @all;
     for my $bin (@all) {
       next if $bin =~ /^::import::/;
+      next if $bin =~ /\.obsbinlnk$/;
       my $rbin = $bin;
       # XXX: should be source name instead?
       $rbin = "${packid}::$bin" if $debian || $bin eq 'updateinfo.xml';
