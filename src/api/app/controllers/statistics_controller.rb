@@ -1,9 +1,8 @@
 require 'rexml/document'
 require "rexml/streamlistener"
+require 'statistics_calculations'
 
 class StatisticsController < ApplicationController
-  include StatisticsCalculations
-
   validate_action redirect_stats: {method: :get, response: :redirect_stats}
 
   before_action :get_limit, only: [
@@ -164,7 +163,7 @@ class StatisticsController < ApplicationController
       @limit = nil if params[:limit].nil?
     end
 
-    @list = get_latest_updated(@limit, @timelimit, prj_filter, pkg_filter)
+    @list = StatisticsCalculations.get_latest_updated(@limit, @timelimit, prj_filter, pkg_filter)
   end
 
   def updated_timestamp

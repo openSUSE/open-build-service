@@ -1,6 +1,6 @@
-class Webui::MainController < Webui::WebuiController
-  include StatisticsCalculations
+require 'statistics_calculations'
 
+class Webui::MainController < Webui::WebuiController
   # permissions.status_message_create
   before_action :require_admin, only: [:delete_message, :add_news]
   skip_before_action :check_anonymous, only: [:index]
@@ -27,7 +27,7 @@ class Webui::MainController < Webui::WebuiController
     @workerstatus = Rails.cache.fetch('workerstatus_hash', expires_in: 10.minutes) do
       WorkerStatus.hidden.to_hash
     end
-    @latest_updates = get_latest_updated(6)
+    @latest_updates = StatisticsCalculations.get_latest_updated(6)
     @waiting_packages = 0
     @building_workers = @workerstatus.elements('building').length
     @overall_workers = @workerstatus['clients']
