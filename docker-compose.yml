@@ -22,6 +22,8 @@ services:
     command: /obs/contrib/start_development_worker
   frontend:
     image: openbuildservice/frontend
+    build:
+      context: .
     volumes:
       - .:/obs
     ports:
