@@ -104,7 +104,18 @@
   
 </div>
 
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Class that connect to endpoints related to binaries</p>
 
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
 
 
 
@@ -122,7 +133,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#available_in_project-class_method" title="available_in_project (class method)">.<strong>available_in_project</strong>(project)  &#x21d2; Object </a>
+      <a href="#available_in_project-class_method" title="available_in_project (class method)">.<strong>available_in_project</strong>(project)  &#x21d2; String </a>
     
 
     
@@ -146,7 +157,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#available_in_repositories-class_method" title="available_in_repositories (class method)">.<strong>available_in_repositories</strong>(project, urls, repositories)  &#x21d2; Object </a>
+      <a href="#available_in_repositories-class_method" title="available_in_repositories (class method)">.<strong>available_in_repositories</strong>(project, urls, repositories)  &#x21d2; String </a>
     
 
     
@@ -170,7 +181,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#build_dependency_info-class_method" title="build_dependency_info (class method)">.<strong>build_dependency_info</strong>(project, package, repository, architecture)  &#x21d2; Object </a>
+      <a href="#build_dependency_info-class_method" title="build_dependency_info (class method)">.<strong>build_dependency_info</strong>(project, package, repository, architecture)  &#x21d2; String </a>
     
 
     
@@ -194,7 +205,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#download_url_for_file-class_method" title="download_url_for_file (class method)">.<strong>download_url_for_file</strong>(project, repository, package, architecture, file)  &#x21d2; Object </a>
+      <a href="#download_url_for_file-class_method" title="download_url_for_file (class method)">.<strong>download_url_for_file</strong>(project, repository, package, architecture, file)  &#x21d2; String </a>
     
 
     
@@ -218,7 +229,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#files-class_method" title="files (class method)">.<strong>files</strong>(project, repository, arch, package)  &#x21d2; Object </a>
+      <a href="#files-class_method" title="files (class method)">.<strong>files</strong>(project, repository, architecture, package)  &#x21d2; String </a>
     
 
     
@@ -242,7 +253,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#job_history-class_method" title="job_history (class method)">.<strong>job_history</strong>(project, repository, architecture)  &#x21d2; Object </a>
+      <a href="#job_history-class_method" title="job_history (class method)">.<strong>job_history</strong>(project, repository, architecture)  &#x21d2; String </a>
     
 
     
@@ -266,7 +277,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#rpmlint_log-class_method" title="rpmlint_log (class method)">.<strong>rpmlint_log</strong>(project, package, repository, architecture)  &#x21d2; Object </a>
+      <a href="#rpmlint_log-class_method" title="rpmlint_log (class method)">.<strong>rpmlint_log</strong>(project, package, repository, architecture)  &#x21d2; String </a>
     
 
     
@@ -305,7 +316,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="available_in_project-class_method">
   
-    .<strong>available_in_project</strong>(project)  &#x21d2; <tt>Object</tt> 
+    .<strong>available_in_project</strong>(project)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -320,7 +331,45 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The XML with the list of available binaries</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -328,12 +377,12 @@
       <pre class="lines">
 
 
-36
-37
-38</pre>
+63
+64
+65</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 36</span>
+      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 63</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_available_in_project'>available_in_project</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_transform_binary_packages_response'>transform_binary_packages_response</span><span class='lparen'>(</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/_availablebinaries</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -346,7 +395,7 @@
       <div class="method_details ">
   <h3 class="signature " id="available_in_repositories-class_method">
   
-    .<strong>available_in_repositories</strong>(project, urls, repositories)  &#x21d2; <tt>Object</tt> 
+    .<strong>available_in_repositories</strong>(project, urls, repositories)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -361,7 +410,77 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>urls</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Urls of repositories.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>repositories</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Paths of local repositories in the form of project/repository.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The XML with the list of available binaries</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -369,14 +488,14 @@
       <pre class="lines">
 
 
-41
-42
-43
-44
-45</pre>
+72
+73
+74
+75
+76</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 41</span>
+      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 72</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_available_in_repositories'>available_in_repositories</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_urls'>urls</span><span class='comma'>,</span> <span class='id identifier rubyid_repositories'>repositories</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>if</span> <span class='id identifier rubyid_repositories'>repositories</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_urls'>urls</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -391,7 +510,7 @@
       <div class="method_details ">
   <h3 class="signature " id="build_dependency_info-class_method">
   
-    .<strong>build_dependency_info</strong>(project, package, repository, architecture)  &#x21d2; <tt>Object</tt> 
+    .<strong>build_dependency_info</strong>(project, package, repository, architecture)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -406,7 +525,93 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>package</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the package.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>repository</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the repository.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>architecture</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the architecture.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The XML with the build dependency information</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -414,13 +619,13 @@
       <pre class="lines">
 
 
-30
-31
-32
-33</pre>
+55
+56
+57
+58</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 30</span>
+      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 55</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_build_dependency_info'>build_dependency_info</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/_builddepinfo</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='rbracket'>]</span><span class='comma'>,</span>
@@ -434,7 +639,7 @@
       <div class="method_details ">
   <h3 class="signature " id="download_url_for_file-class_method">
   
-    .<strong>download_url_for_file</strong>(project, repository, package, architecture, file)  &#x21d2; <tt>Object</tt> 
+    .<strong>download_url_for_file</strong>(project, repository, package, architecture, file)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -449,7 +654,109 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>repository</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the repository.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>package</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the package.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>architecture</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the architecture.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>file</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the file.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The published path for the binary file in an XML</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -457,13 +764,13 @@
       <pre class="lines">
 
 
-19
-20
-21
-22</pre>
+34
+35
+36
+37</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 19</span>
+      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 34</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_download_url_for_file'>download_url_for_file</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='comma'>,</span> <span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/:file</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='id identifier rubyid_file'>file</span><span class='rbracket'>]</span><span class='comma'>,</span>
@@ -477,7 +784,7 @@
       <div class="method_details ">
   <h3 class="signature " id="files-class_method">
   
-    .<strong>files</strong>(project, repository, arch, package)  &#x21d2; <tt>Object</tt> 
+    .<strong>files</strong>(project, repository, architecture, package)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -492,48 +799,93 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-9
-10
-11</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 9</span>
-
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_arch'>arch</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:arch/:package</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_arch'>arch</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='rbracket'>]</span><span class='rparen'>)</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
 </div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="job_history-class_method">
+      
+    </li>
   
-    .<strong>job_history</strong>(project, repository, architecture)  &#x21d2; <tt>Object</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the jobs history for a project</p>
-
-
-  </div>
+    <li>
+      
+        <span class='name'>repository</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the repository.</p>
 </div>
-<div class="tags">
+      
+    </li>
   
+    <li>
+      
+        <span class='name'>architecture</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the architecture.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>package</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the package.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The XML with the binary files list</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -548,6 +900,117 @@
     <td>
       <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 14</span>
 
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="job_history-class_method">
+  
+    .<strong>job_history</strong>(project, repository, architecture)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the jobs history for a project</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>repository</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the repository.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>architecture</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the architecture.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The XML with the job history</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 23</span>
+
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_job_history'>job_history</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/_jobhistory</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>code:</span> <span class='symbol'>:lastfailures</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
@@ -559,7 +1022,7 @@
       <div class="method_details ">
   <h3 class="signature " id="rpmlint_log-class_method">
   
-    .<strong>rpmlint_log</strong>(project, package, repository, architecture)  &#x21d2; <tt>Object</tt> 
+    .<strong>rpmlint_log</strong>(project, package, repository, architecture)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -574,7 +1037,93 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>package</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the package.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>repository</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the repository.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>architecture</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the architecture.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The content of the rmplint.log file</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -582,12 +1131,12 @@
       <pre class="lines">
 
 
-25
-26
-27</pre>
+45
+46
+47</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 25</span>
+      <pre class="code"><span class="info file"># File 'api/build_results/binaries.rb', line 45</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rpmlint_log'>rpmlint_log</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/rpmlint.log</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='rbracket'>]</span><span class='rparen'>)</span>
