@@ -649,7 +649,11 @@ sub getremotebinaryversions {
     return undef if $BSStdServer::isajax && !$bvl;
     for (@{$bvl->{'binary'} || []}) {
       my $bin = $_->{'name'};
-      $bin =~ s/\.(?:$binsufsre)$//;
+      if ($bin =~ /^container:/) {
+        $bin =~ s/\.tar(?:\..+)?$//;
+      } else {
+        $bin =~ s/\.(?:$binsufsre)$//;
+      }
       $binaryversions->{$bin} = $_;
     }
     # make sure that we don't loop forever if the server returns incomplete data
@@ -735,7 +739,11 @@ sub getremotebinaries {
   for my $f (@{$cpio || []}) {
     my $bin = $f->{'name'};
     $bin =~ s/^upload.*?://;
-    $bin =~ s/\.(?:$binsufsre)$//;
+    if ($bin =~ /^container:/) {
+      $bin =~ s/\.tar(?:\..+)?$//;
+    } else {
+      $bin =~ s/\.(?:$binsufsre)$//;
+    }
     if (!$fetch{$bin}) {
       unlink("$remotecache/$f->{'name'}");
       next;
