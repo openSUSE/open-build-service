@@ -1409,6 +1409,20 @@ sub publish {
     return;
   }
 
+  if ($BSConfig::publisher_compile_content_hook && $BSConfig::publisher_compile_content_hook->{$prp}) {
+    my $hook = $BSConfig::publisher_compile_content_hook->{$prp};
+    $hook = [ $hook ] unless ref $hook;
+    print "    calling publish compile hook @$hook\n";
+    qsystem(@$hook, $prp) && warn("    @$hook failed: $?\n");
+    my $r = "${reporoot}.add/$prp";
+    for my $rbin (sort(ls($r))) {
+      my $p = "iso/$rbin";
+      my @s = stat("$r/$rbin");
+      $bins{$p} = "$r/$rbin";
+      $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
+    }
+  }
+
   for my $arch (@archs) {
     my $r = "$reporoot/$prp/$arch/:repo";
     my $repoinfo = {};
