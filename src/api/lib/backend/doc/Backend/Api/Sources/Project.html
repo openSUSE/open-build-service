@@ -104,7 +104,18 @@
   
 </div>
 
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Class that connect to endpoints related to projects</p>
 
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
 
 
 
@@ -122,7 +133,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#attributes-class_method" title="attributes (class method)">.<strong>attributes</strong>(project, revision)  &#x21d2; Object </a>
+      <a href="#attributes-class_method" title="attributes (class method)">.<strong>attributes</strong>(project, revision)  &#x21d2; String </a>
     
 
     
@@ -146,7 +157,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#key_info-class_method" title="key_info (class method)">.<strong>key_info</strong>(project)  &#x21d2; Object </a>
+      <a href="#key_info-class_method" title="key_info (class method)">.<strong>key_info</strong>(project)  &#x21d2; String </a>
     
 
     
@@ -170,7 +181,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#meta-class_method" title="meta (class method)">.<strong>meta</strong>(project, options = {})  &#x21d2; Object </a>
+      <a href="#meta-class_method" title="meta (class method)">.<strong>meta</strong>(project, options = {})  &#x21d2; String </a>
     
 
     
@@ -194,7 +205,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#move-class_method" title="move (class method)">.<strong>move</strong>(source, target)  &#x21d2; Object </a>
+      <a href="#move-class_method" title="move (class method)">.<strong>move</strong>(source, target)  &#x21d2; String </a>
     
 
     
@@ -218,7 +229,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#patchinfo-class_method" title="patchinfo (class method)">.<strong>patchinfo</strong>(project)  &#x21d2; Object </a>
+      <a href="#patchinfo-class_method" title="patchinfo (class method)">.<strong>patchinfo</strong>(project)  &#x21d2; String </a>
     
 
     
@@ -242,7 +253,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#revisions-class_method" title="revisions (class method)">.<strong>revisions</strong>(project)  &#x21d2; Object </a>
+      <a href="#revisions-class_method" title="revisions (class method)">.<strong>revisions</strong>(project)  &#x21d2; String </a>
     
 
     
@@ -266,7 +277,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#write_attributes-class_method" title="write_attributes (class method)">.<strong>write_attributes</strong>(project, user, content, comment)  &#x21d2; Object </a>
+      <a href="#write_attributes-class_method" title="write_attributes (class method)">.<strong>write_attributes</strong>(project, user, content, comment)  &#x21d2; String </a>
     
 
     
@@ -290,7 +301,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#write_configuration-class_method" title="write_configuration (class method)">.<strong>write_configuration</strong>(project, configuration)  &#x21d2; Object </a>
+      <a href="#write_configuration-class_method" title="write_configuration (class method)">.<strong>write_configuration</strong>(project, configuration)  &#x21d2; String </a>
     
 
     
@@ -329,7 +340,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="attributes-class_method">
   
-    .<strong>attributes</strong>(project, revision)  &#x21d2; <tt>Object</tt> 
+    .<strong>attributes</strong>(project, revision)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -344,7 +355,61 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>revision</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Revision hash/number.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The XML with the attributes content</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -352,14 +417,14 @@
       <pre class="lines">
 
 
-9
-10
-11
 12
-13</pre>
+13
+14
+15
+16</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 9</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 12</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_revision'>revision</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='label'>meta:</span> <span class='int'>1</span> <span class='rbrace'>}</span>
@@ -374,7 +439,7 @@
       <div class="method_details ">
   <h3 class="signature " id="key_info-class_method">
   
-    .<strong>key_info</strong>(project)  &#x21d2; <tt>Object</tt> 
+    .<strong>key_info</strong>(project)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -389,7 +454,45 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The key info file content</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -397,12 +500,12 @@
       <pre class="lines">
 
 
-38
-39
-40</pre>
+54
+55
+56</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 38</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 54</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_key_info'>key_info</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_keyinfo</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>withsslcert:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>donotcreatecert:</span> <span class='int'>1</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
@@ -415,7 +518,7 @@
       <div class="method_details ">
   <h3 class="signature " id="meta-class_method">
   
-    .<strong>meta</strong>(project, options = {})  &#x21d2; <tt>Object</tt> 
+    .<strong>meta</strong>(project, options = {})  &#x21d2; <tt>String</tt> 
   
 
   
@@ -430,7 +533,100 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:revision</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Revision hash/number.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:deleted</span>
+          <span class="type">(<tt>Integer / String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Search also on deleted projects (Needs to be a 1).</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The meta file content</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -438,12 +634,12 @@
       <pre class="lines">
 
 
-28
-29
-30</pre>
+39
+40
+41</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 28</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 39</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_meta'>meta</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_project/_meta</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='label'>accepted:</span> <span class='lbracket'>[</span><span class='symbol'>:revision</span><span class='comma'>,</span> <span class='symbol'>:deleted</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>rename:</span> <span class='lbrace'>{</span> <span class='label'>revision:</span> <span class='symbol'>:rev</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
@@ -456,7 +652,7 @@
       <div class="method_details ">
   <h3 class="signature " id="move-class_method">
   
-    .<strong>move</strong>(source, target)  &#x21d2; <tt>Object</tt> 
+    .<strong>move</strong>(source, target)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -471,7 +667,56 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>source</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the source project.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>target</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the target project.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -479,12 +724,12 @@
       <pre class="lines">
 
 
-48
-49
-50</pre>
+69
+70
+71</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 48</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 69</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_move'>move</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='comma'>,</span> <span class='id identifier rubyid_target'>target</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_target'>target</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>cmd:</span> <span class='symbol'>:move</span><span class='comma'>,</span> <span class='label'>oproject:</span> <span class='id identifier rubyid_source'>source</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
@@ -497,7 +742,7 @@
       <div class="method_details ">
   <h3 class="signature " id="patchinfo-class_method">
   
-    .<strong>patchinfo</strong>(project)  &#x21d2; <tt>Object</tt> 
+    .<strong>patchinfo</strong>(project)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -512,7 +757,45 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The patchinfo file content</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -520,12 +803,12 @@
       <pre class="lines">
 
 
-43
-44
-45</pre>
+61
+62
+63</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 43</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 61</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_patchinfo'>patchinfo</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_patchinfo</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='rparen'>)</span>
@@ -538,7 +821,7 @@
       <div class="method_details ">
   <h3 class="signature " id="revisions-class_method">
   
-    .<strong>revisions</strong>(project)  &#x21d2; <tt>Object</tt> 
+    .<strong>revisions</strong>(project)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -553,7 +836,45 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The XML with the revisions list</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -561,12 +882,12 @@
       <pre class="lines">
 
 
-23
-24
-25</pre>
+30
+31
+32</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 23</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 30</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_revisions'>revisions</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_project/_history</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>meta:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>deleted:</span> <span class='int'>1</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
@@ -579,7 +900,7 @@
       <div class="method_details ">
   <h3 class="signature " id="write_attributes-class_method">
   
-    .<strong>write_attributes</strong>(project, user, content, comment)  &#x21d2; <tt>Object</tt> 
+    .<strong>write_attributes</strong>(project, user, content, comment)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -594,7 +915,40 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -602,14 +956,14 @@
       <pre class="lines">
 
 
-16
-17
-18
-19
-20</pre>
+21
+22
+23
+24
+25</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 16</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 21</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_attributes'>write_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='comma'>,</span> <span class='id identifier rubyid_comment'>comment</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='label'>meta:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>user:</span> <span class='id identifier rubyid_user'>user</span> <span class='rbrace'>}</span>
@@ -624,7 +978,7 @@
       <div class="method_details ">
   <h3 class="signature " id="write_configuration-class_method">
   
-    .<strong>write_configuration</strong>(project, configuration)  &#x21d2; <tt>Object</tt> 
+    .<strong>write_configuration</strong>(project, configuration)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -639,7 +993,56 @@
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>project</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the project.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>configuration</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The content to write in the configuration.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -647,12 +1050,12 @@
       <pre class="lines">
 
 
-33
-34
-35</pre>
+47
+48
+49</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 33</span>
+      <pre class="code"><span class="info file"># File 'api/sources/project.rb', line 47</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_configuration'>write_configuration</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/source/:project/_config</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='id identifier rubyid_configuration'>configuration</span><span class='rparen'>)</span>
