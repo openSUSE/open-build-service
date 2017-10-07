@@ -1,5 +1,5 @@
-# HTTP methods for connecting to the backend
 module Backend
+  # Class that holds basic HTTP methods for connecting to the backend
   class Connection
     cattr_accessor :host, instance_accessor: false do
       CONFIG['source_host']

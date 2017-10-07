@@ -6,73 +6,52 @@ module Backend
         extend Backend::ConnectionHelper
 
         # Returns a file list of binaries
-        # @param project [String] Name of the project.
-        # @param repository [String] Name of the repository.
-        # @param architecture [String] Name of the architecture.
-        # @param package [String] Name of the package.
-        # @return [String] The XML with the binary files list
-        def self.files(project, repository, architecture, package)
-          get(["/build/:project/:repository/:architecture/:package", project, repository, architecture, package])
+        # @return [String]
+        def self.files(project_name, repository_name, architecture_name, package_name)
+          get(["/build/:project/:repository/:architecture/:package", project_name, repository_name, architecture_name, package_name])
         end
 
         # Returns the jobs history for a project
-        # @param project [String] Name of the project.
-        # @param repository [String] Name of the repository.
-        # @param architecture [String] Name of the architecture.
-        # @return [String] The XML with the job history
-        def self.job_history(project, repository, architecture)
-          get(["/build/:project/:repository/:architecture/_jobhistory", project, repository, architecture], params: { code: :lastfailures })
+        # @return [String]
+        def self.job_history(project_name, repository_name, architecture_name)
+          get(["/build/:project/:repository/:architecture/_jobhistory", project_name, repository_name, architecture_name],
+              params: { code: :lastfailures })
         end
 
-        # Returns the download url for a file of a package
-        # @param project [String] Name of the project.
-        # @param repository [String] Name of the repository.
-        # @param package [String] Name of the package.
-        # @param architecture [String] Name of the architecture.
-        # @param file [String] Name of the file.
-        # @return [String] The published path for the binary file in an XML
-        def self.download_url_for_file(project, repository, package, architecture, file)
-          get(["/build/:project/:repository/:architecture/:package/:file", project, repository, architecture, package, file],
+        # Returns the download url (published path) for a file of a package
+        # @return [String]
+        def self.download_url_for_file(project_name, repository_name, package_name, architecture_name, file_name)
+          get(["/build/:project/:repository/:architecture/:package/:file", project_name, repository_name, architecture_name, package_name, file_name],
               params: { view: :publishedpath })
         end
 
         # Returns the RPMlint log
-        # @param project [String] Name of the project.
-        # @param package [String] Name of the package.
-        # @param repository [String] Name of the repository.
-        # @param architecture [String] Name of the architecture.
-        # @return [String] The content of the rmplint.log file
-        def self.rpmlint_log(project, package, repository, architecture)
-          get(["/build/:project/:repository/:architecture/:package/rpmlint.log", project, repository, architecture, package])
+        # @return [String]
+        def self.rpmlint_log(project_name, package_name, repository_name, architecture_name)
+          get(["/build/:project/:repository/:architecture/:package/rpmlint.log", project_name, repository_name, architecture_name, package_name])
         end
 
         # Returns the build dependency information
-        # @param project [String] Name of the project.
-        # @param package [String] Name of the package.
-        # @param repository [String] Name of the repository.
-        # @param architecture [String] Name of the architecture.
-        # @return [String] The XML with the build dependency information
-        def self.build_dependency_info(project, package, repository, architecture)
-          get(["/build/:project/:repository/:architecture/_builddepinfo", project, repository, architecture],
-              params: { package: package, view: :pkgnames })
+        # @return [String]
+        def self.build_dependency_info(project_name, package_name, repository_name, architecture_name)
+          get(["/build/:project/:repository/:architecture/_builddepinfo", project_name, repository_name, architecture_name],
+              params: { package: package_name, view: :pkgnames })
         end
 
         # Returns the available binaries for the project
-        # @param project [String] Name of the project.
-        # @return [String] The XML with the list of available binaries
-        def self.available_in_project(project)
-          transform_binary_packages_response(get(["/build/:project/_availablebinaries", project]))
+        # @return [Hash]
+        def self.available_in_project(project_name)
+          transform_binary_packages_response(get(["/build/:project/_availablebinaries", project_name]))
         end
 
         # Returns the available binaries for the repositories given
-        # @param project [String] Name of the project.
-        # @param urls [Array] Urls of repositories.
-        # @param repositories [Array] Paths of local repositories in the form of project/repository.
-        # @return [String] The XML with the list of available binaries
-        def self.available_in_repositories(project, urls, repositories)
-          return {} if repositories.empty? && urls.empty?
-          transform_binary_packages_response(get(["/build/:project/_availablebinaries", project],
-                                                 params: { url: urls, path: repositories }, expand: [:url, :path]))
+        # @param repository_urls [Array] Absolute urls of repositories.
+        # @param repository_paths [Array] Paths of local repositories in the form of project/repository.
+        # @return [Hash]
+        def self.available_in_repositories(project_name, repository_urls, repository_paths)
+          return {} if repository_paths.empty? && repository_urls.empty?
+          transform_binary_packages_response(get(["/build/:project/_availablebinaries", project_name],
+                                                 params: { url: repository_urls, path: repository_paths }, expand: [:url, :path]))
         end
 
         # TODO: Move this method that transforms the output into another module

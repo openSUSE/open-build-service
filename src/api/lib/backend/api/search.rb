@@ -5,12 +5,10 @@ module Backend
       extend Backend::ConnectionHelper
 
       # Performs a search of the binary in a project list
-      # @param projects [Array of Projects] List of projects where to perform the search in.
-      # @param name [String] Name of the binary to look for.
-      # @return [String] XML  with the binaries collection.
-      def self.binary(projects, name)
-        project_list = projects.map { |project| "@project='#{CGI.escape(project.name)}'" }.join('+or+')
-        post("/search/published/binary/id?match=(@name='#{CGI.escape(name)}'+and+(#{project_list}))")
+      # @return [String]
+      def self.binary(project_names, binary_name)
+        project_list = project_names.map { |project_name| "@project='#{CGI.escape(project_name)}'" }.join('+or+')
+        post("/search/published/binary/id?match=(@name='#{CGI.escape(binary_name)}'+and+(#{project_list}))")
       end
     end
   end

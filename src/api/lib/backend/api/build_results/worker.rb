@@ -6,7 +6,7 @@ module Backend
         extend Backend::ConnectionHelper
 
         # Returns the worker status
-        # @return [String] XML with the status of the workers.
+        # @return [String]
         def self.status
           get('/build/_workerstatus')
         end

@@ -1,5 +1,5 @@
-# API for accessing to the backend
 module Backend
+  # Class that implements a logger to write output in the backend logs
   class Logger
     @backend_logger = ::Logger.new("#{Rails.root}/log/backend_access.log")
     @backend_time = 0

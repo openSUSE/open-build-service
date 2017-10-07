@@ -1,7 +1,9 @@
 module Backend
   # Module that holds the wrapping methods for http requests, are mainly used for simplify the calculation of urls.
   #
-  # == Common parameters
+  # The methods get, put, post and delete always will return the body of the response encoded in UTF-8.
+  #
+  # == Parameters
   # All the methods need a valid +endpoint+ to connect to, and it can be provided in two different ways:
   # * As a single string. No processing is performed.
   # * As an array. In this case the first element needs to be a string with placeholders that will be replaced in the order provided
@@ -41,55 +43,25 @@ module Backend
     private
 
     # Performs a http get request to the configured OBS Backend server.
-    # @param endpoint [String, Array] Endpoit to connect to.
-    # @option options [Hash] :params The parameters to be sent as part of the query in the url.
-    # @option options [Hash] :defaults The default parameters values that will be merged with <tt>options[:params]</tt>.
-    # @option options [Hash] :rename The parameters to be sent as part of the query in the url.
-    # @option options [Array] :accepted Whitelist of keys for the params.
-    # @option options [Array] :expand Keys to expand using the same name (no [] are used).
-    # @option options [Hash] :headers The http headers that will be added to the request.
-    # @return [String] The body of the request response encoded in UTF-8.
+    # @return [String]
     def get(endpoint, options = {})
       Backend::Connection.get(calculate_url(endpoint, options), options[:headers] || {}).body.force_encoding("UTF-8")
     end
 
     # Performs a http post request to the configured OBS Backend server.
-    # @param endpoint [String, Array] Endpoit to connect to.
-    # @option options [Hash] :params The parameters to be sent as part of the query in the url.
-    # @option options [Hash] :defaults The default parameters values that will be merged with <tt>options[:params]</tt>.
-    # @option options [Hash] :rename The parameters to be sent as part of the query in the url.
-    # @option options [Array] :accepted Whitelist of keys for the params.
-    # @option options [Array] :expand Keys to expand using the same name (no [] are used).
-    # @option options [String] :data The data that will be sent in the request.
-    # @option options [Hash] :headers The http headers that will be added to the request.
-    # @return [String] The body of the request response encoded in UTF-8.
+    # @return [String]
     def post(endpoint, options = {})
       Backend::Connection.post(calculate_url(endpoint, options), options[:data], options[:headers] || {}).body.force_encoding("UTF-8")
     end
 
     # Performs a http put request to the configured OBS Backend server.
-    # @param endpoint [String, Array] Endpoit to connect to.
-    # @option options [Hash] :params The parameters to be sent as part of the query in the url.
-    # @option options [Hash] :defaults The default parameters values that will be merged with <tt>options[:params]</tt>.
-    # @option options [Hash] :rename The parameters to be sent as part of the query in the url.
-    # @option options [Array] :accepted Whitelist of keys for the params.
-    # @option options [Array] :expand Keys to expand using the same name (no [] are used).
-    # @option options [String] :data The data that will be sent in the request.
-    # @option options [Hash] :headers The http headers that will be added to the request.
-    # @return [String] The body of the request response encoded in UTF-8.
+    # @return [String]
     def put(endpoint, options = {})
       Backend::Connection.put(calculate_url(endpoint, options), options[:data], options[:headers] || {}).body.force_encoding("UTF-8")
     end
 
     # Performs a http delete request to the configured OBS Backend server.
-    # @param endpoint [String, Array] Endpoit to connect to.
-    # @option options [Hash] :params The parameters to be sent as part of the query in the url.
-    # @option options [Hash] :defaults The default parameters values that will be merged with <tt>options[:params]</tt>.
-    # @option options [Hash] :rename The parameters to be sent as part of the query in the url.
-    # @option options [Array] :accepted Whitelist of keys for the params.
-    # @option options [Array] :expand Keys to expand using the same name (no [] are used).
-    # @option options [Hash] :headers The http headers that will be added to the request.
-    # @return [String] The body of the request response encoded in UTF-8.
+    # @return [String]
     def delete(endpoint, options = {})
       Backend::Connection.delete(calculate_url(endpoint, options), options[:headers] || {}).body.force_encoding("UTF-8")
     end
