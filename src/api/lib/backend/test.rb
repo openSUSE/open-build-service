@@ -1,5 +1,5 @@
-# API for accessing to the backend
 module Backend
+  # Class that holds methods for starting the backend server in test mode
   class Test
     @backend = nil
 
