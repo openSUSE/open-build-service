@@ -130,14 +130,6 @@ class Webui::RequestController < Webui::WebuiController
                                                     no_border: true, uid: params[:uid]}
   end
 
-  def require_request
-    required_parameters :number
-    @bs_request = BsRequest.find_by_number params[:number]
-    return if @bs_request
-    flash[:error] = "Can't find request #{params[:number]}"
-    redirect_back(fallback_location: user_show_path(User.current)) && return
-  end
-
   def changerequest
     changestate = nil
     %w(accepted declined revoked new).each do |s|
@@ -364,6 +356,14 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   private
+
+  def require_request
+    required_parameters :number
+    @bs_request = BsRequest.find_by_number params[:number]
+    return if @bs_request
+    flash[:error] = "Can't find request #{params[:number]}"
+    redirect_back(fallback_location: user_show_path(User.current)) && return
+  end
 
   def get_target_package_maintainers(actions)
     actions = actions.uniq{ |action| action[:tpkg] }
