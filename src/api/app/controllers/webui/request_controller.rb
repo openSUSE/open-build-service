@@ -79,13 +79,13 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def show
-    @bsreq = BsRequest.find_by_number(params[:number])
-    unless @bsreq
+    @bs_request = BsRequest.find_by_number(params[:number])
+    unless @bs_request
       flash[:error] = "Can't find request #{params[:number]}"
       redirect_back(fallback_location: user_show_path(User.current)) && return
     end
 
-    @req = @bsreq.webui_infos
+    @req = @bs_request.webui_infos
     @id = @req['id']
     @number = @req['number']
     @state = @req['state'].to_s
@@ -100,7 +100,7 @@ class Webui::RequestController < Webui::WebuiController
     @can_add_reviews = @state.in?(["new", "review"]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?) && !User.current.is_nobody?
     @can_handle_request = @state.in?(["new", "review", "declined"]) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
 
-    @history = @bsreq.history_elements
+    @history = @bs_request.history_elements
     @actions = @req['actions']
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
@@ -117,14 +117,14 @@ class Webui::RequestController < Webui::WebuiController
     @request_before = nil
     @request_after = nil
 
-    index = session[:request_numbers].try(:index, @bsreq.number)
+    index = session[:request_numbers].try(:index, @bs_request.number)
     if index
       @request_before = session[:request_numbers][index - 1] if index > 0
       # will be nil for after end
       @request_after = session[:request_numbers][index + 1]
     end
 
-    @comments = @bsreq.comments
+    @comments = @bs_request.comments
     @comment = Comment.new
   end
 
@@ -138,8 +138,8 @@ class Webui::RequestController < Webui::WebuiController
 
   def require_request
     required_parameters :number
-    @req = BsRequest.find_by_number params[:number]
-    return if @req
+    @bs_request = BsRequest.find_by_number params[:number]
+    return if @bs_request
     flash[:error] = "Can't find request #{params[:number]}"
     redirect_back(fallback_location: user_show_path(User.current)) && return
   end
@@ -168,7 +168,7 @@ class Webui::RequestController < Webui::WebuiController
           if target.can_be_modified_by?(User.current)
             # the request action type might be permitted in future, but that doesn't mean we
             # are allowed to modify the object
-            target.add_user(@req.creator, 'maintainer')
+            target.add_user(@bs_request.creator, 'maintainer')
             target.save
             target.store if target.kind_of? Project
           end
@@ -418,7 +418,7 @@ class Webui::RequestController < Webui::WebuiController
       BsRequest.transaction do
         req = BsRequest.new( state: "new")
         req.description = params[:description]
-        @req.bs_request_actions.each do |action|
+        @bs_request.bs_request_actions.each do |action|
           rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']
 
           opts = { source_project: action.target_project,
@@ -437,7 +437,7 @@ class Webui::RequestController < Webui::WebuiController
         end
       end
     rescue APIException, ActiveRecord::RecordInvalid => e
-      Airbrake.notify("Failed to forward BsRequest: #{@req.number}: #{req} #{e}")
+      Airbrake.notify("Failed to forward BsRequest: #{@bs_request.number}: #{req} #{e}")
       flash[:error] = "Unable to forward submit request: #{e.message}"
       return
     end
