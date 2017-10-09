@@ -5,7 +5,7 @@ class Webui::RequestController < Webui::WebuiController
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
 
-  before_action :require_request, only: [:changerequest]
+  before_action :require_request, only: [:changerequest, :show]
 
   before_action :set_project, only: [:change_devel_request_dialog]
 
@@ -79,12 +79,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def show
-    @bs_request = BsRequest.find_by_number(params[:number])
-    unless @bs_request
-      flash[:error] = "Can't find request #{params[:number]}"
-      redirect_back(fallback_location: user_show_path(User.current)) && return
-    end
-
     @req = @bs_request.webui_infos
     @id = @req['id']
     @number = @req['number']
