@@ -151,9 +151,13 @@ RSpec.describe EventFindSubscriptions do
               create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: nil)
             end
 
-            # TODO: This does not seem like the correct logic for this class.
-            it 'does not include that user/group' do
-              expect(subject.map(&:subscriber)).not_to include(user)
+            it 'returns a new subscription for that user/group based on the default subscription' do
+              result = subject.find { |subscription| subscription.subscriber == user }
+
+              expect(result.id).to be_nil
+              expect(result.eventtype).to eq(default_subscription.eventtype)
+              expect(result.receiver_role).to eq(default_subscription.receiver_role)
+              expect(result.channel).to eq(default_subscription.channel)
             end
           end
 
