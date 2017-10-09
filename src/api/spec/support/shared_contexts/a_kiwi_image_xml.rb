@@ -80,9 +80,6 @@ RSpec.shared_context 'a kiwi image xml' do
     <package name="openSUSE-release-dvd"/>
     <package name="gfxboot-devel" bootinclude="true"/>
   </packages>
-  <packages type="image">
-    <package name="citrix"/>
-  </packages>
   <packages type="delete">
     <package name="e2fsprogss"/>
     <package name="bbb_base"/>

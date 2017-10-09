@@ -106,12 +106,6 @@ RSpec.shared_context 'an invalid kiwi image xml' do
     <package name="branding-openSUSE"/>
     <package name="patterns-openSUSE-base"/>
   </packages>
-  <packages type="image" patternType="onlyRequired">
-    <package name="e2fsprogs"/>
-    <package name="aaa_base"/>
-    <package name="branding-openSUSE"/>
-    <package name="patterns-openSUSE-base"/>
-  </packages>
   <packages type="image">
     <package name="e2fsprogs"/>
     <package name="aaa_base"/>
