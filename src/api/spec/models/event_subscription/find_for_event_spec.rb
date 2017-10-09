@@ -55,13 +55,42 @@ RSpec.shared_context 'it returns subscriptions for an event' do
       end
     end
   end
+
+  context 'with a maintainer user/group who has a maintainer subscription and default subscription' do
+    let!(:project) { create(:project, maintainer: [maintainer]) }
+    let!(:comment) { create(:comment_project, commentable: project) }
+
+    let!(:default_subscription) do
+      create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: nil)
+    end
+
+    context 'and the maintainer subscription is enabled' do
+      let!(:subscription) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer) }
+
+      it 'returns the subscription for that user/group' do
+        subscriber_result = subject.find { |subscription| subscription.subscriber == maintainer }
+
+        expect(subscriber_result).to eq(subscription)
+      end
+    end
+
+    context 'and the maintainer subscription is disabled' do
+      let!(:subscription) do
+        create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer, channel: 'disabled')
+      end
+
+      it 'does not include that user/group' do
+        expect(subject.map(&:subscriber)).not_to include(maintainer)
+      end
+    end
+  end
 end
 
-RSpec.describe EventFindSubscriptions do
+RSpec.describe EventSubscription::FindForEvent do
   describe '#subscribers' do
     subject do
       event = Event::CommentForProject.first
-      EventFindSubscriptions.new(event).subscriptions
+      EventSubscription::FindForEvent.new(event).subscriptions
     end
 
     context 'with a comment for a project' do

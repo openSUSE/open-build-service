@@ -32,12 +32,12 @@ class EventTest < ActionDispatch::IntegrationTest
   end
 
   def users_for_event(e)
-    users = EventFindSubscriptions.new(e).subscriptions.map(&:subscriber)
+    users = EventSubscription::FindForEvent.new(e).subscriptions.map(&:subscriber)
     User.where(id: users).pluck(:login).sort
   end
 
   def groups_for_event(e)
-    groups = EventFindSubscriptions.new(e).subscriptions.map(&:subscriber)
+    groups = EventSubscription::FindForEvent.new(e).subscriptions.map(&:subscriber)
     Group.where(id: groups).pluck(:title).sort
   end
 
@@ -162,7 +162,8 @@ class EventTest < ActionDispatch::IntegrationTest
 
     assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
     # fred is maintainer of the package, hidden_homer of the project, Iggy triggers the event, so doesn't get email
-    assert_equal %w(fred@feuerstein.de homer@nospam.net), email.to.sort
+    # adrian is a member of test_group_b which is a maintainer of the package
+    assert_equal %w(adrian@example.com fred@feuerstein.de homer@nospam.net), email.to.sort
 
     # now verify another review sends other emails
     ActionMailer::Base.deliveries.clear
