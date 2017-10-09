@@ -109,9 +109,10 @@ class Kiwi::Image < ApplicationRecord
     packages = doc.xpath('image/packages[@type="image"]').first
     packages ? packages.replace(xml_packages) : image.last_element_child.after(xml_packages)
 
+    previous = doc.xpath("image/repository").first.try(:previous) || image.last_element_child
     doc.xpath("image/repository").remove
     xml_repos = repositories_for_xml.map(&:to_xml).join("\n")
-    image.first_element_child.after(xml_repos)
+    previous.after(xml_repos)
 
     # Reparser for pretty printing
     Nokogiri::XML(doc.to_xml, &:noblanks).to_xml
