@@ -11,11 +11,11 @@ class AttribValue < ApplicationRecord
   private
 
   def set_default_value
-    value = default_value if value.blank?
+    self.value = default_value if value.blank?
   end
 
   def default_value
-    self.position = 1 if read_attribute(:position).blank?
+    self.position = 1 if position.blank?
 
     if attrib
       default = attrib.attrib_type.default_values.find_by(position: position)
