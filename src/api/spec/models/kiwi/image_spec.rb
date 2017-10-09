@@ -169,7 +169,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       context 'with some repositories and packages' do
         before do
           kiwi_image.repositories << create(:kiwi_repository)
-          kiwi_image.package_groups << create(:kiwi_package_group_non_empty)
+          kiwi_image.package_groups << create(:kiwi_package_group_non_empty, kiwi_type: 'image')
         end
 
         subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
@@ -211,7 +211,8 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.errors).to be_empty }
       it { expect(subject.xpath('.//image').length).to be(1) }
       it { expect(subject.xpath('.//image/description').length).to be(1) }
-      it { expect(subject.xpath('.//image/packages/package').length).to be(0) }
+      it { expect(subject.xpath(".//image/packages[@type='image']/package").length).to be(0) }
+      it { expect(subject.xpath(".//image/packages[@type='delete']/package").length).to be(0) }
       it { expect(subject.xpath('.//image/repository').length).to be(0) }
     end
 

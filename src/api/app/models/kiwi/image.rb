@@ -104,9 +104,10 @@ class Kiwi::Image < ApplicationRecord
 
     return nil unless image && image.first_element_child
 
-    doc.xpath("image/packages").remove
-    xml_packages = package_groups.map(&:to_xml).join("\n")
-    image.first_element_child.after(xml_packages)
+    # for now we only write the default package group
+    xml_packages = default_package_group.to_xml
+    packages = doc.xpath('image/packages[@type="image"]').first
+    packages ? packages.replace(xml_packages) : image.last_element_child.after(xml_packages)
 
     doc.xpath("image/repository").remove
     xml_repos = repositories_for_xml.map(&:to_xml).join("\n")
