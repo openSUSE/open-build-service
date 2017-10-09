@@ -82,6 +82,36 @@ RSpec.describe EventFindSubscriptions do
         let!(:maintainer) { create(:group) }
       end
 
+      context 'with a user who is a maintainer and a commenter' do
+        context 'and the user has a maintainer and commenter subscriptions, which are both enabled' do
+          let!(:maintainer) { create(:confirmed_user) }
+          let!(:project) { create(:project, maintainer: [maintainer]) }
+          let!(:comment) { create(:comment_project, commentable: project, body: "Hey @#{maintainer.login} hows it going?") }
+
+          let!(:subscription_maintainer) do
+            create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer)
+          end
+          let!(:subscription_commenter) do
+            create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'commenter', subscriber: maintainer)
+          end
+
+          it 'returns a subscription for that user/group' do
+            result_subscription = subject.find { |subscription| subscription.subscriber == maintainer }
+
+            # It doesn't matter if the maintainer or commenter subscription is returned
+            expect(result_subscription.id).not_to be_nil
+            expect(result_subscription.eventtype).to eq(subscription_maintainer.eventtype)
+            expect(result_subscription.channel).to eq(subscription_maintainer.channel)
+          end
+
+          it 'only returns one subscription' do
+            result_subscriptions = subject.select { |subscription| subscription.subscriber == maintainer }
+
+            expect(result_subscriptions.length).to eq(1)
+          end
+        end
+      end
+
       context 'with a maintainer group who has no email set and has a user as a member' do
         let!(:group) { create(:group, email: nil) }
         let!(:user) { create(:confirmed_user) }
