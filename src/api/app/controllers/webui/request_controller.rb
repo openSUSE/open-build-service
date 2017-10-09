@@ -154,9 +154,7 @@ class Webui::RequestController < Webui::WebuiController
           if target.can_be_modified_by?(User.current)
             # the request action type might be permitted in future, but that doesn't mean we
             # are allowed to modify the object
-            target.add_user(@bs_request.creator, 'maintainer')
-            target.save
-            target.store if target.kind_of? Project
+            target.add_maintainer(@bs_request.creator)
           end
         end
       end

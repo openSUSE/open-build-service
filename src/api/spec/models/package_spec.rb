@@ -688,4 +688,10 @@ Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
       it { expect(package.commit_message(nil, nil)).to include('Lorem ipsum dolorem') }
     end
   end
+
+  describe '#add_maintainer' do
+    subject { package }
+
+    it_behaves_like "makes a user a maintainer of the subject"
+  end
 end
