@@ -3,18 +3,18 @@
     <!-- add a history item based on the request creation information -->
     <tr>
       <td class="nowrap" style="width: 1%;">
-        <%= user_with_realname_and_icon @bsreq.creator, short: true %>
+        <%= user_with_realname_and_icon @bs_request.creator, short: true %>
       </td>
       <td>
         <span style="color: black;">created request</span>
       </td>
       <td class="nowrap" style="width: 1%;">
-        <span class="hidden"><%= @bsreq.created_at.to_i %></span>
-        <%= fuzzy_time(@bsreq.created_at) %>
+        <span class="hidden"><%= @bs_request.created_at.to_i %></span>
+        <%= fuzzy_time(@bs_request.created_at) %>
       </td>
     </tr>
     <tr class="odd">
-      <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= toggle_sliced_text(@bsreq.description, 48) %></pre></td>
+      <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= toggle_sliced_text(@bs_request.description, 48) %></pre></td>
     </tr>
     <!-- and now everything from the history log -->
     <% @history.each do |element| %>

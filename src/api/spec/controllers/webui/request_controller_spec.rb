@@ -41,9 +41,9 @@ RSpec.describe Webui::RequestController, vcr: true do
       expect(response).to have_http_status(:success)
     end
 
-    it 'assigns @bsreq' do
+    it 'assigns @bs_request' do
       get :show, params: { number: bs_request.number }
-      expect(assigns(:bsreq)).to eq(bs_request)
+      expect(assigns(:bs_request)).to eq(bs_request)
     end
 
     it 'redirects to root_path if request does not exist' do
