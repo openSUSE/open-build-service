@@ -84,7 +84,7 @@ RSpec.describe Attrib, :type => :model do
       context "add an issue" do
         let(:issue_tracker) { create(:issue_tracker) }
         let(:issue) { create(:issue, issue_tracker_id: issue_tracker.id) }
-        let(:attrib_type_issue) { create(:attrib_type_with_namespace, issue_list: true) }
+        let(:attrib_type_issue) { create(:attrib_type, issue_list: true) }
         let(:attribute_with_type_issue) { create(:attrib, project: project, attrib_type: attrib_type_issue ) }
 
         subject { attribute_with_type_issue.update_with_associations([], [issue]) }
@@ -112,7 +112,7 @@ RSpec.describe Attrib, :type => :model do
     describe "#validate_value_count" do
       let(:attrib_value) { build(:attrib_value, value: 'Not allowed value') }
       let(:attrib_allowed_value) { build(:attrib_allowed_value, value: 'Allowed value') }
-      let(:attrib_type) { create(:attrib_type_with_namespace, allowed_values: [attrib_allowed_value]) }
+      let(:attrib_type) { create(:attrib_type, allowed_values: [attrib_allowed_value]) }
 
       subject { build(:attrib, project: project, attrib_type: attrib_type, values: [attrib_value]) }
 
@@ -123,7 +123,7 @@ RSpec.describe Attrib, :type => :model do
 
     describe "#validate_issues" do
       let(:issue) { create(:issue_with_tracker) }
-      let(:attrib_type) { create(:attrib_type_with_namespace, issue_list: false) }
+      let(:attrib_type) { create(:attrib_type, issue_list: false) }
 
       subject { build(:attrib, project: project, attrib_type: attrib_type, issues: [issue]) }
 
@@ -131,7 +131,7 @@ RSpec.describe Attrib, :type => :model do
     end
 
     describe "#validate_allowed_values_for_attrib_type" do
-      let(:attrib_type) { create(:attrib_type_with_namespace, value_count: 1) }
+      let(:attrib_type) { create(:attrib_type, value_count: 1) }
 
       subject { build(:attrib, project: project, attrib_type: attrib_type, values: []) }
 

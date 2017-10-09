@@ -2,7 +2,7 @@ require "browser_helper"
 
 RSpec.feature "Attributes", type: :feature, js: true do
   let!(:user) { create(:confirmed_user) }
-  let!(:attribute_type) { create(:attrib_type_with_namespace) }
+  let!(:attribute_type) { create(:attrib_type) }
   let!(:attribute) { create(:attrib, project_id: user.home_project.id) }
 
   def add_attribute_with_values(package = nil)
