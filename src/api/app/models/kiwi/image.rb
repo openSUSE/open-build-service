@@ -32,7 +32,6 @@ class Kiwi::Image < ApplicationRecord
   validates :name, presence: true
   validate :check_use_project_repositories
   validate :check_package_groups
-  validate :check_package_group_type_image
   accepts_nested_attributes_for :repositories, allow_destroy: true
   accepts_nested_attributes_for :package_groups, allow_destroy: true
   accepts_nested_attributes_for :kiwi_packages, allow_destroy: true
@@ -173,17 +172,10 @@ class Kiwi::Image < ApplicationRecord
                "A repository with source_path=\"obsrepositories:/\" has been set. If you want to use it, please remove the other repositories.")
   end
 
-  def check_package_group_type_image
-    return if package_groups.select(&:kiwi_type_image?).size <= 2
-
-    errors.add(:base, "Having more than 2 package groups with type='image' is not allowed.")
-  end
-
   def check_package_groups
-    return if package_groups.group_by { |package_group| [package_group.kiwi_type, package_group.pattern_type] }
-                            .select { |_key, value| value.count > 1 }.keys.empty?
+    return if package_groups.group_by(&:kiwi_type).select { |_key, value| value.count > 1 }.keys.empty?
 
-    errors.add(:base, "Multiple package groups with same attributes is not allowed.")
+    errors.add(:base, "Multiple package groups with same type are not allowed.")
   end
 end
 

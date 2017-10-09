@@ -94,7 +94,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
       end
 
       context 'with multiple package_groups' do
-        context 'with the same attributes' do
+        context 'with the same type' do
           let(:package_with_kiwi_file) do
             create(:package_with_kiwi_file, name: 'package_with_invalid_kiwi_file',
                    project: project, kiwi_file_content: invalid_kiwi_xml_with_multiple_package_groups)
@@ -109,25 +109,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                                                                    package: package_with_kiwi_file,
                                                                    filename: "#{package_with_kiwi_file.name}.kiwi"))
           end
-          it { expect(flash[:error]).to match(/Multiple package groups with same attributes is not allowed/) }
-        end
-
-        context 'with type="image"' do
-          let(:package_with_kiwi_file) do
-            create(:package_with_kiwi_file, name: 'package_with_invalid_kiwi_file',
-                   project: project, kiwi_file_content: invalid_kiwi_xml_with_multiple_package_groups)
-          end
-
-          before do
-            get :import_from_package, params: { package_id: package_with_kiwi_file.id }
-          end
-
-          it 'redirect to package_view_file_path' do
-            expect(response).to redirect_to(package_view_file_path(project: package_with_kiwi_file.project,
-                                                                   package: package_with_kiwi_file,
-                                                                   filename: "#{package_with_kiwi_file.name}.kiwi"))
-          end
-          it { expect(flash[:error]).to match(/Having more than 2 package groups with type='image' is not allowed/) }
+          it { expect(flash[:error]).to match(/Multiple package groups with same type are not allowed/) }
         end
       end
     end
