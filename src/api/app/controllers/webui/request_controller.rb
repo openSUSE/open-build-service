@@ -145,12 +145,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changerequest
-    @req = BsRequest.find_by_number(params[:number])
-    unless @req
-      flash[:error] = "Can't find request #{params[:number]}"
-      redirect_back(fallback_location: user_show_path(User.current)) && return
-    end
-
     changestate = nil
     %w(accepted declined revoked new).each do |s|
       if params.has_key? s
