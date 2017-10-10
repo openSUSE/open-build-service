@@ -256,4 +256,49 @@ RSpec.describe BsRequest do
       expect(request).to have_received(:auto_accept)
     end
   end
+
+  describe '#sanitize!' do
+    let(:target_package) { create(:package) }
+    let(:patchinfo) { create(:patchinfo) }
+    let(:bs_request) { create(:bs_request) }
+    let!(:bs_request_action_2) { create(:bs_request_action_add_maintainer_role, bs_request: bs_request, target_project: create(:project)) }
+
+    before do
+      login(create(:admin_user))
+    end
+
+    context 'when the bs request actions only have lower priorities' do
+      before do
+        allow(bs_request.bs_request_actions.first).to receive(:minimum_priority).and_return('low')
+      end
+
+      it 'does not change the priority of the bs request' do
+        # rubocop:disable Lint/AmbiguousBlockAssociation
+        expect { bs_request.sanitize! }.not_to change{ HistoryElement::RequestPriorityChange.count }
+        # rubocop:enable Lint/AmbiguousBlockAssociation
+        expect(bs_request.priority).to eq('moderate')
+      end
+    end
+
+    context 'when one of the bs request actions has a higher priority' do
+      before do
+        allow(bs_request.bs_request_actions.first).to receive(:minimum_priority).and_return('important')
+        allow(bs_request.bs_request_actions.last).to receive(:minimum_priority).and_return('critical')
+
+        bs_request.sanitize!
+      end
+
+      it 'raises the priority of the bs request' do
+        expect(bs_request.priority).to eq('critical')
+      end
+
+      it 'creates a history element for the priority raise' do
+        history_element = HistoryElement::RequestPriorityChange.where(
+          comment:               "Automatic priority bump: Priority of related action increased.",
+          description_extension: "moderate => critical"
+        )
+        expect(history_element).to exist
+      end
+    end
+  end
 end

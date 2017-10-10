@@ -1182,6 +1182,20 @@ class BsRequest < ApplicationRecord
       action.check_for_expand_errors!(!@addrevision.nil?)
       raisepriority(action.minimum_priority)
     end
+
+    return unless persisted?
+
+    # rubocop:disable Style/GuardClause
+    if priority_changed?
+      HistoryElement::RequestPriorityChange.create({
+        request:               self,
+        # We need to have a user here
+        user:                  User.find_nobody!,
+        description_extension: "#{priority_was} => #{priority}",
+        comment:               "Automatic priority bump: Priority of related action increased."
+      })
+    end
+    # rubocop:enable Style/GuardClause
   end
 
   def _assignreview_update_reviews(reviewer, opts, new_review = nil)
