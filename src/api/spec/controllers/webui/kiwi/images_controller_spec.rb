@@ -150,8 +150,9 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
           kiwi_image: {
             repositories_attributes: {
               '0' => {
-                id:        kiwi_repository.id,
-                repo_type: 'apt2-deb'
+                id:          kiwi_repository.id,
+                repo_type:   'apt2-deb',
+                source_path: 'htt://example.com'
                 }
             }
           }
@@ -160,11 +161,8 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
       subject { post :update, params: invalid_repositories_update_params }
 
-      it do
-        expect(subject.request.flash[:error]).to(
-          start_with('Cannot update kiwi image: Repositories[0] repo type is not included in the list')
-        )
-      end
+      it { expect(subject.request.flash[:error]).to match(/Source path 'htt:\/\/example.com' has an invalid format./) }
+      it { expect(subject.request.flash[:error]).to match(/Repo type 'apt2-deb' is not included in the list./) }
       it { expect(subject).to have_http_status(:success) }
       it { expect(subject).to render_template(:show) }
     end
@@ -250,11 +248,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
       subject { post :update, params: invalid_packages_update_params }
 
-      it do
-        expect(subject.request.flash[:error]).to(
-          start_with("Cannot update kiwi image: Package groups[0] packages name can't be blank")
-        )
-      end
+      it { expect(subject.request.flash[:error]).to match(/Package name can't be blank/) }
       it { expect(subject).to have_http_status(:success) }
       it { expect(subject).to render_template(:show) }
     end

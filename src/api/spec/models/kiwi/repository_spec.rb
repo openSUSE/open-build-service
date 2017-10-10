@@ -25,7 +25,7 @@ RSpec.describe Kiwi::Repository, type: :model do
     subject { create(:kiwi_repository) }
 
     context 'for source_path' do
-      it { is_expected.to validate_presence_of(:source_path) }
+      it { is_expected.to validate_presence_of(:source_path).with_message(/Source path can't be nil/) }
 
       it "obsrepositories should be valid" do
         is_expected.to allow_value('obsrepositories:/').for(:source_path)
@@ -112,7 +112,10 @@ RSpec.describe Kiwi::Repository, type: :model do
     # We specific the context of the inclusion validation because of a bug in shoulda_matcher.
     # Remove `.on(:save)` when it's solved.
     it { is_expected.to validate_inclusion_of(:repo_type).in_array(Kiwi::Repository::REPO_TYPES).on(:save) }
-    it { is_expected.to validate_numericality_of(:priority).is_greater_than_or_equal_to(0).is_less_than(100) }
+    it do
+      is_expected.to validate_numericality_of(:priority).is_greater_than_or_equal_to(0).is_less_than(100)
+                                                        .with_message(/Priority must be between 0 and 99/)
+    end
     it { is_expected.to validate_numericality_of(:order).is_greater_than_or_equal_to(1) }
     it { is_expected.to allow_value(nil).for(:imageinclude) }
     it { is_expected.to allow_value(nil).for(:prefer_license) }

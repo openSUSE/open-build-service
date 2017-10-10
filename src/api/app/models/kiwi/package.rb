@@ -2,7 +2,7 @@ class Kiwi::Package < ApplicationRecord
   belongs_to :package_group
   has_one :kiwi_image, through: :package_groups
 
-  validates :name, presence: true
+  validates :name, presence: { message: 'Package name can\'t be blank'}
 
   def to_h
     hash = { name: name }
