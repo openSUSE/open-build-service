@@ -38,6 +38,7 @@ use Fcntl qw(:DEFAULT :flock);
 use Data::Dumper;
 use Storable ();
 use MIME::Base64;
+use File::Temp qw/tempfile/;
 
 use BSConfiguration;
 use BSRPC;
@@ -50,6 +51,7 @@ use BSNotify;
 use BSVerify;
 use BSStdRunner;
 use BSUrlmapper;
+use BSRepServer::Containerinfo;
 
 use strict;
 
@@ -74,6 +76,16 @@ my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 
 my $testmode;
+
+=head1 qsystem - secure execution of system calls with output redirection
+
+ Examples:
+
+   qsystem('stdout', $tempfile, $decomp, $in);
+
+   qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')
+
+=cut
 
 sub qsystem {
   my @args = @_;
@@ -1497,6 +1509,9 @@ sub publish {
 	} elsif ($bin =~ /(.*-Build\d.*)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
 	  $kiwimedium{$p} = $1 if !$2 && -e "$r/$1.packages";
 	  $p = "$bin";
+          if (!$2) {
+            check_for_container($r, $1."containerinfo", $bin, $projid, $repoid, $arch);
+          }
 	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
 	  $kiwimedium{$p} = $1 if !$2 && -e "$r/$1.packages";
 	  $p = "$bin";
@@ -2442,3 +2457,94 @@ $conf->{'getflavor'} = $BSConfig::publish_getflavor if $BSConfig::publish_getfla
 
 BSStdRunner::run('publisher', \@ARGV, $conf);
 
+
+=head2 check_for_container
+
+check if build result is valid container and upload if configured
+
+=cut
+
+sub check_for_container {
+  my ($dir, $containerinfo, $file, $projid, $repoid, $arch) = @_;
+
+  # jump out if no config
+  return if (ref($BSConfig::docker_registry) ne "HASH");
+
+  # set default and check config for docker registry
+  my $dr = $BSConfig::docker_registry;
+  ## set default port
+  $dr->{port} ||= 443;
+
+  # check if minimal config items are set
+  if ( ! $dr->{host} or ! $dr->{user} or ! $dr->{password} ) {
+    BSUtil::printlog(
+      "No valid config found for docker registry: ".
+      "$dr->{host}/$dr->{user}/$dr->{password} (host/user/password)"
+    );
+    return;
+  }
+
+  # check if containerinfo is valid and get info for container
+  BSUtil::printlog("Checking containerinfo for $dir/$containerinfo");
+  my $info = BSRepServer::Containerinfo::readcontainerinfo($dir, $containerinfo);
+
+  # TODO: should be more general to implement own upload
+  # prepare url for skopeo
+  my $name = lc($info->{name});
+
+  my $delimiter       = $dr->{repository_delimiter} || '/';
+  my $repository_base = $dr->{repository_base} || '/';
+  $projid =~ s/:/$delimiter/g;
+  my $tag = $info->{tags}->[0];
+  $tag =~ s/:(.*)$/$1/;
+  my $up = $dr->{uploader} || 'skopeo';
+  if ($up eq 'skopeo') {
+    my $dst = 'docker://'.$dr->{host}.':'.$dr->{port}.lc($repository_base.$projid."/$repoid/$arch/$name:$tag");
+
+    my $src = "$dir/$file";
+    my $tempfile = decompress_container($src);
+
+    ####
+    # FIXME: Find solution to remove credentials from the cli options
+    ####
+    my @cmd = ("skopeo", "copy", "--dest-creds", "$dr->{user}:$dr->{password}", "docker-archive:$tempfile", $dst);
+
+    BSUtil::printlog("Uploading: '$cmd[0] $cmd[1] $cmd[2] XXX:XXX $cmd[4] $cmd[5]'");
+    my $result = qsystem(@cmd);
+
+    BSUtil::printlog("Deleting $tempfile");
+    unlink($tempfile);
+
+    die "Error while uploading\n" if $result;
+
+  };
+}
+
+=head2 decompress_container - decompress or copy container into a temporary file
+
+ Function returns path to the temporay file
+
+=cut
+
+sub decompress_container {
+  my ($in) = @_;
+
+  my $ext2decomp = {
+    'bz2' => 'bzcat',
+    'xz'  => 'xzcat',
+    'gz'  => 'zcat',
+  };
+  my $ext = $in;
+  my $all_ext = (join('|',keys(%$ext2decomp)));
+  $ext =~ s/.*($all_ext)$/$1/;
+
+  # copy file with cat if no compresison
+  my $decomp = $ext2decomp->{$ext} || 'cat';
+
+  my ($fh, $tempfile) = tempfile();
+
+  BSUtil::printlog("Decompressing: '$decomp $in > $tempfile'");
+  qsystem('stdout', $tempfile, $decomp, $in);
+
+  return $tempfile;
+}
