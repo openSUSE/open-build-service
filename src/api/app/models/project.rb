@@ -159,7 +159,7 @@ class Project < ApplicationRecord
   end
 
   def self.image_templates
-    Project.local_image_templates + remote_image_templates
+    (local_image_templates + remote_image_templates).sort_by(&:name)
   end
 
   def self.remote_image_templates
