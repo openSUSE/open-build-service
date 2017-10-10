@@ -442,11 +442,7 @@ class BsRequest < ApplicationRecord
     # check target write permissions
     return unless opts[:newstate] == 'accepted'
 
-    bs_request_actions.each do |action|
-      action.check_action_permission!(true)
-      action.check_for_expand_errors! !@addrevision.nil?
-      raisepriority(action.minimum_priority)
-    end
+    check_bs_request_actions!(skip_source: true)
   end
 
   def changestate_accepted(opts)
@@ -994,12 +990,7 @@ class BsRequest < ApplicationRecord
     # expand release and submit request targets if not specified
     expand_targets
 
-    bs_request_actions.each do |action|
-      # permission checks
-      action.check_action_permission!
-      action.check_for_expand_errors! !@addrevision.nil?
-      raisepriority(action.minimum_priority)
-    end
+    check_bs_request_actions!
 
     # Autoapproval? Is the creator allowed to accept it?
     if accept_at
@@ -1213,6 +1204,17 @@ class BsRequest < ApplicationRecord
     User.where(id: user_ids).update_all(updated_at: Time.now)
     # rubocop:enable Rails/SkipsModelValidations
   end
+
+  private
+
+  def check_bs_request_actions!(opts = {})
+    bs_request_actions.each do |action|
+      action.check_action_permission!(opts[:skip_source])
+      action.check_for_expand_errors!(!@addrevision.nil?)
+      raisepriority(action.minimum_priority)
+    end
+  end
+
 end
 
 # == Schema Information
