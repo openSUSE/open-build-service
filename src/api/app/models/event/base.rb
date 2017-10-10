@@ -206,7 +206,7 @@ module Event
     end
 
     def subscriptions
-      EventFindSubscriptions.new(self).subscriptions
+      EventSubscription::FindForEvent.new(self).subscriptions
     end
 
     def subscribers
