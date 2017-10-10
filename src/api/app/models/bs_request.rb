@@ -804,17 +804,6 @@ class BsRequest < ApplicationRecord
     HistoryElement::RequestPriorityChange.create(p)
   end
 
-  def raisepriority(new)
-    # rails enums do not support compare and break db constraints :/
-    if new == "critical"
-      self.priority = new
-    elsif new == "important" && priority.in?(["moderate", "low"])
-      self.priority = new
-    elsif new == "moderate" && "low" == priority
-      self.priority = new
-    end
-  end
-
   def setincident(incident)
     permission_check_setincident!(incident)
 
@@ -1173,6 +1162,19 @@ class BsRequest < ApplicationRecord
   end
 
   private
+
+  def raisepriority(new_priority)
+    # rails enums do not support compare and break db constraints :/
+    self.priority = new_priority if change_priorities?(new_priority)
+  end
+
+  # We can only raise the priority, in the context where this method is needed.
+  # This method checks makes sure this is the case.
+  def change_priorities?(new_priority)
+    new_priority == "critical" ||
+      new_priority == "important" && priority.in?(["moderate", "low"]) ||
+      new_priority == "moderate" && "low" == priority
+  end
 
   def check_bs_request_actions!(opts = {})
     bs_request_actions.each do |action|
