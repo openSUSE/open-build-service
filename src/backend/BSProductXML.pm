@@ -292,6 +292,7 @@ our $productdesc = [
             'use_undecided', # take all packages, even the ungrouped ones
             'allow_overflow',
             'next_media_in_set',
+            'separate',
             'size',
             'datadir',
             'descriptiondir',
