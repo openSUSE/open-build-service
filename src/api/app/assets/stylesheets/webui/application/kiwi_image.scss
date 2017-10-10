@@ -75,5 +75,9 @@
     }
 
     small { margin: 0; }
+
+    &.has-error {
+      a { color: #c00; }
+    }
   }
 }

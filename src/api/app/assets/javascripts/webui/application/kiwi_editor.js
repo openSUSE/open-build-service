@@ -123,6 +123,7 @@ function closeDialog() {
   }
 
   fields.find(".ui-state-error").addClass('hidden');
+  fields.find('.kiwi_list_item').removeClass('has-error');
   dialog.removeClass('new_element');
 
   if (!canSave) {
