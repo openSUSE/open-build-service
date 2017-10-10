@@ -32,6 +32,8 @@ class BsRequest < ApplicationRecord
 
   FINAL_REQUEST_STATES = %w(accepted declined superseded revoked)
 
+  ACTION_NOTIFY_LIMIT = 50
+
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
   # Scopes for collections
   scope :with_actions, -> { includes(:bs_request_actions).references(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
@@ -133,7 +135,7 @@ class BsRequest < ApplicationRecord
 
   def self.actions_summary(payload)
     ret = []
-    payload.with_indifferent_access['actions'][0..ActionNotifyLimit].each do |a|
+    payload.with_indifferent_access['actions'][0..ACTION_NOTIFY_LIMIT].each do |a|
       str = "#{a['type']} #{a['targetproject']}"
       str += "/#{a['targetpackage']}" if a['targetpackage']
       str += "/#{a['targetrepository']}" if a['targetrepository']
@@ -837,16 +839,13 @@ class BsRequest < ApplicationRecord
     HistoryElement::RequestSetIncident.create(p)
   end
 
-  IntermediateStates = %w(new review)
-
   def send_state_change
+    intermediate_state = %w(new review)
     return if state_was.to_s == state.to_s
     # new->review && review->new are not worth an event - it's just spam
-    return if state.to_s.in?(IntermediateStates) && state_was.to_s.in?(IntermediateStates)
+    return if state.to_s.in?(intermediate_state) && state_was.to_s.in?(intermediate_state)
     Event::RequestStatechange.create(notify_parameters)
   end
-
-  ActionNotifyLimit = 50
 
   def notify_parameters(ret = {})
     ret[:number] = number
@@ -860,7 +859,7 @@ class BsRequest < ApplicationRecord
 
     # Use a nested data structure to support multiple actions in one request
     ret[:actions] = []
-    bs_request_actions[0..ActionNotifyLimit].each do |a|
+    bs_request_actions[0..ACTION_NOTIFY_LIMIT].each do |a|
       ret[:actions] << a.notify_params
     end
     ret
