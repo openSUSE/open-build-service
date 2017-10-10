@@ -114,8 +114,7 @@ class Kiwi::Image < ApplicationRecord
     xml_repos = repositories_for_xml.map(&:to_xml).join("\n")
     previous.after(xml_repos)
 
-    # Reparser for pretty printing
-    Nokogiri::XML(doc.to_xml, &:noblanks).to_xml
+    Nokogiri::XML(doc.to_xml, &:noblanks).to_xml(indent: kiwi_indentation(doc))
   end
 
   def write_to_backend
@@ -158,6 +157,15 @@ class Kiwi::Image < ApplicationRecord
   end
 
   private
+
+  def kiwi_indentation(xml)
+    content = xml.xpath('image').children.first.try(:content)
+    if content
+      content.delete("\n").length
+    else
+      2
+    end
+  end
 
   def repositories_for_xml
     if use_project_repositories?
