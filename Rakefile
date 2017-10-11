@@ -1,4 +1,4 @@
-CONTAINER_USERID = %x(id -u)
+CONTAINER_USERID = %x(id -u).freeze
 
 namespace :docker do
   desc 'Build our development environment'

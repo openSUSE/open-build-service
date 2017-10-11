@@ -28,9 +28,9 @@ class BsRequest < ApplicationRecord
     'bs_request_actions.source_project',
     'bs_request_actions.source_package',
     'bs_request_actions.type'
-  ]
+  ].freeze
 
-  FINAL_REQUEST_STATES = %w(accepted declined superseded revoked)
+  FINAL_REQUEST_STATES = %w(accepted declined superseded revoked).freeze
 
   VALID_REQUEST_STATES = [:new, :deleted, :declined, :accepted, :review, :revoked, :superseded].freeze
 

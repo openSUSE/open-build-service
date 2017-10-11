@@ -1,9 +1,9 @@
 class ProjectCreateAutoCleanupRequests < ApplicationJob
-  Description = "This is a humble request to remove this project.
+  DESCRIPTION = "This is a humble request to remove this project.
 Accepting this request will free resources on our always crowded server.
 Please decline this request if you want to keep this repository nevertheless. Otherwise this request
 will get accepted automatically in near future.
-Such requests get not created for projects with open requests or if you remove the OBS:AutoCleanup attribute."
+Such requests get not created for projects with open requests or if you remove the OBS:AutoCleanup attribute.".freeze
 
   def perform
     # disabled ?
@@ -52,7 +52,7 @@ Such requests get not created for projects with open requests or if you remove t
                                        <action type="delete">
                                           <target project="' + prj.name + '" />
                                        </action>
-                                       <description>' + Description + '</description>
+                                       <description>' + DESCRIPTION + '</description>
                                        <state />
                                        <accept_at>' + @cleanup_time.to_s + '</accept_at>
                                      </request>')

@@ -5,7 +5,7 @@ class BsRequestAction < ApplicationRecord
   include ParsePackageDiff
 
   #### Constants
-  VALID_SOURCEUPDATE_OPTIONS = ['update', 'noupdate', 'cleanup']
+  VALID_SOURCEUPDATE_OPTIONS = ['update', 'noupdate', 'cleanup'].freeze
 
   #### Self config
   class DiffError < APIException; setup 404; end # a diff error can have many reasons, but most likely something within us

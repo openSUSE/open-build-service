@@ -4,7 +4,7 @@ RSpec.configure do |config|
   STATIC_TABLES = %w(roles roles_static_permissions
                      static_permissions configurations
                      architectures attrib_types
-                     attrib_namespaces issue_trackers)
+                     attrib_namespaces issue_trackers).freeze
 
   # We are using factory_girl to set up everything the test needs up front,
   # instead of loading a set of fixtures in the beginning of the suite

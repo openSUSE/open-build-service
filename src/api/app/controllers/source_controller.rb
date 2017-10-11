@@ -370,11 +370,11 @@ class SourceController < ApplicationController
   end
 
   Source_untouched_commands = %w(branch diff linkdiff servicediff showlinked rebuild wipe
-                                 waitservice remove_flag set_flag getprojectservices)
+                                 waitservice remove_flag set_flag getprojectservices).freeze
   # list of cammands which create the target package
-  Package_creating_commands = %w(branch release copy undelete instantiate)
+  Package_creating_commands = %w(branch release copy undelete instantiate).freeze
   # list of commands which are allowed even when the project has the package only via a project link
-  Read_commands = %w(branch diff linkdiff servicediff showlinked getprojectservices release)
+  Read_commands = %w(branch diff linkdiff servicediff showlinked getprojectservices release).freeze
 
   def validate_target_for_package_command_exists!
     @project = nil

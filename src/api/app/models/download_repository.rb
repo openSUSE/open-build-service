@@ -1,5 +1,5 @@
 class DownloadRepository < ApplicationRecord
-  REPOTYPES = ["rpmmd", "susetags", "deb", "arch", "mdk"]
+  REPOTYPES = ["rpmmd", "susetags", "deb", "arch", "mdk"].freeze
 
   belongs_to :repository
 

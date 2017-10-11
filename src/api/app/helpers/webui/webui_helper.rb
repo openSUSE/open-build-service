@@ -87,7 +87,7 @@ module Webui::WebuiHelper
     'outdated_broken'      => 'exclamation',
     'scheduling'           => 'cog',
     'outdated_scheduling'  => 'cog_error'
-  }
+  }.freeze
 
   REPO_STATUS_DESCRIPTIONS = {
     'published'   => 'Repository has been published',
@@ -98,7 +98,7 @@ module Webui::WebuiHelper
     'blocked'     => 'No build possible atm, waiting for jobs in other repositories',
     'broken'      => 'The repository setup is broken, build or publish not possible',
     'scheduling'  => 'The repository state is being calculated right now'
-  }
+  }.freeze
 
   def check_first(first)
     first.nil? ? true : nil

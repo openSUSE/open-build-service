@@ -12,7 +12,8 @@ module FlagHelper
     'binarydownload' => :enable,
     'sourceaccess'   => :enable,
     'access'         => :enable
-  }
+  }.freeze
+
   def self.default_for(flag_type)
     TYPES[flag_type.to_s].to_s
   end

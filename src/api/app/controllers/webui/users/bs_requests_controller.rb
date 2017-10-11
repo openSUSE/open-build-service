@@ -11,7 +11,7 @@ module Webui
         'requests_declined_table' => :declined_requests,
         'requests_in_table'       => :incoming_requests,
         'reviews_in_table'        => :involved_reviews
-      }
+      }.freeze
 
       private
 

@@ -4,7 +4,7 @@ class IssueTest < ActiveSupport::TestCase
   fixtures :all
 
   # rubocop:disable Metrics/LineLength
-  BugGet0815 = "<?xml version=\"1.0\" ?><methodCall><methodName>Bug.get</methodName><params><param><value><struct><member><name>ids</name><value><array><data><value><string>1234</string></value><value><string>0815</string></value></data></array></value></member><member><name>permissive</name><value><i4>1</i4></value></member></struct></value></param></params></methodCall>\n"
+  BugGet0815 = "<?xml version=\"1.0\" ?><methodCall><methodName>Bug.get</methodName><params><param><value><struct><member><name>ids</name><value><array><data><value><string>1234</string></value><value><string>0815</string></value></data></array></value></member><member><name>permissive</name><value><i4>1</i4></value></member></struct></value></param></params></methodCall>\n".freeze
   # rubocop:enable Metrics/LineLength
 
   def test_parse
@@ -39,12 +39,12 @@ class IssueTest < ActiveSupport::TestCase
   BugSearch = "<?xml version=\"1.0\" ?><methodCall><methodName>Bug.search</methodName>
                <params><param><value><struct><member><name>last_change_time</name><value>
                <dateTime.iso8601>20110729T14:00:21</dateTime.iso8601></value></member></struct>
-               </value></param></params></methodCall>\n"
+               </value></param></params></methodCall>\n".freeze
   BugGet = "<?xml version=\"1.0\" ?><methodCall><methodName>Bug.get</methodName><params><param>
             <value><struct><member><name>ids</name><value><array><data><value><i4>838932</i4></value>
             <value><i4>838933</i4></value><value><i4>838970</i4></value></data></array></value></member>
             <member><name>permissive</name><value><i4>1</i4></value></member>
-            </struct></value></param></params></methodCall>\n"
+            </struct></value></param></params></methodCall>\n".freeze
 
   test "fetch issues" do
     stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").
