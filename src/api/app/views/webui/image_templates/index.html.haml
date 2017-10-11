@@ -5,9 +5,10 @@
   %fieldset.templateslist
     - first_template = nil
     - @projects.each do |project|
+      - remote = Project.is_remote_project?(project.name)
       %dl.templateslist
         %dt
-          = link_to(title_or_name(project), project_show_path(project))
+          = link_to_if(!remote, title_or_name(project), project_show_path(project))
         - project.packages.each do |template|
           %label
             %input{ name: 'image', type: 'radio', class: 'hidden image_template', checked: check_first(first_template), data: { project: project, package: template } }
@@ -20,7 +21,7 @@
                 = sprite_tag('drive-optical-48')
               %span.group
                 %span.name.break-words
-                  = link_to(title_or_name(template), package_show_path(project: project, package: template))
+                  = link_to_if(!remote, title_or_name(template), package_show_path(project: project, package: template))
                 %span.description.grey.break-words
                   = template.description
         - if project.packages.empty?
