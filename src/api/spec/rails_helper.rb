@@ -17,6 +17,8 @@ require 'pundit/rspec'
 ActiveRecord::Migration.maintain_test_schema!
 
 RSpec.configure do |config|
+  config.include Haml::Helpers
+
   # load ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
