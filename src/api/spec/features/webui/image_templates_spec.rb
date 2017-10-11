@@ -8,8 +8,9 @@ RSpec.feature "ImageTemplates", type: :feature, js: true do
 
   context "branching" do
     let!(:project) { create(:project, name: "my_project") }
-    let!(:package1) { create(:package_with_file, project: project, name: "first_package") }
-    let!(:package2) { create(:package_with_file, project: project, name: "second_package") }
+    let!(:package1) { create(:package_with_file, project: project, name: "first_package",  title: "a") }
+    let!(:package2) { create(:package_with_file, project: project, name: "second_package", title: "c") }
+    let!(:package3) { create(:package_with_file, project: project, name: "third_package",  title: "b") }
     let!(:attrib) { create(:template_attrib, project: project) }
 
     scenario "branch image template" do
@@ -22,6 +23,7 @@ RSpec.feature "ImageTemplates", type: :feature, js: true do
 
       expect(page).to have_text(package1.title)
       expect(find("input[data-package='#{package1}']", visible: false)['checked']).to be true
+      expect(find("input[data-package='#{package3}']", visible: false)['checked']).to be false
       expect(find("input[data-package='#{package2}']", visible: false)['checked']).to be false
 
       expect(page).to have_field('target_package', with: package1)
