@@ -556,7 +556,7 @@ RSpec.describe User do
         # Setting state in create will be overwritten by BsRequest#sanitize!
         # so we need to set it to review afterwards
         [subject_request, request_with_same_creator_and_reviewer, request_of_another_subject].each do |request|
-          request.state = VALID_REQUEST_STATES.sample
+          request.state = BsRequest::VALID_REQUEST_STATES.sample
           request.save
         end
       end
