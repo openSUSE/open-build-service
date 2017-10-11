@@ -31,7 +31,7 @@ end
 
 class Event::CommentForProject < ::Event::Project
   include CommentEvent
-  receiver_roles :maintainer
+  receiver_roles :maintainer, :watcher
   after_commit :send_to_bus
 
   def self.message_bus_queue
@@ -47,7 +47,7 @@ end
 
 class Event::CommentForPackage < ::Event::Package
   include CommentEvent
-  receiver_roles :maintainer
+  receiver_roles :maintainer, :watcher
   after_commit :send_to_bus
 
   def self.message_bus_queue
@@ -65,7 +65,7 @@ class Event::CommentForRequest < ::Event::Request
   include CommentEvent
   self.description = 'New comment for request created'
   payload_keys :request_number
-  receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
+  receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher
   after_commit :send_to_bus
 
   def self.message_bus_queue

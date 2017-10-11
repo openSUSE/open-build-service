@@ -35,7 +35,7 @@ class Event::BuildFail < Event::Build
 
   self.raw_type = 'BUILD_FAIL'
   self.description = 'Package has failed to build'
-  receiver_roles :maintainer, :bugowner, :reader
+  receiver_roles :maintainer, :bugowner, :reader, :watcher
   after_commit :send_to_bus
 
   def self.message_bus_queue
