@@ -149,20 +149,6 @@ module Event
       @payload ||= Yajl::Parser.parse(read_attribute(:payload))
     end
 
-    def notify_backend
-      return false if queued
-      self.queued = true
-      save
-
-      return false unless self.class.raw_type
-      # tell the backend to tell the (old) plugins
-      updated_payload = payload
-      updated_payload['time'] = created_at.to_i
-      logger.debug "notify_backend #{self.class.name} #{updated_payload.inspect}"
-      response = Backend::Api::Server.notify_plugin(self.class.raw_type, updated_payload)
-      Xmlhash.parse(response)['code'] == 'ok'
-    end
-
     after_create :perform_create_jobs
 
     def perform_create_jobs
