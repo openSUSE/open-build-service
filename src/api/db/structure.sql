@@ -449,14 +449,12 @@ CREATE TABLE `events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `eventtype` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `payload` text COLLATE utf8_unicode_ci,
-  `queued` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `project_logged` tinyint(1) DEFAULT '0',
   `undone_jobs` int(11) DEFAULT '0',
   `mails_sent` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `index_events_on_queued` (`queued`) USING BTREE,
   KEY `index_events_on_project_logged` (`project_logged`) USING BTREE,
   KEY `index_events_on_eventtype` (`eventtype`) USING BTREE,
   KEY `index_events_on_created_at` (`created_at`) USING BTREE,
@@ -1252,6 +1250,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170912140257'),
 ('20170912140713'),
 ('20170921100521'),
-('20170925060940');
+('20170925060940'),
+('20171011125520');
 
 

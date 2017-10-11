@@ -4,8 +4,6 @@ require 'rabbitmq_bus'
 # that users (or services) would like to know about
 module Event
   class Base < ApplicationRecord
-    scope :not_in_queue, -> { where(queued: false) }
-
     self.inheritance_column = 'eventtype'
     self.table_name = 'events'
 
@@ -298,7 +296,6 @@ end
 #  id             :integer          not null, primary key
 #  eventtype      :string(255)      not null, indexed
 #  payload        :text(65535)
-#  queued         :boolean          default(FALSE), not null, indexed
 #  created_at     :datetime         indexed
 #  updated_at     :datetime
 #  project_logged :boolean          default(FALSE), indexed
@@ -311,5 +308,4 @@ end
 #  index_events_on_eventtype       (eventtype)
 #  index_events_on_mails_sent      (mails_sent)
 #  index_events_on_project_logged  (project_logged)
-#  index_events_on_queued          (queued)
 #
