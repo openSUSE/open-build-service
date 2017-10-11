@@ -155,6 +155,25 @@ class Kiwi::Image < ApplicationRecord
     end
   end
 
+  # This method is for parse the error messages and group them to make them more understandable.
+  # The nested errors messages are like `Model[0] attributes` and this is not easy to understand.
+  def parsed_errors(title, packages)
+    message = { title: title }
+    message["Image Errors:"] = errors.messages[:base] if errors.messages[:base].present?
+
+    { repository: repositories, package: packages }.each do |key, records|
+      records.each do |record|
+        if record.errors.present?
+          message["#{key.capitalize}: #{record.name}"] ||= []
+          message["#{key.capitalize}: #{record.name}"] << record.errors.messages.values
+          message["#{key.capitalize}: #{record.name}"].flatten!
+        end
+      end
+    end
+
+    message
+  end
+
   private
 
   def repositories_for_xml
@@ -169,7 +188,7 @@ class Kiwi::Image < ApplicationRecord
     return unless use_project_repositories? && repositories.present?
 
     errors.add(:base,
-               "A repository with source_path=\"obsrepositories:/\" has been set. If you want to use it, please remove the other repositories.")
+               "A repository with source_path \"obsrepositories:/\" has been set. If you want to use it, please remove the other repositories.")
   end
 
   def check_package_groups

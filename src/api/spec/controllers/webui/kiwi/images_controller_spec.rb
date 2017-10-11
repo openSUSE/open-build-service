@@ -89,7 +89,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                                                                    filename: "#{package_with_kiwi_file.name}.kiwi"))
           end
 
-          it { expect(flash[:error]).to end_with('please remove the other repositories.') }
+          it { expect(flash[:error]).to match('please remove the other repositories.') }
         end
       end
 
@@ -109,7 +109,10 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                                                                    package: package_with_kiwi_file,
                                                                    filename: "#{package_with_kiwi_file.name}.kiwi"))
           end
-          it { expect(flash[:error]).to match(/Multiple package groups with same type are not allowed/) }
+
+          it do
+            expect(flash[:error]).to match_array(['Multiple package groups with same attributes is not allowed'])
+          end
         end
       end
     end
@@ -161,7 +164,8 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
       subject { post :update, params: invalid_repositories_update_params }
 
-      it { expect(subject.request.flash[:error]).to match(/Source path 'htt:\/\/example.com' has an invalid format./) }
+      it { expect(subject.request.flash[:error]).to match(/Repository: 'htt:\/\/example.com'/) }
+      it { expect(subject.request.flash[:error]).to match(/Source path has an invalid format./) }
       it { expect(subject.request.flash[:error]).to match(/Repo type 'apt2-deb' is not included in the list./) }
       it { expect(subject).to have_http_status(:success) }
       it { expect(subject).to render_template(:show) }
@@ -233,11 +237,13 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
             package_groups_attributes: {
               '0' => {
                 id:                  kiwi_package.package_group.id,
+                kiwi_type:           'image',
                 packages_attributes: {
                   '0' => {
-                    id:   kiwi_package.id,
-                    name: "",
-                    arch: "x86"
+                    id:               kiwi_package.id,
+                    name:             "",
+                    arch:             "x86",
+                    package_group_id: kiwi_package.package_group.id
                   }
                 }
               }
