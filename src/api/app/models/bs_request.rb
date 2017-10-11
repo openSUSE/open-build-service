@@ -32,6 +32,8 @@ class BsRequest < ApplicationRecord
 
   FINAL_REQUEST_STATES = %w(accepted declined superseded revoked)
 
+  ACTION_NOTIFY_LIMIT = 50
+
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
   # Scopes for collections
   scope :with_actions, -> { includes(:bs_request_actions).references(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
@@ -89,11 +91,10 @@ class BsRequest < ApplicationRecord
   after_update :send_state_change
   after_commit :update_cache
 
-  def save!(args = {})
-    new = created_at ? nil : 1
-    sanitize! if new && !@skip_sanitize
-    super
-    notify if new
+  def self.delayed_auto_accept
+    to_accept.each do |request|
+      BsRequestAutoAcceptJob.perform_later(request.id)
+    end
   end
 
   def self.find_by_number!(number)
@@ -107,75 +108,40 @@ class BsRequest < ApplicationRecord
     r
   end
 
-  def history_elements
-    HistoryElement::Base.where(id: request_history_elements.pluck(:id) + review_history_elements.pluck(:id)).order(:created_at)
-  end
-
-  def set_add_revision
-    @addrevision = true
-  end
-
-  def set_ignore_build_state
-    @ignore_build_state = true
-  end
-
-  def skip_sanitize
-    @skip_sanitize = true
-  end
-
-  def check_creator
-    unless creator
-      errors.add(:creator, 'No creator defined')
+  def self.list(opts)
+    # All types means don't pass 'type'
+    if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?('all'))
+      opts.delete(:types)
     end
-    user = User.get_by_login creator
-    unless user
-      errors.add(:creator, "Invalid creator specified #{creator}")
+    # Do not allow a full collection to avoid server load
+    if [:project, :user, :package].all? { |filter| opts[filter].blank? }
+      raise RuntimeError, 'This call requires at least one filter, either by user, project or package'
     end
-    return if user.is_active?
-    errors.add(:creator, "Login #{user.login} is not an active user")
-  end
+    roles = opts[:roles] || []
+    states = opts[:states] || []
 
-  def assign_number
-    return if number
-    # to assign a unique and steady incremental number.
-    # Using MySQL auto-increment mechanism is not working on clusters.
-    BsRequest.transaction do
-      request_counter = BsRequestCounter.lock(true).first_or_create
-      self.number = request_counter.counter
-      request_counter.increment(:counter)
-      request_counter.save!
+    # it's wiser to split the queries
+    if opts[:project] && roles.empty? && (states.empty? || states.include?("review"))
+      (BsRequest.find_for(opts.merge(roles: ["reviewer"])) +
+        BsRequest.find_for(opts.merge(roles: ["target", "source"]))).uniq
+    else
+      BsRequest.find_for(opts).uniq
     end
   end
 
-  def check_supersede_state
-    if state == :superseded && (!superseded_by.is_a?(Numeric) || !(superseded_by > 0))
-      errors.add(:superseded_by, 'Superseded_by should be set')
+  def self.list_numbers(opts)
+    list(opts).pluck(:number)
+  end
+
+  def self.actions_summary(payload)
+    ret = []
+    payload.with_indifferent_access['actions'][0..ACTION_NOTIFY_LIMIT].each do |a|
+      str = "#{a['type']} #{a['targetproject']}"
+      str += "/#{a['targetpackage']}" if a['targetpackage']
+      str += "/#{a['targetrepository']}" if a['targetrepository']
+      ret << str
     end
-
-    return unless superseded_by && !(state == :superseded)
-    errors.add(:superseded_by, 'Superseded_by should not be set')
-  end
-
-  def updated_when
-    self[:updated_when] || self[:updated_at]
-  end
-
-  def superseding
-    BsRequest.where(superseded_by: number)
-  end
-
-  def state
-    read_attribute(:state).to_sym
-  end
-
-  after_rollback :reset_cache
-  after_save :reset_cache
-
-  def reset_cache
-    return unless id
-    Rails.cache.delete("xml_bs_request_fullhistory_#{cache_key}")
-    Rails.cache.delete("xml_bs_request_history_#{cache_key}")
-    Rails.cache.delete("xml_bs_request_#{cache_key}")
+    ret.join(', ')
   end
 
   def self.new_from_xml(xml)
@@ -267,6 +233,84 @@ class BsRequest < ApplicationRecord
       request.updated_at ||= Time.now
     end
     request
+  end
+
+  def save!(args = {})
+    new = created_at ? nil : 1
+    sanitize! if new && !@skip_sanitize
+    super
+    notify if new
+  end
+
+  def history_elements
+    HistoryElement::Base.where(id: request_history_elements.pluck(:id) + review_history_elements.pluck(:id)).order(:created_at)
+  end
+
+  def set_add_revision
+    @addrevision = true
+  end
+
+  def set_ignore_build_state
+    @ignore_build_state = true
+  end
+
+  def skip_sanitize
+    @skip_sanitize = true
+  end
+
+  def check_creator
+    unless creator
+      errors.add(:creator, 'No creator defined')
+    end
+    user = User.get_by_login creator
+    unless user
+      errors.add(:creator, "Invalid creator specified #{creator}")
+    end
+    return if user.is_active?
+    errors.add(:creator, "Login #{user.login} is not an active user")
+  end
+
+  def assign_number
+    return if number
+    # to assign a unique and steady incremental number.
+    # Using MySQL auto-increment mechanism is not working on clusters.
+    BsRequest.transaction do
+      request_counter = BsRequestCounter.lock(true).first_or_create
+      self.number = request_counter.counter
+      request_counter.increment(:counter)
+      request_counter.save!
+    end
+  end
+
+  def check_supersede_state
+    if state == :superseded && (!superseded_by.is_a?(Numeric) || !(superseded_by > 0))
+      errors.add(:superseded_by, 'Superseded_by should be set')
+    end
+
+    return unless superseded_by && !(state == :superseded)
+    errors.add(:superseded_by, 'Superseded_by should not be set')
+  end
+
+  def updated_when
+    self[:updated_when] || self[:updated_at]
+  end
+
+  def superseding
+    BsRequest.where(superseded_by: number)
+  end
+
+  def state
+    read_attribute(:state).to_sym
+  end
+
+  after_rollback :reset_cache
+  after_save :reset_cache
+
+  def reset_cache
+    return unless id
+    Rails.cache.delete("xml_bs_request_fullhistory_#{cache_key}")
+    Rails.cache.delete("xml_bs_request_history_#{cache_key}")
+    Rails.cache.delete("xml_bs_request_#{cache_key}")
   end
 
   def to_axml(opts = {})
@@ -442,11 +486,7 @@ class BsRequest < ApplicationRecord
     # check target write permissions
     return unless opts[:newstate] == 'accepted'
 
-    bs_request_actions.each do |action|
-      action.check_action_permission!(true)
-      action.check_for_expand_errors! !@addrevision.nil?
-      raisepriority(action.minimum_priority)
-    end
+    check_bs_request_actions!(skip_source: true)
   end
 
   def changestate_accepted(opts)
@@ -575,38 +615,6 @@ class BsRequest < ApplicationRecord
       history.create(params)
     end
   end
-
-  def _assignreview_update_reviews(reviewer, opts, new_review = nil)
-    review_comment = nil
-    reviews.reverse_each do |review|
-      next if review.by_user
-      next if review.by_group && review.by_group != opts[:by_group]
-      next if review.by_project && review.by_project != opts[:by_project]
-      next if review.by_package && review.by_package != opts[:by_package]
-
-      # approve for this review
-      if opts[:revert]
-        review.state = :new
-        review_comment = "revert the "
-        history_class = HistoryElement::ReviewReopened
-      else
-        review.state = :accepted
-        review.review_assigned_to = new_review if new_review
-        review_comment = ""
-        history_class = HistoryElement::ReviewAccepted
-      end
-      review.reviewer = User.current.try(:login)
-      review.save!
-
-      review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
-      review_comment += "review for project #{opts[:by_project]}" if opts[:by_project]
-      review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
-      history_class.create(review: review, comment: "review assigend to user #{reviewer.login}", user_id: User.current.id)
-    end
-    raise Review::NotFoundError unless review_comment
-    review_comment
-  end
-  private :_assignreview_update_reviews
 
   def assignreview(opts = {})
     unless state == :review || (state == :new && state == :new)
@@ -831,16 +839,13 @@ class BsRequest < ApplicationRecord
     HistoryElement::RequestSetIncident.create(p)
   end
 
-  IntermediateStates = %w(new review)
-
   def send_state_change
+    intermediate_state = %w(new review)
     return if state_was.to_s == state.to_s
     # new->review && review->new are not worth an event - it's just spam
-    return if state.to_s.in?(IntermediateStates) && state_was.to_s.in?(IntermediateStates)
+    return if state.to_s.in?(intermediate_state) && state_was.to_s.in?(intermediate_state)
     Event::RequestStatechange.create(notify_parameters)
   end
-
-  ActionNotifyLimit = 50
 
   def notify_parameters(ret = {})
     ret[:number] = number
@@ -854,21 +859,10 @@ class BsRequest < ApplicationRecord
 
     # Use a nested data structure to support multiple actions in one request
     ret[:actions] = []
-    bs_request_actions[0..ActionNotifyLimit].each do |a|
+    bs_request_actions[0..ACTION_NOTIFY_LIMIT].each do |a|
       ret[:actions] << a.notify_params
     end
     ret
-  end
-
-  def self.actions_summary(payload)
-    ret = []
-    payload.with_indifferent_access['actions'][0..ActionNotifyLimit].each do |a|
-      str = "#{a['type']} #{a['targetproject']}"
-      str += "/#{a['targetpackage']}" if a['targetpackage']
-      str += "/#{a['targetrepository']}" if a['targetrepository']
-      ret << str
-    end
-    ret.join(', ')
   end
 
   def review_matches_user?(review, user)
@@ -948,12 +942,6 @@ class BsRequest < ApplicationRecord
     end
   end
 
-  def self.delayed_auto_accept
-    to_accept.each do |request|
-      BsRequestAutoAcceptJob.perform_later(request.id)
-    end
-  end
-
   # Check if 'user' is maintainer in _all_ request targets:
   def is_target_maintainer?(user = User.current)
     has_target, is_target_maintainer = false, true
@@ -994,12 +982,7 @@ class BsRequest < ApplicationRecord
     # expand release and submit request targets if not specified
     expand_targets
 
-    bs_request_actions.each do |action|
-      # permission checks
-      action.check_action_permission!
-      action.check_for_expand_errors! !@addrevision.nil?
-      raisepriority(action.minimum_priority)
-    end
+    check_bs_request_actions!
 
     # Autoapproval? Is the creator allowed to accept it?
     if accept_at
@@ -1166,31 +1149,6 @@ class BsRequest < ApplicationRecord
     newactions.each { |a| bs_request_actions << a }
   end
 
-  def self.list(opts)
-    # All types means don't pass 'type'
-    if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?('all'))
-      opts.delete(:types)
-    end
-    # Do not allow a full collection to avoid server load
-    if [:project, :user, :package].all? { |filter| opts[filter].blank? }
-      raise RuntimeError, 'This call requires at least one filter, either by user, project or package'
-    end
-    roles = opts[:roles] || []
-    states = opts[:states] || []
-
-    # it's wiser to split the queries
-    if opts[:project] && roles.empty? && (states.empty? || states.include?("review"))
-      (BsRequest.find_for(opts.merge(roles: ["reviewer"])) +
-        BsRequest.find_for(opts.merge(roles: ["target", "source"]))).uniq
-    else
-      BsRequest.find_for(opts).uniq
-    end
-  end
-
-  def self.list_numbers(opts)
-    list(opts).pluck(:number)
-  end
-
   def update_cache
     target_package_ids = bs_request_actions.with_target_package.pluck(:target_package_id)
     target_project_ids = bs_request_actions.with_target_project.pluck(:target_project_id)
@@ -1212,6 +1170,47 @@ class BsRequest < ApplicationRecord
       Group.joins(:relationships).where(relationships: { project_id: target_project_ids })).update_all(updated_at: Time.now)
     User.where(id: user_ids).update_all(updated_at: Time.now)
     # rubocop:enable Rails/SkipsModelValidations
+  end
+
+  private
+
+  def check_bs_request_actions!(opts = {})
+    bs_request_actions.each do |action|
+      action.check_action_permission!(opts[:skip_source])
+      action.check_for_expand_errors!(!@addrevision.nil?)
+      raisepriority(action.minimum_priority)
+    end
+  end
+
+  def _assignreview_update_reviews(reviewer, opts, new_review = nil)
+    review_comment = nil
+    reviews.reverse_each do |review|
+      next if review.by_user
+      next if review.by_group && review.by_group != opts[:by_group]
+      next if review.by_project && review.by_project != opts[:by_project]
+      next if review.by_package && review.by_package != opts[:by_package]
+
+      # approve for this review
+      if opts[:revert]
+        review.state = :new
+        review_comment = "revert the "
+        history_class = HistoryElement::ReviewReopened
+      else
+        review.state = :accepted
+        review.review_assigned_to = new_review if new_review
+        review_comment = ""
+        history_class = HistoryElement::ReviewAccepted
+      end
+      review.reviewer = User.current.try(:login)
+      review.save!
+
+      review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
+      review_comment += "review for project #{opts[:by_project]}" if opts[:by_project]
+      review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
+      history_class.create(review: review, comment: "review assigend to user #{reviewer.login}", user_id: User.current.id)
+    end
+    raise Review::NotFoundError unless review_comment
+    review_comment
   end
 end
 
