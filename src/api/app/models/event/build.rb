@@ -21,7 +21,6 @@ class Event::Build < Event::Package
 end
 
 class Event::BuildSuccess < Event::Build
-  self.raw_type = 'BUILD_SUCCESS'
   self.description = 'Package has succeeded building'
   after_commit :send_to_bus
 
@@ -33,7 +32,6 @@ end
 class Event::BuildFail < Event::Build
   include BuildLogSupport
 
-  self.raw_type = 'BUILD_FAIL'
   self.description = 'Package has failed to build'
   receiver_roles :maintainer, :bugowner, :reader
   after_commit :send_to_bus
@@ -82,7 +80,6 @@ class Event::BuildFail < Event::Build
 end
 
 class Event::BuildUnchanged < Event::Build
-  # no raw_type as it should not go to plugins
   self.description = 'Package has succeeded building with unchanged result'
   after_commit :send_to_bus
 

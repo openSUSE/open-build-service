@@ -10,7 +10,7 @@ module Event
     before_save :shorten_payload_if_necessary
 
     class << self
-      attr_accessor :description, :raw_type
+      attr_accessor :description
       @payload_keys = nil
       @create_jobs = nil
       @classnames = nil
@@ -99,10 +99,6 @@ module Event
 
     def receiver_roles
       self.class.receiver_roles
-    end
-
-    def raw_type
-      self.class.raw_type
     end
 
     def initialize(_attribs)

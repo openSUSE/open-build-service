@@ -5,7 +5,6 @@ module Event
   end
 
   class CreateProject < Project
-    self.raw_type = 'SRCSRV_CREATE_PROJECT'
     self.description = 'Project is created'
     payload_keys :sender
     after_commit :send_to_bus
@@ -20,7 +19,6 @@ module Event
   end
 
   class UpdateProjectConfig < Project
-    self.raw_type = 'SRCSRV_UPDATE_PROJECT_CONFIG'
     self.description = 'Project _config was updated'
     payload_keys :sender, :files, :comment
     after_commit :send_to_bus
@@ -31,7 +29,6 @@ module Event
   end
 
   class UndeleteProject < Project
-    self.raw_type = 'SRCSRV_UNDELETE_PROJECT'
     self.description = 'Project was undeleted'
     payload_keys :comment, :sender
     after_commit :send_to_bus
@@ -42,7 +39,6 @@ module Event
   end
 
   class UpdateProject < Project
-    self.raw_type = 'SRCSRV_UPDATE_PROJECT'
     self.description = 'Project meta was updated'
     payload_keys :sender
     after_commit :send_to_bus
@@ -53,7 +49,6 @@ module Event
   end
 
   class DeleteProject < Project
-    self.raw_type = 'SRCSRV_DELETE_PROJECT'
     self.description = 'Project was deleted'
     payload_keys :comment, :requestid, :sender
     after_commit :send_to_bus
