@@ -305,6 +305,11 @@ class Package < ApplicationRecord
     PackageMetaFile.new(project_name: project.name, package_name: name)
   end
 
+  def add_maintainer(user)
+    add_user(user, 'maintainer')
+    save
+  end
+
   def check_source_access?
     if disabled_for?('sourceaccess', nil, nil) || project.disabled_for?('sourceaccess', nil, nil)
       unless User.current && User.current.can_source_access?(self)

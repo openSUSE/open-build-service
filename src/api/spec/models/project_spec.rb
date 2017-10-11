@@ -530,4 +530,10 @@ RSpec.describe Project, vcr: true do
       expect(Relationship.exists?(relationship.id)).to be_falsey
     end
   end
+
+  describe '#add_maintainer' do
+    subject { project }
+
+    it_behaves_like "makes a user a maintainer of the subject"
+  end
 end
