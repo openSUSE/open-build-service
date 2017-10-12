@@ -5,7 +5,7 @@ xml.packageresult( "project" => @project, "repository" => @repository,
     xml.packagecount( @succeeded, "state" => "succeeded" )
     xml.packagecount( @failed, "state" => "failed" )
   end
-  @arch_status.each do | a, s |
+  @arch_status.each do |a, s|
     xml.archresult( "arch" => a ) do
       xml.status( "code" => s["code"] ) do
         if ( s["summary"] )
