@@ -61,7 +61,7 @@ class EventSubscription
           if receiver.email.present?
             new_receivers << receiver
           else
-            new_receivers += receiver.users
+            new_receivers += receiver.email_users
           end
         end
       end

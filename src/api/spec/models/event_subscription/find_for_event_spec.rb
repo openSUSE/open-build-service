@@ -156,10 +156,24 @@ RSpec.describe EventSubscription::FindForEvent do
           context 'which is enabled' do
             let!(:subscription) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: user) }
 
-            it 'returns the subscription for that user/group' do
-              subscriber_result = subject.find { |subscription| subscription.subscriber == user }
+            context 'and the user has emails enabled for the group' do
+              it 'returns the subscription for that user/group' do
+                subscriber_result = subject.find { |subscription| subscription.subscriber == user }
 
-              expect(subscriber_result).to eq(subscription)
+                expect(subscriber_result).to eq(subscription)
+              end
+            end
+
+            context 'and the user has emails disabled for the group' do
+              before do
+                groups_user = GroupsUser.find_by(user: user, group: group)
+                groups_user.email = false
+                groups_user.save
+              end
+
+              it 'does not include that user' do
+                expect(subject.map(&:subscriber)).not_to include(user)
+              end
             end
           end
 
