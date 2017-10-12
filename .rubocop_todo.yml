@@ -286,19 +286,6 @@ Layout/SpaceAroundKeyword:
   Exclude:
     - 'src/api/app/views/person/userinfo.xml.builder'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment.
-Layout/SpaceAroundOperators:
-  Exclude:
-    - 'src/api/app/views/attribute/attribute_definition.xml.builder'
-    - 'src/api/app/views/attribute/namespace_definition.xml.builder'
-    - 'src/api/app/views/models/_project.xml.builder'
-    - 'src/api/app/views/person/tokenlist.xml.builder'
-    - 'src/api/app/views/search/missing_owner.xml.builder'
-    - 'src/api/app/views/search/owner.xml.builder'
-    - 'src/api/app/views/webui/feeds/commits.atom.builder'
-
 # Offense count: 68
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
