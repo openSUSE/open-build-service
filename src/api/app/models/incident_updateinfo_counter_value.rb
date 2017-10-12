@@ -8,7 +8,7 @@ class IncidentUpdateinfoCounterValue < ApplicationRecord
 
     # not yet released, get an uniq counter value for this incident and scheme
     IncidentUpdateinfoCounterValue.create(released_at: time,
-                                          updateinfo_counter:updateinfo_counter,
+                                          updateinfo_counter: updateinfo_counter,
                                           project: project,
                                           value: updateinfo_counter.increase)
   end

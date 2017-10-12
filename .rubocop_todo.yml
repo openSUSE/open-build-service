@@ -248,15 +248,6 @@ Layout/MultilineMethodCallIndentation:
 Layout/MultilineOperationIndentation:
   Enabled: false
 
-# Offense count: 39
-# Cop supports --auto-correct.
-Layout/SpaceAfterColon:
-  Exclude:
-    - 'src/api/app/models/incident_updateinfo_counter_value.rb'
-    - 'src/api/test/functional/maintenance_test.rb'
-    - 'src/api/test/functional/product_test.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 Layout/SpaceAfterComma:
