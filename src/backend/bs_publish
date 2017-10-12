@@ -1494,9 +1494,11 @@ sub publish {
 	  $kiwimedium{$p} = $1 if $bin =~ /(.+)\.iso$/;
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /-Build\d.*\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(?:\.sha256)?$/) {
+	} elsif ($bin =~ /(.*-Build\d.*)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
+	  $kiwimedium{$p} = $1 if !$2 && -e "$r/$1.packages";
 	  $p = "$bin";
-	} elsif ($bin =~ /\.tar(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
+	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
+	  $kiwimedium{$p} = $1 if !$2 && -e "$r/$1.packages";
 	  $p = "$bin";
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256)?$/) {
           # esp. for Go builds

@@ -2176,7 +2176,7 @@ sub getbinaries_buildenv {
 }
 
 sub getbinaries {
-  my ($buildinfo, $dir, $srcdir, $preinstallimagedata) = @_;
+  my ($buildinfo, $dir, $srcdir, $preinstallimagedata, $kiwiorigins) = @_;
 
   return getbinaries_buildenv($buildinfo, $dir, $srcdir) if $buildinfo->{'hasbuildenv'};
 
@@ -2291,6 +2291,8 @@ sub getbinaries {
 	if (!$bdep_notmeta{$n}) {
 	  my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
 	  push @meta, "$id  $repoprp/$n";
+	  # sigh, no package information available yet...
+          $kiwiorigins->{$n} = "$repoprp/$buildinfo->{'arch'}" if $kiwiorigins;
 	}
 	if (!$buildinfo->{'syspath'} && !$bdep_noinstall{$n}) {
           if (!-e "$dir/$f->{'name'}") {
@@ -2543,7 +2545,8 @@ sub xmlescape {
   return $d;
 }
 
-# parse all .report file and create a channel file from them
+# parse all .report files and create a channel file from them
+# also update the data in the .report files with the binary origins
 sub createchannel {
   my ($dir, $kiwiorigins) = @_;
   my @reports = grep {/\.report$/} ls($dir);
@@ -2641,6 +2644,43 @@ sub createchannel {
   }
   $c .= "</channel>\n";
   writestr("$dir/._channel", "$dir/_channel", $c);
+}
+
+# create a kiwi .report file from a kiwi .packages file by adding binary origin information
+sub createkiwireport {
+  my ($dir, $kiwiorigins) = @_;
+
+  local *F;
+  for my $file (grep {/\.packages$/} sort(ls($dir))) {
+    next unless open(F, '<', "$dir/$file");
+    my @bins;
+    while (<F>) {
+      my @s = split(/\|/, $_);
+      next unless @s < 6;
+      my $bin = {
+        'name' => $s[0],
+        'version' => $s[2],
+        'release' => $s[3],
+        'binaryarch' => $s[4],
+        'disturl' => $s[5],
+      };
+      $bin->{'epoch'} = $s[1] if $s[1] ne '(none)';
+      my $prpap = $kiwiorigins->{$s[0]};
+      if ($prpap) {
+        my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
+        $bin->{'project'} = $projid;
+        $bin->{'repository'} = $repoid;
+        $bin->{'arch'} = $arch;
+        $bin->{'package'} = $packid if $packid;
+      }
+      push @bins, $bin;
+    }
+    close F;
+    my $report = { 'binary' => \@bins };
+    my $reportfile = $file;
+    $reportfile =~ s/\.packages$/\.report/;
+    writexml("$dir/.$reportfile", "$dir/$reportfile", $report, $BSXML::report);
+  }
 }
 
 $Build::Kiwi::urlmapper = sub {return '_obsrepositories'}  unless $Build::Kiwi::urlmapper;
@@ -2778,7 +2818,7 @@ sub dobuild {
       }
       push @meta, getbinaries_kiwiproduct($buildinfo, $pkgdir, $srcdir, $kiwiorigins);
     } else {
-      push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
+      push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata, $kiwiorigins);
     }
   }
   $preinstallimagedata ||= {};
@@ -3021,6 +3061,9 @@ sub dobuild {
   # the report files
   if (($kiwimode || '') eq 'product' && !$followupmode) {
     createchannel("$buildroot/.build.packages/OTHER", $kiwiorigins);
+  }
+  if ($kiwimode && $kiwimode ne 'product' && !$followupmode) {
+    createkiwireport("$buildroot/.build.packages/KIWI", $kiwiorigins);
   }
   if ($followupmode && %$kiwiorigins) {
     writestr("$buildroot/.build.packages/OTHER/$_", undef, $kiwiorigins->{$_}) for keys %$kiwiorigins;
