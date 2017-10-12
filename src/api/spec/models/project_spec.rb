@@ -532,7 +532,7 @@ RSpec.describe Project, vcr: true do
   end
 
   describe '#add_maintainer' do
-    subject { project }
+    subject { create(:user).home_project }
 
     it_behaves_like "makes a user a maintainer of the subject"
   end
