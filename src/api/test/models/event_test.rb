@@ -27,10 +27,6 @@ class EventTest < ActionDispatch::IntegrationTest
     assert_equal [], e.receiver_roles
   end
 
-  test 'receive roles for build failure' do
-    assert_equal %i(maintainer bugowner reader), events(:build_fails_with_deleted_user_and_request).receiver_roles
-  end
-
   def users_for_event(e)
     users = EventSubscription::FindForEvent.new(e).subscriptions.map(&:subscriber)
     User.where(id: users).pluck(:login).sort
