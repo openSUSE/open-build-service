@@ -36,11 +36,11 @@ class IssueTest < ActiveSupport::TestCase
     issue.destroy
   end
 
-  BugSearch = "<?xml version=\"1.0\" ?><methodCall><methodName>Bug.search</methodName>
+  BUG_SEARCH = "<?xml version=\"1.0\" ?><methodCall><methodName>Bug.search</methodName>
                <params><param><value><struct><member><name>last_change_time</name><value>
                <dateTime.iso8601>20110729T14:00:21</dateTime.iso8601></value></member></struct>
                </value></param></params></methodCall>\n".freeze
-  BugGet = "<?xml version=\"1.0\" ?><methodCall><methodName>Bug.get</methodName><params><param>
+  BUG_GET = "<?xml version=\"1.0\" ?><methodCall><methodName>Bug.get</methodName><params><param>
             <value><struct><member><name>ids</name><value><array><data><value><i4>838932</i4></value>
             <value><i4>838933</i4></value><value><i4>838970</i4></value></data></array></value></member>
             <member><name>permissive</name><value><i4>1</i4></value></member>
@@ -48,13 +48,13 @@ class IssueTest < ActiveSupport::TestCase
 
   test "fetch issues" do
     stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").
-        with(body: BugSearch).
+        with(body: BUG_SEARCH).
         to_return(status: 200,
                   body: load_backend_file("bugzilla_response_search.xml"),
                   headers: {})
 
     stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").
-        with(body: BugGet).
+        with(body: BUG_GET).
         to_return(status: 200,
                   body: load_backend_file("bugzilla_get_response.xml"),
                   headers: {})

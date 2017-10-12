@@ -352,15 +352,15 @@ class SourceController < ApplicationController
     if origin_package_name && !origin_package_name.in?(["_project", "_pattern"]) && !(params[:missingok] && @command.in?(['branch', 'release']))
       @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name)
     end
-    unless Package_creating_commands.include?(@command) && !Project.exists_by_name(@target_project_name)
+    unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
       valid_project_name! params[:project]
       valid_package_name! params[:package]
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name @target_project_name
       # rubocop:disable Metrics/LineLength
-      if !Package_creating_commands.include?(@command) || Package.exists_by_project_and_name( @target_project_name,
+      if !PACKAGE_CREATING_COMMANDS.include?(@command) || Package.exists_by_project_and_name( @target_project_name,
                                                                                               @target_package_name,
-                                                                                              follow_project_links: Source_untouched_commands.include?(@command) )
+                                                                                              follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command) )
         validate_target_for_package_command_exists!
       end
       # rubocop:enable Metrics/LineLength
@@ -369,18 +369,18 @@ class SourceController < ApplicationController
     dispatch_command(:package_command, @command)
   end
 
-  Source_untouched_commands = %w(branch diff linkdiff servicediff showlinked rebuild wipe
+  SOURCE_UNTOUCHED_COMMANDS = %w(branch diff linkdiff servicediff showlinked rebuild wipe
                                  waitservice remove_flag set_flag getprojectservices).freeze
   # list of cammands which create the target package
-  Package_creating_commands = %w(branch release copy undelete instantiate).freeze
+  PACKAGE_CREATING_COMMANDS = %w(branch release copy undelete instantiate).freeze
   # list of commands which are allowed even when the project has the package only via a project link
-  Read_commands = %w(branch diff linkdiff servicediff showlinked getprojectservices release).freeze
+  READ_COMMANDS = %w(branch diff linkdiff servicediff showlinked getprojectservices release).freeze
 
   def validate_target_for_package_command_exists!
     @project = nil
     @package = nil
 
-    follow_project_links = Source_untouched_commands.include?(@command)
+    follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
 
     unless @target_package_name.in?(["_project", "_pattern"])
       use_source = true
@@ -390,7 +390,7 @@ class SourceController < ApplicationController
       if @package # for remote package case it's nil
         @project = @package.project
         ignore_lock = @command == 'unlock'
-        unless Read_commands.include?(@command) || User.current.can_modify_package?(@package, ignore_lock)
+        unless READ_COMMANDS.include?(@command) || User.current.can_modify_package?(@package, ignore_lock)
           raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}"
         end
       end
