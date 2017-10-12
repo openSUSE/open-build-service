@@ -248,14 +248,6 @@ Layout/MultilineMethodCallIndentation:
 Layout/MultilineOperationIndentation:
   Enabled: false
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Layout/SpaceAfterComma:
-  Exclude:
-    - 'src/api/app/views/public/binary_packages.xml.builder'
-    - 'src/api/app/views/status/project.xml.builder'
-    - 'src/api/app/views/webui/feeds/commits.atom.builder'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleInsidePipes, SupportedStylesInsidePipes.

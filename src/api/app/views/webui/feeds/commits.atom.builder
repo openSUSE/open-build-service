@@ -48,7 +48,7 @@ xml.feed(feed_opts) do |feed|
           end
           div.p "Additional information:"
           div.dl do |dl|
-            commit.additional_info.each do |k,v|
+            commit.additional_info.each do |k, v|
               dl.dt k
               dl.dd v
             end
