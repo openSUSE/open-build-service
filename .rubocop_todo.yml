@@ -32,12 +32,6 @@ Layout/AlignParameters:
   Exclude:
     - 'src/api/app/views/statistics/rating.xml.builder'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/BlockEndNewline:
-  Exclude:
-    - 'src/api/app/views/source/productlist.xml.builder'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, IndentOneStep, IndentationWidth.
@@ -254,63 +248,12 @@ Layout/MultilineMethodCallIndentation:
 Layout/MultilineOperationIndentation:
   Enabled: false
 
-# Offense count: 39
-# Cop supports --auto-correct.
-Layout/SpaceAfterColon:
-  Exclude:
-    - 'src/api/app/models/incident_updateinfo_counter_value.rb'
-    - 'src/api/test/functional/maintenance_test.rb'
-    - 'src/api/test/functional/product_test.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Layout/SpaceAfterComma:
-  Exclude:
-    - 'src/api/app/views/public/binary_packages.xml.builder'
-    - 'src/api/app/views/status/project.xml.builder'
-    - 'src/api/app/views/webui/feeds/commits.atom.builder'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleInsidePipes, SupportedStylesInsidePipes.
-# SupportedStylesInsidePipes: space, no_space
-Layout/SpaceAroundBlockParameters:
-  Exclude:
-    - 'src/api/app/views/result/packageresult.xml.builder'
-    - 'src/api/app/views/result/projectresult.xml.builder'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/SpaceAroundKeyword:
-  Exclude:
-    - 'src/api/app/views/person/userinfo.xml.builder'
-
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment.
-Layout/SpaceAroundOperators:
-  Exclude:
-    - 'src/api/app/views/attribute/attribute_definition.xml.builder'
-    - 'src/api/app/views/attribute/namespace_definition.xml.builder'
-    - 'src/api/app/views/models/_project.xml.builder'
-    - 'src/api/app/views/person/tokenlist.xml.builder'
-    - 'src/api/app/views/search/missing_owner.xml.builder'
-    - 'src/api/app/views/search/owner.xml.builder'
-    - 'src/api/app/views/webui/feeds/commits.atom.builder'
-
 # Offense count: 68
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: space, no_space
 Layout/SpaceBeforeBlockBraces:
   Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/SpaceBeforeComma:
-  Exclude:
-    - 'src/api/app/views/tag/_tagged_objects_with_tags.xml.builder'
 
 # Offense count: 4
 # Cop supports --auto-correct.

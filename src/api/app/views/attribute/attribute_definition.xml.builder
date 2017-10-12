@@ -34,7 +34,7 @@ xml.definition(p) do |attr|
   abies = @at.attrib_type_modifiable_bies.includes(:user, :group, :role)
   if abies.length > 0
     abies.each do |mod_rule|
-      p={}
+      p = {}
       p[:user] = mod_rule.user.login if mod_rule.user
       p[:group] = mod_rule.group.title if mod_rule.group
       p[:role] = mod_rule.role.title if mod_rule.role

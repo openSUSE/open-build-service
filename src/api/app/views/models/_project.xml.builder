@@ -62,7 +62,7 @@ xml.project(project_attributes) do
       end
       repo.path_elements.includes(:link).each do |pe|
         if pe.link.remote_project_name.present?
-          project_name = pe.link.project.name+":"+pe.link.remote_project_name
+          project_name = pe.link.project.name + ":" + pe.link.remote_project_name
         else
           project_name = pe.link.project.name
         end

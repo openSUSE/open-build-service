@@ -6,9 +6,9 @@ xml.projectresult( "project" => @project ) do
     xml.packagecount( @building, "state" => "building" )
     xml.packagecount( @delayed, "state" => "delayed" )
   end
-  @repository_status.each do | r, arch_status |
+  @repository_status.each do |r, arch_status|
     xml.repositoryresult( "name" => r ) do
-      arch_status.each do | a, s | 
+      arch_status.each do |a, s|
         xml.archresult( "arch" => a ) do
           xml.status( "code" => s )
         end

@@ -2445,9 +2445,9 @@ EOF
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: {name:"repo1", rebuild: "local", block: "never"})
-    assert_xml_tag(tag: 'repository', attributes: {name:"repo2", rebuild: "local", block: "never"})
-    assert_xml_tag(tag: 'repository', attributes: {name:"repo3", rebuild: "local", block: "never"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "repo1", rebuild: "local", block: "never"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "repo2", rebuild: "local", block: "never"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "repo3", rebuild: "local", block: "never"})
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
@@ -2456,9 +2456,9 @@ EOF
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: {name:"repo1", rebuild: "local"})
-    assert_xml_tag(tag: 'repository', attributes: {name:"repo2", rebuild: "transitive"})
-    assert_xml_tag(tag: 'repository', attributes: {name:"repo3"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "repo1", rebuild: "local"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "repo2", rebuild: "transitive"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "repo3"})
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
@@ -2495,9 +2495,9 @@ EOF
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: {name:"repo1"})
-    assert_xml_tag(tag: 'repository', attributes: {name:"repo2"})
-    assert_xml_tag(tag: 'repository', attributes: {name:"repo3"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "repo1"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "repo2"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "repo3"})
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
@@ -2513,10 +2513,10 @@ EOF
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_xml_tag(tag: 'repository', attributes: {name:"BaseDistro_repo"})
-    assert_no_xml_tag(tag: 'repository', attributes: {name:"repo1"})
-    assert_no_xml_tag(tag: 'repository', attributes: {name:"repo2"})
-    assert_no_xml_tag(tag: 'repository', attributes: {name:"repo3"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "BaseDistro_repo"})
+    assert_no_xml_tag(tag: 'repository', attributes: {name: "repo1"})
+    assert_no_xml_tag(tag: 'repository', attributes: {name: "repo2"})
+    assert_no_xml_tag(tag: 'repository', attributes: {name: "repo3"})
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
     delete "/source/home:adrian:TEMP/_attribute/OBS:BranchRepositoriesFromProject"
@@ -2534,9 +2534,9 @@ EOF
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_no_xml_tag(tag: 'repository', attributes: {name:"repo1"})
-    assert_xml_tag(tag: 'repository', attributes: {name:"repo2"})
-    assert_no_xml_tag(tag: 'repository', attributes: {name:"repo3"})
+    assert_no_xml_tag(tag: 'repository', attributes: {name: "repo1"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "repo2"})
+    assert_no_xml_tag(tag: 'repository', attributes: {name: "repo3"})
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
     # again as maintenance branch
@@ -2544,9 +2544,9 @@ EOF
     assert_response :success
     get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
     assert_response :success
-    assert_no_xml_tag(tag: 'repository', attributes: {name:"home_adrian_TEMP_repo1"})
-    assert_xml_tag(tag: 'repository', attributes: {name:"home_adrian_TEMP_repo2"})
-    assert_no_xml_tag(tag: 'repository', attributes: {name:"home_adrian_TEMP_repo3"})
+    assert_no_xml_tag(tag: 'repository', attributes: {name: "home_adrian_TEMP_repo1"})
+    assert_xml_tag(tag: 'repository', attributes: {name: "home_adrian_TEMP_repo2"})
+    assert_no_xml_tag(tag: 'repository', attributes: {name: "home_adrian_TEMP_repo3"})
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 

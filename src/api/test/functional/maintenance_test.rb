@@ -979,7 +979,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_match(/DUMMY bnc#1042/, @response.body)
     get "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
     assert_response :success
-    assert_xml_tag parent: { tag: 'issue', attributes: {change:"added"} },
+    assert_xml_tag parent: { tag: 'issue', attributes: {change: "added"} },
                    tag: 'name', content: '1042'
 
     # add a new package with defined link target
