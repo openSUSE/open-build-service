@@ -242,6 +242,44 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
 
       it { expect(subject.to_xml).to be_nil }
     end
+
+    context 'with a kiwi file with packages and repositories' do
+      let(:package) { create(:package) }
+      let(:kiwi_image) { Kiwi::Image.build_from_xml(kiwi_xml, 'some_md5') }
+      subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
+
+      before do
+        allow(package).to receive(:kiwi_image_file).and_return('config.kiwi')
+        allow(package).to receive(:source_file).and_return(kiwi_xml)
+        kiwi_image.package = package
+        kiwi_image.save
+      end
+
+      it { expect(subject.children[2].children[3].name).to eq('packages') }
+      it { expect(subject.children[2].children[3].attributes['type'].value).to eq('image') }
+      it { expect(subject.children[2].children[7].name).to eq('repository') }
+      it { expect(subject.children[2].children[9].name).to eq('repository') }
+      it { expect(subject.children[2].children[11].name).to eq('repository') }
+      it { expect(subject.children[2].children[13].name).to eq('repository') }
+    end
+
+    context 'with a kiwi file without packages and repositories' do
+      let(:package) { create(:package) }
+      let(:kiwi_image) { Kiwi::Image.build_from_xml(Kiwi::Image::DEFAULT_KIWI_BODY, 'some_md5') }
+      subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
+
+      before do
+        allow(package).to receive(:kiwi_image_file).and_return('config.kiwi')
+        allow(package).to receive(:source_file).and_return(Kiwi::Image::DEFAULT_KIWI_BODY)
+        kiwi_image.package = package
+        kiwi_image.package_groups << create(:kiwi_package_group_non_empty, kiwi_type: 'image')
+        kiwi_image.repositories << create(:kiwi_repository)
+        kiwi_image.save
+      end
+
+      it { expect(subject.children[2].children[5].name).to eq('packages') }
+      it { expect(subject.children[2].children[7].name).to eq('repository') }
+    end
   end
 
   describe '.write_to_backend' do
