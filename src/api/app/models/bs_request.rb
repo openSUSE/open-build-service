@@ -32,6 +32,8 @@ class BsRequest < ApplicationRecord
 
   FINAL_REQUEST_STATES = %w(accepted declined superseded revoked)
 
+  VALID_REQUEST_STATES = [:new, :deleted, :declined, :accepted, :review, :revoked, :superseded].freeze
+
   ACTION_NOTIFY_LIMIT = 50
 
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
