@@ -123,7 +123,7 @@ class BsRequest < ApplicationRecord
     # it's wiser to split the queries
     if opts[:project] && roles.empty? && (states.empty? || states.include?("review"))
       (BsRequest.find_for(opts.merge(roles: ["reviewer"])) +
-        BsRequest.find_for(opts.merge(roles: ["target", "source"]))).uniq
+        BsRequest.find_for(opts.merge(roles: %w[target source]))).uniq
     else
       BsRequest.find_for(opts).uniq
     end
@@ -790,7 +790,7 @@ class BsRequest < ApplicationRecord
   def setpriority(opts)
     permission_check_setpriority!
 
-    unless opts[:priority].in?(['low', 'moderate', 'important', 'critical'])
+    unless opts[:priority].in?(%w[low moderate important critical])
       raise SaveError, "Illegal priority '#{opts[:priority]}'"
     end
 
@@ -808,7 +808,7 @@ class BsRequest < ApplicationRecord
     # rails enums do not support compare and break db constraints :/
     if new == "critical"
       self.priority = new
-    elsif new == "important" && priority.in?(["moderate", "low"])
+    elsif new == "important" && priority.in?(%w[moderate low])
       self.priority = new
     elsif new == "moderate" && "low" == priority
       self.priority = new

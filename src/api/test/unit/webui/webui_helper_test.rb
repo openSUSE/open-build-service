@@ -30,7 +30,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
   end
 
   def test_elide_two # spec/helpers/webui/webui_helper_spec.rb
-    assert_equal ["aaa", "bbb"], elide_two('aaa', 'bbb')
+    assert_equal %w[aaa bbb], elide_two('aaa', 'bbb')
   end
 
   def test_next_codemirror_uid

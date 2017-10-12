@@ -5,7 +5,7 @@ class BsRequestAction < ApplicationRecord
   include ParsePackageDiff
 
   #### Constants
-  VALID_SOURCEUPDATE_OPTIONS = ['update', 'noupdate', 'cleanup']
+  VALID_SOURCEUPDATE_OPTIONS = %w[update noupdate cleanup]
 
   #### Self config
   class DiffError < APIException; setup 404; end # a diff error can have many reasons, but most likely something within us
@@ -55,7 +55,7 @@ class BsRequestAction < ApplicationRecord
   validate :check_sanity
   validates :type, uniqueness: {
                      scope:      [:target_project, :target_package, :bs_request_id],
-                     conditions: -> { where.not(type: ['add_role', 'maintenance_incident']) }
+                     conditions: -> { where.not(type: %w[add_role maintenance_incident]) }
   }
 
   before_validation :set_target_associations
@@ -589,11 +589,11 @@ class BsRequestAction < ApplicationRecord
             raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " +
                                        "needs recalculation by the schedulers"
           end
-          if result.attributes['state'].in?(["finished", "publishing"])
+          if result.attributes['state'].in?(%w[finished publishing])
             raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch}" +
                                        "did not finish the publish yet"
           end
-          unless result.attributes['state'].in?(["published", "unpublished"])
+          unless result.attributes['state'].in?(%w[published unpublished])
             raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " +
                                        "did not finish the build yet"
           end
@@ -813,7 +813,7 @@ class BsRequestAction < ApplicationRecord
         raise 'We should have expanded a target_project' unless target_project
         # validate project type
         prj = Project.get_by_name(target_project)
-        unless prj.kind.in?(["maintenance", "maintenance_incident"])
+        unless prj.kind.in?(%w[maintenance maintenance_incident])
           raise IncidentHasNoMaintenanceProject, 'incident projects shall only create below maintenance projects'
         end
       end

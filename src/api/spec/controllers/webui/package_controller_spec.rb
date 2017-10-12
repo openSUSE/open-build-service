@@ -1208,8 +1208,8 @@ EOT
 
     it { expect(response).to have_http_status(:success) }
     it { expect(assigns(:repo_list)).to include(['openSUSE_Leap_42.1', 'openSUSE_Leap_42_1']) }
-    it { expect(assigns(:repo_list)).not_to include(['images', 'images']) }
-    it { expect(assigns(:repo_list)).not_to include(['openSUSE_Tumbleweed', 'openSUSE_Tumbleweed']) }
+    it { expect(assigns(:repo_list)).not_to include(%w[images images]) }
+    it { expect(assigns(:repo_list)).not_to include(%w[openSUSE_Tumbleweed openSUSE_Tumbleweed]) }
     it { expect(assigns(:repo_arch_hash)['openSUSE_Leap_42_1']).to include('x86_64') }
     it { expect(assigns(:repo_arch_hash)['openSUSE_Leap_42_1']).not_to include('armv7l') }
   end

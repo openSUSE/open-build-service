@@ -75,7 +75,7 @@ RSpec.configure do |config|
   unless ENV['TRAVIS'] || ENV['RPM_BUILD_ROOT']
     # users who tend to run test cases manually and may need to debug travis issues
     calling_user = %x(id -u -n)
-    unless ['adrian', 'mls', 'frontend'].include? calling_user.chomp
+    unless %w[adrian mls frontend].include? calling_user.chomp
       puts "calling user: #{calling_user}"
       config.formatter = 'NyanUnicornFormatter'
     end

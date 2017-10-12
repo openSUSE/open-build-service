@@ -92,10 +92,10 @@ end
 
 RSpec.shared_examples "tests for sections with flag tables" do
   describe "flags tables" do
-    let(:architectures) { ["i586", "x86_64"] }
+    let(:architectures) { %w[i586 x86_64] }
     let!(:repository) { create(:repository, project: project, architectures: architectures) }
-    let(:arch_rows) { ["Repository", "All"] + architectures }
-    let(:repo_cols) { ["Repository", "All"] + project.repositories.pluck(:name) }
+    let(:arch_rows) { %w[Repository All] + architectures }
+    let(:repo_cols) { %w[Repository All] + project.repositories.pluck(:name) }
 
     before do
       login(user)

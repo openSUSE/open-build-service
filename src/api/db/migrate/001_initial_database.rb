@@ -31,7 +31,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
     create_table "attrib_issues", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
       t.integer "attrib_id", null: false
       t.integer "issue_id",  null: false
-      t.index ["attrib_id", "issue_id"], name: "index_attrib_issues_on_attrib_id_and_issue_id", unique: true, using: :btree
+      t.index %w[attrib_id issue_id], name: "index_attrib_issues_on_attrib_id_and_issue_id", unique: true, using: :btree
       t.index ["issue_id"], name: "issue_id", using: :btree
     end
 
@@ -39,7 +39,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "attrib_namespace_id", null: false
       t.integer "user_id"
       t.integer "group_id"
-      t.index ["attrib_namespace_id", "user_id", "group_id"], name: "attrib_namespace_user_role_all_index", unique: true, using: :btree
+      t.index %w[attrib_namespace_id user_id group_id], name: "attrib_namespace_user_role_all_index", unique: true, using: :btree
       t.index ["attrib_namespace_id"], name: "index_attrib_namespace_modifiable_bies_on_attrib_namespace_id", using: :btree
       t.index ["user_id"], name: "bs_user_id", using: :btree
       t.index ["group_id"], name: "bs_group_id", using: :btree
@@ -55,7 +55,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "user_id"
       t.integer "group_id", options: "AFTER user_id"
       t.integer "role_id"
-      t.index ["attrib_type_id", "user_id", "group_id", "role_id"], name: "attrib_type_user_role_all_index", unique: true, using: :btree
+      t.index %w[attrib_type_id user_id group_id role_id], name: "attrib_type_user_role_all_index", unique: true, using: :btree
       t.index ["user_id"], name: "user_id", using: :btree
       t.index ["group_id"], name: "group_id", using: :btree
       t.index ["role_id"], name: "role_id", using: :btree
@@ -68,7 +68,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "value_count"
       t.integer "attrib_namespace_id",                 null: false
       t.boolean "issue_list",          default: false
-      t.index ["attrib_namespace_id", "name"], name: "index_attrib_types_on_attrib_namespace_id_and_name", unique: true, using: :btree
+      t.index %w[attrib_namespace_id name], name: "index_attrib_types_on_attrib_namespace_id_and_name", unique: true, using: :btree
       t.index ["attrib_namespace_id"], name: "attrib_namespace_id", using: :btree
       t.index ["name"], name: "index_attrib_types_on_name", using: :btree
     end
@@ -77,7 +77,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "attrib_id",               null: false
       t.text    "value",     limit: 65535, null: false, collation: "utf8_general_ci"
       t.integer "position",                null: false
-      t.index ["attrib_id", "position"], name: "index_attrib_values_on_attrib_id_and_position", unique: true, using: :btree
+      t.index %w[attrib_id position], name: "index_attrib_values_on_attrib_id_and_position", unique: true, using: :btree
       t.index ["attrib_id"], name: "index_attrib_values_on_attrib_id", using: :btree
     end
 
@@ -86,8 +86,8 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "package_id"
       t.string  "binary",                      collation: "utf8_general_ci"
       t.integer "project_id"
-      t.index ["attrib_type_id", "package_id", "project_id", "binary"], name: "attribs_index", unique: true, using: :btree
-      t.index ["attrib_type_id", "project_id", "package_id", "binary"], name: "attribs_on_proj_and_pack", unique: true, using: :btree
+      t.index %w[attrib_type_id package_id project_id binary], name: "attribs_index", unique: true, using: :btree
+      t.index %w[attrib_type_id project_id package_id binary], name: "attribs_on_proj_and_pack", unique: true, using: :btree
       t.index ["package_id"], name: "index_attribs_on_package_id", using: :btree
       t.index ["project_id"], name: "index_attribs_on_project_id", using: :btree
     end
@@ -148,7 +148,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.index ["target_package"], name: "index_bs_request_actions_on_target_package", using: :btree
       t.index ["source_project"], name: "index_bs_request_actions_on_source_project", using: :btree
       t.index ["source_package"], name: "index_bs_request_actions_on_source_package", using: :btree
-      t.index ["target_project", "source_project"], name: "index_bs_request_actions_on_target_project_and_source_project", using: :btree
+      t.index %w[target_project source_project], name: "index_bs_request_actions_on_target_project_and_source_project", using: :btree
     end
 
     create_table "bs_request_histories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -181,7 +181,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.string   "project"
       t.integer  "request"
       t.datetime "created_at"
-      t.index ["project", "package"], name: "index_cache_lines_on_project_and_package", using: :btree
+      t.index %w[project package], name: "index_cache_lines_on_project_and_package", using: :btree
       t.index ["project"], name: "index_cache_lines_on_project", using: :btree
     end
 
@@ -194,11 +194,11 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.string  "package"
       t.string  "binaryarch"
       t.string  "supportstatus"
-      t.index ["project_id", "package"], name: "index_channel_binaries_on_project_id_and_package", using: :btree
+      t.index %w[project_id package], name: "index_channel_binaries_on_project_id_and_package", using: :btree
       t.index ["channel_binary_list_id"], name: "channel_binary_list_id", using: :btree
       t.index ["repository_id"], name: "repository_id", using: :btree
       t.index ["architecture_id"], name: "architecture_id", using: :btree
-      t.index ["name", "channel_binary_list_id"], name: "index_channel_binaries_on_name_and_channel_binary_list_id", using: :btree
+      t.index %w[name channel_binary_list_id], name: "index_channel_binaries_on_name_and_channel_binary_list_id", using: :btree
     end
 
     create_table "channel_binary_lists", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -217,7 +217,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "repository_id", null: false
       t.string  "prefix"
       t.string  "tag"
-      t.index ["channel_id", "repository_id"], name: "index_channel_targets_on_channel_id_and_repository_id", unique: true, using: :btree
+      t.index %w[channel_id repository_id], name: "index_channel_targets_on_channel_id_and_repository_id", unique: true, using: :btree
       t.index ["repository_id"], name: "repository_id", using: :btree
     end
 
@@ -277,7 +277,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
     create_table "db_projects_tags", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
       t.integer "db_project_id", null: false
       t.integer "tag_id",        null: false
-      t.index ["db_project_id", "tag_id"], name: "projects_tags_all_index", unique: true, using: :btree
+      t.index %w[db_project_id tag_id], name: "projects_tags_all_index", unique: true, using: :btree
       t.index ["tag_id"], name: "tag_id", using: :btree
     end
 
@@ -387,7 +387,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer  "group_id",   default: 0, null: false
       t.integer  "role_id",    default: 0, null: false
       t.datetime "created_at"
-      t.index ["group_id", "role_id"], name: "groups_roles_all_index", unique: true, using: :btree
+      t.index %w[group_id role_id], name: "groups_roles_all_index", unique: true, using: :btree
       t.index ["role_id"], name: "role_id", using: :btree
     end
 
@@ -396,7 +396,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer  "user_id",    default: 0,    null: false
       t.datetime "created_at"
       t.boolean  "email",      default: true
-      t.index ["group_id", "user_id"], name: "groups_users_all_index", unique: true, using: :btree
+      t.index %w[group_id user_id], name: "groups_users_all_index", unique: true, using: :btree
       t.index ["user_id"], name: "user_id", using: :btree
     end
 
@@ -429,7 +429,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.column   "state", "enum('OPEN','CLOSED','UNKNOWN')", limit: 7,              collation: "utf8_general_ci"
       t.index ["owner_id"], name: "owner_id", using: :btree
       t.index ["issue_tracker_id"], name: "issue_tracker_id", using: :btree
-      t.index ["name", "issue_tracker_id"], name: "index_issues_on_name_and_issue_tracker_id", using: :btree
+      t.index %w[name issue_tracker_id], name: "index_issues_on_name_and_issue_tracker_id", using: :btree
     end
 
     create_table "linked_projects", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -437,7 +437,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "linked_db_project_id"
       t.integer "position"
       t.string  "linked_remote_project_name",              collation: "utf8_general_ci"
-      t.index ["db_project_id", "linked_db_project_id"], name: "linked_projects_index", unique: true, using: :btree
+      t.index %w[db_project_id linked_db_project_id], name: "linked_projects_index", unique: true, using: :btree
     end
 
     create_table "maintenance_incidents", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -468,7 +468,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "package_id",           null: false
       t.integer "issue_id",             null: false
       t.column  "change", "enum('added','deleted','changed','kept')", limit: 7
-      t.index ["package_id", "issue_id"], name: "index_package_issues_on_package_id_and_issue_id", using: :btree
+      t.index %w[package_id issue_id], name: "index_package_issues_on_package_id_and_issue_id", using: :btree
       t.index ["issue_id"], name: "index_package_issues_on_issue_id", using: :btree
       t.index ["package_id"], name: "index_package_issues_on_package_id", using: :btree
     end
@@ -493,7 +493,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer  "develpackage_id"
       t.boolean  "delta",                         default: true,  null: false
       t.index ["develpackage_id"], name: "devel_package_id_index", using: :btree
-      t.index ["project_id", "name"], name: "packages_all_index", unique: true, length: { name: 255 }, using: :btree
+      t.index %w[project_id name], name: "packages_all_index", unique: true, length: { name: 255 }, using: :btree
       t.index ["project_id"], name: "index_packages_on_project_id", using: :btree
       t.index ["updated_at"], name: "updated_at_index", using: :btree
     end
@@ -502,15 +502,15 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "parent_id",     null: false
       t.integer "repository_id", null: false
       t.integer "position",      null: false
-      t.index ["parent_id", "position"], name: "parent_repo_pos_index", unique: true, using: :btree
-      t.index ["parent_id", "repository_id"], name: "parent_repository_index", unique: true, using: :btree
+      t.index %w[parent_id position], name: "parent_repo_pos_index", unique: true, using: :btree
+      t.index %w[parent_id repository_id], name: "parent_repository_index", unique: true, using: :btree
       t.index ["repository_id"], name: "repository_id", using: :btree
     end
 
     create_table "product_channels", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
       t.integer "product_id", null: false
       t.integer "channel_id", null: false
-      t.index ["channel_id", "product_id"], name: "index_product_channels_on_channel_id_and_product_id", unique: true, using: :btree
+      t.index %w[channel_id product_id], name: "index_product_channels_on_channel_id_and_product_id", unique: true, using: :btree
       t.index ["product_id"], name: "product_id", using: :btree
     end
 
@@ -525,7 +525,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.string  "name",       null: false
       t.integer "package_id", null: false
       t.string  "cpe"
-      t.index ["name", "package_id"], name: "index_products_on_name_and_package_id", unique: true, using: :btree
+      t.index %w[name package_id], name: "index_products_on_name_and_package_id", unique: true, using: :btree
       t.index ["package_id"], name: "package_id", using: :btree
     end
 
@@ -580,10 +580,10 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "role_id",    null: false
       t.integer "user_id"
       t.integer "group_id"
-      t.index ["project_id", "role_id", "group_id"], name: "index_relationships_on_project_id_and_role_id_and_group_id", unique: true, using: :btree
-      t.index ["project_id", "role_id", "user_id"], name: "index_relationships_on_project_id_and_role_id_and_user_id", unique: true, using: :btree
-      t.index ["package_id", "role_id", "group_id"], name: "index_relationships_on_package_id_and_role_id_and_group_id", unique: true, using: :btree
-      t.index ["package_id", "role_id", "user_id"], name: "index_relationships_on_package_id_and_role_id_and_user_id", unique: true, using: :btree
+      t.index %w[project_id role_id group_id], name: "index_relationships_on_project_id_and_role_id_and_group_id", unique: true, using: :btree
+      t.index %w[project_id role_id user_id], name: "index_relationships_on_project_id_and_role_id_and_user_id", unique: true, using: :btree
+      t.index %w[package_id role_id group_id], name: "index_relationships_on_package_id_and_role_id_and_group_id", unique: true, using: :btree
+      t.index %w[package_id role_id user_id], name: "index_relationships_on_package_id_and_role_id_and_user_id", unique: true, using: :btree
       t.index ["role_id"], name: "role_id", using: :btree
       t.index ["user_id"], name: "user_id", using: :btree
       t.index ["group_id"], name: "group_id", using: :btree
@@ -605,7 +605,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.column  "block", "enum('all','local','never')", limit: 5,               collation: "utf8_general_ci"
       t.column  "linkedbuild", "enum('off','localdep','all')", limit: 8,               collation: "utf8_general_ci"
       t.integer "hostsystem_id"
-      t.index ["db_project_id", "name", "remote_project_name"], name: "projects_name_index", unique: true, using: :btree
+      t.index %w[db_project_id name remote_project_name], name: "projects_name_index", unique: true, using: :btree
       t.index ["remote_project_name"], name: "remote_project_name_index", using: :btree
       t.index ["hostsystem_id"], name: "hostsystem_id", using: :btree
     end
@@ -615,7 +615,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "architecture_id",             null: false
       t.integer "position",        default: 0, null: false
       t.index ["architecture_id"], name: "architecture_id", using: :btree
-      t.index ["repository_id", "architecture_id"], name: "arch_repo_index", unique: true, using: :btree
+      t.index %w[repository_id architecture_id], name: "arch_repo_index", unique: true, using: :btree
     end
 
     create_table "reviews", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -635,10 +635,10 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.index ["by_user"], name: "index_reviews_on_by_user", using: :btree
       t.index ["by_group"], name: "index_reviews_on_by_group", using: :btree
       t.index ["by_project"], name: "index_reviews_on_by_project", using: :btree
-      t.index ["by_package", "by_project"], name: "index_reviews_on_by_package_and_by_project", using: :btree
+      t.index %w[by_package by_project], name: "index_reviews_on_by_package_and_by_project", using: :btree
       t.index ["bs_request_id"], name: "bs_request_id", using: :btree
-      t.index ["state", "by_project"], name: "index_reviews_on_state_and_by_project", using: :btree
-      t.index ["state", "by_user"], name: "index_reviews_on_state_and_by_user", using: :btree
+      t.index %w[state by_project], name: "index_reviews_on_state_and_by_project", using: :btree
+      t.index %w[state by_user], name: "index_reviews_on_state_and_by_user", using: :btree
       t.index ["state"], name: "index_reviews_on_state", using: :btree
     end
 
@@ -653,7 +653,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "role_id",              default: 0, null: false
       t.integer "static_permission_id", default: 0, null: false
       t.index ["role_id"], name: "role_id", using: :btree
-      t.index ["static_permission_id", "role_id"], name: "roles_static_permissions_all_index", unique: true, using: :btree
+      t.index %w[static_permission_id role_id], name: "roles_static_permissions_all_index", unique: true, using: :btree
     end
 
     create_table "roles_users", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -661,7 +661,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer  "role_id",    default: 0, null: false
       t.datetime "created_at"
       t.index ["role_id"], name: "role_id", using: :btree
-      t.index ["user_id", "role_id"], name: "roles_users_all_index", unique: true, using: :btree
+      t.index %w[user_id role_id], name: "roles_users_all_index", unique: true, using: :btree
     end
 
     create_table "sessions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -682,7 +682,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer "time"
       t.string  "key",                           collation: "utf8_general_ci"
       t.float   "value", limit: 24, null: false
-      t.index ["time", "key"], name: "index_status_histories_on_time_and_key", using: :btree
+      t.index %w[time key], name: "index_status_histories_on_time_and_key", using: :btree
       t.index ["key"], name: "index_status_histories_on_key", using: :btree
     end
 
@@ -693,7 +693,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.integer  "user_id"
       t.integer  "severity"
       t.index ["user_id"], name: "user", using: :btree
-      t.index ["deleted_at", "created_at"], name: "index_status_messages_on_deleted_at_and_created_at", using: :btree
+      t.index %w[deleted_at created_at], name: "index_status_messages_on_deleted_at_and_created_at", using: :btree
     end
 
     create_table "taggings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin" do |t|
@@ -701,7 +701,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.string  "taggable_type", collation: "utf8_general_ci"
       t.integer "tag_id"
       t.integer "user_id"
-      t.index ["taggable_id", "taggable_type", "tag_id", "user_id"], name: "taggings_taggable_id_index", unique: true, using: :btree
+      t.index %w[taggable_id taggable_type tag_id user_id], name: "taggings_taggable_id_index", unique: true, using: :btree
       t.index ["taggable_type"], name: "index_taggings_on_taggable_type", using: :btree
       t.index ["tag_id"], name: "tag_id", using: :btree
       t.index ["user_id"], name: "user_id", using: :btree

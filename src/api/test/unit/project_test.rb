@@ -12,11 +12,11 @@ class ProjectTest < ActiveSupport::TestCase
 
   def test_maintained_project_names
     project = Project.create(name: "Z")
-    ["A", "B", "C"].each do |project_name|
+    %w[A B C].each do |project_name|
       project.maintained_projects.create(project: Project.create(name: project_name))
     end
 
-    assert_equal ["A", "B", "C"], project.maintained_project_names
+    assert_equal %w[A B C], project.maintained_project_names
   end
 
   def test_flags_inheritance
@@ -287,7 +287,7 @@ class ProjectTest < ActiveSupport::TestCase
     project2.reload
 
     # test if all project flags are default for a new project
-    allflags = ['build', 'publish', 'useforbuild', 'binarydownload', 'access', 'lock', 'debuginfo']
+    allflags = %w[build publish useforbuild binarydownload access lock debuginfo]
     allflags.each do |flagtype|
       project2.get_flags(flagtype).each do |repo|
         repo[1].each do |flag|

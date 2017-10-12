@@ -77,8 +77,8 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
         expect(foo.count).to eq(foo.distinct.count)
       end
 
-      it { expect(repo_for_user_home.architectures.pluck(:name)).to match_array(['i586', 'x86_64']) }
-      it { expect(Architecture.available.pluck(:name)).to match_array(["armv7l", "i586", "x86_64"]) }
+      it { expect(repo_for_user_home.architectures.pluck(:name)).to match_array(%w[i586 x86_64]) }
+      it { expect(Architecture.available.pluck(:name)).to match_array(%w[armv7l i586 x86_64]) }
       it { expect(assigns(:repository_arch_hash).to_a).to match_array([["armv7l", false], ['i586', true], ['x86_64', true]])}
       it { is_expected.to redirect_to(action: :index) }
       it { expect(flash[:notice]).to eq("Successfully updated repository") }

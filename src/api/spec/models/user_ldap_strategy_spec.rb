@@ -321,13 +321,13 @@ RSpec.describe UserLdapStrategy do
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
         include_context 'mock searching a user' do
-          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => %w[John Smith] }) }
         end
 
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns name and username' do
-          is_expected.to eq(['John', 'tux'])
+          is_expected.to eq(%w[John tux])
         end
       end
 
@@ -335,7 +335,7 @@ RSpec.describe UserLdapStrategy do
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
         include_context 'mock searching a user' do
-          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => %w[John Smith] }) }
         end
 
         before do
@@ -363,7 +363,7 @@ RSpec.describe UserLdapStrategy do
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
         include_context 'mock searching a user' do
-          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'], 'fn' => 'SJ' }) }
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => %w[John Smith], 'fn' => 'SJ' }) }
         end
 
         before do
@@ -375,7 +375,7 @@ RSpec.describe UserLdapStrategy do
         subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns the users ldap_name_attr and username' do
-          is_expected.to eq(['John', 'S'])
+          is_expected.to eq(%w[John S])
         end
       end
 
@@ -387,7 +387,7 @@ RSpec.describe UserLdapStrategy do
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
         include_context 'mock searching a user' do
-          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => %w[John Smith] }) }
         end
 
         before do
@@ -409,7 +409,7 @@ RSpec.describe UserLdapStrategy do
           UserLdapStrategy.find_with_ldap('tux', 'tux_password')
         end
 
-        it { is_expected.to eq(['John', 'tux']) }
+        it { is_expected.to eq(%w[John tux]) }
       end
     end
   end
