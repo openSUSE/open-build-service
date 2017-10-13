@@ -144,7 +144,7 @@ GEM
       activesupport (>= 4.2.0)
     gssapi (1.2.0)
       ffi (>= 1.0.1)
-    haml (5.0.3)
+    haml (5.0.4)
       temple (>= 0.8.0)
       tilt
     haml_lint (0.26.0)
