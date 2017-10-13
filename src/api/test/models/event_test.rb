@@ -94,20 +94,11 @@ class EventTest < ActionDispatch::IntegrationTest
     assert_equal should, email.encoded.lines.map(&:chomp).reject { |l| l =~ %r{^Date:} }.join("\n")
   end
 
-  test 'notifications are sent' do
-    e = Event::VersionChange.first
-    assert e.notify_backend
-  end
-
   test 'cleanup job' do
     firstcount = Event::Base.count
     CleanupEvents.new.perform
     assert Event::Base.count == firstcount, 'all our fixtures are fresh'
     f = Event::Base.first
-    f.queued = true
-    f.save
-    CleanupEvents.new.perform
-    assert Event::Base.count == firstcount, 'queuing is not enough'
     f.project_logged = true
     f.save
     CleanupEvents.new.perform

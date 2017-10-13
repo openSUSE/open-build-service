@@ -79,6 +79,10 @@ Wanted changes:
 
  * password hashing algorithm was changed to bcrypt (blowfish)
 
+ * The backend notification plugin system is not used anymore.
+   The RabbitMQ plugin is replaced with a RabbitMQ message bus implementation in the frontend, you can find details about this in the admin manual.
+   The Hermes plugin is dropped without replacement as it was only used for notifications which the OBS is doing on it's own since quite some time.
+
 Other changes
 =============
 

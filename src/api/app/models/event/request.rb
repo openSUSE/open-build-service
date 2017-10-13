@@ -122,7 +122,6 @@ class Event::Request < ::Event::Base
 end
 
 class Event::RequestChange < Event::Request
-  self.raw_type = 'SRCSRV_REQUEST_CHANGE'
   self.description = 'Request XML was updated (admin only)'
   after_commit :send_to_bus
 
@@ -132,7 +131,6 @@ class Event::RequestChange < Event::Request
 end
 
 class Event::RequestCreate < Event::Request
-  self.raw_type = 'SRCSRV_REQUEST_CREATE'
   self.description = 'Request created'
   receiver_roles :source_maintainer, :target_maintainer
   after_commit :send_to_bus
@@ -159,7 +157,6 @@ class Event::RequestCreate < Event::Request
 end
 
 class Event::RequestDelete < Event::Request
-  self.raw_type = 'SRCSRV_REQUEST_DELETE'
   self.description = 'Request was deleted (admin only)'
   after_commit :send_to_bus
 
@@ -169,7 +166,6 @@ class Event::RequestDelete < Event::Request
 end
 
 class Event::RequestStatechange < Event::Request
-  self.raw_type = 'SRCSRV_REQUEST_STATECHANGE'
   self.description = 'Request state was changed'
   payload_keys :oldstate
   receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer

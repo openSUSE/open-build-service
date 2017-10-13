@@ -20,7 +20,6 @@ module Clockwork
   end
 
   every(30.seconds, 'send notifications') do
-    EventNotifyBackendJob.perform_later
     SendEventEmailsJob.perform_later
   end
 

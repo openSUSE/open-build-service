@@ -5,7 +5,6 @@ module Event
   end
 
   class CreatePackage < Package
-    self.raw_type = 'SRCSRV_CREATE_PACKAGE'
     self.description = 'Package was created'
     after_commit :send_to_bus
 
@@ -19,7 +18,6 @@ module Event
   end
 
   class UpdatePackage < Package
-    self.raw_type = 'SRCSRV_UPDATE_PACKAGE'
     self.description = 'Package meta data was updated'
     after_commit :send_to_bus
 
@@ -29,7 +27,6 @@ module Event
   end
 
   class UndeletePackage < Package
-    self.raw_type = 'SRCSRV_UNDELETE_PACKAGE'
     self.description = 'Package was undeleted'
     payload_keys :comment
     after_commit :send_to_bus
@@ -46,7 +43,6 @@ module Event
   end
 
   class DeletePackage < Package
-    self.raw_type = 'SRCSRV_DELETE_PACKAGE'
     self.description = 'Package was deleted'
     payload_keys :comment, :requestid
     after_commit :send_to_bus
@@ -62,7 +58,6 @@ module Event
   end
 
   class BranchCommand < Package
-    self.raw_type = 'SRCSRV_BRANCH_COMMAND'
     self.description = 'Package was branched'
     payload_keys :targetproject, :targetpackage, :user
     after_commit :send_to_bus
@@ -77,7 +72,6 @@ module Event
   end
 
   class VersionChange < Package
-    self.raw_type = 'SRCSRV_VERSION_CHANGE'
     self.description = 'Package has changed its version'
     payload_keys :comment, :requestid, :files, :rev, :newversion, :user, :oldversion
     after_commit :send_to_bus
@@ -94,7 +88,6 @@ module Event
   end
 
   class Commit < Package
-    self.raw_type = 'SRCSRV_COMMIT'
     self.description = 'New revision of a package was commited'
     payload_keys :project, :package, :comment, :user, :files, :rev, :requestid
 
@@ -117,7 +110,6 @@ module Event
   end
 
   class Upload < Package
-    self.raw_type = 'SRCSRV_UPLOAD'
     self.description = 'Package sources were uploaded'
     payload_keys :project, :package, :comment, :filename, :requestid, :target, :user
     after_commit :send_to_bus
@@ -128,7 +120,6 @@ module Event
   end
 
   class ServiceSuccess < Package
-    self.raw_type = 'SRCSRV_SERVICE_SUCCESS'
     self.description = 'Package source service has succeeded'
     payload_keys :comment, :package, :project, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
@@ -151,7 +142,6 @@ module Event
   end
 
   class ServiceFail < Package
-    self.raw_type = 'SRCSRV_SERVICE_FAIL'
     self.description = 'Package source service has failed'
     payload_keys :comment, :error, :package, :project, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
@@ -187,7 +177,6 @@ end
 #  id             :integer          not null, primary key
 #  eventtype      :string(255)      not null, indexed
 #  payload        :text(65535)
-#  queued         :boolean          default(FALSE), not null, indexed
 #  created_at     :datetime         indexed
 #  updated_at     :datetime
 #  project_logged :boolean          default(FALSE), indexed
@@ -200,5 +189,4 @@ end
 #  index_events_on_eventtype       (eventtype)
 #  index_events_on_mails_sent      (mails_sent)
 #  index_events_on_project_logged  (project_logged)
-#  index_events_on_queued          (queued)
 #
