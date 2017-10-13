@@ -66,6 +66,21 @@ module Backend
                defaults: { cmd: :commit, user: user_login },
                params: options, accepted: [:requestid, :rev, :comment])
         end
+
+        # Returns the list of packages inside the project
+        def self.packages(project_name)
+          get(["/source/:project", project_name])
+        end
+
+        # Returns the list of projects
+        def self.list
+          get("/source")
+        end
+
+        # Deletes the project and all the packages inside
+        def self.delete(project_name)
+          delete(["/source/:project", project_name])
+        end
       end
     end
   end
