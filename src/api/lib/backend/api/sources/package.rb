@@ -85,6 +85,11 @@ module Backend
                params: options, accepted: [:keeplink, :expand, :comment])
         end
 
+        # Returns the link information of a package
+        def self.link_info(project, package)
+          get(["/source/:project/:package/_link", project, package])
+        end
+
         # Writes the link information of a package
         # @return [String]
         def self.write_link(project_name, package_name, user_login, content)

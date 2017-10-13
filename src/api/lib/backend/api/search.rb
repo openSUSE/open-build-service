@@ -16,6 +16,14 @@ module Backend
         packages_list = package_names.map { |name| "linkinfo/@package='#{CGI.escape(name)}'" }.join("+or+")
         get("/search/package/id?match=(#{packages_list})")
       end
+
+      # Performs a search of incident packages for a maintenance project
+      def self.incident_packages(project_name, package_name, maintenance_project_name)
+        conditions = ["linkinfo/@package=\"#{CGI.escape(package_name)}\""]
+        conditions << "linkinfo/@project=\"#{CGI.escape(project_name)}\""
+        conditions << "starts-with(@project,\"#{CGI.escape(maintenance_project_name)}%3A\")"
+        post("/search/package/id?match=(#{conditions.join('+and+')})")
+      end
     end
   end
 end
