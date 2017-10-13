@@ -1,6 +1,16 @@
 require 'rails_helper'
 
+RSpec::Matchers.define :be_like_subscription do |expected_subscription|
+  match do |actual_subscription|
+    actual_subscription.eventtype == expected_subscription.eventtype &&
+      actual_subscription.receiver_role == expected_subscription.receiver_role &&
+      actual_subscription.channel == expected_subscription.channel
+  end
+end
+
 RSpec.shared_context 'it returns subscriptions for an event' do
+  let(:maintainer_subscription_result) { subject.find { |subscription| subscription.subscriber == maintainer } }
+
   context 'with a maintainer user/group who has a maintainer subscription' do
     let!(:project) { create(:project, maintainer: [maintainer]) }
     let!(:comment) { create(:comment_project, commentable: project) }
@@ -9,9 +19,7 @@ RSpec.shared_context 'it returns subscriptions for an event' do
       let!(:subscription) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer) }
 
       it 'returns the subscription for that user/group' do
-        subscriber_result = subject.find { |subscription| subscription.subscriber == maintainer }
-
-        expect(subscriber_result).to eq(subscription)
+        expect(maintainer_subscription_result).to eq(subscription)
       end
     end
 
@@ -36,12 +44,7 @@ RSpec.shared_context 'it returns subscriptions for an event' do
       end
 
       it 'returns a new subscription for that user/group based on the default subscription' do
-        result = subject.find { |subscription| subscription.subscriber == maintainer }
-
-        expect(result.id).to be_nil
-        expect(result.eventtype).to eq(default_subscription.eventtype)
-        expect(result.receiver_role).to eq(default_subscription.receiver_role)
-        expect(result.channel).to eq(default_subscription.channel)
+        expect(maintainer_subscription_result).to be_like_subscription(default_subscription)
       end
     end
 
@@ -68,9 +71,7 @@ RSpec.shared_context 'it returns subscriptions for an event' do
       let!(:subscription) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer) }
 
       it 'returns the subscription for that user/group' do
-        subscriber_result = subject.find { |subscription| subscription.subscriber == maintainer }
-
-        expect(subscriber_result).to eq(subscription)
+        expect(maintainer_subscription_result).to eq(subscription)
       end
     end
 
@@ -88,12 +89,56 @@ end
 
 RSpec.describe EventSubscription::FindForEvent do
   describe '#subscribers' do
-    subject do
-      event = Event::CommentForProject.first
-      EventSubscription::FindForEvent.new(event).subscriptions
+    context 'with a request' do
+      let!(:watcher) { create(:confirmed_user) }
+      let!(:watcher2) { create(:confirmed_user) }
+      let!(:source_project) { create(:project, name: 'TheSource') }
+      let!(:target_project) { create(:project, name: 'TheTarget') }
+      let!(:source_package) { create(:package) }
+      let!(:target_package) { create(:package) }
+      let(:request) do
+        create(
+          :bs_request_with_submit_action,
+          source_project: source_project.name,
+          target_project: target_project.name,
+          source_package: source_package.name,
+          target_package: target_package.name
+        )
+      end
+      let!(:default_subscription) do
+        create(
+          :event_subscription,
+          eventtype: 'Event::RequestCreate',
+          receiver_role: 'source_watcher',
+          user: nil,
+          group: nil,
+          channel: :instant_email
+        )
+      end
+
+      before do
+        watcher.add_watched_project(source_project.name)
+        request
+      end
+
+      subject do
+        event = Event::RequestCreate.first
+        EventSubscription::FindForEvent.new(event).subscriptions
+      end
+
+      it 'returns a new subscription for the watcher based on the default subscription' do
+        result_subscription = subject.find { |subscription| subscription.subscriber == watcher }
+
+        expect(result_subscription).to be_like_subscription(default_subscription)
+      end
     end
 
     context 'with a comment for a project' do
+      subject do
+        event = Event::CommentForProject.first
+        EventSubscription::FindForEvent.new(event).subscriptions
+      end
+
       context 'with no maintainers' do
         let!(:project) { create(:project) }
         let!(:comment) { create(:comment_project, commentable: project) }
@@ -109,6 +154,26 @@ RSpec.describe EventSubscription::FindForEvent do
 
       it_behaves_like 'it returns subscriptions for an event' do
         let!(:maintainer) { create(:group) }
+      end
+
+      context 'with a user who watching the project' do
+        let!(:watcher) { create(:confirmed_user) }
+        let!(:project) { create(:project) }
+        let!(:comment) { create(:comment_project, commentable: project) }
+
+        let!(:default_subscription) do
+          create(:event_subscription_comment_for_project, receiver_role: 'watcher', user: nil, group: nil)
+        end
+
+        before do
+          watcher.add_watched_project(project.name)
+        end
+
+        it 'returns a new subscription for the watcher based on the default subscription' do
+          result_subscription = subject.find { |subscription| subscription.subscriber == watcher }
+
+          expect(result_subscription).to be_like_subscription(default_subscription)
+        end
       end
 
       context 'with a user who is a maintainer and a commenter' do
@@ -128,7 +193,6 @@ RSpec.describe EventSubscription::FindForEvent do
             result_subscription = subject.find { |subscription| subscription.subscriber == maintainer }
 
             # It doesn't matter if the maintainer or commenter subscription is returned
-            expect(result_subscription.id).not_to be_nil
             expect(result_subscription.eventtype).to eq(subscription_maintainer.eventtype)
             expect(result_subscription.channel).to eq(subscription_maintainer.channel)
           end
@@ -147,6 +211,8 @@ RSpec.describe EventSubscription::FindForEvent do
 
         let!(:project) { create(:project, maintainer: [group]) }
         let!(:comment) { create(:comment_project, commentable: project) }
+
+        let(:user_subscription_result) { subject.find { |subscription| subscription.subscriber == user } }
 
         before do
           group.users << user
@@ -195,12 +261,7 @@ RSpec.describe EventSubscription::FindForEvent do
             end
 
             it 'returns a new subscription for that user/group based on the default subscription' do
-              result = subject.find { |subscription| subscription.subscriber == user }
-
-              expect(result.id).to be_nil
-              expect(result.eventtype).to eq(default_subscription.eventtype)
-              expect(result.receiver_role).to eq(default_subscription.receiver_role)
-              expect(result.channel).to eq(default_subscription.channel)
+              expect(user_subscription_result).to be_like_subscription(default_subscription)
             end
           end
 

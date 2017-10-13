@@ -251,6 +251,11 @@ module Event
       ret
     end
 
+    def watchers
+      project = ::Project.find_by_name(payload['project'])
+      project.watched_projects.map(&:user)
+    end
+
     def _roles(role, project, package = nil)
       return [] unless project
       p = nil

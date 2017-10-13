@@ -119,6 +119,22 @@ class Event::Request < ::Event::Base
   def source_maintainers
     action_maintainers('sourceproject', 'sourcepackage')
   end
+
+  def target_watchers
+    find_watchers('targetproject')
+  end
+
+  def source_watchers
+    find_watchers('sourceproject')
+  end
+
+  private
+
+  def find_watchers(project_key)
+    project_names = payload['actions'].map { |action| action[project_key] }.uniq
+    projects = Project.where(name: project_names).joins(watched_projects: :user)
+    projects.flat_map { |project| project.watched_projects.map(&:user) }
+  end
 end
 
 class Event::RequestChange < Event::Request
@@ -132,7 +148,7 @@ end
 
 class Event::RequestCreate < Event::Request
   self.description = 'Request created'
-  receiver_roles :source_maintainer, :target_maintainer
+  receiver_roles :source_maintainer, :target_maintainer, :source_watcher, :target_watcher
   after_commit :send_to_bus
 
   def self.message_bus_queue
@@ -168,7 +184,7 @@ end
 class Event::RequestStatechange < Event::Request
   self.description = 'Request state was changed'
   payload_keys :oldstate
-  receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
+  receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher
   after_commit :send_to_bus
 
   def self.message_bus_queue

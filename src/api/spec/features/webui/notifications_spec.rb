@@ -8,12 +8,13 @@ RSpec.feature 'Notifications', type: :feature, js: true do
 
       expect(page).to have_content('Events to get email for')
 
-      %w(subscriptions_8_channel
-         subscriptions_7_channel
-         subscriptions_14_channel
-         subscriptions_15_channel
-      ).each do |select_id|
-        select('instant_email', from: select_id)
+      [
+        ['Event::CommentForPackage', 'commenter'],
+        ['Event::CommentForProject', 'maintainer'],
+        ['Event::CommentForRequest', 'reviewer'],
+        ['Event::BuildFail', 'maintainer']
+      ].each do |eventtype, receiver_role|
+        find("select[data-eventtype='#{eventtype}'][data-receiver-role='#{receiver_role}']").find(:option, 'instant_email').select_option
       end
 
       click_button 'Update'

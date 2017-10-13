@@ -12,14 +12,14 @@ RSpec.describe EventSubscription::GenerateHashForSubscriber do
       it 'includes the users subscriptions first' do
         subscriptions = subject[Event::CommentForProject]
 
-        expect(subscriptions.count).to eq(2)
+        expect(subscriptions.count).to eq(3)
         expect(subscriptions).to include(user_subscription1, user_subscription2)
       end
 
       it 'includes the default subscriptions second' do
         subscriptions = subject[Event::CommentForRequest]
 
-        expect(subscriptions.count).to eq(5)
+        expect(subscriptions.count).to eq(7)
         expect(subscriptions).to include(default_subscription3, default_subscription4)
       end
 
@@ -41,10 +41,10 @@ RSpec.describe EventSubscription::GenerateHashForSubscriber do
       let(:subscriber) { nil }
 
       it 'includes the default subscriptions first' do
-        expect(subject[Event::CommentForProject].count).to eq(2)
+        expect(subject[Event::CommentForProject].count).to eq(3)
         expect(subject[Event::CommentForProject]).to include(default_subscription1, default_subscription2)
 
-        expect(subject[Event::CommentForRequest].count).to eq(5)
+        expect(subject[Event::CommentForRequest].count).to eq(7)
         expect(subject[Event::CommentForRequest]).to include(default_subscription3, default_subscription4)
       end
 

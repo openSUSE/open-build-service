@@ -7,7 +7,7 @@
         = fields_for "subscriptions[#{i}]", subscription do |f|
           %li
             = f.label :receive, subscription.receiver_role
-            = f.select :channel, EventSubscription.channels.keys
+            = f.select :channel, EventSubscription.channels.keys, {}, { data: { eventtype: subscription.eventtype, receiver_role: subscription.receiver_role } }
             = f.hidden_field :eventtype
             = f.hidden_field :receiver_role
             - i += 1
