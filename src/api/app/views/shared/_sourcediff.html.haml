@@ -8,7 +8,7 @@
 - content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index-diff'))
 = content_tag(:div, div_opts) do
   - if filenames && filenames.length > 0
-    %table
+    %table{ style: "table-layout: fixed; width: 98%;" }
       %tbody
         - last_file_id = nil
         - filenames.each_with_index do |filename, index|
@@ -28,7 +28,7 @@
                     $('#expand_#{file_id}').hide();
                   - else
                     $('#collapse_#{file_id}').hide();
-            %td{ style: 'width: 1%' }= file_state
+            %td{ style: 'width: 10%' }= file_state
             %td
               /
                 Most files don't exist when the package is linked, so keeping in mind the statement below don't even bother to try to show them
