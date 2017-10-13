@@ -10,7 +10,7 @@ module Webui::RequestHelper
   end
 
   def new_or_update_request(row)
-    if row.target_package_id
+    if row.target_package_id || row.request_type != 'submit'
       row.request_type
     else
       "#{row.request_type} <small>(new package)</small>".html_safe
