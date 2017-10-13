@@ -60,7 +60,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
         rev:       "latest",
         comment:   "Releasing from project #{sprj}"
       }
-      commit_params[:comment] += " the update #{opts[:updateinfoIDs].join(", ")}" if opts[:updateinfoIDs]
+      commit_params[:comment] += " the update #{opts[:updateinfoIDs].join(', ')}" if opts[:updateinfoIDs]
       Backend::Api::Sources::Project.commit(tprj, User.current.login, commit_params)
 
       next if cleaned_projects[sprj]
