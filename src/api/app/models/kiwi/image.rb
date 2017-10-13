@@ -11,7 +11,7 @@ class Kiwi::Image < ApplicationRecord
     <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
   </preferences>
 </image>
-'
+'.freeze
 
   #### Self config
 

@@ -42,10 +42,10 @@ class Package < ApplicationRecord
   class IllegalFileName < APIException; setup 'invalid_file_name_error'; end
   class PutFileNoPermission < APIException; setup 403; end
 
-  BINARY_EXTENSIONS ||= %w{.0 .bin .bin_mid .bz .bz2 .ccf .cert .chk .der .dll .exe .fw
-                           .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .otf .oxt .pdf .pk3
-                           .png .ps .rpm .sig .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz
-                           .txz .ucode .xpm .xz .z .zip .ttf}
+  BINARY_EXTENSIONS = %w{.0 .bin .bin_mid .bz .bz2 .ccf .cert .chk .der .dll .exe .fw
+                         .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .otf .oxt .pdf .pk3
+                         .png .ps .rpm .sig .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz
+                         .txz .ucode .xpm .xz .z .zip .ttf}.freeze
 
   belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true

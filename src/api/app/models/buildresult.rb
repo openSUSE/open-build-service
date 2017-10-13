@@ -15,7 +15,7 @@ class Buildresult < ActiveXML::Node
     locked:       12,
     deleting:     13,
     unknown:      14
-  }
+  }.freeze
 
   STATUS_DESCRIPTION = {
       succeeded:    "Package has built successfully and can be used to build further packages.",
@@ -37,7 +37,7 @@ class Buildresult < ActiveXML::Node
                     "does not provide a matching build description for the target.",
       locked:       "The package is frozen",
       unknown:      "The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages."
-  }.with_indifferent_access
+  }.with_indifferent_access.freeze
 
   def self.status_description(status)
     STATUS_DESCRIPTION[status] || "status explanation not found"

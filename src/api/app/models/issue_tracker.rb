@@ -18,7 +18,7 @@ class IssueTracker < ApplicationRecord
   end
 
   # FIXME: issues_updated should not be hidden, but it should also not break our api
-  DEFAULT_RENDER_PARAMS = {except: [:id, :password, :user, :issues_updated], dasherize: true, skip_types: true, skip_instruct: true}
+  DEFAULT_RENDER_PARAMS = { except: [:id, :password, :user, :issues_updated], dasherize: true, skip_types: true, skip_instruct: true }.freeze
 
   def delayed_write_to_backend
     IssueTrackerWriteToBackendJob.perform_later

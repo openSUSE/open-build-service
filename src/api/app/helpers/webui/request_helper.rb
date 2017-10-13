@@ -3,7 +3,7 @@ module Webui::RequestHelper
     'new'        => 'green',
     'declined'   => 'red',
     'superseded' => 'red'
-  }
+  }.freeze
 
   def request_state_color(state)
     STATE_COLORS[state.to_s] || ''

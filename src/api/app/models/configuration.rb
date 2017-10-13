@@ -7,6 +7,7 @@ class Configuration < ApplicationRecord
   validates :name, :title, :description, presence: true
 
   # note: do not add defaults here. It must be either the options.yml content or nil
+  # rubocop:disable Style/MutableConstant
   OPTIONS_YML = {
     title:                                nil,
     description:                          nil,
@@ -36,11 +37,13 @@ class Configuration < ApplicationRecord
     unlisted_projects_filter:             nil,
     unlisted_projects_filter_description: nil
   }
+  # rubocop:enable Style/MutableConstant
+
   ON_OFF_OPTIONS = [:anonymous, :default_access_disabled,
                     :allow_user_to_create_home_project, :disallow_group_creation,
                     :change_password, :hide_private_options, :gravatar,
                     :download_on_demand, :enforce_project_keys,
-                    :cleanup_empty_projects, :disable_publish_for_branches]
+                    :cleanup_empty_projects, :disable_publish_for_branches].freeze
 
   class << self
     def map_value(key, value)

@@ -8,7 +8,7 @@ require File.dirname(__FILE__) + '/../config/boot'
 CREATE_MISSING_USERS = true
 
 # all users created in the above mentioned way will have those attributes
-DUMMY_USER_ATTR = { password: "asdfasdf", email: "noone@localhost" }
+DUMMY_USER_ATTR = { password: "asdfasdf", email: "noone@localhost" }.freeze
 
 require "activexml/activexml"
 

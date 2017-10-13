@@ -5,22 +5,22 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   NEW_META_XML_FOR_TEST_PACK = '<package name="TestPack" project="home:Iggy">
   <title>My Test package Updated via Webui</title>
   <description/>
-</package>'
+</package>'.freeze
 
   INVALID_META_XML_BECAUSE_PACKAGE_NAME = '<package name="TestPackOOO" project="home:Iggy">
   <title>Invalid meta PACKAGE NAME</title>
   <description/>
-</package>'
+</package>'.freeze
 
   INVALID_META_XML_BECAUSE_PROJECT_NAME = '<package name="TestPack" project="home:IggyOOO">
   <title>Invalid meta PROJECT NAME</title>
   <description/>
-</package>'
+</package>'.freeze
 
   INVALID_META_XML_BECAUSE_XML = '<package name="TestPack" project="home:Iggy">
   <title>Invalid meta WRONG XML</title>
   <description/>
-</paaaaackage>'
+</paaaaackage>'.freeze
 
   def delete_and_recreate_kdelibs
     delete_package 'kde4', 'kdelibs'

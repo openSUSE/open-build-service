@@ -9,7 +9,7 @@ require 'fileutils'
 require 'optparse'
 require 'pathname'
 
-TABLES_TO_REMOVE = ['cache_lines', 'project_log_entries']
+TABLES_TO_REMOVE = ['cache_lines', 'project_log_entries'].freeze
 @params = {}
 @params[:environment] = 'development'
 @options_path = ::File.expand_path('../../config/options.yml', __FILE__)

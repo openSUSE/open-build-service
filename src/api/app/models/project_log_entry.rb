@@ -7,8 +7,8 @@ class ProjectLogEntry < ApplicationRecord
 
   validates :event_type, :datetime, :project_id, presence: true
 
-  USERNAME_KEYS = %w(sender user who author commenter)
-  EXCLUDED_KEYS = USERNAME_KEYS + %w(project package requestid)
+  USERNAME_KEYS = %w(sender user who author commenter).freeze
+  EXCLUDED_KEYS = (USERNAME_KEYS + %w(project package requestid)).freeze
 
   # Creates a new LogEntry record from the information contained in an Event
   def self.create_from(event)

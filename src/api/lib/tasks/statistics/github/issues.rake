@@ -3,8 +3,8 @@ namespace :statistics do
     desc 'Export the number of issues merged per week to a file'
     task issues: :environment do
       # GITHUB login required in order to avoid rate limiting on http requests
-      GITHUB_USERNAME = ''
-      GITHUB_PASSWORD = ''
+      GITHUB_USERNAME = ''.freeze
+      GITHUB_PASSWORD = ''.freeze
 
       if GITHUB_USERNAME.empty? || GITHUB_PASSWORD.empty?
         raise StandardError, "Please set your github username/password in lines 8&9 of this file:\nlib/tasks/statistics/github/issues.rake"

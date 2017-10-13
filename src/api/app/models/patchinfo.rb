@@ -22,19 +22,19 @@ class Patchinfo < ActiveXML::Node
     'moderate'  => 'olive',
     'important' => 'red',
     'critical'  => 'maroon'
-  }
+  }.freeze
 
-  RATINGS = RATING_COLORS.keys
+  RATINGS = RATING_COLORS.keys.freeze
 
   CATEGORY_COLORS = {
     'recommended' => 'green',
     'security'    => 'maroon',
     'optional'    => 'olive',
     'feature'     => ''
-  }
+  }.freeze
 
   # '' is a valid category
-  CATEGORIES = CATEGORY_COLORS.keys << ""
+  CATEGORIES = (CATEGORY_COLORS.keys << "").freeze
 
   def self.make_stub( _opt )
     '<patchinfo/>'
