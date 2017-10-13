@@ -21,7 +21,7 @@ services:
       - backend
     command: /obs/contrib/start_development_worker
   frontend:
-    image: openbuildservice/frontend
+    image: openbuildservice/frontend-base
     build:
       context: .
     volumes:
