@@ -190,7 +190,7 @@ module Webui::WebuiHelper
   end
 
   def is_advanced_tab?
-    @current_action.to_s.in?(["prjconf", "index", "meta", "status"])
+    @current_action.to_s.in?(%w[prjconf index meta status])
   end
 
   def sprite_tag(icon, opts = {})

@@ -1420,7 +1420,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           it { expect(assigns(:buildresult_unavailable)).to be_nil }
           it { expect(assigns(:packagenames)).to eq(['c++', 'redis']) }
           it { expect(assigns(:statushash)).to eq(statushash) }
-          it { expect(assigns(:repohash)).to eq({ "openSUSE_Tumbleweed" => ["i586", "x86_64"], "openSUSE_42.2" => ["s390x"] }) }
+          it { expect(assigns(:repohash)).to eq({ "openSUSE_Tumbleweed" => %w[i586 x86_64], "openSUSE_42.2" => ["s390x"] }) }
           it {
             expect(assigns(:repostatushash)).to eq({ "openSUSE_Tumbleweed" => { "i586" => "published", "x86_64" => "building" },
                                                      "openSUSE_42.2"       => { "s390x" => "outdated_published" }})
@@ -1519,7 +1519,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           )
         end
         let(:repohash) do
-          { "home_coolo_standard" => ["i586", "x86_64"] }
+          { "home_coolo_standard" => %w[i586 x86_64] }
         end
 
         let(:statushash) do
@@ -1560,7 +1560,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           )
         end
         let(:repohash) do
-          { "home_coolo_standard" => ["i586", "x86_64"] }
+          { "home_coolo_standard" => %w[i586 x86_64] }
         end
 
         let(:statushash) do

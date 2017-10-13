@@ -31,7 +31,7 @@ RSpec.describe Kiwi::Repository, type: :model do
         is_expected.to allow_value('obsrepositories:/').for(:source_path)
       end
 
-      ['dir', 'iso', 'smb', 'this'].each do |protocol|
+      %w[dir iso smb this].each do |protocol|
         it "valid" do
           property_of {
             protocol + '://' + sized(range(1, 199)) { string(/./) }
@@ -41,7 +41,7 @@ RSpec.describe Kiwi::Repository, type: :model do
         end
       end
 
-      ['ftp', 'http', 'https', 'plain'].each do |protocol|
+      %w[ftp http https plain].each do |protocol|
         it "valid" do
           property_of {
             # TODO: improve regular expression to generate the URI
@@ -86,7 +86,7 @@ RSpec.describe Kiwi::Repository, type: :model do
         }
       end
 
-      ['ftp', 'http', 'https', 'plain', 'obs'].each do |protocol|
+      %w[ftp http https plain obs].each do |protocol|
         it "not valid when has `{`" do
           property_of {
             string = sized(range(1, 199)) { string(/[\w]/) }

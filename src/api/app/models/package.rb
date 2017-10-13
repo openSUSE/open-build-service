@@ -1399,7 +1399,7 @@ class Package < ApplicationRecord
 
     # update package timestamp and reindex sources
     return if opt[:rev] == 'repository' || %w(_project _pattern).include?(name)
-    sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))
+    sources_changed(wait_for_update: %w[_aggregate _constraints _link _service _patchinfo _channel].include?(opt[:filename]))
   end
 
   def to_param

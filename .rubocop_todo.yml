@@ -1049,13 +1049,6 @@ Style/VariableNumber:
     - 'src/api/spec/features/webui/projects_spec.rb'
     - 'src/api/test/unit/project_test.rb'
 
-# Offense count: 108
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, MinSize, WordRegex.
-# SupportedStyles: percent, brackets
-Style/WordArray:
-  Enabled: false
-
 # Offense count: 3
 # Cop supports --auto-correct.
 Style/YodaCondition:

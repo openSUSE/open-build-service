@@ -211,7 +211,7 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#is_advanced_tab?' do
-    advanced_tabs = ['prjconf', 'index', 'meta', 'status']
+    advanced_tabs = %w[prjconf index meta status]
     advanced_tabs.each do |action|
       context "@current_action is '#{action}'" do
         before do

@@ -1,5 +1,5 @@
 class DownloadRepository < ApplicationRecord
-  REPOTYPES = ["rpmmd", "susetags", "deb", "arch", "mdk"]
+  REPOTYPES = %w[rpmmd susetags deb arch mdk]
 
   belongs_to :repository
 

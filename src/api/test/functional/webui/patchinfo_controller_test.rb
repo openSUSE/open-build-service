@@ -135,14 +135,14 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: LONG_DESCRIPTION
 
-    ["package", "delete_me"].each do |bin|
+    %w[package delete_me].each do |bin|
       find('select#available_binaries').select(bin)
       click_button("add")
     end
     click_button("Save Patchinfo")
 
     page.must_have_text "Selected binaries:"
-    ["package", "delete_me"].each do |bin|
+    %w[package delete_me].each do |bin|
       page.must_have_text bin
     end
 

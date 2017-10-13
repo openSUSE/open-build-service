@@ -125,7 +125,7 @@ class BsRequestPermissionCheck
   # check if the action can change state - or throw an APIException if not
   def check_newstate_action!(action, opts)
     # relaxed checks for final exit states
-    return if opts[:newstate].in?(["declined", "revoked", "superseded"])
+    return if opts[:newstate].in?(%w[declined revoked superseded])
 
     if opts[:newstate] == 'accepted'
       check_accepted_action(action)
@@ -161,7 +161,7 @@ class BsRequestPermissionCheck
     end
     # maintenance incident target permission checks
     return unless action.is_maintenance_incident?
-    return if @target_project.kind.in?(["maintenance", "maintenance_incident"])
+    return if @target_project.kind.in?(%w[maintenance maintenance_incident])
 
     raise TargetNotMaintenance, "The target project is not of type maintenance or incident but #{@target_project.kind}"
   end
@@ -325,7 +325,7 @@ class BsRequestPermissionCheck
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
     if req.state.in?([:accepted, :superseded, :revoked])
-      if opts[:newstate].in?(["accepted", "declined", "superseded", "revoked"])
+      if opts[:newstate].in?(%w[accepted declined superseded revoked])
         raise PostRequestNoPermission, "set state to #{opts[:newstate]} from a final state is not allowed."
       end
     end
@@ -341,10 +341,10 @@ class BsRequestPermissionCheck
       raise PostRequestNoPermission, 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
     end
 
-    if opts[:newstate].in?(["new", "review", "revoked", "superseded"]) && req.creator == User.current.login
+    if opts[:newstate].in?(%w[new review revoked superseded]) && req.creator == User.current.login
       # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
-    elsif req.state == :declined && opts[:newstate].in?(["new", "review"]) && req.commenter == User.current.login
+    elsif req.state == :declined && opts[:newstate].in?(%w[new review]) && req.commenter == User.current.login
       # people who declined a request shall also be able to reopen it
       permission_granted = true
     end

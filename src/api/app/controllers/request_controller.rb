@@ -169,7 +169,7 @@ class RequestController < ApplicationController
     end
 
     req.bs_request_actions.each do |action|
-      withissues = params[:withissues].to_s.in?(["1", "true"])
+      withissues = params[:withissues].to_s.in?(%w[1 true])
       action_diff = action.sourcediff(view: params[:view], withissues: withissues)
 
       if xml_request

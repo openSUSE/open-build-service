@@ -181,7 +181,7 @@ class SourceController < ApplicationController
     project_name = params[:project]
     params[:user] = User.current.login
 
-    if command.in?(["undelete", "release", "copy", "move"])
+    if command.in?(%w[undelete release copy move])
       return dispatch_command(:project_command, command)
     end
 
@@ -289,7 +289,7 @@ class SourceController < ApplicationController
     @deleted_package = params.has_key? :deleted
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
-    if params[:cmd].in?(['branch', 'release'])
+    if params[:cmd].in?(%w[branch release])
       @target_package_name = params[:package]
       @target_project_name = params[:target_project] # might be nil
       @target_package_name = params[:target_package] if params[:target_package]
@@ -349,7 +349,7 @@ class SourceController < ApplicationController
     # Check for existence/access of origin package when specified
     @spkg = nil
     Project.get_by_name origin_project_name if origin_project_name
-    if origin_package_name && !origin_package_name.in?(["_project", "_pattern"]) && !(params[:missingok] && @command.in?(['branch', 'release']))
+    if origin_package_name && !origin_package_name.in?(%w[_project _pattern]) && !(params[:missingok] && @command.in?(%w[branch release]))
       @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name)
     end
     unless Package_creating_commands.include?(@command) && !Project.exists_by_name(@target_project_name)
@@ -382,7 +382,7 @@ class SourceController < ApplicationController
 
     follow_project_links = Source_untouched_commands.include?(@command)
 
-    unless @target_package_name.in?(["_project", "_pattern"])
+    unless @target_package_name.in?(%w[_project _pattern])
       use_source = true
       use_source = false if @command == 'showlinked'
       @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
@@ -792,8 +792,8 @@ class SourceController < ApplicationController
     pass_to_backend @path
 
     # update package timestamp and reindex sources
-    return if params[:rev] == 'repository' || @package_name.in?(["_project", "_pattern"])
-    special_file = params[:filename].in?(["_aggregate", "_constraints", "_link", "_service", "_patchinfo", "_channel"])
+    return if params[:rev] == 'repository' || @package_name.in?(%w[_project _pattern])
+    special_file = params[:filename].in?(%w[_aggregate _constraints _link _service _patchinfo _channel])
     @pack.sources_changed(wait_for_update: special_file) # wait for indexing for special files
   end
 

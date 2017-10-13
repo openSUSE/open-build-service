@@ -168,7 +168,7 @@ RSpec.feature "Login", type: :feature, js: true do
     include_context 'setup ldap mock with user mock'
     include_context 'an ldap connection'
 
-    let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
+    let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => %w[John Smith] }) }
 
     before do
       stub_const('CONFIG', CONFIG.merge({

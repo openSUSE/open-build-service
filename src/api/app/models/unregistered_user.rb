@@ -32,7 +32,7 @@ class UnregisteredUser < User
     end
 
     # Turn on registration if it's enabled
-    if ["allow", "confirmation"].include?(::Configuration.registration)
+    if %w[allow confirmation].include?(::Configuration.registration)
       return true
     end
 

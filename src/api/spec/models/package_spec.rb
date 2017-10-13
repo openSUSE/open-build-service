@@ -405,7 +405,7 @@ RSpec.describe Package, vcr: true do
       end
 
       it 'returns an array with the dependencies' do
-        expect(result).to eq(['gcc6', 'xz'])
+        expect(result).to eq(%w[gcc6 xz])
       end
     end
 

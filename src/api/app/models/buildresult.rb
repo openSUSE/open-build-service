@@ -54,7 +54,7 @@ class Buildresult < ActiveXML::Node
   end
 
   def self.final_status?(status)
-    status.in?(["succeeded", "failed", "unresolvable", "broken", "disabled", "excluded"])
+    status.in?(%w[succeeded failed unresolvable broken disabled excluded])
   end
 
   def self.summary(project_name)

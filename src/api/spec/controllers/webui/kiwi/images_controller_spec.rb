@@ -293,8 +293,8 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
   describe 'GET #autocomplete_binaries' do
     let(:binaries_available_sample) do
-      { 'apache' => ['i586', 'x86_64'], 'apache2' => ['x86_64'],
-        'appArmor' => ['i586', 'x86_64'], 'bcrypt' => ['x86_64'] }
+      { 'apache' => %w[i586 x86_64], 'apache2' => ['x86_64'],
+        'appArmor' => %w[i586 x86_64], 'bcrypt' => ['x86_64'] }
     end
 
     let(:term) { '' }

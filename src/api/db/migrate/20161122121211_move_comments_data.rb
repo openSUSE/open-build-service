@@ -5,7 +5,7 @@ class MoveCommentsData < ActiveRecord::Migration[5.0]
       Comment.find_each(batch_size: 5000) do |comment|
         /\AComment(?<type>.+)/ =~ comment.type
         type = 'BsRequest' if type == 'Request'
-        unless ['Project', 'Package', 'BsRequest'].include? type
+        unless %w[Project Package BsRequest].include? type
           # broken data, luckily only a comment, so forget about it
           comment.destroy
           next
