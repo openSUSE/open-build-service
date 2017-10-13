@@ -82,7 +82,7 @@ module Backend
         def self.copy(target_project_name, target_package_name, source_project_name, source_package_name, user_login, options = {})
           post(["/source/:project/:package", target_project_name, target_package_name],
                defaults: { cmd: :copy, oproject: source_project_name, opackage: source_package_name, user: user_login },
-               params: options, accepted: [:keeplink, :expand, :comment])
+               params: options, accepted: [:orev, :keeplink, :expand, :comment, :requestid, :withacceptinfo])
         end
 
         # Returns the link information of a package

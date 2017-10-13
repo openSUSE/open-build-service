@@ -141,10 +141,6 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
     # backend copy of submitted sources, but keep link
     cp_params = {
-      cmd:            "copy",
-      user:           User.current.login,
-      oproject:       source_project,
-      opackage:       source_package,
       requestid:      bs_request.number,
       keeplink:       1,
       expand:         1,
@@ -152,12 +148,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       comment:        "Maintenance incident copy from project #{source_project}"
     }
     cp_params[:orev] = source_rev if source_rev
-    cp_path = "/source/#{CGI.escape(incident_project.name)}/#{CGI.escape(new_pkg.name)}"
-    cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage,
-                                                                     :orev, :keeplink, :expand, :comment,
-                                                                     :requestid, :withacceptinfo])
-    result = Backend::Connection.post cp_path
-    result = Xmlhash.parse(result.body)
+    response = Backend::Api::Sources::Package.copy(incident_project.name, new_pkg.name, source_project, source_package, User.current.login, cp_params)
+    result = Xmlhash.parse(response)
     set_acceptinfo(result["acceptinfo"])
 
     new_pkg.sources_changed
