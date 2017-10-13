@@ -229,4 +229,13 @@ our $servicedispatch = 1;
 # print all messages with a lower level than $debuglevel in addition to the normal log messages
 #our $debuglevel = 1;
 
+# docker registry to upload docker images to
+# our $docker_registry = {
+#   host => '',
+#   port => '',
+#   user => '',
+#   password => '',
+#   repository_base => '',
+# };
+
 1;
