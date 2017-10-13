@@ -2533,12 +2533,14 @@ sub decompress_container {
   my ($in) = @_;
 
   my %ext2decomp = (
+    'tbz' => 'bzcat',
+    'tgz' => 'zcat',
     'bz2' => 'bzcat',
     'xz'  => 'xzcat',
     'gz'  => 'zcat',
   );
   my $decomp;
-  $decomp = $ext2decomp{$1} if $in =~ /\.(.*?)$/;
+  $decomp = $ext2decomp{$1} if $in =~ /\.([^\.]+)$/;
   $decomp ||= 'cat';
 
   my ($fh, $tempfile) = tempfile();
