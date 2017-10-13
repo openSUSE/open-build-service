@@ -806,17 +806,6 @@ class BsRequest < ApplicationRecord
     HistoryElement::RequestPriorityChange.create(p)
   end
 
-  def raisepriority(new)
-    # rails enums do not support compare and break db constraints :/
-    if new == "critical"
-      self.priority = new
-    elsif new == "important" && priority.in?(["moderate", "low"])
-      self.priority = new
-    elsif new == "moderate" && "low" == priority
-      self.priority = new
-    end
-  end
-
   def setincident(incident)
     permission_check_setincident!(incident)
 
@@ -1176,12 +1165,39 @@ class BsRequest < ApplicationRecord
 
   private
 
+  def raisepriority(new_priority)
+    # rails enums do not support compare and break db constraints :/
+    self.priority = new_priority if change_priorities?(new_priority)
+  end
+
+  # We can only raise the priority, in the context where this method is needed.
+  # This method checks makes sure this is the case.
+  def change_priorities?(new_priority)
+    new_priority == "critical" ||
+      new_priority == "important" && priority.in?(["moderate", "low"]) ||
+      new_priority == "moderate" && "low" == priority
+  end
+
   def check_bs_request_actions!(opts = {})
     bs_request_actions.each do |action|
       action.check_action_permission!(opts[:skip_source])
       action.check_for_expand_errors!(!@addrevision.nil?)
       raisepriority(action.minimum_priority)
     end
+
+    return unless persisted?
+
+    # rubocop:disable Style/GuardClause
+    if priority_changed?
+      HistoryElement::RequestPriorityChange.create({
+        request:               self,
+        # We need to have a user here
+        user:                  User.find_nobody!,
+        description_extension: "#{priority_was} => #{priority}",
+        comment:               "Automatic priority bump: Priority of related action increased."
+      })
+    end
+    # rubocop:enable Style/GuardClause
   end
 
   def _assignreview_update_reviews(reviewer, opts, new_review = nil)
