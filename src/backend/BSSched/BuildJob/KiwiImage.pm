@@ -205,6 +205,8 @@ sub check {
       $cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
       $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
     }
+    # put annotation in dep
+    BSSched::BuildJob::getcontainerannotation($cpool, $p, $cbdep);
   }
 
   my $expanddebug = $ctx->{'expanddebug'};

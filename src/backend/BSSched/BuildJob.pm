@@ -1233,5 +1233,21 @@ sub expandkiwipath {
   return @path;
 }
 
+=head2 getcontainerannotation - get the annotation from a container package
+
+ Also add annotation to container bdep if provided as argument.
+
+=cut
+
+sub getcontainerannotation {
+  my ($pool, $p, $bdep) = @_;
+  return undef unless defined &BSSolv::pool::pkg2annotation;
+  my $annotation_xml = $pool->pkg2annotation($p);
+  return undef unless $annotation_xml;
+  my $annotation = BSUtil::fromxml($annotation_xml, $BSXML::binannotation, 1);
+  $bdep->{'annotation'} = $annotation_xml if $bdep && $annotation;
+  return $annotation;
+}
+
 1;
 

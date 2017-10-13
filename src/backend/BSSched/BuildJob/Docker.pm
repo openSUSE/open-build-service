@@ -131,33 +131,28 @@ sub check {
 
     # append container repositories to path
     my @newpath;
-    if (defined &BSSolv::pool::pkg2annotation) {
-      my $annotation_xml = $cpool->pkg2annotation($p);
-      if ($annotation_xml) {
-	my $annotation = BSUtil::fromxml($annotation_xml, $BSXML::binannotation, 1);
-	if ($annotation) {
-	  $cbdep->{'annotation'} = $annotation_xml;
-	  for my $r (@{$annotation->{'repo'} || []}) {
-	    my $url = $r->{'url'};
-	    next unless $url;
-	    # see Build::Kiwi
-	    my $urlprp;
-	    if ($url =~ /^obs:\/{1,3}([^\/]+)\/([^\/]+)\/?$/) {
-	      $urlprp = "$1/$2";
-	    } else {
-	      if ($Build::Kiwi::urlmapper) {
-	        $urlprp = $Build::Kiwi::urlmapper->($url);
-	      } else {
-		$ctx->{'urlmappercache'} ||= {};
-	        $urlprp = BSUrlmapper::urlmapper($url, $ctx->{'urlmappercache'});
-	      }
-	      return ('broken', "repository url '$url' cannot be handled") unless $urlprp;
-	    }
-	    my ($pr, $rp) = split('/', $urlprp, 2);
-	    push @newpath, {'project' => $pr, 'repository' => $rp};
-	    $newpath[-1]->{'priority'} = $r->{'priority'} if defined $r->{'priority'};
+    my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $p, $cbdep);
+    if ($annotation) {
+      # map all repos and add to path
+      for my $r (@{$annotation->{'repo'} || []}) {
+	my $url = $r->{'url'};
+	next unless $url;
+	# see Build::Kiwi
+	my $urlprp;
+	if ($url =~ /^obs:\/{1,3}([^\/]+)\/([^\/]+)\/?$/) {
+	  $urlprp = "$1/$2";
+	} else {
+	  if ($Build::Kiwi::urlmapper) {
+	    $urlprp = $Build::Kiwi::urlmapper->($url);
+	  } else {
+	    $ctx->{'urlmappercache'} ||= {};
+	    $urlprp = BSUrlmapper::urlmapper($url, $ctx->{'urlmappercache'});
 	  }
+	  return ('broken', "repository url '$url' cannot be handled") unless $urlprp;
 	}
+	my ($pr, $rp) = split('/', $urlprp, 2);
+	push @newpath, {'project' => $pr, 'repository' => $rp};
+	$newpath[-1]->{'priority'} = $r->{'priority'} if defined $r->{'priority'};
       }
     }
     my $r = $ctx->append_info_path($info, \@newpath);

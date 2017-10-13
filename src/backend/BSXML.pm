@@ -1836,6 +1836,9 @@ our $binannotation = [
 	'url',
 	'priority',
      ]],
+	'disturl',
+	'packid',		# only in build job annotation
+	'hdrmd5',		# only in build job annotation
 ];
 
 our $availablebinaries = [
