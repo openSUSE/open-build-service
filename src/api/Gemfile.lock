@@ -50,7 +50,7 @@ GEM
       public_suffix (>= 2.0.2, < 4.0)
     airbrake (7.0.3)
       airbrake-ruby (~> 2.4)
-    airbrake-ruby (2.4.1)
+    airbrake-ruby (2.4.2)
     amq-protocol (2.2.0)
     annotate (2.7.2)
       activerecord (>= 3.2, < 6.0)
