@@ -41,7 +41,8 @@ module MaintenanceHelper
   end
 
   def release_package(source_package, target, target_package_name,
-                      filter_source_repository = nil, action = nil, setrelease = nil, manual = nil)
+                      filter_source_repository = nil, multibuild_container = nil, action = nil,
+                      setrelease = nil, manual = nil)
     if target.kind_of? Repository
       target_project = target.project
     else
@@ -59,9 +60,9 @@ module MaintenanceHelper
 
     # copy binaries
     if target.kind_of? Repository
-      u_ids = copy_binaries_to_repository(filter_source_repository, source_package, target, target_package_name, setrelease)
+      u_ids = copy_binaries_to_repository(filter_source_repository, source_package, target, target_package_name, multibuild_container, setrelease)
     else
-      u_ids = copy_binaries(filter_source_repository, source_package, target_package_name, target_project, setrelease)
+      u_ids = copy_binaries(filter_source_repository, source_package, target_package_name, target_project, multibuild_container, setrelease)
     end
 
     # create or update main package linking to incident package
@@ -169,14 +170,16 @@ module MaintenanceHelper
     action.set_acceptinfo(result["acceptinfo"]) if action
   end
 
-  def copy_binaries(filter_source_repository, source_package, target_package_name, target_project, setrelease)
+  def copy_binaries(filter_source_repository, source_package, target_package_name, target_project,
+                    multibuild_container, setrelease)
     update_ids = []
     source_package.project.repositories.each do |source_repo|
       next if filter_source_repository && filter_source_repository != source_repo
       source_repo.release_targets.each do |releasetarget|
         # FIXME: filter given release and/or target repos here
         if releasetarget.target_repository.project == target_project
-          u_id = copy_binaries_to_repository(source_repo, source_package, releasetarget.target_repository, target_package_name, setrelease)
+          u_id = copy_binaries_to_repository(source_repo, source_package, releasetarget.target_repository,
+                                             target_package_name, multibuild_container, setrelease)
           update_ids << u_id if u_id
         end
         # remove maintenance release trigger in source
@@ -190,27 +193,35 @@ module MaintenanceHelper
     update_ids
   end
 
-  def copy_binaries_to_repository(source_repository, source_package, target_repo, target_package_name, setrelease)
+  def copy_binaries_to_repository(source_repository, source_package, target_repo, target_package_name,
+                                  multibuild_container, setrelease)
     u_id = get_updateinfo_id(source_package, target_repo)
+    source_package_name = source_package.name
+    unless multibuild_container.blank?
+      source_package_name << ":" << multibuild_container
+      target_package_name = target_package_name.gsub(/:.*/, '') << ":" << multibuild_container
+    end
     source_repository.architectures.each do |arch|
       # get updateinfo id in case the source package comes from a maintenance project
-      copy_single_binary(arch, target_repo, source_package, source_repository, target_package_name, u_id, setrelease)
+      copy_single_binary(arch, target_repo, source_package.project.name, source_package_name,
+                         source_repository, target_package_name, u_id, setrelease)
     end
     u_id
   end
 
-  def copy_single_binary(arch, target_repository, source_package, source_repo, target_package_name, update_info_id, setrelease)
+  def copy_single_binary(arch, target_repository, source_project_name, source_package_name, source_repo,
+                         target_package_name, update_info_id, setrelease)
     cp_params = {
       cmd:         "copy",
-      oproject:    source_package.project.name,
-      opackage:    source_package.name,
+      oproject:    source_project_name,
+      opackage:    source_package_name,
       orepository: source_repo.name,
       user:        User.current.login,
-      multibuild:  "1",
       resign:      "1"
     }
     cp_params[:setupdateinfoid] = update_info_id if update_info_id
     cp_params[:setrelease] = setrelease if setrelease
+    cp_params[:multibuild] = "1" unless source_package_name.include? ':'
     # rubocop:disable Metrics/LineLength
     cp_path = "/build/#{CGI.escape(target_repository.project.name)}/#{URI.escape(target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(target_package_name)}"
     # rubocop:enable Metrics/LineLength

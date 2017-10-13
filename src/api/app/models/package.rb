@@ -1085,13 +1085,18 @@ class Package < ApplicationRecord
     packages
   end
 
-  def self.valid_name?(name)
+  def self.valid_multibuild_name?(name)
+    valid_name?(name, true)
+  end
+
+  def self.valid_name?(name, allow_multibuild = false)
     return false unless name.kind_of? String
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200
     return false if name == "0"
     return true if %w(_product _pattern _project _patchinfo).include?(name)
     # _patchinfo: is obsolete, just for backward compatibility
+    return name =~ /\A([a-zA-Z0-9]|(_product:|_patchinfo:)\w)[-+:\w\.]*\z/ ? true : false if allow_multibuild
     name =~ /\A([a-zA-Z0-9]|(_product:|_patchinfo:)\w)[-+\w\.]*\z/ ? true : false
   end
 
