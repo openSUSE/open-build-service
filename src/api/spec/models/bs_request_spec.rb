@@ -273,9 +273,7 @@ RSpec.describe BsRequest do
       end
 
       it 'does not change the priority of the bs request' do
-        # rubocop:disable Lint/AmbiguousBlockAssociation
-        expect { bs_request.sanitize! }.not_to change{ HistoryElement::RequestPriorityChange.count }
-        # rubocop:enable Lint/AmbiguousBlockAssociation
+        expect { bs_request.sanitize! }.not_to(change { HistoryElement::RequestPriorityChange.count })
         expect(bs_request.priority).to eq('moderate')
       end
     end
