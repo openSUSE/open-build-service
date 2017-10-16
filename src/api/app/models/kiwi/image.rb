@@ -14,7 +14,6 @@ class Kiwi::Image < ApplicationRecord
 '.freeze
 
   #### Self config
-
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
@@ -91,30 +90,7 @@ class Kiwi::Image < ApplicationRecord
   end
 
   def to_xml
-    if package
-      kiwi_file = package.kiwi_image_file
-      return nil unless kiwi_file
-      kiwi_body = package.source_file(kiwi_file)
-    else
-      kiwi_body = DEFAULT_KIWI_BODY
-    end
-
-    doc = Nokogiri::XML::DocumentFragment.parse(kiwi_body)
-    image = doc.at_css('image')
-
-    return nil unless image && image.first_element_child
-
-    # for now we only write the default package group
-    xml_packages = default_package_group.to_xml
-    packages = doc.xpath('image/packages[@type="image"]').first
-    packages ? packages.replace(xml_packages) : image.last_element_child.after(xml_packages)
-
-    previous = doc.xpath("image/repository").first.try(:previous) || image.last_element_child
-    doc.xpath("image/repository").remove
-    xml_repos = repositories_for_xml.map(&:to_xml).join("\n")
-    previous.after(xml_repos)
-
-    Nokogiri::XML(doc.to_xml, &:noblanks).to_xml(indent: kiwi_indentation(doc))
+    Kiwi::Image::Xml.new(self).to_xml
   end
 
   def write_to_backend
@@ -157,23 +133,6 @@ class Kiwi::Image < ApplicationRecord
   end
 
   private
-
-  def kiwi_indentation(xml)
-    content = xml.xpath('image').children.first.try(:content)
-    if content
-      content.delete("\n").length
-    else
-      2
-    end
-  end
-
-  def repositories_for_xml
-    if use_project_repositories?
-      [Kiwi::Repository.new(source_path: 'obsrepositories:/', repo_type: 'rpm-md')]
-    else
-      repositories
-    end
-  end
 
   def check_use_project_repositories
     return unless use_project_repositories? && repositories.present?
