@@ -1,6 +1,7 @@
 module Backend
   # Module that holds the wrapping methods for http requests, are mainly used for simplify the calculation of urls.
   #
+  # == Common parameters
   # All the methods need a valid +endpoint+ to connect to, and it can be provided in two different ways:
   # * As a single string. No processing is performed.
   # * As an array. In this case the first element needs to be a string with placeholders that will be replaced in the order provided
@@ -37,6 +38,8 @@ module Backend
   #
 
   module ConnectionHelper
+    private
+
     # Performs a http get request to the configured OBS Backend server.
     # @param endpoint [String, Array] Endpoit to connect to.
     # @option options [Hash] :params The parameters to be sent as part of the query in the url.
@@ -46,9 +49,6 @@ module Backend
     # @option options [Array] :expand Keys to expand using the same name (no [] are used).
     # @option options [Hash] :headers The http headers that will be added to the request.
     # @return [String] The body of the request response encoded in UTF-8.
-    # @example Few examples of use:
-    #     get("/source/Apache/_meta", params: { revision: 42, package: ['pack1', 'pack2'] }, expand: [:package])
-    #     # => HTTP GET "/source/Apache/_meta?revision=42&package=pack1&package=pack2"
     def get(endpoint, options = {})
       Backend::Connection.get(calculate_url(endpoint, options), options[:headers] || {}).body.force_encoding("UTF-8")
     end
@@ -93,8 +93,6 @@ module Backend
     def delete(endpoint, options = {})
       Backend::Connection.delete(calculate_url(endpoint, options), options[:headers] || {}).body.force_encoding("UTF-8")
     end
-
-    private
 
     def calculate_url(endpoint, options)
       endpoint = calculate_endpoint(endpoint)
