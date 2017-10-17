@@ -6,7 +6,7 @@ module Event
 
   class CreatePackage < Package
     self.description = 'Package was created'
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.package.create"
@@ -19,7 +19,7 @@ module Event
 
   class UpdatePackage < Package
     self.description = 'Package meta data was updated'
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.package.update"
@@ -29,7 +29,7 @@ module Event
   class UndeletePackage < Package
     self.description = 'Package was undeleted'
     payload_keys :comment
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.package.undelete"
@@ -45,7 +45,7 @@ module Event
   class DeletePackage < Package
     self.description = 'Package was deleted'
     payload_keys :comment, :requestid
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.package.delete"
@@ -60,7 +60,7 @@ module Event
   class BranchCommand < Package
     self.description = 'Package was branched'
     payload_keys :targetproject, :targetpackage, :user
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.package.branch"
@@ -74,7 +74,7 @@ module Event
   class VersionChange < Package
     self.description = 'Package has changed its version'
     payload_keys :comment, :requestid, :files, :rev, :newversion, :user, :oldversion
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.package.version_change"
@@ -92,7 +92,7 @@ module Event
     payload_keys :project, :package, :comment, :user, :files, :rev, :requestid
 
     create_jobs :update_backend_infos_job
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.package.commit"
@@ -112,7 +112,7 @@ module Event
   class Upload < Package
     self.description = 'Package sources were uploaded'
     payload_keys :project, :package, :comment, :filename, :requestid, :target, :user
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.package.upload"
@@ -124,7 +124,7 @@ module Event
     payload_keys :comment, :package, :project, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
     create_jobs :update_backend_infos_job
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.package.service_success"
@@ -146,7 +146,7 @@ module Event
     payload_keys :comment, :error, :package, :project, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
     create_jobs :update_backend_infos_job
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.package.service_fail"

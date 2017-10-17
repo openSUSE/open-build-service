@@ -22,7 +22,7 @@ end
 
 class Event::BuildSuccess < Event::Build
   self.description = 'Package has succeeded building'
-  after_commit :send_to_bus
+  after_create_commit :send_to_bus
 
   def self.message_bus_queue
     "#{Configuration.amqp_namespace}.package.build_success"
@@ -34,7 +34,7 @@ class Event::BuildFail < Event::Build
 
   self.description = 'Package has failed to build'
   receiver_roles :maintainer, :bugowner, :reader, :watcher
-  after_commit :send_to_bus
+  after_create_commit :send_to_bus
 
   def self.message_bus_queue
     "#{Configuration.amqp_namespace}.package.build_fail"
@@ -81,7 +81,7 @@ end
 
 class Event::BuildUnchanged < Event::Build
   self.description = 'Package has succeeded building with unchanged result'
-  after_commit :send_to_bus
+  after_create_commit :send_to_bus
 
   def self.message_bus_queue
     "#{Configuration.amqp_namespace}.package.build_unchanged"
