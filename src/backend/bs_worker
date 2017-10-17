@@ -50,7 +50,7 @@ use BSCando;
 
 use strict;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz tar.gz squashfs};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 my $buildroot;

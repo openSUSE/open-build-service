@@ -62,7 +62,7 @@ $startupmode = $BSConfig::sched_startupmode if $BSConfig::sched_startupmode;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz tar.gz squashfs};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
@@ -7005,6 +7005,11 @@ my %handlers = (
     'check' => \&checkpreinstallimage,
     'rebuild' => \&rebuildpreinstallimage,
   },
+  'simpleimage' => {
+    'expand' => \&Build::get_deps,
+    'check' => \&checkpackage,
+    'rebuild' => \&rebuildpackage,
+  },
   'channel' => {
     'expand' => \&no_expander,
     'check' => \&checkchannel,
@@ -8665,6 +8670,8 @@ NEXTPRP:
 	  $packtype = 'arch';
 	} elsif ($info->{'file'} =~ /_preinstallimage$/) {
 	  $packtype = 'preinstallimage';
+	} elsif ($info->{'file'} =~ /simpleimage$/) {
+	  $packtype = 'simpleimage';
 	}
 	if ($packtype eq 'kiwi') {
 	  $packtype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image';
