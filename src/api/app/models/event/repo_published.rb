@@ -3,7 +3,7 @@ class Event::RepoPublished < Event::Base
   payload_keys :project, :repo
   after_create_commit :send_to_bus
 
-  def self.message_bus_queue
+  def self.message_bus_routing_key
     "#{Configuration.amqp_namespace}.repo.published"
   end
 end

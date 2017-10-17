@@ -176,16 +176,8 @@ backup_port: 22
 # Exchange options -> http://rubybunny.info/articles/exchanges.html
 # amqp_exchange_name: pubsub
 # amqp_exchange_options:
-#  type: topic
+#  type: :topic
 #  auto_delete: false
 #  arguments:
 #    persistent: true
 #    passive: true
-#
-# Queue options -> http://rubybunny.info/articles/queues.html
-# amqp_queue_options:
-#   durable: false
-#   auto-delete: false
-#   exclusive: false
-#   arguments:
-#     extension_1: blah

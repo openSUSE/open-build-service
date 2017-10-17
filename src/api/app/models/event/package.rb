@@ -8,7 +8,7 @@ module Event
     self.description = 'Package was created'
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.package.create"
     end
 
@@ -21,7 +21,7 @@ module Event
     self.description = 'Package meta data was updated'
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.package.update"
     end
   end
@@ -31,7 +31,7 @@ module Event
     payload_keys :comment
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.package.undelete"
     end
 
@@ -47,7 +47,7 @@ module Event
     payload_keys :comment, :requestid
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.package.delete"
     end
 
@@ -62,7 +62,7 @@ module Event
     payload_keys :targetproject, :targetpackage, :user
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.package.branch"
     end
 
@@ -76,7 +76,7 @@ module Event
     payload_keys :comment, :requestid, :files, :rev, :newversion, :user, :oldversion
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.package.version_change"
     end
 
@@ -94,7 +94,7 @@ module Event
     create_jobs :update_backend_infos_job
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.package.commit"
     end
 
@@ -114,7 +114,7 @@ module Event
     payload_keys :project, :package, :comment, :filename, :requestid, :target, :user
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.package.upload"
     end
   end
@@ -126,7 +126,7 @@ module Event
     create_jobs :update_backend_infos_job
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.package.service_success"
     end
 
@@ -148,7 +148,7 @@ module Event
     create_jobs :update_backend_infos_job
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.package.service_fail"
     end
 

@@ -6,7 +6,7 @@ class Event::Packtrack < Event::Base
   create_jobs :update_released_binaries_job
   after_create_commit :send_to_bus
 
-  def self.message_bus_queue
+  def self.message_bus_routing_key
     "#{Configuration.amqp_namespace}.repo.packtrack"
   end
 end

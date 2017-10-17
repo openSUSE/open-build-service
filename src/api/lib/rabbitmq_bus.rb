@@ -1,10 +1,9 @@
 class RabbitmqBus
-  def self.publish(event_queue_name, event_payload)
+  def self.publish(event_routing_key, event_payload)
     return unless CONFIG['amqp_options']
     start_connection
 
-    queue = $rabbitmq_channel.queue(event_queue_name, CONFIG['amqp_queue_options'].try(:symbolize_keys) || {})
-    $rabbitmq_exchange.publish(event_payload, routing_key: queue.name)
+    $rabbitmq_exchange.publish(event_payload, routing_key: event_routing_key)
   end
 
   # Start one connection, channel and exchange per rails process

@@ -141,7 +141,7 @@ class Event::RequestChange < Event::Request
   self.description = 'Request XML was updated (admin only)'
   after_create_commit :send_to_bus
 
-  def self.message_bus_queue
+  def self.message_bus_routing_key
     "#{Configuration.amqp_namespace}.request.change"
   end
 end
@@ -151,7 +151,7 @@ class Event::RequestCreate < Event::Request
   receiver_roles :source_maintainer, :target_maintainer, :source_watcher, :target_watcher
   after_create_commit :send_to_bus
 
-  def self.message_bus_queue
+  def self.message_bus_routing_key
     "#{Configuration.amqp_namespace}.request.create"
   end
 
@@ -176,7 +176,7 @@ class Event::RequestDelete < Event::Request
   self.description = 'Request was deleted (admin only)'
   after_create_commit :send_to_bus
 
-  def self.message_bus_queue
+  def self.message_bus_routing_key
     "#{Configuration.amqp_namespace}.request.delete"
   end
 end
@@ -187,7 +187,7 @@ class Event::RequestStatechange < Event::Request
   receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher
   after_create_commit :send_to_bus
 
-  def self.message_bus_queue
+  def self.message_bus_routing_key
     "#{Configuration.amqp_namespace}.request.state_change"
   end
 
@@ -203,7 +203,7 @@ class Event::ReviewWanted < Event::Request
   receiver_roles :reviewer
   after_create_commit :send_to_bus
 
-  def self.message_bus_queue
+  def self.message_bus_routing_key
     "#{Configuration.amqp_namespace}.request.review_wanted"
   end
 

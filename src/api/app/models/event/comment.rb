@@ -34,7 +34,7 @@ class Event::CommentForProject < ::Event::Project
   receiver_roles :maintainer, :watcher
   after_create_commit :send_to_bus
 
-  def self.message_bus_queue
+  def self.message_bus_routing_key
     "#{Configuration.amqp_namespace}.project.comment"
   end
 
@@ -50,7 +50,7 @@ class Event::CommentForPackage < ::Event::Package
   receiver_roles :maintainer, :watcher
   after_create_commit :send_to_bus
 
-  def self.message_bus_queue
+  def self.message_bus_routing_key
     "#{Configuration.amqp_namespace}.package.comment"
   end
 
@@ -68,7 +68,7 @@ class Event::CommentForRequest < ::Event::Request
   receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher
   after_create_commit :send_to_bus
 
-  def self.message_bus_queue
+  def self.message_bus_routing_key
     "#{Configuration.amqp_namespace}.request.comment"
   end
 
