@@ -1,7 +1,7 @@
 class Event::RepoPublishState < Event::Base
   self.description = 'Publish State of Repository has changed'
   payload_keys :project, :repo, :state
-  after_commit :send_to_bus
+  after_create_commit :send_to_bus
 
   def self.message_bus_queue
     "#{Configuration.amqp_namespace}.repo.publish_state"

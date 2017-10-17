@@ -7,7 +7,7 @@ module Event
   class CreateProject < Project
     self.description = 'Project is created'
     payload_keys :sender
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.project.create"
@@ -21,7 +21,7 @@ module Event
   class UpdateProjectConfig < Project
     self.description = 'Project _config was updated'
     payload_keys :sender, :files, :comment
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.project.update_project_conf"
@@ -31,7 +31,7 @@ module Event
   class UndeleteProject < Project
     self.description = 'Project was undeleted'
     payload_keys :comment, :sender
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.project.undelete"
@@ -41,7 +41,7 @@ module Event
   class UpdateProject < Project
     self.description = 'Project meta was updated'
     payload_keys :sender
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.project.update"
@@ -51,7 +51,7 @@ module Event
   class DeleteProject < Project
     self.description = 'Project was deleted'
     payload_keys :comment, :requestid, :sender
-    after_commit :send_to_bus
+    after_create_commit :send_to_bus
 
     def self.message_bus_queue
       "#{Configuration.amqp_namespace}.project.delete"
