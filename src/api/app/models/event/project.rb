@@ -9,7 +9,7 @@ module Event
     payload_keys :sender
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.project.create"
     end
 
@@ -23,7 +23,7 @@ module Event
     payload_keys :sender, :files, :comment
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.project.update_project_conf"
     end
   end
@@ -33,7 +33,7 @@ module Event
     payload_keys :comment, :sender
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.project.undelete"
     end
   end
@@ -43,7 +43,7 @@ module Event
     payload_keys :sender
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.project.update"
     end
   end
@@ -53,7 +53,7 @@ module Event
     payload_keys :comment, :requestid, :sender
     after_create_commit :send_to_bus
 
-    def self.message_bus_queue
+    def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.project.delete"
     end
   end

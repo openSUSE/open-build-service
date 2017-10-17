@@ -79,7 +79,7 @@ module Event
         subclass.receiver_roles(*receiver_roles)
       end
 
-      def message_bus_queue
+      def message_bus_routing_key
         raise NotImplementedError
       end
     end
@@ -265,7 +265,7 @@ module Event
     end
 
     def send_to_bus
-      RabbitmqBus.publish(self.class.message_bus_queue, read_attribute(:payload))
+      RabbitmqBus.publish(self.class.message_bus_routing_key, read_attribute(:payload))
     rescue Bunny::Exception => e
       logger.error "Publishing to RabbitMQ failed: #{e.message}"
     end
