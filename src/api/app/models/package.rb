@@ -1096,8 +1096,9 @@ class Package < ApplicationRecord
     return false if name == "0"
     return true if %w(_product _pattern _project _patchinfo).include?(name)
     # _patchinfo: is obsolete, just for backward compatibility
-    return name =~ /\A([a-zA-Z0-9]|(_product:|_patchinfo:)\w)[-+:\w\.]*\z/ ? true : false if allow_multibuild
-    name =~ /\A([a-zA-Z0-9]|(_product:|_patchinfo:)\w)[-+\w\.]*\z/ ? true : false
+    allowed_characters = /[-+\w\.#{ allow_multibuild ? ':' : '' }]/
+    reg_exp = /\A([a-zA-Z0-9]|(_product:|_patchinfo:)\w)#{allowed_characters}*\z/
+    reg_exp.match?(name)
   end
 
   def valid_name
