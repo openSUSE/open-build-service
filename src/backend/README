@@ -1,0 +1,28 @@
+To setup an own backend from git:
+
+1) Copy BSConfig.pm.template to BSConfig.pm
+2) Change BSConfig.pm to match your local paths and server names.
+   Currently the server runs with user "obsrun" and group "obsrun",
+   so you have to add them to your system.
+3) Initialize build code (provides needed package format parsers):
+     # git submodule init
+     # git submodule update
+
+3) run a src server:
+   ./bs_srcserver
+4) run a repo server:
+   ./bs_repserver
+5) run a job scheduler for every arch you need
+   ./bs_sched i586
+   ./bs_sched x86_64
+   ...
+6) on your build clients:
+   create a directory /root/bs
+   copy BSBuild.pm BSConfig.pm BSHTTP.pm BSRPC.pm BSServer.pm BSDispatch.pm
+   BSConfiguration.pm BSKiwiXML.pm BSCando.pm BSUtil.pm BSXML.pm
+   XML/Structured.pm bs_worker
+   into the directory.
+   create a work directory, e.g. /BUILD/root_1
+   create a state dir, e.g. /var/run/worker_1
+   run ./bs_worker --root /BUILD/root_1 --id <hostname>/1 --statedir /var/run/worker_1
+

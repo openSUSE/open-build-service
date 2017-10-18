@@ -1,0 +1,54 @@
+- editor_width ||= 'auto'
+- css_class ||= ''
+- css_id ||= nil
+- div_opts = { data: { url: url_for(controller: 'request', action: 'sourcediff') } }
+- div_opts[:id] = css_id
+- div_opts[:class] = "table_wrapper #{css_class}"
+- next_codemirror_uid
+- content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index-diff'))
+= content_tag(:div, div_opts) do
+  - if filenames && filenames.length > 0
+    %table{ style: "table-layout: fixed; width: 98%;" }
+      %tbody
+        - last_file_id = nil
+        - filenames.each_with_index do |filename, index|
+          - file_element = files[filename]
+          - file_id = "#{valid_xml_id(filename)}_#{css_id}_#{index}"
+          - file_diff_text = file_element['diff'] || {}
+          - file_diff_text = file_diff_text['_content'] || ''
+          - file_state = file_element['state'].capitalize
+          - is_expanded = file_state != 'Deleted' && !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec') || filename.ends_with?('.changes'))
+          %tr{ id: "diff_headline_#{file_id}" }
+            %td{ style: 'width: 16px' }
+              - if file_diff_text.length > 0
+                %a{ href: '#', id: "collapse_#{file_id}", onclick: "collapse_expand(\'#{file_id}\'); return false;" } [-]
+                %a{ href: '#', id: "expand_#{file_id}", onclick: "collapse_expand(\'#{file_id}\'); return false;" } [+]
+                - content_for :ready_function do
+                  - if is_expanded
+                    $('#expand_#{file_id}').hide();
+                  - else
+                    $('#collapse_#{file_id}').hide();
+            %td{ style: 'width: 10%' }= file_state
+            %td
+              /
+                Most files don't exist when the package is linked, so keeping in mind the statement below don't even bother to try to show them
+              - unless @linkinfo
+                - rev = source[:rev]
+                - rev = (rev.to_i - 1).to_s if file_element['state'] == 'deleted'
+                = link_to_unless(Package.is_binary_file?(filename) || filename.include?('/'), filename, controller: 'package', action: 'view_file', project: source[:project], package: source[:package], filename: filename, rev: rev )
+              - else
+                = filename
+              - if index > 0
+                %span{ style: 'float: right' }
+                  = link_to('^', anchor: "diff_headline_#{last_file_id}")
+          - if file_diff_text.length > 0
+            - if is_expanded
+              %tr{ id: "diff_view_#{file_id}" }
+                %td{ colspan: '3' }
+                  = render partial: 'shared/editor', locals: { text: file_diff_text, mode: 'diff', style: { width: editor_width, no_border: true, read_only: true } }
+            - else
+              %tr.hidden{ id: "diff_view_#{file_id}" }
+                %td{ colspan: '3', 'data-mode': 'diff', 'data-uid': next_codemirror_uid, id: "diff_view_#{file_id}_placeholder" }= file_diff_text
+          - last_file_id = file_id
+  - else
+    %p No source changes!

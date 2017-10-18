@@ -1,0 +1,6 @@
+<%= form_tag({:action => :edit_comment, :project => params[:project], :package => params[:package] }, :id => 'edit_comment_form', remote: true) do %>
+  <%= text_field_tag('text', params[:comment]) %>
+  <%= hidden_field_tag('last_comment', params[:comment]) %>
+  <%= submit_tag 'Save' %>
+<% end %>
+

@@ -1,0 +1,366 @@
+Apache_Taskjuggler:
+  name: Taskjuggler
+  title: Taskjuggler is Project Management Software
+  description: description
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
+  url: http://some.url
+  activity_index: 100.0
+  delta: 1
+  project: Apache
+Apache_Tidy:
+  name: Tidy
+  title: HTML Tidy Library Project
+  description: description
+  created_at: 2005-01-01 01:00:01.000000000 Z
+  updated_at: 2005-01-01 01:00:01.000000000 Z
+  url: http://some.url
+  activity_index: 100.0
+  delta: 1
+  project: Apache
+Apache_apache2:
+  name: apache2
+  title: apache2
+  description: description
+  created_at: 2005-01-01 01:00:02.000000000 Z
+  updated_at: 2007-01-19 11:44:45.000000000 Z
+  url: http://httpd.apache.org
+  activity_index: 100.0
+  delta: 1
+  project: Apache
+Apache_libapr-util1:
+  name: libapr-util1
+  title: libapr-util1
+  description: description
+  created_at: 2005-01-01 01:00:02.000000000 Z
+  updated_at: 2007-01-19 11:44:45.000000000 Z
+  url: http://some.url
+  activity_index: 100.0
+  delta: 1
+  project: Apache
+BaseDistro2.0_pack2:
+  name: pack2
+  title: For maintenance tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro2.0
+BaseDistro2.0_pack2.linked:
+  name: pack2.linked
+  title: For maintenance tests
+  description: ''
+  bcntsynctag: pack2
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro2.0
+LinkedUpdateProject_pack_local:
+  name: pack_local
+  title: For linked project tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro2.0_LinkedUpdateProject
+BaseDistro3_pack2:
+  name: pack2
+  title: For maintenance tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro3
+BaseDistro_Update_pack2:
+  name: pack2
+  title: For maintenance tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro_Update
+  develpackage: Devel_BaseDistro_Update_pack2
+BaseDistro_pack1:
+  name: pack1
+  title: For maintenance tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro
+BaseDistro_pack2:
+  name: pack2
+  title: For maintenance tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro
+BaseDistro_pack3:
+  name: Pack3
+  title: For maintenance tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  bcntsynctag: pack1
+  delta: 1
+  project: BaseDistro
+BaseDistro_product:
+  name: _product
+  title: Our single product
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro
+BaseDistro_product_fixed_release:
+  name: _product:fixed-release
+  title: Our single product
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro
+BaseDistro_patchinfo:
+  name: patchinfo
+  title: patchinfo container
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro
+BinaryprotectedProject_bdpack:
+  name: bdpack
+  title: A package in a binarydownload enabled project
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: BinaryprotectedProject
+CopyTest_target:
+  name: target
+  title: A test package to copy
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: CopyTest
+CopyTest_test:
+  name: test
+  title: A test package to copy
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: CopyTest
+Devel_BaseDistro_Update_pack2:
+  name: pack2
+  title: Devel package for maintenance tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: Devel_BaseDistro_Update
+Devel_BaseDistro_Update_pack3:
+  name: Pack3
+  title: Devel package for maintenance tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: Devel_BaseDistro_Update
+HiddenProject_pack:
+  name: pack
+  title: A package in a hidden project
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: HiddenProject
+HiddenProject_packCopy:
+  name: packCopy
+  title: full copy including binaries of pack
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: HiddenProject
+HiddenProject_target:
+  name: target
+  title: A package in a hidden project
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: HiddenProject
+LocalProject_newpackage:
+  name: newpackage
+  title: A package without a remote link
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: LocalProject
+LocalProject_remotepackage:
+  name: remotepackage
+  title: A package with a remote link
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: LocalProject
+SourceprotectedProject_pack:
+  name: pack
+  title: A package in a sourceaccess enabled project
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: SourceprotectedProject
+SourceprotectedProject_target:
+  name: target
+  title: A package in a sourceaccess enabled project
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: SourceprotectedProject
+home_Iggy_TestPack:
+  name: TestPack
+  title: My Test package
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: home_Iggy
+home_Iggy_ToBeDeletedTestPack:
+  name: ToBeDeletedTestPack
+  title: This package gets deleted by request test
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: home_Iggy
+home_Iggy_branches_kde4_BranchPack:
+  name: BranchPack
+  title: My Test package
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: home_Iggy_branches_kde4
+home_adrian_ProtectionTest_aggregate:
+  name: aggregate
+  title: For stealing source binary packages
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  activity_index: 10.0
+  delta: 1
+  project: home_adrian_ProtectionTest
+home_coolo_test_kdelibs_DEVEL_package:
+  name: kdelibs_DEVEL_package
+  title: blub
+  description: blub
+  created_at: 2001-01-01 02:01:01.000000000 Z
+  updated_at: 2002-02-02 03:02:02.000000000 Z
+  activity_index: 100.0
+  delta: 1
+  project: home_coolo_test
+home_dmayr_x11vnc:
+  name: x11vnc
+  title: x11vnc
+  description: description
+  created_at: 2005-01-01 01:00:02.000000000 Z
+  updated_at: 2007-01-25 12:48:59.000000000 Z
+  url: http://geblubberblah/total/egal
+  activity_index: 100.0
+  delta: 1
+  project: home_dmayr
+home_king_commentpack:
+  name: commentpack
+  title: commentpack
+  description: description
+  created_at: 2014-02-14 01:00:02.000000000 Z
+  updated_at: 2014-02-14 12:48:59.000000000 Z
+  activity_index: 100.0
+  delta: 1
+  project: home_king
+kde4_kdebase:
+  name: kdebase
+  title: blub
+  description: blub
+  created_at: 2001-01-01 02:01:01.000000000 Z
+  updated_at: 2002-02-02 03:02:02.000000000 Z
+  activity_index: 100.0
+  delta: 1
+  project: kde4
+kde4_kdelibs:
+  id: 691693709
+  name: kdelibs
+  title: blub
+  description: blub
+  created_at: 2001-01-01 02:01:01.000000000 Z
+  updated_at: 2002-02-02 03:02:02.000000000 Z
+  activity_index: 100.0
+  delta: 1
+  project: kde4
+  develpackage: home_coolo_test_kdelibs_DEVEL_package
+BrokenPublishing_pack_broken_publish:
+  name: pack_broken_publish
+  title: For tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  activity_index: 10.0
+  delta: 1
+  project: BrokenPublishing

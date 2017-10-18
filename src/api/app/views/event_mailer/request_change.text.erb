@@ -1,0 +1,13 @@
+@subject: <%= event['type']%>-Request <%= event['number']%> Changed
+
+<%= event['type']%>-Request was changed, new state: <%= event['state']%>
+<% if event['sourceproject']-%>
+Source
+  project:  <%= event['sourceproject']%>
+  package:  <%= event['sourcepackage']%>
+<% if event['sourcerevision']-%>  revision: <%= event['sourcerevision']%><%-end-%>>
+
+Target:
+  project: <%= event['targetproject']%>
+  package: <%= event['targetpackage']%>
+<%-end-%>

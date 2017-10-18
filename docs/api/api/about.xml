@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<about>
+  <title>Open Build Service API</title>
+  <description>API to the Open Build Service</description>
+  <revision>0.1</revision>
+  <documentation type="text/html" url="http://localhost:3001/apidocs"/>
+</about>

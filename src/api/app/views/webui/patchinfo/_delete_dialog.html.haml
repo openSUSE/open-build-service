@@ -1,0 +1,11 @@
+.darkgrey_box.dialog#del-dialog
+  .box.box-shadow
+    %h2.box-header Delete Confirmation
+    .dialog-content
+      %p
+        Do you really want to delete #{package_link @package}?
+      = form_tag({ controller: :patchinfo, action: :remove}, method: :post) do
+        %div
+          = hidden_field_tag(:project, @project)
+          = hidden_field_tag(:package, @package)
+          = render partial: '/webui/shared/dialog_action_buttons'

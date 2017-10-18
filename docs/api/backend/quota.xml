@@ -1,0 +1,8 @@
+<!-- limit max packages per project by default to 500 -->
+<!-- limit max packages for all home: projects to 100 -->
+<!-- but home:adrianSuSE and all below gets an exception for 10000 -->
+<quota packages="500">
+ <project name="home:" packages="100" />
+ <project name="home:adrianSuSE" packages="10000" />
+</quota>
+

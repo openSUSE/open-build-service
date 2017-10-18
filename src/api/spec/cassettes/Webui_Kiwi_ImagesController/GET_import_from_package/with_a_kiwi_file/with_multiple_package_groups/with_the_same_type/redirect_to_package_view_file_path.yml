@@ -1,0 +1,385 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="fake_project">
+          <title>The Sun Also Rises</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="fake_project">
+          <title>The Sun Also Rises</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 09 Oct 2017 14:09:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/_config
+    body:
+      encoding: UTF-8
+      string: Rerum modi excepturi placeat mollitia laborum occaecati est. Fugit velit
+        quia nemo. Dolores aut laudantium.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Mon, 09 Oct 2017 14:09:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_invalid_kiwi_file" project="fake_project">
+          <title>Brandy of the Damned</title>
+          <description>Id doloremque labore sequi eum earum laborum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '195'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_invalid_kiwi_file" project="fake_project">
+          <title>Brandy of the Damned</title>
+          <description>Id doloremque labore sequi eum earum laborum.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 09 Oct 2017 14:09:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_invalid_kiwi_file" project="fake_project">
+          <title>Brandy of the Damned</title>
+          <description>Id doloremque labore sequi eum earum laborum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '195'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_invalid_kiwi_file" project="fake_project">
+          <title>Brandy of the Damned</title>
+          <description>Id doloremque labore sequi eum earum laborum.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 09 Oct 2017 14:09:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+        <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
+          <description type="system">
+            <author>Christian Bruckmayer</author>
+            <contact>noemail@example.com</contact>
+            <specification>Tiny, minimalistic appliances</specification>
+          </description>
+          <packages type="image" patternType="onlyRequired">
+            <package name="e2fsprogs"/>
+            <package name="aaa_base"/>
+            <package name="branding-openSUSE"/>
+            <package name="patterns-openSUSE-base"/>
+          </packages>
+          <packages type="image">
+            <package name="e2fsprogs"/>
+            <package name="aaa_base"/>
+            <package name="branding-openSUSE"/>
+            <package name="patterns-openSUSE-base"/>
+          </packages>
+          <packages type="delete">
+            <package name="e2fsprogss"/>
+            <package name="bbb_base"/>
+          </packages>
+          <repository type="apt-deb" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
+            <source path="http://download.opensuse.org/update/13.2/"/>
+          </repository>
+        </image>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>a51602dae6fc2e8322ebff0f3408ff85</srcmd5>
+          <version>unknown</version>
+          <time>1507558181</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 09 Oct 2017 14:09:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_invalid_kiwi_file" rev="8" vrev="8" srcmd5="a51602dae6fc2e8322ebff0f3408ff85">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="72d17a914bf427cb304f7769a65c77f0" size="1096" mtime="1507558181" />
+        </directory>
+    http_version: 
+  recorded_at: Mon, 09 Oct 2017 14:09:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '1096'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+        <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
+          <description type="system">
+            <author>Christian Bruckmayer</author>
+            <contact>noemail@example.com</contact>
+            <specification>Tiny, minimalistic appliances</specification>
+          </description>
+          <packages type="image" patternType="onlyRequired">
+            <package name="e2fsprogs"/>
+            <package name="aaa_base"/>
+            <package name="branding-openSUSE"/>
+            <package name="patterns-openSUSE-base"/>
+          </packages>
+          <packages type="image">
+            <package name="e2fsprogs"/>
+            <package name="aaa_base"/>
+            <package name="branding-openSUSE"/>
+            <package name="patterns-openSUSE-base"/>
+          </packages>
+          <packages type="delete">
+            <package name="e2fsprogss"/>
+            <package name="bbb_base"/>
+          </packages>
+          <repository type="apt-deb" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
+            <source path="http://download.opensuse.org/update/13.2/"/>
+          </repository>
+        </image>
+    http_version: 
+  recorded_at: Mon, 09 Oct 2017 14:09:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_invalid_kiwi_file" rev="8" vrev="8" srcmd5="a51602dae6fc2e8322ebff0f3408ff85">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="72d17a914bf427cb304f7769a65c77f0" size="1096" mtime="1507558181" />
+        </directory>
+    http_version: 
+  recorded_at: Mon, 09 Oct 2017 14:09:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_invalid_kiwi_file" project="fake_project">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Id laborum iste eaque beatae.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '185'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_invalid_kiwi_file" project="fake_project">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Id laborum iste eaque beatae.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 09 Oct 2017 14:11:29 GMT
+recorded_with: VCR 3.0.3

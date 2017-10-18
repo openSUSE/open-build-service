@@ -1,0 +1,69 @@
+#! /bin/sh
+# Copyright (c) 2010, Novell Inc.
+#
+# Author: adrian@suse.de
+#
+# /etc/init.d/obsapisetup
+#   and its symbolic  link
+# /usr/sbin/rcobsapisetup
+#
+### BEGIN INIT INFO
+# Provides:          obsapisetup
+# X-Start-Before:    apache2
+# Should-Start:      obsstoragesetup obssrcserver obsrepserver
+# Should-Stop:       $none
+# Required-Start:    mysql
+# Required-Stop:     $null
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 4 6
+# Description:       Initialize and update api database, only used in OBS Appliance
+### END INIT INFO
+
+. /etc/rc.status
+
+# make parsed output predictable 
+export LC_ALL=C
+
+# package or appliance defaults
+if [ -e /etc/sysconfig/obs-server ]; then
+  source /etc/sysconfig/obs-server
+fi
+
+if [ "$OBS_API_AUTOSETUP" != "yes" ]; then
+   echo "OBS API Autosetup is not enabled in sysconfig, skipping!"
+   exit 0
+fi
+
+rc_reset
+case "$1" in
+	start)
+		[[ $HOME == '' ]] && export HOME=/root
+		/usr/lib/obs/server/setup-appliance.sh --non-interactive --setup-only
+		rc_status -v
+	;;
+	stop)
+                # nothing to do
+		rc_status -v
+	;;
+	restart)
+                # nothing to do
+		rc_status
+	;;
+	try-restart)
+                # nothing to do
+		rc_status
+	;;
+	reload)
+                # nothing to do
+		rc_status
+	;;
+	status)
+		# nothing to do
+		rc_status -v
+	;;
+	*)
+		echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+		exit 1
+	;;
+esac
+rc_exit

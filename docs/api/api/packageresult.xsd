@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema specifies the format for results of the build of a package by
+      the openSUSE build service.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="packageresult">
+    <xs:annotation>
+      <xs:documentation>
+        Top level element for project build result.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="date"/>
+        <xs:element ref="status" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="archresult"/>
+      </xs:sequence>
+      <xs:attribute name="package" type="xs:string"/>
+      <xs:attribute name="project" type="xs:string"/>
+      <xs:attribute name="repository" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="date" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Date and time the result was generated.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="status">
+    <xs:annotation>
+      <xs:documentation>
+        Status information.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="summary" minOccurs="0"/>
+        <xs:element ref="builderror" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="packagecount" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="code" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="summary" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Summary of the status.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="builderror">
+    <xs:annotation>
+      <xs:documentation>
+        Information about build errors.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="details" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="code" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="details" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Build error details.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="archresult">
+    <xs:annotation>
+      <xs:documentation>
+        Build result summary for a certain architecture of a target platform.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="status"/>
+        <xs:element ref="rpm" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute ref="arch"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="rpm">
+    <xs:annotation>
+      <xs:documentation>
+        Name of resulting RPM.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="filename" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="packagecount">
+    <xs:annotation>
+      <xs:documentation>
+        Number of packages in a given state.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="state" type="xs:string"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:attribute name="arch" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Hardware architecture.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+</xs:schema>

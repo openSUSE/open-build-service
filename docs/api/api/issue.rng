@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="issue-element"/>
+  </start>
+
+  <define ns="" name="issue-element">
+    <element name="issue">
+      <interleave>
+        <element name="name">
+          <text/>
+        </element>
+        <element name="tracker">
+          <text/>
+        </element>
+        <optional>
+          <element name="label">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="url">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="state">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="description">
+            <text/>
+          </element>
+        </optional>
+
+        <optional>
+          <element name="owner">
+            <element name="login"> <text/> </element>
+            <element name="email"> <text/> </element>
+            <element name="realname"> <text/> </element>
+            <empty/>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+
+</grammar>

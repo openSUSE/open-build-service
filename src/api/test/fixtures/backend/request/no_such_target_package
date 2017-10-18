@@ -1,0 +1,9 @@
+<request>
+  <action type="add_role">
+    <target project='home:Iggy' package='DoesNotExist' />
+    <person name="Iggy" role="maintainer" />
+  </action>
+  <description/>
+  <state />
+</request>
+

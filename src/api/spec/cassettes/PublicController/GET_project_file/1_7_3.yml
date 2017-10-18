@@ -1,0 +1,143 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 13 Oct 2016 08:34:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/_config
+    body:
+      encoding: UTF-8
+      string: Neque eligendi ullam et ex. Sit quaerat molestiae cupiditate autem consequatur
+        rerum. Qui et iste excepturi. Accusamus quisquam tenetur soluta suscipit possimus
+        error. Sunt numquam sequi voluptate laboriosam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 13 Oct 2016 08:34:38 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/public_controller_project/_config
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: Neque eligendi ullam et ex. Sit quaerat molestiae cupiditate autem consequatur
+        rerum. Qui et iste excepturi. Accusamus quisquam tenetur soluta suscipit possimus
+        error. Sunt numquam sequi voluptate laboriosam.
+    http_version: 
+  recorded_at: Thu, 13 Oct 2016 08:34:38 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/public_controller_project/_config
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: Neque eligendi ullam et ex. Sit quaerat molestiae cupiditate autem consequatur
+        rerum. Qui et iste excepturi. Accusamus quisquam tenetur soluta suscipit possimus
+        error. Sunt numquam sequi voluptate laboriosam.
+    http_version: 
+  recorded_at: Thu, 13 Oct 2016 08:34:38 GMT
+recorded_with: VCR 3.0.3

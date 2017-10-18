@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar 
+    ns="http://buildservice.org/api"
+    xmlns="http://relaxng.org/ns/structure/1.0" 
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="binary_released-element"/>
+  </start>
+
+  <define ns="" name="binary_released-element">
+    <element name="binary">
+      <attribute name="project">
+        <data type="string" />
+      </attribute>
+      <attribute name="repository">
+        <data type="string" />
+      </attribute>
+      <attribute name="name">
+        <data type="string" />
+      </attribute>
+      <optional>
+        <attribute name="epoch">
+          <data type="string" />
+        </attribute>
+      </optional>
+      <attribute name="version">
+        <data type="string" />
+      </attribute>
+      <attribute name="release">
+        <data type="string" />
+      </attribute>
+      <attribute name="arch">
+        <ref name="build-arch" />
+      </attribute>
+      <optional>
+        <attribute name="medium">
+          <data type="string" />
+        </attribute>
+      </optional>
+      <interleave>
+        <element name="operation">
+          <choice>
+            <value>added</value>    <!-- this is a new binary -->
+            <value>modified</value> <!-- this binary modifies a former released one, which became obsolete -->
+          </choice>
+        </element>
+        <optional>
+          <element name="publish">
+            <attribute name="package">
+              <data type="string" />
+            </attribute>
+            <attribute name="time">
+              <data type="string" />
+            </attribute>
+          </element>
+        </optional>
+        <optional>
+          <element name="build">
+            <attribute name="time">
+              <data type="string" />
+            </attribute>
+          </element>
+        </optional>
+        <optional>
+          <element name="modify"> <!-- something changed, either the binary or it's meta data -->
+            <attribute name="time">
+              <data type="string" />
+            </attribute>
+          </element>
+        </optional>
+        <optional>
+          <element name="obsolete"> <!-- this binary is not part of the repository anymore -->
+            <attribute name="time">
+              <data type="string" />
+            </attribute>
+          </element>
+        </optional>
+        <optional>
+          <element name="supportstatus">
+            <ref name="supportstatus-choices" />
+          </element>
+        </optional>
+        <optional>
+          <element name="updateinfo">
+            <attribute name="id">
+              <data type="string" />
+            </attribute>
+            <attribute name="version"> <!-- this actually the update release counter, but defined as version upstream -->
+              <data type="string" />
+            </attribute>
+          </element>
+        </optional>
+        <optional>
+          <element name="maintainer">
+            <text/> <!-- packager of the update according to the _patchinfo file -->
+          </element>
+        </optional>
+        <optional>
+          <element name="disturl">
+            <text/> <!-- the exact build location and revision -->
+          </element>
+        </optional>
+        <optional>
+          <element name="updatefor"> <!-- a product is refering to this repo as update channel -->
+            <attribute name="project">
+              <data type="string" />
+            </attribute>
+            <attribute name="product">
+              <data type="string" />
+            </attribute>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+</grammar>

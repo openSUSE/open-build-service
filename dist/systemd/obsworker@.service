@@ -1,0 +1,16 @@
+[Unit]   
+Description=OBS worker for %i
+After=network.target
+         
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStartPre=/bin/sh -c "/bin/systemctl set-environment HOSTNAME=`hostname`"
+ExecStartPre=/bin/mkdir -p /var/cache/build/root_%i
+ExecStartPre=/bin/mkdir -p /var/cache/build/state_%i
+ExecStartPre=/bin/chmod 755 /var/cache/build/root_%i
+ExecStartPre=/bin/chmod 755 /var/cache/build/state_%i
+ExecStart=/usr/lib/obs/server/bs_worker --hardstatus --root /var/cache/build/root_%i --statedir /var/cache/build/state_%i --id ${HOSTNAME}:%i --reposerver http://${OBS_REPO_SERVERS} --jobs $OBS_WORKER_JOBS &
+ExecReload=/bin/kill -HUP $MAINPID
+         
+[Install]
+WantedBy=multi-user.target  

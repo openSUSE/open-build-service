@@ -1,0 +1,33 @@
+<div class="dialog darkgrey_box" id="del_dialog">
+  <div class="box box-shadow">
+    <h2 class="box-header">Do you really want to delete this package?</h2>
+    <div class="dialog-content">
+      <%- if @package.develpackages.any? %>
+        <p>
+          <%= sprite_tag 'dialog-warning' %>
+          Warning: This package is used by the following packages for development
+        </p>
+        <ul>
+          <%- @package.develpackages.each do|package| %>
+            <li><%= project_or_package_link project: package.project.name, package: package.name, short: true %></li>
+          <%- end %>
+        </ul>
+      <% else %>
+        <p> Please confirm deletion of <%= package_link @package %></p>
+      <% end %>
+    </div>
+      <%= form_tag({:controller => :package, :action => :remove}, :method => :post) do %>
+        <%= hidden_field_tag(:project, @project) %>
+        <%= hidden_field_tag(:package, @package) %>
+        <%- if @package.develpackages.any? %>
+          <p>
+            <label for="force">
+              Delete anyway?
+            </label>
+            <input id="force" name="force" type="checkbox" />
+          </p>
+        <% end %>
+        <%= render partial: '/webui/shared/dialog_action_buttons' %>
+      <% end %>
+  </div>
+</div>

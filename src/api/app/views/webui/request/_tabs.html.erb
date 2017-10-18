@@ -1,0 +1,12 @@
+<%= content_for :ready_function do %>
+  $("#advanced_tabs_trigger").click(function() {
+    $("#advanced_tabs").show();
+    $("#advanced_list_item").hide();
+  });
+<% end %>
+
+<div class="box-header header-tabs">
+  <ul>
+    <%= tab 'overview', 'Overview', :controller => :request, :action => :show, :number => params[:number] %>
+  </ul>
+</div>

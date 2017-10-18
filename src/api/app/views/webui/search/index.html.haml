@@ -1,0 +1,48 @@
+- require 'active_support/inflector'
+- @pagetitle = 'Search'
+- @crumb_list = [@pagetitle]
+- @layouttype = 'custom'
+= content_for :ready_function do
+  :plain
+    $('#search-text').focus();
+    $('#advanced-link' ).click(function() {
+      $('#advanced-container').toggle("drop");
+      return false;
+    });
+.grid_16.alpha.omega.box.box-shadow
+  = render partial: 'tabs'
+  %h3 Search for packages or projects:
+  #search-form
+    = form_tag({ controller: 'search', action: 'index' }, { method: :get }) do
+      %p
+        = text_field_tag('search_text', params[:search_text], placeholder: 'Search', id: 'search_input')
+        = submit_tag(nil, id: 'search_button', title: 'Search')
+        = select_tag(:issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker] || @default_tracker))
+        = text_field_tag('issue', params[:issue], size: 10)
+        %button#advanced-link{ type: "button" } Advanced
+      #advanced-container{ style: "display: none;" }
+        %h4 Search for:
+        %p
+          = hidden_field_tag('project', 0)
+          = check_box_tag('project', 1, params[:project].nil? || params[:project] == "1")
+          %label{for: "project" } Projects
+          = hidden_field_tag('package', 0)
+          = check_box_tag('package', 1, params[:package].nil? || params[:package] == "1")
+          %label{ for: "package" } Packages
+        %h4 Search in:
+        %p
+          = hidden_field_tag('name', 0)
+          = check_box_tag('name', 1, params[:name].nil? || params[:name] == "1")
+          %label{ for: "name" } Name
+          = hidden_field_tag('title', 0)
+          = check_box_tag('title', 1, params[:title] == "1")
+          %label{ for: "title" } Title
+          = hidden_field_tag('description', 0)
+          = check_box_tag('description', 1, params[:description] == "1")
+          %label{ for: "description" } Description
+        %h4 Require attribute:
+        %p
+          = select_tag(:attrib_type_id, options_for_select(@attrib_type_list, params[:attrib_type_id]), id: 'attribute_list')
+
+  - unless @results.nil? || @results.empty?
+    = render(partial: 'results')

@@ -1,0 +1,22 @@
+<group name="print_server" version="10" release="215"
+       pattern:ordernumber="3020"
+       pattern:category="Primary Functions"
+       pattern:icon="printer2"
+       pattern:summary="Print Server"
+       pattern:description="Software used to host print queues so that they may be accessed by other computers on the same network. LPD, CUPS, and SMB print servers and queues are supported."
+       pattern:visible="true"
+>
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="required">
+            <package name="cups" />
+    </group>
+    <group relationship="recommended">
+            <package name="filters" />
+            <package name="foomatic-filters" />
+            <package name="cups-SUSE-ppds-dat" />
+            <package name="cups-drivers" />
+            <package name="cups-drivers-stp" />
+            <package name="manufacturer-PPDs" />
+            <package name="samba" />
+    </group>
+</group>

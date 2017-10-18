@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Elements:
+  
+  name
+  arch
+  summary
+    short summary
+  description
+    detailed description
+  default
+    if present, this element indicates that the pattern should be installed
+    by default
+  uservisible 
+    if present, this element indicates that the pattern should be presented
+    to user in the UI.
+  category
+    one of defined categories to which the pattern belongs
+    (e.g Graphical Environments, Desktop Functions)
+  icon
+    path to icon (relative to installation source URL) file representing
+    the pattern
+  script
+    ?
+  dependencies
+    see rpm-ns.rnc
+-->
+<grammar ns="http://novell.com/package/metadata/suse/pattern" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="suse-primary.rng">
+    <start>
+      <ref name="element-pattern"/>
+    </start>
+  </include>
+  <define name="element-patterns">
+    <element name="patterns">
+      <optional>
+        <attribute name="count">
+          <data type="nonNegativeInteger"/>
+        </attribute>
+      </optional>
+      <oneOrMore>
+        <ref name="element-pattern"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="element-pattern">
+    <element name="pattern">
+      <ref name="pattern"/>
+    </element>
+  </define>
+  <define name="pattern">
+    <interleave>
+      <element name="name">
+        <text/>
+      </element>
+      <optional>
+        <element name="arch">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="version">
+          <attribute name="epoch">
+            <text/>
+          </attribute>
+          <attribute name="ver">
+            <text/>
+          </attribute>
+          <attribute name="rel">
+            <text/>
+          </attribute>
+        </element>
+      </optional>
+      <oneOrMore>
+        <element name="summary">
+          <ref name="localized-string"/>
+        </element>
+      </oneOrMore>
+      <oneOrMore>
+        <element name="description">
+          <ref name="localized-string"/>
+        </element>
+      </oneOrMore>
+      <optional>
+        <element name="default">
+          <empty/>
+        </element>
+      </optional>
+      <optional>
+        <element name="uservisible">
+          <empty/>
+        </element>
+      </optional>
+      <oneOrMore>
+        <element name="category">
+          <ref name="localized-string"/>
+        </element>
+      </oneOrMore>
+      <optional>
+        <element name="icon">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="script">
+          <text/>
+        </element>
+      </optional>
+      <ref name="dependencies"/>
+    </interleave>
+  </define>
+</grammar>

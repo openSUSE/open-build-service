@@ -1,0 +1,50 @@
+BaseDistro3_BaseDistro3_repo:
+  id: 1
+  repository_id: 93
+  operation: 'added'
+  release_package: BaseDistro3_pack2
+#  medium: DVD
+  binary_name: package
+#  binary_epoch: 
+  binary_version: 1.0
+  binary_release: 1
+  binary_arch: i586
+  binary_disturl: obs://build.opensuse.org/My:Maintenance:2793/openSUSE_13.1_Update/904dbf574823ac4ca7501a1f4dca0e68-package.openSUSE_13.1_Update
+  binary_buildtime: 2013-09-29 15:50:31.000000000 Z
+  binary_releasetime: 2013-09-30 15:50:30.000000000 Z
+#  binary_deletetime:
+  binary_supportstatus: l3
+  binary_maintainer: Iggy
+  binary_updateinfo: OBS-2014-42
+  binary_updateinfo_version: 1
+BaseDistro3_BaseDistro3_repo_droped:
+  id: 2
+  repository_id: 93
+  operation: 'added'
+  obsolete_time: 2013-09-31 15:50:30.000000000 Z
+  binary_name: dropped
+  binary_version: 1.0
+  binary_release: 1
+  binary_arch: i586
+  binary_disturl: obs://build.opensuse.org/My:Maintenance:2793/openSUSE_13.1_Update/904dbf574823ac4ca7501a1f4dca0e68-package.openSUSE_13.1_Update
+  binary_buildtime: 2013-09-29 15:50:31.000000000 Z
+  binary_releasetime: 2013-09-30 15:50:30.000000000 Z
+  binary_supportstatus: l3
+  binary_maintainer: Iggy
+BaseDistro3_product:
+  id: 3
+  repository_id: 93
+  operation: 'added'
+  release_package: BaseDistro3_pack2
+  medium: DVD
+  binary_name: package
+  binary_version: 1.0
+  binary_release: 1
+  binary_arch: i586
+  binary_disturl: obs://build.opensuse.org/My:Maintenance:2793/openSUSE_13.1_Update/904dbf574823ac4ca7501a1f4dca0e68-package.openSUSE_13.1_Update
+  binary_buildtime: 2013-09-29 15:50:31.000000000 Z
+  binary_releasetime: 2013-09-30 15:50:30.000000000 Z
+  binary_supportstatus: l3
+  binary_maintainer: Iggy
+  binary_updateinfo: OBS-2014-42
+  binary_updateinfo_version: 1

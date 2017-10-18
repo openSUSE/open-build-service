@@ -1,0 +1,32 @@
+= content_for :ready_function do
+  monitor_ready();
+
+.statuslights#serverstatus
+  %h2 Server Status
+  - @workerstatus.elements("partition") do |part|
+    - unless part["name"].blank?
+      %h3= part["name"]
+    - if part.has_key? "daemon"
+      %ul
+        - part.elements("daemon") do |daemon|
+          %li.daemon_status
+            .statuswrapper
+              - state = "green"
+              - if daemon["state"] == "dead"
+                - state = "red"
+              - elsif daemon["state"] == "booting"
+                - state = "yellow"
+              %div{ class: "statuslight #{'status_' + state}", style: "margin: auto", title: "#{daemon['state']}"}
+              .statusarch
+                = daemon["arch"] ? daemon["arch"] : daemon["type"]
+              %span.hidden.statustext
+                = daemon["type"]
+                \:#{daemon['arch']}
+                \: #{daemon['state']}
+                - if daemon.has_key? "starttime"
+                  - start_time = Time.at(daemon["starttime"].to_i)
+                  for #{distance_of_time_in_words(@time_now, start_time, include_seconds: true)} (last restart: #{start_time.iso8601})
+    - else
+      %p
+        %i No daemons running!
+.clear

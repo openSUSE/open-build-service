@@ -1,0 +1,11 @@
+<project name="openSUSE.org">
+  <title>openSUSE.org Project</title>
+  <description>This project refers to projects hosted on the Build Service at the openSUSE.org project. This is important especially for the base projects which provides the distributions to build against by default. Your local Build Service instance will request, download and cache all needed sources or binary packages from the openSUSE.org project when you build against it.
+
+Use openSUSE.org:openSUSE:12.3 for example to build against the openSUSE:12.3 project as specified on the opensuse.org Build Service.
+</description>
+<!-- Keep in mind that this file is accessable via the api, before entering your password here !
+  <remoteurl>https://<account>:<password>@api.opensuse.org</remoteurl>
+-->
+  <remoteurl>https://api.opensuse.org/public</remoteurl>
+</project>

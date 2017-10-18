@@ -1,0 +1,44 @@
+<table>
+  <tbody>
+    <!-- add a history item based on the request creation information -->
+    <tr>
+      <td class="nowrap" style="width: 1%;">
+        <%= user_with_realname_and_icon @bs_request.creator, short: true %>
+      </td>
+      <td>
+        <span style="color: black;">created request</span>
+      </td>
+      <td class="nowrap" style="width: 1%;">
+        <span class="hidden"><%= @bs_request.created_at.to_i %></span>
+        <%= fuzzy_time(@bs_request.created_at) %>
+      </td>
+    </tr>
+    <tr class="odd">
+      <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= toggle_sliced_text(@bs_request.description, 48) %></pre></td>
+    </tr>
+    <!-- and now everything from the history log -->
+    <% @history.each do |element| %>
+      <tr>
+        <td class="nowrap" style="width: 1%;">
+          <%= user_with_realname_and_icon element.user.login, short: true %>
+        </td>
+        <td>
+          <% if element.class == HistoryElement::RequestSuperseded %>
+            <%= link_to(element.description, request_show_path(element.description_extension)) %>
+          <% else %>
+            <span style="color: <%= element.color %>;"><%= element.description %></span>
+          <% end %>
+        </td>
+        <td class="nowrap" style="width: 1%;">
+          <span class="hidden"><%= element.created_at.to_i %></span>
+          <%= fuzzy_time(element.created_at) %>
+        </td>
+      </tr>
+      <% unless element.comment.blank? %>
+        <tr class="odd">
+          <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= toggle_sliced_text(element.comment, 48) %></pre></td>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>

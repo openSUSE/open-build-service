@@ -1,0 +1,1 @@
+../worker-deltagen.spec

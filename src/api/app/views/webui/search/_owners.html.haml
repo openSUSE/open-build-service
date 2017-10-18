@@ -1,0 +1,15 @@
+#search-results
+  - @results.each do |result|
+    .search_result
+      %h6
+        Responsible for package
+        \#{params['search_text']}
+        for #{result.rootproject} set in
+        \#{project_or_package_link project: result.project, package: result.package, short: false}
+      %p
+        - search_owners_list(result.groups, :group).each do |result|
+          = result
+          %br/
+        - search_owners_list(result.users).each do |result|
+          = result
+          %br/

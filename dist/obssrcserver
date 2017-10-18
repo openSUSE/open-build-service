@@ -1,0 +1,98 @@
+#! /bin/sh
+# Copyright (c) 2007, Novell Inc.
+#
+# Author: adrian@suse.de
+#
+# /etc/init.d/obssrcserver
+#   and its symbolic  link
+# /usr/sbin/rcobssrcserver
+#
+### BEGIN INIT INFO
+# Provides:          obssrcserver
+# Required-Start:    $time $syslog
+# Required-Stop:     $null
+# Should-Start:      $network $remote_fs obsstoragesetup slpd signd
+# Should-Stop:       $none
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 4 6
+# Description:       open build service source repository server
+### END INIT INFO
+
+. /etc/rc.status
+
+. /etc/sysconfig/obs-server
+
+# Determine the base and follow a runlevel link name.
+base=${0##*/}
+link=${base#*[SK][0-9][0-9]}
+
+if [ -z "$OBS_RUN_DIR" ]; then
+        OBS_RUN_DIR="/srv/obs/run"
+fi
+
+if [ -z "$OBS_LOG_DIR" ]; then
+        OBS_LOG_DIR="/srv/obs/log"
+fi
+
+if [ -n "$OBS_BACKENDCODE_DIR" ]; then
+	obsdir="$OBS_BACKENDCODE_DIR"
+else
+	obsdir=/usr/lib/obs/server
+fi
+rundir="$OBS_RUN_DIR"
+logdir="$OBS_LOG_DIR"
+
+rc_reset
+case "$1" in
+	start)
+		echo -n "Initializing obssrcserver"
+		mkdir -p "$rundir" "$logdir"
+		chown obsrun:obsrun "$logdir" "$rundir"
+                # FIXME: not nice, this should receive a proper daemon handling, 
+                #        including real logging, pid file and startproc
+		startproc -f -l "$logdir"/src_server.log "$obsdir"/bs_srcserver
+		rc_status -v
+
+		# FIXME:
+
+		# We'd need to wait for the sockets to come up, or for
+		# some other interaction between the server and the
+		# start script, or the server should fork itself into
+		# background _after_ the sockets are up and the server
+		# is reachable.
+
+		# until then a little ugly nap does the trick...
+		sleep 4
+		rc_status -v
+	;;
+	stop)
+		echo -n "Shutting down obssrcserver"
+		"$obsdir"/bs_srcserver --stop
+		rc_status -v
+	;;
+	restart)
+		"$obsdir"/bs_srcserver --restart
+		rc_status
+	;;
+	try-restart|reload)
+		$0 status
+		if test $? = 0; then
+			"$obsdir"/bs_srcserver --restart
+		else
+			rc_reset        # Not running is not a failure.
+		fi
+		# Remember status and be quiet
+		rc_status
+	;;
+	status)
+		echo "Checking for obssrcserver and running processes: "
+		"$obsdir"/bs_serverstatus "$OBS_RUN_DIR"/bs_srcserver.status
+		checkproc "$obsdir"/bs_srcserver
+		rc_status -v
+	;;
+	*)
+		echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+		exit 1
+	;;
+esac
+rc_exit

@@ -1,0 +1,76 @@
+<% incidents.each do |incident| %>
+    <% index = 0 %>
+    <% release_targets_ng = incident.release_targets_ng() %>
+    <% release_targets_ng.each do |rt_name, rt| %>
+        <tr>
+          <% if index == 0 %>
+              <td rowspan="<%= release_targets_ng.length %>">
+                <% title = rt[:patchinfo].try(:[], :summary) || incident.title || incident.name %>
+                <% title = "#{short_incident_name(incident)}: #{title}" %>
+                <%= link_to(elide(title, 60, :right), project_show_path(project: incident.name), title: title) %>
+              </td>
+              <td rowspan="<%= release_targets_ng.length %>">
+                <% if rt[:patchinfo] %>
+                    <%= link_to(rt[:patchinfo][:category],
+                          patchinfo_show_path(project: incident.name, package: "patchinfo", file: "_patchinfo"),
+                          { style: "color: #{patchinfo_category_color(rt[:patchinfo][:category])};" }) %>
+                <% else %>
+                    <%= link_to(sprited_text('exclamation', 'Missing patchinfo'),
+                          patchinfo_new_patchinfo_path(project: incident.name, package: "patchinfo"),
+                          { style: 'color: red;', method: :post }) %>
+                <% end %>
+              </td>
+              <td rowspan="<%= release_targets_ng.length %>">
+                  <% unless rt[:packages].blank? %>
+                    <% first_pkg = rt[:packages].first %>
+                    <%= link_to(first_pkg.name.split('.', 2)[0], package_show_path(project: incident.name, package: first_pkg.name)) %>
+                    <% if rt[:packages].length > 1 %>
+                        , ...
+                    <% end %>
+                <% end %>
+              </td>
+              <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
+                <% rqs_in = BsRequest.list_numbers(roles: %w(target), states: %w(new review), project: incident.name) %>
+                <% if rqs_in.count > 0 %>
+                    <% if rqs_in.count == 1 %>
+                        <% path = request_show_path(rqs_in.first) %>
+                    <% else %>
+                        <% path = project_requests_path(project: incident.name) %>
+                    <% end %>
+                    <%= link_to(sprite_tag('exclamation', title: pluralize(rqs_in.count, "open request")), path) %>
+                <% end %>
+                <% requests_out = BsRequest.list(roles: %w(source), states: %w(new review declined),
+                                                          types: %w(maintenance_release), project: incident.name) %>
+                <% if requests_out.present? %>
+                    <% requests_out.sort {|x,y| x.number <=> y.number}.each do |rq_out| %>
+                        <% text = "Release request in state '#{rq_out['state']}'" %>
+                        <%= link_to(sprite_tag(map_request_state_to_flag(rq_out['state'].to_s), title: text),
+                              request_show_path(rq_out["number"])) %>
+                    <% end %>
+                <% else %>
+                    <% if incident.is_locked? %>
+                        <%= sprite_tag('lock', title: 'Locked') %>
+                    <% end %>
+                <% end %>
+                <% if rt[:patchinfo] && rt[:patchinfo][:stopped].present? %>
+                    <%= sprite_tag("clock", title: "Stopped: #{rt[:patchinfo][:stopped]}") %>
+                <% end %>
+              </td>
+          <% end %>
+          <td><b><%= rt_name %></b></td>
+          <td>
+            <% buildresult_css_id = "incident_#{valid_xml_id(incident.name)}_results_#{valid_xml_id(rt_name)}" %>
+            <% if incident.build_succeeded?(rt[:reponame]) %>
+                <%= link_to(sprite_tag('tick', title: 'Build results', id: buildresult_css_id), project_show_path(project: incident.name)) %>
+            <% else %>
+                <%= link_to(sprite_tag('exclamation', title: 'Build results', id: buildresult_css_id), project_show_path(project: incident.name)) %>
+            <% end %>
+            <%= javascript_tag do %>
+                setup_buildresult_tooltip('<%= buildresult_css_id %>',
+                '<%= url_for(project_buildresult_path(project: incident.name)) %>');
+            <% end %>
+          </td>
+          <% index += 1 %>
+        </tr>
+    <% end %>
+<% end %>

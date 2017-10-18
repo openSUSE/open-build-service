@@ -1,0 +1,13 @@
+<% no_icon ||= false %>
+
+<% if review[:by_user] %>
+   <%= user_with_realname_and_icon review[:by_user], short: true, no_icon: no_icon %>
+<% elsif review[:by_group] %>
+  <%= link_to(review[:by_group], :controller => 'groups', :action => 'show', title: review[:by_group]) %>
+<% elsif review[:by_project] %>
+  <% if review[:by_package] %>
+    <%= link_to("#{review[:by_project]} / #{review[:by_package]}", :controller => 'package', :action => 'users', :project => review[:by_project], :package => review[:by_package]) %>
+  <% else %>
+    <%= link_to(review[:by_project], :controller => 'project', :action => 'users', :project => review[:by_project]) %>
+  <% end %>
+<% end %>

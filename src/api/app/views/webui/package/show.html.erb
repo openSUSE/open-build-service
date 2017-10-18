@@ -1,0 +1,175 @@
+<% @pagetitle = "Show #{@project} / #{@package}" %>
+<% @layouttype = 'custom' %>
+<% dpackage = @package.develpackage %>
+<% package_bread_crumb %>
+
+<div class="grid_16 alpha omega box box-shadow">
+  <%= render :partial => 'tabs' %>
+  <div class="grid_10 alpha">
+    <h3 id="package_title">
+      <%=
+        title = @package.title
+        title = @package.name if title.blank?
+        title
+      %>
+      <% if @package.url.present? %>
+        <br/>
+        <small><%= link_to(@package.url, @package.url) %></small>
+      <% end %>
+    </h3>
+    <%= description_wrapper(@package.description) %>
+  </div>
+  <div class="grid_6 omega">
+    <%= possibly_empty_ul class: :clean_list do %>
+        <% if @failures > 0 %>
+            <li>
+              <%= sprite_tag 'exclamation', title: '' %>
+              <%= @failures %>
+              <%= link_to "error#{@failures == 1 ? '' : 's'}", :action => :monitor, :project => @project, :succeeded => 0, :blocked => 0, :finished => 0, :signing => 0, :dispatching => 0, :scheduled => 0, :building => 0, :controller => :project, :pkgname => @package.name %>
+            </li>
+        <% end %>
+
+        <%= render :partial => 'shared/open_requests' %>
+
+        <% if dpackage %>
+            <li>
+              <%= sprite_tag 'information', title: '' %>
+              Developed
+              at <%= link_to(elide(dpackage.project.name, 44), :action => :show, :controller => :package, :project => dpackage.project.name, :package => dpackage.name) %>
+            </li>
+        <% end %>
+        <% if @package.project != @project %>
+            <li>
+              <%= sprite_tag 'information', title: '' %>
+              Sources inherited from project
+              <%= link_to("#{elide(@package.project.name, 40)}", :action => 'show', :project => @package.project.name, :package => @package.name) %>
+            </li>
+        <% end %>
+        <% if @package.developed_packages.present? %>
+            <li>
+              <%= sprite_tag 'information', title: '' %>
+              Devel package for
+              <% @package.developed_packages.each_with_index do |pkg, index| %>
+                  <%= ',' if index > 0 %>
+                  <%= link_to("#{elide(pkg.project.name, 40)}", :action => 'show', :project => pkg.project.name, :package => pkg.name) %>
+              <% end %>
+            </li>
+        <% end %>
+        <% if @package.is_patchinfo? %>
+            <li>
+              <%= sprite_tag 'information', title: '' %>
+              Has
+              a <%= link_to 'patchinfo', :controller => :patchinfo, :action => :show, :package => @package, :project => @project %>
+              for <%= link_to 'maintenance updates', 'http://en.opensuse.org/Portal:Maintenance' %>
+              <%#TODO: Fix this hard link %>
+            </li>
+        <% end %>
+        <% if @package.linking_packages.present? %>
+            <li>
+              <%= sprite_tag 'information', title: '' %>
+              <%= @package.linking_packages.size %> <%= link_to('derived packages', { :action => :linking_packages, :project => @project, :package => @package }, :remote => true) %>
+            </li>
+        <% end %>
+        <% if @linkinfo %>
+            <% linked_package = @linkinfo[:package] %>
+            <li>
+              <%= sprite_tag 'package_link', title: '' %> Links to
+              <%= project_or_package_link project: linked_package.project.name, package: linked_package.name, short: true %>
+            </li>
+            <% if @linkinfo[:error] %>
+                <li><%= sprite_tag 'exclamation', title: '' %> Link has errors: <i><%= @linkinfo[:error] %></i></li>
+            <% elsif @linkinfo[:diff] %>
+                <li>
+                  <%= sprite_tag 'information', title: '' %>
+                  Has a <%= link_to 'link diff', :action => :rdiff, :oproject => linked_package.project.name, :opackage => linked_package.name, :project => @project, :package => @package, :rev => @revision %>
+                </li>
+            <% end %>
+        <% end %>
+        <%= render partial: 'extra_actions' %>
+    <% end -%>
+  </div>
+
+  <div class="grid_16 alpha omega">
+    <%= possibly_empty_ul class: 'horizontal-list' do %>
+        <% if @bugowners_mail.present? and @configuration['bugzilla_url'] %>
+            <li>
+              <%= link_to sprited_text('tools-report-bug', 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}/#{@package.name}: Bug") %>
+            </li>
+        <% end %>
+        <% unless User.current.is_nobody? %>
+            <% if @current_rev %>
+                <li>
+                  <%= link_to(sprited_text('arrow_branch', 'Branch package'), '#', class: 'show_dialog', data: { target: '#package_branch_dialog' }) %>
+                </li>
+                <li>
+                  <%= link_to(sprited_text('package_go', 'Submit package'), { :action => :submit_request_dialog, :project => @project, :package => @package, :revision => @revision }, :remote => true) %>
+                </li>
+            <% end %>
+            <% if User.current.can_modify_package? @package %>
+                <li>
+                  <%= link_to sprited_text('package_edit', 'Edit description'), :action => 'edit', :project => @project, :package => @package, :spec_count => @spec_count -%>
+                </li>
+                <li>
+                  <%= link_to(sprited_text('package_delete', 'Delete package'), { :action => :delete_dialog, :package => @package, :project => @project }, :remote => true, id: 'delete-package') %>
+                </li>
+                <% Feature.with(:kiwi_image_editor) do %>
+                  <% if @package.kiwi_image? && policy(@package).update? %>
+                    <li>
+                      <%= link_to(sprited_text('package_edit', 'Edit KIWI'), import_kiwi_image_path(@package.id), id: 'edit-kiwi') %>
+                    </li>
+                  <% end %>
+                <% end %>
+                <% if @services.present? %>
+                  <li>
+                    <%= link_to(sprited_text('package_link', 'Trigger services'), { action: :trigger_services, package: @package, project: @project }, method: :post) %>
+                  </li>
+                <% end %>
+            <% else %>
+                <li>
+                  <%= link_to(sprited_text('user_add', 'Request role addition'), { :controller => :request, :action => :add_role_request_dialog, :project => @project, :package => @package }, :remote => true) %>
+                </li>
+                <li>
+                  <%= link_to(sprited_text('package_delete', 'Request deletion'), { :controller => :request, :action => :delete_request_dialog, :project => @project, :package => @package }, :remote => true) %>
+                </li>
+            <% end %>
+            <%# TODO: only users w/o rights should see this, maintainers should get a different dialog: %>
+            <% if @package.develpackage %>
+                <li>
+                  <%= link_to(sprited_text('arrow_switch', 'Request devel project change'), { :controller => 'request', :action => 'change_devel_request_dialog', :project => @project, :package => @package }, :remote => true) %>
+                </li>
+            <% end %>
+        <% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="grid_10 alpha box box-shadow">
+  <h3>Source Files <%= image_tag('ajax-loader.gif', :id => 'spinner_files', :class => 'hidden') %>
+    <% if @linkinfo && @revision_parameter.nil? %>
+  <span style="font-size: small; font-weight: normal">
+    <% if @expand && @expand.to_s == '1' || @forced_unexpand.present? %>
+      <%= link_to '(show unmerged sources)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0' %>
+    <% else %>
+      <%= link_to '(show merged sources derived from linked package)', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '1' %>
+    <% end %>
+  </span>
+    <% end %>
+  </h3>
+  <% unless @forced_unexpand.blank? %>
+      <p><i>Sources could not be expanded: <%= @forced_unexpand %></i></p>
+      <p><%= link_to 'Show unmerged sources', :project => @project.name, :package => @package.name, :action => :show, :rev => @revision_parameter, :expand => '0' %></p>
+  <% else %>
+      <%= render :partial => 'files_view' %>
+  <% end %>
+</div>
+
+<div class="grid_6 omega box box-shadow">
+  <%= render :partial => 'shared/buildresult_box', :locals => { :project => @project.name, :package => @package.name } %>
+</div>
+
+<div class="grid_16 box box-shadow alpha omega">
+  <h2 class="box-header">Comments for <%= @project.name %> (<%= @comments.length %>)</h2>
+  <%= render :partial => 'webui/comment/show', locals: { commentable: @package } %>
+</div>
+
+<%= render partial: 'webui/package/branch_dialog' %>

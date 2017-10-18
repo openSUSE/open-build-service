@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<download_counter first="2007-03-06T05:21:48+01:00" last="2007-03-21T15:31:35+01:00" sum="1418775">
+  <count files="3817" project="KDE:KDE3">982023</count>
+  <count files="332"  project="X11:XGL">104497</count>
+  <count files="446"  project="KDE:Backports">89723</count>
+  <count files="5867" project="KDE:KDE4">44258</count>
+  <count files="734"  project="mozilla">32326</count>
+  <count files="9919" project="GNOME:UNSTABLE">20760</count>
+  <count files="7513" project="server:php">15245</count>
+  <count files="1690" project="M17N">13324</count>
+  <count files="248"  project="X11:xfce">12865</count>
+  <count files="967"  project="xorg73">12681</count>
+</download_counter>

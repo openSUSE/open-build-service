@@ -1,0 +1,90 @@
+/* Our own jQueryUI styles. We can't use the upstream ones (currently) as they
+ * collide quite heavily with Bento ;-) */
+
+.ui-corner-all {
+  border-radius: 0px; /* Bento's round corners look ugly */
+}
+
+.ui-autocomplete {
+  position: absolute;
+  cursor: default;
+  padding: 0px;
+  border: 1px solid black;
+  background-color: white;
+  overflow: auto; /* We want a vertical scrollbar... */
+  max-height: 180px;
+}
+
+.ui-menu-item {
+  margin: 0px;
+  padding: 2px 5px;
+  cursor: default;
+  display: block;
+  font: menu;
+  font-size: 12px;
+  /* it is very important, if line-height not setted or setted
+  in relative units scroll will be broken in firefox */
+  line-height: 16px;
+  overflow: hidden;
+}
+
+.ui-menu-item > a {
+  color: #444444;
+}
+
+/*
+ * jQuery UI Menu 1.8.18
+ *
+ * Copyright 2010, AUTHORS.txt (http://jqueryui.com/about)
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ * http://jquery.org/license
+ *
+ * http://docs.jquery.com/UI/Menu#theming
+ */
+.ui-menu {
+  list-style:none;
+  padding: 2px;
+  margin: 0;
+  display:block;
+  float: left;
+}
+
+.ui-menu .ui-menu {
+  margin-top: -3px;
+}
+
+.ui-menu .ui-menu-item {
+  margin:0;
+  padding: 0;
+  zoom: 1;
+  float: left;
+  clear: left;
+  width: 100%;
+  &:hover {
+    background-color: #eee;
+  }
+}
+
+.ui-menu .ui-menu-item a.ui-state-hover,
+.ui-menu .ui-menu-item a.ui-state-active {
+  font-weight: normal;
+  margin: -1px;
+}
+
+/* jquery tooltip */
+.ui-tooltip {
+  padding: 8px;
+  position: absolute;
+  z-index: 9999;
+  max-width: 300px;
+  -webkit-box-shadow: 0 0 5px #aaa;
+  box-shadow: 0 0 5px #aaa;
+}
+
+body .ui-tooltip {
+        border-width: 2px;
+}
+
+.ui-front {
+  z-index: 100;
+}

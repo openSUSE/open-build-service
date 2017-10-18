@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<link project="myproject" package="mypackage" rev="17" cicount="42">
+    <patches>
+        <add name="newsource.tar.bz2" type="bz2" after="bla" popt="bla" dir="bla"/>
+        <apply name="specfile.diff"/>
+        <delete name="oldversion.tar"/>
+        <delete name="olderversion.tar"/>
+        <branch/>
+        <topadd># This will be inserted at the top of the spec file</topadd>
+    </patches>
+</link>

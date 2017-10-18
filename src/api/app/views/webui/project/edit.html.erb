@@ -1,0 +1,21 @@
+<% @pagetitle = "Edit Project Information of #{@project}"
+   @metarobots = 'noindex'
+   project_bread_crumb 'Edit Project'
+-%>
+
+<%= render :partial => "tabs" %>
+
+<h2><%= @pagetitle %></h2>
+
+<%= form_for(@project, url: { action: :update }) do |f| %>
+  <%= hidden_field_tag "id", @project.id %>
+  <p>
+    <label for="project_title"><strong>Title:</strong></label><br/>
+    <%= f.text_field :title, :size => 80 %>
+  </p>
+  <p>
+    <label for="project_description"><strong>Description:</strong></label><br/>
+    <%= f.text_area :description, :rows => 20, :cols => 80 %>
+  </p>
+  <p><%= f.submit %></p>
+<% end %>

@@ -1,0 +1,9 @@
+- @pagetitle = 'Global Notification Settings'
+- @crumb_list = [@pagetitle]
+- @layouttype = 'custom'
+.grid_16.alpha.omega.box.box-shadow
+  = render partial: 'webui/configuration/tabs'
+  %p= @pagetitle
+  = form_tag(notifications_path, method: :put, id: 'notification_form') do
+    = render partial: 'subscriptions_form'
+    %p= submit_tag 'Update'

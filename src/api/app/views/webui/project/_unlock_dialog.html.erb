@@ -1,0 +1,17 @@
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <h2 class="box-header">Unlock Confirmation</h2>
+      <div class="dialog-content">
+        <p>Do you really want to unlock <%= project_or_package_link project: @project.name %>?</p>
+
+        <%= form_tag({:controller => 'project', project: @project, :action => 'unlock'}, :method => 'post') do %>
+          <%= hidden_field_tag(:project, @project) %>
+          <p>
+            <%= label_tag(:comment, 'Comment:') %><br/>
+            <%= text_area_tag(:comment, '', :size => '40x3') %><br/>
+          </p>
+          <%= render partial: '/webui/shared/dialog_action_buttons' %>
+        <% end %>
+      </div>
+    </div>
+  </div>

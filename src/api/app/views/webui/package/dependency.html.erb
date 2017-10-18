@@ -1,0 +1,38 @@
+<% @pagetitle = "Detailed Informations About #{@filename}" %>
+<% package_bread_crumb(
+  link_to( 'Binaries', :controller => 'package', :action => :binaries, :project => @project, :package => @package, :repository => @repository, :arch => @arch ),
+  link_to( truncate(@filename, :length => 30), :controller => 'package', :action => :binaries, :project => @project,
+    :package => @package, :repository => @repository, :arch => @arch ),
+  "Dependencies")
+-%>
+
+<%= render :partial => "tabs" %>
+
+<h1>Dependency of <%= @filename %></h1>
+
+<div>
+  <p><strong>Name:</strong> <%= @fileinfo.value :name %></p>
+  <p><strong>Project:</strong> <%= @dproject %></p>
+  <p><strong>Repository:</strong> <%= @drepository %></p>
+  <p><strong>Title:</strong> <%= @fileinfo.value :summary %></p>
+  <p><strong>Description:</strong><br/>
+    <% description = @fileinfo.value :description %>
+    <% if description %>
+      <% description.split( /\n/ ).each do |line| %>
+        <%= line -%><br/>
+      <% end %>
+    <% else %>
+      <i>No description set</i>
+    <% end %>
+  </p>
+  <p><strong>Version:</strong> <%= @fileinfo.value :version %></p>
+  <p><strong>Release:</strong> <%= @fileinfo.value :release %></p>
+  <p><strong>Architecture:</strong> <%= @fileinfo.value :arch %></p>
+  <p><strong>Size:</strong> <%= human_readable_fsize(@fileinfo.value(:size).to_i) %></p>
+  <p><strong>Build Time:</strong> <%= btime = Time.at(@fileinfo.value(:mtime).to_i)
+  btime.to_s + " (" + fuzzy_time_string(btime.ctime) + ")" %></p>
+
+</div>
+
+<%= render :partial => "deps" %>
+

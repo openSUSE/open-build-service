@@ -1,0 +1,9 @@
+<request>
+  <action type='add_role'>
+    <target project='Apache' package='apache2' />
+    <person name='Iggy' role='bugowner' />
+  </action>
+  <description/>
+</request>
+
+

@@ -1,0 +1,24 @@
+INSTALL=/usr/bin/install
+OBS_BACKEND_PREFIX=/usr/lib/obs/server
+OBS_DOCUMENT_ROOT=/srv/www/obs
+OBS_API_PREFIX=$(OBS_DOCUMENT_ROOT)/api
+OBS_APIDOCS_PREFIX=$(OBS_DOCUMENT_ROOT)/docs
+
+# TODO: find fix for RH in spec/Makefile
+# This here is preparation for multi distro support
+APACHE_USER=wwwrun
+APACHE_GROUP=www
+APACHE_CONIFGDIR=/etc/apache2
+APACHE_CONIFGDIR_VHOST=$(APACHE_CONIFGDIR)/vhosts.d
+APACHE_VHOST_CONF=obs-apache24.conf
+
+# some sortcuts
+test: test_unit
+
+test_all: test_unit test_system
+
+t: test
+
+ta: test_all
+
+ts: test_system

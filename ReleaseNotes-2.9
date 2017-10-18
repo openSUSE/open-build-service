@@ -1,0 +1,112 @@
+
+#
+# Open Build Service 2.9
+#
+
+WARNING:
+WARNING: This is a development release, not for production usage!
+WARNING:
+
+
+
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+There is also an install medium with installs OBS on hard disc now.
+
+dist/README.UPDATERS file has informations for updaters.
+
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
+happen automatically.
+
+
+Features
+========
+
+UI:
+ * Kerberos authentication mode. Allow OBS admins to setup their instance for
+   kerberos authentication. Read more in the OBS Admin Guide.
+ * Users can see the job history list of a specific package via the package binaries page
+ * New GPG key details dialog
+ * RSS Feeds for User's Notifications is now available
+ * Kiwi image editor feature:
+   * Repositories of a kiwi file can be updated. Also the packages list.
+   * A basic and expert mode for adding repositories is available.
+   * obsrepositories:/ source_path can be added easily using 'use project repositories' checkbox.
+   * Only `apt-deb` and `rpm-md` are allowed as repo_type. Other values will be replaced by `rpm-md`.
+   * Added autocompletion for binary packages names.
+ * Job history: 'source change' rows now link to the diff
+ * RabbitMQ support. OBS admins can configure their instance to send messages to a RabbitMQ server.
+   Read more in the OBS Admin Guide.
+ * Receive email notifications for projects that are in your watchlist. Configure at /user/notifications.
+
+API:
+ * Kerberos authentication mode
+ * api_relative_url_root option was removed
+
+Backend:
+ * support showing source files in blame view (works also via links)
+ * support project copy with makeoriginolder option
+
+Shipment:
+ *
+
+Bugfixes:
+ * Deletion of groups with users was not working
+
+Wanted changes:
+===============
+
+ * creating of repositories on branching has changed if repositories of the
+   source refer each other. This gets recreated in new project.
+
+ * project copy is not adding the user anymore
+
+ * service dispatcher is used by default now
+
+ * The editing of a user's realname, email adress or password is no longer possible if LDAP mode is activated
+
+ * Unused ldap options in options.yml were dropped:
+   - ldap_update_support
+   - ldap_object_class
+   - ldap_entry_base
+   - ldap_sn_attr_required
+
+ * dropping of the project/package tag functionality/api
+
+ * password hashing algorithm was changed to bcrypt (blowfish)
+
+ * The backend notification plugin system is not used anymore.
+   The RabbitMQ plugin is replaced with a RabbitMQ message bus implementation in the frontend, you can find details about this in the admin manual.
+   The Hermes plugin is dropped without replacement as it was only used for notifications which the OBS is doing on it's own since quite some time.
+
+Other changes
+=============
+
+ *
+
+Notes for systems using systemd:
+================================
+
+OBS is using init scripts, not systemd style .service files. This will stay until
+we will switch from SLES 11 to SLES 12 as default production platform.
+
+openSUSE installations may use systemd (instead of sysvinit) and it should work
+in general. Not working are usages like
+
+ # rcobssrcserver status
+
+You will only get the systemd status here.
+
+Also stopping services may not kill all processes, which leads to abstract errors
+when trying to restart them. We heard also about trashed MySQL databases when using
+systemd.
+
+To avoid these problems you need switch directory to avoid the systemd mapper:
+
+ # cd /etc/init.d
+ # ./obssrcserver status|stop|start

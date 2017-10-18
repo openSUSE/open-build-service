@@ -1,0 +1,1123 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
+# Copyright (c) 2008 Adrian Schroeter, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# The Scheduler. One big chunk of code for now.
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use Digest::MD5 ();
+use Data::Dumper;
+use Storable ();
+use XML::Structured ':bytes';
+use POSIX;
+use Fcntl qw(:DEFAULT :flock);
+
+use BSConfiguration;
+use BSRPC ':https';
+use BSUtil;
+use BSFileDB;
+use BSXML;
+use BSDBIndex;
+use BSBuild;
+use BSVerify;
+use Build;
+use BSDB;
+use BSSolv;
+use BSCando;
+
+use BSSched::RPC;
+use BSSched::Remote;
+use BSSched::DoD;
+use BSSched::ProjPacks;
+use BSSched::BuildRepo;
+use BSSched::BuildResult;
+use BSSched::PublishRepo;
+use BSSched::EventQueue;
+use BSSched::EventHandler;
+use BSSched::EventSource::Directory;
+use BSSched::EventSource::Retry;
+use BSSched::EventSource::RemoteWatcher;
+use BSSched::BuildJob;
+use BSSched::Access;
+use BSSched::Lookat;
+use BSSched::Checker;
+use BSSched::RepoCache;
+
+use strict;
+
+my $testprojid;
+my $testmode;
+my $asyncmode;
+my $startupmode;
+
+$asyncmode = $BSConfig::sched_asyncmode if $BSConfig::sched_asyncmode;
+$startupmode = $BSConfig::sched_startupmode if $BSConfig::sched_startupmode;
+
+my $maxserverload = 1;
+$maxserverload = $BSConfig::sched_maxserverload if $BSConfig::sched_maxserverload;
+
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
+
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+
+BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
+
+# directries we use
+my $_reporoot = "$bsdir/build";
+my $_jobsdir = "$bsdir/jobs";
+my $_eventdir = "$bsdir/events";
+my $_dodsdir = "$bsdir/dods";
+my $_rundir = $BSConfig::rundir || "$bsdir/run";
+my $_infodir = "$bsdir/info";
+my $_remotecache = "$BSConfig::bsdir/remotecache";
+
+# parse arguments
+if (@ARGV && $ARGV[0] eq '--testmode') {
+  $testmode = 1;
+  shift @ARGV;
+}
+if (@ARGV && ($ARGV[0] eq '--exit' || $ARGV[0] eq '--stop')) {
+  $testmode = 'exit';
+  shift @ARGV;
+} elsif (@ARGV && $ARGV[0] eq '--restart') {
+  $testmode = 'restart';
+  shift @ARGV;
+}
+
+my $_myarch = $ARGV[0] || 'i586';
+
+if (!$BSCando::knownarch{$_myarch}) {
+  die("Architecture '$_myarch' is unknown, please adapt BSCando.pm\n");
+}
+
+##########################################################################
+
+
+
+sub select_read {
+  my ($timeout, @watchers) = @_;
+  my @retrywatchers = grep {$_->{'retry'}} @watchers;
+  if (@retrywatchers) {
+    my $now = time();
+    for (splice @retrywatchers) {
+      if ($_->{'retry'} <= $now) {
+        push @retrywatchers, $_;
+	next;
+      }
+      $timeout = $_->{'retry'} - $now if !defined($timeout) || $_->{'retry'} - $now < $timeout;
+    }
+    return @retrywatchers if @retrywatchers;
+    @watchers = grep {!$_->{'retry'}} @watchers;
+  }
+  @watchers = grep {exists $_->{'socket'}} @watchers;
+  while(1) {
+    my $rin = '';
+    for (@watchers) {
+      vec($rin, fileno($_->{'socket'}), 1) = 1;
+    }
+    my $nfound = select($rin, undef, undef, $timeout);
+    if (!defined($nfound) || $nfound == -1) {
+      next if $! == POSIX::EINTR;
+      die("select: $!\n");
+    }
+    return () if !$nfound && defined($timeout);
+    die("select: $!\n") unless $nfound;
+    @watchers = grep {vec($rin, fileno($_->{'socket'}), 1)} @watchers;
+    die unless @watchers;
+    return @watchers;
+  }
+}
+
+
+sub writeschedulerinfo {
+  my ($gctx) = @_;
+
+  my $myarch = $gctx->{'arch'};
+  my $projpacks = $gctx->{'projpacks'};
+  my $prpunfinished = $gctx->{'prpunfinished'};
+  my $prpchecktimes = $gctx->{'prpchecktimes'};
+
+  # update scheduler stats
+  my $sinfo = {'arch' => $myarch, 'started' => $gctx->{'schedulerstart'}, 'time' => time(), 'slept' => $gctx->{'slept'}};
+  $sinfo->{'projects'} = keys %$projpacks;
+  $sinfo->{'repositories'} = @{$gctx->{'prps'} || []};
+  my $unfinishedsum = 0;
+  $unfinishedsum += $_ for values %{$prpunfinished || {}};
+  $sinfo->{'notready'} = $unfinishedsum;
+  $sinfo->{'queue'} = {};
+  $sinfo->{'queue'}->{'high'} = @{$gctx->{'lookat_high'}};
+  $sinfo->{'queue'}->{'med'} = @{$gctx->{'lookat_med'}};
+  $sinfo->{'queue'}->{'low'} = @{$gctx->{'lookat_low'}};
+  $sinfo->{'queue'}->{'next'} = keys %{$gctx->{'lookat_next'}};
+  my $sum = 0;
+  my $sum2 = 0;
+  my $n = keys %$prpchecktimes;
+  for my $prp (sort keys %$prpchecktimes) {
+    my $t = $prpchecktimes->{$prp};
+    $sum += $t;
+    $sum2 += $t * $t;
+  }
+  $n ||= 1;
+  $sinfo->{'avg'} = $sum / $n;
+  $sinfo->{'variance'} = sqrt(abs(($sum2 - $sum * $sum / $n) / $n));
+  for my $prp (splice(@{[sort {$prpchecktimes->{$b} <=> $prpchecktimes->{$a}} keys %$prpchecktimes]}, 0, 10)) {
+    my ($projid, $repoid) = split('/', $prp, 2);
+    my $worst = {'project' => $projid, 'repository' => $repoid};
+    $worst->{'packages'} = keys %{($projpacks->{$projid} || {})->{'package'} || {}};
+    $worst->{'time'} = $prpchecktimes->{$prp};
+    push @{$sinfo->{'worst'}}, $worst;
+  }
+  $sinfo->{'buildavg'} = $gctx->{'buildavg'};
+  my $infodir = $gctx->{'infodir'};
+  writexml("$infodir/.schedulerinfo.$myarch", "$infodir/schedulerinfo.$myarch", $sinfo, $BSXML::schedulerinfo);
+}
+
+
+sub updaterelsyncmax {
+  my ($dir, $new, $cleanup) = @_;
+  local *F;
+  BSUtil::lockopen(\*F, '+>>', "$dir/:relsync.max");
+  my $relsyncmax;
+  if (-s "$dir/:relsync.max") {
+    $relsyncmax = BSUtil::retrieve("$dir/:relsync.max", 2);
+  }
+  $relsyncmax ||= {};
+  my $changed;
+  for my $tag (keys %$new) {
+    next if defined($relsyncmax->{$tag}) && $relsyncmax->{$tag} >= $new->{$tag};   
+    $relsyncmax->{$tag} = $new->{$tag};
+    $changed = 1;
+  }
+  if ($cleanup) {
+    for (grep {!$new->{$_}} keys %$relsyncmax) {
+      delete $relsyncmax->{$_};
+      $changed = 1;
+    }
+  }
+  BSUtil::store("$dir/.:relsync.max", "$dir/:relsync.max", $relsyncmax) if $changed;
+  close(F);
+  return $changed;
+}
+
+sub sendrelsyncupdate {
+  my ($gctx, $prp, $isfinished) = @_;
+
+  print "    updating relsync information\n";
+  my $myarch = $gctx->{'arch'};
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $projpacks = $gctx->{'projpacks'};
+  my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
+  # retrieve new data
+  my $relsync = BSUtil::retrieve("$gdst/:relsync") || {};
+  # convert to max format
+  my $relsyncmax = {};
+  for my $packid (sort keys %$relsync) {
+    next unless $relsync->{$packid} =~ /^(.*)\.([^-]*)$/;
+    my $tag = ($packs->{$packid} || {})->{'bcntsynctag'} || $packid;
+    next if defined($relsyncmax->{"$tag/$1"}) && $relsyncmax->{"$tag/$1"} >= $2;
+    $relsyncmax->{"$tag/$1"} = $2;
+  }
+  # merge with relsync.max
+  updaterelsyncmax($gdst, $relsyncmax, $isfinished);
+  # send to other schedulers
+  my $param = {
+    'uri' => "$BSConfig::srcserver/relsync",
+    'request' => 'POST',
+    'timeout' => 600,
+    'data' => BSUtil::tostorable($relsyncmax),
+  };
+  eval {
+    BSRPC::rpc($param, undef, "project=$projid", "repository=$repoid", "arch=$myarch");
+  };
+  if (!$@) {
+    unlink("$gdst/:relsync$$");
+    link("$gdst/:relsync", "$gdst/:relsync$$");
+    rename("$gdst/:relsync$$", "$gdst/:relsync.sent");
+  } else {
+    warn($@);
+  }
+}
+
+sub mergerelsyncfile {
+  my ($gctx, $prp) = @_;
+
+  print "    merging relsync data\n";
+  my $myarch = $gctx->{'arch'};
+  my $reporoot = $gctx->{'reporoot'};
+  my $relsync_merge = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync.merge", 2);
+  if ($relsync_merge) {
+    my $relsync;
+    $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync", 2) if -e "$reporoot/$prp/$myarch/:relsync";
+    $relsync = { %{$relsync || {}}, %$relsync_merge };
+    BSUtil::store("$reporoot/$prp/$myarch/.:relsync", "$reporoot/$prp/$myarch/:relsync", $relsync);
+  }
+  unlink("$reporoot/$prp/$myarch/:relsync.merge");
+}
+
+sub mergemetacachefile {
+  my ($gctx, $prp) = @_;
+
+  print "    merging metacache data\n";
+  my $myarch = $gctx->{'arch'};
+  my $reporoot = $gctx->{'reporoot'};
+  my $metacache_merge = BSUtil::retrieve("$reporoot/$prp/$myarch/:full.metacache.merge", 2);
+  if ($metacache_merge) {
+    my $metacache;
+    $metacache = BSUtil::retrieve("$reporoot/$prp/$myarch/:full.metacache", 2) if -e "$reporoot/$prp/$myarch/:full.metacache";
+    $metacache = { %{$metacache || {}}, %$metacache_merge };
+    delete $metacache->{$_} for grep {!defined($metacache_merge->{$_})} keys %$metacache_merge;
+    if (%$metacache) {
+      BSUtil::store("$reporoot/$prp/$myarch/.:full.metacache", "$reporoot/$prp/$myarch/:full.metacache", $metacache);
+    } else {
+      unlink("$reporoot/$prp/$myarch/:full.metacache");
+    }
+  }
+  unlink("$reporoot/$prp/$myarch/:full.metacache.merge");
+}
+
+sub mergebininfofile {
+  my ($gctx, $prp) = @_;
+
+  my $myarch = $gctx->{'arch'};
+  my $reporoot = $gctx->{'reporoot'};
+  BSSched::BuildResult::read_gbininfo("$reporoot/$prp/$myarch");
+  my $repounchanged = $gctx->{'repounchanged'};
+  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
+}
+
+
+##########################################################################
+##########################################################################
+##
+## Scheduler startup code
+##
+
+$| = 1;
+$SIG{'PIPE'} = 'IGNORE';
+if ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
+  if (!(-e "$_rundir/bs_sched.$_myarch.lock") || BSUtil::lockcheck('>>', "$_rundir/bs_sched.$_myarch.lock")) {
+    die("scheduler is not running for $_myarch.\n") if $testmode eq 'restart';
+    print("scheduler is not running for $_myarch.\n");
+    exit(0);
+  }
+  if ($testmode eq 'restart') {
+    print "restarting scheduler for $_myarch...\n";
+  } else {
+    print "shutting down scheduler for $_myarch...\n";
+  }
+  my $ev = {
+    'type' => $testmode eq 'restart' ? 'restart' : 'exitcomplete',
+  };
+  my $evname = "$ev->{'type'}::";
+  my $gctx = {'eventdir' => $_eventdir};
+  BSSched::EventSource::Directory::sendevent($gctx, $ev, $_myarch, $evname);
+  BSUtil::waituntilgone("$_eventdir/$_myarch/$evname");
+  if ($testmode eq 'exit') {
+    # scheduler saw the event, wait until the process is gone
+    local *F;
+    BSUtil::lockopen(\*F, '>>', "$_rundir/bs_sched.$_myarch.lock", 1);
+    close F;
+  }
+  exit(0);
+}
+print "starting build service scheduler\n";
+
+# get lock
+mkdir_p($_rundir);
+if (!$testprojid) {
+  open(RUNLOCK, '>>', "$_rundir/bs_sched.$_myarch.lock") || die("$_rundir/bs_sched.$_myarch.lock: $!\n");
+  flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $_myarch!\n");
+  utime undef, undef, "$_rundir/bs_sched.$_myarch.lock";
+}
+
+for my $d ("$_eventdir/$_myarch", "$_jobsdir/$_myarch", $_infodir) {
+  next if -d $d;
+  mkdir_p($d) || die("$d: $!\n");
+}
+# setup event mechanism
+my $_myeventdir = "$_eventdir/$_myarch";
+if (!-p "$_myeventdir/.ping") {
+  POSIX::mkfifo("$_myeventdir/.ping", 0666) || die("$_myeventdir/.ping: $!");
+  chmod(0666, "$_myeventdir/.ping");
+}
+
+sysopen(PING, "$_myeventdir/.ping", POSIX::O_RDWR) || die("$_myeventdir/.ping: $!");
+fcntl(PING, F_SETFL, POSIX::O_NONBLOCK);
+
+
+
+# create global context
+my $gctx = {
+  'arch' => $_myarch,
+  'reporoot' => $_reporoot,
+
+  # config
+  'obsname' => $BSConfig::obsname,
+  'jobsdir' => $_jobsdir,
+  'myjobsdir' => "$_jobsdir/$_myarch",
+  'eventdir' => $_eventdir,
+  'myeventdir' => $_myeventdir,
+  'dodsdir' => $_dodsdir,
+  'rundir' => $_rundir,
+  'infodir' => $_infodir,
+  'remotecache' => $_remotecache,
+  'remoteproxy' => $BSConfig::proxy,
+  'asyncmode' => $asyncmode,
+
+  # repository state cache
+  #  'lastscan'   last time we scanned
+  #  'meta'       meta cache
+  #  'solv'       solv data cache (for remote repos)
+  'repodatas' => BSSched::RepoCache->new($_myarch, $_reporoot),
+
+  # remote bininfo cache
+  'remotegbininfos' => {},
+  'remotepackstatus' => {},
+  'remotepackstatus_cleanup' => {},
+
+  # project data
+  'projpacks' => undef,			# data of all local projects
+  'channeldata' => {},			# global channel data unificator to save memory
+  'remoteprojs' => {},			# remote project cache
+  'remotemissing' => {},		# missing remote projects cache
+  'projsuspended' => {},		# project is suspended for now
+
+  # lastcheck cache
+  'lastcheck' => {},			# package check data of last check
+					# maps prp => { packid => checkdata }
+
+  # postprocessed project data
+  'projpacks_linked' => {},		# data of all linked sources
+  'prps' => [],				# sorted list of all local prps (project repos)
+  'prpdeps' => {},			# searchpath plus aggregate deps plus kiwi deps
+  'rprpdeps' => {},			# reverse prpdeps
+					# maps prp => [ prp, prp ... ], used for sorting
+  'prpnoleaf' => {},			# is this prp referenced by another prp?
+  'prpsearchpath' => {},		# which prps to use for building
+					# maps prp => [ prp, prp ... ]
+  'haveinterrepodep' => {},		# projid => bool: some repos prpdeps contain another repo of the same project
+
+  # triggers
+  'prpcheckuseforbuild' => {},		# project/package meta has changed
+  'prpfinished' => {},			# which prps are finished
+  'repounchanged' => {},		# which prps are changed: deleted = full tree changed, 1 = unchanged, 2 = just package changes
+  'prpnotready' => {},			# which packages are not ready in a prp
+					# maps prp => { packid => 1, ... }
+
+  # remote watchers
+  'watchremote' => {},			# remote_url => { eventdescr => projid }
+  'watchremote_start' => {},		# remote_url => lasteventno
+
+  # changed: 1: something "local" changed, :full unchanged,
+  #          2: the :full repo is changed as well
+  'changed_low'   => {},		# something changed, put this in lookup_low
+  'changed_med'   => {},		# something changed, put this in lookup_med
+  'changed_high'  => {},		# something changed, put this in lookup_high
+  'changed_dirty' => {},		# set the dirty flag for those
+
+  'lookat_low'  => [],		# not so important
+  'lookat_med'  => [],		# builds are finished here
+  'lookat_high' => [],		# user interaction, do those ASAP
+  'lookat_next' => {},		# not so important, next series
+  'notlow'	=> 0,
+  'notmed'	=> 0,
+
+  'delayedfetchprojpacks' => {},	# projpacks fetches we have delayed till prp check time
+
+  'nextmed' => {},
+  'retryevents' => BSSched::EventSource::Retry->new(),
+
+  # stats
+  'buildavg' => 1200,			 # start not at 0, but with 20min for the average ounter
+  'prpunfinished' => {},
+  'prpchecktimes' => {},
+  'schedulerstart' => time(),
+  'slept' => 0,
+  'prplastcheck' => {},			# XXX: currently not used
+};
+
+my $rctx = BSSched::RPC->new(
+  'maxserverload' => $maxserverload,
+  'wakeupfunction' => \&BSSched::Checker::setchanged,
+);
+
+$gctx->{'rctx'} = $rctx;
+
+$gctx->{'testmode'} = 1 if $testmode;
+$BSSched::ProjPacks::testprojid = $testprojid if $testprojid;
+
+# read old state if present
+if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
+  print "reading old state...\n";
+  my $schedstate = BSUtil::retrieve("$_rundir/bs_sched.$_myarch.state", 2);
+  unlink("$_rundir/bs_sched.$_myarch.state");
+  if ($schedstate) {
+    # just for testing...
+    print "  - $_\n" for sort keys %$schedstate;
+    if ($schedstate->{'projpacks'}) {
+      $gctx->{'projpacks'} = $schedstate->{'projpacks'};
+      if ($schedstate->{'remoteprojs'}) {
+	$gctx->{'remoteprojs'} = $schedstate->{'remoteprojs'};
+	for (values %{$gctx->{'remoteprojs'}}) {
+	  next unless $_->{'sibling'};
+	  $_->{'partition'} ||= $_->{'sibling'};
+	  delete $_->{'sibling'};
+	}
+      }
+    } else {
+      # get project and package information from src server
+      BSSched::ProjPacks::get_projpacks($gctx, undef);	# XXX: async
+    }
+    BSSched::ProjPacks::get_projpacks_postprocess($gctx);
+    my $projpacks = $gctx->{'projpacks'};
+    my $prps = $gctx->{'prps'};
+
+    my %oldprps = map {$_ => 1} @{$schedstate->{'prps'} || []};
+    my @newprps = grep {!$oldprps{$_}} @$prps;
+
+    # update lookat arrays
+    $gctx->{'lookat_low'} = $schedstate->{'lookat'} || [];
+    $gctx->{'lookat_med'} = $schedstate->{'lookat_oob'} || [];
+    $gctx->{'lookat_high'} = $schedstate->{'lookat_oobhigh'} || [];
+
+    # update changed hash
+    my $changed_low = $gctx->{'changed_low'};
+    my $changed_med = $gctx->{'changed_med'};
+    my $changed_high = $gctx->{'changed_high'};
+    for my $prp (@newprps) {
+      $changed_med->{$prp} = 2;
+      $changed_med->{(split('/', $prp, 2))[0]} = 2;
+    }
+
+    my $oldchanged_low = $schedstate->{'changed_low'} || {};
+    my $oldchanged_med = $schedstate->{'changed_med'} || {};
+    my $oldchanged_high = $schedstate->{'changed_high'} || {};
+    for my $projid (keys %$projpacks) {
+      $changed_low->{$projid} = $oldchanged_low->{$projid} if exists $oldchanged_low->{$projid};
+      $changed_med->{$projid} = $oldchanged_med->{$projid} if exists $oldchanged_med->{$projid};
+      $changed_high->{$projid} = $oldchanged_high->{$projid} if exists $oldchanged_high->{$projid};
+    }
+    for my $prp (@$prps) {
+      $changed_low->{$prp} = $oldchanged_low->{$prp} if exists $oldchanged_low->{$prp};
+      $changed_med->{$prp} = $oldchanged_med->{$prp} if exists $oldchanged_med->{$prp};
+      $changed_high->{$prp} = $oldchanged_high->{$prp} if exists $oldchanged_high->{$prp};
+    }
+
+    ## update repodata hash
+    #my $oldrepodata = $schedstate->{'repodata'} || {};
+    #for my $prp (@$prps) {
+    #  $repodata{$prp} = $oldrepodata->{$prp} if exists $oldrepodata->{$prp};
+    #}
+
+    # update prpfinished hash
+    my $oldprpfinished = $schedstate->{'prpfinished'} || {};
+    my $prpfinished = $gctx->{'prpfinished'};
+    for my $prp (@$prps) {
+      $prpfinished->{$prp} = $oldprpfinished->{$prp} if exists $oldprpfinished->{$prp};
+    }
+
+    # update prpnotready hash
+    my $oldprpnotready = $schedstate->{'globalnotready'} || {};
+    my $prpnotready = $gctx->{'prpnotready'};
+    for my $prp (@$prps) {
+      $prpnotready->{$prp} = $oldprpnotready->{$prp} if %{$oldprpnotready->{$prp} || {}};
+    }
+
+    # update repounchanged hash
+    my $oldrepounchanged = $schedstate->{'repounchanged'} || {};
+    my $repounchanged = $gctx->{'repounchanged'};
+    for my $prp (@$prps) {
+      $repounchanged->{$prp} = $oldrepounchanged->{$prp} if exists $oldrepounchanged->{$prp};
+    }
+
+    # update delayedfetchprojpacks hash
+    my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
+    my $olddelayedfetchprojpacks = $schedstate->{'delayedfetchprojpacks'} || {};
+    for my $projid (keys %$projpacks) {
+      $delayedfetchprojpacks->{$projid} = $olddelayedfetchprojpacks->{$projid} if $olddelayedfetchprojpacks->{$projid};
+    }
+
+    # update projsuspended hash
+    my $oldprojsuspended =  $schedstate->{'projsuspended'} || {};
+    %{$gctx->{'projsuspended'}} = %$oldprojsuspended;
+
+    # use old start values
+    if ($schedstate->{'watchremote_start'}) {
+      $gctx->{'watchremote_start'} = $schedstate->{'watchremote_start'};
+    }
+
+    # start project data fetch for delayed startup projects
+    for my $projid (sort keys %$projpacks) {
+      my $packs = $projpacks->{$projid}->{'package'} || {};
+      for my $packid (sort keys %$packs) {
+        $delayedfetchprojpacks->{$projid} = [ '/all' ] if ($packs->{$packid}->{'error'} || '') eq 'delayed startup';
+      }
+    }
+
+    if ($schedstate->{'fetchprojpacks'} && $schedstate->{'projpacks'}) {
+      my %fetchprojpacks_nodelay = map {$_ => 1} keys %{$schedstate->{'fetchprojpacks'}};
+      BSSched::ProjPacks::do_fetchprojpacks($gctx, $schedstate->{'fetchprojpacks'}, \%fetchprojpacks_nodelay, {}, {});
+    }
+  }
+}
+
+my $infodir = $gctx->{'infodir'};
+my $sinfo = readxml("$infodir/schedulerinfo.$_myarch", $BSXML::schedulerinfo, 1) || {};
+$sinfo->{'booting'} = undef;
+writexml("$infodir/.schedulerinfo.$_myarch", "$infodir/schedulerinfo.$_myarch", $sinfo, $BSXML::schedulerinfo);
+
+if (!$gctx->{'projpacks'} && $startupmode) {
+  if ($startupmode == 1) {
+    print "cold start, scanning all non-remote projects\n";
+  } else {
+    print "cold start, initializing all projects\n";
+  }
+
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getprojpack",
+  };
+  my @args = ('withrepos', 'withconfig', "arch=$_myarch", 'withremotemap=1', 'noremote=1');
+  push @args, 'withsrcmd5', 'withdeps' if $startupmode == 1;
+  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
+  my $projpacksin;
+  while (1) {
+    eval {
+      $projpacksin = BSRPC::rpc($param, $BSXML::projpack, @args);
+    };
+    last unless $@ || !$projpacksin;
+    print $@ if $@;
+    print "retrying in 60 seconds...\n";
+    sleep(60);
+  }
+  BSSched::ProjPacks::update_projpacks($gctx, $projpacksin);
+  BSSched::ProjPacks::get_projpacks_postprocess($gctx);
+  my $projpacks = $gctx->{'projpacks'};
+  my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
+  for my $projid (sort keys %$projpacks) {
+    my $packs = $projpacks->{$projid}->{'package'} || {};
+    next unless %$packs;
+    if ($startupmode == 1) {
+      my @delayed;
+      my $ok;
+      for my $packid (sort keys %$packs) {
+	my $pdata = $packs->{$packid};
+	if ($pdata->{'error'}) {
+	  if ($pdata->{'error'} =~ /noremote option/) {
+	    $pdata->{'error'} = 'delayed startup';
+	    push @delayed, $packid;
+	  } else {
+	    $ok++;
+	  }
+	} else {
+	  if (grep {$_->{'error'} && $_->{'error'} =~ /noremote option/} @{$pdata->{'info'} || []}) {
+	    $pdata->{'error'} = 'delayed startup';
+	    push @delayed, $packid;
+	  } else {
+	    $ok++;
+	  }
+	}
+      }
+      if (!$ok) {
+        $delayedfetchprojpacks->{$projid} = [ '/all' ];	# hack
+      } else {
+        $delayedfetchprojpacks->{$projid} = [ @delayed ];
+      }
+    } else {
+      $delayedfetchprojpacks->{$projid} = [ '/all' ];	# hack
+      for my $packid (sort keys %$packs) {
+        $packs->{$packid}->{'error'} = 'delayed startup';
+      }
+    }
+  }
+  @{$gctx->{'lookat_low'}} = sort keys %$projpacks;
+  push @{$gctx->{'lookat_low'}}, @{$gctx->{'prps'}};
+  my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
+  $prpcheckuseforbuild->{$_} = 1 for @{$gctx->{'prps'}};
+}
+
+if (!$gctx->{'projpacks'}) {
+  # get project and package information from src server
+  print "cold start, scanning all projects\n";
+  BSSched::ProjPacks::get_projpacks($gctx, undef);
+  BSSched::ProjPacks::get_projpacks_postprocess($gctx);
+  # look at everything
+  @{$gctx->{'lookat_low'}} = sort keys %{$gctx->{'projpacks'}};
+  push @{$gctx->{'lookat_low'}}, @{$gctx->{'prps'}};
+}
+
+# reset booting flag
+writeschedulerinfo($gctx);
+
+# bring dods in sync with projpacks
+if ($BSConfig::enable_download_on_demand) {
+  BSSched::DoD::init_doddata($gctx);
+} else {
+  my $dodsdir = $gctx->{'dodsdir'};
+  BSUtil::cleandir($dodsdir) if -d $dodsdir;
+}
+
+BSSched::BuildJob::init_ourjobs($gctx);
+
+unlink("$_rundir/bs_sched.$_myarch.dead");	# alive and kicking
+
+if (@{$gctx->{'lookat_low'}}) {
+  %{$gctx->{'lookat_next'}} = map {$_ => 1} @{$gctx->{'lookat_low'}};
+  @{$gctx->{'lookat_low'}} = ();
+}
+
+my $gotevent = 1;
+$gotevent = 0 if $testprojid;
+
+my $lastschedinfo = 0;
+my $initialstartup = 1;
+my %remotewatchers;	# XXX: put in gctx?
+
+
+##
+## Here comes the big loop...
+##
+
+my $reporoot = $gctx->{'reporoot'};
+my $myarch = $gctx->{'arch'};
+
+eval {
+
+  while(1) {
+    if (%{$gctx->{'changed_low'}} || %{$gctx->{'changed_med'}} || %{$gctx->{'changed_high'}}) {
+      BSSched::Lookat::changed2lookat($gctx);
+      next;
+    }
+
+    my $watchremote = $gctx->{'watchremote'};
+    my $watchremote_start = $gctx->{'watchremote_start'};
+
+    # delete no longer needed or outdated remotewatchers
+    for my $remoteurl (sort keys %remotewatchers) {
+      delete $remotewatchers{$remoteurl} if $remotewatchers{$remoteurl}->isobsolete($watchremote->{$remoteurl});
+    }
+
+    # create missing watchers
+    for my $remoteurl (sort keys %$watchremote) {
+      $remotewatchers{$remoteurl} ||= BSSched::EventSource::RemoteWatcher->new($myarch, $remoteurl, $watchremote->{$remoteurl},
+	'start' => $watchremote_start->{$remoteurl},
+	'remoteproxy' => $gctx->{'remoteproxy'},
+	'obsname' => $gctx->{'obsname'},
+      );
+    }
+
+    # collect events to process
+    my $ev_queue = BSSched::EventQueue->new($gctx, 'initialstartup' => $initialstartup);
+
+    my $pingwatcher = {
+      'socket' => \*PING,
+      'remoteurl' => 'ping',
+    };
+
+    # add retry events
+    if ($gctx->{'retryevents'}->count()) {
+      my @due = $gctx->{'retryevents'}->due($gctx);
+      if (@due) {
+        print "retrying ".@due." events\n";
+        $ev_queue->add_events(@due);
+      }
+    }
+
+    # add events from watchers, also process finished xrpc calls
+    if ($testprojid) {
+      print "ignoring events due to test mode\n";
+    } else {
+      my @watchers = (values(%remotewatchers), $gctx->{'rctx'}->xrpc_handles());
+      if (@watchers) {
+        @watchers = select_read(0, $pingwatcher, @watchers);
+        for my $watcher (@watchers) {
+          my $remoteurl = $watcher->{'remoteurl'};
+          if (!defined($remoteurl)) {
+            $gctx->{'rctx'}->xrpc_resume($watcher);
+            $gotevent = 1;	# force loop restart
+          } elsif ($remoteurl eq 'ping') {
+	    $gotevent = 1;
+          } elsif ($watcher->{'retry'}) {
+            print "retrying watcher for $remoteurl\n";
+            delete $remotewatchers{$remoteurl};
+            $gotevent = 1;	# force loop restart
+          } else {
+	    my @events = $watcher->getevents($watchremote->{$remoteurl}, $watchremote_start);
+	    $ev_queue->add_events(@events);
+            delete $remotewatchers{$remoteurl} unless $watcher->{'retry'};	# watcher is finished
+            $gotevent = 1;	# force loop restart
+          }
+        }
+      } else {
+	my $dummy;
+        $gotevent = 1 if (sysread(PING, $dummy, 1, 0) || 0) > 0;
+      }
+    }
+
+    # add events from the event directory
+    if ($gotevent) {
+      $gotevent = 0;
+      # drain ping pipe
+      my $dummy;
+      1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
+      # add events from myeventdir
+      my @events = BSSched::EventSource::Directory::readevents($gctx, $gctx->{'myeventdir'});
+      $ev_queue->add_events(@events);
+      next unless $ev_queue->events_in_queue();
+    }
+
+    # process all collected events
+    if ($ev_queue->events_in_queue()) {
+      die if $testprojid;
+      eval {
+        $ev_queue->process_events();
+      };
+      if ($@) {
+        warn($@);
+        BSSched::EventHandler::event_exit($ev_queue, {'type' => 'emergencydump'});
+        exit(1);
+      }
+      next;
+    }
+
+    # done with first time event processing
+    $initialstartup = undef;
+
+    # mark all indirect affected repos dirty
+    if (%{$gctx->{'changed_dirty'}}) {
+      for my $prp (keys %{$gctx->{'changed_dirty'}}) {
+        my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+        next if ! -d $gdst;
+        next if   -e "$gdst/:schedulerstate.dirty";
+        BSUtil::touch("$gdst/:schedulerstate.dirty");
+      }
+      %{$gctx->{'changed_dirty'}} = ();
+    }
+
+    my ($lookattype, $prp) = BSSched::Lookat::nextlookat($gctx);
+
+    # postpone if we got source change RPCs running
+    if (defined($prp)) {
+      my ($projid) = split('/', $prp, 2);
+      if ($gctx->{'rctx'}->xrpc_busy($projid)) {
+        #print "postponed looking at $prp\n";
+	my $ctx = {'changeprp' => $prp, 'changetype' => $lookattype, 'gctx' => $gctx};
+	$gctx->{'rctx'}->xrpc_addwakeup($ctx, $projid);
+	next;
+      }
+    }
+
+    $gctx->{'rctx'}->xrpc_printstats();
+
+    if (!defined($prp)) {
+      # nothing to do. good night, sleep tight...
+      if ($testmode && !$gctx->{'rctx'}->xrpc_busy()) {
+	print "Test mode, all sources and events processed, exiting...\n";
+        my $ectx = BSSched::EventQueue->new($gctx);
+        BSSched::EventHandler::event_exit($ectx, { 'type' => 'exitcomplete' });
+	# notreached
+      }
+      BSUtil::printlog("waiting for an event...");
+      exit 0 if $testprojid;
+      my $sleepstart = time();
+      my @watchers = (values(%remotewatchers), $gctx->{'retryevents'}->events(), $gctx->{'rctx'}->xrpc_handles());
+      select_read(undef, $pingwatcher, @watchers);
+      $gctx->{'slept'} += time() - $sleepstart;
+      next;
+    }
+
+    BSSched::Lookat::lookatprp($gctx, $lookattype, $prp);
+
+    my ($projid, $repoid) = split('/', $prp, 2);
+    next if $testprojid && $projid ne $testprojid;
+
+    if (!defined($repoid)) {
+      # project maintenance, check for deleted repositories
+      my $projpacks = $gctx->{'projpacks'};
+      my %repoids;
+      for my $repo (@{($projpacks->{$projid} || {})->{'repository'} || []}) {
+        $repoids{$repo->{'name'}} = 1 if grep {$_ eq $myarch} @{$repo->{'arch'} || []};
+      }
+      for my $repoid (ls("$reporoot/$projid")) {
+        next if $repoid eq ':all';	# XXX
+        next if $repoids{$repoid};
+        my $prp = "$projid/$repoid";
+        next if -l "$reporoot/$prp";	# XXX
+        my $gdst = "$reporoot/$prp/$myarch";
+        next unless -d $gdst;
+        # we no longer build this repoid
+        print "  - deleting repository $prp\n";
+        delete $gctx->{'prpfinished'}->{$prp};
+        delete $gctx->{'prpnotready'}->{$prp};
+        delete $gctx->{'prpunfinished'}->{$prp};
+        delete $gctx->{'prpchecktimes'}->{$prp};
+	$gctx->{'repodatas'}->drop($prp, $myarch);
+        delete $gctx->{'lastcheck'}->{$prp};
+        delete $gctx->{'prpcheckuseforbuild'}->{$prp};
+        my $ctx = BSSched::Checker->new($gctx, $prp);
+        $ctx->wipe();
+      }
+      rmdir("$reporoot/$projid");		# in case this was the last repo
+      next;
+    }
+
+    # do delayed projpack fetches
+    if ($gctx->{'delayedfetchprojpacks'}->{$projid}) {
+      my $inprogress;
+      my $delayed;
+      while ($delayed = delete($gctx->{'delayedfetchprojpacks'}->{$projid})) {
+        my $async;
+        $async = {'_changeprp' => $prp, '_changetype' => $lookattype} if $gctx->{'asyncmode'};
+        $inprogress ||= !BSSched::ProjPacks::do_delayedprojpackfetches($gctx, $async, $projid, @$delayed);
+      }
+      next if $inprogress;	# async projpack fetch in progress...
+    }
+
+    my $projpacks = $gctx->{'projpacks'};
+    if (!$projpacks->{$projid}) {
+      print "  - $prp: no longer exists\n" unless $gctx->{'remoteprojs'}->{$projid};
+      next;
+    }
+
+    my $ctx = BSSched::Checker->new($gctx, $prp, 'changeprp' => $prp, 'changetype' => $lookattype, 'verbose' => 1);
+    my $gdst = "$reporoot/$prp/$myarch";
+
+    # merge bininfo
+    if (-e "$gdst/:bininfo.merge" || ! -e "$gdst/:bininfo") {
+      mergebininfofile($gctx, $prp);
+    }
+
+    # merge relsync
+    if (-e "$gdst/:relsync.merge") {
+      mergerelsyncfile($gctx, $prp);
+    }
+
+    # merge metacache
+    if (-e "$gdst/:full.metacache.merge") {
+      mergemetacachefile($gctx, $prp);
+    }
+
+    my ($state, $details);
+
+    ($state, $details) = $ctx->setup();
+    if ($state ne 'scheduling') {
+      if ($state) {
+        $ctx->set_repo_state($state, $details);
+        $gctx->{'prpfinished'}->{$prp} = 1;
+      }
+      $details ||= $state;
+      print "  - $prp: $details\n";
+      next;
+    }
+    print "  - $prp\n";
+    $ctx->set_repo_state('scheduling');
+
+    if ($gctx->{'prpcheckuseforbuild'}->{$prp}) {
+      my $packs = $projpacks->{$projid}->{'package'} || {};
+      my $prpsearchpath = $ctx->{'prpsearchpath'};
+      # the if statement below is to ease transition to the new full handling
+      # for manually created "base" repos
+      if (!$BSSched::BuildResult::new_full_handling || %$packs || ! -d "$gdst/:full" ||
+          -e "$gdst/:full.useforbuild") {
+        BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $prpsearchpath, undef);
+        delete $gctx->{'prpcheckuseforbuild'}->{$prp};
+      }
+    }
+
+    # Step 2a: check if packages got deleted/excluded
+    $ctx->wipeobsolete();
+
+    # Step 2b: set up pool and repositories
+    ($state, $details) = $ctx->preparepool();
+    if ($state ne 'scheduling') {
+      $ctx->set_repo_state($state, $details);
+      print "    $details\n";
+      print "    (delayed)\n" if $ctx->{'havedelayed'};
+      next;
+    }
+
+    # setup our special expander
+    my $xp = BSSolv::expander->new($ctx->{'pool'}, $ctx->{'conf'});
+    $ctx->{'expander'} = $xp;
+    no warnings 'redefine';
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+    use warnings 'redefine';
+
+    # Step 2c: expand all dependencies, put them in %pdeps hash and sort the packages
+    ($state, $details) = $ctx->expandandsort();
+    if ($state ne 'scheduling') {
+      $ctx->set_repo_state($state, $details);
+      print "    $details\n";
+      next;
+    }
+
+    # fetch relsync data
+    $ctx->calcrelsynctrigger();
+
+    ($state, $details) = $ctx->checkpkgs();
+
+    my $unfinished = $ctx->{'unfinished'};
+    # notify remote build services of repository changes or block state
+    # changes
+    # we alse send it if we finish a prp to give linked aggregates a
+    # chance to work
+    my $repounchanged = $gctx->{'repounchanged'};
+    if (!$repounchanged->{$prp} || (!%$unfinished && !$gctx->{'prpfinished'}->{$prp})) {
+      BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
+      $repounchanged->{$prp} = 1;
+    } elsif ($repounchanged->{$prp} == 2) {
+      BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp, 'repoinfo');
+      $repounchanged->{$prp} = 1;
+    }
+
+    # free memory
+    Build::forgetdeps($ctx->{'conf'});
+
+    $ctx->printstats();
+
+    # trigger dod package fetching
+    if ($BSConfig::enable_download_on_demand) {
+      BSSched::DoD::dodfetch($ctx) if $ctx->{'doddownloads'};
+    }
+
+    # we always publish kiwi...
+    if ((!%$unfinished && !$ctx->{'havedelayed'}) || $ctx->{'prptype'} eq 'kiwi') {
+      ($state, $details) = $ctx->publish($state, $details);
+    }
+
+    my $wasfinished = $gctx->{'prpfinished'}->{$prp};
+
+    # clean up and free memory if we are finished
+    if (!%$unfinished && !$ctx->{'havedelayed'} && $state eq 'finished') {
+      $gctx->{'prpfinished'}->{$prp} = 1;
+      # write out lastcheck cache and delete it
+      my $lastcheck = $gctx->{'lastcheck'}->{$prp};
+      if ($lastcheck && %$lastcheck) {
+        BSUtil::store("$gdst/.:lastcheck", "$gdst/:lastcheck", $lastcheck);
+      } else {
+        unlink("$gdst/:lastcheck");
+      }
+      delete $gctx->{'lastcheck'}->{$prp};
+      # delete pkg meta cache
+      $gctx->{'repodatas'}->dropmeta($prp, $myarch);
+
+      if (!$gctx->{'prpnoleaf'}->{$prp}) {
+        # only free repo data if all projects we depend on are finished, too.
+        # (we always have to do the expansion if something changes)
+        my @unfinishedprps;
+        my $remoteprojs = $gctx->{'remoteprojs'};
+        my $prpfinished = $gctx->{'prpfinished'};
+        for (@{$gctx->{'prpdeps'}->{$prp}}) {
+          next if $prpfinished->{$_};
+          # if this is a remote repo, check prpnotready
+          if (!%{$gctx->{'prpnotready'}->{$_} || {}}) {
+            my ($p) = split('/', $_, 2);
+            next if $remoteprojs->{$p};
+          }
+          push @unfinishedprps, $_;
+        }
+        if (!@unfinishedprps) {
+          print "    leaf prp, freeing data\n";
+	  $gctx->{'repodatas'}->drop($prp, $myarch);
+        } else {
+          print "    leaf prp, unfinished prps: @unfinishedprps\n";
+        }
+      }
+    } else {
+      delete $gctx->{'prpfinished'}->{$prp};
+      unlink("$gdst/:repodone");
+    }
+
+    if (!$wasfinished && $gctx->{'haveinterrepodep'}->{$projid}) {
+      # check for inter-repo deps
+      print "    checking inter-repo deps\n";
+      my $proj = $projpacks->{$projid} || {};
+      for my $arepoid (map {$_->{'name'}} @{$proj->{'repository'} || []}) {
+	next if $arepoid eq $repoid;
+	next unless grep {$_ eq $prp} @{$gctx->{'prpdeps'}->{"$projid/$arepoid"} || []};
+	my $aprp = "$projid/$arepoid";
+	print "      - $aprp\n";
+	# make sure the user sees something
+	if ($gctx->{'prpfinished'}->{$aprp}) {
+	  BSUtil::touch("$reporoot/$aprp/$myarch/:schedulerstate.dirty") if -d "$reporoot/$aprp/$myarch";
+	}
+	# add med event to make users happy
+	my $changed = $gctx->{"changed_med"};
+	$changed->{$aprp} ||= 1;
+      }
+    }
+
+    $ctx->set_repo_state($state, $details);
+
+    if (%$unfinished) {
+      $gctx->{'prpunfinished'}->{$prp} = scalar(keys %$unfinished);
+    } else {
+      delete $gctx->{'prpunfinished'}->{$prp};
+    }
+    $gctx->{'prpchecktimes'}->{$prp} = $ctx->{'prpchecktime'};
+
+    # send relsync file if something has been changed
+    my @relsync1 = stat("$gdst/:relsync");
+    my @relsync2 = stat("$gdst/:relsync.sent");
+    if (@relsync1 && (!@relsync2 || "$relsync1[9]/$relsync1[7]/$relsync1[1]" ne "$relsync2[9]/$relsync2[7]/$relsync2[1]")) {
+      sendrelsyncupdate($gctx, $prp, %$unfinished ? 0 : 1);
+    }
+
+    BSSched::Remote::cleanup_remotepackstatus($gctx, $prp) if $gctx->{'remotepackstatus_cleanup'}->{$prp} && !$ctx->{'havedelayed'};
+
+    my $now = time();
+    $gctx->{'prplastcheck'}->{$prp} = $now;
+    if ($ctx->{'prpchecktime'}) {
+      $gctx->{'nextmed'}->{$prp} = $now + 10 * $ctx->{'prpchecktime'};
+    } else {
+      delete $gctx->{'nextmed'}->{$prp};
+    }
+
+    if ($now - $lastschedinfo > 60) {
+      # update scheduler stats
+      writeschedulerinfo($gctx);
+      $lastschedinfo = $now;
+    }
+
+    BSSched::ProjPacks::get_projpacks_postprocess($gctx) if $gctx->{'get_projpacks_postprocess_needed'};
+  }
+
+};
+
+if ($@) {
+  warn($@);
+  my $ev_queue = BSSched::EventQueue->new($gctx);
+  BSSched::EventHandler::event_exit($ev_queue, {'type' => 'emergencydump'});
+  exit(1);
+}
+
+exit(0);

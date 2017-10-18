@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package name="kdelibs" project="KDE">
+  <title>KDE libraries</title>
+  <description>Base libraries of the KDE framework</description>
+  <devel project="KDE:UNSTABLE"/>
+  <person role="maintainer" userid="ernie"/>
+  <group  role="reviewer"  groupid="release_team"/>
+  <publish>
+  </publish>
+  <build>
+    <disable />
+  </build>
+  <useforbuild>
+    <disable />
+  </useforbuild>
+</package>

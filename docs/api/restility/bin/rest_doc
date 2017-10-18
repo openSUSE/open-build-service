@@ -1,0 +1,108 @@
+#!/usr/bin/env ruby.ruby2.4
+
+require 'optparse'
+require 'rubygems'
+require 'active_support'
+require 'builder'
+
+require 'erb'
+include ERB::Util
+
+$LOAD_PATH << "#{File.dirname(__FILE__)}/../lib"
+
+require "rest"
+require "rest_htmlprinter"
+
+class Options
+
+  attr_accessor :verbose, :filename, :html, :outline, :output_dir,
+    :include_dir
+
+  def initialize
+    verbose = false
+    html = false
+  end
+
+  def self.parse( args )
+    options = Options.new
+
+    opt = OptionParser.new
+
+    opt.banner = "Usage: rest_doc [options] filename"
+
+    opt.on( "-h", "--help", "Print this message" ) do
+      puts opt
+      exit
+    end
+
+    opt.on( "-v", "--verbose", "Verbose mode" ) do
+      options.verbose = true
+    end
+
+    opt.on( "--html", "Create HTML output" ) do
+      options.html = true
+    end
+
+    opt.on( "--outline", "Create outline output" ) do
+      options.outline = true
+    end 
+
+    opt.on( "-o", "=DIRECTORY", "Output directory" ) do |val|
+      options.output_dir = val
+    end
+
+    opt.on( "-I", "=DIRECTORY", "Include directory as search path for XML files") do |val|
+      options.include_dir = val
+    end
+
+    begin
+      opt.parse!( args )
+    rescue OptionParser::InvalidOption
+      puts $!
+      puts opt
+      exit
+    end
+
+    if ( ARGV.size > 1 )
+      puts "Too many arguments"
+      puts opt
+      exit
+    elsif ( ARGV.size < 1 )
+      puts "Too few arguments"
+      puts opt
+      exit
+    end
+
+    options.filename = ARGV[0]
+
+    options
+  end
+
+end
+
+options = Options.parse( ARGV )
+
+XmlFile.include_dir = options.include_dir
+
+begin
+
+  document = Document.new
+  document.parse_args
+
+  if ( options.html )
+    printer = HtmlPrinter.new
+    if ( options.output_dir )
+      printer.output_dir = options.output_dir
+    end
+  elsif ( options.outline )
+    printer = OutlinePrinter.new
+  else
+    printer = TextPrinter.new
+  end
+
+  printer.print document
+
+rescue Errno::ENOENT
+  puts $!
+end
+

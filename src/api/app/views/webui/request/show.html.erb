@@ -1,0 +1,327 @@
+<% @pagetitle = "Request #{@number}" %>
+<% @layouttype = 'custom' %>
+<% @crumb_list = ["Request #{@number}"] %>
+
+<div id="request_navigation_box" style="position: absolute; right: 0.3em;">
+  <% if @request_before -%>
+    <%= link_to '<<', request_show_path(@request_before), data: { keybinding: "h" } %>
+  <% end -%>
+  <% if @request_after -%>
+      <%= link_to '>>', request_show_path(@request_after), data: { keybinding: "l" } %>
+  <% end -%>
+</div>
+
+<div class="grid_16 alpha omega box box-shadow">
+  <%= render :partial => 'tabs' %>
+  <div class="grid_10 alpha">
+    <h3><%= @pagetitle %> (<%= @state %>)</h3>
+    <%= description_wrapper(toggle_sliced_text(@req['description'], 300)) %>
+
+    <div class="grid_16 alpha omega">
+
+      <%= possibly_empty_ul class: 'horizontal-list' do %>
+          <% if @can_add_reviews %>
+              <li><%= link_to(sprited_text('user_add', 'Add a review'), { controller: 'request', action: 'add_reviewer_dialog', number: @number }, remote: true) %></li>
+          <% end %>
+      <% end %>
+    </div>
+
+  </div>
+  <div class="grid_6 omega">
+    <%= possibly_empty_ul class: 'clean_list' do %>
+        <li><%= sprite_tag('user_green') %> Created
+          by <%= user_with_realname_and_icon(@req['creator'], no_icon: true, short: true) %> <%= fuzzy_time(@req['created_at']) %></li>
+        <li><%= sprite_tag('information') %> In
+          state <%= link_to @state, { :anchor => 'request_history' }, { :style => "color: #{request_state_color(@state)};" } %></li>
+        <% unless @package_maintainers.empty? %>
+        <li><%= sprite_tag('eye') %> <%= pluralize(@package_maintainers.size, "package maintainer") %>
+          (<%= link_to('show who', '#', class: 'show_dialog', data: { target: '#maintainers_dialog' }) %>)</li>
+        <% end %>
+        <% if @superseding %>
+            <li><%= sprite_tag('information', title: '') %> Supersedes
+              <% @superseding.each do |supersed| %>
+                <%= link_to supersed['number'], number: supersed['number'] %>
+              <% end %>
+            </li>
+        <% end %>
+        <% if @superseded_by %>
+            <li><%= sprite_tag('exclamation', title: '') %> Superseded
+              by <%= link_to @superseded_by, number: @superseded_by %></li>
+        <% end %>
+        <% if @accept_at -%>
+            <li><%= sprite_tag('exclamation', title: '') %>
+              <% if BsRequest::FINAL_REQUEST_STATES.include?(@state) %>
+                Auto-accept was set to
+                <span title='<%= l @accept_at %>' class='fuzzy-time'>
+                  <%= l @accept_at, format: :only_date %>.
+                </span>
+              <% elsif @accept_at.past? %>
+                This request will be automatically accepted when it enters the 'new' state.
+              <% else %>
+                This request will be automatically accepted in <%= time_ago_in_words(@accept_at) %>.
+              <% end %>
+            </li>
+        <% end -%>
+        <% @other_open_reviews.each do |review| %>
+            <li>
+              <%= sprite_tag('exclamation') %> Open review for
+              <%= render :partial => 'reviewer', :locals => { :review => review } %>
+            </li>
+        <% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="grid_16 alpha omega box box-shadow">
+
+  <div class="box-header header-tabs">
+    <%= possibly_empty_ul id: 'action_select' do %>
+        <% @actions.each_with_index do |action, index| %>
+            <li class="<%= 'selected' if index == 0 %>">
+              <a class="action_select_link" id="action_select_link_<%= index %>" href="#"><%= action[:name] %></a>
+            </li>
+        <% end %>
+    <% end %>
+  </div>
+  <%= content_for :ready_function do %>
+      setupActionLink();
+  <% end %>
+  <% @actions.each_with_index do |action, action_index| %>
+      <div class="action_display" style="<%= 'display: none;' if action_index > 0 %>" id="action_display_<%= action_index %>">
+        <p>
+          <% if action[:type] == :submit %>
+              <b>Submit
+                <%= project_or_package_link project: action[:sprj], package: action[:spkg], rev: action[:srev] %>
+                to
+                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
+              </b>
+              <% if @can_handle_request && @is_target_maintainer %>
+                  <% if !action[:creator_is_target_maintainer] %>
+                      <%# TODO: Make this work for each submit action individually: %>
+                      <br/><%= check_box_tag("add_submitter_as_maintainer_#{action_index}", "#{action[:tprj]}_#_#{action[:tpkg]}", false, :class => 'submitter_is_maintainer_checkbox') %>
+                      Add
+                      <%= user_with_realname_and_icon @req['creator'], no_icon: true, short: true %>
+                      as maintainer for
+                      <%= project_or_package_link project: action[:tprj], package: action[:tpkg], short: true %>
+                  <% end %>
+
+                  <% if action[:forward] %>
+                      <%# TODO: Make this work for each submit action individually: %>
+                      <% index = 0 %>
+                      <% action[:forward].each do |forward| %>
+                          <% if forward[:type] == 'link' %>
+                              <br/><%= check_box_tag('forward_link', "#{forward[:project]}_#_#{forward[:package]}", false, :class => 'forward_checkbox') %>
+                              Forward to linked package
+                              <%= project_or_package_link project: forward[:project], package: forward[:package], short: true %>
+                              <br/>
+                          <% else %>
+                              <br/><%= check_box_tag("forward_devel_#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, :class => 'forward_checkbox') %>
+                              Forward to developed package
+                              <%= project_or_package_link project: forward[:project], package: forward[:package], short: true %>
+                              <br/>
+                              <% index += 1 %>
+                          <% end %>
+                      <% end %>
+                  <% end %>
+              <% end %>
+
+          <% elsif action[:type] == :delete %>
+              <b>Delete
+                <% if action[:trepo] %>
+                    repository <%= link_to action[:trepo], :controller => :repositories, :action => :index, :project => action[:tprj], :repository => action[:trepo] %>
+                    in
+                <% end %>
+                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
+              </b>
+          <% elsif action[:type] == :add_role %>
+              <b>
+                <%= user_with_realname_and_icon action[:user] %>
+                wants the role <b><%= action[:role] %></b> for
+                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
+              </b>
+          <% elsif action[:type] == :change_devel %>
+              <b>
+                Set the devel project to
+                <%= project_or_package_link project: action[:sprj], package: action[:spkg] %>
+                for
+                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
+              </b>
+          <% elsif action[:type] == :maintenance_incident %>
+              <b>
+                Submit update from
+                <%= project_or_package_link project: action[:sprj], package: action[:spkg], homeproject: @req['creator'] %>
+                to
+                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
+              </b>
+              <% if action[:releaseproject] %>
+                  <br/><i>
+          Release in
+          <%= action[:releaseproject] %>
+        </i>
+              <% end %>
+          <% elsif action[:type] == :maintenance_release %>
+              <b>
+                Release
+                <%= project_or_package_link project: action[:sprj], package: action[:spkg] %>
+                to
+                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
+              </b>
+          <% end %>
+        </p>
+
+        <% if action[:sourcediff] %>
+            <% action[:sourcediff].each_with_index do |sourcediff, sourcediff_index| %>
+                <div class="grid_10 alpha">
+                  <% if sourcediff[:error] %>
+                      <%= content_tag(:p, content_tag(:i, sourcediff[:error], class: :error)) %>
+                  <% else %>
+                      <% if action[:type] == :delete
+                           t = sourcediff['old']
+                         else
+                           t = sourcediff['new']
+                         end
+                         project, package, rev = t['project'], t['package'], t['rev'] %>
+
+                      <% if action[:sourcediff].length != 1 %>
+                          <h4>
+                            <%= sourcediff['new']['project'] %> / <%= sourcediff['new']['package'] %>
+                            (rev <%= sourcediff['new']['rev'] %>) -
+                            <%= sourcediff['old']['project'] %> / <%= sourcediff['old']['package'] %>
+                            (rev <%= sourcediff['old']['rev'] %>)
+                          </h4>
+                      <% end %>
+                      <%#TODO: Redo source/target link display %>
+                      <%= render(:partial => 'shared/sourcediff', locals: { filenames: sourcediff['filenames'], files: sourcediff['files'], :source => { project: project, package: package, :rev => rev }, :css_id => "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}", :editor_width => '550px' }) %>
+                  <% end %>
+                </div>
+                <div class="grid_6 omega">
+                  <%= render :partial => 'shared/buildresult_box', locals: { project: action[:sprj], package: action[:spkg], index: action_index } %>
+                  <% if sourcediff['issues'].present? %>
+                      <p><b>Mentioned Issues (<%= sourcediff['issues'].length %>)</b></p>
+                      <%= render partial: 'issues_table', locals: { issues: sourcediff['issues'] } %>
+                  <% end %>
+                </div>
+            <% end %>
+        <% end %>
+      </div>
+  <% end %>
+</div>
+
+<div class="grid_16 alpha omega">
+  <div class="grid_10 alpha">
+    <% if @superseding %>
+      <% @superseding.each do |supersed| %>
+        <% if supersed.comments.any? %>
+          <div class="grid_10 box box-shadow alpha omega">
+            <h2 class="box-header"><a class="supersed_comments_link">
+              Show outdated comments</a>for superseded <%= link_to "request #{supersed.number}", number: supersed.number %>
+            </h2>
+            <div class="superseded_comments hidden">
+              <%= render :partial => 'webui/comment/show', locals: { commentable: supersed } %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <div class="grid_10 box box-shadow alpha omega">
+      <h2 class="box-header">Comments for request <%= @number %> (<%= @comments.length %>)</h2>
+      <%= render :partial => 'webui/comment/show', locals: { commentable: @bs_request } %>
+    </div>
+
+    <div class="grid_10 alpha">
+      <div class="box box-shadow">
+        <div class="box-header header-tabs">
+          <%= possibly_empty_ul id: 'review_descision_select', fallback: "<p><i>There's nothing to be done right now</i></p>".html_safe do %>
+              <% if @can_handle_request %>
+                  <li class="<%= 'selected' if !@can_add_reviews || @my_open_reviews.empty? %>">
+                    <a class="review_descision_link" id="review_descision_link_-1" href="#">My Decision</a>
+                  </li>
+              <% end %>
+              <% if @my_open_reviews.length > 0 %>
+                  <% @my_open_reviews.each_with_index do |open_review, index| %>
+                      <li class="<%= 'selected' if @my_open_reviews.length > 0 && index == 0 %>">
+                        <a class="review_descision_link" id="review_descision_link_<%= index %>" href="#">Review
+                          for <%= render :partial => 'reviewer', :locals => { :review => open_review, :no_icon => true } %></a>
+                      </li>
+                  <% end %>
+              <% end %>
+              <% content_for :ready_function do %>
+                  requestShowReview();
+              <% end %>
+          <% end %>
+        </div>
+        <div class="review_descision_display" style="<%= 'display: none;' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
+          <% if @can_handle_request %>
+              <%= form_tag({ :action => 'changerequest' }, { id: 'request_handle_form' }) do %>
+                  <% if @show_project_maintainer_hint %>
+                      <div class="ui-state-highlight ui-corner-all ui-widget-shadow padding-10pt">
+                        <span class="ui-icon ui-icon-info">
+                          You are a <strong>project maintainer</strong> but not a <strong>package maintainer</strong>. This package
+                          has <strong><%= pluralize(@package_maintainers.size, "package maintainer") %></strong> assigned. Please keep
+                          in mind that also package maintainers would like to review this request.
+                        </span>
+                      </div>
+                  <% end %>
+                  <p><%= text_area_tag(:reason, nil, :placeholder => 'Please add a comment', :size => '80x2', :style => 'width: 99%') %></p>
+
+                  <p>
+                    <%= hidden_field_tag(:number, @number) %>
+                    <% if @state.in?(["new", "review"]) && @is_target_maintainer %>
+                        <% if @state == 'review' %>
+                            <%= submit_tag 'Accept request', name: 'accepted', id: 'accept_request_button', data: { confirm: 'Do you really want to approve this request, despite of open review requests?' } %>
+                        <% else %>
+
+                            <%= submit_tag 'Accept request', name: 'accepted', id: 'accept_request_button' %>
+                        <% end %>
+                        <%= submit_tag 'Decline request', name: 'declined' if !@is_author %>
+                    <% end %>
+                    <% if @state.in?(["new", "review", "declined"]) && @is_author %>
+                        <%= submit_tag 'Revoke request', name: 'revoked', id: 'revoke_request_button' %>
+                    <% end %>
+                    <% if @state == 'declined' %>
+                        <%= submit_tag 'Reopen request', name: 'new', id: 'reopen_request_button' %>
+                    <% end %>
+                    <span style="float: right;">
+                          <% if @req['actions'].first[:type] == :maintenance_incident %>
+                              <%= link_to(sprited_text('package_link', 'Merge with existing incident'), { :controller => 'request', :action => 'set_incident_dialog', number: @number }, :remote => true) %>
+                          <% end %>
+                        </span>
+                  </p>
+              <% end %>
+              <% content_for :ready_function do %>
+                  requestAddAcceptRequestButton();
+              <% end %>
+          <% end %>
+        </div>
+        <% @my_open_reviews.each_with_index do |review, index| %>
+            <div class="review_descision_display <%= 'hidden' if index != 0 %>" id="review_descision_display_<%= index %>">
+              <%= form_tag(:action => 'modify_review') do %>
+                  <p><%= text_area_tag("review_comment_#{index}", review[:reason], :size => '80x2', :style => 'width: 99%', :class => 'review_comment', :placeholder => 'Please comment on your decision') %></p>
+
+                  <p>
+                    <%= hidden_field_tag("review_request_number_#{index}", @number) %>
+                    <%= hidden_field_tag("review_by_user_#{index}", review[:by_user]) if review[:by_user] %>
+                    <%= hidden_field_tag("review_by_group_#{index}", review[:by_group]) if review[:by_group] %>
+                    <%= hidden_field_tag("review_by_project_#{index}", review[:by_project]) if review[:by_project] %>
+                    <%= hidden_field_tag("review_by_package_#{index}", review[:by_package]) if review[:by_package] %>
+                    <%= submit_tag 'Approve', name: 'accepted', id: "review_accept_button_#{index}", title: 'Give this request your blessing, it will continue.' %>
+                    <%= submit_tag 'Disregard', name: 'declined', id: "review_decline_button_#{index}", title: 'Veto this request, it will be declined.' %>
+                  </p>
+              <% end %>
+            </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid_6 omega">
+    <div class="box box-shadow" id="request_history">
+      <h2 class="box-header">Request History</h2>
+      <%# TODO: Replace with reviews listing only, nobody cares for the history %>
+      <%= render :partial => 'recent_events_table' %>
+    </div>
+  </div>
+</div>
+
+ <%= render :partial => 'webui/request/package_maintainers_dialog' %>

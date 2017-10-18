@@ -1,0 +1,36 @@
+record_0:
+  parent_id: 141
+  repository_id: 93
+  position: 1
+record_1:
+  parent_id: 144
+  repository_id: 94
+  position: 1
+record_2:
+  parent_id: 85
+  repository_id: 91
+  position: 1
+record_3:
+  parent_id: 141
+  repository_id: 82
+  position: 2
+record_4:
+  parent_id: 142
+  repository_id: 93
+  position: 1
+record_5:
+  parent_id: 86
+  repository_id: 92
+  position: 1
+record_6:
+  parent_id: 83
+  repository_id: 82
+  position: 1
+UseRemoteInstance_pop_path:
+  parent_id: BaseDistro_repo
+  repository_id: UseRemoteInstance_pop
+  position: 1
+kde4_repo:
+  parent_id: 98
+  repository_id: 86
+  position: 1

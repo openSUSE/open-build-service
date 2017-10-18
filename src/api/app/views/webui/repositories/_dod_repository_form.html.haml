@@ -1,0 +1,44 @@
+.box{ style: "margin-left: 20px;" }
+  %h3.box-header{ style: "padding-left: 6px;" }
+    = "Add DoD repository"
+
+  = form_tag({ action: :create_dod_repository, project: @project }, method: "post", remote: true) do
+    %div
+      %p
+        = label_tag(:name, "Repository name")
+        = text_field_tag(:name, nil, required: true)
+
+    %div
+      %h4
+        = "Download on Demand Source"
+      - # Note: Mostly C&P from app/views/webui/download_on_demand/_form.html.erb
+      %div{ style: "margin-bottom: 1.2em; margin-left: 2em" }
+        = label_tag :arch, "Architecture", style: "display:inline-block;width:100px;"
+        = select_tag :arch, options_for_select(Architecture.available, ""), required: true
+        %br
+        %br
+        = label_tag :repotype, 'Type', style: "display:inline-block;width:100px;"
+        = select_tag :repotype, options_for_select(DownloadRepository::REPOTYPES, "")
+        %br
+        %br
+        = label_tag :url, 'Url', style: "display:inline-block;width:100px;"
+        = text_field_tag(:url, nil, required: true)
+        %br
+        %br
+        = label_tag :archfilter, 'Arch. Filter', style: "display:inline-block;width:100px;"
+        = text_field_tag :archfilter
+        %br
+        %br
+        = label_tag :masterurl, 'Master Url', style: "display:inline-block;width:100px;"
+        = text_field_tag :masterurl
+        %br
+        %br
+        = label_tag :mastersslfingerprint, 'SSL Fingerprint', style: "display:inline-block;width:100px;"
+        = text_field_tag :mastersslfingerprint
+        %br
+        %br
+        = label_tag :pubkey, 'Public Key', style: "display:inline-block;width:100px;"
+        ~ text_area_tag :pubkey, nil, style: "width: 400px;"
+
+        %p
+          = submit_tag "Save"

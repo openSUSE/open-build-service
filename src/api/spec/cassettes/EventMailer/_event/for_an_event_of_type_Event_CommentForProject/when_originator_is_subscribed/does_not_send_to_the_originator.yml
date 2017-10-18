@@ -1,0 +1,156 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_17/_meta?user=user_17
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_17">
+          <title/>
+          <description/>
+          <person userid="user_17" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_17">
+          <title></title>
+          <description></description>
+          <person userid="user_17" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_18/_meta?user=user_18
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_18">
+          <title/>
+          <description/>
+          <person userid="user_18" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_18">
+          <title></title>
+          <description></description>
+          <person userid="user_18" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>Françoise Sagan</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHByb2plY3QgbmFtZT0icHJvamVjdF82Ij4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPjwvZGVzY3JpcHRpb24+CjwvcHJvamVjdD4K
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/_config
+    body:
+      encoding: UTF-8
+      string: Dolorem ea modi laudantium ut. Doloremque et ea. Voluptatem voluptatibus
+        distinctio quas excepturi aliquam. Placeat possimus voluptas voluptas est
+        repudiandae voluptatum amet.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:22 GMT
+recorded_with: VCR 3.0.3

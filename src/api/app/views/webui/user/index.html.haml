@@ -1,0 +1,41 @@
+- @pagetitle = "User Management"
+- @crumb_list = [@pagetitle]
+- @layouttype = 'custom'
+
+.grid_16.alpha.omega.box.box-shadow
+  = render partial: 'webui/configuration/tabs'
+  %p
+    Manage users.
+  %p
+    = link_to(sprited_text('user_add', ' Create new user'), controller: :user, action: :register_user)
+
+  - unless @users.empty?
+    %table.compact#user-table
+      %thead
+        %tr
+          %td
+            User
+          %td
+            State
+          %td
+            Actions
+      %tbody
+        - @users.each do |user|
+          %tr(id="user-#{valid_xml_id(user.login)}")
+            %td
+              = user_with_realname_and_icon(user, no_icon: true)
+            %td
+              = user.state
+            %td.nowrap
+              = render partial: 'dropdown_menu', locals: { user: user }
+  - else
+    %p
+      %i
+        There are no users configured
+
+:javascript
+  $(function() {
+    // We use count(:all) because of a bug: https://github.com/rails/rails/pull/27561
+    if ("#{@users.count(:all)}" !== "0")
+      $('#user-table').dataTable();
+  });

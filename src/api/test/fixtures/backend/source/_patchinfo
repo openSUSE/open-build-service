@@ -1,0 +1,18 @@
+<patchinfo version="2">
+  <package>Pack3</package>
+
+  <issue tracker="bnc" id="123456"/>
+  <issue tracker="bnc" id="12345"/>
+
+  <category>security</category>
+  <rating>low</rating>
+  <summary>security update</summary>
+  <description>Just a description
+in multiline
+</description>
+  <packager>adrian@example.com</packager>
+  <zypp_restart_needed/>
+  <reboot_needed/>
+  <relogin_needed/>
+</patchinfo>
+

@@ -1,0 +1,232 @@
+<issue-trackers>
+  <issue-tracker>
+    <name>boost</name>
+    <kind>trac</kind>
+    <description>Boost Trac</description>
+    <url>https://svn.boost.org/trac/boost/</url>
+    <show-url>https://svn.boost.org/trac/boost/ticket/@@@</show-url>
+    <regex>boost#(\d+)</regex>
+    <label>boost#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>bco</name>
+    <kind>bugzilla</kind>
+    <description>Clutter Project Bugzilla</description>
+    <url>http://bugzilla.clutter-project.org/</url>
+    <show-url>http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@</show-url>
+    <regex>bco#(\d+)</regex>
+    <label>bco#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>RT</name>
+    <kind>other</kind>
+    <description>CPAN Bugs</description>
+    <url>https://rt.cpan.org/</url>
+    <show-url>http://rt.cpan.org/Public/Bug/Display.html?id=@@@</show-url>
+    <regex>RT#(\d+)</regex>
+    <label>RT#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>deb</name>
+    <kind>bugzilla</kind>
+    <description>Debian Bugzilla</description>
+    <url>http://bugs.debian.org/</url>
+    <show-url>http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@</show-url>
+    <regex>deb#(\d+)</regex>
+    <label>deb#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>fdo</name>
+    <kind>bugzilla</kind>
+    <description>Freedesktop.org Bugzilla</description>
+    <url>https://bugs.freedesktop.org/</url>
+    <show-url>https://bugs.freedesktop.org/show_bug.cgi?id=@@@</show-url>
+    <regex>fdo#(\d+)</regex>
+    <label>fdo#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>GCC</name>
+    <kind>bugzilla</kind>
+    <description>GCC Bugzilla</description>
+    <url>http://gcc.gnu.org/bugzilla/</url>
+    <show-url>http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@</show-url>
+    <regex>GCC#(\d+)</regex>
+    <label>GCC#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>bgo</name>
+    <kind>bugzilla</kind>
+    <description>Gnome Bugzilla</description>
+    <url>https://bugzilla.gnome.org/</url>
+    <show-url>https://bugzilla.gnome.org/show_bug.cgi?id=@@@</show-url>
+    <regex>bgo#(\d+)</regex>
+    <label>bgo#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>bio</name>
+    <kind>bugzilla</kind>
+    <description>Icculus.org Bugzilla</description>
+    <url>https://bugzilla.icculus.org/</url>
+    <show-url>https://bugzilla.icculus.org/show_bug.cgi?id=@@@</show-url>
+    <regex>bio#(\d+)</regex>
+    <label>bio#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>bko</name>
+    <kind>bugzilla</kind>
+    <description>Kernel.org Bugzilla</description>
+    <url>https://bugzilla.kernel.org/</url>
+    <show-url>https://bugzilla.kernel.org/show_bug.cgi?id=@@@</show-url>
+    <regex>(?:Kernel|K|bko)#(\d+)</regex>
+    <label>bko#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>kde</name>
+    <kind>bugzilla</kind>
+    <description>KDE Bugzilla</description>
+    <url>https://bugs.kde.org/</url>
+    <show-url>https://bugs.kde.org/show_bug.cgi?id=@@@</show-url>
+    <regex>kde#(\d+)</regex>
+    <label>kde#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>lp</name>
+    <kind>launchpad</kind>
+    <description>Launchpad.net Bugtracker</description>
+    <url>https://bugs.launchpad.net/bugs/</url>
+    <show-url>https://bugs.launchpad.net/bugs/@@@</show-url>
+    <regex>b?lp#(\d+)</regex>
+    <label>lp#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Meego</name>
+    <kind>bugzilla</kind>
+    <description>Meego Bugs</description>
+    <url>https://bugs.meego.com/</url>
+    <show-url>https://bugs.meego.com/show_bug.cgi?id=@@@</show-url>
+    <regex>Meego#(\d+)</regex>
+    <label>Meego#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>bmo</name>
+    <kind>bugzilla</kind>
+    <description>Mozilla Bugzilla</description>
+    <url>https://bugzilla.mozilla.org/</url>
+    <show-url>https://bugzilla.mozilla.org/show_bug.cgi?id=@@@</show-url>
+    <regex>bmo#(\d+)</regex>
+    <label>bmo#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>bnc</name>
+    <kind>bugzilla</kind>
+    <description>Novell Bugzilla</description>
+    <url>https://apibugzilla.novell.com</url>
+    <show-url>https://bugzilla.novell.com/show_bug.cgi?id=@@@</show-url>
+    <regex>(?:bnc|BNC)\s*[#:]\s*(\d+)</regex>
+    <label>bnc#@@@</label>
+    <enable-fetch>true</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>ITS</name>
+    <kind>other</kind>
+    <description>OpenLDAP Issue Tracker</description>
+    <url>http://www.openldap.org/its/</url>
+    <show-url>http://www.openldap.org/its/index.cgi/Contrib?id=@@@</show-url>
+    <regex>ITS#(\d+)</regex>
+    <label>ITS#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>i</name>
+    <kind>bugzilla</kind>
+    <description>OpenOffice.org Bugzilla</description>
+    <url>http://openoffice.org/bugzilla/</url>
+    <show-url>http://openoffice.org/bugzilla/show_bug.cgi?id=@@@</show-url>
+    <regex>i#(\d+)</regex>
+    <label>i#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>fate</name>
+    <kind>fate</kind>
+    <description>openSUSE Feature Database</description>
+    <url>https://features.opensuse.org/</url>
+    <show-url>https://features.opensuse.org/@@@</show-url>
+    <regex>(?:fate|Fate|FATE)\s*#\s*(\d+)</regex>
+    <label>fate#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>rh</name>
+    <kind>bugzilla</kind>
+    <description>RedHat Bugzilla</description>
+    <url>https://bugzilla.redhat.com/</url>
+    <show-url>https://bugzilla.redhat.com/show_bug.cgi?id=@@@</show-url>
+    <regex>rh#(\d+)</regex>
+    <label>rh#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>bso</name>
+    <kind>bugzilla</kind>
+    <description>Samba Bugzilla</description>
+    <url>https://bugzilla.samba.org/</url>
+    <show-url>https://bugzilla.samba.org/show_bug.cgi?id=@@@</show-url>
+    <regex>bso#(\d+)</regex>
+    <label>bso#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>sf</name>
+    <kind>sourceforge</kind>
+    <description>SourceForge.net Tracker</description>
+    <url>http://sf.net/support/</url>
+    <show-url>http://sf.net/support/tracker.php?aid=@@@</show-url>
+    <regex>sf#(\d+)</regex>
+    <label>sf#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>Xamarin</name>
+    <kind>bugzilla</kind>
+    <description>Xamarin Bugzilla</description>
+    <url>http://bugzilla.xamarin.com/index.cgi</url>
+    <show-url>http://bugzilla.xamarin.com/show_bug.cgi?id=@@@</show-url>
+    <regex>Xamarin#(\d+)</regex>
+    <label>Xamarin#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>cve</name>
+    <kind>cve</kind>
+    <description>CVE Numbers</description>
+    <url>http://cve.mitre.org/</url>
+    <show-url>http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@</show-url>
+    <regex>(CVE-\d\d\d\d-\d+)</regex>
+    <label>@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+  <issue-tracker>
+    <name>bxo</name>
+    <kind>bugzilla</kind>
+    <description>XFCE Bugzilla</description>
+    <url>https://bugzilla.xfce.org/</url>
+    <show-url>https://bugzilla.xfce.org/show_bug.cgi?id=@@@</show-url>
+    <regex>bxo#(\d+)</regex>
+    <label>bxo#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
+</issue-trackers>

@@ -1,0 +1,14 @@
+.dialog.darkgrey_box
+  .box.box-shadow
+    %h2.box-header Edit your account
+    .dialog-content
+      = form_for(User.current, url: user_save_path, method: 'post') do |f|
+        = f.hidden_field(:login, id: 'user')
+        %p
+          = f.label(:realname, "Name:")
+          %br
+          = f.text_field(:realname)
+        %p
+          = f.label(:email, "e-Mail:")
+          = f.text_field(:email, required: true, email: true)
+        = render partial: '/webui/shared/dialog_action_buttons'

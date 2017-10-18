@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema specifies the format for status information which is returned
+      in response to PUT requests and in case they fail to GET requests.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="status">
+    <xs:annotation>
+      <xs:documentation>
+        Status information.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="summary" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="details" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="data" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="code" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="summary" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Summary of the status.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="details" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Detailed, human readable information about the status.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="data">
+    <xs:complexType>
+      <xs:annotation>
+        <xs:documentation>
+        Additional data tag that can be processed by the client. 
+        Machine readable. 
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="name" use="required">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="targetproject"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

@@ -1,0 +1,21 @@
+<% if rt[:patchinfo] %>
+    <% patchinfo_issues_by_tracker = rt[:patchinfo].issues_by_tracker %>
+<% else %>
+    <% patchinfo_issues_by_tracker = {} %>
+<% end %>
+<% package_issues_by_tracker = rt[:package_issues_by_tracker] %>
+<% trackers = patchinfo_issues_by_tracker.merge(package_issues_by_tracker) %>
+<% trackers.keys.each_with_index do |tracker, index| %>
+    <% if index != 0 %><br/>
+    <% end %>
+    <% patchinfo_issues = patchinfo_issues_by_tracker[tracker] || {} %>
+    <% package_issues = package_issues_by_tracker[tracker] || {} %>
+
+    <%= tracker %>:
+    <% issue_color = incident_issue_color(patchinfo_issues.length, package_issues.length) %>
+    <span style="color: <%= issue_color %>;">
+            <%= link_to(patchinfo_issues.length, { controller: 'patchinfo', action: 'show', project: incident.name, package: 'patchinfo', file: '_patchinfo' }, { style: "color: #{issue_color}", title: patchinfo_issues.map { |i| "#{i.value('label')} " }.sort.join }) %>
+      /
+      <%= link_to(package_issues.length, '#', { style: "color: #{issue_color}", title: patchinfo_issues.map { |i| "#{i.value('label')} " }.sort.join }) %>
+          </span>
+<% end %>

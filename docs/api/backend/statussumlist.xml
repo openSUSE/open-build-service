@@ -1,0 +1,4 @@
+<statussumlist>
+  <statussum name="apitest/factory/i586" status="enabled" building="0" delayed="0" succeeded="1" />
+  <statussum name="apitest/factory/:all" status="enabled" building="0" delayed="0" rpms="0" succeeded="1" failed="0" />
+</statussumlist>

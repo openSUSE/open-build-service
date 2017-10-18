@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <description>MyText</description>
+  <title>openSUSE Build Service</title>
+  <unlisted_projects_filter>^home:.+</unlisted_projects_filter>
+  <unlisted_projects_filter_description>home projects</unlisted_projects_filter_description>
+  <schedulers>
+     <arch>i586</arch>
+  </schedulers>
+</configuration>

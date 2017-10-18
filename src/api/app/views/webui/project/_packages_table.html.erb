@@ -1,0 +1,89 @@
+<% content_for :ready_function do %>
+    $( "#packages" ).tabs();
+<% end %>
+
+<div class="grid_10 alpha box box-shadow">
+
+  <div id="packages">
+    <div class="box-header header-tabs">
+      <ul>
+        <li><a href="#raw_packages" title="Packages directly in the project">Packages (<%= @packages.length %>)</a>
+        </li>
+        <% if @ipackages.present? %>
+            <li>
+              <a href="#inherited_packages"
+                 title="Inherited Packages">Inherited Packages (<%= @ipackages.length %>)</a>
+            </li>
+        <% end %>
+      </ul>
+    </div>
+    <div id="raw_packages" class="tab">
+
+      <% packageurl = url_for(controller: 'package', action: 'show', project: @project, package: 'REPLACEIT') %>
+      <% if @packages.present? %>
+          <% cache [packageurl, Digest::MD5.hexdigest(@packages.join)] do %>
+              <div id="packages_table_wrapper" data-url="<%= packageurl %>">
+                <%= javascript_tag do %>
+                    var packages = [ <%= escape_nested_list(@packages) %> ];
+                    renderPackagesTable("packages_table_wrapper", packages);
+                <% end %>
+              </div>
+          <% end %>
+      <% else %>
+          <p><i>This project does not contain any packages</i></p>
+      <% end %>
+
+      <% if @project.kind_of?(Project) && User.current.can_modify_project?(@project) %>
+          <% if !@project.defines_remote_instance? && !(@is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.empty?) && !@is_maintenance_project %>
+              <ul class="horizontal-list">
+                <li>
+                  <%= link_to(sprited_text('package_add', 'Create package'), controller: 'project', action: 'new_package', project: @project) %>
+                </li>
+                <li>
+                  <%= link_to sprited_text('package_link', 'Branch existing package'), controller: :project, action: :new_package_branch, project: @project %>
+                </li>
+              </ul>
+          <% end %>
+      <% end %>
+    </div>
+
+    <% if @ipackages.present? %>
+        <div id="inherited_packages" class="tab">
+          <% packageurl = url_for(controller: 'package', action: 'show', project: @project, package: 'REPLACEPKG') %>
+          <% cache [packageurl, Digest::MD5.hexdigest(@ipackages.join)] do %>
+              <div id="ipackages_wrapper" data-url="<%= packageurl %>">
+                <%= javascript_tag do %>
+                    var ipackages = [ <%= escape_nested_list(@ipackages) %> ];
+                    renderPackagesProjectsTable({packages: ipackages, name: 'ipackages_wrapper'});
+                <% end %>
+              </div>
+          <% end %>
+        </div>
+    <% end %>
+
+    <% if @packages.present? && @ipackages.present? %>
+      <%= javascript_tag do %>
+        $('#packages_table_wrapper_table_filter input:first-of-type').on("keyup paste", function() {
+          $('#ipackages_wrapper_table').dataTable().fnFilter( $(this).val());
+        });
+
+        $('#ipackages_wrapper_table_filter input:first-of-type').on("keyup paste", function() {
+          $('#packages_table_wrapper_table').dataTable().fnFilter( $(this).val());
+        });
+      <% end %>
+    <% end %>
+  </div>
+  <% if @packages.present? && @ipackages.present? %>
+    <%= javascript_tag do %>
+        $('#packages_table_wrapper_table_filter input:first-of-type').on("keyup paste", function() {
+          $('#ipackages_wrapper_table').dataTable().fnFilter( $(this).val());
+        });
+        $('#ipackages_wrapper_table_filter input:first-of-type').on("keyup paste", function() {
+          $('#packages_table_wrapper_table').dataTable().fnFilter( $(this).val());
+        });
+    <% end %>
+  <% end %>
+  <noscript>
+    <%= link_to 'Packages', action: 'packages_simple', project: @project %>
+  </noscript>
+</div>

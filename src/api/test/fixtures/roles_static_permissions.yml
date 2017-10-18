@@ -1,0 +1,87 @@
+Admin_access:
+  role: Admin
+  static_permission: access
+Admin_change_package:
+  role: Admin
+  static_permission: change_package
+Admin_change_project:
+  role: Admin
+  static_permission: change_project
+Admin_create_package:
+  role: Admin
+  static_permission: create_package
+Admin_create_project:
+  role: Admin
+  static_permission: create_project
+Admin_download_binaries:
+  role: Admin
+  static_permission: download_binaries
+Admin_global_change_package:
+  role: Admin
+  static_permission: global_change_package
+Admin_global_change_project:
+  role: Admin
+  static_permission: global_change_project
+Admin_global_create_package:
+  role: Admin
+  static_permission: global_create_package
+Admin_global_create_project:
+  role: Admin
+  static_permission: global_create_project
+Admin_global_package_change:
+  role: Admin
+  static_permission: global_package_change
+Admin_global_package_create:
+  role: Admin
+  static_permission: global_package_create
+Admin_global_project_change:
+  role: Admin
+  static_permission: global_project_change
+Admin_global_project_create:
+  role: Admin
+  static_permission: global_project_create
+Admin_private_view:
+  role: Admin
+  static_permission: private_view
+Admin_set_download_counters:
+  role: Admin
+  static_permission: set_download_counters
+Admin_source_access:
+  role: Admin
+  static_permission: source_access
+Admin_status_message_create:
+  role: Admin
+  static_permission: status_message_create
+User_global_project_create:
+  role: User
+  static_permission: global_project_create
+downloader_download_binaries:
+  role: downloader
+  static_permission: download_binaries
+maintainer_access:
+  role: maintainer
+  static_permission: access
+maintainer_change_package:
+  role: maintainer
+  static_permission: change_package
+maintainer_change_project:
+  role: maintainer
+  static_permission: change_project
+maintainer_create_package:
+  role: maintainer
+  static_permission: create_package
+maintainer_create_project:
+  role: maintainer
+  static_permission: create_project
+maintainer_download_binaries:
+  role: maintainer
+  static_permission: download_binaries
+maintainer_source_access:
+  role: maintainer
+  static_permission: source_access
+reader_access:
+  role: reader
+  static_permission: access
+reader_source_access:
+  role: reader
+  static_permission: source_access

@@ -1,0 +1,23 @@
+<% @pagetitle = "Patchinfos of Project #{@project}" %>
+<% project_bread_crumb( 'Patchinfo' ) -%>
+
+<%= render :partial => 'tabs' %>
+
+<h3>
+  Patchinfos for project <%= @project %> 
+</h3>
+
+<% if @patchinfo.empty? %>
+<p><i>This project does not contain any patchinfo yet.</i></p>
+<% else %>
+
+<div id="pkg_container">
+  <h3>Patchinfo</h3>
+  <p>
+    <% @patchinfo.each do |package| -%>
+      <%= link_to package, { :controller => 'patchinfo', :action => :edit_patchinfo, :project=> @project, :package => package}, :class => 'nowrap' %>
+    <% end%>
+  </p>
+</div>
+
+<% end %>

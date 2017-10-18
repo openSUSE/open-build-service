@@ -1,0 +1,7 @@
+<p><strong>Repository:</strong> <%= @repo %> <strong>Architecture:</strong> <%= @arch %></p>
+<p><strong>Worker:</strong> <%= @workerid %> <strong>Buildtime:</strong> <%= distance_of_time_in_words(@buildtime || 0) %> 
+<% if @percent %>
+(<%= @percent %>%)
+<% end %>
+</p>
+

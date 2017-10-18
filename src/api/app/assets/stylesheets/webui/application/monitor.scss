@@ -1,0 +1,168 @@
+.builderbox {
+  width: 168px;
+  margin-top: 3px;
+  margin: 3px;
+  border: 8px transparent;
+  list-style: none;
+  float: left;
+}
+
+.builderboxtitle {
+  font-weight: bold;
+  padding: 0;
+  margin: 0 0 0.2em;
+}
+
+.monitorboxrow {
+  list-style: none;
+  clear: both;
+  margin-bottom: 1em;
+  overflow: hidden;
+  li {
+    margin-top: 3px !important;
+  }
+}
+
+.monitorpb_bar {
+  background-image: image-url("progressbar_bar.png");
+}
+
+.monitorpb_track {
+  padding: 0;
+  background-color: transparent;
+  background-repeat: repeat-x;
+  background-attachment: scroll;
+  background-position: left -22px;
+  width: 100%;
+  height: 100%;
+  moz-background-clip: border;
+  moz-background-origin: padding;
+  moz-background-inline-policy: continuous;
+  position: absolute;
+  left: 2px;
+  top: 0px;
+  overflow: hidden;
+  margin-right: -20px;
+}
+
+.monitorpb_right {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 2px;
+  height: 100%;
+  background-position: -4px -44px;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+
+.monitorpb_left {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  margin: 0pt;
+  padding: 0pt;
+  overflow: hidden;
+  width: 2px;
+  height: 100%;
+  float: left;
+  background-position: -2px -44px;
+}
+
+.monitorpb_text {
+  position: absolute;
+  left: 4px;
+  top: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.monitorpb_ctrl {
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  background-repeat: repeat-x;
+  background-attachment: scroll;
+  background-position: left -1px;
+  width: 100%;
+  height: 100%;
+  moz-background-clip: border;
+  moz-background-origin: padding;
+  moz-background-inline-policy: continuous;
+}
+
+.monitorpb {
+  padding: 0;
+  height: 22px;
+  position: relative;
+  left: 0;
+  top: 0;
+  max-height: 22px;
+  overflow: hidden;
+  margin-top: 1px;
+  a {
+    color: black ! important;
+  }
+}
+
+.monitorgraphs {
+  li {
+    text-align: center;
+    list-style: none;
+    float: left;
+  }
+  img {
+    display: block;
+  }
+}
+
+.statuslights ul {
+  display: table;
+}
+
+.statustext {
+  z-index: 2;
+  background: white;
+  border: 1px solid black;
+  position: absolute;
+  left: -10px;
+  top: -20px;
+  white-space: nowrap;
+}
+
+.statuswrapper {
+  position: relative;
+  left: 0px;
+  top: 0px;
+}
+
+.statuslights {
+  li {
+    list-style: none;
+    margin: 1px;
+    float: left;
+    width: 74px;
+    height: 60px;
+    background-color: #f6f6f6;
+    padding-top: 13px;
+  }
+  .statusarch {
+    text-align: center;
+    word-wrap: break-word;
+  }
+  .statuslight {
+    width: 16px;
+    min-width: 16px;
+    height: 16px;
+  }
+  .status_green {
+    background-image: image-url("icons/tick.png");
+  }
+  .status_yellow {
+    background-image: image-url("icons/error.png");
+  }
+  .status_red {
+    background-image: image-url("icons/req-decline.png");
+  }
+}

@@ -1,0 +1,20 @@
+<div class="dialog darkgrey_box" id="linking_packages">
+  <div class="box box-shadow">
+    <h2 class="box-header">Derived Packages</span></h2>
+    <div class="dialog-content">
+      <ul>
+        <% @package.linking_packages.each do |lp| %>
+            <% if lp.name != @package.name %>
+                <% name = elide_two(lp.project.name, lp.name, 46).join(' / ') %>
+            <% else %>
+                <% name = elide(lp.project.name, 46) %>
+            <% end %>
+            <li><%= link_to(name, :controller => 'package', :action => 'show', :project => lp.project.name, :package => lp.name) %></li>
+        <% end %>
+      </ul>
+    </div>
+    <div class="dialog-buttons">
+      <%= remove_dialog_tag('Cancel') %>
+    </div>
+  </div>
+</div>

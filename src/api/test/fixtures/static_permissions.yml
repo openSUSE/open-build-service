@@ -1,0 +1,36 @@
+access:
+  title: access
+change_package:
+  title: change_package
+change_project:
+  title: change_project
+create_package:
+  title: create_package
+create_project:
+  title: create_project
+download_binaries:
+  title: download_binaries
+global_change_package:
+  title: global_change_package
+global_change_project:
+  title: global_change_project
+global_create_package:
+  title: global_create_package
+global_create_project:
+  title: global_create_project
+global_package_change:
+  title: global_package_change
+global_package_create:
+  title: global_package_create
+global_project_change:
+  title: global_project_change
+global_project_create:
+  title: global_project_create
+private_view:
+  title: private_view
+set_download_counters:
+  title: set_download_counters
+source_access:
+  title: source_access
+status_message_create:
+  title: status_message_create

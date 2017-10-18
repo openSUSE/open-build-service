@@ -1,0 +1,22 @@
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <h2 class="box-header">Delete Confirmation</h2>
+      <div class="dialog-content">
+        <p>Do you really want to delete <%= project_or_package_link project: @project.name %>?</p>
+
+        <%= form_tag({:controller => 'project', :action => 'destroy'}, :method => 'delete') do %>
+          <%= hidden_field_tag(:project, @project) %>
+          <% if @linking_projects && @linking_projects.length > 0 %>
+            <p>Other projects still have source links to this project:</p>
+            <ul>
+              <% @linking_projects.each do |link| %>
+                <li><%= link_to(elide(link, 40), :controller => 'project', :action => 'show', :project => link) %></li>
+              <% end %>
+            </ul>
+          <% end %>
+
+          <%= render partial: '/webui/shared/dialog_action_buttons' %>
+        <% end %>
+      </div>
+    </div>
+  </div>

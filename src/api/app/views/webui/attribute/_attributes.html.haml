@@ -1,0 +1,31 @@
+- if @attributes.blank?
+  %p
+    %em No attributes set
+- else
+  %div
+    %table
+      %tr
+        %th Attribute
+        %th Values
+        - unless User.current.is_nobody?
+          %th Actions
+      - @attributes.each do |attribute|
+        %tr.attribute-values
+          %td{ class: "#{attribute.namespace}-#{attribute.name}" }
+            = attribute.fullname
+          %td{ class: "#{attribute.namespace}-#{attribute.name}-values" }
+            = attribute.values.map(&:value).join(', ')
+            = attribute.issues.map(&:name).join(', ')
+          - unless User.current.is_nobody?
+            %td
+              = link_to(sprite_tag('note_edit', title: 'Edit values'),
+                  edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname),
+                  class: 'edit-values') if attribute.values_editable?
+              = button_to('Delete attribute', attrib_path(attribute),
+                  { data: { confirm: "Really remove attribute '#{attribute.fullname}'?" },
+                  method: :delete, class: 'delete-attribute', id: "#{attribute.namespace}-#{attribute.name}-delete", title: "Delete" })
+- unless User.current.is_nobody?
+  %p
+    = link_to(sprited_text('note_add', 'Add a new attribute'),
+        new_attribs_path(project: @project.name, package: @package),
+        id: 'add-new-attribute')

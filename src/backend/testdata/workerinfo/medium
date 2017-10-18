@@ -1,0 +1,25 @@
+
+<worker hostarch="i586" workerid="medium">
+  <buildarch>i586</buildarch>
+  <hostlabel>medium_label</hostlabel>
+  <hostlabel>junk_label</hostlabel>
+  <hostlabel>more_junk_label</hostlabel>
+  <sandbox>xen</sandbox>
+
+  <linux>
+      <version>2.0</version>
+      <flavor>smp</flavor>
+  </linux>
+
+  <hardware>
+    <cpu>
+      <flag>mmx</flag>
+      <flag>sse</flag>
+    </cpu>
+    <processors>2</processors>
+    <memory>512</memory>
+    <swap>1024</swap>
+    <disk>4096</disk>
+  </hardware>
+</worker>
+

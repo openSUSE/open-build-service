@@ -1,0 +1,8 @@
+  <request>
+  <action type='set_bugowner'>
+    <target project='kde4' package='kdelibs' />
+    <group name='test_group' />
+  </action>
+  <description/>
+  <state name='new'/>
+  </request>

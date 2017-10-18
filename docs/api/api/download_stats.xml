@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<download_stats>
+  <project name="home:dmayr">
+    <package name="x11vnc">438</package>
+    <package name="cinit">17324</package>
+    <package name="ksteak">14724</package>
+    <package name="ltsp-utils">21724</package>
+  </project>
+  <project name="Apache">
+    <package name="apache2">43458</package>
+    <package name="libapr-util1">4845</package>
+    <package name="libapr1">438</package>
+  </project>
+  <project name="FATE">
+    <package name="FATE-stable">47346874658</package>
+    <package name="sxtopdf">4835465445</package>
+  </project>
+</download_stats>

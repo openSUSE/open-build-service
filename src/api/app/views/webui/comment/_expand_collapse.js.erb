@@ -1,0 +1,15 @@
+$(function(){
+	$("#toggle_replies_of_<%=comment_id%>").click(function(ev){
+		$(<%="reply_of_comment_#{comment_id}"%>).toggle();
+		var imgTag = $(this).children("img");
+		if (imgTag.attr("src") == '/assets/list-remove.png'){
+			imgTag.attr("src", "/assets/list-add.png");
+			imgTag.attr("alt", "Expand thread");
+			imgTag.attr("title", "Expand thread");
+		}else{
+			imgTag.attr("src", "/assets/list-remove.png");
+			imgTag.attr("alt", "Collapse thread");
+			imgTag.attr("title", "Collapse thread");
+		};
+	});
+});

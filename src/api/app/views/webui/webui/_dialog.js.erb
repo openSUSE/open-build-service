@@ -1,0 +1,7 @@
+$('#dialog_wrapper').html('<%= raw @dialog_html %>');
+<% unless @dialog_init.blank? -%>
+<%= @dialog_init %>();
+<% end -%>
+$('#dialog_wrapper').show();
+$('#remove_dialog').click(remove_dialog);
+$(".overlay").show();

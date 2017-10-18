@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="highest_rated">
+    <xs:annotation>
+      <xs:documentation>
+        List of the highest rated packages and projects of the
+        openSUSE build service ordered by rating.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="package" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="project" minOccurs="0" maxOccurs="unbounded" />
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="package">
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string" use="required" />
+      <xs:attribute name="project" type="xs:string" use="required" />
+      <xs:attribute name="count" type="xs:nonNegativeInteger" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            Count of votes / ratings for this package.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="score" type="scoreFloat" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="project">
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string" use="required" />
+      <xs:attribute name="count" type="xs:nonNegativeInteger" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            Count of votes / ratings for this project.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="score" type="scoreFloat" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="scoreFloat">
+    <xs:restriction base="xs:float">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="5"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

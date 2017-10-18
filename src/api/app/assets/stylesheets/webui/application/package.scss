@@ -1,0 +1,76 @@
+.package_binarylist {
+  display: none;
+}
+
+table.repostatus td {
+  &.buildstatus {
+    width: 11ex;
+  }
+  &.arch {
+    width: 1%;
+    margin: 0 0.5ex;
+    white-space: nowrap;
+  }
+  &.repo {
+    max-width: 5em;
+  }
+}
+
+#services {
+  list-style-type: none;
+  li {
+    margin: 0 3px 3px 3px;
+    padding: 0.4em;
+    padding-left: 1.5em;
+    .actions {
+      margin-left: 16px;
+    }
+  }
+}
+
+#empty_service {
+  background-color: yellow;
+  border: 1px solid black;
+}
+
+.commit_item {
+  margin: 12px 0;
+}
+
+.fuzzy-time {
+  text-decoration: underline dashed #069;
+
+  &:hover {
+    text-decoration-color: #690;
+  }
+}
+
+.no_border_bottom {
+  border-bottom: none;
+}
+
+.no_border_top {
+  border-top: none;
+}
+
+.btn-more {
+  float: right;
+  color: #c00;
+  text-decoration: underline;
+
+  &:hover, &:active, &:focus { color: #c00; }
+}
+
+.more_info {
+  font-size: 0.8em;
+
+  .more-info-content {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+}
+
+.subtitle {
+  font-size: 1em;
+  margin-top: 0;
+}

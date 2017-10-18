@@ -1,0 +1,11 @@
+[Unit]
+Description=OBS signer service
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStart=/usr/lib/obs/server/bs_signer
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

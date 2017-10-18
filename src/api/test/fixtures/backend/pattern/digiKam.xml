@@ -1,0 +1,24 @@
+<pattern
+ xmlns="http://novell.com/package/metadata/suse/pattern"
+ xmlns:rpm="http://linux.duke.edu/metadata/rpm"
+>
+    <name>digiKam</name>
+    <summary>advanced digital photo management application for KDE</summary>
+    <description lang="en">digiKam is an advanced digital photo management application for KDE, which makes importing and organizing digital photos a "snap". The photos can be organized in albums which can be sorted chronologically, by directory layout or by custom collections.
+
+ Tired of the directory constraints? Don’t worry, digiKam also provides tagging functionality. You tag your images which can be spread out across multiple folders and digiKam provides fast and intuitive ways to browse these tagged images. You can also add comments to your images. digiKam makes use of a fast and robust database to store these meta-informations which makes adding and editing of comments and tags very reliable.
+</description>
+    <uservisible/>
+    <arch>
+      i586
+    </arch>
+    <version epoch="1" ver="1" rel="1.1" />
+    <category>Multimedia</category>
+    <rpm:requires>
+      <rpm:entry name="digikam"/>
+      <rpm:entry name="digikam-doc"/>
+      <rpm:entry name="digikamimageplugins"/>
+      <rpm:entry name="digikamimageplugins-superimpose"/>
+      <rpm:entry name="kipi-plugins"/>
+    </rpm:requires>
+</pattern>

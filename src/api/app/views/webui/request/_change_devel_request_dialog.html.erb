@@ -1,0 +1,34 @@
+<div>
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <h2 class="box-header">Change Devel Project Request</h2>
+      <div class="dialog-content">
+        <% if @current_devel_project && @current_devel_package %>
+          <p>Do you want to request to change the devel project for <%= package_link @package %> from
+          <%= project_or_package_link project: @current_devel_project %>?</p>
+        <% else %>
+          <p>Do you want to request to set the devel project for <%= package_link @package %>?</p>
+        <% end %>
+        <%= form_tag(:action => 'change_devel_request', :method => 'post') do %>
+          <%= hidden_field_tag(:project, @project.name) %>
+          <%= hidden_field_tag(:package, @package.name) %>
+          <p>
+            <% if @current_devel_project && @current_devel_package %>
+              <%= label_tag(:devel_project, 'New Devel project (leave free to delete the current one):') %><br/>
+            <% else %>
+              <%= label_tag(:devel_project, 'Devel project:') %><br/>
+            <% end %>
+            <%= text_field_tag(:devel_project, '', :size => 40) %><br/>
+            <%= label_tag(:description, 'Description:') %><br/>
+            <%= text_area_tag(:description, '', :size => '40x3') %>
+          </p>
+          <%= render partial: '/webui/shared/dialog_action_buttons' %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= javascript_tag do %>
+  $("#devel_project").autocomplete({source: '<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', minLength: 2});
+<% end %>

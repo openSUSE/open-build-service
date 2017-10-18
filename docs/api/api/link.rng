@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A source link file with optional modificators like patches
+-->
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <start>
+    <ref name="link-element"/>
+  </start>
+
+  <define name="patches-element">
+    <element>
+      <name ns="">patches</name>
+      <interleave>
+        <zeroOrMore>
+          <element ns="" name="add">
+            <attribute name="name"/>
+            <optional>
+                <attribute name="type"/>
+            </optional>
+            <optional>
+                <attribute name="after"/>
+            </optional>
+            <optional>
+                <attribute name="popt"/>
+            </optional>
+            <optional>
+                <attribute name="dir"/>
+            </optional>
+            <empty/>
+          </element>
+        </zeroOrMore>
+
+        <zeroOrMore>
+          <element ns="" name="apply">
+            <attribute name="name"/>
+            <empty/>
+          </element>
+        </zeroOrMore>
+
+        <zeroOrMore>
+          <element ns="" name="delete">
+            <attribute name="name"/>
+            <empty/>
+          </element>
+        </zeroOrMore>
+
+        <optional>
+          <element>
+            <name ns="">branch</name>
+            <empty/>
+          </element>
+        </optional>
+
+        <zeroOrMore>
+          <element>
+            <name ns="">topadd</name>
+            <text/>
+          </element>
+        </zeroOrMore>
+
+      </interleave>
+    </element>
+  </define>
+
+  <define name="link-element">
+    <element>
+      <name ns="">link</name>
+
+      <optional>
+        <attribute name="project"/>
+      </optional>
+      <optional>
+        <attribute name="package"/>
+      </optional>
+      <optional>
+        <attribute name="missingok">
+          <choice>
+            <value>true</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="rev"/>
+      </optional>
+      <optional>
+        <attribute name="vrev"/>
+      </optional>
+      <optional>
+        <attribute name="cicount"/>
+      </optional>
+      <optional>
+        <attribute name="baserev"/>
+      </optional>
+
+      <zeroOrMore>
+        <ref name="patches-element"/>
+      </zeroOrMore>
+
+    </element>
+  </define>
+</grammar>

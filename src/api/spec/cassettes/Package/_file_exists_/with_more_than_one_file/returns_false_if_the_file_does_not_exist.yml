@@ -1,0 +1,275 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Where Angels Fear to Tread</title>
+          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '202'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Where Angels Fear to Tread</title>
+          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Where Angels Fear to Tread</title>
+          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '202'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Where Angels Fear to Tread</title>
+          <description>Expedita rerum suscipit animi libero quia magni architecto ut.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_config
+    body:
+      encoding: UTF-8
+      string: Laboriosam placeat aliquam ut vel. Omnis dignissimos earum dolore similique
+        vel ut. Vel totam ea rerum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="274" vrev="274">
+          <srcmd5>d19f373bff6aa9cfe7a1285bfc5da2fd</srcmd5>
+          <version>unknown</version>
+          <time>1499340717</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Quasi occaecati impedit aut. Quaerat voluptas occaecati nostrum. Temporibus
+        ipsum debitis qui. Est mollitia fuga sed sunt minima recusandae. Earum ad
+        rerum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="275" vrev="275">
+          <srcmd5>38029ff3699ce6dc27228970fd4dbdba</srcmd5>
+          <version>unknown</version>
+          <time>1499340717</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_files
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '405'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_files" rev="275" vrev="275" srcmd5="38029ff3699ce6dc27228970fd4dbdba">
+          <entry name="_config" md5="42b800b4f1f2a9a0a5cd23dfb4a27144" size="103" mtime="1499340717" />
+          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
+          <entry name="somefile.txt" md5="6d3fd6eb3c35a438ff2dea0f39c26f6c" size="156" mtime="1499340717" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_files
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '405'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_files" rev="275" vrev="275" srcmd5="38029ff3699ce6dc27228970fd4dbdba">
+          <entry name="_config" md5="42b800b4f1f2a9a0a5cd23dfb4a27144" size="103" mtime="1499340717" />
+          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
+          <entry name="somefile.txt" md5="6d3fd6eb3c35a438ff2dea0f39c26f6c" size="156" mtime="1499340717" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+recorded_with: VCR 3.0.3

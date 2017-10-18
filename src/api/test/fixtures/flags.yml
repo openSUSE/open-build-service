@@ -1,0 +1,145 @@
+record_0:
+  status: enable
+  repo: '10.2'
+  position: 2
+  flag: debuginfo
+  architecture: x86_64
+  project: home_Iggy
+record_1:
+  status: disable
+  position: 1
+  flag: useforbuild
+  package: BaseDistro_pack1
+build_enable_for_Iggy_TestPack_i586:
+  status: enable
+  repo: '10.2'
+  position: 1
+  flag: build
+  architecture: i586
+  package: home_Iggy_TestPack
+build_enable_for_Iggy_TestPack_x86_64:
+  status: enable
+  repo: '10.2'
+  position: 1
+  flag: build
+  architecture: x86_64
+  package: home_Iggy_TestPack
+record_3:
+  status: disable
+  position: 1
+  flag: sourceaccess
+  project: SourceprotectedProject
+record_4:
+  status: disable
+  position: 3
+  flag: publish
+  project: BaseDistro2.0_LinkedUpdateProject
+record_5:
+  status: disable
+  position: 1
+  flag: publish
+  project: SourceprotectedProject
+record_6:
+  status: disable
+  position: 1
+  flag: publish
+  project: HiddenProject
+record_7:
+  status: disable
+  position: 1
+  flag: publish
+  project: BinaryprotectedProject
+BaseDistro2.0_build:
+  status: disable
+  position: 2
+  flag: build
+  project: BaseDistro2.0
+BaseDistro2.0_publish:
+  status: disable
+  position: 2
+  flag: publish
+  project: BaseDistro2.0
+record_8:
+  status: disable
+  position: 2
+  flag: build
+  project: BaseDistro2.0_LinkedUpdateProject
+record_9:
+  status: enable
+  repo: '10.2'
+  position: 2
+  flag: publish
+  architecture: i586
+  project: home_Iggy
+record_10:
+  status: enable
+  repo: '10.2'
+  position: 1
+  flag: debuginfo
+  architecture: x86_64
+  package: home_Iggy_TestPack
+record_11:
+  status: disable
+  position: 1
+  flag: binarydownload
+  project: BinaryprotectedProject
+record_12:
+  status: disable
+  repo: '10.2'
+  position: 2
+  flag: build
+  architecture: x86_64
+  project: home_Iggy
+record_13:
+  status: disable
+  position: 1
+  flag: access
+  project: HiddenProject
+record_14:
+  status: disable
+  repo: '10.2'
+  position: 1
+  flag: debuginfo
+  architecture: i586
+  project: home_Iggy
+record_15:
+  status: disable
+  repo: '10.2'
+  position: 1
+  flag: build
+  architecture: i586
+  project: home_Iggy
+record_16:
+  status: enable
+  repo: '10.2'
+  position: 1
+  flag: publish
+  architecture: x86_64
+  package: home_Iggy_TestPack
+record_17:
+  status: disable
+  position: 1
+  flag: publish
+  project: HiddenRemoteInstance
+record_18:
+  status: disable
+  position: 1
+  flag: access
+  project: HiddenRemoteInstance
+record_19:
+  status: disable
+  repo: '10.2'
+  position: 1
+  flag: publish
+  architecture: x86_64
+  project: home_Iggy
+record_20:
+  status: enable
+  position: 1
+  flag: lock
+  project: home_user6
+record_broken_publishing_build_disabled:
+  status: disable
+  position: 1
+  flag: build
+  project: BrokenPublishing

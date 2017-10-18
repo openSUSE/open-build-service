@@ -1,0 +1,14 @@
+<!-- mainly for spiders -->
+<table id="packages_table" cellpadding="0" cellspacing="0" border="0" class="display">
+  <% packageurl = url_for(controller: 'package', action: 'show', project: @project, package: 'REPLACEPKG') %>
+  <% @packages.each do |p| %>
+      <tr>
+        <td><%= link_to p[0], packageurl.sub('REPLACEPKG', p[0]) %></td>
+      </tr>
+  <% end %>
+  <% @ipackages.each do |p| %>
+      <tr>
+        <td><%= link_to p[0], packageurl.sub('REPLACEPKG', p[0]) %></td>
+      </tr>
+  <% end %>
+</table>

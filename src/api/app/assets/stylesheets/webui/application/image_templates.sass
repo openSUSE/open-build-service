@@ -1,0 +1,116 @@
+// Place all the styles related to the image_templates controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.break-words
+  // These three make it work in different browsers
+  overflow-wrap: break-word
+  word-wrap: break-word
+  word-break: break-word
+
+  // These four make it work in different browsers
+  -ms-hyphens: auto
+  -moz-hyphens: auto
+  -webkit-hyphens: auto
+  hyphens: auto
+
+dl.templateslist
+  display: block
+  clear: both
+  list-style-type: none
+  padding: 8px 12px 6px
+  margin: 10px 0 2em
+
+  dt
+    display: block
+    font-weight: bold
+    font-size: medium
+    margin: 12px 0 6px
+    color: #555
+
+  dd
+    border-radius: 5px
+    border: 1px solid white
+    float: left
+    width: 21em
+    min-width: 25%
+    overflow: hidden
+    position: relative
+    padding: 6px 12px
+    margin: 2px 0
+    height: 48px
+      
+  label
+    overflow: hidden
+
+    .group
+      position: absolute
+      top: 0
+      right: 3px
+      left: 0
+      padding: 12px 6px 12px 90px
+
+      span
+        display: block
+
+      .name
+        color: #204a87
+        font-weight: bold
+        font-size: 1.1em
+        max-height: 3.3em
+        line-height: 1.1em
+        overflow: hidden
+        text-overflow: ellipsis
+        display: -webkit-box
+        -webkit-box-orient: vertical
+        -webkit-line-clamp: 3
+        padding-bottom: 1px
+
+      .description
+        margin-top: 1px
+        color: #888a85
+        font-size: 0.8em
+        line-height: 1.4em
+        max-height: 2.6em
+        overflow: hidden
+        padding-bottom: 1px
+
+    img
+      width: 48px
+      height: 48px
+      vertical-align: middle
+
+  input:checked + dd
+    background-color: #fefad2
+    border-color: #fff57d
+
+  span.form-radio
+    background: rgba(0, 0, 0, 0) image-url('radiobutton.png') no-repeat scroll left top
+    border: 0 none
+    min-height: 16px
+    width: 16px
+    display: inline-block
+
+  input:checked + dd span.form-radio
+    background: rgba(0, 0, 0, 0) image-url('radiobutton-checked.png') no-repeat scroll left top
+    border: 0 none
+    min-height: 16x
+  
+.templates_form
+  margin: 1em
+  
+.name_appliance
+  display: block
+  font-size: 13pt
+  
+.create_appliance
+  display: block
+  width: 9em
+  padding: 0.5em
+  text-align: center
+  margin-top: 2em
+
+.name_appliance_form
+  padding: 0.3em
+  margin: 1em 0.5em
+  width: 30em

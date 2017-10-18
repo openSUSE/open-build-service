@@ -1,0 +1,21 @@
+record_0:
+  kind: link
+  package: LocalProject_remotepackage
+record_1:
+  kind: link
+  package: Devel_BaseDistro_Update_pack3
+record_2:
+  kind: patchinfo
+  package: BaseDistro_patchinfo
+record_3:
+  kind: link
+  package: BaseDistro_Update_pack2
+record_4:
+  kind: link
+  package: Devel_BaseDistro_Update_pack2
+record_5:
+  kind: aggregate
+  package: home_adrian_ProtectionTest_aggregate
+record_6:
+  kind: link
+  package: BaseDistro2.0_pack2.linked

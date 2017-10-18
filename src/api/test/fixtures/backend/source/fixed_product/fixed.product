@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This is a minimal product always available during test suite run -->
+
+<productdefinition xmlns:xi="http://www.w3.org/2001/XInclude">
+  <products>
+    <product>
+      <vendor>OBS_Fuzzies</vendor>
+      <name>fixed</name>
+      <version>1.2</version>
+      <release>3</release>
+      <register>
+        <pool>
+          <repository project="BaseDistro3" name="BaseDistro3_repo" medium="DVD" arch="i586" />
+        </pool>
+        <updates>
+          <repository project="BaseDistro2.0:LinkedUpdateProject" name="BaseDistro2LinkedUpdateProject_repo" />
+          <repository project="BaseDistro3" name="BaseDistro3_repo" arch="x86_64" />
+        </updates>
+      </register>
+      <shortsummary>TestProduct</shortsummary>
+      <summary>Test OBS Product</summary>
+
+      <description>Some text
+in multiple
+lines
+      </description>
+
+    </product>
+  </products>
+</productdefinition>
+

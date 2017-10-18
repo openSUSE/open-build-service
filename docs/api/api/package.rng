@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Elements:
+  
+  title
+  description
+    Developer informations
+  devel
+    if present, this element defines a devel package location
+  releasename
+    this defines the target package container name on release
+  person
+    An optional list of persons
+  group
+    An optional list of groups
+  build
+    build flags
+  publish
+    publish flags
+  useforbuild
+    useforbuild flags
+  debuginfo
+    debuginfo flags
+  binarydownload
+    binarydownload flags
+  url
+    Obsolete: upstream URL 
+  bcntsynctag
+    build count sync tag
+-->
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="package-element"/>
+  </start>
+
+  <define name="package-element">
+    <element>
+      <name ns="">package</name>
+
+      <optional>
+        <attribute name="name"/>
+      </optional>
+      <optional>
+        <attribute name="project"/>
+      </optional>
+      <optional>
+        <attribute name="created"/>
+      </optional>
+      <optional>
+        <attribute name="updated"/>
+      </optional>
+
+      <element ns="" name="title">
+        <text/>
+      </element>
+
+      <element ns="" name="description">
+        <text/>
+      </element>
+
+<interleave>
+
+      <optional>
+        <element ns="" name="devel">
+          <optional>
+              <attribute name="project"/>
+          </optional>
+          <optional>
+              <attribute name="package"/>
+          </optional>
+          <empty/>
+        </element>
+      </optional>
+      <optional>
+        <element ns="" name="releasename">
+          <text/>
+        </element>
+      </optional>
+      <zeroOrMore>
+        <ref name="person-element"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="group-element"/>
+      </zeroOrMore>
+      <optional>
+        <element ns="" name="lock">
+          <ref name="simple-flag-element"/>
+        </element>
+      </optional>
+      <optional>
+        <element ns="" name="build">
+          <ref name="flag-element"/>
+        </element>
+      </optional>
+      <optional>
+        <element ns="" name="publish">
+          <ref name="flag-element"/>
+        </element>
+      </optional>
+      <optional>
+        <element ns="" name="useforbuild">
+          <ref name="flag-element"/>
+        </element>
+      </optional>
+      <optional>
+        <element ns="" name="debuginfo">
+          <ref name="flag-element"/>
+        </element>
+      </optional>
+      <optional>
+        <element ns="" name="binarydownload">
+          <ref name="flag-element"/>
+        </element>
+      </optional>
+      <optional>
+        <element ns="" name="sourceaccess">
+          <ref name="simple-flag-element"/>
+        </element>
+      </optional>
+      <optional>
+        <element ns="" name="url">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element ns="" name="bcntsynctag">
+          <text/>
+        </element>
+      </optional>
+
+</interleave>
+    </element>
+  </define>
+</grammar>

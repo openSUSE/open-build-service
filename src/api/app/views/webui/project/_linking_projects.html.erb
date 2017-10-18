@@ -1,0 +1,16 @@
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <h2 class="box-header">Linking Projects</h2>
+      <div class="dialog-content">
+      <p>Projects linking to <%= @project.to_s %>:</p>
+      <ul>
+        <% @linking_projects.each do |lp| %>
+          <li><%=link_to(lp, :controller => 'project', :action => 'show', :project => lp)%></li>
+        <% end %>
+      </ul>
+      </div>
+      <div class="dialog-buttons">
+        <%= remove_dialog_tag('Cancel') %>
+      </div>
+    </div>
+  </div>

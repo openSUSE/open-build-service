@@ -1,0 +1,274 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Everything is Illuminated</title>
+          <description>Sint alias qui officia quod nemo quas.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Everything is Illuminated</title>
+          <description>Sint alias qui officia quod nemo quas.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Everything is Illuminated</title>
+          <description>Sint alias qui officia quod nemo quas.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Everything is Illuminated</title>
+          <description>Sint alias qui officia quod nemo quas.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_config
+    body:
+      encoding: UTF-8
+      string: Aliquam neque omnis. Incidunt iste tempore ipsam animi id. Velit atque
+        libero qui a ut facere vel. Quia rerum voluptate autem et atque quis corporis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="272" vrev="272">
+          <srcmd5>f79ed4e471d888ded8fcf651729293d7</srcmd5>
+          <version>unknown</version>
+          <time>1499340717</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Saepe occaecati aut ut. Amet porro itaque. Reiciendis totam sapiente.
+        Est totam earum ea voluptatum quas perferendis dolores.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="273" vrev="273">
+          <srcmd5>a9cfdb4abde3ae06f088c585ead3befc</srcmd5>
+          <version>unknown</version>
+          <time>1499340717</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_files
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '405'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_files" rev="273" vrev="273" srcmd5="a9cfdb4abde3ae06f088c585ead3befc">
+          <entry name="_config" md5="3e60b068845b14d0bfaac9f7c9916aa8" size="149" mtime="1499340717" />
+          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
+          <entry name="somefile.txt" md5="a2e2ace0a5e7eef8c3f0dc00e5db989b" size="125" mtime="1499340717" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_files
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '405'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_files" rev="273" vrev="273" srcmd5="a9cfdb4abde3ae06f088c585ead3befc">
+          <entry name="_config" md5="3e60b068845b14d0bfaac9f7c9916aa8" size="149" mtime="1499340717" />
+          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
+          <entry name="somefile.txt" md5="a2e2ace0a5e7eef8c3f0dc00e5db989b" size="125" mtime="1499340717" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:57 GMT
+recorded_with: VCR 3.0.3

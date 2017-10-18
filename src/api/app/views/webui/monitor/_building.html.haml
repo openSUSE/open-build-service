@@ -1,0 +1,31 @@
+- max_clients = @workerstatus['clients']
+- build_count = @workerstatus.elements('building').length
+#building-all
+  %h2 Building
+  - if build_count > 0
+    %p.info Hover the job time field to see the start time.
+    %p.info
+      = @configuration['title']
+      reports #{build_count} running jobs.
+    = render partial: 'building_table'
+    %h3 Legend
+    %div
+      %div{ style: "float: left; margin-left: 10px; margin-right: 10px" }
+        = distance_of_time_in_words(@time_now, @dead_line)
+      - @max_color.downto(0) do |n|
+        - color = "rgb(255,#{n},0)"
+        %div{ style: "background-color: #{color}; margin: 0px; width: 3px ; height: 1em; float: left;" }  
+      %div{ style: "float: left; margin-left: 10px" }
+        = distance_of_time_in_words(@time_now, @dead_line - (@max_color * @interval_steps * 60))
+      .clear
+  - else
+    .info
+      %p
+        - if max_clients
+          - if @project_filter
+            No package of the "#{@project_filter}" project is building. Maybe remove the filter?:)
+          - else
+            All #{max_clients} hosts are idle!
+        - else
+          Nothing to do here!
+.clear

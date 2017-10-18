@@ -1,0 +1,1079 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title/>
+          <description/>
+          <person userid="package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="package_test_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '122'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Iste illum ut id inventore repudiandae quis culpa. Repudiandae id temporibus
+        qui maxime tempore nostrum voluptas. Aut dolor earum similique ipsum repellat.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>1e69a07ba4da1ef16afc5036916f3f0d</srcmd5>
+          <version>unknown</version>
+          <time>1471595610</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_package_test_user">
+          <title/>
+          <description/>
+          <person userid="other_package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="other_package_test_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Nihil aliquam nobis ea. Ducimus quam maiores odit ut. Et vel et sed
+        qui qui aut. Non blanditiis est mollitia.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>456c5784ae9d2d872c25920b6fd61459</srcmd5>
+          <version>unknown</version>
+          <time>1471595610</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title/>
+          <description/>
+          <person userid="package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="package_test_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="file_edit_test_package" project="home:package_test_user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '132'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="file_edit_test_package" project="home:package_test_user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Deleniti et qui placeat harum eaque unde. Atque reprehenderit velit
+        unde. Et nihil optio voluptates.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>02418d1b2672a3d92eff53f06dbb3011</srcmd5>
+          <version>unknown</version>
+          <time>1471595611</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:package_test_user/_result?package=file_edit_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="file_edit_test_package" rev="1" vrev="1" srcmd5="02418d1b2672a3d92eff53f06dbb3011" verifymd5="02418d1b2672a3d92eff53f06dbb3011">
+          <revtime>1471595611</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '215'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="file_edit_test_package" rev="1" vrev="1" srcmd5="02418d1b2672a3d92eff53f06dbb3011">
+          <entry name="somefile.txt" md5="444112975a496b561c98deceaaa69231" size="100" mtime="1471595611" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '353'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="4667754897e002a71e5ae396be52e8ec">
+          <old project="home:package_test_user" package="file_edit_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:package_test_user" package="file_edit_test_package" rev="1" srcmd5="02418d1b2672a3d92eff53f06dbb3011" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '215'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="file_edit_test_package" rev="1" vrev="1" srcmd5="02418d1b2672a3d92eff53f06dbb3011">
+          <entry name="somefile.txt" md5="444112975a496b561c98deceaaa69231" size="100" mtime="1471595611" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package?expand=1&rev=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '215'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="file_edit_test_package" rev="1" vrev="1" srcmd5="02418d1b2672a3d92eff53f06dbb3011">
+          <entry name="somefile.txt" md5="444112975a496b561c98deceaaa69231" size="100" mtime="1471595611" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '215'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="file_edit_test_package" rev="1" vrev="1" srcmd5="02418d1b2672a3d92eff53f06dbb3011">
+          <entry name="somefile.txt" md5="444112975a496b561c98deceaaa69231" size="100" mtime="1471595611" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package/_history
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '213'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>02418d1b2672a3d92eff53f06dbb3011</srcmd5>
+            <version>unknown</version>
+            <time>1471595611</time>
+            <user>unknown</user>
+          </revision>
+        </revisionlist>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:package_test_user/_result?package=file_edit_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:package_test_user/_result?package=file_edit_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '215'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="file_edit_test_package" rev="1" vrev="1" srcmd5="02418d1b2672a3d92eff53f06dbb3011">
+          <entry name="somefile.txt" md5="444112975a496b561c98deceaaa69231" size="100" mtime="1471595611" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package/somefile.txt?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '100'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: Deleniti et qui placeat harum eaque unde. Atque reprehenderit velit
+        unde. Et nihil optio voluptates.
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package/somefile.txt?comment=&user=package_test_user
+    body:
+      encoding: UTF-8
+      string: added some new text
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '19'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '217'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>81f959e15917ac6af90d3dd3a66193a6</srcmd5>
+          <version>unknown</version>
+          <time>1471595612</time>
+          <user>package_test_user</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '214'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="file_edit_test_package" rev="2" vrev="2" srcmd5="81f959e15917ac6af90d3dd3a66193a6">
+          <entry name="somefile.txt" md5="c2dcd3738b5c9e18215917e07a27d974" size="19" mtime="1471595612" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="file_edit_test_package" rev="2" vrev="2" srcmd5="81f959e15917ac6af90d3dd3a66193a6" verifymd5="81f959e15917ac6af90d3dd3a66193a6">
+          <revtime>1471595612</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '214'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="file_edit_test_package" rev="2" vrev="2" srcmd5="81f959e15917ac6af90d3dd3a66193a6">
+          <entry name="somefile.txt" md5="c2dcd3738b5c9e18215917e07a27d974" size="19" mtime="1471595612" />
+        </directory>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:32 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '353'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="ee6f352d2e6903a6cdb3023902fc0b5d">
+          <old project="home:package_test_user" package="file_edit_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:package_test_user" package="file_edit_test_package" rev="2" srcmd5="81f959e15917ac6af90d3dd3a66193a6" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '19'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: added some new text
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:33:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:package_test_user/file_edit_test_package/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home package_test_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:package_test_user' does not exist</summary>
+          <details>404 project 'home:package_test_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 05 Oct 2016 09:08:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:package_test_user/_result?locallink=1&multibuild=1&package=file_edit_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home package_test_user' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:package_test_user' does not exist</summary>
+          <details>404 project 'home:package_test_user' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Fri, 20 Jan 2017 02:54:54 GMT
+recorded_with: VCR 3.0.3

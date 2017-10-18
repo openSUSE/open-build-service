@@ -1,0 +1,127 @@
+NSTEST_status:
+  id: 59
+  name: status
+  attrib_namespace_id: 8
+  issue_list: 0
+OBS_ApprovedRequestSource:
+  id: 65
+  name: ApprovedRequestSource
+  description: "Source maintainers do not need to approve reviews"
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_BranchRepositoriesFromProject:
+  id: 78
+  name: BranchRepositoriesFromProject
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_BranchSkipRepositories:
+  name: BranchSkipRepositories
+  attrib_namespace_id: 9
+OBS_BranchTarget:
+  id: 66
+  name: BranchTarget
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_InitializeDevelPackage:
+  id: 61
+  name: InitializeDevelPackage
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_Issues:
+  id: 67
+  name: Issues
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 1
+OBS_Maintained:
+  id: 58
+  name: Maintained
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_MaintenanceIdTemplate:
+  id: 63
+  name: MaintenanceIdTemplate
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_MaintenanceProject:
+  id: 62
+  name: MaintenanceProject
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_OwnerRootProject:
+  id: 77
+  name: OwnerRootProject
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_ProjectStatusPackageFailComment:
+  id: 74
+  name: ProjectStatusPackageFailComment
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_QualityCategory:
+  id: 75
+  name: QualityCategory
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_RejectRequests:
+  id: 64
+  name: RejectRequests
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_RequestCloned:
+  id: 60
+  name: RequestCloned
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_ScreenShots:
+  id: 73
+  name: ScreenShots
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_UpdateProject:
+  id: 57
+  name: UpdateProject
+  description: "Project is frozen and updates are released via the other project"
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_VeryImportantProject:
+  id: 56
+  name: VeryImportantProject
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_AutoCleanup:
+  id: 76
+  name: AutoCleanup
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_IncidentPriority:
+  id: 79
+  name: IncidentPriority
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_EmbargoDate:
+  id: 80
+  name: EmbargoDate
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_MakeOriginOlder:
+  id: 81
+  name: MakeOriginOlder
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0

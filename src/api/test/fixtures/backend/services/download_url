@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# Based on download_url service. However this on is only for the
+# test suite and just produces files with random content
+
+# defaults
+MYPROTOCOL="http"
+MYHOST=""
+MYPORT=""
+
+while test $# -gt 0; do
+  case $1 in
+    *-host)
+      MYHOST="$2"
+      shift
+    ;;
+    *-port)
+      MYPORT=":$2"
+      shift
+    ;;
+    *-protocol)
+      MYPROTOCOL="$2"
+      shift
+    ;;
+    *-path)
+      MYPATH="${2#/}"
+      shift
+    ;;
+    *-filename)
+      MYFILENAME="${2#/}"
+      shift
+    ;;
+    *-outdir)
+      MYOUTDIR="$2"
+      shift
+    ;;
+    *)
+      echo Unknown parameter $1.
+      echo 'Usage: http_download --host $HOST --path $PATH --outdir $OUT'
+      exit 1
+    ;;
+  esac
+  shift
+done
+
+FILE="${MYPATH##*/}"
+
+if [ -z "$MYHOST" ]; then
+  echo "ERROR: no hostname is given via --host parameter!"
+  exit 1
+fi
+if [ -z "$MYPATH" ]; then
+  echo "ERROR: no path is given via --path parameter!"
+  exit 1
+fi
+if [ -z "$MYOUTDIR" ]; then
+  echo "ERROR: no output directory is given via --outdir parameter!"
+  exit 1
+fi
+if [ -z "$FILE" ]; then
+  echo "ERROR: no file name was stripped from $MYPATH"
+  exit 1
+fi
+
+cd "$MYOUTDIR"
+# Shall we fail?
+if [ "__FAIL__" = "${MYPATH##*/}" ]; then
+  echo "Error message of source service"
+  exit 1
+fi
+
+# Just generate a file with permanent changing content for the test suite
+if [ -n "$MYFILENAME" ]; then
+  cat /proc/uptime > "$MYFILENAME"
+else
+  cat /proc/uptime > "${MYPATH##*/}"
+fi
+

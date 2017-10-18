@@ -1,0 +1,9 @@
+<project name='home:user5'>
+<title>User5 Home Project</title>
+<description/>
+<person userid='user5' role='maintainer'/>
+<repository name='standard'>
+  <arch>i586</arch>
+  <arch>x86_64</arch>
+</repository>
+</project>

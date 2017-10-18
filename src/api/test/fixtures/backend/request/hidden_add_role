@@ -1,0 +1,10 @@
+<request>
+  <action type='add_role'>
+    <target project='HiddenProject' package='pack' />
+    <person name='Iggy' role='reviewer' />
+  </action>
+  <description/>
+  <state who="adrian" name="new"/>
+</request>
+
+

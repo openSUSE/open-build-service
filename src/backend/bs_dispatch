@@ -1,0 +1,1413 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# The Job Dispatcher
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  # FIXME: currently the bs_dispatcher makes assumptions on being in a
+  # properly set up working dir, e.g. with subdirs 'worker' and
+  # 'build'.  Either that is cleaned up or this stays in, for the sake
+  # of startproc and others being able to start a bs_srcserver without
+  # knowing that it has to be started in the right directory....
+
+  chdir "$wd";
+  unshift @INC,  "build";
+  unshift @INC,  ".";
+}
+
+use POSIX;
+use Data::Dumper;
+use Digest::MD5 ();
+use List::Util;
+use Fcntl qw(:DEFAULT :flock);
+use XML::Structured ':bytes';
+use Storable;
+
+use BSConfiguration;
+use BSRPC;
+use BSUtil;
+use BSXML;
+use BSCando;
+use BSDispatcher::Constraints;
+
+use strict;
+
+my $nosrcchangescale = 3;	# -4.77
+
+my %powerpkgs;
+
+if ($BSConfig::powerpkgs) {
+  my $i = 1;
+  for (@{$BSConfig::powerpkgs || []}) {
+    $powerpkgs{$_} = $i++;
+  }
+}
+
+my %secure_sandboxes;
+if ($BSConfig::secure_sandboxes) {
+  %secure_sandboxes = map {$_ => 1} @$BSConfig::secure_sandboxes;
+} else {
+  # we just define xen, kvm and zvm as entirely secure sandboxes atm
+  # chroot, emulator, lxc are currently considered as not safe
+  $secure_sandboxes{$_} = 1 for qw{xen kvm zvm};
+}
+
+my $testmode;
+while (@ARGV) {
+  if ($ARGV[0] eq '--test-mode' || $ARGV[0] eq '--testmode') {
+    shift @ARGV;
+    $testmode = 1;
+  } elsif ($ARGV[0] eq '--test-constraints') {
+    shift @ARGV;
+    my $package = shift @ARGV;
+    my $architecture = shift @ARGV;
+    my $workerinfo_file = shift @ARGV;
+    my $constraints_file = shift @ARGV;
+    my $constraintsprj_file = shift @ARGV;
+    my $workerinfo = readxml($workerinfo_file, $BSXML::worker);
+    my $jobinfo = { 'arch' => $architecture, 'package' => $package };
+
+    my $constraints;
+    if ($constraints_file) {
+      $constraints = readxml($constraints_file, $BSXML::constraints);
+      $constraints = overwriteconstraints($jobinfo, $constraints);
+    }
+    if ($constraintsprj_file) {
+      my @lines = map { [ split(' ', $_) ] } split("\n", readstr($constraintsprj_file));
+      my $prjconfconstraint = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@lines);
+      if ($prjconfconstraint) {
+        $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
+      }
+    }
+    die("No parseable workerinfo\n") unless keys %$workerinfo;
+    die("No parseable constraints\n") unless keys %$constraints;
+    my $o = BSDispatcher::Constraints::oracle($workerinfo, $constraints);
+    exit 0 if defined($o) && $o > 0;
+    exit 1;
+  } else {
+    last;
+  }
+}
+
+BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
+
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
+
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+
+my $port = 5252;        #'RR'
+$port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
+
+# strip helpers from cando
+my %cando = %BSCando::cando;
+for my $arch (values %cando) {
+  $arch = [ @{$arch || []} ];	# make a copy so we can modify
+  s/:.*// for @$arch;
+}
+my %harchcando;		# can the harch build an arch?
+for my $harch (keys %BSCando::cando) {
+  for my $arch (@{$BSCando::cando{$harch}}) {
+    if ($arch =~ /^([^:]+):(.+)$/) {
+      $harchcando{"$harch/$1"} = $2;
+    } else {
+      $harchcando{"$harch/$arch"} = '';
+    }
+  }
+}
+
+# 4h build will add .5 to the load
+# 4h idle will half the load
+my $decay = log(.5)/(4*3600);
+
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
+my $workersdir = "$BSConfig::bsdir/workers";
+my $jobsdir = "$BSConfig::bsdir/jobs";
+my $eventdir = "$BSConfig::bsdir/events";
+
+my $reporoot = "$BSConfig::bsdir/build";
+
+sub getcodemd5 {
+  my ($dir, $cache) = @_;
+  my $md5 = '';
+  my %new;
+  my $doclean;
+  my @files = grep {!/^\./} ls($dir);
+  push @files, map {"Build/$_"} grep {!/^\./} ls("$dir/Build");
+  push @files, map {"emulator/$_"} grep {!/^\./} ls("$dir/emulator");
+  $cache ||= {};
+  for my $file (sort @files) {
+    next unless -f "$dir/$file";
+    my @s = stat _;
+    my $id = "$s[9]/$s[7]/$s[1]";
+    $new{$id} = 1; 
+    if ($cache->{$id}) {
+      $md5 .= "$cache->{$id}  $file\n";
+      next;
+    }    
+    $cache->{$id} = Digest::MD5::md5_hex(readstr("$dir/$file"));
+    $md5 .= "$cache->{$id}  $file\n";
+    $doclean = 1; 
+  }
+  if ($doclean) {
+    for (keys %$cache) {
+      delete $cache->{$_} unless $new{$_};
+    }    
+  }
+  return Digest::MD5::md5_hex($md5);
+}
+
+my $workerdircache = {};
+my $builddircache = {};
+my $workercode;
+my $buildcode;
+my $lastcodechecktime;
+
+my %badhost;
+my $badhostchanged = 1;
+
+my %newestsrcchange;
+my %infocache;
+my %constraintscache;
+
+my %lastbuild;	# last time a job was build in that prpa
+
+my %masterdispatched;	# we masterdispatched those, prpa => [ starttime, ... ]
+
+sub checkbadhost {
+  my (@attempts) = @_;
+  my %hosts;
+  for my $attempt (@attempts) {
+    my $host = $attempt;
+    $host =~ s/:\d+$//;
+    $hosts{$host} = 1;
+  }
+  my $nhosts = keys %hosts;
+  $nhosts = 1 unless $nhosts;
+  return (@attempts > 5 + 20 / $nhosts) ? 1 : 0;
+}
+
+sub assignjob {
+  my ($job, $idlename, $arch) = @_;
+  local *F;
+
+  BSUtil::printlog("assignjob $arch/$job -> $idlename");
+  my $jobstatus = {
+    'code' => 'dispatching',
+  };
+  if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.dispatch.$$", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
+    BSUtil::printlog("job lock failed!");
+    return 'badjob';
+  }
+
+  # got the lock, re-check if job is still there
+  if (! -e "$jobsdir/$arch/$job") {
+    unlink("$jobsdir/$arch/$job:status");
+    close F;
+    BSUtil::printlog("job disappeared!");
+    return 'badjob';
+  }
+
+  # prepare job data
+  my $infoxml = readstr("$jobsdir/$arch/$job");
+  my $jobid = Digest::MD5::md5_hex($infoxml);
+  my $info = XMLin($BSXML::buildinfo, $infoxml);
+
+  my $now = time();
+  if (!$lastcodechecktime || $now - $lastcodechecktime > 20 || $now - $lastcodechecktime < 0) {
+    $workercode = getcodemd5('worker', $workerdircache);
+    $buildcode = getcodemd5('build', $builddircache);
+    $lastcodechecktime = $now;
+  }
+
+  # get the worker data
+  my $worker = readxml("$workersdir/idle/$idlename", $BSXML::worker, 1);
+  if (!$worker) {
+    unlink("$jobsdir/$arch/$job:status");
+    close F;
+    BSUtil::printlog("worker is gone!");
+    return undef;
+  }
+  $worker->{'hardware'}->{'nativeonly'} = undef if $worker->{'hardware'} && exists($worker->{'hardware'}->{'nativeonly'});
+
+  # assign job to worker
+  my @args = ("port=$port", "workercode=$workercode", "buildcode=$buildcode");
+  push @args, "registerserver=$worker->{'registerserver'}" if $worker->{'registerserver'};
+  my $attempt = 0;
+  if ($badhost{"$info->{'arch'}/$job"}) {
+    my $id = "$info->{'arch'}/$job";
+    my @attempts = grep {s/^\Q$id\E\///} keys %badhost;
+    $attempt = scalar(@attempts) + 1;
+    my $msg = "gave up after $attempt failed build attempts...";
+    push @args, "nobadhost=$msg" if checkbadhost(@attempts);
+  }
+  eval {
+    BSRPC::rpc({
+      'uri'     => "http://$worker->{'ip'}:$worker->{'port'}/build",
+      'timeout' => 10 + int(length($infoxml) / 100000),
+      'request' => "PUT",
+      'headers' => [ "Content-Type: text/xml" ],
+      'data'    => $infoxml,
+    }, undef, @args);
+  };
+  if ($@) {
+    my $err = $@;
+    BSUtil::printlog("rpc error: $@");
+    unlink("$jobsdir/$arch/$job:status");
+    close F;
+    if ($err =~ /cannot build anything/) {
+      return undef;
+    }
+    if ($err =~ /cannot build this repository/) {
+      $badhost{"$info->{'project'}/:repo:$info->{'repository'}/$info->{'arch'}/$idlename"} = time();
+      $badhostchanged = 1;
+      return 'badhost';
+    }
+    if ($err =~ /cannot build this package/) {
+      $badhost{"$info->{'project'}/$info->{'package'}/$info->{'arch'}/$idlename"} = time();
+      $badhostchanged = 1;
+      return 'badhost';
+    }
+    if ($err =~ /bad job/) {
+      return 'badjob';
+    }
+    mkdir_p("$workersdir/down");
+    rename("$workersdir/idle/$idlename", "$workersdir/down/$idlename");	# broken client or rebooting
+    return undef;
+  }
+ 
+  # update jobstatus data
+  $jobstatus->{'code'} = 'building';
+  $jobstatus->{'uri'} = "http://$worker->{'ip'}:$worker->{'port'}";
+  $jobstatus->{'workerid'} = $worker->{'workerid'} if defined $worker->{'workerid'};
+  $jobstatus->{'starttime'} = time();
+  $jobstatus->{'hostarch'} = $worker->{'hostarch'};
+  $jobstatus->{'jobid'} = $jobid;
+  $jobstatus->{'attempt'} = $attempt if $attempt;
+
+  # update worker data with build job info 
+  $worker->{'job'} = $job;
+  $worker->{'jobid'} = $jobid;
+  $worker->{'arch'} = $arch;
+  $worker->{'reposerver'} = $info->{'reposerver'} if $info->{'masterdispatched'};
+
+  # update worker dir
+  for my $oldstate (qw{idle down away dead}) {
+    unlink("$workersdir/$oldstate/$idlename");
+  }
+  mkdir_p("$workersdir/building");
+  writexml("$workersdir/building/.$idlename", "$workersdir/building/$idlename", $worker, $BSXML::worker);
+
+  if ($info->{'masterdispatched'}) {
+    # we did out job. delete job
+    push @{$masterdispatched{"$info->{'project'}/$info->{'repository'}/$info->{'arch'}"}}, $jobstatus->{'starttime'};
+    unlink("$jobsdir/$arch/$job");
+    unlink("$jobsdir/$arch/$job:status");
+    close F;
+    return 'assigned';
+  }
+
+  # write new status and release lock
+  writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+  close F;
+  return 'assigned';
+}
+
+sub sendeventtoserver {
+  my ($server, $ev) = @_;
+  my @args;
+  for ('type', 'project', 'package', 'repository', 'arch', 'job', 'worker') {
+    push @args, "$_=$ev->{$_}" if defined $ev->{$_};
+  }
+  my $param = {
+    'uri' => "$server/event",
+    'request' => 'POST',
+    'timeout' => 10,
+  };
+  BSRPC::rpc($param, undef, @args);
+}
+
+sub staleness {
+  my ($prpa, $now, $ic, $jobs) = @_;
+
+  my $projid = (split('/', $prpa))[0];
+  my $lb = $lastbuild{$prpa};
+  return 0 unless $lb;
+  $lb = $now if $lb > $now;
+  my $newestsrcchange = $newestsrcchange{$projid};
+  if (!defined $newestsrcchange) {
+    $newestsrcchange = 0;
+    for (@$jobs) {
+      my $job = $ic->{$_};
+      $newestsrcchange = $job->{'revtime'} if $job && $job->{'revtime'} && $job->{'revtime'} > $newestsrcchange;
+    }
+    $newestsrcchange ||= $lb;
+    $newestsrcchange{$projid} = $newestsrcchange;
+  }
+  my $ret = ($lb - $newestsrcchange) / (($now - $lb) * 40 + 5000000);
+  $ret = 0 if $ret < 0;
+  #BSUtil::printlog("staleness $prpa: $ret");
+  return $ret;
+}
+
+sub overwrite {
+  my ($dst, $src) = @_;
+  for my $k (sort keys %$src) {
+    next if $k eq "conditions";
+    my $d = $src->{$k};
+    if (!exists($dst->{$k}) || !ref($d) || ref($d) ne 'HASH') {
+      $dst->{$k} = $d;
+    } else {
+      overwrite($dst->{$k}, $d);
+    }
+  }
+}
+
+sub overwriteconstraints {
+  my ($info, $constraints) = @_;
+  # use condition specific constraints to merge it properly
+  for my $o (@{$constraints->{'overwrite'}||[]}) {
+    next unless $o && $o->{'conditions'};
+    if ($o->{'conditions'}->{'arch'}) {
+      next unless grep {$_ eq $info->{'arch'}} @{$o->{'conditions'}->{'arch'}};
+    }
+    if ($o->{'conditions'}->{'package'}) {
+      my $packagename = $info->{'package'};
+      my $shortpackagename = $info->{'package'};
+      $shortpackagename =~ s/\..*//;
+      next unless grep {$_ eq $packagename or $_ eq $shortpackagename} @{$o->{'conditions'}->{'package'}};
+    }
+    # conditions are matching, overwrite...
+    $constraints = Storable::dclone($constraints);
+    overwrite($constraints, $o);
+  }
+  return $constraints;
+}
+
+sub getconstraints {
+  my ($info, $constraintsmd5) = @_;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/source/$info->{'project'}/$info->{'package'}/_constraints",
+    'timeout' => 300,
+  };
+  my $constraintsxml;
+  eval {
+    $constraintsxml = BSRPC::rpc($param, undef, "expand=1", "rev=$info->{'srcmd5'}");
+    die("huh? constaints md5 does not match\n") unless Digest::MD5::md5_hex($constraintsxml) eq $constraintsmd5;
+  };
+  if ($@) {
+    warn($@);
+    return [ time() + 600 ];	# better luck next time
+  }
+  return undef unless $constraintsxml;
+  return BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
+}
+
+# normalizes an xml size element to mega bytes
+
+my %syncedjobs;
+my %lastmastersync;
+my $lastmdloadsync;
+
+
+sub dispatchslave {
+  my $synced = 0;
+  my @archs = grep {!/^\./} sort(ls($jobsdir));
+  my %projid2repocache;
+
+  my %building;
+  my %building_time;
+  for my $arch (@archs) {
+    next unless -d "$jobsdir/$arch";
+    my $now = time();
+    my $added = 0;
+    my $deleted = 0;
+    # if we only work on a partition get the filtered jobs from the
+    # source server
+    if ($BSConfig::partition && ($lastmastersync{$arch} || 0) + 600 < $now) {
+      $lastmastersync{$arch} = $now;
+      my $res;
+      eval {
+        $res = BSRPC::rpc({
+          'uri'     => "$BSConfig::srcserver/jobs/$arch",
+	  'timeout' => 60,
+        }, $BSXML::dir, "partition=$BSConfig::partition");
+      };
+      if ($@) {
+	warn($@);
+	next;
+      }
+      $syncedjobs{$arch} = { map {$_->{'name'} => 1} @{$res->{'entry'} || []} };
+    }
+    my @jobs = sort(ls($jobsdir));
+    my @b = grep {!/^\./} ls("$jobsdir/$arch");
+    my %locked = map {$_ => 1} grep {/:status$/} @b;
+    my %notlocked = map {$_ => 1} grep {!$locked{$_}} @b;
+    my %seen;
+    my @crossb = grep {/:cross$/} @b;
+    if (@crossb) {
+      my %crossarchs;
+      for (@crossb) {
+	push @{$crossarchs{$2}}, $1 if /^(.*):([^:]+):cross$/;
+      }
+      for my $crossarch (sort keys %crossarchs) {
+	my %cj = map {$_ => 1} ls("$jobsdir/$crossarch");
+	# deltete orphaned marker
+	for (grep {!$cj{$_}} @{$crossarchs{$crossarch}}) {
+	  BSUtil::printlog("  - deleting orphaned cross marker $arch/$_:${crossarch}:cross");
+	  unlink("$jobsdir/$arch/$_:${crossarch}:cross");
+	}
+      }
+      @b = grep {!/:cross$/} @b;
+    }
+    for my $job (grep {!/:(?:dir|status|new)$/} @b) {
+      next if $locked{"$job:status"};
+      $seen{$job} = 1;
+      next if $syncedjobs{$arch}->{$job};
+      my $infoxml = readstr("$jobsdir/$arch/$job", 1);
+      next unless $infoxml;
+      my $info = BSUtil::fromxml($infoxml, $BSXML::buildinfo, 1);
+      next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
+      $info->{'masterdispatched'} = Digest::MD5::md5_hex($infoxml);
+      $infoxml = XMLout($BSXML::buildinfo, $info);
+      undef $info;
+      eval {
+	BSRPC::rpc({
+	  'uri'     => "$BSConfig::masterdispatcher/jobs/$arch/$job",
+	  'request' => 'PUT',
+	  'timeout' => 10 + int(length($infoxml) / 100000),
+	  'headers' => [ "Content-Type: text/xml" ],
+	  'data'    => $infoxml,
+	}, undef);
+      };
+      if ($@) {
+	if ($@ =~ /already exists/) {
+	  $syncedjobs{$arch}->{$job} = 1;
+	}
+	warn($@);
+	next;
+      }
+      $added++;
+      $synced++;
+      $syncedjobs{$arch}->{$job} = 1;
+    }
+    for my $job (sort(keys %{$syncedjobs{$arch} || {}})) {
+      next if $seen{$job};
+      $synced++;
+      eval {
+	BSRPC::rpc({
+	  'uri'     => "$BSConfig::masterdispatcher/jobs/$arch/$job",
+	  'request' => 'DELETE',
+	  'timeout' => 60,
+	}, undef);
+      };
+      if ($@) {
+	warn($@);
+	next;
+      }
+      $deleted++;
+      $synced++;
+      delete $syncedjobs{$arch}->{$job};
+    }
+    BSUtil::printlog("$arch: added $added, deleted $deleted") if $added || $deleted;
+    # adapt the load
+    my $load = {};
+    for my $job (keys %locked) {
+      my $jn = $job;
+      $jn =~ s/:status$//;
+      next unless $notlocked{$jn};
+      $jn =~ s/-[0-9a-f]{32}$//s;
+      my ($projid, $repoid, $packid) = split('::', $jn);
+      if (!defined($packid)) {
+        my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+        next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
+	($projid, $repoid, $packid) = ($info->{'project'}, $info->{'repository'}, $info->{'package'});
+	next unless defined $packid;
+      }
+      my $prpa = "$projid/$repoid/$arch";
+      $building{$prpa} ||= 0;
+      $building{$prpa} += 1;
+      $building_time{$prpa} = $now;
+    }
+  }
+  # upload the mdload from time to time
+  my $now = time();
+  if (!$lastmdloadsync || $lastmdloadsync + 120 < $now) {
+    BSUtil::printlog("uploading load to master dispatcher");
+    $lastmdloadsync = $now;
+    my $load = BSUtil::retrieve("$jobsdir/load", 1) || {};
+    for my $prpa (keys %$load) {
+      $load->{$prpa}->[2] = $building_time{$prpa} || $now;
+      $load->{$prpa}->[3] = $building{$prpa} || 0;
+    }
+    eval {
+      BSRPC::rpc({
+        'uri'     => "$BSConfig::masterdispatcher/jobs/_mdload",
+        'request' => 'POST',
+        'data' => BSUtil::tostorable($load),
+        'timeout' => 60,
+      }, undef);
+    };
+    if ($@) {
+      warn($@);
+    }
+  }
+  return $synced;
+}
+
+# add a 30 second penalty for badhost events
+sub addbadhosttofinished {
+  my ($ev, $now) = @_;
+
+  return unless $ev->{'project'} && $ev->{'repository'} && $ev->{'arch'};
+  $now ||= time();
+  my ($hostarch, $workerid) = split(':', $ev->{'worker'}, 2);
+  my @l = ($ev->{'project'}, $ev->{'repository'}, $ev->{'arch'}, $ev->{'package'}, $now - 30,  $now, 'badhost', $workerid, $hostarch);
+  s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @l;
+  BSUtil::appendstr("$jobsdir/finished", join('|', @l)."\n");
+}
+
+my %lastrepoeventsent;
+
+sub forwardevents {
+  if (%lastrepoeventsent) {
+    my $now = time();
+    delete $lastrepoeventsent{$_} for grep {$lastrepoeventsent{$_} + 180 < $now} keys(%lastrepoeventsent);
+  }
+  for my $evname (ls("$eventdir/repository")) {
+    next if $evname =~ /^\./;
+    next if $lastrepoeventsent{$evname};
+    my $ev = readxml("$eventdir/repository/$evname", $BSXML::event, 1);
+    next unless $ev;
+    eval {
+      sendeventtoserver($BSConfig::srcserver, $ev);
+    };
+    if ($@) {
+      warn($@);
+    } else {
+      unlink("$eventdir/repository/$evname");
+      $lastrepoeventsent{$evname} = time();
+    }
+  }
+  for my $evname (ls("$eventdir/dispatch")) {
+    next if $evname =~ /^\./;
+    my $ev = readxml("$eventdir/dispatch/$evname", $BSXML::event, 1);
+    next unless $ev;
+    next if $ev->{'due'} && time() < $ev->{'due'};
+    delete $ev->{'due'};
+    eval {
+      if ($ev->{'type'} eq 'built') {
+        # resend to rep server
+      } elsif ($ev->{'type'} eq 'badhost') {
+        BSUtil::printlog("badhost event: $ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'worker'}");
+	if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver) {
+          sendeventtoserver($BSConfig::masterdispatcher, $ev) unless $ev->{'package'} eq '_deltas';	# XXX
+	} else {
+	  my $now = time();
+	  $badhost{"$ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'worker'}"} = $now;
+	  $badhost{"$ev->{'arch'}/$ev->{'job'}"} = $now;
+	  $badhost{"$ev->{'arch'}/$ev->{'job'}/$ev->{'worker'}"} = $now;
+	  $badhostchanged = 1;
+	  addbadhosttofinished($ev, $now);
+	}
+      } else {
+        sendeventtoserver($BSConfig::srcserver, $ev);
+      }
+    };
+    if ($@) {
+      warn($@);
+    } else {
+      unlink("$eventdir/dispatch/$evname");
+    }
+  }
+}
+
+sub filechecks {
+  if (-e "$rundir/bs_dispatch.exit") {
+    my $state = {
+      'infocache' => \%infocache,
+      'badhost' => \%badhost,
+      'newestsrcchange' => \%newestsrcchange,
+    };
+    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
+    close(RUNLOCK);
+    unlink("$rundir/bs_dispatch.exit");
+    BSUtil::printlog("exiting...");
+    exit(0);
+  }
+  if (-e "$rundir/bs_dispatch.restart") {
+    my $state = {
+      'infocache' => \%infocache,
+      'badhost' => \%badhost,
+      'newestsrcchange' => \%newestsrcchange,
+    };
+    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
+    close(RUNLOCK);
+    unlink("$rundir/bs_dispatch.restart");
+    BSUtil::printlog("restarting...");
+    exec($0);
+    die("$0: $!\n");
+  }
+  if (-e "$rundir/bs_dispatch.dumpstate") {
+    my $state = {
+      'infocache' => \%infocache,
+      'badhost' => \%badhost,
+      'newestsrcchange' => \%newestsrcchange,
+    };
+    BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
+    unlink("$rundir/bs_dispatch.dumpstate");
+    BSUtil::printlog("dumped state to $rundir/bs_dispatch.state ...");
+  }
+  if (-e "$rundir/bs_dispatch.dropbadhosts") {
+    unlink("$rundir/bs_dispatch.dropbadhosts");
+    BSUtil::printlog("removing all badhost entries...");
+    %badhost = ();
+    $badhostchanged = 1;
+  }
+}
+
+# check all workers against the job constains so that the
+# users get feedback
+sub checkconstraints {
+  my ($info, $arch, $job, $constraints, $workercache) = @_;
+  my @all_workers;
+
+  BSUtil::printlog("checkconstraints $arch/$job");
+  $workercache ||= {};
+  my $sumworkers = 0;
+  my $downworkers = 0;
+  my $buildarch = $info->{'hostarch'} || $arch;
+  my %workerseen;
+  for my $workerstate (qw{idle building away down}) {
+    my @workernames = sort(BSUtil::ls("$workersdir/$workerstate"));
+    for my $workername (@workernames) {
+      next if $workerseen{$workername};
+      my ($harch) = split(':', $workername, 2);
+      next unless exists($harchcando{"$harch/$buildarch"});
+      my $worker = $workercache->{"$workerstate/$workername"} || readxml("$workersdir/$workerstate/$workername", $BSXML::worker, 1);
+      next unless $worker;
+      $workercache->{"$workerstate/$workername"} = $worker;
+      my $helper = $harchcando{"$harch/$buildarch"};
+      next if $helper && $worker->{hardware} && exists($worker->{hardware}->{nativeonly});
+      $workerseen{$workername} = 1;
+      push @all_workers, $worker;
+      next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker, $constraints);
+      next unless !$constraints || BSDispatcher::Constraints::oracle($worker, $constraints) > 0;
+      $sumworkers++;
+      $downworkers++ if $workerstate eq 'down';
+    }
+  }
+  # return if more than half of the workers satisfy the constraint
+  return 0 if $sumworkers - $downworkers > 5 && ($sumworkers - $downworkers) > scalar(@all_workers) / 2;
+  my $details = "waiting for $sumworkers compliant workers";
+  $details .= " ($downworkers of them down)" if $downworkers;
+  if (!$sumworkers) {
+    $details = "no compliant workers";
+    my $hint = '';
+    if ($BSConfig::dispatch_constraint) {
+      if (!grep {$BSConfig::dispatch_constraint->($info, $_, $constraints)} @all_workers) {
+        $hint .= " dispatch_constraint";
+      }
+    }
+    for my $cpart (sort(keys(%{$constraints || {}}))) {
+      my $cconstraint = { $cpart => $constraints->{$cpart} };
+      next if (grep {BSDispatcher::Constraints::oracle($_, $cconstraint) > 0} @all_workers);
+      if ($cpart eq 'hardware' || $cpart eq 'linux') {
+	my $hhint = '';
+	for my $ccpart (sort(keys(%{$constraints->{$cpart} || {}}))) {
+          my $ccconstraint = { $cpart => { $ccpart => $constraints->{$cpart}->{$ccpart} } };
+          next if (grep {BSDispatcher::Constraints::oracle($_, $ccconstraint) > 0} @all_workers);
+          $hhint .= " $cpart:$ccpart";
+	}
+	$hint .= $hhint ? $hhint : " $cpart";
+	next;
+      }
+      $hint .= " $cpart";
+    }
+    $details .= " (constraints mismatch hint:$hint)" if $hint;
+  }
+  if (!$info->{'scheduleinfo'} || $info->{'scheduleinfo'} ne $details) {
+    $info->{'scheduleinfo'} = $details;
+    print "setting dispatch details to: $details\n";
+    if ($sumworkers) {
+      setdispatchdetails($info, $arch, $job, $details);
+    } else {
+      failjob($info, $arch, $job, "package build was not possible:\n\n$details\n\nPlease adapt your constraints.\n");
+    }
+  }
+  return 1;
+}
+
+$| = 1;
+$SIG{'PIPE'} = 'IGNORE';
+BSUtil::restartexit($ARGV[0], 'dispatcher', "$rundir/bs_dispatch");
+BSUtil::printlog("starting build service dispatcher");
+
+# get lock
+mkdir_p($rundir);
+open(RUNLOCK, '>>', "$rundir/bs_dispatch.lock") || die("$rundir/bs_dispatch.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dispatcher is already running!\n");
+utime undef, undef, "$rundir/bs_dispatch.lock";
+
+my $dispatchprios;
+my $dispatchprios_project;
+my $dispatchprios_id = '';
+
+if (-s "$rundir/bs_dispatch.state") {
+  BSUtil::printlog("reading old state...");
+  my $state = BSUtil::retrieve("$rundir/bs_dispatch.state", 2);
+  unlink("$rundir/bs_dispatch.state");
+  %infocache = %{$state->{'infocache'}} if $state && $state->{'infocache'};
+  %badhost = %{$state->{'badhost'}} if $state && $state->{'badhost'};
+  $badhostchanged = 1;
+  %newestsrcchange = %{$state->{'newestsrcchange'}} if $state && $state->{'newestsrcchange'};
+}
+
+if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver) {
+  BSUtil::printlog("running is dispatch slave mode");
+}
+
+if ($testmode) {
+  forwardevents();
+  print "Test mode, dispatcher is exiting..";
+  exit(0);
+}
+
+while (1) {
+
+  if (-s "$jobsdir/finished") {
+    local *F;
+    if (open(F, '<', "$jobsdir/finished")) {
+      unlink("$jobsdir/finished");
+      my $load = BSUtil::retrieve("$jobsdir/load", 1) || {};
+      while (<F>) {
+	next unless /\n$/s;
+	my @s = split('\|', $_);
+	s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @s;
+	my ($projid, $repoid, $arch, $packid, $start, $end, $result, $workerid, $hostarch) = @s;
+	next unless $start =~ /^[0-9]+$/s;
+	next unless $end=~ /^[0-9]+$/s;
+	next if $end <= $start;
+	my $prpa = "$projid/$repoid/$arch";
+	$load->{$prpa} = [0, 0] unless $load->{$prpa};
+	my $l = $load->{$prpa};
+	if ($l->[0] < $end) {
+	  my $d = $end - $l->[0];
+	  $l->[1] *= exp($decay * $d);
+	  $l->[1] += (1 - exp($decay * ($end - $start)));
+	  $l->[0] = $end;
+	} else {
+	  my $d = $l->[0] - $end;
+	  $l->[1] += (1 - exp($decay * ($end - $start))) * exp($decay * $d);
+	}
+      }
+      close F;
+      my $prunetime = time() - 50 * 86400;
+      for (keys %$load) {
+	delete $load->{$_} if $load->{$_}->[0] < $prunetime;
+      }
+      BSUtil::store("$jobsdir/load.new", "$jobsdir/load", $load);
+    }
+  }
+
+  if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver) {
+    my $synced = dispatchslave();
+    forwardevents();
+    sleep(1) unless $synced;
+    filechecks();
+    next;
+  }
+
+  my @dispatchprios_s = stat("$jobsdir/dispatchprios");
+  if (!@dispatchprios_s) {
+    $dispatchprios = undef;
+    $dispatchprios_project = undef;
+    $dispatchprios_id = '';
+  } elsif ($dispatchprios_id ne "$dispatchprios_s[9]/$dispatchprios_s[7]/$dispatchprios_s[1]") {
+    $dispatchprios_id = "$dispatchprios_s[9]/$dispatchprios_s[7]/$dispatchprios_s[1]";
+    $dispatchprios = BSUtil::retrieve("$jobsdir/dispatchprios", 1);
+    $dispatchprios_project = undef;
+    if ($dispatchprios) {
+      # create dispatchprios_project hash
+      $dispatchprios_project = {};
+      for (@{$dispatchprios->{'prio'} || []}) {
+	$dispatchprios_project->{$_->{'project'}} ||= [] if defined $_->{'project'};
+      }
+      my @p = keys %$dispatchprios_project;
+      push @p, ':all:';
+      for (@{$dispatchprios->{'prio'} || []}) {
+	if (defined($_->{'project'})) {
+	  push @{$dispatchprios_project->{$_->{'project'}}}, $_;
+	} else {
+	  for my $p (@p) {
+	    push @{$dispatchprios_project->{$p}}, $_;
+	  }
+	}
+      }
+    }
+  }
+
+  my $load = BSUtil::retrieve("$jobsdir/load", 1) || {};
+  my $now = time();
+  for my $prpa (sort keys %$load) {
+    my $l = $load->{$prpa};
+    my $ll = $l->[1];
+    $ll *= exp($decay * ($now - $l->[0])) if $now > $l->[0];
+    $load->{$prpa} = $ll;
+    $lastbuild{$prpa} = $l->[0];
+  }
+
+  # adapt load for masterdispatched prpas
+  my $mdload = BSUtil::retrieve("$jobsdir/mdload", 1) || {};
+  for my $prpa (sort keys %$mdload) {
+    my $l = $mdload->{$prpa};
+    my $ll = $l->[1];
+    $ll *= exp($decay * ($now - $l->[0])) if $now > $l->[0];
+    $load->{$prpa} = $ll;
+    $lastbuild{$prpa} = $l->[0];
+    if ($l->[3]) {
+      $load->{$prpa} += $l->[3];
+      $lastbuild{$prpa} = $l->[2];
+    }
+  }
+  if (%masterdispatched) {
+    for my $prpa (sort keys %masterdispatched) {
+      my $md = $masterdispatched{$prpa};
+      if ($mdload->{$prpa}) {
+        shift(@$md) while @$md && $md->[0] < $mdload->{$prpa}->[2];
+      }
+      if (@$md) {
+	$load->{$prpa} += @$md;
+        $lastbuild{$prpa} = $now;
+      } else {
+        delete $masterdispatched{$prpa};
+      }
+    }
+  }
+  
+  my %workerload;
+
+  for (grep {!/^\./} ls("$workersdir/building")) {
+    my $host = $_;
+    $host =~ s/:\d+$//;
+    $workerload{$host}->{$_} = 1;
+  }
+  my @idle = grep {!/^\./} ls("$workersdir/idle");
+  my %idlearch;
+  my %workerinfo;
+  my %workerinfo_mtime;
+  for my $idle (@idle) {
+    my ($harch) = split(':', $idle, 2);
+    my $host = $idle;
+    $host =~ s/:\d+$//;
+    $workerload{$host}->{$idle} = 0;
+    for (@{$cando{$harch} || []}) {
+      push @{$idlearch{$_}}, $idle;
+    }
+  }
+  #BSUtil::printlog("finding jobs");
+  my %jobs;
+  my %maybesrcchange;
+  my @archs = sort keys %idlearch;
+  my %archdone;
+  my %crossarchlist;
+  while (@archs) {
+    my $arch = shift @archs;
+    next if $archdone{$arch};
+    $archdone{$arch} = 1;
+    my $ic = $infocache{$arch};
+    $infocache{$arch} = $ic = {} unless $ic;
+    my @b = grep {!/^\./} ls("$jobsdir/$arch");
+    my @crossb = grep {/:cross$/} @b;
+    if (@crossb) {
+      my %crossarchs;
+      for (@crossb) {
+	push @{$crossarchs{$2}}, $1 if /^(.*):([^:]+):cross$/;
+      }
+      for my $crossarch (sort keys %crossarchs) {
+	next unless $idlearch{$arch};
+	my %cj = map {$_ => 1} ls("$jobsdir/$crossarch");
+	# deltete orphaned marker
+	for (@{$crossarchs{$crossarch}}) {
+	  next if $cj{$_};
+	  BSUtil::printlog("  - deleting orphaned cross marker $arch/$_:${crossarch}:cross");
+	  unlink("$jobsdir/$arch/$_:${crossarch}:cross");
+	}
+	push @archs, $crossarch;
+	$crossarchlist{$crossarch}->{$arch} = 1;
+      }
+      @b = grep {!/:cross$/} @b;
+    }
+    my %locked = map {$_ => 1} grep {/:status$/} @b;
+    my %notlocked = map {$_ => 1} grep {!$locked{$_}} @b;
+    for (grep {!$notlocked{$_} && !$locked{$_}} keys (%{$infocache{$arch} || {}})) {
+      delete $infocache{$arch}->{$_};
+    }
+    # adapt load
+    for my $job (keys %locked) {
+      my $jn = $job;
+      $jn =~ s/:status$//;
+      next unless $notlocked{$jn};
+      $jn =~ s/-[0-9a-f]{32}$//s;
+      my ($projid, $repoid, $packid) = split('::', $jn);
+      if (!defined($packid)) {
+	my $info = $ic->{$job} || readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+        next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
+	$ic->{$job} = $info;
+	($projid, $repoid, $packid) = ($info->{'project'}, $info->{'repository'}, $info->{'package'});
+	next unless defined $packid;
+      }
+      my $prpa = "$projid/$repoid/$arch";
+      $load->{$prpa} ||= 0;
+      $load->{$prpa} += 1;
+      $lastbuild{$prpa} = $now;
+    }
+    @b = grep {!/:(?:dir|status|new)$/} @b;
+    @b = grep {!$locked{"$_:status"}} @b;
+    for my $job (@b) {
+      my $info = $ic->{$job};
+      if (!$info) {
+	my $jn = $job;
+	$jn =~ s/-[0-9a-f]{32}$//s;
+	my ($projid, $repoid, $packid) = split('::', $jn);
+	if (defined($packid)) {
+	  $info = {'project' => $projid, 'repository' => $repoid, 'package' => $packid, 'arch' => $arch};
+	} else {
+          $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+          next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
+	  $ic->{$job} = $info;
+	}
+      }
+      my $prpa = "$info->{'project'}/$info->{'repository'}/$info->{'arch'}";
+      push @{$jobs{$prpa}}, $job;
+      $info = $ic->{$job};
+      if (!$info) {
+	$maybesrcchange{$prpa} = 1;
+      } elsif ($info->{'reason'} && ($info->{'reason'} eq 'new build' || $info->{'reason'} eq 'source change')) {
+	# only count direct changes as source change, not changes because of
+	# a change in a linked package
+	if ($info->{'reason'} eq 'new build' || !$info->{'revtime'} || $info->{'readytime'} - $info->{'revtime'} < 24 * 3600) {
+	  $maybesrcchange{$prpa} = 1;
+	}
+      }
+    }
+  }
+
+  # calculate and distribute project load
+  if (%$load) {
+    my %praload;
+    for my $prpa (keys %$load) {
+      my $pra = $prpa;
+      $pra =~ s/\/.*\//\//s;
+      $praload{$pra} += $load->{$prpa};
+    }
+    for my $prpa (keys %jobs) {
+      my $pra = $prpa;
+      $pra =~ s/\/.*\//\//s;
+      next unless $praload{$pra};
+      $load->{$prpa} = rand(.01) unless $load->{$prpa};
+      $load->{$prpa} = ($load->{$prpa} + $praload{$pra}) / 2;
+    }
+  }
+
+  #BSUtil::printlog("calculating scales");
+  my %scales;
+  my @jobprpas = keys %jobs;
+  for my $prpa (@jobprpas) {
+    $load->{$prpa} = rand(.01) unless $load->{$prpa};
+    my $sc = 0;
+    if ($BSConfig::dispatch_adjust) {
+      my @prios = @{$BSConfig::dispatch_adjust || []};
+      while (@prios) {
+        my ($match, $adj) = splice(@prios, 0, 2);
+        $sc += $adj if $prpa =~ /^$match/s;
+      }
+    }
+    if ($dispatchprios) {
+      my ($project, $repository, $arch) = split('/', $prpa, 3);
+      for (@{$dispatchprios_project->{$project} || $dispatchprios_project->{':all:'} || []}) {
+        next unless defined($_->{'adjust'});
+        next if defined($_->{'project'}) && $_->{'project'} ne $project;
+        next if defined($_->{'repository'}) && $_->{'repository'} ne $repository;
+        next if defined($_->{'arch'}) && $_->{'arch'} ne $arch;
+        $sc = 0 + $_->{'adjust'};
+      }
+    }
+    # clamp
+    $sc = -10000 if $sc < -10000;
+    $sc =  10000 if $sc >  10000;
+    $scales{$prpa} = exp(-$sc * (log(10.)/10.));
+  }
+
+  if (1) {
+    #BSUtil::printlog("writing debug data");
+    # write debug data
+    if (@jobprpas) {
+      BSUtil::store("$rundir/.dispatch.data", "$rundir/dispatch.data", {
+        'load' => $load,
+        'scales' => \%scales,
+        'jobs' => \%jobs,
+        'powerpkgs' => \%powerpkgs,
+      });
+    }
+  }
+
+  my %didsrcchange;
+  my $assigned = 0;
+  my %extraload;
+
+  # the following helps a lot...
+  #BSUtil::printlog("fast src change load adapt");
+  for my $prpa (@jobprpas) {
+    next if $maybesrcchange{$prpa};
+    my $arch = (split('/', $prpa))[2];
+    my $ic = $infocache{$arch} || {};
+    $didsrcchange{$prpa} = 1;
+    $load->{$prpa} *= $nosrcchangescale;
+    $load->{$prpa} += staleness($prpa, $now, $ic, $jobs{$prpa} || []);
+  }
+
+  @jobprpas = sort {$scales{$a} * $load->{$a} <=> $scales{$b} * $load->{$b}} @jobprpas;
+
+  my %checkconstraintscache;
+  #BSUtil::printlog("assigning jobs");
+  while (@jobprpas) {
+    my $prpa = shift @jobprpas;
+    my $arch = (split('/', $prpa))[2];
+    if (!@{$idlearch{$arch} || []}) {
+      next unless $crossarchlist{$arch};	# where can be also build that?
+      next unless grep {@{$idlearch{$_} || []}} keys %{$crossarchlist{$arch}};
+    }
+    my @b = @{$jobs{$prpa} || []};
+    next unless @b;
+
+    #printf "%s %d %d\n", $prpa, $scales{$prpa} * $load->{$prpa}, scalar(@b);
+
+    my $nextload = @jobprpas ? $scales{$jobprpas[0]} * $load->{$jobprpas[0]} : undef;
+
+    # sort all jobs, src change jobs first
+    my @srcchange;
+    my $ic = $infocache{$arch};
+    $ic = $infocache{$arch} = {} unless $ic;
+    for my $job (@b) {
+      my $info = $ic->{$job};
+      if (!$info) {
+	$info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+	next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
+	$ic->{$job} = $info;
+      }
+      # clean up job a bit
+      for (qw{bdep subpack}) {
+        delete $info->{$_};
+      }
+      if (!$info->{'readytime'}) {
+	my @s = stat("$jobsdir/$arch/$job");
+	$info->{'readytime'} = $s[9];
+      }
+      if ($info->{'reason'} && ($info->{'reason'} eq 'new build' || $info->{'reason'} eq 'source change')) {
+	# only count direct changes as source change, not changes because of
+	# a change in a linked package
+	if ($info->{'reason'} eq 'new build' || !$info->{'revtime'} || $info->{'readytime'} - $info->{'revtime'} < 24 * 3600) {
+	  push @srcchange, $job;
+	  $newestsrcchange{$info->{'project'}} = $info->{'readytime'} if ($newestsrcchange{$info->{'project'}} || 0) < $info->{'readytime'};
+	}
+      }
+    }
+    @b = grep {$ic->{$_}} @b;
+    @b = List::Util::shuffle(@b);
+    @b = sort {($ic->{$b}->{'needed'} || 0) <=> ($ic->{$a}->{'needed'} || 0) || ($ic->{$a}->{'readytime'} || 0) <=> ($ic->{$b}->{'readytime'} || 0)} @b;
+    my %powerjobs;
+    if (%powerpkgs && $BSConfig::powerhosts) {
+      for my $job (@b) {
+	my $jn = $job;
+	$jn =~ s/-[0-9a-f]{32}$//s;
+	my ($projid, $repoid, $packid) = split('::', $jn);
+	$powerjobs{$job} = $powerpkgs{$packid} if $powerpkgs{$packid};
+      }
+      if (%powerjobs) {
+	# bring em to front!
+	my @nb = grep {!$powerjobs{$_}} @b;
+	@b = grep {$powerjobs{$_}} @b;
+	@b = sort {$powerjobs{$a} <=> $powerjobs{$b}} @b;
+	push @b, @nb;
+      }
+    }
+    my %srcchange = map {$_ => 1} @srcchange;
+    if (@srcchange) {
+      # bring em to front!
+      @b = ((grep {$srcchange{$_}} @b), (grep {!$srcchange{$_}} @b));
+    }
+    my @preinstalljobs = grep {($ic->{$_}->{'file'} || '') eq '_preinstallimage'} @b;
+    if (@preinstalljobs) {
+      # bring em to front!
+      my %preinstalljobs = map {$_ => 1} @preinstalljobs;
+      @b = ((grep {$preinstalljobs{$_}} @b), (grep {!$preinstalljobs{$_}} @b));
+      if (!$didsrcchange{$prpa}) {
+	$srcchange{$_} = 1 for @preinstalljobs;
+      }
+    }
+
+    my $rerun;
+    for my $job (@b) {
+      my $info = $ic->{$job};
+      next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
+      if (!$srcchange{$job} && !$didsrcchange{$prpa}) {
+	$didsrcchange{$prpa} = 1;
+	$load->{$prpa} *= $nosrcchangescale;
+	$load->{$prpa} += staleness($prpa, $now, $ic, \@b);
+	if (defined($nextload) && $scales{$prpa} * $load->{$prpa} > $nextload) {
+	  $rerun = 1;
+	  last;
+	}
+      }
+      my @idle = List::Util::shuffle(@{$idlearch{$info->{'hostarch'} || $arch} || []});
+      last unless @idle;
+      if (@idle > 1) {
+        # sort by worker load
+        my %idleload;
+        for my $idle (@idle) {
+	  my $host = $idle;
+	  $host =~ s/:\d+$//;
+	  my $wl = $workerload{$host};
+	  if ($wl && %$wl) {
+	    $idleload{$idle} = (grep {$_ == 0} values(%$wl)) / keys(%$wl);
+	  } else {
+	    $idleload{$idle} = 1;
+	  }
+        }
+        @idle = sort {$idleload{$b} <=> $idleload{$a}} @idle;
+      }
+      
+      my %poweridle;
+      if ($powerjobs{$job}) {
+	# reduce to powerhosts
+	for my $idle (splice @idle) {
+	  my $idlehost = (split(':', $idle, 2))[1];
+	  push @idle, $idle if grep {$idlehost =~ /^$_/} @$BSConfig::powerhosts;
+	}
+        if (!@idle) {
+          BSUtil::printlog("job can not be assigned on $arch due to lack of powerhosts: $job");
+          next;
+        }
+      }
+      my $tries = 0;
+      my $haveassigned;
+      my ($project, $repository, $arch) = split('/', $prpa, 3);
+      my $lastoracle = 0;
+      my $lastoracleidle;
+      my $constraints;
+      if ($info->{'constraintsmd5'}) {
+	my $constraintsmd5 = $ic->{$job}->{'constraintsmd5'};
+	if (!exists($constraintscache{$constraintsmd5})) {
+	  $constraintscache{$constraintsmd5} = getconstraints($info, $constraintsmd5);
+	}
+	$constraints = $constraintscache{$constraintsmd5};
+	if (!ref($constraints)) {
+	  BSUtil::printlog("job has bad constraints file: $job");
+	  next;
+	}
+	if (ref($constraints) eq 'ARRAY') {
+	  delete($constraintscache{$constraintsmd5}) if $constraints->[0] < $now;
+	  next;
+	}
+        $constraints = overwriteconstraints($info, $constraints) if $constraints->{'overwrite'};
+      }
+      if ($info->{'prjconfconstraint'}) {
+	my @l = map { [ split(' ', $_) ] } @{$info->{'prjconfconstraint'}};
+	my $prjconfconstraint = BSDispatcher::Constraints::list2struct($BSXML::constraints, \@l, "$arch/$job");
+	if ($prjconfconstraint) {
+	  $constraints = $constraints ? BSDispatcher::Constraints::mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
+	}
+      }
+      undef $constraints if $constraints && !%$constraints;
+      push @idle, '__lastoracle' if $constraints;
+      for my $idle (@idle) {
+	if ($idle eq '__lastoracle') {
+	  last unless $lastoracleidle;
+	  $idle = $lastoracleidle;
+	  $lastoracleidle = '__lastoracle';
+	}
+	next if $badhost{"$project/$info->{'package'}/$arch/$idle"};
+	next if $badhost{"$project/:repo:$info->{'repository'}/$arch/$idle"};
+	my ($harch, $hname) = split(':', $idle, 2);
+        my $worker = $workerinfo{$idle};
+	if (!$worker) {
+	  my @s = stat("$workersdir/idle/$idle");
+	  next unless @s;
+	  $worker = readxml("$workersdir/idle/$idle", $BSXML::worker, 1);
+	  if (!$worker) {
+	    for (@{$cando{$harch} || []}) { 
+	       $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
+	    }
+	    next;
+	  }
+	  $workerinfo{$idle} = $worker;
+	  $workerinfo_mtime{$idle} = $s[7];
+	}
+	if ($BSConfig::dispatch_constraint) {
+	  next if !$BSConfig::dispatch_constraint->($info, $worker, $constraints);
+	}
+        # is a helper needed for personality change?
+        if ($harchcando{"$harch/$arch"} && $worker->{hardware} && exists($worker->{hardware}->{nativeonly})) {
+           next;	# worker is not supporting the needed personality change
+        }
+	if ($constraints) {
+	  my $ora = BSDispatcher::Constraints::oracle($worker, $constraints);
+	  next unless defined($ora) && $ora > 0;
+	  if ($ora < 1) {
+	    if ($lastoracleidle && $lastoracleidle eq '__lastoracle') {
+	      my $widle = $now - $workerinfo_mtime{$idle};
+	      my $jwait = $now - $info->{'readytime'};
+	      $widle = 0 if $widle < 0;
+	      $jwait = 0 if $jwait < 0;
+	      next if $widle / 60 < 1 - $ora && $jwait / 300 < 1 - $ora;
+	    } else {
+	      if ($ora > $lastoracle) {
+		$lastoracleidle = $idle;
+		$lastoracle = $ora;
+	      }
+	      next;
+	    }
+	  }
+	}
+	last unless -e "$jobsdir/$arch/$job";
+	last if $assigned && $tries >= 5;
+	$tries++;
+	my $res = assignjob($job, $idle, $arch);
+        my $host = $idle;
+	$host =~ s/:\d+$//;
+	if (!$res) {
+	  for (@{$cando{$harch} || []}) {
+	    $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
+	  }
+	  delete $workerload{$host}->{$idle};
+	  next;
+	}
+	last if $res eq 'badjob';
+	next if $res ne 'assigned';
+	for (@{$cando{$harch} || []}) {
+	  $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
+	}
+	$assigned++;
+	$jobs{$prpa} = [ grep {$_ ne $job} @{$jobs{$prpa}} ];
+	$load->{$prpa} += 1;
+	$workerload{$host}->{$idle} = 1;
+	$haveassigned = 1;
+	last;
+      }
+      # we have jobs that could not be assigned and have constraints.
+      # check if non idle workers could build these job or if there are no
+      # workers that met the constraints
+      if (!$haveassigned && $constraints) {
+        if ($info->{'allworkercheck'}++ % 5 == 0) {
+	  if (!$info->{'allworkerchecktime'} || $now - $info->{'allworkerchecktime'} > 300) {
+	    $info->{'allworkerchecktime'} = $now;
+	    my $r = checkconstraints($info, $arch, $job, $constraints, \%checkconstraintscache);
+	    # disable check for a day if all is well
+	    $info->{'allworkerchecktime'} = $now + 3600 * 24 unless $r;
+	  }
+        }
+      }
+
+      # Tricky, still increase load so that we don't assign
+      # too many non-powerjobs. But only do that once for each powerjob.
+      if (!$haveassigned && $powerjobs{$job} && !$extraload{"$arch/$job"}) {
+	$load->{$prpa} += 1;
+	$extraload{"$arch/$job"} = 1;
+      }
+      # Check if load changes changed our order. If yes, re-sort and start over.
+      if (defined($nextload) && $scales{$prpa} * $load->{$prpa} > $nextload) {
+	$rerun = 1;
+	last;
+      }
+    }
+    if ($rerun) {
+      # our load was changed so much that the order has changed. put us back
+      # on the queue in the correct position.
+      my $newload = $scales{$prpa} * $load->{$prpa};
+      my @front;
+      push @front, shift(@jobprpas) while @jobprpas && $scales{$jobprpas[0]} * $load->{$jobprpas[0]} < $newload;
+      unshift @jobprpas, @front, $prpa;
+    }
+    last if $assigned >= 50;
+  }
+
+  forwardevents();
+
+  sleep(1) unless $assigned;
+  BSUtil::printlog("assigned $assigned jobs") if $assigned;
+  if (%badhost) {
+    my $now = time();
+    for (keys %badhost) {
+      if ($badhost{$_} + 24*3600 < $now) {
+        BSUtil::printlog("deleting badhost $_");
+        delete $badhost{$_};
+        $badhostchanged = 1;
+      }
+    }
+  }
+  if ($badhostchanged) {
+    if (%badhost) {
+      BSUtil::store("$rundir/.dispatch.badhosts", "$rundir/dispatch.badhosts", \%badhost);
+    } else {
+      unlink("$rundir/dispatch.badhosts");
+    }
+    undef $badhostchanged;
+  }
+
+  filechecks();
+}
+
+sub setdispatchdetails {
+  my ($info, $arch, $job, $details) = @_;
+  if ($info->{'masterdispatched'}) {
+    my $param = {
+      'uri' => "$info->{'reposerver'}/jobs/$arch/$job",
+      'request' => 'POST',
+      'timeout' => 60,
+    };
+    eval {
+      BSRPC::rpc($param, undef, "cmd=setdispatchdetails", "details=$details");
+    };
+    warn($@) if $@;
+  } else {
+    my $ev = { type => 'dispatchdetails', job => $job, details => $details };
+    my $evname = "dispatchdetails:$job";
+    mkdir_p("$eventdir/$arch");
+    writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+    BSUtil::ping("$eventdir/$arch/.ping");
+  }
+}
+
+sub failjob {
+  my ($info, $arch, $job, $message) = @_;
+  my $param = {
+    'uri' => "$info->{'reposerver'}/jobs/$arch/$job",
+    'request' => 'POST',
+    'timeout' => 60,
+  };
+  eval {
+    BSRPC::rpc($param, undef, "cmd=fail", "message=$message");
+  };
+  warn($@) if $@;
+}

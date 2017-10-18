@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema specifies the format of a directory listing.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="directory">
+    <xs:annotation>
+      <xs:documentation>
+        Directory listing.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="entry" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="linkinfo" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="serviceinfo" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="rev" type="xs:string"/>
+      <xs:attribute name="srcmd5" type="xs:string"/>
+      <xs:attribute name="count" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="entry">
+    <xs:annotation>
+      <xs:documentation>
+        One entry in the directory. It's identified by its name.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="size" type="xs:string"/>
+      <xs:attribute name="md5" type="xs:string"/>
+      <xs:attribute name="mtime" type="xs:string"/>
+      <xs:attribute name="originproject" type="xs:string"/>
+      <xs:attribute name="available" type="xs:boolean"/>
+      <xs:attribute name="recommended" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="linkinfo">
+    <xs:annotation>
+      <xs:documentation>
+        Information about the source link.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="project" type="xs:string"/>
+      <xs:attribute name="package" type="xs:string"/>
+      <xs:attribute name="srcmd5" type="xs:string"/>
+      <xs:attribute name="rev" type="xs:string"/>
+      <xs:attribute name="baserev" type="xs:string"/>
+      <xs:attribute name="xsrcmd5" type="xs:string"/>
+      <xs:attribute name="lsrcmd5" type="xs:string"/>
+      <xs:attribute name="error" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="serviceinfo">
+    <xs:annotation>
+      <xs:documentation>
+        Information about source service run of last commit.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="code" type="xs:string"/>
+      <xs:attribute name="error" type="xs:string"/>
+      <xs:attribute name="lsrcmd5" type="xs:string"/>
+      <xs:attribute name="xsrcmd5" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

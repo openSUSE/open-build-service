@@ -1,0 +1,2622 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# The Publisher. Create repositories and push them to our mirrors.
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use Digest;
+use Digest::MD5 ();
+use Digest::SHA ();
+use XML::Structured ':bytes';
+use XML::Simple ();
+use POSIX;
+use Fcntl qw(:DEFAULT :flock);
+use Data::Dumper;
+use Storable ();
+use MIME::Base64;
+use File::Temp qw/tempfile/;
+
+use BSConfiguration;
+use BSRPC;
+use BSUtil;
+use BSDBIndex;
+use Build;
+use BSDB;
+use BSXML;
+use BSNotify;
+use BSVerify;
+use BSStdRunner;
+use BSUrlmapper;
+use BSRepServer::Containerinfo;
+
+use strict;
+
+my $maxchild;
+my $maxchild_flavor;
+$maxchild = $BSConfig::publish_maxchild if defined $BSConfig::publish_maxchild;
+$maxchild_flavor = $BSConfig::publish_maxchild_flavor if defined $BSConfig::publish_maxchild_flavor;
+
+my $reporoot = "$BSConfig::bsdir/build";
+my $eventdir = "$BSConfig::bsdir/events";
+my $extrepodir = "$BSConfig::bsdir/repos";
+my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
+my $uploaddir = "$BSConfig::bsdir/upload";
+my $rundir = $BSConfig::rundir || $BSConfig::rundir || "$BSConfig::bsdir/run";
+
+my $extrepodb = "$BSConfig::bsdir/db/published";
+
+my $myeventdir = "$eventdir/publish";
+
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+my @binsufsrsync = map {"--include=*.$_"} @binsufs;
+
+my $testmode;
+
+=head1 qsystem - secure execution of system calls with output redirection
+
+ Examples:
+
+   qsystem('stdout', $tempfile, $decomp, $in);
+
+   qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')
+
+=cut
+
+sub qsystem {
+  my @args = @_;
+  my $pid;
+  local (*RH, *WH);
+  if ($args[0] eq 'echo') {
+    pipe(RH, WH) || die("pipe: $!\n");
+  }
+  if (!($pid = xfork())) {
+    if ($args[0] eq 'echo') {
+      close WH;
+      open(STDIN, "<&RH");
+      close RH;
+      splice(@args, 0, 2);
+    }
+    open(STDOUT, ">/dev/null");
+    if ($args[0] eq 'chdir') {
+      chdir($args[1]) || die("chdir $args[1]: $!\n");
+      splice(@args, 0, 2);
+    }
+    if ($args[0] eq 'stdout') {
+      open(STDOUT, '>', $args[1]) || die("$args[1]: $!\n");
+      splice(@args, 0, 2);
+    }
+    eval {
+      exec(@args);
+      die("$args[0]: $!\n");
+    };
+    warn($@) if $@;
+    exit 1;
+  }
+  if ($args[0] eq 'echo') {
+    close RH;
+    print WH $args[1];
+    close WH;
+  }
+  waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
+  return $?;
+}
+
+sub fillpkgdescription {
+  my ($pkg, $extrep, $repoinfo, $name) = @_;
+  my $binaryorigins = $repoinfo->{'binaryorigins'} || {};
+  my $hit;
+  for my $p (sort keys %$binaryorigins) {
+    next if $p =~ /src\.rpm$/;
+    next unless $p =~ /\/\Q$name\E/;
+    my ($pa, $pn) = split('/', $p, 2);
+    if ($pn =~ /^\Q$name\E-([^-]+-[^-]+)\.[^\.]+\.rpm$/) {
+      $hit = $p;
+      last;
+    }
+    if ($pn =~ /^\Q$name\E_([^_]+)_[^_]+\.deb$/) {
+      $hit = $p;
+      last;
+    }
+  }
+  return unless $hit;
+  eval {
+    my $data = Build::query("$extrep/$hit", 'description' => 1);
+    $pkg->{'description'} = str2utf8($data->{'description'});
+    $pkg->{'summary'} = str2utf8($data->{'summary'}) if defined $data->{'summary'};
+  };
+}
+
+
+############################################################################################
+
+my @db_sync;
+my $db_oldsync_read;
+my $db_sync_append;
+
+sub db_pickup {
+  if (-s "$extrepodb.sync") {
+    my $oldsync = BSUtil::retrieve("$extrepodb.sync");
+    unshift @db_sync, @{$oldsync || []};
+  }
+}
+
+sub db_open {
+  my ($name) = @_;
+
+  return undef unless $extrepodb;
+  if (!$db_oldsync_read) {
+    db_pickup();
+    $db_oldsync_read = 1;
+  }
+  return {'name' => $name, 'index' => "$name/"};
+}
+
+sub db_updateindex_rel {
+  my ($db, $rem, $add) = @_;
+  push @db_sync, $db->{'name'}, $rem, $add;
+}
+
+sub db_store {
+  my ($db, $k, $v) = @_;
+  push @db_sync, $db->{'name'}, $k, $v;
+}
+
+sub db_sync {
+  return undef unless $extrepodb;
+  db_open('') unless $db_oldsync_read;
+  return unless @db_sync;
+  my $data = Storable::nfreeze(\@db_sync);
+  my $ops = @db_sync;
+  for (@db_sync) {
+    $ops += @$_ if $_ && ref($_) eq 'ARRAY';
+  }
+  my $timeout = $ops / 30;
+  $timeout = 60 if $timeout < 60;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/search/published",
+    'request' => 'POST',
+    'maxredirects' => 3,
+    'timeout' => $timeout,
+    'headers' => [ 'Content-Type: application/octet-stream' ],
+    'data' => $data,
+  };
+  print "    syncing database ($ops ops)\n";
+  eval {
+    BSRPC::rpc($param, undef, 'cmd=updatedb');
+  };
+  if ($@) {
+    warn($@);
+    mkdir_p($1) if $extrepodb =~ /^(.*)\//;
+    if ($db_sync_append) {
+      local *F;
+      BSUtil::lockopen(\*F, '>>', "$extrepodb.sync");
+      db_pickup();
+      BSUtil::store("$extrepodb.sync.new$$", "$extrepodb.sync", \@db_sync);
+      close F;
+      @db_sync = ();
+    } else {
+      BSUtil::store("$extrepodb.sync.new", "$extrepodb.sync", \@db_sync);
+    }
+  } else {
+    @db_sync = ();
+    unlink("$extrepodb.sync") unless $db_sync_append;
+  }
+}
+
+############################################################################################
+
+sub updatebinaryindex {
+  my ($db, $keyrem, $keyadd) = @_;
+
+  my $index = $db->{'index'};
+  $index =~ s/\/$//;
+  my @add;
+  for my $key (@{$keyadd || []}) {
+    my $n;
+    if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
+      $n = $1;
+    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+      $n = $1;
+    } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
+      $n = $1;
+    } else {
+      next;
+    }
+    push @add, ["$index/name", $n, $key];
+  }
+  my @rem;
+  for my $key (@{$keyrem || []}) {
+    my $n;
+    if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
+      $n = $1;
+    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+      $n = $1;
+    } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
+      $n = $1;
+    } else {
+      next;
+    }
+    push @rem, ["$index/name", $n, $key];
+  }
+  db_updateindex_rel($db, \@rem, \@add);
+}
+
+
+##########################################################################
+
+sub getpatterns {
+  my ($projid) = @_;
+
+  my $dir;
+  eval {
+    $dir = BSRPC::rpc("$BSConfig::srcserver/source/$projid/_pattern", $BSXML::dir);
+  };
+  if ($@) {
+    warn($@);
+    return [];
+  }
+  my @ret;
+  my @args;
+  push @args, "rev=$dir->{'srcmd5'}" if $dir->{'srcmd5'} && $dir->{'srcmd5'} ne 'pattern';
+  for my $entry (@{$dir->{'entry'} || []}) {
+    my $pat;
+    eval {
+      $pat = BSRPC::rpc("$BSConfig::srcserver/source/$projid/_pattern/$entry->{'name'}", undef, @args);
+      # only patterns we can parse, please
+      BSUtil::fromxml($pat, $BSXML::pattern);
+    };
+    if ($@) {
+      warn("   pattern $entry->{'name'}: $@");
+      next;
+    }
+    push @ret, {'name' => $entry->{'name'}, 'md5' => $entry->{'md5'}, 'data' => $pat};
+  }
+  print "    fetched ".@ret." patterns\n";
+  return \@ret;
+}
+
+##########################################################################
+
+sub addsizechecksum {
+  my ($filename, $d, $sum) = @_;
+
+  local *F;
+  open(F, '<', $filename) || return;
+  $d->{'size'} = -s F;
+  my %known = (
+    'sha' => 'SHA-1',
+    'sha1' => 'SHA-1',
+    'sha256' => 'SHA-256',
+  );
+  if ($known{$sum}) {
+    my $ctx = Digest->new($known{$sum});
+    $ctx->addfile(\*F);
+    $d->{'checksum'} = {'type' => $sum, '_content' => $ctx->hexdigest()};
+  }
+  close F;
+}
+
+sub create_appdata_files {
+  my ($dir, $appdatas) = @_;
+
+  $appdatas = Storable::dclone($appdatas);
+  print "    creating appdata files\n";
+  my %ids;
+  my %written;
+  mkdir_p("$dir/app-icons");
+  for my $app (@{$appdatas->{'application'} || []}, @{$appdatas->{'component'} || []}) {
+    for my $icon (@{$app->{'icon'} || []}) {
+      my $iconname = ($icon->{'name'} || [])->[0];
+      my $filecontent = ($icon->{'filecontent'} || [])->[0];
+      next unless $iconname && $icon->{'filecontent'};
+      next if $iconname =~ /\//s;
+      my %files;
+      for my $filecontent (@{$icon->{'filecontent'}}) {
+	if (ref($filecontent)) {
+	  next unless $filecontent->{'content'};
+	  $files{$filecontent->{'file'} || $iconname} ||= $filecontent->{'content'};
+	} else {
+	  $files{$iconname} ||= $filecontent if $filecontent;
+	}
+      }
+      next unless %files;
+      my $fn;
+      for my $size (qw(32 48 64 24)) {
+	my @c = grep {/${size}x$size/} sort(keys %files);
+	my @ch = grep {/\/hicolor\//} @c;
+	@c = @ch if @ch;
+	$fn = $c[0];
+	last if $fn;
+      }
+      $fn ||= (sort(keys %files))[0];
+      if ($iconname !~ /\./) {
+	next unless $fn =~ /(\.[^\.\/]+)$/;
+	$iconname .= $1;
+      }
+      if (!$written{$iconname}) {
+	writestr("$dir/app-icons/$iconname", undef, decode_base64($files{$fn}));
+	$written{$iconname} = 1;
+      }
+      $icon = { 'type' => 'cached', 'content' => $iconname};
+    }
+  }
+  unlink("$dir/app-icons.tar");
+  if (%written) {
+    qsystem('chdir', "$dir/app-icons", 'tar', 'cf', '../app-icons.tar', '.') && die("    app-icons tar failed: $?\n");
+    BSUtil::cleandir("$dir/app-icons");
+  }
+  rmdir("$dir/app-icons");
+  $appdatas->{'version'} ||= '0.6';
+  my $rootname = @{$appdatas->{'application'} || []} ? 'applications' : 'components';
+  my $appdatasxml = XML::Simple::XMLout($appdatas, 'RootName' => $rootname,  XMLDecl => '<?xml version="1.0" encoding="UTF-8"?>');
+  Encode::_utf8_off($appdatasxml);
+  writestr("$dir/appdata.xml", undef, $appdatasxml);
+}
+
+sub merge_package_appdata {
+  my ($appdatas, $bin, $appdataxml) = @_;
+
+  my $appdata;
+  eval {
+    $appdata = XML::Simple::XMLin($appdataxml, 'ForceArray' => 1, 'KeepRoot' => 1);
+  };
+  warn("$bin: $@") if $@;
+  return $appdatas unless $appdata;
+
+  if ($appdata->{'components'} || $appdata->{'applications'}) {
+    # appstream data as it ought to be
+    $appdata = $appdata->{'components'} || $appdata->{'applications'};
+    $appdata = $appdata->[0] if ref($appdata) eq 'ARRAY';	# XML::Simple is weird
+  } elsif ($appdata->{'component'} || $appdata->{'application'}) {
+    # bad: just the appdata itself. no version info. assume 0.8 if we have components
+    $appdata->{'version'} ||= '0.8' if $appdata->{'component'};
+  } else {
+    return $appdatas;		# huh?
+  }
+
+  # do some basic checking
+  return $appdatas unless $appdata && ref($appdata) eq 'HASH';
+  return $appdatas unless $appdata->{'component'} || $appdata->{'application'};
+  return $appdatas if $appdata->{'component'} && ref($appdata->{'component'}) ne 'ARRAY';
+  return $appdatas if $appdata->{'application'} && ref($appdata->{'application'}) ne 'ARRAY';
+
+  # merge the applications/components
+  if ($appdatas) {
+    if ($appdata->{'version'}) {
+      my $v1 = $appdata->{'version'};
+      my $v2 = $appdatas->{'version'} || '';
+      $v1 =~ s/(\d+)/substr("00000000$1", -9)/ge;
+      $v2 =~ s/(\d+)/substr("00000000$1", -9)/ge;
+      $appdatas->{'version'} = $appdata->{'version'} if $v1 gt $v2; 
+    }
+    if ($appdata->{'component'} || $appdatas->{'component'}) {
+      $appdatas->{'component'} = delete $appdatas->{'application'} if $appdatas->{'application'};
+      push @{$appdatas->{'component'}}, @{$appdata->{'component'} || $appdata->{'application'} || []}; 
+    } else {
+      push @{$appdatas->{'application'}}, @{$appdata->{'application'} || []}; 
+    }
+  } else {
+    $appdatas = $appdata;
+  }
+  $appdatas->{'origin'} = 'appdata' if $appdatas->{'version'} && $appdatas->{'version'} >= 0.8; 
+  return $appdatas;
+}
+
+sub createrepo_rpmmd {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+
+  my %options = map {$_ => 1} @{$options || []};
+  my @repotags = @{$data->{'repotags'} || []};
+  print "    running createrepo\n";
+  my $createrepo_bin = $BSConfig::createrepo ? $BSConfig::createrepo : 'createrepo';
+  my $modifyrepo_bin = $BSConfig::modifyrepo ? $BSConfig::modifyrepo : 'modifyrepo';
+  # cleanup files
+  unlink("$extrep/repodata/repomd.xml.asc");
+  unlink("$extrep/repodata/repomd.xml.key");
+  unlink("$extrep/repodata/latest-feed.xml");
+  unlink("$extrep/repodata/index.html");
+  my @oldrepodata = ls("$extrep/repodata");
+  qsystem('rm', '-rf', "$extrep/repodata/repoview") if -d "$extrep/repodata/repoview";
+  qsystem('rm', '-rf', "$extrep/repodata/.olddata") if -d "$extrep/repodata/.olddata";
+  qsystem('rm', '-f', "$extrep/repodata/patterns*");
+
+  # create generic rpm-md meta data
+  # --update requires a newer createrepo version, tested with version 0.4.10
+  my @createrepoargs;
+  push @createrepoargs, '--changelog-limit', '20';
+  push @createrepoargs, map { ('--repo', $_ ) } @repotags;
+  push @createrepoargs, '--content', 'debug' if $data->{'dbgsplit'};
+  my @legacyargs;
+  if ($options{'legacy'}) {
+    push @legacyargs, '--simple-md-filenames', '--checksum=sha';
+  } else {
+    # the default in newer createrepos
+    push @legacyargs, '--unique-md-filenames', '--checksum=sha256';
+  }
+  my @updateargs;
+  # createrepo 0.9.9 defaults to creating the sqlite database.
+  # We do disable it since it is time and space consuming.
+  # doing this via @updateargs for the case that an old createrepo is installed which does not support
+  # this switch.
+  push @updateargs, '--no-database';
+  if (-f "$extrep/repodata/repomd.xml") {
+    push @updateargs, '--update';
+  }
+  if (qsystem($createrepo_bin, '-q', '-c', "$extrep/repocache", @updateargs, @createrepoargs, @legacyargs, $extrep)) {
+    die("    createrepo failed: $?\n") unless @updateargs;
+    print("    createrepo failed: $?\n");
+    print "    re-running without extra options\n";
+    qsystem($createrepo_bin, '-q', '-c', "$extrep/repocache", @createrepoargs, @legacyargs, $extrep) && die("    createrepo failed again: $?\n");
+  }
+  unlink("$extrep/repodata/$_") for grep {/updateinfo\.xml/} @oldrepodata;
+  if (@{$data->{'updateinfos'} || []}) {
+    print "    adding updateinfo.xml to repodata\n";
+    # strip supportstatus and patchinforef from updateinfos
+    my $updateinfos = Storable::dclone($data->{'updateinfos'});
+    for my $up (@$updateinfos) {
+      delete $up->{'patchinforef'};
+      for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
+	delete $_->{'supportstatus'} for @{$cl->{'package'} || []};
+      }
+    }
+    writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $updateinfos}, $BSXML::updateinfo);
+    qsystem($modifyrepo_bin, "$extrep/repodata/updateinfo.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+    unlink("$extrep/repodata/updateinfo.xml");
+  }
+  unlink("$extrep/repodata/$_") for grep {/appdata\.xml/ || /app-icons/} @oldrepodata;
+  if (%{$data->{'appdatas'} || {}}) {
+    create_appdata_files("$extrep/repodata", $data->{'appdatas'});
+    if (-e "$extrep/repodata/appdata.xml") {
+      print "    adding appdata.xml to repodata\n";
+      qsystem($modifyrepo_bin, "$extrep/repodata/appdata.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/appdata.xml");
+    }
+    if (-e "$extrep/repodata/app-icons.tar") {
+      print "    adding app-icons.tar to repodata\n";
+      qsystem($modifyrepo_bin, "$extrep/repodata/app-icons.tar", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/app-icons.tar");
+    }
+  }
+  unlink("$extrep/repodata/$_") for grep {/(?:deltainfo|prestodelta)\.xml/} @oldrepodata;
+  if (%{$data->{'deltainfos'} || {}} && ($options{'deltainfo'} || $options{'prestodelta'})) {
+    print "    adding deltainfo.xml to repodata\n" if $options{'deltainfo'};
+    print "    adding prestodelta.xml to repodata\n" if $options{'prestodelta'};
+    # things are a bit complex, as we have to merge the deltas, and we also have to add the checksum
+    my %mergeddeltas;
+    for my $d (values(%{$data->{'deltainfos'}})) {
+      addsizechecksum("$extrep/$d->{'delta'}->[0]->{'filename'}", $d->{'delta'}->[0], $options{'legacy'} ? 'sha' : 'sha256');
+      my $mkey = "$d->{'arch'}\0$d->{'name'}\0$d->{'epoch'}\0$d->{'version'}\0$d->{'release'}\0";
+      if ($mergeddeltas{$mkey}) {
+	push @{$mergeddeltas{$mkey}->{'delta'}}, $d->{'delta'}->[0];
+      } else {
+	$mergeddeltas{$mkey} = $d;
+      }
+    }
+    # got all, now write
+    my @mergeddeltas = map {$mergeddeltas{$_}} sort keys %mergeddeltas;
+    if ($options{'deltainfo'}) {
+      writexml("$extrep/repodata/deltainfo.xml", undef, {'newpackage' => \@mergeddeltas}, $BSXML::deltainfo);
+      qsystem($modifyrepo_bin, "$extrep/repodata/deltainfo.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/deltainfo.xml");
+    }
+    if ($options{'prestodelta'}) {
+      writexml("$extrep/repodata/prestodelta.xml", undef, {'newpackage' => \@mergeddeltas}, $BSXML::prestodelta);
+      qsystem($modifyrepo_bin, "$extrep/repodata/prestodelta.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/prestodelta.xml");
+    }
+  }
+  if (-d "$extrep/repocache") {
+    my $now = time;
+    for (map { "$extrep/repocache/$_" } ls("$extrep/repocache")) {
+      my @s = stat($_);
+      unlink($_) if @s && $s[9] < $now - 7*86400;
+    }
+  }
+
+  my $title = $data->{'repoinfo'}->{'title'};
+  my $downloadurl = BSUrlmapper::get_downloadurl("$projid/$repoid");
+  if (-x "/usr/bin/repoview") {
+    my @downloadurlarg;
+    @downloadurlarg = ("-u$downloadurl") if $downloadurl;
+    print "    running repoview\n";
+    qsystem('repoview', '-f', @downloadurlarg, "-t$title", $extrep) && print("    repoview failed: $?\n");
+  }
+  if ($BSConfig::createrepo_rpmmd_hook) {
+    $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options, $data);
+  }
+  if ($options{'rsyncable'}) {
+    if (-x '/usr/bin/rezip_repo_rsyncable') {
+      print "    re-compressing metadata with --rsyncable\n";
+      unlink("$extrep/repodata/repomd.xml.asc");
+      qsystem('/usr/bin/rezip_repo_rsyncable', $extrep) && print("    rezip_repo_rsyncable failed: $?\n");
+    } else {
+      print "    /usr/bin/rezip_repo_rsyncable not installed, ignoring the rsyncable option\n";
+    }
+  }
+  if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, @{$data->{'signargs'} || []};
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
+    writestr("$extrep/repodata/repomd.xml.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
+  }
+  if ($downloadurl) {
+    local *FILE;
+    open(FILE, '>', "$extrep/$projid.repo$$") || die("$extrep/$projid.repo$$: $!\n");
+    my $projidHeader = $projid;
+    $projidHeader =~ s/:/_/g;
+    print FILE "[$projidHeader]\n";
+    print FILE "name=$title\n";
+    print FILE "type=rpm-md\n";
+    print FILE "baseurl=$downloadurl\n";
+    if ($BSConfig::sign) {
+      print FILE "gpgcheck=1\n";
+      if (-e "$extrep/repodata/repomd.xml.key") {
+        print FILE "gpgkey=${downloadurl}repodata/repomd.xml.key\n";
+      } else {
+        die("neither a project key is available nor gpg_standard_key is set\n") unless defined($BSConfig::gpg_standard_key);
+        print FILE "gpgkey=$BSConfig::gpg_standard_key\n";
+      }
+    }
+    print FILE "enabled=1\n";
+    close(FILE) || die("close: $!\n");
+    rename("$extrep/$projid.repo$$", "$extrep/$projid.repo") || die("rename $extrep/$projid.repo$$ $extrep/$projid.repo: $!\n");
+  }
+}
+
+sub deleterepo_rpmmd {
+  my ($extrep, $projid) = @_;
+
+  qsystem('rm', '-rf', "$extrep/repodata") if -d "$extrep/repodata";
+  unlink("$extrep/$projid.repo");
+}
+
+sub createrepo_virtbuilder {
+  my ($extrep, $projid, $repoid, $data) = @_;
+
+  # cleanup
+  unlink("$extrep/index.key");
+  unlink("$extrep/index.asc");
+
+  # Sign the index
+  if ($BSConfig::sign && -e "$extrep/index") {
+    my @signargs;
+    print "Signing the index for $projid/$repoid\n";
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, @{$data->{'signargs'} || []};
+    print "Running command: $BSConfig::sign @signargs -c $extrep/index\n";
+    qsystem($BSConfig::sign, @signargs, '-c', "$extrep/index") && die("    sign failed: $?\n");
+    writestr("$extrep/index.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
+  }
+}
+
+sub createrepo_hdlist2 {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+
+  print "    running hdlist2\n";
+  # create generic rpm-md meta data
+  for my $arch (ls($extrep)) {
+    next if $arch =~ /^\./;
+    my $r = "$extrep/$arch";
+    next unless -d $r;
+    if (qsystem('genhdlist2', '--allow-empty-media', $r)) {
+      print("    genhdlist2 failed: $?\n");
+    }
+  }
+  # signing is done only via rpm packages to my information
+}
+
+sub deleterepo_hdlist2 {
+  my ($extrep, $projid) = @_;
+
+  for my $arch (ls($extrep)) {
+    next if $arch =~ /^\./;
+    my $r = "$extrep/$arch";
+    next unless -d $r;
+    qsystem('rm', '-rf', "$r/media_info") if -d "$r/media_info";
+  }
+}
+
+sub createrepo_susetags {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+
+  mkdir_p("$extrep/media.1");
+  mkdir_p("$extrep/descr");
+  my @lt = localtime(time());
+  $lt[4] += 1;
+  $lt[5] += 1900;
+  my $str = sprintf("Open Build Service\n%04d%02d%02d%02d%02d%02d\n1\n", @lt[5,4,3,2,1,0]);
+  writestr("$extrep/media.1/.media", "$extrep/media.1/media", $str);
+  writestr("$extrep/media.1/.directory.yast", "$extrep/media.1/directory.yast", "media\n");
+  $str = <<"EOL";
+PRODUCT Open Build Service $projid $repoid
+VERSION 1.0-0
+LABEL $data->{'repoinfo'}->{'title'}
+VENDOR Open Build Service
+ARCH.x86_64 x86_64 i686 i586 i486 i386 noarch
+ARCH.k1om k1om noarch
+ARCH.ppc64p7 ppc64p7 noarch
+ARCH.ppc64 ppc64 ppc noarch
+ARCH.ppc64le ppc64le noarch
+ARCH.ppc ppc noarch
+ARCH.sh4 sh4 noarch
+ARCH.m68k m68k noarch
+ARCH.aarch64 aarch64 aarch64_ilp32 noarch
+ARCH.aarch64_ilp32 aarch64_ilp32 noarch
+ARCH.armv4l arm       armv4l noarch
+ARCH.armv5l arm armel armv4l armv5l armv5tel noarch
+ARCH.armv6l arm armel armv4l armv5l armv5tel armv6l armv6vl armv6hl noarch
+ARCH.armv7l arm armel armv4l armv5l armv5tel armv6l armv6vl armv7l armv7hl noarch
+ARCH.i686 i686 i586 i486 i386 noarch
+ARCH.i586 i586 i486 i386 noarch
+DEFAULTBASE i586
+DESCRDIR descr
+DATADIR .
+EOL
+  writestr("$extrep/.content", "$extrep/content", $str);
+  print "    running create_package_descr\n";
+  qsystem('chdir', $extrep, 'create_package_descr', '-o', 'descr', '-x', '/dev/null') && print "    create_package_descr failed: $?\n";
+  unlink("$extrep/descr/directory.yast");
+  my @d = map {"$_\n"} sort(ls("$extrep/descr"));
+  writestr("$extrep/descr/.directory.yast", "$extrep/descr/directory.yast", join('', @d));
+}
+
+sub deleterepo_susetags {
+  my ($extrep) = @_;
+
+  unlink("$extrep/directory.yast");
+  unlink("$extrep/content");
+  unlink("$extrep/media.1/media");
+  unlink("$extrep/media.1/directory.yast");
+  rmdir("$extrep/media.1");
+  qsystem('rm', '-rf', "$extrep/descr") if -d "$extrep/descr";
+}
+
+sub createrepo_debian {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+
+  print "    running dpkg-scanpackages\n";
+  if (qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')) {
+      die("    dpkg-scanpackages failed: $?\n");
+  }
+  if (-f "$extrep/Packages.new") {
+    unlink("$extrep/Packages");
+    link("$extrep/Packages.new", "$extrep/Packages");
+    qsystem('gzip', '-9', '-n', '-f', "$extrep/Packages.new") && print "    gzip Packages.new failed: $?\n";
+    unlink("$extrep/Packages.new");
+    unlink("$extrep/Packages.gz");
+    rename("$extrep/Packages.new.gz", "$extrep/Packages.gz");
+  } else {
+    unlink("$extrep/Packages");
+    unlink("$extrep/Packages.gz");
+  }
+
+  print "    running dpkg-scansources\n";
+  if (qsystem('chdir', $extrep, 'stdout', 'Sources.new', 'dpkg-scansources', '.', '/dev/null')) {
+      die("    dpkg-scansources failed: $?\n");
+  }
+  if (-f "$extrep/Sources.new") {
+    unlink("$extrep/Sources");
+    link("$extrep/Sources.new", "$extrep/Sources");
+    qsystem('gzip', '-9', '-n', '-f', "$extrep/Sources.new") && print "    gzip Sources.new failed: $?\n";
+    unlink("$extrep/Sources.new");
+    unlink("$extrep/Sources.gz");
+    rename("$extrep/Sources.new.gz", "$extrep/Sources.gz");
+  } else {
+    unlink("$extrep/Sources");
+    unlink("$extrep/Sources.gz");
+  }
+
+  my $obsname = $BSConfig::obsname || 'build.opensuse.org';
+  my $date = POSIX::ctime(time());
+  $date =~ s/\n//m;
+  my @debarchs = @{$data->{'repoinfo'}->{'arch'} || []};
+  for (@debarchs) {
+     s/x86_64/amd64/g;
+     s/i.86/i386/g;
+     s/ppc64le/ppc64el/g;
+  };
+  my $archs = join(' ', @debarchs);
+
+  # The Release file enables users to use Pinning. See also:
+  #  http://www.debian.org/doc/manuals/repository-howto/repository-howto#release
+  #  apt_preferences(5)
+  #
+  # Note:
+  # There is no Version because this is not part of a Debian release (yet).
+  # The Component line is missing to not accidently associate the packages with
+  # a Debian licensing component.
+  my $str = <<"EOL";
+Archive: $repoid
+Codename: $repoid
+Origin: obs://$obsname/$projid/$repoid
+Label: $projid
+Architectures: $archs
+Date: $date
+Description: $data->{'repoinfo'}->{'title'}
+MD5Sum:
+EOL
+
+  open(OUT, '>', "$extrep/Release") || die("$extrep/Release: $!\n");
+  print OUT $str;
+  close(OUT) || die("close: $!\n");
+
+  # append checksums
+  my $sha1sums = "SHA1:\n";
+  my $sha256sums = "SHA256:\n";
+  open(OUT, '>>', "$extrep/Release") || die("$extrep/Release: $!\n");
+  for my $f ( "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
+    my @s = stat("$extrep/$f");
+    next unless @s;
+    my $fdata = readstr("$extrep/$f");
+    my $md5  = Digest::MD5::md5_hex($fdata);
+    my $size = $s[7];
+    print OUT " $md5 $size $f\n";
+    my $sha1  = Digest::SHA::sha1_hex($fdata);
+    $sha1sums .= " $sha1 $size $f\n";
+    my $sha256  = Digest::SHA::sha256_hex($fdata);
+    $sha256sums .= " $sha256 $size $f\n";
+  }
+  print OUT $sha1sums;
+  print OUT $sha256sums;
+  close(OUT) || die("close: $!\n");
+
+  unlink("$extrep/Release.gpg");
+  unlink("$extrep/Release.key");
+
+  # re-sign changed Release file
+  if ($BSConfig::sign && -e "$extrep/Release") {
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, @{$data->{'signargs'} || []};
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && die("    sign failed: $?\n");
+    rename("$extrep/Release.asc","$extrep/Release.gpg");
+  }
+  if ($BSConfig::sign) {
+    writestr("$extrep/Release.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
+  }
+}
+
+sub deleterepo_debian {
+  my ($extrep) = @_;
+
+  unlink("$extrep/Packages");
+  unlink("$extrep/Packages.gz");
+  unlink("$extrep/Sources");
+  unlink("$extrep/Sources.gz");
+  unlink("$extrep/Release");
+  unlink("$extrep/Release.gpg");
+  unlink("$extrep/Release.key");
+}
+
+
+##########################################################################
+
+sub createrepo_arch {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+
+  deleterepo_arch($extrep);
+  my $rname = $projid;
+  $rname .= "_$repoid" if $repoid ne 'standard';
+  $rname =~ s/:/_/g;
+  for my $arch (ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    print "    running bs_mkarchrepo $arch\n";
+    qsystem("$INC[0]/bs_mkarchrepo", $rname, "$extrep/$arch") && die("    repo creation failed: $?\n");
+    if (-e "$extrep/$arch/$rname.db.tar.gz") {
+      link("$extrep/$arch/$rname.db.tar.gz", "$extrep/$arch/$rname.db");
+    }
+    if (-e "$extrep/$arch/$rname.files.tar.gz") {
+      link("$extrep/$arch/$rname.files.tar.gz", "$extrep/$arch/$rname.files");
+    }
+    if ($BSConfig::sign) {
+      my @signargs;
+      push @signargs, '--project', $projid if $BSConfig::sign_project;
+      push @signargs, @{$data->{'signargs'} || []};
+      if (-e "$extrep/$arch/$rname.db.tar.gz") {
+        qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.db.tar.gz") && die("    sign failed: $?\n");
+        link("$extrep/$arch/$rname.db.tar.gz.sig", "$extrep/$arch/$rname.db.sig");
+      }
+      if (-e "$extrep/$arch/$rname.files.tar.gz") {
+        qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.files.tar.gz") && die("    sign failed: $?\n");
+        link("$extrep/$arch/$rname.files.tar.gz.sig", "$extrep/$arch/$rname.files.sig");
+      }
+      writestr("$extrep/$arch/$rname.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
+    }
+  }
+}
+
+sub deleterepo_arch {
+  my ($extrep) = @_;
+  for my $arch (ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
+    for (grep {/\.(?:\?db|db\.tar\.gz|files|files\.tar\.gz|key)(?:\.sig)?$/} ls("$extrep/$arch")) {
+      unlink("$extrep/$arch/$_");
+    }
+  }
+}
+
+##########################################################################
+
+sub createrepo_staticlinks {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+
+  my $versioned = grep {$_ eq 'versioned'} @{$options || []};
+  for my $arch ('.', ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    for (ls("$extrep/$arch")) {
+      my $link;
+      if (/^(.*)-Build\d\d\d\d(-Media\d?(\.license)?)$/s) {
+        $link = "$1$2"; # no support for versioned links
+      } else {
+        next unless -f "$extrep/$arch/$_";
+      }
+      if (/^(.*)-([^-]*)-[^-]*\.rpm$/s) {
+        $link = "$1.rpm";
+        $link = "$1-$2.rpm" if $versioned;
+      } elsif (/^(.*)_([^_]*)-[^_]*\.deb$/s) {
+        $link = "$1.deb";
+        $link = "${1}_$2.deb" if $versioned;
+      } elsif (/^(.*)-([^-]*)-([^-]*)-([^-]*)\.(AppImage?(\.zsync)?)$/s) {
+        # name version "release.glibcX.Y" arch suffix
+        $link = "$1-latest-$4.$5";
+      } elsif (/^(.*)_([^_]*)_([^_]*)-Build[^_]*\.snap$/s) {
+        $link = "${1}_${3}.snap";
+        $link = "${1}_${3}_$2.snap" if $versioned;
+      } elsif (/^(.*)-Build\d\d\d\d(-Media\d)(\.iso?(\.sha256)?)$/s) {
+        # product builds
+        $link = "$1$2$3"; # no support for versioned links
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)?(-\w+)?-Build\d+\..*(\.(raw.install.raw.xz|raw.xz|tar.xz|box|json|install.iso|tbz|tgz|vmx|vmdk|vdi|vhdfixed.xz|iso|qcow2|qcow2.xz|ova)?(?:\.sha256)?)$/s) {
+        # kiwi appliance
+        my $profile = $3 || "";
+        $link = "$1$profile$4";
+        $link = "$1-$2$profile$4" if $versioned;
+      }
+      next unless $link;
+      unlink("$extrep/$arch/.$link"); # drop left over
+      symlink($_, "$extrep/$arch/.$link");
+      rename("$extrep/$arch/.$link", "$extrep/$arch/$link"); # atomar update
+    }
+  }
+}
+
+sub deleterepo_staticlinks {
+  my ($extrep) = @_;
+  for my $arch ('.', ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    for (ls("$extrep/$arch")) {
+      next unless -l "$extrep/$arch/$_";
+      next if /\.(?:db|files)(?:\.sig)?$/;
+      unlink("$extrep/$arch/$_");
+    }
+  }
+}
+
+##########################################################################
+
+sub createpatterns_rpmmd {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+
+  deletepatterns_rpmmd($extrep);
+  my $patterns = $data->{'patterns'};
+  return unless @{$patterns || []};
+
+  my $modifyrepo_bin = $BSConfig::modifyrepo ? $BSConfig::modifyrepo : 'modifyrepo';
+
+  # create patterns data structure
+  my @pats;
+  for my $pattern (@$patterns) {
+    push @pats, BSUtil::fromxml($pattern->{'data'}, $BSXML::pattern);
+  }
+  print "    adding patterns to repodata\n";
+  my $pats = {'pattern' => \@pats, 'count' => scalar(@pats)};
+  writexml("$extrep/repodata/patterns.xml", undef, $pats, $BSXML::patterns);
+  my @legacyargs;
+  my %options = map {$_ => 1} @{$options || []};
+  if ($options{'legacy'}) {
+    push @legacyargs, '--simple-md-filenames', '--checksum=sha';
+  } else {
+    # the default in newer createrepos
+    push @legacyargs, '--unique-md-filenames', '--checksum=sha256';
+  }
+  qsystem($modifyrepo_bin, "$extrep/repodata/patterns.xml", "$extrep/repodata", @legacyargs) && print("    modifyrepo failed: $?\n");
+  unlink("$extrep/repodata/patterns.xml");
+
+#  for my $pattern (@{$patterns || []}) {
+#    my $pname = "patterns.$pattern->{'name'}";
+#    $pname =~ s/\.xml$//;
+#    print "    adding pattern $pattern->{'name'} to repodata\n";
+#    writestr("$extrep/repodata/$pname.xml", undef, $pattern->{'data'});
+#    qsystem('modifyrepo', "$extrep/repodata/$pname.xml", "$extrep/repodata", @legacyargs) && print("    modifyrepo failed: $?\n");
+#    unlink("$extrep/repodata/$pname.xml");
+#  }
+
+  # re-sign changed repomd.xml file
+  if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, @{$data->{'signargs'} || []};
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
+  }
+}
+
+sub deletepatterns_rpmmd {
+  my ($extrep) = @_;
+  for my $pat (ls("$extrep/repodata")) {
+    next unless $pat =~ /^patterns/;
+    unlink("$extrep/repodata/$pat");
+  }
+}
+
+sub createpatterns_comps {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+
+  deletepatterns_comps($extrep);
+  my $patterns = $data->{'patterns'};
+  return unless @{$patterns || []};
+
+  my $modifyrepo_bin = $BSConfig::modifyrepo ? $BSConfig::modifyrepo : 'modifyrepo';
+
+  # create comps data structure
+  my @grps;
+  for my $pattern (@$patterns) {
+    my $pat = BSUtil::fromxml($pattern->{'data'}, $BSXML::pattern);
+    my $grp = { 'id' => $pattern->{'name'} };
+    for (@{$pat->{'summary'}}) {
+      my $el = { '_content' => $_->{'_content'} };
+      $el->{'xml:lang'} = $_->{lang} if $_->{'lang'};
+      push @{$grp->{'name'}}, $el;
+    }
+    for (@{$pat->{'description'}}) {
+      my $el = { '_content' => $_->{'_content'} };
+      $el->{'xml:lang'} = $_->{'lang'} if $_->{'lang'};
+      push @{$grp->{'description'}}, $el;
+    }
+    for (@{$pat->{'rpm:requires'}->{'rpm:entry'}}) {
+      push @{$grp->{'packagelist'}->{'packagereq'} }, { '_content' => $_->{'name'}, 'type' => 'mandatory' };
+    }
+    for (@{$pat->{'rpm:recommends'}->{'rpm:entry'}}) {
+      push @{$grp->{'packagelist'}->{'packagereq'}},  { '_content' => $_->{'name'}, 'type' => 'default' };
+    }
+    for (@{$pat->{'rpm:suggests'}->{'rpm:entry'}}) {
+      push @{$grp->{'packagelist'}->{'packagereq'}},  { '_content' => $_->{'name'}, 'type' => 'optional' };
+    }
+    push @grps, $grp;
+  }
+  print "    adding comps to repodata\n";
+  my $comps = {'group' => \@grps};
+  writexml("$extrep/repodata/group.xml", undef, $comps, $BSXML::comps);
+  my @legacyargs;
+  my %options = map {$_ => 1} @{$options || []};
+  if ($options{'legacy'}) {
+    push @legacyargs, '--simple-md-filenames', '--checksum=sha';
+  } else {
+    # the default in newer createrepos
+    push @legacyargs, '--unique-md-filenames', '--checksum=sha256';
+  }
+  qsystem($modifyrepo_bin, "$extrep/repodata/group.xml", "$extrep/repodata", @legacyargs) && print("    modifyrepo failed: $?\n");
+  unlink("$extrep/repodata/group.xml");
+
+  # re-sign changed repomd.xml file
+  if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, @{$data->{'signargs'} || []};
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
+  }
+}
+
+sub deletepatterns_comps {
+  my ($extrep) = @_;
+  for my $pat (ls("$extrep/repodata")) {
+    next unless $pat =~ /group.xml/;
+    unlink("$extrep/repodata/$pat");
+  }
+}
+
+
+sub createpatterns_ymp {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+
+  deletepatterns_ymp($extrep, $projid, $repoid);
+  my $patterns = $data->{'patterns'};
+  return unless @{$patterns || []};
+
+  my $prp_ext = "$projid/$repoid";
+  $prp_ext =~ s/:/:\//g;
+  my $patterndb = db_open('pattern');
+
+  # get title/description data for all involved projects
+  my $repoinfo = $data->{'repoinfo'};
+  my %nprojpack;
+  my @nprojids = map {$_->{'project'}} @{$repoinfo->{'prpsearchpath'} || []};
+  if (@nprojids) {
+    my @args = map {"project=$_"} @nprojids;
+    my $nprojpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'nopackages', @args);
+    %nprojpack = map {$_->{'name'} => $_} @{$nprojpack->{'project'} || []};
+  }
+
+  for my $pattern (@$patterns) {
+    my $ympname = $pattern->{'name'};
+    $ympname =~ s/\.xml$//;
+    $ympname .= ".ymp";
+    my $pat = BSUtil::fromxml($pattern->{'data'}, $BSXML::pattern);
+    next if !exists $pat->{'uservisible'};
+    print "    writing ymp for pattern $pat->{'name'}\n";
+    my $ymp = {};
+    $ymp->{'xmlns:os'} = 'http://opensuse.org/Standards/One_Click_Install';
+    $ymp->{'xmlns'} = 'http://opensuse.org/Standards/One_Click_Install';
+
+    my $group = {};
+    $group->{'name'} = $pat->{'name'};
+    if ($pat->{'summary'}) {
+      $group->{'summary'} = $pat->{'summary'}->[0]->{'_content'};
+    }
+    if ($pat->{'description'}) {
+      $group->{'description'} = $pat->{'description'}->[0]->{'_content'};
+    }
+    my @repos;
+    my @sprp = @{$repoinfo->{'prpsearchpath'} || []};
+    while (@sprp) {
+      my $sprp = shift @sprp;
+      my $sprojid = $sprp->{'project'};
+      my $srepoid = $sprp->{'repository'};
+      my $r = {};
+      $r->{'recommended'} = @sprp || !@repos ? 'true' : 'false';
+      $r->{'name'} = $sprojid;
+      if ($nprojpack{$sprojid}) {
+        $r->{'summary'} = $nprojpack{$sprojid}->{'title'};
+        $r->{'description'} = $nprojpack{$sprojid}->{'description'};
+      }
+      my $url = BSUrlmapper::get_downloadurl("$sprojid/$srepoid");
+      next unless defined $url;
+      $r->{'url'} = $url;
+      push @repos, $r;
+    }
+    $group->{'repositories'} = {'repository' => \@repos };
+    my @software;
+    for my $entry (@{$pat->{'rpm:requires'}->{'rpm:entry'} || []}) {
+      next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
+      push @software, {'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+      fillpkgdescription($software[-1], $extrep, $repoinfo, $entry->{'name'});
+    }
+    for my $entry (@{$pat->{'rpm:recommends'}->{'rpm:entry'} || []}) {
+      next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
+      push @software, {'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+      fillpkgdescription($software[-1], $extrep, $repoinfo, $entry->{'name'});
+    }
+    for my $entry (@{$pat->{'rpm:suggests'}->{'rpm:entry'} || []}) {
+      next if $entry->{'kind'} && $entry->{'kind'} ne 'package';
+      push @software, {'recommended' => 'false', 'name' => $entry->{'name'}, 'summary' => "The $entry->{'name'} package", 'description' => "The $entry->{'name'} package."};
+      fillpkgdescription($software[-1], $extrep, $repoinfo, $entry->{'name'});
+    }
+    $group->{'software'} = { 'item' => \@software };
+    $ymp->{'group'} = [ $group ];
+
+    writexml("$extrep/.$ympname", "$extrep/$ympname", $ymp, $BSXML::ymp);
+
+    # write database entry
+    my $ympidx = {'type' => 'ymp'};
+    $ympidx->{'name'} = $pat->{'name'} if defined $pat->{'name'};
+    $ympidx->{'summary'} = $pat->{'summary'}->[0]->{'_content'} if $pat->{'summary'};;
+    $ympidx->{'description'} = $pat->{'description'}->[0]->{'_content'} if $pat->{'description'};
+    $ympidx->{'path'} = $repoinfo->{'prpsearchpath'} if $repoinfo->{'prpsearchpath'};
+    db_store($patterndb, "$prp_ext/$ympname", $ympidx) if $patterndb;
+  }
+}
+
+sub deletepatterns_ymp {
+  my ($extrep, $projid, $repoid) = @_;
+
+  my $prp_ext = "$projid/$repoid";
+  $prp_ext =~ s/:/:\//g;
+  my $patterndb = db_open('pattern');
+  for my $ympname (ls($extrep)) {
+    next unless $ympname =~ /\.ymp$/;
+    db_store($patterndb, "$prp_ext/$ympname", undef) if $patterndb;
+    unlink("$extrep/$ympname");
+  }
+}
+
+##########################################################################
+
+sub sync_to_stage {
+  my ($prp, $extdir, $dbgsplit, $isdelete) = @_;
+
+  my @stageservers;
+  if ($BSConfig::stageserver) {
+    if (ref($BSConfig::stageserver)) {
+      my @s = @{$BSConfig::stageserver};
+      while (@s) {
+        my ($k, $v) = splice(@s, 0, 2);
+        if ($prp =~ /^$k/) {
+	  $v = [ $v ] unless ref $v;
+	  @stageservers = @$v;
+	  last;
+	}
+      }
+    } else {
+      push @stageservers, $BSConfig::stageserver;
+    }
+  }
+
+  # sync the parent directory for deletes
+  my $extdirx = $extdir;
+  $extdirx =~ s/\/[^\/]*$// if $isdelete;
+
+  for my $stageserver (@stageservers) {
+    if ($stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
+      print "    running rsync to $1 at ".localtime(time)."\n";
+      # rsync with a timeout of 1 hour
+      # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
+      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
+      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
+    }
+    if ($stageserver =~ /^script:(\/.*)$/) {
+      print "    running sync script $1 at ".localtime(time)."\n";
+      if ($isdelete) {
+        qsystem($1, $prp) && die("    sync script failed at ".localtime(time).": $?\n");
+      } else {
+        qsystem($1, $prp, $extdirx) && die("    sync script failed at ".localtime(time).": $?\n");
+      }
+    }
+  }
+
+  # push done trigger sync to other mirrors
+  mkdir_p($extrepodir_sync);
+  my $filename = $prp;
+  $filename =~ s/\//_/g;
+  $filename .= $dbgsplit if $dbgsplit;
+  writestr("$extrepodir_sync/.$$:$filename", "$extrepodir_sync/$filename", "$extdir\0");
+  if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
+    print "    running trigger rsync to $1 at ".localtime(time)."\n";
+    # small sync, timout 1 minute
+    qsystem('rsync', '-a', '--timeout', '120', "$extrepodir_sync/$filename", "$1::$2/$filename") && warn("    trigger rsync failed at ".localtime(time).": $?\n");
+  }
+}
+
+sub deleterepo {
+  my ($projid, $repoid, $dbgsplit) = @_;
+  my $prp = "$projid/$repoid";
+  print "    deleting repository\n";
+  my $extrep = BSUrlmapper::get_extrep($prp);
+  return unless $extrep;
+  my $prp_ext = $prp;
+  $prp_ext =~ s/:/:\//g;
+  $extrep .= $dbgsplit if $dbgsplit;
+  $prp_ext .= $dbgsplit if $dbgsplit;
+
+  if (! -d $extrep) {
+    if ($extrep =~ /\Q$extrepodir\E\/(.+)$/) {
+      my $extdir = $1;
+      $extdir =~ s/\/.*?$//;
+      rmdir("$extrepodir/$extdir");
+    }
+    return if $dbgsplit;
+    print "    nothing to delete...\n";
+    unlink("$reporoot/$prp/:repoinfo");
+    rmdir("$reporoot/$prp");
+    return;
+  }
+
+  # get old repoinfo
+  my $repoinfo = {};
+  if (-s "$reporoot/$prp/:repoinfo") {
+    $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
+    delete $repoinfo->{'splitdebug'} if $dbgsplit;	# do not recurse!
+  }
+  # delete all binaries
+  my $subdir = $repoinfo->{'subdir'} || '';
+  my @archs = sort(ls($extrep));
+  if ($subdir) {
+    @archs = map {$_ eq $subdir ? sort(map {"$subdir/$_"} ls("$extrep/$subdir")) : $_} @archs;
+  }
+  my @db_deleted;
+  for my $arch (@archs) {
+    next if $arch =~ /^\./;
+    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
+    my $r = "$extrep/$arch";
+    next unless -d $r;
+    for my $bin (ls($r)) {
+      next if $bin eq 'media_info';
+      my $p = "$arch/$bin";
+      print "      - $p\n";
+      if (-d "$r/$bin") {
+        BSUtil::cleandir("$r/$bin");
+        rmdir("$r/$bin") || die("rmdir $r/$bin: $!\n");
+      } else {
+        unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+      }
+      push @db_deleted, $p if $p =~ /\.(?:$binsufsre)$/;
+    }
+  }
+
+  # update published database
+  my $binarydb = db_open('binary');
+  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], []) if $binarydb;
+
+  my $repoinfodb = db_open('repoinfo');
+  db_store($repoinfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, undef) if $repoinfodb;
+
+  if ($BSConfig::markfileorigins) {
+    for my $f (sort @db_deleted) {
+      my $req = {
+        'uri' => "$BSConfig::markfileorigins/$prp_ext/$f",
+        'request' => 'HEAD',
+        'maxredirects' => 3,
+        'timeout' => 10,
+        'ignorestatus' => 1,
+      };
+      eval {
+        BSRPC::rpc($req, undef, 'cmd=deleted');
+      };
+      print "      $f: $@" if $@;
+    }
+  }
+  # delete ymps so they get removed from the database
+  deletepatterns_ymp($extrep, $projid, $repoid);
+  # delete everything else
+  qsystem('rm', '-rf', $extrep);
+
+  if ($extrep =~ /\Q$extrepodir\E\/(.+)$/) {
+    my $extdir = $1;
+    sync_to_stage($prp, $extdir, $dbgsplit, 1);
+    rmdir("$extrepodir/$extdir");
+  }
+
+  # also delete the split debug repo
+  deleterepo($projid, $repoid, $repoinfo->{'splitdebug'}) if $repoinfo->{'splitdebug'} && !$dbgsplit;
+
+  if (!$dbgsplit && $BSConfig::packtrack && (($repoinfo->{'projectkind'} || '') eq 'maintenance_release' || grep {$prp =~ /^$_/} @$BSConfig::packtrack)) {
+    my $packtrack = {};
+    print "    sending binary release tracking notification\n";
+    BSNotify::notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
+  }
+
+  # delete repoinfo
+  unlink("$reporoot/$prp/:repoinfo") unless $dbgsplit;
+  rmdir("$reporoot/$prp");
+}
+
+sub publish {
+  my ($projid, $repoid, $dbgsplit, $dbgpacktrack) = @_;
+  my $prp = "$projid/$repoid";
+  BSUtil::printlog("publishing $prp");
+
+  # get info from source server about this project/repository
+  # we specify "withsrcmd5" so that we get the patternmd5. It still
+  # works with "nopackages".
+  my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withsrcmd5', 'nopackages', "project=$projid", "repository=$repoid");
+  if (!$projpack->{'project'}) {
+    # project is gone
+    deleterepo($projid, $repoid);
+    return;
+  }
+  my $proj = $projpack->{'project'}->[0];
+  die("no such project $projid\n") unless $proj && $proj->{'name'} eq $projid;
+  if (!$proj->{'repository'}) {
+    # repository is gone
+    deleterepo($projid, $repoid);
+    return;
+  }
+  my $repo = $proj->{'repository'}->[0];
+  die("no such repository $repoid\n") unless $repo && $repo->{'name'} eq $repoid;
+  # this is the already expanded path as we used 'expandedrepos' above
+  my $prpsearchpath = $repo->{'path'};
+
+  # we need the config for repotype/patterntype
+  my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
+  $config = Build::read_config('noarch', [ split("\n", $config) ]);
+
+  if (!@{$config->{'repotype'} || []}) {
+    # guess repotype from binarytype
+    my $binarytype = $config->{'binarytype'} || '';
+    my $repotype;
+    $repotype = 'rpm-md' if $binarytype eq 'rpm';
+    $repotype = 'debian' if $binarytype eq 'deb';
+    $repotype = 'arch' if $binarytype eq 'arch';
+    $repotype ||= 'rpm-md';
+    $config->{'repotype'} = [ $repotype ];
+  }
+
+  my %repotype;
+  for (@{$config->{'repotype'} || []}) {
+    if (/^(.*?):(.*)$/) {
+      $repotype{$1} = [ split(':', $2) ];
+    } else {
+      $repotype{$_} = [];
+    }
+  }
+  $dbgsplit ||= '' if $repotype{'splitdebug'} && $repotype{'splitdebug'}->[0];
+  my $archorder;
+  $archorder = $repotype{'archorder'} if $repotype{'archorder'};
+
+  # is there a special subdirectory for binary packages configured?
+  my $subdir = '';
+  if ($repotype{'packagesubdir'} && $repotype{'packagesubdir'}->[0]) {
+    $subdir = $repotype{'packagesubdir'}->[0];
+    BSVerify::verify_filename($subdir);
+  }
+
+  my $extrep = BSUrlmapper::get_extrep($prp);
+  return unless $extrep;
+  my $prp_ext = $prp;
+  $prp_ext =~ s/:/:\//g;
+  $extrep .= $dbgsplit if $dbgsplit;
+  $prp_ext .= $dbgsplit if $dbgsplit;
+
+  # get us the lock
+  local *F;
+  open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
+  if (!flock(F, LOCK_EX | LOCK_NB)) {
+    print "    waiting for lock...\n";
+    flock(F, LOCK_EX) || die("flock: $!\n");
+    print "    got the lock...\n";
+  }
+
+  # we now know that $reporoot/$prp/*/:repo will not change.
+  # Build repo by mixing all architectures.
+  my @archs = @{$repo->{'arch'} || []};
+  my %bins;
+  my %bins_id;
+  my $binaryorigins = {};
+
+  my @updateinfos;
+  my $updateinfos_state;
+
+  my $appdatas;
+  my $appdatas_state;
+  my %appdatas_seen;
+
+  my %deltas;	# XXX remove hack
+  my %deltainfos;
+  my $deltainfos_state;
+
+  my %kiwireport;	# store collected report (under the original name)
+  my %kiwimedium;	# maps published name to original name
+  my $kiwiindex = '';	# store collected index parts
+
+  if ($archorder) {
+    my %archorder = map {$_ => 1} @$archorder;
+    my %archs = map {$_ => 1} @archs;
+    # last one wins in code below
+    @archs = ((grep {!$archorder{$_}} @archs), (grep {$archs{$_}} reverse(@$archorder)));
+  }
+
+  # drop entire repo it source :repo's have disappeared altogether. We need to find a way
+  # to specify this explicit instead checking all :repo's.
+  my $found_repo;
+  for my $arch (@archs) {
+    my $r = "$reporoot/$prp/$arch/:repo";
+    $found_repo = 1 if -e $r;
+  }
+  if (!defined($found_repo)) {
+    deleterepo($projid, $repoid);
+    return;
+  }
+
+  if ($BSConfig::publisher_compile_content_hook && $BSConfig::publisher_compile_content_hook->{$prp}) {
+    my $hook = $BSConfig::publisher_compile_content_hook->{$prp};
+    $hook = [ $hook ] unless ref $hook;
+    print "    calling publish compile hook @$hook\n";
+    qsystem(@$hook, $prp) && warn("    @$hook failed: $?\n");
+    my $r = "${reporoot}.add/$prp";
+    for my $rbin (sort(ls($r))) {
+      my $p = "iso/$rbin";
+      my @s = stat("$r/$rbin");
+      $bins{$p} = "$r/$rbin";
+      $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
+    }
+  }
+
+  for my $arch (@archs) {
+    my $r = "$reporoot/$prp/$arch/:repo";
+    my $repoinfo = {};
+    if (-s "${r}info") {
+      $repoinfo = BSUtil::retrieve("${r}info") || {};
+    }
+    $repoinfo->{'binaryorigins'} ||= {};
+    for my $rbin (sort(ls($r))) {
+      my $bin = $rbin;
+      if ($bin =~ /:updateinfo.xml$/) {
+        # collect updateinfo data
+        my $updateinfoxml = readstr("$r/$bin", 1) || '';
+	$updateinfos_state .= Digest::MD5::md5_hex($updateinfoxml);
+	my $updateinfo = readxml("$r/$bin", $BSXML::updateinfo, 1) || {};
+	push @updateinfos, @{$updateinfo->{'update'} || []};
+      }
+      if ($bin =~ /[-.]appdata.xml$/) {
+        # collect application data
+        my $appdataxml = readstr("$r/$bin", 1) || '';
+	my $appdatamd5 = Digest::MD5::md5_hex($appdataxml);
+	next if $appdatas_seen{$appdatamd5};
+	$appdatas_seen{$appdatamd5} = 1;
+	$appdatas_state .= $appdatamd5;
+        $appdatas = merge_package_appdata($appdatas, "$arch/:repo/$bin", $appdataxml);
+      }
+      if ($bin =~ /^(.*\.rpm)::(.*\.drpm)$/) {
+	# special drpm handling: only take it if we took the corresponding rpm
+        if ($bin =~ /^(.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm)::(.*\.drpm)$/) {
+	  if ($bins{$subdir ? "$subdir/$2/$1" : "$2/$1"} eq "$r/$1") {
+	    # ok, took it. also take delta
+	    $bin = $3;
+	    push @{$deltas{"$r/$1"}}, "$r/$rbin";
+	  }
+	}
+      }
+      $bin =~ s/^.*?:://;	# strip package name for now
+      #next unless $bin =~ /\.(?:$binsufsre)$/;
+      my $p;
+      if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
+	$p = "$1/$bin";
+	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
+      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.deb$/) {
+	$p = "$1/$bin";
+      } elsif ($bin =~ /\.(?:AppImage|AppImage.zsync|snap|exe)?$/) {
+	$p = "$bin";
+      } elsif ($bin =~ /\.d?rpm$/) {
+	# legacy format
+	my $q = Build::query("$r/$rbin", 'evra' => 1);
+	next unless $q;
+	$p = "$q->{'arch'}/$q->{'name'}-$q->{'version'}-$q->{'release'}.$q->{'arch'}.rpm";
+      } elsif ($bin =~ /\.deb$/) {
+	# legacy format
+	my $q = Build::query("$r/$rbin", 'evra' => 1);
+	$p = "$q->{'arch'}/$q->{'name'}_$q->{'version'}";
+	$p .= "-$q->{'release'}" if defined $q->{'release'};
+	$p .= "_$q->{'arch'}.deb";
+      } elsif ($bin =~ /\.(?:pkg\.tar\.gz|pkg\.tar\.xz)(?:\.sig)?$/) {
+	# special arch linux handling
+	$p = "$arch/$bin";
+	$p = "i686/$bin" if $arch eq 'i586';	# HACK
+      } elsif ($bin =~ /\.(?:$binsufsre)$/) {
+	# our default
+	my $q = Build::query("$r/$rbin", 'evra' => 1);
+	next unless $q && defined($q->{'arch'});
+	$p = "$q->{'arch'}/$bin";
+      } else {
+	if ($bin =~ /\.iso(?:\.sha256)?$/) {
+	  $p = "iso/$bin";
+	  $kiwimedium{$p} = $1 if $bin =~ /(.+)\.iso$/;
+	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
+	  $p = "$bin";
+	} elsif ($bin =~ /(.*-Build\d.*)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
+	  $kiwimedium{$bin} = $1 if !$2 && -e "$r/$1.packages";
+	  upload_container($r, "$1.containerinfo", $bin, $projid, $repoid, $arch) if !$2 && -e "$r/$1.containerinfo";
+	  $p = "$bin";
+	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
+	  $kiwimedium{$bin} = $1 if !$2 && -e "$r/$1.packages";
+	  $p = "$bin";
+        } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256)?$/) {
+          # esp. for Go builds
+          $p = "$bin";
+        } elsif ($bin =~ /\.squashfs$/) {
+	  $p = "$bin";	# for simpleimage builds
+	} elsif ($bin =~ /\.diff\.(?:gz)(?:\.sha256)?$/) {
+	  $p = "$bin";
+	} elsif ($bin =~ /\.dsc(?:\.sha256)?$/) {
+	  $p = "$bin";
+	} elsif ($bin =~ /\.(?:box|json|ovf|qcow2|qcow2\.xz|vdi|vhdfixed.xz|vmx|vmdk)(?:\.sha256)?$/) {
+	  $p = "$bin";
+        } elsif ($bin =~ /\.packages$/) {
+	  $p = "$bin";
+        } elsif ($bin =~ /^(.*)\.report$/) {
+	  # collect kiwi reports
+	  $kiwireport{$1} = readxml("$r/$rbin", $BSXML::report, 1);
+	  next;
+	} elsif ($bin =~ /^(.*)\.index$/) {
+	  # collect virt-builder index parts
+	  $kiwiindex .= readstr("$r/$bin", 1) . "\n";
+	  next;
+	} elsif (-d "$r/$rbin") {
+	  $p = "repo/$bin";
+	  if ($repotype{'slepool'}) {
+	    # HACK: do fancy sle repo renaming
+	    my $name = $repotype{'slepool'}->[0] || 'product';
+	    $p = $bin;
+	    if ($name eq 'nobuildid') {
+		$p = "repo/$bin";
+		$p =~ s/-Build[\d\.]+-/-/;
+	    } elsif ($bin =~ /.*-Media1(\.license|)$/) {
+	      $p = "$name$1";
+	    } elsif ($bin =~ /-Media3$/) {
+	      $p = "${name}_debug";
+	    } elsif ($bin =~ /-Media2$/) {
+	      my $rbin3 = $rbin;
+	      $rbin3 =~ s/2$/3/;
+	      if (-d "$r/$rbin3") {
+	        $p = "${name}_source";	# 3 media available, 2 is source
+	      } else {
+	        $p = "${name}_debug";	# source is on media 1, 2 is debug
+	      }
+	    }
+	    $p = $bin if $kiwimedium{$p};	# what???
+	  }
+	  $kiwimedium{$p} = $bin;
+	} else {
+	  next;
+	}
+      }
+      next unless defined $p;
+      $p = "$subdir/$p" if $subdir;
+      # next if $bins{$p}; # first arch wins
+      my @s = stat("$reporoot/$prp/$arch/:repo/$rbin");
+      next unless @s;
+      if ($bins{$p}) {
+	if (!$archorder) {
+          # keep old file (FIXME: should do this different)
+          my @s2 = stat("$extrep/$p");
+          next if !@s2 || "$s[9]/$s[7]/$s[1]" ne "$s2[9]/$s2[7]/$s2[1]";
+	}
+        # replace already taken binary. kill taken deltas again
+        for my $d (@{$deltas{"$r/$rbin"} || []}) {
+	  for my $dp (grep {$bins{$_} eq $d} keys %bins) {
+	    delete $bins{$dp};
+	    delete $bins_id{$dp};
+	    delete $binaryorigins->{$dp};
+	    delete $deltainfos{$dp};
+	  }
+        }
+      }
+      $bins{$p} = "$r/$rbin";
+      $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
+      $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
+      if ($rbin =~ /^(.*)\.drpm$/) {
+	# we took a delta rpm. collect desq if possible
+	my $dseq = "$r/$1.dseq";
+	if (-s $dseq) {
+	  my %dseq;
+	  for (split("\n", readstr($dseq, 1) || '')) {
+	    $dseq{$1} = $2 if /^(.*?): (.*)$/s;
+	  }
+	  my @needed = qw{Name Epoch Version Release Arch OldName OldEpoch OldVersion OldRelease OldArch Seq};
+	  if (!grep {!exists($dseq{$_})} @needed) {
+	    # got all required fields. convert to correct data
+	    my $dinfo = {'name' => $dseq{'Name'}, 'epoch' => $dseq{'Epoch'} || 0, 'version' => $dseq{'Version'}, 'release' => $dseq{'Release'}, 'arch' => $dseq{'Arch'}};
+	    $dinfo->{'delta'} = [ {'oldepoch' => $dseq{'OldEpoch'} || 0, 'oldversion' => $dseq{'OldVersion'}, 'oldrelease' => $dseq{'OldRelease'}, 'filename' => $p, 'sequence' => $dseq{'Seq'}} ];
+	    $deltainfos{$p} = $dinfo;
+	  }
+	}
+      }
+    }
+  }
+
+  # calculate deltainfos_state
+  if (%deltainfos) {
+    $deltainfos_state = '';
+    for my $p (sort keys %deltainfos) {
+      my @s = stat($bins{$p});
+      my $id = "$s[9]/$s[7]/$s[1]";
+      if ($bins{$p} =~ /^(.*)\.drpm$/) {
+        @s = stat("$1.dseq");
+        $id .= "/$s[9]/$s[7]/$s[1]";
+      }
+      $deltainfos_state .= Digest::MD5::md5_hex($id);
+    }
+  }
+
+  # do debug filtering if requested
+  if (defined($dbgsplit)) {
+    if ($dbgsplit) {
+      for my $p (keys %bins) {
+        next if $p =~ /-debug(?:info|source)-.*rpm$/;
+        delete $bins{$p};
+        delete $deltainfos{$p};
+      }
+    } else {
+      for my $p (keys %bins) {
+        next unless $p =~ /-debug(?:info|source)-.*rpm$/;
+        delete $bins{$p};
+        delete $deltainfos{$p};
+      }
+    }
+  }
+
+  # now update external repository
+  my $changed = 0;
+
+  my @db_deleted;  	# for published db update
+  my @db_changed;	# for published db update
+  my @changed;  	# all changed files for hooks.
+
+  my %bins_done;
+  @archs = sort(ls($extrep));
+  if ($subdir) {
+    @archs = map {$_ eq $subdir ? sort(map {"$subdir/$_"} ls("$extrep/$subdir")) : $_} @archs;
+  }
+  for my $arch (@archs) {
+    next if $arch =~ /^\./;
+    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
+    next if $arch =~ /\.repo$/;
+    next if $arch eq 'Packages' || $arch eq 'Packages.gz' || $arch eq 'Sources' || $arch eq 'Sources.gz' || $arch eq 'Release' || $arch eq 'Release.gz' || $arch eq 'Release.key';
+    my $r = "$extrep/$arch";
+    if (-f $r) {
+      $r = $extrep;
+      my $bin = $arch;
+      my $p = $arch;
+      my @s = lstat("$r/$bin");
+      if (!exists($bins{$p})) {
+	print "      - $p\n";
+        unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+        push @db_deleted, $p if $p =~ /\.(?:$binsufsre)$/;
+        $changed = 1;
+	next;
+      }
+      if ("$s[9]/$s[7]/$s[1]" ne $bins_id{$p}) {
+        unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+        link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
+	push @db_changed, $p if $p =~ /\.(?:$binsufsre)$/;
+	push @changed, $p;
+        $changed = 1;
+      }
+      $bins_done{$p} = 1;
+      next;
+    }
+    if ($bins{$arch}) {
+      my @s = lstat($r);
+      die("$r: $!\n") unless @s;
+      next if "$s[9]/$s[7]/$s[1]" eq $bins_id{$arch};
+      if (-d _) {
+	if (! -l $bins{$arch} && -d _) {
+	  my $info1 = BSUtil::treeinfo($bins{$arch});
+	  my $info2 = BSUtil::treeinfo($r);
+	  if (join(',', @$info1) eq join(',', @$info2)) {
+	    $bins_done{$arch} = 1;
+	    next;
+	  }
+	  print "      ! $arch\n";
+	  BSUtil::cleandir($r);
+	  rmdir($r) || die("rmdir $r: $!\n");
+	}
+	if (! -l $bins{$arch} && -d _) {
+	  BSUtil::linktree($bins{$arch}, $r);
+	} else {
+	  link($bins{$arch}, $r) || die("link $bins{$arch} $r: $!\n");
+	}
+	push @db_changed, $arch if $arch =~ /\.(?:$binsufsre)$/;
+	push @changed, $arch;
+	$changed = 1;
+	$bins_done{$arch} = 1;
+	next;
+      }
+    }
+    next unless -d $r;
+    for my $bin (sort(ls($r))) {
+      my $p = "$arch/$bin";
+      my @s = lstat("$r/$bin");
+      die("$r/$bin: $!\n") unless @s;
+      if (!exists($bins{$p})) {
+	print "      - $p\n";
+	if (-d _) {
+	  BSUtil::cleandir("$r/$bin");
+	  rmdir("$r/$bin") || die("rmdir $r/$bin: $!\n");
+	} else {
+	  unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+	}
+	push @db_deleted, $p if $p =~ /\.(?:$binsufsre)$/;
+        $changed = 1;
+	next;
+      }
+      if ("$s[9]/$s[7]/$s[1]" ne $bins_id{$p}) {
+        # changed, link over
+	if (-d _) {
+	  if (! -l $bins{$p} && -d _) {
+	    # both are directories, compare info
+	    # should MIX instead?
+	    my $info1 = BSUtil::treeinfo($bins{$p});
+	    my $info2 = BSUtil::treeinfo("$r/$bin");
+	    if (join(',', @$info1) eq join(',', @$info2)) {
+	      $bins_done{$p} = 1;
+	      next;
+	    }
+	  }
+	  print "      ! $p\n";
+	  BSUtil::cleandir("$r/$bin");
+	  rmdir("$r/$bin") || die("rmdir $r/$bin: $!\n");
+	} else {
+	  print "      ! $p\n";
+	  unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+	}
+	if (! -l $bins{$p} && -d _) {
+	  BSUtil::linktree($bins{$p}, "$r/$bin");
+	} else {
+          link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
+	}
+	push @db_changed, $p if $p =~ /\.(?:$binsufsre)$/;
+	push @changed, $p;
+        $changed = 1;
+      }
+      $bins_done{$p} = 1;
+    }
+  }
+  for my $p (sort keys %bins) {
+    next if $bins_done{$p};
+    # a new one
+    my ($arch, $bin);
+    if ($p =~ /^(.*)\/([^\/]*)$/s) {
+      ($arch, $bin) = ($1, $2);
+    } else {
+      ($arch, $bin) = ('.', $p);
+    }
+    my $r = "$extrep/$arch";
+    mkdir_p($r) unless -d $r;
+    print "      + $p\n";
+    if (! -l $bins{$p} && -d _) {
+      BSUtil::linktree($bins{$p}, "$r/$bin");
+    } else {
+      link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
+    }
+    push @db_changed, $p if $p =~ /\.(?:$binsufsre)$/;
+    push @changed, $p;
+    $changed = 1;
+  }
+
+  # Write the kiwi index file if we got it
+  if ($kiwiindex) {
+    my $oldkiwiindex = readstr("$extrep/index", 1) || '';
+    if ($oldkiwiindex ne $kiwiindex) {
+      writestr("$extrep/index", undef, $kiwiindex);
+      push @changed, "$extrep/index";
+      $changed = 1;
+    }
+  }
+
+  close F;     # release repository lock
+
+  my $title = $proj->{'title'} || $projid;
+  $title .= " ($repoid)";
+  $title =~ s/\n/ /sg;
+
+  my $state;
+  $state = $proj->{'patternmd5'} || '';
+  $state .= "\0".join(',', @{$config->{'repotype'} || []}) if %bins;
+  $state .= "\0".($proj->{'title'} || '') if %bins;
+  $state .= "\0".join(',', @{$config->{'patterntype'} || []}) if $proj->{'patternmd5'};
+  $state .= "\0".join('/', map {"$_->{'project'}/$_->{'repository'}"} @{$prpsearchpath || []}) if $proj->{'patternmd5'};
+  $state .= "\0".$updateinfos_state if $updateinfos_state;
+  $state .= "\0".$appdatas_state if $appdatas_state;
+  $state .= "\0".$deltainfos_state if $deltainfos_state;
+  $state = Digest::MD5::md5_hex($state) if $state ne '';
+
+  # get us the old repoinfo, so we can compare the state
+  my $repoinfo = {};
+  my $packtrackcache;
+  if (-s "$reporoot/$prp/:repoinfo") {
+    $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo") || {};
+    $packtrackcache = $repoinfo->{'trackercache'} if $repoinfo->{'trackercache'} && ($repoinfo->{'trackercacheversion'} || '') eq '1';
+  }
+
+  if (($repoinfo->{'state'} || '') ne $state) {
+    $changed = 1;
+  }
+
+  if (($repoinfo->{'splitdebug'} || '') ne (($repotype{'splitdebug'} || [])->[0] || '')) {
+    deleterepo($projid, $repoid, $repoinfo->{'splitdebug'}) if $repoinfo->{'splitdebug'};
+    $changed = 1;
+  }
+
+  if (!$changed && !$dbgsplit) {
+    print "    nothing changed\n";
+    return;
+  }
+
+  mkdir_p($extrep) unless -d $extrep;
+
+  # get sign key
+  my $signargs = [];
+  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", "withpubkey=1", "autoextend=1", "withalgo=1");
+  my $pubkey;
+  my $algo;
+  if ($signkey) {
+    ($signkey, $pubkey) = split("\n", $signkey, 2);
+    $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
+    mkdir_p("$uploaddir");
+    writestr("$uploaddir/publisher.$$", undef, $signkey);
+    $signargs = [ '-P', "$uploaddir/publisher.$$" ];
+    push @$signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
+    undef $pubkey unless $pubkey && length($pubkey) > 2;	# not a valid pubkey
+  }
+  if (!$pubkey) {
+    if ($BSConfig::sign_project && $BSConfig::sign) {
+      local *S;
+      open(S, '-|', $BSConfig::sign, '--project', $projid, '-p') || die("$BSConfig::sign: $!\n");;
+      $pubkey = '';
+      1 while sysread(S, $pubkey, 4096, length($pubkey));
+      if (!close(S)) {
+	print "sign -p failed: $?\n";
+	$pubkey = undef;
+      }
+    } elsif ($BSConfig::keyfile) {
+      if (-e $BSConfig::keyfile) {
+        $pubkey = readstr($BSConfig::keyfile);
+      } else {
+        print "WARNING: configured sign key $BSConfig::keyfile does not exist\n";
+      }
+    }
+  }
+
+  # get all patterns
+  my $patterns = [];
+  if ($proj->{'patternmd5'}) {
+    $patterns = getpatterns($projid);
+  }
+
+  # collect packtrack data (if needed)
+  my $packtrack;
+  if ($BSConfig::packtrack && (($proj->{'kind'} || '') eq 'maintenance_release' || grep {$prp =~ /^$_/} @$BSConfig::packtrack)) {
+    $packtrack = $dbgpacktrack || {};
+    my %cache = @{$packtrackcache || []};
+    for my $bin (sort keys %bins) {
+      if ($bin =~ /\.(?:$binsufsre)$/) {
+	my $res;
+	my @s = stat("$extrep/$bin");
+	next unless @s;
+	my $c = $cache{"$bin/$s[9]/$s[7]/$s[1]"};
+	if ($c) {
+	  my @d = qw{arch name epoch version release disturl buildtime};
+	  $res = {};
+	  for (@$c) {
+	    my $dd = shift @d;
+	    $res->{$dd} = $_ if defined $_;
+	  }
+	} else {
+	  eval {
+            $res = Build::query("$extrep/$bin", 'evra' => 1, 'buildtime' => 1, 'disturl' => 1);
+	  };
+	  next unless $res;
+	}
+	my $pt = {
+	  'project' => $projid,
+	  'repository' => $repoid,
+	};
+	$pt->{'arch'} = $1 if $bins{$bin} =~ /^\Q$reporoot\E\/\Q$prp\E\/([^\/]+)\//;
+	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
+	for (qw{name epoch version release disturl buildtime}) {
+	  $pt->{$_} = $res->{$_} if defined $res->{$_};
+	}
+	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
+	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
+	$packtrack->{$bin} = $pt;
+      } elsif ($kiwimedium{$bin} && $kiwireport{$kiwimedium{$bin}}) {
+	my $medium = $bin;
+	$medium =~ s/.*\///;	# basename
+	for my $kb (@{$kiwireport{$kiwimedium{$bin}}->{'binary'} || []}) {
+	  my $pt = { %$kb };
+	  delete $pt->{'_content'};
+	  $pt->{'medium'} = $medium;
+	  my $fn = '';
+	  $fn .= "/".(defined($pt->{$_}) ? $pt->{$_} : '') for qw{binaryarch name epoch version release};
+	  $packtrack->{"$medium$fn"} = $pt;
+	}
+      }
+    }
+    # argh, find patchinforef and put it in update
+    if (@updateinfos) {
+      for my $up (@updateinfos) {
+	for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
+	  for my $pkg (@{$cl->{'package'} || []}) {
+	    my $pn = ($subdir ? "$subdir/" : '') . "$pkg->{'arch'}/$pkg->{'filename'}";
+	    if ($packtrack->{$pn}) {
+	      $packtrack->{$pn}->{'patchinforef'} = $up->{'patchinforef'} if $up->{'patchinforef'};
+	      $packtrack->{$pn}->{'updateinfoid'} = $up->{'id'};
+	      $packtrack->{$pn}->{'updateinfoversion'} = $up->{'version'};
+	      # XXX: do this in hook?
+	      my $supportstatus = $pkg->{'supportstatus'};
+	      # workaround for broken code11 imports
+	      if ($supportstatus) {
+	        $supportstatus =~ s/^support_//;
+	        $packtrack->{$pn}->{'supportstatus'} = $supportstatus;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  undef $packtrackcache;
+
+  # create and store the new repoinfo
+  $repoinfo = {
+    'prpsearchpath' => $prpsearchpath,
+    'binaryorigins' => $binaryorigins,
+    'title' => $title,
+    'state' => $state,
+  };
+  $repoinfo->{'projectkind'} = $proj->{'kind'} if $proj->{'kind'};
+  $repoinfo->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
+  $repoinfo->{'splitdebug'} = $repotype{'splitdebug'}->[0] if defined $dbgsplit;
+  $repoinfo->{'subdir'} = $subdir if $subdir;
+  $repoinfo->{'base'} = $repo->{'base'} if $repo->{'base'};
+
+  # store repoinfo on disk
+  if (!$dbgsplit) {
+    if ($state ne '') {
+      BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
+    } else {
+      unlink("$reporoot/$prp/:repoinfo");
+    }
+  }
+
+  # do debug filtering if requested
+  if (defined($dbgsplit)) {
+    for (keys %$binaryorigins) {
+      delete $binaryorigins->{$_} unless $bins{$_};
+    }
+    if (@updateinfos) {
+      my $dbgsplittype = ($repotype{'splitdebug'}->[1]) || 'mainupdateinfo';
+      @updateinfos = () if $dbgsplit;
+      if ($dbgsplittype ne 'mainupdateinfo' && !$dbgsplit) {
+	for my $up (@updateinfos) {
+	  for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
+	    next unless $cl->{'package'};
+	    my $haveremovedpkg;
+	    for my $pkg (@{$cl->{'package'}}) {
+	      next unless $pkg->{'filename'} =~ /-debug(?:info|source)-.*rpm$/;
+	      $pkg = undef;
+	      $haveremovedpkg = 1;
+	    }
+	    next unless $haveremovedpkg;
+	    $cl->{'package'} = [ grep {defined($_)} @{$cl->{'package'}} ];
+	  }
+	}
+      }
+    }
+  }
+
+  # store repoinfo in published database
+  my $repoinfodb = db_open('repoinfo');
+  db_store($repoinfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, $state ne '' ? $repoinfo : undef) if $repoinfodb;
+
+  # put in published database
+  my $binarydb = db_open('binary');
+  updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], [ map {"$prp_ext/$_"} @db_changed ]) if $binarydb;
+
+  # mark file origins so we can gather per package statistics
+  if ($BSConfig::markfileorigins) {
+    print "    marking file origins\n";
+    for my $f (sort @db_changed) {
+      my $origin = $binaryorigins->{$f};
+      $origin = "?" unless defined $origin;
+      my $req = {
+        'uri' => "$BSConfig::markfileorigins/$prp_ext/$f",
+        'request' => 'HEAD',
+        'maxredirects' => 3,
+        'timeout' => 10,
+        'ignorestatus' => 1,
+      };
+      eval {
+        BSRPC::rpc($req, undef, 'cmd=setpackage', "package=$origin");
+      };
+      print "      $f: $@" if $@;
+    }
+    for my $f (sort @db_deleted) {
+      my $req = {
+        'uri' => "$BSConfig::markfileorigins/$prp_ext/$f",
+        'request' => 'HEAD',
+        'maxredirects' => 3,
+        'timeout' => 10,
+        'ignorestatus' => 1,
+      };
+      eval {
+        BSRPC::rpc($req, undef, 'cmd=deleted');
+      };
+      print "      $f: $@" if $@;
+    }
+  }
+
+  # create repositories and patterns
+  my %patterntype;
+  for (@{$config->{'patterntype'} || []}) {
+    if (/^(.*?):(.*)$/) {
+      $patterntype{$1} = [ split(':', $2) ];
+    } else {
+      $patterntype{$_} = [];
+    }
+  }
+  if ($repotype{'rpm-md-legacy'}) {
+    $repotype{'rpm-md'} = $repotype{'rpm-md-legacy'};
+    unshift @{$repotype{'rpm-md'}}, 'legacy';
+    delete $repotype{'rpm-md-legacy'};
+  }
+  if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
+    local *PPLOCK;
+    open(PPLOCK, '>', "$reporoot/$prp/.pplock") || die("$reporoot/$prp/.pplock: $!\n");
+    flock(PPLOCK, LOCK_EX) || die("flock: $!\n");
+    if (xfork()) {
+      close PPLOCK;
+      return;
+    }
+    if (system($BSConfig::publishprogram->{$prp}, $prp, $extrep)) {
+      die("      $BSConfig::publishprogram->{$prp} failed: $?\n");
+    }
+    goto publishprog_done;
+  }
+
+  my $xrepoid = $repoid;
+  $xrepoid .= $dbgsplit if $dbgsplit;
+
+  my @repotags = @{$repotype{'repotag'} || []};
+  # de-escape (mostly done for ':'
+  s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @repotags;
+  if (grep {$_ eq '-obsrepository'} @repotags) {
+    @repotags = grep {$_ ne '-obsrepository'} @repotags;
+  } else {
+    my $obsname = $BSConfig::obsname || 'build.opensuse.org';
+    push @repotags, "obsrepository://$obsname/$projid/$repoid";
+  }
+
+  my $data = {
+    'subdir' => $subdir,
+    'signargs' => $signargs,
+    'pubkey' => $pubkey,
+    'repoinfo' => $repoinfo,
+    'updateinfos' => \@updateinfos,
+    'deltainfos' => \%deltainfos,
+    'appdatas' => $appdatas,
+    'patterns' => $patterns,
+    'dbgsplit' => $dbgsplit,
+    'packtrack' => $packtrack,
+    'repotags' => \@repotags,
+  };
+
+  if ($repotype{'rpm-md'}) {
+    createrepo_rpmmd($extrep, $projid, $xrepoid, $data, $repotype{'rpm-md'});
+  } else {
+    deleterepo_rpmmd($extrep, $projid, $xrepoid, $data);
+  }
+  if ($repotype{'suse'}) {
+    createrepo_susetags($extrep, $projid, $xrepoid, $data, $repotype{'suse'});
+  } else {
+    deleterepo_susetags($extrep, $projid, $xrepoid, $data);
+  }
+  # Mandriva format:
+  if ($repotype{'hdlist2'}) {
+    createrepo_hdlist2($extrep, $projid, $xrepoid, $data, $repotype{'hdlist2'});
+  } else {
+    deleterepo_hdlist2($extrep, $projid, $xrepoid, $data);
+  }
+  if ($repotype{'debian'}) {
+    createrepo_debian($extrep, $projid, $xrepoid, $data, $repotype{'debian'});
+  } else {
+    deleterepo_debian($extrep, $projid, $xrepoid, $data);
+  }
+  if ($repotype{'arch'}) {
+    createrepo_arch($extrep, $projid, $xrepoid, $data, $repotype{'arch'});
+  } else {
+    deleterepo_arch($extrep, $projid, $xrepoid, $data);
+  }
+  if ($repotype{'staticlinks'}) {
+    createrepo_staticlinks($extrep, $projid, $xrepoid, $data, $repotype{'staticlinks'});
+  } else {
+    deleterepo_staticlinks($extrep, $projid, $xrepoid, $data);
+  }
+
+  if ($patterntype{'ymp'}) {
+    createpatterns_ymp($extrep, $projid, $xrepoid, $data, $patterntype{'ymp'});
+  } else {
+    deletepatterns_ymp($extrep, $projid, $xrepoid, $data);
+  }
+  if ($patterntype{'rpm-md'}) {
+    createpatterns_rpmmd($extrep, $projid, $xrepoid, $data, $patterntype{'rpm-md'});
+  } else {
+    deletepatterns_rpmmd($extrep, $projid, $xrepoid, $data);
+  }
+  if ($patterntype{'comps'}) {
+    createpatterns_comps($extrep, $projid, $xrepoid, $data, $patterntype{'comps'});
+  } else {
+    deletepatterns_comps($extrep, $projid, $xrepoid, $data);
+  }
+
+  # virt-builder repository
+  if (-e "$extrep/index") {
+    createrepo_virtbuilder($extrep, $projid, $xrepoid, $data);
+  }
+
+publishprog_done:
+  unlink("$uploaddir/publisher.$$") if $signkey;
+
+  # post process step: create directory listing for poor YaST
+  if ($repotype{'suse'}) {
+    unlink("$extrep/directory.yast");
+    my @d = sort(ls($extrep));
+    for (@d) {
+      $_ .= '/' if -d "$extrep/$_";
+      $_ .= "\n";
+    }
+    writestr("$extrep/.directory.yast", "$extrep/directory.yast", join('', @d));
+  }
+
+  # push the repo (unless there's a redirect)
+  # FIXME: use different mechanism to disable sync
+  if (!($BSConfig::publishredirect && $BSConfig::publishredirect->{$prp})) {
+    if ($extrep =~ /\Q$extrepodir\E\/(.+)$/) {
+      sync_to_stage($prp, $1, $dbgsplit);
+    }
+  }
+
+  # support for regex usage in $BSConfig::unpublishedhook
+  my $unpublish_prp = $prp;
+  if ($BSConfig::unpublishedhook_use_regex || $BSConfig::unpublishedhook_use_regex) {
+    for my $key (sort {$b cmp $a} keys %{$BSConfig::unpublishedhook}) {
+      if ($prp =~ /^$key/) {
+        $unpublish_prp = $key;
+        last;
+      }
+    }
+  }
+  if ($BSConfig::unpublishedhook && $BSConfig::unpublishedhook->{$unpublish_prp}) {
+    my $hook = $BSConfig::unpublishedhook->{$unpublish_prp};
+    $hook = [ $hook ] unless ref $hook;
+    print "    calling unpublished hook @$hook\n";
+    qsystem(@$hook, $prp, $extrep, @db_deleted) && warn("    @$hook failed: $?\n");
+  }
+
+  # support for regex usage in $BSConfig::publishedhook
+  my $publish_prp = $prp;
+  if ($BSConfig::publishedhook_use_regex || $BSConfig::publishedhook_use_regex) {
+    for my $key (sort {$b cmp $a} keys %{$BSConfig::publishedhook}) {
+      if ($prp =~ /^$key/) {
+        $publish_prp = $key;
+        last;
+      }
+    }
+  }
+  if ($BSConfig::publishedhook && $BSConfig::publishedhook->{$publish_prp}) {
+    my $hook = $BSConfig::publishedhook->{$publish_prp};
+    $hook = [ $hook ] unless ref $hook;
+    print "    calling published hook @$hook\n";
+    qsystem(@$hook, $prp, $extrep, @changed) && warn("    @$hook failed: $?\n");
+  }
+
+  BSNotify::notify('REPO_PUBLISHED', { project => $projid , 'repo' => $repoid });
+
+  # all done. till next time...
+  if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
+    exit(0);
+  }
+
+  # recurse for dbgsplit
+  publish($projid, $repoid, $repoinfo->{'splitdebug'}, $packtrack) if $repoinfo->{'splitdebug'} && !$dbgsplit;
+
+  if ($packtrack && !$dbgsplit) {
+    # update the packtrack cache (and remove the 'id' entry)
+    my @newcache;
+    for my $pt (values %$packtrack) {
+      my $id = delete $pt->{'id'};
+      push @newcache, $id, [ map {$pt->{$_ eq 'arch' ? 'binaryarch' : $_}} qw{arch name epoch version release disturl buildtime} ] if $id;
+    }
+    $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
+    if (%$repoinfo) {
+      $repoinfo->{'trackercache'} = \@newcache;
+      $repoinfo->{'trackercacheversion'} = '1';
+      BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
+      @newcache = ();	# free mem
+      undef $repoinfo;	# free mem
+    }
+    # send notification
+    print "    sending binary release tracking notification\n";
+    BSNotify::notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
+  }
+
+}
+
+sub clear_repoinfo_state {
+  my ($prp) = @_;
+  if (-s "$reporoot/$prp/:repoinfo") {
+    my $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
+    if ($repoinfo->{'state'}) {
+      delete $repoinfo->{'state'};
+      BSUtil::store("$reporoot/$prp/.:repoinfo$$", "$reporoot/$prp/:repoinfo", $repoinfo);
+    }
+  }
+}
+
+# check if background publish is still running
+sub check_publish_prg_running {
+  my ($prp) = @_;
+  return 0 unless $BSConfig::publishprogram && $BSConfig::publishprogram->{$prp};
+  local *PPLOCK;
+  if (open(PPLOCK, '<', "$reporoot/$prp/.pplock")) {
+    if (flock(PPLOCK, LOCK_EX | LOCK_NB)) {
+      close PPLOCK;
+      return 1;
+    }
+    close PPLOCK;
+  }
+  return 0;
+}
+
+my %publish_retry;
+my %publish_lasttime;
+my %publish_duration;
+
+sub writepublishtimeevent {
+  my ($projid, $repoid, $now, $duration, $evn) = @_;
+  my $ev = {
+    'type' => 'publishtime',
+    'project' => $projid,
+    'repository' => $repoid,
+    'job' => "$now $duration",
+  };   
+  $ev->{'job'} .= " $evn" if defined $evn;
+  my $evname = "publishtime::${projid}::$repoid";
+  $evname = "publishtime::".Digest::MD5::md5_hex($evname) if length($evname) > 200; 
+  writexml("$myeventdir/.$evname$$", "$myeventdir/$evname", $ev, $BSXML::event);
+  BSUtil::ping("$myeventdir/.ping");
+}
+
+sub clean_publish_retry {
+  my $now = time();
+  for (sort keys %publish_retry) {
+    delete($publish_retry{$_}) if $publish_retry{$_} < $now;
+  }
+}
+
+sub set_publish_retry {
+  my ($req, $due) = @_;
+  $publish_retry{$req->{'event'}} = $due;
+  my $ev = $req->{'ev'};
+  writepublishtimeevent($ev->{'project'}, $ev->{'repository'}, 0, $due, $req->{'event'}) if $req->{'forked'};
+}
+
+sub notify_state {
+  my ($projid, $repoid, $state) = @_;
+  BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $projid, 'repo' => $repoid, 'state' => $state });
+}
+
+sub syncdb {
+  die if @db_sync;
+  db_pickup();
+  db_sync();
+}
+
+sub publishevent {
+  my ($req, $projid, $repoid) = @_;
+
+  if ($req->{'forked'})  {
+    my $prepend = "$$: ";
+    $prepend = "$req->{'flavor'}.$prepend" if $req->{'flavor'};
+    binmode STDOUT, "via(BSStdRunner::prepend)";
+    print $prepend;
+  }
+
+  $db_sync_append = 1 if $req->{'forked'};
+  syncdb() if $req->{'syncdb'};
+
+  my $prp = "$projid/$repoid";
+  my $starttime = time();
+
+  if (check_publish_prg_running($prp)) {
+    set_publish_retry($req, $starttime + 60);
+    die("$prp: external publish program still running\n");
+  }
+  if ($publish_lasttime{$prp} && $publish_duration{$prp} > 300 && $publish_lasttime{$prp} + 5 * $publish_duration{$prp} > $starttime) {
+    set_publish_retry($req, $starttime + 60 * 5);
+    die("$prp: not yet\n");
+  }
+
+  notify_state($projid, $repoid, 'publishing');
+  eval {
+    publish($projid, $repoid);
+  };
+  if ($@) {
+    warn("publish failed for $projid/$repoid : $@");
+    # delete state from repoinfo so that we will always re-publish
+    clear_repoinfo_state($prp);
+    set_publish_retry($req, time() + 60);
+    db_sync();
+    BSUtil::printlog("publish failed for $prp") if $req->{'forked'};
+    return 0;
+  }
+
+  my $now = time();
+  $publish_lasttime{$prp} = $now;
+  $publish_duration{$prp} = $now - $starttime;
+  writepublishtimeevent($projid, $repoid, $now, $now - $starttime) if $req->{'forked'};
+  notify_state($projid, $repoid, 'published');
+  db_sync();
+  BSUtil::printlog("publish done for $prp") if $req->{'forked'};
+  return 1;
+}
+
+sub publishtimeevent {
+  my ($req, $projid, $repoid, $job) = @_;
+  my $prp = "$projid/$repoid";
+  my ($lasttime, $duration, $evn) = split(' ', $job, 3);
+  if ($lasttime) {
+    $publish_lasttime{$prp} = $lasttime;
+    $publish_duration{$prp} = $duration;
+  } elsif (defined($evn)) {
+    $publish_retry{$evn} = $duration;
+  }
+  return 1;
+}
+
+sub configurationevent {
+  my ($req) = @_;
+  print "updating configuration\n";
+  BSConfiguration::update_from_configuration();
+  return 1;
+}
+
+sub lsevents {
+  clean_publish_retry() if %publish_retry;
+  my @events = BSStdRunner::lsevents(@_);
+  # put publishtime and highprio events to the front
+  my @publishtimeevents = grep {/^publishtime/} @events;
+  @events = grep {!/^publishtime/} @events if @publishtimeevents;
+  my @highprioevents = grep {/^_/} @events;
+  @events = grep {!/^[_]/} @events if @highprioevents;
+  return (@publishtimeevents, @highprioevents, @events);
+}
+
+sub getevent {
+  my ($req) = @_;
+  my $evname = $req->{'event'};
+  if ($publish_retry{$evname}) {
+    return (undef, 1) if $publish_retry{$evname} > time();
+    delete $publish_retry{$evname};
+  }
+  $req = BSStdRunner::getevent($req);
+  return undef unless $req;
+
+  # publishtime and configuration events are nofork events
+  my $evtype = $req->{'ev'}->{'type'} || '';
+  if ($evtype eq 'publishtime') {
+    return ($req, 1, 1) if ($req->{'ev'}->{'job'} || '') =~ /^0 /;
+    return ($req, undef, 1);
+  }
+  return ($req, undef, 1) if $evtype eq 'configuration';
+
+  # also don't fork if the database is not in sync
+  if (@db_sync) {
+    print "not forking because of unsynced database entries\n";
+    return ($req, undef, 1);
+  }
+
+  # serialize if our children have unsynced data
+  if (!@db_sync && $maxchild && $maxchild > 1 && $extrepodb && -s "$extrepodb.sync") {
+    print "not forking because of unsynced database entries (syncdb)\n";
+    $req->{'syncdb'} = 1;
+    return ($req, undef, 2);
+  }
+
+  return $req;
+}
+
+sub runsingleevent {
+  my ($conf, $eventfile) = @_;
+
+  my $ev = readxml($eventfile, $BSXML::event);
+  $conf->{'eventdir'} = '.';
+  ($conf->{'eventdir'}, $eventfile) = ($1, $2) if $eventfile =~ /^(.*)\/([^\/]*)$/;
+  my $req = {'conf' => $conf, 'event' => $eventfile, 'ev' => $ev};
+  my $r = BSStdRunner::dispatch($req);
+  exit($r ? 0 : 1);
+}
+
+sub call_run {
+  my ($conf) = @_;
+  db_sync();	# try to sync old events
+  runsingleevent($conf, $ARGV[1]) if @ARGV > 1 && $ARGV[0] eq '--event';
+  BSRunner::run($conf);
+}
+
+sub fc_rescan {
+  my ($conf, $fc) = @_;
+  unlink($fc);
+}
+  
+my $dispatches = [ 
+  'configuration' => \&configurationevent,
+  'publish $project $repository' => \&publishevent,
+  'publishtime $project $repository $job' => \&publishtimeevent,
+];
+
+my $conf = { 
+  'runname' => 'bs_publish',
+  'eventdir' => $myeventdir,
+  'dispatches' => $dispatches,
+  'lsevents' => \&lsevents,
+  'getevent' => \&getevent,
+  'run' => \&call_run,
+  'filechecks' => { "$rundir/bs_publish.rescan" => \&fc_rescan },
+  'inprogress' => 1,
+  'maxchild' => $maxchild,
+  'maxchild_flavor' => $maxchild_flavor,
+};
+$conf->{'getflavor'} = $BSConfig::publish_getflavor if $BSConfig::publish_getflavor;
+
+BSStdRunner::run('publisher', \@ARGV, $conf);
+
+
+=head2 upload_container
+
+check if build result is valid container and upload if configured
+
+=cut
+
+sub upload_container {
+  my ($dir, $containerinfo, $file, $projid, $repoid, $arch) = @_;
+
+  # jump out if no config
+  return unless $BSConfig::publish_containers;
+
+  # get registry names for this project
+  my @registries;
+  my @s = @{$BSConfig::publish_containers};
+  while (@s) {
+    my ($k, $v) = splice(@s, 0, 2);
+    if ($projid =~ /^$k/) {
+      $v = [ $v ] unless ref $v;
+      @registries = @$v;
+      last;
+    }
+  }
+
+  # convert registry names to configs
+  for my $registry (splice @registries) {
+    my $config = get_registry_config($registry);
+    push @registries, $config if $config;
+  }
+
+  return if !@registries;
+
+  # check if containerinfo is valid and get info for container
+  BSUtil::printlog("Checking containerinfo for $dir/$containerinfo");
+  my $info = BSRepServer::Containerinfo::readcontainerinfo($dir, $containerinfo);
+
+  if (!$info) {
+    BSUtil::printlog("No valid containerinfo found");
+    return;
+  }
+
+  if (!@{$info->{tags} || []}) {
+    BSUtil::printlog("container is not tagged, skipping upload");
+    return;
+  }
+
+  my $src = "$dir/$file";
+  my $tempfile = decompress_container($src);
+
+  eval {
+    for my $config (@registries) {
+      upload_to_registry($config, $info, $tempfile, $projid, $repoid, $arch);
+    }
+  };
+  my $error = $@;
+  BSUtil::printlog("Deleting $tempfile");
+  unlink($tempfile);
+  die($error) if $error;
+}
+
+=head2 upload_to_registry - upload decompressed file
+
+ Parameters:
+  config   - validated config for registry
+  info     - content of containerinfo file
+  tempfile - path to decompressed container tar file
+
+ Returns:
+  nothing
+
+=cut
+
+sub upload_to_registry {
+  my ($config, $info, $tempfile, $projid, $repoid, $arch) = @_;
+  # TODO: should be more general to implement own upload
+  # prepare url for skopeo
+  my $name = lc($info->{name});
+
+  my $delimiter       = $config->{repository_delimiter} || '/';
+  my $repository_base = $config->{repository_base} || '/';
+
+  $projid =~ s/:/$delimiter/g;
+  $repoid =~ s/:/$delimiter/g;
+
+  my $tag = $info->{tags}->[0];
+  my $uploader = $config->{uploader} || 'skopeo';
+  my $port = $config->{port} || 443;
+  if ($uploader eq 'skopeo') {
+    my $dst = "docker://$config->{host}:$port" .
+                lc("$repository_base$projid/$repoid/$arch/$tag");
+    ####
+    # FIXME: Find solution to remove credentials from the cli options
+    # HINT:  https://github.com/projectatomic/skopeo/issues/434 must be solved first
+    ####
+    my @cmd = ("skopeo", "copy", "--dest-creds", "$config->{user}:$config->{password}", "docker-archive:$tempfile", $dst);
+
+    BSUtil::printlog("Uploading: '$cmd[0] $cmd[1] $cmd[2] XXX:XXX $cmd[4] $cmd[5]'");
+    my $result = qsystem(@cmd);
+
+    die "Error while uploading\n" if $result;
+  }
+}
+
+=head2 get_registry_config - check for valid registry config and set default values
+
+ Parameters:
+  registry - identifier for registry to be searched in $BSConfig::container_registries
+
+ Returns:
+  config - valid config for registry
+
+=cut
+
+sub get_registry_config {
+  my ($registry) = @_;
+
+  # avoid "used only once" warnings
+  my $cr = $BSConfig::container_registries->{$registry} || $BSConfig::container_registries->{$registry};
+  if (ref($cr) ne 'HASH') {
+    BSUtil::printlog(
+      "No or invalid config found for container registry: '$registry'"
+    );
+    return;
+  }
+
+  # check if minimal config items are set
+  if (!$cr->{host} || !$cr->{user} || !$cr->{password}) {
+    BSUtil::printlog(
+      "No valid config found for container registry: ".
+      "$cr->{host}/$cr->{user}/$cr->{password} (host/user/password)"
+    );
+    return;
+  }
+
+  return $cr;
+}
+
+=head2 decompress_container - decompress or copy container into a temporary file
+
+ Function returns path to the temporay file
+
+=cut
+
+sub decompress_container {
+  my ($in) = @_;
+
+  my %ext2decomp = (
+    'tbz' => 'bzcat',
+    'tgz' => 'zcat',
+    'bz2' => 'bzcat',
+    'xz'  => 'xzcat',
+    'gz'  => 'zcat',
+  );
+  my $decomp;
+  $decomp = $ext2decomp{$1} if $in =~ /\.([^\.]+)$/;
+  $decomp ||= 'cat';
+
+  my ($fh, $tempfile) = tempfile();
+
+  BSUtil::printlog("Decompressing: '$decomp $in > $tempfile'");
+  qsystem('stdout', $tempfile, $decomp, $in);
+
+  return $tempfile;
+}

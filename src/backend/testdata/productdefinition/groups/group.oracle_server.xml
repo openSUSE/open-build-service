@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="oracle_server" version="10" release="235.2">
+    <pattern ordernumber="3090">
+        <category>Primary Functions</category>
+        <description>Set up the server for installing Oracle databases.</description>
+        <summary>Oracle Server Base</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="basesystem" relationship="requires" />
+        </relationships>
+    </pattern>
+    <packagelist relationship="requires" id="oracle_server.requires">
+            <package name="orarun" />
+    </packagelist>
+</group>

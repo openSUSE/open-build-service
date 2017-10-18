@@ -1,0 +1,104 @@
+Authentication on the openSUSE Build Service
+============================================
+
+The authentication used on the build system has the following
+basic requirements:
+
+* The authentication has to happen on the frontend since we need
+  client independance. That means that a valid authentication check
+  can only be done on the frontend. Clients only transfer credentials
+  to the frontend.
+
+* On the fronend, ActiveRBac for Ruby on Rails 
+  ( https://activerbac.turingstudio.com/trac ) is used because we
+  want to benefit especially from the permission system that ActiveRBac
+  comes with. Every change to the openSUSE build service authentication
+  system should not change the ActiveRBAC code. Moreover our changes
+  should integrate into the ActiveRBAC concepts.
+
+* Additionally we want to integrate the iChain support with the ActiveRBAC  
+  user management. iChain is a Novell identity management solution 
+  and if we support users can do everything with one login on the
+  Novell and openSUSE websites.
+
+* Since there are many registered users on the Novell websites we 
+  do not want to give access to the openSUSE build service by default
+  to anybody. Especially in the beginning we want to be able to
+  control who has access to the BS. Thus there needs to be a process
+  where people ask for enabling their iChain account and the BS admin
+  team activates the user.
+
+* iChain works like a proxy transparent in front of a web application.
+  All it does is adding a header value to the http header. In our case
+  (iChain is much more powerfull than this) we only have the username 
+  in the header. Note that as a result of the administrational setup 
+  this header value can be considered as 100% true and secure. That 
+  means if the header contains the user name 'freitag' it is absolutely
+  secure to consider that the user freitag is logged in. The huge benefit
+  from that is that the app (the BS) does not have to bother with sensitive
+  information like passwords for example.
+
+* We want to control in the clients what pages or functions are accessible
+  without authentication (ie. the start page) and which need an authenticated
+  user. That should not need configuration in the iChain system.
+
+How does that work in the BS?
+=============================
+
+Every controller on the webclient calls the extract_user method in
+the application controller. This method tries to extract credentials
+from the request depending on the kind of authentication that is 
+running. 
+
+To switch on ichain authentication the parameter ICHAIN_HOST in the 
+config file on both webclient and frontend need to be set to the IP
+address of the ichain host (Note: The IP is not yet used, so setting
+to non-nil is sufficient).
+
+If iChain is running and the user accesses a page that should be 
+authenticated but is not yet, the webapp redirects to a special page.
+The iChain system is configured in the way that accessing this special
+page requires authentication and thus iChain displays the Novell
+standard login page. The user provides the credentials and after the
+login was successfull, the user is redirected to his initial requested
+page.
+
+
+If iChain is active the user is taken from the header value X-username
+(HTTP_X_USERNAME) that iChain transparently adds to the HTTP header.
+The username is added as a header value to all communication to the
+frontend as well. 
+
+To check if a user is valid, the webclient does a lookup on the user 
+name on the frontend. 
+That can result in the following states:
+
+* the user was found and has the ActiveRBAC state 2: The user is valid
+  and allowed to login in. 
+
+* the user is not found. That means that the access to the BS was not
+  yet granted. The user is forwarded to a page that lets him ask for
+  BS access. 
+
+* the user was found but is in state 5: The user has already asked for
+  BS access but the BS admin team has not approved. The user sees a 
+  message that asks him to wait.
+
+In case the user is not yet in the frontend user database, the client
+sends a XML document of the following form to the frontend controller
+person action register:
+
+       <unregisteredperson>
+           <login>freitag</login>
+           <realname>Klaas Freitag</realname>
+           <email>freitag@suse.de</email>
+           <state>5</state>
+           <password>opensuse</password>
+           <note>This is why I like to work with the BS</note>
+        </unregisteredperson>
+
+This controller adds the new user to the BS database and sets the
+state to be unconfirmned. Now a BS admin has to switch the users
+state to confirmned. As long as that has not happened the user can
+not log in correctly. 
+

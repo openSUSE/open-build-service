@@ -1,0 +1,161 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+BEGIN {
+  # sigh, must do it in this way so that Socket::MsgHdr's INIT is called
+  if (@ARGV && -S $ARGV[-1]) {
+    require BSXML;
+    require BSHandoff;
+  }
+}
+use Data::Dumper;
+
+my $cols;
+
+sub users {
+  my $users = join(" ", map {$_->{'ev'}} @{$_[0] || []});
+  $users = substr($users, 0, $cols - 13)." ..." if length($users) > $cols - 9;
+  return "        $users";
+}
+
+if (-t STDOUT) {
+  eval {
+    require Term::ReadKey;
+    ($cols) = Term::ReadKey::GetTerminalSize(\*STDOUT);
+    $SIG{'WINCH'} = sub { ($cols) = Term::ReadKey::GetTerminalSize(\*STDOUT) } if $cols;
+  };
+}
+$cols ||= 80;
+
+my $top;
+my $nolastevents;
+while (@ARGV) {
+  if ($ARGV[0] eq '--top') {
+    $top = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--nolastevents') {
+    $nolastevents = 1;
+    shift @ARGV;
+  } else {
+    last;
+  }
+}
+die("Usage: bs_serverstatus [--top] <statusfile>\n") unless $ARGV[0];
+$| = 1;
+print "\033[H\033[J" if $top;
+my $nl = "\n";
+$nl = "\033[K\n" if $top;
+
+if (-S $ARGV[0]) {
+  # ajaxstatus case
+  my $param = {
+    'uri' => '/ajaxstatus',
+    'handoffpath' => $ARGV[0],
+  };
+  my %slots;
+  while (1) {
+    my $ajaxstatus = BSHandoff::rpc($param, $BSXML::ajaxstatus || $BSXML::ajaxstatus);
+    my $now = time();
+    # find jobs
+    my %jobs;
+    for my $job (@{($ajaxstatus->{'joblist'} || {})->{'job'} || []}) {
+      my $id = $job->{'ev'};
+      next if $id == $ajaxstatus->{'ev'};
+      $jobs{$id} = 1;
+    }
+    # clean up old slots
+    for (keys %slots) {
+      delete $slots{$_} unless $jobs{$_};
+    }
+    # create slots
+    my $lasteventscount = 0;
+    my @slots;
+    for my $job (@{($ajaxstatus->{'joblist'} || {})->{'job'} || []}) {
+      my $id = $job->{'ev'};
+      next if $id == $ajaxstatus->{'ev'};
+      if ($nolastevents && $job->{'request'} && $job->{'request'} =~ /^GET \/lastevents\?/) {
+	$lasteventscount++;
+	next;
+      }
+      my $slot = $slots{$id};
+      if (!defined $slot) {
+	$slot = 0;
+	for (sort {$a <=> $b} values %slots) {
+	  last if $_ != $slot;
+	  $slot++;
+	}
+	$slots{$id} = $slot;
+      }
+      my $d = $now - $job->{'starttime'};
+      my $req = $job->{'request'} || '?';
+      my $str = sprintf("%5d %5d %3d %s", $d, $id, $job->{'fd'}, $req);
+      $slots[$slot] = substr($str, 0, $cols - 1);
+    }
+    if ($nolastevents) {
+      unshift @slots, "suppressed lastevents: $lasteventscount";
+    }
+    if ($ajaxstatus->{'watcher'}) {
+      push @slots, undef;
+      for my $fw (@{$ajaxstatus->{'watcher'}}) {
+	push @slots, sprintf("%s", $fw->{'filename'});
+	push @slots, users($fw->{'job'}) if $fw->{'job'};
+      }
+    }
+    if ($ajaxstatus->{'rpc'}) {
+      push @slots, undef;
+      for my $rpc (@{$ajaxstatus->{'rpc'}}) {
+	my $d = $now - $rpc->{'starttime'};
+	my $str = sprintf("%5d %5d %3d %s", $d, $rpc->{'ev'}, $rpc->{'fd'}, $rpc->{'uri'});
+	push @slots, substr($str, 0, $cols - 1);
+	push @slots, users($rpc->{'job'}) if $rpc->{'job'};
+      }
+    }
+    if ($ajaxstatus->{'serialize'}) {
+      push @slots, undef;
+      for my $re (@{$ajaxstatus->{'serialize'}}) {
+	push @slots, sprintf("%s", $re->{'filename'});
+	push @slots, users($re->{'job'}) if $re->{'job'};
+      }
+    }
+    for my $str (@slots) {
+      $str = '' unless defined $str;
+      print "$str$nl";
+    }
+    last unless $top;
+    print "\033[J";
+    sleep(1);
+    print "\033[H";
+  }
+  exit(0);
+}
+
+while(1) {
+  open(STA, '<', $ARGV[0]) || die("$ARGV[0]: $!\n");
+  my $now = time();
+  my $sta;
+  my $empty = '';
+  while ((sysread(STA, $sta, 256) || 0) == 256) {
+    my ($ti, $pid, $group, $extra, $state, $data) = unpack("NNCCnZ244", $sta);
+    if ($state == 0) {
+      $empty .= "-$nl";
+      next;
+    }
+    my $d = $now - $ti;
+    if ($state == 1) {
+      $state = 'F';
+    } elsif ($state == 2) {
+      $state = 'R';
+    } else {
+      $state = '?';
+    }
+    $state .= $group ? $group : ' ';
+    printf "%s%s %3d %5d %s$nl", $empty, $state, $d, $pid, $data;
+    $empty = '';
+  }
+  close STA;
+  last unless $top;
+  print "\033[J";
+  sleep(1);
+  print "\033[H";
+}

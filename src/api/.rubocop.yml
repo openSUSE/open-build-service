@@ -1,0 +1,5 @@
+inherit_from: ../../.rubocop.yml
+
+AllCops:
+  UseCache: true
+  CacheRootDirectory: tmp/rubocop_cache

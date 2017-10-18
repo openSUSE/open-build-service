@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+
+gem 'capybara'
+gem 'rspec-core'
+gem 'rspec-expectations'
+# as driver for capybara
+gem 'poltergeist', '>= 1.4'

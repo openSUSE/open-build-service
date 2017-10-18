@@ -1,0 +1,36 @@
+@arg_project = "testing"
+@arg_package = "test1"
+@arg_filename = "test1.spec"
+@arg_arch = "i586"
+@arg_repository = "SUSE_Factory"
+@arg_rpmname = "mydummy-1.0-1.1.i586.rpm"
+
+request "GET /source/"
+
+response = request "GET /source/<project>/_meta"
+if ( response )
+  @data_body = response.body
+  request "PUT /source/<project>/_meta"
+end
+
+response = request "GET /source/<project>/<package>/_meta"
+if ( response )
+  @data_body = response.body
+#  request "PUT /source/<project>/<package>/_meta"
+end
+
+response = request "GET /source/<project>/<package>/<filename>"
+if ( response )
+  @data_body = response.body
+  request "PUT /source/<project>/<package>/<filename>"
+end
+
+request "GET /platform/"
+request "GET /platform/<project>"
+request "GET /rpm/<project>/<repository>/<arch>/<package>"
+request "GET /rpm/<project>/<repository>/<package>/<rpmname>"
+request "GET /status/<project>/:all/:all"
+request "GET /status/<project>/<repository>/:all"
+request "GET /status/<project>/<repository>/<package>"
+request "GET /rpm/<project>/<repository>/<arch>/<package>/logfile"
+request "GET /rpm/<project>/<repository>/<arch>/<package>/status"

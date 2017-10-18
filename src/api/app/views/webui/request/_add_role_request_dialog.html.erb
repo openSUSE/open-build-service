@@ -1,0 +1,26 @@
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <h2 class="box-header">Add Role Request</h2>
+      <div class="dialog-content">
+        <p>Do you want to request a role addition to <%= project_or_package_link project: @project, package: @package %>?</p>
+
+        <%= form_tag(:action => 'add_role_request') do %>
+          <%= hidden_field_tag(:project, @project) %>
+          <%= hidden_field_tag(:package, @package) if defined? @package %>
+          <p>
+            <%= label_tag(:role, 'Add role:') %><br/>
+            <%= select_tag(:role, options_for_select([%w(Maintainer maintainer), %w(Bugowner bugowner)])) %><br/>
+            <%= label_tag(:user, 'For user:') %><br/>
+            <%= text_field_tag(:user, User.current.login, :size => 40) %><br/>
+            <% if defined? @package %>
+              <%= label_tag(:target_project, 'In target project:') %><br/>
+              <%= text_field_tag(:target_project, @project, :size => 40, :disabled => true) %><br/>
+            <% end %>
+            <%= label_tag(:description, 'Description:') %><br/>
+            <%= text_area_tag(:description, '', :size => '40x3') %>
+          </p>
+          <%= render partial: '/webui/shared/dialog_action_buttons' %>
+        <% end %>
+      </div>
+    </div>
+  </div>

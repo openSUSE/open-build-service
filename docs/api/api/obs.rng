@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Default objects for OBS
+-->
+
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <!-- this list needs to be kept in sync with list in bs_worker -->
+  <define ns="" name="build-arch">
+    <choice>
+      <value>noarch</value>
+
+      <value>aarch64</value>
+      <value>aarch64_ilp32</value>
+
+      <value>armv4l</value>
+      <value>armv5l</value>
+      <value>armv6l</value>
+      <value>armv7l</value>
+      <value>armv5el</value> <!-- not existing officially -->
+      <value>armv6el</value>
+      <value>armv7el</value>
+      <value>armv7hl</value>
+      <value>armv8el</value>
+
+      <value>hppa</value>
+
+      <value>m68k</value>
+
+      <value>i386</value>
+      <value>i486</value>
+      <value>i586</value>
+      <value>i686</value>
+      <value>athlon</value>
+
+      <value>ia64</value>
+
+      <value>k1om</value>
+
+      <value>mips</value>
+      <value>mipsel</value>
+      <value>mips32</value>
+      <value>mips64</value>
+      <value>mips64el</value>
+
+      <value>ppc</value>
+      <value>ppc64</value>
+      <value>ppc64p7</value>
+      <value>ppc64le</value>
+
+      <value>s390</value>
+      <value>s390x</value>
+
+      <value>sh4</value>
+
+      <value>sparc</value>
+      <value>sparc64</value>
+      <value>sparc64v</value>
+      <value>sparcv8</value>
+      <value>sparcv9</value>
+      <value>sparcv9v</value>
+
+      <value>x86_64</value>
+
+      <value>local</value>
+    </choice>
+  </define>
+
+  <define ns="" name="rebuild-modes">
+    <choice>
+      <value>transitive</value> <!-- DEFAULT: build on source change and all depending packages including indirect dependencies -->
+      <value>direct</value>     <!-- build on source change and direct depending packages -->
+      <value>local</value>      <!-- build on source change only -->
+    </choice>
+  </define>
+
+  <define ns="" name="block-modes">
+    <choice>
+      <value>all</value>       <!-- DEFAULT: block until all packages we depend on are built -->
+      <value>local</value>     <!-- like all, but ignore packages from other repositories -->
+      <value>never</value>     <!-- immediately start building the packages -->
+    </choice>
+  </define>
+
+  <define ns="" name="service-modes">
+    <choice>
+                                   <!-- DEFAULT: the attribute is not used, service running on server and locally on build time -->
+      <value>trylocal</value>      <!-- try on local clients and merge result, but run also on server side -->
+      <value>localonly</value>     <!-- never run on server side, but on the clients (not enforced) -->
+      <value>serveronly</value>    <!-- run on server side, but not on the clients by default -->
+      <value>buildtime</value>     <!-- run during build time, pulls in services as build dependencies -->
+      <value>disabled</value>      <!-- never run, except user explicit starts it locally -->
+    </choice>
+  </define>
+
+  <define ns="" name="linkedbuild-modes">
+    <choice>
+      <value>off</value>       <!-- DEFAULT: do not build packages from project links -->
+      <value>localdep</value>  <!-- only build project linked packages if they depend on a local package -->
+      <value>all</value>       <!-- treat packages from project links like local packages -->
+    </choice>
+  </define>
+
+  <define ns="" name="release-triggers">
+    <choice>
+                                   <!-- DEFAULT: not set, no release action possible -->
+      <value>manual</value>        <!-- only on manual commands the release gets started -->
+ <!-- no yet supported <value>allsucceeded</value> -->  <!-- Release when the repository has finished building and all jobs were successfull -->
+      <value>maintenance</value>   <!-- Release just once on maintenance release event. This attribute gets removed at the same time -->
+    </choice>
+  </define>
+
+  <define ns="" name="supportstatus-choices">
+    <choice>
+      <value>l3</value>
+      <value>l2</value>
+      <value>l1</value>
+      <value>acc</value>
+      <value>unsupported</value>
+    </choice>
+  </define>
+
+  <define ns="" name="local-role">
+    <choice>
+      <value>maintainer</value>
+      <value>bugowner</value>
+      <value>reviewer</value>
+      <value>downloader</value>
+      <value>reader</value>
+    </choice>
+  </define>
+
+  <define ns="" name="global-role">
+    <choice>
+      <value>Admin</value>
+      <value>User</value>
+    </choice>
+  </define>
+
+  <define ns="" name="person-element">
+    <element name="person">
+      <attribute name="userid">
+        <data type="string" />
+      </attribute>
+      <attribute name="role">
+        <ref name="local-role" />
+      </attribute>
+      <empty/>
+    </element>
+  </define>
+
+  <define ns="" name="group-element">
+    <element name="group">
+      <attribute name="groupid">
+        <data type="string" />
+      </attribute>
+      <attribute name="role">
+        <ref name="local-role" />
+      </attribute>
+      <empty/>
+    </element>
+  </define>
+
+  <define ns="" name="flag-switch">
+    <optional>
+      <attribute name="repository">
+        <data type="string" />
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="arch">
+        <ref name="build-arch" />
+      </attribute>
+    </optional>
+  </define>
+
+  <define ns="" name="flag-element">
+    <zeroOrMore>
+      <optional>
+        <element name="enable">
+          <ref name="flag-switch"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="disable">
+          <ref name="flag-switch"/>
+        </element>
+      </optional>
+    </zeroOrMore>
+    <empty/>
+  </define>
+
+  <define ns="" name="simple-flag-element">
+    <optional>
+      <element name="enable">
+        <empty/>
+      </element>
+    </optional>
+    <optional>
+      <element name="disable">
+        <empty/>
+      </element>
+    </optional>
+    <empty/>
+  </define>
+
+  <define ns="" name="repository-element">
+    <element name="repository">
+      <attribute name="name">
+        <data type="string" />
+      </attribute>
+      <optional>
+        <attribute name="rebuild">
+          <ref name="rebuild-modes" />
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="block">
+          <ref name="block-modes" />
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="linkedbuild">
+          <ref name="linkedbuild-modes" />
+        </attribute>
+      </optional>
+      <interleave>
+        <zeroOrMore>
+          <element name="download">
+            <attribute name="arch">
+              <data type="string" />
+            </attribute>
+            <attribute name="url">
+              <data type="string" />
+            </attribute>
+            <attribute name="repotype">
+              <data type="string" />
+            </attribute>
+            <interleave>
+              <optional>
+                <element name="archfilter">
+                  <text/>
+                </element>
+              </optional>
+              <optional>
+                <element name="master">
+                  <attribute name="url">
+                    <data type="string" />
+                  </attribute>
+                  <attribute name="sslfingerprint">
+                    <data type="string" />
+                  </attribute>
+                </element>
+              </optional>
+              <optional>
+                <element name="pubkey">
+                  <text/>
+                </element>
+              </optional>
+            </interleave>
+          </element>
+        </zeroOrMore>
+
+        <optional> <!-- limited to one currently. Could be extended later -->
+            <element name="releasetarget">
+              <attribute name="project">
+                <data type="string" />
+              </attribute>
+              <attribute name="repository">
+                <data type="string" />
+              </attribute>
+              <optional>
+                <attribute name="trigger">
+                  <ref name="release-triggers" />
+                </attribute>
+              </optional>
+            </element>
+        </optional>
+        <zeroOrMore>
+            <element name="path">
+              <attribute name="repository">
+                <data type="string" />
+              </attribute>
+              <attribute name="project">
+                <data type="string" />
+              </attribute>
+            </element>
+        </zeroOrMore>
+        <optional>
+          <element name="hostsystem">
+            <attribute name="repository">
+              <data type="string" />
+            </attribute>
+            <attribute name="project">
+              <data type="string" />
+            </attribute>
+          </element>
+        </optional>
+        <zeroOrMore>
+          <element name="arch">
+            <ref name="build-arch" />
+          </element>
+        </zeroOrMore>
+      </interleave>
+      <empty/>
+    </element>
+  </define>
+
+  <define ns="" name="issue-tracker-element">
+    <element name="issue-tracker">
+      <interleave>
+        <element name="name">
+          <text/>
+        </element>
+        <element name="label">
+          <text/>
+        </element>
+        <element name="kind">
+          <text/>
+        </element>
+        <element name="description">
+          <text/>
+        </element>
+        <optional>
+          <element name="enable-fetch">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="issues-updated">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="user">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="password">
+            <text/>
+          </element>
+        </optional>
+        <element name="url">
+          <text/>
+        </element>
+        <element name="show-url">
+          <text/>
+        </element>
+        <element name="regex">
+          <text/>
+        </element>
+      </interleave>
+    </element>
+  </define>
+
+  <!-- worker and dispatcher constraint values -->
+  <define ns="" name="build-sandbox">
+    <choice>
+      <value>chroot</value>
+      <value>lxc</value>
+      <value>kvm</value>
+      <value>xen</value>
+      <value>secure</value> <!-- xen or kvm -->
+    </choice>
+  </define>
+
+  <define ns="" name="cpu-flags">
+    <choice>
+      <value>fpu</value>
+      <value>mmx</value>
+      <value>sse</value>
+      <value>sse2</value>
+      <value>sse3</value>
+      <value>ssse3</value>
+    </choice>
+  </define>
+
+  <define ns="" name="size-unit">
+    <element name="size">
+      <attribute name="unit">
+        <choice>
+          <value>K</value>
+          <value>M</value>
+          <value>G</value>
+          <value>T</value>
+        </choice>
+      </attribute>
+      <data type="float"/>
+    </element>
+  </define>
+
+  <!-- OBS rating values, used in patchinfos and requests -->
+  <define ns="" name="obs-ratings">
+    <choice>
+      <value>low</value>       <!-- work on it when nothing else needs to be done -->
+      <value>moderate</value>  <!-- default: normal priority -->
+      <value>important</value> <!-- prefer this over the others, but finish your current task first -->
+      <value>critical</value>  <!-- everything and work only on this -->
+    </choice>
+  </define>
+
+</grammar>

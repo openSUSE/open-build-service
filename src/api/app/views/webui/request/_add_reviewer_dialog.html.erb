@@ -1,0 +1,37 @@
+<div class="dialog darkgrey_box">
+  <div class="box box-shadow">
+    <h2 class="box-header">Add Reviewer</h2>
+    <div class="dialog-content">
+      <p>Add a reviewer to request <%= @request_number %></p>
+
+      <%= form_tag(:action => "add_reviewer") do %>
+        <%= hidden_field_tag(:number, @request_number) %>
+        <p>
+          <%= label_tag(:review_type, "Type:") %><br/>
+          <%= select_tag(:review_type, options_for_select([%w(User user), %w(Group group), %w(Project project), %w(Package package)])) %>
+          <br/>
+          <span id="review_user_span">
+            <%= label_tag(:review_user, "User:") %><br/>
+            <%= text_field_tag(:review_user) %><br/>
+          </span>
+          <span id="review_group_span" class="hidden">
+            <%= label_tag(:review_group, "Group:") %><br/>
+            <%= text_field_tag(:review_group) %><br/>
+          </span>
+          <span id="review_project_span" class="hidden">
+            <%= label_tag(:review_project, "Project:") %><br/>
+            <%= text_field_tag(:review_project) %><br/>
+          </span>
+          <span id="review_package_span" class="hidden">
+            <%= label_tag(:review_package, "Package:") %><br/>
+            <%= text_field_tag(:review_package) %><br/>
+          </span>
+          <%= label_tag(:review_comment, "Comment for reviewer:") %><br/>
+          <%= text_area_tag('review_comment', nil, :size => '80x3') %>
+        </p>
+
+        <%= render partial: '/webui/shared/dialog_action_buttons' %>
+      <% end %>
+    </div>
+  </div>
+</div>

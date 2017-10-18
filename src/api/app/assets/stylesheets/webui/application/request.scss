@@ -1,0 +1,15 @@
+.request-low {
+  color: #6484a4;
+}
+.request-moderate {
+}
+.request-important {
+  color: #e88000;
+}
+.request-critical {
+  color: #d80000;
+}
+
+[id^='review_accept_button']{
+  margin-right: 1em;
+}

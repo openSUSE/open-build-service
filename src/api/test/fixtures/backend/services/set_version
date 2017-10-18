@@ -1,0 +1,86 @@
+#!/bin/bash
+
+# A simple script to update spec or dsc file
+# very, very simple. I am happy about patches which handles multiple files with different version numbers
+#
+# (C) 2010 by Adrian Schröter <adrian@suse.de>
+#  
+# This program is free software; you can redistribute it and/or  
+# modify it under the terms of the GNU General Public License  
+# as published by the Free Software Foundation; either version 2  
+# of the License, or (at your option) any later version.  
+# See http://www.gnu.org/licenses/gpl-2.0.html for full license text.  
+
+
+# defaults
+MYVERSION=""
+FILES=""
+
+while test $# -gt 0; do
+  case $1 in
+    *-version)
+      MYVERSION="$2"
+      shift
+    ;;
+    *-file)
+      FILES="$FILES ${2##*/}"
+      shift
+    ;;
+    *-basename)
+      BASENAME="^$2"
+      shift
+    ;;
+    *-outdir)
+      MYOUTDIR="$2"
+      shift
+    ;;
+    *)
+      echo Unknown parameter $1.
+      echo 'Usage: set_version --version $VERSION --file $FILE --outdir $OUT'
+      exit 1
+    ;;
+  esac
+  shift
+done
+
+if [ -z "$MYVERSION" ]; then
+  MYVERSION=`ls -1 | sed -n "s,$BASENAME.*-\([0123456789].*\).tar.*,\1,p" | head -n 1`
+fi
+if [ -z "$MYVERSION" ]; then
+  MYVERSION=`ls -1 | sed -n "s,$BASENAME.*-\([0123456789].*\).tgz$,\1,p" | head -n 1`
+fi
+if [ -z "$MYVERSION" ]; then
+  MYVERSION=`ls -1 | sed -n "s,$BASENAME.*-\([0123456789].*\).tbz2$,\1,p" | head -n 1`
+fi
+if [ -z "$MYVERSION" ]; then
+  MYVERSION=`ls -1 | sed -n "s,$BASENAME.*-\([0123456789].*\).zip$,\1,p" | head -n 1`
+fi
+if [ -z "$MYVERSION" ]; then
+  echo "ERROR: no version is given and can't get detected automatically"
+  exit 1
+fi
+if [ -z "$FILES" ]; then
+  FILES="*.spec *.dsc"
+fi
+if [ -z "$MYOUTDIR" ]; then
+  echo "ERROR: no output directory is given via --outdir parameter!"
+  exit 1
+fi
+
+for i in $FILES; do
+  FILE=`ls -1 $i 2>/dev/null`
+  [ -e "$FILE" ] || continue
+
+  sed "s,^Version:.*,Version: $MYVERSION," "$FILE" > "$MYOUTDIR/$FILE" || exit 1
+  if [ "${FILE%.spec}" != "$FILE" ]; then
+    # set release back to zero after version upgrade, will be increased by OBS during build
+    sed -i "s,^Release:.*,Release: 0,"  "$MYOUTDIR/$FILE" || exit 1
+  fi
+
+  if [ "${FILE#_service:}" != "$FILE" ]; then
+    # we can remove service files, no need to store them twice
+    rm -f "$FILE"
+  fi
+done
+
+exit 0

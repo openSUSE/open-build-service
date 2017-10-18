@@ -1,0 +1,25 @@
+#!/bin/sh
+
+case $1 in
+  config)
+       cat <<'EOM'
+graph_title OBS Dispatcher States
+graph_vlabel Number of dispatched repositories 
+graph_category obs
+graph_order dispatching dispatchprios
+dispatching.label obs_dispatching_repos
+dispatching.info The number of repositories dispatching to obs workers
+dispatching.type GAUGE
+dispatching.draw STACK
+dispatchprios.label obs_dispatchprios_projects
+dispatchprios.info The number of dispatched projects with discriminative priority.
+dispatchprios.type GAUGE
+dispatchprios.draw STACK
+EOM
+       exit 0;;
+esac
+
+num_dispatchprios=`grep --text -c project /srv/obs/jobs/dispatchprios`
+num_dispatching=`ls /srv/obs/run/dispatch.data | wc -l`
+echo "dispatching.value $num_dispatching"
+echo "dispatchprios.value $num_dispatchprios"

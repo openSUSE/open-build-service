@@ -1,0 +1,236 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user/_meta?user=user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user">
+          <title/>
+          <description/>
+          <person userid="user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user">
+          <title></title>
+          <description></description>
+          <person userid="user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user/package_with_files/_meta?user=user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '115'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user/package_with_files/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:user">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '115'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:user">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user/package_with_files/_config
+    body:
+      encoding: UTF-8
+      string: Blanditiis dolorem illo. Repellendus eum autem ea aut sit. Quia accusantium
+        fugit sunt occaecati blanditiis praesentium.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="664" vrev="664">
+          <srcmd5>7e763c51897a720bd6a241a0bd6ef321</srcmd5>
+          <version>unknown</version>
+          <time>1492608725</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Voluptatem impedit quo quos delectus. Aut corporis facere est. Ipsa
+        neque vitae ratione unde. Sunt molestiae dolore laudantium assumenda id. Tempore
+        culpa consequuntur esse quia consectetur.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="665" vrev="665">
+          <srcmd5>43b7ec75f07dd63b2a61e9f04f15f422</srcmd5>
+          <version>unknown</version>
+          <time>1492608725</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:user/package_with_files/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '190'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: Voluptatem impedit quo quos delectus. Aut corporis facere est. Ipsa
+        neque vitae ratione unde. Sunt molestiae dolore laudantium assumenda id. Tempore
+        culpa consequuntur esse quia consectetur.
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 13:32:05 GMT
+recorded_with: VCR 3.0.3

@@ -1,0 +1,55 @@
+#building-list
+  - if @workerstatus.has_key? 'building'
+    %table.building#building-table
+      %thead
+        %tr
+          %th Project
+          %th Package
+          %th Repository - Build Arch
+          %th Job time
+          %th Build Host
+          %th Host Arch
+      %tbody
+        - @workerstatus.elements("building").sort {|a,b| b["starttime"] <=> a["starttime"] }.each do |building|
+          - project = building["project"]
+          - package = building["package"]
+          - repository = building["repository"]
+          - architecture = building["arch"]
+          %tr
+            %td.project
+              - if project.include? "---"
+                \-------
+              - else
+                = link_to project, controller: 'project', action: 'show', project: project
+            %td.package
+              - if package.include? "---"
+                \-------
+              - else
+                = link_to package, controller: 'package', action: 'show', project: project, package: package
+            %td.repository.arch
+              - if repository.include? "---"
+                \-------
+              - else
+                = link_to repository + ' - ' + architecture, controller: 'package', action: 'live_build_log',
+                  project: project, package: package, repository: repository, arch: architecture
+            - start_time = Time.at(building["starttime"].to_i)
+            - warning_style = nil
+            - if start_time < @dead_line
+              - n = ((start_time - @dead_line).abs / 60 / @interval_steps).round
+              - n = (@max_color < n) ? 0 : @max_color - n
+              - warning_style = "background-color: rgb(255,#{n},0);"
+            %td.starttime{ style: warning_style, title: "start time: #{start_time.iso8601}" }
+              %span.sorttime{ style: "display: none" }
+                = building["starttime"].to_i
+              = distance_of_time_in_words(@time_now, start_time)
+            %td.uri= building["workerid"]
+            %td.hostarch= building["hostarch"]
+
+  = content_for :ready_function do
+    :plain
+      $('#building-table').dataTable({
+        'aaSorting': [[3, 'desc']],
+        'bInfo': false,
+        'bPaginate': false,
+        'oSearch': {'sSearch': '#{@project_filter}', 'bRegex': false, 'bSmart': false},
+      });

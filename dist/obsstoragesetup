@@ -1,0 +1,503 @@
+#! /bin/sh
+# Copyright (c) 2010-12, SUSE Inc.
+#
+# Author: adrian@suse.de
+#
+# /etc/init.d/obsstoragesetup
+#   and its symbolic link
+# /usr/sbin/rcobsstoragesetup
+#
+### BEGIN INIT INFO
+# Provides:          obsstoragesetup
+# X-Start-Before:    mysql sshd obsapisetup
+# Should-Start:      xendomains haveged
+# Should-Stop:       $none
+# Required-Start:    $network
+# Required-Stop:     $null
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 4 6
+# Description:       Finds the storage device to be used for OBS server and/or worker
+### END INIT INFO
+
+. /etc/rc.status
+
+# BOOTSTRAP_TEST_MODE prevents setup-appliance.sh execution
+# this is also sourcing /etc/sysconfig/obs-server
+export BOOTSTRAP_TEST_MODE=1
+source /usr/lib/obs/server/setup-appliance.sh
+unset BOOTSTRAP_TEST_MODE
+
+# instance defaults
+if [ -e /etc/buildhost.config ]; then
+  source /etc/buildhost.config
+fi
+
+if [ "$OBS_STORAGE_AUTOSETUP" != "yes" ]; then
+   echo "OBS Storage Autosetup is not enabled in sysconfig, skipping!"
+   exit 0
+fi
+
+# Determine the base and follow a runlevel link name.
+base=${0##*/}
+link=${base#*[SK][0-9][0-9]}
+
+if [ -z "$OBS_BASE_DIR" ]; then
+backenddir=/srv/obs
+else
+backenddir="$OBS_BASE_DIR"
+fi
+
+if [ -z "$OBS_WORKER_DIRECTORY" ]; then
+	OBS_WORKER_DIRECTORY="/var/cache/obs/worker"
+fi
+
+rc_reset
+case "$1" in
+	start)
+
+		round_down_to_pe()
+		#    round_down_to_pe <REQUESTED_SIZE_MiB> <EXTENT_SIZE_kiB>
+		#
+		# Round size supplied to allign with the nearest lower
+		# PE count and print the result
+		{
+			local ARG_SIZE=$1
+			local ARG_PE=$2
+			echo $((
+					( ( $ARG_SIZE * 1024 )
+					- ( ( $ARG_SIZE * 1024 )
+						% $ARG_PE ) )
+					/ 1024
+			))
+		}
+
+		# configure sshd if wanted
+		if [ ! -e /root/.ssh/authorized_keys ]; then
+			if [ -n "$OBS_ROOT_SSHD_KEY_URL" ]; then
+				echo "Enabling sshd as requested"
+				[ -e /root/.ssh ] || mkdir /root/.ssh
+				curl $OBS_ROOT_SSHD_KEY_URL > /root/.ssh/authorized_keys
+				insserv sshd
+				# avoid dead lock in systemctl
+				export SYSTEMCTL_OPTIONS=--ignore-dependencies
+				rcsshd start
+			fi
+		fi
+
+		# support usage of lvm on md devices
+                if [ -x /sbin/mdadm -a -x /etc/init.d/boot.lvm ]; then
+			/sbin/mdadm --assemble --scan
+			/etc/init.d/boot.lvm start
+		fi
+
+		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" ]; then
+			if [ -e /dev/OBS/server ]; then
+				echo "ERROR: A OBS server partition exists, aborting, do no take all space!"
+			else
+				echo "Collect all LVM partitions for the worker"
+				# remove everything first
+				vgreduce --removemissing --force OBS
+				vgremove -ff OBS
+				pvremove -ff `pvdisplay  | grep "PV Name" | awk '{ print $3 }'`
+
+				# Find unpartitioned disks and create LVM partition on them
+				for disk in `hwinfo --disk | grep "Device File:" |\
+					cut -f2 -d: | cut -f2 -d" " | grep -v /dev/ram`;do
+				        count=0
+				        used=
+				        for i in `sfdisk -l $disk 2>/dev/null | tr -d '*' | grep ^/ |\
+				                sed -e s"@\s\+@:@g" | cut -f1,5,6 -d:`;do
+				                blocks=`echo $i | cut -f2 -d:`
+				                if [ $blocks = "0" ];then
+				                        count=`expr $count + 1`
+				                        continue
+				                fi
+				                used=1
+				        done
+				        if [ $count -eq 4 ] || [ -z "$used" ];then
+						echo ",,8e,-" | sfdisk $disk >/dev/null 2>&1
+				        fi
+				done
+
+				# Collect all LVM partitions
+				DEVICES=""
+				for i in `sfdisk -l 2>/dev/null | tr -d '*' | grep ^/ |\
+					sed -e s"@\s\+@:@g" | cut -f1,5,6 -d:`;do
+					device=`echo $i | cut -f1 -d:`
+					blocks=`echo $i | cut -f2 -d:`
+					partid=`echo $i | cut -f3 -d:`
+					if [ $blocks = "0" ];then
+					        continue 
+					fi
+					if [ $partid = "8e" ];then
+                		                # metadata size is needed to align PV inside of partition
+						pvcreate --metadatasize 499k $device && DEVICES="$DEVICES $device"
+					fi
+				done
+				vgcreate OBS $DEVICES
+				vgscan
+			fi
+		elif [ "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
+			echo "Remove all LVM cache and worker partitions in VG OBS."
+			# Cannot test on existence of "/dev/OBS", in case no LVs in VG OBS have been created!
+			if [ -n "$(vgdisplay -c OBS 2>/dev/null)" ]; then
+				vgchange -ay OBS
+			        lvremove -f /dev/OBS/worker_* /dev/OBS/cache 2>/dev/null
+                        else
+				echo "WARNING: The LVM volume group 'OBS' can not be used."
+                                echo "         Please create one to get worker partitions configured"
+			fi
+		fi
+
+		echo "Looking for existing OBS Server LVM Volume"
+		[ -d "$backenddir" ] || mkdir -p "$backenddir"
+                if [ -e /dev/OBS/server ]; then
+			mount /dev/OBS/server "$backenddir"
+			if [ -e /usr/lib/obs/server/BSConfig.pm ];then
+				echo "Found BSConfig.pm"
+				if [ -d "$backenddir/run" ]; then
+					echo "Directory '$backenddir/run' exists"
+					# make sure that directories needed by mostly all other daemons are created now
+					# and set proper ownership
+					bsuser=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsuser || "obsrun" )'`
+					bsgroup=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsgroup || "obsrun" )'`
+					owner_rundir=`stat -L --printf="%U" "$backenddir/run"`
+					if [ "$owner_rundir" != "root" ];then
+						echo "owner of '$backenddir/run' is $owner_rundir"
+						if [ "$owner_rundir" != "$bsuser" ];then
+							echo "owner $owner_rundir is not configured bsuser '$bsuser'"
+							echo "changing ownership"
+							uid_rundir=`stat -L --printf="%u" "$backenddir/run"`
+							find $backenddir -uid $uid_rundir -exec chown $bsuser:$bsgroup {} \;
+						else 
+							echo "Owner of '$backenddir/run' is '$bsuser'. Nothing to fix!"
+						fi
+					else 
+						echo "Owner of '$backenddir/run' is root. Not changing anything"
+					fi
+				else 
+					echo "Directory '$backenddir/run' not found"
+				fi
+			else
+				echo "No BSConfig found while setting up /dev/OBS/server"
+			fi
+			obs_server_size=$(( $(lvdisplay -c OBS/server 2>/dev/null | cut -d: -f7) / 2 / 1024 ))
+		else 
+			echo "No logical volume found under /dev/OBS/server"
+                fi
+
+                # setup signer and signd if possible
+		prepare_obssigner
+
+                # Force mysql to update database. FIXME: only on version update
+		[ -d "$backenddir"/MySQL/ ] && touch "$backenddir"/MySQL/.run-mysql_upgrade
+
+		if [ "$OBS_SETUP_WORKER_PARTITIONS" = "take_all" -o "$OBS_SETUP_WORKER_PARTITIONS" = "use_obs_vg" ]; then
+			if [ 0"$OBS_WORKER_INSTANCES" -gt 0 ]; then
+				# got config setting from sysconfig or PXE server
+				NUM="$OBS_WORKER_INSTANCES"
+			else
+				# auto detect max possible instances
+				# start one build backend per CPU by default
+				NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
+
+				# but be sure that we have at least 512MB per instance
+				if [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
+					MEMORY=`xm info | sed -n 's/^max_free_memory[ ]*:[ ]*\(.*\)$/\1/p'`
+					MEMORY=$(( $MEMORY * 1024 ))
+				else
+					MEMORY=`sed -n 's/^MemTotal:[ ]*\(.*\).kB$/\1/p' /proc/meminfo`
+				fi
+				if [ $MEMORY -lt $(( $NUM * 512 * 1024 )) ]; then
+					NUM=$(( $MEMORY / ( 1024 * 512 ) ))
+					NUM=$(( $NUM - 1 ))  # for Dom0
+				fi
+			fi
+			if [ ! "0$NUM" -gt 0 ]; then
+				echo "WARNING: OBS worker instances are 0, either misconfiguration or not enough resources"
+				exit 0
+			fi
+
+			# Look for PV devices in OBS VG
+			pvs=""
+			for i in `vgdisplay -v OBS 2>/dev/null | grep "PV Name" | awk '{ print $3 }' | sort`; do
+				if [ -L $i ]; then
+					pvs="$pvs `readlink -f $i`"
+				else
+					pvs="$pvs $i"
+				fi
+			done
+			disks_per_instance=1
+			pvs=( $pvs )
+			pv_count=${#pvs[@]}
+			PE_SIZE=`vgdisplay -c OBS | cut -d: -f13`
+			if [ "0$PE_SIZE" -gt 0 ]; then
+
+				if [ -z "$OBS_WORKER_CACHE_SIZE" ]; then
+					# 25 GB sounds like a good default for cache.
+					OBS_WORKER_CACHE_SIZE=$(( 25 * 1024 ))
+				fi
+				OBS_WORKER_CACHE_SIZE=`round_down_to_pe $OBS_WORKER_CACHE_SIZE $PE_SIZE`
+
+				if [ -z "$OBS_WORKER_SWAP_SIZE" ]; then
+					OBS_WORKER_SWAP_SIZE=512
+				fi
+				OBS_WORKER_SWAP_SIZE=`round_down_to_pe $OBS_WORKER_SWAP_SIZE $PE_SIZE`
+
+				if [ -z "$OBS_WORKER_ROOT_SIZE" ]; then
+					VG_SIZE=`vgdisplay -c OBS | cut -d: -f16`
+					PE_SIZE_IN_MB=$((  $PE_SIZE / 1024 ))
+					VG_SIZE=$(( $VG_SIZE * $PE_SIZE_IN_MB ))
+					OBS_SERVER_SIZE=${obs_server_size:-0}
+					TOTAL_SWAP_SIZE=$(( $NUM * $OBS_WORKER_SWAP_SIZE ))
+					FINAL_VG_SIZE=$(( $VG_SIZE - $OBS_SERVER_SIZE - $OBS_WORKER_CACHE_SIZE - $TOTAL_SWAP_SIZE ))
+					OBS_WORKER_ROOT_SIZE=$(( $FINAL_VG_SIZE / $NUM ))
+					MIN_WORKER_ROOT_SIZE=$(( 4 * 1024 ))
+					if test $OBS_WORKER_ROOT_SIZE -lt $(( 4 * 1024 )); then
+						echo "ERROR: Not enough space for worker root LVs, just $OBS_WORKER_ROOT_SIZE MB, but at least 4 GB needed."
+						echo "NUM=$NUM"
+						echo "VG_SIZE=$VG_SIZE"
+						echo "PE_SIZE=$PE_SIZE"
+						echo "PE_SIZE_IN_MB=$PE_SIZE_IN_MB"
+						echo "OBS_SERVER_SIZE=$OBS_SERVER_SIZE"
+						echo "TOTAL_SWAP_SIZE=$TOTAL_SWAP_SIZE"
+						echo "FINAL_VG_SIZE = $VG_SIZE - $OBS_SERVER_SIZE - $OBS_WORKER_CACHE_SIZE - $TOTAL_SWAP_SIZE"
+						echo "FINAL_VG_SIZE=$FINAL_VG_SIZE";
+						echo "OBS_WORKER_ROOT_SIZE=$OBS_WORKER_ROOT_SIZE"
+						echo "MIN_WORKER_ROOT_SIZE=$MIN_WORKER_ROOT_SIZE"
+						exit 1
+					fi
+				fi
+				OBS_WORKER_ROOT_SIZE=`round_down_to_pe $OBS_WORKER_ROOT_SIZE $PE_SIZE`
+
+				if test "$NUM" -ge "$pv_count"; then
+					# More or equal build instances than disks
+					# create LV's and try to distribute them on PV's best as possible
+					o1=0
+					o2=1
+					# MAGIC AT WORK! we append the first items here for the code later to find a 2nd and 3rd offset in the loop
+					pvs=( ${pvs[*]} ${pvs[0]} ${pvs[0]})
+
+					pv_idx=0
+					I="0"
+					while test "$NUM" -gt "$I"; do
+						I=$(( $I + 1 ))
+				
+						lverr=$(mktemp)
+						if ! lvcreate --wipesignatures y --zero y -n worker_root_${I} -L ${OBS_WORKER_ROOT_SIZE}M OBS ${pvs[$(( $pv_idx + $o1 ))]} 2> $lverr; then
+							if [ $? -gt 0 ];then
+								echo "An error occured while creating LV"
+								cat $lverr
+							else
+								echo "Creation of worker_root_${I} succeed"
+							fi
+							if grep "Insufficient free space" $lverr; then 
+								I=$(( $I - 1 ))
+							else	
+								cat $lverr >&2
+								exit
+							fi
+						else
+ 				                        lvcreate --wipesignatures y --zero y -n worker_swap_${I} -L ${OBS_WORKER_SWAP_SIZE}M OBS ${pvs[$(( $pv_idx + $o2 ))]} || exit
+							if [ $? -gt 0 ];then
+								echo "An error occured while creating LV worker_swap_${I} "
+								exit 1
+							else
+								echo "Creation of worker_swap_${I} succeed"
+							fi
+						fi
+						rm -f $lverr
+				                pv_idx=$(( $pv_idx + 2 ))
+				                if [ $pv_idx -eq $pv_count ]; then
+							pv_idx=0
+							# swap offset, so that swap and root partitions are not on same device
+							a=$o1
+							o1=$o2
+							o2=$a
+				                elif [ $pv_idx -gt $pv_count ]; then
+							pv_idx=1
+				                fi
+					done
+				else
+					# More disks than build instances
+					# Use striping to boost IO performance
+					disks_per_instance=$pv_count
+					I="0"
+					while test "$NUM" -gt "$I"; do
+						I=$(( $I + 1 ))
+	
+						DEVS=""
+						J="0"
+						while test "$disks_per_instance" -lt "$J"; do
+							J=$(( $J + 1 ))
+							DEVS="$DEVS ${pvs[$(( $I * $disks_per_instance + $J ))]}"
+						done
+	
+						lvcreate --wipesignatures y --zero y -n worker_root_${I} -i $disks_per_instance -L ${OBS_WORKER_ROOT_SIZE}M OBS $DEVS || exit
+				                lvcreate --wipesignatures y --zero y -n worker_swap_${I} -i $disks_per_instance -L ${OBS_WORKER_SWAP_SIZE}M OBS $DEVS || exit
+					done
+				fi
+
+				# Create cache partition on remaining space
+				#lvcreate -n cache -i $disks_per_instance -l 100%FREE OBS || exit
+				lvcreate --wipesignatures y --zero y -n cache -i $disks_per_instance -L "${OBS_WORKER_CACHE_SIZE}M" OBS || exit
+				mkfs -text4 /dev/OBS/cache || exit
+			fi
+		fi
+
+		if [ ! "0$NUM" -gt 0 -a -z "$OBS_WORKER_SCRIPT_URL" ]; then
+			exit 0
+		fi
+
+		echo "Looking for OBS Worker Cache LVM Volume"
+                if [ -e /dev/OBS/cache ]; then
+			mkdir -p $OBS_WORKER_DIRECTORY
+			mount /dev/OBS/cache $OBS_WORKER_DIRECTORY
+			mkdir -p $OBS_WORKER_DIRECTORY/cache
+                fi
+
+		echo "Setting up OBS Workers according to LVM Volumes"
+		if [ ! -e /etc/buildhost.config.presets ]; then
+ 	           mv /etc/buildhost.config /etc/buildhost.config.presets
+                fi
+		
+		echo "### autoconfigured values by obsstoragesetup init script"  > /etc/buildhost.config
+		echo "OBS_WORKER_DIRECTORY=\"$OBS_WORKER_DIRECTORY\"" >> /etc/buildhost.config
+		echo "OBS_CACHE_DIR=\"$OBS_WORKER_DIRECTORY/cache\""   >> /etc/buildhost.config
+		CACHEMB=`df -m /$OBS_CACHE_DIR | tail -n 1 | sed -n 's,^/dev/[^ ]*[ ]*\([^ ]*\).*,\1,p'`
+		[ -z "$CACHEMB" ] && CACHEMB=`df -m /$OBS_CACHE_DIR | tail -n 1 | sed -n 's,[^ ]*[ ]*\([^ ]*\).*,\1,p'`
+		[ -n "$CACHEMB" ] && echo "OBS_CACHE_SIZE=\"$(( $CACHEMB / 2 ))\"" >> /etc/buildhost.config
+		if [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
+			echo "Found XEN virtualization"
+			RUN_VIRT=1
+		else
+			if grep ^flags /proc/cpuinfo | egrep -q " (svm|vmx) " && modprobe kvm; then
+				echo "Found KVM virtualization"
+				RUN_VIRT=1
+		                # support virtio
+			else
+				echo "*** NO virtualization found, BUILDING IN UNSECURE ENVIROMENT ***"
+				unset RUN_VIRT
+			fi
+		fi
+		OBS_WORKER_INSTANCES="0"
+		for i in /dev/OBS/worker_root* ; do
+			name="${i##*/worker_}"
+			swap="/dev/OBS/worker_swap${i#/dev/OBS/worker_root}"
+			[ -e $swap ] || continue
+			if [ -n "$RUN_VIRT" ]; then
+				#prepare xen or kvm setup
+				mkdir -p "$OBS_WORKER_DIRECTORY/$name"
+				ln -sf "$i"    "$OBS_WORKER_DIRECTORY/$name/root"
+				ln -sf "$swap" "$OBS_WORKER_DIRECTORY/$name/swap"
+			else
+				#plain chroot build
+				mkdir -p "$OBS_WORKER_DIRECTORY/$name"
+				mkfs -text4 $i || exit
+				mount $i "$OBS_WORKER_DIRECTORY/$name"
+				mkswap -f "$swap"
+				swapon "$swap"
+			fi
+			OBS_WORKER_INSTANCES=$(( $OBS_WORKER_INSTANCES + 1 ))
+		done
+                if [ "$OBS_WORKER_INSTANCES" -gt 0 ]; then
+			echo "OBS_WORKER_INSTANCES=\"$OBS_WORKER_INSTANCES\"" >> /etc/buildhost.config
+			# How many parallel jobs make sense ?
+			NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
+			MYJOBS=1
+			if [ "$OBS_WORKER_INSTANCES" -gt 1 ]; then
+				MYJOBS=$(( $NUM / ( $OBS_WORKER_INSTANCES - 1 ) ))
+				# catch e.g. 1/2 and bad NUM to OBS_WORKER_INSTANCES ratio
+				if [ "$MYJOBS" == "0" ] ; then 
+					export MYJOBS=1
+				fi
+			fi
+			echo "OBS_WORKER_JOBS=\"$MYJOBS\"" >> /etc/buildhost.config
+
+                        if [ -z "$OBS_INSTANCE_MEMORY" ]; then
+				# Guess how much memory can be used
+				TOTALMEM=$(( `free | sed -n 's/^Mem:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
+				OBS_INSTANCE_MEMORY=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
+				echo "OBS_INSTANCE_MEMORY=\"$OBS_INSTANCE_MEMORY\"" >> /etc/buildhost.config
+                        fi
+			if grep ^flags /proc/cpuinfo | egrep -q " (svm|vmx) " && test -n "$RUN_VIRT"; then
+                                # try to use hugetlb on kvm
+				mkdir -p /dev/hugetlbfs # systemd may have mounted it already
+			        HUGETLBINSTANCEMEM=$(( ($OBS_INSTANCE_MEMORY * 512) / 1024 )) # 2M page sizes
+			        HUGETLMEM=$(( $HUGETLBINSTANCEMEM * $OBS_WORKER_INSTANCES ))
+                                # register huge table memory pages
+                                echo "$HUGETLMEM" > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+                                # enable it if it was successful
+                                if [ "$HUGETLMEM" == `cat /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages` ]; then
+                                	grep -q \ /dev/hugetlbfs /proc/mounts || \
+ 					   mount hugetlbfs /dev/hugetlbfs -t hugetlbfs
+                                	grep -q \ /dev/hugetlbfs /proc/mounts && \
+	                		   echo "OBS_VM_USE_HUGETLBFS=\"/dev/hugetlbfs\"" >> /etc/buildhost.config
+				else
+					echo "WARNING: registration of huge table memory pages failed!"
+                                        echo "Just `cat /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages` of $HUGETLMEM registered, resetting ..."
+	                                echo "0" > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+				fi
+                        fi
+			# append user presets
+			echo "" >> /etc/buildhost.config
+			echo "### preconfigured values from /etc/buildhost.config.presets" >> /etc/buildhost.config
+			if [ -e /etc/buildhost.config.presets ]; then
+				cat /etc/buildhost.config.presets >> /etc/buildhost.config
+			fi
+		else
+			echo "WARNING: No OBS workers are configured on this system, no package will built."
+			if [ -e /etc/buildhost.config.presets ]; then
+				mv /etc/buildhost.config.presets /etc/buildhost.config
+			fi
+		fi
+
+		if [ -e /usr/lib/obs/server -a -e /usr/lib/obs/server/BSConfig.pm ]; then
+			# make sure that directories needed by mostly all other daemons are created now
+			# and set proper ownership
+			bsuser=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsuser || "obsrun" )'`
+			bsgroup=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsgroup || "obsrun" )'`
+			[ -d $backenddir/run ] || mkdir -p $backenddir/run
+			[ -d $backenddir/log ] || mkdir -p $backenddir/log
+			# fix ownership
+			chown $bsuser:$bsgroup $backenddir
+		fi
+
+		# offer hook to make random special things in your setup
+		if [ -n "$OBS_WORKER_SCRIPT_URL" ]; then
+			echo "Running special script for this worker from $OBS_WORKER_SCRIPT_URL"
+			curl $OBS_WORKER_SCRIPT_URL > /tmp/obsworkerscript.$$
+			chmod 0755 /tmp/obsworkerscript.$$
+			export OBS_WORKER_DIRECTORY
+			export OBS_WORKER_DISK
+			/tmp/obsworkerscript.$$
+			rm /tmp/obsworkerscript.$$
+		fi
+		rc_status -v
+	;;
+	stop)
+                # nothing to do
+		rc_status -v
+	;;
+	restart)
+                # nothing to do
+		rc_status
+	;;
+	try-restart)
+                # nothing to do
+		rc_status
+	;;
+	reload)
+                # nothing to do
+		rc_status
+	;;
+	status)
+		# nothing to do
+		rc_status -v
+	;;
+	*)
+		echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+		exit 1
+	;;
+esac
+rc_exit

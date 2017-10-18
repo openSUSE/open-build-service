@@ -1,0 +1,38 @@
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <h2 class="box-header">Change Bugowner Request</h2>
+      <div class="dialog-content">
+        <%= form_tag({:action => "set_bugowner_request"}, :name => 'bugowner') do %>
+          <p>
+            <%= label_tag(:user, "User:") %><br/>
+            <input id="userbkp" name="user" type="hidden" value="False" />
+            <%= text_field_tag(:user, nil, :onclick => "javascript:document.getElementById('group').disabled=true", :name => 'user' ) %><br/>
+            <%= javascript_tag do %>
+              $("#user").autocomplete({source: '<%= url_for :controller => 'user', :action => 'autocomplete' %>', minLength: 2});
+            <% end %>
+            <%= label_tag(:user, "Group:") %><br/>
+            <input id="groupbkp" name="group" type="hidden" value="False" />
+            <%= text_field_tag(:group, nil, :onclick => "javascript:document.getElementById('user').disabled=true", :name => 'group' ) %><br/>
+            <%= javascript_tag do %>
+              $("#group").autocomplete({source: '<%= url_for :controller => 'groups', :action => 'autocomplete' %>', minLength: 2});
+            <% end %>
+            for<br>
+            <% params['projects'].each do |project| %>
+              <% tag = "#{project['project']}/#{project['package']}" %>
+              <% if params['projects'].length > 1 %>
+                <input id="<%= project['project'] %>" name="project[]" type="checkbox" value="<%= tag %>" />
+                <%= label_tag("#{project['project']}", tag )%><br />
+              <% else %>
+                <input id="<%= project['project'] %>" name="project" type="checkbox" value="<%= project['project'] %>" checked />
+                <input id="<%= project['package'] %>" name="package" type="hidden" value="<%= project['package'] %>" />
+                <%= label_tag("#{project['project']}", tag )%><br />
+              <% end %>
+            <% end %>
+            <%= label_tag(:description, "Description:") %><br/>
+            <%= text_area_tag(:description, "", :size => "40x3") %>
+          </p>
+          <%= render partial: '/webui/shared/dialog_action_buttons' %>
+        <% end %>
+      </div>
+    </div>
+  </div>

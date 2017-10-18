@@ -1,0 +1,22 @@
+  <div id="maintainers_dialog" class="dialog darkgrey_box hidden">
+    <div class="box box-shadow">
+      <h2 class="box-header"><%= pluralize(@package_maintainers.size, "Package Maintainer") %></h2>
+      <div class="dialog-content">
+        <table>
+          <tbody>
+          <% @package_maintainers.each do |maintainer| %>
+          <tr>
+            <td>
+              <%= user_with_realname_and_icon(maintainer, short: true) %>
+            </td>
+          </tr>
+          <% end %>
+          </tbody>
+         </table>
+
+        <div class="dialog-buttons">
+          <%= link_to('close', '#', title: 'Close', class: 'close-dialog', data: { target: '#maintainers_dialog' }) %>
+        </div>
+      </div>
+    </div>
+  </div>

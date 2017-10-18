@@ -1,0 +1,41 @@
+Return-Path: <obs-email@opensuse.org>
+From: Iggy Pop <Iggy@pop.org>
+Sender: OBS Notification <obs-email@opensuse.org>
+To: Thor <tschmidt@example.com>
+Message-ID: <obs-request-REQUESTID@localhost>
+Subject: Request REQUESTID created by Iggy (delete home:coolo/standard)
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Precedence: bulk
+X-Mailer: OBS Notification System
+X-OBS-URL: http://localhost
+Auto-Submitted: auto-generated
+X-OBS-event-type: request_create
+X-OBS-Request-Creator: Iggy
+X-OBS-Request-Id: REQUESTID
+X-OBS-Request-State: new
+X-OBS-Request-Action-type: delete
+X-OBS-Request-Action-target: home:coolo/standard
+
+Visit http://localhost/request/show/REQUESTID
+
+Actions:
+- delete repository standard in home:coolo
+
+To REVIEW against the previous version:
+   osc request show --diff REQUESTID
+
+To ACCEPT the request:
+   osc request accept REQUESTID --message="reviewed ok."
+
+To DECLINE the request:
+   osc request decline REQUESTID --message="declined for reason xyz (see ... for background / policy / ...)."
+
+To REVOKE the request:
+   osc request revoke REQUESTID --message="retracted because ..., sorry / thx / see better version ..."
+
+-- 
+Configure notifications at http://localhost/user/notifications
+Open Build Service (http://localhost/)

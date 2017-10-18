@@ -1,0 +1,12 @@
+$('.add-dod-repository-form').hide();
+$('#add-dod-repository-link').show();
+<% if @error %>
+  console.log("<%= @error %>");
+  $('#flash-messages').
+    replaceWith("<%= escape_javascript(render(partial: "layouts/webui/flash", locals: { flash: { error: @error } })) %>");
+  $("html, body").scrollTop(0);
+<% else %>
+  $('#flash-messages').html("");
+  $('#repository-list').
+    append("<%= escape_javascript(render(partial: 'repository_entry', locals: { project: @project, repository: @new_repository })) %>");
+<% end %>

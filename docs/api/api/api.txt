@@ -1,0 +1,1836 @@
+= Open Build Service API
+
+Version: 2.9
+
+  Only authenticated users are allowed to access the API. Authentication is done
+  by sending a Basic HTTP Authorisation header. 
+
+  Do NOT simply add api calls here without discussion before.
+  
+  The main base routes are:
+  /source    : To handle all source submissions and project setups
+  /build     : To access build results and their states
+  /published : Read access to published repositories
+  /search    : Access to search interface
+
+
+== Table of Contents
+
+Contents:
+
+== About
+
+GET /about
+
+  Get information about API.
+
+XmlResult: about
+
+
+== Architectures
+
+GET /architectures
+
+  Get a list of all known architectures known to OBS in general. 
+  This is not the list of architectures provided by this instance, go
+  to /configuration for this
+
+XmlResult: architecture list
+
+
+== Issue Trackers
+
+GET /issue_trackers
+
+  Get the list of available issue trackers
+
+XmlResult: issue_trackers
+
+<name>: Issue tracker name
+
+GET /issue_trackers/<name>
+
+  Read issue tracker data.
+
+XmlResult: issue_tracker
+
+PUT /issue_tracker/<name>
+
+  Update issue tracker data.
+
+XmlResult: status
+
+POST /issue_tracker/<name>
+
+  Create new issue tracker.
+
+XmlResult: issue_tracker
+
+DELETE /issue_tracker/<name>
+
+  Delete issue tracker.
+
+XmlResult: status
+
+GET /issue_trackers/show_url_for
+
+Parameters:
+  issue: attribute used for issue search (example: 'bnc#123456')
+
+
+
+== Distribution List
+
+GET /distributions
+
+  Get the list of base distributions hosted on this OBS instance
+
+XmlResult: distributions
+
+
+PUT /distributions
+
+  Write the list of base distributions hosted on this OBS instance
+
+XmlResult: distributions
+
+
+GET /distributions/<distribution_id>
+
+  Get data of one base distributions hosted on this OBS instance
+
+XmlResult: status
+
+
+POST /distributions/<distribution_id>
+
+  Modifies one base distribution entry. Distro must be hosted on the OBS instance
+
+XmlResult: status
+
+
+GET /distributions/include_remotes
+
+  Get the list of base distributions hosted on this OBS instance and on all used remote instances
+
+XmlResult: distributions
+
+
+== User data
+
+<userid>: Id of user
+<groupid> Id of group
+
+
+GET /person/<userid>
+
+  Read user data.
+
+XmlResult: user
+
+
+PUT /person/<userid>
+
+  Write user data.
+
+XmlBody: user
+XmlResult: status
+
+
+POST /person?cmd=register
+
+  Can be used to register a new user, if OBS instance is allowing this.
+
+
+POST /person/<userid>
+
+  cmd=change_password to post the new password in the request body. Just the first line gets used.
+
+XmlBody: password
+XmlResult: status
+
+Parameters:
+  cmd: change_password
+  cmd: lock             # will lock the user and his home projects
+  cmd: delete           # will mark the user as deleted and remove her home projects
+
+GET /person/<userid>/token
+  
+  Lists all authentification token for a user
+
+XmlResult: tokenlist
+
+POST /person/<userid>/token
+
+  Create a new authentification token for this user. It may be limited for a specific package
+  via optional project&package parameters.
+
+  cmd: create
+  project: create a token for a specific project
+  package: create a token for a specific package
+
+XmlResult: status
+
+DELETE /person/<userid>/token/<id>
+
+  Delete a specific authentification token. The <id> is listed in GET call.
+
+XmlResult: status
+
+
+== Group data
+
+GET /group
+
+  List available groups
+
+XmlResult: directory
+
+Parameters:
+  login: List available groups of this user.
+
+GET /group/<group title>
+
+  Read group data.
+
+XmlResult: group
+
+
+PUT /group/<group title>
+
+  Write group data.
+
+XmlBody: user
+XmlResult: status
+
+
+POST /group/<group title>
+
+  Modify group data.
+
+  Multiple commands on processing group.
+  add_user: add a user to a group
+  remove_user: remove a user from a group
+  set_email: set email adress of group.
+
+Parameters:
+  userid: user login name, required for add_user and remove_user command
+  email: email address for set_email command. email of group gets removed if not defined
+
+XmlResult: status
+
+
+DELETE /group/<group title>
+
+  Delete a group.
+
+XmlResult: status
+
+
+== Sources
+
+=== Projects
+
+
+GET /source/
+
+  Read list of projects.
+
+XmlResult: directory
+
+Parameters:
+
+  deleted: show deleted projects instead of existing
+
+
+POST /source
+
+  Commands on processing sources globally. Possible commands are
+  branch: branch a set of packages based on attributes or on existing request
+  orderkiwirepos: sort the repositories inside of a kiwi file according to path relationships
+  createmaintenanceincident: create mainatenance incident projects based on attribute search
+
+Parameters:
+
+  linkrev: linked revision, optional (for linkrev=base)
+  attribute: attribute used for package search, default is OBS:Maintained
+  update_project_attribute: attribute name used to find out possible existing update projects of a package
+  request: branch by request, branch all packages in actions of request for superseding it
+  noaccess: the new created project will be read protected
+  target_project: project which will get used or created
+
+
+GET /source/<project>/_meta
+
+  Read project meta file.
+
+XmlResult: project
+
+
+PUT /source/<project>/_meta
+
+  Write project meta file.
+
+Parameters:
+
+  comment: comment, optional
+
+XmlBody: project
+
+XmlResult: status
+
+
+DELETE /source/<project>
+
+  Deletes specified project. All packages of this project are deleted as if a
+  DELETE request were issued for each package.
+
+Parameters:
+  force: If force = 1, the project is deleted even if repositories of other
+         projects include a path to a repository from this project. The path
+         in the other repository is replaced by one pointing to 'deleted/standard',
+         preventing the build and publishing of the other repository.
+  comment: comment, optional
+
+
+XmlResult: status
+
+
+GET /source/<project>/_project
+
+  List project files
+
+Parameters:
+
+  meta: switch for _meta files, optional
+  rev: revision, optional
+
+XmlResult: project directory.xsd
+
+
+GET /source/<project>/_project/<file>
+
+  Read a project file.
+
+Parameters:
+
+  meta: switch for _meta files, optional
+  rev: revision, optional
+
+
+GET /source/<project>/_attribute/<attribute>
+
+  Get all attributes or a specific one
+
+XmlBody: attribute
+
+
+POST /source/<project>/_attribute/<attribute>
+
+  Modifies a specific attribute as in body
+
+Parameters:
+
+  comment: comment, optional
+
+XmlResult: status
+
+
+DELETE /source/<project>/_attribute/<attribute>
+
+  Removes a specific attribute
+
+Parameters:
+
+  comment: comment, optional
+
+XmlResult: status
+
+
+GET /source/<project>/_config
+
+  Read project configuration
+
+Parameters:
+
+  rev: revision, mandatory
+
+Result: configuration as text/plain
+
+
+PUT /source/<project>/_config
+
+  Change project configuration
+
+Parameters:
+
+  comment: comment, optional
+
+XmlResult: status
+
+
+GET /source/<project>/_pattern
+
+  Get list of all patterns set up for this project
+
+XmlResult: pattern
+
+
+GET /source/<project>/_pattern/<patternfile>
+
+  Get pattern
+
+XmlResult: pattern
+
+
+PUT /source/<project>/_pattern/<patternfile>
+
+  Write pattern
+
+XmlBody: pattern
+
+XmlResult: status
+
+DELETE /source/<project>/_pattern/<patternfile>
+
+  Remove pattern
+
+XmlResult: status
+
+
+GET /source/<project>/_pubkey
+
+  Get project GPG key. If the project has no own key (default), it uses
+  the first available one in the namespace hierarchy, ending at the global
+  buildservice key.
+
+Result: gpgkey
+
+
+DELETE /source/<project>/_pubkey
+
+  Removes the current gpg key. Has no effect if no key is set.
+
+XmlResult: status
+
+
+POST /source/<project>
+
+  Multiple commands on processing sources in package. Possible commands are
+  createkey: Generate a new gpg key. If the project already has an own gpg key, the old key is discarded.
+  extendkey: Extend the expiration date of gpg keys.
+  undelete: undelete the project and all packages existing when the project got removed.
+  freezelink: create/update a freeze of a project link
+  showlinked: List all projects linking to this one
+  copy: copy the entire project
+  move: ADMIN ONLY. schedulers need to be stopped. move all sources and binaries around from oproject.
+  createmaintenanceincident: create a single mainatenance incident project as sub project
+  createpatchinfo: create a new patchinfo package collecting all mentioned issues in sources
+  addchannels: add channel packages and repositories for matching packages in project
+  modifychannels: modify existing channels by specified mode
+  set_flag: change a defined flag, requires at least flag and status parameters
+  remove_flag: remove a defined flag, requires at least flag and status parameters
+  lock: lock a project
+  unlock: unlock a locked project
+  release: release sources and binaries according to release target specification
+
+Parameters:
+  noaccess: the new created project will be read protected
+  repository: set_flag for given repository or release just this repository (optional)
+  arch: set_flag for given arch (optional)
+  flag: modify this flag (build/publish/..) for set_flag command
+  status: enable or disable for set_flag command
+  comment: description for the history
+  # for modifychannels and addchannels command only:
+  mode: how to deal with disabled channels: add_disabled(default), skip_disabled, enable_all
+  # for copy command only:
+  oproject: origin project name (required)
+  resign: resign all binaries with new target project key
+  makeolder: make target older, the source vrev is bumped by two numbers and target by one
+  makeoriginolder: make origin older, the source vrev is extended and target is guaranteed to be newer
+  withhistory: copies sources with history on copy command
+  withbinaries: copies also binaries on copy command
+  noservice: do not run source services
+  setrelease: define a specific release tag when used with "release" command. Setting it to "-" strips
+              the release string. Note: this modifies only the filename.
+
+=== Packages
+
+
+GET /source/<project>
+
+  Read list of packages.
+  
+XmlResult: package directory.xsd
+
+Parameters:
+
+  deleted: show deleted package instead of existing
+  expand: include also packages from linked projects
+  view: issues, can be used to show all tracked issues for all packages in project
+        productlist, shows all containing products, unifies result when used with expand
+        verboseproductlist, same as productlist, but with detailed information about the product
+
+
+GET /source/<project>/<package>
+
+  Package source listing
+
+Parameters:
+
+  rev: revision of new package, optional
+  linkrev: linked revision, optional
+  emptylink: bool, , optional
+  expand: bool, expand links, optional
+  meta: bool, switch to meta files, optional
+  view: The "info" view will show data like source version, md5sums and build description files. May be used together with parse, arch or repository parameter, optional
+        "issues" can be used to show all tracked issues for all packages in project, optional
+        "products" show all products of a package (works only on "_product" packages)
+  extension: filter for file extension, optional
+  lastworking: bool, show sources of last mergeable sources in case of conflicting changes, optional
+  withlinked: bool, show all used package containers (in case of multiple link indirections) in linkinfo information, optional
+  deleted: bool, show content of deleted package instance
+  parse: bool, for view=info: take build description into account, optional
+  arch: string, for view=info: parse buildinfo for this architecture, optinal
+  repository: string, for view=info: parse buildinfo for this repository, optinal
+  product: string, limit the product view to a given product
+
+XmlResult: package directory.xsd
+
+
+GET /source/<project>/<package>/_meta
+
+  Read project meta data.
+
+Parameters:
+
+  rev: revision of new package, optional
+
+XmlResult: package
+
+
+PUT /source/<project>/<package>/_meta
+
+  Write project meta data. Writing of the project meta data commits the packages
+  contained in the project to the build backend.
+
+Parameters:
+
+  comment: comment, optional
+
+XmlBody: package
+
+XmlResult: status
+
+
+DELETE /source/<project>/<package>
+
+  Deletes specified package including all source files
+
+Parameters:
+
+  comment: comment, optional
+
+XmlResult: status
+
+
+GET /source/<project>/<package>/_attribute/<attribute>
+
+  Get all attributes or a specific one
+
+XmlBody: attribute
+
+
+POST /source/<project>/<package>/_attribute/<attribute>
+
+  Modifies a specific attribute as in body
+
+Parameters:
+
+  comment: comment, optional
+
+XmlResult: status
+
+
+DELETE /source/<project>/<package>/_attribute/<attribute>
+
+  Removes a specific attribute
+
+Parameters:
+
+  comment: comment, optional
+
+XmlResult: status
+
+
+
+GET /source/<project>/<package>/_history
+
+  Get package commit history
+
+XmlResult: revisionlist
+
+
+
+POST /source/<project>/<package>?cmd=showlinked
+
+  List all package instances linking to this one.
+
+Result: package list
+
+
+POST /source/<project>/<package>?cmd=diff
+
+  Create a source diff
+
+Parameters:
+
+  rev: revision of new package, optional
+  oproject: old project, optional
+  opackage: old package, optional
+  orev: old revision, optional
+
+Result: diff as text/plain
+
+
+POST /source/<project>/<package>?cmd=instantiate
+
+  Instantiate a package container, which is available via project links only so far.
+
+Parameters:
+
+  makeoriginolder: optional, can be used to modify source and target to guarantee that new version 
+                   stay older also on future updates in older code stream
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=release
+
+  Releases sources and binaries of that package. This requires a set
+  release target in the repository definitions of <project>. Also the
+  trigger must be set to "manual"
+
+Parameters:
+  comment: description for the history
+  repository: limit the release to the specified repository
+  target_repository: specify the target repository name (together with target_project)
+  target_project: overwrites the target definition from project meta
+                  (repository and target_repository parameter required as well)
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=unlock
+
+  Unlocks a locked package
+
+Parameters:
+  comment: description for the history
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=branch
+
+  Create a source link from a package of an existing project to a 
+  new subproject of the requesters home project. 
+  The default target is home:<user>:branches:<project>/<package>
+  A possible defined devel project in the package meta data gets ignored.
+
+Parameters:
+  ignoredevel: bool, optional
+  target_project: target project name, optional
+  target_package: target package name, optional
+  noaccess: the new created project will be read protected, bool, optional
+  missingok: the target package does not exist
+  newinstance: the target package exists only via project links, but the link should point to given project
+  add_repositories: bool, optional, adds repositories base on source project (default for new projects)
+  update_path_elements: bool, optional, update all path elements if needed (used repositories depend on each other)
+  extend_package_names: bool, optional, extends package and repository names to allow multiple instances of same package
+  add_repositories_rebuild: use defined rebuild policy for new repos ("transitive", "direct" or "local") or copy it from the source project ("copy")
+  add_repositories_block: use defined block policy for new repos
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=set_flag
+  Modify or set a defined flag for package
+
+Parameters:
+  repository: set_flag for given repository (optional)
+  arch: set_flag for given arch (optional)
+  flag: modify this flag (build/publish/..) for set_flag command
+  status: enable or disable for set_flag command
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=createSpecFileTemplate
+
+  Create template for RPM SPEC file. Returns an error, if the SPEC file already
+  exists.
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=commit
+
+  Commits package changes to buildservice
+
+Parameters:
+
+  rev: revision, mandatory
+  comment: comment, optional
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=collectbuildenv
+
+  Creates _buildenv files based on origin package builds. This can be used
+  to re-use exact older build enviroment even when further new binary packages
+  got added. For example to re-build an old maintenance update in the same way.
+
+Parameters:
+
+  oproject: Origin project to copy from (required)
+  opackage: Origin package to copy from (required)
+  comment: Optional comment by the user
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=importchannel
+
+  Import a kiwi channel file for OBS. Project names will be set
+  to update projects if defined.
+
+Parameters:
+
+  target_project: optional target repository to set
+  target_repository: optional target repository to set
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?deleteuploadrev
+
+  Removes all changes made to the upload revision and reverts to last revision
+
+Parameters:
+
+  none
+
+XmlResult: status
+
+=== Source files
+
+<filename>: File name
+
+
+GET /source/<project>/<package>
+
+  Get directory listing of all source files in the package
+  
+  
+Parameters: 
+  
+  rev: package source revision, optional
+  linkrev: linked revision, optional
+  expand: expand links, optional
+  meta: switch to meta files
+  lastworking: auto detect last working link revision, optional
+  view: The "cpio" view will stream all files as cpio, optional
+  extension: filter for file extension, optional
+
+
+GET /source/<project>/<package>/<filename>
+
+  Read source file.
+
+Result: Content of file
+
+Parameters: 
+
+  meta: switch to meta files
+
+
+PUT /source/<project>/<package>/<filename>
+
+  Write source file.
+
+Parameters:
+
+  rev: if set to 'upload', multiple files can be uploaded one by one in one commit, before 
+       finishing the commit with cmd=commit (see below), optional
+  comment: comment, optional
+  keeplink: bool, optional
+  meta: switch to meta files
+
+Body: Content of file
+
+XmlResult: status
+
+
+
+DELETE /source/<project>/<package>/<filename>
+
+  Delete source file.
+
+XmlResult: status
+
+Parameters: 
+
+  meta: switch to meta files
+
+
+POST /source/<project>/<package>
+
+  Multiple commands on processing sources in package. Possible commands are
+  diff: for server side diff
+  linkdiff: for server side diff of a linked or branched package
+  servicediff: shows the changes of the service run
+  commit: commit files in upload revision
+  commitfilelist: commit defined files in upload revision
+  deleteuploadrev: delete all uploaded sources which are not committed yet
+  copy: copy package sources from another package
+  undelete: undelete the package
+  unlock: unlock a package with lock enabled. A comment is required.
+  release: release sources and binaries according to release target specification
+  branch: branch a package into another one
+  linktobranch: convert a plain source link into a full branch
+  enablechannel: adds repositories and enable this channel package
+  updatepatchinfo: update _patchinfo file, esp. the issues list
+  remove_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
+  set_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
+  showlinked: show all source packages linking to this one
+  deleteuploadrev: delete all uploaded, but not yet commited files.
+  rebuild: rebuild all builds
+  getprojectservices: list all service defined in project spaces defined for this package.
+  runservice: trigger run of defined services in _service file
+  waitservice: returns when all services have finished, code 200 when service run was successful
+  mergeservice: drops the _service file and commits all server side generated files
+  time: set the time on undelete operation (admin only operation)
+  wipe: wipe all build results of this package
+
+Parameters: 
+  
+  rev: package source revision, optional
+  linkrev: linked revision, optional
+  orev: origin package source revision as defined in opackage/project, optional
+  olinkrev: origin linked revision, optional
+  oproject: origin project, used as base project
+  opackage: origin package, used as base package
+  requestid: log the requestid in source history, optional (copy and commitfilelist only)
+  expand: expand links, optional
+  keeplink: keep link on source commit, optional
+  repairlink: repair link on source commit, optional
+  dontupdatesource: Do not update origin package, optional (copy only)
+  noservice: do not run source services
+  comment: comment for history, optional
+  meta: switch to meta files
+  arch: architecture when using flag modifing command
+  repository: repository when using flag modifing command
+  view: may be "xml" for structured answered (for diff commands)
+  withissues: set to get issues parsed from changelogs (for diff commands)
+  onlyissues: used to limit to issues (for diff commands)
+  setrelease: define a specific release tag when used with "release" command. Setting it to "-" strips
+              the release string.
+
+
+
+GET /source/<project>/<package>/<binary>/_attribute/<attribute>
+
+  Get all attributes or a specific one
+
+XmlBody: attribute
+
+
+POST /source/<project>/<package>/<binary>/_attribute/<attribute>
+
+  Modifies a specific attribute as in body
+
+Parameters:
+
+  comment: comment, optional
+
+XmlResult: status
+
+
+DELETE /source/<project>/<package>/<binary>/_attribute/<attribute>
+
+  Removes a specific attribute
+
+Parameters:
+
+  comment: comment, optional
+
+XmlResult: status
+
+
+
+== Requests
+
+
+GET /request
+  
+  Get a list of requests. When using the "view=collection" you need also to filter
+  either by user, project or package.
+
+Parameters:
+
+  view: collection, return a collection of requests instead of directory listing
+  user: filter for given user, includes all target projects and packages where
+        the user is maintainer and also open review requests
+  project: limit to result to defined target project or review requests
+  package: limit to result to defined target package or review requests
+  states: filter for given request state, multiple matches can be added as comma seperated list (eg states=new,review)
+  types: filter for given action types (comma seperated)
+  roles: filter for given roles (creator, maintainer, reviewer, source or target)
+  withhistory: includes the request history in result
+  withfullhistory: includes the request and review history in result
+  limit: to limit the result to the given number of requests
+
+XmlResult: collection
+
+
+GET /request/<id>
+  
+  Get a request
+
+Parameters:
+
+  withhistory: includes the request history in result
+  withfullhistory: includes the request and review history in result
+
+XmlResult: request
+
+
+POST /request
+  
+  Create a new request
+
+XmlResult: request
+
+  Commands on processing requests
+  create: to crfeate a new request
+
+Parameters:
+
+  addrevision: ask the server to add revisions of current sources to the request
+
+
+PUT /request/<id>
+  
+  Modify a request. NOTE: Only admins can change all parts of a request.
+
+XmlResult: request
+
+
+POST /request/<id>?cmd=diff
+  
+  Shows the diff of all affected packages.
+
+Result: diff as text/plain
+
+
+POST /request/<id>
+  
+  Modify a request
+
+XmlResult: request
+
+  Commands on processing requests
+  addreview: Adds a review to a request
+  assignreview: Adds a review for a user and accepts it for the used group
+  changestate: Modifies the state of a request
+  changereviewstate: Modifies the state of a review inside a request
+  setpriority: Modifies the priority of a requst
+  setincident: Change the target incident for maintenance_incident actions
+  setacceptat: Set or modify the accept_at time. Either specified by time parameter or now.
+
+Parameters: 
+  newstate: Define the new state
+  priority: Define the new priority
+  by_user: Specify the user of the new review
+  by_group: Specify the group of the new review
+  by_project: Specify the project of the new review
+  by_package: Specify the user of the new review
+  incident: Specifiy inicdent number for setincident
+  time: Specifiy time for setacceptat
+
+
+== Attribute definition api
+
+
+GET /attribute/
+  
+  List all attribute namespaces
+
+XmlResult: directory
+
+
+GET /attribute/<namespace>/
+  
+  List all attributes under given namespace
+
+XmlResult: directory
+
+
+GET /attribute/<namespace>/_meta
+  
+  shows namespace setup
+
+XmlResult: attribute_namespace_meta
+
+
+DELETE /attribute/<namespace>/_meta
+  
+  Delete a attribute namespace and all attributes below
+
+XmlResult: status
+
+
+PUT /attribute/<namespace>/_meta
+  
+  change attribute namespace meta
+
+XmlBody: attribute_namespace_meta_data
+
+XmlResult: status
+
+
+GET /attribute/<namespace>/<name>/_meta
+  
+  shows attribute setup
+
+XmlResult: attribute_meta
+
+
+DELETE /attribute/<namespace>/<name>/_meta
+  
+  Delete a attribute and all its values in projects or packages
+
+XmlResult: status
+
+
+PUT /attribute/<namespace>/<name>/_meta
+  
+  change attribute meta
+
+XmlBody: attribute_meta_data
+
+XmlResult: status
+
+
+== Comments api
+
+GET /comments/request/:id
+GET /comments/project/:name
+GET /comments/package/:project/:pname
+  
+  Get all comments for the object
+
+XmlResult: directory
+
+POST /comments/request/:id?parent_id=<parent_comment_id>
+POST /comments/project/:name?parent_id=<parent_comment_id>
+POST /comments/package/:project/:pname?parent_id=<parent_comment_id>
+
+  Create a comment for the object
+
+XmlResult: status
+
+
+DELETE /comment/:id
+
+  Delete a comment specified by the comment id
+
+XmlResult: status
+
+
+== Build Results
+
+<build>: Build repository
+
+GET /build/
+
+  List all repositories
+
+XmlResult: directory
+
+
+GET /build/<project>
+
+  List all repositories of the specified project
+
+XmlResult: directory
+
+
+GET /build/<project>/<repository>
+
+  List all architectures of the specified project repository
+
+XmlResult: directory
+
+
+GET /build/<project>/<repository/<arch>
+
+  List all packages used in this project repository for given architecture.
+
+XmlResult: directory
+
+=== Binaries
+
+GET /build/<project>/<repository>/<arch>/<package>
+
+  Get list of binaries built by the sources of the given package
+
+Result: binarylist
+
+
+GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
+
+  Get single binary from build results of given package
+
+Result: binary file
+
+GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo
+GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo_ext
+
+  Get information about the binary from build results of given package
+
+Result: fileinfo
+
+
+GET /build/<project>/<repository>/<arch>/_builddepinfo
+POST /build/<project>/<repository>/<arch>/_builddepinfo
+
+  Shows all build dependencies of one or more packages, a change in any of them will
+  trigger a build.
+    A changed dependency can be posted to let the server recalculate the order
+  including the local dependency changes.
+  
+Parameters:
+
+  package=<name>    filter package container, can be used multiple times
+  view=pkgnames     show package names instead of binary names
+  view=revpkgnames  show which packages will be triggered if the package is changed
+  view=order        sort packages ordered by dependencies
+
+Result: build dependencies
+
+
+GET /build/<project>/<repository>/<arch>/_jobhistory?package=<package>&code=succeeded&limit=10
+
+  Get the build log of all finished builds in this repository, including
+  time and trigger reason. Optional filtering for one ore more packages/codes is
+  possible.
+
+Result: jobhistory
+
+
+GET /build/<project>/<repository>/<arch>/_repository
+
+  Get list of binaries in given repository (binaries produced by all packages
+  of the project)
+
+Result: binarylist
+
+
+POST /build/<project>/<repository>/<arch>/_repository?match=
+
+  Uploads binaries to a given repository. ADMIN ONLY
+
+Result: status
+
+
+PUT /build/<project>/<repository>/<arch>/_repository/<file>
+
+  Uploads binaries into the repository. ADMIN ONLY.
+
+Result: status
+
+
+GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
+
+  Get single binary from the given repository
+
+Result: binary file
+
+
+=== Status
+
+GET /build/<project>/_result
+
+  Return build results for the packages, architectures and repositories
+  specified by the parameters. If no parameters are given, all results for the
+  project are returned.
+  
+  The view parameter specifies which sections are included in the results.
+  view=summary includes the summary of the status values. view=status includes
+  detailed status information. view=binarylist includes the list of generated
+  binary files. If no view parameter is given, view=status is assumed. To
+  combine views the parameter can be given multiple times.
+
+Parameters:
+  
+  package: package name, optional, multiple
+  arch: architecture, optional, multiple
+  repository: name of repository, optional, multiple
+  view: summary | status | binarylist
+  lastbuild: bool, show last build result (avoiding current building job state)
+  localbuild: bool, include build results from packages with project local links
+  multibuild: bool, include build results from _multibuild definitions
+
+XmlResult: buildresult
+
+
+GET /build/<project>/<repository>/<arch>/<package>/_history
+
+  Get build history
+
+XmlResult: buildhistory
+
+
+GET /build/<project>/<repository>/<arch>/<package>/_reason
+
+  Detailed reason, why the last build got triggered. This may be
+  caused by a source change, meta change (binary package below changed) or
+  release number sync.
+   A user triggered build will show up as source change.
+
+XmlResult: buildreason
+
+
+GET /build/<project>/<repository>/<arch>/<package>/_jobstatus
+
+  Get build status of a current running build job or empty result if no job is running.
+
+XmlResult: jobstatus
+
+
+GET /build/<project>/<repository>/<arch>/<package>/_status
+
+  Get build status of the specified project/package/repo/arch combination
+
+XmlResult: buildstatus
+
+
+GET /build/<project>/<repository>/<arch>/<package>/_log
+
+  Get build log.
+  
+Parameters:
+  
+  nostream: do not hang if the build is currently running
+  last: show log from last finished build
+  start: start at a given number of bytes
+  end: stop after the given number of bytes
+  view: special view instead of plain logfile. "entry" shows the size and mtime of logfile.
+
+Result: Build log as text file.
+
+=== Worker
+
+GET /worker/_status
+
+  Lists all running jobs, waiting jobs, status of the backend services and general statistics.
+
+XmlResult: workerstatus
+
+
+GET /worker/<workerid>
+
+  Lists all capabilities of the worker. Can be used for constraints
+
+XmlResult: workercapability
+
+
+POST /worker?cmd=checkconstraints
+
+  Calculates the possible workers with a given contraints rule. Further required parameters
+  are:
+
+Parameters:
+  
+  project: project name
+  package: package name
+  arch: architecture
+  repository: name of repository
+
+XmlResult: directory
+
+
+=== Control
+
+POST /build/<project>?cmd=rebuild
+
+  Triggers package rebuild for the repositories/architectures of the package
+  specified by the parameters. If no parameters are given, all packages of the
+  project are completely rebuilt.
+
+  Possible values for the code parameter are:
+
+  succeeded        - build succeeded
+  failed           - build failed
+  disabled         - build is disabled in package config
+  excluded         - build is excluded in spec file
+  scheduled        - package is ready to be built
+  building         - package is building on a worker
+  broken           - package source is bad (i.e. no specfile)
+  unresolvable     - build needs unavailable binary packages
+
+Parameters:
+  
+  package: package name, optional, multiple
+  arch: architecture, optional, multiple
+  repository: name of repository, optional, multiple
+  code: build status code, optional, multiple
+
+XmlResult: status
+
+
+POST /build/<project>?cmd=abortbuild
+
+  Kill all running builds, marking them as failed
+
+Parameters:
+
+  see cmd=rebuild
+
+
+POST /build/<project>?cmd=restartbuild
+
+  Restart all running builds
+
+Parameters:
+
+  see cmd=rebuild
+
+
+POST /build/<project>?cmd=unpublish
+
+  Delete all binary packages from publish area
+
+Parameters:
+
+  see cmd=rebuild
+
+
+POST /build/<project>?cmd=wipe
+
+  Delete all binary packages from build area
+
+Parameters:
+
+  see cmd=rebuild
+
+
+=== Local Build
+
+GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
+
+  Get build information for local building
+
+XmlResult: buildinfo
+
+
+POST /build/<project>/<repository>/<arch>/<package>/_buildinfo
+
+  Get build info for local building using the POSTed specfile.
+  <package> can be "_repository", if the designated package does not yet exist
+  on the server. Usefull for local build test before committing the initial package.
+
+Body: specfile
+
+XmlResult: buildinfo
+
+
+=== Trigger area
+
+POST /trigger/runservice
+
+  This call needs a token created via "createtoken" command to identify user and
+  package which shall be updated via a source service. The token must be delivered
+  as HTTP header:
+    Authorization: Token <TOKEN_STRING>
+
+Parameters
+  project: To be used together with "package" to identify the object.
+  package: 
+
+XmlResult: status
+
+=== Repository Information
+
+GET /build/<project>/<repository>/<arch>/_repository
+
+  Returns list of binaries contained in the specified repository
+
+XmlResult: binarylist
+
+
+GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
+
+  Returns binary
+
+Result: binary file
+
+
+GET /build/<project>/<repository>/<arch>/<package>
+
+  Returns list of binaries contained in the specified repository
+
+XmlResult: binarylist
+
+
+GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
+
+  Build info according to the committed sources
+
+XmlResult: buildinfo
+
+
+POST /build/<project>/<repository>/<arch>/<package>/_buildinfo
+
+  Build info according to the uploaded sources
+
+XmlResult: buildinfo
+
+
+GET /build/<project>/<repository>/<arch>/_builddepinfo
+
+  Returns dependency information of packages in the specified repository. One or more
+  packages can be specified with the 'package' parameter. By default dependencies for
+  all packages are returned.
+
+XmlResult: builddepinfo
+
+
+GET /build/<project>/<repository>/_buildconfig
+
+  Build configuration for this repository, all base package requirements, mappings and macros.
+
+
+== Search
+
+GET /search/project
+
+  Searches for project metadata using xpath. A xpath predicate has to be
+  specified using the match parameter. The predicate will be used in this
+  expression: /project[<match>]. Only complete meta files will be returned.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/project/id
+
+  Searches for project metadata analogous to /search/project, only the root
+  element is returned without any children.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/package
+
+  Searches for package metadata using xpath. A xpath predicate has to be
+  specified using the match parameter. The predicate will be used in this
+  expression: /package[<match>]. Only complete meta files will be returned.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/package/id
+
+  Searches for package metadata analogous to /search/package, only the root
+  element is returned without any children.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/published/binary/id
+
+  Search for currenlty available binaries in the publish area.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/published/pattern/id
+
+  Search for published patterns
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/channel/binary
+
+  Search for packages, sources or binaries which are referenced in channel files.
+  Unlike the released/binary search this works already after setting up a channel
+  even without releasing files.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/channel/binary/id
+
+  Search for packages, sources or binaries which are referenced in channel files.
+  Unlike the released/binary search this works already after setting up a channel
+  even without releasing files.
+
+  This is the short version without full release data information.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/released/binary
+
+  Search for binaries which got released. This works only for binaries published
+  via release mechanism. It also includes binaries which got removed again.
+
+  It is recommended to specify at least the @name binary package name or the
+  @disturl.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/released/binary/id
+
+  Search for binaries which got released. This works only for binaries published
+  via release mechanism. It also includes binaries which got removed again.
+
+  This is the short version without full release data information.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/request
+
+  Searches for requests using xpath. A xpath predicate has to be
+  specified using the match parameter. The predicate will be used in this
+  expression: /request[<match>]. Only complete meta files will be returned.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+  withhistory: includes the request history in result
+  withfullhistory: includes the request and review history in result
+
+XmlResult: collection
+
+
+GET /search/issue
+
+  Searches for issue metadata using xpath. A xpath predicate has to be
+  specified using the match parameter. The predicate will be used in this
+  expression: /issue[<match>]. Only complete issue information will be returned.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/owner
+
+  Search for default responsible person or group.
+  Using the binary parameter the lookup happens via a build binary name
+  Using user or group all sources where they are responsible are for are listed.
+  Either binary, user or group parameter is required.
+
+Parameters:
+
+  binary: specify the binary package to search for
+  user: specify a user login name to list his packages
+  group: specify a group title name to list their packages
+
+  devel: true/false: include devel package definitions?
+  limit: limit the number of results. Default is "1" single result. Use 0 for all hits, -1 for deepest match.
+         This works only when used together with binary search otherwise always all items get returned.
+  project: specify project to search in
+  filter: Comma seperated list of role names to be taken into account
+  attribute: specify attribute which is marking the default project(s). Default is OBS:OwnerRootProject
+
+XmlResult: collection
+
+
+GET /search/missing_owner
+
+  Search for missing definitions of specific role. 
+  No parameter is required by default
+
+Parameters:
+
+  devel: true/false: include devel package definitions?
+  limit: limit the number of results.
+  project: specify project to search in
+  filter: Comma seperated list of role names to be taken into account
+  attribute: specify attribute which is marking the default project(s). Default is OBS:OwnerRootProject
+
+XmlResult: collection
+
+
+== Published binary package tree
+
+GET /published
+
+  List of published projects
+
+XmlResult: directory
+
+
+GET /published/<project>
+
+  List of repositories of published projects
+
+XmlResult: directory
+
+
+GET /published/<project>/<repository>
+
+  List of published repositories for the given project/repo
+
+XmlResult: directory
+
+
+GET /published/<project>/<repository>/<arch>
+
+  List of published binaries for the given project/repo/arch
+
+XmlResult: directory
+
+
+GET /published/<project>/<repository>/<arch>/<binary>
+
+  Download published binary
+  NOTE: use this only if you absolutely have to as it doesn't use
+        the redirector
+
+Result: binary
+
+
+GET /published/<project>/<repository>/<arch>/<binary>?view=ymp
+
+  Generate an ymp pattern that includes the needed repositories to install the
+  given binary
+
+XmlResult: ymp
+
+
+== Build Results (Legacy)
+
+  This section describes the obsolete API for build results. It will be replaced
+  by the API available under /build.
+
+=== Build Results
+
+GET /result/<project>/<platform>/result
+
+  Read project summary result.
+
+XmlResult: projectresult
+
+
+GET /result/<project>/<platform>/<package>/result
+
+  Read package result.
+
+XmlResult: packageresult
+
+
+GET /result/<project>/<platform>/<package>/<arch>/log
+
+  Read build log.
+  
+Result: Build log as text file.
+
+
+
+== Statistics
+
+<limit>: limit count of results. optional, defaults to 10.
+<group_by>: group results by: project, package, repo or arch.
+<type>: can be projects or packages. optional, defaults to packages
+
+
+GET /statistics/latest_added?limit=<limit>
+  Get a list of packages and projects (mixed) latest added to the build
+  service. All entries are sorted by creation time.
+XmlResult: latest_added
+
+
+GET /statistics/added_timestamp/<project>/<package>
+  Get timestamp when project or package was added to the build service.
+XmlResult: added_timestamp
+
+
+GET /statistics/latest_updated?limit=<limit>
+  Get a list of packages and project that were last updated. All entries are
+  sorted by the update timestamp.
+XmlResult: latest_updated
+
+
+GET /statistics/updated_timestamp/<project>/<package>
+  Get timestamp when project or package was last updated.
+XmlResult: updated_timestamp
+
+
+GET /statistics/activity/<project>/<package>
+  Get activity in % of project or package.
+XmlResult: activity
+
+
+GET /statistics/most_active?type=<type>&limit=<limit>
+  Get list of most active packages (type=packages) or projects (type=projects).
+  Also returns count of updates since package was created when type=packages.
+  Also returns count of packages that are in this project when type=projects.
+XmlResult: most_active
+
+
+GET /statistics/highest_rated?limit=<limit>
+  Get list of highest rated projects and packages. Results are sorted by score.
+  Only items with more than 3 ratings will show up in this list.
+XmlResult: highest_rated
+
+
+GET /statistics/rating/<project>/<package>
+  Get rating of a specific project or package. Also returns what score the
+  logged in user gave and how many ratings there are already for the specified
+  object.
+XmlResult: rating
+
+
+PUT /statistics/rating/<project>/<package>
+  Rate this project / package.
+XmlResult: rating
+
+
+GET /statistics/download_counter?limit=<limit>
+  Get download counters for top downloaded files including to which project,
+  package, repository and architecture they belong.
+XmlResult: download_counter
+
+
+GET /statistics/download_counter?group_by=<group_by>&limit=<limit>
+  Get summarized download counters for top downloaded projects, packages,
+  repositories or architectures (by setting group_by parameter to project,
+  package, repo or arch) including count of files that belong to the respective
+  object.
+XmlResult: download_counter_summary
+
+
+PUT /statistics/redirect_stats
+  Send download statistics from the openSUSE download redirector to the build
+  service api, to update the download_counter database.
+  User needs to have appropriate permissions.
+XmlResult: redirect_stats
+
+
+GET /statistics/newest_stats
+  Get the timestamp of the newest stats in build service. This is useful for the
+  create_stats_xml.rb script. Using this value it can import only those 
+  statistics that changed from the last import of statistics.
+  If there are no statistics yet, returns "1970-01-01T01:00:00+01:00"
+XmlResult: newest_stats
+
+
+
+== Status Messages
+
+<limit>: limit count of messages. optional, defaults to unlimited.
+
+
+GET /status_message/?limit=<limit>
+  Get a list of status messages.
+XmlResult: status_messages
+
+
+PUT /status_message/
+  Send a new status message to the build service. User needs to have
+  appropriate permissions.
+XmlResult: status_message
+
+
+== Messages (for projects/packages)
+
+<id>: message id
+<limit>: limit count of messages. optional, defaults to unlimited.
+
+
+GET /message/<id>
+  Get (one) message specified by id.
+XmlResult: messages
+
+
+GET /message/?limit=<limit>
+  Get a list of messages, independent of project or package.
+  All entries are ordered by creation time (latest first).
+XmlResult: messages
+
+
+GET /message/?project=<project>
+  Get a list of messages for this package.
+  All entries are ordered by creation time (latest first).
+XmlResult: messages
+
+
+GET /message/?project=<project>&package=<package>
+  Get a list of messages for this package.
+  All entries are ordered by creation time (latest first).
+XmlResult: messages
+
+
+PUT /message/?project=<project>&package=<package>
+  Append message to the specified package (or project, if package parameter
+  is omitted).
+XmlBody :message
+XmlResult: message
+
+
+== Internal only routes
+
+/public shall not be used in any tools, it is for OBS remote support only and may
+change or disappear at any time. The route is only working when anonymous mode is enabled.
+

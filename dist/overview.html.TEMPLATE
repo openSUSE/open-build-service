@@ -1,0 +1,12 @@
+
+<p>
+<a href="___API_URL___">The OBS web interface</a> can be used to setup OBS, browse the content and to build packages. It is also the api url to be used with clients like osc.
+</p>
+
+<p>
+<a href="___REPO_URL___">The OBS repositories</a> contain the build results, the repositories can be added to package managers like zypper or apt.
+</p>
+
+<p>
+The Open Build Service project can be found at <a href="http://www.openbuildservice.org">www.openbuildservice.org</a>. And the openSUSE project is hosting a public instance of OBS at <a href="http://build.opensuse.org">build.opensuse.org</a> which is not limited to SUSE distributions.
+</p>

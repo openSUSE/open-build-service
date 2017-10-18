@@ -1,0 +1,38 @@
+
+#
+# OBS Release 1.8
+#
+
+This release is primarly driven by the parties of the
+MeeGo project.
+
+It will offer a 1.7 code base with following additional 
+features.
+
+* ACL read permission check
+* Permission support for groups (backport from master)
+* Download on Demand (backport from master)
+* KVM Autosetup (backport from master)
+* CB{pre}install (backport from master)
+
+An api database migration is needed after updating from
+1.7 release with packages or plain git checkout. Please
+read README.UPDATERS file in that case.
+
+OBS Appliance users get all needed update steps automatically
+after upgrading their appliance. This can be done either
+via package upgrade or via replacing the appliance image.
+
+Changes:
+
+* Support new XML structures of OBS 2.0
+* backend logging includes time stamps now
+
+Fixes:
+
+* Fix when calling patch command, upstream changed in incompatible way
+* webui layout fixes needed after changes on static.opensuse.org
+* minor stability fixes in backend code
+* scheduler performance optimization if using remote build service
+  instances.
+* fixed syntax error in obsworker init script with manual VM configuration

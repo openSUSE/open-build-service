@@ -1,0 +1,16 @@
+# See http://www.robotstxt.org/wc/norobots.html for documentation on how to use the robots.txt file
+User-agent: *
+Disallow: /package/live_build_log
+Disallow: /ICSLogin
+Disallow: /project/monitor
+Disallow: /project/buildresult
+Disallow: /package/reload_buildstatus
+Disallow: /project/buildstatus
+Disallow: /project/status
+Disallow: /stage
+Disallow: /project/rebuild_time
+
+# unfortunately the sitemap needs to be full URL,
+# so it needs to be adopted for other anonymous
+# installations
+Sitemap: https://build.opensuse.org/main/sitemap

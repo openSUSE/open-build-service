@@ -1,0 +1,316 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Gone with the Wind</title>
+          <description>Qui a autem eum eum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Gone with the Wind</title>
+          <description>Qui a autem eum eum.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Gone with the Wind</title>
+          <description>Qui a autem eum eum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Gone with the Wind</title>
+          <description>Qui a autem eum eum.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_config
+    body:
+      encoding: UTF-8
+      string: Corporis consectetur ad. Facere in voluptatibus reprehenderit et sit.
+        In facere dolor numquam possimus soluta. Maiores qui numquam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="269" vrev="269">
+          <srcmd5>fd2f940bc6c9b5a511d3e5622659abf9</srcmd5>
+          <version>unknown</version>
+          <time>1499340715</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Molestiae impedit iste. Voluptates tempore expedita maxime dignissimos.
+        Nihil ut deleniti consequatur ex recusandae officia omnis. Porro nemo quaerat
+        est nihil tempora et. Adipisci consequatur eum est corrupti ea sint labore.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="270" vrev="270">
+          <srcmd5>0de2e93b9535563a19238849c856c39c</srcmd5>
+          <version>unknown</version>
+          <time>1499340715</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_icon
+    body:
+      encoding: UTF-8
+      string: Eius aut consectetur qui minima nobis sed sit. Veniam ut rerum omnis
+        enim dolor quos quia. In culpa dolor cupiditate minima laborum optio nostrum.
+        Et sunt fugit et. A excepturi minima.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="271" vrev="271">
+          <srcmd5>6965fe27e2c0007e3f56e2a59758ec23</srcmd5>
+          <version>unknown</version>
+          <time>1499340715</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:55 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_files
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '405'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_files" rev="271" vrev="271" srcmd5="6965fe27e2c0007e3f56e2a59758ec23">
+          <entry name="_config" md5="1c6362206e8ecb3b76da6d19c4cd113d" size="131" mtime="1499340715" />
+          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
+          <entry name="somefile.txt" md5="f33ad1fd8eb012300daf649b79256cba" size="225" mtime="1499340715" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:55 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_files
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '405'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_files" rev="271" vrev="271" srcmd5="6965fe27e2c0007e3f56e2a59758ec23">
+          <entry name="_config" md5="1c6362206e8ecb3b76da6d19c4cd113d" size="131" mtime="1499340715" />
+          <entry name="_icon" md5="d3623f4e1afa11bcff44503ac76c8b41" size="184" mtime="1499340715" />
+          <entry name="somefile.txt" md5="f33ad1fd8eb012300daf649b79256cba" size="225" mtime="1499340715" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 06 Jul 2017 11:31:55 GMT
+recorded_with: VCR 3.0.3

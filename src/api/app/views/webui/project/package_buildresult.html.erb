@@ -1,0 +1,14 @@
+<% if @buildresult %>
+<span class="build_result_title">Build results of <%= params[:project] %> / <%= params[:package] %></span>
+<table>
+<% @buildresult.elements('result') do |r| %>
+  <tr>
+    <td><%= r["repository"] %></td>
+    <td><%= r["arch"] %></td>
+    <%= arch_repo_table_cell(r["repository"], r["arch"], params[:package] ) -%>
+  </tr>
+<% end %>
+</table>
+<% else %>
+<span class="italic">Couldn't get build result.</span>
+<% end %>

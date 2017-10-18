@@ -1,0 +1,1166 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2008 Adrian Schroeter, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# The Admin Tool
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use strict;
+use POSIX;
+use Data::Dumper;
+use Getopt::Long;
+use Digest::MD5 ();
+use XML::Structured ':bytes';
+
+use Build;
+
+use BSConfiguration;
+use BSFileDB;
+use BSWatcher;
+use BSUtil;
+use BSXML;
+use BSKiwiXML;
+use BSProductXML;
+use BSDB;
+use BSDBIndex;
+use BSSolv;
+use BSSrcrep;
+use BSRevision;
+
+my $nosharedtrees;
+$nosharedtrees = $BSConfig::nosharedtrees if defined($BSConfig::nosharedtrees);
+
+my $new_full_handling = 1; 
+$new_full_handling = $BSConfig::new_full_handling if defined($BSConfig::new_full_handling);
+
+my $reporoot  = "$BSConfig::bsdir/build";
+my $eventroot = "$BSConfig::bsdir/events";
+my $projectsdir = "$BSConfig::bsdir/projects";
+my $srcrepdir = "$BSConfig::bsdir/sources";
+my $configfile = "$BSConfig::bsdir/configuration.xml";
+my $treesdir = $nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
+my $sourcedb = "$BSConfig::bsdir/db/source";
+my $rundir  = "$BSConfig::bsdir/run";
+
+
+sub echo_help {
+    print "\n
+The Open Build Service Admin Tool
+=====================================
+
+*** This tool is only intended to be used by experienced admins on
+*** the backend server ! 
+
+General options
+===============
+
+ --help
+   Gives this help output.
+
+Job Controlling
+===============
+
+ --shutdown-scheduler <architecture>
+   Stops the scheduler nicely with dumping out its current state 
+   for fast startup.
+
+ --check-project <project> <architecture>
+ --check-project <project> <repository> <architecture>
+ --check-all-projects <architecture>
+   Check status of a project and its repositories again
+
+ --deep-check-project <project> <architecture>
+ --deep-check-project <project> <repository> <architecture>
+   Check status of a project and its repositories again
+   This deep check includes also the sources, in case of lost events.
+
+ --check-package <project> <package> <architecture>
+   Check status of a package in all repositories
+
+ --publish-repository <project> <repository>
+   Creates an event for the publisher. The scheduler is NOT scanning for new packages.
+   The publisher may skip the event, if nothing has changed.
+   Use --republish-repository when you want to enforce a publish.
+
+ --unpublish-repository <project> <repository>
+   Removes the prepared :repo collection and let the publisher remove the result. This 
+   is also updating the search database.
+   WARNING: this works also for locked projects!
+
+ --prefer-publish-event <name>
+   prefers a publish event to be next. <name> is the file name inside of the publish
+   event directory.
+
+ --republish-repository <project> <repository>
+   enforce to publish a repository
+
+ --rebuild-full-tree <project> <repository> <arch>
+   rebuild the content of :full/ directory
+
+ --clone-repository <source project> <source repository> <destination repository>
+ --clone-repository <source project> <source repository> <destination project> <destination repository>
+   Clone an existing repo into another existing repository.
+   Usefull for creating snapshots.
+
+ --rescan-repository <project> <repository> <architecture>
+   Asks the scheduler to scan a repository for new packages and add
+   them to the cache file.
+
+ --force-check-project <project> <repository> <architecture>
+   Enforces the check of an repository, even when it is currently blocked due to amount of
+   calculating time.
+
+ --create-patchinfo-from-updateinfo
+   creates a patchinfo submission based on an updateinfo information.
+
+Maintenance Tasks
+=================
+
+Note: the --update-*-db calls are usually only needed when corrupt data has been created, for
+      example after a file system corruption.
+
+ --update-source-db [<project>]
+   Update the index for all source files.
+
+ --update-request-db
+   Updates the index for all requests.
+
+ --remove-old-sources <days> <y> (--debug)
+   WARNING: this is an experimental feature atm. It may trash your data, but you have anyway
+            a backup, right?
+   remove sources older than <x> days, but keep <y> number of revisions
+   --debug for debug output
+
+Debug Options
+=============
+
+ --dump-cache <project> <repository> <architecture>
+   Dumps out the content of a binary cache file.
+   This shows all the content of a repository, including all provides
+   and requires.
+
+ --dump-state <architecture>
+
+ --dump-project-from-state <project> <arch>
+   dump the state of a project.
+
+ --dump-relsync <file>
+   To dump content of :relsync files.
+
+ --set-relsync <file> <key> <value>
+   Modify key content in a a :relsync file.
+
+ --check-meta-xml <project>
+ --check-meta-xml <project> <package>
+   Is parsing a project or package xml file and puts out error messages, in case of errors.
+
+ --check-product-xml <file>
+   Is parsing a product xml file and puts out error messages, in case of errors.
+   It does expand all xi:include references and validates the result.
+
+ --check-product-group-xml <file>
+   Is parsing a group xml file from a product definition and puts out error messages, in case of errors.
+   
+ --check-kiwi-xml <file>
+ --check-kiwi-xml <project> <package>
+   Is parsing a kiwi xml file and puts out error messages, in case of errors.
+
+ --check-constraints <file>
+ --check-constraints <project> <package>
+   Validates a _constraints file
+
+ --check-pattern-xml <file>
+   Is parsing a pattern xml file and puts out error messages, in case of errors.
+
+ --check-request-xml <file>
+   Is parsing a request xml file and puts out error messages, in case of errors.
+
+ --parse-build-desc <file> [<arch> [<buildconfigfile>]]
+   Parse a spec, dsc or kiwi file with the Build script parser.
+
+ --show-scheduler-architectures
+   Show all architectures which are configured in configuration.xml to be supported by this instance.
+
+ --show-delta-file <file>
+   Show all instructions of a OBS delta file
+
+ --show-delta-store <file>
+   Show delta store statistics
+
+ --dump-memstats <architecture> [what]
+
+Backend Configuration
+=====================
+
+ --query-config <variable>
+
+Dispatcher Maintenance
+======================
+
+ --list-badhosts
+   List all marked badhosts from bs_dispatch
+
+ --drop-badhosts
+   Drop information about badhosts in bs_dispatch
+
+";
+}
+my $emptymd5 = 'd41d8cd98f00b204e9800998ecf8427e';
+
+#### FIXME: this function is copied from src server. We should move it to some util module maybe.
+sub findfile {
+  my ($rev, $repoid, $ext, $files) = @_;
+  $files = BSRevision::lsrev($rev) unless ref $files;
+  my $packid = $rev->{'package'};
+  return ($files->{"$packid-$repoid.$ext"}, "$packid-$repoid.$ext") if defined($repoid) && $files->{"$packid-$repoid.$ext"};
+  return ($files->{"$packid.$ext"}, "$packid.$ext") if $files->{"$packid.$ext"} && defined($repoid);
+  my @files = grep {/\.$ext$/} keys %$files;
+  @files = grep {/^\Q$packid\E/i} @files if @files > 1;
+  return ($files->{$files[0]}, $files[0]) if @files == 1;
+  if (@files > 1) {
+    if (!defined($repoid)) {
+      # return (undef, undef);
+      @files = sort @files;
+      return ($files->{$files[0]}, $files[0]);
+    }
+    @files = grep {/^\Q$packid-$repoid\E/i} @files if @files > 1;
+    return ($files->{$files[0]}, $files[0]) if @files == 1;
+  }
+  return (undef, undef);
+}
+#### end of copy from src server
+
+sub find_latest_file {
+  my ($project, $package, $type) = @_;
+
+  my $rev = BSRevision::getrev_local($project, $package);
+  if (!$rev || $rev->{'srcmd5'} eq 'empty') {
+    return ( "Refered to non existing $type in $project $package" );
+  }
+  my $files = BSRevision::lsrev($rev);
+# FIXME: handle source links
+#   $files = handlelinks($projid, $pinfo, $files, $rev) if ref($files) && $files->{'_link'};
+  if (!ref $files) {
+    return( "could not get file list for $project $package" );
+  }
+  my ($md5, $file) = findfile($rev, undef, $type, $files);
+  return ($md5, $file);
+}
+
+sub dump_nStore {
+  my ($file, @sel) = @_;
+  my $cache = BSUtil::retrieve($file);
+  $cache = $cache->{$_} for @sel;
+  print Dumper($cache);
+  return $cache
+}
+
+sub dump_cache {
+  my ($project, $repo, $arch) = @_;
+  my $full = "$reporoot/$project/$repo/$arch/:full";
+  return dump_solv("$full.solv") if -e "$full.solv";
+  return dump_nStore("$full.cache") if -e "$full.cache";
+  die("neither $full.cache nor $full.solv exists\n");
+}
+
+sub dump_solv {
+  my ($fn) = @_;
+  my $pool = BSSolv::pool->new();
+  my $repo = $pool->repofromfile(0, $fn);
+  my %names = $repo->pkgnames();
+  my $r = {};
+  for my $p (values %names) {
+    $r->{$pool->pkg2name($p)} = $pool->pkg2data($p);
+  }
+  print Dumper($r);
+}
+
+sub clone_repository {
+  my ($srcproject, $srcrepo, $destproject, $destrepo, $dovolatile) = @_;
+  my $srcdir  = "$reporoot/$srcproject/$srcrepo";
+  my $destdir = "$reporoot/$destproject/$destrepo";
+  my $tmpdir  = "$BSConfig::bsdir/tmp";
+
+  die("Destination repo must get created by scheduler first!\n") unless -d $destdir;
+
+  mkdir_p($tmpdir) || die("mkdir_p $tmpdir: $!\n");
+  $tmpdir .= "/bs_admin.$$";
+  if (-d $tmpdir) {
+    system('rm', '-rf', $tmpdir) && die("removing of $tmpdir failed!\n");
+  }
+  if (-d "$tmpdir.old") {
+    system('rm', '-rf', "$tmpdir.old") && die("removing of $tmpdir.old failed!\n");
+  }
+
+  print "cloning $srcproject / $srcrepo\n";
+  system('cp', '-al', $srcdir, $tmpdir) && die("cloning failed!\n");
+
+  # remove :repoinfo, as the new repo is not published yet
+  unlink("$tmpdir/:repoinfo");
+
+  # remove jobhistory files
+  for my $a (ls($tmpdir)) {
+    unlink("$tmpdir/$a/:jobhistory");
+   # the new repo might get published
+    system('rm', '-rf', "$tmpdir/$a/:repo", "$tmpdir/$a/:repodone");
+  }
+
+  if ($dovolatile && $new_full_handling) {
+    for my $a (ls($tmpdir)) {
+      next unless -d "$tmpdir/$a/:full";
+      system('rm', '-rf', "$tmpdir/$a/_volatile");
+      system('cp', '-al', "$tmpdir/$a/:full", "$tmpdir/$a/_volatile") && die("volatile cloning failed!\n");
+    }
+  }
+
+  print "exchanging with $destproject / $destrepo\n";
+  rename($destdir, "$tmpdir.old") || die("rename $destdir $tmpdir.old: $!\n");
+  rename($tmpdir, $destdir) || die("rename $tmpdir $destdir: $!\n");
+
+  print "tell schedulers about the change ";
+  my @archs = grep {-d "$destdir/$_"} ls($destdir);
+  for my $a (@archs) {
+    print "$a, ";
+    write_event($destproject, $destrepo, $a, 'scanrepo');
+  }
+
+  print "\nremoving old tree in $tmpdir.old\n";
+  system('rm', '-rf', "$tmpdir.old") && die("removing of $tmpdir.old failed!\n");
+
+  print "finished. Have a nice day.\n";
+}
+
+sub update_request_db {
+  my $requestdb  = "$BSConfig::bsdir/db/request";
+  my $requestdir = "$BSConfig::bsdir/requests";
+  mkdir_p($requestdb) unless -d $requestdb;
+
+  my $db = BSDB::opendb($requestdb, '');
+  $db->{'noindex'} = {'id' => 1};
+
+  my @allrequests = ls($requestdir);
+  my $i = 0;
+  my $count = @allrequests;
+  for my $rid (@allrequests) {
+    next if $rid eq ".nextid";
+    $i++;
+    print "$i / $count        \r";
+    my $req = readxml("$requestdir/$rid", $BSXML::request, 1);
+    print "WARNING: unable to parse request: $rid!\n" unless $req;
+    $db->updateindex($rid, {}, $req || {});
+  }
+}
+
+sub insert_request_db {
+  my ($file) = @_;
+  my $requestdb  = "$BSConfig::bsdir/db/request";
+  my $requestdir = "$BSConfig::bsdir/requests";
+  mkdir_p($requestdb) unless -d $requestdb;
+
+  my $db = BSDB::opendb($requestdb, '');
+  $db->{'noindex'} = {'id' => 1};
+
+  my @rid = split ('/',$file);
+  my $rid = $rid[-1];
+  my $req = readxml("$requestdir/$rid", $BSXML::request, 1);
+  print "WARNING: unable to parse request: $rid!\n" unless $req;
+  $db->updateindex($rid, {}, $req || {});
+}
+
+sub check_xml_file {
+  my ($file, $type) = @_;
+
+  print "parsing $file\n";
+  my $xmldesc = readxml("$file", $type, 0);
+  if ( defined($xmldesc) ) {
+    print "Succesfull parsed file !\n";
+  } else {
+    die("ERROR: Unable to parse xml file !\n");
+  }
+}
+
+sub check_product_xml_file {
+  my ($file) = @_;
+
+  print "parsing $file\n";
+  my $xmldesc = BSProductXML::readproductxml("$file", 0, 1 );
+  if ( defined($xmldesc) ) {
+    print "Succesfull parsed file !\n";
+  } else {
+    die("ERROR: Unable to parse xml file !\n");
+  }
+}
+
+sub check_kiwi_xml {
+  my ($project, $package) = @_;
+
+  my ($md5, $file) = find_latest_file($project, $package, 'kiwi');
+  if (defined($md5) && defined($file)) {
+    my $f = "$srcrepdir/$package/$md5-$file";
+    check_xml_file($f, $BSKiwiXML::kiwidesc);
+  } else {
+    die("ERROR: No kiwi config file found in $project / $package !\n");
+  }
+}
+
+sub check_constraints_xml {
+  my ($project, $package) = @_;
+
+  my ($md5, $file) = find_latest_file($project, $package, '_constraints');
+  if (defined($md5) && defined($file)) {
+    my $f = "$srcrepdir/$package/$md5-$file";
+    check_xml_file($f, $BSXML::constraints);
+  } else {
+    die("ERROR: No _constraints file found in $project / $package !\n");
+  }
+}
+
+sub check_meta_xml {
+  my ($project, $package) = @_;
+  my $file;
+  my $metadesc;
+
+  if (defined($package)){
+    $file = "$projectsdir/${project}.pkg/${package}.xml";
+    $metadesc = readxml("$file", $BSXML::pack, 0);
+  } else {
+    $file = "$projectsdir/$project.xml";
+    $metadesc = readxml("$file", $BSXML::proj, 0);
+  }
+
+  if (defined($metadesc)) {
+    print "Succesfull parsed $file !\n";
+  } else {
+    die("ERROR: Unable to parse Meta XML in $file !\n");
+  }
+}
+
+sub write_event {
+  my ($project, $repo, $arch, $event, $package, $job) = @_;
+  my $evname = "${event}";
+  $evname .= "::$project" if defined $project;
+  $evname .= "::$package" if defined $package;
+  $evname .= "::$repo" if defined $repo;
+  $evname = "${event}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
+  my $ev = { 'type' => $event };
+  $ev->{'project'} = $project if defined $project;
+  $ev->{'package'} = $package if defined $package;
+  $ev->{'repository'} = $repo if defined $repo;
+  $ev->{'job'} = $job if defined $job;
+  writexml("$eventroot/$arch/.$evname$$", "$eventroot/$arch/$evname", $ev, $BSXML::event);
+  BSUtil::ping("$eventroot/$arch/.ping");
+}
+
+sub write_publish_event {
+  my ($project, $repo) = @_;
+  my $evname = "${project}::${repo}";
+  my $ev = { 'type' => "publish" };
+  $ev->{'project'} = $project;
+  $ev->{'repository'} = $repo;
+  writexml("$eventroot/publish/.$evname$$", "$eventroot/publish/$evname", $ev, $BSXML::event);
+  BSUtil::ping("$eventroot/publish/.ping");
+}
+
+sub prefer_publish_event {
+  my ($name) = @_;
+  rename( "$eventroot/publish/$name", "$eventroot/publish/_$name" ) || die("rename of $eventroot/publish/$name failed: $!");
+  BSUtil::touch("$rundir/bs_publish.rescan");
+}
+
+sub scan_repo {
+  my ($project, $repo, $arch) = @_;
+  write_event( $project, $repo, $arch, 'scanrepo' );
+}
+
+sub wipe_notyet {
+  my ($project, $repo, $arch) = @_;
+  write_event( $project, $repo, $arch, 'wipenotyet' );
+}
+
+sub dump_state {
+  my ($arch) = @_;
+  write_event( undef, undef, $arch, 'dumpstate' );
+}
+
+sub dump_memstats {
+  my ($arch, $job) = @_;
+  write_event( undef, undef, $arch, 'memstats', undef, $job );
+}
+
+sub shutdown_scheduler {
+  my ($arch) = @_;
+  write_event( '', undef, $arch, 'exitcomplete' );
+}
+
+sub rebuild_full_tree {
+  my ($project, $repo, $arch) = @_;
+  write_event($project, $repo, $arch, 'useforbuild');
+}
+
+sub check_project {
+  my ($project, $repo, $arch, $deep, $admin) = @_;
+  if (defined $deep) {
+    write_event($project, $repo, $arch, 'package');
+    if (defined $admin) {
+      write_event($project, $repo, $arch, 'admincheck');
+    };
+  } else {
+    if (defined $admin) {
+      write_event($project, $repo, $arch, 'admincheck');
+    } else {
+      write_event($project, $repo, $arch, 'recheck');
+    }
+  }
+}
+
+sub check_package {
+  my ($project, $package, $arch) = @_;
+  write_event($project, undef, $arch, 'package', $package);
+}
+
+# make stdout non-buffered
+$| = 1;
+
+#
+# Argument parsing
+#
+if ( @ARGV < 1 ){
+  echo_help();
+  exit(1);
+}
+
+while (@ARGV) {
+  my $arg = shift @ARGV;
+  if ($arg eq "--help") {
+    echo_help();
+    exit(0);
+  }
+  if ($arg eq "--check-meta-xml") {
+    die("ERROR: need at least a project name as argument!\n") if @ARGV < 1;
+    my $project = shift @ARGV;
+    if (@ARGV == 1) {
+      my $package = shift @ARGV;
+      check_meta_xml($project, $package);
+    } else {
+      check_meta_xml($project);
+    }
+  } elsif ($arg eq "--check-product-group-xml") {
+    die("ERROR: need a file name as argument!\n") if @ARGV != 1;
+    my $file = shift @ARGV;
+    check_xml_file($file, $BSProductXML::group);
+  } elsif ($arg eq "--check-product-xml") {
+    die("ERROR: need a file name as argument!\n") if @ARGV != 1;
+    my $file = shift @ARGV;
+    check_product_xml_file($file);
+  } elsif ($arg eq "--check-pattern-xml") {
+    die("ERROR: need a file name as argument!\n") if @ARGV != 1;
+    my $file = shift @ARGV;
+    check_xml_file($file, $BSXML::pattern);
+  } elsif ($arg eq "--check-request-xml") {
+    die("ERROR: need a file name !\n") if @ARGV != 1;
+    my $file = shift @ARGV;
+    check_xml_file($file, $BSXML::request);
+  } elsif ($arg eq "--update-request-db") {
+    BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+    if (@ARGV == 1) {
+       my $file = shift @ARGV;
+	insert_request_db($file);
+    } else {
+	update_request_db();
+    }
+  } elsif ($arg eq "--update-source-db") {
+    BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+    my @prjs = BSRevision::lsprojects_local();
+    if (@ARGV == 1) {
+       @prjs = (shift @ARGV);
+    }
+    for my $projid (@prjs) {
+      for my $packid (BSRevision::lspackages_local($projid)) {
+        print "$projid/$packid\n";
+        my $rev = BSRevision::getrev_local($projid, $packid);
+        BSRevision::updatelinkinfodb($projid, $packid, $rev, BSRevision::lsrev($rev));
+      }
+    }
+  } elsif ($arg eq "--check-kiwi-xml") {
+    die("ERROR: need either file name or project and package as argument!\n") if @ARGV < 1;
+    if (@ARGV == 1){
+      my $file = shift @ARGV;
+      check_xml_file($file, $BSKiwiXML::kiwidesc);
+    } else {
+      my $project = shift @ARGV;
+      my $package = shift @ARGV;
+      check_kiwi_xml($project, $package);
+    }
+  } elsif ($arg eq "--check-constraints") {
+    die("ERROR: need either file name or project and package as argument!\n") if @ARGV < 1;
+    if (@ARGV == 1){
+      my $file = shift @ARGV;
+      check_xml_file($file, $BSXML::constraints);
+    } else {
+      my $project = shift @ARGV;
+      my $package = shift @ARGV;
+      check_constraints_xml($project, $package);
+    }
+  } elsif ($arg eq "--show-scheduler-architectures") {
+    my $c = readxml($configfile, $BSXML::configuration);
+    if ($c->{'schedulers'} && @{$c->{'schedulers'}->{'arch'} || []}) {
+      print join(' ', @{$c->{'schedulers'}->{'arch'}})."\n";
+    }
+  } elsif ($arg eq "--parse-build-desc") {
+    die("ERROR: need a file name as argument (spec, dsc or kiwi)!\n") if @ARGV < 1;
+    my $file = shift @ARGV;
+    my $cfile;
+    my $arch;
+    my $cf = $cfile = $arch = undef;
+    $arch = shift @ARGV if @ARGV > 0;
+    if (@ARGV > 0) {
+      $cfile = shift @ARGV if @ARGV == 1;
+      $cf = Build::read_config( $arch, $cfile );
+    };
+    $cf->{'arch'} = $arch if $arch;
+    my $ret = Build::parse($cf, $file);
+    print Dumper($ret);
+  } elsif ($arg eq "--parse-hdrmd5") {
+    die("ERROR: need a file name as argument (rpm or deb)!\n") if @ARGV != 1;
+    my $file = shift @ARGV;
+    my $ret = Build::queryhdrmd5($file);
+    print Dumper($ret);
+  } elsif ($arg eq "--dump-cache") {
+    if (@ARGV == 1) {
+      my $fullfile = shift @ARGV;
+      die("ERROR: invalid filename (must end with .cache or .solv)\n") if $fullfile !~ /\.(?:solv|cache)$/;
+      dump_solv($fullfile) if $fullfile =~ /\.solv$/;
+      dump_nStore($fullfile) if $fullfile =~ /\.cache$/;
+    } else {
+      die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
+      my $project = shift @ARGV;
+      my $repo = shift @ARGV;
+      my $arch = shift @ARGV;
+      dump_cache($project, $repo, $arch);
+    }
+  } elsif ($arg eq "--dump-relsync" || $arg eq '--dump') {
+    die("ERROR: need file as argument!\n") if @ARGV < 1;
+    my $file = shift @ARGV;
+    dump_nStore($file, splice @ARGV);
+  } elsif ($arg eq "--set-relsync") {
+    die("ERROR: need file as argument!\n") if @ARGV < 1;
+    my $file = shift @ARGV;
+    my $s = dump_nStore($file);
+    my $key = shift @ARGV;
+    my $value = shift @ARGV;
+    if (defined($key) && defined($value)){
+      $s->{$key} = $value;
+      print "\nChanged to:\n";
+      print Dumper($s);
+      BSUtil::store($file, undef, $s);
+    }
+  } elsif ($arg eq "--dump-state") {
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
+    my $arch = shift @ARGV;
+    dump_state($arch);
+  } elsif ($arg eq "--dump-memstats") {
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
+    my $arch = shift @ARGV;
+    my $job = shift @ARGV if @ARGV;
+    dump_memstats($arch, $job);
+  } elsif ($arg eq "--dump-project-from-state") {
+    die("ERROR: need project as argument!\n") if @ARGV < 1;
+    my $project = shift @ARGV;
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
+    my $arch = shift @ARGV;
+    if (! -e "$rundir/bs_sched.$arch.state") {
+      print "Error: no dumped scheduler state, use --dump-state first.\n";
+      exit(1);
+    }
+    my $schedstate = BSUtil::retrieve("$rundir/bs_sched.$arch.state", 2);
+    if (defined($schedstate->{'remoteprojs'}->{$project})) {
+      print "remotemap:\n";
+      print Dumper($schedstate->{'remoteprojs'}->{$project});
+    }
+    if (defined($schedstate->{'projpacks'}->{$project})) {
+      print "projpack:\n";
+      print Dumper($schedstate->{'projpacks'}->{$project});
+    }
+  } elsif ($arg eq "--shutdown-scheduler") {
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
+    my $arch = shift @ARGV;
+    shutdown_scheduler( $arch );
+  } elsif ( $arg eq "--check-project" ) {
+    die("ERROR: need at least project and architecture as argument!\n") if @ARGV < 2;
+    my $project = shift @ARGV;
+    my $repo;
+    $repo = shift @ARGV if @ARGV == 2;
+    my $arch = shift @ARGV;
+    check_project($project, $repo, $arch);
+  } elsif ( $arg eq "--check-all-projects" ) {
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
+    my $arch = shift @ARGV;
+    check_project(undef, undef, $arch);
+  } elsif ( $arg eq "--check-package" ) {
+    die("ERROR: need project, package and architecture as argument!\n") if @ARGV < 3;
+    my $project = shift @ARGV;
+    my $package = shift @ARGV;
+    my $arch = shift @ARGV;
+    check_package($project, $package, $arch);
+  } elsif ( $arg eq "--rebuild-full-tree" ) {
+    die("ERROR: need project ,repository and architecture as argument!\n") if @ARGV < 3;
+    my $project = shift @ARGV;
+    my $repo = shift @ARGV;
+    my $arch = shift @ARGV;
+    rebuild_full_tree($project, $repo, $arch);
+  } elsif ( $arg eq "--deep-check-project" ) {
+    die("ERROR: need at least project and architecture as argument!\n") if @ARGV < 2;
+    my $project = shift @ARGV;
+    my $repo;
+    $repo = shift @ARGV if @ARGV == 2;
+    my $arch = shift @ARGV;
+    check_project($project, $repo, $arch, 1);
+  } elsif ( $arg eq "--publish-repository" || $arg eq "--unpublish-repository" || $arg eq "--republish-repository" ) {
+    die("ERROR: need project and repository as argument!\n") if @ARGV != 2;
+    my $project = shift @ARGV;
+    my $repo = shift @ARGV;
+    my $repodir = "$reporoot/$project/$repo/";
+    if ( $arg eq "--republish-repository" ) {
+      # clear the repository state to force republishing
+      my $repoinfo = BSUtil::retrieve("$repodir/:repoinfo", 1) || {};
+      if ($repoinfo->{'state'}) {
+	delete $repoinfo->{'state'};
+	BSUtil::store("$repodir/.:repoinfo", "$repodir/:repoinfo", $repoinfo);
+      }
+    }
+    if ( $arg eq "--unpublish-repository" ) {
+      # remove :repo
+      for my $a (ls($repodir)) {
+        next unless -e "$repodir/$a/:repodone";
+        system('rm', '-rf', "$repodir/$a/:repo", "$repo/$a/:repodone");
+      }
+    }
+    write_publish_event($project, $repo);
+  } elsif ($arg eq "--prefer-publish-event") {
+    die("ERROR: need event file name as argument!\n") if @ARGV != 1;
+    my $name = shift @ARGV;
+    prefer_publish_event( $name );
+  } elsif ( $arg eq "--clone-repository" ) {
+    my $dovolatile;
+    if (@ARGV && $ARGV[0] eq '--volatile') {
+      $dovolatile = 1;
+      shift @ARGV;
+    }
+    die("ERROR: need source project & repository and destination project & repository as argument!\n") if @ARGV < 3;
+    my $srcproject = shift @ARGV;
+    my $srcrepo = shift @ARGV;
+    my $destproject;
+    my $destrepo;
+    if (@ARGV == 1) {
+       $destrepo = shift @ARGV;
+       $destproject = $srcproject;
+    } else {
+       $destproject = shift @ARGV;
+       $destrepo = shift @ARGV;
+    }
+    clone_repository($srcproject, $srcrepo, $destproject, $destrepo, $dovolatile);
+  } elsif ($arg eq "--rescan-repository") {
+    die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
+    my $project = shift @ARGV;
+    my $repo = shift @ARGV;
+    my $arch = shift @ARGV;
+    wipe_notyet($project, $repo, $arch);
+    scan_repo( $project, $repo, $arch );
+  } elsif ($arg eq "--force-check-project") {
+    die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
+    my $project = shift @ARGV;
+    my $repo = shift @ARGV;
+    my $arch = shift @ARGV;
+    wipe_notyet($project, $repo, $arch);
+    check_project($project, $repo, $arch, undef, 1); # with adminhighprio
+  } elsif ($arg eq "--show-delta-file") {
+    die("ERROR: need delta file as argument!\n") if @ARGV < 1;
+    die("ERROR: not a OBS delta file!\n") unless BSSolv::isobscpio($ARGV[0]);
+    my $store = $ARGV[0];
+    $store =~ s/[^\/]*$/deltastore/s;
+    if (-e $store) {
+      BSSolv::obscpioinstr($ARGV[0], $store);
+    } else {
+      BSSolv::obscpioinstr($ARGV[0]);
+    }
+    shift @ARGV;
+  } elsif ($arg eq "--cat-delta-file") {
+    die("ERROR: need delta file as argument!\n") if @ARGV < 1;
+    my $store = $ARGV[0];
+    $store =~ s/[^\/]*$/deltastore/s;
+    local *F;
+    BSSolv::obscpioopen($ARGV[0], $store, \*F, "$srcrepdir/:upload") || die("ARGV[0]: $!\n");
+    my $chunk;
+    print $chunk while read(F, $chunk, 4096);
+    close F;
+    shift @ARGV;
+  } elsif ($arg eq "--show-delta-store") {
+    die("ERROR: need delta file/store as argument!\n") if @ARGV < 1;
+    my $store = $ARGV[0];
+    $store .= '/deltastore' if -d $store;
+    $store =~ s/[^\/]*\.obscpio$/deltastore/s;
+    BSSolv::obscpiostorestats($store);
+    shift @ARGV;
+  } elsif ($arg eq "--create-patchinfo-from-updateinfo") {
+    my $uf = shift @ARGV;
+    my $pooldirecotory = shift @ARGV;
+    my $updateinfo = readxml($uf, $BSXML::updateinfoitem);
+    my $patchinfo= {};
+    $patchinfo->{'incident'} = $updateinfo->{'id'};
+    $patchinfo->{'summary'} = $updateinfo->{'title'};
+    $patchinfo->{'description'} = $updateinfo->{'description'};
+    $patchinfo->{'version'} = $updateinfo->{'version'};
+    $patchinfo->{'category'} = $updateinfo->{'type'};
+    $patchinfo->{'packager'} = $updateinfo->{'from'};
+    $patchinfo->{'rating'} = 'low';
+    $patchinfo->{'issue'} = [];
+    for my $ref (@{$updateinfo->{'references'}->{'reference'} || []}) {
+      my $b;
+      if ($ref->{'type'} eq 'bugzilla') {
+        $b = { 'id' => $ref->{'id'}, 'tracker' => 'bnc' };
+      } elsif ($ref->{'type'} eq 'cve') {
+        $b = { 'id' => $ref->{'id'}, 'tracker' => 'CVE' };
+      } else {
+       die("Unhandled type $ref->{'type'}");
+      };
+      push @{$patchinfo->{'issue'}}, $b;
+    };
+    delete $patchinfo->{'issue'} unless @{$patchinfo->{'issue'}} > 0;
+    my $id = "$patchinfo->{'incident'}-$patchinfo->{'version'}";
+    mkdir($id);
+    writexml("._patchinfo", "$id/_patchinfo", $patchinfo, $BSXML::patchinfo);
+
+    for my $file (@{$updateinfo->{'pkglist'}->{'collection'}[0]->{'package'} || []}) {
+      system( "find $pooldirecotory -name $file->{'filename'} | xargs -I {} cp {} $id/" ) && die( "$file->{'filename'} not found in $pooldirecotory" );
+    }
+    system( "rpm -qp --qf '%{SOURCERPM}\n' $id/*rpm|while read i; do find $pooldirecotory -name \$i | xargs -I {} cp {} $id/; done" );
+    my $ufc;
+    $ufc->{'update'} = [];
+    push @{$ufc->{"update"}}, $updateinfo;
+    writexml("$id/.updateinfo.xml", "$id/updateinfo.xml", $ufc, $BSXML::updateinfo);
+  } elsif ($arg eq "--remove-old-sources" ) {
+    die("ERROR: need age (in days) and count of revisions to keep as argument!\n") if @ARGV < 2;
+    my $days = shift @ARGV;
+    my $min_revs = shift @ARGV;
+    die("ERROR: second argument must be >=1!\n") if $min_revs <1;
+
+    my $debug = 0;
+    if ( @ARGV == 1 ) {
+      if ( shift @ARGV eq "--debug") {
+      $debug = 1;
+      }
+    } elsif ( @ARGV > 1 ) {
+      die("ERROR: too much parameters!\n");
+    }
+
+    my $mastertimestamp = time - $days*60*60*24;
+    my %deletehashes; #key: hash value: @files
+    my %keephashes;
+    my @revfiles;
+    my %treesfiles;
+
+    my $deletedbytes = 0;
+
+    # get all .rev and .mrev files and fill hashes with files to delete or not do delete
+    my @projectdirs;
+    opendir(D, $projectsdir) || die ($!);
+      foreach my $prjdir (readdir(D)) {
+        next if $prjdir =~ /^\.{1,2}$/;
+        if ( -d $projectsdir.'/'.$prjdir ) {
+          opendir(E, $projectsdir.'/'.$prjdir) || die($!);
+            foreach my $file (readdir(E)) {
+              if ( $file =~ /\.(mrev|rev)(\.del){0,1}$/ ) {
+                push @revfiles, "$projectsdir/$prjdir/$file";
+                open(F, '<', $projectsdir.'/'.$prjdir.'/'.$file) || die($!);
+                  my @lines = <F>;
+                close(F);
+
+                my @keeplines;
+                if (scalar(@lines) < $min_revs) {
+                  @keeplines = splice(@lines, -scalar(@lines));
+                } else {
+                  @keeplines = splice(@lines, -$min_revs);
+                }
+                # remove lines to keep from normal timestamp checking and put them directly into hash
+                foreach my $line (@keeplines) {
+                  my ($hash, $time) = ( split(/\|/, $line))[2,4];
+                  push @{$keephashes{$hash}}, { project => $prjdir, file => $projectsdir.'/'.$prjdir.'/'.$file };
+                }
+
+                foreach my $line (@lines) {
+                  my ($hash, $time) = ( split(/\|/, $line) )[2,4];
+                  if ( $time < $mastertimestamp) {
+                    push @{$deletehashes{$hash}},  { project => $prjdir, file => $projectsdir.'/'.$prjdir.'/'.$file };
+                  } else {
+                    push @{$keephashes{$hash}}, { project => $prjdir, file => $projectsdir.'/'.$prjdir.'/'.$file };
+                  }
+                }
+              }
+            }
+          closedir(E);
+        }
+    }
+    closedir(D);
+
+    if ($debug) {
+      print "all hashes to keep (must be at least one per project):\n";
+      foreach my $hash (keys %keephashes) {
+        foreach my $entry (@{$keephashes{$hash}}) {
+          print "project: ", $entry->{project}, ", file: ", $entry->{file}, " hash: ", $hash, "\n";
+        }
+      }
+      print "\n";
+    }
+
+
+    # get all files from treesdir
+    my @treesdirs;
+    opendir(D, $treesdir) || die($!);
+      push @treesdirs,  map { $treesdir."/".$_ } readdir(D);
+    closedir(D);
+    opendir(D, $srcrepdir) || die($!);
+      push @treesdirs,  map { $srcrepdir."/".$_ } readdir(D);
+    closedir(D);
+    @treesdirs = grep { $_ !~ /\.{1,2}$/  } @treesdirs;
+
+    if ($debug) {
+      print "all treesdirs:\n", join("\n", @treesdirs);
+      print "\n\n";
+    }
+
+    foreach my $dir (@treesdirs) {
+      if ( -d $dir ) {
+        if ( $dir =~ /$srcrepdir/ ) {
+          opendir(F, $dir) || die($!);
+          foreach my $file (readdir(F)) {
+            if ( $file =~ /(.+)-MD5SUMS$/ ) {
+              my $MD5SUM = $1;
+              $treesfiles{$MD5SUM} = $dir.'/'.$file if $file =~ /-MD5SUMS$/;
+            }
+          }
+          closedir(F);
+        } else {
+          opendir(E, $dir) || die($!);
+          foreach my $package (readdir(E)) {
+            if ( -d $dir.'/'.$package ) {
+              opendir(F, $dir.'/'.$package) || die($!);
+              foreach my $file (readdir(F)) {
+                if ( $file =~ /(.+)-MD5SUMS$/ ) {
+                  my $MD5SUM = $1;
+                  $treesfiles{$MD5SUM} = $dir.'/'.$package.'/'.$file if $file =~ /-MD5SUMS$/;
+                }
+              }
+              closedir(F);
+            } # if
+          } # foreach
+          closedir(E);
+        } # else
+      } # if -d $dir
+    } #foreach
+
+    if ($debug) {
+      print "all treesfiles:\n";
+      foreach my $key (keys %treesfiles) {
+        print $treesfiles{$key}, "\n";
+      }
+      print "\n";
+    }
+
+
+    # get all dir names in srcrepdir
+    # fetch all filenames in subdirectories
+    my %sourcefiles;
+    opendir(D, $srcrepdir) || die($!);
+    foreach my $dir (readdir(D)) {
+      next if $dir =~ /^\.{1,2}$/;
+      if ( -d $srcrepdir.'/'.$dir ) {
+        opendir(E, $srcrepdir.'/'.$dir) || die($!);
+        foreach my $file (readdir(E)) {
+          next if $file =~ /^\.{1,2}$/;
+	  next if $file eq 'deltastore';
+          $sourcefiles{$file} = "$srcrepdir/$dir/$file";
+        }
+        closedir(E);
+      }
+    }
+    closedir(D);
+
+    if ($debug) {
+      print "all sourcefiles:\n";
+      foreach my $key (keys %sourcefiles) {
+        print $sourcefiles{$key}, "\n";
+      }
+      print "\n";
+    }
+
+    my %deletefiles;
+    # create array with files to delete from srcrepdir
+    foreach my $file (keys %deletehashes) {
+      next if !defined $treesfiles{$file}; 
+      open(F, '<', $treesfiles{$file}) || die($!);
+        while (<F>) {
+          my ($hash, $desc) = split(/\s+/, $_);
+          $deletefiles{$hash} = $hash."-".$desc;
+        }
+      close(F);
+    }
+
+    if ($debug) {
+      print "files to delete:\n";
+      foreach my $key (keys %deletefiles) {
+        print $deletefiles{$key}, "\n";
+      }
+      print "\n";
+    }
+
+    my %keepfiles;
+    # look if keephashes contains links to revision that would get deleted
+    foreach my $file (keys %keephashes) {
+      open(F, '<', $treesfiles{$file}) || die($!);
+        while (<F>) {
+          my ($hash, $desc) = split(/\s+/, $_);
+          if ( /_link/ ) {
+            my ($hash, $desc) = split(/\s+/, $_);
+            next if !defined( $sourcefiles{$hash.'-'.$desc});
+            # open link file to look if it links to a file that will be deleted
+	    my $link;
+	    eval {
+	      $link = readxml($sourcefiles{$hash.'-'.$desc}, $BSXML::link);
+	    } ;
+	    if ($@) { warn "$@ whilst processing $treesfiles{$file}"; next; }
+            next if !defined $link->{"package"} || !defined $link->{"project"} || !defined $link->{"rev"};
+            my $revision = BSRevision::getrev_local($link->{"project"}, $link->{"package"}, $link->{"rev"});
+            next if !defined($revision) || !defined($revision->{"time"});
+            if ($revision->{"time"} < $mastertimestamp) {
+              # delete the hash with the link to be able to rewrite .rev files
+              delete ($deletehashes{$revision->{"srcmd5"}});
+              next unless (-e $treesfiles{$revision->{"srcmd5"}});
+              open(F, '<', $treesfiles{$revision->{"srcmd5"}}) or die($!);
+                foreach my $line (<F>) {
+                  $keepfiles{$hash} = $hash."-".$desc;
+                }
+              close(F);
+            }
+          } else {
+            $keepfiles{$hash} = $hash."-".$desc;
+          }
+        }
+      close(F);
+    }
+
+    if ($debug) {
+      print "files to keep:\n";
+      foreach my $key (keys %keepfiles) {
+        print $keepfiles{$key}, "\n";
+      }
+      print "\n";
+    }
+
+    my @deletefiles;
+    my @keepfiles = map {$_ } %keepfiles;
+    foreach my $file (keys %deletefiles) {
+      push @deletefiles, $deletefiles{$file} if !grep(/$file/, @keepfiles);
+    }
+
+
+    if ($debug) {
+      print "files to delete without kept ones:\n";
+      print join("\n", @deletefiles);
+      print "\n";
+    }
+
+    if (scalar(@deletefiles) == 0) {
+      print "nothing to delete\n";
+    } else {
+      my $deleted = 0;
+      my $dr = 0; # delete result
+      # delete files!
+      print "starting deletion process: \n" if $debug;
+      foreach my $f (keys %sourcefiles) {
+        print "\nfile:\t$sourcefiles{$f}" if $debug;
+        next if !grep(/$f/, @deletefiles);
+        if ( -e $sourcefiles{$f} ) {
+          $deletedbytes = $deletedbytes + (stat($sourcefiles{$f}))[7] if (stat($sourcefiles{$f}))[3] == 1;
+          $dr = unlink $sourcefiles{$f} || warn "Could not unlink $sourcefiles{$f}: $!"; 
+          if ($dr) {
+            print " deleted\n" if $debug;
+            $deleted++;
+          }
+        }
+      }
+
+      # find treefiles without references
+      my @utreefiles;
+      foreach my $tfile (keys %treesfiles) {
+        
+      }
+      
+      if ($deleted > 0) {
+        # rewrite rev files
+        foreach my $revfile (@revfiles) {
+          my @revfile;
+          open(F, '<', $revfile) or die($!);
+          foreach my $line (<F>) {
+            my ($hash) = ( split(/\|/, $line) )[2];
+            # do not rewrite hashes from %deletehashes, to not overwrite files uploaded as the deletion runs
+            push @revfile, $line if (!defined $deletehashes{$hash} || defined $keephashes{$hash});
+          }
+          close(F);
+          open(F, '>', $revfile) or die($!);
+          print F @revfile;
+          close(F);
+        }
+      }
+      # some checking needed to reread everything?
+      printf "\nDeleted %d files, Freed  %.3f KB.\n", $deleted, $deletedbytes/1024;
+    }
+  } elsif ( $arg eq "--query-config" ) {
+    my $var=shift @ARGV;
+    my $val;
+    eval "\$val = \$BSConfig::$var";
+    print "$val\n";
+  } elsif ( $arg eq "--drop-badhosts" ) {
+    BSUtil::touch("$rundir/bs_dispatch.dropbadhosts");
+  } elsif ( $arg eq "--list-badhosts" ) {
+    if ( -f "$rundir/dispatch.badhosts" ) {
+        my $result = {};
+	my $badhosts = BSUtil::retrieve("$rundir/dispatch.badhosts");
+	print Dumper($badhosts);
+	#for my $key (keys(%{$badhosts})) {
+	#  if ($key =~ s#^([^/]+/[^/]+/[^/]+/[^/]+)#$1# ) {
+	#    $result->{$key}=1;
+	#  }
+	#}
+	#for my $key (sort(keys($result))) { print "$key\n" }
+    } else {
+        print "No badhosts found\n";
+    }
+  } else {
+    echo_help();
+    exit(1)
+  }
+}
+

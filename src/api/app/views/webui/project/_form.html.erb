@@ -1,0 +1,35 @@
+<%= form_for project, url: { action: 'create' } do |f| %>
+    <p>
+      <b><%= local_assigns.has_key?(:ns) ? 'Subproject' : 'Project'%> Name:</b>
+      <br/>
+      <% if local_assigns.has_key?(:ns) %>
+            <%= hidden_field_tag :ns, ns %>
+            <%= ns + ':'%>
+      <% end %>
+      <%= f.text_field :name, size: 50, required: true %>
+      <br/>
+      <label for="title"><b>Title: </b></label>
+      <br/>
+      <%= f.text_field :title, size: 80 %>
+      <br/>
+      <label for="description"><b>Description:</b></label>
+      <br/>
+      <%= f.text_area :description, cols: 80, rows: 10  %>
+      <br/>
+      <% unless configuration['hide_private_options'] %>
+          <%= check_box_tag :access_protection, false %>
+          <label for="access_protection">Hide the entire project.</label>
+          <br/>
+          <%= check_box_tag :source_protection, false %>
+          <label for="source_protection">Deny access to sources of project.</label>
+          <br/>
+      <% end %>
+      <%= check_box_tag :disable_publishing, false %>
+      <label for="disable_publishing">Disable build results publishing.</label>
+      <% if @show_restore_message %>
+        <%= hidden_field_tag :restore_option_provided, true %>
+      <% end %>
+      <br/>
+    </p>
+    <p><%= submit_tag "Create Project" %></p>
+<% end %>

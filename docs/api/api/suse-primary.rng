@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://novell.com/package/metadata/suse/common" xmlns:ns1="http://linux.duke.edu/metadata/common" xmlns:suse="http://novell.com/package/metadata/suse/common" xmlns="http://relaxng.org/ns/structure/1.0">
+  <include href="primary.rng">
+    <define name="element-format">
+      <element name="ns1:format">
+        <ref name="suse-format"/>
+      </element>
+    </define>
+  </include>
+  <define name="suse-format">
+    <interleave>
+      <ref name="format"/>
+      <optional>
+        <ref name="suse-additional-format"/>
+      </optional>
+    </interleave>
+  </define>
+  <define name="suse-additional-format">
+    <optional>
+      <ref name="element-authors"/>
+    </optional>
+    <optional>
+      <ref name="element-keywords"/>
+    </optional>
+    <optional>
+      <ref name="element-dirsizes"/>
+    </optional>
+    <optional>
+      <ref name="element-freshens"/>
+    </optional>
+    <optional>
+      <ref name="element-install-only"/>
+    </optional>
+    <zeroOrMore>
+      <element name="suse:license-to-confirm">
+        <ref name="localized-string"/>
+      </element>
+    </zeroOrMore>
+  </define>
+  <define name="element-authors">
+    <element name="authors">
+      <ref name="authors"/>
+    </element>
+  </define>
+  <define name="authors">
+    <oneOrMore>
+      <element name="author">
+        <text/>
+      </element>
+    </oneOrMore>
+    <empty/>
+  </define>
+  <define name="element-keywords">
+    <element name="keywords">
+      <ref name="keywords"/>
+    </element>
+  </define>
+  <define name="keywords">
+    <oneOrMore>
+      <element name="keyword">
+        <text/>
+      </element>
+    </oneOrMore>
+    <empty/>
+  </define>
+  <define name="element-dirsizes">
+    <element name="dirsizes">
+      <ref name="dirsizes"/>
+    </element>
+  </define>
+  <define name="dirsizes">
+    <oneOrMore>
+      <ref name="element-dirsize"/>
+    </oneOrMore>
+  </define>
+  <define name="element-dirsize">
+    <element name="dirsize">
+      <ref name="dirsize"/>
+    </element>
+  </define>
+  <define name="dirsize">
+    <attribute name="path"/>
+    <attribute name="size-kbyte"/>
+    <attribute name="filecount"/>
+    <empty/>
+  </define>
+  <define name="element-freshens">
+    <element name="freshens">
+      <ref name="freshens"/>
+    </element>
+  </define>
+  <!-- suse-entry looks like an unwanted oversight -->
+  <define name="freshens">
+    <zeroOrMore>
+      <choice>
+        <ref name="element-entry"/>
+        <ref name="element-suse-entry"/>
+      </choice>
+    </zeroOrMore>
+  </define>
+  <define name="element-suse-entry">
+    <element name="suse:entry">
+      <ref name="usual-entry-content"/>
+    </element>
+  </define>
+  <define name="element-install-only">
+    <element name="install-only">
+      <empty/>
+    </element>
+  </define>
+  <define name="element-license-to-confirm">
+    <element name="license-to-confirm">
+      <ref name="localized-string"/>
+    </element>
+  </define>
+</grammar>

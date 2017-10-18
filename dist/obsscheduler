@@ -1,0 +1,116 @@
+#! /bin/sh
+# Copyright (c) 2007, Novell Inc.
+#
+# Author: adrian@suse.de
+#
+# /etc/init.d/obsscheduler
+#   and its symbolic  link
+# /usr/sbin/rcobsscheduler
+#
+### BEGIN INIT INFO
+# Provides:          obsscheduler
+# Required-Start:    $time $syslog obsrepserver
+# Should-Start:      obssrcserver $network $remote_fs obsapisetup
+# Should-Stop:       $none
+# Required-Stop:     $null
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 4 6
+# Description:       open build service job scheduler
+### END INIT INFO
+
+. /etc/rc.status
+
+. /etc/sysconfig/obs-server
+
+# Determine the base and follow a runlevel link name.
+base=${0##*/}
+link=${base#*[SK][0-9][0-9]}
+
+if [ -z "$OBS_RUN_DIR" ]; then
+        OBS_RUN_DIR="/srv/obs/run"
+fi
+
+if [ -z "$OBS_LOG_DIR" ]; then
+        OBS_LOG_DIR="/srv/obs/log"
+fi
+
+if [ -n "$OBS_BACKENDCODE_DIR" ]; then
+	obsdir="$OBS_BACKENDCODE_DIR"
+else
+	obsdir=/usr/lib/obs/server
+fi
+rundir="$OBS_RUN_DIR"
+logdir="$OBS_LOG_DIR"
+
+OBS_NEW_SCHEDULER_ARCHITECTURES=`$obsdir/bs_admin --show-scheduler-architectures 2>/dev/null`
+
+if test -n "$OBS_NEW_SCHEDULER_ARCHITECTURES" ; then
+	if test -n "$OBS_SCHEDULER_ARCHITECTURES" ; then
+		echo "WARNING: ignoring old scheduler architectures configuration from /etc/sysconfig/obs-server"
+	fi
+	OBS_SCHEDULER_ARCHITECTURES="$OBS_NEW_SCHEDULER_ARCHITECTURES"
+fi
+
+if test -z "$OBS_SCHEDULER_ARCHITECTURES" ; then
+	echo "WARNING: no scheduler architectures configured, falling back to i586"
+	OBS_SCHEDULER_ARCHITECTURES=i586
+fi
+
+
+rc_reset
+case "$1" in
+	start)
+		echo -n "Initializing obsscheduler"
+		mkdir -p "$rundir" "$logdir"
+		chown obsrun:obsrun "$logdir" "$rundir"
+		cd "$obsdir"
+                # FIXME: not nice, this should receive a proper daemon handling, 
+                #        including real logging, pid file and startproc
+		for i in $OBS_SCHEDULER_ARCHITECTURES; do
+		        ./bs_sched $i >> "$logdir"/scheduler_$i.log 2>&1 &
+		done
+		rc_status -v
+	;;
+	stop|shutdown)
+		echo -n "Shutting down obsscheduler"
+		if checkproc bs_sched; then
+			for i in $OBS_SCHEDULER_ARCHITECTURES; do
+			 	$obsdir/bs_admin --shutdown-scheduler "$i"
+			done
+			for i in `seq 600`; do
+				checkproc bs_sched || break
+			        sleep 1
+			done
+			if checkproc bs_sched ; then
+				killall bs_sched
+			fi
+		fi
+		rc_status -v
+	;;
+	restart)
+		$0 stop	
+		$0 start
+		rc_status
+	;;
+	try-restart|reload)
+		$0 status
+		if test $? = 0; then
+			$0 restart
+		else
+			rc_reset        # Not running is not a failure.
+		fi
+		# Remember status and be quiet
+		rc_status
+	;;
+	status)
+		echo -n "Checking for obsscheduler: "
+                # FIXME: needs proper checking for all invoked schedulers
+		checkproc bs_sched
+		rc_status -v
+	;;
+	*)
+		echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+		exit 1
+	;;
+esac
+rc_exit

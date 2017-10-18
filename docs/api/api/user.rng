@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <start>
+    <ref name="person-element"/>
+  </start>
+
+  <define ns="" name="person-element">
+    <element name="person">
+      <interleave>
+        <element name="login"><text/></element>
+        <optional>
+          <element name="email"><text/></element>
+        </optional>
+        <optional>
+          <element name="realname"><text/></element>
+        </optional>
+        <optional>
+          <element name="owner">
+            <attribute name="userid">
+              <data type="string" />
+            </attribute>
+            <empty/>
+          </element>
+        </optional>
+        <optional>
+          <element name="state"><text/></element>
+        </optional>
+        <zeroOrMore>
+          <element name="globalrole"><text/></element>
+        </zeroOrMore>
+        <optional>
+          <element name="watchlist">
+            <zeroOrMore>
+              <element name="project">
+                <attribute name="name">
+                  <data type="string" />
+                </attribute>
+                <empty/>
+              </element>
+            </zeroOrMore>
+          </element>
+        </optional>
+      </interleave>
+      <empty/>
+    </element>
+  </define>
+
+</grammar>
+

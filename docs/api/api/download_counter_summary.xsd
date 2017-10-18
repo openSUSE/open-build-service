@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="download_counter">
+    <xs:annotation>
+      <xs:documentation>
+        Download counter - top build service downloads.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="count" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="first" use="required" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>
+            Timestamp of first counted download (of all counters).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="last"  use="required" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>
+            Timestamp of last counted download (of all counters).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="sum"   use="required" type="xs:nonNegativeInteger">
+        <xs:annotation>
+          <xs:documentation>
+            Sum of all counted downloads (of the whole build service).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="count">
+    <xs:complexType mixed="true">
+      <xs:attribute name="files"     type="xs:nonNegativeInteger" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            Sum of all different files that are in this container
+            (project, package, repo or arch).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="project" type="xs:string" use="optional" />
+      <xs:attribute name="package" type="xs:string" use="optional" />
+      <xs:attribute name="repo"    type="xs:string" use="optional" />
+      <xs:attribute name="arch"    type="xs:string" use="optional" />
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+

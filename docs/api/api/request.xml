@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<request id="12" creator="Iggy">
+ <priority>moderate</priority>
+ <action type="submit">
+   <source project="home:kfreitag" package="kraft" rev="23" />
+   <target project="openSUSE:10.3" package="kraft" />
+   <options>
+     <sourceupdate>noupdate</sourceupdate>
+     <updatelink>true</updatelink>
+   </options>
+   <acceptinfo rev="2" srcmd5="2467869646562d71d92171aa1d37093f" osrcmd5="2467869646562d71d92171aa1d37093f" xsrcmd5="4b0ca8768ec8b6748fa7dd484ba02213" oxsrcmd5="4b0ca8768ec8b6748fa7dd484ba02213"/>
+ </action>
+ <action type="delete">
+   <target project="openSUSE:10.3" />
+ </action>
+ <action type="delete">
+   <target project="openSUSE:10.3" package="kraft.old" />
+ </action>
+ <action type="delete">
+   <target project="openSUSE:10.3" repository="standard" />
+ </action>
+ <action type="add_role">
+   <target project="openSUSE:10.3" package="kraft" />
+   <person name="adrian" role="maintainer" />
+ </action>
+ <action type="add_role">
+   <target project="openSUSE:10.3" package="kraft" />
+   <group name="security-team" role="reviewer" />
+ </action>
+ <action type="set_bugowner">
+   <target project="openSUSE:10.3" package="kraft" />
+   <person name="karl-heinz"  />
+ </action>
+ <action type="change_devel">
+   <source project="home:kfreitag" package="kraft" />
+   <target project="openSUSE:10.3" package="kraft" />
+ </action>
+ <action type="maintenance_incident">
+   <source project="home:foobar:kraft" />
+   <target project="openSUSE:Maintenance" /> <!-- NOTE: Changed by the API to, i.e., openSUSE:Maintenance:ID123, where 123 is the assigned incident ID -->
+ </action>
+ <action type="maintenance_release">
+   <source project="openSUSE:Maintenance:ID123" package="kraft" />
+   <target project="openSUSE:11.4" package="kraft" />
+ </action>
+ <state name="superseded" who="adrian" when="2007-12-30T09:00:00" superseded_by="111">
+   <comment>Forgetit!</comment>
+ </state>
+ <review state="accepted" by_user="adrian" who="adrian" when="2008-12-30T09:00:00">
+   <comment>Looks great!</comment>
+   <history who="mls" when="2007-12-22T23:00:00">
+     <description>Review got accepted</description>
+     <comment>I don't want to make Klaas my enemy...</comment>
+   </history>
+ </review>
+ <review state="new" by_group="suse_review_group" />
+ <history who="mls" when="2007-12-22T23:00:00">
+   <description>Review got approved</description>
+   <comment>I don't want to make Klaas my enemy...</comment>
+ </history>
+ <accept_at>2009-12-22T23:00:00</accept_at>
+ <title>Kraft</title>
+ <description>Kraft is KDE software for craftsmen and should urgently
+ be added to the openSUSE distribution. The version from kraft.old can be 
+ deleted and will not be used as devel package anymore.
+ </description>
+</request>

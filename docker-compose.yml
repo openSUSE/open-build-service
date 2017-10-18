@@ -1,0 +1,35 @@
+version: "2"
+services:
+  db:
+    image: openbuildservice/mariadb
+    ports:
+      - "3306:3306"
+  cache:
+    image: openbuildservice/memcached
+    ports:
+      - "11211:11211"
+  backend:
+    image: openbuildservice/backend
+    volumes:
+      - .:/obs
+  worker:
+    image: openbuildservice/backend
+    volumes:
+      - .:/obs
+    privileged: true
+    depends_on:
+      - backend
+    command: /obs/contrib/start_development_worker
+  frontend:
+    image: openbuildservice/frontend
+    build:
+      context: .
+    volumes:
+      - .:/obs
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - cache
+      - backend
+      - worker

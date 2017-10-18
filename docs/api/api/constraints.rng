@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="constraints-element"/>
+  </start>
+
+  <define ns="" name="constraints-element">
+    <element name="constraints">
+        <!-- generic part -->
+        <ref name="constraint-element"/>
+
+        <zeroOrMore>
+          <!-- multiple arch specific parts -->
+          <element name="overwrite">
+            <element name="conditions">
+              <zeroOrMore>
+                <element name="arch">
+                  <ref name="build-arch" />
+                </element>
+              </zeroOrMore>
+              <zeroOrMore>
+                <element name="package">
+                  <text/> <!-- package container name for multiple spec file packages -->
+                </element>
+              </zeroOrMore>
+            </element>
+            <ref name="constraint-element"/>
+          </element>
+        </zeroOrMore>
+    </element>
+  </define>
+
+  <define ns="" name="constraint-element">
+    <interleave> 
+      <zeroOrMore>
+        <element ns="" name="hostlabel">
+          <optional>
+            <attribute name="exclude">
+              <choice>
+                <value>false</value>
+                <value>true</value>
+              </choice>
+            </attribute>
+          </optional>
+          <text/>
+        </element>
+      </zeroOrMore>
+      <optional>
+        <element name="sandbox">
+          <optional>
+            <attribute name="exclude">
+              <choice>
+                <value>false</value>
+                <value>true</value>
+              </choice>
+            </attribute>
+          </optional>
+          <ref name="build-sandbox"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="linux">
+           <optional>
+             <element name="version">
+               <optional>
+                 <element name="max">
+                   <text/>
+                 </element>
+               </optional>
+               <optional>
+                 <element name="min">
+                   <text/>
+                 </element>
+               </optional>
+             </element>
+           </optional>
+           <optional>
+             <element ns="" name="flavor">
+               <text/>
+             </element>
+           </optional>
+        </element>
+      </optional>
+      <optional>
+        <element name="hardware">
+          <interleave> 
+            <optional>
+              <element name="cpu">
+                <oneOrMore> 
+                  <element name="flag">
+                    <ref name="cpu-flags"/>
+                  </element>
+                </oneOrMore> 
+              </element>
+            </optional>
+            <optional>
+              <element name="processors">
+                <data type="integer"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="jobs">
+                <data type="integer"/>
+              </element>
+            </optional>
+            <optional>
+              <element name="disk">
+                <ref name="size-unit"/>
+              </element>
+            </optional>
+            <optional>
+             <element name="memory">
+               <ref name="size-unit"/>
+             </element>
+            </optional>
+            <optional>
+             <element name="physicalmemory">
+               <ref name="size-unit"/>
+             </element>
+            </optional>
+          </interleave>
+        </element>
+      </optional>
+    </interleave> 
+  </define>
+
+</grammar>

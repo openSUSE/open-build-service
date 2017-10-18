@@ -1,0 +1,27 @@
+<% @pagetitle = "Create New Package"
+   @metarobots = 'noindex'
+   project_bread_crumb @pagetitle
+-%>
+
+<%= render :partial => "tabs" %>
+
+<h2><%= @pagetitle %> for <%= @project.name %></h2>
+
+<%= form_tag controller: :package, action: 'save_new', project: @project.to_param do %>
+<p>
+  <strong>Name:</strong><br/>
+  <%= text_field_tag 'name', @package_name, :size => 80, required: true %><br/>
+  <strong>Title:</strong><br/>
+  <%= text_field_tag 'title', @package_title, :size => 80 %><br/>
+  <strong>Description:</strong><br/>
+  <%= text_area_tag 'description', @package_description, :cols => 80, :rows => 10 %><br/>
+  <% unless @configuration['hide_private_options'] %>
+    <%= check_box_tag :source_protection %>
+    <label for="source_protection">Deny access to sources of package.</label>
+    <br/>
+  <% end %>
+  <%= check_box_tag :disable_publishing %>
+  <label for="disable_publishing">Disable build results publishing.</label>
+</p>
+<p><%= submit_tag %></p>
+<% end %>

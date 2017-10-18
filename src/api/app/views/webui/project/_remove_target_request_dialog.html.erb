@@ -1,0 +1,19 @@
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <h2 class="box-header">Create Repository Delete Request</h2>
+      <div class="dialog-content">
+        <p>Do you really want to request the deletion of repository <i><%= params[:repository] %></i>?</p>
+
+        <%= form_tag({:controller => 'project', :action => 'remove_target_request'}, :method => 'post') do %>
+          <%= hidden_field_tag(:project, params[:project]) %>
+          <%= hidden_field_tag(:repository, params[:repository]) %>
+          <p>
+            <%= label_tag(:description, 'Description:') %><br/>
+            <%= text_area_tag(:description, '', :size => '40x3') %>
+          </p>
+          <%= render partial: '/webui/shared/dialog_action_buttons' %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+

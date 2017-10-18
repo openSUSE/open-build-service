@@ -1,0 +1,9 @@
+<% @status.each do |id, st| -%>
+
+if( $("<%= id %>").innerHTML != "<%= st %>" ) {
+  <%= update_element_function id, :content => st -%>
+}
+    
+<% end -%>
+
+<%= update_element_function "refresh_date", :content => "Updated at: #{DateTime.now.to_s.sub(/T/,' ')}" -%>

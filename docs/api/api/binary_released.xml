@@ -1,0 +1,12 @@
+<binary project="openSUSE:13.1" repository="images" name="package" version="1.0" release="1" arch="i586" medium="DVD">
+  <operation>added</operation>
+  <publish package="pack2" time="2013-09-30 15:50:30 UTC"/>
+  <build time="2013-09-29 15:50:31 UTC"/>
+  <obsolete time="2014-08-01 07:04:34 UTC"/>
+  <supportstatus>l3</supportstatus>
+  <updateinfo id="OBS-2014-42" version="1"/>
+  <maintainer>Iggy</maintainer>
+  <disturl>obs://build.opensuse.org/My:Maintenance:2793/openSUSE_13.1_Update/904dbf574823ac4ca7501a1f4dca0e68-package.openSUSE_13.1_Update</disturl>
+  <updatefor project="openSUSE:13.1" product="openSUSE"/>
+</binary>
+

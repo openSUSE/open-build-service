@@ -1,0 +1,36 @@
+.nested-fields.kiwi_fields
+  %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}"}
+    %span
+      = link_to '#', class: "package_edit kiwi_element_name" do
+        = f.object.name
+        - if f.object.arch.present?
+          %small (#{f.object.arch})
+    %span.kiwi_actions.hidden
+      = link_to_remove_association sprite_tag("req-decline", title: 'remove'), f
+
+  .dialog.darkgrey_box{ style: "width: 500px; left: 45%;", class: "#{'hidden' if f.object.name.present?} #{'new_element' if f.object.new_record?}"}
+    .box.box-shadow
+      %h2.box-header #{f.object.name.present? ? 'Edit' : 'Add'} package
+
+      .dialog-content
+        %p
+          = f.label :name, 'Name:'
+          = f.text_field :name, data: { ajaxurl: url_for(controller: '/webui/kiwi/images', action: 'autocomplete_binaries'), default: f.object.name }
+        %p
+          = f.label :arch, 'Arch:'
+          = f.text_field :arch, data: { default: f.object.arch }
+          = f.label :replaces, 'Replaces:'
+          = f.text_field :replaces, data: { default: f.object.replaces }
+      %p
+        = f.check_box :bootinclude, data: { default: f.object.bootinclude }
+        = f.label :bootinclude
+        = f.check_box :bootdelete, data: { default: f.object.bootdelete }
+        = f.label :bootdelete
+
+      %p#flash-messages
+        %p.ui-state-error.ui-widget-shadow.hidden
+          The name can not be empty!
+
+      .dialog-buttons
+        = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog')
+        = link_to('Continue', '#', title: 'Continue', class: 'close-dialog')

@@ -1,0 +1,168 @@
+#!/bin/bash
+# 2009, dl9pf@gmx.de  - initial version
+# 
+##########################################################
+#Setup Vars
+
+export debug=false
+#
+usage="usage:  $0 <target obs> <target project> <baseurl> <http://path/to/Sources.bz2>
+target obs     = http(s)://your-api/
+target project = test:import
+baseurl        = http://source-repo  (without dist/pool)
+Sources.bz2    = http://source-repo/.../Sources.bz2 (Sources/Sources.gz/Sources.bz2)
+"
+
+targetobs=$1
+targetprj=$2
+baseurl=$3
+urlbase=$4
+
+if test x"$4" == x""; then
+ echo "$usage"
+ exit 0
+fi
+
+# empty stack
+popd 2>&1 > /dev/null
+
+#
+# create tno abd fetch sources{.gz,.bz2}
+########################################
+mkdir -p tmp && pushd tmp && rm -f Sources && wget -nd "$urlbase" || ( popd && echo "error on fetching $urlbase" && exit 1 )
+
+if [ "$(echo $urlbase | grep .bz2)" ]; then
+    # extract bz2
+    bunzip2 Sources.bz2 || exit 1
+elif [ "$(echo $urlbase | grep .gz)" ]; then
+    # extract gzip
+    gunzip Sources.gz || exit 1
+fi
+popd
+# generate list of packages on local server
+###########################################
+osc -A $targetobs ls $targetprj 2>/dev/null | sort >tmp/.ls
+
+# generate list of remote packages out of Sources file
+######################################################
+cat tmp/Sources | grep "Package:" | cut -d":" -f2 | sed -e "s/ //g" | sort | uniq > tmp/.pkglist
+
+pkglist=$(cat tmp/.pkglist)
+lslist=$(cat tmp/.ls )
+
+echo "$0 $targetobs $targetprj $baseurl $urlbase"
+echo "Urllist:"
+echo "$pkglist"
+echo
+echo "Lslist:"
+echo "$lslist"
+echo
+echo "Difflist:"
+diff tmp/.ls tmp/.pkglist
+echo
+
+
+##########################################################
+# Check out target prj
+if $debug; then
+echo "debug"
+# skip on debug
+else
+(
+    pushd tmp
+    if [ x"$lslist" != x"" ]; then
+        # checkout only 1st pkg (others will follow on-the-fly)
+        osc -A $targetobs co "$targetprj" `echo $lslist | cut -d" " -f1 | head -n 1` >& /dev/null
+    else
+        echo "Checking out empty project."
+        osc -A $targetobs co $targetprj >& /dev/null
+    fi
+    popd
+)
+fi
+#############################################################
+# sync
+if true; then
+    newlist=""
+    # if we did run already, then 
+    if test -f .last; then
+        regexp=`cat .last`
+        newlist=`echo "$pkglist" | sed -n -e "/$regexp/,$ {/$regexp/d;p}"`
+        export pkglist="$newlist"
+    fi
+    for f in $pkglist
+        do
+            ( pushd tmp &&
+                (
+                    if [ x$(echo $f | egrep "_[0-9]") != x"" ]; then
+                        pkgname=${f%%-[0-9].[*-[0-9]*-[0-9]*.*}
+                    else
+                        pkgname=${f%%-[0-9]*-[0-9]*.*}
+                    fi
+                    # folder on the server
+                    myurlbase=`cat Sources | grep "Directory:" | grep "/$f\$" | cut -d":" -f2 | sed -e "s/ //g" | uniq`
+                    # highest version of a .dsc file -> critical section
+                    # * " $(echo $f)_"  to grep the pkgname_ without false positive from lib<pkgname>_
+                    # * we only look for the .dsc first and get the filenames lateron from that file
+                    # * either sort -nr  or  sort -gr  - both have some false corner-cases
+                    myversion=`cat Sources | grep " $(echo $f)_" | grep .dsc | sed -e "s/_//g" | sed -e "s/.dsc//g" | sed -e "s/.*$(echo $f)//g" | sort -nr | head -n1 `
+                    # .dsc to fetch and inspect 
+                    togetdsc=`cat Sources | grep " $(echo $f)_" | grep "_$(echo $myversion)" | grep dsc | cut -d" " -f4`
+                    (set -x ; wget -c -q $baseurl/$myurlbase/$togetdsc || wget -c -q $baseurl/$myurlbase/$togetdsc || wget -c -q $baseurl/$myurlbase/$togetdsc || wget -c -q $baseurl/$myurlbase/$togetdsc || exit 1)
+                    export downloadme=""
+                    if test -f $togetdsc; then
+                        export downloadme=`cat $(echo \$togetdsc)  | grep "$(echo $f)_" | cut -d" " -f4 `
+                    else
+                        echo "Failed to download .dsc"
+                        exit 1
+                    fi
+                    if $debug; then
+                        echo "myurlbase: $myurlbase"
+                        echo "myversion: $myversion"
+                        echo "togetdsc: $togetdsc"
+                        echo "toget: $downloadme"
+                        #
+                        exit 1
+                    else
+                        for j in $downloadme; do
+                            echo "download: $j"
+                           (set -x ; wget -c -q $baseurl/$myurlbase/$j || wget -c -q $baseurl/$myurlbase/$j || wget -c -q $baseurl/$myurlbase/$j || wget -c -q $baseurl/$myurlbase/$j || exit 1)
+                        done
+                        # if pkg doesn't exists on local server
+                        if [ x"$(osc -A $targetobs ls $targetprj/$pkgname 2>/dev/null)" == x"" ]; then
+                            (
+                                pushd $targetprj
+                                 osc -A $targetobs mkpac $f
+                                pushd $pkgname
+                                 for i in $downloadme $togetdsc ; do cp ../../$i . ;  done
+                                 osc -A $targetobs addremove 2>/dev/null; osc -A $targetobs ci -m "imported: $urlbase/$f @ $targetobs/$pkgname" 2>/dev/null
+                                popd
+                                popd
+                            )
+                        # update existing pkg
+                        else
+                            (
+                                pushd $targetprj
+                                 if ! test -d $pkgname ; then
+                                    osc -A $targetobs co $pkgname 2>/dev/null
+                                 else
+                                    pushd $pkgname
+                                     osc -A $targetobs up
+                                    popd
+                                 fi
+                                 pushd $pkgname && rm ./*
+                                  for i in $downloadme $togetdsc ; do cp ../../$i . ;  done
+                                  osc -A $targetobs addremove 2>/dev/null; osc -A $targetobs ci -m "updated: $urlbase/$f @ $targetobs/$pkgname" 2>/dev/null
+                                 popd
+                                popd
+                            )
+                        fi
+                    fi
+                )
+            cd ..
+            echo "$f" > .last
+        )
+    done
+fi
+
+rm -f .last

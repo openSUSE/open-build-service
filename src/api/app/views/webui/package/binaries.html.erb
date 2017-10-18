@@ -1,0 +1,55 @@
+<% @pagetitle = "State of Repository #{@repository} for #{@project} / #{@package}"
+   @metarobots = 'index,nofollow' # do not follow the single binary pages
+   package_bread_crumb 'Repository State'
+-%>
+
+<%= render :partial => "tabs" %>
+
+<h3><%= @pagetitle %></h3>
+
+<p>
+  <%= render :partial => "shared/download_repository_link", :locals => {:project => @project, :repository => @repository} %>
+  <% if binaries?(@buildresult) %>
+    <%= link_to sprited_text('drive_burn', 'Delete'), { controller: :package, action: :wipe_binaries, project: @project, package: @package, repository: @repository }, { method: :delete} %> all built binaries
+  <% end %>
+</p>
+
+<% @buildresult.elements('result') do |result|
+     repocode='unknown'
+     repocode=result['state'] %>
+
+  <h3><%= repo_status_icon repocode %> Architecture: <%= result['arch'] %></h3>
+
+  <% found_statistics = false %>
+
+  <% unless result.get( 'binarylist')['binary'] %>
+    <p><i>No built binaries</i></p>
+  <% else %>
+    <ul>
+      <% result.get('binarylist').elements('binary') do |binary| %>
+        <% if binary['filename'] == '_statistics' %>
+          <% found_statistics = true %>
+        <% elsif binary['filename'] == 'rpmlint.log' %>
+          <li><%= binary['filename'] %></li>
+        <% else %>
+          <li><%= link_to binary.value('filename'), :action => 'binary', :project => @project, :package => @package,
+            :repository => @repository, :arch => result['arch'], :filename => binary['filename'] %></li>
+        <% end %>
+      <% end %>
+    </ul>
+  <% end %>
+  <p>
+    <% if User.current.can_modify_package? @package %>
+      <%= link_to sprited_text('rebuild', 'Trigger'),{ :controller => :package, :action => :trigger_rebuild, :arch => result['arch'], :project => @project, :package => @package, :repository => @repository }, { :method => :post} %> rebuild
+
+      <% if result.get('binarylist')['binary'] %>
+        <%= link_to sprited_text('drive_burn', 'Delete'), { :controller => :package, :action => :wipe_binaries, :arch => result['arch'], :project => @project, :package => @package, :repository => @repository }, { :method => :delete} %> built binaries
+      <% end %>
+    <% end %>
+    <% if found_statistics %>
+      <%= link_to sprited_text('server_chart', 'Show'), { :action => 'statistics', :project => @project, :package => @package, :repository => @repository, :arch => result['arch'] } %> used resources
+    <% end %>
+    <%= link_to sprited_text('text_indent','Job history'), index_package_job_history_path(project: @project, package_name: @package, repository: @repository, arch: result['arch']), class: '' %> list
+    <%= link_to sprited_text('information','Build Reason'), index_package_build_reason_path(project: @project, package_name: @package, repository: @repository, arch: result['arch']), class: '' %>
+  </p>
+<% end %>

@@ -1,0 +1,47 @@
+<% @pagetitle = "Add New Package Branch" %>
+<% project_bread_crumb @pagetitle %>
+
+<%= render :partial => 'tabs' %>
+
+<h2><%= @pagetitle %> to <%= @project.name %></h2>
+
+<p>By branching a package from another project you add the package and its files
+to your project in a transparent way. Changes of the files in the original
+project will also change the files in the branched package in your project.</p>
+<p>You can add patches to the branched package without affecting the original
+package.</p>
+<% unless @remote_projects.empty? %>
+  <p>
+    Branches also work across interconnected OBS instances. This OBS has
+    <%= pluralize(@remote_projects.count, 'interconnect.', plural: 'interconnects.') %>
+  </p>
+  <ul>
+  <% @remote_projects.each do |id,name,title| %>
+      <li><%= link_to("#{name}: #{title}", { controller: 'project', action: 'show', project: name}, {:class => 'project'}) %></li>
+  <% end %>
+  </ul>
+<% end %>
+<%= form_tag controller: :package, action: :branch do %>
+  <%= render partial: 'shared/package_branch_form', locals: {show_source_fields: true, target_project: @project} %>
+  <p><%= submit_tag "Create Branch" %></p>
+<% end %>
+
+<%= javascript_tag do %>
+  $("#linked_project").autocomplete({source: '<%= url_for :controller => :project, :action => :autocomplete_projects %>', minLength: 2});
+  $("#linked_package").autocomplete({
+    source:
+    function (request, response) {
+      $.ajax({
+        url: '<%= url_for :controller => 'project', :action => 'autocomplete_packages' %>',
+        data: {
+          project: $('#linked_project').val(),
+          term: request.term,
+        },
+        success: function(data) {
+          response($.map(data, function(item) { return { label: item, value: item } }));
+        },
+      });
+    },
+    minLength: 2,
+  });
+<% end %>

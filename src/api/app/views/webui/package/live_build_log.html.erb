@@ -1,0 +1,39 @@
+<% @pagetitle = "Live Build Log"
+   @metarobots = 'noindex,nofollow'
+   package_bread_crumb 'Build Log' 
+-%>
+
+<% if @package.kind_of?(Package)%>
+  <%= render :partial => "tabs" %>
+<% end %>
+
+<%= content_for :ready_function do %>
+  live_build_log_ready();
+<% end -%>
+
+<h2>Build Log for Package <%= @package %> (Project <%= @project %>)</h2>
+
+<%= render :partial => "job_status" if @workerid %>
+
+<p><strong>Status:</strong> <span id="status">Updating...</span></p>
+<% if @what_depends_on.present? %>
+  <p>
+    <% text = "#{@what_depends_on.length} #{'package'.pluralize(@what_depends_on.length)} with a direct dependency to this package." %>
+    <%= toggle_sliced_text("#{text} <br><strong>Packages:</strong> #{@what_depends_on.join(', ')}.".html_safe, text.length) %>
+  </p>
+<% end %>
+
+<%= render :partial => "live_log_controls" %>
+
+<div id="log_space_wrapper" 
+     data-offset="<%= @offset %>"
+     data-url="<%= url_for(action: :update_build_log,
+		   package: @package, project: @project,
+                   status: @status,
+                   arch: @arch, repository: @repo) %>">
+  <pre id="log_space"></pre>
+</div>
+
+<% unless @workerid %>
+  <%= render :partial => "live_log_controls" %>
+<% end %>

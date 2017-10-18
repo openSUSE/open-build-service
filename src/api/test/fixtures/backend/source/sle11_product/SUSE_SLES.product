@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<productdefinition xmlns:xi="http://www.w3.org/2001/XInclude">
+  <products>
+    <product id="simple">
+      <!-- old SLE 11 style name -->
+      <vendor>SUSE LINUX Products GmbH, Nuernberg, Germany</vendor>
+      <name>SUSE_SLES</name>
+      <baseversion>11</baseversion>
+      <patchlevel>2</patchlevel>
+      <release>0</release>
+      <productline>sle</productline>
+      <register>
+        <target>sle-11-%{_target_cpu}</target>
+        <release></release>
+        <updates>
+          <distrotarget arch="x86_64">DiStroTarGet_x86</distrotarget>
+          <distrotarget>DiStroTarGet</distrotarget>
+          <repository project="BaseDistro2.0:LinkedUpdateProject" name="BaseDistro2LinkedUpdateProject_repo" >
+             <zypp name="basedistro2 update distribution" alias="basedistro2_alias"/>
+          </repository>
+        </updates>
+      </register>
+      <summary>Simple OBS Product</summary>
+
+      <description>Some text
+in multiple
+lines
+      </description>
+
+      <urls>
+        <url name="bugtracker">https://bugzilla.novell.com/</url>
+      </urls>
+      <buildconfig>
+        <!-- This section is needed to generate the installation media -->
+        <producttheme>SLES</producttheme>
+        <betaversion>Beta2</betaversion>
+      </buildconfig>
+
+      <installconfig>
+        <!-- All flags needed during installation -->
+        <defaultlang>en_US</defaultlang>
+          <datadir>suse</datadir>
+          <descriptiondir>suse/setup/descr</descriptiondir>
+          <releasepackage name="simple-release" version="11" flag="EQ"/>
+          <distribution>SUSE_SLE</distribution>
+        </installconfig>
+        <!-- All Flags needed in the running system -->
+        <runtimeconfig />
+      </product>
+    </products>
+
+    <xi:include href="defaults-conditionals.include" />
+    <xi:include href="defaults-archsets.include" />
+    <xi:include href="defaults-repositories.include" />
+
+    <mediasets>
+        <media type="cd"
+               flavor="cd"
+               product="sle-obs"
+               name="OBS-CD"
+               sourcemedia="1"
+               create_pattern="false"
+               ignore_missing_meta_packages="true"
+               mediastyle="suse-sle11-sp2"
+               use_required="true"
+               use_suggested="false"
+               use_recommended="true">
+
+		<preselected_patterns>
+			<pattern name="OBS" />
+		</preselected_patterns>
+
+               <archsets>
+                   <archset ref="ix86" />
+                   <archset ref="x86_64" />
+               </archsets>
+               <metadata>
+                   <package name="skelcd-obs"/>
+		   <package name="patterns-obs"/>
+               </metadata>
+            <productdependency relationship="requires" name="SUSE_SLES" flag="GE" version="11"/>
+            <use group="obs">
+		<package name="obs-release" relationship="requires" />
+		<package name="obs-release-cd" relationship="requires" />
+	    </use>
+        </media>
+    </mediasets>
+
+    <xi:include href="obs.group"/>
+</productdefinition>
+

@@ -1,0 +1,72 @@
+- save ||= {}
+- style ||= { read_only: false }
+- uid ||= next_codemirror_uid
+- content_for(:head_style, codemirror_style(style))
+- unless style[:read_only]
+  %div{ id: "top_#{uid}" }
+    .toolbar
+      %span{ style: 'float: left' }
+        %input.tools.buttons.small.save.inactive{ id: "save_#{uid}", type: 'button', value: 'Save' }/
+        %input.tools.buttons.undo{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);", style: 'background: transparent', type: 'button', value: 'undo' }/
+        %input.tools.buttons.redo{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);", style: 'background: transparent', type: 'button', value: 'redo' }/
+      %span{ style: 'float: right' }
+        %select.tools.select{ id: "fontsize_#{uid}", onchange: "editors[#{uid}].updateFontsize(this)" }
+          %option{ value: '8pt' } 8pt
+          %option{ value: '9pt' } 9pt
+          %option{ value: '10pt' } 10pt
+          %option{ value: '11pt' } 11pt
+          %option{ value: '12pt' } 12pt
+          %option{ value: '14pt' } 14pt
+        %select.tools.select{ id: "mode_#{uid}", onchange: "editors[#{uid}].updateMode(this)" }
+          %option{ id: "rpm-changes_#{uid}", value: 'rpm-changes' } changes
+          %option{ id: "rpm-spec_#{uid}", value: 'rpm-spec' } spec
+          %option{ id: "diff_#{uid}", value: 'diff' } diff
+          %option{ id: "shell_#{uid}", value: 'text/x-sh' } shell
+          %option{ id: "prjconf_#{uid}", value: 'prjconf' } projconf
+          %option{ id: "baselibs_#{uid}", value: 'baselibsconf' } baselibs
+          %option{ id: "perl_#{uid}", value: 'perl' } perl
+          %option{ id: "css_#{uid}", value: 'css' } css
+          %option{ id: "html_#{uid}", value: 'htmlmixed' } html
+          %option{ id: "js_#{uid}", value: 'javascript' } js
+          %option{ id: "php_#{uid}", value: 'application/x-httpd-php-open' } php
+          %option{ id: "xml_#{uid}", value: 'xml' } xml
+          %option{ id: "x_#{uid}", selected: 'selected', value: '' } ---
+- data = {}
+- data['save-url'] = save[:url] if save[:url]
+- data['save-method'] = save[:method] if save[:method]
+- data['data'] = save[:data] if save[:data]
+- text = force_utf8_and_transform_nonprintables(text)
+= content_tag(:textarea, text, id: "editor_#{uid}",
+  style: 'display: inline-block', class: 'editor', cols: '0', rows: '0', data: data)
+- unless style[:read_only]
+  %div{ id: "bottom_#{uid}" }
+    .toolbar
+      %span{ style: 'float: left' }
+        %span.text position
+          
+        %span.text line:
+        %span.text{ id: "ln_#{uid}", style: 'display: inline-block; width: 40px' } 0
+        %span.text char:
+        %span.text{ id: "ch_#{uid}", style: 'display: inline-block; width: 40px' } 0
+          
+        %span.text tab size:
+        %select.tools.select{ id: "tabsize_#{uid}", onchange: "editors[#{uid}].updateTabsize(this)", style: 'min-width: 30px' }
+          %option{ value: '2' } 2
+          %option{ value: '3' } 3
+          %option{ value: '4' } 4
+          %option{ value: '5' } 5
+          %option{ value: '6' } 6
+          %option{ value: '7' } 7
+          %option{ value: '8' } 8
+      %span{ style: 'float: left' }
+        %span.text matching:
+        %input.tools.buttons.small{ id: "match_#{uid}", onclick: "editors[#{uid}].Match(this);", type: 'button', value: 'off' }/
+      %span{ style: 'float: right'}
+        %span.text line:
+        %input.tools.inputs{ autocomplete: 'off', id: "line_#{uid}", style: 'width: 30px', type: 'text' }/
+        %input.tools.buttons.small{ onclick: "editors[#{uid}].gotoLine(this);", type: 'button', value: 'go' }/
+          
+        %span.text line wrapping:
+        %input.tools.buttons.small{ onclick: "editors[#{uid}].Wrap(this)", type: 'button', value: 'off' }/
+- content_for :ready_function do
+  use_codemirror(#{uid}, #{style[:read_only]}, '#{mode}');

@@ -1,0 +1,61 @@
+= content_for :head_javascript do
+  :plain
+    function useOpenSUSE(){
+      document.getElementById('project_name').value = "openSUSE.org";
+      document.getElementById('project_remoteurl').value = "https://api.opensuse.org/public";
+      document.getElementById('project_title').value = "Standard OBS instance at build.opensuse.org";
+      document.getElementById('project_description').value = "This instance delivers the default build targets for OBS.";
+    }
+    function useTizen(){
+      document.getElementById('project_name').value = "tizen.org";
+      document.getElementById('project_remoteurl').value = "https://api.tizen.org/public";
+      document.getElementById('project_title').value = "Official Tizen Project OBS instance at build.tizen.org";
+      document.getElementById('project_description').value = "This instance can be used to access resources from the Tizen project.";
+    }
+    function usePackman(){
+      document.getElementById('project_name').value = "Packman";
+      document.getElementById('project_remoteurl').value = "https://pmbs-api.links2linux.de/public";
+      document.getElementById('project_title').value = "Packman Build Service PMBS";
+      document.getElementById('project_description').value = "This instance can be used to access resources from Packman.";
+    }
+
+- name = nil
+- remoteurl = nil
+- @pagetitle = "Interconnect"
+- @crumb_list = [@pagetitle]
+- @layouttype = 'custom'
+.grid_16.alpha.omega.box.box-shadow
+  = render partial: 'tabs'
+  %p
+    Connect a remote Open Build Service instance
+  %h3
+    Use a public OBS for default base distributions
+  - unless Project.exists?("openSUSE.org")
+    - name = "openSUSE.org"
+    - remoteurl = "https://api.opensuse.org/public"
+    %input{ onclick: "javascript:useOpenSUSE()", type: "button", value: "openSUSE" }/
+  - unless Project.exists?("tizen.org")
+    %input{ onclick: "javascript:useTizen()", type: "button", value: "Tizen" }/
+  - unless Project.exists?("Packman")
+    %input{ onclick: "javascript:usePackman()", type: "button", value: "PackMan" }/
+  %h3
+    Add custom OBS instance
+  = form_tag  action: :interconnect do
+    %table#instance
+      %tr
+        %td
+          %strong Local Project Name:
+        %td= text_field_tag( "project[name]", name, size: 80 )
+      %tr
+        %td
+          %strong Remote OBS api url:
+        %td= text_field_tag( "project[remoteurl]", remoteurl, size: 80 )
+      %tr
+        %td
+          %strong Title:
+        %td= text_field_tag( "project[title]", "Remote OBS instance", size: 80 )
+      %tr
+        %td
+          %strong Description:
+        %td= text_field_tag( "project[description]", "This project is representing a remote build service instance.", size: 80 )
+    %p= submit_tag

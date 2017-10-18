@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes the format for transferring newest statistics 
+      imported into opensuse build service from the redirect server (by 
+      redirect_stats).
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="newest_stats" type="xs:dateTime" />
+
+</xs:schema>
+

@@ -1,0 +1,55 @@
+Return-Path: <obs-email@opensuse.org>
+From: Iggy Pop <Iggy@pop.org>
+Sender: OBS Notification <obs-email@opensuse.org>
+To: Thor <tschmidt@example.com>
+Message-ID: <notrandom@localhost>
+In-Reply-To: <obs-request-4@localhost>
+References: <obs-request-4@localhost>
+Subject: Request 4 requires review (submit Apache/BranchPack)
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Precedence: bulk
+X-Mailer: OBS Notification System
+X-OBS-URL: http://localhost
+Auto-Submitted: auto-generated
+X-OBS-event-type: review_wanted
+X-OBS-Request-Creator: Iggy
+X-OBS-Request-Id: 4
+X-OBS-Request-State: new
+X-OBS-Request-Action-type: submit
+X-OBS-Request-Action-target: Apache/BranchPack
+X-OBS-Request-Action-source: home:Iggy:branches:kde4/BranchPack
+X-OBS-Review-By-User: tom
+
+Request 4 (by Iggy) requires a review by user tom
+  Visit http://localhost/request/show/4
+
+Review reason set by Iggy:
+Can you check that?
+
+Request description:
+test home project shortening
+
+Actions:
+- submit home:Iggy:branches:kde4/BranchPack => Apache/BranchPack
+
+new:
+----
+  myfile
+
+other changes:
+--------------
+
+++++++ myfile (new)
+--- myfile
++++ myfile
+@@ -0,0 +1,1 @@
++DummyContent
+\ No newline at end of file
+
+
+-- 
+Configure notifications at http://localhost/user/notifications
+Open Build Service (http://localhost/)

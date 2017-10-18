@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="configuration-element"/>
+  </start>
+
+  <define ns="" name="configuration-element">
+    <element name="configuration">
+      <interleave>
+        <element name="title">
+          <!-- short description of this OBS instance showed in the webui -->
+          <text/>
+        </element>
+        <element name="description">
+          <!-- long description of this OBS instance showed in the webui on main page -->
+          <text/>
+        </element>
+        <optional>
+          <element name="anonymous">
+            <!-- webui (or other sites) can show the content of the OBS instance also to not logged in users. -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
+        <optional>
+          <element name="change_password">
+            <!-- Users can change their password. This may not work with ldap or proxy_auth mechanisms. -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
+        <optional>
+          <element name="disallow_group_creation">
+            <!-- Disallow to create groups via the api. Usefull when groups do come via LDAP -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
+        <optional>
+          <element name="allow_user_to_create_home_project">
+            <!-- Users are allowed to create projects in their home: namespace themself -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
+        <optional>
+          <element name="default_access_disabled">
+            <!-- New created projects have disabled access by default -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
+        <optional>
+          <element name="registration">
+            <!-- New user can themself register (allow), needs approval after registration(confirmation) or
+                 accounts can only be created by the admin (deny) -->
+            <choice>
+              <value>allow</value>
+              <value>confirmation</value>
+              <value>deny</value>
+            </choice>
+          </element>
+        </optional>
+        <optional>
+          <element name="default_tracker">
+            <!-- Defines the default issue tracker to be used -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="download_url">
+            <!-- Defines the prefix of where the published repositories become accessable to the users -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="obs_url">
+            <!-- The URL to this OBS instance as seen from outside -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="http_proxy">
+            <!-- May be used if external hosts, like remote OBS instances, gravatar or to download from external sides -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="no_proxy">
+            <!-- proxy filter, to be used like the environment variable with a comma seperated list.-->
+            <text/>
+          </element>
+        </optional>
+
+        <!-- backend stuff -->
+        <optional>
+          <element name="name">
+            <!-- The obs instance name as it will become of the DISTURL macro in each built rpm -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="download_on_demand">
+            <!-- EXPERIMENTAL: allows admins to use external package repositories in project repositories -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
+        <optional>
+          <element name="enforce_project_keys">
+            <!-- always create a signing key when a project is created and no upper project has a key. It disallows to remove the key also in that case. -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
+        <optional>
+          <element name="cleanup_empty_projects">
+            <!-- If the last package in a project is cleaned up by sourceupdate=cleanup, delete the whole project? -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
+        <optional>
+          <element name="disable_publish_for_branches">
+            <!-- When a user creates a new project as a side-effect of branching a package, disable publishing that project? The default is "on" to save disk space and bandwidth. -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
+
+        <!-- webui only stuff -->
+        <optional>
+          <element name="ymp_url">
+            <!-- URL prefix for one-click installation files (software.opensuse.org) -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="bugzilla_url">
+            <!-- Default bugzilla instance for reporting to bugowners -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="admin_email">
+            <!-- default email adress to contact this OBS admin -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="theme">
+            <!-- used webui theme -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="cleanup_after_days">
+            <!-- Enables delete requests for branch projects after given number of days. -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="gravatar">
+            <!-- Loads pictures of users from gravatar. This works via a hash of their email adress. -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
+        <optional>
+          <element name="hide_private_options">
+            <!-- Do not show options to hide projects or packages. -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
+        <optional>
+          <element name="unlisted_projects_filter">
+            <!-- The exclusion filter itself. Is a Regular Expression (eg: ^home:.*) -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="unlisted_projects_filter_description">
+            <!-- The description that will appear in projects list for explaining the exclusion filter. -->
+            <text/>
+          </element>
+        </optional>
+
+        <!-- active schedulers -->
+        <element name="schedulers">
+          <zeroOrMore>
+            <element name="arch">
+              <ref name="build-arch" />
+            </element>
+          </zeroOrMore>
+        </element>
+      <empty/>
+      </interleave>
+    </element>
+  </define>
+</grammar>

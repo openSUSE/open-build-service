@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="patchinfo-element"/>
+  </start>
+
+  <define ns="" name="patchinfo-element">
+    <element name="patchinfo">
+      <interleave>
+        <optional>
+          <attribute name="incident">
+            <data type="string"/>
+          </attribute>
+        </optional>
+        <optional>
+          <attribute name="version">
+            <data type="string"/>
+          </attribute>
+        </optional>
+
+        <zeroOrMore>
+          <element name="releasetarget">
+            <attribute name="project">
+              <data type="string" />
+            </attribute>
+            <optional>
+              <attribute name="repository">
+                <data type="string" />
+              </attribute>
+            </optional>
+          </element>
+        </zeroOrMore>
+        <zeroOrMore>
+          <element name="package">
+            <text/>
+          </element>
+        </zeroOrMore>
+        <zeroOrMore>
+          <element name="binary">
+            <text/>
+          </element>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="issue-element"/>
+        </zeroOrMore>
+
+        <optional>
+          <element name="name"> <!-- old style patch name -->
+            <text/>
+          </element>
+        </optional>
+
+        <element name="category"> 
+          <ref name="patchinfo-categories" />
+        </element>
+        <element name="rating"> 
+          <ref name="obs-ratings" />
+        </element>
+        <element name="summary"> 
+          <text/>
+        </element>
+        <element name="description"> 
+          <text/>
+        </element>
+        <optional>
+          <element name="message"> <!-- optional pop-up message -->
+            <text/>
+          </element>
+        </optional>
+        <element name="packager"> 
+          <text/>
+        </element>
+
+        <optional>
+          <element name="stopped"> 
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="reboot_needed"> 
+            <empty/>
+          </element>
+        </optional>
+        <optional>
+          <element name="relogin_needed"> 
+            <empty/>
+          </element>
+        </optional>
+        <optional>
+          <element name="zypp_restart_needed"> 
+            <empty/>
+          </element>
+        </optional>
+
+      </interleave>
+    </element>
+  </define>
+
+  <define ns="" name="issue-element">
+    <element name="issue">
+      <attribute name="tracker">
+        <data type="string"/>
+      </attribute>
+      <attribute name="id">
+        <data type="string"/>
+      </attribute>
+      <optional>
+        <attribute name="documented">
+          <choice>
+            <value>true</value>
+            <value>false</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <text/>
+      </optional>
+    </element>
+  </define>
+
+  <define ns="" name="patchinfo-categories">
+    <choice>
+      <value>security</value>
+      <value>recommended</value>
+      <value>optional</value>
+      <value>feature</value>
+    </choice>
+  </define>
+
+</grammar>

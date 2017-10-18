@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<status code="ok">
+  <summary>Ok</summary>
+  <details>Operation successfull.</details>
+  <data name="targetproject">
+    home:kfreitag:Factory
+  </data>
+</status>

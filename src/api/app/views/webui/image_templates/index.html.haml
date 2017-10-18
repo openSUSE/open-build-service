@@ -1,0 +1,47 @@
+.grid_16
+  %h1
+    Choose a base template
+
+  %fieldset.templateslist
+    - first_template = nil
+    - @projects.each do |project|
+      - remote = Project.is_remote_project?(project.name)
+      %dl.templateslist
+        %dt
+          = link_to_if(!remote, title_or_name(project), project_show_path(project))
+        - project.packages.each do |template|
+          %label
+            %input{ name: 'image', type: 'radio', class: 'hidden image_template', checked: check_first(first_template), data: { project: project, package: template } }
+            - first_template ||= template
+            %dd
+              %span.form-radio
+              - if template.has_icon?
+                %img{ alt: template.title, src: template.public_source_path('_icon') }
+              - else
+                = sprite_tag('drive-optical-48')
+              %span.group
+                %span.name.break-words
+                  = link_to_if(!remote, title_or_name(template), package_show_path(project: project, package: template))
+                %span.description.grey.break-words
+                  = template.description
+        - if project.packages.empty?
+          %p
+            There are currently no base image templates available for project
+            = succeed '.' do
+              %strong= title_or_name(project)
+  - if first_template
+    .templates_form
+      = form_tag({ controller: :package, action: :branch }, method: :post, id: 'appliance_form') do
+        = hidden_field_tag 'linked_project', first_template.project
+        = hidden_field_tag 'linked_package', first_template.name
+        = hidden_field_tag 'add_repositories_rebuild', 'copy'
+        = hidden_field_tag 'current_revision', true
+        = label_tag(:target_package, 'Name your appliance', class: 'name_appliance')
+        %span
+          (Maximum of 200 characters, no blank, /, :, - or ; characters)
+        %br
+        = text_field_tag(:target_package, first_template, class: 'name_appliance_form', required: true)
+        = submit_tag('Create appliance', class: 'create_appliance', disabled: User.current.is_nobody? ? true : nil)
+  - elsif @projects.empty?
+    %p
+      There are no templates yet, sorry.

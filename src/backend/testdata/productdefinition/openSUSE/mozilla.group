@@ -1,0 +1,11 @@
+        <group name="mozilla">
+            <pattern name="Vogelsoftware"/>
+            <package name="MozillaFirefox">
+                <platform forcearch="i586" />
+            </package>
+            <package name="mozilla-xulrunner190" />
+            <package name="mozilla-xulrunner190-32bit">
+                <platform onlyarch="x86_64" />
+            </package>
+        </group>
+

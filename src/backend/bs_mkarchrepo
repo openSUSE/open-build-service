@@ -1,0 +1,123 @@
+#!/usr/bin/perl -w
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use strict;
+
+use Digest;
+use Digest::MD5;
+use MIME::Base64;
+
+use BSUtil;
+use Build::Arch;
+
+my %todo = (
+  'desc' => [
+    'FILENAME' => 'filename',
+    'NAME' => 'pkgname',
+    'BASE' => 'pkgbase',
+    'VERSION' => 'pkgver',
+    'DESC' => 'pkgdesc',
+    'GROUPS' => 'group',
+    'CSIZE' => 'filesize',
+    'ISIZE' => 'size',
+    'MD5SUM' => 'filemd5',
+    'SHA256SUM' => 'filesha256',
+    'PGPSIG' => 'pgpsig',
+    'URL' => 'url',
+    'LICENSE' => 'license',
+    'ARCH' => 'arch',
+    'BUILDDATE' => 'builddate',
+    'PACKAGER' => 'packager',
+    'REPLACES' => 'replaces',
+  ],
+  'depends' => [
+    'DEPENDS' => 'depend',
+    'CONFLICTS' => 'conflict',
+    'PROVIDES' => 'provides',
+    'OPTDEPENDS' => 'optdepend',
+  ],
+  'files' => [
+    'FILES' => 'files',
+  ],
+);
+
+die("Usage: bs_mkarchrepo <reponame> <dir>\n") unless @ARGV == 2;
+my $reponame = $ARGV[0];
+my $dir = $ARGV[1];
+my @pkgs = grep {/\.pkg\.tar\.(?:gz|xz)$/} ls($dir);
+
+my $rdir = "$dir/$reponame.db";
+mkdir_p($rdir);
+my @pd;
+for my $pkg (@pkgs) {
+  if (!open(F, '<', "$dir/$pkg")) {
+    warn("$dir/$pkg: $!\n");
+    next;
+  }
+  my @s = stat(F);
+  next unless @s;
+  my $ctx = Digest::MD5->new;
+  $ctx->addfile(\*F);
+  close F;
+  if (!open(F, '<', "$dir/$pkg")) {
+    warn("$dir/$pkg: $!\n");
+    next;
+  }
+  my $ctxsha256 = Digest->new('SHA-256');
+  $ctxsha256->addfile(\*F) if $ctxsha256;
+  close F;
+
+  my $vars;
+  my $files;
+  eval {
+    $vars = Build::Arch::queryvars("$dir/$pkg");
+    $files = Build::Arch::queryfiles("$dir/$pkg");
+  };
+  warn($@) if $@;
+  next unless $vars;
+  $vars->{'files'} = $files if $files;
+  $vars->{'filename'} = [ $pkg ];
+  $vars->{'filesize'} = [ $s[7] ];
+  $vars->{'filemd5'} = [ $ctx->hexdigest ];
+  $vars->{'filesha256'} = [ $ctxsha256->hexdigest ] if $ctxsha256;
+
+  my $sig = readstr("$dir/$pkg.sig", 1);
+  if ($sig && length($sig) <= 16384) {
+    $sig = encode_base64($sig, '');
+    $vars->{'pgpsig'} = [ $sig ];
+  }
+  
+  my $d = "$vars->{'pkgname'}->[0]-$vars->{'pkgver'}->[0]";
+  if (!mkdir("$rdir/$d")) {
+    warn("$d: $!\n");
+    next;
+  }
+  for my $t (sort keys %todo) {
+    my @t = @{$todo{$t}};
+    open(F, '>', "$rdir/$d/$t") || die("$rdir/$d/$t: $!\n");
+    while (@t) {
+      my ($tag, $source) = splice(@t, 0, 2);
+      next unless @{$vars->{$source} || []};
+      print F "\%$tag\%\n";
+      print F "$_\n" for @{$vars->{$source}};
+      print F "\n";
+    }
+    close(F) || die("close: $!\n");
+  }
+  push @pd, $d;
+}
+if (@pd) {
+  unshift @pd, '--';
+} else {
+  push @pd, '-T', '/dev/null';
+}
+system('tar', '-czf', "$dir/$reponame.db.tar.gz", '--exclude', 'files', '-C', "$rdir", @pd);
+system('tar', '-czf', "$dir/$reponame.files.tar.gz", '-C', "$rdir", @pd);
+BSUtil::cleandir($rdir);
+rmdir($rdir);

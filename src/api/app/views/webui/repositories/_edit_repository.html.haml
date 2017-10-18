@@ -1,0 +1,45 @@
+.box{ id: "#{valid_xml_id(repository.name)}", style: "margin: 1em" }
+  %h2.box-header
+    Edit #{repository.name}
+  = form_tag({ action: :update }, id: "update_target_form-#{valid_xml_id(repository.name)}") do
+    %p
+      %b Architectures:
+      - Architecture.available.each do |architecture|
+        = check_box_tag "arch[#{architecture}]", "", repository.architectures.include?(architecture), class: 'arch_check_box'
+        = architecture.name
+      = hidden_field_tag :project, project
+      = hidden_field_tag :repo, repository.name
+
+    %div{ style: "margin-bottom: 1.2em" }
+      %p
+        %b Additional package repositories (searched in descending order):
+      %div{ style: "margin-left: 30px" }
+        - begin
+          - repository.path_elements.each do |path|
+            - if path.link == Repository.deleted_instance
+              = image_tag 'exclamation.png'
+              Target repository has been removed
+            - else
+              %span= path.link.project_name + "/" + path.link.name
+              - if repository.path_elements.size > 1
+                - unless path == repository.path_elements.first
+                  = link_to(image_tag('arrow_up.png'),
+                      { action: :move_path, project: project, repository: repository, path: path, direction: 'up', controller: :project },
+                      { class: 'x', method: :post, id: "move_path_up-#{path.link.project_name}_#{path.link.name}" })
+                - unless path == repository.path_elements.last
+                  = link_to(image_tag('arrow_down.png'),
+                      { action: :move_path, project: project, repository: repository, path: path, direction: 'down', controller: :project },
+                      { class: 'x', method: :post, id: "move_path_down-#{path.link.project_name}_#{path.link.name}" })
+              = link_to(image_tag('drive_delete.png'), { action: :remove_path_from_target, project: project, repository: repository, path: path, controller: :project }, { data: { confirm: "Really remove #{path.link.project_name} / #{path.link.name} path from repository  '#{repository.name}'?" }, class: 'x', method: :post })
+            %br/
+        - rescue
+      %p
+        = link_to(image_tag("drive_add.png", title: "Add Repository"), action: 'new', project: project, torepository: repository.name)
+        = link_to('Add additional path to this repository', action: 'new', project: project, torepository: repository.name)
+    %p= submit_tag "Update #{repository.name}", id: "save_button-#{valid_xml_id(repository.name)}", disabled: true
+
+= javascript_tag do
+  :plain
+    $('.arch_check_box').change(function () {
+      $("#save_button-#{valid_xml_id(repository.name)}").removeAttr('disabled');
+    });

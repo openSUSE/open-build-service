@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<directory>
+  <entry name="kde4/factory">
+    <title>KDE4 for Factory</title>
+  </entry>
+  <entry name="kde4/sles10">
+    <title>KDE 4 for SLES 10</title>
+  </entry>
+</directory>

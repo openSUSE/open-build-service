@@ -1,0 +1,132 @@
+record_0:
+  bs_request_id: 9991
+  type: submit
+  target_project_object: kde4
+  target_package_object: kde4_kdelibs
+  target_project: kde4
+  target_package: kdelibs
+  source_project: NotExisiting
+  source_package: notthere
+  source_rev: '1'
+  sourceupdate: cleanup
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
+record_1:
+  bs_request_id: 99910
+  type: submit
+  target_project: home:Iggy
+  target_package: apache2
+  target_project_object: home_Iggy
+  target_package_object: apache2
+  source_project: Apache
+  source_package: apache2
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2013-09-09 19:20:44.000000000 Z
+record_2:
+  bs_request_id: 9993
+  type: submit
+  target_project: NeitherExisting
+  target_package: unknown
+  source_project: NotExisiting
+  source_package: notthere
+  source_rev: '1'
+  sourceupdate: cleanup
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
+record_3:
+  bs_request_id: 99910
+  type: submit
+  target_project: home:Iggy
+  target_package: libapr-util1
+  target_project_object: home_Iggy
+  target_package_object: libapr-util1
+  source_project: Apache
+  source_package: libapr-util1
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2013-09-09 19:20:44.000000000 Z
+record_4:
+  bs_request_id: 9991000
+  type: submit
+  target_project: kde4
+  target_package: apache2
+  target_project_object: kde4
+  target_package_object: apache2
+  source_project: Apache
+  source_package: apache2
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2013-09-09 19:15:16.000000000 Z
+record_5:
+  bs_request_id: 99910
+  type: delete
+  target_project: home:Iggy
+  target_package: ToBeDeletedTestPack
+  target_project_object: home_Iggy
+  target_package_object: home_Iggy_ToBeDeletedTestPack
+  updatelink: 0
+  created_at: 2013-09-09 19:20:44.000000000 Z
+record_6:
+  bs_request_id: 9992
+  type: delete
+  target_project: NeitherExisting
+  target_package: unknown2
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
+record_7:
+  bs_request_id: 9992
+  type: submit
+  target_project: NeitherExisting
+  target_package: unknown
+  source_project: kde4
+  source_package: kdelibs
+  source_rev: '1'
+  sourceupdate: cleanup
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
+record_8:
+  bs_request_id: 9994
+  type: submit
+  target_project: Apache
+  target_package: BranchPack
+  target_project_object: Apache
+  target_package_object: home_Iggy_branches_kde4_BranchPack
+  source_project: home:Iggy:branches:kde4
+  source_package: BranchPack
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
+record_9:
+  bs_request_id: 9995
+  type: submit
+  target_project: Apache
+  target_package: BranchPack
+  target_project_object: Apache
+  target_package_object: home_Iggy_branches_kde4_BranchPack
+  source_project: home:Iggy:branches:kde4
+  source_package: BranchPack
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
+record_10:
+  bs_request_id: 9996
+  type: maintenance_incident
+  target_project: My:Maintenance
+  target_package: pack2
+  target_project_object: My_Maintenance
+  source_project: BaseDistro2.0
+  source_package: pack2
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
+record_11:
+  bs_request_id: 9997
+  type: maintenance_release
+  target_project: My:Maintenance:Temporary
+  target_package: pack2
+  source_project: BaseDistro2.0
+  source_package: pack2
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z

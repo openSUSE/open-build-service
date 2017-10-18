@@ -1,0 +1,474 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 14 Feb 2017 09:40:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/_config
+    body:
+      encoding: UTF-8
+      string: Rerum et quos soluta dolore veritatis id quidem. Enim debitis aut. Et
+        et quod ut id libero sint quisquam. Aut temporibus ea. Eveniet sit tempore
+        repudiandae non placeat.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 14 Feb 2017 09:40:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '138'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 14 Feb 2017 09:40:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '138'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 14 Feb 2017 09:40:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_config
+    body:
+      encoding: UTF-8
+      string: Accusantium aut nesciunt repellat nam. Rerum dolor veniam dolorem ut
+        natus. Enim cumque molestiae beatae aut earum et. Voluptas dolorem fugiat
+        explicabo enim. Accusamus dignissimos eaque.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="33" vrev="33">
+          <srcmd5>d5dbf4d082c91e428bb77a671b2c1b49</srcmd5>
+          <version>unknown</version>
+          <time>1487065238</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 14 Feb 2017 09:40:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Assumenda nihil a harum et et accusantium laborum. Iste culpa quia repudiandae.
+        Vero ut necessitatibus voluptates similique aut a. Ipsam adipisci aliquam.
+        Velit ab officiis eveniet soluta.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="34" vrev="34">
+          <srcmd5>4717ad80944cdcd2713a7b5b0da6d8e6</srcmd5>
+          <version>unknown</version>
+          <time>1487065238</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 14 Feb 2017 09:40:38 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_history
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '6269'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>5d680f0f58b14f10f98b1f03a788440f</srcmd5>
+            <version>unknown</version>
+            <time>1487061355</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="2" vrev="2">
+            <srcmd5>b1c5640a8f4ca3102271e862e5fd5ffa</srcmd5>
+            <version>unknown</version>
+            <time>1487061355</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="3" vrev="3">
+            <srcmd5>7ebc42901367cd2a4ed538f34fb89b69</srcmd5>
+            <version>unknown</version>
+            <time>1487061665</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="4" vrev="4">
+            <srcmd5>eb4eaca384865276fc7228ec8b065717</srcmd5>
+            <version>unknown</version>
+            <time>1487061665</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="5" vrev="5">
+            <srcmd5>ec34c2c8d4c4a9968683d3db426049cb</srcmd5>
+            <version>unknown</version>
+            <time>1487061879</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="6" vrev="6">
+            <srcmd5>004ae284fdeb574f60b2447b05b704ad</srcmd5>
+            <version>unknown</version>
+            <time>1487061879</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="7" vrev="7">
+            <srcmd5>5d78d892fda39a87e8b23d7ffa5afead</srcmd5>
+            <version>unknown</version>
+            <time>1487061879</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="8" vrev="8">
+            <srcmd5>b7ab629ad095514b24024daa572aba9d</srcmd5>
+            <version>unknown</version>
+            <time>1487061879</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="9" vrev="9">
+            <srcmd5>af2b5e6e62ef433da4765449dc8cba18</srcmd5>
+            <version>unknown</version>
+            <time>1487061879</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="10" vrev="10">
+            <srcmd5>ff8f094630c117b9d3eccb60e0280611</srcmd5>
+            <version>unknown</version>
+            <time>1487061879</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="11" vrev="11">
+            <srcmd5>fb899f38d5c11208fa9b70008e2675b2</srcmd5>
+            <version>unknown</version>
+            <time>1487061880</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="12" vrev="12">
+            <srcmd5>cb4718a96d92f0f0bffbb79f02316d66</srcmd5>
+            <version>unknown</version>
+            <time>1487061880</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="13" vrev="13">
+            <srcmd5>c737553ff812c116e323f1c78535a23e</srcmd5>
+            <version>unknown</version>
+            <time>1487061880</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="14" vrev="14">
+            <srcmd5>f08614b2428aedfcc66a1e7500d4acfb</srcmd5>
+            <version>unknown</version>
+            <time>1487061880</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="15" vrev="15">
+            <srcmd5>a08140331aefbf02d4846867d4c7cfa1</srcmd5>
+            <version>unknown</version>
+            <time>1487061880</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="16" vrev="16">
+            <srcmd5>bcc98ca9af0bdff099f8f85316661e01</srcmd5>
+            <version>unknown</version>
+            <time>1487061880</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="17" vrev="17">
+            <srcmd5>7fcc6896d58ff973041484dd7aa4574d</srcmd5>
+            <version>unknown</version>
+            <time>1487061880</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="18" vrev="18">
+            <srcmd5>431a3ebb11af7c7d8366dff98c764da9</srcmd5>
+            <version>unknown</version>
+            <time>1487061880</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="19" vrev="19">
+            <srcmd5>b23acced7dccbf733eee2301d90baa23</srcmd5>
+            <version>unknown</version>
+            <time>1487061881</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="20" vrev="20">
+            <srcmd5>7ca00b885ac8b5ce6a2b2939361a82a6</srcmd5>
+            <version>unknown</version>
+            <time>1487061881</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="21" vrev="21">
+            <srcmd5>d9c2c1a37b3a147037a13163fd804647</srcmd5>
+            <version>unknown</version>
+            <time>1487061881</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="22" vrev="22">
+            <srcmd5>047d3b9fcc3f1a2037a4c67094f9cbeb</srcmd5>
+            <version>unknown</version>
+            <time>1487061881</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="23" vrev="23">
+            <srcmd5>88b5ebbeb65bedf68716496291cd60b9</srcmd5>
+            <version>unknown</version>
+            <time>1487061882</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="24" vrev="24">
+            <srcmd5>93d9d35291945cf81ee89874b65940c9</srcmd5>
+            <version>unknown</version>
+            <time>1487061882</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="25" vrev="25">
+            <srcmd5>0e6eb3bc250bc5f67bc83fd4d9748f1e</srcmd5>
+            <version>unknown</version>
+            <time>1487061882</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="26" vrev="26">
+            <srcmd5>9c5b4cded84065ac7fd949b0eda39211</srcmd5>
+            <version>unknown</version>
+            <time>1487061882</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="27" vrev="27">
+            <srcmd5>4fbaee63dffc86fef87aead9e714c434</srcmd5>
+            <version>unknown</version>
+            <time>1487061885</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="28" vrev="28">
+            <srcmd5>bee6f11fa47c7f440cc8d9dc2ed39bf2</srcmd5>
+            <version>unknown</version>
+            <time>1487061885</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="29" vrev="29">
+            <srcmd5>db1bc6df85b53eeffe3c829d66191a1c</srcmd5>
+            <version>unknown</version>
+            <time>1487061885</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="30" vrev="30">
+            <srcmd5>aa20448b5c28bd6e5a951e440a462e6f</srcmd5>
+            <version>unknown</version>
+            <time>1487061885</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="31" vrev="31">
+            <srcmd5>2720609540b1b34f2e2f63ce1a73d6a0</srcmd5>
+            <version>unknown</version>
+            <time>1487061885</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="32" vrev="32">
+            <srcmd5>50a365e908812197fc3074f31e01a40e</srcmd5>
+            <version>unknown</version>
+            <time>1487061885</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="33" vrev="33">
+            <srcmd5>d5dbf4d082c91e428bb77a671b2c1b49</srcmd5>
+            <version>unknown</version>
+            <time>1487065238</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="34" vrev="34">
+            <srcmd5>4717ad80944cdcd2713a7b5b0da6d8e6</srcmd5>
+            <version>unknown</version>
+            <time>1487065238</time>
+            <user>unknown</user>
+          </revision>
+        </revisionlist>
+    http_version: 
+  recorded_at: Tue, 14 Feb 2017 09:40:38 GMT
+recorded_with: VCR 3.0.3

@@ -1,0 +1,176 @@
+- @pagetitle = "Home of #{@displayed_user}"
+- @layouttype = 'custom'
+- @crumb_list = [@pagetitle]
+/ user
+.grid_4.alpha.box.box-shadow#userinfo
+  / avatar
+  = user_icon(@displayed_user, 200, 'home-avatar') if @displayed_user.email
+  / info
+  %h1
+    %span#home-realname
+      = @displayed_user.realname
+      %br/
+    %span#home-username= @displayed_user.login if @displayed_user.login
+  / mail
+  - unless User.current.is_nobody?
+    %p
+      = mail_to(@displayed_user.email, sprite_tag('email', title: 'Send mail to user'), title: 'Send mail to user')
+      = mail_to(@displayed_user.email, nil, title: 'Send mail to user')
+  / groups
+
+  - if @groups.any?
+    %p Member of the group
+    %ul
+      - @groups.each do |group|
+        %li= link_to("#{group.title} (#{group.tasks})", group_show_path(group))
+  / roles
+  - if @role_titles.any?
+    %p Has the role
+    %ul
+      - @role_titles.each do |title|
+        %li= title
+  / edit
+  - if @is_displayed_user
+    %p
+      - if @configuration.accounts_editable?
+        - if @account_edit_link.present?
+          = link_to sprited_text('user_edit', 'Edit your account'), @account_edit_link
+          %br/
+        - else
+          = link_to(sprited_text('user_edit', 'Edit your account'), { controller: 'user', action: 'save_dialog', user: User.current }, {id: 'save_dialog', remote: true})
+        %br/
+      - if @configuration.passwords_changable?
+        = link_to(sprited_text('key', 'Change your password'), { controller: 'user', action: 'password_dialog', user: User.current }, {id: 'password_dialog', remote: true})
+        %br/
+      = link_to(sprited_text('email', 'Change your notifications'), user_notifications_path)
+      %br/
+      - if @displayed_user.rss_token
+        = link_to(sprited_text('feeds', 'RSS for notifications'), user_rss_notifications_path(token: @displayed_user.rss_token.string, format: 'rss'), { title: 'RSS Feed for Notifications' })
+        %br/
+
+.grid_12.omega.box.box-shadow
+  #involved
+    .box-header.header-tabs
+      %ul
+        %li
+          %a{href: "#ipackages", title: "Packages that you are involved with"} Involved Packages
+        %li
+          %a{href: "#iprojects", title: "Projects that you are involved with"} Involved Projects
+        %li
+          %a{href: "#iowned", title: "Projects/Packages where you are responsible for the maintenance"} Owned Project/Packages
+    .tab#ipackages
+      - if @ipackages.length > 0
+        #ipackages-wrapper{ "data-url": url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') }
+          - content_for :ready_function do
+            var ipackages = [  #{escape_nested_list(@ipackages)}];
+            renderPackagesProjectsTable({packages: ipackages, length: 10, name: 'ipackages-wrapper'});
+      - else
+        %p
+          %i
+            = @displayed_user.login
+            is not involved in any packages
+    .tab#iprojects
+      - if @iprojects.blank?
+        %p
+          %i
+            = @displayed_user.login
+            is not involved in any projects
+      - else
+        #projects-table-wrapper{"data-url" => "#{url_for(controller: 'project', action: 'show', project: 'REPLACEIT')}"}
+          - content_for :head_javascript do
+            var main_projects = [ #{escape_nested_list(@iprojects)} ];
+            var excl_projects = [];
+          - content_for :ready_function do
+            renderProjectsTable(length=10);
+            $('#excludefilter').change(renderProjectsTable);
+    .tab#iowned
+      - if @owned.blank?
+        %p
+          %i
+            = @displayed_user.login
+            is not involved in any projects
+      - else
+        #iowned-wrapper{ "data-url": url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') }
+          - content_for :ready_function do
+            var iowned = [ #{escape_nested_list(@owned)} ];
+            renderPackagesProjectsTable({packages: iowned, length: 15, name: 'iowned-wrapper'});
+
+.clear
+- if @is_displayed_user
+  .grid_16.alpha.omega.box.box-shadow
+    #reviews
+      .box-header.header-tabs
+        %ul
+          %li
+            %a{href: "#reviews-in", title: "Requests that #{@displayed_user.login} has to review"} Incoming Reviews
+            = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'reviews_in_table' })
+            = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+      .tab#reviews-in
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(@displayed_user) })
+
+  .grid_16.alpha.omega.box.box-shadow
+    #requests
+      .box-header.header-tabs
+        %ul
+          %li
+            %a#requests-in-tab{href: "#requests-in", title: "Requests that #{@displayed_user.login} has to merge"} Incoming Requests
+            = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'requests_in_table' })
+            = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+          %li
+            %a#requests-out-tab{href: "#requests-out", title: "Requests that #{@displayed_user.login} has sent"} Outgoing Requests
+            = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_out_table' })
+            = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+          %li
+            %a#requests-declined-tab{href: "#requests-declined", title: "Requests from #{@displayed_user.login} that are declined"} Declined Requests
+            = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_declined_table' })
+            = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+          %li
+            %a#all-requests-tab{href: "#all-requests", title: "All Requests from #{@displayed_user.login}"} All Requests
+            = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'all_requests_table' })
+            = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
+      .tab#requests-in
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: user_requests_path(@displayed_user) })
+      .tab#requests-out
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_out_table', source_url: user_requests_path(@displayed_user) })
+      .tab#requests-declined
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_declined_table', source_url: user_requests_path(@displayed_user) })
+      .tab#all-requests
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(@displayed_user) })
+
+- if @patchinfos.present?
+  .grid_16.alpha.omega.box.box-shadow
+    #patchinfos
+      .box-header.header-tabs
+        %ul
+          %li
+            %a{href: "#patchinfos-in", title: "Requests that #{@displayed_user.login} has to merge"} Maintenance Requests
+      .tab#patchinfos-in
+        %table.compact#open-patchinfos-table{title: "Running Maintenance Updates"}
+          %thead
+            %tr
+              %th Project
+              %th Package
+              %th Issues
+              %th{style: "width: 1%"} Actions
+          %tbody
+            - @patchinfos.each do |pi|
+              %tr
+                - shortened_prj, shortened_pkg = elide_two(pi[:package][:project], pi[:package][:name], 60)
+                %td= link_to shortened_prj, controller: :project, action: :show, project: pi[:package][:project]
+                %td= link_to shortened_pkg, controller: :package, action: :show, project: pi[:package][:project], package: pi[:package][:name]
+                %td
+                  - pi[:issues].each do |i|
+                    = link_to i[:label], i[:url], title: i[:summary]
+                    ,
+                %td= link_to sprite_tag('monitor', title: 'Monitor'), action: :monitor, project: pi[:package][:project], pkgname: pi[:package][:name], controller: :project
+
+  = javascript_tag do
+    :plain
+      $(function() {
+        $('#open-patchinfos-table').dataTable();
+      });
+- content_for :ready_function do
+  $( "#involved" ).tabs();
+  $( "#reviews" ).tabs();
+  $( "#requests" ).tabs();
+  $( "#patchinfos" ).tabs();

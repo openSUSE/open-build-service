@@ -1,0 +1,33 @@
+<% if issues.present? %>
+  <table>
+    <tbody>
+      <% issues.each do |long_name, issue| %>
+        <% if issue[:owner] && issue[:state] %>
+          <tr>
+            <td><%= link_to(long_name, issue[:url], :class => 'issue_tracker_link') %></td>
+            <td class="nowrap">
+              <% if issue[:owner] %>
+                <%= user_with_realname_and_icon issue[:owner], short: true %>
+              <% end %>
+            </td>
+            <td><%= issue[:state].capitalize if issue[:state] %></td>
+          </tr>
+        <% else %>
+          <tr class="even">
+            <td colspan="3"><%= link_to(long_name, issue[:url], class: 'issue_tracker_link') %></td>
+          </tr>
+        <% end %>
+        <% if issue[:summary] %>
+          <tr class="odd">
+            <td colspan="3"><%= toggle_sliced_text(issue[:summary]) %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+  <%# Stupid XHTML-1.0 strict doesn't like 'target', but all browsers do. Thus, sneak around validation to %>
+  <%# allow opening a new window upon click: %>
+  <% content_for :ready_function do %>
+    $('a.issue_tracker_link').attr('target', '_blank')
+  <% end %>
+<% end %>

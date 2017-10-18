@@ -1,0 +1,36 @@
+- @pagetitle = "Add Repository"
+- @metarobots = 'noindex'
+- project_bread_crumb @pagetitle
+= render partial: "webui/project/tabs"
+= content_for :ready_function do
+  repositories_setup_autocomplete();
+%h2
+  Add Repository to #{@project}
+= form_tag({ action: :create, project: @project }) do
+  %p
+    %strong Project:
+    %br/
+    = text_field_tag 'target_project', '', size: 60, id: 'target_project', required: true, data: { 'ajaxurl': url_for(controller: 'project', action: 'autocomplete_projects') }
+    %br/
+    %strong Repository:
+    %br/
+    = image_tag('ajax-loader.gif', id: 'loader-repo', class: 'hidden')
+    = select_tag "target_repo", options_for_select([""]), id: 'target_repo', required: true, disabled: true, data: { 'ajaxurl': url_for(controller: :project, action: :autocomplete_repositories) }
+    %br/
+    / Do not offer new name if we add this repo to an existing one as path
+    - if params[:torepository]
+      = hidden_field_tag( "repository", params[:torepository] )
+      %br/
+    - else
+      %strong Name:
+      %br/
+      = text_field_tag 'repository', '', size: 60, id: 'repo_name', disabled: false, required: true
+      %br/
+      %strong Architectures:
+      %br/
+      - Architecture.available.each do |architecture|
+        = check_box_tag "architectures[]", architecture.name, true, id: "architecture_#{architecture.name}"
+        = architecture.name
+  %p
+    - button_label = (params[:torepository] ? "Add path to repository #{params[:torepository]}" : "Add repository")
+    = submit_tag button_label, disabled: false, id: 'add_repository_button'

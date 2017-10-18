@@ -1,0 +1,28 @@
+<% content_for(:content_for_head, javascript_include_tag('webui/application/cm2/index')) %>
+
+<% @pagetitle = "File #{@filename} of Package #{@package}" %>
+<% package_bread_crumb(@filename) %>
+
+<%= render partial: 'tabs' %>
+
+<h3><%= @pagetitle %> <% if @rev %>(Revision <%= @rev %>)<% end %></h3>
+<% if @rev %>
+  <p>Currently displaying revision <i><%= @rev %></i>, <%= link_to('show latest', project: @project, package: @package, filename: @filename, expand: @expand ) %></p>
+<% end %>
+
+<% if @addeditlink %>
+    <% if @filename.ends_with?('.changes') %>
+  <p>
+      <%# Rather hacky attempt to provide 'osc vc'-like functionality, would benefit of proper 'snippet' support for editor: %>
+      <a href="#" class="changes-link" onclick="addChangesEntryTemplate(); return false;" data-email="<%= User.current.email %>">Insert changes entry template</a>
+  </p>
+    <% end %>
+
+    <%= render partial: "shared/editor", locals: {text: @file, mode: guess_code_class(@filename),
+			save: {url: url_for(controller: :package, action: :save_file, method: :post),
+			method: 'POST',
+			data: {project: @project.name, package: @package.name, submit: 'file', comment: '', filename: @filename, rev: @rev}}} %>
+    <%# TODO: Provide a comments field thru a callback!! %>
+<% else %>
+    <%= render partial: "shared/editor", locals: {text: @file, mode: guess_code_class(@filename), style: {read_only: true}} %>
+<% end %>

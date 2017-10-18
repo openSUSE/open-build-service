@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Elements:
+  
+  title
+  description
+    Developer informations
+  person
+    An optional list of persons
+  group
+    An optional list of groups
+  devel
+    An optional devel project
+  build
+    build flags
+  publish
+    publish flags
+  useforbuild
+    useforbuild flags
+  debuginfo
+    debuginfo flags
+  binarydownload
+    binarydownload flags
+-->
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="project-element"/>
+  </start>
+
+  <define ns="" name="project-link-element">
+    <element name="link">
+      <attribute name="project">
+        <data type="string" />
+      </attribute>
+      <empty/>
+    </element>
+  </define>
+
+  <define name="project-element">
+    <element>
+      <name ns="">project</name>
+
+      <optional>
+        <attribute name="name" />
+      </optional>
+      <optional>
+        <attribute name="kind">
+          <choice>
+            <value>standard</value>
+            <value>maintenance</value>
+            <value>maintenance_incident</value>
+            <value>maintenance_release</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="created"/>
+      </optional>
+      <optional>
+        <attribute name="updated"/>
+      </optional>
+
+      <element ns="" name="title">
+        <text/>
+      </element>
+
+      <element ns="" name="description">
+        <text/>
+      </element>
+
+      <interleave>
+        <optional>
+          <element ns="" name="url">
+            <text/>
+          </element>
+        </optional>
+
+        <zeroOrMore>
+          <ref name="project-link-element"/>
+        </zeroOrMore>
+
+        <optional> 
+          <element ns="" name="mountproject">
+            <text/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="remoteurl">
+            <text/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="devel">
+            <attribute name="project"/>
+            <empty/>
+          </element>
+        </optional>
+
+        <zeroOrMore>
+          <ref name="person-element"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="group-element"/>
+        </zeroOrMore>
+        <optional>
+          <element ns="" name="lock">
+            <ref name="simple-flag-element"/>
+          </element>
+        </optional>
+        <optional>
+          <element ns="" name="build">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="publish">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+        <optional>
+          <element ns="" name="useforbuild">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+        <optional>
+          <element ns="" name="debuginfo">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+        <optional>
+          <element ns="" name="binarydownload">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+        <optional>
+          <element ns="" name="sourceaccess">
+            <ref name="simple-flag-element"/>
+          </element>
+        </optional>
+        <optional>
+          <element ns="" name="access">
+            <ref name="simple-flag-element"/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="maintenance">
+            <oneOrMore>
+              <element name="maintains">
+                <attribute name="project"/>
+              </element>
+            </oneOrMore>
+          </element>
+        </optional>
+
+        <zeroOrMore>
+          <ref name="repository-element"/>
+        </zeroOrMore>
+
+      </interleave>
+    </element>
+  </define>
+</grammar>

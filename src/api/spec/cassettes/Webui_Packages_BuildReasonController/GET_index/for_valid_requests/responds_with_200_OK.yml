@@ -1,0 +1,143 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'package' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '142'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'package' does not exist</summary>
+          <details>404 package 'package' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 07 Jun 2017 06:45:22 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/repository_1/i586/package/_reason
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' has no repository 'repository_1'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' has no repository 'repository_1'</summary>
+          <details>404 project 'home:tom' has no repository 'repository_1'</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 07 Jun 2017 06:45:22 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'package' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '142'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'package' does not exist</summary>
+          <details>404 package 'package' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 07 Jun 2017 06:57:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/repository_1/i586/package/_reason
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' has no repository 'repository_1'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' has no repository 'repository_1'</summary>
+          <details>404 project 'home:tom' has no repository 'repository_1'</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 07 Jun 2017 06:57:33 GMT
+recorded_with: VCR 3.0.3

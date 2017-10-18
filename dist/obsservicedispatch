@@ -1,0 +1,90 @@
+#! /bin/sh
+# Copyright (c) 2016, SUSE LLC
+#
+# Author: mls@suse.de
+#
+# /etc/init.d/obsservicedispatch
+#   and its symbolic  link
+# /usr/sbin/rcobsservicedispatch
+#
+### BEGIN INIT INFO
+# Provides:          obsservicedispatch
+# Required-Start:    $time $syslog
+# Required-Stop:     $null
+# Should-Start:      obsstoragesetup
+# Should-Stop:       $none
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 4 6
+# Description:       open build service source service dispatcher
+### END INIT INFO
+
+. /etc/rc.status
+
+. /etc/sysconfig/obs-server
+
+# Determine the base and follow a runlevel link name.
+base=${0##*/}
+link=${base#*[SK][0-9][0-9]}
+
+if [ -z "$OBS_RUN_DIR" ]; then
+        OBS_RUN_DIR="/srv/obs/run"
+fi
+
+if [ -z "$OBS_LOG_DIR" ]; then
+        OBS_LOG_DIR="/srv/obs/log"
+fi
+
+if [ -n "$OBS_BACKENDCODE_DIR" ]; then
+	obsdir="$OBS_BACKENDCODE_DIR"
+else
+	obsdir=/usr/lib/obs/server
+fi
+rundir="$OBS_RUN_DIR"
+logdir="$OBS_LOG_DIR"
+
+rc_reset
+case "$1" in
+	start)
+		echo -n "Initializing obsservicedispatch"
+		# need logdir before startproc and doing chown to prevent other daemons sharing logdir
+		# from failing because of permissions problems
+		mkdir -p $logdir
+		bsuser=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsuser || "obsrun" )'`
+		bsgroup=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsgroup || "obsrun" )'`
+		chown $bsuser:$bsgroup "$logdir"
+                # FIXME: not nice, this should receive a proper daemon handling, 
+                #        including real logging, pid file and startproc
+		startproc -f -l "$logdir"/servicedispatch.log \
+		    "$obsdir"/bs_servicedispatch
+		rc_status -v
+	;;
+	stop)
+		echo -n "Shutting down obsservicedispatch"
+		"$obsdir"/bs_servicedispatch --stop
+		rc_status -v
+	;;
+	restart)
+		"$obsdir"/bs_servicedispatch --restart
+		rc_status
+	;;
+	try-restart|reload)
+		$0 status
+		if test $? = 0; then
+			"$obsdir"/bs_servicedispatch --restart
+		else
+			rc_reset        # Not running is not a failure.
+		fi
+		# Remember status and be quiet
+		rc_status
+	;;
+	status)
+		echo -n "Checking for obsservicedispatch: "
+		checkproc "$obsdir"/bs_servicedispatch
+		rc_status -v
+	;;
+	*)
+		echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+		exit 1
+	;;
+esac
+rc_exit

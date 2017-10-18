@@ -1,0 +1,19 @@
+- @pagetitle = "Please Log In"
+- if CONFIG['proxy_auth_mode'] == :on
+  %form{ action: "#{CONFIG['proxy_auth_login_page']}", enctype: "application/x-www-form-urlencoded", method: "post" }
+    %div
+      %input{name: "context", type: "hidden", value: "default"}/
+      %input{name: "proxypath", type: "hidden", value: "reverse"}/
+      %input{name: "message", type: "hidden", value: "Please log In"}/
+      = render partial: 'login_form'
+- elsif CONFIG['kerberos_mode']
+  %h2
+    Kerberos authentication required
+  %div
+    %p
+      You are seeing this page, because you are not authenticated in the kerberos realm ('#{CONFIG['kerberos_realm']}').
+    %p
+      Please ensure you have a valid ticket and try again.
+- else
+  = form_tag controller: :user, action: :do_login, method: :post do
+    = render partial: 'login_form'

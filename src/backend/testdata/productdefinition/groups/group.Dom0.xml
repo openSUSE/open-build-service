@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="Dom0" version="10" release="235.2">
+    <pattern ordernumber="1090">
+        <category>Base Technologies</category>
+        <description>This is a minimal system with a running Hypbervisor.</description>
+        <icon>yast-uml</icon>
+        <summary>Virtualization Host (non-embedded)</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="basesystem" relationship="provides" />
+        </relationships>
+    </pattern>
+    <packagelist relationship="requires" id="Dom0.requires">
+            <package name="xen" />
+    </packagelist>
+    <packagelist relationship="recommends" id="Dom0.recommends">
+            <package name="bridge-utils" />
+            <package name="libvirt-cim" />
+            <package name="virt-viewer" />
+            <package name="xen-doc-html" />
+            <package name="xen-doc-pdf" />
+            <package name="xen-libs" />
+            <package name="xen-tools" />
+            <package name="xen-tools-ioemu" />
+    </packagelist>
+</group>

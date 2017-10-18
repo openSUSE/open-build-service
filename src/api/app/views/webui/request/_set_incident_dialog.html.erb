@@ -1,0 +1,27 @@
+<div>
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <div class="dialog-content">
+        <h2 class="box-header">Set Incident</h2>
+        <div class="dialog-content">
+          <p>Change the submit target of this request to an already existing incident.</p>
+          <%= form_tag(:action => 'set_incident') do %>
+            <%= hidden_field_tag(:number, params[:number]) %>
+            <p>
+              <%= label_tag(:incident_project, 'Incident:') %><br/>
+              <%= text_field_tag(:incident_project, '', :size => 40) %><br/>
+            </p>
+            <%= render partial: '/webui/shared/dialog_action_buttons' %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= javascript_tag do %>
+  $("#incident_project").autocomplete({
+    source: '<%= url_for :controller => 'project', :action => 'autocomplete_incidents' %>',
+    minLength: 2
+  });
+<% end %>

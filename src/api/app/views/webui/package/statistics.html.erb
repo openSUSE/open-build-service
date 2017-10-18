@@ -1,0 +1,61 @@
+<% @pagetitle = "Resource Information"
+   @metarobots = 'noindex' # files change too often
+   package_bread_crumb(
+           link_to('Binaries', :controller => 'package', :action => :binaries,
+                   :project                => @project, :package => @package, :repository => @repository, :arch => @arch))
+-%>
+
+<%= render :partial => "tabs" %>
+
+
+<div>
+  <% if @statistics %>
+      <% disk = @statistics.get('disk').get('usage') %>
+      <% if disk %>
+          <h1>Disk Statistics</h1>
+
+          <% if disk['size'] %>
+            <p><strong>Maximal used disk space:</strong>
+              <%= disk['size']['_content'] %> <%= disk['size']['unit'] %>byte
+            </p>
+          <% end %>
+
+          <% if disk['io_requests'] %>
+              <p><strong>Number of IO requests:</strong> <%= disk['io_requests'] %> </p>
+          <% end %>
+          <% if disk['io_sectors'] %>
+              <p><strong>Sectors read or written:</strong> <%= disk['io_sectors'] %> </p>
+          <% end %>
+      <% end %>
+      <% memory = @statistics.get('memory').get('usage') %>
+      <% if memory && memory['size'] %>
+          <h1>Memory Statistics</h1>
+
+          <p><strong>Maximal used memory:</strong>
+            <%= memory['size']['_content'] %> <%= memory['size']['unit'] %>byte
+          </p>
+
+      <% end %>
+      <% times = @statistics['times'] %>
+      <% if times %>
+          <h1>Times</h1>
+          <% if times['preinstall'] %>
+              <p>Package
+                Preinstall: <%= times['preinstall']['time']['_content'] %> <%= times['preinstall']['time']['unit'] %></p>
+          <% end %>
+          <% if times['install'] %>
+              <p>Package
+                Install: <%= times['install']['time']['_content'] %> <%= times['install']['time']['unit'] %></p>
+          <% end %>
+          <% if times['main'] %>
+              <p>Main build task: <%= times['main']['time']['_content'] %> <%= times['main']['time']['unit'] %></p>
+          <% end %>
+          <% if times['total'] %>
+              <p>Total build: <%= times['total']['time']['_content'] %> <%= times['total']['time']['unit'] %></p>
+          <% end %>
+      <% end %>
+  <% else %>
+      <strong>No statistics exist for this build</strong>
+  <% end %>
+</div>
+

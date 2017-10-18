@@ -1,0 +1,15 @@
+<table>
+  <thead>
+    <tr>
+      <th>Summary</th>
+      <th>Category</th>
+      <th>Packages</th>
+      <th>Info</th>
+      <th>Release Targets</th>
+      <th>Build</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= render :partial => 'incident_table_entries', :locals => {:incidents => incidents} %>
+  </tbody>
+</table>

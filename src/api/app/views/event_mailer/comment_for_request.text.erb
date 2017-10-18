@@ -1,0 +1,5 @@
+Visit <%= url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false) %>
+
+<%= event['commenter'].realname %> wrote in request <%= event['number'] %>:
+
+<%= event['comment_body'] %>

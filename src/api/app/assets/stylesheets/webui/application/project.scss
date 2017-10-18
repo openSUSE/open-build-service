@@ -1,0 +1,101 @@
+/* Project Monitor Filter */
+
+#filter_settings {
+  #pkgname, #repo, #arch {
+    width: 8em;
+    margin-right: 0.5em;
+    border: 1px solid #cccccc;
+  }
+  margin-bottom: 2em;
+  border-bottom: 1px solid #cccccc;
+  padding: 0.5em 0 0.5em 1em;
+  overflow: hidden;
+  height: 2em;
+  .strong {
+    margin-left: 0.8em;
+    vertical-align: top;
+  }
+  > div {
+    float: left;
+  }
+}
+
+#statusbox {
+  #li_blocked, #li_disabled {
+    margin-top: 1em;
+  }
+}
+
+.filter_settings input {
+  vertical-align: top;
+  margin: 0;
+  margin-right: 0.5em;
+}
+
+.filterbox {
+  li {
+    list-style: none;
+    margin: 0;
+    display: block;
+  }
+  position: absolute;
+  background: #eee;
+  border: 1px solid black;
+  margin-top: 0.5em;
+}
+
+.filterbox_close {
+  margin: 0.8em;
+  float: right;
+}
+
+.filterbox ul {
+  margin: 0.5em;
+}
+
+.filter_settings .filterlink {
+  color: black;
+  margin-right: 0.5em;
+}
+
+.filterbox_all {
+  margin-left: 0.5em;
+  margin-right: 1.5em;
+}
+
+.filterlink {
+  cursor: pointer;
+}
+
+#inner_repo_table {
+  min-width: 12em;
+}
+
+.project_information {
+  background-color: #eee;
+  border: 2px solid gray;
+  padding: 1em;
+  z-index: 1;
+}
+
+.unknown_failure {
+  color: red;
+}
+
+/* build status and repo status are for project/monitor */
+
+td.buildstatus {
+  min-width: 11ex;
+  /* unresolvable */
+  text-align: center;
+}
+
+table.buildstatus {
+  width: 1%;
+}
+
+/* move the image back into the line */
+
+th.buildstatus img {
+  margin-bottom: -3px;
+}

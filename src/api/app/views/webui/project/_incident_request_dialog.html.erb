@@ -1,0 +1,24 @@
+  <div class="dialog darkgrey_box">
+    <div class="box box-shadow">
+      <h2 class="box-header">Submit as Update</h2>
+      <div class="dialog-content">
+        <p>This will submit your project as a Maintenance Incident Request.</p>
+        <%= form_tag({:controller => 'project', :action => 'new_incident_request'}, :method => :post) do %>
+          <%= hidden_field_tag(:project, @project) %>
+          <p>
+            <%= label_tag(:sourceproject, 'Project submitted as Update:') %><br/>
+            <%= text_field_tag(:sourceproject, format_projectname(@project.name, User.current.login), :size => 40, :disabled => true) %><br/>
+
+            <%= label_tag(:sourceproject, 'Release Targets:') %><br/>
+            <% @releasetargets.each do |rt| %>
+              <%= text_field_tag(:releasetarget, rt, :size=> 40, :disabled => true) %>
+                <br/>
+            <% end %>
+            <%= label_tag(:description, 'Description:') %><br/>
+            <%= text_area_tag(:description, '', :size => '40x3') %>
+          </p>
+          <%= render partial: '/webui/shared/dialog_action_buttons' %>
+        <% end %>
+      </div>
+    </div>
+  </div>

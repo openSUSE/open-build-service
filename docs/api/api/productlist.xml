@@ -1,0 +1,4 @@
+<productlist count="1">
+  <product name="simple" version="11.1" baseversion="11" patchlevel="1" cpe="cpe:/a:OBS_Fuzzies:simple:11.2" originproject="home:tom:temporary" mtime="1392135042"/>
+</productlist>
+

@@ -1,0 +1,3 @@
+<constraints>
+  <sandbox exclude="true">chroot</sandbox>
+</constraints>

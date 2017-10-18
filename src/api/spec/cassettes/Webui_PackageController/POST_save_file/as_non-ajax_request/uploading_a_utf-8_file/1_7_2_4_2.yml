@@ -1,0 +1,375 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Little Hands Clapping</title>
+          <description>Quia et architecto omnis nam qui ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Little Hands Clapping</title>
+          <description>Quia et architecto omnis nam qui ut.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Little Hands Clapping</title>
+          <description>Quia et architecto omnis nam qui ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Little Hands Clapping</title>
+          <description>Quia et architecto omnis nam qui ut.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93?user=tom
+    body:
+      encoding: UTF-8
+      string: |+
+        ubuntu12.04 root登录
+        1先设定一个root的密码，sudo passwd root
+
+        2 root 登陆，su root
+
+        3 备份一下lightgdm
+        cp -p /etc/lightdm/lightdm.conf /etc/lightdm/lightdm.conf.bak
+
+        4 vi /etc/lightdm/lightdm.conf
+
+        5 增加：greeter-show-manual-login=true
+          修改后为：
+          [SeatDefaults]
+          greeter-session=unity-greeter
+          user-session=ubuntu
+          greeter-show-manual-login=true
+
+          重启登陆即可。已经可以输入root了
+
+
+        root登陆后还没声音，又查了查，如下方法:
+        Ubuntu root登录没有声音这个问题的根本原因是使用root登录后pulseaudio没有启动。
+        将root加到pulse-access组：
+        sudo usermod -a -G pulse-access root
+        然后修改配置文件/etc/default/pulseaudio，将PULSEAUDIO_SYSTEM_START设为1，
+
+        =======================================================================
+        安装linux版本的beyond compare
+        beyond compare的注册码：
+        HmB5oANygQOhaStTHNa+zOKgOeWHOkeAp6d1+QwIebz6z9kwYCm9-O0jF9F79zvzed9v5UVC4VrDkDMmTM8nB+
+
+
+
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '755'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>88925e87d982dfe2af8f52ec0d33a902</srcmd5>
+          <version>unknown</version>
+          <time>1493722425</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Little Hands Clapping</title>
+          <description>Quia et architecto omnis nam qui ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>Little Hands Clapping</title>
+          <description>Quia et architecto omnis nam qui ut.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '309'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjYiIHZyZXY9IjYiIHNyY21kNT0iODg5MjVlODdkOTgyZGZlMmFmOGY1MmVjMGQzM2E5MDIiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iYmFhYjZjMTZkOTE0MzUyM2I3ODY1ZDQ2ODk2ZTQ1OTYiIHNpemU9IjEyIiBtdGltZT0iMTQ5MzcyMjIxMyIgLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNDkzNzIyMjEyIiAvPgo8L2RpcmVjdG9yeT4K
+    http_version: 
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '184'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="my_package" rev="6" vrev="6" srcmd5="88925e87d982dfe2af8f52ec0d33a902" verifymd5="88925e87d982dfe2af8f52ec0d33a902">
+          <revtime>1493722425</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '309'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjYiIHZyZXY9IjYiIHNyY21kNT0iODg5MjVlODdkOTgyZGZlMmFmOGY1MmVjMGQzM2E5MDIiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iYmFhYjZjMTZkOTE0MzUyM2I3ODY1ZDQ2ODk2ZTQ1OTYiIHNpemU9IjEyIiBtdGltZT0iMTQ5MzcyMjIxMyIgLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNDkzNzIyMjEyIiAvPgo8L2RpcmVjdG9yeT4K
+    http_version: 
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '301'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="9257a2bfe6a90c0a41d791e636c034e2">
+          <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="my_package" rev="4" srcmd5="88925e87d982dfe2af8f52ec0d33a902" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 02 May 2017 10:53:45 GMT
+recorded_with: VCR 3.0.3

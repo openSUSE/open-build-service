@@ -1,0 +1,6 @@
+<!-- special view for bots -->
+<ul>
+  <% (@projects).each do |p| %>
+      <li><%= link_to("#{p[0]} : #{p[1]}", :controller => 'project', :action => 'show', :project => p[0]) %></li>
+  <% end %>
+</ul>

@@ -1,0 +1,421 @@
+/*
+**
+**  Funktion:  Provides all styles for build.openSUSE.org
+**  Author:    Frank Sundermeyer <fs@opensuse.org>, Robert Lihm <rlihm@opensuse.org>
+**  License:   see copyright/COPYRIGHT
+*/
+
+@import "dialog";
+
+/* style for dialog boxes */
+
+.nowrap {
+  white-space: nowrap;
+}
+
+textarea {
+  width: 95%;
+}
+
+.build_result_trigger {
+  position: relative;
+}
+
+.ajax_large_loader {
+  width: 32px;
+  height: 32px;
+  background-image: image-url("large-loader.gif");
+}
+
+#build_result_popup {
+  position: absolute;
+  background: white;
+  border: 1px solid black;
+  margin: 5px;
+  display: none;
+  z-index: 50;
+}
+
+span.build_result_title {
+  font-size: 110%;
+}
+
+/* build status monitor for projects */
+
+.buildstatus tr:hover {
+  background: #e4f4dc;
+  border: 0;
+}
+
+.grey-medium {
+  color: #666;
+}
+
+/* used in package and project build status */
+
+.status_blocked a {
+  color: #fff;
+  background-color: #bbb;
+  &:visited, &:hover {
+    color: #fff;
+    background-color: #bbb;
+  }
+}
+
+.status_scheduled a {
+  color: #11d;
+  background-color: #bbb;
+  &:visited, &:hover {
+    color: #11d;
+    background-color: #bbb;
+  }
+}
+
+.status_scheduled_warning a {
+  color: #f30ac4;
+  background-color: #bbb;
+  &:visited, &:hover {
+    color: #f30ac4;
+    background-color: #bbb;
+  }
+}
+
+.status_building a {
+  color: #00f;
+  background-color: #bbb;
+  &:visited, &:hover {
+    color: #00f;
+    background-color: #bbb;
+  }
+}
+
+.status_signing a {
+  color: #666;
+  background-color: #bbb;
+  &:visited, &:hover {
+    color: #666;
+    background-color: #bbb;
+  }
+}
+
+.status_finished a {
+  color: #222;
+  background-color: #bbb;
+  &:visited, &:hover {
+    color: #222;
+    background-color: #bbb;
+  }
+}
+
+.status_disabled a {
+  color: #bbb;
+  &:hover, &:visited {
+    color: #bbb;
+  }
+}
+
+.status_succeeded a {
+  color: #6EB927;
+  &:hover, &:visited {
+    color: #6EB927;
+  }
+}
+
+.status_broken a {
+  color: #e00;
+  &:hover, &:visited {
+    color: #e00;
+  }
+}
+
+.status_failed a {
+  color: #f00;
+  &:hover, &:visited {
+    color: #f00;
+  }
+}
+
+.status_unresolvable a {
+  color: #c00;
+  &:hover, &:visited {
+    color: #c00;
+  }
+}
+
+.status_unknown a {
+  color: #e55;
+  &:hover, &:visited {
+    color: #e55;
+  }
+}
+
+.centered {
+  text-align: center;
+}
+
+/* live build log */
+
+div#log_space_wrapper {
+  p {
+    background-color: #eee;
+  }
+  pre {
+    line-height: 150%;
+  }
+}
+
+/* main page (/) */
+
+#proceed-list {
+  height: 2em;
+  margin-bottom: 40px;
+  li {
+    float: left;
+    text-align: center;
+    list-style: none;
+    margin: 0;
+    width: 100px;
+    a:hover img {
+      text-decoration: none;
+    }
+    img {
+      margin-bottom: 0.5em;
+    }
+  }
+}
+
+.feedbox li, #involved-users li {
+  list-style: none;
+}
+
+/* repositories */
+
+.flag_table {
+  tr {
+    text-align: center;
+  }
+  td.reponame {
+    text-align: left;
+    width: 21ex;
+  }
+  .allcolumn, .allrow {
+    background-color: #cfc;
+  }
+}
+
+.flagimage {
+  position: relative;
+}
+.flagimage:hover {
+  z-index:25;
+
+  div.flagtoggle {
+    display: block;
+    background: white;
+    border: 1px solid black;
+    position:absolute;
+    top:10px;
+    left:5ex;
+    padding: 5px;
+    text-align: left;
+
+    div.iconwrapper {
+      position: relative;
+    }
+
+    div.icon_24 {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+
+    a {
+      margin-left: 30px;
+      min-height: 27px;
+      display: block;
+    }
+  }
+
+}
+
+.flagerror {
+    text-align: right;
+    color: red;
+}
+
+.global-navigation-menu-favorites li a {
+    min-height: 0px;
+}
+
+/* package and project view */
+.show_left  { margin-left: 10px; }
+.show_right { margin-right: 10px; }
+
+table.patchinfo td { vertical-align: middle; }
+
+.flot_legend table {
+  display: inline;
+}
+
+.y1Axis .tickLabel {
+  min-width: 15px;
+}
+
+.plotspinner {
+  position: absolute;
+  right: 40px;
+  top: 20px;
+  z-index: 3;
+}
+
+#advanced_tabs { display: none; }
+
+.clean_list {
+  list-style: none inside;
+}
+
+.horizontal-list {
+  list-style: none inside;
+
+  li {
+    float: left;
+    margin-right: 1em;
+    margin-left: 0;
+
+    span.inlineblock {
+      margin-right: 2px;
+      vertical-align: middle;
+    }
+  }
+}
+
+.horizontal-list:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+/* A <pre> tag that looks like a <p>: */
+pre.plain {
+  background-color: white;
+  border: 0px;
+  font-family: sans-serif;
+}
+/* Remove default margin/padding when put into tables: */
+td pre.plain {
+  margin: 0px;
+  padding: 0px;
+  background-color: #F6F6F6;
+}
+
+.error {
+  color: red;
+}
+
+div.dataTables_wrapper {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+/* jquery.dataTables adds a wrapper div around every table, but fails to clear floats:
+ */
+div.dataTables_wrapper:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content:"\0020";
+  clear: both;
+  height: 0;
+}
+
+.icon_24 {
+  width: 24px;
+  height: 24px;
+}
+
+.inlineblock {
+  display: inline-block;
+}
+
+#add-new-message {
+  margin-left: 5px;
+}
+
+.attribute-values {
+  form,div {
+    display: inline;
+  }
+}
+
+.delete-attribute {
+ display: inline;
+ cursor:pointer;
+ border: none;
+ text-indent: -1000em;
+}
+
+#breadcrump .icons-home_grey {
+  float: left;
+  margin-right: 5px;
+}
+/*
+.dataTable th.sorting_disabled { display: none; }
+*/
+.global-navigation-menu li span.global-navigation-icon {
+    background-image: image-url("globalnav-im.png");
+}
+
+.global-navigation-menu.global-navigation-menu-favorites li span.icons-project {
+  padding-top: 0px;
+  display: inline-block;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
+.global-navigation-menu.global-navigation-menu-favorites li a.project-link {
+  padding-top: 0px;
+  display: inline;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.sign-up input {
+  padding: 8px 8px;
+}
+
+.news-sender {
+  margin-left: 5px;
+}
+
+.news-message {
+ margin-top: 4px;
+ margin-bottom: 20px;
+ margin-left: 22px;
+ padding: 5px;
+}
+
+.news-message img {
+  float: right;
+}
+
+// Indentation for the old monitoring page
+#schedulerstatus, #building-all, #idlehosts {
+  padding-top: 1em;
+}
+
+// Some general stuff for avoiding inline css
+.padding-10pt {
+  padding: 10pt;
+}
+
+#subheader #breadcrump {
+  line-height: 1.3em;
+}
+
+// flash messages
+.flash-message {
+  p {
+      margin: 10px;
+  }
+}
