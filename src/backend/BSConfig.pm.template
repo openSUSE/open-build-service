@@ -238,4 +238,36 @@ our $servicedispatch = 1;
 #   repository_base => '',
 # };
 
+# our $container_registries = {
+#   'registry.example.com' => {
+#     host => '',
+#     port => '',
+#     user => '',
+#     password => '',
+#     repository_base => '',
+#   },
+#   'staging-registry.example.com' => {
+#     host => '',
+#     port => '',
+#     user => '',
+#     password => '',
+#     repository_base => '',
+#   },
+#   hub.docker.com => {
+#     host => '',
+#     port => '',
+#     user => '',
+#     password => '',
+#     repository_base => '',
+#   },
+#};
+#
+# our $publish_containers = [
+#   # key:   regex to match projid
+#   # value: ArrayRef with identifiers for registries configured in $container_registries
+#   'SUSE:.*' => [ 'registry.example.com', 'hub.docker.com' ],
+#   '.*:branches:.*' => [ 'staging-registry.example.com' ],
+# ];
+
+
 1;

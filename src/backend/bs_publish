@@ -2466,52 +2466,85 @@ sub upload_container {
   my ($dir, $containerinfo, $file, $projid, $repoid, $arch) = @_;
 
   # jump out if no config
-  return unless $BSConfig::docker_registry;
+  return unless $BSConfig::publish_containers;
 
-  # set default and check config for docker registry
-  my $dr = $BSConfig::docker_registry;
-  ## set default port
-  my $port = $dr->{port} || 443;
+  my @registries;
+  my @s = @{$BSConfig::publish_containers};
+  while (@s) {
+    my ($k, $v) = splice(@s, 0, 2);
+    if ($projid =~ /^$k/) {
+      $v = [ $v ] unless ref $v;
+      @registries = @$v;
+      last;
+    }
+  }
 
-  # check if minimal config items are set
-  if (!$dr->{host} || !$dr->{user} || !$dr->{password}) {
-    BSUtil::printlog(
-      "No valid config found for docker registry: ".
-      "$dr->{host}/$dr->{user}/$dr->{password} (host/user/password)"
-    );
-    return;
+  return if !@registries;
+
+  my @valid_registries;
+  for my $registry (@registries) {
+    my $registry_config = check_registry_config($registry);
+    push(@valid_registries, $registry_config) if $registry_config;
   }
 
   # check if containerinfo is valid and get info for container
   BSUtil::printlog("Checking containerinfo for $dir/$containerinfo");
   my $info = BSRepServer::Containerinfo::readcontainerinfo($dir, $containerinfo);
 
-  # TODO: should be more general to implement own upload
-  # prepare url for skopeo
-  my $name = lc($info->{name});
-
-  my $delimiter       = $dr->{repository_delimiter} || '/';
-  my $repository_base = $dr->{repository_base} || '/';
-
-  $projid =~ s/:/$delimiter/g;
-  $repoid =~ s/:/$delimiter/g;
+  if (! $info) {
+    BSUtil::printlog("No valid containerinfo found");
+    return;
+  }
 
   if (!@{$info->{tags} || []}) {
     BSUtil::printlog("container is not tagged, skipping upload");
     return;
   }
+
+  my $src = "$dir/$file";
+  my $tempfile = decompress_container($src);
+
+  for my $config ( @valid_registries ) {
+    upload_to_registry($config, $info, $tempfile, $projid, $repoid, $arch);
+  }
+
+}
+
+=head2 upload_to_registry - upload decompressed file
+
+ Parameters:
+  config   - validated config for registry
+  info     - content of containerinfo file
+  tempfile - path to decompressed container tar file
+
+ Returns:
+  nothing
+
+=cut
+
+sub upload_to_registry {
+  my ($config, $info, $tempfile, $projid, $repoid, $arch) = @_;
+  # TODO: should be more general to implement own upload
+  # prepare url for skopeo
+  my $name = lc($info->{name});
+
+  my $delimiter       = $config->{repository_delimiter} || '/';
+  my $repository_base = $config->{repository_base} || '/';
+
+  $projid =~ s/:/$delimiter/g;
+  $repoid =~ s/:/$delimiter/g;
+
   my $tag = $info->{tags}->[0];
-  my $uploader = $dr->{uploader} || 'skopeo';
+  my $uploader = $config->{uploader} || 'skopeo';
   if ($uploader eq 'skopeo') {
-    my $dst = "docker://$dr->{host}:$port".lc("$repository_base$projid/$repoid/$arch/$tag");
-
-    my $src = "$dir/$file";
-    my $tempfile = decompress_container($src);
-
+    my $dst = "docker://$config->{host}:" .
+                ($config->{port} || 443)  .
+                lc("$repository_base$projid/$repoid/$arch/$tag");
     ####
     # FIXME: Find solution to remove credentials from the cli options
+    # HINT:  https://github.com/projectatomic/skopeo/issues/434 must be solved first
     ####
-    my @cmd = ("skopeo", "copy", "--dest-creds", "$dr->{user}:$dr->{password}", "docker-archive:$tempfile", $dst);
+    my @cmd = ("skopeo", "copy", "--dest-creds", "$config->{user}:$config->{password}", "docker-archive:$tempfile", $dst);
 
     BSUtil::printlog("Uploading: '$cmd[0] $cmd[1] $cmd[2] XXX:XXX $cmd[4] $cmd[5]'");
     my $result = qsystem(@cmd);
@@ -2521,6 +2554,40 @@ sub upload_container {
 
     die "Error while uploading\n" if $result;
   }
+}
+
+=head2 check_registry_config - check for valid registry config and set default values
+
+ Parameters:
+  registry - identifier for registry to be searched in $BSConfig::container_registries
+
+ Returns:
+  config - valid config for registry
+
+=cut
+
+sub check_registry_config {
+  my ($registry) = @_;
+
+  # avoid "used only once" warnings
+  my $cr = $BSConfig::container_registries->{$registry} || $BSConfig::container_registries->{$registry};
+  if (ref($cr) ne 'HASH') {
+    BSUtil::printlog(
+      "No or invalid config found for container registry: '$registry'"
+    );
+    return;
+  }
+
+  # check if minimal config items are set
+  if (!$cr->{host} || !$cr->{user} || !$cr->{password}) {
+    BSUtil::printlog(
+      "No valid config found for container registry: ".
+      "$cr->{host}/$cr->{user}/$cr->{password} (host/user/password)"
+    );
+    return;
+  }
+
+  return $cr;
 }
 
 =head2 decompress_container - decompress or copy container into a temporary file
