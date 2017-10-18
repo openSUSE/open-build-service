@@ -16,12 +16,10 @@
           - when :notice
             - flash_icon = 'ui-icon-info'
             - flash_header = 'ui-state-highlight'
-          - body = flash[flash_type].gsub(/\\n/, '')
-          - body = sanitize body, tags: %w(a b ul li br u), attributes: %w(href title)
           %div{ class: "#{flash_header} ui-corner-all ui-widget-shadow" }
             %p.flash-content
               %span{ class: "ui-icon #{flash_icon}" }
-                = body
+                = flash_content(flash[flash_type])
                 = link_to 'more info', '#', class: 'btn-more' if @more_info
             - if @more_info
               .more_info.hidden

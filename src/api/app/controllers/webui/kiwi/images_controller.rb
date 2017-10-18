@@ -20,7 +20,8 @@ module Webui
         if package.kiwi_image.blank? || package.kiwi_image.destroyed?
           package.kiwi_image = ::Kiwi::Image.build_from_xml(package.source_file(kiwi_file), package.kiwi_file_md5)
           unless package.save
-            errors = ["Kiwi File '#{kiwi_file}' has errors:", package.kiwi_image.errors.full_messages].join('<br />')
+            errors = package.kiwi_image.parsed_errors("Kiwi File '#{kiwi_file}' has errors:",
+                                                      [package.kiwi_image.package_groups.map(&:packages)].flatten.compact)
             redirect_to package_view_file_path(project: package.project, package: package, filename: kiwi_file), error: errors
             return
           end
@@ -45,9 +46,9 @@ module Webui
           @image.write_to_backend
         end
         redirect_to action: :show
-      rescue ActiveRecord::RecordInvalid, Timeout::Error => e
-        flash.now[:error] = "Cannot update kiwi image: #{@image.errors.full_messages.to_sentence} #{e.message}"
+      rescue ActiveRecord::RecordInvalid, Timeout::Error
         @package_groups = @image.package_groups.select(&:kiwi_type_image?).first
+        flash.now[:error] = @image.parsed_errors('Cannot update KIWI Image:', @package_groups.packages)
         render action: :show
       end
 

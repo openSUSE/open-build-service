@@ -1,5 +1,5 @@
 .nested-fields.kiwi_fields
-  .kiwi_list_item
+  %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}"}
     %span
       = link_to '#', class: "package_edit kiwi_element_name" do
         = f.object.name

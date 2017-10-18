@@ -75,5 +75,15 @@
     }
 
     small { margin: 0; }
+
+    &.has-error {
+      a { color: #c00; }
+    }
   }
 }
+
+.no-bullet {
+  list-style: none;
+  margin-top: 3px;
+}
+

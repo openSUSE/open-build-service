@@ -1,6 +1,380 @@
 ---
 http_interactions:
 - request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="8" vrev="8" srcmd5="c4520db39fcbbd5c2674d0cdc9a9fa5a">
+          <entry name="package_with_kiwi_image.kiwi" md5="ef3ef67030d395e48dbc5df886d8748a" size="377" mtime="1507649160" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Oct 2017 15:26:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="8" vrev="8" srcmd5="c4520db39fcbbd5c2674d0cdc9a9fa5a">
+          <entry name="package_with_kiwi_image.kiwi" md5="ef3ef67030d395e48dbc5df886d8748a" size="377" mtime="1507649160" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Oct 2017 15:26:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="8" vrev="8" srcmd5="c4520db39fcbbd5c2674d0cdc9a9fa5a">
+          <entry name="package_with_kiwi_image.kiwi" md5="ef3ef67030d395e48dbc5df886d8748a" size="377" mtime="1507649160" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Oct 2017 15:26:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '377'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="utf-8"?>
+        <image schemaversion="6.2" name="suse-13.2-live">
+          <description type="system">
+          </description>
+          <packages type="docker" profiles="Lucy" patternType="Max">
+            <package name="Jasper" arch="x86-876" replaces="Coco"/>
+          </packages>
+          <preferences>
+            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
+          </preferences>
+        </image>
+    http_version: 
+  recorded_at: Tue, 10 Oct 2017 15:26:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="utf-8"?>
+        <image schemaversion="6.2" name="suse-13.2-live">
+          <description type="system">
+          </description>
+          <packages type="vmx" profiles="Milo" patternType="Daisy">
+            <package name="Sooty" arch="x86-876" replaces="Lucy" bootinclude="true"/>
+          </packages>
+          <preferences>
+            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
+          </preferences>
+        </image>
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '394'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="9" vrev="9">
+          <srcmd5>6b9f6b03c5e5f7d2e509b7b8a3c3200a</srcmd5>
+          <version>unknown</version>
+          <time>1507649160</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 10 Oct 2017 15:26:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="9" vrev="9" srcmd5="6b9f6b03c5e5f7d2e509b7b8a3c3200a">
+          <entry name="package_with_kiwi_image.kiwi" md5="fceaa0471ca80b4aca067b191ee22e23" size="394" mtime="1507649160" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Oct 2017 15:26:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="package_with_kiwi_image" rev="9" vrev="9" srcmd5="6b9f6b03c5e5f7d2e509b7b8a3c3200a" verifymd5="6b9f6b03c5e5f7d2e509b7b8a3c3200a">
+          <revtime>1507649160</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Tue, 10 Oct 2017 15:26:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="9" vrev="9" srcmd5="6b9f6b03c5e5f7d2e509b7b8a3c3200a">
+          <entry name="package_with_kiwi_image.kiwi" md5="fceaa0471ca80b4aca067b191ee22e23" size="394" mtime="1507649160" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Oct 2017 15:26:00 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '327'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="0dd5d496c2f2410a355b82e994fd7b6c">
+          <old project="home:tom" package="package_with_kiwi_image" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="package_with_kiwi_image" rev="9" srcmd5="6b9f6b03c5e5f7d2e509b7b8a3c3200a" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 10 Oct 2017 15:26:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="9" vrev="9" srcmd5="6b9f6b03c5e5f7d2e509b7b8a3c3200a">
+          <entry name="package_with_kiwi_image.kiwi" md5="fceaa0471ca80b4aca067b191ee22e23" size="394" mtime="1507649160" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Oct 2017 15:26:01 GMT
+- request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
@@ -40,7 +414,7 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
+  recorded_at: Wed, 11 Oct 2017 15:18:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -48,8 +422,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Omnis aut molestiae quia quisquam sed molestias veritatis enim.</description>
+          <title>Gone with the Wind</title>
+          <description>Aut sint illum quisquam magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +444,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '198'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Omnis aut molestiae quia quisquam sed molestias veritatis enim.</description>
+          <title>Gone with the Wind</title>
+          <description>Aut sint illum quisquam magnam.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
+  recorded_at: Wed, 11 Oct 2017 15:18:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_image/_meta
@@ -87,8 +461,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Omnis aut molestiae quia quisquam sed molestias veritatis enim.</description>
+          <title>Gone with the Wind</title>
+          <description>Aut sint illum quisquam magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +483,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '198'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Omnis aut molestiae quia quisquam sed molestias veritatis enim.</description>
+          <title>Gone with the Wind</title>
+          <description>Aut sint illum quisquam magnam.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
+  recorded_at: Wed, 11 Oct 2017 15:18:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
@@ -132,8 +506,6 @@ http_interactions:
           <preferences>
             <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
           </preferences>
-          <packages type="bootstrap">
-          </packages>
         </image>
     headers:
       Accept-Encoding:
@@ -154,20 +526,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="9" vrev="9">
-          <srcmd5>3822662924706b810ffb158183355052</srcmd5>
+        <revision rev="1025" vrev="1025">
+          <srcmd5>82f39606fd3c729f7f16de7d227e6dae</srcmd5>
           <version>unknown</version>
-          <time>1501677472</time>
+          <time>1507735100</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
+  recorded_at: Wed, 11 Oct 2017 15:18:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -175,8 +547,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Omnis aut molestiae quia quisquam sed molestias veritatis enim.</description>
+          <title>Gone with the Wind</title>
+          <description>Aut sint illum quisquam magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -197,212 +569,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '198'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Omnis aut molestiae quia quisquam sed molestias veritatis enim.</description>
+          <title>Gone with the Wind</title>
+          <description>Aut sint illum quisquam magnam.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '232'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="9" vrev="9" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1501677467" />
-        </directory>
-    http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '232'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="9" vrev="9" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1501677467" />
-        </directory>
-    http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '232'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="9" vrev="9" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1501677467" />
-        </directory>
-    http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Content-Length:
-      - '286'
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-    body:
-      encoding: UTF-8
-      string: |
-        <?xml version="1.0" encoding="utf-8"?>
-        <image schemaversion="6.2" name="suse-13.2-live">
-          <description type="system">
-          </description>
-          <preferences>
-            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
-          </preferences>
-          <packages type="bootstrap">
-          </packages>
-        </image>
-    http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_image/package_with_kiwi_image.kiwi?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <?xml version="1.0" encoding="utf-8"?>
-        <image schemaversion="6.2" name="suse-13.2-live">
-          <description type="system">
-          </description>
-          <preferences>
-            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
-          </preferences>
-          <packages type="bootstrap">
-          </packages>
-        </image>
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Content-Length:
-      - '286'
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '205'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="10" vrev="10">
-          <srcmd5>3822662924706b810ffb158183355052</srcmd5>
-          <version>unknown</version>
-          <time>1501677472</time>
-          <user>tom</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
+  recorded_at: Wed, 11 Oct 2017 15:18:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_image/_meta?user=tom
@@ -410,8 +586,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Omnis aut molestiae quia quisquam sed molestias veritatis enim.</description>
+          <title>Gone with the Wind</title>
+          <description>Aut sint illum quisquam magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -432,190 +608,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '198'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Omnis aut molestiae quia quisquam sed molestias veritatis enim.</description>
+          <title>Gone with the Wind</title>
+          <description>Aut sint illum quisquam magnam.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '234'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="10" vrev="10" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1501677467" />
-        </directory>
-    http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_image?nofilename=1&view=info&withchangesmd5=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '199'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourceinfo package="package_with_kiwi_image" rev="10" vrev="10" srcmd5="3822662924706b810ffb158183355052" verifymd5="3822662924706b810ffb158183355052">
-          <revtime>1501677472</revtime>
-        </sourceinfo>
-    http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '234'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="10" vrev="10" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1501677467" />
-        </directory>
-    http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_image?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '328'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="a71b669bb85c4ced4761b44ebc395602">
-          <old project="home:tom" package="package_with_kiwi_image" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="package_with_kiwi_image" rev="10" srcmd5="3822662924706b810ffb158183355052" />
-          <files />
-          <issues>
-          </issues>
-        </sourcediff>
-    http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_image
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '234'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_kiwi_image" rev="10" vrev="10" srcmd5="3822662924706b810ffb158183355052">
-          <entry name="package_with_kiwi_image.kiwi" md5="3eb87e3299e4dbb72703842403c3dd21" size="286" mtime="1501677467" />
-        </directory>
-    http_version: 
-  recorded_at: Wed, 02 Aug 2017 12:37:52 GMT
+  recorded_at: Wed, 11 Oct 2017 15:18:20 GMT
 recorded_with: VCR 3.0.3
