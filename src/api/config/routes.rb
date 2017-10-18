@@ -354,7 +354,7 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/groups/bs_requests' do
-      get 'groups/(:title)/requests' => :index, as: 'group_requests'
+      get 'groups/(:title)/requests' => :index, constraints: {:title => /[^\/]*/}, as: 'group_requests'
     end
 
     controller 'webui/users/rss_tokens' do
