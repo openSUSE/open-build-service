@@ -2468,6 +2468,7 @@ sub upload_container {
   # jump out if no config
   return unless $BSConfig::publish_containers;
 
+  # get registry names for this project
   my @registries;
   my @s = @{$BSConfig::publish_containers};
   while (@s) {
@@ -2479,19 +2480,19 @@ sub upload_container {
     }
   }
 
-  return if !@registries;
-
-  my @valid_registries;
-  for my $registry (@registries) {
-    my $registry_config = check_registry_config($registry);
-    push(@valid_registries, $registry_config) if $registry_config;
+  # convert registry names to configs
+  for my $registry (splice @registries) {
+    my $config = get_registry_config($registry);
+    push @registries, $config if $config;
   }
+
+  return if !@registries;
 
   # check if containerinfo is valid and get info for container
   BSUtil::printlog("Checking containerinfo for $dir/$containerinfo");
   my $info = BSRepServer::Containerinfo::readcontainerinfo($dir, $containerinfo);
 
-  if (! $info) {
+  if (!$info) {
     BSUtil::printlog("No valid containerinfo found");
     return;
   }
@@ -2504,10 +2505,15 @@ sub upload_container {
   my $src = "$dir/$file";
   my $tempfile = decompress_container($src);
 
-  for my $config ( @valid_registries ) {
-    upload_to_registry($config, $info, $tempfile, $projid, $repoid, $arch);
-  }
-
+  eval {
+    for my $config (@registries) {
+      upload_to_registry($config, $info, $tempfile, $projid, $repoid, $arch);
+    }
+  };
+  my $error = $@;
+  BSUtil::printlog("Deleting $tempfile");
+  unlink($tempfile);
+  die($error) if $error;
 }
 
 =head2 upload_to_registry - upload decompressed file
@@ -2536,9 +2542,9 @@ sub upload_to_registry {
 
   my $tag = $info->{tags}->[0];
   my $uploader = $config->{uploader} || 'skopeo';
+  my $port = $config->{port} || 443;
   if ($uploader eq 'skopeo') {
-    my $dst = "docker://$config->{host}:" .
-                ($config->{port} || 443)  .
+    my $dst = "docker://$config->{host}:$port" .
                 lc("$repository_base$projid/$repoid/$arch/$tag");
     ####
     # FIXME: Find solution to remove credentials from the cli options
@@ -2549,14 +2555,11 @@ sub upload_to_registry {
     BSUtil::printlog("Uploading: '$cmd[0] $cmd[1] $cmd[2] XXX:XXX $cmd[4] $cmd[5]'");
     my $result = qsystem(@cmd);
 
-    BSUtil::printlog("Deleting $tempfile");
-    unlink($tempfile);
-
     die "Error while uploading\n" if $result;
   }
 }
 
-=head2 check_registry_config - check for valid registry config and set default values
+=head2 get_registry_config - check for valid registry config and set default values
 
  Parameters:
   registry - identifier for registry to be searched in $BSConfig::container_registries
@@ -2566,7 +2569,7 @@ sub upload_to_registry {
 
 =cut
 
-sub check_registry_config {
+sub get_registry_config {
   my ($registry) = @_;
 
   # avoid "used only once" warnings
