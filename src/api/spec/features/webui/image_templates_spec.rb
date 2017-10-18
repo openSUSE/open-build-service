@@ -32,6 +32,7 @@ RSpec.feature "ImageTemplates", type: :feature, js: true do
       fill_in 'target_package', with: "custom_name"
 
       click_button("Create appliance")
+      find('#package_tabs')
       expect(page).to have_text("Successfully branched package")
       expect(page).to have_text("home:tom:branches:my_project > custom_name")
     end
