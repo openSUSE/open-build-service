@@ -50,4 +50,27 @@ RSpec.describe SourceController, vcr: true do
     it { expect(response).to be_success }
     it { expect(project.config.to_s).to include('Updated', 'by', 'test') }
   end
+
+  describe "POST #package_command" do
+    let(:multibuild_package) { create(:package, name: 'multibuild') }
+    let(:multibuild_project) { multibuild_package.project }
+    let(:repository) { create(:repository) }
+    let(:target_repository) { create(:repository) }
+
+    before do
+      multibuild_project.repositories << repository
+      project.repositories << target_repository
+      login user
+    end
+
+    context "with 'diff' command for a multibuild package" do
+      before do
+        post :package_command, params: {
+          cmd: 'diff', package: "#{multibuild_package.name}:one", project: multibuild_project, target_project: project
+        }
+      end
+      it { expect(flash[:error]).to eq("invalid_package_name(invalid package name '#{multibuild_package.name}:one'): ") }
+      it { expect(response.status).to eq(302) }
+    end
+  end
 end
