@@ -1459,8 +1459,7 @@ class SourceController < ApplicationController
       Project.get_by_name(params[:target_project])
       _package_command_release_manual_target(pkg, multibuild_container)
     else
-      spkg = Package.get_by_project_and_name(params[:project], params[:package])
-      verify_repos_match!(spkg.project)
+      verify_repos_match!(pkg.project)
 
       # loop via all defined targets
       pkg.project.repositories.each do |repo|
