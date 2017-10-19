@@ -557,8 +557,14 @@ class Webui::PackageController < Webui::WebuiController
                                 targetproject: created_project_name, targetpackage: created_package_name,
                                 user: User.current.login)
 
-    flash[:notice] = 'Successfully branched package'
-    redirect_to(package_show_path(project: created_project_name, package: created_package_name))
+    branched_package_object = Package.find_by_project_and_name(created_project_name, created_package_name)
+
+    if request.env["HTTP_REFERER"] == image_templates_url && branched_package_object.kiwi_image?
+      redirect_to(import_kiwi_image_path(branched_package_object.id))
+    else
+      flash[:notice] = 'Successfully branched package'
+      redirect_to(package_show_path(project: created_project_name, package: created_package_name))
+    end
 
   rescue BranchPackage::DoubleBranchPackageError => exception
     flash[:notice] = 'You have already branched this package'
