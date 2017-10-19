@@ -1905,4 +1905,497 @@ http_interactions:
         </status>
     http_version: 
   recorded_at: Thu, 19 Oct 2017 08:13:54 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Provident a sed earum molestiae repellat.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '153'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Provident a sed earum molestiae repellat.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:35 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Provident a sed earum molestiae repellat.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '153'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Provident a sed earum molestiae repellat.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:35 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/_config
+    body:
+      encoding: UTF-8
+      string: Qui earum quaerat asperiores recusandae. Delectus illum quia eius architecto
+        voluptatem dolorem. Molestiae voluptas quia.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>cef744a0d29b4f4a09dc6ee18414479d</srcmd5>
+          <version>unknown</version>
+          <time>1508410595</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Molestiae voluptatem et voluptatem maiores rerum recusandae. Quasi rerum
+        dolorem et iusto. Tempora est vitae iure assumenda ea consectetur. Sequi vitae
+        est quibusdam dolor eos odit. Magni sed eveniet ut iure.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>be4fc691a25643abeac0ab5e41142c4e</srcmd5>
+          <version>unknown</version>
+          <time>1508410596</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>His Dark Materials</title>
+          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '190'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>His Dark Materials</title>
+          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>His Dark Materials</title>
+          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '190'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>His Dark Materials</title>
+          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/package_with_kiwi_image.kiwi
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="utf-8"?>
+        <image schemaversion="6.2" name="suse-13.2-live">
+          <description type="system">
+          </description>
+          <preferences>
+            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
+          </preferences>
+        </image>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>82f39606fd3c729f7f16de7d227e6dae</srcmd5>
+          <version>unknown</version>
+          <time>1508410597</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>His Dark Materials</title>
+          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '190'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>His Dark Materials</title>
+          <description>Et molestiae voluptatem aperiam aliquid laboriosam.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
+          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1508410506" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
+          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1508410506" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
+          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1508410506" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:37 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
+          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1508410506" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
+          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1508410506" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 19 Oct 2017 10:56:39 GMT
 recorded_with: VCR 3.0.3
