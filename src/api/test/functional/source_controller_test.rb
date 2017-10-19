@@ -2812,6 +2812,93 @@ EOF
     assert_response :success
   end
 
+  def test_release_multibuild_package
+    login_adrian
+    # define manual release target
+    put '/source/home:adrian:RT/_meta', params: "<project name='home:adrian:RT'> <title/> <description/>
+          <repository name='rt'>
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </repository>
+        </project>"
+    assert_response :success
+
+    run_scheduler('i586')
+    run_scheduler('x86_64')
+
+    login_Iggy
+    get '/source/home:Iggy/_meta'
+    assert_response :success
+    orig_project_meta = @response.body
+    doc = REXML::Document.new(@response.body)
+    rt = doc.elements["/project/repository'"].add_element 'releasetarget'
+    rt.add_attribute REXML::Attribute.new('project', 'home:adrian:RT')
+    rt.add_attribute REXML::Attribute.new('repository', 'rt')
+    put '/source/home:Iggy/_meta', params: doc.to_s
+    assert_response :success
+
+    # add correct trigger
+    login_Iggy
+    rt.add_attribute REXML::Attribute.new('trigger', 'manual')
+    put '/source/home:Iggy/_meta', params: doc.to_s
+    assert_response :success
+
+    # release for real
+    login_adrian
+    post '/source/home:Iggy/TestPack:package?cmd=release'
+    assert_response :success
+    assert_xml_tag tag: 'status', attributes: { code: 'ok' }
+
+    # process events
+    run_scheduler('i586')
+
+    # verify result
+    get '/source/home:adrian:RT'
+    assert_response :success
+    assert_xml_tag tag: 'entry', attributes: { name: 'TestPack' }
+
+    # cleanup
+    login_Iggy
+    put '/source/home:Iggy/_meta', params: orig_project_meta
+    assert_response :success
+    login_adrian
+    delete '/source/home:adrian:RT'
+    assert_response :success
+  end
+
+  def test_manual_release_multibuild_package
+    login_adrian
+    # define manual release target
+    put '/source/home:adrian:RT/_meta', params: "<project name='home:adrian:RT'> <title/> <description/>
+          <repository name='rt'>
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </repository>
+        </project>"
+    assert_response :success
+
+    run_scheduler('i586')
+    run_scheduler('x86_64')
+
+    # release for real
+    login_adrian
+    post '/source/home:Iggy/TestPack:package?cmd=release&target_project=home:adrian:RT&target_repository=rt&repository=10.2'
+    assert_response :success
+    assert_xml_tag tag: 'status', attributes: { code: 'ok' }
+
+    # process events
+    run_scheduler('i586')
+
+    # verify result
+    get '/source/home:adrian:RT'
+    assert_response :success
+    assert_xml_tag tag: 'entry', attributes: { name: 'TestPack' }
+
+    login_adrian
+    delete '/source/home:adrian:RT'
+    assert_response :success
+  end
+
   def test_copy_package
     # fred has maintainer permissions in this single package of Iggys home
     # this is the osc way
