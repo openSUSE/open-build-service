@@ -253,6 +253,8 @@ module Event
 
     def watchers
       project = ::Project.find_by_name(payload['project'])
+      return [] if project.blank?
+
       project.watched_projects.map(&:user)
     end
 
