@@ -886,6 +886,28 @@ RSpec.describe Webui::ProjectController, vcr: true do
         it { expect(flash.now[:success]).not_to be_nil }
         it { expect(response).to have_http_status(200) }
       end
+
+      context 'with a non existing repository path' do
+        let(:meta) do
+          <<-HEREDOC
+          <project name="home:tom">
+            <title/>
+            <description/>
+            <repository name="not-existent">
+              <path project="not-existent" repository="standard" />
+            </repository>
+          </project>
+          HEREDOC
+        end
+
+        before do
+          post :save_meta, params: { project: user.home_project, meta: meta }, xhr: true
+        end
+
+        it { expect(flash.now[:error]).to eq("A project with the name not-existent does not exist. Please update the repository path elements.") }
+        it { expect(response).to have_http_status(400) }
+
+      end
     end
   end
 

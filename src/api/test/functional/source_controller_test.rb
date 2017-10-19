@@ -1114,7 +1114,7 @@ EOF
     # write again with a capital letter change
     put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projecta' repository='repoA' /> </repository> </project>"
     assert_response 404
-    assert_xml_tag tag: 'status', attributes: { code: 'unknown_project' }
+    assert_xml_tag tag: 'status', attributes: { code: 'repository_access_failure' }
     get '/source/home:tom:projectB/_meta'
     assert_response :success
     assert_xml_tag tag: 'path', attributes: { project: 'home:tom:projectA' }
