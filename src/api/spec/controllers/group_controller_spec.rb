@@ -6,7 +6,6 @@ require 'rails_helper'
 
 RSpec.describe GroupController, vcr: false do
   let(:admin_user) { create(:admin_user) }
-  let(:group) { create(:group) }
 
   before do
     login admin_user
@@ -24,10 +23,13 @@ RSpec.describe GroupController, vcr: false do
 
       it 'deletes the record' do
         expect(Group.find_by(id: group.id)).to be_nil
+        expect(GroupsUser.where(group_id: group.id)).not_to exist
       end
     end
 
     context 'group without users' do
+      let(:group) { create(:group) }
+
       it_behaves_like 'successful group deletion'
     end
 
