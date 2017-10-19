@@ -1,5 +1,7 @@
 open-build-service (2.7.4-3) UNRELEASED; urgency=medium
 
+  * Embed sanitize 4.0.0 ruby gem to fix breakeage.
+    - add obs-api runtime depends on ruby-nokogumbo and ruby-crass.
   * worker: document enable switch
   * worker: use /var/lib/obsworker as OBS_RUN_DIR
 
