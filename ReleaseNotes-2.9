@@ -39,6 +39,8 @@ UI:
    * obsrepositories:/ source_path can be added easily using 'use project repositories' checkbox.
    * Only `apt-deb` and `rpm-md` are allowed as repo_type. Other values will be replaced by `rpm-md`.
    * Added autocompletion for binary packages names.
+   * Kiwi Editor tab now appears as "Image Editor", the rest of the tabs are under "Advanced".
+   * After an image template is branched the user will be redirected to the Image Editor.
  * Job history: 'source change' rows now link to the diff
  * RabbitMQ support. OBS admins can configure their instance to send messages to a RabbitMQ server.
    Read more in the OBS Admin Guide.
@@ -57,6 +59,7 @@ Shipment:
 
 Bugfixes:
  * Deletion of groups with users was not working
+ * Fixed generation of the breadcrumb for the Image Editor (Kiwi)
 
 Wanted changes:
 ===============
