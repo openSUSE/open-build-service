@@ -13,6 +13,7 @@ class Kiwi::PackageGroup < ApplicationRecord
   accepts_nested_attributes_for :packages, reject_if: :all_blank, allow_destroy: true
 
   def to_xml
+    return '' if packages.empty?
     group_attributes = { type: kiwi_type }
     group_attributes[:profiles] = profiles if profiles.present?
     group_attributes[:patternType] = pattern_type if pattern_type.present?

@@ -14,7 +14,6 @@ class Kiwi::Image < ApplicationRecord
 '.freeze
 
   #### Self config
-
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
@@ -91,29 +90,7 @@ class Kiwi::Image < ApplicationRecord
   end
 
   def to_xml
-    if package
-      kiwi_file = package.kiwi_image_file
-      return nil unless kiwi_file
-      kiwi_body = package.source_file(kiwi_file)
-    else
-      kiwi_body = DEFAULT_KIWI_BODY
-    end
-
-    doc = Nokogiri::XML::DocumentFragment.parse(kiwi_body)
-    image = doc.at_css('image')
-
-    return nil unless image && image.first_element_child
-
-    doc.xpath("image/packages").remove
-    xml_packages = package_groups.map(&:to_xml).join("\n")
-    image.first_element_child.after(xml_packages)
-
-    doc.xpath("image/repository").remove
-    xml_repos = repositories_for_xml.map(&:to_xml).join("\n")
-    image.first_element_child.after(xml_repos)
-
-    # Reparser for pretty printing
-    Nokogiri::XML(doc.to_xml, &:noblanks).to_xml
+    Kiwi::Image::Xml.new(self).to_xml
   end
 
   def write_to_backend
@@ -175,14 +152,6 @@ class Kiwi::Image < ApplicationRecord
   end
 
   private
-
-  def repositories_for_xml
-    if use_project_repositories?
-      [Kiwi::Repository.new(source_path: 'obsrepositories:/', repo_type: 'rpm-md')]
-    else
-      repositories
-    end
-  end
 
   def check_use_project_repositories
     return unless use_project_repositories? && repositories.present?
