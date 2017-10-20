@@ -1,6 +1,9 @@
+require 'pretty_nested_errors'
+
 module Kiwi
   class Image < ApplicationRecord
     #### Includes and extends
+    include PrettyNestedErrors
 
     #### Constants
     DEFAULT_KIWI_BODY = '<?xml version="1.0" encoding="utf-8"?>
@@ -41,6 +44,12 @@ module Kiwi
     accepts_nested_attributes_for :repositories, allow_destroy: true
     accepts_nested_attributes_for :package_groups, allow_destroy: true
     accepts_nested_attributes_for :kiwi_packages, allow_destroy: true
+
+    nest_errors_for :package_groups_packages, by: ->(kiwi_package) { "Package: #{kiwi_package.name}" }
+    nest_errors_for :repositories, by: ->(repository) { "Repository: #{repository.source_path}" }
+    nest_errors_for :preference, by: -> { 'Preferences:' }
+    nest_errors_for :description, by: -> { 'Details:' }
+    nest_errors_for :image, by: -> { 'Image Errors:' }
 
     #### Class methods using self. (public and then private)
 
@@ -95,25 +104,6 @@ module Kiwi
           Backend::Api::BuildResults::Binaries.available_in_repositories(project, non_obs_repository_urls, obs_repository_paths)
         end
       end
-    end
-
-    # This method is for parse the error messages and group them to make them more understandable.
-    # The nested errors messages are like `Model[0] attributes` and this is not easy to understand.
-    def parsed_errors(title, packages)
-      message = { title: title }
-      message["Image Errors:"] = errors.messages[:base] if errors.messages[:base].present?
-
-      { repository: repositories, package: packages }.each do |key, records|
-        records.each do |record|
-          if record.errors.present?
-            message["#{key.capitalize}: #{record.name}"] ||= []
-            message["#{key.capitalize}: #{record.name}"] << record.errors.messages.values
-            message["#{key.capitalize}: #{record.name}"].flatten!
-          end
-        end
-      end
-
-      message
     end
 
     def kiwi_body

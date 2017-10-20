@@ -1,6 +1,6 @@
 module Kiwi
   class PackageGroup < ApplicationRecord
-    has_many :packages, dependent: :destroy
+    has_many :packages, dependent: :destroy, index_errors: true
     belongs_to :image
 
     # we need to add a prefix, to avoid generating class methods that already

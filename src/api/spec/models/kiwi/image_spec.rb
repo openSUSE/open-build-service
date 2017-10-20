@@ -464,21 +464,18 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     it { expect(subject.find_binaries_by_name('c', 'project', [], use_project_repositories: true)).to be_empty }
   end
 
-  describe '#parsed_errors' do
+  describe '#nested_error_messages' do
     let!(:kiwi_repository) { create(:kiwi_repository, image: kiwi_image) }
     let(:result) do
       {
-        title: "title",
-        "Image Errors:" =>
-        [
-          "Multiple package groups with same type are not allowed."
-        ],
-        "Repository: example" =>
-        [
+        "Repository: http://example.com/" => [
           "Source path can't be nil.",
           "Source path has an invalid format.",
-          "is not a number",
+          "Order is not a number",
           "Replaceable has to be a boolean"
+        ],
+        "Image Errors:"                   => [
+          "Multiple package groups with same type are not allowed."
         ]
       }
     end
@@ -490,8 +487,8 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       kiwi_image.valid?
     end
 
-    subject { kiwi_image.parsed_errors('title', []) }
+    subject { kiwi_image.nested_error_messages }
 
-    it { expect(subject).to eq(result) }
+    it { is_expected.to eq(result) }
   end
 end
