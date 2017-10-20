@@ -263,7 +263,6 @@ sub list_service {
   for my $servicefile (grep {/\.service$/} ls($rootservicedir)) {
      my $service = readxml("$rootservicedir/$servicefile", $BSXML::servicetype, 1);
      next unless $service && $service->{'name'};
-     next unless -x "$rootservicedir/$service->{'name'}";
      push @sl, $service;
   }
   return ({'service' => \@sl}, $BSXML::servicelist); 
