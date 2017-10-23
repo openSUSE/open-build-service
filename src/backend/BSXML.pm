@@ -1837,7 +1837,11 @@ our $binannotation = [
 	'priority',
      ]],
 	'disturl',
-	'packid',		# only in build job annotation
+	'package',		# only in build job annotation
+	'epoch',		# only in build job annotation
+	'version',		# only in build job annotation
+	'release',		# only in build job annotation
+	'binaryarch',		# only in build job annotation
 	'hdrmd5',		# only in build job annotation
 ];
 

@@ -1242,10 +1242,21 @@ sub expandkiwipath {
 sub getcontainerannotation {
   my ($pool, $p, $bdep) = @_;
   return undef unless defined &BSSolv::pool::pkg2annotation;
-  my $annotation_xml = $pool->pkg2annotation($p);
-  return undef unless $annotation_xml;
-  my $annotation = BSUtil::fromxml($annotation_xml, $BSXML::binannotation, 1);
-  $bdep->{'annotation'} = $annotation_xml if $bdep && $annotation;
+  my $annotation = $pool->pkg2annotation($p);
+  return undef unless $annotation;
+  $annotation = BSUtil::fromxml($annotation, $BSXML::binannotation, 1);
+  return undef unless $annotation;
+  if ($bdep) {
+    # add extra data from the package data
+    my $data = $pool->pkg2data($p);
+    $annotation->{'hdrmd5'} = $data->{'hdrmd5'} if $data->{'hdrmd5'};
+    $annotation->{'package'} = $1 if $data->{'path'} && $data->{'path'} =~ /^\.\.\/([^\/]+)\//;
+    $annotation->{'epoch'} = $data->{'epoch'} if $data->{'epoch'};
+    $annotation->{'version'} = $data->{'version'};
+    $annotation->{'release'} = $data->{'release'} if defined $data->{'release'};
+    $annotation->{'binaryarch'} = $data->{'arch'} if $data->{'arch'};
+    $bdep->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation);
+  }
   return $annotation;
 }
 

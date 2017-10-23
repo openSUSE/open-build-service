@@ -48,7 +48,7 @@ BSRepServer::Containerinfo
 
 sub containerinfo2obsbinlnk {
   my ($dir, $containerinfo, $packid) = @_;
-  my $d= readcontainerinfo($dir, $containerinfo);
+  my $d = readcontainerinfo($dir, $containerinfo);
   return unless $d;
   my $name = $d->{name};
   my $lnk = {};
@@ -68,6 +68,7 @@ sub containerinfo2obsbinlnk {
   return undef if $@;
   my $annotation = {};
   $annotation->{'repo'} = $d->{'repos'} if $d->{'repos'};
+  $annotation->{'disturl'} = $d->{'disturl'} if $d->{'disturl'};
   if (%$annotation) {
     eval { $lnk->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation) };
     warn($@) if $@;
@@ -115,6 +116,7 @@ sub readcontainerinfo {
   $d->{name} = $name;
   my $file = $d->{'file'};
   $d->{'file'} = $file = undef unless defined($file) && ref($file) eq '';
+  delete $d->{'disturl'} unless defined($d->{'disturl'}) && ref($d->{'disturl'}) eq '';
   return undef unless defined($name) && defined($file);
   eval {
     BSVerify::verify_simple($file);

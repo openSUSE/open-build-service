@@ -2328,6 +2328,21 @@ sub getbinaries {
       die("getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
       push @{$buildinfo->{'containerurl'}}, "dir://./containers/$repo->{'project'}/$repo->{'repository'}/$res->[0]->{'name'}";
       push @meta, "$res->[0]->{'md5'}  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
+      my $bin = {
+	'name' => $bdep->{'name'},
+	'project' => $repo->{'project'},
+	'repository' => $repo->{'repository'},
+	'arch' => $buildinfo->{'arch'},
+      };
+      if ($buildinfo->{'containerannotation'}) {
+	my $annotation = BSUtil::fromxml($buildinfo->{'containerannotation'}, $BSXML::binannotation, 1);
+	if ($annotation) {
+	  for (qw{package version release binaryarch disturl}) {
+	    $bin->{$_} = $annotation->{$_} if defined($annotation->{$_}) && $annotation->{$_} ne '';
+	  }
+	}
+      }
+      push @{$kiwiorigins->{':basecontainers'}}, $bin;
     }
     if ($buildinfo->{'containerannotation'}) {
       mkdir_p("$srcdir/containers");
@@ -2656,7 +2671,8 @@ sub createkiwireport {
     my @bins;
     while (<F>) {
       my @s = split(/\|/, $_);
-      next unless @s < 6;
+      next if @s < 6;
+      next if $s[0] eq 'gpg-pubkey';
       my $bin = {
         'name' => $s[0],
         'version' => $s[2],
@@ -2676,6 +2692,7 @@ sub createkiwireport {
       push @bins, $bin;
     }
     close F;
+    push @bins, @{$kiwiorigins->{':basecontainers'} || []};
     my $report = { 'binary' => \@bins };
     my $reportfile = $file;
     $reportfile =~ s/\.packages$/\.report/;

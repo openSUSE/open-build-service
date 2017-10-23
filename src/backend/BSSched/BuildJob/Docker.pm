@@ -320,9 +320,11 @@ sub build {
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
     $ctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx, 'expander' => $xp, 'unorderedrepos' => $unorderedrepos}, ref($ctx);
-    $ctx->{'extrabdeps'} = [ $cbdep ] if $cbdep;
-    $ctx->{'containerpath'} = [ $cprp ] if $cbdep && $cprp;
-    $ctx->{'containerannotation'} = delete $cbdep->{'annotation'} if $cbdep;
+    if ($cbdep) {
+      $ctx->{'extrabdeps'} = [ $cbdep ];
+      $ctx->{'containerpath'} = [ $cprp ] if $cprp;
+      $ctx->{'containerannotation'} = delete $cbdep->{'annotation'};
+    }
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
 
@@ -355,7 +357,7 @@ sub build {
   if ($cbdep) {
     push @{$ctx->{'extrabdeps'}}, $cbdep;
     $ctx->{'containerpath'} = [ $cprp ] if $cprp;
-    $ctx->{'containerannotation'} = delete $cbdep->{'annotation'} if $cbdep;
+    $ctx->{'containerannotation'} = delete $cbdep->{'annotation'};
   }
 
   # repo has a configured path, expand docker build system with it
