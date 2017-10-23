@@ -1,18 +1,23 @@
 - @layouttype = 'custom'
-- @pagetitle = "#{User.current.to_s.capitalize}'s Notifications"
+- @pagetitle = "Notifications"
 - @crumb_list = [@pagetitle]
 .grid_16.alpha.omega.box.box-shadow
   %h2= @pagetitle
 
   = form_tag(user_notifications_path, method: :put, id: 'notification_form') do
     - unless @groups_users.empty?
-      %h3 Get mails if in group ...
+      %h3 Groups
+      %p.description You will receive emails from the checked groups
+      %hr
       %ul{ style: "list-style-type:none;" }
         - @groups_users.each do |group_user|
           %li
             = check_box_tag group_user.group, '1', group_user.email
             = label_tag group_user.group.title
 
+    %h3 Events
+    %p.description Choose how you receive notifications from the events generated
+    %hr
     = render partial: 'webui/subscriptions/subscriptions_form'
     %p= submit_tag 'Update'
 .grid_16.alpha.omega.box.box-shadow

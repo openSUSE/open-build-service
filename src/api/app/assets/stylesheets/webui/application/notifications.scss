@@ -9,3 +9,15 @@
 
   legend { font-size: 110%; font-weight: bold; }
 }
+
+#notification_form hr {
+  background-color: #ddd;
+  margin: 1.5em 10px;
+}
+
+#notification_form p.description {
+  min-height: 17px;
+  font-size: 12px;
+  color: #586069;
+  margin-left: 20px;
+}
