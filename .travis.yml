@@ -47,7 +47,6 @@ jobs:
     - stage: test
       env: TEST_SUITE=rspec
     - env: TEST_SUITE=api
-    - env: TEST_SUITE=webui
     - env: TEST_SUITE=spider
     - env: TEST_SUITE=backend
   fast_finish: true
