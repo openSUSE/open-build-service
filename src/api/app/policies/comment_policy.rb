@@ -11,7 +11,7 @@ class CommentPolicy < ApplicationPolicy
     # Admins can always delete all comments
     return true if @user.is_admin?
 
-    # Users can always delete their own comments - or if the comments are deleted
+    # Users can always delete their own comments - or if the user of the comment is deleted
     return true if @user == @record.user || @record.user.is_nobody?
 
     case @record.commentable_type
