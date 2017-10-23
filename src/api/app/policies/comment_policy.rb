@@ -7,6 +7,7 @@ class CommentPolicy < ApplicationPolicy
 
   def destroy?
     return false if @user.blank?
+
     # Admins can always delete all comments
     return true if @user.is_admin?
 
