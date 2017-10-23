@@ -2670,6 +2670,7 @@ sub createkiwireport {
     next unless open(F, '<', "$dir/$file");
     my @bins;
     while (<F>) {
+      chomp;
       my @s = split(/\|/, $_);
       next if @s < 6;
       next if $s[0] eq 'gpg-pubkey';
