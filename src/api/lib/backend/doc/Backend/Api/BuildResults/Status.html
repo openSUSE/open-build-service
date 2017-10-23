@@ -104,7 +104,18 @@
   
 </div>
 
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Class that connect to endpoints related to status of builds</p>
 
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
 
 
 
@@ -122,7 +133,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#build_log_size-class_method" title="build_log_size (class method)">.<strong>build_log_size</strong>(project, package, repository, architecture)  &#x21d2; Object </a>
+      <a href="#build_log_size-class_method" title="build_log_size (class method)">.<strong>build_log_size</strong>(project_name, package_name, repository_name, architecture_name)  &#x21d2; String </a>
     
 
     
@@ -146,7 +157,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#build_problems-class_method" title="build_problems (class method)">.<strong>build_problems</strong>(project)  &#x21d2; Object </a>
+      <a href="#build_problems-class_method" title="build_problems (class method)">.<strong>build_problems</strong>(project_name)  &#x21d2; String </a>
     
 
     
@@ -161,7 +172,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Returns the log&#39;s size for a build.</p>
+<p>Returns the the problems for a build.</p>
 </div></span>
   
 </li>
@@ -170,7 +181,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#build_result-class_method" title="build_result (class method)">.<strong>build_result</strong>(project, package, repository, architecture)  &#x21d2; Object </a>
+      <a href="#build_result-class_method" title="build_result (class method)">.<strong>build_result</strong>(project_name, package_name, repository_name, architecture_name)  &#x21d2; String </a>
     
 
     
@@ -194,7 +205,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#job_status-class_method" title="job_status (class method)">.<strong>job_status</strong>(project, package, repository, architecture)  &#x21d2; Object </a>
+      <a href="#job_status-class_method" title="job_status (class method)">.<strong>job_status</strong>(project_name, package_name, repository_name, architecture_name)  &#x21d2; String </a>
     
 
     
@@ -218,7 +229,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#log_chunk-class_method" title="log_chunk (class method)">.<strong>log_chunk</strong>(project, package, repository, architecture, starting, ending)  &#x21d2; Object </a>
+      <a href="#log_chunk-class_method" title="log_chunk (class method)">.<strong>log_chunk</strong>(project_name, package_name, repository_name, architecture_name, starting_line, ending_line)  &#x21d2; String </a>
     
 
     
@@ -249,11 +260,6 @@
   
   
   
-  
-  
-  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../ConnectionHelper.html" title="Backend::ConnectionHelper (module)">ConnectionHelper</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="../../ConnectionHelper.html#delete-instance_method" title="Backend::ConnectionHelper#delete (method)">delete</a></span>, <span class='object_link'><a href="../../ConnectionHelper.html#get-instance_method" title="Backend::ConnectionHelper#get (method)">get</a></span>, <span class='object_link'><a href="../../ConnectionHelper.html#post-instance_method" title="Backend::ConnectionHelper#post (method)">post</a></span>, <span class='object_link'><a href="../../ConnectionHelper.html#put-instance_method" title="Backend::ConnectionHelper#put (method)">put</a></span></p>
-
 
   <div id="class_method_details" class="method_details_list">
     <h2>Class Method Details</h2>
@@ -262,7 +268,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="build_log_size-class_method">
   
-    .<strong>build_log_size</strong>(project, package, repository, architecture)  &#x21d2; <tt>Object</tt> 
+    .<strong>build_log_size</strong>(project_name, package_name, repository_name, architecture_name)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -278,47 +284,19 @@
 </div>
 <div class="tags">
   
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-25
-26
-27</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'api/build_results/status.rb', line 25</span>
-
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_build_log_size'>build_log_size</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/_log</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>view:</span> <span class='symbol'>:entry</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="build_problems-class_method">
+<p class="tag_title">Returns:</p>
+<ul class="return">
   
-    .<strong>build_problems</strong>(project)  &#x21d2; <tt>Object</tt> 
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
   
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the log&#39;s size for a build</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -328,13 +306,69 @@
 
 30
 31
-32</pre>
+32
+33</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'api/build_results/status.rb', line 30</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_build_problems'>build_problems</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/_result</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>view:</span> <span class='symbol'>:status</span><span class='comma'>,</span> <span class='label'>code:</span> <span class='lbracket'>[</span><span class='symbol'>:failed</span><span class='comma'>,</span> <span class='symbol'>:broken</span><span class='comma'>,</span> <span class='symbol'>:unresolvable</span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>expand:</span> <span class='lbracket'>[</span><span class='symbol'>:code</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_build_log_size'>build_log_size</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/_log</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>view:</span> <span class='symbol'>:entry</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="build_problems-class_method">
+  
+    .<strong>build_problems</strong>(project_name)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the the problems for a build</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'api/build_results/status.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_build_problems'>build_problems</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/_result</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>view:</span> <span class='symbol'>:status</span><span class='comma'>,</span> <span class='label'>code:</span> <span class='lbracket'>[</span><span class='symbol'>:failed</span><span class='comma'>,</span> <span class='symbol'>:broken</span><span class='comma'>,</span> <span class='symbol'>:unresolvable</span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>expand:</span> <span class='lbracket'>[</span><span class='symbol'>:code</span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -344,7 +378,7 @@
       <div class="method_details ">
   <h3 class="signature " id="build_result-class_method">
   
-    .<strong>build_result</strong>(project, package, repository, architecture)  &#x21d2; <tt>Object</tt> 
+    .<strong>build_result</strong>(project_name, package_name, repository_name, architecture_name)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -360,6 +394,19 @@
 </div>
 <div class="tags">
   
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -367,15 +414,17 @@
       <pre class="lines">
 
 
-20
-21
-22</pre>
+23
+24
+25
+26</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/build_results/status.rb', line 20</span>
+      <pre class="code"><span class="info file"># File 'api/build_results/status.rb', line 23</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_build_result'>build_result</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/_result</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>view:</span> <span class='symbol'>:status</span><span class='comma'>,</span> <span class='label'>package:</span> <span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='label'>arch:</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='comma'>,</span> <span class='label'>repository:</span> <span class='id identifier rubyid_repository'>repository</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_build_result'>build_result</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/_result</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>view:</span> <span class='symbol'>:status</span><span class='comma'>,</span> <span class='label'>package:</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='comma'>,</span> <span class='label'>arch:</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='label'>repository:</span> <span class='id identifier rubyid_repository_name'>repository_name</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -385,7 +434,7 @@
       <div class="method_details ">
   <h3 class="signature " id="job_status-class_method">
   
-    .<strong>job_status</strong>(project, package, repository, architecture)  &#x21d2; <tt>Object</tt> 
+    .<strong>job_status</strong>(project_name, package_name, repository_name, architecture_name)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -401,6 +450,19 @@
 </div>
 <div class="tags">
   
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -408,15 +470,15 @@
       <pre class="lines">
 
 
-15
-16
-17</pre>
+17
+18
+19</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/build_results/status.rb', line 15</span>
+      <pre class="code"><span class="info file"># File 'api/build_results/status.rb', line 17</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_job_status'>job_status</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/_jobstatus</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_job_status'>job_status</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/_jobstatus</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -426,7 +488,7 @@
       <div class="method_details ">
   <h3 class="signature " id="log_chunk-class_method">
   
-    .<strong>log_chunk</strong>(project, package, repository, architecture, starting, ending)  &#x21d2; <tt>Object</tt> 
+    .<strong>log_chunk</strong>(project_name, package_name, repository_name, architecture_name, starting_line, ending_line)  &#x21d2; <tt>String</tt> 
   
 
   
@@ -442,6 +504,19 @@
 </div>
 <div class="tags">
   
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -449,17 +524,17 @@
       <pre class="lines">
 
 
-9
 10
 11
-12</pre>
+12
+13</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'api/build_results/status.rb', line 9</span>
+      <pre class="code"><span class="info file"># File 'api/build_results/status.rb', line 10</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_log_chunk'>log_chunk</span><span class='lparen'>(</span><span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='comma'>,</span> <span class='id identifier rubyid_starting'>starting</span><span class='comma'>,</span> <span class='id identifier rubyid_ending'>ending</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_endpoint'>endpoint</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/_log</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project'>project</span><span class='comma'>,</span> <span class='id identifier rubyid_repository'>repository</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture'>architecture</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='rbracket'>]</span>
-  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>nostream:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>start:</span> <span class='id identifier rubyid_starting'>starting</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='comma'>,</span> <span class='label'>end:</span> <span class='id identifier rubyid_ending'>ending</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_log_chunk'>log_chunk</span><span class='lparen'>(</span><span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_starting_line'>starting_line</span><span class='comma'>,</span> <span class='id identifier rubyid_ending_line'>ending_line</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_endpoint'>endpoint</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/build/:project/:repository/:architecture/:package/_log</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_project_name'>project_name</span><span class='comma'>,</span> <span class='id identifier rubyid_repository_name'>repository_name</span><span class='comma'>,</span> <span class='id identifier rubyid_architecture_name'>architecture_name</span><span class='comma'>,</span> <span class='id identifier rubyid_package_name'>package_name</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span> <span class='label'>nostream:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>start:</span> <span class='id identifier rubyid_starting_line'>starting_line</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='comma'>,</span> <span class='label'>end:</span> <span class='id identifier rubyid_ending_line'>ending_line</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>

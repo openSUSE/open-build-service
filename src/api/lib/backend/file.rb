@@ -1,5 +1,5 @@
-# ActiveModel for representing the backend files (special ones and source files too)
 module Backend
+  # ActiveModel for representing the backend files (special ones and source files too)
   class File
     include ActiveModel::Model
 

@@ -1,35 +1,44 @@
-# API for accessing to the backend
 module Backend
   module Api
+    # Class that connect to global endpoints of the OBS Backend server
+
     class Server
       extend Backend::ConnectionHelper
 
-      # Returns the notification payload
-      def self.notification_payload(notification)
-        get(["/notificationpayload/:notification", notification])
+      # JSON payload of a notification by Id.
+      # @return [String]
+      def self.notification_payload(notification_id)
+        get(["/notificationpayload/:notification", notification_id])
       end
 
-      # Deletes the notification payload
-      def self.delete_notification_payload(notification)
-        delete(["/notificationpayload/:notification", notification])
+      # Deletes the payload of the notification by Id.
+      # @return [String]
+      def self.delete_notification_payload(notification_id)
+        delete(["/notificationpayload/:notification", notification_id])
       end
 
-      # It writes the configuration
+      # It writes the configuration of the server
+      # @return [String]
       def self.write_configuration(configuration)
         put('/configuration', data: configuration)
       end
 
-      # Returns the latest notifications specifying a starting point
-      def self.last_notifications(start)
-        get("/lastnotifications", params: { start: start, block: 1 })
+      # Latest notifications specifying a starting point
+      # @param starting_point [Integer]
+      # @return [String] Last notifications
+      def self.last_notifications(starting_point)
+        get("/lastnotifications", params: { start: starting_point, block: 1 })
       end
 
       # Notifies a certain plugin with the payload
-      def self.notify_plugin(plugin, payload)
-        post(["/notify_plugins/:plugin", plugin], data: Yajl::Encoder.encode(payload), headers: { 'Content-Type' => 'application/json' })
+      # @param plugin_id [String]
+      # @return [String]
+      def self.notify_plugin(plugin_id, payload)
+        post(["/notify_plugins/:plugin", plugin_id], data: Yajl::Encoder.encode(payload), headers: { 'Content-Type' => 'application/json' })
       end
 
-      # Pings the root of the backend
+      # Pings the root of the source repository server
+      # @return [String] Hello message from the server
       def self.root
         get('/')
       end

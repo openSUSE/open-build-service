@@ -1,34 +1,41 @@
-# API for accessing to the backend
 module Backend
   module Api
     module BuildResults
+      # Class that connect to endpoints related to status of builds
       class Status
         extend Backend::ConnectionHelper
 
         # Returns a chunk of the build's log
-        def self.log_chunk(project, package, repository, architecture, starting, ending)
-          endpoint = ["/build/:project/:repository/:architecture/:package/_log", project, repository, architecture, package]
-          get(endpoint, params: { nostream: 1, start: starting.to_i, end: ending.to_i })
+        # @return [String]
+        def self.log_chunk(project_name, package_name, repository_name, architecture_name, starting_line, ending_line)
+          endpoint = ["/build/:project/:repository/:architecture/:package/_log", project_name, repository_name, architecture_name, package_name]
+          get(endpoint, params: { nostream: 1, start: starting_line.to_i, end: ending_line.to_i })
         end
 
         # Returns the job status of a build
-        def self.job_status(project, package, repository, architecture)
-          get(["/build/:project/:repository/:architecture/:package/_jobstatus", project, repository, architecture, package])
+        # @return [String]
+        def self.job_status(project_name, package_name, repository_name, architecture_name)
+          get(["/build/:project/:repository/:architecture/:package/_jobstatus", project_name, repository_name, architecture_name, package_name])
         end
 
         # Returns the result view for a build
-        def self.build_result(project, package, repository, architecture)
-          get(["/build/:project/_result", project], params: { view: :status, package: package, arch: architecture, repository: repository })
+        # @return [String]
+        def self.build_result(project_name, package_name, repository_name, architecture_name)
+          get(["/build/:project/_result", project_name],
+              params: { view: :status, package: package_name, arch: architecture_name, repository: repository_name })
         end
 
         # Returns the log's size for a build
-        def self.build_log_size(project, package, repository, architecture)
-          get(["/build/:project/:repository/:architecture/:package/_log", project, repository, architecture, package], params: { view: :entry })
+        # @return [String]
+        def self.build_log_size(project_name, package_name, repository_name, architecture_name)
+          get(["/build/:project/:repository/:architecture/:package/_log", project_name, repository_name, architecture_name, package_name],
+              params: { view: :entry })
         end
 
-        # Returns the log's size for a build
-        def self.build_problems(project)
-          get(["/build/:project/_result", project], params: { view: :status, code: [:failed, :broken, :unresolvable] }, expand: [:code])
+        # Returns the the problems for a build
+        # @return [String]
+        def self.build_problems(project_name)
+          get(["/build/:project/_result", project_name], params: { view: :status, code: [:failed, :broken, :unresolvable] }, expand: [:code])
         end
       end
     end

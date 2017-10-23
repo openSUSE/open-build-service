@@ -96,7 +96,7 @@ class Owner
     deepest = (limit < 0)
 
     # binary search via all projects
-    data = Xmlhash.parse(Backend::Api::Search.binary(projects, binary_name))
+    data = Xmlhash.parse(Backend::Api::Search.binary(projects.map(&:name), binary_name))
     # found binary package?
     return [] if data["matches"].to_i.zero?
 
