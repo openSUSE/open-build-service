@@ -68,6 +68,8 @@ gem 'peek-mysql2'
 gem "gssapi", require: false
 # for sending events to rabbitmq
 gem 'bunny'
+# for making changes to existing data
+gem 'data_migrate'
 
 group :development, :production do
   # to have the delayed job daemon

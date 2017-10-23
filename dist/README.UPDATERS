@@ -20,7 +20,7 @@ Note: Update from OBS 2.5 should also work, but is untested.
   4) Migrate database
 
         cd /srv/www/obs/api/
-        RAILS_ENV="production" rails.ruby2.4 db:migrate
+        RAILS_ENV="production" rails.ruby2.4 db:migrate:with_data
 
   5) Make sure that log and tmp are owned by wwwrun
 
@@ -147,7 +147,7 @@ For Updaters to OBS 2.6 from OBS 2.5
 Appliance users can just do a package update and reboot or use the
 new appliance image to update their configurations.
 
-In case the installation is not done via packages all 
+In case the installation is not done via packages all
 rubygems according to Gemfile need to get installed.
 
  1) Database migration
@@ -173,7 +173,7 @@ For Updaters to OBS 2.5 from OBS 2.4
 Appliance users can just do a package update and reboot or use the
 new appliance image to update their configurations.
 
-In case the installation is not done via packages all 
+In case the installation is not done via packages all
 rubygems according to Gemfile need to get installed.
 
 Biggest change setup wise is the unification of API and WEBUI instance.
@@ -195,7 +195,7 @@ use port 443 now.
  2) Restart memcached after database migration to wipe possible broken
     cache data.
 
- 3) configuration settings moved from various palces to unique /configuration 
+ 3) configuration settings moved from various palces to unique /configuration
     api route as much as possible to allow a uniq configuration through all
     OBS frontend and backend parts. The following settings have been migrated:
 
@@ -229,7 +229,7 @@ use port 443 now.
  4) api interface configuration must be configured in /srv/www/obs/api/config/options.yml
     now. Ensure that at least the following parameters are configured there:
 
-      frontend_host: 
+      frontend_host:
       frontend_port:
       frontend_protocol:
 
@@ -249,7 +249,7 @@ Other installations need merge manually configurations
 as described below (This is required due to the Rails 2.x
 to Rails 3.x switch).
 
-In case the installation is not done via packages all 
+In case the installation is not done via packages all
 rubygems according to Gemfile need to get installed.
 
 Please check the following files:
@@ -257,7 +257,7 @@ Please check the following files:
  1) database driver needs to be changed to "mysql2" in /srv/www/obs/api/config/database.yml
     This is usally done automatically by the package.
 
- 2) all config options with capital letters have been moved from 
+ 2) all config options with capital letters have been moved from
       /srv/www/obs/.../config/environments/production.rb
     to small letter variables in
       /srv/www/obs/.../config/options.yml
@@ -296,7 +296,7 @@ For Updaters to OBS 2.3 from OBS 2.1
 
    The default httpd is apache2 since OBS 2.3. lighttpd should still work, but
    we recommend to switch to apache to get a maintained base and load
-   optimizations. 
+   optimizations.
 
    Please read the section 3 from README.SETUP file to learn how to configure
    apache.
@@ -339,10 +339,10 @@ For Updaters to OBS 2.1 from OBS 2.0
       mysql> quit
 
    * Configure your MySQL user and password in the "production:" section
-     of the webui config: 
+     of the webui config:
 
         /srv/www/obs/webui/config/database.yml
-    
+
      A template for this file can be found in same directory as "database.yml.example".
 
    * populate the database
@@ -359,7 +359,7 @@ NOTE: Do not update from the special MeeGo 1.8 release yet. You will miss
       features and run into database migration errors.
       You need to wait for OBS 2.1.
 
-After running the package update to obs-* 2.0 packages you need to do the 
+After running the package update to obs-* 2.0 packages you need to do the
 following steps manually:
 
 1) Database migration
@@ -375,7 +375,7 @@ following steps manually:
 2) Default distribution configuration
    The default targets are now defined in one place on the api.
    Create the default config via
- 
+
     # cd /srv/www/obs/api/files/
     # cp distributions.xml.template distributions.xml
 
@@ -412,13 +412,13 @@ For Updaters from OBS 1.6
 
 3) Enable the new services
 
-  In case you use the package signing, you need to run the new bs_signer 
+  In case you use the package signing, you need to run the new bs_signer
   process. This has been split out of bs_repserver for better scalability.
 
     # insserv obssigner
     # rcobs_signer start
 
-  You may want to run also the new bs_warden daemon, this monitors the 
+  You may want to run also the new bs_warden daemon, this monitors the
   build hosts and restarts jobs, in case a build host is not responding
   correctly anymore:
 
@@ -450,7 +450,7 @@ For Updaters from OBS 0.9.x releases
 1) Define download URL in rails config.
 
 The new introduced "DOWNLOAD_URL" need to be defined in your settings
-below /srv/www/obs/webui/config/environments/ directory. 
+below /srv/www/obs/webui/config/environments/ directory.
 If you do not have a download server, simply define
 
 DOWNLOAD_URL = nil
@@ -459,7 +459,7 @@ in your configuration.
 
 2) Recommended rails migrate update
 
-A rails migrate is recommended, but not neccessary. It would reimport 
+A rails migrate is recommended, but not neccessary. It would reimport
 buginfo flags from the backend to fix broken usage in api before.
 
 When the obs-api package has been updated, it might be required to
