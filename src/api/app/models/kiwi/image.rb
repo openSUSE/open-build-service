@@ -1,6 +1,10 @@
 # TODO: Please overwrite this comment with something explaining the model target
 class Kiwi::Image < ApplicationRecord
   #### Includes and extends
+  include PrettyNestedErrors
+
+  nest_errors_for :package_groups_packages, by: ->(kiwi_package) { "Package: #{kiwi_package.name}" }
+  nest_errors_for :repositories, by: ->(repository) { "Repository: #{repository.source_path}" }
 
   #### Constants
   DEFAULT_KIWI_BODY = '<?xml version="1.0" encoding="utf-8"?>
