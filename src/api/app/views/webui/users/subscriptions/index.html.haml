@@ -1,26 +1,27 @@
+- @layouttype = 'custom'
 - @pagetitle = "#{User.current.to_s.capitalize}'s Notifications"
 - @crumb_list = [@pagetitle]
-%h2= @pagetitle
+.grid_16.alpha.omega.box.box-shadow
+  %h2= @pagetitle
 
-= form_tag(user_notifications_path, method: :put, id: 'notification_form') do
-  - unless @groups_users.empty?
-    %h3 Get mails if in group ...
-    %ul{ style: "list-style-type:none;" }
-      - @groups_users.each do |group_user|
-        %li
-          = check_box_tag group_user.group, '1', group_user.email
-          = label_tag group_user.group.title
+  = form_tag(user_notifications_path, method: :put, id: 'notification_form') do
+    - unless @groups_users.empty?
+      %h3 Get mails if in group ...
+      %ul{ style: "list-style-type:none;" }
+        - @groups_users.each do |group_user|
+          %li
+            = check_box_tag group_user.group, '1', group_user.email
+            = label_tag group_user.group.title
 
-  = render partial: 'webui/subscriptions/subscriptions_form'
-  %p= submit_tag 'Update'
-%br/
-%br/
-%h3 RSS Feed
-= form_tag(user_rss_token_path, id: 'generate_rss_token_form', method: :post) do
-  %p
-    - if @user.rss_token
-      To access your RSS feeds, use the following url:
-      = link_to(user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), target: '_blank')
-    - else
-      No feed url exists for your notifications.
-  %p= submit_tag "#{@user.rss_token ? 'Regenerate Url' : 'Generate Url'}"
+    = render partial: 'webui/subscriptions/subscriptions_form'
+    %p= submit_tag 'Update'
+.grid_16.alpha.omega.box.box-shadow
+  %h2 RSS Feed
+  = form_tag(user_rss_token_path, id: 'generate_rss_token_form', method: :post) do
+    %p
+      - if @user.rss_token
+        To access your RSS feeds, use the following url:
+        = link_to(user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), target: '_blank')
+      - else
+        No feed url exists for your notifications.
+    %p= submit_tag "#{@user.rss_token ? 'Regenerate Url' : 'Generate Url'}"
