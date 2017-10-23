@@ -104,7 +104,7 @@ GEM
       safe_yaml (~> 1.0.0)
     crass (1.0.2)
     cssmin (1.0.3)
-    daemons (1.2.4)
+    daemons (1.2.5)
     dalli (2.7.6)
     database_cleaner (1.6.1)
     delayed_job (4.1.3)
