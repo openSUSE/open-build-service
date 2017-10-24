@@ -4,9 +4,9 @@ our $VERSION = '0.0.1';
 
 use strict;
 use warnings;
-use JSON::XS;
 use Data::Dumper;
-use Carp;
+use JSON::XS ();
+use Carp ();
 use BSRPC qw/:https/;
 use BSUtil;
 
@@ -19,8 +19,8 @@ use BSUtil;
  use BSAirBrake;
 
  my $ab = BSAirBrake->new(
-   base_url => 'http://yourerrbit.server'.
-   api_keys => 'xyz'
+   server => 'http://yourerrbit.server',
+   api_key => 'xyz'
  );
 
  # sending notify with backtrace and no additional options
@@ -31,7 +31,7 @@ use BSUtil;
  # at once
  my $options   = {
    environment => { SCRIPT => $0 },
-   session     => { "session-id" => uuid() },
+   session     => { 'session-id' => uuid() },
    params      => { 'param1' => 'value1' },
  };
 
@@ -39,9 +39,9 @@ use BSUtil;
 
  my $skip_frames = 3; # for backtrace - default is 2
 
- $self->add_error("Error 1", $backtrace, $skip_frames );
+ $self->add_error("Error 1", $backtrace, $skip_frames);
 
- $self->add_error("Error 2", $backtrace, $skip_frames );
+ $self->add_error("Error 2", $backtrace, $skip_frames);
 
  $self->send($options);
 
@@ -53,8 +53,8 @@ use BSUtil;
 
  Example:
   my $ab = BSAirBrake->new(
-   base_url => 'http://yourerrbit.server'.
-   api_keys => 'xyz'
+   server => 'http://yourerrbit.server'.
+   api_key => 'xyz'
   );
 
 =cut
@@ -80,19 +80,18 @@ sub new {
 	params      => {},
       },
       project_id   => 1,
-      base_url     => '',
-      base_path    => '',
+      server       => '',
       skip_frames  => 2,
       %opt
-    };
-    return bless $self, $class;
+  };
+  return bless $self, $class;
 }
 
 =head2 add_error - add error message to send later
 
  Example:
 
-  $self->add_error("Error 2", $backtrace, $skip_frames );
+  $self->add_error("Error 2", $backtrace, $skip_frames);
 
 =cut
 
@@ -104,9 +103,8 @@ sub add_error {
 
   my @bt;
   if ($backtrace) {
-    $self->{skip_frames} = $skip_frames if $skip_frames;
-
-    my $i = $self->{skip_frames};
+    $skip_frames = $self->{skip_frames} unless defined $skip_frames;
+    my $i = $skip_frames;
     while (my $ci = Carp::caller_info($i)) {
       unshift @bt, { file => $ci->{file}, line => $ci->{line}, function => $ci->{sub} };
       $i++;
@@ -116,7 +114,7 @@ sub add_error {
   push @{$self->{content}->{errors}}, $error;
 }
 
-=head2 send - send messages to Airbrake host
+=head2 send - send queued messages to Airbrake host
 
  Example:
 
@@ -135,13 +133,12 @@ sub send {
   $content->{session}     = $opt->{session}     || $content->{session};
   $content->{params}      = $opt->{params}      || $content->{params};
 
-  die "No base_url given\n" unless $self->{base_url};
+  die "No airbrake server given\n" unless $self->{server};
   die "No api_key given\n"  unless $self->{api_key};
 
-  $self->{base_path} =~ s#/$##;
-  $self->{base_url}  =~ s#/$##;
+  $self->{server}  =~ s#/$##;
 
-  my $uri  = "$self->{base_url}$self->{base_path}/api/v3/projects/$self->{project_id}/notices";
+  my $uri  = "$self->{server}/api/v3/projects/$self->{project_id}/notices";
   my $data = encode_json($content);
 
   if ($debuglevel >= 7) {
@@ -152,8 +149,9 @@ sub send {
   my $param = {
     uri => $uri,
     request => 'POST',
-    data    => encode_json($self->{content}),
+    data    => JSON::XS::encode_json($self->{content}),
     header  => ["Content-Type: application/json"],
+    timeout => exists($opt->{'timeout'}) ? $opt->{'timeout'} : $self->{timeout},
     verbose => $debuglevel,
   };
   my $response = BSRPC::rpc($param, undef, "key=$self->{api_key}");
@@ -165,7 +163,7 @@ sub send {
 
   # Cleanup already sent content
   $self->{content}->{errors}      = [];
-  return decode_json($response);
+  return JSON::XS::decode_json($response);
 }
 
 =head2 notify - add_error and send in one step
@@ -177,10 +175,10 @@ sub send {
 =cut
 
 sub notify {
-  my ($self, $error, $option, $backtrace) = @_;
+  my ($self, $error, $opt, $backtrace) = @_;
 
   $self->add_error($error, $backtrace);
-  return $self->send($option);
+  return $self->send($opt);
 }
 
 sub has_error {
