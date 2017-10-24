@@ -16,11 +16,6 @@ if test -z "$SUBTEST"; then
       perl -pi -e 's/source_port: 5352/source_port: 3200/' config/options.yml
       bundle exec rails test:api
       ;;
-    webui)
-      bundle exec rails assets:precompile &> /dev/null
-      perl -pi -e 's/source_port: 5352/source_port: 3200/' config/options.yml
-      bundle exec rails test:webui
-      ;;
     spider)
       unset DO_COVERAGE
       bundle exec rails assets:precompile &> /dev/null
