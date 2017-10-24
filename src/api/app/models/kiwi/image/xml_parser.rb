@@ -14,6 +14,7 @@ module Kiwi
         new_image.use_project_repositories = use_project_repositories?
         new_image.repositories = repositories
         new_image.package_groups = package_groups
+        new_image.description = description
 
         new_image
       end
@@ -85,6 +86,22 @@ module Kiwi
         end
 
         package_groups
+      end
+
+      # Return an instance of Kiwi::Description model from the parsed xml
+      def description
+        attributes = [xml_hash["description"]].flatten.find do |description|
+          description['type'] == 'system'
+        end
+
+        return if attributes.blank?
+
+        Kiwi::Description.new(
+          description_type: attributes['type'],
+          author:           attributes['author'],
+          contact:          attributes['contact'],
+          specification:    attributes['specification']
+        )
       end
     end
   end

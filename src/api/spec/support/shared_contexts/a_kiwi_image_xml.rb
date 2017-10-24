@@ -90,4 +90,23 @@ RSpec.shared_context 'a kiwi image xml' do
 </image>
     XML
   end
+
+  let(:kiwi_xml_with_multiple_descriptions) do
+    <<-XML
+<?xml version="1.0" encoding="UTF-8"?>
+<image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
+  <description type="system">
+    <author>Christian Bruckmayer</author>
+    <contact>noemail@example.com</contact>
+    <specification>Tiny, minimalistic appliances</specification>
+  </description>
+  <description type="boot">
+    <author>The KIWI Team</author>
+    <contact>kiwi@example.com</contact>
+    <specification>Kiwi, tiny, minimalistic appliances</specification>
+  </description>
+</image>
+    XML
+  end
+
 end

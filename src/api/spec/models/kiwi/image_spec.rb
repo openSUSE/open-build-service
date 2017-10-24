@@ -108,6 +108,12 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
           bootinclude: nil,
           bootdelete: nil
         )
+        expect(subject.description).to have_attributes(
+          description_type: 'system',
+          author: 'Christian Bruckmayer',
+          contact: 'noemail@example.com',
+          specification: 'Tiny, minimalistic appliances'
+        )
       end
     end
 
@@ -157,6 +163,22 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.valid?).to be_truthy }
       it { expect(subject.repositories).to be_empty }
       it { expect(subject.kiwi_packages).to be_empty }
+    end
+
+    context 'with multiple descriptions in the xml file' do
+      subject { Kiwi::Image.build_from_xml(kiwi_xml_with_multiple_descriptions, 'some_md5') }
+
+      it { expect(subject.valid?).to be_truthy }
+      it { expect(subject.repositories).to be_empty }
+      it { expect(subject.kiwi_packages).to be_empty }
+      it 'parses only the description with type = "system"' do
+        expect(subject.description).to have_attributes(
+          description_type: 'system',
+          author: 'Christian Bruckmayer',
+          contact: 'noemail@example.com',
+          specification: 'Tiny, minimalistic appliances'
+        )
+      end
     end
   end
 
@@ -271,6 +293,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       before do
         allow(package).to receive(:kiwi_image_file).and_return('config.kiwi')
         allow(package).to receive(:source_file).and_return(Kiwi::Image::DEFAULT_KIWI_BODY)
+        kiwi_image.save
         kiwi_image.package = package
         kiwi_image.package_groups << create(:kiwi_package_group_non_empty, kiwi_type: 'image')
         kiwi_image.repositories << create(:kiwi_repository)
