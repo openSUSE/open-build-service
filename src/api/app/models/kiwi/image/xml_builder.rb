@@ -1,12 +1,11 @@
-# TODO: Please overwrite this comment with something explaining the model target
 module Kiwi
   class Image
-    class Xml
+    class XmlBuilder
       def initialize(image)
         @image = image
       end
 
-      def to_xml
+      def build
         doc = Nokogiri::XML::DocumentFragment.parse(kiwi_body)
         image = doc.at_css('image')
 
