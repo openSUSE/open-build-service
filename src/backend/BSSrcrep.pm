@@ -23,6 +23,7 @@
 package BSSrcrep;
 
 use Digest::MD5 ();
+use Digest::SHA ();
 use Symbol;
 use BSSolv;
 
@@ -116,16 +117,33 @@ sub addfile {
     if (!rename($tmpfile, "$srcrep/$packid/$md5-$filename")) {
       mkdir_p("$srcrep/$packid");
       if (!rename($tmpfile, "$srcrep/$packid/$md5-$filename")) {
-	my $err = $!;
-	if (! -e "$srcrep/$packid/$md5-$filename") {
-	  $! = $err;
-	  die("rename $tmpfile $srcrep/$packid/$md5-$filename: $!\n");
-	}
+        my $err = $!;
+        if (! -e "$srcrep/$packid/$md5-$filename") {
+          $! = $err;
+          die("rename $tmpfile $srcrep/$packid/$md5-$filename: $!\n");
+        }
       }
     }
     adddeltastoreevent($projid, $packid, "$md5-$filename") if $filename =~ /\.obscpio$/s;
   } else {
+    # get the sha256 sum for the uploaded file
+    open(F, '<', $tmpfile) || die("$tmpfile: $!\n");
+    my $ctx = Digest::SHA->new(256);
+    $ctx->addfile(*F);
+    close F;
+    my $upload_sha = $ctx->hexdigest();
+    # get the sha256 sum for the already existing file
+    open(F, '<', "$srcrep/$packid/$md5-$filename") || die("$srcrep/$packid/$md5-$filename: $!\n");
+    $ctx = Digest::SHA->new(256);
+    $ctx->addfile(*F);
+    close F;
+    my $existing_sha = $ctx->hexdigest();
+    # if the sha sum is different, but the md5 and filename are the same someone might
+    # try to sneak in code.
     unlink($tmpfile);
+    if ($upload_sha ne $existing_sha) {
+      die("SHA missmatch for same md5sum in $packid for file $filename with sum $md5\n");
+    }
   }
   return $md5;
 }

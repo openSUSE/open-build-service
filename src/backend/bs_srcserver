@@ -34,6 +34,7 @@ use XML::Structured ':bytes';
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 use Digest::MD5 ();
+use Digest::SHA ();
 use Data::Dumper;
 use Storable ();
 use Symbol;
@@ -2961,7 +2962,16 @@ sub sourcecommitfilelist {
   # make sure we know every file
   my @missing;
   my $files = {};
+  my $ofiles = {};
+  my $ofiles_expanded = {};
   my $orev = {'project' => $projid, 'package' => $packid};
+  if ($cgi->{'withvalidate'}) {
+    eval {
+      my $rev_old = getrev($projid, $packid);
+      $ofiles = BSRevision::lsrev($rev_old);
+      $ofiles_expanded = lsrev_expanded($rev_old);
+    };
+  }
   for my $entry (@{$fl->{'entry'} || []}) {
     BSVerify::verify_filename($entry->{'name'});
     BSVerify::verify_md5($entry->{'md5'});
@@ -2969,6 +2979,21 @@ sub sourcecommitfilelist {
       push @missing, $entry;
     } else {
       die("duplicate file: $entry->{'name'}\n") if exists $files->{$entry->{'name'}};
+      if ($entry->{'hash'}) {
+        my $fd = gensym;
+        BSRevision::revopen($orev, $entry->{'name'}, $entry->{'md5'}, $fd);
+        my $sha256 = Digest::SHA->new(256);
+        my $hash_to_check = "sha256:" . $sha256->addfile($fd)->hexdigest;
+        if ($hash_to_check ne $entry->{'hash'}) {
+          die("SHA missmatch for same md5sum in $packid for file $entry->{'name'} with sum $entry->{'md5'}\n");
+        }
+      } elsif ($cgi->{'withvalidate'}) {
+        if ((!$ofiles->{$entry->{'name'}} || $ofiles->{$entry->{'name'}} ne $entry->{'md5'}) ||
+            (!$ofiles_expanded->{$entry->{'name'}} || $ofiles_expanded->{$entry->{'name'}} ne $entry->{'md5'})) {
+          $entry->{'hash'} = 'missing';
+          push @missing, $entry;
+        }
+      }
       $files->{$entry->{'name'}} = $entry->{'md5'};
     }
   }
@@ -6055,7 +6080,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&linkdiff,
   'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? noservice:bool?' => \&sourcecommit,
-  'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:?' => \&sourcecommitfilelist,
+  'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:? withvalidate:?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool? withacceptinfo:bool? makeoriginolder:bool? freezelink:bool? vrevbump:num? instantiate:bool?' => \&sourcecopy,
   'POST:/source/$project/$package cmd=collectbuildenv user:? comment:? orev:rev? oproject:project? opackage:package?' => \&sourcecollectbuildenv,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool? missingok:bool? noservice:bool? withacceptinfo:bool? time:num? extendvrev:bool?' => \&sourcebranch,

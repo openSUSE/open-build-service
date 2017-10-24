@@ -401,6 +401,7 @@ our $dir = [
      [[ 'entry' =>
 	    'name',
 	    'md5',
+            'hash',
 	    'size',
 	    'mtime',
 	    'error',
