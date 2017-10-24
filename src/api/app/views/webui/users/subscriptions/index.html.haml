@@ -8,16 +8,16 @@
     - unless @groups_users.empty?
       %h3 Groups
       %p.description You will receive emails from the checked groups
-      %hr
-      %ul{ style: "list-style-type:none;" }
-        - @groups_users.each do |group_user|
-          %li
-            = check_box_tag group_user.group, '1', group_user.email
-            = label_tag group_user.group.title
+      .box
+        .row
+          %ul
+            - @groups_users.each do |group_user|
+              %li
+                = check_box_tag group_user.group, '1', group_user.email
+                = label_tag group_user.group.title
 
     %h3 Events
-    %p.description Choose how you receive notifications from the events generated
-    %hr
+    %p.description Choose from which events you want to get an email
     = render partial: 'webui/subscriptions/subscriptions_form'
     %p= submit_tag 'Update'
 .grid_16.alpha.omega.box.box-shadow

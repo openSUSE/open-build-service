@@ -1,4 +1,18 @@
 class EventSubscription < ApplicationRecord
+  RECEIVER_ROLE_TEXTS = {
+    maintainer:        'Mantainer',
+    bugowner:          'Bugowner',
+    reader:            'Reader',
+    source_maintainer: 'Maintainer of the source',
+    target_maintainer: 'Maintainer of the target',
+    reviewer:          'Reviewer',
+    commenter:         'Commenter',
+    creator:           'Creator',
+    watcher:           'Watching the project',
+    source_watcher:    'Watching the source project',
+    target_watcher:    'Watching the target project'
+  }.freeze
+
   enum channel: %i(disabled instant_email)
 
   belongs_to :user, inverse_of: :event_subscriptions
