@@ -265,7 +265,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.to_xml).to be_nil }
     end
 
-    context 'with a kiwi file with packages and repositories' do
+    context 'with a kiwi file with packages, repositories and a description' do
       let(:package) { create(:package) }
       let(:kiwi_image) { Kiwi::Image.build_from_xml(kiwi_xml, 'some_md5') }
       subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
@@ -277,6 +277,10 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         kiwi_image.save
       end
 
+      it { expect(subject.children[2].children[1].name).to eq('description') }
+      it { expect(subject.children[2].children[1].children[1].name).to eq('author') }
+      it { expect(subject.children[2].children[1].children[3].name).to eq('contact') }
+      it { expect(subject.children[2].children[1].children[5].name).to eq('specification') }
       it { expect(subject.children[2].children[3].name).to eq('packages') }
       it { expect(subject.children[2].children[3].attributes['type'].value).to eq('image') }
       it { expect(subject.children[2].children[7].name).to eq('repository') }
