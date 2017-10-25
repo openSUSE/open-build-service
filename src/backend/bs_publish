@@ -2316,7 +2316,8 @@ sub publishevent {
     set_publish_retry($req, $starttime + 60);
     die("$prp: external publish program still running\n");
   }
-  if ($publish_lasttime{$prp} && $publish_duration{$prp} > 300 && $publish_lasttime{$prp} + 5 * $publish_duration{$prp} > $starttime) {
+  my $penalty_multiplier = defined($BSConfig::publish_penalty_multiplier) ? $BSConfig::publish_penalty_multiplier : 1;
+  if ($penalty_multiplier && $publish_lasttime{$prp} && $publish_duration{$prp} > 300 && $publish_lasttime{$prp} + $publish_duration{$prp} * $penalty_multiplier> $starttime) {
     set_publish_retry($req, $starttime + 60 * 5);
     die("$prp: not yet\n");
   }
