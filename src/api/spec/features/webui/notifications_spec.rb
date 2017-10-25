@@ -6,7 +6,7 @@ RSpec.feature 'Notifications', type: :feature, js: true do
       login user
       visit path
 
-      expect(page).to have_content('Events to get email for')
+      expect(page).to have_content(title)
 
       [
         ['Event::CommentForPackage', 'commenter'],
@@ -14,11 +14,11 @@ RSpec.feature 'Notifications', type: :feature, js: true do
         ['Event::CommentForRequest', 'reviewer'],
         ['Event::BuildFail', 'maintainer']
       ].each do |eventtype, receiver_role|
-        find("select[data-eventtype='#{eventtype}'][data-receiver-role='#{receiver_role}']").find(:option, 'instant_email').select_option
+        find("input[data-eventtype='#{eventtype}'][data-receiver-role='#{receiver_role}']").set(true)
       end
 
       click_button 'Update'
-      expect(page).to have_content('Notifications settings updated')
+      expect(page).to have_content(title)
 
       # for global Notification settings there is no user_id set
       user_id = user.is_admin? ? nil : user.id
@@ -36,6 +36,7 @@ RSpec.feature 'Notifications', type: :feature, js: true do
 
   context 'update as admin user' do
     it_behaves_like 'updatable' do
+      let(:title) { 'Global Notification Settings' }
       let(:user) { create(:admin_user, login: 'king') }
       let(:path) { notifications_path }
     end
@@ -43,6 +44,7 @@ RSpec.feature 'Notifications', type: :feature, js: true do
 
   context 'update as unprivileged user' do
     it_behaves_like 'updatable' do
+      let(:title) { 'Choose from which events you want to get an email' }
       let(:user) { create(:confirmed_user, login: 'eisendieter') }
       let(:path) { user_notifications_path }
     end

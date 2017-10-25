@@ -1,13 +1,15 @@
-%h3 Events to get email for ...
-- i = 0
-- @subscriptions_form.subscriptions_by_event.each do |event_class, subscriptions|
-  = field_set_tag event_class.description do
-    %ul
-      - subscriptions.each do |subscription|
-        = fields_for "subscriptions[#{i}]", subscription do |f|
-          %li
-            = f.label :receive, subscription.receiver_role
-            = f.select :channel, EventSubscription.channels.keys, {}, { data: { eventtype: subscription.eventtype, receiver_role: subscription.receiver_role } }
-            = f.hidden_field :eventtype
-            = f.hidden_field :receiver_role
-            - i += 1
+.box
+  - i = 0
+  - @subscriptions_form.subscriptions_by_event.each do |event_class, subscriptions|
+    .row
+      .title= event_class.description
+      .description= Event::Base::EXPLANATION_FOR_NOTIFICATIONS[event_class.to_s]
+      %ul
+        - subscriptions.each do |subscription|
+          = fields_for "subscriptions[#{i}]", subscription do |f|
+            %li
+              = f.check_box :channel, { data: { eventtype: subscription.eventtype, receiver_role: subscription.receiver_role } }, EventSubscription.channels.keys[1], EventSubscription.channels.keys[0]
+              = f.label :receive, EventSubscription::RECEIVER_ROLE_TEXTS[subscription.receiver_role]
+              = f.hidden_field :eventtype
+              = f.hidden_field :receiver_role
+              - i += 1

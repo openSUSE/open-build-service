@@ -3,7 +3,9 @@
 - @layouttype = 'custom'
 .grid_16.alpha.omega.box.box-shadow
   = render partial: 'webui/configuration/tabs'
-  %p= @pagetitle
+  %h2= @pagetitle
+  %h3 Events
+  %p.description Choose default notification settings for events (checked means direct email)
   = form_tag(notifications_path, method: :put, id: 'notification_form') do
     = render partial: 'subscriptions_form'
     %p= submit_tag 'Update'

@@ -9,6 +9,17 @@ module Event
 
     before_save :shorten_payload_if_necessary
 
+    EXPLANATION_FOR_NOTIFICATIONS =  {
+      'Event::BuildFail'          => 'Receive notifications of build failures for packages for which you are...',
+      'Event::ServiceFail'        => 'Receive notifications of source service failures for packages for which you are...',
+      'Event::ReviewWanted'       => 'Receive notifications of reviews created that have you as a wanted...',
+      'Event::RequestCreate'      => 'Receive notifications of requests created for projects/packages for which you are...',
+      'Event::RequestStatechange' => 'Receive notifications of requests state changes for projects for which you are...',
+      'Event::CommentForProject'  => 'Receive notifications of comments created on projects for which you are...',
+      'Event::CommentForPackage'  => 'Receive notifications of comments created on a package for which you are...',
+      'Event::CommentForRequest'  => 'Receive notifications of comments created on a request for which you are...'
+    }.freeze
+
     class << self
       attr_accessor :description
       @payload_keys = nil
@@ -19,10 +30,14 @@ module Event
 
       def notification_events
         %w(
-          Event::RequestCreate Event::RequestStatechange
-          Event::CommentForProject Event::CommentForPackage
-          Event::CommentForRequest Event::BuildFail
-          Event::ReviewWanted Event::ServiceFail
+          Event::BuildFail
+          Event::ServiceFail
+          Event::ReviewWanted
+          Event::RequestCreate
+          Event::RequestStatechange
+          Event::CommentForProject
+          Event::CommentForPackage
+          Event::CommentForRequest
         ).map(&:constantize)
       end
 

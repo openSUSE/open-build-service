@@ -1,11 +1,47 @@
-#notification_form fieldset {
-  margin-top: 10px;
-  margin-left: 10px;
-  ul {
-    margin-top: 0;
+#notification_form .box {
+    border: 1px solid #d1d5da;
+    border-radius: 3px;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 0px;
 
-    li {  margin-bottom: 3px; }
-  }
+    .title {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-bottom: 0.5em;
+    }
 
-  legend { font-size: 110%; font-weight: bold; }
+    .description {
+      min-height: 17px;
+      font-size: 12px;
+      color: #586069;
+    }
+
+    .row {
+      padding: 16px;
+      margin-top: -1px;
+      border-top: 1px solid #e1e4e8;
+
+      &:first-of-type {
+        border-top-color: transparent;
+        border-top-left-radius: 2px;
+        border-top-right-radius: 2px;
+      }
+
+      ul {
+        margin-left: 0px;
+      }
+
+      li {
+        list-style-type: none;
+        display: inline;
+        padding-right: 20px;
+        margin-left: 0px;
+        white-space: nowrap;
+
+        label {
+          font-weight: bold;
+        }
+      }
+    }
 }
