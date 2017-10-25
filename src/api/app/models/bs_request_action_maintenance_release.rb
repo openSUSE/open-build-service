@@ -56,20 +56,16 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # log release events once in target project
     opts[:projectCommit].each do |tprj, sprj|
       commit_params = {
-        cmd:       "commit",
-        user:      User.current.login,
         requestid: bs_request.number,
         rev:       "latest",
         comment:   "Releasing from project #{sprj}"
       }
-      commit_params[:comment] << " the update " << opts[:updateinfoIDs].join(", ") if opts[:updateinfoIDs]
-      commit_path = "/source/#{URI.escape(tprj)}/_project"
-      commit_path << Backend::Connection.build_query_from_hash(commit_params, [:cmd, :user, :comment, :requestid, :rev])
-      Backend::Connection.post commit_path
+      commit_params[:comment] += " the update #{opts[:updateinfoIDs].join(', ')}" if opts[:updateinfoIDs]
+      Backend::Api::Sources::Project.commit(tprj, User.current.login, commit_params)
 
       next if cleaned_projects[sprj]
       # cleanup published binaries to save disk space on ftp server and mirrors
-      Backend::Connection.post "/build/#{URI.escape(sprj)}?cmd=wipepublishedlocked"
+      Backend::Api::BuildResults::Binaries.wipe_published_locked(sprj)
       cleaned_projects[sprj] = 1
     end
     opts[:projectCommit] = {}
@@ -108,8 +104,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
     # patchinfos don't get a link, all others should not conflict with any other
     # FIXME2.4 we have a directory model
-    answer = Backend::Connection.get "/source/#{CGI.escape(source_project)}/#{CGI.escape(source_package)}"
-    xml = REXML::Document.new(answer.body.to_s)
+    xml = REXML::Document.new(Backend::Api::Sources::Package.files(source_project, source_package))
     rel = BsRequest.where(state: [:new, :review]).joins(:bs_request_actions)
     rel = rel.where(bs_request_actions: { target_project: target_project })
     if xml.elements["/directory/entry/@name='_patchinfo'"]

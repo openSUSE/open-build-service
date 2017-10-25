@@ -7,11 +7,7 @@ class UpdatePackageMetaJob < ApplicationJob
   def scan_links
     names = Package.distinct.order(:name).pluck(:name)
     while !names.empty?
-      slice = names.slice!(0, 30)
-      path = "/search/package/id?match=("
-      path += slice.map { |name| "linkinfo/@package='#{CGI.escape(name)}'" }.join("+or+")
-      path += ")"
-      answer = Xmlhash.parse(Backend::Connection.get(path).body)
+      answer = Xmlhash.parse(Backend::Api::Search.packages_with_link(names.slice!(0, 30)))
       answer.elements('package') do |p|
         pkg = Package.find_by_project_and_name(p['project'], p['name'])
         # if there is a linkinfo for a package not in database, there can not be a linked_package either

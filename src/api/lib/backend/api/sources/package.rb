@@ -82,7 +82,19 @@ module Backend
         def self.copy(target_project_name, target_package_name, source_project_name, source_package_name, user_login, options = {})
           post(["/source/:project/:package", target_project_name, target_package_name],
                defaults: { cmd: :copy, oproject: source_project_name, opackage: source_package_name, user: user_login },
-               params: options, accepted: [:keeplink, :expand, :comment])
+               params: options, accepted: [:orev, :keeplink, :expand, :comment, :requestid, :withacceptinfo, :dontupdatesource, :noservice])
+        end
+
+        # Branch a package into another project
+        def self.branch(target_project, target_package, source_project, source_package, user, options = {})
+          post(["/source/:project/:package", source_project, source_package],
+               defaults: { cmd: :branch, oproject: target_project, opackage: target_package, user: user },
+               params: options, accepted: [:keepcontent, :comment, :requestid, :noservice])
+        end
+
+        # Returns the link information of a package
+        def self.link_info(project, package)
+          get(["/source/:project/:package/_link", project, package])
         end
 
         # Writes the link information of a package

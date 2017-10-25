@@ -284,12 +284,8 @@ class BranchPackage
       # only approved maintenance projects
       next unless @maintenance_projects.include? mp.maintenance_project
 
-      # rubocop:disable Metrics/LineLength
-      path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(p[:package].name)}\"+and+linkinfo/@project=\"#{CGI.escape(p[:link_target_project].name)}\""
-      # rubocop:enable Metrics/LineLength
-      path += "+and+starts-with(@project,\"#{CGI.escape(mp.maintenance_project.name)}%3A\"))"
-      answer = Backend::Connection.post path
-      data = REXML::Document.new(answer.body)
+      answer = Backend::Api::Search.incident_packages(p[:link_target_project].name, p[:package].name, mp.maintenance_project.name)
+      data = REXML::Document.new(answer)
       data.elements.each('collection/package') do |e|
         ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
         if ipkg.nil?
@@ -442,8 +438,8 @@ class BranchPackage
     pkg = p[:package]
     if pkg.is_link?
       # is the package itself a local link ?
-      link = Backend::Connection.get("/source/#{p[:package].project.name}/#{p[:package].name}/_link")
-      ret = Xmlhash.parse(link.body)
+      link = Backend::Api::Sources::Package.link_info(p[:package].project.name, p[:package].name)
+      ret = Xmlhash.parse(link)
       if !ret['project'] || ret['project'] == p[:package].project.name
         pkg = Package.get_by_project_and_name(p[:package].project.name, ret['package'])
       end

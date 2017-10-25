@@ -24,26 +24,6 @@ class BsRequestActionSubmit < BsRequestAction
   end
 
   def execute_accept(opts)
-    # use the request description as comments for history
-    source_history_comment = bs_request.description
-
-    cp_params = {
-      cmd:            "copy",
-      user:           User.current.login,
-      oproject:       source_project,
-      opackage:       source_package,
-      noservice:      1,
-      requestid:      bs_request.number,
-      comment:        source_history_comment,
-      withacceptinfo: 1
-    }
-    cp_params[:orev] = source_rev if source_rev
-    cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
-    unless updatelink
-      cp_params[:expand] = 1
-      cp_params[:keeplink] = 1
-    end
-
     # create package unless it exists already
     target_project = Project.get_by_name(self.target_project)
     if target_package
@@ -66,8 +46,7 @@ class BsRequestActionSubmit < BsRequestAction
         target_package = target_project.packages.find_by_name(linked_package.name)
       else
         # new package, base container on source container
-        answer = Backend::Connection.get("/source/#{URI.escape(source_project)}/#{URI.escape(source_package)}/_meta")
-        newxml = Xmlhash.parse(answer.body)
+        newxml = Xmlhash.parse(Backend::Api::Sources::Package.meta(source_project, source_package))
         newxml['name'] = self.target_package
         newxml['devel'] = nil
         target_package = target_project.packages.new(name: newxml['name'])
@@ -83,13 +62,22 @@ class BsRequestActionSubmit < BsRequestAction
       end
     end
 
-    cp_path = "/source/#{self.target_project}/#{self.target_package}"
-    cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage,
-                                                                     :orev, :expand, :keeplink, :comment,
-                                                                     :requestid, :dontupdatesource, :noservice,
-                                                                     :withacceptinfo])
-    result = Backend::Connection.post cp_path
-    result = Xmlhash.parse(result.body)
+    cp_params = {
+      noservice:      1,
+      requestid:      bs_request.number,
+      comment:        bs_request.description,
+      withacceptinfo: 1
+    }
+    cp_params[:orev] = source_rev if source_rev
+    cp_params[:dontupdatesource] = 1 if sourceupdate == "noupdate"
+    unless updatelink
+      cp_params[:expand] = 1
+      cp_params[:keeplink] = 1
+    end
+    response = Backend::Api::Sources::Package.copy(self.target_project, self.target_package,
+                                                   source_project, source_package, User.current.login, cp_params)
+    result = Xmlhash.parse(response)
+
     set_acceptinfo(result["acceptinfo"])
 
     target_package.sources_changed
@@ -98,18 +86,9 @@ class BsRequestActionSubmit < BsRequestAction
     if relink_source && !(sourceupdate == "noupdate")
       # source package got used as devel package, link it to the target
       # re-create it via branch , but keep current content...
-      h = {}
-      h[:cmd] = "branch"
-      h[:user] = User.current.login
-      h[:comment] = "initialized devel package after accepting #{bs_request.number}"
-      h[:requestid] = bs_request.number
-      h[:keepcontent] = "1"
-      h[:noservice] = "1"
-      h[:oproject] = self.target_project
-      h[:opackage] = self.target_package
-      cp_path = "/source/#{CGI.escape(source_project)}/#{CGI.escape(source_package)}"
-      cp_path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :keepcontent])
-      Backend::Connection.post cp_path
+      options = { comment: "initialized devel package after accepting #{bs_request.number}",
+        requestid: bs_request.number, keepcontent: 1, noservice: 1 }
+      Backend::Api::Sources::Package.branch(self.target_project, self.target_package, source_project, source_package, User.current.login, options)
     elsif sourceupdate == "cleanup"
       source_cleanup
     end

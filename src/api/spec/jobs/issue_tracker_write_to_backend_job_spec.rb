@@ -10,15 +10,16 @@ RSpec.describe IssueTrackerWriteToBackendJob, type: :job, vcr: true do
   describe '#perform' do
     let!(:issue_tracker) { create(:issue_tracker, enable_fetch: true, url: 'https://github.com/opensuse/issues') }
     let!(:issue) { create(:issue, name: '123', issue_tracker_id: issue_tracker.id, created_at: 4.days.ago) }
+    let(:backend_response) { "<status code=\"ok\" />" }
 
     before do
-      allow(Backend::Connection).to receive(:put)
+      stub_request(:put, "#{CONFIG['source_url']}/issue_trackers").and_return(body: backend_response)
     end
 
-    subject! { IssueTrackerWriteToBackendJob.new.perform }
+    subject { IssueTrackerWriteToBackendJob.new.perform }
 
     it 'writes to the backend' do
-      expect(Backend::Connection).to have_received(:put)
+      expect(subject).to eq(backend_response)
     end
   end
 end

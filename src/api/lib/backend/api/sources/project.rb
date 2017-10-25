@@ -59,6 +59,13 @@ module Backend
         def self.move(source_project_name, target_project_name)
           post(["/source/:project", target_project_name], params: { cmd: :move, oproject: source_project_name })
         end
+
+        # Commits the request for the project
+        def self.commit(project_name, user_login, options = {})
+          post(["/source/:project/_project", project_name],
+               defaults: { cmd: :commit, user: user_login },
+               params: options, accepted: [:requestid, :rev, :comment])
+        end
       end
     end
   end
