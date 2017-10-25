@@ -61,6 +61,20 @@ In particular, this community seeks the following types of contributions:
 
   Do not use `*` as it is also used for _emphasis_.
 
+## How to review code submissions
+We make use of github [pull request reviews](https://help.github.com/articles/about-pull-request-reviews/) and we...
+
+- ...mark nitpicks inside the comment somehow (with the 💭 emoji or *nitpick*: blah blah)
+- ...aprove the pull request if our review only contains nitpicks
+- ...request changes on the pull request if our review contains one non-nitpick
+- ...just submit the review as comment if we can not review all of the code and just want to leave a comment
+
+Nitpicks are things you as reviewer don't care about if they end up in the code-base. Things like
+
+- Style changes we have not agreed on in rubocop rules yet
+- Bigger refactorings that are out of scope for the pull-request
+- Things new to you that you don't understand and would like to have an explanation for
+
 # How to contribute issues
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
 * Enter your issue and a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will label and prioritize it for you.
