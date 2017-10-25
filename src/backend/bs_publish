@@ -2316,11 +2316,6 @@ sub publishevent {
     set_publish_retry($req, $starttime + 60);
     die("$prp: external publish program still running\n");
   }
-  if ($publish_lasttime{$prp} && $publish_duration{$prp} > 300 && $publish_lasttime{$prp} + 5 * $publish_duration{$prp} > $starttime) {
-    set_publish_retry($req, $starttime + 60 * 5);
-    die("$prp: not yet\n");
-  }
-
   notify_state($projid, $repoid, 'publishing');
   eval {
     publish($projid, $repoid);
