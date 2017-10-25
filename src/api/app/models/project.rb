@@ -1417,6 +1417,15 @@ class Project < ApplicationRecord
     Backend::Connection.post "/build/#{URI.escape(name)}?cmd=wipe"
   end
 
+  # lock the project for the scheduler for atomic change when using multiple operations
+  def suspend_scheduler
+    Backend::Connection.post "/build/#{URI.escape(name)}?cmd=suspendproject"
+  end
+
+  def resume_scheduler
+    Backend::Connection.post "/build/#{URI.escape(name)}?cmd=resumeproject"
+  end
+
   def build_succeeded?(repository = nil)
     states = {}
     repository_states = {}
