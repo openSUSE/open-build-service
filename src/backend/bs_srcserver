@@ -3818,6 +3818,14 @@ sub docommand {
   my %archfilter = map {$_ => 1} @{$cgi->{'arch'} || []};
 
   my $proj = BSRevision::readproj_local($projid);
+  if ($cgi->{'cmd'} eq 'suspendproject') {
+    notify_repservers('suspendproject', $projid, undef, $cgi->{'comment'} || 'suspendproject');
+    return $BSStdServer::return_ok;
+  }
+  if ($cgi->{'cmd'} eq 'resumeproject') {
+    notify_repservers('package', $projid);	# also resumes the project
+    return $BSStdServer::return_ok;
+  }
   my @prpas;
   for my $repo (@{$proj->{'repository'} || []}) {
     next if %repoidfilter && !$repoidfilter{$repo->{'name'}};
@@ -6136,7 +6144,7 @@ my $dispatches = [
   'PUT:/build/_dispatchprios' => \&putdispatchprios,
   '/build/_dispatchprios' => \&getdispatchprios,
   '/build/$project/_availablebinaries url:* path:prp* arch*' => \&getavailablebinaries,
-  'POST:/build/$project cmd: repository* arch* package* code:* wipe:*' => \&docommand,
+  'POST:/build/$project cmd: repository* arch* package* code:* wipe:* comment:?' => \&docommand,
   '/build/$project' => \&getrepositorylist,
   '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:* multibuild:bool? locallink:bool?' => \&getresult,
   '/build/$project/$repository' => \&getarchlist,
