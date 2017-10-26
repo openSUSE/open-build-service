@@ -1,8 +1,14 @@
-
 <%= content_for :ready_function do %>
-  $("#advanced_tabs_trigger").click(function() {
-    $("#advanced_tabs").show();
-    $("#advanced_list_item").hide();
+  $("#kiwi_details_trigger").click(function() {
+    $("#kiwi-image-details-section").show();
+    $("#kiwi-image-repositories-section").hide();
+    $("#kiwi-image-packages-section").hide();
+  });
+
+  $("#kiwi_software_trigger").click(function() {
+    $("#kiwi-image-repositories-section").show();
+    $("#kiwi-image-packages-section").show();
+    $("#kiwi-image-details-section").hide();
   });
 <% end %>
 
@@ -10,31 +16,13 @@
 
 <div class="box-header header-tabs" id="package_tabs">
   <ul>
-    <%= tab 'kiwi', 'Image Editor', controller: 'kiwi/images', action: 'show', selected: true %>
-    <% if is_advanced_tab? %>
-      <%= content_for :ready_function do %>
-        $("#advanced_tabs").show();
-      <% end %>
+    <%= tab 'kiwi', 'Overview', controller: 'kiwi/images', action: 'show', selected: action_name == 'show' %>
+    <% unless action_name == 'edit' %>
+      <%= tab 'kiwi', 'Details', controller: 'kiwi/images', action: 'edit', params: { section: 'details' } %>
+      <%= tab 'kiwi', 'Software', controller: 'kiwi/images', action: 'edit', params: { section: 'software' }, selected: action_name == 'edit' && params[:section] == 'software' %>
     <% else %>
-      <li id="advanced_list_item"><a href="#" id="advanced_tabs_trigger">Advanced</a></li>
+      <li id="kiwi_details_tab" class="<%= 'selected' if params[:section] == 'details' %>"><a href="#" id="kiwi_details_trigger">Details</a></li>
+      <li id="kiwi_software_tab" class="<%= 'selected' if params[:section] == 'software' %>"><a href="#" id="kiwi_software_trigger">Software</a></li>
     <% end %>
   </ul>
-  <% unless @spider_bot %>
-    <div id="advanced_tabs" class="hidden">
-      <ul>
-        <%= tab 'overview', 'Overview', controller: '/webui/package', action: 'show', package: @image.package %>
-        <% if @image.package.name == "patchinfo" %>
-          <%= tab 'details', 'Details', controller: '/webui/patchinfo', action: 'show' %>
-        <% end %>
-        <% unless @spider_bot %>
-          <%= tab 'repositories', 'Repositories', controller: '/webui/repositories', action: 'index' %>
-          <%= tab 'revisions', 'Revisions', :controller => '/webui/package', :action => 'revisions', package: @image.package %>
-          <%= tab 'requests', "Requests", :controller => '/webui/package', :action => 'requests', package: @image.package %>
-          <%= tab 'users', 'Users', :controller => '/webui/package', :action => 'users', package: @image.package %>
-        <% end %>
-        <%= tab 'attributes', 'Attributes', controller: '/webui/attribute', :package => @image.package, :project => @image.package.project , :action => 'index' %>
-        <%= tab 'meta', 'Meta', :controller => '/webui/package', :action => 'meta', package: @image.package %>
-      </ul>
-    </div>
-  <% end %>
 </div>
