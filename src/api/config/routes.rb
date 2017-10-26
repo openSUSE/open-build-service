@@ -195,7 +195,7 @@ OBSApi::Application.routes.draw do
       get 'package/:package_id/kiwi_images/import_from_package' => :import_from_package, as: 'import_kiwi_image'
     end
 
-    resources :kiwi_images, only: [:show, :update], controller: 'webui/kiwi/images' do
+    resources :kiwi_images, only: [:show, :edit, :update], controller: 'webui/kiwi/images' do
       member do
         get 'autocomplete_binaries'
       end

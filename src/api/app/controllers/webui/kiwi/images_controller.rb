@@ -27,7 +27,7 @@ module Webui
           end
         end
 
-        redirect_to kiwi_image_path(package.kiwi_image)
+        redirect_to edit_kiwi_image_path(package.kiwi_image, section: 'software')
       end
 
       def show
@@ -42,6 +42,13 @@ module Webui
         end
       end
 
+      def edit
+        @package_groups = @image.default_package_group
+        respond_to do |format|
+          format.html
+        end
+      end
+
       def update
         ::Kiwi::Image.transaction do
           cleanup_non_project_repositories!
@@ -49,11 +56,11 @@ module Webui
           @image.update_attributes!(image_params) unless params[:kiwi_image].empty?
           @image.write_to_backend
         end
-        redirect_to action: :show
+        redirect_to action: :edit
       rescue ActiveRecord::RecordInvalid, Timeout::Error
         @package_groups = @image.package_groups.select(&:kiwi_type_image?).first
         flash.now[:error] = @image.nested_error_messages.merge(title: 'Cannot update KIWI Image:')
-        render action: :show
+        render action: :edit
       end
 
       def autocomplete_binaries
