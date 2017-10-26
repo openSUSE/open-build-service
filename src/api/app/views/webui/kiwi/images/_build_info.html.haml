@@ -1,11 +1,11 @@
 .box-header.header-tabs
   %ul
     %li.selected
-      %a{ class: "result_select_link", href: '#', id: "result_select_link" } Build Results
+      %a.result-select-link#result-select-link{ href: '#' } Build Results
       = sprite_tag('reload', title: 'Reload', onclick: 'update_build_result()', class: "result_reload", id: "result_reload")
       = image_tag('ajax-loader.gif', id: "result_spinner")
 
-#result_display.result_display
+.result-display#result-display
 
 - ajax_data = []
 - ajax_data.push("'project': '#{h(@project)}'")
@@ -21,14 +21,14 @@
         url: '#{ url_for(controller: '/webui/package', action: 'buildresult') }',
         data: {#{ajax_data}},
         success: function(data) {
-          $('#result_display').html(data);
+          $('#result-display').html(data);
         },
         error: function(data) {
-          $('#result_display').html('<p>No build results available</p>');
+          $('#result-display').html('<p>No build results available</p>');
         },
         complete: function(data) {
           $('#result_spinner').hide();
-          if ($('#result_select_link').parent().hasClass('selected')) {
+          if ($('#result-select-link').parent().hasClass('selected')) {
             $('#result_reload').show();
           }
         }

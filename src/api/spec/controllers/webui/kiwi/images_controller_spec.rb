@@ -36,7 +36,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
           get :import_from_package, params: { package_id: kiwi_image.package.id }
         end
 
-        it { expect(response).to redirect_to(kiwi_image_path(kiwi_image)) }
+        it { expect(response).to redirect_to(edit_kiwi_image_path(kiwi_image, section: 'software')) }
       end
 
       context 'that is an invalid kiwi file' do
@@ -69,7 +69,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
           it 'redirect to kiwi image show' do
             package_with_kiwi_file.reload
-            expect(response).to redirect_to(kiwi_image_path(package_with_kiwi_file.kiwi_image))
+            expect(response).to redirect_to(edit_kiwi_image_path(package_with_kiwi_file.kiwi_image, section: 'software'))
           end
         end
 
@@ -196,7 +196,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
       it { expect(subject.request.flash[:error]).to eq(errors) }
       it { expect(subject).to have_http_status(:success) }
-      it { expect(subject).to render_template(:show) }
+      it { expect(subject).to render_template(:edit) }
     end
 
     context 'with valid repositories data' do
@@ -223,7 +223,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
           post :update, params: update_params
         end
 
-        it { expect(response).to redirect_to(action: :show) }
+        it { expect(response).to redirect_to(action: :edit) }
         it { expect(flash[:error]).to be_nil }
       end
 
@@ -251,7 +251,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
           post :update, params: update_params
         end
 
-        it { expect(response).to redirect_to(action: :show) }
+        it { expect(response).to redirect_to(action: :edit) }
         it { expect(kiwi_image_with_package_with_kiwi_file.repositories.count).to eq(0) }
         it { expect(flash[:error]).to be_nil }
       end
@@ -289,7 +289,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
       it { expect(subject.request.flash[:error]).to eq(errors) }
       it { expect(subject).to have_http_status(:success) }
-      it { expect(subject).to render_template(:show) }
+      it { expect(subject).to render_template(:edit) }
     end
 
     context 'with valid packages data' do
@@ -318,7 +318,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
         kiwi_package.reload
       end
 
-      it { expect(response).to redirect_to(action: :show) }
+      it { expect(response).to redirect_to(action: :edit) }
       it { expect(flash[:error]).to be_nil }
       it { expect(kiwi_package.arch).to eq("x86-876") }
     end
