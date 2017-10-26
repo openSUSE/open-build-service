@@ -1,0 +1,4 @@
+%h2
+  = @image.name
+%p Fake description, this text will show the actual description. Needs merge of Evan's PR
+%p= link_to(sprited_text('package', 'Show Package'), package_show_path(@package.project, @package))
