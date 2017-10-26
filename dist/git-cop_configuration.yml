@@ -56,6 +56,6 @@
     #   * 'Update' or 'Upgrade' (needed by depfu gem)
     #   * Revert (for revert commits)
     # In both cases they should be followed by the actual commit message subject
-    - \A(?!\s)(?:Merge|Revert|Update|Upgrade|\[api\]|\[backend\]|\[ci\]|\[dist\]|\[doc\]|\[frontend\]|\[webui\])+ \S+
+    - \A(?!\s)(?:Merge|Revert|Update|Upgrade|\[api\]|\[backend\]|\[ci\]|\[contrib\]|\[dist\]|\[doc\]|\[frontend\]|\[webui\])+ \S+
 :commit_subject_suffix:
   :enabled: false
