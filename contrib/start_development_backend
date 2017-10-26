@@ -8,19 +8,20 @@ function _print_syntax() {
   echo "Usage: $me [-d <dir> -l <dir> -w <num> -r <server>]"
   echo -e "\t-d <dir>\tDirectory of source code. If not provided /vagrant ist used"
   echo -e "\t-l <dir>\tDirectory where the logfiles should be put. If not set STDERR and STDOUT will be printed to console"
-  echo -e "\t-r <server>\tRegister to this reposerver. Can be used multiple times."
+  echo -e "\t-h <string>\tSet hostname of server. (default: backend)"
 }
 
 #reset OPTIND
 OPTIND=1
 
 #preset GIT_HOME
-GIT_HOME="/vagrant"
+GIT_HOME="/obs"
 
-#preset reg_server
-haverep=0
+#preset HOST
+export DEVHOST="backend"
+
 #get options and check if there is a space in the dir arguments
-while getopts "l:d:h?" opt; do
+while getopts "l:d:h:?" opt; do
   case "$opt" in
   l)
     REDIR_LOG=$OPTARG
@@ -36,7 +37,14 @@ while getopts "l:d:h?" opt; do
       exit
     fi
     ;;
-  h|\?)
+  h)
+    export DEVHOST=$OPTARG
+    if [[ "$DEVHOST" =~ [[:space:]] ]]; then
+      echo "Hostname may not contain whitespaces"
+      exit
+    fi
+    ;;
+  \?)
     _print_syntax
     exit 0
     ;;
@@ -72,8 +80,9 @@ fi
 if [ ! -f $GIT_HOME/src/backend/BSConfig.pm ]; then
   cp $GIT_HOME/src/backend/BSConfig.pm.template $GIT_HOME/src/backend/BSConfig.pm
 fi
+
 perl -pi -e 's/our \$bsserviceuser.*/our \$bsserviceuser="obsrun";/' $GIT_HOME/src/backend/BSConfig.pm
-perl -pi -e 's/my \$hostname.*/my \$hostname="backend";/' $GIT_HOME/src/backend/BSConfig.pm
+perl -pi -e 's/my \$hostname.*/my \$hostname=\"$ENV{'DEVHOST'}\";/' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/\$ipaccess/\$removed_by_start_development_backend /' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/.*our \$gpg_standard_key.*/our \$gpg_standard_key="\/etc\/ourkeyfile.asc";/' $GIT_HOME/src/backend/BSConfig.pm
 perl -pi -e 's/.*our \$sign .*/our \$sign="\/usr\/bin\/sign";/' $GIT_HOME/src/backend/BSConfig.pm

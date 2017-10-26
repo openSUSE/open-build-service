@@ -8,7 +8,11 @@ function _print_syntax() {
   me=`basename "$0"`
   echo "Usage: $me [-d <dir> -w <num>]"
   echo -e "\t-d <dir>\tDirectory of source code. (default: /obs)"
+  echo -e "\t-l <dir>\tDirectory where the logfiles should be put. If not set STDERR and STDOUT will be printed to console"
   echo -e "\t-w <num>\tNumber of workers that should be spawned. (default: 2)"
+  echo -e "\t-h <string>\tSet hostname of server. (default: backend)"
+  echo -e "\t-r <server>\tRegister to this reposerver. Can be used multiple times."
+  echo -e "\t-i \tExecute immediately. Don't wait 60 seconds for the backend to become available."
 }
 
 #reset OPTIND
@@ -20,9 +24,26 @@ GIT_HOME="/obs"
 #preset WORKER_COUNT
 WORKER_N=2
 
+#preset HOST
+HOST="backend"
+
+#preset reg_server
+haverep=0
+
+#preset NOSLEEP
+NOSLEEP=0
+
+
 #get options and check if there is a space in the dir arguments
-while getopts "d:w:h?" opt; do
+while getopts "d:w:h:l:r:i?" opt; do
   case "$opt" in
+  l)
+    REDIR_LOG=$OPTARG
+    if [[ "REDIR_LOG" =~ [[:space:]] ]]; then
+      echo "Directory may not contain whitespaces"
+      exit
+    fi
+    ;;
   d)
     GIT_HOME=$OPTARG
     if [[ "$GIT_HOME" =~ [[:space:]] ]]; then
@@ -33,18 +54,63 @@ while getopts "d:w:h?" opt; do
   w)
     WORKER_N=$OPTARG
     ;;
-  h|\?)
+  r)
+    rep_server+=("$OPTARG")
+    haverep=1
+    ;;
+  i)
+    NOSLEEP=1
+    ;;
+  h)
+    HOST=$OPTARG
+    if [[ "$HOST" =~ [[:space:]] ]]; then
+      echo "Hostname may not contain whitespaces"
+      exit
+    fi
+    ;;
+  \?)
     _print_syntax
     exit 0
     ;;
   esac
 done
 
+
+REP_SERVER_STRING="--reposerver http://$HOST:5252"
+
+if [ -n "$REDIR_LOG" ]; then
+  if [ ! -d "$REDIR_LOG" ]; then
+    echo "$REDIR_LOG does not exist. Will try to create it"
+    mkdir -p "$REDIR_LOG" || { echo "Failure in creating directory:"; print_error; exit; }
+  fi
+  w_count=1
+  while [ $w_count -le $WORKER_N ]
+  do
+    APPEND_ARR[$w_count]=">$REDIR_LOG/bs_worker_$w_count.log 2>&1"
+    let w_count=$w_count+1
+  done
+fi
+
+if [[ "$haverep" -eq "1" ]]; then
+  REP_SERVER_STRING=""
+  REP_PREFIX="--reposerver http://"
+  REP_POSTFIX=":5252 "
+  for server in "${rep_server[@]}"
+  do
+    REP_SERVER_STRING=$REP_SERVER_STRING$REP_PREFIX$server$REP_POSTFIX
+  done
+fi
+
 #check if GIT_HOME exists. If not it does not make any sense to continue.
 if [ ! -d "$GIT_HOME" ]; then
   echo "There seems to be something wrong. Directory $GIT_HOME not found."
   echo "Please check if you are pointing to the right directory."
   exit 1
+fi
+
+if [[ $NOSLEEP -eq "0" ]]; then
+  # We need to wait for the backend to be available...
+  sleep 60
 fi
 
 w_count=1
@@ -58,12 +124,9 @@ do
   fi
   sudo chown -R obsrun:obsrun /srv/obs/run/
 
-  # We need to wait for the backend to be available...
-  sleep 60
-
-  echo "Starting bs_worker"
+  echo "Starting bs_worker number $w_count"
  
-  COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_$w_count --statedir /srv/obs/run/worker/$w_count --id $HOSTNAME:$w_count --reposerver http://backend:5252 --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 &"
+  COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_$w_count --statedir /srv/obs/run/worker/$w_count --id $HOSTNAME:$w_count $REP_SERVER_STRING --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 ${APPEND_ARR[$w_count]} &"
   eval $COMMAND_STRING
   let w_count=$w_count+1
 done
@@ -75,5 +138,11 @@ function clean_up {
   echo -e "Terminated Worker"
   exit;
 }
+
+if [ -n "$REDIR_LOG" ]; then
+  echo "Logfiles will be written to $REDIR_LOG"
+  echo "Each worker has it's own logfile"
+fi
+echo "If you want to terminate the workers, just hit Ctrl-C"
 
 wait
