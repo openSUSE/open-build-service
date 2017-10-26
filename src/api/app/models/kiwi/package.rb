@@ -1,16 +1,18 @@
-class Kiwi::Package < ApplicationRecord
-  belongs_to :package_group
-  has_one :kiwi_image, through: :package_groups
+module Kiwi
+  class Package < ApplicationRecord
+    belongs_to :package_group
+    has_one :kiwi_image, through: :package_groups
 
-  validates :name, presence: { message: 'Package name can\'t be blank'}
+    validates :name, presence: { message: 'Package name can\'t be blank'}
 
-  def to_h
-    hash = { name: name }
-    hash[:arch] = arch if arch.present?
-    hash[:replaces] = replaces if replaces.present?
-    hash[:bootinclude] = bootinclude if bootinclude.present?
-    hash[:bootdelete] = bootdelete if bootdelete.present?
-    hash
+    def to_h
+      hash = { name: name }
+      hash[:arch] = arch if arch.present?
+      hash[:replaces] = replaces if replaces.present?
+      hash[:bootinclude] = bootinclude if bootinclude.present?
+      hash[:bootdelete] = bootdelete if bootdelete.present?
+      hash
+    end
   end
 end
 

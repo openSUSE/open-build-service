@@ -1,35 +1,37 @@
-class Kiwi::PackageGroup < ApplicationRecord
-  has_many :packages, dependent: :destroy
-  belongs_to :image
+module Kiwi
+  class PackageGroup < ApplicationRecord
+    has_many :packages, dependent: :destroy
+    belongs_to :image
 
-  # we need to add a prefix, to avoid generating class methods that already
-  # exist in Active Record, such as "delete"
-  enum kiwi_type: %i[bootstrap delete docker image iso lxc oem pxe split testsuite vmx], _prefix: :type
+    # we need to add a prefix, to avoid generating class methods that already
+    # exist in Active Record, such as "delete"
+    enum kiwi_type: %i[bootstrap delete docker image iso lxc oem pxe split testsuite vmx], _prefix: :type
 
-  scope :type_image, -> { where(kiwi_type: :image) }
+    scope :type_image, -> { where(kiwi_type: :image) }
 
-  validates :kiwi_type, presence: true
+    validates :kiwi_type, presence: true
 
-  accepts_nested_attributes_for :packages, reject_if: :all_blank, allow_destroy: true
+    accepts_nested_attributes_for :packages, reject_if: :all_blank, allow_destroy: true
 
-  def to_xml
-    return '' if packages.empty?
-    group_attributes = { type: kiwi_type }
-    group_attributes[:profiles] = profiles if profiles.present?
-    group_attributes[:patternType] = pattern_type if pattern_type.present?
+    def to_xml
+      return '' if packages.empty?
+      group_attributes = { type: kiwi_type }
+      group_attributes[:profiles] = profiles if profiles.present?
+      group_attributes[:patternType] = pattern_type if pattern_type.present?
 
-    builder = Nokogiri::XML::Builder.new
-    builder.packages(group_attributes) do |group|
-      packages.each do |package|
-        group.package(package.to_h)
+      builder = Nokogiri::XML::Builder.new
+      builder.packages(group_attributes) do |group|
+        packages.each do |package|
+          group.package(package.to_h)
+        end
       end
+
+      builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT
     end
 
-    builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT
-  end
-
-  def kiwi_type_image?
-    kiwi_type == 'image'
+    def kiwi_type_image?
+      kiwi_type == 'image'
+    end
   end
 end
 
