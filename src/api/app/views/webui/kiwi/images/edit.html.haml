@@ -6,36 +6,13 @@
     = render partial: 'base_info'
 
   .grid_16.alpha.omega.box.box-shadow#kiwi-image-details-section{ class: "#{'hidden' if params[:section] != 'details'}" }
-    %h3 Details editing
-    %p Needs merge Evan's PR
+    = render partial: 'webui/kiwi/images/description', locals: { f: f }
 
   .grid_16.alpha.omega.box.box-shadow#kiwi-image-repositories-section{ class: "#{'hidden' if params[:section] != 'software'}" }
-    %h3 Repositories
-    #kiwi-use-project-repositories
-      %p
-        = f.check_box :use_project_repositories
-        = f.label :use_project_repositories
-      %p.ui-state-highlight#use-project-repositories-text{ class: "#{'hidden' unless f.object.use_project_repositories?}"}
-        = sprite_tag("info", title: 'Add package')
-        This option will use the repositories from the current project. Other repositories set in this Kiwi Image will be REMOVED.
-    #kiwi-repositories-list{ class: "#{'hidden' if f.object.use_project_repositories?}"}
-      %hr
-      %p#no-repositories{ class: "#{'hidden' if @image.repositories.present?}" }= 'There are no repositories.'
-      = f.fields_for :repositories do |repository_fields|
-        = render 'repository_fields', f: repository_fields
-      %p
-        = link_to_add_association(sprite_tag("drive_add", title: 'Add repository') + ' Add repository', f, :repositories)
+    = render partial: 'webui/kiwi/images/repositories', locals: { f: f }
 
   .grid_16.alpha.omega.box.box-shadow#kiwi-image-packages-section{ class: "#{'hidden' if params[:section] != 'software'}" }
-    %h3 Packages
-    #kiwi-packages-list
-      %p#no-packages{ class: "#{'hidden' if @package_groups.packages.present?}" }= 'There are no packages.'
-
-      = f.fields_for :package_groups, @package_groups  do |package_group_fields|
-        = package_group_fields.fields_for :packages do |kiwi_package_fields|
-          = render 'package_fields', f: kiwi_package_fields
-        %p
-          = link_to_add_association(sprite_tag("package_add", title: 'Add package') + ' Add package', package_group_fields, :packages)
+    = render partial: 'webui/kiwi/images/packages', locals: { f: f }
 
   .grid_2.alpha.omega.box.box-shadow.kiwi-button
     %h3

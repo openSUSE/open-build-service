@@ -31,10 +31,14 @@ module Webui
       end
 
       def show
-        # Because the form needs a Description & Preference objects instantiated
         @image.build_description if @image.description.nil?
-        @image.build_preference if @image.preference.nil?
-        @package_groups = @image.default_package_group
+        @image.build_preference(type_image: 'docker') if @image.preference.nil?
+        @description = @image.description.specification
+        @version = 'x.x.x'
+        @author = @image.description.author
+        @contact = @image.description.contact
+        @repositories_count = @image.repositories.count
+        @packages_count = @image.kiwi_packages.count
 
         respond_to do |format|
           format.html
@@ -43,7 +47,11 @@ module Webui
       end
 
       def edit
+        @image.build_description if @image.description.nil?
+        @description = @image.description.specification
+        @version =  'x.x.x'
         @package_groups = @image.default_package_group
+
         respond_to do |format|
           format.html
         end
