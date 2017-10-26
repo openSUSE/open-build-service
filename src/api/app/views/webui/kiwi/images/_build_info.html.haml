@@ -1,0 +1,38 @@
+.box-header.header-tabs
+  %ul
+    %li.selected
+      %a{ class: "result_select_link", href: '#', id: "result_select_link" } Build Results
+      = sprite_tag('reload', title: 'Reload', onclick: 'update_build_result()', class: "result_reload", id: "result_reload")
+      = image_tag('ajax-loader.gif', id: "result_spinner")
+
+#result_display.result_display
+
+- ajax_data = []
+- ajax_data.push("'project': '#{h(@project)}'")
+- ajax_data.push("'package': '#{h(@package)}'")
+- ajax_data = raw(ajax_data.join ', ')
+
+= javascript_tag do
+  :plain
+    function update_build_result() {
+      $('#result_spinner').show();
+      $('#result_reload').hide();
+      $.ajax({
+        url: '#{ url_for(controller: '/webui/package', action: 'buildresult') }',
+        data: {#{ajax_data}},
+        success: function(data) {
+          $('#result_display').html(data);
+        },
+        error: function(data) {
+          $('#result_display').html('<p>No build results available</p>');
+        },
+        complete: function(data) {
+          $('#result_spinner').hide();
+          if ($('#result_select_link').parent().hasClass('selected')) {
+            $('#result_reload').show();
+          }
+        }
+      });
+    }
+
+    update_build_result();

@@ -31,12 +31,15 @@ module Webui
       end
 
       def show
+        @package = @image.package
+        @project = @package.project
         @image.build_description if @image.description.nil?
         @image.build_preference(type_image: 'docker') if @image.preference.nil?
         @description = @image.description.specification
         @version = 'x.x.x'
         @author = @image.description.author
         @contact = @image.description.contact
+
         @repositories_count = @image.repositories.count
         @packages_count = @image.kiwi_packages.count
 
