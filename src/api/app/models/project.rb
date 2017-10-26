@@ -1403,6 +1403,15 @@ class Project < ApplicationRecord
     store(comment: "Request got revoked", request: request, lowprio: 1)
   end
 
+  # lock the project for the scheduler for atomic change when using multiple operations
+  def suspend_scheduler
+    Backend::Api::Build::Project.suspend_scheduler(name)
+  end
+
+  def resume_scheduler
+    Backend::Api::Build::Project.resume_scheduler(name)
+  end
+
   def reopen_release_targets
     repositories.each do |repo|
       repo.release_targets.each do |releasetarget|
@@ -1414,7 +1423,7 @@ class Project < ApplicationRecord
 
     return unless repositories.count > 0
     # ensure higher build numbers for re-release
-    Backend::Connection.post "/build/#{URI.escape(name)}?cmd=wipe"
+    Backend::Api::Build::Project.wipe_binaries(name)
   end
 
   def build_succeeded?(repository = nil)

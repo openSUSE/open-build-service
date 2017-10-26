@@ -50,6 +50,8 @@ module MaintenanceHelper
       target_project = target
     end
     target_project.check_write_access!
+    # lock the scheduler
+    target_project.suspend_scheduler
 
     if source_package.name.starts_with?("_product:") && target_project.packages.where(name: "_product").count > 0
       # a master _product container exists, so we need to copy all sources
@@ -79,6 +81,9 @@ module MaintenanceHelper
         # patchinfos stay unpublished, it is anyway too late to test them now ...
       end
     end
+
+    # release the scheduler lock
+    target_project.resume_scheduler
 
     u_ids
   end
