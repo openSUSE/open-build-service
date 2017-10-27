@@ -95,9 +95,13 @@ OUTERSRCDIR="$MOUNTDIR/src"
 INNERSCRIPTDIR="$INNERBASEDIR/scripts"
 INNERSCRIPT="$INNERSCRIPTDIR/inner.sh"
 
+OUTERHOMEDIR="$MOUNTDIR/home"
+INNERHOMEDIR="$INNERBASEDIR/home"
+
 create_dir "$OUTEROUTDIR"
 create_dir "$OUTERSRCDIR"
 create_dir "$MOUNTDIR$INNERSCRIPTDIR"
+create_dir "$OUTERHOMEDIR"
 
 # Create inner.sh which is just a wrapper for
 # su nobody -s inner.sh.command
@@ -123,7 +127,7 @@ else
   printlog "Using docker with network"
 fi
 
-DOCKER_VOLUMES="-v $OUTEROUTDIR:$INNEROUTDIR -v $OUTERSRCDIR:$INNERSRCDIR -v $MOUNTDIR$INNERSCRIPTDIR:$INNERSCRIPTDIR:ro"
+DOCKER_VOLUMES="-v $OUTEROUTDIR:$INNEROUTDIR -v $OUTERSRCDIR:$INNERSRCDIR -v $OUTERHOMEDIR:$INNERHOMEDIR -v $MOUNTDIR$INNERSCRIPTDIR:$INNERSCRIPTDIR:ro"
 JAILED=""
 
 if [ $SCM_COMMAND -eq 1 ];then
@@ -137,7 +141,7 @@ if [ $SCM_COMMAND -eq 1 ];then
 fi
 FULL_COMMAND="${COMMAND[@]} --outdir $INNEROUTDIR"
 printlog "FULL_COMMAND: '$FULL_COMMAND'"
-echo "export HOME=/home/daemon" 			>> "$MOUNTDIR/${INNERSCRIPT}.command"
+echo "export HOME='$INNERHOMEDIR'" 			>> "$MOUNTDIR/${INNERSCRIPT}.command"
 echo "$FULL_COMMAND" 					>> "$MOUNTDIR/${INNERSCRIPT}.command"
 
 
