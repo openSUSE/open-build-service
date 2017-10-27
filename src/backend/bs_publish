@@ -2191,7 +2191,7 @@ publishprog_done:
     my $hook = $BSConfig::publishedhook->{$publish_prp};
     $hook = [ $hook ] unless ref $hook;
     print "    calling published hook @$hook\n";
-    qsystem(@$hook, $prp, $extrep, @changed) && warn("    @$hook failed: $?\n");
+    qsystem(@$hook, $prp, $extrep, @changed) && die("    @$hook failed: $?\n");
   }
 
   BSNotify::notify('REPO_PUBLISHED', { project => $projid , 'repo' => $repoid });
