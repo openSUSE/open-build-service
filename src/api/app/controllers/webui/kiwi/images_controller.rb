@@ -39,9 +39,11 @@ module Webui
         @version = 'x.x.x'
         @author = @image.description.author
         @contact = @image.description.contact
-
         @repositories_count = @image.repositories.count
         @packages_count = @image.kiwi_packages.count
+
+        @is_edit_details_action = false
+        @is_edit_software_action = false
 
         respond_to do |format|
           format.html
@@ -54,6 +56,11 @@ module Webui
         @description = @image.description.specification
         @version =  'x.x.x'
         @package_groups = @image.default_package_group
+        @author = @image.description.author
+        @contact = @image.description.contact
+
+        @is_edit_details_action = params[:section] == 'details'
+        @is_edit_software_action = params[:section] == 'software'
 
         respond_to do |format|
           format.html

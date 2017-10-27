@@ -3,15 +3,12 @@
 = form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
   .grid_16.alpha.omega.box.box-shadow
     = render partial: 'webui/kiwi/tabs'
-    = render partial: 'base_info'
+    = render partial: 'base_info', locals: { f: f }
 
-  .grid_16.alpha.omega.box.box-shadow#kiwi-image-details-section{ class: "#{'hidden' if params[:section] != 'details'}" }
-    = render partial: 'webui/kiwi/images/description', locals: { f: f }
-
-  .grid_16.alpha.omega.box.box-shadow#kiwi-image-repositories-section{ class: "#{'hidden' if params[:section] != 'software'}" }
+  .grid_16.alpha.omega.box.box-shadow#kiwi-image-repositories-section{ class: "#{'hidden' unless @is_edit_software_action}" }
     = render partial: 'webui/kiwi/images/repositories', locals: { f: f }
 
-  .grid_16.alpha.omega.box.box-shadow#kiwi-image-packages-section{ class: "#{'hidden' if params[:section] != 'software'}" }
+  .grid_16.alpha.omega.box.box-shadow#kiwi-image-packages-section{ class: "#{'hidden' unless @is_edit_software_action}" }
     = render partial: 'webui/kiwi/images/packages', locals: { f: f }
 
   .grid_2.alpha.omega.box.box-shadow.kiwi-button

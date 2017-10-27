@@ -1,7 +1,22 @@
-%h2
-  = @image.name
-%p= @description
-%small
-  Version
-  = @version
-%p= link_to(sprited_text('package', 'View Package'), package_show_path(@package.project, @package))
+#kiwi-description
+  .nested-fields
+    %h2#image-name
+      = @image.name
+    %p.detailed-info{ class: "#{'hidden' if @is_edit_software_action}" }
+      %span.fill{ data: { tag: 'specification' }}
+        = @description
+    %small.detailed-info{ class: "#{'hidden' if @is_edit_software_action}" }
+      Version
+      = @version
+    %ul.inline.detailed-info{ class: "#{'hidden' unless @is_edit_details_action}" }
+      %li
+        %strong Author:
+        %span.fill{ data: { tag: 'author' }}= @author
+      %li
+        %strong Contact:
+        %span.fill{ data: { tag: 'contact' }}= @contact
+    %p
+      = link_to(sprited_text('package', 'View Package'), package_show_path(@package.project, @package))
+      = link_to(sprited_text('package_edit', 'Edit details'), '#', class: "description_edit detailed-info #{'hidden' unless @is_edit_details_action}")
+    - if action_name == 'edit'
+      = render partial: 'description_form', locals: { f: f }

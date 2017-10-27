@@ -1,6 +1,7 @@
 <%= content_for :ready_function do %>
   $("#kiwi_details_trigger").click(function() {
     $("#kiwi-image-details-section").show();
+    $(".detailed-info").show();
     $("#kiwi-image-repositories-section").hide();
     $("#kiwi-image-packages-section").hide();
   });
@@ -8,6 +9,7 @@
   $("#kiwi_software_trigger").click(function() {
     $("#kiwi-image-repositories-section").show();
     $("#kiwi-image-packages-section").show();
+    $(".detailed-info").hide();
     $("#kiwi-image-details-section").hide();
   });
 <% end %>
