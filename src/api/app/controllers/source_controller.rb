@@ -1369,7 +1369,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=commitfilelist
   def package_command_commitfilelist
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
+    path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink, :withvalidate])
     answer = pass_to_backend path
 
     @package.sources_changed(dir_xml: answer) if @package # except in case of _project package
