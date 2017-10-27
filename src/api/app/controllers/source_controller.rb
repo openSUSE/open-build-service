@@ -1465,7 +1465,7 @@ class SourceController < ApplicationController
       pkg.project.repositories.each do |repo|
         next if params[:repository] && params[:repository] != repo.name
         repo.release_targets.each do |releasetarget|
-          target_package_name = pkg.name
+          target_package_name = pkg.release_target_name
           # emulate a maintenance release request action here in case
           if pkg.project.is_maintenance_incident?
             # The maintenance ID is always the sub project name of the maintenance project
