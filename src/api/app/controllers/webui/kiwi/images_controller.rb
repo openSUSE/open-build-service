@@ -31,7 +31,9 @@ module Webui
       end
 
       def show
+        @image.build_description if @image.description.nil? # Because the form needs a Description object instantiated
         @package_groups = @image.default_package_group
+
         respond_to do |format|
           format.html
           format.json { render json: { is_outdated: @image.outdated? } }
@@ -61,6 +63,14 @@ module Webui
       private
 
       def image_params
+        description_attributes = [
+          :id,
+          :author,
+          :contact,
+          :description_type,
+          :specification
+        ]
+
         repositories_attributes = [
           :id,
           :_destroy,
@@ -84,6 +94,10 @@ module Webui
 
         params.require(:kiwi_image).permit(
           :use_project_repositories,
+          :name,
+          :schema_version,
+          :displayname,
+          description_attributes: description_attributes,
           repositories_attributes: repositories_attributes,
           package_groups_attributes: package_groups_attributes
         )

@@ -87,3 +87,14 @@
   margin-top: 3px;
 }
 
+#kiwi-description {
+  h2 { margin-bottom: 0;}
+
+  .inline {
+    li {
+      display: inline-block;
+
+      &:first-child { margin-left: 0; }
+    }
+  }
+}

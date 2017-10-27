@@ -24,6 +24,12 @@ function enableSave(){
   $('#kiwi-image-update-form-save, #kiwi-image-update-form-revert').addClass('enabled');
 }
 
+function editDescriptionDialog(){
+  var dialog = $('#kiwi-description').find('.dialog');
+  dialog.removeClass('hidden');
+  $('.overlay').show();
+}
+
 function editPackageDialog(){
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.dialog');
@@ -77,6 +83,39 @@ function addRepositoryErrorMessage(source_path, field) {
 
   field.removeClass('hidden');
 }
+
+function closeDescriptionDialog() {
+  var fields = $(this).parents('.nested-fields');
+  var dialog = fields.find('.dialog');
+  var name = dialog.find("[id$='name']");
+
+  if (name.val() !== '') {
+    $('#image-name').text(name.val());
+  }
+  else {
+    fields.find(".ui-state-error").removeClass('hidden');
+    return false;
+  }
+
+  var elements = fields.find('.fill');
+  for(var i=0; i < elements.length; i++) {
+    var object = dialog.find("[id$='" + $(elements[i]).data('tag') + "']");
+    if ( object.val() != "") {
+      $(elements[i]).text(object.val());
+    }
+  }
+
+  addDefault(dialog);
+
+  if (!canSave) {
+    enableSave();
+  }
+
+  fields.find(".ui-state-error").addClass('hidden');
+
+  hideOverlay(dialog);
+}
+
 
 function closeDialog() {
   var fields = $(this).parents('.nested-fields');
@@ -136,6 +175,7 @@ function closeDialog() {
 function revertDialog() {
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.dialog');
+  dialog.find(".ui-state-error").addClass('hidden');
 
   if(dialog.hasClass('new_element')) {
     hideOverlay(dialog);
@@ -296,6 +336,10 @@ $(document).ready(function(){
 
   // Enable save button
   $('.remove_fields').click(enableSave);
+
+  // Edit dialog for Description
+  $('.description_edit').click(editDescriptionDialog);
+  $('.close-description-dialog').click(closeDescriptionDialog);
 
   // Edit dialog for Repositories and Packages
   $('.repository_edit').click(editRepositoryDialog);

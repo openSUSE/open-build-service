@@ -3,8 +3,8 @@
 = form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
   .grid_16.alpha.omega.box.box-shadow
     = render partial: 'webui/kiwi/tabs'
-    %h2
-      = @image.name
+
+    = render partial: 'webui/kiwi/images/description', locals: { f: f }
 
   .grid_16.alpha.omega.box.box-shadow
     = render partial: 'webui/kiwi/images/repositories', locals: { f: f }
