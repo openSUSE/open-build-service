@@ -25,7 +25,8 @@ module Kiwi
 
         if document.xpath('image/description[@type="system"]').first
           %w[author contact specification].each do |element_name|
-            update_description_element(document, element_name)
+            description_xml_element = find_or_create_description_xml_element(document, element_name)
+            document.xpath('image/description[@type="system"]').first.add_child(description_xml_element)
           end
         else
           document.at_css('image').first_element_child.before(@image.description.to_xml)
@@ -33,13 +34,13 @@ module Kiwi
         document
       end
 
-      def update_description_element(document, element_name)
+      def find_or_create_description_xml_element(document, element_name)
         element_xml = document.xpath("image/description[@type='system']/#{element_name}").first
         unless element_xml
           element_xml = Nokogiri::XML::Node.new(element_name, document)
-          document.xpath('image/description[@type="system"]').first.add_child(element_xml)
         end
         element_xml.content = @image.description.send(element_name)
+        element_xml
       end
 
       def update_packages(document)
