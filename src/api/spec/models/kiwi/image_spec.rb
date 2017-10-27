@@ -108,6 +108,12 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
           bootinclude: nil,
           bootdelete: nil
         )
+        expect(subject.description).to have_attributes(
+          description_type: 'system',
+          author: 'Christian Bruckmayer',
+          contact: 'noemail@example.com',
+          specification: 'Tiny, minimalistic appliances'
+        )
       end
     end
 
@@ -157,6 +163,22 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.valid?).to be_truthy }
       it { expect(subject.repositories).to be_empty }
       it { expect(subject.kiwi_packages).to be_empty }
+    end
+
+    context 'with multiple descriptions in the xml file' do
+      subject { Kiwi::Image.build_from_xml(kiwi_xml_with_multiple_descriptions, 'some_md5') }
+
+      it { expect(subject.valid?).to be_truthy }
+      it { expect(subject.repositories).to be_empty }
+      it { expect(subject.kiwi_packages).to be_empty }
+      it 'parses only the description with type = "system"' do
+        expect(subject.description).to have_attributes(
+          description_type: 'system',
+          author: 'Christian Bruckmayer',
+          contact: 'noemail@example.com',
+          specification: 'Tiny, minimalistic appliances'
+        )
+      end
     end
   end
 
@@ -243,7 +265,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.to_xml).to be_nil }
     end
 
-    context 'with a kiwi file with packages and repositories' do
+    context 'with a kiwi file with packages, repositories and a description' do
       let(:package) { create(:package) }
       let(:kiwi_image) { Kiwi::Image.build_from_xml(kiwi_xml, 'some_md5') }
       subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
@@ -255,6 +277,10 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         kiwi_image.save
       end
 
+      it { expect(subject.children[2].children[1].name).to eq('description') }
+      it { expect(subject.children[2].children[1].children[1].name).to eq('author') }
+      it { expect(subject.children[2].children[1].children[3].name).to eq('contact') }
+      it { expect(subject.children[2].children[1].children[5].name).to eq('specification') }
       it { expect(subject.children[2].children[3].name).to eq('packages') }
       it { expect(subject.children[2].children[3].attributes['type'].value).to eq('image') }
       it { expect(subject.children[2].children[7].name).to eq('repository') }
@@ -271,6 +297,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       before do
         allow(package).to receive(:kiwi_image_file).and_return('config.kiwi')
         allow(package).to receive(:source_file).and_return(Kiwi::Image::DEFAULT_KIWI_BODY)
+        kiwi_image.save
         kiwi_image.package = package
         kiwi_image.package_groups << create(:kiwi_package_group_non_empty, kiwi_type: 'image')
         kiwi_image.repositories << create(:kiwi_repository)

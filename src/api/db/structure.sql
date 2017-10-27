@@ -606,6 +606,19 @@ CREATE TABLE `issues` (
   CONSTRAINT `issues_ibfk_2` FOREIGN KEY (`issue_tracker_id`) REFERENCES `issue_trackers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `kiwi_descriptions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `image_id` int(11) DEFAULT NULL,
+  `description_type` int(11) DEFAULT '0',
+  `author` varchar(255) DEFAULT NULL,
+  `contact` varchar(255) DEFAULT NULL,
+  `specification` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_kiwi_descriptions_on_image_id` (`image_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `kiwi_images` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
@@ -1257,6 +1270,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170921100521'),
 ('20170925060940'),
 ('20171011125520'),
+('20171013103921'),
 ('20171019151800');
 
 

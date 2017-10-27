@@ -13,10 +13,35 @@ module Kiwi
 
         doc = update_packages(doc)
         doc = update_repositories(doc)
+        doc = update_description(doc)
+
         Nokogiri::XML(doc.to_xml, &:noblanks).to_xml(indent: kiwi_indentation(doc))
       end
 
       private
+
+      def update_description(document)
+        return document if @image.description.blank?
+
+        if document.xpath('image/description[@type="system"]').first
+          %w[author contact specification].each do |element_name|
+            description_xml_element = find_or_create_description_xml_element(document, element_name)
+            document.xpath('image/description[@type="system"]').first.add_child(description_xml_element)
+          end
+        else
+          document.at_css('image').first_element_child.before(@image.description.to_xml)
+        end
+        document
+      end
+
+      def find_or_create_description_xml_element(document, element_name)
+        element_xml = document.xpath("image/description[@type='system']/#{element_name}").first
+        unless element_xml
+          element_xml = Nokogiri::XML::Node.new(element_name, document)
+        end
+        element_xml.content = @image.description.send(element_name)
+        element_xml
+      end
 
       def update_packages(document)
         # for now we only write the default package group
