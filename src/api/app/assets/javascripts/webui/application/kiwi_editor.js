@@ -7,7 +7,7 @@ function hideOverlay(dialog) {
 
 function saveImage() {
   if (canSave) {
-    $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
+    $.ajax({ url: is_outdated_url,
       dataType: 'json',
       success: function(json) {
         var is_outdated = json.is_outdated;
