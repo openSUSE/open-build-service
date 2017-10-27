@@ -163,7 +163,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
   describe '#to_xml' do
     context 'without a package' do
       context 'without any repository or package' do
-        it { expect(kiwi_image.to_xml).to eq(Kiwi::Image::DEFAULT_KIWI_BODY) }
+        it { expect(kiwi_image.to_xml.delete(' ')).to eq(Kiwi::Image::DEFAULT_KIWI_BODY.delete(' ')) }
       end
 
       context 'with some repositories and packages' do
