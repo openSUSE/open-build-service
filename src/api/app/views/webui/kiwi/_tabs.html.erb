@@ -16,13 +16,14 @@
 
 <div class="box-header header-tabs" id="package_tabs">
   <ul>
-    <%= tab 'kiwi', 'Overview', controller: 'kiwi/images', action: 'show', selected: action_name == 'show' %>
-    <% unless action_name == 'edit' %>
-      <%= tab 'kiwi', 'Details', controller: 'kiwi/images', action: 'edit', params: { section: 'details' } %>
-      <%= tab 'kiwi', 'Software', controller: 'kiwi/images', action: 'edit', params: { section: 'software' }, selected: action_name == 'edit' && params[:section] == 'software' %>
-    <% else %>
-      <li id="kiwi_details_tab" class="<%= 'selected' if params[:section] == 'details' %>"><a href="#" id="kiwi_details_trigger">Details</a></li>
-      <li id="kiwi_software_tab" class="<%= 'selected' if params[:section] == 'software' %>"><a href="#" id="kiwi_software_trigger">Software</a></li>
-    <% end %>
+    <%= content_tag('li', link_to('Overview', controller: 'kiwi/images', action: 'show'), class: "#{'selected' if  action_name == 'show'}") %>
+    <%
+      link_to_details =  (action_name == 'edit') ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'details' }
+      link_to_software =  (action_name == 'edit') ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'software' }
+    %>
+    <%= content_tag('li', link_to('Details', link_to_details, { id: "kiwi_details_trigger"}),
+                    class: "#{'selected' if params[:section] == 'details'}", id: "kiwi_details_tab" ) %>
+    <%= content_tag('li', link_to('Software', link_to_software, { id: "kiwi_software_trigger"}),
+                    class: "#{'selected' if params[:section] == 'software'}", id: "kiwi_software_tab" ) %>
   </ul>
 </div>
