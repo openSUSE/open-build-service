@@ -19,7 +19,7 @@ module Kiwi
     #### Scopes (first the default_scope macro if is used)
 
     #### Validations macros
-    validates :alias, :source_path, uniqueness: { scope: :image, message: "%{attribute} '%{value}' has already been taken."}
+    validates :alias, :source_path, uniqueness: { scope: :image, message: "%{attribute} '%{value}' has already been taken."}, allow_blank: true
     validates :source_path, presence: { message: '%{attribute} can\'t be nil.'}
     validate :source_path_format
     validates :priority, numericality: { only_integer: true, allow_nil: true, greater_than_or_equal_to: 0,
