@@ -54,12 +54,12 @@ module Webui
       def edit
         @image.build_description if @image.description.nil?
         @description = @image.description.specification
-        @version =  'x.x.x'
+        @version = 'x.x.x'
         @package_groups = @image.default_package_group
         @author = @image.description.author
         @contact = @image.description.contact
 
-        @is_edit_details_action = params[:section] == 'details'
+        @is_edit_details_action = params[:section] == 'details' || params[:section].nil?
         @is_edit_software_action = params[:section] == 'software'
 
         respond_to do |format|

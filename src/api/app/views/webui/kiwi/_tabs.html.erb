@@ -24,8 +24,8 @@
       link_to_software =  (action_name == 'edit') ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'software' }
     %>
     <%= content_tag('li', link_to('Details', link_to_details, { id: "kiwi_details_trigger"}),
-                    class: "#{'selected' if params[:section] == 'details'}", id: "kiwi_details_tab" ) %>
+                    class: "#{'selected' if @is_edit_details_action}", id: "kiwi_details_tab" ) %>
     <%= content_tag('li', link_to('Software', link_to_software, { id: "kiwi_software_trigger"}),
-                    class: "#{'selected' if params[:section] == 'software'}", id: "kiwi_software_tab" ) %>
+                    class: "#{'selected' if @is_edit_software_action}", id: "kiwi_software_tab" ) %>
   </ul>
 </div>
