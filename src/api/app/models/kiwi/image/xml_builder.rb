@@ -6,7 +6,7 @@ module Kiwi
       end
 
       def build
-        doc = Nokogiri::XML::DocumentFragment.parse(kiwi_body)
+        doc = Nokogiri::XML::DocumentFragment.parse(@image.kiwi_body)
         image = doc.at_css('image')
 
         return nil unless image && image.first_element_child
@@ -68,16 +68,6 @@ module Kiwi
           [Kiwi::Repository.new(source_path: 'obsrepositories:/', repo_type: 'rpm-md')]
         else
           @image.repositories
-        end
-      end
-
-      def kiwi_body
-        if @image.package
-          kiwi_file = @image.package.kiwi_image_file
-          return nil unless kiwi_file
-          @image.package.source_file(kiwi_file)
-        else
-          Kiwi::Image::DEFAULT_KIWI_BODY
         end
       end
 
