@@ -1437,6 +1437,15 @@ class Package < ApplicationRecord
     backend_build_command(:abortbuild, params[:project], params.slice(:package, :arch, :repository))
   end
 
+  def release_target_name
+    # usually used in maintenance incidents
+    return releasename if releasename
+    # old incidents
+    return linkinfo['package'] if project.is_maintenance_incident? && linkinfo && linkinfo['package']
+    # no incident
+    name
+  end
+
   def backend_build_command(command, build_project, params)
     begin
       Project.find_by(name: build_project).check_write_access!

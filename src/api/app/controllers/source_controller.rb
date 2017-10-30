@@ -1465,8 +1465,15 @@ class SourceController < ApplicationController
       pkg.project.repositories.each do |repo|
         next if params[:repository] && params[:repository] != repo.name
         repo.release_targets.each do |releasetarget|
+          target_package_name = pkg.release_target_name
+          # emulate a maintenance release request action here in case
+          if pkg.project.is_maintenance_incident?
+            # The maintenance ID is always the sub project name of the maintenance project
+            target_package_name += '.' << pkg.project.name.gsub(/.*:/, '')
+          end
+
           # find md5sum and release source and binaries
-          release_package(pkg, releasetarget.target_repository, pkg.name, repo, multibuild_container, nil, params[:setrelease], true)
+          release_package(pkg, releasetarget.target_repository, target_package_name, repo, multibuild_container, nil, params[:setrelease], true)
         end
       end
     end

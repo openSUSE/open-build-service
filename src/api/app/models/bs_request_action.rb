@@ -552,7 +552,10 @@ class BsRequestAction < ApplicationRecord
         end
       end
 
-      if pkg.releasename && is_maintenance_release?
+      if target_package
+        # manual specified
+        tpkg = target_package
+      elsif pkg.releasename && is_maintenance_release?
         # incidents created since OBS 2.8 should have this information already.
         tpkg = pkg.releasename
       elsif tprj.try(:is_maintenance_incident?) && is_maintenance_release?
@@ -564,7 +567,6 @@ class BsRequestAction < ApplicationRecord
         # we need to get rid of it again ...
         tpkg = tpkg.gsub(/#{Regexp.escape(suffix)}$/, '') # strip distro specific extension
       end
-      tpkg = target_package if target_package # already given
 
       # maintenance incident actions need a releasetarget
       releaseproject = get_releaseproject(pkg, tprj)
