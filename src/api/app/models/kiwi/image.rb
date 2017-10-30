@@ -143,4 +143,5 @@ end
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
 #  use_project_repositories :boolean          default(FALSE)
+#  version                  :string(255)      default("0.0.1")
 #

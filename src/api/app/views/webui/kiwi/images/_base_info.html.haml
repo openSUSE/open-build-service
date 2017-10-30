@@ -7,7 +7,8 @@
         = @description
     %small.detailed-info{ class: "#{'hidden' if @is_edit_software_action}" }
       Version
-      = @version
+      %span.fill{ data: { tag: 'version' }}
+        = @version
     %ul.inline.detailed-info{ class: "#{'hidden' unless @is_edit_details_action}" }
       %li
         %strong Author:

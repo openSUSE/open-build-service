@@ -8,6 +8,10 @@
         = f.text_field :name, data: { default: f.object.name }
 
       %p
+        = f.label :version
+        = f.text_field :version, data: { default: f.object.version }
+
+      %p
         = f.fields_for :description, f.object.description do |description_fields|
           %p
             = description_fields.label :author

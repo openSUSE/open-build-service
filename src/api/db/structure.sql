@@ -626,6 +626,7 @@ CREATE TABLE `kiwi_images` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime(6) NOT NULL,
   `use_project_repositories` tinyint(1) DEFAULT '0',
+  `version` varchar(255) DEFAULT '0.0.1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1283,7 +1284,6 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171013103921'),
 ('20171019151800'),
 ('20171030143054'),
+('20171030150551'),
 ('20171102110929'),
 ('20171107125828');
-
-
