@@ -111,6 +111,16 @@ module Kiwi
       message
     end
 
+    def kiwi_body
+      if package
+        kiwi_file = package.kiwi_image_file
+        return nil unless kiwi_file
+        package.source_file(kiwi_file)
+      else
+        Kiwi::Image::DEFAULT_KIWI_BODY
+      end
+    end
+
     private
 
     def check_use_project_repositories
