@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Lilies of the Field</title>
+          <title>To a God Unknown</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '105'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Lilies of the Field</title>
+          <title>To a God Unknown</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Dolores corporis culpa voluptatem facere et. Aliquid recusandae facilis
-        quis ea saepe dolor. Id minima nam non fugit et maiores. Numquam vitae et.
+      string: Cumque ut adipisci distinctio quibusdam et ea. Sed officia autem non.
+        Iure numquam quam nihil et dicta voluptate.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,7 +72,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta?user=_nobody_
@@ -80,8 +80,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>A Confederacy of Dunces</title>
-          <description>Reiciendis laudantium ab consectetur facere impedit aut corporis.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Est rerum consequatur cupiditate esse consequatur ut nisi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,16 +102,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '218'
+      - '205'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>A Confederacy of Dunces</title>
-          <description>Reiciendis laudantium ab consectetur facere impedit aut corporis.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Est rerum consequatur cupiditate esse consequatur ut nisi.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta
@@ -119,8 +119,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>A Confederacy of Dunces</title>
-          <description>Reiciendis laudantium ab consectetur facere impedit aut corporis.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Est rerum consequatur cupiditate esse consequatur ut nisi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -141,16 +141,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '218'
+      - '205'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>A Confederacy of Dunces</title>
-          <description>Reiciendis laudantium ab consectetur facere impedit aut corporis.</description>
+          <title>Nectar in a Sieve</title>
+          <description>Est rerum consequatur cupiditate esse consequatur ut nisi.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -216,20 +216,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="23" vrev="23">
+        <revision rev="6" vrev="6">
           <srcmd5>febd44ad0e6a0c4271b0197ea7a125e9</srcmd5>
           <version>unknown</version>
-          <time>1505165799</time>
+          <time>1509969973</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
@@ -255,15 +255,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '249'
+      - '247'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="23" vrev="23" srcmd5="febd44ad0e6a0c4271b0197ea7a125e9">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="b766875b54bc4fbf48bbbf1017104e1e" size="1536" mtime="1505142564" />
+        <directory name="package_with_invalid_kiwi_file" rev="6" vrev="6" srcmd5="febd44ad0e6a0c4271b0197ea7a125e9">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="b766875b54bc4fbf48bbbf1017104e1e" size="1536" mtime="1509969972" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -334,7 +334,7 @@ http_interactions:
           </repository>
         </image>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
@@ -360,13 +360,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '249'
+      - '247'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="23" vrev="23" srcmd5="febd44ad0e6a0c4271b0197ea7a125e9">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="b766875b54bc4fbf48bbbf1017104e1e" size="1536" mtime="1505142564" />
+        <directory name="package_with_invalid_kiwi_file" rev="6" vrev="6" srcmd5="febd44ad0e6a0c4271b0197ea7a125e9">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="b766875b54bc4fbf48bbbf1017104e1e" size="1536" mtime="1509969972" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
 recorded_with: VCR 3.0.3

@@ -14,11 +14,48 @@ module Kiwi
         doc = update_packages(doc)
         doc = update_repositories(doc)
         doc = update_description(doc)
+        doc = update_preferences(doc)
 
         Nokogiri::XML(doc.to_xml, &:noblanks).to_xml(indent: kiwi_indentation(doc))
       end
 
       private
+
+      # Creates or updates the containerconfig name and tag inside the <preferences>.
+      # It leaves the other attributes untouched. For example:
+      #   <preferences>
+      #     <type image="docker" boot="grub">
+      #       <containerconfig name="my_container" tag="latest"/>
+      #       <oemconfig>test</oemconfig>
+      #     </type>
+      #     <packagemanager>zypper</packagemanager>
+      #   </preferences>
+      def update_preferences(document)
+        return document if @image.preference_type.blank?
+
+        document.xpath('image/preferences/type').first['image'] = @image.preference_type.image_type
+
+        # <preferences> <type> and <containerconfig> blocks exist already
+        if document.xpath('image/preferences/type/containerconfig').any?
+          document = update_preference_type(document)
+        # <preferences> and <type> blocks exist but <containerconfig> does not
+        else
+          document = add_preference_type(document)
+        end
+
+        document
+      end
+
+      def update_preference_type(document)
+        document.xpath('image/preferences/type/containerconfig').first['name'] = @image.preference_type.containerconfig_name
+        document.xpath('image/preferences/type/containerconfig').first['tag'] = @image.preference_type.containerconfig_tag
+        document
+      end
+
+      def add_preference_type(document)
+        document.xpath('image/preferences/type').first.add_child(@image.preference_type.containerconfig_xml)
+        document
+      end
 
       def update_description(document)
         return document if @image.description.blank?

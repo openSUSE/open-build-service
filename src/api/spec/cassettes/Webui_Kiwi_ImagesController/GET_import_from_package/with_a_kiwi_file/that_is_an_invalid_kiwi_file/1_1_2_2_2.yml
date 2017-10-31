@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+          <title>Behold the Man</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '133'
+      - '103'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+          <title>Behold the Man</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Deserunt perspiciatis autem quas facilis molestias sint. Fugiat qui
-        libero. Molestias quo cum ut qui at quia.
+      string: Soluta deleniti et consequatur. Quibusdam est a dolorem delectus sit
+        placeat. Aut vel illo culpa. Earum similique sed repellat. Qui quod et quae
+        quos.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,16 +73,16 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:10 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta?user=tom
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Et voluptatem voluptas quidem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -107,11 +108,11 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Et voluptatem voluptas quidem.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta
@@ -119,8 +120,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Et voluptatem voluptas quidem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -146,11 +147,11 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Absalom, Absalom!</title>
-          <description>Cupiditate repellat et optio ipsa.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Et voluptatem voluptas quidem.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -218,20 +219,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
+        <revision rev="1" vrev="1">
           <srcmd5>6ccfa0805f62f6fba78db7bc8b4082ba</srcmd5>
           <version>unknown</version>
-          <time>1505165798</time>
+          <time>1509969970</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
@@ -257,15 +258,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '249'
+      - '247'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="20" vrev="20" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1505142565" />
+        <directory name="package_with_invalid_kiwi_file" rev="1" vrev="1" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1509969970" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -338,7 +339,7 @@ http_interactions:
           </repository>
         </image>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
@@ -364,52 +365,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '249'
+      - '247'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="20" vrev="20" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1505142565" />
+        <directory name="package_with_invalid_kiwi_file" rev="1" vrev="1" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1509969970" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:38 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Brandy of the Damned</title>
-          <description>Tempora error doloremque animi praesentium mollitia.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '202'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Brandy of the Damned</title>
-          <description>Tempora error doloremque animi praesentium mollitia.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 05 Oct 2017 08:56:47 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 recorded_with: VCR 3.0.3

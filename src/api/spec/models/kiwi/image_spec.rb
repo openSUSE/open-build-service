@@ -115,6 +115,14 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
           specification: 'Tiny, minimalistic appliances'
         )
       end
+
+      it 'parses the preference type' do
+        expect(subject.preference_type).to have_attributes(
+          image_type: 'docker',
+          containerconfig_name: 'my_container',
+          containerconfig_tag: 'latest'
+        )
+      end
     end
 
     context 'with source_path' do
@@ -160,7 +168,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     context 'with a non xml Kiwi File it creates an empty image' do
       subject { Kiwi::Image.build_from_xml('', 'some_md5') }
 
-      it { expect(subject.valid?).to be_truthy }
+      it { expect(subject.valid?).to be_falsey }
       it { expect(subject.repositories).to be_empty }
       it { expect(subject.kiwi_packages).to be_empty }
     end
@@ -184,14 +192,12 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
 
   describe '#to_xml' do
     context 'without a package' do
-      context 'without any repository or package' do
-        it { expect(kiwi_image.to_xml.delete(' ')).to eq(Kiwi::Image::DEFAULT_KIWI_BODY.delete(' ')) }
-      end
-
-      context 'with some repositories and packages' do
+      context 'with repositories, packages and preference_type' do
         before do
           kiwi_image.repositories << create(:kiwi_repository)
           kiwi_image.package_groups << create(:kiwi_package_group_non_empty, kiwi_type: 'image')
+          kiwi_image.preference_type = create(:kiwi_preference_type)
+          kiwi_image.save
         end
 
         subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
@@ -202,6 +208,11 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         it { expect(subject.xpath('.//image/packages').length).to be(1) }
         it { expect(subject.xpath('.//image/packages/package').length).to be(2) }
         it { expect(subject.xpath('.//image/repository').length).to be(1) }
+
+        it 'output the xml for the preferences type' do
+          expect(subject.xpath('.//image/preferences').length).to be(1)
+          expect(subject.xpath('.//image/preferences/type[@image="docker"]/containerconfig').first).not_to be_nil
+        end
       end
     end
 
@@ -230,12 +241,13 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
 
       subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
 
-      it { expect(subject.errors).to be_empty }
-      it { expect(subject.xpath('.//image').length).to be(1) }
-      it { expect(subject.xpath('.//image/description').length).to be(1) }
-      it { expect(subject.xpath(".//image/packages[@type='image']/package").length).to be(0) }
-      it { expect(subject.xpath(".//image/packages[@type='delete']/package").length).to be(0) }
-      it { expect(subject.xpath('.//image/repository').length).to be(0) }
+      it 'returns the xml for the kiwi image correctly' do
+        expect(subject.errors).to be_empty
+        expect(subject.xpath('.//image').length).to be(1)
+        expect(subject.xpath('.//image/description').length).to be(1)
+        expect(subject.xpath(".//image/packages[@type='image']/package").length).to be(0)
+        expect(subject.xpath('.//image/repository').length).to be(0)
+      end
     end
 
     context 'with a invalid kiwi image file' do
@@ -281,9 +293,9 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.children[2].children[1].children[1].name).to eq('author') }
       it { expect(subject.children[2].children[1].children[3].name).to eq('contact') }
       it { expect(subject.children[2].children[1].children[5].name).to eq('specification') }
-      it { expect(subject.children[2].children[3].name).to eq('packages') }
-      it { expect(subject.children[2].children[3].attributes['type'].value).to eq('image') }
-      it { expect(subject.children[2].children[7].name).to eq('repository') }
+      it { expect(subject.children[2].children[5].name).to eq('packages') }
+      it { expect(subject.children[2].children[5].attributes['type'].value).to eq('image') }
+      it { expect(subject.children[2].children[9].name).to eq('repository') }
       it { expect(subject.children[2].children[9].name).to eq('repository') }
       it { expect(subject.children[2].children[11].name).to eq('repository') }
       it { expect(subject.children[2].children[13].name).to eq('repository') }

@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Wealth of Nations</title>
+          <title>Nectar in a Sieve</title>
           <description/>
         </project>
     headers:
@@ -29,24 +29,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '106'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Wealth of Nations</title>
+          <title>Nectar in a Sieve</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Rem maiores aut. Aut ab nihil nesciunt velit consequatur id adipisci.
-        Asperiores necessitatibus hic impedit ut quia. Eius aperiam iure temporibus
-        modi impedit amet tempora.
+      string: Sit facere molestiae. Dolorem modi hic iste fuga similique iure sunt.
+        Qui beatae possimus aut quo soluta. Minima nihil non nam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -73,7 +72,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_without_kiwi_file/_meta?user=_nobody_
@@ -81,8 +80,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>An Acceptable Time</title>
-          <description>Et voluptatem reprehenderit non praesentium nostrum.</description>
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Autem dolores quod ipsam adipisci dolor praesentium aliquid.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -103,16 +102,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '195'
+      - '213'
     body:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>An Acceptable Time</title>
-          <description>Et voluptatem reprehenderit non praesentium nostrum.</description>
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Autem dolores quod ipsam adipisci dolor praesentium aliquid.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_without_kiwi_file/_meta
@@ -120,8 +119,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>An Acceptable Time</title>
-          <description>Et voluptatem reprehenderit non praesentium nostrum.</description>
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Autem dolores quod ipsam adipisci dolor praesentium aliquid.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -142,16 +141,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '195'
+      - '213'
     body:
       encoding: UTF-8
       string: |
         <package name="package_without_kiwi_file" project="fake_project">
-          <title>An Acceptable Time</title>
-          <description>Et voluptatem reprehenderit non praesentium nostrum.</description>
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Autem dolores quod ipsam adipisci dolor praesentium aliquid.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:10 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_without_kiwi_file
@@ -184,44 +183,5 @@ http_interactions:
         <directory name="package_without_kiwi_file" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/fake_project/package_without_kiwi_file/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_without_kiwi_file" project="fake_project">
-          <title>A Monstrous Regiment of Women</title>
-          <description>Hic veritatis cumque unde.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '180'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_without_kiwi_file" project="fake_project">
-          <title>A Monstrous Regiment of Women</title>
-          <description>Hic veritatis cumque unde.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 11 Oct 2017 15:18:22 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:10 GMT
 recorded_with: VCR 3.0.3

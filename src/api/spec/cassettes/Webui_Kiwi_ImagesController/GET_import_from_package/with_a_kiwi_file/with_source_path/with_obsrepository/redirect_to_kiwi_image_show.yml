@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>This Side of Paradise</title>
+          <title>The Wealth of Nations</title>
           <description/>
         </project>
     headers:
@@ -34,19 +34,18 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>This Side of Paradise</title>
+          <title>The Wealth of Nations</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Qui consequatur id totam enim inventore hic sunt. Dolores aliquid vel
-        optio minus aut esse ducimus. Voluptate nihil dolore consequuntur ex quis
-        animi. Tempore eum nostrum esse autem iusto et labore.
+      string: Harum natus excepturi perspiciatis deleniti amet. Beatae vel qui vero
+        et consequatur. Quas voluptatem tempore dolor.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -73,7 +72,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
@@ -81,8 +80,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>The Parliament of Man</title>
-          <description>Numquam voluptas voluptatem libero.</description>
+          <title>Recalled to Life</title>
+          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -103,16 +102,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '189'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>The Parliament of Man</title>
-          <description>Numquam voluptas voluptatem libero.</description>
+          <title>Recalled to Life</title>
+          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta
@@ -120,8 +119,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>The Parliament of Man</title>
-          <description>Numquam voluptas voluptatem libero.</description>
+          <title>Recalled to Life</title>
+          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -142,16 +141,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '189'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>The Parliament of Man</title>
-          <description>Numquam voluptas voluptatem libero.</description>
+          <title>Recalled to Life</title>
+          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
@@ -194,6 +193,9 @@ http_interactions:
           <repository type="rpm-md">
             <source path="obsrepositories:/"/>
           </repository>
+          <preferences>
+            <type image="docker" boot="grub"/>
+          </preferences>
         </image>
     headers:
       Accept-Encoding:
@@ -218,16 +220,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>15a2f6f67049560c511dba7a96144445</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>ffac8feb048e1b26f53436c15e6a82c9</srcmd5>
           <version>unknown</version>
-          <time>1505165800</time>
+          <time>1509969972</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file
@@ -257,11 +259,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_a_kiwi_file" rev="6" vrev="6" srcmd5="15a2f6f67049560c511dba7a96144445">
-          <entry name="package_with_a_kiwi_file.kiwi" md5="b15285e545a4265f25349d8c4dee9919" size="1302" mtime="1505142565" />
+        <directory name="package_with_a_kiwi_file" rev="1" vrev="1" srcmd5="ffac8feb048e1b26f53436c15e6a82c9">
+          <entry name="package_with_a_kiwi_file.kiwi" md5="363dc3edd83746bef4b3433f338cabae" size="1374" mtime="1509969972" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
@@ -283,7 +285,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '1302'
+      - '1374'
       Cache-Control:
       - no-cache
       Connection:
@@ -327,9 +329,12 @@ http_interactions:
           <repository type="rpm-md">
             <source path="obsrepositories:/"/>
           </repository>
+          <preferences>
+            <type image="docker" boot="grub"/>
+          </preferences>
         </image>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file
@@ -359,11 +364,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_a_kiwi_file" rev="6" vrev="6" srcmd5="15a2f6f67049560c511dba7a96144445">
-          <entry name="package_with_a_kiwi_file.kiwi" md5="b15285e545a4265f25349d8c4dee9919" size="1302" mtime="1505142565" />
+        <directory name="package_with_a_kiwi_file" rev="1" vrev="1" srcmd5="ffac8feb048e1b26f53436c15e6a82c9">
+          <entry name="package_with_a_kiwi_file.kiwi" md5="363dc3edd83746bef4b3433f338cabae" size="1374" mtime="1509969972" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
@@ -371,8 +376,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>The Parliament of Man</title>
-          <description>Numquam voluptas voluptatem libero.</description>
+          <title>Recalled to Life</title>
+          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -393,53 +398,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '189'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>The Parliament of Man</title>
-          <description>Numquam voluptas voluptatem libero.</description>
+          <title>Recalled to Life</title>
+          <description>Atque aut maxime ea culpa magnam recusandae quis.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>The Parliament of Man</title>
-          <description>Numquam voluptas voluptatem libero.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '180'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>The Parliament of Man</title>
-          <description>Numquam voluptas voluptatem libero.</description>
-        </package>
-    http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:40 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
 recorded_with: VCR 3.0.3

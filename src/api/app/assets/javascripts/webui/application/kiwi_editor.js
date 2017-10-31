@@ -30,6 +30,12 @@ function editDescriptionDialog(){
   $('.overlay').show();
 }
 
+function editPreferencesDialog(){
+  var dialog = $('#kiwi-preferences').find('.dialog');
+  dialog.removeClass('hidden');
+  $('.overlay').show();
+}
+
 function editPackageDialog(){
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.dialog');
@@ -115,6 +121,34 @@ function closeDescriptionDialog() {
 
   hideOverlay(dialog);
 }
+
+
+function closePreferencesDialog() {
+  var fields = $(this).parents('.nested-fields');
+  var dialog = fields.find('.dialog');
+
+  var elements = fields.find('.fill');
+  for(var i=0; i < elements.length; i++) {
+    var object = dialog.find("[id$='" + $(elements[i]).data('tag') + "']");
+    if ( object.val() != "") {
+      if ( $(elements[i]).data('tag') == 'image_type' ) {
+        $(elements[i]).text(object.find(":selected").text());
+      }
+      else {
+        $(elements[i]).text(object.val());
+      }
+    }
+  }
+
+  addDefault(dialog);
+
+  if (!canSave) {
+    enableSave();
+  }
+
+  hideOverlay(dialog);
+}
+
 
 
 function closeDialog() {
@@ -340,6 +374,10 @@ $(document).ready(function(){
   // Edit dialog for Description
   $('.description_edit').click(editDescriptionDialog);
   $('.close-description-dialog').click(closeDescriptionDialog);
+
+  // Edit dialog for Description
+  $('.preferences_edit').click(editPreferencesDialog);
+  $('.close-preferences-dialog').click(closePreferencesDialog);
 
   // Edit dialog for Repositories and Packages
   $('.repository_edit').click(editRepositoryDialog);

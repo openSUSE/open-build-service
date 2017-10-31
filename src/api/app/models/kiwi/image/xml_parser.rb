@@ -15,6 +15,7 @@ module Kiwi
         new_image.repositories = repositories
         new_image.package_groups = package_groups
         new_image.description = description
+        new_image.preference_type = preference_type
 
         new_image
       end
@@ -90,6 +91,8 @@ module Kiwi
 
       # Return an instance of Kiwi::Description model from the parsed xml
       def description
+        return if xml_hash["description"].blank?
+
         attributes = [xml_hash["description"]].flatten.find do |description|
           description['type'] == 'system'
         end
@@ -102,6 +105,31 @@ module Kiwi
           contact:          attributes['contact'],
           specification:    attributes['specification']
         )
+      end
+
+      def preference_type
+        return if preference_type_image_type.blank?
+
+        Kiwi::PreferenceType.new(
+          image_type:            preference_type_image_type,
+          containerconfig_name: preference_type_container_attributes['name'],
+          containerconfig_tag:  preference_type_container_attributes['tag']
+        )
+      end
+
+      def preference_type_container_attributes
+        @preference_type_container_attributes ||=
+          if xml_hash['preferences'].present? && xml_hash['preferences']['type']
+            xml_hash['preferences']['type']['containerconfig'] || {}
+          else
+            {}
+          end
+      end
+
+      def preference_type_image_type
+        return unless xml_hash['preferences'].present? && xml_hash['preferences']['type'].present?
+
+        xml_hash['preferences']['type']['image']
       end
     end
   end
