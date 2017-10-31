@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :download_repository do
     arch "x86_64"
     url "http://suse.com"

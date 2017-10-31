@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :history_element_review_assigned, class: 'HistoryElement::ReviewAssigned' do
     type { 'HistoryElement::ReviewAssigned' }
   end

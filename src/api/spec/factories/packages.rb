@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :package do
     project
     sequence(:name) { |n| "package_#{n}" }

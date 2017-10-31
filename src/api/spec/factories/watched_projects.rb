@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :watched_project do
     project
     user

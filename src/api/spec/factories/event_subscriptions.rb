@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :event_subscription do
     factory :event_subscription_comment_for_project do
       eventtype 'Event::CommentForProject'
