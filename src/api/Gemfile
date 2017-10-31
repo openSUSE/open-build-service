@@ -141,7 +141,7 @@ group :development, :test do
   # as testing framework
   gem 'rspec-rails', '~> 3.5.0'
   # for fixtures
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
   # for mocking the backend
   gem 'vcr'
   # as alternative to the standard IRB shell
