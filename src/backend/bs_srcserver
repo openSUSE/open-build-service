@@ -2697,6 +2697,7 @@ sub findfile {
   }
 
   return @{$files{'_preinstallimage'}} if $ext ne 'kiwi' && keys(%files) == 1 && $files{'_preinstallimage'};
+  return @{$files{'simpleimage'}} if $files{'simpleimage'};
 
   if ($ext eq 'arch') {
     return @{$files{'PKGBUILD'}} if $files{'PKGBUILD'};
@@ -3366,7 +3367,7 @@ sub getprojpack {
             my ($md5, $file) = findfile($rev, $repoid, $type, $files);
 	    if (!$md5) {
 	      # no spec/dsc/kiwi file found
-	      if ($files->{'_preinstallimage'} || grep {/\.(?:spec|dsc|kiwi)$/} keys %$files) {
+	      if ($files->{'_preinstallimage'} || $files->{'simpleimage'}  || grep {/\.(?:spec|dsc|kiwi)$/} keys %$files) {
 		# only different types available
 		$rinfo->{'error'} = 'excluded';
 	      }
