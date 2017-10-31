@@ -63,18 +63,14 @@ module Backend
         # Transforms the output of the available_in_repositories, available_in_urls and available_in_project methods to a hash containing
         # the name of the binary as keys and the architectures as the value
         def self.transform_binary_packages_response(response)
-          list = {}
+          list = Hash.new([])
           parsed_response = Xmlhash.parse(response)
           return list if parsed_response.blank?
           packages = [parsed_response["packages"]].flatten
           packages.each do |build|
-            architectures = [build["arch"]].flatten
-            packages = [build["name"]].flatten
-            packages.each do |package|
-              architectures_copy = architectures.dup
-              architectures_copy = architectures_copy.concat(list[package]) if list[package]
-              list[package] = architectures_copy.uniq
-            end
+            architectures_names = [build["arch"]].flatten
+            package_names = [build["name"]].flatten
+            package_names.each { |package| list[package] = architectures_names.dup.concat(list[package]).uniq }
           end
           list
         end
