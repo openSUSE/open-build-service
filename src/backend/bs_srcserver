@@ -1862,11 +1862,11 @@ sub applylink {
       next;
     }
     if ($p->{'type'} eq 'topadd') {
-      for my $spec (grep {/\.spec$/} ls($tmpdir)) {
-	local *F;
-	open(F, '>>', "$tmpdir/.log") || die("$tmpdir/.log: $!\n");
-	print F "adding text at top of $spec\n";
-	close F;
+      for my $spec (grep {/(_preinstallimage|simpleimage|\.spec)$/} ls($tmpdir)) {
+        local *F;
+        open(F, '>>', "$tmpdir/.log") || die("$tmpdir/.log: $!\n");
+        print F "adding text at top of $spec\n";
+        close F;
         topaddspec($p, $tmpdir, $spec);
         delete $fl{$spec};
       }
