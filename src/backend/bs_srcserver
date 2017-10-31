@@ -1728,6 +1728,15 @@ sub applylink {
   mkdir_p($tmpdir);
   die("$tmpdir: $!\n") unless -d $tmpdir;
   unlink("$tmpdir/$_") for ls($tmpdir);	# remove old stuff
+
+  {
+	local *F;
+	open(F, '>>', "$tmpdir/.log") || die("$tmpdir/.log: $!\n");
+	print F "Applying link...\n";
+	close F;
+	print STDERR "Applying link...\n";
+  }
+
   my %apply = map {$_->{'name'} => 1} grep {$_->{'type'} eq 'apply'} @patches;
   $apply{$_} = 1 for keys %{$llnk->{'ignore'} || {}};	# also ignore those files, used in keeplink
   my %fl;
@@ -1867,6 +1876,7 @@ sub applylink {
         open(F, '>>', "$tmpdir/.log") || die("$tmpdir/.log: $!\n");
         print F "adding text at top of $spec\n";
         close F;
+        print STDERR "adding text at top of $spec: $p\n";
         topaddspec($p, $tmpdir, $spec);
         delete $fl{$spec};
       }
