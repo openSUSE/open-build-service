@@ -287,20 +287,38 @@ sub verify_link {
     die("missingok in link must be '1' or 'true'\n") unless $l->{'missingok'} && ($l->{'missingok'} eq '1' || $l->{'missingok'} eq 'true');
   }
   return unless $l->{'patches'} && $l->{'patches'}->{''};
+  my $num_branch = 0;
+  my $num_topadd = 0;
+  my $num_other = 0;
   for my $p (@{$l->{'patches'}->{''}}) {
     die("more than one type in patch\n") unless keys(%$p) == 1;
     my $type = (keys %$p)[0];
     my $pd = $p->{$type};
     if ($type eq 'branch') {
       die("branch link must have baserev\n") unless $l->{'baserev'};
-      die("branch link must not have other patches\n") if @{$l->{'patches'}->{''}} != 1;
       die("branch element contains data\n") if $pd;
+      $num_branch++;
     } elsif ($type eq 'add' || $type eq 'apply' || $type eq 'delete') {
       verify_filename($pd->{'name'});
-    } elsif ($type ne 'topadd') {
+      $num_other++;
+    } elsif ($type eq 'topadd') {
+      $num_topadd++;
+    } else {
       die("unknown patch type '$type'\n");
     }
   }
+  if ( ($num_branch > 1) ||
+       ( ($num_branch > 0) && ($num_other > 0) )
+     ) { die("branch link must not have other patches, other than 'topadd'\n"); }
+     ### Note: One branch and any amount of topadd patches are acceptable
+     ### so we can tune the spec-file behavior for cloned "packages" which
+     ### we want to keep up-to-date based on the parent template "package".
+     ### Just in case, note that topadd's are interpreted one by one, each
+     ### prefixing the top of the specfile or _preinstallimage file. This
+     ### means they are inverted in the spec compared to order in _link.
+     ### You can however use one topadd tag with multiline content if needed.
+     ### Finally note that in the _link file, <branch/> should be before
+     ### lines like   <topadd>%define small_build 1</topadd>
 }
 
 sub verify_aggregatelist {
