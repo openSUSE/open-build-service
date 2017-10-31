@@ -130,6 +130,16 @@ module Kiwi
 
       errors.add(:base, "Multiple package groups with same type are not allowed.")
     end
+
+    def add_error(message, record_type, records)
+      records.each do |record|
+        if record.errors.present?
+          message["#{record_type.capitalize}: #{record.name}"] ||= []
+          message["#{record_type.capitalize}: #{record.name}"] << record.errors.messages.values
+          message["#{record_type.capitalize}: #{record.name}"].flatten!
+        end
+      end
+    end
   end
 end
 
