@@ -417,7 +417,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.keys).to match_array(['package1', 'package2', 'package3']) }
       it { expect(subject['package1']).to match_array(['i586', 'x86_64']) }
       it { expect(subject['package2']).to match_array(['i586']) }
-      it { expect(subject['package3']).to match_array(['i586', 'x86_64']) }
+      it { expect(subject['package3']).to match_array(['x86_64']) }
     end
 
     context 'with OBS and "normal" repositories set' do
