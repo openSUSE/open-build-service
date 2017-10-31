@@ -71,8 +71,9 @@ module Backend
             architectures = [build["arch"]].flatten
             packages = [build["name"]].flatten
             packages.each do |package|
-              architectures = architectures.concat(list[package]) if list[package]
-              list[package] = architectures.uniq
+              architectures_copy = architectures.dup
+              architectures_copy = architectures_copy.concat(list[package]) if list[package]
+              list[package] = architectures_copy.uniq
             end
           end
           list
