@@ -134,9 +134,9 @@ module Kiwi
     def add_error(message, record_type, records)
       records.each do |record|
         if record.errors.present?
-          message["#{record_type.capitalize}: #{record.name}"] ||= []
-          message["#{record_type.capitalize}: #{record.name}"] << record.errors.messages.values
-          message["#{record_type.capitalize}: #{record.name}"].flatten!
+          message["#{record_type}: #{record.name}"] ||= []
+          message["#{record_type}: #{record.name}"] << record.errors.messages.values
+          message["#{record_type}: #{record.name}"].flatten!
         end
       end
     end
