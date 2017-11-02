@@ -2985,10 +2985,10 @@ sub sourcecommitfilelist {
         my $sha256 = Digest::SHA->new(256);
         my $hash_to_check = "sha256:" . $sha256->addfile($fd)->hexdigest;
         if ($hash_to_check ne $entry->{'hash'}) {
-          die("SHA missmatch for same md5sum in $packid for file $entry->{'name'} with sum $entry->{'md5'}\n");
+          die("SHA mismatch for same md5sum in $packid for file $entry->{'name'} with sum $entry->{'md5'}\n");
         }
       } elsif ($cgi->{'withvalidate'}) {
-        if ((!$ofiles->{$entry->{'name'}} || $ofiles->{$entry->{'name'}} ne $entry->{'md5'}) ||
+        if ((!$ofiles->{$entry->{'name'}} || $ofiles->{$entry->{'name'}} ne $entry->{'md5'}) &&
             (!$ofiles_expanded->{$entry->{'name'}} || $ofiles_expanded->{$entry->{'name'}} ne $entry->{'md5'})) {
           $entry->{'hash'} = 'missing';
           push @missing, $entry;
