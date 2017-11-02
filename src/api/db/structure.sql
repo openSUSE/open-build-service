@@ -374,6 +374,11 @@ CREATE TABLE `configurations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `data_migrations` (
+  `version` varchar(255) NOT NULL,
+  UNIQUE KEY `unique_data_migrations` (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `delayed_jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `priority` int(11) DEFAULT '0',
