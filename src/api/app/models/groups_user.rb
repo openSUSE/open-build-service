@@ -19,7 +19,7 @@ end
 #
 # Table name: groups_users
 #
-#  group_id   :integer          default(0), indexed => [user_id]
+#  group_id   :integer          default(0), not null, indexed => [user_id]
 #  user_id    :integer          default(0), not null, indexed => [group_id], indexed
 #  created_at :datetime
 #  email      :boolean          default(TRUE)

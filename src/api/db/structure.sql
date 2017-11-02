@@ -374,11 +374,6 @@ CREATE TABLE `configurations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `data_migrations` (
-  `version` varchar(255) NOT NULL,
-  UNIQUE KEY `unique_data_migrations` (`version`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE `delayed_jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `priority` int(11) DEFAULT '0',
@@ -528,7 +523,7 @@ CREATE TABLE `groups_roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `groups_users` (
-  `group_id` int(11) DEFAULT '0',
+  `group_id` int(11) NOT NULL DEFAULT '0',
   `user_id` int(11) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT NULL,
   `email` tinyint(1) DEFAULT '1',
@@ -1271,6 +1266,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20170925060940'),
 ('20171011125520'),
 ('20171013103921'),
-('20171019151800');
+('20171019151800'),
+('20171102110929');
 
 
