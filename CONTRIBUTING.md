@@ -88,23 +88,6 @@ We are using priority labels from **P1** to **P4** for our issues. So if you are
 # How to contribute documentation
 The Open Build Service documentation is hosted in a separated repository called [obs-docu](https://github.com/openSUSE/obs-docu). Please send pull-requests against this repository. 
 
-# How to review contributions
-The Open Build Service developers make use of the [pull-request review feature](https://help.github.com/articles/about-pull-request-reviews/) of github.
-Here is how you should use this:
-
-* Add review comments
-* Mark nitpicks comments with the :thought_balloon: emoji or with a *nitpick* in the text somehow
-* If your review only contains nitpicks you submit your review as *Approve*
-* If your review contains one non-nitpick you submit the review as *Request changes*
-* If you can not review all of the code and just want to leave a nitpick you submit the review as *Comment*
-
-Nitpicks are things you as reviewer don't care about if they end up in the code-base with the merge. 
-Things like:
-
-* Style changes we have not agreed on in rubocop rules yet
-* Bigger refactorings that are out of scope for the pull-request
-* Things new to you that you don't understand and would like to have an explanation for
-
 # How to conduct yourself when contributing
 The Open Build Service is part of the openSUSE project. We follow all the [openSUSE Guiding
 Principles!](http://en.opensuse.org/openSUSE:Guiding_principles) If you think
