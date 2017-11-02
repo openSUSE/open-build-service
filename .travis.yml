@@ -43,7 +43,7 @@ jobs:
           - tmp/rubocop_cache
       before_install:
         - npm install -g jshint
-        - gem install rubocop -v 0.49.1
+        - gem install rubocop -v 0.51.0
     - stage: test
       env: TEST_SUITE=rspec
     - env: TEST_SUITE=api
