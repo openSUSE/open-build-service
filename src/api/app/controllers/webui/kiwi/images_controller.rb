@@ -87,6 +87,16 @@ module Webui
         render json: binaries.to_a.map { |result| {id: result.first, label: result.first, value: result.first} }
       end
 
+      def build_result
+        check_ajax
+        if @image.package.project.repositories.any?
+          @build_results = @image.build_results
+          render partial: 'build_status'
+        else
+          render partial: 'package/no_repositories'
+        end
+      end
+
       private
 
       def image_params

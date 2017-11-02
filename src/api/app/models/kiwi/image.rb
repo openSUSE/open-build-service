@@ -116,6 +116,26 @@ module Kiwi
       end
     end
 
+    def build_results
+      results = Buildresult.find_hashed(project: package.project, package: package.name, view: 'status', multibuild: '1', locallink: '1')
+
+      local_build_results = {}
+      results.elements('result').sort {|a, b| a['repository'] <=> b['repository']}.each do |result|
+        if Repository.find_by_name(result['repository']).is_kiwi_type?
+          result.elements('status').each do |status|
+            local_build_results[status['package']] ||= []
+            local_build_results[status['package']] << LocalBuildResult.new(repository: result['repository'],
+                                                                           architecture: result['arch'],
+                                                                           code: status['code'],
+                                                                           state: result['state'],
+                                                                           details: status['details'])
+          end
+        end
+      end
+
+      local_build_results
+    end
+
     private
 
     def check_use_project_repositories

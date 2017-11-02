@@ -177,7 +177,7 @@ OBSApi::Application.routes.draw do
       get 'repositories/:project(/:package)' => :index, constraints: cons, as: 'repositories', defaults: { format: "html" }
       get 'project/repositories/:project' => :index, constraints: cons, as: 'project_repositories'
       get 'project/add_repository/:project' => :new, constraints: cons
-      get 'project/add_repository_from_default_list/:project' => :distributions, constraints: cons
+      get 'project/add_repository_from_default_list/:project' => :distributions, constraints: cons, as: :repositories_distributions
       post 'project/save_repository' => :create
       post 'project/update_target/:project' => :update, constraints: cons
       get 'project/repository_state/:project/:repository' => :state, constraints: cons, as: 'project_repository_state'
@@ -197,6 +197,7 @@ OBSApi::Application.routes.draw do
 
     resources :kiwi_images, only: [:show, :edit, :update], controller: 'webui/kiwi/images' do
       member do
+        get 'build_result' => :build_result, constraints: cons
         get 'autocomplete_binaries'
       end
     end

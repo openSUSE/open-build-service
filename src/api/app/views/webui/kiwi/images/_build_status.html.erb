@@ -1,0 +1,37 @@
+<% @build_results.each_pair do |package, results| %>
+  <h3><%= package %></h3>
+  <div id="package_buildstatus">
+    <table>
+      <% @project = @image.package.project %>
+      <% previous_repo = nil %>
+      <% results.each do |result| %>
+        <% repository = @project.repositories.find_by_name(result.repository) %>
+        <tr>
+          <td title="<%= result.repository %>" class="no_border_bottom <%= (result.repository == previous_repo) ? " no_border_top" : " "%>">
+          <% if result.repository != previous_repo %>
+            <%= link_to(word_break(result.repository, 22), { action: :binaries, controller: '/webui/package', project: @project, package: package, repository: result.repository }, { title: "Binaries for #{result.repository}" }) %>
+          <% end %>
+          </td>
+          <td class="arch">
+            <div class="nowrap" style="margin: 0 0.5ex">
+            <% if !(repository && repository.architectures.pluck(:name).include?(result.architecture)) %>
+              <%= sprite_tag "time_error", alt: "Outdated result", title: "This result is outdated"%>
+            <% else %>
+              <%= repo_status_icon(result.state, result.details) %>
+            <% end %>
+            <%= result.architecture %>
+            </div>
+          </td>
+          <%= arch_repo_table_cell(result.repository, result.architecture, package, { "code" => result.code, "details" => result.details }) %>
+        </tr>
+        <% previous_repo = result.repository %>
+      <% end %>
+    </table>
+  </div>
+<% end %>
+<%= javascript_tag do %>
+  $('.unresolvable, .blocked').click(function() {
+    var title = $(this).attr('title');
+    alert(title);
+  });
+<% end %>
