@@ -421,7 +421,6 @@ exit 0
 %else
 %restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsservicedispatch obsservice obsscheduler
 %endif
-
 %service_add_post obsdeltastore
 
 %posttrans
@@ -436,12 +435,12 @@ fi
 
 %postun
 %insserv_cleanup
-%verifyscript -n obs-server
-%verify_permissions
 %service_del_postun obsdeltastore
-
 # cleanup empty directory just in case
 rmdir /srv/obs 2> /dev/null || :
+
+%verifyscript -n obs-server
+%verify_permissions
 
 %post -n obs-worker
 # NOT used on purpose: restart_on_update obsworker
