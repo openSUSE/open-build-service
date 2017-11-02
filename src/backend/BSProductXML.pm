@@ -193,6 +193,7 @@ our $product = [
              'producttheme',
              'betaversion',
              'mainproduct',
+             'create_flavors',
              [ 'linguas' =>
                [],
                [[ 'language' => '_content' ]],
@@ -276,9 +277,10 @@ our $productdesc = [
             'mediastyle',
             'firmware',
             'registration',
-            'create_repomd',
+            'create_repomd', # old format only
             'sourcemedia',
             'debugmedia',
+            'separate',
             'create_pattern',
             'ignore_missing_packages',      # may be "true", default for mediastyle 11.3 and before
             'ignore_missing_meta_packages', # may be "true", default for mediastyle 11.3 and before
@@ -294,8 +296,8 @@ our $productdesc = [
             'next_media_in_set',
             'separate',
             'size',
-            'datadir',
-            'descriptiondir',
+            'datadir',        # old format only
+            'descriptiondir', # old format only
             [[ 'preselected_patterns' => 
                [[ 'pattern' =>
                   'name',
