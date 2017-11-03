@@ -80,7 +80,7 @@ GEM
     clockwork (2.0.2)
       activesupport
       tzinfo
-    cocoon (1.2.10)
+    cocoon (1.2.11)
     codecov (0.1.10)
       json
       simplecov
