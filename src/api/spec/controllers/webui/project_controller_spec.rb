@@ -140,6 +140,28 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(@json_response).not_to include(apache_maintenance_incident_project.name) }
       it { expect(@json_response).not_to include(openSUSE_project.name) }
     end
+
+    context 'with a subprojects' do
+      let!(:apache_subproject) { create(:project, name: "Apache:subproject")}
+
+      context 'and searching for parent project' do
+        before do
+          get :autocomplete_projects, params: { term: 'Apache' }
+          @json_response = JSON.parse(response.body)
+        end
+
+        it { expect(@json_response).not_to include(apache_subproject.name) }
+      end
+
+      context 'and searching for parent project' do
+        before do
+          get :autocomplete_projects, params: { term: 'Apache:' }
+          @json_response = JSON.parse(response.body)
+        end
+
+        it { expect(@json_response).to include(apache_subproject.name) }
+      end
+    end
   end
 
   describe 'GET #autocomplete_incidents' do
