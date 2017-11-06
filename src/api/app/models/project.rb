@@ -105,6 +105,9 @@ class Project < ApplicationRecord
     where.not("name rlike ?", ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
   }
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
+  scope :autocomplete, lambda { |search|
+    where("lower(name) like lower(?)", "#{search}%").where.not("lower(name) like lower(?)", "#{search}%:%")
+  }
 
   # will return all projects with attribute 'OBS:ImageTemplates'
   scope :local_image_templates, lambda {
@@ -207,15 +210,6 @@ class Project < ApplicationRecord
 
   def config
     @config ||= ProjectConfigFile.new(project_name: name)
-  end
-
-  def self.autocomplete(search)
-    projects = Project.where(["lower(name) like lower(?)", "#{search}%"])
-    if search.to_s =~ /home:./
-      projects.home
-    else
-      projects.not_home
-    end
   end
 
   def self.deleted_instance
