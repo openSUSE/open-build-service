@@ -33,7 +33,7 @@ module Webui
       def show
         # Because the form needs a Description & Preference objects instantiated
         @image.build_description if @image.description.nil?
-        @image.build_preference(type_image: 'docker') if @image.preference.nil?
+        @image.build_preference if @image.preference.nil?
         @package_groups = @image.default_package_group
 
         respond_to do |format|
