@@ -1,0 +1,38 @@
+#kiwi-preferences
+  .nested-fields
+    %h2#image-name
+      Preferences
+    %ul.inline
+      %li
+        %strong Image type:
+        %span.fill{ data: { tag: 'image_type' }}= @image.preference_type.image_type
+      %li
+        %strong Container config name:
+        %span.fill{ data: { tag: 'containerconfig_name' }}= @image.preference_type.containerconfig_name
+      %li
+        %strong Container config tag:
+        %span.fill{ data: { tag: 'containerconfig_tag' }}= @image.preference_type.containerconfig_tag
+    %p
+      = link_to sprited_text('package_edit', 'Edit preferences'), '#', class: 'preferences_edit'
+
+    .dialog.darkgrey_box.hidden{ style: "width: 500px; left: 45%;" }
+      .box.box-shadow
+        %h2.box-header Edit Kiwi Preferences
+
+        .dialog-content
+          %p
+            = f.fields_for :preference_type, f.object.preference_type do |preference_type_fields|
+              %p
+                = preference_type_fields.label :containerconfig_name
+                = preference_type_fields.text_field :containerconfig_name, data: { default: preference_type_fields.object.containerconfig_name }
+              %p
+                = preference_type_fields.label :containerconfig_tag
+                = preference_type_fields.text_field :containerconfig_tag, data: { default: preference_type_fields.object.containerconfig_tag }
+
+        %p#flash-messages
+          %p.ui-state-error.ui-widget-shadow.hidden
+            Kiwi Image name can not be empty!
+
+        .dialog-buttons
+          = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog')
+          = link_to('Continue', '#', title: 'Continue', class: 'close-preferences-dialog')

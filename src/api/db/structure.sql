@@ -657,6 +657,16 @@ CREATE TABLE `kiwi_packages` (
   CONSTRAINT `fk_rails_0ecab3b2cd` FOREIGN KEY (`package_group_id`) REFERENCES `kiwi_package_groups` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `kiwi_preference_types` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `image_id` int(11) DEFAULT NULL,
+  `image_type` int(11) DEFAULT NULL,
+  `containerconfig_name` varchar(255) DEFAULT NULL,
+  `containerconfig_tag` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_kiwi_preference_types_on_image_id` (`image_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `kiwi_repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `image_id` int(11) DEFAULT NULL,
@@ -1272,6 +1282,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171011125520'),
 ('20171013103921'),
 ('20171019151800'),
+('20171030143054'),
 ('20171102110929');
 
 

@@ -8,6 +8,16 @@ RSpec.shared_context 'a kiwi image xml' do
     <contact>noemail@example.com</contact>
     <specification>Tiny, minimalistic appliances</specification>
   </description>
+  <preferences>
+    <type image="docker" boot="grub">
+      <containerconfig
+        name="my_container"
+        tag="latest" />
+        <oemconfig>test</oemconfig>
+    </type>
+    <bootsplash-theme>gnome</bootsplash-theme>
+    <bootloader-theme>gnome-dark</bootloader-theme>
+  </preferences>
   <packages type="image" patternType="onlyRequired">
     <package name="e2fsprogs"/>
     <package name="aaa_base"/>
@@ -87,6 +97,9 @@ RSpec.shared_context 'a kiwi image xml' do
   <repository type="rpm-md">
     <source path="obsrepositories:/"/>
   </repository>
+  <preferences>
+    <type image="docker" boot="grub"/>
+  </preferences>
 </image>
     XML
   end
@@ -105,6 +118,9 @@ RSpec.shared_context 'a kiwi image xml' do
     <contact>kiwi@example.com</contact>
     <specification>Kiwi, tiny, minimalistic appliances</specification>
   </description>
+  <preferences>
+    <type image="docker" boot="grub"/>
+  </preferences>
 </image>
     XML
   end

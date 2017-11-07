@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>His Dark Materials</title>
+          <title>Now Sleeps the Crimson Petal</title>
           <description/>
         </project>
     headers:
@@ -29,23 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '117'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>His Dark Materials</title>
+          <title>Now Sleeps the Crimson Petal</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/_config
     body:
       encoding: UTF-8
-      string: Omnis in maxime dolores nihil modi ut. Possimus reprehenderit quia accusamus
-        est ex aut. Magnam voluptatem reiciendis maiores iure.
+      string: Molestiae dolor dicta eveniet labore eligendi. Provident natus nam nihil
+        quaerat quia. Numquam autem veniam quia et aspernatur corrupti. At est labore.
+        Corrupti sed libero.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -72,7 +73,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_kiwi_image/_meta?user=_nobody_
@@ -80,8 +81,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Sleep the Brave</title>
-          <description>Laborum nesciunt quisquam dicta exercitationem deserunt.</description>
+          <title>Vanity Fair</title>
+          <description>Exercitationem consectetur ut voluptas dolorem est quis dolorum ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,16 +103,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '194'
+      - '201'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Sleep the Brave</title>
-          <description>Laborum nesciunt quisquam dicta exercitationem deserunt.</description>
+          <title>Vanity Fair</title>
+          <description>Exercitationem consectetur ut voluptas dolorem est quis dolorum ut.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_kiwi_image/_meta
@@ -119,8 +120,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Sleep the Brave</title>
-          <description>Laborum nesciunt quisquam dicta exercitationem deserunt.</description>
+          <title>Vanity Fair</title>
+          <description>Exercitationem consectetur ut voluptas dolorem est quis dolorum ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -141,30 +142,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '194'
+      - '201'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Sleep the Brave</title>
-          <description>Laborum nesciunt quisquam dicta exercitationem deserunt.</description>
+          <title>Vanity Fair</title>
+          <description>Exercitationem consectetur ut voluptas dolorem est quis dolorum ut.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_kiwi_image/package_with_kiwi_image.kiwi
     body:
       encoding: UTF-8
-      string: |
-        <?xml version="1.0" encoding="utf-8"?>
-        <image schemaversion="6.2" name="suse-13.2-live">
-          <description type="system">
-          </description>
-          <preferences>
-            <type image="oem" primary="true" boot="oemboot/suse-13.2"/>
-          </preferences>
-        </image>
+      string: "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n  <image schemaversion=\"6.2\"
+        name=\"suse-13.2-live\">\n    <description type=\"system\">\n    </description>\n
+        \   <preferences>\n      <type image=\"docker\"/>\n    </preferences>\n  </image>\n
+        \ "
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -188,16 +184,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>82f39606fd3c729f7f16de7d227e6dae</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>3d92f1819b2d885320bc51c24b6c9733</srcmd5>
           <version>unknown</version>
-          <time>1505165799</time>
+          <time>1509969971</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_kiwi_image/_meta?user=_nobody_
@@ -205,8 +201,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Sleep the Brave</title>
-          <description>Laborum nesciunt quisquam dicta exercitationem deserunt.</description>
+          <title>Vanity Fair</title>
+          <description>Exercitationem consectetur ut voluptas dolorem est quis dolorum ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -227,16 +223,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '194'
+      - '201'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_image" project="fake_project">
-          <title>Sleep the Brave</title>
-          <description>Laborum nesciunt quisquam dicta exercitationem deserunt.</description>
+          <title>Vanity Fair</title>
+          <description>Exercitationem consectetur ut voluptas dolorem est quis dolorum ut.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_kiwi_image
@@ -266,11 +262,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="5" vrev="5" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
-          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1505142563" />
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="3d92f1819b2d885320bc51c24b6c9733">
+          <entry name="package_with_kiwi_image.kiwi" md5="b669597223d555f12ed8160165bcd358" size="221" mtime="1509969867" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_kiwi_image
@@ -300,11 +296,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="5" vrev="5" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
-          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1505142563" />
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="3d92f1819b2d885320bc51c24b6c9733">
+          <entry name="package_with_kiwi_image.kiwi" md5="b669597223d555f12ed8160165bcd358" size="221" mtime="1509969867" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_kiwi_image
@@ -334,11 +330,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="5" vrev="5" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
-          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1505142563" />
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="3d92f1819b2d885320bc51c24b6c9733">
+          <entry name="package_with_kiwi_image.kiwi" md5="b669597223d555f12ed8160165bcd358" size="221" mtime="1509969867" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_kiwi_image
@@ -368,9 +364,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_image" rev="5" vrev="5" srcmd5="82f39606fd3c729f7f16de7d227e6dae">
-          <entry name="package_with_kiwi_image.kiwi" md5="dda935f455dcd6607d83705328bee9df" size="242" mtime="1505142563" />
+        <directory name="package_with_kiwi_image" rev="2" vrev="2" srcmd5="3d92f1819b2d885320bc51c24b6c9733">
+          <entry name="package_with_kiwi_image.kiwi" md5="b669597223d555f12ed8160165bcd358" size="221" mtime="1509969867" />
         </directory>
     http_version: 
-  recorded_at: Mon, 11 Sep 2017 21:36:39 GMT
+  recorded_at: Mon, 06 Nov 2017 12:06:11 GMT
 recorded_with: VCR 3.0.3

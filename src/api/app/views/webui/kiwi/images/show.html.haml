@@ -6,6 +6,10 @@
 
     = render partial: 'webui/kiwi/images/description', locals: { f: f }
 
+  - if @image.preference_type.editable?
+    .grid_16.alpha.omega.box.box-shadow
+      = render partial: 'webui/kiwi/images/preferences', locals: { f: f }
+
   .grid_16.alpha.omega.box.box-shadow
     = render partial: 'webui/kiwi/images/repositories', locals: { f: f }
 
