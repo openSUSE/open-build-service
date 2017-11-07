@@ -16,15 +16,15 @@ class Group < ApplicationRecord
 
   validates :title,
             format: { with:    %r{\A[\w\.\-]*\z},
-                      message: 'must not contain invalid characters.' }
+                      message: 'must not contain invalid characters' }
   validates :title,
             length: { in:        2..100,
-                      too_long:  'must have less than 100 characters.',
-                      too_short: 'must have more than two characters.',
+                      too_long:  'must have less than 100 characters',
+                      too_short: 'must have more than two characters',
                       allow_nil: false }
   # We want to validate a group's title pretty thoroughly.
   validates :title,
-            uniqueness: { message: 'is the name of an already existing group.' }
+            uniqueness: { message: 'is the name of an already existing group' }
 
   # groups have a n:m relation to groups
   has_and_belongs_to_many :roles, -> { distinct }
