@@ -140,13 +140,13 @@ module Kiwi
       return unless use_project_repositories? && repositories.present?
 
       errors.add(:base,
-                 "A repository with source_path \"obsrepositories:/\" has been set. If you want to use it, please remove the other repositories.")
+                 "A repository with source_path \"obsrepositories:/\" has been set. If you want to use it, please remove the other repositories")
     end
 
     def check_package_groups
       return if package_groups.group_by(&:kiwi_type).select { |_key, value| value.count > 1 }.keys.empty?
 
-      errors.add(:base, "Multiple package groups with same type are not allowed.")
+      errors.add(:base, "Multiple package groups with same type are not allowed")
     end
   end
 end

@@ -35,7 +35,7 @@ RSpec.describe Review do
       [:by_group, :by_project, :by_package].each do |reviewable|
         review = Review.create(:by_user => user.login, reviewable => 'not-existent-reviewable')
         expect(review.errors.messages[:base]).
-          to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package.'])
+          to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package'])
       end
     end
 
@@ -43,7 +43,7 @@ RSpec.describe Review do
       [:by_project, :by_package].each do |reviewable|
         review = Review.create(:by_group => group.title, reviewable => 'not-existent-reviewable')
         expect(review.errors.messages[:base]).
-          to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package.'])
+          to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package'])
       end
     end
   end

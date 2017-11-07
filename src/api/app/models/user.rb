@@ -254,7 +254,7 @@ class User < ApplicationRecord
   # FIXME: This is currently not used. It's not used by rails validations.
   def validate
     # check that the state transition is valid
-    errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
+    errors.add(:state, 'must be a valid new state from the current state') unless state_transition_allowed?(@old_state, state)
   end
 
   # This method returns true if the user is assigned the role with one of the
