@@ -33,26 +33,24 @@ module Kiwi
       def update_preferences(document)
         return document if @image.preference.blank?
 
-        document.xpath('image/preferences/type').first['image'] = @image.preference.type_image
-
         # <preferences> <type> and <containerconfig> blocks exist already
         if document.xpath('image/preferences/type/containerconfig').any?
-          document = update_preference(document)
+          document = update_preference_type_containerconfig(document)
         # <preferences> and <type> blocks exist but <containerconfig> does not
         else
-          document = add_preference(document)
+          document = add_preference_type_containerconfig(document)
         end
 
         document
       end
 
-      def update_preference(document)
+      def update_preference_type_containerconfig(document)
         document.xpath('image/preferences/type/containerconfig').first['name'] = @image.preference.type_containerconfig_name
         document.xpath('image/preferences/type/containerconfig').first['tag'] = @image.preference.type_containerconfig_tag
         document
       end
 
-      def add_preference(document)
+      def add_preference_type_containerconfig(document)
         document.xpath('image/preferences/type').first.add_child(@image.preference.containerconfig_xml)
         document
       end
