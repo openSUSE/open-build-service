@@ -2,7 +2,7 @@ FactoryGirl.define do
   factory :kiwi_image, class: Kiwi::Image do
     name { Faker::Name.name }
     md5_last_revision nil
-    association :preference_type, factory: :kiwi_preference_type
+    association :preference, factory: :kiwi_preference
 
     factory :kiwi_image_with_package do
       transient do

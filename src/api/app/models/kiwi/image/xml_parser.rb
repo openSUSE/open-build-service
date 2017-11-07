@@ -15,7 +15,7 @@ module Kiwi
         new_image.repositories = repositories
         new_image.package_groups = package_groups
         new_image.description = description
-        new_image.preference_type = preference_type
+        new_image.preference = preference
 
         new_image
       end
@@ -107,18 +107,18 @@ module Kiwi
         )
       end
 
-      def preference_type
-        return if preference_type_image_type.blank?
+      def preference
+        return if preference_type_image.blank?
 
-        Kiwi::PreferenceType.new(
-          image_type:            preference_type_image_type,
-          containerconfig_name: preference_type_container_attributes['name'],
-          containerconfig_tag:  preference_type_container_attributes['tag']
+        Kiwi::Preference.new(
+          type_image:            preference_type_image,
+          type_containerconfig_name: preference_container_attributes['name'],
+          type_containerconfig_tag:  preference_container_attributes['tag']
         )
       end
 
-      def preference_type_container_attributes
-        @preference_type_container_attributes ||=
+      def preference_container_attributes
+        @preference_container_attributes ||=
           if xml_hash['preferences'].present? && xml_hash['preferences']['type']
             xml_hash['preferences']['type']['containerconfig'] || {}
           else
@@ -126,7 +126,7 @@ module Kiwi
           end
       end
 
-      def preference_type_image_type
+      def preference_type_image
         return unless xml_hash['preferences'].present? && xml_hash['preferences']['type'].present?
 
         xml_hash['preferences']['type']['image']

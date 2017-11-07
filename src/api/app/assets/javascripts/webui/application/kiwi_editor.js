@@ -131,7 +131,7 @@ function closePreferencesDialog() {
   for(var i=0; i < elements.length; i++) {
     var object = dialog.find("[id$='" + $(elements[i]).data('tag') + "']");
     if ( object.val() != "") {
-      if ( $(elements[i]).data('tag') == 'image_type' ) {
+      if ( $(elements[i]).data('tag') == 'type_image' ) {
         $(elements[i]).text(object.find(":selected").text());
       }
       else {
