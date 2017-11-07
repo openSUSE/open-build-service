@@ -99,11 +99,15 @@ module Kiwi
 
         return if attributes.blank?
 
+        description_type = attributes['type'].blank? ? '' : attributes['type']
+        author = attributes['author'].blank? ? '' : attributes['author']
+        contact = attributes['contact'].blank? ? '' : attributes['contact']
+        specification = attributes['specification'].blank? ? '' : attributes['specification']
         Kiwi::Description.new(
-          description_type: attributes['type'],
-          author:           attributes['author'],
-          contact:          attributes['contact'],
-          specification:    attributes['specification']
+          description_type: description_type,
+          author:           author,
+          contact:          contact,
+          specification:    specification
         )
       end
 
