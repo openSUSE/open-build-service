@@ -117,10 +117,10 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       end
 
       it 'parses the preference type' do
-        expect(subject.preference_type).to have_attributes(
-          image_type: 'docker',
-          containerconfig_name: 'my_container',
-          containerconfig_tag: 'latest'
+        expect(subject.preference).to have_attributes(
+          type_image: 'docker',
+          type_containerconfig_name: 'my_container',
+          type_containerconfig_tag: 'latest'
         )
       end
     end
@@ -192,11 +192,11 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
 
   describe '#to_xml' do
     context 'without a package' do
-      context 'with repositories, packages and preference_type' do
+      context 'with repositories, packages and preference' do
         before do
           kiwi_image.repositories << create(:kiwi_repository)
           kiwi_image.package_groups << create(:kiwi_package_group_non_empty, kiwi_type: 'image')
-          kiwi_image.preference_type = create(:kiwi_preference_type)
+          kiwi_image.preference = create(:kiwi_preference)
           kiwi_image.save
         end
 

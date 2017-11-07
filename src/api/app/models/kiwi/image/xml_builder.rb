@@ -31,29 +31,29 @@ module Kiwi
       #     <packagemanager>zypper</packagemanager>
       #   </preferences>
       def update_preferences(document)
-        return document if @image.preference_type.blank?
+        return document if @image.preference.blank?
 
-        document.xpath('image/preferences/type').first['image'] = @image.preference_type.image_type
+        document.xpath('image/preferences/type').first['image'] = @image.preference.type_image
 
         # <preferences> <type> and <containerconfig> blocks exist already
         if document.xpath('image/preferences/type/containerconfig').any?
-          document = update_preference_type(document)
+          document = update_preference(document)
         # <preferences> and <type> blocks exist but <containerconfig> does not
         else
-          document = add_preference_type(document)
+          document = add_preference(document)
         end
 
         document
       end
 
-      def update_preference_type(document)
-        document.xpath('image/preferences/type/containerconfig').first['name'] = @image.preference_type.containerconfig_name
-        document.xpath('image/preferences/type/containerconfig').first['tag'] = @image.preference_type.containerconfig_tag
+      def update_preference(document)
+        document.xpath('image/preferences/type/containerconfig').first['name'] = @image.preference.type_containerconfig_name
+        document.xpath('image/preferences/type/containerconfig').first['tag'] = @image.preference.type_containerconfig_tag
         document
       end
 
-      def add_preference_type(document)
-        document.xpath('image/preferences/type').first.add_child(@image.preference_type.containerconfig_xml)
+      def add_preference(document)
+        document.xpath('image/preferences/type').first.add_child(@image.preference.containerconfig_xml)
         document
       end
 

@@ -41,8 +41,8 @@ RSpec.describe Kiwi::Image::XmlBuilder do
     before do
       kiwi_image.save
       allow(kiwi_image).to receive(:kiwi_body).and_return(original_xml)
-      kiwi_image.preference_type.containerconfig_name = 'hello'
-      kiwi_image.preference_type.containerconfig_tag = 'world'
+      kiwi_image.preference.type_containerconfig_name = 'hello'
+      kiwi_image.preference.type_containerconfig_tag = 'world'
     end
 
     subject { Kiwi::Image::XmlBuilder.new(kiwi_image).build }

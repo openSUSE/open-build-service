@@ -19,7 +19,7 @@ module Kiwi
     #### Associations macros (Belongs to, Has one, Has many)
     has_one :package, foreign_key: 'kiwi_image_id', class_name: '::Package', dependent: :nullify, inverse_of: :kiwi_image
     has_one :description, inverse_of: :image, dependent: :destroy
-    has_one :preference_type, inverse_of: :image, dependent: :destroy
+    has_one :preference, inverse_of: :image, dependent: :destroy
     has_many :repositories, -> { order(order: :asc) }, dependent: :destroy, index_errors: true
     has_many :package_groups, -> { order(:id) }, dependent: :destroy, index_errors: true
     has_many :kiwi_packages, -> { where(kiwi_package_groups: { kiwi_type: Kiwi::PackageGroup.kiwi_types[:image] }) },
@@ -33,9 +33,9 @@ module Kiwi
     validates :name, presence: true
     validate :check_use_project_repositories
     validate :check_package_groups
-    validates :preference_type, presence: true
-    accepts_nested_attributes_for :preference_type, reject_if: proc { |attributes|
-      attributes['containerconfig_name'].blank? && attributes['containerconfig_tag'].blank?
+    validates :preference, presence: true
+    accepts_nested_attributes_for :preference, reject_if: proc { |attributes|
+      attributes['type_containerconfig_name'].blank? && attributes['type_containerconfig_tag'].blank?
     }
     accepts_nested_attributes_for :description
     accepts_nested_attributes_for :repositories, allow_destroy: true

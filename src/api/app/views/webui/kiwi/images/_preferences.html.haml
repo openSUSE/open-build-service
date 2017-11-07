@@ -5,13 +5,13 @@
     %ul.inline
       %li
         %strong Image type:
-        %span.fill{ data: { tag: 'image_type' }}= @image.preference_type.image_type
+        %span.fill{ data: { tag: 'type_image' }}= @image.preference.type_image
       %li
         %strong Container config name:
-        %span.fill{ data: { tag: 'containerconfig_name' }}= @image.preference_type.containerconfig_name
+        %span.fill{ data: { tag: 'type_containerconfig_name' }}= @image.preference.type_containerconfig_name
       %li
         %strong Container config tag:
-        %span.fill{ data: { tag: 'containerconfig_tag' }}= @image.preference_type.containerconfig_tag
+        %span.fill{ data: { tag: 'type_containerconfig_tag' }}= @image.preference.type_containerconfig_tag
     %p
       = link_to sprited_text('package_edit', 'Edit preferences'), '#', class: 'preferences_edit'
 
@@ -21,13 +21,13 @@
 
         .dialog-content
           %p
-            = f.fields_for :preference_type, f.object.preference_type do |preference_type_fields|
+            = f.fields_for :preference, f.object.preference do |preference_fields|
               %p
-                = preference_type_fields.label :containerconfig_name
-                = preference_type_fields.text_field :containerconfig_name, data: { default: preference_type_fields.object.containerconfig_name }
+                = preference_fields.label :type_containerconfig_name
+                = preference_fields.text_field :type_containerconfig_name, data: { default: preference_fields.object.type_containerconfig_name }
               %p
-                = preference_type_fields.label :containerconfig_tag
-                = preference_type_fields.text_field :containerconfig_tag, data: { default: preference_type_fields.object.containerconfig_tag }
+                = preference_fields.label :type_containerconfig_tag
+                = preference_fields.text_field :type_containerconfig_tag, data: { default: preference_fields.object.type_containerconfig_tag }
 
         %p#flash-messages
           %p.ui-state-error.ui-widget-shadow.hidden

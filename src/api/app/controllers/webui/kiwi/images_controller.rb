@@ -31,9 +31,9 @@ module Webui
       end
 
       def show
-        # Because the form needs a Description & PreferenceType objects instantiated
+        # Because the form needs a Description & Preference objects instantiated
         @image.build_description if @image.description.nil?
-        @image.build_preference_type(image_type: 'docker') if @image.preference_type.nil?
+        @image.build_preference(type_image: 'docker') if @image.preference.nil?
         @package_groups = @image.default_package_group
 
         respond_to do |format|
@@ -65,11 +65,11 @@ module Webui
       private
 
       def image_params
-        preference_type_attributes = [
+        preference_attributes = [
           :id,
-          :image_type,
-          :containerconfig_name,
-          :containerconfig_tag
+          :type_image,
+          :type_containerconfig_name,
+          :type_containerconfig_tag
         ]
 
         description_attributes = [
@@ -109,7 +109,7 @@ module Webui
           description_attributes: description_attributes,
           repositories_attributes: repositories_attributes,
           package_groups_attributes: package_groups_attributes,
-          preference_type_attributes: preference_type_attributes
+          preference_attributes: preference_attributes
         )
       end
 
