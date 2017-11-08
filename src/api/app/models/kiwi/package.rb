@@ -3,7 +3,7 @@ module Kiwi
     belongs_to :package_group
     has_one :kiwi_image, through: :package_groups
 
-    validates :name, presence: { message: 'Package name can\'t be blank'}
+    validates :name, presence: { message: 'can\'t be blank'}
 
     def to_h
       hash = { name: name }

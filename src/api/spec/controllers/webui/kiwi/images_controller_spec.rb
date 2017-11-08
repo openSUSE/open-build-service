@@ -79,13 +79,13 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                    project: project, kiwi_file_content: invalid_kiwi_xml_with_obsrepositories)
           end
           let(:errors) do
-            [
-              [:title, "Kiwi File 'package_with_invalid_kiwi_file.kiwi' has errors:"],
-              [
-                "Image Errors:",
-                ["A repository with source_path \"obsrepositories:/\" has been set. If you want to use it, please remove the other repositories."]
-              ]
-            ]
+            {
+              "Image Errors:" => [
+                "A repository with source_path \"obsrepositories:/\" has been set. If you want to use it, please remove the other repositories.",
+                "Preference can't be blank"
+              ],
+              title: "Kiwi File 'package_with_invalid_kiwi_file.kiwi' has errors:"
+            }
           end
 
           before do
@@ -98,7 +98,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                                                                    filename: "#{package_with_kiwi_file.name}.kiwi"))
           end
 
-          it { expect(flash[:error]).to match_array(errors) }
+          it { expect(flash[:error]).to eq(errors) }
         end
       end
 
@@ -112,7 +112,13 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
           let(:errors) do
             [
               [:title, "Kiwi File 'package_with_invalid_kiwi_file.kiwi' has errors:"],
-              ["Image Errors:", ["Multiple package groups with same type are not allowed."]]
+              [
+                "Image Errors:",
+                [
+                  "Multiple package groups with same type are not allowed.",
+                  "Preference can't be blank"
+                ]
+              ]
             ]
           end
 
@@ -177,18 +183,18 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
         }
       end
       let(:errors) do
-        [
-          [:title, "Cannot update KIWI Image:"],
-          [
-            "Repository: htt:__example.com",
-            ["Source path has an invalid format.", "Repo type 'apt2-deb' is not included in the list."]
-          ]
-        ]
+        {
+          "Repository: htt://example.com" => [
+            "Source path has an invalid format.",
+            "Repo type 'apt2-deb' is not included in the list."
+          ],
+          title: "Cannot update KIWI Image:"
+        }
       end
 
-      subject { post :update, params: invalid_repositories_update_params }
+      subject! { post :update, params: invalid_repositories_update_params }
 
-      it { expect(subject.request.flash[:error]).to match_array(errors) }
+      it { expect(subject.request.flash[:error]).to eq(errors) }
       it { expect(subject).to have_http_status(:success) }
       it { expect(subject).to render_template(:show) }
     end
@@ -273,15 +279,15 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
       end
 
       let(:errors) do
-        [
-          [:title, "Cannot update KIWI Image:"],
-          ["Package: ", ["Package name can't be blank"]]
-        ]
+        {
+          "Package: " => ["Name can't be blank"],
+          title: "Cannot update KIWI Image:"
+        }
       end
 
       subject { post :update, params: invalid_packages_update_params }
 
-      it { expect(subject.request.flash[:error]).to match_array(errors) }
+      it { expect(subject.request.flash[:error]).to eq(errors) }
       it { expect(subject).to have_http_status(:success) }
       it { expect(subject).to render_template(:show) }
     end
