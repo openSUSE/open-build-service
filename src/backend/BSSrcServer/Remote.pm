@@ -610,7 +610,11 @@ sub getremotebinarylist {
     return undef if $BSStdServer::isajax && !$binarylistcpio;
     for my $b (@{$binarylistcpio->{'binary'} || []}) {
       my $bin = $b->{'filename'};
-      $bin =~ s/\.(?:$binsufsre)$//;
+      if ($bin =~ /^container:/) {
+	$bin =~ s/\.tar(?:\..+)?$//;
+      } else {
+	$bin =~ s/\.(?:$binsufsre)$//;
+      }
       $binarylist->{$bin} = $b;
     }
     # make sure that we don't loop forever if the server returns incomplete data
