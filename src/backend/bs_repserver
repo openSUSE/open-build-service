@@ -244,13 +244,18 @@ sub getbinaryversions {
       $hdrmd5 = Build::queryhdrmd5($path);
       $needscan = 1;
     }
+    if ($bin =~ /^container:/ && $path =~ /(\.tar(?:\..+)?)$/) {
+      my @s = stat($path);
+      next unless @s;
+      $sizek = ($s[7] + 1023) >> 10;
+      push @res, {'name' => "$bin$1", 'hdrmd5' => $hdrmd5, 'sizek' => $sizek};
+      next;
+    }
     if ($path !~ /\.($binsufsre)$/) {
       push @res, {'name' => $bin, 'error' => 'unknown suffix'};
       next;
     }
-    my $r = {'name' => "$bin.$1"};
-    $r->{'hdrmd5'} = $hdrmd5;
-    $r->{'sizek'} = $sizek;
+    my $r = {'name' => "$bin.$1", 'hdrmd5' => $hdrmd5, 'sizek' => $sizek};
     push @res, $r;
     next if $cgi->{'nometa'};
     next unless $path =~ s/\.(?:$binsufsre)$//;
