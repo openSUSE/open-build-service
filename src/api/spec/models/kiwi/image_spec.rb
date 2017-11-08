@@ -211,7 +211,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
 
         it 'output the xml for the preferences type' do
           expect(subject.xpath('.//image/preferences').length).to be(1)
-          expect(subject.xpath('.//image/preferences/type[@image="docker"]/containerconfig').first).not_to be_nil
+          expect(subject.xpath('.//image/preferences/type/containerconfig').first).not_to be_nil
         end
       end
     end
