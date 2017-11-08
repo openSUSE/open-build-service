@@ -3,7 +3,7 @@ class Kiwi::Preference < ApplicationRecord
 
   enum type_image: %i[btrfs clicfs cpio docker ext2 ext3 ext4 iso lxc oem product pxe reiserfs split squashfs tbz vmx xfs zfs]
 
-  validates :type_image, inclusion: { in: type_images.keys }
+  validates :type_image, inclusion: { in: type_images.keys }, allow_nil: true
 
   def containerconfig_xml
     builder = Nokogiri::XML::Builder.new do |xml|
