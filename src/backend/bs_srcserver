@@ -4275,6 +4275,17 @@ sub getbuildreason {
   return ($reason, $BSXML::buildreason);
 }
 
+sub getmultibuildpackages {
+  my ($cgi, $projid, $packid) = @_;
+  my $pack_hash = {};
+  my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $packid) || {};
+  foreach my $pack (@{$mb->{'package'}}) {
+    my $entry = {'name' => $pack};
+    push @{$pack_hash->{'entry'}}, $entry;
+  }
+  return ($pack_hash, $BSXML::dir);
+}
+
 sub getbuildstatus {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
@@ -6096,6 +6107,7 @@ my $dispatches = [
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
 
+  '/source/$project/$package view=getmultibuild' => \&getmultibuildpackages,
   '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch? withchangesmd5:bool?' => \&getpackagesourceinfo,
   '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool? product:?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
