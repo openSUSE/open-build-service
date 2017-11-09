@@ -664,6 +664,7 @@ CREATE TABLE `kiwi_preferences` (
   `type_image` int(11) DEFAULT NULL,
   `type_containerconfig_name` varchar(255) DEFAULT NULL,
   `type_containerconfig_tag` varchar(255) DEFAULT NULL,
+  `version` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_kiwi_preferences_on_image_id` (`image_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1286,6 +1287,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20171030143054'),
 ('20171030150551'),
 ('20171102110929'),
-('20171107125828');
+('20171107125828'),
+('20171109095756');
 
 

@@ -37,9 +37,8 @@ module Kiwi
     validate :check_use_project_repositories
     validate :check_package_groups
     validates :preference, presence: true
-    accepts_nested_attributes_for :preference, reject_if: proc { |attributes|
-      attributes['type_containerconfig_name'].blank? && attributes['type_containerconfig_tag'].blank?
-    }
+
+    accepts_nested_attributes_for :preference
     accepts_nested_attributes_for :description
     accepts_nested_attributes_for :repositories, allow_destroy: true
     accepts_nested_attributes_for :package_groups, allow_destroy: true

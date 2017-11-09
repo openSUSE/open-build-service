@@ -7,9 +7,8 @@
     = render partial: 'webui/kiwi/tabs'
     = render partial: 'base_info', locals: { f: f }
 
-  - if @image.preference.editable?
-    .grid_16.alpha.omega.box.box-shadow
-      = render partial: 'webui/kiwi/images/preferences', locals: { f: f }
+  .grid_16.alpha.omega.box.box-shadow
+    = render partial: 'webui/kiwi/images/preferences', locals: { f: f }
 
   .grid_16.alpha.omega.box.box-shadow#kiwi-image-repositories-section{ class: "#{'hidden' unless @is_edit_software_action}" }
     = render partial: 'webui/kiwi/images/repositories', locals: { f: f }

@@ -105,7 +105,8 @@ module Webui
           :id,
           :type_image,
           :type_containerconfig_name,
-          :type_containerconfig_tag
+          :type_containerconfig_tag,
+          :version
         ]
 
         description_attributes = [

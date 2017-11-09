@@ -7,11 +7,15 @@
         %strong Image type:
         %span.fill{ data: { tag: 'type_image' }}= @image.preference.type_image
       %li
-        %strong Container config name:
-        %span.fill{ data: { tag: 'type_containerconfig_name' }}= @image.preference.type_containerconfig_name
-      %li
-        %strong Container config tag:
-        %span.fill{ data: { tag: 'type_containerconfig_tag' }}= @image.preference.type_containerconfig_tag
+        %strong Version:
+        %span.fill{ data: { tag: 'version' }}= @image.preference.version
+      - if @image.preference.containerconfig_fields_editable?
+        %li
+          %strong Container config name:
+          %span.fill{ data: { tag: 'type_containerconfig_name' }}= @image.preference.type_containerconfig_name
+        %li
+          %strong Container config tag:
+          %span.fill{ data: { tag: 'type_containerconfig_tag' }}= @image.preference.type_containerconfig_tag
     %p
       = link_to sprited_text('package_edit', 'Edit preferences'), '#', class: 'preferences_edit'
 
@@ -23,11 +27,15 @@
           %p
             = f.fields_for :preference, f.object.preference do |preference_fields|
               %p
-                = preference_fields.label :type_containerconfig_name
-                = preference_fields.text_field :type_containerconfig_name, data: { default: preference_fields.object.type_containerconfig_name }
-              %p
-                = preference_fields.label :type_containerconfig_tag
-                = preference_fields.text_field :type_containerconfig_tag, data: { default: preference_fields.object.type_containerconfig_tag }
+                = preference_fields.label :version
+                = preference_fields.text_field :version, data: { default: preference_fields.object.version }
+              - if @image.preference.containerconfig_fields_editable?
+                %p
+                  = preference_fields.label :type_containerconfig_name
+                  = preference_fields.text_field :type_containerconfig_name, data: { default: preference_fields.object.type_containerconfig_name }
+                %p
+                  = preference_fields.label :type_containerconfig_tag
+                  = preference_fields.text_field :type_containerconfig_tag, data: { default: preference_fields.object.type_containerconfig_tag }
 
         %p#flash-messages
           %p.ui-state-error.ui-widget-shadow.hidden

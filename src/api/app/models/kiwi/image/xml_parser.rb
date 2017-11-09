@@ -115,7 +115,8 @@ module Kiwi
         return if preference_type_image.blank?
 
         Kiwi::Preference.new(
-          type_image:            preference_type_image,
+          type_image:                preference_type_image,
+          version:                   xml_hash['preferences']['version'],
           type_containerconfig_name: preference_container_attributes['name'],
           type_containerconfig_tag:  preference_container_attributes['tag']
         )

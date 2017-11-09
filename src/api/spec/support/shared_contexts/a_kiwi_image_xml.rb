@@ -17,6 +17,7 @@ RSpec.shared_context 'a kiwi image xml' do
     </type>
     <bootsplash-theme>gnome</bootsplash-theme>
     <bootloader-theme>gnome-dark</bootloader-theme>
+    <version>2.0</version>
   </preferences>
   <packages type="image" patternType="onlyRequired">
     <package name="e2fsprogs"/>
