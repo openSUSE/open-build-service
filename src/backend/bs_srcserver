@@ -2976,6 +2976,7 @@ sub sourcecommitfilelist {
     BSVerify::verify_filename($entry->{'name'});
     BSVerify::verify_md5($entry->{'md5'});
     if (! -e BSRevision::revfilename($orev, $entry->{'name'}, $entry->{'md5'})) {
+      $entry->{'hash'} = 'new' if $cgi->{'withvalidate'};
       push @missing, $entry;
     } else {
       die("duplicate file: $entry->{'name'}\n") if exists $files->{$entry->{'name'}};
