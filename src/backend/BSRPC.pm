@@ -377,7 +377,7 @@ sub rpc {
   #
   if ($status =~ /^2\d\d[^\d]/) {
     undef $status;
-  } elsif ($status =~ /^302[^\d]/) {
+  } elsif ($status =~ /^302[^\d]/ && ($param->{'ignorestatus'} || 0) != 2) {
     # XXX: should we do the redirect if $param->{'ignorestatus'} is defined?
     close S;
     die("error: no redirects allowed\n") unless defined $param->{'maxredirects'};
@@ -401,16 +401,24 @@ sub rpc {
   updatecookies(\%cookiestore, $param->{'uri'}, $headers{'set-cookie'}) if $headers{'set-cookie'};
   ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
 
+  my $act = $param->{'request'} || 'GET';
   # read and process rest of answer
-  if (($param->{'request'} || '') eq 'HEAD') {
+  if ($act eq 'HEAD' && !$param->{'receiver'}) {
     close S;
     return \%headers;
   }
   my $ansreq = {
     'headers' => \%headers,
+    'rawheaders' => $headers,
     '__socket' => \*S,
     '__data' => $ans,
   };
+  if ($act eq 'HEAD') {
+    close S;
+    delete $ansreq->{'__socket'};
+    delete $ansreq->{'__data'};
+    $ansreq->{'__cl'} = -1;	# eof
+  }
   my $receiver = $param->{'receiver'};
   $xmlargs ||= $param->{'receiverarg'};
   if ($receiver) {
@@ -419,7 +427,7 @@ sub rpc {
   } else {
     $ans = BSHTTP::read_data($ansreq, undef, 1);
   }
-  close S;
+  close S unless $act eq 'HEAD';
 
   #if ($param->{'verbose'}) {
   #  print "< $ans\n";
