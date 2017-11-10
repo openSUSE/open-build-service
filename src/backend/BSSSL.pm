@@ -45,6 +45,12 @@ sub initctx {
   if ($certfile) {
     Net::SSLeay::CTX_use_certificate_file($sslctx, $certfile, &Net::SSLeay::FILETYPE_PEM) || die("certificate $keyfile failed\n");
   }
+  if (defined &Net::SSLeay::CTX_set_tmp_ecdh) {
+    my $curve = Net::SSLeay::OBJ_txt2nid('prime256v1');
+    my $ecdh  = Net::SSLeay::EC_KEY_new_by_curve_name($curve);
+    Net::SSLeay::CTX_set_tmp_ecdh($sslctx, $ecdh);
+    Net::SSLeay::EC_KEY_free($ecdh);
+  }
 }
 
 sub freectx {
