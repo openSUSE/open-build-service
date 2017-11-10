@@ -69,6 +69,28 @@ sub gethead {
   }
 }
 
+=head2 BSHTTP::forwardheaders
+
+Return selected headers from the request to be forwarded
+
+=cut
+
+sub forwardheaders {
+  my ($req, @except) = @_;
+
+  return () unless defined $req->{'rawheaders'};
+  my @h;
+  my $exceptre;
+  if (@except) {
+    $exceptre = join('|', @except);
+    $exceptre = qr/^(?:$exceptre)\s*:/i;
+  }
+  for (split(/[\r\n]+/, $req->{'rawheaders'})) {
+    push @h, $_ unless $exceptre && /$exceptre/; 
+  }
+  return @h;
+}
+
 sub unexpected_eof {
   my ($req) = @_;
   $req->{'__eof'} = 1 if $req;
