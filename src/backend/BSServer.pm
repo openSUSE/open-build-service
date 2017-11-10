@@ -569,17 +569,17 @@ sub readrequest {
     die($qu eq '' ? "empty query\n" : "received truncated query\n") if !sysread(CLNT, $qu, 1024, length($qu));
   }
   my ($act, $path, $vers, undef) = split(' ', $request, 4);
-  my %headers;
+  my $rawheaders;
   die("400 No method name\n") if !$act;
   if ($vers) {
-    die("501 Bad method: $act\n") if $act ne 'GET' && $act ne 'HEAD' && $act ne 'POST' && $act ne 'PUT' && $act ne 'DELETE';
+    die("501 Bad method: $act\n") if $act ne 'GET' && $act ne 'HEAD' && $act ne 'POST' && $act ne 'PUT' && $act ne 'DELETE' && $act ne 'PATCH';
     # read in all headers
     while ($qu !~ /^(.*?)\r?\n\r?\n(.*)$/s) {
       die("501 received truncated query\n") if !sysread(CLNT, $qu, 1024, length($qu));
     }
     $qu =~ /^(.*?)\r?\n\r?\n(.*)$/s;	# redo regexp to work around perl bug
     $qu = $2;
-    BSHTTP::gethead(\%headers, "Request: $1");	# put 1st line of http request into $headers{'request'}
+    $rawheaders = "Request: $1";	# put 1st line of http request into $headers{'request'}
   } else {
     # no version -> HTTP 0.9 request
     die("501 Bad method, must be GET\n") if $act ne 'GET';
@@ -592,11 +592,14 @@ sub readrequest {
   }
   $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;	# unescape path
   die("501 invalid path\n") unless $path =~ /^\//s; # forbid relative paths
+  my %headers;
+  BSHTTP::gethead(\%headers, $rawheaders);
   $req->{'action'} = $act;
   $req->{'path'} = $path;
   $req->{'query'} = $query_string;
   $req->{'headers'} = \%headers;
-  if ($act eq 'POST' || $act eq 'PUT') {
+  $req->{'rawheaders'} = $rawheaders;
+  if ($act eq 'POST' || $act eq 'PUT' || $act eq 'PATCH') {
     # send HTTP 1.1's 100-continue answer if requested by the client
     if ($headers{'expect'}) {
       die("417 unknown expect\n") unless lc($headers{'expect'}) eq '100-continue';
@@ -754,6 +757,9 @@ sub reply_receiver {
   push @hdrs, "Content-Type: $ct";
   push @hdrs, "Content-Length: $cl" if defined($cl) && !$chunked;
   push @hdrs, 'Transfer-Encoding: chunked' if $chunked;
+  if ($param->{'reply_receiver_forward_hdrs'}) {
+    push @hdrs, BSHTTP::forwardheaders($req, 'status', 'content-type', 'content-length', 'transfer-encoding', 'cache-control', 'connection');
+  }
   reply(undef, @hdrs);
   $replyreq->{'replying'} = 2 if $chunked;
   while(1) {
