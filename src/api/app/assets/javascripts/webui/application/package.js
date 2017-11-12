@@ -77,8 +77,7 @@ function autoscroll() {
   lw.data("lastScroll", window.pageYOffset);
 }
 
-function build_finished()
-{
+function build_finished() {
   stop_refresh();
   $('#status').html('Build finished');
 }
