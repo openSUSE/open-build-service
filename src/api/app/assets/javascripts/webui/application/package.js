@@ -1,35 +1,35 @@
 function makeServicesDragable() {
     $("#services").sortable( {
-	placeholder: "empty_service",
-	update: function(event, ui) {
-	    var position = -1;
-	    $(this).find(".service").each(function(index) {
-		if ($(this).attr("id") === ui.item.attr("id")) {
+    placeholder: "empty_service",
+    update: function(event, ui) {
+        var position = -1;
+        $(this).find(".service").each(function(index) {
+        if ($(this).attr("id") === ui.item.attr("id")) {
                     position = index;
                 }
-	    });
-	    $("#services").animate({opacity: 0.2}, 500);
-	    $("#services").sortable('disable');
-	    $.ajax({
-		type: 'post',
-		url: $(this).data().url,
-		data: { "item": ui.item.attr("id"),
-			"position": position,
-			"package": $(this).data().package,
-			"project": $(this).data().project
-		      },
-		success: function(data) { 
-		    $("#services").sortable('destroy');
-		    $("#services_container").html(data); 
-		    $("#services").sortable('enable');
-		    $("#services").animate({opacity: 1}, 500);
-		    makeServicesDragable();
-		},
-		error: function(data) {
-		    $("#services").text(data);
+        });
+        $("#services").animate({opacity: 0.2}, 500);
+        $("#services").sortable('disable');
+        $.ajax({
+        type: 'post',
+        url: $(this).data().url,
+        data: { "item": ui.item.attr("id"),
+            "position": position,
+            "package": $(this).data().package,
+            "project": $(this).data().project
+              },
+        success: function(data) {
+            $("#services").sortable('destroy');
+            $("#services_container").html(data);
+            $("#services").sortable('enable');
+            $("#services").animate({opacity: 1}, 500);
+            makeServicesDragable();
+        },
+        error: function(data) {
+            $("#services").text(data);
                 }
-	    });
-	}
+        });
+    }
     });
     $("#services").disableSelection();
 }
@@ -52,12 +52,12 @@ function addChangesEntryTemplate() {
     if (minutes < 10) { minutes = '0' + minutes; }
     seconds = date.getUTCSeconds();
     if (seconds < 10) { seconds = '0' + seconds; }
- 
+
     templ = "-------------------------------------------------------------------\n" +
-	DAYS[date.getUTCDay()] + " " + MONTHS[date.getUTCMonth()] + " " + day + " " +
-	hours + ":" + minutes + ":" + seconds + " UTC " + date.getUTCFullYear() +
-	" - " + $("a.changes-link").data('email') + "\n\n" + "- \n" + "\n";
-    
+    DAYS[date.getUTCDay()] + " " + MONTHS[date.getUTCMonth()] + " " + day + " " +
+    hours + ":" + minutes + ":" + seconds + " UTC " + date.getUTCFullYear() +
+    " - " + $("a.changes-link").data('email') + "\n\n" + "- \n" + "\n";
+
     editors[0].setValue(templ + editors[0].getValue());
     editors[0].focus();
     editors[0].setCursor(3, 3);
@@ -102,7 +102,7 @@ function stop_refresh() {
     var lw = $('#log_space_wrapper');
     lw.data("autorefresh", 0);
     if (lw.data("ajaxreq") !== 0)
-	lw.data("ajaxreq").abort();
+    lw.data("ajaxreq").abort();
     lw.data("ajaxreq", 0);
     $('.stop_refresh').hide();
     $('.start_refresh').show();
@@ -114,15 +114,15 @@ function refresh(newoffset, initial) {
     var lw = $('#log_space_wrapper');
     lw.data("offset", newoffset);
     if (lw.data("autorefresh")) {
-	var options = { type: 'GET', 
-			data: null, 
-			error: 'stop_refresh()', 
-			completed: 'remove_ajaxreq()',
-			cache: false };
-	
-	var baseurl = lw.data('url');
-	options.url = baseurl + '&offset=' + lw.data("offset") + ';&' + 'initial=' + initial;
-	lw.data("ajaxreq", $.ajax(options));
+    var options = { type: 'GET',
+            data: null,
+            error: 'stop_refresh()',
+            completed: 'remove_ajaxreq()',
+            cache: false };
+
+    var baseurl = lw.data('url');
+    options.url = baseurl + '&offset=' + lw.data("offset") + ';&' + 'initial=' + initial;
+    lw.data("ajaxreq", $.ajax(options));
     }
 }
 
