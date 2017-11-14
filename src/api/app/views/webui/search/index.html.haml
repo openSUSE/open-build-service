@@ -23,21 +23,16 @@
       #advanced-container{ style: "display: none;" }
         %h4 Search for:
         %p
-          = hidden_field_tag('project', 0)
           = check_box_tag('project', 1, params[:project].nil? || params[:project] == "1")
           %label{for: "project" } Projects
-          = hidden_field_tag('package', 0)
           = check_box_tag('package', 1, params[:package].nil? || params[:package] == "1")
           %label{ for: "package" } Packages
         %h4 Search in:
         %p
-          = hidden_field_tag('name', 0)
           = check_box_tag('name', 1, params[:name].nil? || params[:name] == "1")
           %label{ for: "name" } Name
-          = hidden_field_tag('title', 0)
           = check_box_tag('title', 1, params[:title] == "1")
           %label{ for: "title" } Title
-          = hidden_field_tag('description', 0)
           = check_box_tag('description', 1, params[:description] == "1")
           %label{ for: "description" } Description
         %h4 Require attribute:
