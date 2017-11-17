@@ -7,7 +7,7 @@ function hideOverlay(dialog) {
 
 function saveImage() {
   if (canSave) {
-    $.ajax({ url: "#{url_for(controller: 'kiwi/images', action: :show, id: @image)}",
+    $.ajax({ url: is_outdated_url,
       dataType: 'json',
       success: function(json) {
         var is_outdated = json.is_outdated;
@@ -362,8 +362,7 @@ $(document).ready(function(){
   $('#kiwi-image-update-form-revert').click(function(){
     if ($(this).hasClass('enabled')) {
       if (confirm('Attention! All unsaved data will be lost! Continue?')) {
-        window.location = window.location.href;
-        return false;
+        location.reload();
       }
     }
   });

@@ -1,0 +1,17 @@
+%h3 Details
+%p
+  %strong Author
+%p
+  = @author
+  = "(#{@contact})" unless @contact.blank?
+%p
+  %strong Software
+%p
+  - if @image.use_project_repositories
+    This image uses the repositories set in the project
+  - else
+    = @repositories_count
+    repositories selected
+%p
+  = @packages_count
+  package/s selected

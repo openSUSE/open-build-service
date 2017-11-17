@@ -1,7 +1,7 @@
 <div id="package_buildstatus">
   <% if !@project.repositories.any? %>
-    <p><i>The project this package belongs to currently has no <%= link_to "build targets", :controller => :repositories, :action => 'distributions', :project => @project %> defined. </i></p>
+    <p><i>The project this package belongs to currently has no <%= link_to 'build targets', repositories_distributions_path(@project) %> defined. </i></p>
   <% else %>
-    <p><i>No build result available</i></p>
+    <p><i>No build results available</i></p>
   <% end %>
 </div>

@@ -3,22 +3,8 @@
 = form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
   .grid_16.alpha.omega.box.box-shadow
     = render partial: 'webui/kiwi/tabs'
-
-    = render partial: 'webui/kiwi/images/description', locals: { f: f }
-
-  - if @image.preference.editable?
-    .grid_16.alpha.omega.box.box-shadow
-      = render partial: 'webui/kiwi/images/preferences', locals: { f: f }
-
-  .grid_16.alpha.omega.box.box-shadow
-    = render partial: 'webui/kiwi/images/repositories', locals: { f: f }
-
-  .grid_16.alpha.omega.box.box-shadow
-    = render partial: 'webui/kiwi/images/packages', locals: { f: f }
-
-  .grid_2.alpha.omega.box.box-shadow.kiwi-button
-    %h3
-      #kiwi-image-update-form-save= sprite_tag("page_save", title: 'Save') + ' Save'
-  .grid_2.alpha.omega.box.box-shadow.kiwi-button
-    %h3
-      #kiwi-image-update-form-revert{ class: "#{'enabled' if flash[:error]}" }= sprite_tag("page_save", title: 'Revert') + ' Revert'
+    = render partial: 'base_info'
+  .grid_10.alpha.box.box-shadow
+    = render partial: 'details_overview'
+  .grid_6.omega.box.box-shadow
+    = render partial: 'build_info'

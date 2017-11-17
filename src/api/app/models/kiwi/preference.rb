@@ -22,9 +22,9 @@ end
 #
 # Table name: kiwi_preferences
 #
-#  id                   :integer          not null, primary key
-#  image_id             :integer          indexed
-#  type_image           :integer
+#  id                        :integer          not null, primary key
+#  image_id                  :integer          indexed
+#  type_image                :integer
 #  type_containerconfig_name :string(255)
 #  type_containerconfig_tag  :string(255)
 #

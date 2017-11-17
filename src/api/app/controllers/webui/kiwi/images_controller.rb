@@ -27,18 +27,43 @@ module Webui
           end
         end
 
-        redirect_to kiwi_image_path(package.kiwi_image)
+        redirect_to edit_kiwi_image_path(package.kiwi_image, section: 'software')
       end
 
       def show
-        # Because the form needs a Description & Preference objects instantiated
+        @package = @image.package
+        @project = @package.project
         @image.build_description if @image.description.nil?
-        @image.build_preference if @image.preference.nil?
-        @package_groups = @image.default_package_group
+        @image.build_preference(type_image: 'docker') if @image.preference.nil?
+        @description = @image.description.specification
+        @version = @image.version
+        @author = @image.description.author
+        @contact = @image.description.contact
+        @repositories_count = @image.repositories.count
+        @packages_count = @image.kiwi_packages.count
+
+        @is_edit_details_action = false
+        @is_edit_software_action = false
 
         respond_to do |format|
           format.html
           format.json { render json: { is_outdated: @image.outdated? } }
+        end
+      end
+
+      def edit
+        @image.build_description if @image.description.nil?
+        @description = @image.description.specification
+        @version = @image.version
+        @package_groups = @image.default_package_group
+        @author = @image.description.author
+        @contact = @image.description.contact
+
+        @is_edit_details_action = params[:section] == 'details' || params[:section].nil?
+        @is_edit_software_action = params[:section] == 'software'
+
+        respond_to do |format|
+          format.html
         end
       end
 
@@ -49,17 +74,28 @@ module Webui
           @image.update_attributes!(image_params) unless params[:kiwi_image].empty?
           @image.write_to_backend
         end
-        redirect_to action: :show
+        redirect_to action: :edit
       rescue ActiveRecord::RecordInvalid, Timeout::Error
         @package_groups = @image.package_groups.select(&:kiwi_type_image?).first
         flash.now[:error] = @image.nested_error_messages.merge(title: 'Cannot update KIWI Image:')
-        render action: :show
+        render action: :edit
       end
 
       def autocomplete_binaries
         binaries = ::Kiwi::Image.find_binaries_by_name(params[:term], @image.package.project.name,
                                                        params[:repositories], use_project_repositories: params[:use_project_repositories])
         render json: binaries.to_a.map { |result| {id: result.first, label: result.first, value: result.first} }
+      end
+
+      def build_result
+        check_ajax
+        if @image.package.project.repositories.any?
+          @build_results = @image.build_results
+          render partial: 'build_status'
+        else
+          @project = @image.package.project
+          render partial: '/webui/package/no_repositories'
+        end
       end
 
       private
@@ -104,6 +140,7 @@ module Webui
         params.require(:kiwi_image).permit(
           :use_project_repositories,
           :name,
+          :version,
           :schema_version,
           :displayname,
           description_attributes: description_attributes,
