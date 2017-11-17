@@ -12,9 +12,11 @@
 %table#jobhistory-table
   %thead
     %th Revision
+    %th Time (not formatted)
     %th Time
     %th Reason
     %th Status Code
+    %th Build Time (not formatted)
     %th Build Time
     %th Worker
     %th
@@ -24,6 +26,8 @@
         %td
           = jobhistory.revision
         %td
+          = jobhistory.ready_time
+        %td
           = time_tag(Time.at(jobhistory.ready_time))
         %td
           - if jobhistory.reason == 'source change'
@@ -32,6 +36,8 @@
             = jobhistory.reason
         %td{ class: "status_#{jobhistory.code}" }
           = jobhistory.code
+        %td
+          = jobhistory.total_time
         %td
           = humanize_time(jobhistory.total_time)
         %td
