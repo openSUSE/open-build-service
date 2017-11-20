@@ -1383,7 +1383,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'without buildresult' do
         before do
           allow(Buildresult).to receive(:find).and_return(nil)
-          post :monitor, params: { project: user.home_project, defaults: '1'}
+          get :monitor, params: { project: user.home_project, defaults: '1'}
         end
 
         it { expect(flash[:warning]).not_to be_nil }
@@ -1393,7 +1393,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'without buildresult and with failed param set to an integer' do
         before do
           allow(Buildresult).to receive(:find).and_return(nil)
-          post :monitor, params: { project: user.home_project, defaults: '1', failed: '2'}
+          get :monitor, params: { project: user.home_project, defaults: '1', failed: '2'}
         end
 
         it { expect(response).to redirect_to(project_show_path(user.home_project)) }
@@ -1402,7 +1402,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'without buildresult and with failed param set to a string' do
         before do
           allow(Buildresult).to receive(:find).and_return(nil)
-          post :monitor, params: { project: user.home_project, defaults: '1', failed: 'abc'}
+          get :monitor, params: { project: user.home_project, defaults: '1', failed: 'abc'}
         end
 
         it { expect(response).to redirect_to(project_show_path(user.home_project)) }
