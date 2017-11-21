@@ -3,14 +3,14 @@ require 'rails_helper'
 RSpec.describe Webui::CommentsController, type: :controller do
   let(:user) { create(:confirmed_user, login: 'luck') }
 
+  before do
+    login user
+  end
+
   describe 'POST #create' do
     let(:project) { create(:project) }
     let(:package) { create(:package) }
     let(:bs_request) { create(:bs_request) }
-
-    before do
-      login user
-    end
 
     context 'with a valid comment' do
       RSpec.shared_examples 'saving a comment' do
@@ -71,10 +71,6 @@ RSpec.describe Webui::CommentsController, type: :controller do
     let(:admin) { create(:admin_user, login: 'Admin') }
     let(:comment) { create(:comment_project, user: user) }
     let(:other_comment) { create(:comment_project) }
-
-    before do
-      login user
-    end
 
     context 'can destroy own comments' do
       before do
