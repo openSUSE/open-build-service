@@ -126,20 +126,37 @@ RSpec.describe Webui::RequestController, vcr: true do
   end
 
   describe "POST #modify_review" do
+    RSpec.shared_examples 'a valid review' do |new_state|
+      let(:params_hash) do
+        {
+          review_comment_0:        "yeah",
+          review_request_number_0: request_with_review.number,
+          review_by_user_0:        reviewer
+        }
+      end
+
+      before do
+        subject.update(state: 'declined') if new_state == 'new'
+
+        params_hash[new_state.to_sym] = 'non-important string'
+        post :modify_review, params: params_hash
+      end
+
+      subject { request_with_review.reload.reviews.last }
+
+      it { expect(response).to redirect_to(request_show_path(number: request_with_review.number)) }
+      it { expect(subject.state).to eq(new_state) }
+      it { expect(flash[:success]).to eq("Successfully submitted review") }
+    end
+
     before do
       login(reviewer)
     end
 
     context "with valid parameters" do
-      before do
-        post :modify_review, params: { review_comment_0:        "yeah",
-                                       review_request_number_0: request_with_review.number,
-                                       review_by_user_0:        reviewer,
-                                       accepted:                'Approve' }
-      end
-
-      it { expect(response).to redirect_to(request_show_path(number: request_with_review.number)) }
-      it { expect(request_with_review.reload.reviews.last.state).to eq(:accepted) }
+      it_behaves_like 'a valid review', :accepted
+      it_behaves_like 'a valid review', :new
+      it_behaves_like 'a valid review', :declined
     end
 
     context "with invalid parameters" do
