@@ -171,13 +171,11 @@ class Authenticator
 
   def extract_proxy_user
     proxy_user = request.env['HTTP_X_USERNAME']
-    if proxy_user
-      Rails.logger.info "iChain user extracted from header: #{proxy_user}"
-    end
 
     # we're using a login proxy, there is no need to authenticate the user from the credentials
     # However we have to care for the status of the user that must not be unconfirmed or proxy requested
     if proxy_user
+      Rails.logger.info "iChain user extracted from header: #{proxy_user}"
       @http_user = User.find_by_login proxy_user
 
       # If we do not find a User here, we need to create a user and wait for
@@ -187,21 +185,15 @@ class Authenticator
           Rails.logger.debug("No user found in database, creation disabled")
           raise AuthenticationRequiredError, "User '#{login}' does not exist"
         end
-        # Generate and store a fake pw in the OBS DB that no-one knows
-        # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
-        chars = ["A".."Z", "a".."z", "0".."9"].collect(&:to_a).join
-        fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a" * 24)
-        @http_user = User.new(
-          login: proxy_user,
-          state: User.default_user_state,
-          password: fakepw)
+
+        @http_user = User.create_user_with_fake_pw!(login: proxy_user, state: User.default_user_state)
       end
 
       @http_user.last_logged_in_at = Time.now
       # update user data from login proxy headers
       @http_user.update_user_info_from_proxy_env(request.env)
     else
-      Rails.logger.error "No X-username header from login proxy! Are we really using an authentification proxy?"
+      Rails.logger.error "No X-username header was sent by login proxy!"
     end
   end
 
