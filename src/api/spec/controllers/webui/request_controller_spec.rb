@@ -15,8 +15,7 @@ RSpec.describe Webui::RequestController, vcr: true do
   let(:devel_project) { create(:project, name: 'devel:project') }
   let(:devel_package) { create(:package_with_file, name: 'goal', project: devel_project) }
   let(:bs_request) { create(:bs_request, description: "Please take this", creator: submitter.login) }
-  let(:create_submit_request) do
-    bs_request.bs_request_actions.delete_all
+  let(:bs_request_submit_action) do
     create(:bs_request_action_submit, target_project: target_project.name,
                                       target_package: target_package.name,
                                       source_project: source_project.name,
@@ -66,7 +65,8 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       before do
         login receiver
-        create_submit_request
+        bs_request.bs_request_actions.delete_all
+        bs_request_submit_action
         get :show, params: { number: bs_request.number }
       end
 
@@ -78,7 +78,7 @@ RSpec.describe Webui::RequestController, vcr: true do
     context 'when there are no package maintainers' do
       before do
         login receiver
-        create_submit_request
+        bs_request_submit_action
         get :show, params: { number: bs_request.number }
       end
 
@@ -183,7 +183,8 @@ RSpec.describe Webui::RequestController, vcr: true do
 
   describe "POST #changerequest" do
     before do
-      create_submit_request
+      bs_request.bs_request_actions.delete_all
+      bs_request_submit_action
     end
 
     context "with valid parameters" do
