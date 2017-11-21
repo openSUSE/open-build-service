@@ -692,4 +692,29 @@ usermod -a -G docker obsservicerun
 /usr/lib/obs/tests/appliance/*
 
 
+%package -n obs-container-registry
+Summary:        The Open Build Service -- container registry
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
+Group:          Productivity/Networking/Web/Utilities
+%endif
+Requires:       docker-distribution-registry
+
+%description -n obs-container-registry
+The OBS Container Registry, based on the docker registry, which allows
+    
+* anonymous pulls from anywhere
+* anonymous pushes from localhost.
+    
+This is done by proxying access to the registry through
+apache and restricting any other http method than GET and HEAD
+to localhost.
+
+
+%files -n obs-container-registry
+%defattr(-,root,root)
+%dir /srv/www/obs/container-registry
+%dir /srv/www/obs/container-registry/log
+%dir /srv/www/obs/container-registry/htdocs
+%config /etc/apache2/vhosts.d/obs-container-registry.conf
+
 %changelog

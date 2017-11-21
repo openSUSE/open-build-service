@@ -8,7 +8,7 @@ SYSTEMD_SERVICE_FILES := obsdeltastore
 
 UNITDIR=/usr/lib/systemd/system/
 
-install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs install_overview install_tests_appliance install_crontabs install_systemd_services
+install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs install_overview install_tests_appliance install_crontabs install_systemd_services install_registry_dirs
 
 #install_overview
 
@@ -19,6 +19,7 @@ install_obsapisetup: system_dirs
 install_apache:
 	$(INSTALL) -d -m 755  $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)
 	$(INSTALL) -m 644 $(APACHE_VHOST_CONF) $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)/obs.conf
+	$(INSTALL) -m 644 $(APACHE_VHOST_CONTAINER_REGISTRY_CONF) $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)/$(APACHE_VHOST_CONTAINER_REGISTRY_CONF)
 
 install_initscripts: system_dirs
 	$(foreach script,$(INIT_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/etc/init.d/$(script)) )
@@ -68,6 +69,9 @@ install_devel_docs:
 install_overview:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_DOCUMENT_ROOT)/overview
 	$(INSTALL) -m 644 overview.html.TEMPLATE $(DESTDIR)$(OBS_DOCUMENT_ROOT)/overview
+
+install_registry_dirs:
+	mkdir -p $(DESTDIR)/srv/www/obs/container-registry{,/log,/htdocs}
 
 install_tests_appliance:
 	cp -r ./t/*	$(DESTDIR)/usr/lib/obs/tests/appliance/

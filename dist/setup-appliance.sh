@@ -573,6 +573,71 @@ EOF
   fi
 
 }
+
+function setup_registry {
+  # check if docker registry is installed or return
+  logline "Starting container registry setup!"
+  rpm -q --quiet obs-container-registry
+  if [ $? -gt 0 ];then
+    logline "Package 'obs-container-registry' not found. Skipping registry setup!"
+    return
+  fi
+
+  # check if $container_registries already configured in BSConfig and return
+  grep -q -P '^\s*our\s+\$container_registries\s*=' /usr/lib/obs/server/BSConfig.pm
+  if [ $? -lt 1 ];then
+    logline "Configuration for container_registries already active in BSConfig. Skipping registry setup!"
+    return
+  fi
+
+  # check if $publish_containers already configured in BSConfig and return
+  grep -q -P '^\s*our\s+\$publish_containers\s*=' /usr/lib/obs/server/BSConfig.pm
+  if [ $? -lt 1 ];then
+    logline "Configuration for publish_containers already active in BSConfig. Skipping registry setup!"
+    return
+  fi
+
+  # reconfigure docker registry only to be accessible via apache proxy
+  logline "Bind registry to loopback interface only"
+  perl -p -i -e  "s/0.0.0.0:5000/127.0.0.1:5000 # config changed by $0/" /etc/registry/config.yml
+
+  # restart registry to reread confi if already started
+  logline "Activating registry startup"
+  systemctl status registry && systemctl restart registry
+
+  systemctl enable registry
+  systemctl start registry
+
+  # configure $container_registries and $publish_containers
+  # in BSConfig
+  logline "Configuring local container registry in BSConfig"
+  cat <<EOF >> /usr/lib/obs/server/BSConfig.pm
+### Configuration added by $0
+our \$container_registries = {
+   'localhost' => {
+     host => 'localhost',
+     port => 444,
+     user => 'ignored',
+     password => 'ignored',
+     # Please be aware of the trailing slash
+     repository_base => '/',
+   }
+};
+
+our \$publish_containers = [
+   '.*' => ['localhost'],
+];
+###
+1;
+EOF
+
+  # check obspublisher and restart if needed
+  logline "Checking obspublisher and restart if required."
+  systemctl status obspublisher && systemctl restart obspublisher
+
+  logline "Finished container registry setup!"
+}
+
 ###############################################################################
 #
 # MAIN
@@ -697,6 +762,8 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
   check_service obsapidelayed
 
   create_issue_file
+
+  setup_registry
 
   if [ -n "$FQHOSTNAME" ]; then
     create_overview_html
