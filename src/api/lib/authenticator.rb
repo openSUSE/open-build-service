@@ -248,16 +248,11 @@ class Authenticator
                              "is a registered account, but it is in a not active state."
   end
 
+  # set the nobody user if a user agent is present in anonymous mode
   def check_for_anonymous_user
-    if ::Configuration.anonymous
-      # Fixed list of clients which do support the read only mode
-      hua = request.env['HTTP_USER_AGENT']
-      if hua # ignore our test suite (TODO: we need to fix that)
-        load_nobody
-        return true
-      end
-    end
-    false
+    return false unless ::Configuration.anonymous && request.user_agent
+    load_nobody
+    true
   end
 
    # to become _public_ special user
