@@ -60,11 +60,11 @@ RSpec.describe Webui::RequestController, vcr: true do
     end
 
     context 'when there are package maintainers' do
-      before do
-        # the hint will only be shown, when the target package has at least one
-        # maintainer. so we'll gonna add a maintainer to the target package
-        create(:relationship_package_user, user: submitter, package: target_package)
+      # The hint will only be shown, when the target package has at least one
+      # maintainer. So we'll gonna add a maintainer to the target package.
+      let!(:relationship_package_user) { create(:relationship_package_user, user: submitter, package: target_package) }
 
+      before do
         login receiver
         create_submit_request
         get :show, params: { number: bs_request.number }
