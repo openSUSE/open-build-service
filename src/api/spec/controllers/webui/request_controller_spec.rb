@@ -36,45 +36,55 @@ RSpec.describe Webui::RequestController, vcr: true do
   it { is_expected.to use_before_action(:require_request) }
 
   describe 'GET show' do
-    it 'is successful as nobody' do
-      get :show, params: { number: bs_request.number }
-      expect(response).to have_http_status(:success)
+    context 'as nobody' do
+      before do
+        get :show, params: { number: bs_request.number }
+      end
+
+      it 'responds successfully' do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'assigns @bs_request' do
+        expect(assigns(:bs_request)).to eq(bs_request)
+      end
     end
 
-    it 'assigns @bs_request' do
-      get :show, params: { number: bs_request.number }
-      expect(assigns(:bs_request)).to eq(bs_request)
+    context 'if request does not exist' do
+      before do
+        get :show, params: { number: '200000' }
+      end
+
+      it { expect(flash[:error]).to eq("Can't find request 200000") }
+      it { expect(response).to redirect_to(user_show_path(User.current)) }
     end
 
-    it 'redirects to root_path if request does not exist' do
-      login submitter
-      get :show, params: { number: '200000' }
-      expect(flash[:error]).to eq("Can't find request 200000")
-      expect(response).to redirect_to(user_show_path(User.current))
+    context 'when there are package maintainers' do
+      before do
+        # the hint will only be shown, when the target package has at least one
+        # maintainer. so we'll gonna add a maintainer to the target package
+        create(:relationship_package_user, user: submitter, package: target_package)
+
+        login receiver
+        create_submit_request
+        get :show, params: { number: bs_request.number }
+      end
+
+      it 'shows a hint to project maintainers' do
+        expect(assigns(:show_project_maintainer_hint)).to be_truthy
+      end
     end
 
-    it 'shows a hint to project maintainers when there are package maintainers' do
-      login receiver
+    context 'when there are no package maintainers' do
+      before do
+        login receiver
+        create_submit_request
+        get :show, params: { number: bs_request.number }
+      end
 
-      create_submit_request
-
-      # the hint will only be shown, when the target package has at least one
-      # maintainer. so we'll gonna add a maintainer to the target package
-      create(:relationship_package_user, user: submitter, package: target_package)
-
-      get :show, params: { number: bs_request.number }
-
-      expect(assigns(:show_project_maintainer_hint)).to eq(true)
-    end
-
-    it 'does not show a hint to project maintainers if the target package has no maintainers' do
-      login receiver
-
-      create_submit_request
-
-      get :show, params: { number: bs_request.number }
-
-      expect(assigns(:show_project_maintainer_hint)).to eq(false)
+      it 'does not show a hint to project maintainers by default' do
+        expect(assigns(:show_project_maintainer_hint)).to be_falsey
+      end
     end
   end
 
