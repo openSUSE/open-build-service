@@ -86,7 +86,7 @@ RSpec.shared_examples "a flag table" do
     # expect(project.flags.reload.where(status: "disable")).to exist
 
     enable_flag_field_for(repository: repository.name, architecture: "x86_64")
-    # expect(project.flags.reload.where(status: "enable")).to exist
+    expect(project.flags.reload.where(status: "enable")).to exist
   end
 end
 
