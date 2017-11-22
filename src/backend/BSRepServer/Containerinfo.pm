@@ -53,7 +53,8 @@ sub containerinfo2obsbinlnk {
   my $name = $d->{name};
   my $lnk = {};
   $lnk->{'name'} = "container:$name";
-  $lnk->{'version'} = defined($d->{'version'}) ? $d->{'version'} : '0'; 
+  $lnk->{'version'} = defined($d->{'version'}) ? $d->{'version'} : '0';
+  $lnk->{'release'} = defined($d->{'release'}) ? $d->{'release'} : '0';
   $lnk->{'arch'} = defined($d->{'arch'}) ? $d->{'arch'} : 'noarch';
   # need to have a source so that it goes into the :full tree
   $lnk->{'source'} = $lnk->{'name'};
