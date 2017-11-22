@@ -83,7 +83,7 @@ RSpec.shared_examples "a flag table" do
     query_attributes.merge!(repo: repository.name, architecture_id: Architecture.find_by_name("x86_64"))
 
     disable_flag_field_for(repository: repository.name, architecture: "x86_64")
-    # expect(project.flags.reload.where(status: "disable")).to exist
+    expect(project.flags.reload.where(status: "disable")).to exist
 
     enable_flag_field_for(repository: repository.name, architecture: "x86_64")
     expect(project.flags.reload.where(status: "enable")).to exist
