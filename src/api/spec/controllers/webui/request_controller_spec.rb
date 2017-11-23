@@ -169,6 +169,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
+
       it 'without state' do
         post :modify_review, params: { review_comment_0:        "yeah",
                                        review_request_number_0: request_with_review.number,
@@ -177,6 +178,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
+
       it "without permissions" do
         post :modify_review, params: { review_comment_0:        "yeah",
                                        review_request_number_0: request_with_review.number,
@@ -186,6 +188,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
+
       it "with invalid transition" do
         request_with_review.update_attributes(state: 'declined')
         post :modify_review, params: { review_comment_0:        "yeah",
