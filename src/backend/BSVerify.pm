@@ -262,7 +262,7 @@ sub verify_proj {
   for my $link (@{$proj->{'link'} || []}) {
     verify_projid($link->{'project'});
     if (exists($link->{'vrevmode'})) {
-      die("bad vrevmode attribute\n") unless $link->{'vrevmode'} && ($link->{'vrevmode'} eq 'extend' || $link->{'vrevmode'} eq 'unextend');
+      die("bad vrevmode attribute: $link->{'vrevmode'}\n") unless $link->{'vrevmode'} && ($link->{'vrevmode'} eq 'extend' || $link->{'vrevmode'} eq 'unextend');
     }
   }
   for my $f ('build', 'publish', 'debuginfo', 'useforbuild', 'lock', 'binarydownload', 'sourceaccess', 'access') {
