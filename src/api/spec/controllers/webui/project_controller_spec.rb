@@ -696,7 +696,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "with a namespace called 'base'" do
       before do
-        get :create, params: { project: { name: 'my_project' }, ns: user.home_project_name }
+        post :create, params: { project: { name: 'my_project' }, ns: user.home_project_name }
       end
 
       it { expect(assigns(:project).name).to eq("#{user.home_project_name}:my_project") }
@@ -705,7 +705,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with a param called maintenance_project' do
       before do
-        get :create, params: { project: { name: 'my_project' }, ns: user.home_project_name, maintenance_project: true }
+        post :create, params: { project: { name: 'my_project' }, ns: user.home_project_name, maintenance_project: true }
       end
 
       it { expect(assigns(:project).kind).to eq('maintenance') }
@@ -715,7 +715,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with a param that disables a flag' do
       shared_examples "a param that creates a disabled flag" do |param_name, flag_name|
         before do
-          get :create, params: { :project => { name: 'my_project' }, :ns => user.home_project_name, param_name.to_sym => true }
+          post :create, params: { :project => { name: 'my_project' }, :ns => user.home_project_name, param_name.to_sym => true }
         end
 
         it { expect(assigns(:project).flags.first.flag).to eq(flag_name) }
@@ -730,7 +730,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with an invalid project data' do
       before do
-        get :create, params: { project: { name: 'my invalid project' }, ns: user.home_project_name }
+        post :create, params: { project: { name: 'my invalid project' }, ns: user.home_project_name }
       end
 
       it { expect(flash[:error]).to start_with('Failed to save project') }
@@ -1383,7 +1383,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'without buildresult' do
         before do
           allow(Buildresult).to receive(:find).and_return(nil)
-          post :monitor, params: { project: user.home_project, defaults: '1'}
+          get :monitor, params: { project: user.home_project, defaults: '1'}
         end
 
         it { expect(flash[:warning]).not_to be_nil }
@@ -1393,7 +1393,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'without buildresult and with failed param set to an integer' do
         before do
           allow(Buildresult).to receive(:find).and_return(nil)
-          post :monitor, params: { project: user.home_project, defaults: '1', failed: '2'}
+          get :monitor, params: { project: user.home_project, defaults: '1', failed: '2'}
         end
 
         it { expect(response).to redirect_to(project_show_path(user.home_project)) }
@@ -1402,7 +1402,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       context 'without buildresult and with failed param set to a string' do
         before do
           allow(Buildresult).to receive(:find).and_return(nil)
-          post :monitor, params: { project: user.home_project, defaults: '1', failed: 'abc'}
+          get :monitor, params: { project: user.home_project, defaults: '1', failed: 'abc'}
         end
 
         it { expect(response).to redirect_to(project_show_path(user.home_project)) }
@@ -1485,7 +1485,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
       end
 
-      context 'without buildresult and no defaults set to a non-integer' do
+      context 'without buildresult and defaults set to a non-integer' do
         before do
           allow(Buildresult).to receive(:find).and_return(nil)
           post :monitor, params: { project: user.home_project, defaults: 'abc'}
