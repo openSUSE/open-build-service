@@ -66,6 +66,7 @@ our %event_handlers = (
   'useforbuild'     => \&BSSched::EventHandler::event_useforbuild,
   'configuration'   => \&BSSched::EventHandler::event_configuration,
   'suspendproject'  => \&BSSched::EventHandler::event_suspendproject,
+  'resumeproject'   => \&BSSched::EventHandler::event_resumeproject,
   'memstats'        => \&BSSched::EventHandler::event_memstats,
   'dispatchdetails' => \&BSSched::EventHandler::event_dispatchdetails,
   'force_publish'   => \&BSSched::EventHandler::event_force_publish,
@@ -542,6 +543,29 @@ sub event_suspendproject {
     next unless grep {$_ eq $gctx->{'arch'}} @{$repo->{'arch'} || []};
     my $ctx = BSSched::Checker->new($gctx, "$projid/$repo->{'name'}");
     $ctx->set_repo_state('blocked', $ev->{'job'});
+  }
+}
+
+sub event_resumeproject {
+  my ($ectx, $ev) = @_;
+  my $projid = $ev->{'project'};
+  my $gctx = $ectx->{'gctx'};
+  my $job = $gctx->{'projsuspended'}->{$projid};
+  my $evjob = $ev->{'job'} || '';
+  if (!$job) {
+    print "ignoring resumeproject for project $projid ($evjob)\n";
+    return;
+  }
+  print "resuming project $projid: $job ($evjob)\n";
+  delete $gctx->{'projsuspended'}->{$projid};
+  my $changed_high = $gctx->{'changed_high'};
+  my $changed_dirty = $gctx->{'changed_dirty'};
+  $changed_high->{$projid} ||= 1;
+  for my $prp (@{$gctx->{'prps'}}) {
+    if ((split('/', $prp, 2))[0] eq $projid) {
+      $changed_high->{$prp} ||= 1;
+      $changed_dirty->{$prp} = 1;
+    }
   }
 }
 

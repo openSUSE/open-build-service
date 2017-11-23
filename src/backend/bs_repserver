@@ -2277,7 +2277,7 @@ sub forwardevent {
     $worker = $cgi->{'worker'} if exists $cgi->{'worker'};
     $job = $cgi->{'job'} if exists $cgi->{'job'};
   }
-  $job = $cgi->{'job'} if exists($cgi->{'job'}) && $type eq 'suspendproject';
+  $job = $cgi->{'job'} if exists($cgi->{'job'}) && $type eq 'suspendproject' || $type eq 'resumeproject';
   # hack: mis-use job to transfer wipe target
   if ($type eq 'wipe' && $cgi->{'wipe'}) {
     $job = join(',', @{$cgi->{'wipe'}});

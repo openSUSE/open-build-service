@@ -3849,7 +3849,7 @@ sub docommand {
     return $BSStdServer::return_ok;
   }
   if ($cgi->{'cmd'} eq 'resumeproject') {
-    notify_repservers('package', $projid);	# also resumes the project
+    notify_repservers('resumeproject', $projid, undef, $cgi->{'comment'} || 'suspendproject');
     return $BSStdServer::return_ok;
   }
   my @prpas;
