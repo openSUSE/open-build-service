@@ -47,11 +47,11 @@ module Kiwi
       end
 
       def update_preference_version(document)
-        if @image.preference.version.present?
-          if document.xpath('image/preferences/version').any?
-            document.xpath('image/preferences/version').remove
-          end
+        return document if @image.preference.version.blank?
 
+        if document.xpath('image/preferences/version').any?
+          document.xpath('image/preferences/version').first.content = @image.preference.version
+        else
           document.xpath('image/preferences').first.add_child("<version>#{@image.preference.version}</version>")
         end
 
