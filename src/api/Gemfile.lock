@@ -154,7 +154,7 @@ GEM
       rake (>= 10, < 13)
       rubocop (>= 0.50.0)
       sysexits (~> 1.1)
-    hashdiff (0.3.6)
+    hashdiff (0.3.7)
     i18n (0.9.1)
       concurrent-ruby (~> 1.0)
     innertube (1.1.0)
@@ -402,7 +402,7 @@ GEM
     vcr (3.0.3)
     voight_kampff (1.1.1)
       rack (>= 1.4, < 3.0)
-    webmock (3.1.0)
+    webmock (3.1.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
