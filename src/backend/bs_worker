@@ -2704,6 +2704,7 @@ sub createkiwireport {
         'binaryarch' => $s[4],
         'disturl' => $s[5],
       };
+      $bin->{'package'} = $1 if $s[5] =~ /.*\/[^-]*-(.*)$/; # container case
       $bin->{'epoch'} = $s[1] if $s[1] ne '(none)';
       my $prpap = $kiwiorigins->{$s[0]};
       if ($prpap) {
