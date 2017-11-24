@@ -40,7 +40,7 @@ class BinaryRelease < ApplicationRecord
         # identifier
         hash = { binary_name:    binary['name'],
                  binary_version: binary['version'],
-                 binary_release: binary['release'],
+                 binary_release: binary['release'] || 0, # container have no tracked release number atm
                  binary_epoch:   binary['epoch'],
                  binary_arch:    binary['binaryarch'],
                  medium:         binary['medium'],
@@ -187,7 +187,6 @@ class BinaryRelease < ApplicationRecord
   def indentical_to?(binary_hash)
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
-      binary_buildtime &&
       binary_buildtime == DateTime.strptime(binary_hash['buildtime'].to_s, '%s')
   end
   #### Alias of methods
