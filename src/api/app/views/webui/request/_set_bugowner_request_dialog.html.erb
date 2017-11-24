@@ -8,13 +8,23 @@
             <input id="userbkp" name="user" type="hidden" value="False" />
             <%= text_field_tag(:user, nil, :onclick => "javascript:document.getElementById('group').disabled=true", :name => 'user' ) %><br/>
             <%= javascript_tag do %>
-              $("#user").autocomplete({source: '<%= url_for :controller => 'user', :action => 'autocomplete' %>', minLength: 2});
+              $("#user").autocomplete({source: '<%= url_for :controller => 'user', :action => 'autocomplete' %>', search: function(event, ui) {
+                $(this).addClass('loading-spinner');
+              },
+              response: function(event, ui) {
+                $(this).removeClass('loading-spinner');
+              }, minLength: 2});
             <% end %>
             <%= label_tag(:user, "Group:") %><br/>
             <input id="groupbkp" name="group" type="hidden" value="False" />
             <%= text_field_tag(:group, nil, :onclick => "javascript:document.getElementById('user').disabled=true", :name => 'group' ) %><br/>
             <%= javascript_tag do %>
-              $("#group").autocomplete({source: '<%= url_for :controller => 'groups', :action => 'autocomplete' %>', minLength: 2});
+              $("#group").autocomplete({source: '<%= url_for :controller => 'groups', :action => 'autocomplete' %>', search: function(event, ui) {
+                $(this).addClass('loading-spinner');
+              },
+              response: function(event, ui) {
+                $(this).removeClass('loading-spinner');
+              }, minLength: 2});
             <% end %>
             for<br>
             <% params['projects'].each do |project| %>

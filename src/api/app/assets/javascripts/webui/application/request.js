@@ -51,6 +51,12 @@ function setup_request_dialog() {
 
     $('#targetproject').autocomplete({
         source: $('#targetproject').data('autocomplete-url'),
+        search: function(event, ui) {
+          $(this).addClass('loading-spinner');
+        },
+        response: function(event, ui) {
+          $(this).removeClass('loading-spinner');
+        },
         minLength: 2,
         select: updateSupersedeAndDevelPackageDisplay,
         change: updateSupersedeAndDevelPackageDisplay,
@@ -139,9 +145,27 @@ function requestAddReviewAutocomplete() {
         }
     });
 
-    $("#review_group").autocomplete({source: '/group/autocomplete', minChars: 2, matchCase: true, max: 50});
-    $("#review_user").autocomplete({source: '/user/autocomplete', minChars: 2, matchCase: true, max: 50});
-    $("#review_project").autocomplete({source: '/project/autocomplete_projects', minChars: 2, matchCase: true, max: 50});
+    $("#review_group").autocomplete({source: '/group/autocomplete', minChars: 2, matchCase: true, max: 50,
+    search: function(event, ui) {
+      $(this).addClass('loading-spinner');
+    },
+    response: function(event, ui) {
+      $(this).removeClass('loading-spinner');
+    }});
+    $("#review_user").autocomplete({source: '/user/autocomplete', minChars: 2, matchCase: true, max: 50,
+    search: function(event, ui) {
+      $(this).addClass('loading-spinner');
+    },
+    response: function(event, ui) {
+      $(this).removeClass('loading-spinner');
+    }});
+    $("#review_project").autocomplete({source: '/project/autocomplete_projects', minChars: 2, matchCase: true, max: 50,
+    search: function(event, ui) {
+      $(this).addClass('loading-spinner');
+    },
+    response: function(event, ui) {
+      $(this).removeClass('loading-spinner');
+    }});
     $("#review_package").autocomplete({
         source: function (request, response) {
             $.ajax({
@@ -155,6 +179,12 @@ function requestAddReviewAutocomplete() {
                     response(data);
                 }
             });
+        },
+        search: function(event, ui) {
+          $(this).addClass('loading-spinner');
+        },
+        response: function(event, ui) {
+          $(this).removeClass('loading-spinner');
         },
         min_length: 2,
         minChars: 0,

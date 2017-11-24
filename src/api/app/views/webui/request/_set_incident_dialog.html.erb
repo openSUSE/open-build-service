@@ -22,6 +22,12 @@
 <%= javascript_tag do %>
   $("#incident_project").autocomplete({
     source: '<%= url_for :controller => 'project', :action => 'autocomplete_incidents' %>',
+    search: function(event, ui) {
+      $(this).addClass('loading-spinner');
+    },
+    response: function(event, ui) {
+      $(this).removeClass('loading-spinner');
+    },
     minLength: 2
   });
 <% end %>

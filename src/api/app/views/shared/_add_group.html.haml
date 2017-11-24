@@ -6,8 +6,14 @@
     %br/
     = text_field_tag 'groupid', params[:groupid], size: '25', required: true
     %br/
-    = javascript_tag do
-      $('#groupid').autocomplete({source: '#{url_for controller: 'groups', action: 'autocomplete'}', minLength: 2});
+    :javascript
+      $('#groupid').autocomplete({source: '#{url_for controller: 'groups', action: 'autocomplete'}',
+        search: function(event, ui) {
+          $(this).addClass('loading-spinner');
+        },
+        response: function(event, ui) {
+          $(this).removeClass('loading-spinner');
+        },minLength: 2});
     %b Role:
     %br/
     = select_tag 'role', options_for_select(Role.local_roles, params[:role]), required: true

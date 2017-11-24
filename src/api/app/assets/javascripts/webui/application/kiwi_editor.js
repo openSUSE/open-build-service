@@ -298,6 +298,12 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
     minLength: 2,
     select: function (event, ui) {
       autocompleteKiwiRepositories(ui.item.value, repo_field);
+    },
+    search: function(event, ui) {
+      $(this).addClass('loading-spinner');
+    },
+    response: function(event, ui) {
+      $(this).removeClass('loading-spinner');
     }
   });
 
@@ -345,6 +351,12 @@ function kiwiPackagesSetupAutocomplete(fields) {
         function (data) {
           response(data);
         });
+    },
+    search: function(event, ui) {
+      $(this).addClass('loading-spinner');
+    },
+    response: function(event, ui) {
+      $(this).removeClass('loading-spinner');
     },
     minLength: 2
   });

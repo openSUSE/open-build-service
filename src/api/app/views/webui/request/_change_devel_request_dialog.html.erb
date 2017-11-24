@@ -30,5 +30,10 @@
 </div>
 
 <%= javascript_tag do %>
-  $("#devel_project").autocomplete({source: '<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', minLength: 2});
+  $("#devel_project").autocomplete({source: '<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', search: function(event, ui) {
+    $(this).addClass('loading-spinner');
+  },
+  response: function(event, ui) {
+    $(this).removeClass('loading-spinner');
+  }, minLength: 2});
 <% end %>
