@@ -126,6 +126,16 @@ class BinaryRelease < ApplicationRecord
     repository.product_medium.find_by(name: medium)
   end
 
+  # returns all package objects of docker containers where this binary is included
+  # usually just one, but people can build multiple docker containers with same name in one repo
+  def media_containers
+    # construct container name, there must be a better way ...
+    #               prefix + medium name excluding arch, Build number and suffix
+    containername = 'container:' << medium.gsub(/\.[^\.]*-[^-]*-Build[^-]*$/, '')
+    # must be in same repository since we got released here
+    Package.find(BinaryRelease.where(repository: repository, binary_name: containername).pluck(:release_package_id))
+  end
+
   # renders all values, which are used as identifier of a binary entry.
   def render_attributes
     attributes = { project: repository.project.name, repository: repository.name }

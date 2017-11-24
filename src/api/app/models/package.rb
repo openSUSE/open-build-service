@@ -981,6 +981,29 @@ class Package < ApplicationRecord
     linkinfo && (linkinfo['project'] == project.name)
   end
 
+  def add_containers
+    container_list = []
+    origin_container(local: false).binary_releases.each do |binary_release|
+      container_list += binary_release.media_containers
+    end
+    comment = "add container for #{name}"
+
+    container_list.uniq.each do |container|
+      opkg = container.origin_container(local: false)
+      # remote or broken link?
+      return if opkg.nil?
+      cont_name = opkg.name
+      cont_name.gsub!(/\.[^\.]*$/, '') if opkg.project.is_maintenance_release? && !opkg.is_link?
+      next if project.packages.exists?(name: cont_name)
+      target_package = Package.new(name: cont_name, title: opkg.title, description: opkg.description)
+      project.packages << target_package
+      target_package.store({comment: comment})
+
+      # branch sources
+      target_package.branch_from(opkg.project.name, opkg.name, {comment: comment})
+    end
+  end
+
   def modify_channel(mode = :add_disabled)
     raise InvalidParameterError unless [:add_disabled, :enable_all].include?(mode)
     channel = channels.first

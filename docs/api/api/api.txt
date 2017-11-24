@@ -801,6 +801,8 @@ POST /source/<project>/<package>
   branch: branch a package into another one
   linktobranch: convert a plain source link into a full branch
   enablechannel: adds repositories and enable this channel package
+  addchannels: add channel packages and repositories for matching packages in project
+  addcontainers: add docker container packages and repositories using the maintained version of this package
   updatepatchinfo: update _patchinfo file, esp. the issues list
   remove_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
   set_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
