@@ -229,13 +229,14 @@ our $servicedispatch = 1;
 # print all messages with a lower level than $debuglevel in addition to the normal log messages
 #our $debuglevel = 1;
 
-# our $container_registries = {
-#   'registry.example.com' => {
-#     host => '',
-#     port => '',
-#     user => '',
-#     password => '',
-#     repository_base => '',
+#our $container_registries = {
+#   'localhost' => {
+#     host => 'localhost',
+#     port => 444,
+#     user => 'ignored',
+#     password => 'ignored',
+#     # Please be aware of the trailing slash
+#     repository_base => '/',
 #   },
 #   'staging-registry.example.com' => {
 #     host => '',
@@ -252,13 +253,13 @@ our $servicedispatch = 1;
 #     repository_base => '',
 #   },
 #};
-#
-# our $publish_containers = [
+
+#our $publish_containers = [
 #   # key:   regex to match projid
 #   # value: ArrayRef with identifiers for registries configured in $container_registries
 #   'SUSE:.*' => [ 'registry.example.com', 'hub.docker.com' ],
 #   '.*:branches:.*' => [ 'staging-registry.example.com' ],
-# ];
-
+#    '.*' => ['localhost'],
+#];
 
 1;

@@ -11,6 +11,7 @@ APACHE_GROUP=www
 APACHE_CONIFGDIR=/etc/apache2
 APACHE_CONIFGDIR_VHOST=$(APACHE_CONIFGDIR)/vhosts.d
 APACHE_VHOST_CONF=obs-apache24.conf
+APACHE_VHOST_CONTAINER_REGISTRY_CONF=obs-container-registry.conf
 
 # some sortcuts
 test: test_unit
