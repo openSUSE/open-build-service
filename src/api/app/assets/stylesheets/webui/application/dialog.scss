@@ -31,11 +31,14 @@
       padding: 3px 1ex;
       background: #FFF;
       background-color: #fff;
-      border-color: #EEE;
-      color: #999;
       &:visited {
         text-decoration: none;
       }
+    }
+
+    input {
+      border-color: #EEE;
+      color: #999;
       &:hover {
         text-decoration: none;
         color: #666;
@@ -44,7 +47,12 @@
 
     a {
       border-radius: 5px;
-      border: 1px solid #eee;
+      border: 1px solid #adadad;
+      color: #323232;
+      &:hover {
+        text-decoration: none;
+        background-color: #eee;
+      }
     }
   }
 }
