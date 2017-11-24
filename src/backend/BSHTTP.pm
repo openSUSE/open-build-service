@@ -91,6 +91,20 @@ sub forwardheaders {
   return @h;
 }
 
+sub makemultipart {
+  my ($boundary, @parts) = @_;
+  my $data = '';
+  for my $part (@parts) {
+    $data .= "\r\n--$boundary\r\n";
+    $data .= "$_\r\n" for @{$part->{'headers'} || []};
+    $data .= "\r\n";
+    $data .= $part->{'data'} if defined $part->{'data'};
+  }
+  $data .= "\r\n--$boundary--\r\n";
+  $data =~ s/^\r\n//s;
+  return $data;
+}
+
 sub unexpected_eof {
   my ($req) = @_;
   $req->{'__eof'} = 1 if $req;
