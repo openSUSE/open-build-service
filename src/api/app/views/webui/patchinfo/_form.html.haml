@@ -12,8 +12,13 @@
               %label{for: "packager"} Packager:
             %br/
             = text_field_tag 'packager', @packager, required: true
-            = javascript_tag do
-              $("#packager").autocomplete({source: '#{url_for controller: 'user', action: 'autocomplete'}', minLength: 2});
+            :javascript
+              $("#packager").autocomplete({source: '#{url_for controller: 'user', action: 'autocomplete'}', search: function(event, ui) {
+                $(this).addClass('loading-spinner');
+              },
+              response: function(event, ui) {
+                $(this).removeClass('loading-spinner');
+              },minLength: 2});
           %p
             %strong
               = image_tag('info.png', title: 'Enter a short summary. Mainpackage: shortdescription of the mainfix', alt: 'Summaryinfo')

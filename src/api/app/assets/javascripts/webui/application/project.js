@@ -131,6 +131,12 @@ function repositories_setup_autocomplete() {
         change: function () {
             autocomplete_repositories($('#target_project').attr('value'));
         },
+        search: function(event, ui) {
+          $(this).addClass('loading-spinner');
+        },
+        response: function(event, ui) {
+          $(this).removeClass('loading-spinner');
+        }
     });
 
     $("#target_project").change(function () {

@@ -27,7 +27,12 @@ package.</p>
 <% end %>
 
 <%= javascript_tag do %>
-  $("#linked_project").autocomplete({source: '<%= url_for :controller => :project, :action => :autocomplete_projects %>', minLength: 2});
+  $("#linked_project").autocomplete({source: '<%= url_for :controller => :project, :action => :autocomplete_projects %>', search: function(event, ui) {
+    $(this).addClass('loading-spinner');
+  },
+  response: function(event, ui) {
+    $(this).removeClass('loading-spinner');
+  }, minLength: 2});
   $("#linked_package").autocomplete({
     source:
     function (request, response) {
@@ -41,6 +46,12 @@ package.</p>
           response($.map(data, function(item) { return { label: item, value: item } }));
         },
       });
+    },
+    search: function(event, ui) {
+      $(this).addClass('loading-spinner');
+    },
+    response: function(event, ui) {
+      $(this).removeClass('loading-spinner');
     },
     minLength: 2,
   });

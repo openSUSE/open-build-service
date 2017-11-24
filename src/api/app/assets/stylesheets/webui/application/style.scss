@@ -27,6 +27,14 @@ textarea {
   background-image: image-url("large-loader.gif");
 }
 
+.loading-spinner
+{
+   background:
+     url('/assets/ajax-loader.gif')
+     no-repeat
+     right center;
+}
+
 #build_result_popup {
   position: absolute;
   background: white;
