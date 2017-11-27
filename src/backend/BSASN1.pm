@@ -140,6 +140,13 @@ sub asn1_integer {
   return asn1_pack($INTEGER, substr(pack('N', $_[0]), 3 - (length(sprintf('%b', $_[0] >= 0 ? $_[0] : ~$_[0])) >> 3)));
 }
 
+sub asn1_integer_mpi {
+  my $mpi = $_[0];
+  $mpi = pack('C', 0) if length($mpi) == 0;
+  $mpi = substr($mpi, 1) while length($mpi) > 1 && unpack('C', $mpi) == 0;
+  return asn1_pack($INTEGER, unpack('C', $mpi) >= 128 ? pack('C', 0).$mpi : $mpi);
+}
+
 sub asn1_obj_id {
   my ($o1, $o2, @o) = @_;
   return asn1_pack($OBJ_ID, pack('w*', $o1 * 40 + $o2, @o));
