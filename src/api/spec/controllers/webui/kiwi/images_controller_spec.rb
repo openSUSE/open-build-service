@@ -36,7 +36,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
           get :import_from_package, params: { package_id: kiwi_image.package.id }
         end
 
-        it { expect(response).to redirect_to(edit_kiwi_image_path(kiwi_image, section: 'software')) }
+        it { expect(response).to redirect_to(kiwi_image_path(kiwi_image)) }
       end
 
       context 'that is an invalid kiwi file' do
@@ -69,7 +69,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
           it 'redirect to kiwi image show' do
             package_with_kiwi_file.reload
-            expect(response).to redirect_to(edit_kiwi_image_path(package_with_kiwi_file.kiwi_image, section: 'software'))
+            expect(response).to redirect_to(kiwi_image_path(package_with_kiwi_file.kiwi_image))
           end
         end
 

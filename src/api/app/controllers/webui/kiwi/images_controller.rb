@@ -27,7 +27,7 @@ module Webui
           end
         end
 
-        redirect_to edit_kiwi_image_path(package.kiwi_image, section: 'software')
+        redirect_to kiwi_image_path(package.kiwi_image)
       end
 
       def show
