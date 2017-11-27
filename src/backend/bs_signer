@@ -249,7 +249,7 @@ sub rsasign {
   my ($signfile, $jobstatus, @signargs) = @_;
   my @opensslsignargs = ('-h', 'sha256');
   if ($signfile !~ /\.cpio\.rsasign$/) {
-    BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-O', @opensslsignargs, $signfile) && die("openssl sign $signfile failed\n");
+    BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-O', @opensslsignargs, $signfile);
     return;
   }
   # cpio case, sign every plain file in the archive
