@@ -60,15 +60,15 @@ class User < ApplicationRecord
   validates :login, :state, presence: { message: 'must be given' }
 
   validates :login,
-            uniqueness: { message: 'is the name of an already existing user.' }
+            uniqueness: { message: 'is the name of an already existing user' }
 
   validates :login,
             format: { with:    %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
-                      message: 'must not contain invalid characters.' }
+                      message: 'must not contain invalid characters' }
   validates :login,
             length: { in: 2..100, allow_nil: true,
-            too_long: 'must have less than 100 characters.',
-            too_short: 'must have more than two characters.' }
+            too_long: 'must have less than 100 characters',
+            too_short: 'must have more than two characters' }
 
   # We want a valid email address. Note that the checking done here is very
   # rough. Email adresses are hard to validate now domain names may include
@@ -77,7 +77,7 @@ class User < ApplicationRecord
   # to confirm their registration.
   validates :email,
             format: { with:        %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
-                      message:     'must be a valid email address.',
+                      message:     'must be a valid email address',
                       allow_blank: true }
 
   # we disabled has_secure_password's validations. therefore we need to do manual validations
@@ -254,7 +254,7 @@ class User < ApplicationRecord
   # FIXME: This is currently not used. It's not used by rails validations.
   def validate
     # check that the state transition is valid
-    errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
+    errors.add(:state, 'must be a valid new state from the current state') unless state_transition_allowed?(@old_state, state)
   end
 
   # This method returns true if the user is assigned the role with one of the

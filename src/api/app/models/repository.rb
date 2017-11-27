@@ -28,7 +28,7 @@ class Repository < ApplicationRecord
   # Note that remote repositories have to be unique among their remote project (remote_project_name)
   # and the associated db_project.
   validates :name, uniqueness: { scope:   [:db_project_id, :remote_project_name],
-                                 message: "%{value} is already used by a repository of this project."}
+                                 message: "%{value} is already used by a repository of this project"}
 
   validates :db_project_id, presence: true
   # NOTE: remote_project_name cannot be NULL because mysql UNIQUE KEY constraint does considers

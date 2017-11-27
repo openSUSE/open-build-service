@@ -6,8 +6,8 @@ RSpec.describe Group do
   let(:another_user) { create(:confirmed_user, login: 'eisenilse') }
 
   describe 'validations' do
-    it { is_expected.to validate_length_of(:title).is_at_least(2).with_message('must have more than two characters.') }
-    it { is_expected.to validate_length_of(:title).is_at_most(100).with_message('must have less than 100 characters.') }
+    it { is_expected.to validate_length_of(:title).is_at_least(2).with_message('must have more than two characters') }
+    it { is_expected.to validate_length_of(:title).is_at_most(100).with_message('must have less than 100 characters') }
   end
 
   context '#replace_members' do

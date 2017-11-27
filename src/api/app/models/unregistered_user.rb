@@ -60,8 +60,7 @@ class UnregisteredUser < User
     newuser.save
 
     unless newuser.errors.empty?
-      details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(', ')
-      raise ErrRegisterSave, "Could not save the registration, details: #{details}"
+      raise ErrRegisterSave, "Could not save the registration, details: #{newuser.errors.full_messages.to_sentence}"
     end
 
     return unless newuser.state == "unconfirmed"

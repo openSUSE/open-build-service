@@ -110,7 +110,7 @@ class Review < ApplicationRecord
     end
 
     if validate_reviewer_fields
-      errors.add(:base, 'it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package.')
+      errors.add(:base, 'it is not allowed to have more than one reviewer entity: by_user, by_group, by_project, by_package')
     end
 
     if by_user && !user

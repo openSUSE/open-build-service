@@ -5,7 +5,7 @@ class RemoteProject < Project
 
   def exists_by_name_validation
     return unless Project.exists_by_name(name)
-    errors.add(:name, 'already exists.')
+    errors.add(:name, 'already exists')
   end
 end
 

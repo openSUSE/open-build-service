@@ -19,15 +19,15 @@ module Kiwi
     #### Scopes (first the default_scope macro if is used)
 
     #### Validations macros
-    validates :alias, :source_path, uniqueness: { scope: :image, message: "'%{value}' has already been taken."}, allow_blank: true
-    validates :source_path, presence: { message: 'can\'t be nil.'}
+    validates :alias, :source_path, uniqueness: { scope: :image, message: "'%{value}' has already been taken"}, allow_blank: true
+    validates :source_path, presence: { message: 'can\'t be nil'}
     validate :source_path_format
     validates :priority, numericality: { only_integer: true, allow_nil: true, greater_than_or_equal_to: 0,
-                                        less_than: 100, message: 'must be between 0 and 99.' }
+                                        less_than: 100, message: 'must be between 0 and 99' }
     validates :order, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
     # TODO: repo_type value depends on packagemanager element
     # https://doc.opensuse.org/projects/kiwi/doc/#sec.description.repository
-    validates :repo_type, inclusion: { in: REPO_TYPES, message: "'%{value}' is not included in the list." }
+    validates :repo_type, inclusion: { in: REPO_TYPES, message: "'%{value}' is not included in the list" }
     validates :replaceable, inclusion: { in: [true, false], message: "has to be a boolean" }
     validates :imageinclude, :prefer_license, inclusion: { in: [true, false], message: "has to be a boolean" }, allow_nil: true
     validates_associated :image, on: :update
@@ -49,10 +49,10 @@ module Kiwi
       return if source_path =~ /\A#{URI.regexp(['ftp', 'http', 'https', 'plain'])}\z/
       if source_path_for_obs_repository?
         return if repo_type == 'rpm-md'
-        errors.add(:repo_type, "should be 'rpm-md' for obs:// repositories.")
+        errors.add(:repo_type, "should be 'rpm-md' for obs:// repositories")
       end
       return if source_path_for_opensuse_repository?
-      errors.add(:source_path, "has an invalid format.")
+      errors.add(:source_path, "has an invalid format")
     end
 
     def to_xml

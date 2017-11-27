@@ -134,7 +134,7 @@ RSpec.describe Webui::GroupsController do
         it 'shows a flash message with the validation error' do
           post :create, params: { group: { title: 'my group', members: users_to_add.map(&:login).join(',') }}
 
-          expect(flash[:error]).to eq("Group can't be saved: Title must not contain invalid characters.")
+          expect(flash[:error]).to eq("Group can't be saved: Title must not contain invalid characters")
           expect(Group.where(title: "my group")).not_to exist
         end
       end
