@@ -27,14 +27,14 @@
           %p
             = f.fields_for :preference, f.object.preference do |preference_fields|
               %p
-                = preference_fields.label :version
+                = preference_fields.label :version, 'Version (must be in form Major.Minor.Release)'
                 = preference_fields.text_field :version, data: { default: preference_fields.object.version }
               - if @image.preference.containerconfig_fields_editable?
                 %p
-                  = preference_fields.label :type_containerconfig_name
+                  = preference_fields.label :type_containerconfig_name, 'Container Config Name'
                   = preference_fields.text_field :type_containerconfig_name, data: { default: preference_fields.object.type_containerconfig_name }
                 %p
-                  = preference_fields.label :type_containerconfig_tag
+                  = preference_fields.label :type_containerconfig_tag, 'Container Config Tag'
                   = preference_fields.text_field :type_containerconfig_tag, data: { default: preference_fields.object.type_containerconfig_tag }
 
         %p#flash-messages
