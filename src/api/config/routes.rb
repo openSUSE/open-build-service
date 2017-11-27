@@ -55,8 +55,8 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/feeds' do
-      get 'main/news' => :news, as: :news_feed
-      get 'main/latest_updates' => :latest_updates, as: :latest_updates_feed
+      get 'main/news' => :news, constraints: ->(req) { req.format == :rss }, as: :news_feed
+      get 'main/latest_updates' => :latest_updates, constraints: ->(req) { req.format == :rss }, as: :latest_updates_feed
       get 'project/latest_commits/:project' => :commits, defaults: { format: 'atom' }, constraints: cons, as: 'commits_feed'
       get 'user/feed/:token' => :notifications, defaults: { format: 'rss' }, as: :user_rss_notifications
     end
