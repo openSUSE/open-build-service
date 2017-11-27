@@ -13,7 +13,7 @@ class Kiwi::Preference < ApplicationRecord
   end
 
   # Can the user edit this from the kiwi editor?
-  def editable?
+  def containerconfig_fields_editable?
     type_image == 'docker'
   end
 end
@@ -27,6 +27,7 @@ end
 #  type_image                :integer
 #  type_containerconfig_name :string(255)
 #  type_containerconfig_tag  :string(255)
+#  version                   :string(255)
 #
 # Indexes
 #
