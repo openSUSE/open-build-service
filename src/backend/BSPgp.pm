@@ -65,11 +65,15 @@ sub pkdecodetaglenoff {
   return ($tag, $len, $off);
 }
 
-sub pk2expire {
+sub pk2times {
   my ($pk) = @_;
-  my ($rex, $rct);
+  my ($kct, $kex, $rct);
+  my ($tag, $len, $off) = pkdecodetaglenoff($pk);
+  die("not a public key\n") unless $tag == 6;
+  $kct = unpack('N', substr($pk, $off + 1, 4));
+  $pk = substr($pk, $len + $off);
   while ($pk ne '') {
-    my ($tag, $len, $off) = pkdecodetaglenoff($pk);
+    ($tag, $len, $off) = pkdecodetaglenoff($pk);
     my $pack = substr($pk, $off, $len);
     $pk = substr($pk, $len + $off);
     next if $tag != 2;
@@ -89,32 +93,23 @@ sub pk2expire {
       $ct = unpack('N', substr($spack, 1, 4)) if $stag == 2;
       $ex = unpack('N', substr($spack, 1, 4)) if $stag == 9;
     }
-    $rex = $ex if defined($ex) && (!defined($rex) || $rex > $ex);
+    $kex = $ex if defined($ex) && (!defined($kex) || $kex > $ex);
     $rct = $ct if defined($ct) && (!defined($rct) || $rct > $ct);
   }
-  return defined($rct) && defined($rex) ? $rct + $rex : undef;
+  my $d = {};
+  $d->{'key_create'} = $kct if defined $kct;
+  $d->{'selfsig_create'} = $rct if defined $rct;
+  $d->{'key_expire'} = $rct + $kex if defined($rct) && defined($kex);
+  return $d;
 }
 
-sub pk2algo {
+sub pk2expire {
   my ($pk) = @_;
-  my ($tag, $len, $off) = pkdecodetaglenoff($pk);
-  die("not a public key\n") unless $tag == 6;
-  my $pack = substr($pk, $off, $len);
-  my $ver = unpack('C', substr($pack, 0, 1));
-  my $algo;
-  if ($ver == 3) {
-    $algo = unpack('C', substr($pack, 7, 1));
-  } elsif ($ver == 4) {
-    $algo = unpack('C', substr($pack, 5, 1));
-  } else {
-    die("unknown pubkey version\n");
-  }
-  return 'rsa' if $algo == 1;
-  return 'dsa' if $algo == 17;
-  die("unknown pubkey algorithm\n");
+  my $d = pk2times($pk) || {};
+  return $d->{'key_expire'};
 }
 
-sub pk2keysize {
+sub pk2keydata {
   my ($pk) = @_;
   my ($tag, $len, $off) = pkdecodetaglenoff($pk);
   die("not a public key\n") unless $tag == 6;
@@ -127,10 +122,40 @@ sub pk2keysize {
   } else {
     die("unknown pubkey version\n");
   }
-  my ($algo, $size) = unpack('Cn', $pack);
-  die("unknown pubkey algorithm\n") unless $algo == 1 || $algo == 17;
-  return ($size + 15) & ~15;
+  my $algo = unpack('C', $pack);
+  my $nmpi;
+  if ($algo == 1) {
+    $algo = 'rsa';
+    $nmpi = 2;
+  } elsif ($algo == 17) {
+    $algo = 'dsa';
+    $nmpi = 4;
+  } else {
+    die("unknown pubkey algorithm\n");
+  }
+  $pack = substr($pack, 1);
+  my @mpis;
+  while ($nmpi-- > 0) {
+    my $bits = unpack('n', $pack);
+    my $bytes = ($bits + 7) >> 3;
+    push @mpis, { 'bits' => $bits, 'data' => substr($pack, 2, $bytes) };
+    $pack = substr($pack, $bytes + 2);
+  }
+  return { 'algo' => $algo, 'mpis' => \@mpis };
 }
+
+sub pk2algo {
+  my ($pk) = @_;
+  my $d = pk2keydata($pk);
+  return $d->{'algo'};
+}
+
+sub pk2keysize {
+  my ($pk) = @_;
+  my $d = pk2keydata($pk);
+  return ($d->{'mpis'}->[0]->{'bits'} + 15) & ~15;
+}
+
 
 sub pk2fingerprint {
   my ($pk) = @_;
