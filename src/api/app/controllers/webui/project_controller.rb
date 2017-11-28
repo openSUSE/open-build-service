@@ -746,7 +746,8 @@ class Webui::ProjectController < Webui::WebuiController
       :maintenance_project,
       :access_protection,
       :source_protection,
-      :disable_publishing
+      :disable_publishing,
+      :url
     )
   end
 
