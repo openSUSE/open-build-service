@@ -179,13 +179,13 @@ sub getUrl( $$$ ){
         if ( "$url->{'name'}" eq "$searchstring" ){
             if ( exists $url->{'arch'} && "$url->{'arch'}" eq "$arch" ) {
                 my $u = $url->{'_content'};
-                $u =~ s/%{_target_cpu}/$arch/g;
+                $u =~ s/%\{_target_cpu\}/$arch/g;
                 return $u;
             } elsif (exists $url->{'arch'}) {
                 next;
             } else {
                 my $u = $url->{'_content'};
-                $u =~ s/%{_target_cpu}/$arch/g;
+                $u =~ s/%\{_target_cpu\}/$arch/g;
                 $resulturl = $u;
                 # Continue searching, in case we find an architecture match
             }
