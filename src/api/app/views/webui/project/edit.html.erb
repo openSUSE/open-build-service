@@ -17,5 +17,9 @@
     <label for="project_description"><strong>Description:</strong></label><br/>
     <%= f.text_area :description, :rows => 20, :cols => 80 %>
   </p>
+  <p>
+    <label for="project_url"><strong>URL:</strong></label><br/>
+    <%= f.text_field :url, :size => 80 %>
+  </p>
   <p><%= f.submit %></p>
 <% end %>

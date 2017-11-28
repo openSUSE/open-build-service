@@ -12,7 +12,9 @@
     <h3 id="project_title"><%= @project.title %><%= @project if @project.title.blank? -%></h3>
     <%= description_wrapper(@project.description) %>
     <% if @project.url.present? %>
+      <p>
       <%= link_to(@project.url, @project.url) %>
+      </p>
     <% end %>
   </div>
   <div class="grid_6 omega" id="infos_list">
