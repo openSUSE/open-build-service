@@ -203,7 +203,7 @@ GEM
     minitest (5.10.3)
     minitest-fail-fast (0.1.0)
       minitest (~> 5)
-    minitest-reporters (1.1.18)
+    minitest-reporters (1.1.19)
       ansi
       builder
       minitest (>= 5.0)
