@@ -254,11 +254,12 @@ RSpec.describe Webui::RequestController, vcr: true do
     end
 
     context "with invalid parameters" do
-      it 'without request' do
+      before do
         login(receiver)
-        post :changerequest, params: {
-          number: 1899, accepted: 'accepted'
-        }
+        post :changerequest, params: { number: 1899, accepted: 'accepted' }
+      end
+
+      it 'without request' do
         expect(flash[:error]).to eq('Can\'t find request 1899')
       end
     end
