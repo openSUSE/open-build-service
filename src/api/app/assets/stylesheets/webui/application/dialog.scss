@@ -26,32 +26,25 @@
     padding-top: 10px;
     padding-bottom: 10px;
 
-    a, input {
-      font-size: 1.2em;
-      padding: 3px 1ex;
-      background: #FFF;
-      background-color: #fff;
-      &:visited {
-        text-decoration: none;
-      }
-    }
-
     input {
-      border-color: #EEE;
-      color: #999;
-      &:hover {
-        text-decoration: none;
-        color: #666;
-      }
+      font-family: "Lucida Grande", Arial, "DejaVu Sans", Verdana, sans-serif;
     }
 
-    a {
+    a, input {
       border-radius: 5px;
       border: 1px solid #adadad;
       color: #323232;
+      font-size: 1rem;
+      padding: 3px 10px;
+      background: #FFF;
+      background-color: #fff;
       &:hover {
         text-decoration: none;
+        color: #323232;
         background-color: #eee;
+      }
+      &:visited {
+        text-decoration: none;
       }
     }
   }
