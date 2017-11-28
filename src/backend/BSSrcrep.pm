@@ -133,7 +133,7 @@ sub addfile {
     close F;
     my $upload_sha = $ctx->hexdigest();
     # get the sha256 sum for the already existing file
-    open(F, '<', "$srcrep/$packid/$md5-$filename") || die("$srcrep/$packid/$md5-$filename: $!\n");
+    fileopen($projid, $packid, $filename, $md5, \*F) || die("$srcrep/$packid/$md5-$filename: $!\n");
     $ctx = Digest::SHA->new(256);
     $ctx->addfile(*F);
     close F;
