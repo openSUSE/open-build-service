@@ -88,6 +88,20 @@ sub filepath {
   return "$srcrep/$packid/$md5-$filename";
 }
 
+sub filesha256 {
+  my ($projid, $packid, $filename, $md5) = @_;
+  local *F;
+  if ($filename =~ /\.obscpio$/s) {
+    fileopen($projid, $packid, $filename, $md5, \*F) || die("$srcrep/$packid/$md5-$filename: $!\n");
+  } else {
+    open(F, '<', "$srcrep/$packid/$md5-$filename") || die("$srcrep/$packid/$md5-$filename: $!\n");
+  }
+  my $ctx = Digest::SHA->new(256);
+  $ctx->addfile(*F);
+  close F;
+  return $ctx->hexdigest();
+}
+
 # small helper to build cpio requests
 sub cpiofile {
   my ($projid, $packid, $filename, $md5, $forcehandle) = @_;
@@ -133,11 +147,7 @@ sub addfile {
     close F;
     my $upload_sha = $ctx->hexdigest();
     # get the sha256 sum for the already existing file
-    fileopen($projid, $packid, $filename, $md5, \*F) || die("$srcrep/$packid/$md5-$filename: $!\n");
-    $ctx = Digest::SHA->new(256);
-    $ctx->addfile(*F);
-    close F;
-    my $existing_sha = $ctx->hexdigest();
+    my $existing_sha = filesha256($projid, $packid, $filename, $md5);
     # if the sha sum is different, but the md5 and filename are the same someone might
     # try to sneak in code.
     unlink($tmpfile);
