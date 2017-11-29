@@ -3,23 +3,7 @@ FROM openbuildservice/base
 # FIXME: https://bugzilla.opensuse.org/show_bug.cgi?id=957818
 RUN rm -rf /var/cache/zypp/*
 
-# Install requirements for the frontend
-RUN zypper -n install --no-recommends --replacefiles \
-  # as search daemon
-  sphinx \
-  # for testing javascript driven pages
-  phantomjs \
-  nodejs6 npm6 \
-  # for accessing the database
-  mariadb-client \
-  # for our code coverage setup
-  git-core \
-  # dependencies for building gems
-  ruby2.4-devel cyrus-sasl-devel openldap2-devel libxml2-devel zlib-devel libxslt-devel mysql-devel \
-  # for running vendor/diststats/mkdiststats
-  perl-XML-Parser \
-  # gems we use that are not in our bundle
-  ruby2.4-rubygem-bundler ruby2.4-rubygem-thor-0_19 ruby2.4-rubygem-foreman
+RUN /root/bin/docker-bootstrap.sh frontend
 
 # Install other requirements
 RUN npm install -g jshint

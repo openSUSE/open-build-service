@@ -3,7 +3,7 @@ FROM openbuildservice/base
 # FIXME: https://bugzilla.opensuse.org/show_bug.cgi?id=957818
 RUN rm -rf /var/cache/zypp/*
 
-# Install memcached 
-RUN zypper -n install --no-recommends --replacefiles memcached
+# Install memcached
+RUN /root/bin/docker-bootstrap.sh memcached
 
 CMD ["/usr/sbin/memcached", "-u", "memcached"]
