@@ -86,16 +86,18 @@ RSpec.describe Webui::RequestController, vcr: true do
     context "a valid request" do
       before do
         post :delete_request, params: { project: target_project, package: target_package, description: "delete it!" }
-        @bs_request = BsRequest.joins(:bs_request_actions).
+      end
+
+      subject do
+        BsRequest.joins(:bs_request_actions).
           where("bs_request_actions.target_project=? AND bs_request_actions.target_package=? AND type=?",
                 target_project.to_s, target_package.to_s, "delete"
                ).first
       end
 
-      it { expect(response).to redirect_to(request_show_path(number: @bs_request)) }
-      it { expect(flash[:success]).to match("Created .+repository delete request #{@bs_request.number}") }
-      it { expect(@bs_request).not_to be nil }
-      it { expect(@bs_request.description).to eq("delete it!") }
+      it { expect(response).to redirect_to(request_show_path(number: subject)) }
+      it { expect(flash[:success]).to match("Created .+repository delete request #{subject.number}") }
+      it { expect(subject.description).to eq("delete it!") }
     end
 
     context "a request causing a APIException" do
