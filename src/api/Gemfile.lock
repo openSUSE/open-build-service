@@ -423,6 +423,7 @@ DEPENDENCIES
   activemodel-serializers-xml
   acts_as_list
   acts_as_tree
+  addressable
   airbrake
   annotate
   bcrypt

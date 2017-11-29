@@ -70,6 +70,8 @@ gem "gssapi", require: false
 gem 'bunny'
 # for making changes to existing data
 gem 'data_migrate'
+# for URI encoding
+gem 'addressable'
 
 group :development, :production do
   # to have the delayed job daemon

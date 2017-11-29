@@ -108,15 +108,13 @@ module Backend
     end
 
     def calculate_endpoint(endpoint)
-      return endpoint if endpoint.is_a?(String)
-      template = endpoint.shift
-      values = endpoint.map { |x| CGI.escape(x.to_s) }
-      placeholders = template.scan(/(:\w+)/).flatten
-      raise "Endpoit not valid: different number of placeholders and values" if values.size != placeholders.size
-      placeholders.each_with_index do |placeholder, index|
-        template.gsub!(placeholder, values[index])
+      if endpoint.is_a?(String)
+        url_base = endpoint
+      else
+        template = endpoint.shift
+        url_base = template.gsub(/(:\w+)/, '%s') % endpoint
       end
-      template
+      Addressable::URI.parse(url_base).normalize.to_s
     end
   end
 end
