@@ -13,3 +13,11 @@
 [id^='review_accept_button']{
   margin-right: 1em;
 }
+
+.file_state_added {
+  color: green;
+}
+
+.file_state_deleted {
+  color: red;
+}
