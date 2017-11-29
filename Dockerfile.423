@@ -22,4 +22,4 @@ RUN useradd -m frontend
 RUN echo 'frontend ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 # Run our command
-CMD ["bash", "-l"] 
+CMD ["bash", "-l"]

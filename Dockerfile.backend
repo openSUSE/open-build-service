@@ -22,4 +22,4 @@ RUN rm -rf /root/.gnupg; \
 
 # Run our command
 WORKDIR /obs
-CMD ["contrib/start_development_backend", "-d", "/obs"] 
+CMD ["contrib/start_development_backend", "-d", "/obs"]
