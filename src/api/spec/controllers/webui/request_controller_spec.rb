@@ -15,8 +15,7 @@ RSpec.describe Webui::RequestController, vcr: true do
   let(:devel_project) { create(:project, name: 'devel:project') }
   let(:devel_package) { create(:package_with_file, name: 'goal', project: devel_project) }
   let(:bs_request) { create(:bs_request, description: "Please take this", creator: submitter.login) }
-  let(:create_submit_request) do
-    bs_request.bs_request_actions.delete_all
+  let(:bs_request_submit_action) do
     create(:bs_request_action_submit, target_project: target_project.name,
                                       target_package: target_package.name,
                                       source_project: source_project.name,
@@ -36,45 +35,56 @@ RSpec.describe Webui::RequestController, vcr: true do
   it { is_expected.to use_before_action(:require_request) }
 
   describe 'GET show' do
-    it 'is successful as nobody' do
-      get :show, params: { number: bs_request.number }
-      expect(response).to have_http_status(:success)
+    context 'as nobody' do
+      before do
+        get :show, params: { number: bs_request.number }
+      end
+
+      it 'responds successfully' do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'assigns @bs_request' do
+        expect(assigns(:bs_request)).to eq(bs_request)
+      end
     end
 
-    it 'assigns @bs_request' do
-      get :show, params: { number: bs_request.number }
-      expect(assigns(:bs_request)).to eq(bs_request)
+    context 'if request does not exist' do
+      before do
+        get :show, params: { number: '200000' }
+      end
+
+      it { expect(flash[:error]).to eq("Can't find request 200000") }
+      it { expect(response).to redirect_to(user_show_path(User.current)) }
     end
 
-    it 'redirects to root_path if request does not exist' do
-      login submitter
-      get :show, params: { number: '200000' }
-      expect(flash[:error]).to eq("Can't find request 200000")
-      expect(response).to redirect_to(user_show_path(User.current))
+    context 'when there are package maintainers' do
+      # The hint will only be shown, when the target package has at least one
+      # maintainer. So we'll gonna add a maintainer to the target package.
+      let!(:relationship_package_user) { create(:relationship_package_user, user: submitter, package: target_package) }
+
+      before do
+        login receiver
+        bs_request.bs_request_actions.delete_all
+        bs_request_submit_action
+        get :show, params: { number: bs_request.number }
+      end
+
+      it 'shows a hint to project maintainers' do
+        expect(assigns(:show_project_maintainer_hint)).to be_truthy
+      end
     end
 
-    it 'shows a hint to project maintainers when there are package maintainers' do
-      login receiver
+    context 'when there are no package maintainers' do
+      before do
+        login receiver
+        bs_request_submit_action
+        get :show, params: { number: bs_request.number }
+      end
 
-      create_submit_request
-
-      # the hint will only be shown, when the target package has at least one
-      # maintainer. so we'll gonna add a maintainer to the target package
-      create(:relationship_package_user, user: submitter, package: target_package)
-
-      get :show, params: { number: bs_request.number }
-
-      expect(assigns(:show_project_maintainer_hint)).to eq(true)
-    end
-
-    it 'does not show a hint to project maintainers if the target package has no maintainers' do
-      login receiver
-
-      create_submit_request
-
-      get :show, params: { number: bs_request.number }
-
-      expect(assigns(:show_project_maintainer_hint)).to eq(false)
+      it 'does not show a hint to project maintainers by default' do
+        expect(assigns(:show_project_maintainer_hint)).to be_falsey
+      end
     end
   end
 
@@ -116,20 +126,37 @@ RSpec.describe Webui::RequestController, vcr: true do
   end
 
   describe "POST #modify_review" do
+    RSpec.shared_examples 'a valid review' do |new_state|
+      let(:params_hash) do
+        {
+          review_comment_0:        "yeah",
+          review_request_number_0: request_with_review.number,
+          review_by_user_0:        reviewer
+        }
+      end
+
+      before do
+        subject.update(state: 'declined') if new_state == 'new'
+
+        params_hash[new_state.to_sym] = 'non-important string'
+        post :modify_review, params: params_hash
+      end
+
+      subject { request_with_review.reload.reviews.last }
+
+      it { expect(response).to redirect_to(request_show_path(number: request_with_review.number)) }
+      it { expect(subject.state).to eq(new_state) }
+      it { expect(flash[:success]).to eq("Successfully submitted review") }
+    end
+
     before do
       login(reviewer)
     end
 
     context "with valid parameters" do
-      before do
-        post :modify_review, params: { review_comment_0:        "yeah",
-                                       review_request_number_0: request_with_review.number,
-                                       review_by_user_0:        reviewer,
-                                       accepted:                'Approve' }
-      end
-
-      it { expect(response).to redirect_to(request_show_path(number: request_with_review.number)) }
-      it { expect(request_with_review.reload.reviews.last.state).to eq(:accepted) }
+      it_behaves_like 'a valid review', :accepted
+      it_behaves_like 'a valid review', :new
+      it_behaves_like 'a valid review', :declined
     end
 
     context "with invalid parameters" do
@@ -142,6 +169,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
+
       it 'without state' do
         post :modify_review, params: { review_comment_0:        "yeah",
                                        review_request_number_0: request_with_review.number,
@@ -150,6 +178,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
+
       it "without permissions" do
         post :modify_review, params: { review_comment_0:        "yeah",
                                        review_request_number_0: request_with_review.number,
@@ -159,6 +188,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
+
       it "with invalid transition" do
         request_with_review.update_attributes(state: 'declined')
         post :modify_review, params: { review_comment_0:        "yeah",
@@ -173,7 +203,8 @@ RSpec.describe Webui::RequestController, vcr: true do
 
   describe "POST #changerequest" do
     before do
-      create_submit_request
+      bs_request.bs_request_actions.delete_all
+      bs_request_submit_action
     end
 
     context "with valid parameters" do
@@ -223,11 +254,12 @@ RSpec.describe Webui::RequestController, vcr: true do
     end
 
     context "with invalid parameters" do
-      it 'without request' do
+      before do
         login(receiver)
-        post :changerequest, params: {
-          number: 1899, accepted: 'accepted'
-        }
+        post :changerequest, params: { number: 1899, accepted: 'accepted' }
+      end
+
+      it 'without request' do
         expect(flash[:error]).to eq('Can\'t find request 1899')
       end
     end
