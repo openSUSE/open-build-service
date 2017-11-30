@@ -1,5 +1,3 @@
-require 'event'
-
 class UpdateNotificationEvents
   cattr_accessor :semaphore
 

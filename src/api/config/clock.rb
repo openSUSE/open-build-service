@@ -1,9 +1,6 @@
 require File.dirname(__FILE__) + '/boot'
 require File.dirname(__FILE__) + '/environment'
 
-# make sure our event is loaded first - the clockwork::event is *not* ours
-require 'event'
-
 require 'clockwork'
 
 module Clockwork
