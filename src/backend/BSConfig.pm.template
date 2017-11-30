@@ -231,23 +231,20 @@ our $servicedispatch = 1;
 
 #our $container_registries = {
 #   'localhost' => {
-#     host => 'localhost',
-#     port => 444,
+#     server => 'https://localhost:444',
 #     user => 'ignored',
 #     password => 'ignored',
 #     # Please be aware of the trailing slash
 #     repository_base => '/',
 #   },
 #   'staging-registry.example.com' => {
-#     host => '',
-#     port => '',
+#     server => '',
 #     user => '',
 #     password => '',
 #     repository_base => '',
 #   },
 #   hub.docker.com => {
-#     host => '',
-#     port => '',
+#     server => '',
 #     user => '',
 #     password => '',
 #     repository_base => '',

@@ -1,0 +1,399 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2017 SUSE Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# Notary interfacing
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  # FIXME: currently the bs_srcserver makes assumptions on being in a
+  # properly set up working dir, e.g. with subdirs 'worker' and
+  # 'build'.  Either that is cleaned up or this stays in, for the sake
+  # of startproc and others being able to start a bs_srcserver without
+  # knowing that it has to be started in the right directory....
+
+  chdir "$wd";
+  unshift @INC,  "build";
+  unshift @INC,  ".";
+}
+
+use Types::Serialiser;
+use JSON::XS ();
+use MIME::Base64 ();
+use Digest::SHA ();
+use Data::Dumper;
+
+use BSConfiguration;
+use BSRPC ':https';
+use BSUtil;
+use BSASN1;
+use BSPgp;
+
+use strict;
+
+my $targets_expire_delta = 3 * 366 * 24 * 3600;	# 3 years
+my $notary_timeout = 300;
+my $registry_timeout = 300;
+
+my @signargs;
+
+sub keydata2asn1 {
+  my ($keydata) = @_;
+  die("need an rsa pubkey\n") unless ($keydata->{'algo'} || '') eq 'rsa';
+  my $pubkey = BSASN1::asn1_sequence(BSASN1::asn1_integer_mpi($keydata->{'mpis'}->[0]->{'data'}), BSASN1::asn1_integer_mpi($keydata->{'mpis'}->[1]->{'data'}));
+  $pubkey = BSASN1::asn1_pack($BSASN1::BIT_STRING, pack('C', 0).$pubkey);
+  return BSASN1::asn1_sequence(BSASN1::asn1_sequence($BSASN1::oid_rsaencryption, BSASN1::asn1_null()), $pubkey);
+}
+
+sub rfc3339time {
+  my ($t) = @_;
+  my @gt = gmtime($t || time());
+  return sprintf "%04d-%02d-%02dT%02d:%02d:%02dZ", $gt[5] + 1900, $gt[4] + 1, @gt[3,2,1,0];
+}
+
+sub canonical_json {
+  my ($d) = @_;
+  return JSON::XS->new->utf8->canonical->encode($d);
+}
+
+sub sign {
+  my ($data) = @_;
+  return BSUtil::xsystem($data, $BSConfig::sign, @signargs, '-O', '-h', 'sha256');
+}
+
+sub mktbscert {
+  my ($cn, $not_before, $not_after, $subjectkeyinfo) = @_;
+  my $serial = pack("CC", 0, 128 + int(rand(128)));
+  $serial .= pack("C", int(rand(256))) for (1, 2, 3, 4, 5, 6, 7);
+  my $certversion = BSASN1::asn1_pack($BSASN1::CONT | $BSASN1::CONS | 0, BSASN1::asn1_integer(2));
+  my $certserial = BSASN1::asn1_pack($BSASN1::INTEGER, $serial);
+  my $sigalgo = BSASN1::asn1_sequence($BSASN1::oid_sha256withrsaencryption, BSASN1::asn1_null());
+  my $cnattr = BSASN1::asn1_sequence($BSASN1::oid_common_name, BSASN1::asn1_pack($BSASN1::UTF8STRING, $cn));
+  my $issuer = BSASN1::asn1_sequence(BSASN1::asn1_set($cnattr));
+  my $validity = BSASN1::asn1_sequence(BSASN1::asn1_utctime($not_before), BSASN1::asn1_utctime($not_after));
+  my $critical = BSASN1::asn1_boolean(1);
+  my $basic_constraints = BSASN1::asn1_sequence($BSASN1::oid_basic_constraints, $critical, BSASN1::asn1_octet_string(BSASN1::asn1_sequence()));
+  my $key_usage = BSASN1::asn1_sequence($BSASN1::oid_key_usage, $critical, BSASN1::asn1_octet_string(BSASN1::asn1_pack($BSASN1::BIT_STRING, pack("CC", 5, 160))));
+  my $ext_key_usage = BSASN1::asn1_sequence($BSASN1::oid_ext_key_usage, BSASN1::asn1_octet_string(BSASN1::asn1_sequence($BSASN1::oid_code_signing)));
+  my $extensions = BSASN1::asn1_pack($BSASN1::CONT | $BSASN1::CONS | 3, BSASN1::asn1_sequence($basic_constraints, $key_usage, $ext_key_usage));
+  my $tbscert = BSASN1::asn1_sequence($certversion, $certserial, $sigalgo, $issuer, $validity, $issuer, $subjectkeyinfo, $extensions);
+  return $tbscert;
+}
+
+sub mkcert {
+  my ($cn, $not_before, $not_after, $subjectkeyinfo) = @_;
+  my $tbscert = mktbscert($cn, $not_before, $not_after, $subjectkeyinfo);
+  my $sigalgo = BSASN1::asn1_sequence($BSASN1::oid_sha256withrsaencryption, BSASN1::asn1_null());
+  my $signature = sign($tbscert);
+  my $cert = BSASN1::asn1_sequence($tbscert, $sigalgo, BSASN1::asn1_pack($BSASN1::BIT_STRING,  pack("C", 0), $signature));
+  return BSASN1::der2pem($cert, 'CERTIFICATE');
+}
+
+# return the to-be-signed part of a certificate
+sub gettbscert {
+  my ($cert) = @_;
+  $cert = BSASN1::pem2der($cert, 'CERTIFICATE');
+  (undef, $cert, undef) = BSASN1::asn1_unpack($cert, $BSASN1::CONS | $BSASN1::SEQUENCE);
+  (undef, $cert, undef) = BSASN1::asn1_unpack($cert, $BSASN1::CONS | $BSASN1::SEQUENCE);
+  return BSASN1::asn1_pack($BSASN1::CONS | $BSASN1::SEQUENCE, $cert);
+}
+
+# remove the serial number from a tbs certificate. We need to do this because the
+# serial is random and we want to compare two certs.
+sub removecertserial {
+  my ($tbscert) = @_;
+  (undef, $tbscert, undef) = BSASN1::asn1_unpack($tbscert, $BSASN1::CONS | $BSASN1::SEQUENCE);
+  my $tail = $tbscert;
+  (undef, undef, $tail) = BSASN1::asn1_unpack($tail);	# the version
+  my $l = length($tail);
+  (undef, undef, $tail) = BSASN1::asn1_unpack($tail, $BSASN1::INTEGER);	# the serial
+  substr($tbscert, length($tbscert) - $l, $l - length($tail), '');
+  return BSASN1::asn1_pack($BSASN1::CONS | $BSASN1::SEQUENCE, $tbscert);
+}
+
+# get pubkey
+sub getsubjectkeyinfo {
+  my ($tbscert) = @_;
+  (undef, $tbscert, undef) = BSASN1::asn1_unpack($tbscert, $BSASN1::CONS | $BSASN1::SEQUENCE);
+  (undef, undef, $tbscert) = BSASN1::asn1_unpack($tbscert) for 1..6;
+  (undef, $tbscert, undef) = BSASN1::asn1_unpack($tbscert, $BSASN1::CONS | $BSASN1::SEQUENCE);
+  return BSASN1::asn1_pack($BSASN1::CONS | $BSASN1::SEQUENCE, $tbscert);
+}
+
+sub signedmultipartentry {
+  my ($name, $d, $keyid, $extrakeyid) = @_;
+  my $sig = MIME::Base64::encode_base64(sign(canonical_json($d)), '');
+  my @sigs = ({ 'keyid' => $keyid, 'method' => 'rsapkcs1v15', 'sig' => $sig });
+  push @sigs, { 'keyid' => $extrakeyid, 'method' => 'rsapkcs1v15', 'sig' => $sig } if $extrakeyid;
+  # hack: signed must be first
+  $d = { 'AAA_signed' => $d, 'signatures' => \@sigs };
+  $d = canonical_json($d);
+  $d =~ s/AAA_signed/signed/;
+  return { 'headers' => [ "Content-Disposition: form-data; name=\"files\"; filename=\"$name\"", 'Content-Type: application/octet-stream' ], 'data' => $d };
+}
+
+# parse arguments
+my $pubkeyfile;
+my $dest_creds;
+while (@ARGV) {
+  if ($ARGV[0] eq '-p') {
+    (undef, $pubkeyfile) = splice(@ARGV, 0, 2);
+    next;
+  }
+  if ($ARGV[0] eq '--dest-creds') {
+    (undef, $dest_creds) = splice(@ARGV, 0, 2);
+    next;
+  }
+  if ($ARGV[0] eq '-P' || $ARGV[0] eq '--project') {
+    push @signargs, splice(@ARGV, 0, 2);
+    next;
+  }
+  if ($ARGV[0] eq '-h') {
+    splice(@ARGV, 0, 2);	# always sha256
+    next;
+  }
+  last;
+}
+
+die("Usage: bs_notar -p pubkeyfile registryserver notaryserver gun tags...\n") unless @ARGV >= 3;
+my ($registryserver, $notaryserver, $gun, @tags) = @ARGV;
+
+die("Need a pubkey file\n") unless defined $pubkeyfile;
+die("Need a repo f\n") unless defined $pubkeyfile;
+
+# calculate registry repo from notary gun
+my $repo = $gun;
+$repo =~ s/^[^\/]+\///;
+
+my @cred_header;
+if ($dest_creds) {
+  push @cred_header, "Authorization: Basic ".MIME::Base64::encode_base64($dest_creds, '');
+}
+
+#
+# collect stuff to sign
+#
+my $manifests = {};
+for my $tag (@tags) {
+  my $param = {
+    'headers' => [ 'Accept: application/vnd.docker.distribution.manifest.v2+json', @cred_header ],
+    'uri' => "$registryserver/v2/$repo/manifests/$tag",
+    'timeout' => $registry_timeout,
+  };
+  my $manifest_json = BSRPC::rpc($param, undef);
+  my $manifest = JSON::XS::decode_json($manifest_json);
+  die("bad manifest for $repo:$tag\n") unless $manifest->{'schemaVersion'} == 2;
+  $manifests->{$tag} = {
+    'hashes' => { 'sha256' => MIME::Base64::encode_base64(Digest::SHA::sha256($manifest_json), '') },
+    'length' => length($manifest_json),
+  };
+}
+
+#
+# generate key material
+#
+my $gpgpubkey = BSPgp::unarmor(readstr($pubkeyfile));
+my $pubkey_data = BSPgp::pk2keydata($gpgpubkey) || {};
+die("need an rsa pubkey for container signing\n") unless ($pubkey_data->{'algo'} || '') eq 'rsa';
+my $pubkey_times = BSPgp::pk2times($gpgpubkey) || {};
+# generate pub key and cert from pgp key data
+my $pub_bin = keydata2asn1($pubkey_data);
+
+my $cert;
+my $root_key;
+my $targets_key;
+my $timestamp_key;
+my $snapshot_key;
+
+my $root_version = 1;
+my $targets_version = 1;
+
+my $dodelete;		# new key, hopeless, need to delete old data
+my $dorootupdate;	# same key with different cert
+
+#
+# reuse data from old root entry if we can
+#
+if (!$dodelete) {
+  eval {
+    my $param = {
+      'uri' => "$notaryserver/v2/$gun/_trust/tuf/root.json",
+      'headers' => [ @cred_header ],
+      'timeout' => $notary_timeout,
+    };
+    my $oldroot = BSRPC::rpc($param, \&JSON::XS::decode_json);
+    $root_version = 1 + $oldroot->{'signed'}->{'version'};
+    my $oldroot_root_id = $oldroot->{'signed'}->{'roles'}->{'root'}->{'keyids'}->[0];
+    my $oldroot_targets_id = $oldroot->{'signed'}->{'roles'}->{'targets'}->{'keyids'}->[0];
+    my $oldroot_timestamp_id = $oldroot->{'signed'}->{'roles'}->{'timestamp'}->{'keyids'}->[0];
+    my $oldroot_snapshot_id = $oldroot->{'signed'}->{'roles'}->{'snapshot'}->{'keyids'}->[0];
+    my $oldroot_root_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_root_id};
+    die("oldroot is not of type rsa-x509\n") if $oldroot_root_key->{'keytype'} ne 'rsa-x509';
+    my $oldroot_root_cert = MIME::Base64::decode_base64($oldroot_root_key->{'keyval'}->{'public'});
+    my $oldroot_root_tbscert = gettbscert($oldroot_root_cert);
+    my $new_tbscert = mktbscert($gun, $pubkey_times->{'selfsig_create'}, $pubkey_times->{'key_expire'}, $pub_bin);
+    if (removecertserial($oldroot_root_tbscert) eq removecertserial($new_tbscert)) {
+      $cert = $oldroot_root_cert;
+      $root_key = $oldroot_root_key;
+      $targets_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_targets_id};
+      $timestamp_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_timestamp_id};
+      $snapshot_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_snapshot_id};
+    } elsif (getsubjectkeyinfo($oldroot_root_tbscert) eq getsubjectkeyinfo($new_tbscert)) {
+      # same pubkey but with different cert, e.g. different expiration time
+      $dorootupdate = $oldroot_root_id;
+      $timestamp_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_timestamp_id};
+      $snapshot_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_snapshot_id};
+    }
+  };
+  warn($@) if $@;
+}
+
+$dodelete = 1 unless $cert || $dorootupdate;
+if ($dodelete) {
+  print "overwriting old key and cert...\n";
+} elsif ($dorootupdate) {
+  print "updating old key and cert...\n";
+} else {
+  print "reusing old key and cert...\n";
+}
+
+
+#
+# setup needed keys
+#
+if (!$cert) {
+  $cert = mkcert($gun, $pubkey_times->{'selfsig_create'}, $pubkey_times->{'key_expire'}, $pub_bin);
+}
+if (!$root_key) {
+  $root_key = {
+    'keytype' => 'rsa-x509',
+    'keyval' => { 'private' => undef, 'public' => MIME::Base64::encode_base64($cert, '')},
+  };
+}
+if (!$targets_key) {
+  $targets_key = {
+    'keytype' => 'rsa',
+    'keyval' => { 'private' => undef, 'public' => MIME::Base64::encode_base64($pub_bin, '') },
+  };
+}
+if (!$timestamp_key) {
+  my $param = {
+    'uri' => "$notaryserver/v2/$gun/_trust/tuf/timestamp.key",
+    'headers' => [ @cred_header ],
+    'timeout' => $notary_timeout,
+  };
+  $timestamp_key = BSRPC::rpc($param, \&JSON::XS::decode_json);
+}
+if (!$snapshot_key) {
+  my $param = {
+    'uri' => "$notaryserver/v2/$gun/_trust/tuf/snapshot.key",
+    'headers' => [ @cred_header ],
+    'timeout' => $notary_timeout,
+  };
+  $snapshot_key = BSRPC::rpc($param, \&JSON::XS::decode_json);
+}
+
+my $root_key_id = Digest::SHA::sha256_hex(canonical_json($root_key));
+my $targets_key_id = Digest::SHA::sha256_hex(canonical_json($targets_key));
+my $timestamp_key_id = Digest::SHA::sha256_hex(canonical_json($timestamp_key));
+my $snapshot_key_id = Digest::SHA::sha256_hex(canonical_json($snapshot_key));
+
+#
+# setup root 
+#
+my $keys = {};
+$keys->{$root_key_id} = $root_key;
+$keys->{$targets_key_id} = $targets_key;
+$keys->{$timestamp_key_id} = $timestamp_key;
+$keys->{$snapshot_key_id} = $snapshot_key;
+
+my $roles = {};
+$roles->{'root'}      = { 'keyids' => [ $root_key_id ],      'threshold' => 1 };
+$roles->{'snapshot'}  = { 'keyids' => [ $snapshot_key_id ],  'threshold' => 1 };
+$roles->{'targets'}   = { 'keyids' => [ $targets_key_id ],   'threshold' => 1 };
+$roles->{'timestamp'} = { 'keyids' => [ $timestamp_key_id ], 'threshold' => 1 };
+
+
+my $root = {
+  '_type' => 'Root',
+  'consistent_snapshot' => $JSON::XS::false,
+  'expires' => rfc3339time($pubkey_times->{'key_expire'}),
+  'keys' => $keys,
+  'roles' => $roles,
+  'version' => $root_version,
+};
+
+#
+# setup targets
+#
+my $oldtargets;
+eval {
+  my $param = {
+    'uri' => "$notaryserver/v2/$gun/_trust/tuf/targets.json",
+    'headers' => [ @cred_header ],
+    'timeout' => $notary_timeout,
+  };
+  $oldtargets = BSRPC::rpc($param, \&JSON::XS::decode_json);
+  $targets_version = 1 + $oldtargets->{'signed'}->{'version'};
+};
+if (!$dodelete && !$dorootupdate && BSUtil::identical($manifests, $oldtargets->{'signed'}->{'targets'})) {
+  print "no change...\n";
+  exit 0;
+}
+
+my $targets = {
+  '_type' => 'Targets',
+  'delegations' => { 'keys' => {}, 'roles' => []},
+  'expires' => rfc3339time(time() + $targets_expire_delta),
+  'targets' => $manifests,
+  'version' => $targets_version,
+};
+
+#
+# delete old data if necessary
+#
+if ($dodelete) {
+  my $param = {
+    'uri' => "$notaryserver/v2/$gun/_trust/tuf/",
+    'request' => 'DELETE',
+    'headers' => [ @cred_header ],
+    'timeout' => $notary_timeout,
+  };
+  BSRPC::rpc($param);
+}
+
+#
+# sign and send data
+#
+my @parts;
+push @parts, signedmultipartentry('root', $root, $root_key_id, $dorootupdate) if $dodelete || $dorootupdate;
+push @parts, signedmultipartentry('targets', $targets, $targets_key_id);
+
+my $boundary = Digest::SHA::sha256_hex(join('', map {$_->{'data'}} @parts));
+my $param = {
+  'uri' => "$notaryserver/v2/$gun/_trust/tuf/",
+  'request' => 'POST',
+  'data' => BSHTTP::makemultipart($boundary, @parts),
+  'headers' => [ "Content-Type: multipart/form-data; boundary=$boundary", @cred_header ],
+  'timeout' => $notary_timeout,
+};
+
+print BSRPC::rpc($param);

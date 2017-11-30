@@ -1402,6 +1402,8 @@ sub publish {
   my %kiwimedium;	# maps published name to original name
   my $kiwiindex = '';	# store collected index parts
 
+  my $notary_uploads = {};
+
   if ($archorder) {
     my %archorder = map {$_ => 1} @$archorder;
     my %archs = map {$_ => 1} @archs;
@@ -1508,7 +1510,7 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /(.*-Build\d.*)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
 	  $kiwimedium{$bin} = $1 if !$2 && -e "$r/$1.packages";
-	  upload_container($r, "$1.containerinfo", $bin, $projid, $repoid, $arch) if !$2 && -e "$r/$1.containerinfo";
+	  upload_container($r, "$1.containerinfo", $bin, $projid, $repoid, $arch, $notary_uploads) if !$2 && -e "$r/$1.containerinfo";
 	  $p = "$bin";
 	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
 	  $kiwimedium{$bin} = $1 if !$2 && -e "$r/$1.packages";
@@ -1821,6 +1823,8 @@ sub publish {
     $changed = 1;
   }
 
+  $changed = 1 if %$notary_uploads;	# FIXME
+
   if (!$changed && !$dbgsplit) {
     print "    nothing changed\n";
     return;
@@ -1859,6 +1863,11 @@ sub publish {
         print "WARNING: configured sign key $BSConfig::keyfile does not exist\n";
       }
     }
+  }
+
+  # do notary uploads
+  if (%$notary_uploads) {
+    upload_to_notary($projid, $notary_uploads, $signargs, $pubkey);
   }
 
   # get all patterns
@@ -2464,7 +2473,7 @@ check if build result is valid container and upload if configured
 =cut
 
 sub upload_container {
-  my ($dir, $containerinfo, $file, $projid, $repoid, $arch) = @_;
+  my ($dir, $containerinfo, $file, $projid, $repoid, $arch, $notary_uploads) = @_;
 
   # jump out if no config
   return unless $BSConfig::publish_containers;
@@ -2508,7 +2517,7 @@ sub upload_container {
 
   eval {
     for my $config (@registries) {
-      upload_to_registry($config, $info, $tempfile, $projid, $repoid, $arch);
+      upload_to_registry($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads);
     }
   };
   my $error = $@;
@@ -2530,7 +2539,7 @@ sub upload_container {
 =cut
 
 sub upload_to_registry {
-  my ($config, $info, $tempfile, $projid, $repoid, $arch) = @_;
+  my ($config, $info, $tempfile, $projid, $repoid, $arch, $notary_uploads) = @_;
   # TODO: should be more general to implement own upload
   # prepare url for skopeo
   my $name = lc($info->{name});
@@ -2543,10 +2552,19 @@ sub upload_to_registry {
 
   my $tag = $info->{tags}->[0];
   my $uploader = $config->{uploader} || 'skopeo';
-  my $port = $config->{port} || 443;
+
+  my $reponame = lc("$repository_base$projid/$repoid/$arch/$tag");
+  $reponame =~ s/^\///;
+  my $repotag = 'latest';
+  if ($reponame =~ /:([^\/]+)$/) {
+    $repotag = $1;
+    $reponame =~ s/:[^\/]+$//;
+  }
+  
+  my $registryserver = $config->{server};
+  $registryserver =~ s/^https?:\/\///;
   if ($uploader eq 'skopeo') {
-    my $dst = "docker://$config->{host}:$port" .
-                lc("$repository_base$projid/$repoid/$arch/$tag");
+    my $dst = "docker://$registryserver/$reponame:$repotag";
     ####
     # FIXME: Find solution to remove credentials from the cli options
     # HINT:  https://github.com/projectatomic/skopeo/issues/434 must be solved first
@@ -2557,6 +2575,31 @@ sub upload_to_registry {
     my $result = qsystem(@cmd);
 
     die "Error while uploading\n" if $result;
+  }
+  if ($config->{'notary'}) {
+    my $gun;
+    if ($config->{'notary_gunprefix'}) {
+      $gun = "$config->{'notary_gunprefix'}";
+    } else {
+      $gun = $registryserver;
+    }
+    $notary_uploads->{"$gun/$reponame"}->{$repotag} = $config;
+  }
+}
+
+sub upload_to_notary {
+  my ($projid, $notary_uploads, $signargs, $pubkey) = @_;
+
+  my @signargs;
+  push @signargs, '--project', $projid if $BSConfig::sign_project;
+  push @signargs, @{$signargs || []};
+  for my $gun (sort keys %$notary_uploads) {
+    my @tags = sort keys %{$notary_uploads->{$gun}};
+    next unless @tags;
+    my $config = $notary_uploads->{$gun}->{$tags[0]};
+    my @cmd = ("$INC[0]/bs_notar", @signargs, "-p", "$pubkey", $config->{'server'}, $config->{'notary'}, $gun, @tags);
+    my $result = qsystem(@cmd);
+    die "Error while uploading to notary\n" if $result;
   }
 }
 
