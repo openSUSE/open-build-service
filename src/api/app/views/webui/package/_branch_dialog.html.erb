@@ -3,7 +3,10 @@
       <h2 class="box-header">Branch Confirmation</h2>
       <div class="dialog-content">
         <p>
-         Do you really want to branch <%= package_link(@package) %>?<br /><br />
+        Do you want to branch <%= package_link(@package) %> into
+        <%= project_or_package_link(
+              project: User.current.branch_project_name(@package.project.name),
+              short: true) %>?<br /><br />
          <a data-target="#branching-options" data-hidetext="[-] Hide options" data-showtext="[+] More options" class="show-hide">[+] More options</a>
         </p>
       </div>
