@@ -1,10 +1,12 @@
-class Event::RepoPublished < Event::Base
-  self.description = 'Repository was published'
-  payload_keys :project, :repo
-  after_create_commit :send_to_bus
+module Event
+  class RepoPublished < Base
+    self.description = 'Repository was published'
+    payload_keys :project, :repo
+    after_create_commit :send_to_bus
 
-  def self.message_bus_routing_key
-    "#{Configuration.amqp_namespace}.repo.published"
+    def self.message_bus_routing_key
+      "#{Configuration.amqp_namespace}.repo.published"
+    end
   end
 end
 
