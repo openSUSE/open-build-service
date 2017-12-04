@@ -74,24 +74,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def self.type_to_class_name(type_name)
-    case type_name
-    when :submit then
-      BsRequestActionSubmit
-    when :delete then
-      BsRequestActionDelete
-    when :change_devel then
-      BsRequestActionChangeDevel
-    when :add_role then
-      BsRequestActionAddRole
-    when :set_bugowner then
-      BsRequestActionSetBugowner
-    when :maintenance_incident then
-      BsRequestActionMaintenanceIncident
-    when :maintenance_release then
-      BsRequestActionMaintenanceRelease
-    when :group then
-      BsRequestActionGroup
-    end
+    "bs_request_action_#{type_name}".classify.constantize
   end
 
   def self.find_sti_class(type_name)
