@@ -87,6 +87,7 @@ BuildArch:      noarch
 Requires(pre):  obs-common
 Requires:       build >= 20170315
 Requires:       perl-BSSolv >= 0.28
+Requires:       perl(TimeDate)
 # Required by source server
 Requires:       diffutils
 PreReq:         git-core
