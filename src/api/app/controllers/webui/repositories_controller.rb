@@ -148,14 +148,16 @@ class Webui::RepositoriesController < Webui::WebuiController
   # POST project/create_image_repository
   def create_image_repository
     authorize @project, :update?
-    repository = @project.repositories.create!(name: 'images')
-    Architecture.available.each do |architecture|
-      repository.repository_architectures.create!(architecture: architecture)
-    end
-    @project.prepend_kiwi_config
+    repository = @project.repositories.new(name: 'images')
 
     if repository.save
+      Architecture.available.each do |architecture|
+        repository.repository_architectures.create(architecture: architecture)
+      end
+
+      @project.prepend_kiwi_config
       @project.store
+
       flash[:success] = 'Successfully added image repository'
       respond_to do |format|
         format.html { redirect_to({ action: :index, project: @project }) }
