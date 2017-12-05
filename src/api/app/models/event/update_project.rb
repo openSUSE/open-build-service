@@ -1,7 +1,7 @@
 module Event
-  class UpdateProject < Project
+  class UpdateProject < Base
     self.description = 'Project meta was updated'
-    payload_keys :sender
+    payload_keys :project, :sender
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key

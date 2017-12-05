@@ -1,6 +1,8 @@
 module Event
-  class CommentForProject < Project
+  class CommentForProject < Base
     include CommentEvent
+    self.description = 'Project was touched'
+    payload_keys :project
     receiver_roles :maintainer, :watcher
     after_create_commit :send_to_bus
 

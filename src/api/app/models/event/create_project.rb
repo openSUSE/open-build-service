@@ -1,7 +1,7 @@
 module Event
-  class CreateProject < Project
+  class CreateProject < Base
     self.description = 'Project is created'
-    payload_keys :sender
+    payload_keys :project, :sender
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key

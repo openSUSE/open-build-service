@@ -1,7 +1,7 @@
 module Event
-  class UndeleteProject < Project
+  class UndeleteProject < Base
     self.description = 'Project was undeleted'
-    payload_keys :comment, :sender
+    payload_keys :project, :comment, :sender
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key

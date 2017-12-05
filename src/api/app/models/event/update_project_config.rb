@@ -1,7 +1,7 @@
 module Event
-  class UpdateProjectConfig < Project
+  class UpdateProjectConfig < Base
     self.description = 'Project _config was updated'
-    payload_keys :sender, :files, :comment
+    payload_keys :project, :sender, :files, :comment
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key
