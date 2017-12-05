@@ -2,6 +2,7 @@ class Event::Request < ::Event::Base
   self.description = 'Request was updated'
   self.abstract_class = true
   payload_keys :author, :comment, :description, :number, :actions, :state, :when, :who
+  shortenable_key :description
 
   DiffLimit = 120
 
