@@ -2626,10 +2626,10 @@ sub get_registry_config {
   }
 
   # check if minimal config items are set
-  if (!$cr->{host} || !$cr->{user} || !$cr->{password}) {
+  if (!$cr->{server} || !$cr->{user} || !$cr->{password}) {
     BSUtil::printlog(
       "No valid config found for container registry: ".
-      "$cr->{host}/$cr->{user}/$cr->{password} (host/user/password)"
+      "$cr->{server}/$cr->{user}/$cr->{password} (server/user/password)"
     );
     return;
   }
