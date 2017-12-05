@@ -1,6 +1,23 @@
 puts "-----------EVENT-STATS------------"
-event_classes = [Event::Package, Event::Project]
-event_types = event_classes.flat_map(&:descendants).map(&:name)
+# Package and Project events
+event_types = ["Event::BranchCommand",
+               "Event::Build",
+               "Event::CommentForPackage",
+               "Event::Commit",
+               "Event::CreatePackage",
+               "Event::DeletePackage",
+               "Event::ServiceFail",
+               "Event::ServiceSuccess",
+               "Event::UndeletePackage",
+               "Event::UpdatePackage",
+               "Event::Upload",
+               "Event::VersionChange",
+               "Event::CommentForProject",
+               "Event::CreateProject",
+               "Event::DeleteProject",
+               "Event::UndeleteProject",
+               "Event::UpdateProjectConfig",
+               "Event::UpdateProject"]
 oldest_date = 10.days.ago
 project_logged = Event::Base.where(project_logged: false, eventtype: event_types).where(["created_at > ?", oldest_date]).count
 mails_sent = Event::Base.where(mails_sent: false).count
