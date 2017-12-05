@@ -1,6 +1,7 @@
 module Event
-  class CreatePackage < Package
+  class CreatePackage < Base
     self.description = 'Package was created'
+    payload_keys :project, :package, :sender
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key

@@ -1,7 +1,7 @@
 module Event
-  class VersionChange < Package
+  class VersionChange < Base
     self.description = 'Package has changed its version'
-    payload_keys :comment, :requestid, :files, :rev, :newversion, :user, :oldversion
+    payload_keys :project, :package, :sender, :comment, :requestid, :files, :rev, :newversion, :user, :oldversion
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key

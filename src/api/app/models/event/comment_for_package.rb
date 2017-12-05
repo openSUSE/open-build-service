@@ -1,8 +1,10 @@
 module Event
-  class CommentForPackage < Package
+  class CommentForPackage < Base
     include CommentEvent
+    self.description = 'Package was touched'
     receiver_roles :maintainer, :watcher
     after_create_commit :send_to_bus
+    payload_keys :project, :package, :sender
 
     def self.message_bus_routing_key
       "#{Configuration.amqp_namespace}.package.comment"

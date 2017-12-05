@@ -1,7 +1,7 @@
 module Event
-  class Commit < Package
+  class Commit < Base
     self.description = 'New revision of a package was commited'
-    payload_keys :project, :package, :comment, :user, :files, :rev, :requestid
+    payload_keys :project, :package, :sender, :comment, :user, :files, :rev, :requestid
 
     create_jobs :update_backend_infos_job
     after_create_commit :send_to_bus

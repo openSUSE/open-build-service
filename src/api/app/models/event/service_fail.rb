@@ -1,7 +1,7 @@
 module Event
-  class ServiceFail < Package
+  class ServiceFail < Base
     self.description = 'Package source service has failed'
-    payload_keys :comment, :error, :package, :project, :rev, :user, :requestid
+    payload_keys :project, :package, :sender, :comment, :error, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
     create_jobs :update_backend_infos_job
     after_create_commit :send_to_bus

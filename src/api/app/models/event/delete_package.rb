@@ -1,7 +1,7 @@
 module Event
-  class DeletePackage < Package
+  class DeletePackage < Base
     self.description = 'Package was deleted'
-    payload_keys :comment, :requestid
+    payload_keys :project, :package, :sender, :comment, :requestid
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key
