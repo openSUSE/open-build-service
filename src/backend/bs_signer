@@ -42,7 +42,7 @@ use BSUtil;
 use BSXML;
 use BSHTTP;
 use BSVerify;
-use BSPgp;
+use BSPGP;
 use BSStdRunner;
 
 use strict;
@@ -419,7 +419,7 @@ sub signjob {
 	    my %res = Build::Rpm::rpmq("$jobdir/$signfile", 'SIGTAG_GPG', 'SIGTAG_PGP');
 	    my $sig = $res{'SIGTAG_PGP'} || $res{'SIGTAG_GPG'};
 	    $sig = $sig->[0] if $sig;
-	    $signtime = BSPgp::pk2signtime($sig) if $sig;
+	    $signtime = BSPGP::pk2signtime($sig) if $sig;
 	  };
 	  warn("get signtime: $@") if $@;
 	  system('rpm', '--delsign', "$jobdir/$signfile") && warn("delsign $jobdir/$signfile failed: $?\n");

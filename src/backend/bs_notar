@@ -37,7 +37,7 @@ use BSConfiguration;
 use BSRPC ':https';
 use BSUtil;
 use BSASN1;
-use BSPgp;
+use BSPGP;
 
 use strict;
 
@@ -202,10 +202,10 @@ for my $tag (@tags) {
 #
 # generate key material
 #
-my $gpgpubkey = BSPgp::unarmor(readstr($pubkeyfile));
-my $pubkey_data = BSPgp::pk2keydata($gpgpubkey) || {};
+my $gpgpubkey = BSPGP::unarmor(readstr($pubkeyfile));
+my $pubkey_data = BSPGP::pk2keydata($gpgpubkey) || {};
 die("need an rsa pubkey for container signing\n") unless ($pubkey_data->{'algo'} || '') eq 'rsa';
-my $pubkey_times = BSPgp::pk2times($gpgpubkey) || {};
+my $pubkey_times = BSPGP::pk2times($gpgpubkey) || {};
 # generate pub key and cert from pgp key data
 my $pub_bin = keydata2asn1($pubkey_data);
 

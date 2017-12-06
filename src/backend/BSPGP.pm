@@ -17,10 +17,10 @@
 #
 ################################################################
 #
-# Pgp packet parsing functions
+# PGP packet parsing functions
 #
 
-package BSPgp;
+package BSPGP;
 
 use MIME::Base64 ();
 use Digest;

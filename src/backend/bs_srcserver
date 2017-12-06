@@ -55,7 +55,7 @@ use BSStdServer;
 use BSSrcdiff;
 use Build;
 use BSNotify;
-use BSPgp;
+use BSPGP;
 use BSSrcrep;
 use BSRevision;
 use BSKiwiXML;
@@ -5026,7 +5026,7 @@ sub autoextend_check {
   my ($projid, $pk) = @_;
   return $pk unless $pk;
   my $ex = 0;
-  eval { $ex = BSPgp::pk2expire(BSPgp::unarmor($pk)) };
+  eval { $ex = BSPGP::pk2expire(BSPGP::unarmor($pk)) };
   if ($ex && $ex < time() + 14 * 24 * 3600) {
     extendkey({'comment' => 'auto-extend public key expiry date'}, $projid);
     $pk = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
@@ -5046,7 +5046,7 @@ sub getsignkey {
 	if ($cgi->{'withalgo'} && $sk !~ /^\S+:/) {
 	  my $algo = '?';
 	  if ($pk) {
-	    eval { $algo = BSPgp::pk2algo(BSPgp::unarmor($pk)) };
+	    eval { $algo = BSPGP::pk2algo(BSPGP::unarmor($pk)) };
 	  }
 	  $sk = "$algo:$sk";
 	}
@@ -5153,11 +5153,11 @@ sub getkeyinfo {
     my $fingerprint;
     my $expire;
     eval {
-      my $pku = BSPgp::unarmor($pk);
-      eval { $algo = BSPgp::pk2algo($pku) };
-      eval { $keysize = BSPgp::pk2keysize($pku) };
-      eval { $fingerprint = BSPgp::pk2fingerprint($pku) };
-      eval { $expire = BSPgp::pk2expire($pku) };
+      my $pku = BSPGP::unarmor($pk);
+      eval { $algo = BSPGP::pk2algo($pku) };
+      eval { $keysize = BSPGP::pk2keysize($pku) };
+      eval { $fingerprint = BSPGP::pk2fingerprint($pku) };
+      eval { $expire = BSPGP::pk2expire($pku) };
     };
     $keyinfo->{'pubkey'} = { '_content' => $pk };
     $keyinfo->{'pubkey'}->{'algo'} = $algo if $algo;
