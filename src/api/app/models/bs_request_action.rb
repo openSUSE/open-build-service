@@ -74,7 +74,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def self.type_to_class_name(type_name)
-    "bs_request_action_#{type_name}".classify.constantize
+    "BsRequestAction#{type_name.classify}".constantize
   end
 
   def self.find_sti_class(type_name)
