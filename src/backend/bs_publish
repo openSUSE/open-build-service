@@ -2583,6 +2583,7 @@ sub upload_to_registry {
     } else {
       $gun = $registryserver;
     }
+    print "adding notary upload for $gun/$reponame: $repotag\n";
     $notary_uploads->{"$gun/$reponame"}->{$repotag} = $config;
   }
 }
@@ -2590,6 +2591,8 @@ sub upload_to_registry {
 sub upload_to_notary {
   my ($projid, $notary_uploads, $signargs, $pubkey) = @_;
 
+  unlink("$uploaddir/publisher.$$.notarypubkey");
+  writestr("$uploaddir/publisher.$$.notarypubkey", undef, $pubkey);
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, @{$signargs || []};
@@ -2597,10 +2600,13 @@ sub upload_to_notary {
     my @tags = sort keys %{$notary_uploads->{$gun}};
     next unless @tags;
     my $config = $notary_uploads->{$gun}->{$tags[0]};
-    my @cmd = ("$INC[0]/bs_notar", @signargs, "-p", "$pubkey", $config->{'server'}, $config->{'notary'}, $gun, @tags);
+    my @cmd = ("$INC[0]/bs_notar", @signargs, "-p", "$uploaddir/publisher.$$.notarypubkey", $config->{'server'}, $config->{'notary'}, $gun, @tags);
+    BSUtil::printlog("Uploading to notary: @cmd\n");
+    splice(@cmd, 1, 0, "--dest-creds", "$config->{user}:$config->{password}");
     my $result = qsystem(@cmd);
     die "Error while uploading to notary\n" if $result;
   }
+  unlink("$uploaddir/publisher.$$.notarypubkey");
 }
 
 =head2 get_registry_config - check for valid registry config and set default values

@@ -24,8 +24,8 @@
 BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
   $wd ||= '.';
-  unshift @INC,  "build";
-  unshift @INC,  ".";
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
 }
 
 use JSON::XS ();
@@ -243,13 +243,14 @@ if (!$dodelete) {
     my $oldroot_root_tbscert = gettbscert($oldroot_root_cert);
     my $new_tbscert = mktbscert($gun, $pubkey_times->{'selfsig_create'}, $pubkey_times->{'key_expire'}, $pub_bin);
     if (removecertserial($oldroot_root_tbscert) eq removecertserial($new_tbscert)) {
+      # same cert (possibly with different serial). reuse old cert.
       $cert = $oldroot_root_cert;
       $root_key = $oldroot_root_key;
       $targets_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_targets_id};
       $timestamp_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_timestamp_id};
       $snapshot_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_snapshot_id};
     } elsif (getsubjectkeyinfo($oldroot_root_tbscert) eq getsubjectkeyinfo($new_tbscert)) {
-      # same pubkey but with different cert, e.g. different expiration time
+      # different cert but same pubkey, e.g. different expiration time
       $dorootupdate = $oldroot_root_id;
       $timestamp_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_timestamp_id};
       $snapshot_key = $oldroot->{'signed'}->{'keys'}->{$oldroot_snapshot_id};
