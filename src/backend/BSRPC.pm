@@ -375,30 +375,41 @@ sub rpc {
   # Successful 2xx
   # https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
   #
+  updatecookies(\%cookiestore, $param->{'uri'}, $headers{'set-cookie'}) if $headers{'set-cookie'};
   if ($status =~ /^2\d\d[^\d]/) {
     undef $status;
-  } elsif ($status =~ /^302[^\d]/ && ($param->{'ignorestatus'} || 0) != 2) {
-    # XXX: should we do the redirect if $param->{'ignorestatus'} is defined?
-    close S;
-    die("error: no redirects allowed\n") unless defined $param->{'maxredirects'};
-    die("error: status 302 but no 'location' header found\n") unless exists $headers{'location'};
-    die("error: max number of redirects reached\n") if $param->{'maxredirects'} < 1;
-    my %myparam = %$param;
-    $myparam{'uri'} = $headers{'location'};
-    $myparam{'maxredirects'} = $param->{'maxredirects'} - 1;
-    return rpc(\%myparam, $xmlargs, @args);
   } else {
     #if ($param->{'verbose'}) {
     #  1 while sysread(S, $ans, 1024, length($ans));
     #  print "< $ans\n";
     #}
-    if ($status =~ /^(\d+) +(.*?)$/) {
-      die("$1 remote error: $2\n") unless $param->{'ignorestatus'};
-    } else {
-      die("remote error: $status\n") unless $param->{'ignorestatus'};
+    if ($status =~ /^302[^\d]/ && ($param->{'ignorestatus'} || 0) != 2) {
+      close S;
+      die("error: no redirects allowed\n") unless defined $param->{'maxredirects'};
+      die("error: status 302 but no 'location' header found\n") unless exists $headers{'location'};
+      die("error: max number of redirects reached\n") if $param->{'maxredirects'} < 1;
+      my %myparam = %$param;
+      $myparam{'uri'} = $headers{'location'};
+      $myparam{'maxredirects'} = $param->{'maxredirects'} - 1;
+      return rpc(\%myparam, $xmlargs, @args);
+    }
+    if ($status =~ /^401[^\d]/ && $param->{'authenticator'} && $headers{'www-authenticate'}) {
+      # unauthorized, ask callback for authorization
+      my $auth = $param->{'authenticator'}->($param, $headers{'www-authenticate'}, \%headers);
+      if ($auth) {
+        close S;
+        my %myparam = %$param;
+        delete $myparam{'authenticator'};
+        push @{$myparam{'headers'}}, "Authorization: $auth";
+        return rpc(\%myparam, $xmlargs, @args);
+      }
+    }
+    if (!$param->{'ignorestatus'}) {
+      close S;
+      die("$1 remote error: $2\n") if $status =~ /^(\d+) +(.*?)$/;
+      die("remote error: $status\n");
     }
   }
-  updatecookies(\%cookiestore, $param->{'uri'}, $headers{'set-cookie'}) if $headers{'set-cookie'};
   ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
 
   my $act = $param->{'request'} || 'GET';
