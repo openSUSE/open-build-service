@@ -79,11 +79,11 @@ class BsRequestAction < ApplicationRecord
 
   def self.find_sti_class(type_name)
     return super if type_name.nil?
-    type_to_class_name(type_name.to_sym) || super
+    type_to_class_name(type_name) || super
   end
 
   def self.new_from_xml_hash(hash)
-    classname = type_to_class_name(hash.delete('type').to_sym)
+    classname = type_to_class_name(hash.delete('type'))
 
     # request actions of type group were official never supported
     # but there is build.opensuse.org which contains quite some of these
