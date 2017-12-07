@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :status_history do
     transient do
       source 'source'

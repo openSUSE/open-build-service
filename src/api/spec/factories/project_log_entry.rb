@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :project_log_entry do
     project
     datetime { Time.zone.today }

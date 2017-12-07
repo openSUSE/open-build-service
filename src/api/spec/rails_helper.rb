@@ -44,7 +44,7 @@ RSpec.configure do |config|
 end
 
 # support fixtures
-require 'support/factory_girl'
+require 'support/factory_bot'
 
 # support database cleanup
 require 'support/database_cleaner'

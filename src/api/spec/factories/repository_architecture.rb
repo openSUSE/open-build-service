@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :repository_architecture do
     repository
     architecture

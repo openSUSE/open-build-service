@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :kiwi_package_group, class: Kiwi::PackageGroup do
     association :image, factory: :kiwi_image
 

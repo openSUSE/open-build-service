@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :bs_request_action do
     factory :bs_request_action_add_maintainer_role do
       type 'add_role'

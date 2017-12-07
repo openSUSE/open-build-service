@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :issue do
     name Faker::Lorem.words(5).join(' ')
 

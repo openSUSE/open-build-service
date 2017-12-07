@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :bs_request do
     description { Faker::Lorem.paragraph }
     state "new"

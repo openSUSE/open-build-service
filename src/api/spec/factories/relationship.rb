@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :relationship do
     role { Role.find_by_title('maintainer') }
 

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :repository do
     project
     sequence(:name) { |n| "repository_#{n}" }

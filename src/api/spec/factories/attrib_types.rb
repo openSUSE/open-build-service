@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :attrib_type do
     sequence(:name) { |n| "attribute_factory_#{n}" }
     attrib_namespace

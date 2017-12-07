@@ -60,8 +60,8 @@ We are using the standard [RSpec generators](https://relishapp.com/rspec/rspec-r
 `rails generate rspec:model package` or
 `rails generate rspec:controller webui::blah`
 
-### Factory Girl
-We use [Factory Girl](https://github.com/thoughtbot/factory_girl_rails) to create our ruby objects, make sure to get familiar with the factory girl [features and syntax](http://www.rubydoc.info/gems/factory_girl/file/GETTING_STARTED.md).
+### Factory Bot
+We use [Factory Bot](https://github.com/thoughtbot/factory_bot_rails) to create our ruby objects, make sure to get familiar with the factory bot [features and syntax](http://www.rubydoc.info/gems/factory_bot/file/GETTING_STARTED.md).
 Be aware of that factories, other than fixtures, run through ActiveRecord validations.
 All OBS factories reside in `spec/factories`.
 
@@ -72,10 +72,10 @@ For creating has_many associations we prefer ```create_list```:
 project.packages = create_list(:package, 2)
 ```
 
-Please also have a look at the [factory girl documentation](https://github.com/thoughtbot/factory_girl/blob/master/GETTING_STARTED.md#associations)
+Please also have a look at the [factory bot documentation](https://github.com/thoughtbot/factory_bot/blob/master/GETTING_STARTED.md#associations)
 
 #### Use a sequence for unique values
-It's necessary to use a [sequence](https://github.com/thoughtbot/factory_girl/blob/master/GETTING_STARTED.md#sequences) for attributes which have to be unique like project.title or user.login.
+It's necessary to use a [sequence](https://github.com/thoughtbot/factory_bot/blob/master/GETTING_STARTED.md#sequences) for attributes which have to be unique like project.title or user.login.
 
 ```
 sequence(:login) { |n| "user_#{n}" }
@@ -91,7 +91,7 @@ let!(:user) { create(:confirmed_user, login: "proxy_user") }
 By passing ```login: "proxy_user"``` to the create statement, the username is now always proxy_user and not random (e.g. user_42).
 
 #### Factories should be the bare minimum
-Different to fixtures, factory girl runs through your ActiveRecord validations.
+Different to fixtures, factory bot runs through your ActiveRecord validations.
 That said, only add the bare minimum to your factory which is required to be valid.
 You can use an inherited factory to add or override attributes.
 
@@ -110,7 +110,7 @@ You can use an inherited factory to add or override attributes.
 See this [blog article](https://robots.thoughtbot.com/factories-should-be-the-bare-minimum) for a detailed explanation.
 
 #### When Transient Attributes make sense
-Use [transient attributes](https://github.com/thoughtbot/factory_girl/blob/master/GETTING_STARTED.md#transient-attributes) to DRY your factories.
+Use [transient attributes](https://github.com/thoughtbot/factory_bot/blob/master/GETTING_STARTED.md#transient-attributes) to DRY your factories.
 
 ```
   factory :project_with_package do

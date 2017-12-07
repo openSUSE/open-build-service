@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :attrib do
     attrib_type
     project

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :project do
     sequence(:name) { |n| "project_#{n}" }
     title { Faker::Book.title }
