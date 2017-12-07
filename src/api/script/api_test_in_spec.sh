@@ -74,12 +74,12 @@ bundle.ruby2.4 exec rake.ruby2.4 db:migrate:with_data db:structure:dump db:drop 
 export RAILS_ENV=test
 bundle.ruby2.4 exec rake.ruby2.4 db:create db:setup || exit 1
 
-for suite in "rake.ruby2.4 test:api" "rake.ruby2.4 test:spider" "rspec.ruby2.4"; do
+for suite in "rake.ruby2.4 test:api" "rake.ruby2.4 test:spider" "rspec"; do
   rm -f log/test.log
   bundle.ruby2.4 exec rails assets:precompile
 
   # Configure the frontend<->backend connection settings
-  if [ "$suite" = "rspec.ruby2.4" ]; then
+  if [ "$suite" = "rspec" ]; then
     perl -pi -e 's/source_host: localhost/source_host: backend/' config/options.yml
     perl -pi -e 's/source_port: 3200/source_port: 5352/' config/options.yml
   else
