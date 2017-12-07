@@ -1,5 +1,3 @@
-require 'event'
-
 class Webui::UserController < Webui::WebuiController
   before_action :check_display_user, only: [:show, :edit, :list_my, :delete, :confirm, :admin, :lock]
   before_action :require_login, only: [:edit, :save, :index]

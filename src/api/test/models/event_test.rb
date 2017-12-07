@@ -1,5 +1,4 @@
 require_relative '../test_helper'
-require 'event'
 require 'event_subscription'
 
 class EventTest < ActionDispatch::IntegrationTest

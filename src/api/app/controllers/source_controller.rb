@@ -2,7 +2,6 @@ include MaintenanceHelper
 include ValidationHelper
 
 require 'builder/xchar'
-require 'event'
 
 class SourceController < ApplicationController
   class IllegalRequest < APIException

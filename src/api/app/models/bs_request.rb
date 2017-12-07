@@ -1,5 +1,4 @@
 require 'xmlhash'
-require 'event'
 
 include MaintenanceHelper
 

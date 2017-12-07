@@ -1,14 +1,15 @@
 module Event
-  class Packtrack < Base
-    self.description = 'Binary was published'
-    payload_keys :project, :repo, :payload
-
-    # for package tracking in first place
-    create_jobs :update_released_binaries_job
+  class BranchCommand < Base
+    self.description = 'Package was branched'
+    payload_keys :project, :package, :sender, :targetproject, :targetpackage, :user
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key
-      "#{Configuration.amqp_namespace}.repo.packtrack"
+      "#{Configuration.amqp_namespace}.package.branch"
+    end
+
+    def subject
+      "Package Branched: #{payload['project']}/#{payload['package']} => #{payload['targetproject']}/#{payload['targetpackage']}"
     end
   end
 end

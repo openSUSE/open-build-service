@@ -1,4 +1,3 @@
-require 'event'
 require 'set'
 
 class Comment < ApplicationRecord

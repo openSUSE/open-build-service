@@ -1,14 +1,23 @@
 module Event
-  class Packtrack < Base
-    self.description = 'Binary was published'
-    payload_keys :project, :repo, :payload
+  class Commit < Base
+    self.description = 'New revision of a package was commited'
+    payload_keys :project, :package, :sender, :comment, :user, :files, :rev, :requestid
 
-    # for package tracking in first place
-    create_jobs :update_released_binaries_job
+    create_jobs :update_backend_infos_job
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key
-      "#{Configuration.amqp_namespace}.repo.packtrack"
+      "#{Configuration.amqp_namespace}.package.commit"
+    end
+
+    def subject
+      "#{payload['project']}/#{payload['package']} r#{payload['rev']} commited"
+    end
+
+    def set_payload(attribs, keys)
+      attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
+      attribs['files'] = attribs['files'][0..800] unless attribs['files'].blank?
+      super(attribs, keys)
     end
   end
 end

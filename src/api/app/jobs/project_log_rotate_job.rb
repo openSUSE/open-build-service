@@ -2,8 +2,25 @@ class ProjectLogRotateJob < ApplicationJob
   queue_as :project_log_rotate
 
   def perform
-    event_classes = [Event::Package, Event::Project]
-    event_types = event_classes.flat_map(&:descendants).map(&:name)
+    # Package and Project events
+    event_types = ["Event::BranchCommand",
+                   "Event::Build",
+                   "Event::CommentForPackage",
+                   "Event::Commit",
+                   "Event::CreatePackage",
+                   "Event::DeletePackage",
+                   "Event::ServiceFail",
+                   "Event::ServiceSuccess",
+                   "Event::UndeletePackage",
+                   "Event::UpdatePackage",
+                   "Event::Upload",
+                   "Event::VersionChange",
+                   "Event::CommentForProject",
+                   "Event::CreateProject",
+                   "Event::DeleteProject",
+                   "Event::UndeleteProject",
+                   "Event::UpdateProjectConfig",
+                   "Event::UpdateProject"]
     oldest_date = 10.days.ago
 
     # First, skip old events and mark them all as "logged" (even those that

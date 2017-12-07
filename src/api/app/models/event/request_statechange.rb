@@ -1,14 +1,16 @@
 module Event
-  class Packtrack < Base
-    self.description = 'Binary was published'
-    payload_keys :project, :repo, :payload
-
-    # for package tracking in first place
-    create_jobs :update_released_binaries_job
+  class RequestStatechange < Request
+    self.description = 'Request state was changed'
+    payload_keys :oldstate
+    receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher
     after_create_commit :send_to_bus
 
     def self.message_bus_routing_key
-      "#{Configuration.amqp_namespace}.repo.packtrack"
+      "#{Configuration.amqp_namespace}.request.state_change"
+    end
+
+    def subject
+      "Request #{payload['number']} changed to #{payload['state']} (#{actions_summary})"
     end
   end
 end

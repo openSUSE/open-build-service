@@ -1,5 +1,3 @@
-require_dependency 'event/all'
-
 include MaintenanceHelper
 
 class RequestController < ApplicationController

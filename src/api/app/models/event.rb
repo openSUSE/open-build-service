@@ -1,1 +1,2 @@
-require_relative 'event/all'
+module Event
+end
