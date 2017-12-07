@@ -86,7 +86,7 @@ for suite in "rake.ruby2.4 test:api" "rake.ruby2.4 test:spider" "rspec"; do
     perl -pi -e 's/source_host: backend/source_host: localhost/' config/options.yml
     perl -pi -e 's/source_port: 5352/source_port: 3200/' config/options.yml
   fi
-  if ! bundle.ruby2.4 exec $suite; then
+  if ! (set -x; bundle.ruby2.4 exec $suite); then
     # dump log only in package builds
     [[ -n "$RPM_BUILD_ROOT" ]] && cat log/test.log
     kill_memcached
