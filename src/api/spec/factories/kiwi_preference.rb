@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :kiwi_preference, class: Kiwi::Preference do
     version '2.0'
     type_image 'docker'
