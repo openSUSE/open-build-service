@@ -1,8 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe ProjectLogRotateJob, type: :job do
-  include ActiveJob::TestHelper
-
   describe '#perform' do
     let!(:user1) { create(:confirmed_user) }
     let!(:user2) { create(:confirmed_user) }
@@ -18,8 +16,6 @@ RSpec.describe ProjectLogRotateJob, type: :job do
         )
       end
     end
-
-    subject! { ProjectLogRotateJob.new.perform }
 
     it 'creates a ProjectLogEntry' do
       expect(ProjectLogEntry.count).to eq(10)
