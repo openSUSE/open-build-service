@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ProjectLogRotateJob, type: :job do
+RSpec.describe CreateProjectLogEntryJob, type: :job do
   describe '#perform' do
     let!(:user1) { create(:confirmed_user) }
     let!(:user2) { create(:confirmed_user) }

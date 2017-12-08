@@ -1,4 +1,4 @@
-class ProjectLogRotateJob < ApplicationJob
+class CreateProjectLogEntryJob < ApplicationJob
   queue_as :project_log_rotate
 
   def perform(event_id)

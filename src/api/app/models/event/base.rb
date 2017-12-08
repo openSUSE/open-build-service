@@ -8,7 +8,7 @@ module Event
     self.table_name = 'events'
 
     before_save :shorten_payload_if_necessary
-    after_create :create_project_log_rotate_job, if: -> { (PROJECT_CLASSES | PACKAGE_CLASSES).include?(self.class.name) }
+    after_create :create_project_log_entry_job, if: -> { (PROJECT_CLASSES | PACKAGE_CLASSES).include?(self.class.name) }
 
     EXPLANATION_FOR_NOTIFICATIONS =  {
       'Event::BuildFail'          => 'Receive notifications of build failures for packages for which you are...',
@@ -159,8 +159,8 @@ module Event
       @payload ||= Yajl::Parser.parse(read_attribute(:payload))
     end
 
-    def create_project_log_rotate_job
-      ProjectLogRotateJob.perform_later(id)
+    def create_project_log_entry_job
+      CreateProjectLogEntryJob.perform_later(id)
     end
 
     after_create :perform_create_jobs
