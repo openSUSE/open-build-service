@@ -370,7 +370,7 @@ class BsRequestPermissionCheck
 
   attr_accessor :opts, :req
 
-# check if the request can change state - or throw an APIException if not
+  # check if the request can change state - or throw an APIException if not
   def initialize(_req, _opts)
     self.req = _req
     self.opts = _opts
@@ -379,7 +379,7 @@ class BsRequestPermissionCheck
     @write_permission_in_target = false
   end
 
-# Is the user involved in any project or package ?
+  # Is the user involved in any project or package ?
   def require_permissions_in_target_or_source
     unless @write_permission_in_target || @write_permission_in_source
       raise AddReviewNotPermitted, "You have no role in request #{req.number}"
@@ -391,14 +391,14 @@ class BsRequestPermissionCheck
     err =
       case opts[:newstate]
       when 'superseded'
-          # Is the user involved in any project or package ?
+        # Is the user involved in any project or package ?
         unless @write_permission_in_target || @write_permission_in_source
           "You have no role in request #{req.number}"
         end
       when 'accepted'
-          # requires write permissions in all targets, this is already handled in each action check
+      # requires write permissions in all targets, this is already handled in each action check
       when 'revoked'
-          # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request
+        # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request
         unless @write_permission_in_source
           "No permission to revoke request #{req.number}"
         end

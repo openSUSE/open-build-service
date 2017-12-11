@@ -1399,9 +1399,9 @@ XML
     post '/request?cmd=create', params: rq
     assert_response :success
 
-# FIXME: test with request without target
+    # FIXME: test with request without target
 
-# cleanup
+    # cleanup
     delete '/source/home:Iggy/TestPack/_attribute/OBS:RejectRequests'
     assert_response :success
   end

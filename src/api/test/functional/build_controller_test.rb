@@ -178,12 +178,12 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     # buildinfo = ActiveXML::Node.new(@response.body)
 
     # find scheduler job and compare it with buildinfo
-# FIXME: to be implemented, compare scheduler job with rep server job
-#   jobfile=File.new("#{ENV['OBS_BACKEND_TEMP']}/data/jobs/i586/home:Iggy::10.2::TestPack-#{srcmd5}")
-#   schedulerjob = Document.new(jobfile).root
-#   schedulerjob.elements.each do |jobnode|
-#     puts "test", jobnode.inspect
-#   end
+    # FIXME: to be implemented, compare scheduler job with rep server job
+    #   jobfile=File.new("#{ENV['OBS_BACKEND_TEMP']}/data/jobs/i586/home:Iggy::10.2::TestPack-#{srcmd5}")
+    #   schedulerjob = Document.new(jobfile).root
+    #   schedulerjob.elements.each do |jobnode|
+    #     puts "test", jobnode.inspect
+    #   end
   end
 
   def test_builddepinfo
@@ -255,9 +255,9 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( tag: "buildinfo" )
 
-# backend bug?
-#    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild_not_here"
-#    assert_response 404
+    # backend bug?
+    #    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild_not_here"
+    #    assert_response 404
     get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild_not_here/_log"
     assert_response 404
   end

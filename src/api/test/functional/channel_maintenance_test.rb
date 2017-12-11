@@ -16,11 +16,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     Timecop.return
   end
 
-#
-# This is one large test, which is running a full maintenance update
-# This includes product channels
-# And it is doing a following up update, based on released updates
-#
+  #
+  # This is one large test, which is running a full maintenance update
+  # This includes product channels
+  # And it is doing a following up update, based on released updates
+  #
   def test_large_channel_test
     login_king
     put '/source/BaseDistro3/pack2/file', params: 'NOOP'

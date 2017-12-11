@@ -72,8 +72,8 @@ module Suse
         when Hash, HashWithIndifferentAccess
           schema_file = get_schema(opt).to_s
         when ActionController::Parameters
-            # TODO: Once everything else works test if we can move this to
-            #       app/controllers/application_controller.rb:538
+          # TODO: Once everything else works test if we can move this to
+          #       app/controllers/application_controller.rb:538
           schema_file = get_schema(opt.to_unsafe_h.with_indifferent_access).to_s
         else
           raise "illegal option; need Hash/Symbol/String, seen: #{opt.class.name}"

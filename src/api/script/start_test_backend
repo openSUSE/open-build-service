@@ -365,8 +365,8 @@ at_exit do
   servicesrv_out.close
   servicesrv_out = nil
   servicesrv.join
-#  FileUtils.rm_rf("#{backend_data}")
-#  FileUtils.rm_rf("#{backend_config}")
+  #  FileUtils.rm_rf("#{backend_data}")
+  #  FileUtils.rm_rf("#{backend_config}")
   File.delete(schedulerdone_file) if File.exist?(schedulerdone_file)
 end
 

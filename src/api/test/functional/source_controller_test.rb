@@ -442,13 +442,13 @@ EOF
     resp2 = :success # \/ expected assert
     aresp = { tag: 'status', attributes: { code: 'ok' } }
     match = true # value written matches 2nd read
-               # admin
+    # admin
     login_king
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
-               # maintainer
+    # maintainer
     login_fred
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
-               # maintainer via group
+    # maintainer via group
     login_adrian
     do_change_project_meta_test(prj, resp1, resp2, aresp, match)
 
@@ -638,7 +638,7 @@ EOF
       # dummy write to check blocking
       put url_for(controller: :source, action: :update_project_meta, project: project), params: "<project name=\"#{project}\"><title></title><description></description></project>"
       assert_response 403 # 4
-                          #      assert_match(/unknown_project/, @response.body)
+      #      assert_match(/unknown_project/, @response.body)
       assert_match(/create_project_no_permission/, @response.body)
       return
     end
@@ -962,7 +962,7 @@ EOF
       # dummy write to check blocking
       put url_for(controller: :source, action: :update_package_meta, project: project, package: package), params: '<package><title></title><description></description></package>'
       assert_response 404
-#      assert_match(/unknown_package/, @response.body)
+      #      assert_match(/unknown_package/, @response.body)
       assert_match(/unknown_project/, @response.body)
       return
     end
@@ -1129,8 +1129,8 @@ EOF
     assert_no_xml_tag tag: 'path', attributes: { project: 'RemoteInstance:home:tom:projecta' }
 
     if @ENABLE_BROKEN_TEST
-# FIXME: the case insensitive database select is not okay.
-# and switch letter again
+      # FIXME: the case insensitive database select is not okay.
+      # and switch letter again
       put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projecta' repository='repoA' /> </repository> </project>"
       assert_response 404
       assert_xml_tag tag: 'status', attributes: { code: 'unknown_project' }
@@ -1359,7 +1359,7 @@ EOF
       # dummy write to check blocking
       put url_for(controller: :source, action: :update_package_meta, project: project, package: package), params: "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response 404
-#      assert_match(/unknown_package/, @response.body)
+      #      assert_match(/unknown_package/, @response.body)
       assert_match(/unknown_project/, @response.body)
       return
     end
@@ -1385,7 +1385,7 @@ EOF
     atag2 = { tag: 'status', attributes: { code: 'ok' } } # assert_xml_tag after response #2
     resp3 = :success # assert respons #3
     asel3 = 'package > build > enable' # assert_select after response #3
-               # user without any special roles
+    # user without any special roles
     login_fred
     do_test_change_package_meta(prj, pkg, resp1, resp2, atag2, resp3, asel3)
   end

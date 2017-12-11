@@ -270,7 +270,7 @@ module Webui
 
     setup do
       Capybara.current_driver = :rack_test
-# crude work around - one day I will dig into why this is necessary
+      # crude work around - one day I will dig into why this is necessary
       Minitest::Spec.new('MINE') unless Minitest::Spec.current
       Backend::Test.start
       # Capybara.current_driver = Capybara.javascript_driver

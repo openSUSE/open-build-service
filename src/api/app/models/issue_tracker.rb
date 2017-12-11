@@ -87,9 +87,9 @@ class IssueTracker < ApplicationRecord
 
     # skip callbacks to avoid scheduling expensive jobs
 
-# rubocop:disable Rails/SkipsModelValidations
+    # rubocop:disable Rails/SkipsModelValidations
     update_columns(issues_updated: @update_time_stamp)
-# rubocop:enable Rails/SkipsModelValidations
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def update_issues_github
@@ -111,9 +111,9 @@ class IssueTracker < ApplicationRecord
     parse_github_issues(ActiveSupport::JSON.decode(response.body))
 
     # we skip callbacks to avoid scheduling expensive jobs
-# rubocop:disable Rails/SkipsModelValidations
+    # rubocop:disable Rails/SkipsModelValidations
     update_columns(issues_updated: mtime - 1.second)
-# rubocop:enable Rails/SkipsModelValidations
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def update_issues_cve
@@ -135,9 +135,9 @@ class IssueTracker < ApplicationRecord
     parser = Nokogiri::XML::SAX::Parser.new(listener)
     parser.parse_io(unzipedio)
     # we skip callbacks to avoid scheduling expensive jobs
-# rubocop:disable Rails/SkipsModelValidations
+    # rubocop:disable Rails/SkipsModelValidations
     update_columns(issues_updated: mtime - 1.second)
-# rubocop:enable Rails/SkipsModelValidations
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def update_issues
@@ -162,9 +162,9 @@ class IssueTracker < ApplicationRecord
     if private_fetch_issues(ids)
       # don't use "last_change_time" from bugzilla, since we may have different clocks
       # and skip callbacks to avoid scheduling expensive jobs
-# rubocop:disable Rails/SkipsModelValidations
+      # rubocop:disable Rails/SkipsModelValidations
       update_columns(issues_updated: @update_time_stamp)
-# rubocop:enable Rails/SkipsModelValidations
+      # rubocop:enable Rails/SkipsModelValidations
       return true
     end
     false
@@ -232,10 +232,10 @@ class IssueTracker < ApplicationRecord
     end
 
     if bugzilla_response["creation_time"].present?
-# rubocop:disable Rails/Date
-# rubocop bug, this is XMLRPC/DateTime not Rails/Date
+      # rubocop:disable Rails/Date
+      # rubocop bug, this is XMLRPC/DateTime not Rails/Date
       issue.created_at = bugzilla_response["creation_time"].to_time
-# rubocop:enable Rails/Date
+    # rubocop:enable Rails/Date
     else
       issue.created_at = Time.now
     end

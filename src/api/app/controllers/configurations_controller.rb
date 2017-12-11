@@ -6,8 +6,8 @@ class ConfigurationsController < ApplicationController
   skip_before_action :validate_params, only: [:update] # we use an array for archs here
 
   validate_action show: {method: :get, response: :configuration}
-# webui is using this route with parameters instead of content
-#  validate_action :update => {:method => :put, :request => :configuration}
+  # webui is using this route with parameters instead of content
+  #  validate_action :update => {:method => :put, :request => :configuration}
 
   # GET /configuration
   # GET /configuration.xml

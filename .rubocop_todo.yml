@@ -6,11 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 68
-# Cop supports --auto-correct.
-Layout/CommentIndentation:
-  Enabled: false
-
 # Offense count: 78
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.

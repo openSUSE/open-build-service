@@ -32,8 +32,8 @@ class BinaryRelease < ApplicationRecord
 
   def self.update_binary_releases_via_json(repository, json, time = Time.now)
     oldlist = where(repository: repository, obsolete_time: nil, modify_time: nil)
-    processed_item = {} # we can not just remove it from relation
-                        # delete would affect the object
+    # we can not just remove it from relation, delete would affect the object.
+    processed_item = {}
 
     BinaryRelease.transaction do
       json.each do |binary|
@@ -59,7 +59,7 @@ class BinaryRelease < ApplicationRecord
           if entry.binary_disturl                   == binary["disturl"] &&
              entry.binary_supportstatus             == binary["supportstatus"] &&
              entry.binary_buildtime.to_datetime.utc == ::Time.at(binary["buildtime"].to_i).to_datetime.utc
-             # same binary, don't touch
+            # same binary, don't touch
             processed_item[entry.id] = true
             next
           end

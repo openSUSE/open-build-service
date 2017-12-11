@@ -416,8 +416,8 @@ class XpathEngine
             stack.shift
           else
             parse_predicate(root, t)
-#            stack.shift
-#            raise IllegalXpathError, "unhandled token in :qname '#{t.inspect}'"
+            #            stack.shift
+            #            raise IllegalXpathError, "unhandled token in :qname '#{t.inspect}'"
           end
           root.pop
         elsif t == :any
