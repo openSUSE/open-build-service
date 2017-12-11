@@ -26,10 +26,6 @@ Layout/AlignHash:
   # inspected?
   EnforcedLastArgumentHashStyle: ignore_implicit
 
-# Alignment of parameters in multi-line method calls.
-Layout/AlignParameters:
-  EnforcedStyle: with_first_parameter
-
 #################### Style ###########################
 
 # Find uses of alias where alias_method would be more appropriate (or is simply preferred due to configuration), and vice versa.
