@@ -730,9 +730,10 @@ sub findtarfiles {
   if (@names) {
     # strip first dir if it is the same for all files
     my $l1 = $names[0];
-    $l1 =~ s/\/.*//s;
-    if (!grep {!($_ eq $l1 || $_ =~ /^\Q$l1\E\//)} @names) {
-      s/^[^\/]*\/?// for @names;
+    if ($l1 =~ s/\/.*//s) {
+      if (!grep {!($_ eq $l1 || $_ =~ /^\Q$l1\E\//)} @names) {
+        s/^[^\/]*\/?// for @names;
+      }
     }
   }
   # exclude some files
