@@ -3840,7 +3840,7 @@ EOF
 
     get '/source/home:Iggy/_meta'
     assert_equal({ 'disable' => [{ 'arch' => 'i586', 'repository' => '10.2' },
-                              { 'arch' => 'x86_64', 'repository' => '10.2' }],
+                                 { 'arch' => 'x86_64', 'repository' => '10.2' }],
                    'enable'  => [{ 'arch' => 'i586', 'repository' => '10.7' }, {}]},
                  Xmlhash.parse(@response.body)['build'])
 
