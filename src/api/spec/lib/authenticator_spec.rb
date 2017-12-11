@@ -37,7 +37,6 @@ RSpec.describe Authenticator do
     end
 
     context 'in kerberos mode' do
-      let(:gssapi_mock) { double(:gssapi) }
       let(:request_mock) { double(:request, env: { 'Authorization' => 'Negotiate'}) }
 
       before do
