@@ -111,10 +111,11 @@ module Backend
         # @option options [String] :linkrev Use the revision of the linked package.
         # @option options [String] :olinkrev Use the origin revision of the linked package.
         # @option options [String] :expand Expand sources.
+        # @option options [String] :filelimit Sets the maximum lines of the diff which will be returned (0 = all lines)
         # @return [String]
         def self.source_diff(project_name, package_name, options = {})
           post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff, view: :xml, withissues: 1 },
-               params: options, accepted: [:rev, :orev, :opackage, :oproject, :linkrev, :olinkrev, :expand])
+               params: options, accepted: [:rev, :orev, :opackage, :oproject, :linkrev, :olinkrev, :expand, :filelimit])
         end
 
         # Runs the command rebuild for that package
