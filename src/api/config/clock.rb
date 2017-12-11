@@ -20,10 +20,6 @@ module Clockwork
     SendEventEmailsJob.perform_later
   end
 
-  every(10.minutes, 'project log rotates') do
-    ProjectLogRotateJob.perform_later
-  end
-
   every(49.minutes, 'rescale history') do
     StatusHistoryRescalerJob.perform_later
   end
