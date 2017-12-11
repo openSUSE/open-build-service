@@ -38,13 +38,11 @@ Style/CommandLiteral:
   EnforcedStyle: percent_x
 
 # Checks for chaining of a block after another block that spans multiple lines.
+# We disabled this cop because of Rantly.
 Style/MultilineBlockChain:
   Exclude:
-    - 'src/api/spec/models/project_spec.rb'
-    - 'src/api/spec/models/package_spec.rb'
-    - 'src/api/spec/helpers/webui/package_helper_spec.rb'
-    - 'src/api/spec/models/kiwi/repository_spec.rb'
-    
+    - 'src/api/spec/**/*'
+
 # Checks for redundant `return` expressions
 Style/RedundantReturn:
   Enabled: false
