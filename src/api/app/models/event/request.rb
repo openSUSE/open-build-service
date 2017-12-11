@@ -134,8 +134,8 @@ module Event
 
     def find_watchers(project_key)
       project_names = payload['actions'].map { |action| action[project_key] }.uniq
-      projects = Project.where(name: project_names).joins(watched_projects: :user)
-      projects.flat_map { |project| project.watched_projects.map(&:user) }
+      watched_projects = WatchedProject.where(project: Project.where(name: project_names))
+      User.where(id: watched_projects.select(:user_id))
     end
   end
 end
