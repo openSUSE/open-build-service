@@ -615,8 +615,7 @@ function setup_registry {
 ### Configuration added by $0
 our \$container_registries = {
    'localhost' => {
-     host => 'localhost',
-     port => 444,
+     server => 'https://localhost:444'
      user => 'ignored',
      password => 'ignored',
      # Please be aware of the trailing slash
