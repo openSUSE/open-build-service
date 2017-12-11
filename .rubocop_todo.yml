@@ -13,12 +13,6 @@
 Layout/DotPosition:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/EmptyLinesAroundBeginBody:
-  Exclude:
-    - 'src/api/app/controllers/webui/patchinfo_controller.rb'
-
 # Offense count: 35
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.

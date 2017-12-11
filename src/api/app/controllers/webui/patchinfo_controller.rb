@@ -247,7 +247,6 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
       if issue.length > 1
         begin
-
           issueurl = IssueTracker.find_by_name(issue[0])
           if issueurl
             Rails.logger.debug "URL2 #{issueurl.inspect}"
