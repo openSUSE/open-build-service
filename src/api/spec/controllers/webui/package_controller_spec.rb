@@ -455,16 +455,16 @@ RSpec.describe Webui::PackageController, vcr: true do
           expect { source_package.source_file("remote_file") }.to raise_error ActiveXML::Transport::NotFoundError
 
           created_service = source_package.source_file("_service")
-          expect(created_service).to eq(<<-EOT.strip)
-<services>
-  <service name="download_url">
-    <param name="host">raw.github.com</param>
-    <param name="protocol">https</param>
-    <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
-    <param name="filename">remote_file</param>
-  </service>
-</services>
-EOT
+          expect(created_service).to eq(<<-EOT.strip_heredoc.strip)
+            <services>
+              <service name="download_url">
+                <param name="host">raw.github.com</param>
+                <param name="protocol">https</param>
+                <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+                <param name="filename">remote_file</param>
+              </service>
+            </services>
+          EOT
         end
       end
     end

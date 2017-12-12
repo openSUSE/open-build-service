@@ -20,16 +20,16 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_set_and_get_1
     login_king
 
-    xml = <<-XML
-<request>
-  <action type='submit'>
-    <source project='home:Iggy' package='TestPack' rev='2'/>
-    <target project='kde4' package='wpa_supplicant'/>
-  </action>
-  <description/>
-  <state name='new' who='tom' when='2011-12-02T17:20:42'/>
-</request>
-XML
+    xml = <<-XML.strip_heredoc
+      <request>
+        <action type='submit'>
+          <source project='home:Iggy' package='TestPack' rev='2'/>
+          <target project='kde4' package='wpa_supplicant'/>
+        </action>
+        <description/>
+        <state name='new' who='tom' when='2011-12-02T17:20:42'/>
+      </request>
+    XML
     post '/request?cmd=create', params: xml
     assert_response :success
     new_request_id = BsRequest.last.number

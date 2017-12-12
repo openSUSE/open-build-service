@@ -20,21 +20,6 @@ Layout/DotPosition:
 Layout/IndentHash:
   Enabled: false
 
-# Offense count: 16
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: auto_detection, squiggly, active_support, powerpack, unindent
-Layout/IndentHeredoc:
-  Exclude:
-    - 'src/api/spec/controllers/webui/package_controller_spec.rb'
-    - 'src/api/spec/support/shared_contexts/a_kiwi_image_xml.rb'
-    - 'src/api/spec/support/shared_contexts/an_invalid_kiwi_image_xml.rb'
-    - 'src/api/test/functional/person_controller_test.rb'
-    - 'src/api/test/functional/request_controller_test.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
-    - 'src/api/test/unit/bs_request_test.rb'
-    - 'src/api/test/unit/project_test.rb'
-
 # Offense count: 8
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.

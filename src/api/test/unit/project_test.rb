@@ -634,20 +634,20 @@ class ProjectTest < ActiveSupport::TestCase
     User.current = users( :Iggy )
     orig = @project.render_xml
 
-    xml = <<END
-<project name="home:Iggy">
-  <title>Iggy"s Home Project</title>
-  <description>dummy</description>
-  <repository name="remote_1">
-    <path project="RemoteInstance:remote_project_1" repository="standard"/>
-    <arch>i586</arch>
-  </repository>
-  <repository name="remote_1">
-    <path project="RemoteInstance:remote_project_1" repository="standard"/>
-    <arch>x86_64</arch>
-  </repository>
-</project>
-END
+    xml = <<-END.strip_heredoc
+      <project name="home:Iggy">
+        <title>Iggy"s Home Project</title>
+        <description>dummy</description>
+        <repository name="remote_1">
+          <path project="RemoteInstance:remote_project_1" repository="standard"/>
+          <arch>i586</arch>
+        </repository>
+        <repository name="remote_1">
+          <path project="RemoteInstance:remote_project_1" repository="standard"/>
+          <arch>x86_64</arch>
+        </repository>
+      </project>
+    END
     axml = Xmlhash.parse(xml)
     assert_raise(ActiveRecord::RecordInvalid) do
       Project.transaction do
@@ -660,22 +660,22 @@ END
 
   test "not duplicated repos with remote" do
     User.current = users( :Iggy )
-    xml = <<END
-<project name="home:Iggy">
-  <title>Iggy"s Home Project</title>
-  <description>dummy</description>
-  <repository name="remote_2">
-    <path project="RemoteInstance:remote_project_2" repository="standard"/>
-    <arch>x86_64</arch>
-    <arch>i586</arch>
-  </repository>
-  <repository name="remote_1">
-    <path project="RemoteInstance:remote_project_1" repository="standard"/>
-    <arch>x86_64</arch>
-    <arch>i586</arch>
-  </repository>
-</project>
-END
+    xml = <<-END.strip_heredoc
+      <project name="home:Iggy">
+        <title>Iggy"s Home Project</title>
+        <description>dummy</description>
+        <repository name="remote_2">
+          <path project="RemoteInstance:remote_project_2" repository="standard"/>
+          <arch>x86_64</arch>
+          <arch>i586</arch>
+        </repository>
+        <repository name="remote_1">
+          <path project="RemoteInstance:remote_project_1" repository="standard"/>
+          <arch>x86_64</arch>
+          <arch>i586</arch>
+        </repository>
+      </project>
+    END
     axml = Xmlhash.parse(xml)
     Project.transaction do
       @project.update_from_xml!(axml)
