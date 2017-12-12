@@ -1060,13 +1060,3 @@ Style/TrivialAccessors:
 # SupportedStyles: percent, brackets
 Style/WordArray:
   Enabled: false
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: all_comparison_operators, equality_operators_only
-Style/YodaCondition:
-  Exclude:
-    - 'src/api/app/mixins/request_source_diff.rb'
-    - 'src/api/app/models/bs_request.rb'
-    - 'src/api/app/models/bs_request_permission_check.rb'
