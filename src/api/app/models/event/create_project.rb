@@ -16,24 +16,21 @@ end
 
 # == Schema Information
 #
-# Table name: projects
+# Table name: events
 #
-#  id              :integer          not null, primary key
-#  name            :string(200)      not null, indexed
-#  title           :string(255)
-#  description     :text(65535)
-#  created_at      :datetime
-#  updated_at      :datetime         indexed
-#  remoteurl       :string(255)
-#  remoteproject   :string(255)
-#  develproject_id :integer          indexed
-#  delta           :boolean          default(TRUE), not null
-#  kind            :string(20)       default("standard")
-#  url             :string(255)
+#  id             :integer          not null, primary key
+#  eventtype      :string(255)      not null, indexed
+#  payload        :text(65535)
+#  created_at     :datetime         indexed
+#  updated_at     :datetime
+#  project_logged :boolean          default(FALSE), indexed
+#  undone_jobs    :integer          default(0)
+#  mails_sent     :boolean          default(FALSE), indexed
 #
 # Indexes
 #
-#  devel_project_id_index  (develproject_id)
-#  projects_name_index     (name) UNIQUE
-#  updated_at_index        (updated_at)
+#  index_events_on_created_at      (created_at)
+#  index_events_on_eventtype       (eventtype)
+#  index_events_on_mails_sent      (mails_sent)
+#  index_events_on_project_logged  (project_logged)
 #
