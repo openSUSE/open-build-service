@@ -375,7 +375,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     # rubocop:enable Metrics/LineLength
 
-    get "/search/request", params: { match:  "(review[@state='new' and @by_user='adrian'])" }
+    get "/search/request", params: { match: "(review[@state='new' and @by_user='adrian'])" }
     assert_response :success
 
     # FIXME: Similar to test/functional/request_controller_test.rb

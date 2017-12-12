@@ -13,17 +13,6 @@
 Layout/DotPosition:
   Enabled: false
 
-# Offense count: 13
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.
-Layout/ExtraSpacing:
-  Exclude:
-    - 'src/api/lib/xpath_engine.rb'
-    - 'src/api/test/functional/binary_release_test.rb'
-    - 'src/api/test/functional/channel_maintenance_test.rb'
-    - 'src/api/test/functional/search_controller_test.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
-
 # Offense count: 26
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.

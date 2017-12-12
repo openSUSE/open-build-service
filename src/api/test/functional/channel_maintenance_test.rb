@@ -757,9 +757,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     UpdateNotificationEvents.new.perform
     get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']" }
     assert_response :success
-    assert_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package_newweaktags', version: "1.0", release: "1", arch: "x86_64" } },
+    assert_xml_tag parent: { tag: 'binary', attributes: { name: 'package_newweaktags', version: "1.0", release: "1", arch: "x86_64" } },
                    tag: 'publish', attributes: { package: "pack2" }
-    assert_no_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package_newweaktags', version: "1.0", release: "1", arch: "i586" } },
+    assert_no_xml_tag parent: { tag: 'binary', attributes: { name: 'package_newweaktags', version: "1.0", release: "1", arch: "i586" } },
                    tag: 'obsolete'
     assert_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package', version: "1.0", release: "1", arch: "i586" } },
                    tag: 'build', attributes: { time: "2014-07-03 12:26:54 UTC" }
@@ -788,7 +788,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" }
     assert_xml_tag tag: 'binary', attributes:            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "src" }
-    assert_xml_tag tag: 'updateinfo', attributes:            { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", version: "1" }
+    assert_xml_tag tag: 'updateinfo', attributes: { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", version: "1" }
 
     # drop and re-release manual release and try again
     prj = Project.find_by_name('My:Maintenance:0')
