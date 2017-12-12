@@ -65,7 +65,9 @@ module Kiwi
       end
 
       def add_preference_type_containerconfig(document)
-        document.xpath('image/preferences/type').first.add_child(@image.preference.containerconfig_xml)
+        if @image.preference.type_containerconfig_tag.present? || @image.preference.type_containerconfig_name.present?
+          document.xpath('image/preferences/type').first.add_child(@image.preference.containerconfig_xml)
+        end
         document
       end
 

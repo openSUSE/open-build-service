@@ -216,6 +216,28 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
           expect(subject.xpath('.//image/preferences/version').first).not_to be_nil
         end
       end
+
+      context 'with preference type_image = "docker" but without containerconfig attributes' do
+        let(:kiwi_preference) do
+          create(
+            :kiwi_preference,
+            type_image: 'docker',
+            type_containerconfig_name: nil,
+            type_containerconfig_tag: nil
+          )
+        end
+
+        before do
+          kiwi_image.preference = kiwi_preference
+          kiwi_image.save
+        end
+
+        subject { kiwi_image.to_xml }
+
+        it 'output the xml without any mention of containerconfig' do
+          expect(subject).not_to include('<containerconfig')
+        end
+      end
     end
 
     context 'without kiwi image file' do
