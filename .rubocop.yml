@@ -26,10 +26,6 @@ Layout/AlignHash:
   # inspected?
   EnforcedLastArgumentHashStyle: ignore_implicit
 
-# Alignment of parameters in multi-line method calls.
-Layout/AlignParameters:
-  EnforcedStyle: with_first_parameter
-
 #################### Style ###########################
 
 # Find uses of alias where alias_method would be more appropriate (or is simply preferred due to configuration), and vice versa.
@@ -42,13 +38,11 @@ Style/CommandLiteral:
   EnforcedStyle: percent_x
 
 # Checks for chaining of a block after another block that spans multiple lines.
+# We disabled this cop because of Rantly.
 Style/MultilineBlockChain:
   Exclude:
-    - 'src/api/spec/models/project_spec.rb'
-    - 'src/api/spec/models/package_spec.rb'
-    - 'src/api/spec/helpers/webui/package_helper_spec.rb'
-    - 'src/api/spec/models/kiwi/repository_spec.rb'
-    
+    - 'src/api/spec/**/*'
+
 # Checks for redundant `return` expressions
 Style/RedundantReturn:
   Enabled: false
@@ -77,11 +71,6 @@ Metrics/ModuleLength:
 Lint/EndAlignment:
   EnforcedStyleAlignWith: variable
 
-# Checks for nested method definitions
-Lint/NestedMethodDefinition:
-  Exclude:
-    - 'src/api/test/functional/tag_controller_test.rb'
-
 ##################### Rails ##################################
 
 Rails:
@@ -91,14 +80,6 @@ Rails:
 Rails/Exit:
   Exclude:
     - 'src/api/lib/memory_dumper.rb'
-
-# Requires each table column to have a default value
-Rails/NotNullColumn:
-  Exclude:
-    - 'src/api/db/migrate/20121121142111_watchlist_use_ids.rb'
-    - 'src/api/db/migrate/20131020151037_make_comment_users_ids.rb'
-    - 'src/api/db/migrate/20131027122410_add_primary_to_repository_architectures.rb'
-    - 'src/api/db/migrate/20131209103450_add_primary_to_groups_users.rb'
 
 # Checks for the use of output calls like puts and print
 Rails/Output:
