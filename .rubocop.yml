@@ -81,14 +81,6 @@ Rails/Exit:
   Exclude:
     - 'src/api/lib/memory_dumper.rb'
 
-# Requires each table column to have a default value
-Rails/NotNullColumn:
-  Exclude:
-    - 'src/api/db/migrate/20121121142111_watchlist_use_ids.rb'
-    - 'src/api/db/migrate/20131020151037_make_comment_users_ids.rb'
-    - 'src/api/db/migrate/20131027122410_add_primary_to_repository_architectures.rb'
-    - 'src/api/db/migrate/20131209103450_add_primary_to_groups_users.rb'
-
 # Checks for the use of output calls like puts and print
 Rails/Output:
   Exclude:
