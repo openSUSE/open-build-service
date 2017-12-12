@@ -1,5 +1,5 @@
 desc 'Run project log rotate job manually'
-task :project_log_rotate_manually do
+task(project_log_rotate_manually: :environment) do
   event_types = Event::PROJECT_CLASSES | Event::PACKAGE_CLASSES
   oldest_date = 10.days.ago
 
