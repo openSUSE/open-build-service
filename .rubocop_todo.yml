@@ -20,15 +20,6 @@ Layout/DotPosition:
 Layout/IndentHash:
   Enabled: false
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: Width, IgnoredPatterns.
-Layout/IndentationWidth:
-  Exclude:
-    - 'src/api/app/views/person/tokenlist.xml.builder'
-    - 'src/api/app/views/public/binary_packages.xml.builder'
-    - 'src/api/app/views/search/owner.xml.builder'
-
 # Offense count: 29
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.

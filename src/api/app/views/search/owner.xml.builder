@@ -18,7 +18,7 @@ xml.collection do
         end
         if o[:groups] && o[:groups][role]
           o[:groups][role].each do |group|
-          xml.group( :name => group, :role => role )
+            xml.group( :name => group, :role => role )
           end
         end
       end
