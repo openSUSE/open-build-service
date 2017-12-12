@@ -15,8 +15,8 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/issue_trackers/bnc'
     assert_response :success
-#    get '/issue_trackers/bnc/issues'
-#    assert_response :success
+    #    get '/issue_trackers/bnc/issues'
+    #    assert_response :success
     get '/issue_trackers/bnc/issues/123456'
     assert_response :success
     assert_xml_tag tag: 'name', content: "123456"

@@ -50,7 +50,7 @@ class ProjectTest < ActiveSupport::TestCase
           <arch>x86_64</arch>
         </repository>
        </project>"
-      )
+    )
 
     project.update_from_xml(axml)
     project.store
@@ -143,7 +143,7 @@ class ProjectTest < ActiveSupport::TestCase
           <arch>x86_64</arch>
         </repository>
        </project>"
-      )
+    )
 
     project.update_from_xml!(axml)
     project.store
@@ -280,7 +280,7 @@ class ProjectTest < ActiveSupport::TestCase
           <arch>x86_64</arch>
         </repository>
        </project>"
-      )
+    )
 
     project2.update_from_xml(axml)
     project2.store
@@ -410,7 +410,7 @@ class ProjectTest < ActiveSupport::TestCase
           <disable repository='10.0' arch='i586'/>
         </debuginfo>
       </project>"
-      )
+    )
 
     position = 1
     %w(build publish debuginfo).each do |flagtype|
@@ -459,7 +459,7 @@ class ProjectTest < ActiveSupport::TestCase
         <title>Iggy's Home Project</title>
         <description>dummy</description>
       </project>"
-      )
+    )
 
     @project.update_all_flags(axml)
     assert_equal 0, @project.flags.of_type('build').size
@@ -482,7 +482,7 @@ class ProjectTest < ActiveSupport::TestCase
         <url></url>
         <disable/>
       </project>"
-      )
+    )
 
     @project.update_from_xml!(axml)
     @project.save!
@@ -508,7 +508,7 @@ class ProjectTest < ActiveSupport::TestCase
           <arch>x86_64</arch>
         </repository>
       </project>"
-      )
+    )
     @project.update_from_xml!(axml)
     @project.reload
 
@@ -530,7 +530,7 @@ class ProjectTest < ActiveSupport::TestCase
           <arch>local</arch>
         </repository>
       </project>"
-      )
+    )
     @project.update_from_xml!(axml)
 
     xml = @project.render_xml
@@ -552,7 +552,7 @@ class ProjectTest < ActiveSupport::TestCase
           <maintains project='BaseDistro'/>
         </maintenance>
       </project>"
-      )
+    )
     @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
@@ -568,7 +568,7 @@ class ProjectTest < ActiveSupport::TestCase
           <maintains project='BaseDistro2.0'/>
         </maintenance>
       </project>"
-      )
+    )
     @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
@@ -584,7 +584,7 @@ class ProjectTest < ActiveSupport::TestCase
           <maintains project='BaseDistro2.0'/>
         </maintenance>
       </project>"
-      )
+    )
     @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
@@ -598,7 +598,7 @@ class ProjectTest < ActiveSupport::TestCase
         <title>Iggy's Home Project</title>
         <description>dummy</description>
       </project>"
-      )
+    )
     @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
@@ -620,7 +620,7 @@ class ProjectTest < ActiveSupport::TestCase
          <arch>i586</arch>
        </repository>
      </project>"
-     )
+    )
     assert_raise(ActiveRecord::RecordInvalid) do
       Project.transaction do
         @project.update_from_xml!(axml)
@@ -695,7 +695,7 @@ END
         <description>dummy</description>
         <link project='home:Iggy' />
       </project>"
-      )
+    )
     project_a = Project.create( name: "home:Iggy:A" )
     project_a.update_from_xml!(axml)
     project_a.store
@@ -707,7 +707,7 @@ END
         <description>dummy</description>
         <link project='home:Iggy:A' />
       </project>"
-      )
+    )
     project_b = Project.create( name: "home:Iggy:B" )
     project_b.update_from_xml!(axml)
     project_b.store
@@ -742,8 +742,7 @@ END
           <arch>i586</arch>
         </repository>
       </project>"
-      )
-    )
+    ))
 
     xml = prj.to_axml
     assert_xml_tag xml, tag: :download, attributes: {arch: "i586", url: "http://me.org", repotype: "rpmmd"}
@@ -795,8 +794,7 @@ END
         <description/>
         <repository name='sp0_ga' />
       </project>"
-      )
-    )
+    ))
     prj = Project.new(name: "Enterprise-SP0:Update")
     prj.update_from_xml!( Xmlhash.parse(
       "<project name='Enterprise-SP0:Update' kind='maintenance_release'>
@@ -806,8 +804,7 @@ END
           <path project='Enterprise-SP0:GA' repository='sp0_ga' />
         </repository>
       </project>"
-      )
-    )
+    ))
     prj = Project.new(name: "Enterprise-SP1:GA")
     prj.update_from_xml!( Xmlhash.parse(
       "<project name='Enterprise-SP1:GA'>
@@ -817,8 +814,7 @@ END
           <path project='Enterprise-SP0:GA' repository='sp0_ga' />
         </repository>
       </project>"
-      )
-    )
+    ))
     prj = Project.new(name: "Enterprise-SP1:Update")
     prj.update_from_xml!( Xmlhash.parse(
       "<project name='Enterprise-SP1:Update' kind='maintenance_release'>
@@ -829,8 +825,7 @@ END
           <path project='Enterprise-SP0:Update' repository='sp0_update' />
         </repository>
       </project>"
-      )
-    )
+    ))
     prj = Project.new(name: "Enterprise-SP1:Channel:Server")
     prj.update_from_xml!( Xmlhash.parse(
       "<project name='Enterprise-SP1:Channel:Server'>
@@ -840,8 +835,7 @@ END
           <path project='Enterprise-SP1:Update' repository='sp1_update' />
         </repository>
       </project>"
-      )
-    )
+    ))
     # this is what the classic add_repository call is producing:
     prj = Project.new(name: "My:Branch")
     prj.update_from_xml!( Xmlhash.parse(
@@ -858,8 +852,7 @@ END
           <path project='Enterprise-SP1:Update' repository='sp1_update' />
         </repository>
       </project>"
-      )
-    )
+    ))
     # however, this is not correct, because my:branch (or an incident)
     # is providing in this situation often a package in SP0:Update which
     # must be used for building the package in sp1 repo.
@@ -919,26 +912,29 @@ END
     User.current = users( :king )
 
     prj_a = Project.new(name: "Project:A")
-    prj_a.update_from_xml!( Xmlhash.parse(
+    prj_a.update_from_xml!(Xmlhash.parse(
       "<project name='Project:A'>
         <title/>
         <description/>
-       </project>") )
+       </project>"
+    ))
     prj_a.save!
     prj_b = Project.new(name: "Project:B")
-    prj_b.update_from_xml!( Xmlhash.parse(
+    prj_b.update_from_xml!(Xmlhash.parse(
       "<project name='Project:B'>
         <title/>
         <description/>
         <link project='Project:A'/>
-       </project>") )
+       </project>"
+    ))
     prj_b.save!
-    prj_a.update_from_xml!( Xmlhash.parse(
+    prj_a.update_from_xml!(Xmlhash.parse(
       "<project name='Project:A'>
         <title/>
         <description/>
         <link project='Project:B'/>
-       </project>") )
+       </project>"
+    ))
     prj_a.save!
 
     assert_equal [], prj_a.expand_all_packages

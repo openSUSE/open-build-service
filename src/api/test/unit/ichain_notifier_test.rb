@@ -24,23 +24,23 @@ class IchainNotifierTest < ActiveSupport::TestCase
     @expected.mime_version = "1.0"
   end
 
-# FIXME: this test fails, if it happens not in the same second.
-#        Disabled, because the mechanism is not used anyway atm and needs to generalized for non-ichain usage as well
-#  def test_reject
-#    @expected.subject = 'Buildservice account request rejected'
-#    @expected.body    = read_fixture('reject')
-#    @expected.date    = Time.now
-#
-#    assert_equal @expected.encoded, IchainNotifier.create_reject(@user).encoded
-#  end
-#
-#  def test_approval
-#    @expected.subject = 'Your openSUSE buildservice account is active'
-#    @expected.body    = read_fixture('approval')
-#    @expected.date    = Time.now
-#
-#    assert_equal @expected.encoded, IchainNotifier.create_approval(@user).encoded
-#  end
+  # FIXME: this test fails, if it happens not in the same second.
+  #        Disabled, because the mechanism is not used anyway atm and needs to generalized for non-ichain usage as well
+  #  def test_reject
+  #    @expected.subject = 'Buildservice account request rejected'
+  #    @expected.body    = read_fixture('reject')
+  #    @expected.date    = Time.now
+  #
+  #    assert_equal @expected.encoded, IchainNotifier.create_reject(@user).encoded
+  #  end
+  #
+  #  def test_approval
+  #    @expected.subject = 'Your openSUSE buildservice account is active'
+  #    @expected.body    = read_fixture('approval')
+  #    @expected.date    = Time.now
+  #
+  #    assert_equal @expected.encoded, IchainNotifier.create_approval(@user).encoded
+  #  end
 
   private
 

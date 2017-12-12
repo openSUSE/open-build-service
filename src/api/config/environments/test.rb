@@ -38,7 +38,7 @@ OBSApi::Application.configure do
 
   config.active_support.deprecation = :log
   # Print deprecation notices to the stderr.
-#  config.active_support.deprecation = :stderr
+  #  config.active_support.deprecation = :stderr
 
   config.eager_load = false
 

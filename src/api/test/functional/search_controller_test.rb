@@ -189,10 +189,10 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: "1" }
 
-# FIXME2.5: this will work when we turn to enums for the user state
-#    get "/search/person", match: "(@state='confirmed')"
-#    assert_response :success
-#    assert_xml_tag tag: 'collection', :attributes => { :matches => "1" }
+    # FIXME2.5: this will work when we turn to enums for the user state
+    #    get "/search/person", match: "(@state='confirmed')"
+    #    assert_response :success
+    #    assert_xml_tag tag: 'collection', :attributes => { :matches => "1" }
   end
 
   def test_xpath_old_osc
@@ -561,7 +561,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # include devel package
     get "/search/owner?binary=package"
     assert_response :success
-#    assert_no_xml_tag tag: 'owner', :attributes => { :package => nil }
+    #    assert_no_xml_tag tag: 'owner', :attributes => { :package => nil }
     assert_xml_tag tag: 'owner', attributes: { project: "home:coolo:test" }
     assert_xml_tag tag: 'person', attributes: { name: "tom", role: "maintainer" }
 

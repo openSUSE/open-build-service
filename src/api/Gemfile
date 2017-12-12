@@ -90,7 +90,7 @@ group :production do
   # if you have an account, it can be configured by
   # placing a config/newrelic.yml
   # be aware about the non-OSS license
-#  gem 'newrelic_rpm'
+  #  gem 'newrelic_rpm'
 end
 
 # Gems used only for testing the application and not required in production environments by default.

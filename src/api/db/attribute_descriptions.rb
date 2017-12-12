@@ -11,7 +11,7 @@ def update_all_attrib_type_descriptions
     "Maintained"                      => "Marks this as object as maintained. For instance to find packages automatically when using the maintenance features like \"osc mbranch\".",
     "MaintenanceProject"              => "Mark this project as central maintenance project, which is used to coordinate all official updates.",
     "MaintenanceIdTemplate"           => "Released maintenance updates get an ID on first release. This attribute can be used to modify the default scheme.",
-#    "ScreenShots" => "", # to be dropped?
+    #    "ScreenShots" => "", # to be dropped?
     "ImageTemplates"                  => "Mark this project as source for image templates.",
     "OwnerRootProject"                => "Mark this project as starting point for the package ownership search. Optional values: \"DisableDevel\": don't follow devel project links. \"BugownerOnly\": limit the result to bugowners (ignoring the maintainer role).",
     "RequestCloned"                   => "Use this attribute to reference a request which will get superseded when a new submit request from this project gets created.",

@@ -1,4 +1,5 @@
 # encoding: UTF-8
+
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
@@ -593,16 +594,16 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( tag: "directory" )
     assert_xml_tag( tag: "entry", attributes: { name: "ProtectedPackage" } )
-# regression in 2.1
-#    get "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file?deleted=1"
-#    assert_response :success
+    # regression in 2.1
+    #    get "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file?deleted=1"
+    #    assert_response :success
     # must not see package content
     login_tom
     get "/source/home:adrian:PublicProject/ProtectedPackage?deleted=1"
     assert_response 403
-# belongs to the regression above
-#    get "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file?deleted=1"
-#    assert_response 403
+    # belongs to the regression above
+    #    get "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file?deleted=1"
+    #    assert_response 403
 
     # cleanup
     delete "/source/home:tom:temp"

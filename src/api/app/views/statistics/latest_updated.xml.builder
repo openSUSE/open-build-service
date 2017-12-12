@@ -10,7 +10,7 @@ xml.latest_updated do
         :updated => item[0].xmlschema
       )
     else
-    ### item is a project
+      ### item is a project
       xml.project(
         :name => item[1],
         :updated => item[0].xmlschema

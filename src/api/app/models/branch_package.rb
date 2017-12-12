@@ -137,7 +137,7 @@ class BranchPackage
         ret = ActiveXML::Node.new(tpkg.source_file('_link'))
         ret.delete_attribute('project') # its a local link, project name not needed
         linked_package = p[:link_target_package]
-         # user enforce a rename of base package
+        # user enforce a rename of base package
         linked_package = params[:target_package] if params[:target_package] && params[:package] == ret.value('package')
         linked_package += '.' + p[:link_target_project].name.tr(':', '_') if @extend_names
         ret.set_attribute('package', linked_package)

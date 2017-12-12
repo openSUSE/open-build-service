@@ -1,4 +1,5 @@
 # encoding: UTF-8
+
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
@@ -486,6 +487,6 @@ ription</description>
     assert_xml_tag( tag: "attribute", attributes: { namespace: "OBS", name: "Maintained", binary: "kdelibs-devel" } )
   end
 
-# FIXME:
-# * value based test are missing
+  # FIXME:
+  # * value based test are missing
 end

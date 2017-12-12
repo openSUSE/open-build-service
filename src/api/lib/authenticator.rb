@@ -247,7 +247,7 @@ class Authenticator
     true
   end
 
-   # to become _public_ special user
+  # to become _public_ special user
   def load_nobody
     @http_user = User.find_nobody!
     User.current = @http_user

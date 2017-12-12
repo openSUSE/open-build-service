@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 i*-
+
 require 'api_exception'
 
 class Owner

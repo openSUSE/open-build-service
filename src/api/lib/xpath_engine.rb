@@ -22,61 +22,60 @@ class XpathEngine
       'released_binary' => 'released_binaries'
     }
 
-    # rubocop:disable Layout/AlignHash
     @attribs = {
-      'packages' => {
-        '@project' => {cpart: 'projects.name',
-                       joins: 'LEFT JOIN projects ON packages.project_id=projects.id' },
-        '@name' => {cpart: 'packages.name'},
-        'title' => {cpart: 'packages.title'},
-        'description' => {cpart: 'packages.description'},
-        'kind' => {cpart: 'package_kinds.kind', joins:            ['LEFT JOIN package_kinds ON package_kinds.package_id = packages.id']},
-        'devel/@project' => {cpart: 'projs.name', joins:           ['left join packages devels on packages.develpackage_id = devels.id',
-           'left join projects projs on devels.project_id=projs.id']},
-        'devel/@package' => {cpart: 'develpackage.name', joins:           ['LEFT JOIN packages develpackage ON develpackage.id = packages.develpackage_id']},
-        'issue/@state' => {cpart: 'issues.state'},
-        'issue/@name' => {cpart: 'issues.name'},
-        'issue/@tracker' => {cpart: 'issue_trackers.name'},
-        'issue/@change' => {cpart: 'package_issues.change'},
-        'issue/owner/@email' => {cpart: 'users.email', joins:           ['LEFT JOIN users ON users.id = issues.owner_id']},
-        'issue/owner/@login' => {cpart: 'users.login', joins:           ['LEFT JOIN users ON users.id = issues.owner_id']},
-        'attribute_issue/@state' => {cpart: 'attribissues.state'},
-        'attribute_issue/@name' => {cpart: 'attribissues.name'},
-        'attribute_issue/@tracker' => {cpart: 'attribissue_trackers.name'},
+      'packages'          => {
+        '@project'                     => {cpart: 'projects.name',
+                                           joins: 'LEFT JOIN projects ON packages.project_id=projects.id' },
+        '@name'                        => {cpart: 'packages.name'},
+        'title'                        => {cpart: 'packages.title'},
+        'description'                  => {cpart: 'packages.description'},
+        'kind'                         => {cpart: 'package_kinds.kind', joins:            ['LEFT JOIN package_kinds ON package_kinds.package_id = packages.id']},
+        'devel/@project'               => {cpart: 'projs.name', joins:           ['left join packages devels on packages.develpackage_id = devels.id',
+                                                                                  'left join projects projs on devels.project_id=projs.id']},
+        'devel/@package'               => {cpart: 'develpackage.name', joins:           ['LEFT JOIN packages develpackage ON develpackage.id = packages.develpackage_id']},
+        'issue/@state'                 => {cpart: 'issues.state'},
+        'issue/@name'                  => {cpart: 'issues.name'},
+        'issue/@tracker'               => {cpart: 'issue_trackers.name'},
+        'issue/@change'                => {cpart: 'package_issues.change'},
+        'issue/owner/@email'           => {cpart: 'users.email', joins:           ['LEFT JOIN users ON users.id = issues.owner_id']},
+        'issue/owner/@login'           => {cpart: 'users.login', joins:           ['LEFT JOIN users ON users.id = issues.owner_id']},
+        'attribute_issue/@state'       => {cpart: 'attribissues.state'},
+        'attribute_issue/@name'        => {cpart: 'attribissues.name'},
+        'attribute_issue/@tracker'     => {cpart: 'attribissue_trackers.name'},
         'attribute_issue/owner/@email' => {cpart: 'users.email', joins:           ['LEFT JOIN users ON users.id = attribissues.owner_id']},
         'attribute_issue/owner/@login' => {cpart: 'users.login', joins:           ['LEFT JOIN users ON users.id = attribissues.owner_id']},
-        'person/@userid' => {cpart: 'users.login', joins:           ['LEFT JOIN users ON users.id = user_relation.user_id']},
-        'person/@role' => {cpart: 'ppr.title', joins:           ['LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id']},
-        'group/@groupid' => {cpart: 'groups.title', joins:           ['LEFT JOIN groups ON groups.id = group_relation.group_id']},
-        'group/@role' => {cpart: 'gpr.title', joins:           ['LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
-        'attribute/@name' => {cpart: 'attrib_namespaces.name = ? AND attrib_types.name',
+        'person/@userid'               => {cpart: 'users.login', joins:           ['LEFT JOIN users ON users.id = user_relation.user_id']},
+        'person/@role'                 => {cpart: 'ppr.title', joins:           ['LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id']},
+        'group/@groupid'               => {cpart: 'groups.title', joins:           ['LEFT JOIN groups ON groups.id = group_relation.group_id']},
+        'group/@role'                  => {cpart: 'gpr.title', joins:           ['LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
+        'attribute/@name'              => {cpart: 'attrib_namespaces.name = ? AND attrib_types.name',
           split: ':', joins:           ['LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
-           'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
-           'LEFT JOIN attribs AS attribsprj ON attribsprj.project_id = packages.project_id', # include also, when set in project
-           'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id',
-           'LEFT JOIN attrib_namespaces AS attrib_namespacesprj ON attrib_typesprj.attrib_namespace_id = attrib_namespacesprj.id']},
-        'project/attribute/@name' => {cpart: 'attrib_namespaces_proj.name = ? AND attrib_types_proj.name', split: ':', joins:           ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.project_id = packages.project_id',
-           'LEFT JOIN attrib_types AS attrib_types_proj ON attribs_proj.attrib_type_id = attrib_types_proj.id',
-           'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id']}
+                                        'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
+                                        'LEFT JOIN attribs AS attribsprj ON attribsprj.project_id = packages.project_id', # include also, when set in project
+                                        'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id',
+                                        'LEFT JOIN attrib_namespaces AS attrib_namespacesprj ON attrib_typesprj.attrib_namespace_id = attrib_namespacesprj.id']},
+        'project/attribute/@name'      => {cpart: 'attrib_namespaces_proj.name = ? AND attrib_types_proj.name', split: ':', joins:           ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.project_id = packages.project_id',
+                                                                                                                                              'LEFT JOIN attrib_types AS attrib_types_proj ON attribs_proj.attrib_type_id = attrib_types_proj.id',
+                                                                                                                                              'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id']}
       },
-      'projects' => {
-        '@name' => {cpart: 'projects.name'},
-        '@kind' => {cpart: 'projects.kind'},
-        'title' => {cpart: 'projects.title'},
-        'description' => {cpart: 'projects.description'},
-        'url' => {cpart: 'projects.url'},
-        'remoteurl' => {cpart: 'projects.remoteurl'},
-        'maintenance/maintains/@project' => {cpart: 'maintains_prj.name', joins: [
+      'projects'          => {
+        '@name'                             => {cpart: 'projects.name'},
+        '@kind'                             => {cpart: 'projects.kind'},
+        'title'                             => {cpart: 'projects.title'},
+        'description'                       => {cpart: 'projects.description'},
+        'url'                               => {cpart: 'projects.url'},
+        'remoteurl'                         => {cpart: 'projects.remoteurl'},
+        'maintenance/maintains/@project'    => {cpart: 'maintains_prj.name', joins: [
           'LEFT JOIN maintained_projects AS maintained_prj ON projects.id = maintained_prj.maintenance_project_id',
           'LEFT JOIN projects AS maintains_prj ON maintained_prj.project_id = maintains_prj.id']},
-        'person/@userid' => {cpart: 'users.login', joins: [
+        'person/@userid'                    => {cpart: 'users.login', joins: [
           'LEFT JOIN users ON users.id = user_relation.user_id']},
-        'person/@role' => {cpart: 'ppr.title', joins: [
+        'person/@role'                      => {cpart: 'ppr.title', joins: [
           'LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id']},
-        'group/@groupid' => {cpart: 'groups.title', joins:           ['LEFT JOIN groups ON groups.id = group_relation.group_id']},
-        'group/@role' => {cpart: 'gpr.title', joins:           ['LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
-        'repository/@name' => {cpart: 'repositories.name'},
-        'repository/path/@project' => {cpart: 'childs.name', joins: [
+        'group/@groupid'                    => {cpart: 'groups.title', joins:           ['LEFT JOIN groups ON groups.id = group_relation.group_id']},
+        'group/@role'                       => {cpart: 'gpr.title', joins:           ['LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
+        'repository/@name'                  => {cpart: 'repositories.name'},
+        'repository/path/@project'          => {cpart: 'childs.name', joins: [
           'join repositories r on r.db_project_id=projects.id',
           'join path_elements pe on pe.parent_id=r.id',
           'join repositories r2 on r2.id=pe.repository_id',
@@ -84,36 +83,36 @@ class XpathEngine
         'repository/releasetarget/@trigger' => {cpart: 'rt.trigger', joins: [
           'join repositories r on r.db_project_id=projects.id',
           'join release_targets rt on rt.repository_id=r.id']},
-        'package/@name' => {cpart: 'packs.name', joins:           ['LEFT JOIN packages AS packs ON packs.project_id = projects.id']},
-        'attribute/@name' => {cpart: 'attrib_namespaces.name = ? AND attrib_types.name', split: ':', joins:           ['LEFT JOIN attribs ON attribs.project_id = projects.id',
-           'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
-           'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']}
+        'package/@name'                     => {cpart: 'packs.name', joins:           ['LEFT JOIN packages AS packs ON packs.project_id = projects.id']},
+        'attribute/@name'                   => {cpart: 'attrib_namespaces.name = ? AND attrib_types.name', split: ':', joins:           ['LEFT JOIN attribs ON attribs.project_id = projects.id',
+                                                                                                                                         'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
+                                                                                                                                         'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']}
       },
-      'repositories' => {
-        '@project' => {cpart: 'pr.name',
-                       joins: 'LEFT JOIN projects AS pr ON repositories.db_project_id=pr.id' },
-        '@name' => {cpart: 'repositories.name'},
-        'path/@project' => {cpart: 'pathrepoprj.name', joins: [
+      'repositories'      => {
+        '@project'                   => {cpart: 'pr.name',
+                                         joins: 'LEFT JOIN projects AS pr ON repositories.db_project_id=pr.id' },
+        '@name'                      => {cpart: 'repositories.name'},
+        'path/@project'              => {cpart: 'pathrepoprj.name', joins: [
           'LEFT join projects pathrepoprj on path_repo.db_project_id=pathrepoprj.id']},
-        'path/@repository' => {cpart: 'path_repo.name' },
-        'targetproduct/@project' => {cpart: 'tpprj.name', joins: [
+        'path/@repository'           => {cpart: 'path_repo.name' },
+        'targetproduct/@project'     => {cpart: 'tpprj.name', joins: [
           'LEFT join packages tppkg on tppkg.id=product.package_id ',
           'LEFT join projects tpprj on tpprj.id=tppkg.project_id ']},
-        'targetproduct/@arch' => {cpart: 'tppa.name', joins: [
+        'targetproduct/@arch'        => {cpart: 'tppa.name', joins: [
           'LEFT join architectures tppa on tppa.id=product_update_repository.arch_filter_id ']},
-        'targetproduct/@name' => {cpart: 'product.name'},
+        'targetproduct/@name'        => {cpart: 'product.name'},
         'targetproduct/@baseversion' => {cpart: 'product.baseversion'},
-        'targetproduct/@patchlevel' => {cpart: 'product.patchlevel'},
-        'targetproduct/@version' => {cpart: 'product.version'}
+        'targetproduct/@patchlevel'  => {cpart: 'product.patchlevel'},
+        'targetproduct/@version'     => {cpart: 'product.version'}
       },
-      'channels' => {
-        'binary/@name' => {cpart: 'channel_binaries.name'},
-        'binary/@binaryarch' => {cpart: 'channel_binaries.binaryarch'},
-        'binary/@package' => {cpart: 'channel_binaries.package'},
-        'binary/@supportstatus' => {cpart: 'supportstatus'},
-        '@package' => {cpart: 'cpkg.name'},
-        '@project' => {cpart: 'cprj.name'},
-        'target/disabled' => {cpart: 'ufdct.disabled', joins: [
+      'channels'          => {
+        'binary/@name'              => {cpart: 'channel_binaries.name'},
+        'binary/@binaryarch'        => {cpart: 'channel_binaries.binaryarch'},
+        'binary/@package'           => {cpart: 'channel_binaries.package'},
+        'binary/@supportstatus'     => {cpart: 'supportstatus'},
+        '@package'                  => {cpart: 'cpkg.name'},
+        '@project'                  => {cpart: 'cprj.name'},
+        'target/disabled'           => {cpart: 'ufdct.disabled', joins: [
           'LEFT join channel_targets ufdct on ufdct.channel_id=channel.id']},
         'target/updatefor/@project' => {cpart: 'puprj.name', joins: [
           'LEFT join channel_targets ufct on ufct.channel_id=channel.id',
@@ -126,15 +125,15 @@ class XpathEngine
           'LEFT join product_update_repositories pnur on pnur.repository_id=ufnct.repository_id',
           'LEFT join products pupn on pupn.id=pnur.product_id ']}
       },
-      'channel_binaries' => {
-        '@name' => {cpart: 'channel_binaries.name'},
-        '@binaryarch' => {cpart: 'channel_binaries.binaryarch'},
-        '@package' => {cpart: 'channel_binaries.package'},
-        '@project' => {cpart: 'cprj.name', joins: [
+      'channel_binaries'  => {
+        '@name'              => {cpart: 'channel_binaries.name'},
+        '@binaryarch'        => {cpart: 'channel_binaries.binaryarch'},
+        '@package'           => {cpart: 'channel_binaries.package'},
+        '@project'           => {cpart: 'cprj.name', joins: [
           'LEFT join packages cpkg on cpkg.id=channel.package_id',
           'LEFT join projects cprj on cprj.id=cpkg.project_id']},
-        '@supportstatus' => {cpart: 'supportstatus'},
-        'target/disabled' => {cpart: 'ufdct.disabled', joins: [
+        '@supportstatus'     => {cpart: 'supportstatus'},
+        'target/disabled'    => {cpart: 'ufdct.disabled', joins: [
           'LEFT join channel_targets ufdct on ufdct.channel_id=channel.id']},
         'updatefor/@project' => {cpart: 'puprj.name', joins: [
           'LEFT join channel_targets ufct on ufct.channel_id=channel.id',
@@ -148,88 +147,88 @@ class XpathEngine
           'LEFT join products pupn on pupn.id=pnur.product_id ']}
       },
       'released_binaries' => {
-        '@name' => {cpart: 'binary_name'},
-        '@version' => {cpart: 'binary_version'},
-        '@release' => {cpart: 'binary_release'},
-        '@arch' => {cpart: 'binary_arch'},
-        'disturl' => {cpart: 'binary_disturl'},
-        'supportstatus' => {cpart: 'binary_supportstatus'},
-        'updateinfo/@id' => {cpart: 'binary_updateinfo'},
-        'updateinfo/@version' => {cpart: 'binary_updateinfo_version'},
-        'operation' => {cpart: 'operation'},
-        'modify/@time' => {cpart: 'modify_time'},
-        'obsolete/@time' => {cpart: 'obsolete_time'},
-        'repository/@project' => {cpart: 'release_projects.name'},
-        'repository/@name' => {cpart: 'release_repositories.name'},
-        'publish/@time' => {cpart: 'binary_releasetime'},
-        'publish/@package' => {cpart: 'ppkg.name', joins: [
+        '@name'                  => {cpart: 'binary_name'},
+        '@version'               => {cpart: 'binary_version'},
+        '@release'               => {cpart: 'binary_release'},
+        '@arch'                  => {cpart: 'binary_arch'},
+        'disturl'                => {cpart: 'binary_disturl'},
+        'supportstatus'          => {cpart: 'binary_supportstatus'},
+        'updateinfo/@id'         => {cpart: 'binary_updateinfo'},
+        'updateinfo/@version'    => {cpart: 'binary_updateinfo_version'},
+        'operation'              => {cpart: 'operation'},
+        'modify/@time'           => {cpart: 'modify_time'},
+        'obsolete/@time'         => {cpart: 'obsolete_time'},
+        'repository/@project'    => {cpart: 'release_projects.name'},
+        'repository/@name'       => {cpart: 'release_repositories.name'},
+        'publish/@time'          => {cpart: 'binary_releasetime'},
+        'publish/@package'       => {cpart: 'ppkg.name', joins: [
           'LEFT join packages ppkg on ppkg.id=release_package_id'
         ]},
-        'updatefor/@project' => {cpart: 'puprj.name', joins: [
+        'updatefor/@project'     => {cpart: 'puprj.name', joins: [
           'LEFT join packages pupkg on pupkg.id=product_update.package_id ',
           'LEFT join projects puprj on puprj.id=pupkg.project_id ']},
-        'updatefor/@arch' => {cpart: 'pupa.name', joins: [
+        'updatefor/@arch'        => {cpart: 'pupa.name', joins: [
           'LEFT join architectures pupa on pupa.id=product_update_repository.arch_filter_id ']},
-        'updatefor/@product' => {cpart: 'product_update.name'},
+        'updatefor/@product'     => {cpart: 'product_update.name'},
         'updatefor/@baseversion' => {cpart: 'product_update.baseversion'},
-        'updatefor/@patchlevel' => {cpart: 'product_update.patchlevel'},
-        'updatefor/@version' => {cpart: 'product_update.version'},
-        'product/@project' => {cpart: 'pprj.name', joins: [
+        'updatefor/@patchlevel'  => {cpart: 'product_update.patchlevel'},
+        'updatefor/@version'     => {cpart: 'product_update.version'},
+        'product/@project'       => {cpart: 'pprj.name', joins: [
           'LEFT join packages ppkg on ppkg.id=product_ga.package_id ',
           'LEFT join projects pprj on pprj.id=ppkg.project_id ']},
-        'product/@version' => {cpart: 'product_ga.version'},
-        'product/@release' => {cpart: 'product_ga.release'},
-        'product/@baseversion' => {cpart: 'product_ga.baseversion'},
-        'product/@patchlevel' => {cpart: 'product_ga.patchlevel'},
-        'product/@name' => {cpart: 'product_ga.name'},
-        'product/@arch' => {cpart: 'ppna.name', joins: [
+        'product/@version'       => {cpart: 'product_ga.version'},
+        'product/@release'       => {cpart: 'product_ga.release'},
+        'product/@baseversion'   => {cpart: 'product_ga.baseversion'},
+        'product/@patchlevel'    => {cpart: 'product_ga.patchlevel'},
+        'product/@name'          => {cpart: 'product_ga.name'},
+        'product/@arch'          => {cpart: 'ppna.name', joins: [
           'LEFT join architectures ppna on ppna.id=product_media.arch_filter_id ']},
-        'product/@medium' => {cpart: 'product_media.name'}
+        'product/@medium'        => {cpart: 'product_media.name'}
       },
-      'users' => {
-        '@login' => {cpart: 'users.login'},
-        '@email' => {cpart: 'users.email'},
+      'users'             => {
+        '@login'    => {cpart: 'users.login'},
+        '@email'    => {cpart: 'users.email'},
         '@realname' => {cpart: 'users.realname'},
-        '@state' => {cpart: 'users.state'}
+        '@state'    => {cpart: 'users.state'}
        },
-      'issues' => {
-        '@name' => {cpart: 'issues.name'},
-        '@state' => {cpart: 'issues.state'},
-        '@tracker' => {cpart: 'issue_trackers.name',
-                       joins: 'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
+      'issues'            => {
+        '@name'        => {cpart: 'issues.name'},
+        '@state'       => {cpart: 'issues.state'},
+        '@tracker'     => {cpart: 'issue_trackers.name',
+                           joins: 'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
         },
         'owner/@email' => {cpart: 'users.email', joins:           ['LEFT JOIN users ON users.id = issues.owner_id']},
         'owner/@login' => {cpart: 'users.login', joins:           ['LEFT JOIN users ON users.id = issues.owner_id']}
       },
-      'requests' => {
-        '@id' => { cpart: 'bs_requests.number' },
-        '@creator' => { cpart: 'bs_requests.creator' },
-        'state/@name' => { cpart: 'bs_requests.state' },
-        'state/@who' => { cpart: 'bs_requests.commenter' },
-        'state/@when' => { cpart: 'bs_requests.updated_at' },
-        'action/@type' => { cpart: 'a.type',
-                            joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id"
+      'requests'          => {
+        '@id'                    => { cpart: 'bs_requests.number' },
+        '@creator'               => { cpart: 'bs_requests.creator' },
+        'state/@name'            => { cpart: 'bs_requests.state' },
+        'state/@who'             => { cpart: 'bs_requests.commenter' },
+        'state/@when'            => { cpart: 'bs_requests.updated_at' },
+        'action/@type'           => { cpart: 'a.type',
+                                      joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id"
         },
-        'action/grouped/@id' => { cpart: 'gr.number',
-                                  joins: ["LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id",
-                                          "LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id",
-                                          "LEFT JOIN bs_requests gr on gr.id = g.bs_request_id"] },
+        'action/grouped/@id'     => { cpart: 'gr.number',
+                                      joins: ["LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id",
+                                              "LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id",
+                                              "LEFT JOIN bs_requests gr on gr.id = g.bs_request_id"] },
         'action/target/@project' => { cpart: 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/target/@package' => { cpart: 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/source/@project' => { cpart: 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/source/@package' => { cpart: 'a.source_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         # osc is doing these 4 kinds of searches during submit
-        'target/@project' => { cpart: 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'target/@package' => { cpart: 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'source/@project' => { cpart: 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'source/@package' => { cpart: 'a.source_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
-        'review/@by_user' => { cpart: 'r.by_user', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@by_group' => { cpart: 'r.by_group', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@by_project' => { cpart: 'r.by_project', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@by_package' => { cpart: 'r.by_package', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'review/@state' => { cpart: 'r.state', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'history/@who' => { cpart: 'husers.login', joins: ["LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
-                            "LEFT JOIN users husers ON he.user_id = husers.id"] },
+        'target/@project'        => { cpart: 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
+        'target/@package'        => { cpart: 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
+        'source/@project'        => { cpart: 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
+        'source/@package'        => { cpart: 'a.source_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
+        'review/@by_user'        => { cpart: 'r.by_user', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
+        'review/@by_group'       => { cpart: 'r.by_group', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
+        'review/@by_project'     => { cpart: 'r.by_project', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
+        'review/@by_package'     => { cpart: 'r.by_package', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
+        'review/@state'          => { cpart: 'r.state', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
+        'history/@who'           => { cpart: 'husers.login', joins: ["LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
+                                                                     "LEFT JOIN users husers ON he.user_id = husers.id"] },
 
         'submit/target/@project' => { empty: true },
         'submit/target/@package' => { empty: true },
@@ -237,7 +236,6 @@ class XpathEngine
         'submit/source/@package' => { empty: true }
       }
     }
-    # rubocop:enable Layout/AlignHash
 
     @operators = [:eq, :and, :or, :neq, :gt, :lt, :gteq, :lteq]
 
@@ -344,9 +342,9 @@ class XpathEngine
       attrib = AttribType.find_by_namespace_and_name('OBS', 'IncidentPriority')
       # this join is only for ordering by the OBS:IncidentPriority attribute, possibly existing in source project
       @joins = ["LEFT JOIN bs_request_actions req_order_action ON req_order_action.bs_request_id = bs_requests.id",
-                 "LEFT JOIN projects req_order_project ON req_order_action.source_project = req_order_project.name",
-                 "LEFT JOIN attribs req_order_attrib ON (req_order_attrib.attrib_type_id = '#{attrib.id}' AND req_order_attrib.project_id = req_order_project.id)",
-                 "LEFT JOIN attrib_values req_order_attrib_value ON req_order_attrib.id = req_order_attrib_value.attrib_id"] << @joins
+                "LEFT JOIN projects req_order_project ON req_order_action.source_project = req_order_project.name",
+                "LEFT JOIN attribs req_order_attrib ON (req_order_attrib.attrib_type_id = '#{attrib.id}' AND req_order_attrib.project_id = req_order_project.id)",
+                "LEFT JOIN attrib_values req_order_attrib_value ON req_order_attrib.id = req_order_attrib_value.attrib_id"] << @joins
       order = ["req_order_attrib_value.value DESC", :priority, :created_at]
     when 'users'
       relation = User.all
@@ -355,14 +353,14 @@ class XpathEngine
     when 'channels'
       relation = ChannelBinary.all
       @joins = ['LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
-                 'LEFT join channels channel on channel.id=channel_binary_list.channel_id',
-                 'LEFT join packages cpkg on cpkg.id=channel.package_id',
-                 'LEFT join projects cprj on cprj.id=cpkg.project_id'
+                'LEFT join channels channel on channel.id=channel_binary_list.channel_id',
+                'LEFT join packages cpkg on cpkg.id=channel.package_id',
+                'LEFT join projects cprj on cprj.id=cpkg.project_id'
                ] << @joins
     when 'channel_binaries'
       relation = ChannelBinary.all
       @joins = ['LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
-                 'LEFT join channels channel on channel.id=channel_binary_list.channel_id'
+                'LEFT join channels channel on channel.id=channel_binary_list.channel_id'
                ] << @joins
     when 'released_binaries'
       relation = BinaryRelease.all
@@ -418,8 +416,8 @@ class XpathEngine
             stack.shift
           else
             parse_predicate(root, t)
-#            stack.shift
-#            raise IllegalXpathError, "unhandled token in :qname '#{t.inspect}'"
+            #            stack.shift
+            #            raise IllegalXpathError, "unhandled token in :qname '#{t.inspect}'"
           end
           root.pop
         elsif t == :any

@@ -29,8 +29,8 @@ OBSApi::Application.configure do
 
   config.active_support.deprecation = :log
 
-   # Enable serving of images, stylesheets, and javascripts from an asset server
-   # config.action_controller.asset_host                  = "http://assets.example.com"
+  # Enable serving of images, stylesheets, and javascripts from an asset server
+  # config.action_controller.asset_host                  = "http://assets.example.com"
 
   # Full error reports are disabled and caching is turned on
   config.consider_all_requests_local       = false

@@ -597,7 +597,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'create_project_no_permission' }
 
-# FIXME: backend has a bug that it destroys the link even with keeplink if opackage has no rev
+    # FIXME: backend has a bug that it destroys the link even with keeplink if opackage has no rev
     put '/source/home:coolo:test/kdelibs_DEVEL_package/DUMMY', params: 'CONTENT'
     assert_response :success
 

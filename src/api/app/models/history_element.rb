@@ -1,5 +1,5 @@
 module HistoryElement
-# This class represents some kind of history element within the build service
+  # This class represents some kind of history element within the build service
   class Base < ApplicationRecord
     belongs_to :user
 

@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 i*-
+
 require_dependency 'api_exception'
 require 'builder/xchar'
 require 'rexml/document'
