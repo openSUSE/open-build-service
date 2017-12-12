@@ -20,24 +20,6 @@ Layout/DotPosition:
 Layout/IndentHash:
   Enabled: false
 
-# Offense count: 23
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: symmetrical, new_line, same_line
-Layout/MultilineHashBraceLayout:
-  Exclude:
-    - 'src/api/app/controllers/source_controller.rb'
-    - 'src/api/app/controllers/webui/request_controller.rb'
-    - 'src/api/app/models/binary_release.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/app/models/project.rb'
-    - 'src/api/lib/xpath_engine.rb'
-    - 'src/api/test/functional/distributions_controller_test.rb'
-    - 'src/api/test/functional/group_request_test.rb'
-    - 'src/api/test/functional/release_management_test.rb'
-    - 'src/api/test/functional/request_controller_test.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
-
 # Offense count: 66
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.

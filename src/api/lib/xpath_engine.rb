@@ -195,8 +195,7 @@ class XpathEngine
         'state/@who'             => { cpart: 'bs_requests.commenter' },
         'state/@when'            => { cpart: 'bs_requests.updated_at' },
         'action/@type'           => { cpart: 'a.type',
-                                      joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id"
-        },
+                                      joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/grouped/@id'     => { cpart: 'gr.number',
                                       joins: ["LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id",
                                               "LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id",

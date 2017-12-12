@@ -145,8 +145,7 @@ class SourceController < ApplicationController
     project.check_weak_dependencies!
     opts = { no_write_to_backend: true,
              force:               params[:force].present?,
-             recursive_remove:    params[:remove_linking_repositories].present?
-           }
+             recursive_remove:    params[:remove_linking_repositories].present? }
     check_and_remove_repositories!(project.repositories, opts)
 
     logger.info "destroying project object #{project.name}"
@@ -499,8 +498,7 @@ class SourceController < ApplicationController
       remove_repositories = project.get_removed_repositories(request_data)
       opts = { no_write_to_backend: true,
                force:               params[:force].present?,
-               recursive_remove:    params[:remove_linking_repositories].present?
-             }
+               recursive_remove:    params[:remove_linking_repositories].present? }
       check_and_remove_repositories!(remove_repositories, opts)
     end
 
@@ -1055,8 +1053,7 @@ class SourceController < ApplicationController
       project = Project.get_by_name(params[:oproject])
       commit = { login:   User.current.login,
                  lowprio: 1,
-                 comment: "Project move from #{params[:oproject]} to #{params[:project]}"
-               }
+                 comment: "Project move from #{params[:oproject]} to #{params[:project]}" }
       commit[:comment] = params[:comment] unless params[:comment].blank?
       Backend::Api::Sources::Project.move(params[:oproject], params[:project])
       project.name = params[:project]

@@ -43,8 +43,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
                   "action"      => {"type" => "group", "grouped" => {"id" => "2"}},
                   "state"       =>
                                    {"name" => "new", "who" => "king", "when" => "2010-07-12T00:00:00", "comment" => {}},
-                  "description" => {}
-                 }, Xmlhash.parse(@response.body))
+                  "description" => {}}, Xmlhash.parse(@response.body))
     Timecop.freeze(1)
 
     # try to create a cycle
@@ -70,8 +69,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
                   "action"      => {"type" => "group", "grouped" => [{"id" => "2"}, {"id" => adi}]},
                   "state"       =>
                                    {"name" => "new", "who" => "king", "when" => "2010-07-12T00:00:00", "comment" => {}},
-                  "description" => {}
-                 }, Xmlhash.parse(@response.body))
+                  "description" => {}}, Xmlhash.parse(@response.body))
     Timecop.freeze(1)
 
     # now one in review
@@ -87,8 +85,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
                   "action"      => {"type" => "group", "grouped" => [{"id" => "2"}, {"id" => adi}, {"id" => withr}]},
                   "state"       =>
                                    {"name" => "review", "who" => "king", "when" => "2010-07-12T00:00:02", "comment" => {}},
-                  "description" => {}
-                 }, Xmlhash.parse(@response.body))
+                  "description" => {}}, Xmlhash.parse(@response.body))
     Timecop.freeze(1)
     # group_1 should be in review too now
     get "/request/#{adi}"
@@ -106,8 +103,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
                     "when"    => "2010-07-12T00:00:02",
                     "comment" => {}
                  },
-                  "description" => {}
-                 }, Xmlhash.parse(@response.body))
+                  "description" => {}}, Xmlhash.parse(@response.body))
 
     # now we revoke the group and adi should be new again
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -136,8 +132,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
                                      "when"        => "2010-07-12T00:00:03",
                                      "description" => "Request got reopened",
                                      "comment"     => "Reopened by removing from group #{id}"}],
-                  "description" => {}
-                 }, Xmlhash.parse(@response.body))
+                  "description" => {}}, Xmlhash.parse(@response.body))
   end
 
   def test_remove_request

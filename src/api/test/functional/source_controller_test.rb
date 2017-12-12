@@ -4035,8 +4035,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                      { 'userid' => 'tom', 'role' => 'bugowner' },
                      { 'userid' => 'Iggy', 'role' => 'maintainer' },
                      { 'userid' => 'tom', 'role' => 'maintainer' }
-                   ]
-                 }, ret)
+                   ]}, ret)
 
     ret = duplicated_user_test('package', 'group', '/source/home:Iggy/TestPack/_meta')
     assert_equal({ 'name'        => 'TestPack',
@@ -4047,8 +4046,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                    'group'       => [
                      { 'groupid' => 'test_group', 'role' => 'bugowner' },
                      { 'groupid' => 'test_group', 'role' => 'maintainer' }
-                   ]
-                 }, ret)
+                   ]}, ret)
 
     ret = duplicated_user_test('project', 'user', '/source/home:Iggy/_meta')
     assert_equal({ 'name'        => 'home:Iggy',
@@ -4058,8 +4056,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                      { 'userid' => 'tom', 'role' => 'bugowner' },
                      { 'userid' => 'Iggy', 'role' => 'maintainer' },
                      { 'userid' => 'tom', 'role' => 'maintainer' }
-                   ]
-                 }, ret)
+                   ]}, ret)
 
     ret = duplicated_user_test('project', 'group', '/source/home:Iggy/_meta')
     assert_equal({ 'name'        => 'home:Iggy',
@@ -4069,8 +4066,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                    'group'       => [
                      { 'groupid' => 'test_group', 'role' => 'bugowner' },
                      { 'groupid' => 'test_group', 'role' => 'maintainer' }
-                   ]
-                 }, ret)
+                   ]}, ret)
 
     # restore (esp in backend)
     login_king

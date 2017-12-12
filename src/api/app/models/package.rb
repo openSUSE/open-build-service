@@ -1111,8 +1111,7 @@ class Package < ApplicationRecord
                 noservice: "1",
                 oproject:  origin_project,
                 opackage:  origin_package,
-                user:      User.current.login
-    }
+                user:      User.current.login }
     myparam[:orev] = rev if rev.present?
     myparam[:olinkrev] = olinkrev if olinkrev.present?
     myparam[:missingok] = '1' if missingok
