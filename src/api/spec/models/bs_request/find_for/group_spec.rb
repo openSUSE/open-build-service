@@ -133,7 +133,6 @@ RSpec.describe BsRequest::FindFor::Group do
 
       it { expect(subject).to include(review_request) }
       it { expect(subject).to include(maintainer_request) }
-
     end
   end
 end

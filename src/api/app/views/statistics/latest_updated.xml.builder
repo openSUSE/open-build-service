@@ -1,7 +1,6 @@
 
 xml.latest_updated do
   @list.each do |item|
-
     ### item is a package
     if item[1] == :package
       xml.package(
@@ -16,7 +15,6 @@ xml.latest_updated do
         :updated => item[0].xmlschema
       )
     end
-
   end
 end
 

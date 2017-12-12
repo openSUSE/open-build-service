@@ -125,5 +125,4 @@ RSpec.shared_context 'a kiwi image xml' do
 </image>
     XML
   end
-
 end

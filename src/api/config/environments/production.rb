@@ -79,7 +79,6 @@ OBSApi::Application.configure do
   config.peek.adapter = :memcache, {
     client: client
   }
-
 end
 
 # disabled on production for performance reasons

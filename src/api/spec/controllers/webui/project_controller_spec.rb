@@ -928,7 +928,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         it { expect(flash.now[:error]).to eq("A project with the name not-existent does not exist. Please update the repository path elements.") }
         it { expect(response).to have_http_status(400) }
-
       end
     end
   end

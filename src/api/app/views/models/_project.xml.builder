@@ -81,5 +81,4 @@ xml.project(project_attributes) do
       end
     end
   end
-
 end

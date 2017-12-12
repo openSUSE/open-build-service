@@ -1,9 +1,7 @@
 
 
 xml.highest_rated do
-
   @ratings.each do |rating|
-
     if rating.object_type == 'Package'
       xml.package(
         :score => rating.score_calculated,
@@ -18,8 +16,6 @@ xml.highest_rated do
         :name => rating.projects.name
       )
     end
-
   end
-
 end
 

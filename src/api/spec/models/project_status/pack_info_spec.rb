@@ -8,7 +8,6 @@ RSpec.describe ProjectStatus::PackInfo do
   let(:two_hours_ago) { now - 2.hours }
 
   describe '.set_versrel' do
-
     before do
       # We have to call it initially to set the variables because they're not accessible from outside
       pack_info.set_versrel('1.0-42', one_hour_ago)
