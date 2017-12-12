@@ -9,7 +9,7 @@ xml.feed(feed_opts) do |feed|
   feed.link rel: 'self', type: 'application/atom+xml', href: request.url
   title = "Commits for #{@project.name}"
   feed.title(title)
-  feed.updated(@commits.first.datetime.iso8601) if @commits.length > 0
+  feed.updated(@commits.first.datetime.iso8601) if @commits.present?
 
   @commits.each do |commit|
     feed.entry do |entry|

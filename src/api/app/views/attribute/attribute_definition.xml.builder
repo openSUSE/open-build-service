@@ -7,7 +7,7 @@ xml.definition(p) do |attr|
     attr.description @at.description
   end
 
-  if @at.default_values.length > 0
+  if @at.default_values.present?
     attr.default do |default|
       @at.default_values.each do |def_val|
         default.value def_val.value
@@ -15,7 +15,7 @@ xml.definition(p) do |attr|
     end
   end
 
-  if @at.allowed_values.length > 0
+  if @at.allowed_values.present?
     attr.allowed do |allowed|
       @at.allowed_values.each do |all_val|
         allowed.value all_val.value
@@ -32,7 +32,7 @@ xml.definition(p) do |attr|
   end
 
   abies = @at.attrib_type_modifiable_bies.includes(:user, :group, :role)
-  if abies.length > 0
+  if abies.present?
     abies.each do |mod_rule|
       p = {}
       p[:user] = mod_rule.user.login if mod_rule.user
