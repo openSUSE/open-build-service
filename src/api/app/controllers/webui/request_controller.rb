@@ -204,7 +204,6 @@ class Webui::RequestController < Webui::WebuiController
 
       request_link = ActionController::Base.helpers.link_to("repository delete request #{req.number}", request_show_path(req.number))
       flash[:success] = "Created #{request_link}"
-
     rescue APIException => e
       flash[:error] = e.message
       if params[:package]

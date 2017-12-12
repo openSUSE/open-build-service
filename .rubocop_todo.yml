@@ -13,16 +13,6 @@
 Layout/DotPosition:
   Enabled: false
 
-# Offense count: 8
-# Cop supports --auto-correct.
-Layout/EmptyLinesAroundExceptionHandlingKeywords:
-  Exclude:
-    - 'src/api/app/controllers/webui/package_controller.rb'
-    - 'src/api/app/controllers/webui/project_controller.rb'
-    - 'src/api/app/controllers/webui/request_controller.rb'
-    - 'src/api/app/controllers/webui/subscriptions_controller.rb'
-    - 'src/api/app/controllers/webui/users/subscriptions_controller.rb'
-
 # Offense count: 13
 # Cop supports --auto-correct.
 # Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.

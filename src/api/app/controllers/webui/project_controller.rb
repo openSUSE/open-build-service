@@ -565,7 +565,6 @@ class Webui::ProjectController < Webui::WebuiController
           @project.store if errors.empty?
         end
       end
-
     rescue Suse::ValidationError => exception
       errors << exception.message
     end
