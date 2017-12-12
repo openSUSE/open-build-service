@@ -751,7 +751,8 @@ class User < ApplicationRecord
     # No maintainers
     packages = packages.where([
                                 '(relationships.user_id = ?) OR '\
-                                '(relationships.user_id is null AND packages.project_id in (?) )', id, projects_ids])
+                                '(relationships.user_id is null AND packages.project_id in (?) )', id, projects_ids
+                              ])
     packages.pluck(:id)
   end
 

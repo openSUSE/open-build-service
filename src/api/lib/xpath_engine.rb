@@ -310,21 +310,18 @@ class XpathEngine
                 'LEFT JOIN issues AS attribissues ON attribissues.id = attrib_issues.issue_id',
                 'LEFT JOIN issue_trackers AS attribissue_trackers ON attribissues.issue_tracker_id = attribissue_trackers.id',
                 'LEFT JOIN relationships user_relation ON packages.id = user_relation.package_id',
-                'LEFT JOIN relationships group_relation ON packages.id = group_relation.package_id'
-               ] << @joins
+                'LEFT JOIN relationships group_relation ON packages.id = group_relation.package_id'] << @joins
     when 'projects'
       relation = Project.all
       @joins = ['LEFT JOIN relationships user_relation ON projects.id = user_relation.project_id',
-                'LEFT JOIN relationships group_relation ON projects.id = group_relation.project_id'
-               ] << @joins
+                'LEFT JOIN relationships group_relation ON projects.id = group_relation.project_id'] << @joins
     when 'repositories'
       relation = Repository.where("repositories.db_project_id not in (?)", Relationship.forbidden_project_ids)
       @joins = ['LEFT join path_elements path_element on path_element.parent_id=repositories.id',
                 'LEFT join repositories path_repo on path_element.repository_id=path_repo.id',
                 'LEFT join release_targets release_target on release_target.repository_id=repositories.id',
                 'LEFT join product_update_repositories product_update_repository on product_update_repository.repository_id=release_target.target_repository_id',
-                'LEFT join products product on product.id=product_update_repository.product_id '
-               ] << @joins
+                'LEFT join products product on product.id=product_update_repository.product_id '] << @joins
     when 'requests'
       relation = BsRequest.all
       attrib = AttribType.find_by_namespace_and_name('OBS', 'IncidentPriority')
@@ -343,13 +340,11 @@ class XpathEngine
       @joins = ['LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
                 'LEFT join channels channel on channel.id=channel_binary_list.channel_id',
                 'LEFT join packages cpkg on cpkg.id=channel.package_id',
-                'LEFT join projects cprj on cprj.id=cpkg.project_id'
-               ] << @joins
+                'LEFT join projects cprj on cprj.id=cpkg.project_id'] << @joins
     when 'channel_binaries'
       relation = ChannelBinary.all
       @joins = ['LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
-                'LEFT join channels channel on channel.id=channel_binary_list.channel_id'
-               ] << @joins
+                'LEFT join channels channel on channel.id=channel_binary_list.channel_id'] << @joins
     when 'released_binaries'
       relation = BinaryRelease.all
 
@@ -358,8 +353,7 @@ class XpathEngine
                 'LEFT join product_media on (product_media.repository_id=release_repositories.id AND product_media.name=binary_releases.medium)',
                 'LEFT join products product_ga on product_ga.id=product_media.product_id ',
                 'LEFT join product_update_repositories product_update_repository on product_update_repository.repository_id=release_repositories.id',
-                'LEFT join products product_update on product_update.id=product_update_repository.product_id '
-               ] << @joins
+                'LEFT join products product_update on product_update.id=product_update_repository.product_id '] << @joins
       order = :binary_releasetime
     else
       logger.debug "strange base table: #{@base_table}"

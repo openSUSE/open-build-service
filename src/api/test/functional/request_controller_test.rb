@@ -1003,7 +1003,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                      { "description" => "Request got reviewed",
                        'who'         => 'tom',
                        'when'        => '2010-07-12T00:00:04',
-                       'comment'     => 'review2' }]
+                       'comment'     => 'review2' }
+                   ]
                    }, node)
   end
 

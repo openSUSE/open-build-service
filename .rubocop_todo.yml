@@ -20,18 +20,6 @@ Layout/DotPosition:
 Layout/IndentHash:
   Enabled: false
 
-# Offense count: 29
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: symmetrical, new_line, same_line
-Layout/MultilineArrayBraceLayout:
-  Exclude:
-    - 'src/api/app/models/user.rb'
-    - 'src/api/lib/tasks/extract.rake'
-    - 'src/api/lib/xpath_engine.rb'
-    - 'src/api/test/functional/attributes_test.rb'
-    - 'src/api/test/functional/request_controller_test.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Layout/MultilineBlockLayout:

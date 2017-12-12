@@ -167,8 +167,7 @@ namespace :db do
           end
           if %w(event_subscriptions ratings package_kinds package_issues
                 linked_db_projects relationships watched_projects path_elements groups_users
-                flags taggings bs_request_histories bs_request_actions project_log_entries
-                ).include? table_name
+                flags taggings bs_request_histories bs_request_actions project_log_entries).include? table_name
             record.delete(primary)
             t = record.to_a.sort
             # a bit clumpsy but reliable order is important for git diff
