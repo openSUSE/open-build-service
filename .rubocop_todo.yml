@@ -20,12 +20,6 @@ Layout/DotPosition:
 Layout/IndentHash:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/MultilineBlockLayout:
-  Exclude:
-    - 'src/api/app/views/source/productlist.xml.builder'
-
 # Offense count: 23
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
