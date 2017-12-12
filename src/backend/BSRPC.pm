@@ -205,6 +205,7 @@ sub rpc {
   if ($param->{'timeout'}) {
     my %paramcopy = %$param;
     my $timeout = delete $paramcopy{'timeout'};
+    $paramcopy{'running_timeout'} = $timeout;
     my $ans;
     local $SIG{'ALRM'} = sub {
       alarm(0);
@@ -400,6 +401,7 @@ sub rpc {
         close S;
         my %myparam = %$param;
         delete $myparam{'authenticator'};
+        $myparam{'headers'} = [ grep {!/^authorization:/i} @{$myparam{'headers'} || []} ];
         push @{$myparam{'headers'}}, "Authorization: $auth";
         return rpc(\%myparam, $xmlargs, @args);
       }

@@ -105,6 +105,35 @@ sub makemultipart {
   return $data;
 }
 
+sub authquote {
+  my ($q) = @_;
+  $q =~ s/(.)/sprintf("%%%02X", ord($1))/ge;
+  return $q;
+}
+
+sub parseauthenticate {
+  my ($auth) = @_;
+  $auth =~ s/%/%25/g;
+  $auth =~ s/\\(.)/$1 eq '%' ? '%' : sprintf("%%%02X", ord($1))/ge;
+  $auth =~ s/\"(.*?)\"/authquote($1)/ge;
+  $auth =~ s/\s*=\s*/=/g;	# get rid of bad space
+  my @auth = split(/\s*,\s*/, $auth);
+  for (splice @auth) {
+    s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+    if (/^([^=\s]+)(?:\s+(.*?))?$/s) {
+      push @auth, lc($1), {};
+      $_ = $2;
+    }
+    next unless @auth && defined($_);
+    if (/^(.*?)=(.*)/) {
+      push @{$auth[-1]->{lc($1)}}, $2;
+    } else {
+      push @{$auth[-1]->{'token'}}, $_;
+    }
+  }
+  return @auth;
+}
+
 sub unexpected_eof {
   my ($req) = @_;
   $req->{'__eof'} = 1 if $req;
