@@ -36,7 +36,7 @@ module Webui
         @image.build_description if @image.description.nil?
         @image.build_preference(type_image: 'docker') if @image.preference.nil?
         @description = @image.description.specification
-        @version = @image.version
+        @version = @image.preference.version
         @author = @image.description.author
         @contact = @image.description.contact
         @repositories_count = @image.repositories.count
@@ -53,8 +53,9 @@ module Webui
 
       def edit
         @image.build_description if @image.description.nil?
+        @image.build_preference(type_image: 'docker') if @image.preference.nil?
         @description = @image.description.specification
-        @version = @image.version
+        @version = @image.preference.version
         @package_groups = @image.default_package_group
         @author = @image.description.author
         @contact = @image.description.contact
@@ -141,7 +142,6 @@ module Webui
         params.require(:kiwi_image).permit(
           :use_project_repositories,
           :name,
-          :version,
           :schema_version,
           :displayname,
           description_attributes: description_attributes,
