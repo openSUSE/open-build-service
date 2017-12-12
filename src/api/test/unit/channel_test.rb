@@ -21,18 +21,18 @@ class ChannelTest < ActiveSupport::TestCase
 
     # a new channel
     axml = Xmlhash.parse(
-        '<channel>
-          <target project="home:Iggy" repository="10.2" id_template="UpdateInfoTag-&#37;Y-&#37;C" />
-          <target project="BaseDistro" repository="BaseDistro_repo"><disabled/></target>
-          <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
-            <binary name="package" package="pack2" supportstatus="l3" />
-            <binary name="does_not_exist" />
-          </binaries>
-          <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
-            <binary name="package" package="pack2" supportstatus="l3" />
-            <binary name="another_package_in_same_list" />
-          </binaries>
-        </channel>'
+      '<channel>
+        <target project="home:Iggy" repository="10.2" id_template="UpdateInfoTag-&#37;Y-&#37;C" />
+        <target project="BaseDistro" repository="BaseDistro_repo"><disabled/></target>
+        <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
+          <binary name="package" package="pack2" supportstatus="l3" />
+          <binary name="does_not_exist" />
+        </binaries>
+        <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
+          <binary name="package" package="pack2" supportstatus="l3" />
+          <binary name="another_package_in_same_list" />
+        </binaries>
+      </channel>'
     )
 
     3.times do
@@ -63,13 +63,13 @@ class ChannelTest < ActiveSupport::TestCase
 
     # change some values
     axml = Xmlhash.parse(
-        '<channel>
-          <target project="home:Iggy" repository="10.2" id_template="NEW-&#37;Y-&#37;C" />
-          <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
-            <binary name="package" package="pack2" arch="x86_64" />
-            <binary name="does_not_exist" supportstatus="l2" />
-          </binaries>
-        </channel>'
+      '<channel>
+        <target project="home:Iggy" repository="10.2" id_template="NEW-&#37;Y-&#37;C" />
+        <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
+          <binary name="package" package="pack2" arch="x86_64" />
+          <binary name="does_not_exist" supportstatus="l2" />
+        </binaries>
+      </channel>'
     )
     @channel.update_from_xml(axml)
     @channel.save

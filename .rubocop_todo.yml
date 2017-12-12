@@ -13,17 +13,6 @@
 Layout/DotPosition:
   Enabled: false
 
-# Offense count: 26
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
-# SupportedStyles: consistent, special_for_inner_method_call, special_for_inner_method_call_in_parentheses
-Layout/FirstParameterIndentation:
-  Exclude:
-    - 'src/api/app/models/unregistered_user.rb'
-    - 'src/api/test/unit/channel_test.rb'
-    - 'src/api/test/unit/package_test.rb'
-    - 'src/api/test/unit/project_test.rb'
-
 # Offense count: 88
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.

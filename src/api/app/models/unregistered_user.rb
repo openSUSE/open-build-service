@@ -48,9 +48,9 @@ class UnregisteredUser < User
     state = ::Configuration.registration == 'allow' ? "confirmed" : "unconfirmed"
 
     newuser = User.create(
-        login:                 opts[:login],
-        password:              opts[:password],
-        email:                 opts[:email]
+      login:                 opts[:login],
+      password:              opts[:password],
+      email:                 opts[:email]
     )
 
     newuser.realname = opts[:realname] || ""
