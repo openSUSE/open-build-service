@@ -45,7 +45,7 @@ namespace :db do
           con.exec_query(sql, 'SCHEMA').first['Create Table'] + ";\n\n"
         }.join
       else
-        raise "Task not supported by '#{abcs[Rails.env]["adapter"]}'"
+        raise "Task not supported by '#{abcs[Rails.env]['adapter']}'"
       end
 
       if ActiveRecord::Base.connection.supports_migrations?

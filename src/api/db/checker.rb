@@ -139,9 +139,9 @@ module DB
       use_delete_statement ||= true
       puts "\n  Inconsistent FOREIGN KEY for #{"\"#{table}.#{id}\"".blue} that references #{"\"#{othertable}.id\"".blue}"
       if use_delete_statement
-        statement = "delete from #{table} where #{id} in (#{ids.join(",")});"
+        statement = "delete from #{table} where #{id} in (#{ids.join(',')});"
       else
-        statement = "update #{table} set #{id}=NULL where #{id} in (#{ids.join(",")});"
+        statement = "update #{table} set #{id}=NULL where #{id} in (#{ids.join(',')});"
       end
       print "  Proposed solution: #{statement.green} Do you want to run it now? #{'[y/N]'.yellow}:"
       execute_sql(statement) if gets.chomp.casecmp('Y').zero?

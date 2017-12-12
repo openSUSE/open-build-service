@@ -1024,20 +1024,6 @@ Style/StderrPuts:
 Style/StringLiterals:
   Enabled: false
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiteralsInInterpolation:
-  Exclude:
-    - 'src/api/app/models/full_text_search.rb'
-    - 'src/api/app/models/issue_tracker.rb'
-    - 'src/api/app/views/webui/feeds/commits.atom.builder'
-    - 'src/api/db/checker.rb'
-    - 'src/api/lib/activexml/transport.rb'
-    - 'src/api/lib/tasks/cleanup_sessions.rake'
-    - 'src/api/lib/tasks/databases.rake'
-
 # Offense count: 272
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, MinSize, SupportedStyles.

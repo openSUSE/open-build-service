@@ -72,7 +72,7 @@ class FullTextSearch
     elsif fields.nil? || fields.empty?
       Riddle::Query.escape(text)
     else
-      "@(#{fields.map(&:to_s).join(",")}) #{Riddle::Query.escape(text)}"
+      "@(#{fields.map(&:to_s).join(',')}) #{Riddle::Query.escape(text)}"
     end
   end
 
