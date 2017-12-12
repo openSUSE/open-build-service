@@ -37,7 +37,6 @@ RSpec.describe Authenticator do
     end
 
     context 'in kerberos mode' do
-      let(:gssapi_mock) { double(:gssapi) }
       let(:request_mock) { double(:request, env: { 'Authorization' => 'Negotiate'}) }
 
       before do
@@ -94,6 +93,49 @@ RSpec.describe Authenticator do
             expect { authenticator.extract_user }.to raise_error(Authenticator::UnconfirmedUserError,
                                                                  'User is registered but not yet approved. Your account is a registered account, ' +
                                                                  'but it is not yet approved for the OBS by admin.')
+          end
+        end
+
+        context 'without kerberos_realm being set' do
+          before do
+            stub_const('CONFIG', CONFIG.merge({'kerberos_realm' => nil}))
+            authenticator.extract_user
+          end
+
+          it { expect(CONFIG['kerberos_realm']).to eq('test_realm.com') }
+        end
+
+        context 'without kerberos_service_principal being set' do
+          it 'without kerberos_service_principal key' do
+            stub_const('CONFIG', CONFIG.merge({'kerberos_service_principal' => nil}))
+            expect { authenticator.extract_user }.to raise_error(Authenticator::AuthenticationRequiredError,
+                                                                 'Kerberos configuration is broken. Principal is empty.')
+          end
+
+          it 'with kerberos_service_principal being set to empty string' do
+            stub_const('CONFIG', CONFIG.merge({'kerberos_service_principal' => ''}))
+            expect { authenticator.extract_user }.to raise_error(Authenticator::AuthenticationRequiredError,
+                                                                 'Kerberos configuration is broken. Principal is empty.')
+          end
+        end
+
+        context 'with a user authenticated in wrong Kerberos realm' do
+          before { allow(gssapi_mock).to receive(:display_name).and_return("tux@fake_realm") }
+
+          it 'trows an exception' do
+            expect { authenticator.extract_user }.to raise_error(Authenticator::AuthenticationRequiredError,
+                                                                 'User authenticated in wrong Kerberos realm.')
+          end
+        end
+
+        context 'the token is part of a continuation' do
+          before do
+            allow(gssapi_mock).to receive(:accept_context).and_return(SecureRandom.hex)
+            authenticator.extract_user
+          end
+
+          it 'sets the according response header' do
+            expect(response_mock.headers).to include('WWW-Authenticate')
           end
         end
       end
