@@ -55,7 +55,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
 
       it 'should not created' do
         params = { comment: { body: 'Wonderful Package' }, commentable_type: distribution.class, commentable_id: distribution.id }
-        expect{ post :create, params: params }.to raise_error(NoMethodError)
+        expect { post :create, params: params }.to raise_error(NoMethodError)
       end
     end
 

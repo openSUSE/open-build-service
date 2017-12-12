@@ -229,7 +229,7 @@ module ActiveXML
       u.path = URI.escape(uri.path.split(/\//).map { |x| x =~ /^:(\w+)/ ? params[$1.to_sym] : x }.join("/"))
       if uri.query
         new_pairs = []
-        pairs = u.query.split(/&/).map{|x| x.split(/=/, 2)}
+        pairs = u.query.split(/&/).map {|x| x.split(/=/, 2)}
         pairs.each do |pair|
           if pair.length == 2
             if pair[1] =~ /:(\w+)/
@@ -390,7 +390,7 @@ module ActiveXML
       noproxy_applies = false
       if noproxy
         np_split = noproxy.split(",")
-        noproxy_applies = np_split.any?{ |np| uri.host.end_with?(np.strip) }
+        noproxy_applies = np_split.any? { |np| uri.host.end_with?(np.strip) }
       end
 
       if proxyuri && noproxy_applies == false

@@ -121,7 +121,7 @@ class BinaryRelease < ApplicationRecord
   end
 
   def update_for_product
-    repository.product_update_repositories.map{ |i| i.product if i.product }.uniq
+    repository.product_update_repositories.map { |i| i.product if i.product }.uniq
   end
 
   def product_medium

@@ -90,7 +90,7 @@ RSpec.describe Attrib, :type => :model do
         subject { attribute_with_type_issue.update_with_associations([], [issue]) }
 
         it { expect(subject).to be true }
-        it { expect{ subject }.to change{ attribute_with_type_issue.issues.count }.by(1) }
+        it { expect { subject }.to change { attribute_with_type_issue.issues.count }.by(1) }
       end
 
       context "add a value" do
@@ -99,7 +99,7 @@ RSpec.describe Attrib, :type => :model do
         subject { attribute.update_with_associations([attrib_value], []) }
 
         it { expect(subject).to be true }
-        it { expect{ subject }.to change{ attribute.values.count }.by(1) }
+        it { expect { subject }.to change { attribute.values.count }.by(1) }
       end
     end
   end

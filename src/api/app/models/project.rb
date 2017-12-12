@@ -919,7 +919,7 @@ class Project < ApplicationRecord
       end
     end
 
-    packages.sort!{ |a, b| a.first.downcase <=> b.first.downcase }
+    packages.sort! { |a, b| a.first.downcase <=> b.first.downcase }
   end
 
   # return array of [:name, :package_id] tuples for all products

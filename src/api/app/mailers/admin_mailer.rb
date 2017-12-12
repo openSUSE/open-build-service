@@ -34,7 +34,7 @@ class AdminMailer < ActionMailer::Base
 
     # find all admins. No opt-out atm
     r = Role.find_by_title("Admin")
-    admins = RolesUser.where(role: r).map{ |ru| ru.user.email }
+    admins = RolesUser.where(role: r).map { |ru| ru.user.email }
 
     mail(to: admins,
          subject: "OBS Administrator #{level}",

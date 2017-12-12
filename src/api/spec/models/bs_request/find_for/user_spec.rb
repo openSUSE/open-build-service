@@ -23,7 +23,7 @@ RSpec.describe BsRequest::FindFor::User do
     context 'with a not existing user' do
       subject { klass.new(user: 'not-existent') }
 
-      it { expect{ subject.all }.to raise_error(NotFoundError) }
+      it { expect { subject.all }.to raise_error(NotFoundError) }
     end
 
     context 'with a created request' do

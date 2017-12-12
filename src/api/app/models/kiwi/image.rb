@@ -119,7 +119,7 @@ module Kiwi
       results = ::Buildresult.find_hashed(project: package.project, package: package.name, view: 'status', multibuild: '1', locallink: '1')
 
       local_build_results = {}
-      results.elements('result').select{|x| x['repository'] == 'images'}.each do |result|
+      results.elements('result').select {|x| x['repository'] == 'images'}.each do |result|
         result.elements('status').each do |status|
           local_build_results[status['package']] ||= []
           local_build_results[status['package']] << ::LocalBuildResult.new(repository: result['repository'],

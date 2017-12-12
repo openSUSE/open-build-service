@@ -341,7 +341,7 @@ RSpec.describe Webui::RequestController, vcr: true do
     context "without xhr header" do
       let(:call_sourcediff) { post :sourcediff }
 
-      it { expect{ call_sourcediff }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
+      it { expect { call_sourcediff }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
     end
   end
 end

@@ -6,7 +6,7 @@ class MemoryDumper
     @toexit = 0
 
     Memprof.start
-    old_handler = trap('URG'){
+    old_handler = trap('URG') {
       @toexit = 1
       old_handler.call if old_handler
     }
@@ -16,7 +16,7 @@ class MemoryDumper
     ret = @app.call(env)
     if @toexit == 1
       pid = Process.pid
-      fork{
+      fork {
         GC.start
         Memprof.dump_all("/tmp/memprof-#{pid}.json")
         exit!

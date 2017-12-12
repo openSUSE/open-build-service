@@ -29,7 +29,7 @@ RSpec.describe Backend::ConnectionHelper do
     end
 
     context 'with a wrong formed template' do
-      it { expect{subject.send(:calculate_endpoint, ['/build/:param'])}.to raise_error(ArgumentError, 'too few arguments')}
+      it { expect {subject.send(:calculate_endpoint, ['/build/:param'])}.to raise_error(ArgumentError, 'too few arguments')}
     end
   end
 end
