@@ -71,11 +71,6 @@ Metrics/ModuleLength:
 Lint/EndAlignment:
   EnforcedStyleAlignWith: variable
 
-# Checks for nested method definitions
-Lint/NestedMethodDefinition:
-  Exclude:
-    - 'src/api/test/functional/tag_controller_test.rb'
-
 ##################### Rails ##################################
 
 Rails:
