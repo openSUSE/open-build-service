@@ -44,11 +44,11 @@ class IchainNotifierTest < ActiveSupport::TestCase
 
   private
 
-    def read_fixture(action)
-      IO.readlines("#{ActionController::TestCase.fixture_path}/ichain_notifier/#{action}")
-    end
+  def read_fixture(action)
+    IO.readlines("#{ActionController::TestCase.fixture_path}/ichain_notifier/#{action}")
+  end
 
-    def encode(subject)
-      quoted_printable(subject, CHARSET)
-    end
+  def encode(subject)
+    quoted_printable(subject, CHARSET)
+  end
 end

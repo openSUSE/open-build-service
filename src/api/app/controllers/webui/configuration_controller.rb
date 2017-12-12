@@ -32,16 +32,16 @@ class Webui::ConfigurationController < Webui::WebuiController
 
   private
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def project_params
-      params.require(:project).permit(:name, :title, :remoteurl, :description)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def project_params
+    params.require(:project).permit(:name, :title, :remoteurl, :description)
+  end
 
-    def configuration_params
-      params.require(:configuration).permit(:name, :title, :description, :unlisted_projects_filter, :unlisted_projects_filter_description)
-    end
+  def configuration_params
+    params.require(:configuration).permit(:name, :title, :description, :unlisted_projects_filter, :unlisted_projects_filter_description)
+  end
 
-    def set_configuration
-      @configuration = ::Configuration.first
-    end
+  def set_configuration
+    @configuration = ::Configuration.first
+  end
 end

@@ -20,16 +20,6 @@ Layout/DotPosition:
 Layout/IndentHash:
   Enabled: false
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: normal, rails
-Layout/IndentationConsistency:
-  Exclude:
-    - 'src/api/app/controllers/webui/configuration_controller.rb'
-    - 'src/api/test/functional/statistics_controller_test.rb'
-    - 'src/api/test/unit/ichain_notifier_test.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: Width, IgnoredPatterns.
