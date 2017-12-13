@@ -670,10 +670,8 @@ sub read_file {
   die("read_file: no content attached\n") unless have_content();
   my $req = $BSServer::request;
   send_continue() if $req->{'need_continue'};
-  $req->{'__socket'} = \*CLNT;
-  my $res = BSHTTP::file_receiver($req, {'filename' => $filename, @args});
-  delete $req->{'__socket'};
-  return $res;
+  local $req->{'__socket'} = \*CLNT;
+  return BSHTTP::file_receiver($req, {'filename' => $filename, @args});
 }
 
 sub read_cpio {
@@ -681,10 +679,8 @@ sub read_cpio {
   die("read_cpio: no content attached\n") unless have_content();
   my $req = $BSServer::request;
   send_continue() if $req->{'need_continue'};
-  $req->{'__socket'} = \*CLNT;
-  my $res = BSHTTP::cpio_receiver($req, {'directory' => $dirname, @args});
-  delete $req->{'__socket'};
-  return $res;
+  local $req->{'__socket'} = \*CLNT;
+  return BSHTTP::cpio_receiver($req, {'directory' => $dirname, @args});
 }
 
 sub read_data {
@@ -692,10 +688,8 @@ sub read_data {
   die("read_data: no content attached\n") unless have_content();
   my $req = $BSServer::request;
   send_continue() if $req->{'need_continue'};
-  $req->{'__socket'} = \*CLNT;
-  my $res = BSHTTP::read_data($req, $maxl, $exact);
-  delete $req->{'__socket'};
-  return $res;
+  local $req->{'__socket'} = \*CLNT;
+  return BSHTTP::read_data($req, $maxl, $exact);
 }
 
 ###########################################################################
