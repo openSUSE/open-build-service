@@ -578,7 +578,7 @@ class Project < ApplicationRecord
       if maintenance_release_requests.exists?
         if with_exception
           raise OpenReleaseRequest, "Unlock of maintenance incident #{name} is not possible," +
-                                       " because there is a running release request: #{maintenance_release_requests.first.id}"
+                                    " because there is a running release request: #{maintenance_release_requests.first.id}"
         else
           errors.add(:base, "Unlock of maintenance incident #{name} is not possible," +
                             " because there is a running release request: #{maintenance_release_requests.first.id}")
@@ -1543,8 +1543,8 @@ class Project < ApplicationRecord
 
     # either OBS interconnect or repository "download on demand" feature used
     if request_data.has_key?('remoteurl') ||
-         request_data.has_key?('remoteproject') ||
-         has_dod_elements?(request_data['repository'])
+       request_data.has_key?('remoteproject') ||
+       has_dod_elements?(request_data['repository'])
       return { error: 'Admin rights are required to change projects using remote resources' }
     end
     {}
@@ -1580,8 +1580,8 @@ class Project < ApplicationRecord
       # The read access protection for own and linked project must be the same.
       # ignore this for remote targets
       if target_project.class == Project &&
-          target_project.disabled_for?('access', nil, nil) &&
-          !FlagHelper.xml_disabled_for?(request_data, 'access')
+         target_project.disabled_for?('access', nil, nil) &&
+         !FlagHelper.xml_disabled_for?(request_data, 'access')
         return {
             error: "Project links work only when both projects have same read access protection level: #{project_name} -> #{target_project_name}"
         }
@@ -1764,7 +1764,7 @@ class Project < ApplicationRecord
   def has_local_distribution(project_name, repository)
     linked_repositories.not_remote.any? do |linked_repository|
       linked_repository.project.name == project_name &&
-          linked_repository.name == repository
+        linked_repository.name == repository
     end
   end
 end

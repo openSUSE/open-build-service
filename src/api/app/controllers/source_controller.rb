@@ -305,9 +305,9 @@ class SourceController < ApplicationController
     return if User.current.can_modify_package?(@package)
 
     raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
-                                       "for unspecified package" unless @package.class == Package
+                                    "for unspecified package" unless @package.class == Package
     raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " +
-                                       "for package #{@package.name} in project #{@package.project.name}"
+                                    "for package #{@package.name} in project #{@package.project.name}"
   end
 
   # POST /source/:project/:package
@@ -623,7 +623,7 @@ class SourceController < ApplicationController
       pass_to_backend path
     else
       raise DeleteProjectPubkeyNoPermission, "No permission to delete public key for project '#{params[:project]}'. " +
-                                                "Either maintainer permissions by upper project or admin permissions is needed."
+                                             "Either maintainer permissions by upper project or admin permissions is needed."
     end
   end
 
@@ -1025,7 +1025,7 @@ class SourceController < ApplicationController
         end
         unless releasetarget.trigger == 'manual'
           raise CmdExecutionNoPermission, "Trigger is not set to manual in repository" +
-                                             " #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
+                                          " #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
         end
         repo_matches = true
       end
@@ -1601,7 +1601,7 @@ class SourceController < ApplicationController
         raise Project::ForbiddenError
       end
       if params[:flag] == 'sourceaccess' && params[:status] == 'enable' &&
-          !@project.enabled_for?('sourceaccess', params[:repository], params[:arch])
+         !@project.enabled_for?('sourceaccess', params[:repository], params[:arch])
         raise Project::ForbiddenError
       end
     end

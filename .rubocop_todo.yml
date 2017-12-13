@@ -52,19 +52,8 @@ Layout/MultilineMethodCallIndentation:
 Layout/MultilineOperationIndentation:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith, SupportedStylesAlignWith.
-# SupportedStylesAlignWith: either, start_of_block, start_of_line
-Lint/BlockAlignment:
-  Exclude:
-    - 'src/api/app/views/public/binary_packages.xml.builder'
-
-# Offense count: 2
-Lint/BooleanSymbol:
-  Exclude:
-    - 'src/api/spec/features/webui/projects_spec.rb'
-    - 'src/api/spec/spec_helper.rb'
+    - 'src/api/spec/controllers/webui/project_controller_spec.rb'
+    - 'src/api/spec/models/comment_spec.rb'
 
 # Offense count: 3
 Lint/DuplicateMethods:

@@ -62,7 +62,7 @@ RSpec.configure do |config|
   # Tag all groups and examples in the spec/features directory with
   # :vcr => :true
   config.define_derived_metadata(file_path: %r{/spec/features/}) do |metadata|
-    metadata[:vcr] = :true
+    metadata[:vcr] = true
   end
 
   # Seed global randomization in this process using the `--seed` CLI option.

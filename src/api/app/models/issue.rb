@@ -124,7 +124,7 @@ class Issue < ApplicationRecord
     end
     builder.to_xml indent: 2, encoding: 'UTF-8',
                                save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                             Nokogiri::XML::Node::SaveOptions::FORMAT
+                                          Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def to_axml(_opts = {})

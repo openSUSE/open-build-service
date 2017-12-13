@@ -169,14 +169,14 @@ class BinaryRelease < ApplicationRecord
       end
     end
     builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                 Nokogiri::XML::Node::SaveOptions::FORMAT
+                              Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def to_axml_id
     builder = Nokogiri::XML::Builder.new
     builder.binary(render_attributes)
     builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                 Nokogiri::XML::Node::SaveOptions::FORMAT
+                              Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def to_axml(_opts = {})

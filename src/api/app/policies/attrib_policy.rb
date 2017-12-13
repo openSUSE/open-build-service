@@ -10,7 +10,7 @@ class AttribPolicy < ApplicationPolicy
       # check for type modifiable_by rules
       @record.attrib_type.attrib_type_modifiable_bies.any? do |rule|
         rule.user == @user ||
-        @user.is_in_group?(rule.group) ||
+          @user.is_in_group?(rule.group) ||
           (rule.try(:role) && @user.has_local_role?(rule.role, @record.container))
       end
     end

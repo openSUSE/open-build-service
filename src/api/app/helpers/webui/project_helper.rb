@@ -27,10 +27,10 @@ module Webui::ProjectHelper
     elsif firstfail
       if User.current.can_modify_project?(@project.api_obj)
         status_comment_html += " <span class='unknown_failure'>Unknown build failure ".html_safe +
-            link_to(image_tag('comment_edit.png', size: '16x16', alt: 'Edit'),
-                    { action: 'edit_comment_form', comment: '', package: package,
-                     project: @project, update: valid_xml_id("comment_edit_#{package}") },
-                    remote: true)
+                               link_to(image_tag('comment_edit.png', size: '16x16', alt: 'Edit'),
+                                       { action: 'edit_comment_form', comment: '', package: package,
+                                        project: @project, update: valid_xml_id("comment_edit_#{package}") },
+                                       remote: true)
         status_comment_html += '</span>'.html_safe
       else
         status_comment_html += "<span class='unknown_failure'>Unknown build failure</span>".html_safe
@@ -118,8 +118,8 @@ module Webui::ProjectHelper
     # user input which we should never trust!!!
     list.map { |p|
       "['".html_safe +
-          escape_javascript(p) +
-          "']".html_safe
+        escape_javascript(p) +
+        "']".html_safe
     }.join(',').html_safe
   end
 end

@@ -316,7 +316,7 @@ module ActiveXML
         path = url.path
         path += "?" + url.query if url.query
         logger.debug "http_do: method: #{method} url: " +
-        "http#{'s' if @http.use_ssl?}://#{url.host}:#{url.port}#{path}"
+                     "http#{'s' if @http.use_ssl?}://#{url.host}:#{url.port}#{path}"
 
         clength = { "Content-Length" => "0" }
         if opt[:data].respond_to?(:read)

@@ -384,7 +384,7 @@ class BsRequest < ApplicationRecord
       r.description description unless description.nil?
     end
     builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                 Nokogiri::XML::Node::SaveOptions::FORMAT
+                              Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def is_reviewer?(user)
@@ -413,9 +413,9 @@ class BsRequest < ApplicationRecord
     return false unless opts[:by_user] || opts[:by_group] || opts[:by_project] || opts[:by_package]
     reviews.each do |review|
       if review.by_user && review.by_user == opts[:by_user] ||
-          review.by_group && review.by_group == opts[:by_group] ||
-          review.by_project && review.by_project == opts[:by_project] ||
-          review.by_package && review.by_package == opts[:by_package]
+         review.by_group && review.by_group == opts[:by_group] ||
+         review.by_project && review.by_project == opts[:by_project] ||
+         review.by_package && review.by_package == opts[:by_package]
         logger.debug "Obsoleting review #{review.id}"
         review.state = :obsoleted
         review.save

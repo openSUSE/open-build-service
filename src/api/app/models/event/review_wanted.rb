@@ -35,7 +35,7 @@ module Event
     # for review_wanted we ignore all the other reviews
     def reviewers
       User.where(id: payload["reviewers"].map { |r| r['user_id'] }) +
-          Group.where(id: payload["reviewers"].map { |r| r['group_id'] })
+        Group.where(id: payload["reviewers"].map { |r| r['group_id'] })
     end
   end
 end

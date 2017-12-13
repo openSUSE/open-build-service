@@ -60,7 +60,7 @@ def init
   end
 
   if @params[:load] &&
-      @params[:filename]
+     @params[:filename]
     abort('The --filename parameter is not valid in combination with --load')
   end
 end

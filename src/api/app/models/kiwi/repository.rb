@@ -98,8 +98,8 @@ module Kiwi
     def source_path_for_opensuse_repository?
       # $1 must be a project name. $2 must be a repository name
       source_path =~ /^opensuse:\/\/([^\/]+)\/([^\/]+)$/ &&
-      Project.valid_name?(Regexp.last_match(1)) &&
-      Regexp.last_match(2) =~ /\A[^_:\/\000-\037][^:\/\000-\037]*\Z/
+        Project.valid_name?(Regexp.last_match(1)) &&
+        Regexp.last_match(2) =~ /\A[^_:\/\000-\037][^:\/\000-\037]*\Z/
     end
 
     def map_to_allowed_repository_types

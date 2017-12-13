@@ -177,7 +177,7 @@ class Group < ApplicationRecord
   def tasks
     Rails.cache.fetch("requests_for_#{cache_key}") do
       incoming_requests.count +
-      involved_reviews.count
+        involved_reviews.count
     end
   end
 end

@@ -876,8 +876,8 @@ class Package < ApplicationRecord
     # NOTE: We use Time.now.to_i instead of UNIX_TIMESTAMP() so we can test with frozen ruby time in the old tests suite,
     # change it when removing the tests
     '( packages.activity_index * ' +
-        "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
-        ') as activity_value'
+      "POWER( 2.3276, (UNIX_TIMESTAMP(packages.updated_at) - #{Time.now.to_i})/10000000 ) " +
+      ') as activity_value'
   end
 
   before_validation(on: :create) do

@@ -7,7 +7,7 @@ class BsRequest
         @relation, inner_or = extend_relation('target', @relation, roles, package_name, subprojects, project_name, inner_or)
 
         if (roles.empty? || roles.include?('reviewer')) &&
-            (states.empty? || states.include?('review'))
+           (states.empty? || states.include?('review'))
           @relation = @relation.references(:reviews)
           review_states.each do |review_state|
             @relation = @relation.includes(:reviews)
@@ -38,7 +38,7 @@ class BsRequest
             end
           else
             inner_or << "(bs_request_actions.#{source_or_target}_project=#{quote(project)} and " +
-                "bs_request_actions.#{source_or_target}_package=#{quote(package)})"
+                        "bs_request_actions.#{source_or_target}_package=#{quote(package)})"
           end
         end
         [requests, inner_or]

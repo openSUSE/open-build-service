@@ -411,9 +411,9 @@ RSpec.describe Package, vcr: true do
       let(:one_dependency) do
         "<builddepinfo>" +
           "<package name=\"gcc6\">" +
-            "<pkgdep>gcc</pkgdep>" +
+          "<pkgdep>gcc</pkgdep>" +
           "</package>" +
-        "</builddepinfo>"
+          "</builddepinfo>"
       end
 
       before do
@@ -429,10 +429,10 @@ RSpec.describe Package, vcr: true do
       let(:two_dependencies) do
         "<builddepinfo>" +
           "<package name=\"gcc\">" +
-            "<pkgdep>gcc6</pkgdep>" +
-            "<pkgdep>xz</pkgdep>" +
+          "<pkgdep>gcc6</pkgdep>" +
+          "<pkgdep>xz</pkgdep>" +
           "</package>" +
-        "</builddepinfo>"
+          "</builddepinfo>"
       end
 
       before do
