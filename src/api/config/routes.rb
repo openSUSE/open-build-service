@@ -693,9 +693,9 @@ OBSApi::Application.routes.draw do
 
   controller :source do
     get 'source' => :index
-    post 'source' => :global_command_createmaintenanceincident, constraints: -> (req) { req.params[:cmd] == "createmaintenanceincident" }
-    post 'source' => :global_command_branch,                    constraints: -> (req) { req.params[:cmd] == "branch" }
-    post 'source' => :global_command_orderkiwirepos,            constraints: -> (req) { req.params[:cmd] == "orderkiwirepos" }
+    post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == "createmaintenanceincident" }
+    post 'source' => :global_command_branch,                    constraints: ->(req) { req.params[:cmd] == "branch" }
+    post 'source' => :global_command_orderkiwirepos,            constraints: ->(req) { req.params[:cmd] == "orderkiwirepos" }
 
     # project level
     get 'source/:project' => :show_project, constraints: cons
