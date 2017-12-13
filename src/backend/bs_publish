@@ -71,7 +71,7 @@ my $extrepodb = "$BSConfig::bsdir/db/published";
 
 my $myeventdir = "$eventdir/publish";
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm udeb deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 
@@ -138,7 +138,7 @@ sub fillpkgdescription {
       $hit = $p;
       last;
     }
-    if ($pn =~ /^\Q$name\E_([^_]+)_[^_]+\.deb$/) {
+    if ($pn =~ /^\Q$name\E_([^_]+)_[^_]+\.u?deb$/) {
       $hit = $p;
       last;
     }
@@ -240,7 +240,7 @@ sub updatebinaryindex {
     my $n;
     if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
       $n = $1;
-    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.u?deb$/) {
       $n = $1;
     } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
       $n = $1;
@@ -254,7 +254,7 @@ sub updatebinaryindex {
     my $n;
     if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
       $n = $1;
-    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
+    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.u?deb$/) {
       $n = $1;
     } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
       $n = $1;
@@ -697,6 +697,22 @@ sub deleterepo_susetags {
   qsystem('rm', '-rf', "$extrep/descr") if -d "$extrep/descr";
 }
 
+sub compress_and_rename {
+  my($file) =@_;
+  if (-s "$file.new") {
+    unlink("$file");
+    link("$file.new", "$file");
+    qsystem('gzip', '-9', '-n', '-f', "$file.new") && print "    gzip $file.new failed: $?\n";
+    unlink("$file.new");
+    unlink("$file.gz");
+    rename("$file.new.gz", "$file.gz");
+  } else {
+    unlink("$file.new");
+    unlink("$file");
+    unlink("$file.gz");
+  }
+}
+
 sub createrepo_debian {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
@@ -704,33 +720,31 @@ sub createrepo_debian {
   if (qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')) {
       die("    dpkg-scanpackages failed: $?\n");
   }
-  if (-f "$extrep/Packages.new") {
-    unlink("$extrep/Packages");
-    link("$extrep/Packages.new", "$extrep/Packages");
-    qsystem('gzip', '-9', '-n', '-f', "$extrep/Packages.new") && print "    gzip Packages.new failed: $?\n";
-    unlink("$extrep/Packages.new");
-    unlink("$extrep/Packages.gz");
-    rename("$extrep/Packages.new.gz", "$extrep/Packages.gz");
-  } else {
-    unlink("$extrep/Packages");
-    unlink("$extrep/Packages.gz");
-  }
+  compress_and_rename("$extrep/Packages");
 
   print "    running dpkg-scansources\n";
   if (qsystem('chdir', $extrep, 'stdout', 'Sources.new', 'dpkg-scansources', '.', '/dev/null')) {
       die("    dpkg-scansources failed: $?\n");
   }
-  if (-f "$extrep/Sources.new") {
-    unlink("$extrep/Sources");
-    link("$extrep/Sources.new", "$extrep/Sources");
-    qsystem('gzip', '-9', '-n', '-f', "$extrep/Sources.new") && print "    gzip Sources.new failed: $?\n";
-    unlink("$extrep/Sources.new");
-    unlink("$extrep/Sources.gz");
-    rename("$extrep/Sources.new.gz", "$extrep/Sources.gz");
-  } else {
-    unlink("$extrep/Sources");
-    unlink("$extrep/Sources.gz");
+  compress_and_rename("$extrep/Sources");
+  createrelease_debian($extrep, $projid, $repoid, $data, $options);
+
+  my $udebs="$extrep/debian-installer";
+  mkdir_p("$udebs") unless -d "$udebs";
+  if (qsystem('chdir', $udebs, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-t','udeb','-m', '..', '/dev/null')) {
+      die("    dpkg-scanpackages for udebs failed: $?\n");
   }
+  compress_and_rename("$udebs/Packages");
+
+  if ( -e "$udebs/Packages") {
+      createrelease_debian($udebs, $projid, $repoid, $data, $options);
+  } else {
+      rmdir("$udebs");
+  }
+}
+
+sub createrelease_debian {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $date = POSIX::ctime(time());
@@ -880,9 +894,9 @@ sub createrepo_staticlinks {
       if (/^(.*)-([^-]*)-[^-]*\.rpm$/s) {
         $link = "$1.rpm";
         $link = "$1-$2.rpm" if $versioned;
-      } elsif (/^(.*)_([^_]*)-[^_]*\.deb$/s) {
-        $link = "$1.deb";
-        $link = "${1}_$2.deb" if $versioned;
+      } elsif (/^(.*)_([^_]*)-[^_]*\.(u?deb)$/s) {
+        $link = "$1.$3";
+        $link = "${1}_$2.$3" if $versioned;
       } elsif (/^(.*)-([^-]*)-([^-]*)-([^-]*)\.(AppImage?(\.zsync)?)$/s) {
         # name version "release.glibcX.Y" arch suffix
         $link = "$1-latest-$4.$5";
@@ -1478,7 +1492,7 @@ sub publish {
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
 	$p = "$1/$bin";
 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
-      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.deb$/) {
+      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.u?deb$/) {
 	$p = "$1/$bin";
       } elsif ($bin =~ /\.(?:AppImage|AppImage.zsync|snap|exe)?$/) {
 	$p = "$bin";
@@ -1488,7 +1502,7 @@ sub publish {
 	next unless $q;
 	$p = "$q->{'arch'}/$q->{'name'}-$q->{'version'}-$q->{'release'}.$q->{'arch'}.rpm";
       } elsif ($bin =~ /\.deb$/) {
-	# legacy format
+	# legacy format XXX no udeb handling
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	$p = "$q->{'arch'}/$q->{'name'}_$q->{'version'}";
 	$p .= "-$q->{'release'}" if defined $q->{'release'};
