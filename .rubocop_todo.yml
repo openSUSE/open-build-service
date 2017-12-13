@@ -52,12 +52,6 @@ Layout/MultilineMethodCallIndentation:
 Layout/MultilineOperationIndentation:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/SpaceInsideBrackets:
-  Exclude:
-    - 'src/api/app/views/result/packageresult.xml.builder'
-
 # Offense count: 1325
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, EnforcedStyleForEmptyBraces, SupportedStylesForEmptyBraces.

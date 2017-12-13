@@ -12,7 +12,7 @@ xml.packageresult( "project" => @project, "repository" => @repository,
           xml.summary( s["summary"] )
         end
       end
-      @arch_rpms[ a ].each do |r|
+      @arch_rpms[a].each do |r|
         xml.rpm( "filename" => r )
       end
     end
