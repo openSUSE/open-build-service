@@ -143,12 +143,6 @@ Lint/BooleanSymbol:
     - 'src/api/spec/features/webui/projects_spec.rb'
     - 'src/api/spec/spec_helper.rb'
 
-# Offense count: 3
-Lint/DuplicateMethods:
-  Exclude:
-    - 'src/api/app/models/history_element.rb'
-    - 'src/api/lib/activexml/node.rb'
-
 # Offense count: 19
 Lint/EmptyWhen:
   Exclude:
