@@ -196,7 +196,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     # change the xml data set that came as response body
     new_name = "Thommy Cool"
     userinfo_xml = @response.body
-    doc = REXML::Document.new( userinfo_xml )
+    doc = REXML::Document.new(userinfo_xml)
     doc.elements["//realname"].text = new_name
     doc.elements["//watchlist"].add_element "project"
     doc.elements["//project"].add_attribute REXML::Attribute.new('name', 'home:tom')

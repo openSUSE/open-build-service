@@ -166,7 +166,7 @@ class User < ApplicationRecord
     if CONFIG['ldap_mode'] == :on
       begin
         require 'ldap'
-        logger.debug( "Using LDAP to find #{login}" )
+        logger.debug("Using LDAP to find #{login}")
         ldap_info = UserLdapStrategy.find_with_ldap(login, password)
       rescue LoadError
         logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
@@ -339,7 +339,7 @@ class User < ApplicationRecord
     render_axml
   end
 
-  def render_axml( watchlist = false )
+  def render_axml(watchlist = false)
     # CanRenderModel
     render_xml(watchlist: watchlist)
   end
@@ -547,7 +547,7 @@ class User < ApplicationRecord
       has_local_permission?(key.to_s, package)
   end
 
-  def has_local_role?( role, object )
+  def has_local_role?(role, object)
     if object.is_a?(Package) || object.is_a?(Project)
       logger.debug "running local role package check: user #{login}, package #{object.name}, role '#{role.title}'"
       rels = object.relationships.where(role_id: role.id, user_id: id)
@@ -569,7 +569,7 @@ class User < ApplicationRecord
   # if context is a package, check permissions in package, then if needed continue with project check
   # if context is a project, check it, then if needed go down through all namespaces until hitting the root
   # return false if none of the checks succeed
-  def has_local_permission?( perm_string, object )
+  def has_local_permission?(perm_string, object)
     roles = Role.ids_with_permission(perm_string)
     return false unless roles
     parent = nil

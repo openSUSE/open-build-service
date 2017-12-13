@@ -16,17 +16,17 @@ class Channel < ApplicationRecord
     xmlhash.elements('binaries').each { |p|
       project = p['project']
       unless project.blank?
-        prj = Project.get_by_name( p['project'] )
-        prj.repositories.find_by_name!( p['repository'] ) if p['repository']
+        prj = Project.get_by_name(p['project'])
+        prj.repositories.find_by_name!(p['repository']) if p['repository']
       end
-      Architecture.find_by_name!( p['arch'] ) if p['arch']
+      Architecture.find_by_name!(p['arch']) if p['arch']
       p.elements('binary') { |b|
-        Architecture.find_by_name!( b['arch'] ) if b['arch']
+        Architecture.find_by_name!(b['arch']) if b['arch']
         project = b['project']
         if project
-          prj = Project.get_by_name( project )
+          prj = Project.get_by_name(project)
           if b['package']
-            pkg = prj.find_package(b['package'] )
+            pkg = prj.find_package(b['package'])
             raise UnknownPackage, "Package does not exist #{prj.name}/#{p['package']}" unless pkg
           end
           if b['repository'] && !prj.repositories.find_by_name(b['repository'])

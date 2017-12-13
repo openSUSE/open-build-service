@@ -374,10 +374,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{id1}"
     assert_response :success
-    assert_xml_tag( tag: 'state', attributes: { name: 'revoked' } )
+    assert_xml_tag(tag: 'state', attributes: { name: 'revoked' })
     get "/request/#{id2}"
     assert_response :success
-    assert_xml_tag( tag: 'state', attributes: { name: 'declined' } )
+    assert_xml_tag(tag: 'state', attributes: { name: 'declined' })
 
     delete '/source/home:Iggy/TestPack.DELETE'
     assert_response :success

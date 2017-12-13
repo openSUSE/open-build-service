@@ -5,20 +5,20 @@ class AboutControllerTest < ActionDispatch::IntegrationTest
     prepare_request_valid_user
     get "/about"
     assert_response :success
-    assert_xml_tag( tag: "about", descendant: { tag: "revision" } )
+    assert_xml_tag(tag: "about", descendant: { tag: "revision" })
   end
 
   def test_about_anonymous
     reset_auth
     get "/about"
     assert_response :success
-    assert_xml_tag( tag: "about", descendant: { tag: "revision" } )
+    assert_xml_tag(tag: "about", descendant: { tag: "revision" })
   end
 
   def test_application_controller
     prepare_request_valid_user
     get "/about?user[asd]=yxc"
     assert_response 400
-    assert_xml_tag( tag: "status", attributes: { code: "invalid_parameter" } )
+    assert_xml_tag(tag: "status", attributes: { code: "invalid_parameter" })
   end
 end

@@ -5,7 +5,7 @@ require 'gssapi'
 RSpec.describe Authenticator do
   describe '#extract_user' do
     let(:session_mock) { double(:session) }
-    let(:response_mock) { double(:response, headers: {} ) }
+    let(:response_mock) { double(:response, headers: {}) }
 
     before do
       allow(session_mock).to receive(:[]).with(:login)

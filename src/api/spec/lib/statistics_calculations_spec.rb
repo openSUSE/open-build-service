@@ -12,9 +12,9 @@ RSpec.describe StatisticsCalculations do
     before do
       # Create all objects and their relations with the correct timestamps
       Timecop.freeze(30.seconds.ago) { package_1 }
-      Timecop.freeze( 1.minute.ago)  { package_2 }
-      Timecop.freeze( 2.minutes.ago) { package_3 }
-      Timecop.freeze( 1.minute.ago)  { project_without_package }
+      Timecop.freeze(1.minute.ago)  { package_2 }
+      Timecop.freeze(2.minutes.ago) { package_3 }
+      Timecop.freeze(1.minute.ago)  { project_without_package }
     end
 
     def project_result_for(project)

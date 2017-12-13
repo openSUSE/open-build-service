@@ -362,8 +362,8 @@ class XpathEngine
       cond_ary = [@conditions.flatten.uniq.join(" AND "), @condition_values].flatten
     end
 
-    logger.debug("#{relation.to_sql}.find #{ { joins:      @joins.flatten.uniq.join(' '),
-                                               conditions: cond_ary }.inspect }")
+    logger.debug("#{relation.to_sql}.find #{{ joins:      @joins.flatten.uniq.join(' '),
+                                              conditions: cond_ary }.inspect}")
     relation = relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(order)
     # .distinct is critical for perfomance here...
     relation.distinct.pluck(:id)

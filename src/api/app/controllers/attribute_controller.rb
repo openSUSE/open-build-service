@@ -13,7 +13,7 @@ class AttributeController < ApplicationController
 
   def index
     if params[:namespace]
-      an = AttribNamespace.where(name: params[:namespace] ).first
+      an = AttribNamespace.where(name: params[:namespace]).first
       unless an
         render_error status: 400, errorcode: 'unknown_namespace',
           message: "Attribute namespace does not exist: #{params[:namespace]}"
@@ -24,10 +24,10 @@ class AttributeController < ApplicationController
       list = AttribNamespace.pluck(:name)
     end
 
-    builder = Builder::XmlMarkup.new( indent: 2 )
-    xml = builder.directory( count: list.length ) do |dir|
+    builder = Builder::XmlMarkup.new(indent: 2)
+    xml = builder.directory(count: list.length) do |dir|
       list.each do |a|
-        dir.entry( name: a )
+        dir.entry(name: a)
       end
     end
 
@@ -61,7 +61,7 @@ class AttributeController < ApplicationController
     if request.post? || request.put?
       logger.debug "--- updating attribute namespace definitions ---"
 
-      xml_element = Xmlhash.parse( request.raw_post )
+      xml_element = Xmlhash.parse(request.raw_post)
 
       unless xml_element['name'] == namespace
         render_error status: 400, errorcode: 'illegal_request',
@@ -121,7 +121,7 @@ class AttributeController < ApplicationController
     if request.post? || request.put?
       logger.debug "--- updating attribute type definitions ---"
 
-      xml_element = Xmlhash.parse( request.raw_post )
+      xml_element = Xmlhash.parse(request.raw_post)
 
       unless xml_element && xml_element['name'] == name && xml_element['namespace'] == namespace
         render_error status: 400, errorcode: 'illegal_request',
@@ -134,7 +134,7 @@ class AttributeController < ApplicationController
       if entry
         authorize entry, :update?
 
-        db = AttribType.find( entry.id ) # get a writable object
+        db = AttribType.find(entry.id) # get a writable object
         logger.debug "* updating existing attribute definitions"
         db.update_from_xml(xml_element)
       else
@@ -150,7 +150,7 @@ class AttributeController < ApplicationController
 
       render_ok
     elsif request.delete?
-      at = ans.attrib_types.where("name = ?", name ).first
+      at = ans.attrib_types.where("name = ?", name).first
 
       if at
         authorize at, :destroy?

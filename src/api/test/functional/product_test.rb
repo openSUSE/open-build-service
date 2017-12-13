@@ -175,8 +175,8 @@ class ProductTests < ActionDispatch::IntegrationTest
                    tag: "status", attributes: { package: '_product:simple-cd-cd-i586_x86_64', code: 'blocked' }
 
     login_king
-    inject_build_job( "home:Iggy", "TestPack", "10.2", "i586" )
-    inject_build_job( "home:Iggy", "TestPack", "10.2", "x86_64" )
+    inject_build_job("home:Iggy", "TestPack", "10.2", "i586")
+    inject_build_job("home:Iggy", "TestPack", "10.2", "x86_64")
     run_scheduler('local') # run first, so the waiting_for are still there
     get "/build/home:tom:temporary/_result"
     assert_response :success

@@ -1272,14 +1272,14 @@ class Package < ApplicationRecord
 
   def enable_for_repository(repo_name)
     update_needed = nil
-    if project.flags.find_by_flag_and_status( 'build', 'disable' )
+    if project.flags.find_by_flag_and_status('build', 'disable')
       # enable package builds if project default is disabled
-      flags.create( position: 1, flag: 'build', status: 'enable', repo: repo_name )
+      flags.create(position: 1, flag: 'build', status: 'enable', repo: repo_name)
       update_needed = true
     end
-    if project.flags.find_by_flag_and_status( 'debuginfo', 'disable' )
+    if project.flags.find_by_flag_and_status('debuginfo', 'disable')
       # take over debuginfo config from origin project
-      flags.create( position: 1, flag: 'debuginfo', status: 'enable', repo: repo_name )
+      flags.create(position: 1, flag: 'debuginfo', status: 'enable', repo: repo_name)
       update_needed = true
     end
     store if update_needed
@@ -1292,7 +1292,7 @@ class Package < ApplicationRecord
   def serviceinfo
     unless @serviceinfo
       begin
-        dir = Directory.find( project: project.name, package: name)
+        dir = Directory.find(project: project.name, package: name)
         @serviceinfo = dir.find_first(:serviceinfo) if dir
       rescue ActiveXML::Transport::NotFoundError
       end
@@ -1309,7 +1309,7 @@ class Package < ApplicationRecord
     end
   end
 
-  def commit( rev = nil )
+  def commit(rev = nil)
     if rev && rev.to_i < 0
       # going backward from not yet known current revision, find out ...
       r = self.rev.to_i + rev.to_i + 1

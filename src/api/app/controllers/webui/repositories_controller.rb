@@ -79,7 +79,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     @repository_arch_hash = Hash.new
     Architecture.available.each { |arch| @repository_arch_hash[arch.name] = false }
     repo.architectures.each { |arch| @repository_arch_hash[arch.name] = true }
-    redirect_to({ action: :index }, notice: 'Successfully updated repository' )
+    redirect_to({ action: :index }, notice: 'Successfully updated repository')
   end
 
   # DELETE /project/remove_target
@@ -176,7 +176,7 @@ class Webui::RepositoriesController < Webui::WebuiController
   def create_flag
     authorize @main_object, :update?
 
-    @flag = @main_object.flags.new( status: params[:status], flag: params[:flag] )
+    @flag = @main_object.flags.new(status: params[:status], flag: params[:flag])
     @flag.architecture = Architecture.find_by_name(params[:architecture])
     @flag.repo = params[:repository] unless params[:repository].blank?
 

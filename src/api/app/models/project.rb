@@ -93,7 +93,7 @@ class Project < ApplicationRecord
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_project_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
 
-  default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
+  default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids) }
 
   scope :maintenance, -> { where("kind = 'maintenance'") }
   scope :not_maintenance_incident, -> { where("kind <> 'maintenance_incident'") }
@@ -464,7 +464,7 @@ class Project < ApplicationRecord
     dbp
   end
 
-  def self.find_by_attribute_type( attrib_type )
+  def self.find_by_attribute_type(attrib_type)
     Project.joins(:attribs).where(attribs: { attrib_type_id: attrib_type.id })
   end
 
@@ -926,7 +926,7 @@ class Project < ApplicationRecord
   # this function is making the products uniq
   def expand_all_products
     p_map = Hash.new
-    products = Product.all_products( self ).to_a
+    products = Product.all_products(self).to_a
     products.each { |p| p_map[p.cpe] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
     linking_to.each do |lp|
@@ -1142,7 +1142,7 @@ class Project < ApplicationRecord
 
     return unless disable_publish_for_branches
 
-    flags.create(status: 'disable', flag: 'publish') unless flags.find_by_flag_and_status( 'publish', 'disable' )
+    flags.create(status: 'disable', flag: 'publish') unless flags.find_by_flag_and_status('publish', 'disable')
   end
 
   def open_requests_with_project_as_source_or_target
@@ -1177,7 +1177,7 @@ class Project < ApplicationRecord
   end
 
   # called either directly or from delayed job
-  def do_project_copy( params )
+  def do_project_copy(params)
     # set user if nil, needed for delayed job in Package model
     User.current ||= User.find_by_login(params[:user])
 
@@ -1219,7 +1219,7 @@ class Project < ApplicationRecord
   end
 
   # called either directly or from delayed job
-  def do_project_release( params )
+  def do_project_release(params)
     User.current ||= User.find_by_login(params[:user])
 
     packages.each do |pkg|

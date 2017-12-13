@@ -22,7 +22,7 @@ module FlagHelper
     TYPES.keys
   end
 
-  def validate_type( flag )
+  def validate_type(flag)
     raise InvalidFlag, "Error: unknown flag type '#{flag}' not found." unless TYPES.has_key? flag.to_s
   end
 
@@ -31,12 +31,12 @@ module FlagHelper
       flags.delete_all
       position = 1
       FlagHelper.flag_types.each do |flagtype|
-        position = update_flags( xmlhash, flagtype, position )
+        position = update_flags(xmlhash, flagtype, position)
       end
     end
   end
 
-  def update_flags( xmlhash, flagtype, position )
+  def update_flags(xmlhash, flagtype, position)
     # translate the flag types as used in the xml to model name + s
     validate_type flagtype
 
@@ -89,7 +89,7 @@ module FlagHelper
     unless status == 'enable' || status == 'disable'
       raise ArgumentError, "Error: unknown status for flag '#{status}'"
     end
-    flags.build( status: status, flag: flag ) do |f|
+    flags.build(status: status, flag: flag) do |f|
       f.architecture = Architecture.find_by_name(arch) if arch
       f.repo = repository
     end

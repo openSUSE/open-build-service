@@ -13,9 +13,9 @@ class Webui::ApidocsController < Webui::WebuiController
   def file
     # Ensure it really is just a file name, no '/..', etc.
     filename = File.basename(params[:filename])
-    file = File.expand_path( File.join(CONFIG['schema_location'], filename) )
-    if File.exist?( file )
-      send_file( file, type: "text/xml", disposition: "inline" )
+    file = File.expand_path(File.join(CONFIG['schema_location'], filename))
+    if File.exist?(file)
+      send_file(file, type: "text/xml", disposition: "inline")
     else
       flash[:error] = "File not found: #{params[:filename]}"
       redirect_back(fallback_location: { controller: 'apidocs', action: 'index' })

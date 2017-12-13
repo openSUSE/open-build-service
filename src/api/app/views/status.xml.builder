@@ -1,12 +1,12 @@
-xml.status( "code" => @errorcode ) do
+xml.status("code" => @errorcode) do
   xml.summary @summary
   if @exception
     xml.exception do
-      xml.type( @exception.class.name )
-      xml.message( @exception.message )
+      xml.type(@exception.class.name)
+      xml.message(@exception.message)
       xml.backtrace do
         @exception.backtrace.each do |line|
-          xml.line( line )
+          xml.line(line)
         end
       end
     end

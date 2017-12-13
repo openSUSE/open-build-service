@@ -136,17 +136,17 @@ class InterConnectTests < ActionDispatch::IntegrationTest
   def test_backend_support
     get '/public/source/UseRemoteInstance?package=pack1&package=pack2&view=info'
     assert_response :success
-    assert_xml_tag( tag: 'sourceinfo', attributes: { package: 'pack1' } )
-    assert_xml_tag( tag: 'sourceinfo', attributes: { package: 'pack2' } )
-    assert_no_xml_tag( tag: 'sourceinfo', attributes: { package: 'Pack3' } )
+    assert_xml_tag(tag: 'sourceinfo', attributes: { package: 'pack1' })
+    assert_xml_tag(tag: 'sourceinfo', attributes: { package: 'pack2' })
+    assert_no_xml_tag(tag: 'sourceinfo', attributes: { package: 'Pack3' })
 
     # with credentials
     login_tom
     get '/source/UseRemoteInstance?package=pack1&package=pack2&view=info'
     assert_response :success
-    assert_xml_tag( tag: 'sourceinfo', attributes: { package: 'pack1' } )
-    assert_xml_tag( tag: 'sourceinfo', attributes: { package: 'pack2' } )
-    assert_no_xml_tag( tag: 'sourceinfo', attributes: { package: 'Pack3' } )
+    assert_xml_tag(tag: 'sourceinfo', attributes: { package: 'pack1' })
+    assert_xml_tag(tag: 'sourceinfo', attributes: { package: 'pack2' })
+    assert_no_xml_tag(tag: 'sourceinfo', attributes: { package: 'Pack3' })
   end
 
   def test_backend_post_with_forms
@@ -202,18 +202,18 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/RemoteInstance:BaseDistro/pack1?view=info&parse=1' # licensedigger needs it
     assert_response :success
-    assert_xml_tag( tag: 'sourceinfo', attributes: { package: 'pack1' } )
+    assert_xml_tag(tag: 'sourceinfo', attributes: { package: 'pack1' })
     post '/source/RemoteInstance:BaseDistro/pack1', params: { cmd: 'showlinked' }
     assert_response :success
     post '/source/RemoteInstance:BaseDistro/pack1', params: { cmd: 'branch' }
     assert_response :success
     get '/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
-    assert_xml_tag( tag: 'directory', children: { count: 1 } ) # backend does not provide a counter
+    assert_xml_tag(tag: 'directory', children: { count: 1 }) # backend does not provide a counter
     get '/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject?expand=1'
     assert_response :success
-    assert_xml_tag( tag: 'entry', attributes: { name: 'pack2', originproject: 'RemoteInstance:BaseDistro2.0' } )
-    assert_xml_tag( tag: 'entry', attributes: { name: 'pack2.linked', originproject: 'RemoteInstance:BaseDistro2.0' } )
+    assert_xml_tag(tag: 'entry', attributes: { name: 'pack2', originproject: 'RemoteInstance:BaseDistro2.0' })
+    assert_xml_tag(tag: 'entry', attributes: { name: 'pack2.linked', originproject: 'RemoteInstance:BaseDistro2.0' })
     # test binary operations
     login_king
     post '/build/RemoteInstance:BaseDistro', params: { cmd: 'wipe', package: 'pack1' }
@@ -253,11 +253,11 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/build/RemoteInstance:BaseDistro/_result?package=pack1&lastbuild=1' # for licensedigger
     assert_response :success
-    assert_xml_tag( tag: 'result', attributes: { project: "BaseDistro", repository: 'BaseDistro_repo', arch: 'i586' } )
+    assert_xml_tag(tag: 'result', attributes: { project: "BaseDistro", repository: 'BaseDistro_repo', arch: 'i586' })
     get "/build/RemoteInstance:BaseDistro/_result?view=summary"
     assert_response :success
-    assert_xml_tag( tag: 'result', attributes: { project: "BaseDistro", repository: 'BaseDistro_repo', arch: 'i586' } )
-    assert_xml_tag( tag: 'summary' )
+    assert_xml_tag(tag: 'result', attributes: { project: "BaseDistro", repository: 'BaseDistro_repo', arch: 'i586' })
+    assert_xml_tag(tag: 'summary')
 
     # direct access to remote instance, not existing project/package
     login_tom
@@ -299,13 +299,13 @@ class InterConnectTests < ActionDispatch::IntegrationTest
       assert_response :success
       get "/source/#{project}"
       assert_response :success
-      assert_xml_tag( tag: 'directory', attributes: { count: '0' } )
+      assert_xml_tag(tag: 'directory', attributes: { count: '0' })
       get "/source/#{project}?expand=1"
       assert_response :success
       if @ENABLE_BROKEN_TEST
         # FIXME2.4: remote packages get not added yet.
-        assert_xml_tag( tag: 'directory', attributes: { count: '1' } )
-        assert_xml_tag( tag: 'entry', attributes: { name: 'pack1', originproject: 'BaseDistro2.0' } )
+        assert_xml_tag(tag: 'directory', attributes: { count: '1' })
+        assert_xml_tag(tag: 'entry', attributes: { name: 'pack1', originproject: 'BaseDistro2.0' })
       end
     end
 
@@ -478,7 +478,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
     Backend::Connection.put('/source/LocalProject/newpackage/_meta?user=king',
                             Package.find_by_project_and_name('LocalProject', 'newpackage').to_axml)
-    Backend::Connection.put( '/source/LocalProject/newpackage/new_file?user=king', 'adding stuff')
+    Backend::Connection.put('/source/LocalProject/newpackage/new_file?user=king', 'adding stuff')
     post '/source/LocalProject/newpackage', params: { cmd: :diff, oproject: 'RemoteInstance:BaseDistro', opackage: 'pack1' }
     assert_response :success
   end

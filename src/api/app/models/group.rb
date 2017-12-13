@@ -33,7 +33,7 @@ class Group < ApplicationRecord
     find_by_title(title) || (raise NotFoundError, "Couldn't find Group '#{title}'")
   end
 
-  def update_from_xml( xmlhash )
+  def update_from_xml(xmlhash)
     with_lock do
       if xmlhash.value('email')
         self.email = xmlhash.value('email')
@@ -53,7 +53,7 @@ class Group < ApplicationRecord
         # user has already a role in this package
         cache.delete(user.id)
       else
-        GroupMaintainer.create( user: user, group: self).save
+        GroupMaintainer.create(user: user, group: self).save
       end
     end
     cache.each do |login_id, _|
@@ -72,7 +72,7 @@ class Group < ApplicationRecord
           # user has already a role in this package
           cache.delete(user.id)
         else
-          GroupsUser.create( user: user, group: self).save
+          GroupsUser.create(user: user, group: self).save
         end
       end
     end
@@ -85,7 +85,7 @@ class Group < ApplicationRecord
 
   def add_user(user)
     return if users.find_by_id user.id # avoid double creation
-    gu = GroupsUser.create( user: user, group: self)
+    gu = GroupsUser.create(user: user, group: self)
     gu.save!
   end
 

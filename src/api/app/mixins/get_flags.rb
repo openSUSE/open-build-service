@@ -18,7 +18,7 @@ module GetFlags
         flag = flags.where(flag: flag_type).where(repo: repository).where(architecture_id: architecture_id).first
         # If there is no flag create a temporary one.
         unless flag
-          flag = flags.new( flag: flag_type, repo: repository, architecture: architecture )
+          flag = flags.new(flag: flag_type, repo: repository, architecture: architecture)
           flag.status = flag.effective_status
         end
         the_flags[repository] << flag

@@ -356,7 +356,7 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :update?
     respond_to do |format|
       if @project.update(project_params)
-        format.html { redirect_to( project_show_path(@project), notice: 'Project was successfully updated.') }
+        format.html { redirect_to(project_show_path(@project), notice: 'Project was successfully updated.') }
       else
         flash[:error] = "Failed to update project"
         format.html { render :edit }
@@ -447,7 +447,7 @@ class Webui::ProjectController < Webui::WebuiController
       arch: @arch_filter, repo: @repo_filter }
     find_opt[:lastbuild] = 1 unless @lastbuild_switch.blank?
 
-    @buildresult = Buildresult.find( find_opt )
+    @buildresult = Buildresult.find(find_opt)
     unless @buildresult
       flash[:warning] = "No build results for project '#{@project}'"
       redirect_to action: :show, project: params[:project]
@@ -1137,7 +1137,7 @@ class Webui::ProjectController < Webui::WebuiController
     ret
   end
 
-  def filter_packages( project, filterstring )
+  def filter_packages(project, filterstring)
     result = Collection.find :id, what: 'package',
       predicate: "@project='#{project}' and contains(@name,'#{filterstring}')"
     result.each.map(&:name)

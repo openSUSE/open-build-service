@@ -41,7 +41,7 @@ end
 class Xpackage < ActiveXML::Node
 end
 
-def store_project( p )
+def store_project(p)
   STDERR.print "  #{p.name} => "
   begin
     create_missing_users_for p
@@ -61,7 +61,7 @@ def store_project( p )
   end
 end
 
-def store_packages_for( p )
+def store_packages_for(p)
   begin
     STDERR.puts "  --> storing packages for project '#{p.name}'"
     list = Xpackage.find :all, project: p.name
@@ -71,7 +71,7 @@ def store_packages_for( p )
       xpack = Xpackage.find entry.name, project: p.name
       # remove devel entries
       xpack.data.each_element('devel') { |e| xpack.data.delete_element e }
-      pack = Package.new( xpack.dump_xml, project: p.name )
+      pack = Package.new(xpack.dump_xml, project: p.name)
 
       create_missing_users_for xpack
 
@@ -96,7 +96,7 @@ def xmldebug(str)
   STDERR.puts "\n\n>>> Exception caused by this xml:\n" + str + "\n\n"
 end
 
-def create_missing_users_for( meta )
+def create_missing_users_for(meta)
   return unless CREATE_MISSING_USERS
   meta.each_person do |person|
     u = User.find_by_login person.userid.to_s
@@ -129,13 +129,13 @@ projects.each_entry do |entry|
 
   p = nil
   begin
-    p = Project.find( entry.name )
+    p = Project.find(entry.name)
   rescue ActiveXML::Transport::NotFoundError
   end
   next if p
 
   backend_project = Xproject.find entry.name
-  p = Project.new( backend_project.dump_xml )
+  p = Project.new(backend_project.dump_xml)
 
   cache[entry.name] = p unless store_project(p)
 end

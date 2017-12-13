@@ -65,10 +65,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # create maintenance incident for first kernel update
     post '/source', params: { cmd: 'createmaintenanceincident' }
     assert_response :success
-    assert_xml_tag( tag: 'data', attributes: { name: 'targetproject' } )
+    assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' })
     data = REXML::Document.new(@response.body)
     kernel_incident_project = data.elements['/status/data'].text
-    kernel_incident_id = kernel_incident_project.gsub( /^My:Maintenance:/, '')
+    kernel_incident_id = kernel_incident_project.gsub(/^My:Maintenance:/, '')
     # submit packages via mbranch
     post '/source', params: { cmd: 'branch', package: 'pack2', target_project: kernel_incident_project, add_repositories: 1 }
     assert_response :success
@@ -127,7 +127,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # create a update patch based on former kernel incident
     post '/source/' + kernel_incident_project + '/kgraft-incident-' + kernel_incident_id, params: { cmd: 'branch', target_project: "home:king:branches:BaseDistro2.0", maintenance: 1 }
     assert_response :success
-    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernel_incident_project.tr( ':', '_')}/packageNew.spec",
+    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernel_incident_project.tr(':', '_')}/packageNew.spec",
             File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read
     assert_response :success
 
@@ -163,7 +163,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_xml_tag( tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro2.0:LinkedUpdateProject' } )
+    assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro2.0:LinkedUpdateProject' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id1 = node.value(:id)
@@ -173,7 +173,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     data = REXML::Document.new(@response.body)
     incident_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
-    incident_id = incident_project.gsub( /^My:Maintenance:/, '')
+    incident_id = incident_project.gsub(/^My:Maintenance:/, '')
 
     # validate sources
     get "/source/" + incident_project
@@ -235,13 +235,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     Timecop.freeze(1)
     post "/source/#{incident_project}?cmd=createpatchinfo&force=1"
     assert_response :success
-    assert_xml_tag( tag: 'data', attributes: { name: 'targetpackage' }, content: 'patchinfo')
-    assert_xml_tag( tag: 'data', attributes: { name: 'targetproject' }, content: incident_project )
+    assert_xml_tag(tag: 'data', attributes: { name: 'targetpackage' }, content: 'patchinfo')
+    assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' }, content: incident_project)
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
-    assert_xml_tag( tag: 'patchinfo', attributes: { incident: incident_id } )
+    assert_xml_tag(tag: 'patchinfo', attributes: { incident: incident_id })
     # add required informations about the update
-    pi = ActiveXML::Node.new( @response.body )
+    pi = ActiveXML::Node.new(@response.body)
     pi.find_first('summary').text = 'live patch'
     pi.find_first('description').text = 'live patch is always critical'
     pi.find_first('rating').text = 'critical'
@@ -256,13 +256,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # check build state
     get "/build/#{incident_project}/_result"
     assert_response :success
-    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr( ':', '_'), arch: 'i586', code: 'building' } },
-               tag: 'status', attributes: { package: "kgraft-incident-0.#{kernel_incident_project.tr( ':', '_')}", code: 'scheduled' }
-    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr( ':', '_'), arch: 'i586', code: 'building' } },
+    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr(':', '_'), arch: 'i586', code: 'building' } },
+               tag: 'status', attributes: { package: "kgraft-incident-0.#{kernel_incident_project.tr(':', '_')}", code: 'scheduled' }
+    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr(':', '_'), arch: 'i586', code: 'building' } },
                tag: 'status', attributes: { package: 'kgraft-GA.BaseDistro2.0', code: 'disabled' }
-    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr( ':', '_'), arch: 'i586', code: 'building' } },
+    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr(':', '_'), arch: 'i586', code: 'building' } },
                tag: 'status', attributes: { package: 'BaseDistro2.Channel', code: 'disabled' }
-    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr( ':', '_'), arch: 'i586', code: 'building' } },
+    assert_xml_tag parent: { tag: 'result', attributes: { repository: kernel_incident_project.tr(':', '_'), arch: 'i586', code: 'building' } },
                tag: 'status', attributes: { package: "patchinfo", code: 'blocked' }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2Channel', arch: 'i586' } }
     assert_xml_tag parent: { tag: 'result', attributes: { repository: 'BaseDistro2.0', arch: 'i586', code: 'building' } },
@@ -272,12 +272,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # upload build result as a worker would do
     # Those binaries will get picked up based on previously made channel configurations
-    inject_build_job( incident_project, "kgraft-incident-0.#{kernel_incident_project.tr( ':', '_')}",
-                      kernel_incident_project.tr( ':', '_'), 'i586')
-    inject_build_job( incident_project, "kgraft-incident-0.#{kernel_incident_project.tr( ':', '_')}",
-                      kernel_incident_project.tr( ':', '_'), 'x86_64', "package_newweaktags-1.0-1.x86_64.rpm")
-    inject_build_job( incident_project, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'i586')
-    inject_build_job( incident_project, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'x86_64')
+    inject_build_job(incident_project, "kgraft-incident-0.#{kernel_incident_project.tr(':', '_')}",
+                     kernel_incident_project.tr(':', '_'), 'i586')
+    inject_build_job(incident_project, "kgraft-incident-0.#{kernel_incident_project.tr(':', '_')}",
+                     kernel_incident_project.tr(':', '_'), 'x86_64', "package_newweaktags-1.0-1.x86_64.rpm")
+    inject_build_job(incident_project, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'i586')
+    inject_build_job(incident_project, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'x86_64')
 
     # lock kernelIncident to be sure that nothing can be released to
     get '/source/' + kernel_incident_project + '/_meta'
@@ -316,26 +316,26 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_no_xml_tag( tag: 'source', attributes: { package: 'BaseDistro2.Channel', rev: nil } )
-    assert_no_xml_tag( tag: 'source', attributes: { package: 'kgraft-GA.BaseDistro2.0', rev: nil } )
-    assert_xml_tag( tag: 'source', attributes: { package: 'patchinfo', rev: nil } )
+    assert_no_xml_tag(tag: 'source', attributes: { package: 'BaseDistro2.Channel', rev: nil })
+    assert_no_xml_tag(tag: 'source', attributes: { package: 'kgraft-GA.BaseDistro2.0', rev: nil })
+    assert_xml_tag(tag: 'source', attributes: { package: 'patchinfo', rev: nil })
     # GM project may be locked, must not appear
-    assert_no_xml_tag( tag: 'target', attributes: { project: 'BaseDistro2.0' } )
-    assert_xml_tag( parent: { tag: "action", attributes: { type: "maintenance_release" } },
-                    tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kgraft-incident-0.1' } )
+    assert_no_xml_tag(tag: 'target', attributes: { project: 'BaseDistro2.0' })
+    assert_xml_tag(parent: { tag: "action", attributes: { type: "maintenance_release" } },
+                    tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kgraft-incident-0.1' })
     # code stream gets the sources of the packages
-    assert_xml_tag( parent: { tag: "action", attributes: { type: "maintenance_release" } },
-                    tag: 'source', attributes: { project: incident_project, package: 'kgraft-GA.BaseDistro2.0' } )
-    assert_xml_tag( parent: { tag: "action", attributes: { type: "maintenance_release" } },
-                    tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kgraft-GA.1' } )
+    assert_xml_tag(parent: { tag: "action", attributes: { type: "maintenance_release" } },
+                    tag: 'source', attributes: { project: incident_project, package: 'kgraft-GA.BaseDistro2.0' })
+    assert_xml_tag(parent: { tag: "action", attributes: { type: "maintenance_release" } },
+                    tag: 'target', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kgraft-GA.1' })
     # update channel file
-    assert_xml_tag( parent: { tag: "action", attributes: { type: "submit" } },
-                    tag: 'target', attributes: { project: 'Channel', package: 'BaseDistro2' } )
+    assert_xml_tag(parent: { tag: "action", attributes: { type: "submit" } },
+                    tag: 'target', attributes: { project: 'Channel', package: 'BaseDistro2' })
     # release to channels
-    assert_xml_tag( parent: { tag: "action", attributes: { type: "maintenance_release" } },
-                    tag: 'source', attributes: { project: incident_project, package: 'patchinfo' } )
-    assert_xml_tag( parent: { tag: "action", attributes: { type: "maintenance_release" } },
-                    tag: 'target', attributes: { project: 'BaseDistro2Channel', package: 'patchinfo.1' } )
+    assert_xml_tag(parent: { tag: "action", attributes: { type: "maintenance_release" } },
+                    tag: 'source', attributes: { project: incident_project, package: 'patchinfo' })
+    assert_xml_tag(parent: { tag: "action", attributes: { type: "maintenance_release" } },
+                    tag: 'target', attributes: { project: 'BaseDistro2Channel', package: 'patchinfo.1' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
@@ -361,7 +361,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{reqid}"
     assert_response :success
-    assert_xml_tag( parent: { tag: 'state' }, tag: 'comment', content: 'releasing')
+    assert_xml_tag(parent: { tag: 'state' }, tag: 'comment', content: 'releasing')
     run_scheduler('x86_64')
     run_scheduler('i586')
     run_publisher

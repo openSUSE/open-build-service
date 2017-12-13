@@ -349,7 +349,7 @@ ription</description>
     assert_xml_tag tag: "entry", attributes: { name: "_attribute" }
     get "/source/home:tom/_project/_history?meta=1"
     assert_response :success
-    assert_xml_tag( tag: "revisionlist" )
+    assert_xml_tag(tag: "revisionlist")
     revision = Xmlhash.parse(@response.body).elements('revision').last
     assert_equal 'tom', revision['user']
     srcmd5 = revision['srcmd5']
@@ -367,10 +367,10 @@ ription</description>
     # both ways need to work, first one for backward compatibility
     get "/source/home:tom/_attribute?rev=#{srcmd5}"
     assert_response :success
-    assert_xml_tag( tag: "attribute", attributes: { namespace: "OBS", name: "Maintained" } )
+    assert_xml_tag(tag: "attribute", attributes: { namespace: "OBS", name: "Maintained" })
     get "/source/home:tom/_project/_attribute?meta=1&rev=#{srcmd5}"
     assert_response :success
-    assert_xml_tag( tag: "attribute", attributes: { namespace: "OBS", name: "Maintained" } )
+    assert_xml_tag(tag: "attribute", attributes: { namespace: "OBS", name: "Maintained" })
 
     # get current
     get "/source/home:tom/_attribute/OBS:Maintained"
@@ -456,7 +456,7 @@ ription</description>
     assert_xml_tag tag: "entry", attributes: { name: "_attribute" }
     get "/source/kde4/kdelibs/_history?meta=1"
     assert_response :success
-    assert_xml_tag( tag: "revisionlist" )
+    assert_xml_tag(tag: "revisionlist")
     revision = Xmlhash.parse(@response.body)['revision'].last
     assert_equal "fred", revision['user']
     srcmd5 = revision['srcmd5']
@@ -482,8 +482,8 @@ ription</description>
     # get old revision
     get "/source/kde4/kdelibs/_attribute?meta=1&rev=#{srcmd5}"
     assert_response :success
-    assert_xml_tag( tag: "attribute", attributes: { namespace: "OBS", name: "Maintained" } )
-    assert_xml_tag( tag: "attribute", attributes: { namespace: "OBS", name: "Maintained", binary: "kdelibs-devel" } )
+    assert_xml_tag(tag: "attribute", attributes: { namespace: "OBS", name: "Maintained" })
+    assert_xml_tag(tag: "attribute", attributes: { namespace: "OBS", name: "Maintained", binary: "kdelibs-devel" })
   end
 
   # FIXME:

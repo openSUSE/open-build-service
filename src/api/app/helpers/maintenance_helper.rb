@@ -73,9 +73,9 @@ module MaintenanceHelper
     end
 
     # publish incident if source is read protect, but release target is not. assuming it got public now.
-    f = source_package.project.flags.find_by_flag_and_status( 'access', 'disable' )
+    f = source_package.project.flags.find_by_flag_and_status('access', 'disable')
     if f
-      unless target_project.flags.find_by_flag_and_status( 'access', 'disable' )
+      unless target_project.flags.find_by_flag_and_status('access', 'disable')
         source_package.project.flags.delete(f)
         source_package.project.store({ comment: 'project becomes public on release action' })
         # patchinfos stay unpublished, it is anyway too late to test them now ...

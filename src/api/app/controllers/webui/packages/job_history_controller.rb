@@ -13,8 +13,8 @@ module Webui
       private
 
       def set_package
-        @package = ::Package.get_by_project_and_name( @project.to_param, params[:package_name],
-                                                      { use_source: false, follow_project_links: true, follow_multibuild: true } )
+        @package = ::Package.get_by_project_and_name(@project.to_param, params[:package_name],
+                                                     { use_source: false, follow_project_links: true, follow_multibuild: true })
         @is_link = @package.is_link? || @package.is_local_link?
       rescue APIException
         flash[:error] = "Package \"#{params[:package_name]}\" not found in project \"#{params[:project]}\""

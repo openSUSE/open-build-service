@@ -161,11 +161,11 @@ class BinaryRelease < ApplicationRecord
       binary.disturl binary_disturl if binary_disturl
 
       update_for_product.each do |up|
-        binary.updatefor( up.extend_id_hash({ project: up.package.project.name, product: up.name }) )
+        binary.updatefor(up.extend_id_hash({ project: up.package.project.name, product: up.name }))
       end
 
       if product_medium
-        binary.product( product_medium.product.extend_id_hash({ name: product_medium.product.name }) )
+        binary.product(product_medium.product.extend_id_hash({ name: product_medium.product.name }))
       end
     end
     builder.to_xml save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |

@@ -84,7 +84,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         project.reload
       end
 
-      it { expect(response).to redirect_to( project_show_path(project)) }
+      it { expect(response).to redirect_to(project_show_path(project)) }
       it { expect(flash[:notice]).to eq "Project was successfully updated." }
       it { expect(project.title).to eq "My projects title" }
       it { expect(project.description).to eq "My projects description" }
@@ -1616,7 +1616,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
             }
           } }
         end
-        let(:package) { create(:package, name: 'obs-server', project: user.home_project ) }
+        let(:package) { create(:package, name: 'obs-server', project: user.home_project) }
 
         before do
           allow(Buildresult).to receive(:find_hashed).and_return(fake_buildresult)

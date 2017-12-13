@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Webui::GroupsController do
   let(:group) { create(:group) }
-  let(:another_group) { create(:group, title: "#{group.title}-#{SecureRandom.hex}" ) }
+  let(:another_group) { create(:group, title: "#{group.title}-#{SecureRandom.hex}") }
   let(:user) { create(:user) }
 
   # except [:show, :tokens, :autocomplete]

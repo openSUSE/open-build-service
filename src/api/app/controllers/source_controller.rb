@@ -360,9 +360,9 @@ class SourceController < ApplicationController
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name @target_project_name
       # rubocop:disable Metrics/LineLength
-      if !PACKAGE_CREATING_COMMANDS.include?(@command) || Package.exists_by_project_and_name( @target_project_name,
-                                                                                              @target_package_name,
-                                                                                              follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command) )
+      if !PACKAGE_CREATING_COMMANDS.include?(@command) || Package.exists_by_project_and_name(@target_project_name,
+                                                                                             @target_package_name,
+                                                                                             follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))
         validate_target_for_package_command_exists!
       end
       # rubocop:enable Metrics/LineLength
@@ -781,7 +781,7 @@ class SourceController < ApplicationController
     # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
     # package here implicit to stay api compatible.
     # FIXME3.0: to be revisited
-    if @package_name == '_pattern' && !Package.exists_by_project_and_name( @project_name, @package_name, follow_project_links: false )
+    if @package_name == '_pattern' && !Package.exists_by_project_and_name(@project_name, @package_name, follow_project_links: false)
       @pack = Package.new(name: '_pattern', title: 'Patterns', description: 'Package Patterns')
       @prj.packages << @pack
       @pack.save
@@ -885,7 +885,7 @@ class SourceController < ApplicationController
   # create a id collection of all projects doing a project link to this one
   # POST /source/<project>?cmd=showlinked
   def project_command_showlinked
-    builder = Builder::XmlMarkup.new( indent: 2 )
+    builder = Builder::XmlMarkup.new(indent: 2)
     xml = builder.collection do |c|
       @project.linked_by_projects.each do |l|
         p = {}
@@ -1232,7 +1232,7 @@ class SourceController < ApplicationController
       return
     end
 
-    builder = Builder::XmlMarkup.new( indent: 2 )
+    builder = Builder::XmlMarkup.new(indent: 2)
     xml = builder.collection do |c|
       @package.find_linking_packages.each do |l|
         p = {}

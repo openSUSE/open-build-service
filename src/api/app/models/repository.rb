@@ -44,7 +44,7 @@ class Repository < ApplicationRecord
   end
 
   # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
-  def self.find_by_project_and_name( project, repo )
+  def self.find_by_project_and_name(project, repo)
     result = not_remote.joins(:project).find_by(projects: { name: project }, name: repo)
     return result unless result.nil?
 
@@ -58,12 +58,12 @@ class Repository < ApplicationRecord
     return
   end
 
-  def self.find_by_project_and_path( project, path )
+  def self.find_by_project_and_path(project, path)
     not_remote.joins(:path_elements).where(project: project, path_elements: { link: path })
   end
 
   def self.deleted_instance
-    repo = Repository.find_by_project_and_name( "deleted", "deleted" )
+    repo = Repository.find_by_project_and_name("deleted", "deleted")
     return repo unless repo.nil?
 
     # does not exist, so let's create it

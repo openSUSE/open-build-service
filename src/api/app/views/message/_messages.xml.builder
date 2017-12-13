@@ -5,7 +5,7 @@ root_attrs[:count] = @messages.length if @messages
 root_attrs[:project] = @project.name if @project
 root_attrs[:package] = @package.name if @package
 
-xml.messages( root_attrs ) do
+xml.messages(root_attrs) do
   @messages.each do |msg|
     attrs = {}
     attrs[:severity] = msg.severity or attrs[:severity] = 0

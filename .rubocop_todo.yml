@@ -52,26 +52,6 @@ Layout/MultilineMethodCallIndentation:
 Layout/MultilineOperationIndentation:
   Enabled: false
 
-# Offense count: 1160
-# Cop supports --auto-correct.
-Layout/SpaceInsideParens:
-  Enabled: false
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Layout/SpaceInsideRangeLiteral:
-  Exclude:
-    - 'src/api/app/helpers/webui/webui_helper.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: space, no_space
-Layout/SpaceInsideStringInterpolation:
-  Exclude:
-    - 'src/api/app/models/user_ldap_strategy.rb'
-    - 'src/api/lib/xpath_engine.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: IndentationWidth.

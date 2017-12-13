@@ -1,5 +1,5 @@
 module Webui::PackageHelper
-  def file_url( project, package, filename, revision = nil )
+  def file_url(project, package, filename, revision = nil)
     opts = {}
     if revision
       opts[:rev] = revision
@@ -7,12 +7,12 @@ module Webui::PackageHelper
     Package.source_path(project, package, filename, opts)
   end
 
-  def rpm_url( project, package, repository, arch, filename )
-    get_frontend_url_for( controller: 'build' ) +
+  def rpm_url(project, package, repository, arch, filename)
+    get_frontend_url_for(controller: 'build') +
       "/#{project}/#{repository}/#{arch}/#{package}/#{filename}"
   end
 
-  def human_readable_fsize( bytes )
+  def human_readable_fsize(bytes)
     number_to_human_size bytes
   end
 
@@ -20,7 +20,7 @@ module Webui::PackageHelper
     package.title.blank? ? package.name : package.title
   end
 
-  def guess_code_class( filename )
+  def guess_code_class(filename)
     return 'xml' if filename.in?(["_aggregate", "_link", "_patchinfo", "_service"]) || filename =~ /.*\.service/
     return 'shell' if filename =~ /^rc[\w-]+$/ # rc-scripts are shell
     return 'python' if filename =~ /^.*rpmlintrc$/
@@ -48,11 +48,11 @@ module Webui::PackageHelper
 
   include Webui::ProjectHelper
 
-  def package_bread_crumb( *args )
+  def package_bread_crumb(*args)
     args.insert(0, link_to_if(params['action'] != 'show', @package,
                               controller: :package, action: :show,
-                              project: @project, package: @package ))
-    project_bread_crumb( *args )
+                              project: @project, package: @package))
+    project_bread_crumb(*args)
   end
 
   def nbsp(text)

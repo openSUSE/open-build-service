@@ -5,7 +5,7 @@ class FlagTest < ActiveSupport::TestCase
 
   def test_validation
     # only a flag with a set project_id OR package_id can be saved!
-    f = Flag.new(project: projects( :home_Iggy ), package: packages( :home_Iggy_TestPack ), flag: 'build', status: 'enable')
+    f = Flag.new(project: projects(:home_Iggy), package: packages(:home_Iggy_TestPack), flag: 'build', status: 'enable')
 
     # the flag shouldn't be saved
     assert_equal false, f.save
@@ -16,7 +16,7 @@ class FlagTest < ActiveSupport::TestCase
 
   def test_to_xml_error
     # if no flagstatus set, an error should be raised!
-    f = Flag.new(project: projects( :home_Iggy ), architecture: architectures( :i586 ), repo: '999.999')
+    f = Flag.new(project: projects(:home_Iggy), architecture: architectures(:i586), repo: '999.999')
     f.flag = 'build'
     assert_equal false, f.save
     f.status = 'enabled'

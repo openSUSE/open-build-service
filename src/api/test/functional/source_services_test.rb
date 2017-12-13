@@ -56,10 +56,10 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     post '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2', params: { cmd: 'getprojectservices' }
     assert_response :success
-    assert_xml_tag( tag: 'service', attributes: { name: 'download_files' } )
-    assert_xml_tag( parent: { tag: 'service', attributes: { name: 'download_url' } },
+    assert_xml_tag(tag: 'service', attributes: { name: 'download_files' })
+    assert_xml_tag(parent: { tag: 'service', attributes: { name: 'download_url' } },
                     tag: 'param', attributes: { name: 'host' }, content: 'blahfasel')
-    assert_xml_tag( parent: { tag: 'service', attributes: { name: 'set_version' } },
+    assert_xml_tag(parent: { tag: 'service', attributes: { name: 'set_version' } },
                     tag: 'param', attributes: { name: 'version' }, content: '0815')
 
     # cleanup

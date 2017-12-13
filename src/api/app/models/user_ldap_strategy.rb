@@ -222,7 +222,7 @@ class UserLdapStrategy
           user = entry.to_hash
         end
       rescue StandardError
-        Rails.logger.info("Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}")
+        Rails.logger.info("Search failed:  error #{@@ldap_search_con.err}: #{@@ldap_search_con.err2string(@@ldap_search_con.err)}")
         @@ldap_search_con.unbind
         @@ldap_search_con = nil
 

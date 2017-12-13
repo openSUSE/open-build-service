@@ -2,7 +2,7 @@ class BuildController < ApplicationController
   def index
     # for read access and visibility permission check
     if params[:package] && !%w(_repository _jobhistory).include?(params[:package])
-      Package.get_by_project_and_name( params[:project], params[:package], use_source: false, follow_multibuild: true )
+      Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_multibuild: true)
     else
       Project.get_by_name params[:project]
     end
@@ -14,7 +14,7 @@ class BuildController < ApplicationController
 
     if User.current.is_admin?
       # check for a local package instance
-      Package.get_by_project_and_name( params[:project], params[:package], use_source: false, follow_project_links: false )
+      Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
       pass_to_backend
     else
       render_error status: 403, errorcode: "execute_cmd_no_permission",
@@ -62,7 +62,7 @@ class BuildController < ApplicationController
           package_names = [params[:package]]
         end
         package_names.each do |pack_name|
-          pkg = Package.find_by_project_and_name( prj.name, pack_name )
+          pkg = Package.find_by_project_and_name(prj.name, pack_name)
           if pkg.nil?
             allowed = permissions.project_change? prj
             unless allowed

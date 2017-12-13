@@ -127,10 +127,10 @@ at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_creat
 
 at = ans.attrib_types.where(name: "QualityCategory").first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at.allowed_values << AttribAllowedValue.new( value: "Stable" )
-at.allowed_values << AttribAllowedValue.new( value: "Testing" )
-at.allowed_values << AttribAllowedValue.new( value: "Development" )
-at.allowed_values << AttribAllowedValue.new( value: "Private" )
+at.allowed_values << AttribAllowedValue.new(value: "Stable")
+at.allowed_values << AttribAllowedValue.new(value: "Testing")
+at.allowed_values << AttribAllowedValue.new(value: "Development")
+at.allowed_values << AttribAllowedValue.new(value: "Private")
 at.default_values.where(value: 'Development', position: 1).first_or_create
 
 at = ans.attrib_types.where(name: "MaintenanceIdTemplate").first_or_create(value_count: 1)
@@ -150,8 +150,8 @@ at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_creat
 
 at = ans.attrib_types.where(name: "OwnerRootProject").first_or_create
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at.allowed_values << AttribAllowedValue.new( value: "DisableDevel" )
-at.allowed_values << AttribAllowedValue.new( value: "BugownerOnly" )
+at.allowed_values << AttribAllowedValue.new(value: "DisableDevel")
+at.allowed_values << AttribAllowedValue.new(value: "BugownerOnly")
 
 update_all_attrib_type_descriptions
 

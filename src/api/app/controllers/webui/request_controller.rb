@@ -406,7 +406,7 @@ class Webui::RequestController < Webui::WebuiController
     req = nil
     begin
       BsRequest.transaction do
-        req = BsRequest.new( state: "new")
+        req = BsRequest.new(state: "new")
         req.description = params[:description]
         @bs_request.bs_request_actions.each do |action|
           rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']

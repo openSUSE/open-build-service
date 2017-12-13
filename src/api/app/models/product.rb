@@ -5,20 +5,20 @@ class Product < ApplicationRecord
 
   include CanRenderModel
 
-  def self.find_or_create_by_name_and_package( name, package )
+  def self.find_or_create_by_name_and_package(name, package)
     raise Product::NotFoundError, "Error: Package not valid." unless package.class == Package
     product = find_by_name_and_package name, package
 
-    product = create( name: name, package: package ) if product.empty?
+    product = create(name: name, package: package) if product.empty?
 
     product
   end
 
-  def self.find_by_name_and_package( name, package )
+  def self.find_by_name_and_package(name, package)
     where(name: name, package: package).load
   end
 
-  def self.all_products( project, expand = nil )
+  def self.all_products(project, expand = nil)
     return project.expand_all_products if expand
 
     joins(package: :package_kinds).where(packages: { project: project }, package_kinds: { kind: 'product' })

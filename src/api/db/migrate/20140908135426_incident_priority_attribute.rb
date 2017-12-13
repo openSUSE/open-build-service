@@ -7,7 +7,7 @@ class IncidentPriorityAttribute < ActiveRecord::Migration[4.2]
 
     AttribTypeModifiableBy.reset_column_information
 
-    at = AttribType.create( attrib_namespace: ans, name: "IncidentPriority", value_count: 1 )
+    at = AttribType.create(attrib_namespace: ans, name: "IncidentPriority", value_count: 1)
     AttribTypeModifiableBy.create(role_id: role.id, attrib_type_id: at.id)
   end
 

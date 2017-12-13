@@ -194,7 +194,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
     get "/build/HiddenProject/nada/i586/_builddepinfo"
     assert_response 404
-    assert_xml_tag( tag: "status", attributes: { code: "unknown_project" } )
+    assert_xml_tag(tag: "status", attributes: { code: "unknown_project" })
 
     login_adrian
     get "/build/HiddenProject/nada/i586/_builddepinfo"
@@ -220,7 +220,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
   def test_package_index
     get "/build/home:Iggy/10.2/i586/TestPack"
     assert_response :success
-    assert_xml_tag( tag: "binarylist" )
+    assert_xml_tag(tag: "binarylist")
   end
 
   def test_read_access_hidden_package_index
@@ -231,7 +231,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/build/HiddenProject/nada/i586/pack"
     assert_response :success
-    assert_xml_tag( tag: "binarylist" )
+    assert_xml_tag(tag: "binarylist")
     prepare_request_valid_user
   end
 
@@ -246,14 +246,14 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
   def test_multibuild_routes
     get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild"
     assert_response :success
-    assert_xml_tag( tag: "binary", parent: { tag: "binarylist" } )
+    assert_xml_tag(tag: "binary", parent: { tag: "binarylist" })
     get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild/_log"
     assert_response :success
     get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild/package-1.0-1.src.rpm"
     assert_response :success
     get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild/_buildinfo"
     assert_response :success
-    assert_xml_tag( tag: "buildinfo" )
+    assert_xml_tag(tag: "buildinfo")
 
     # backend bug?
     #    get "/build/BaseDistro3/BaseDistro3_repo/i586/pack2:package_multibuild_not_here"
@@ -266,7 +266,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     prepare_request_valid_user
     get "/build/SourceprotectedProject/repo/i586/pack/_log"
     assert_response 403
-    assert_xml_tag( tag: "status", attributes: { code: "source_access_no_permission" } )
+    assert_xml_tag(tag: "status", attributes: { code: "source_access_no_permission" })
     # retry with maintainer
     prepare_request_with_user "sourceaccess_homer", "buildservice"
     get "/build/SourceprotectedProject/repo/i586/pack/_log"

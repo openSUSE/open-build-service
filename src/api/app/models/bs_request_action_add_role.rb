@@ -32,11 +32,11 @@ class BsRequestActionAddRole < BsRequestAction
     end
     if person_name
       role = Role.find_by_title!(self.role)
-      object.add_user( person_name, role )
+      object.add_user(person_name, role)
     end
     if group_name
       role = Role.find_by_title!(self.role)
-      object.add_group( group_name, role )
+      object.add_group(group_name, role)
     end
     object.store(comment: "add_role request #{bs_request.number}", request: bs_request)
   end

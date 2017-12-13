@@ -44,7 +44,7 @@ RSpec.describe BsRequest do
       let(:reviewer) { create(:confirmed_user) }
       let(:group) { create(:group) }
       let(:review) { create(:review, by_group: group.title) }
-      let!(:request) { create(:bs_request, creator: reviewer.login, reviews: [review] ) }
+      let!(:request) { create(:bs_request, creator: reviewer.login, reviews: [review]) }
 
       before do
         login(reviewer)

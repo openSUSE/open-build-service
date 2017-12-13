@@ -7,7 +7,7 @@ class ProjectTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
-    @project = projects( :home_Iggy )
+    @project = projects(:home_Iggy)
   end
 
   def test_maintained_project_names
@@ -20,7 +20,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_flags_inheritance
-    User.current = users( :Iggy )
+    User.current = users(:Iggy)
 
     project = Project.create(name: "home:Iggy:flagtest")
 
@@ -388,7 +388,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_add_new_flags_from_xml
-    User.current = users( :Iggy )
+    User.current = users(:Iggy)
 
     # precondition check
     @project.flags.delete_all
@@ -447,7 +447,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_delete_flags_through_xml
-    User.current = users( :Iggy )
+    User.current = users(:Iggy)
 
     # check precondition
     assert_equal 2, @project.flags.of_type('build').size
@@ -467,7 +467,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_store_axml
-    User.current = users( :Iggy )
+    User.current = users(:Iggy)
 
     original = @project.to_axml
 
@@ -606,7 +606,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "duplicated repos" do
-    User.current = users( :king )
+    User.current = users(:king)
     orig = @project.render_xml
 
     axml = Xmlhash.parse(
@@ -631,7 +631,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "duplicated repos with remote" do
-    User.current = users( :Iggy )
+    User.current = users(:Iggy)
     orig = @project.render_xml
 
     xml = <<-END.strip_heredoc
@@ -659,7 +659,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test "not duplicated repos with remote" do
-    User.current = users( :Iggy )
+    User.current = users(:Iggy)
     xml = <<-END.strip_heredoc
       <project name="home:Iggy">
         <title>Iggy"s Home Project</title>
@@ -686,7 +686,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   def test_handle_project_links
     Backend::Test.start
-    User.current = users( :Iggy )
+    User.current = users(:Iggy)
 
     # project A
     axml = Xmlhash.parse(
@@ -696,7 +696,7 @@ class ProjectTest < ActiveSupport::TestCase
         <link project='home:Iggy' />
       </project>"
     )
-    project_a = Project.create( name: "home:Iggy:A" )
+    project_a = Project.create(name: "home:Iggy:A")
     project_a.update_from_xml!(axml)
     project_a.store
 
@@ -708,7 +708,7 @@ class ProjectTest < ActiveSupport::TestCase
         <link project='home:Iggy:A' />
       </project>"
     )
-    project_b = Project.create( name: "home:Iggy:B" )
+    project_b = Project.create(name: "home:Iggy:B")
     project_b.update_from_xml!(axml)
     project_b.store
 
@@ -726,22 +726,22 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_repository_with_download_url
-    User.current = users( :king )
+    User.current = users(:king)
 
     prj = Project.new(name: "DoD")
-    prj.update_from_xml!( Xmlhash.parse(
-                            "<project name='DoD'>
-                              <title/>
-                              <description/>
-                              <repository name='standard'>
-                                <download arch='i586' url='http://me.org' repotype='rpmmd'>
-                                 <archfilter>i686,i586,noarch</archfilter>
-                                 <master url='http://download.opensuse.org' sslfingerprint='0815' />
-                                 <pubkey>grfzl</pubkey>
-                                </download>
-                                <arch>i586</arch>
-                              </repository>
-                            </project>"
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='DoD'>
+                             <title/>
+                             <description/>
+                             <repository name='standard'>
+                               <download arch='i586' url='http://me.org' repotype='rpmmd'>
+                                <archfilter>i686,i586,noarch</archfilter>
+                                <master url='http://download.opensuse.org' sslfingerprint='0815' />
+                                <pubkey>grfzl</pubkey>
+                               </download>
+                               <arch>i586</arch>
+                             </repository>
+                           </project>"
     ))
 
     xml = prj.to_axml
@@ -785,73 +785,73 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_repository_path_sync
-    User.current = users( :king )
+    User.current = users(:king)
 
     prj = Project.new(name: "Enterprise-SP0:GA")
-    prj.update_from_xml!( Xmlhash.parse(
-                            "<project name='Enterprise-SP0:GA'>
-                              <title/>
-                              <description/>
-                              <repository name='sp0_ga' />
-                            </project>"
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='Enterprise-SP0:GA'>
+                             <title/>
+                             <description/>
+                             <repository name='sp0_ga' />
+                           </project>"
     ))
     prj = Project.new(name: "Enterprise-SP0:Update")
-    prj.update_from_xml!( Xmlhash.parse(
-                            "<project name='Enterprise-SP0:Update' kind='maintenance_release'>
-                              <title/>
-                              <description/>
-                              <repository name='sp0_update' >
-                                <path project='Enterprise-SP0:GA' repository='sp0_ga' />
-                              </repository>
-                            </project>"
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='Enterprise-SP0:Update' kind='maintenance_release'>
+                             <title/>
+                             <description/>
+                             <repository name='sp0_update' >
+                               <path project='Enterprise-SP0:GA' repository='sp0_ga' />
+                             </repository>
+                           </project>"
     ))
     prj = Project.new(name: "Enterprise-SP1:GA")
-    prj.update_from_xml!( Xmlhash.parse(
-                            "<project name='Enterprise-SP1:GA'>
-                              <title/>
-                              <description/>
-                              <repository name='sp1_ga' >
-                                <path project='Enterprise-SP0:GA' repository='sp0_ga' />
-                              </repository>
-                            </project>"
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='Enterprise-SP1:GA'>
+                             <title/>
+                             <description/>
+                             <repository name='sp1_ga' >
+                               <path project='Enterprise-SP0:GA' repository='sp0_ga' />
+                             </repository>
+                           </project>"
     ))
     prj = Project.new(name: "Enterprise-SP1:Update")
-    prj.update_from_xml!( Xmlhash.parse(
-                            "<project name='Enterprise-SP1:Update' kind='maintenance_release'>
-                              <title/>
-                              <description/>
-                              <repository name='sp1_update' >
-                                <path project='Enterprise-SP1:GA' repository='sp1_ga' />
-                                <path project='Enterprise-SP0:Update' repository='sp0_update' />
-                              </repository>
-                            </project>"
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='Enterprise-SP1:Update' kind='maintenance_release'>
+                             <title/>
+                             <description/>
+                             <repository name='sp1_update' >
+                               <path project='Enterprise-SP1:GA' repository='sp1_ga' />
+                               <path project='Enterprise-SP0:Update' repository='sp0_update' />
+                             </repository>
+                           </project>"
     ))
     prj = Project.new(name: "Enterprise-SP1:Channel:Server")
-    prj.update_from_xml!( Xmlhash.parse(
-                            "<project name='Enterprise-SP1:Channel:Server'>
-                              <title/>
-                              <description/>
-                              <repository name='channel' >
-                                <path project='Enterprise-SP1:Update' repository='sp1_update' />
-                              </repository>
-                            </project>"
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='Enterprise-SP1:Channel:Server'>
+                             <title/>
+                             <description/>
+                             <repository name='channel' >
+                               <path project='Enterprise-SP1:Update' repository='sp1_update' />
+                             </repository>
+                           </project>"
     ))
     # this is what the classic add_repository call is producing:
     prj = Project.new(name: "My:Branch")
-    prj.update_from_xml!( Xmlhash.parse(
-                            "<project name='My:Branch'>
-                              <title/>
-                              <description/>
-                              <repository name='Channel_Server' >
-                                <path project='Enterprise-SP1:Channel:Server' repository='channel' />
-                              </repository>
-                              <repository name='my_branch_sp0_update' >
-                                <path project='Enterprise-SP0:Update' repository='sp0_update' />
-                              </repository>
-                              <repository name='my_branch_sp1_update' >
-                                <path project='Enterprise-SP1:Update' repository='sp1_update' />
-                              </repository>
-                            </project>"
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='My:Branch'>
+                             <title/>
+                             <description/>
+                             <repository name='Channel_Server' >
+                               <path project='Enterprise-SP1:Channel:Server' repository='channel' />
+                             </repository>
+                             <repository name='my_branch_sp0_update' >
+                               <path project='Enterprise-SP0:Update' repository='sp0_update' />
+                             </repository>
+                             <repository name='my_branch_sp1_update' >
+                               <path project='Enterprise-SP1:Update' repository='sp1_update' />
+                             </repository>
+                           </project>"
     ))
     # however, this is not correct, because my:branch (or an incident)
     # is providing in this situation often a package in SP0:Update which
@@ -909,7 +909,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_cycle_handling
-    User.current = users( :king )
+    User.current = users(:king)
 
     prj_a = Project.new(name: "Project:A")
     prj_a.update_from_xml!(Xmlhash.parse(
@@ -942,7 +942,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'exists_by_name' do
-    User.current = users( :Iggy )
+    User.current = users(:Iggy)
 
     assert Project.exists_by_name('home:Iggy')
     assert Project.exists_by_name('RemoteInstance')

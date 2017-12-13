@@ -1,11 +1,11 @@
 module BuildLogSupport
-  def raw_log_chunk( project, package, repo, arch, start, theend )
+  def raw_log_chunk(project, package, repo, arch, start, theend)
     logger.debug "get log chunk #{start}-#{theend}"
     Backend::Api::BuildResults::Status.log_chunk(project.to_s, package.to_s, repo, arch, start, theend)
   end
 
-  def get_log_chunk( project, package, repo, arch, start, theend )
-    log = raw_log_chunk( project, package, repo, arch, start, theend )
+  def get_log_chunk(project, package, repo, arch, start, theend)
+    log = raw_log_chunk(project, package, repo, arch, start, theend)
     begin
       log.encode!(invalid: :replace, undef: :replace, cr_newline: true)
     rescue Encoding::UndefinedConversionError

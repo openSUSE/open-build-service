@@ -24,7 +24,7 @@ module ActiveXML
 
         # Rails.logger.debug "extract #{exception.class} #{exception.message}"
         begin
-          @xml = Xmlhash.parse( exception.message )
+          @xml = Xmlhash.parse(exception.message)
         rescue TypeError
           Rails.logger.error "Couldn't parse error xml: #{message[0..120]}"
         end
@@ -74,33 +74,33 @@ module ActiveXML
     def connect(model, target, opt = {})
       opt.keys.each do |key|
         opt[key] = URI(opt[key])
-        replace_server_if_needed( opt[key] )
+        replace_server_if_needed(opt[key])
       end
 
-      uri = URI( target )
-      replace_server_if_needed( uri )
+      uri = URI(target)
+      replace_server_if_needed(uri)
       # logger.debug "setting up transport for model #{model}: #{uri} opts: #{opt}"
       raise "overwriting #{model}" if @mapping.has_key? model
       @mapping[model] = { target_uri: uri, opt: opt }
     end
 
-    def replace_server_if_needed( uri )
+    def replace_server_if_needed(uri)
       return if uri.host
       uri.scheme, uri.host, uri.port = @schema, @host, @port
     end
 
-    def target_for( model )
+    def target_for(model)
       # logger.debug "retrieving target_uri for model '#{model.inspect}' #{@mapping.inspect}"
       raise "Model #{model.inspect} is not configured" unless @mapping.has_key? model
       @mapping[model][:target_uri]
     end
 
-    def options_for( model )
+    def options_for(model)
       # logger.debug "retrieving option hash for model '#{model.inspect}' #{@mapping.inspect}"
       @mapping[model][:opt]
     end
 
-    def initialize( schema, host, port )
+    def initialize(schema, host, port)
       @schema = schema
       @host = host
       @port = port
@@ -112,20 +112,20 @@ module ActiveXML
       @mapping = Hash.new
     end
 
-    def login( user, password )
+    def login(user, password)
       @http_header ||= Hash.new
-      @http_header['Authorization'] = 'Basic ' + Base64.encode64( "#{user}:#{password}" )
+      @http_header['Authorization'] = 'Basic ' + Base64.encode64("#{user}:#{password}")
     end
 
     # returns object
-    def find( model, *args )
+    def find(model, *args)
       logger.debug "[REST] find( #{model.inspect}, #{args.inspect} )"
       params = Hash.new
       data = nil
       own_mimetype = nil
       symbolified_model = model.name.downcase.split('::').last.to_sym
-      uri = target_for( symbolified_model )
-      options = options_for( symbolified_model )
+      uri = target_for(symbolified_model)
+      options = options_for(symbolified_model)
       case args[0]
       when Symbol
         # logger.debug "Transport.find: using symbol"
@@ -154,7 +154,7 @@ module ActiveXML
       logger.debug "params #{params.inspect}"
       logger.debug "uri is: #{uri}"
 
-      url = substitute_uri( uri, params )
+      url = substitute_uri(uri, params)
       if own_mimetype
         data = url.query
         url.query = nil
@@ -177,25 +177,25 @@ module ActiveXML
 
     def create(object, opt = {})
       logger.debug "creating object #{object.class} (#{object.init_options.inspect}) to api:\n #{object.dump_xml}"
-      url = substituted_uri_for( object, :create, opt )
+      url = substituted_uri_for(object, :create, opt)
       http_do 'post', url, data: object.dump_xml
     end
 
     def save(object, opt = {})
       logger.debug "saving object #{object.class} (#{object.init_options.inspect}) to api:\n #{object.dump_xml}"
-      url = substituted_uri_for( object, nil, opt )
+      url = substituted_uri_for(object, nil, opt)
       http_do 'put', url, data: object.dump_xml
     end
 
     def delete(object, opt = {})
       logger.debug "delete object #{object.class} (#{object.init_options.inspect}) to api:\n #{object.dump_xml}"
-      url = substituted_uri_for( object, :delete, opt )
+      url = substituted_uri_for(object, :delete, opt)
       http_do 'delete', url
     end
 
     # defines an additional header that is passed to the REST server on every subsequent request
     # e.g.: set_additional_header( "X-Username", "margarethe" )
-    def set_additional_header( key, value )
+    def set_additional_header(key, value)
       if value.nil? && @http_header.has_key?(key)
         @http_header[key] = nil
       end
@@ -204,12 +204,12 @@ module ActiveXML
     end
 
     # delete a header field set with set_additional_header
-    def delete_additional_header( key )
+    def delete_additional_header(key)
       @http_header.delete key if @http_header.has_key? key
     end
 
     # TODO: get rid of this very thin wrapper
-    def direct_http( url, opt = {} )
+    def direct_http(url, opt = {})
       defaults = { method: "GET" }
       opt = defaults.merge opt
 
@@ -219,7 +219,7 @@ module ActiveXML
     end
 
     # replaces the parameter parts in the uri from the config file with the correct values
-    def substitute_uri( uri, params )
+    def substitute_uri(uri, params)
       # logger.debug "[REST] reducing args: #{params.inspect}"
       params.delete(:conditions)
       # logger.debug "[REST] args is now: #{params.inspect}"
@@ -267,18 +267,18 @@ module ActiveXML
       u
     end
 
-    def substituted_uri_for( object, path_id = nil, opt = {} )
+    def substituted_uri_for(object, path_id = nil, opt = {})
       symbolified_model = object.class.name.downcase.split('::').last.to_sym
       options = options_for(symbolified_model)
       if path_id && options.has_key?(path_id)
         uri = options[path_id]
       else
-        uri = target_for( symbolified_model )
+        uri = target_for(symbolified_model)
       end
-      substitute_uri( uri, object.instance_variable_get("@init_options").merge(opt) )
+      substitute_uri(uri, object.instance_variable_get("@init_options").merge(opt))
     end
 
-    def http_do( method, url, opt = {} )
+    def http_do(method, url, opt = {})
       defaults = { timeout: 60 }
       opt = defaults.merge opt
 
@@ -375,7 +375,7 @@ module ActiveXML
         end
       end
 
-      handle_response( http_response )
+      handle_response(http_response)
     end
 
     def load_external_url(uri)
@@ -430,7 +430,7 @@ module ActiveXML
       @last_body_length || 0
     end
 
-    def handle_response( http_response )
+    def handle_response(http_response)
       case http_response
       when Net::HTTPSuccess, Net::HTTPRedirection
         body = http_response.read_body

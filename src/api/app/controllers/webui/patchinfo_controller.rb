@@ -289,7 +289,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     return unless issue_tracker
     return unless bug =~ /^#{issue_tracker.regex}$/
 
-    issue = Issue.find_or_create_by_name_and_tracker( issueid, issue_tracker.name )
+    issue = Issue.find_or_create_by_name_and_tracker(issueid, issue_tracker.name)
     issue.fetch_updates if issue && issue.summary.blank?
     return issue.summary.gsub(/\\|'/) { '' } if issue.summary
     return ''

@@ -606,7 +606,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     raw_put '/source/TEMPORARY/pack/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
     run_scheduler("i586")
-    inject_build_job( "TEMPORARY", "pack", "standard", "i586" )
+    inject_build_job("TEMPORARY", "pack", "standard", "i586")
     run_scheduler("i586")
     run_publisher
 
@@ -805,7 +805,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     # package exists only in Update
     run_scheduler("i586")
-    inject_build_job( "TEMPORARY:Update", "package", "standard", "i586" )
+    inject_build_job("TEMPORARY:Update", "package", "standard", "i586")
     run_scheduler("i586")
     run_publisher
 
