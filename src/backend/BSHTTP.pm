@@ -601,4 +601,13 @@ sub file_sender {
   return '';
 }
 
+sub reply_sender {
+  my ($param, $sock) = @_;
+  my $data;
+  while (($data = read_data($param->{'reply_req'}, 8192)) ne '') {
+    swrite($sock, $data, $param->{'chunked'});
+  }
+  return '';
+}
+
 1;
