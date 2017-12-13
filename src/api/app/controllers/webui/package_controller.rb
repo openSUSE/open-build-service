@@ -565,7 +565,6 @@ class Webui::PackageController < Webui::WebuiController
       flash[:notice] = 'Successfully branched package'
       redirect_to(package_show_path(project: created_project_name, package: created_package_name))
     end
-
   rescue BranchPackage::DoubleBranchPackageError => exception
     flash[:notice] = 'You have already branched this package'
     redirect_to(package_show_path(project: exception.project, package: exception.package))
@@ -840,10 +839,8 @@ class Webui::PackageController < Webui::WebuiController
         @log_chunk = chunk
         @offset += ActiveXML.backend.last_body_length
       end
-
     rescue Timeout::Error, IOError
       @log_chunk = ''
-
     rescue ActiveXML::Transport::Error => e
       if e.summary =~ %r{Logfile is not that big}
         @log_chunk = ''
@@ -1001,7 +998,6 @@ class Webui::PackageController < Webui::WebuiController
       else
         errors << "Package doesn't exists in that project."
       end
-
     rescue Suse::ValidationError => e
       errors << e.message
     end

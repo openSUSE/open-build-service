@@ -23,7 +23,7 @@ RSpec.describe BsRequest::FindFor::Group do
     context 'with a not existing group' do
       subject { klass.new(group: 'not-existent') }
 
-      it { expect{ subject.all }.to raise_error(NotFoundError) }
+      it { expect { subject.all }.to raise_error(NotFoundError) }
     end
 
     context 'with a group maintainer relationship' do
@@ -133,7 +133,6 @@ RSpec.describe BsRequest::FindFor::Group do
 
       it { expect(subject).to include(review_request) }
       it { expect(subject).to include(maintainer_request) }
-
     end
   end
 end

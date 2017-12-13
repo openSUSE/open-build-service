@@ -43,7 +43,6 @@ RSpec.describe BuildLogSupport do
 
         it { is_expected.to eq("\r\r\r\r") }
       end
-
     end
   end
 

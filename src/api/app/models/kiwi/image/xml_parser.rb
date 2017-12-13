@@ -42,7 +42,7 @@ module Kiwi
 
       # Return an array of Kiwi::Repository models from the parsed xml
       def repositories
-        repositories_from_xml.reject{ |repository| repository['source']['path'] == 'obsrepositories:/' }.map.with_index(1) do |repository, index|
+        repositories_from_xml.reject { |repository| repository['source']['path'] == 'obsrepositories:/' }.map.with_index(1) do |repository, index|
           attributes = {
             repo_type:   repository['type'],
             source_path: repository['source']['path'],

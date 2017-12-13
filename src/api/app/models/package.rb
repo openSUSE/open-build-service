@@ -984,7 +984,7 @@ class Package < ApplicationRecord
   end
 
   def service_error(revision = nil)
-    revision ||= serviceinfo.try{ to_hash['xsrcmd5'] }
+    revision ||= serviceinfo.try { to_hash['xsrcmd5'] }
     PackageServiceErrorFile.new(project_name: project.name, package_name: name).to_s(rev: revision)
   end
 
@@ -1111,8 +1111,7 @@ class Package < ApplicationRecord
                 noservice: "1",
                 oproject:  origin_project,
                 opackage:  origin_package,
-                user:      User.current.login
-    }
+                user:      User.current.login }
     myparam[:orev] = rev if rev.present?
     myparam[:olinkrev] = olinkrev if olinkrev.present?
     myparam[:missingok] = '1' if missingok
@@ -1463,7 +1462,7 @@ class Package < ApplicationRecord
   end
 
   def file_exists?(filename)
-    dir_hash.has_key?("entry") && [dir_hash["entry"]].flatten.any?{ |item| item["name"] == filename }
+    dir_hash.has_key?("entry") && [dir_hash["entry"]].flatten.any? { |item| item["name"] == filename }
   end
 
   def has_icon?

@@ -230,7 +230,7 @@ RSpec.describe Project, vcr: true do
 
   describe '#self.valid_name?' do
     context "invalid" do
-      it{ expect(Project.valid_name?(10)).to be(false) }
+      it { expect(Project.valid_name?(10)).to be(false) }
 
       it "has ::" do
         property_of {
@@ -273,8 +273,8 @@ RSpec.describe Project, vcr: true do
         }
       end
 
-      it{ expect(Project.valid_name?('0')).to be(false) }
-      it{ expect(Project.valid_name?('')).to be(false) }
+      it { expect(Project.valid_name?('0')).to be(false) }
+      it { expect(Project.valid_name?('')).to be(false) }
     end
 
     it "valid" do

@@ -44,7 +44,7 @@ class PackageTest < ActiveSupport::TestCase
 
     # package is given as axml
     axml = Xmlhash.parse(
-        "<package name='TestPack' project='home:Iggy'>
+      "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
         <build>
@@ -103,7 +103,7 @@ class PackageTest < ActiveSupport::TestCase
 
     # package is given as axml
     axml = Xmlhash.parse(
-        "<package name='TestPack' project='home:Iggy'>
+      "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
         <description></description>
       </package>"
@@ -139,47 +139,47 @@ class PackageTest < ActiveSupport::TestCase
 
     assert_raise Package::SaveError do
       @package.update_from_xml(Xmlhash.parse(
-                                   "<package name='TestPack' project='home:Iggy'>
-        <title>My Test package</title>
-        <description></description>
-        <devel project='Notexistant'/>
-      </package>"))
+                                 "<package name='TestPack' project='home:Iggy'>
+                                   <title>My Test package</title>
+                                   <description></description>
+                                   <devel project='Notexistant'/>
+                                 </package>"))
     end
     assert_raise Package::SaveError do
       @package.update_from_xml(Xmlhash.parse(
-                                   "<package name='TestPack' project='home:Iggy'>
-	   <title>My Test package</title>
-	   <description></description>
-	   <devel project='home:Iggy' package='nothing'/>
-        </package>"))
+                                 "<package name='TestPack' project='home:Iggy'>
+                                   <title>My Test package</title>
+                                   <description></description>
+                                   <devel project='home:Iggy' package='nothing'/>
+                                 </package>"))
     end
 
     assert_raise NotFoundError do
       @package.update_from_xml(Xmlhash.parse(
-                                   "<package name='TestBack' project='home:Iggy'>
-           <title>My Test package</title>
-           <description></description>
-	   <person userid='alice' role='maintainer'/>
-        </package>"))
+                                 "<package name='TestBack' project='home:Iggy'>
+                                   <title>My Test package</title>
+                                   <description></description>
+                                   <person userid='alice' role='maintainer'/>
+                                 </package>"))
     end
 
     assert_raise HasRelationships::SaveError do
       @package.update_from_xml(Xmlhash.parse(
-                                   "<package name='TestBack' project='home:Iggy'>
-                              <title>My Test package</title>
-                              <description></description>
-			      <person userid='tom' role='coolman'/>
-                            </package>"))
+                                 "<package name='TestBack' project='home:Iggy'>
+                                   <title>My Test package</title>
+                                   <description></description>
+                                   <person userid='tom' role='coolman'/>
+                                 </package>"))
     end
 
     assert_equal orig, Xmlhash.parse(@package.to_axml)
     assert @package.update_from_xml(Xmlhash.parse(
-                                        "<package name='TestPack' project='home:Iggy'>
-        <title>My Test package</title>
-        <description></description>
-        <person userid='fred' role='bugowner'/>
-        <person userid='Iggy' role='maintainer'/>
-      </package>"))
+                                      "<package name='TestPack' project='home:Iggy'>
+                                        <title>My Test package</title>
+                                        <description></description>
+                                        <person userid='fred' role='bugowner'/>
+                                        <person userid='Iggy' role='maintainer'/>
+                                      </package>"))
   end
 
   def test_add_user

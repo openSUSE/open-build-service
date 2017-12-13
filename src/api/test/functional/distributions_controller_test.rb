@@ -35,8 +35,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
                                                    "url"    =>
                                                                "https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png",
                                                    "width"  => {"type" => "integer", "_content" => "16"},
-                                                   "height" => {"type" => "integer", "_content" => "16"}}]}
-               }, Xmlhash.parse(@response.body))
+                                                   "height" => {"type" => "integer", "_content" => "16"}}]}}, Xmlhash.parse(@response.body))
   end
 
   def test_should_destroy_distribution

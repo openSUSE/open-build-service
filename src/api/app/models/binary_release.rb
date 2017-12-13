@@ -45,8 +45,7 @@ class BinaryRelease < ApplicationRecord
                  binary_arch:    binary["binaryarch"],
                  medium:         binary["medium"],
                  obsolete_time:  nil,
-                 modify_time:    nil
-             }
+                 modify_time:    nil }
         # check for existing entry
         existing = oldlist.where(hash)
         Rails.logger.info "ERROR: multiple matches, cleaning up: #{existing.inspect}" if existing.count > 1
@@ -122,7 +121,7 @@ class BinaryRelease < ApplicationRecord
   end
 
   def update_for_product
-    repository.product_update_repositories.map{ |i| i.product if i.product }.uniq
+    repository.product_update_repositories.map { |i| i.product if i.product }.uniq
   end
 
   def product_medium

@@ -115,19 +115,19 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_update_watchlist
-    xml = <<-XML
-<person>
-<login>tom</login>
-<email>tschmidt@example.com</email>
-<realname>Thommy Cool</realname>
-<state>confirmed</state>
-<watchlist>
-<project name="home:tom"/>
-<project name="BaseDistro3"/>
-<project name="Apache"/>
-</watchlist>
-</person>
-XML
+    xml = <<-XML.strip_heredoc
+      <person>
+      <login>tom</login>
+      <email>tschmidt@example.com</email>
+      <realname>Thommy Cool</realname>
+      <state>confirmed</state>
+      <watchlist>
+      <project name="home:tom"/>
+      <project name="BaseDistro3"/>
+      <project name="Apache"/>
+      </watchlist>
+      </person>
+    XML
 
     prepare_request_valid_user
     put "/person/tom", params: xml
@@ -138,20 +138,20 @@ XML
     assert_equal ["Apache", "BaseDistro3", "home:tom"],
                  User.find_by(login: "tom").watched_project_names.sort
 
-    xml = <<-XML
-<person>
-<login>tom</login>
-<email>tschmidt@example.com</email>
-<realname>Thommy Cool</realname>
-<state>confirmed</state>
-<watchlist>
-<project name="BaseDistro3"/>
-<project name="home:Iggy"/>
-<project name="Apache"/>
-<project name="Devel:BaseDistro:Update"/>
-</watchlist>
-</person>
-XML
+    xml = <<-XML.strip_heredoc
+      <person>
+      <login>tom</login>
+      <email>tschmidt@example.com</email>
+      <realname>Thommy Cool</realname>
+      <state>confirmed</state>
+      <watchlist>
+      <project name="BaseDistro3"/>
+      <project name="home:Iggy"/>
+      <project name="Apache"/>
+      <project name="Devel:BaseDistro:Update"/>
+      </watchlist>
+      </person>
+    XML
 
     prepare_request_valid_user
     put "/person/tom", params: xml
@@ -162,18 +162,18 @@ XML
     assert_equal ["Apache", "BaseDistro3", "Devel:BaseDistro:Update", "home:Iggy"],
                  User.find_by(login: "tom").watched_project_names.sort
 
-    xml = <<-XML
-<person>
-<login>tom</login>
-<email>tschmidt@example.com</email>
-<realname>Thommy Cool</realname>
-<state>confirmed</state>
-<watchlist>
-<project name="BaseDistro3"/>
-<project name="NonExistingProject"/>
-</watchlist>
-</person>
-XML
+    xml = <<-XML.strip_heredoc
+      <person>
+      <login>tom</login>
+      <email>tschmidt@example.com</email>
+      <realname>Thommy Cool</realname>
+      <state>confirmed</state>
+      <watchlist>
+      <project name="BaseDistro3"/>
+      <project name="NonExistingProject"/>
+      </watchlist>
+      </person>
+    XML
 
     prepare_request_valid_user
     put "/person/tom", params: xml

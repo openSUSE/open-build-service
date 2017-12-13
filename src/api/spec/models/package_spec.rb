@@ -246,7 +246,7 @@ RSpec.describe Package, vcr: true do
 
   describe '#self.valid_name?' do
     context "invalid" do
-      it{ expect(Package.valid_name?(10)).to be(false) }
+      it { expect(Package.valid_name?(10)).to be(false) }
 
       it "has an invalid character in first position" do
         property_of {
@@ -266,8 +266,8 @@ RSpec.describe Package, vcr: true do
         }
       end
 
-      it{ expect(Package.valid_name?('0')).to be(false) }
-      it{ expect(Package.valid_name?('')).to be(false) }
+      it { expect(Package.valid_name?('0')).to be(false) }
+      it { expect(Package.valid_name?('')).to be(false) }
     end
 
     context "valid" do
@@ -301,10 +301,10 @@ RSpec.describe Package, vcr: true do
         }
       end
 
-      it{ expect(Package.valid_name?('_product')).to be(true) }
-      it{ expect(Package.valid_name?('_pattern')).to be(true) }
-      it{ expect(Package.valid_name?('_project')).to be(true) }
-      it{ expect(Package.valid_name?('_patchinfo')).to be(true) }
+      it { expect(Package.valid_name?('_product')).to be(true) }
+      it { expect(Package.valid_name?('_pattern')).to be(true) }
+      it { expect(Package.valid_name?('_project')).to be(true) }
+      it { expect(Package.valid_name?('_patchinfo')).to be(true) }
     end
   end
 

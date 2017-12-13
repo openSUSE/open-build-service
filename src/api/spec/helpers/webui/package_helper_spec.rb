@@ -202,7 +202,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     end
 
     context "other" do
-      it{ expect(guess_code_class("other")).to eq '' }
+      it { expect(guess_code_class("other")).to eq '' }
     end
   end
 

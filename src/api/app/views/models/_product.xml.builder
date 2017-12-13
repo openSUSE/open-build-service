@@ -8,5 +8,4 @@ xml.product(name: my_model.name,
   xml.baseversion(my_model.baseversion) if my_model.baseversion
   xml.patchlevel(my_model.patchlevel)   if my_model.patchlevel
   xml.release(my_model.release)         if my_model.release
-
 end

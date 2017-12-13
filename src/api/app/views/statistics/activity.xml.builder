@@ -1,7 +1,6 @@
 
 
 xml.activity do
-
   if @package
 
     xml.package(
@@ -18,6 +17,5 @@ xml.activity do
     )
 
   end
-
 end
 

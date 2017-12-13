@@ -133,7 +133,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
       end
 
       it { expect(action).to redirect_to(root_url) }
-      it { expect{ action }.to_not change(Repository, :count) }
+      it { expect { action }.to_not change(Repository, :count) }
     end
 
     context "with a non valid target repository" do

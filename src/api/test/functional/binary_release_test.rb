@@ -29,8 +29,8 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: "disturl", content: disturl
     assert_xml_tag tag: "maintainer", content: "Iggy"
     assert_xml_tag tag: "supportstatus", content: "l3"
-    assert_xml_tag tag: "publish", attributes:                         { time: "2013-09-30 15:50:30 UTC", package: "pack2" }
-    assert_xml_tag tag: "build", attributes:                         { time: "2013-09-29 15:50:31 UTC" }
+    assert_xml_tag tag: "publish", attributes: { time: "2013-09-30 15:50:30 UTC", package: "pack2" }
+    assert_xml_tag tag: "build", attributes: { time: "2013-09-29 15:50:31 UTC" }
 
     # by updateinfo identifier
     get '/search/released/binary/id', params: { match: "updateinfo/@id = 'OBS-2014-42'" }

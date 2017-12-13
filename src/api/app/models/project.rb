@@ -665,9 +665,7 @@ class Project < ApplicationRecord
   # individually on backend
   def cleanup_packages
     packages.each do |package|
-      package.commit_opts = { no_backend_write: 1,
-                              project_destroy_transaction: 1, request: commit_opts[:request]
-                             }
+      package.commit_opts = { no_backend_write: 1, project_destroy_transaction: 1, request: commit_opts[:request] }
       package.destroy
     end
   end
@@ -921,7 +919,7 @@ class Project < ApplicationRecord
       end
     end
 
-    packages.sort!{ |a, b| a.first.downcase <=> b.first.downcase }
+    packages.sort! { |a, b| a.first.downcase <=> b.first.downcase }
   end
 
   # return array of [:name, :package_id] tuples for all products

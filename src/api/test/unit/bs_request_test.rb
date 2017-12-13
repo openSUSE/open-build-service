@@ -94,31 +94,31 @@ class BsRequestTest < ActiveSupport::TestCase
   end
 
   def test_parse_bigger
-    xml = <<eos
-<request id="1027" creator="Iggy">
-  <action type="submit">
-    <source project="home:Iggy" package="TestPack" rev="1"/>
-    <target project="kde4" package="mypackage"/>
-    <options>
-      <sourceupdate>cleanup</sourceupdate>
-    </options>
-    <acceptinfo rev="1" srcmd5="806a6e27ed7915d1bb8d8a989404fd5a" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-  </action>
-  <priority>critical</priority>
-  <state name="review" who="Iggy" when="2012-11-07T21:13:12">
-    <comment>No comment</comment>
-  </state>
-  <review state="new" when="2017-09-01T09:11:11" by_user="adrian"/>
-  <review state="new" when="2017-09-01T09:11:11" by_group="test_group"/>
-  <review state="accepted" when="2012-11-07T21:13:12" who="tom" by_user="tom">
-    <comment>review1</comment>
-  </review>
-  <review state="new" when="2012-11-07T21:13:13" who="tom" by_user="tom">
-    <comment>please accept</comment>
-  </review>
-  <description>Left blank</description>
-</request>
-eos
+    xml = <<-XML.strip_heredoc
+      <request id="1027" creator="Iggy">
+        <action type="submit">
+          <source project="home:Iggy" package="TestPack" rev="1"/>
+          <target project="kde4" package="mypackage"/>
+          <options>
+            <sourceupdate>cleanup</sourceupdate>
+          </options>
+          <acceptinfo rev="1" srcmd5="806a6e27ed7915d1bb8d8a989404fd5a" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        </action>
+        <priority>critical</priority>
+        <state name="review" who="Iggy" when="2012-11-07T21:13:12">
+          <comment>No comment</comment>
+        </state>
+        <review state="new" when="2017-09-01T09:11:11" by_user="adrian"/>
+        <review state="new" when="2017-09-01T09:11:11" by_group="test_group"/>
+        <review state="accepted" when="2012-11-07T21:13:12" who="tom" by_user="tom">
+          <comment>review1</comment>
+        </review>
+        <review state="new" when="2012-11-07T21:13:13" who="tom" by_user="tom">
+          <comment>please accept</comment>
+        </review>
+        <description>Left blank</description>
+      </request>
+    XML
     req = BsRequest.new_from_xml(xml)
     req.save!
     # number got increased by one

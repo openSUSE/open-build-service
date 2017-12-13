@@ -65,7 +65,7 @@ class ProjectTest < ActiveSupport::TestCase
     package1 = project.packages.create(name: "test1")
     # package is given as axml
     axml = Xmlhash.parse(
-        "<package name='test1' project='home:Iggy:flagtest'>
+      "<package name='test1' project='home:Iggy:flagtest'>
         <title>My Test package 1</title>
         <description></description>
         <build>
@@ -98,7 +98,7 @@ class ProjectTest < ActiveSupport::TestCase
     package2 = project.packages.create(name: "test2")
     # package is given as axml
     axml = Xmlhash.parse(
-        "<package name='test2' project='home:Iggy:flagtest'>
+      "<package name='test2' project='home:Iggy:flagtest'>
         <title>My Test package 2</title>
         <description></description>
         <build>
@@ -142,7 +142,7 @@ class ProjectTest < ActiveSupport::TestCase
           <arch>i586</arch>
           <arch>x86_64</arch>
         </repository>
-       </project>"
+      </project>"
     )
 
     project.update_from_xml!(axml)
@@ -172,7 +172,7 @@ class ProjectTest < ActiveSupport::TestCase
 
     # package is given as axml
     axml = Xmlhash.parse(
-        "<package name='test2' project='home:Iggy:flagtest'>
+      "<package name='test2' project='home:Iggy:flagtest'>
         <title>My Test package 2</title>
         <description></description>
         <build>
@@ -213,7 +213,7 @@ class ProjectTest < ActiveSupport::TestCase
     package3 = project.packages.create(name: "test3")
     # package is given as axml
     axml = Xmlhash.parse(
-        "<package name='test3' project='home:Iggy:flagtest'>
+      "<package name='test3' project='home:Iggy:flagtest'>
         <title>My Test package 3</title>
         <description></description>
         <build>
@@ -279,7 +279,7 @@ class ProjectTest < ActiveSupport::TestCase
           <arch>i586</arch>
           <arch>x86_64</arch>
         </repository>
-       </project>"
+      </project>"
     )
 
     project2.update_from_xml(axml)
@@ -300,18 +300,18 @@ class ProjectTest < ActiveSupport::TestCase
 
     package4 = project2.packages.create(name: "test4")
     axml = Xmlhash.parse(
-        "<package name='test4' project='home:Iggy:flagtest2'>
-           <title>My Test package 4</title>
-           <description>package to test all default flags</description>
-           <build>
-           </build>
-           <publish>
-           </publish>
-           <useforbuild>
-           </useforbuild>
-           <debuginfo>
-           </debuginfo>
-        </package>"
+      "<package name='test4' project='home:Iggy:flagtest2'>
+        <title>My Test package 4</title>
+        <description>package to test all default flags</description>
+        <build>
+        </build>
+        <publish>
+        </publish>
+        <useforbuild>
+        </useforbuild>
+        <debuginfo>
+        </debuginfo>
+      </package>"
     )
 
     package4.update_from_xml(axml)
@@ -610,16 +610,16 @@ class ProjectTest < ActiveSupport::TestCase
     orig = @project.render_xml
 
     axml = Xmlhash.parse(
-     "<project name='home:Iggy'>
-       <title>Iggy's Home Project</title>
-       <description>dummy</description>
-       <repository name='10.2'>
-         <arch>x86_64</arch>
-       </repository>
-       <repository name='10.2'>
-         <arch>i586</arch>
-       </repository>
-     </project>"
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
+        <description>dummy</description>
+        <repository name='10.2'>
+          <arch>x86_64</arch>
+        </repository>
+        <repository name='10.2'>
+          <arch>i586</arch>
+        </repository>
+      </project>"
     )
     assert_raise(ActiveRecord::RecordInvalid) do
       Project.transaction do
@@ -634,20 +634,20 @@ class ProjectTest < ActiveSupport::TestCase
     User.current = users( :Iggy )
     orig = @project.render_xml
 
-    xml = <<END
-<project name="home:Iggy">
-  <title>Iggy"s Home Project</title>
-  <description>dummy</description>
-  <repository name="remote_1">
-    <path project="RemoteInstance:remote_project_1" repository="standard"/>
-    <arch>i586</arch>
-  </repository>
-  <repository name="remote_1">
-    <path project="RemoteInstance:remote_project_1" repository="standard"/>
-    <arch>x86_64</arch>
-  </repository>
-</project>
-END
+    xml = <<-END.strip_heredoc
+      <project name="home:Iggy">
+        <title>Iggy"s Home Project</title>
+        <description>dummy</description>
+        <repository name="remote_1">
+          <path project="RemoteInstance:remote_project_1" repository="standard"/>
+          <arch>i586</arch>
+        </repository>
+        <repository name="remote_1">
+          <path project="RemoteInstance:remote_project_1" repository="standard"/>
+          <arch>x86_64</arch>
+        </repository>
+      </project>
+    END
     axml = Xmlhash.parse(xml)
     assert_raise(ActiveRecord::RecordInvalid) do
       Project.transaction do
@@ -660,22 +660,22 @@ END
 
   test "not duplicated repos with remote" do
     User.current = users( :Iggy )
-    xml = <<END
-<project name="home:Iggy">
-  <title>Iggy"s Home Project</title>
-  <description>dummy</description>
-  <repository name="remote_2">
-    <path project="RemoteInstance:remote_project_2" repository="standard"/>
-    <arch>x86_64</arch>
-    <arch>i586</arch>
-  </repository>
-  <repository name="remote_1">
-    <path project="RemoteInstance:remote_project_1" repository="standard"/>
-    <arch>x86_64</arch>
-    <arch>i586</arch>
-  </repository>
-</project>
-END
+    xml = <<-END.strip_heredoc
+      <project name="home:Iggy">
+        <title>Iggy"s Home Project</title>
+        <description>dummy</description>
+        <repository name="remote_2">
+          <path project="RemoteInstance:remote_project_2" repository="standard"/>
+          <arch>x86_64</arch>
+          <arch>i586</arch>
+        </repository>
+        <repository name="remote_1">
+          <path project="RemoteInstance:remote_project_1" repository="standard"/>
+          <arch>x86_64</arch>
+          <arch>i586</arch>
+        </repository>
+      </project>
+    END
     axml = Xmlhash.parse(xml)
     Project.transaction do
       @project.update_from_xml!(axml)
@@ -730,18 +730,18 @@ END
 
     prj = Project.new(name: "DoD")
     prj.update_from_xml!( Xmlhash.parse(
-      "<project name='DoD'>
-        <title/>
-        <description/>
-        <repository name='standard'>
-          <download arch='i586' url='http://me.org' repotype='rpmmd'>
-           <archfilter>i686,i586,noarch</archfilter>
-           <master url='http://download.opensuse.org' sslfingerprint='0815' />
-           <pubkey>grfzl</pubkey>
-          </download>
-          <arch>i586</arch>
-        </repository>
-      </project>"
+                            "<project name='DoD'>
+                              <title/>
+                              <description/>
+                              <repository name='standard'>
+                                <download arch='i586' url='http://me.org' repotype='rpmmd'>
+                                 <archfilter>i686,i586,noarch</archfilter>
+                                 <master url='http://download.opensuse.org' sslfingerprint='0815' />
+                                 <pubkey>grfzl</pubkey>
+                                </download>
+                                <arch>i586</arch>
+                              </repository>
+                            </project>"
     ))
 
     xml = prj.to_axml
@@ -789,69 +789,69 @@ END
 
     prj = Project.new(name: "Enterprise-SP0:GA")
     prj.update_from_xml!( Xmlhash.parse(
-      "<project name='Enterprise-SP0:GA'>
-        <title/>
-        <description/>
-        <repository name='sp0_ga' />
-      </project>"
+                            "<project name='Enterprise-SP0:GA'>
+                              <title/>
+                              <description/>
+                              <repository name='sp0_ga' />
+                            </project>"
     ))
     prj = Project.new(name: "Enterprise-SP0:Update")
     prj.update_from_xml!( Xmlhash.parse(
-      "<project name='Enterprise-SP0:Update' kind='maintenance_release'>
-        <title/>
-        <description/>
-        <repository name='sp0_update' >
-          <path project='Enterprise-SP0:GA' repository='sp0_ga' />
-        </repository>
-      </project>"
+                            "<project name='Enterprise-SP0:Update' kind='maintenance_release'>
+                              <title/>
+                              <description/>
+                              <repository name='sp0_update' >
+                                <path project='Enterprise-SP0:GA' repository='sp0_ga' />
+                              </repository>
+                            </project>"
     ))
     prj = Project.new(name: "Enterprise-SP1:GA")
     prj.update_from_xml!( Xmlhash.parse(
-      "<project name='Enterprise-SP1:GA'>
-        <title/>
-        <description/>
-        <repository name='sp1_ga' >
-          <path project='Enterprise-SP0:GA' repository='sp0_ga' />
-        </repository>
-      </project>"
+                            "<project name='Enterprise-SP1:GA'>
+                              <title/>
+                              <description/>
+                              <repository name='sp1_ga' >
+                                <path project='Enterprise-SP0:GA' repository='sp0_ga' />
+                              </repository>
+                            </project>"
     ))
     prj = Project.new(name: "Enterprise-SP1:Update")
     prj.update_from_xml!( Xmlhash.parse(
-      "<project name='Enterprise-SP1:Update' kind='maintenance_release'>
-        <title/>
-        <description/>
-        <repository name='sp1_update' >
-          <path project='Enterprise-SP1:GA' repository='sp1_ga' />
-          <path project='Enterprise-SP0:Update' repository='sp0_update' />
-        </repository>
-      </project>"
+                            "<project name='Enterprise-SP1:Update' kind='maintenance_release'>
+                              <title/>
+                              <description/>
+                              <repository name='sp1_update' >
+                                <path project='Enterprise-SP1:GA' repository='sp1_ga' />
+                                <path project='Enterprise-SP0:Update' repository='sp0_update' />
+                              </repository>
+                            </project>"
     ))
     prj = Project.new(name: "Enterprise-SP1:Channel:Server")
     prj.update_from_xml!( Xmlhash.parse(
-      "<project name='Enterprise-SP1:Channel:Server'>
-        <title/>
-        <description/>
-        <repository name='channel' >
-          <path project='Enterprise-SP1:Update' repository='sp1_update' />
-        </repository>
-      </project>"
+                            "<project name='Enterprise-SP1:Channel:Server'>
+                              <title/>
+                              <description/>
+                              <repository name='channel' >
+                                <path project='Enterprise-SP1:Update' repository='sp1_update' />
+                              </repository>
+                            </project>"
     ))
     # this is what the classic add_repository call is producing:
     prj = Project.new(name: "My:Branch")
     prj.update_from_xml!( Xmlhash.parse(
-      "<project name='My:Branch'>
-        <title/>
-        <description/>
-        <repository name='Channel_Server' >
-          <path project='Enterprise-SP1:Channel:Server' repository='channel' />
-        </repository>
-        <repository name='my_branch_sp0_update' >
-          <path project='Enterprise-SP0:Update' repository='sp0_update' />
-        </repository>
-        <repository name='my_branch_sp1_update' >
-          <path project='Enterprise-SP1:Update' repository='sp1_update' />
-        </repository>
-      </project>"
+                            "<project name='My:Branch'>
+                              <title/>
+                              <description/>
+                              <repository name='Channel_Server' >
+                                <path project='Enterprise-SP1:Channel:Server' repository='channel' />
+                              </repository>
+                              <repository name='my_branch_sp0_update' >
+                                <path project='Enterprise-SP0:Update' repository='sp0_update' />
+                              </repository>
+                              <repository name='my_branch_sp1_update' >
+                                <path project='Enterprise-SP1:Update' repository='sp1_update' />
+                              </repository>
+                            </project>"
     ))
     # however, this is not correct, because my:branch (or an incident)
     # is providing in this situation often a package in SP0:Update which
@@ -913,27 +913,27 @@ END
 
     prj_a = Project.new(name: "Project:A")
     prj_a.update_from_xml!(Xmlhash.parse(
-      "<project name='Project:A'>
-        <title/>
-        <description/>
-       </project>"
+                             "<project name='Project:A'>
+                               <title/>
+                               <description/>
+                             </project>"
     ))
     prj_a.save!
     prj_b = Project.new(name: "Project:B")
     prj_b.update_from_xml!(Xmlhash.parse(
-      "<project name='Project:B'>
-        <title/>
-        <description/>
-        <link project='Project:A'/>
-       </project>"
+                             "<project name='Project:B'>
+                               <title/>
+                               <description/>
+                               <link project='Project:A'/>
+                             </project>"
     ))
     prj_b.save!
     prj_a.update_from_xml!(Xmlhash.parse(
-      "<project name='Project:A'>
-        <title/>
-        <description/>
-        <link project='Project:B'/>
-       </project>"
+                             "<project name='Project:A'>
+                               <title/>
+                               <description/>
+                               <link project='Project:B'/>
+                             </project>"
     ))
     prj_a.save!
 
@@ -1099,11 +1099,11 @@ END
 
     xml = <<-XML.strip_heredoc
       <project name='#{@project.name}'>
-          <title>Up-to-date project</title>
-          <description>the description</description>
-          <repository><name>10.2</name></repository>
-          <repository><name>First</name></repository>
-        </project>
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <repository><name>10.2</name></repository>
+        <repository><name>First</name></repository>
+      </project>
     XML
 
     actual = project.get_removed_repositories(Xmlhash.parse(xml))
@@ -1176,7 +1176,7 @@ END
       <project name='#{@project.name}'>
         <title>Up-to-date project</title>
         <description>the description</description>
-        </project>
+      </project>
     XML
 
     actual = project.get_removed_repositories(Xmlhash.parse(xml))

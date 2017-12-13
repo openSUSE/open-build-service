@@ -1,7 +1,6 @@
 
 
 xml.most_active do
-
   @packages.each do |package|
     xml.package(
       :activity => package.activity_value,
@@ -9,6 +8,5 @@ xml.most_active do
       :name => package.name
     )
   end
-
 end
 

@@ -221,7 +221,7 @@ RSpec.describe Backend::File, vcr: true do
       subject.destroy!
     end
 
-    it { expect{ Backend::Connection.get(somefile_txt_url) }.to raise_error(ActiveXML::Transport::NotFoundError) }
+    it { expect { Backend::Connection.get(somefile_txt_url) }.to raise_error(ActiveXML::Transport::NotFoundError) }
     it { expect(subject.frozen?).to be_truthy }
     it { expect(subject.response[:type]).to eq('text/xml') }
     it { expect(subject.response[:status]).to eq("200") }

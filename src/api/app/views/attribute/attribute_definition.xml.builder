@@ -2,7 +2,6 @@ p = {}
 p[:name] = @at.name
 p[:namespace] = @at.attrib_namespace.name
 xml.definition(p) do |attr|
-
   if @at.description
     attr.description @at.description
   end

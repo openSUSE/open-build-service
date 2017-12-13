@@ -13,121 +13,12 @@
 Layout/DotPosition:
   Enabled: false
 
-# Offense count: 35
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: empty_lines, no_empty_lines
-Layout/EmptyLinesAroundBlockBody:
-  Enabled: false
-
-# Offense count: 8
-# Cop supports --auto-correct.
-Layout/EmptyLinesAroundExceptionHandlingKeywords:
-  Exclude:
-    - 'src/api/app/controllers/webui/package_controller.rb'
-    - 'src/api/app/controllers/webui/project_controller.rb'
-    - 'src/api/app/controllers/webui/request_controller.rb'
-    - 'src/api/app/controllers/webui/subscriptions_controller.rb'
-    - 'src/api/app/controllers/webui/users/subscriptions_controller.rb'
-
-# Offense count: 13
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.
-Layout/ExtraSpacing:
-  Exclude:
-    - 'src/api/lib/xpath_engine.rb'
-    - 'src/api/test/functional/binary_release_test.rb'
-    - 'src/api/test/functional/channel_maintenance_test.rb'
-    - 'src/api/test/functional/search_controller_test.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
-
-# Offense count: 26
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
-# SupportedStyles: consistent, special_for_inner_method_call, special_for_inner_method_call_in_parentheses
-Layout/FirstParameterIndentation:
-  Exclude:
-    - 'src/api/app/models/unregistered_user.rb'
-    - 'src/api/test/unit/channel_test.rb'
-    - 'src/api/test/unit/package_test.rb'
-    - 'src/api/test/unit/project_test.rb'
-
 # Offense count: 88
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
 # SupportedStyles: special_inside_parentheses, consistent, align_braces
 Layout/IndentHash:
   Enabled: false
-
-# Offense count: 16
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: auto_detection, squiggly, active_support, powerpack, unindent
-Layout/IndentHeredoc:
-  Exclude:
-    - 'src/api/spec/controllers/webui/package_controller_spec.rb'
-    - 'src/api/spec/support/shared_contexts/a_kiwi_image_xml.rb'
-    - 'src/api/spec/support/shared_contexts/an_invalid_kiwi_image_xml.rb'
-    - 'src/api/test/functional/person_controller_test.rb'
-    - 'src/api/test/functional/request_controller_test.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
-    - 'src/api/test/unit/bs_request_test.rb'
-    - 'src/api/test/unit/project_test.rb'
-
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: normal, rails
-Layout/IndentationConsistency:
-  Exclude:
-    - 'src/api/app/controllers/webui/configuration_controller.rb'
-    - 'src/api/test/functional/statistics_controller_test.rb'
-    - 'src/api/test/unit/ichain_notifier_test.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: Width, IgnoredPatterns.
-Layout/IndentationWidth:
-  Exclude:
-    - 'src/api/app/views/person/tokenlist.xml.builder'
-    - 'src/api/app/views/public/binary_packages.xml.builder'
-    - 'src/api/app/views/search/owner.xml.builder'
-
-# Offense count: 29
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: symmetrical, new_line, same_line
-Layout/MultilineArrayBraceLayout:
-  Exclude:
-    - 'src/api/app/models/user.rb'
-    - 'src/api/lib/tasks/extract.rake'
-    - 'src/api/lib/xpath_engine.rb'
-    - 'src/api/test/functional/attributes_test.rb'
-    - 'src/api/test/functional/request_controller_test.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/MultilineBlockLayout:
-  Exclude:
-    - 'src/api/app/views/source/productlist.xml.builder'
-
-# Offense count: 23
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: symmetrical, new_line, same_line
-Layout/MultilineHashBraceLayout:
-  Exclude:
-    - 'src/api/app/controllers/source_controller.rb'
-    - 'src/api/app/controllers/webui/request_controller.rb'
-    - 'src/api/app/models/binary_release.rb'
-    - 'src/api/app/models/package.rb'
-    - 'src/api/app/models/project.rb'
-    - 'src/api/lib/xpath_engine.rb'
-    - 'src/api/test/functional/distributions_controller_test.rb'
-    - 'src/api/test/functional/group_request_test.rb'
-    - 'src/api/test/functional/release_management_test.rb'
-    - 'src/api/test/functional/request_controller_test.rb'
-    - 'src/api/test/functional/source_controller_test.rb'
 
 # Offense count: 66
 # Cop supports --auto-correct.
@@ -159,14 +50,6 @@ Layout/MultilineMethodCallIndentation:
 # Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
 # SupportedStyles: aligned, indented
 Layout/MultilineOperationIndentation:
-  Enabled: false
-
-# Offense count: 76
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, SupportedStylesForEmptyBraces.
-# SupportedStyles: space, no_space
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceBeforeBlockBraces:
   Enabled: false
 
 # Offense count: 4

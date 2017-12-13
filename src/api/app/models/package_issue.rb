@@ -12,7 +12,7 @@ class PackageIssue < ApplicationRecord
     begin
       PackageIssue.transaction do
         allissues = []
-        issues.map{|h| allissues += h.last}
+        issues.map {|h| allissues += h.last}
 
         # drop not anymore existing relations
         PackageIssue.where("package_id = ? AND NOT issue_id IN (?)", package, allissues).lock(true).delete_all

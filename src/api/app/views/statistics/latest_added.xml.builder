@@ -1,7 +1,6 @@
 
 xml.latest_added do
   @list.each do |item|
-
     ### item is a package
     if item.instance_of? Package
       xml.package(
@@ -18,7 +17,6 @@ xml.latest_added do
         :created => item.created_at.xmlschema
       )
     end
-
   end
 end
 

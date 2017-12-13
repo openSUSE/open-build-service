@@ -181,8 +181,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
                                            repository: '10.2',
                                            arch:       'i586',
                                            code:       'published',
-                                           state:      'published' }
-      },
+                                           state:      'published' }},
       tag: 'status',
       attributes: { package: 'TestPack',
                     code:    'succeeded' }
@@ -192,7 +191,8 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
                       repository: '10.2',
                       arch:       'x86_64',
                       code:       'published',
-                      state:      'published' } },
+                      state:      'published' }
+      },
       tag: 'status', attributes: { package: 'TestPack',
                                    code:    'succeeded' }
 
@@ -229,7 +229,8 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
                                  repository: '10.2',
                                  arch:       'i586',
                                  code:       'published',
-                                 state:      'published' } },
+                                 state:      'published' }
+      },
       tag: 'status',
       attributes: { package: 'TestPack', code: 'succeeded' }
 

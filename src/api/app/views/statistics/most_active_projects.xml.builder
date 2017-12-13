@@ -1,7 +1,6 @@
 
 
 xml.most_active do
-
   @projects.each do |project|
     xml.project(
       :activity => project[1][:activity],
@@ -9,6 +8,5 @@ xml.most_active do
       :name => project[0]
     )
   end
-
 end
 

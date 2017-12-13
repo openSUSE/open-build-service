@@ -1,6 +1,5 @@
 
 xml.latest_updated do
-
   if @package
 
     xml.package(
@@ -17,6 +16,5 @@ xml.latest_updated do
     )
 
   end
-
 end
 

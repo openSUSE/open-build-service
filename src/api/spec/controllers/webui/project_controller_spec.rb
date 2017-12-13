@@ -877,7 +877,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with an nonexistent project' do
       let(:post_save_meta) { post :save_meta, params: { project: 'nonexistent_project' }, xhr: true }
 
-      it { expect{ post_save_meta }.to raise_error(Pundit::NotDefinedError) }
+      it { expect { post_save_meta }.to raise_error(Pundit::NotDefinedError) }
     end
 
     context 'with a valid project' do
@@ -928,7 +928,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         it { expect(flash.now[:error]).to eq("A project with the name not-existent does not exist. Please update the repository path elements.") }
         it { expect(response).to have_http_status(400) }
-
       end
     end
   end
@@ -1103,7 +1102,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'POST #edit_comment' do
-    let(:package){ create(:package, name: 'home_package', project: user.home_project) }
+    let(:package) { create(:package, name: 'home_package', project: user.home_project) }
     let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment') }
     let(:text) { "The text to edit the comment" }
 
@@ -1193,7 +1192,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       let(:post_save_prjconf) { post :save_prjconf, params: { project: 'non:existing:project', config: 'save config' } }
 
       it 'raise a RecordNotFound Exception' do
-        expect{ post_save_prjconf }.to raise_error ActiveRecord::RecordNotFound
+        expect { post_save_prjconf }.to raise_error ActiveRecord::RecordNotFound
       end
     end
   end
@@ -1539,7 +1538,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'edit a comment without xhr' do
       let(:call_edit_comment_form) { get :edit_comment_form, params: { project: user.home_project } }
 
-      it { expect{ call_edit_comment_form }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
+      it { expect { call_edit_comment_form }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
     end
   end
 
@@ -1632,7 +1631,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'without xhr request' do
       let(:call_package_buildresult) { get :package_buildresult, params: { project: user.home_project } }
 
-      it { expect{ call_package_buildresult }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
+      it { expect { call_package_buildresult }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
     end
   end
 

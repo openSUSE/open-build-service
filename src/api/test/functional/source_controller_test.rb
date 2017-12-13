@@ -63,17 +63,17 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_post_orderkiwirepos # spec/controllers/source_controller_spec.rb
     # urls with http protocol
-    kiwi_config_http = <<-EOF
-<?xml version='1.0' encoding='UTF-8'?>
-<image name='openSUSE_JeOS' displayname='openSUSE_JeOS' schemaversion='5.2'>
-  <repository type='rpm-md'>
-    <source path='http://example.com/download/BaseDistro2.0/BaseDistro2_repo'/>
-  </repository>
-  <repository type='rpm-md'>
-    <source path='http://example.com/download/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'/>
-  </repository>
-</image>
-EOF
+    kiwi_config_http = <<-EOF.strip_heredoc
+      <?xml version='1.0' encoding='UTF-8'?>
+      <image name='openSUSE_JeOS' displayname='openSUSE_JeOS' schemaversion='5.2'>
+        <repository type='rpm-md'>
+          <source path='http://example.com/download/BaseDistro2.0/BaseDistro2_repo'/>
+        </repository>
+        <repository type='rpm-md'>
+          <source path='http://example.com/download/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'/>
+        </repository>
+      </image>
+    EOF
 
     post '/source?cmd=orderkiwirepos', params: kiwi_config_http, headers: { "Content-Type" => "text/xml" }
     assert_response 200
@@ -84,17 +84,17 @@ EOF
     assert_equal second["source"]["path"], "http://example.com/download/BaseDistro2.0/BaseDistro2_repo"
 
     # urls with obs protocol
-    kiwi_config_obs = <<-EOF
-<?xml version='1.0' encoding='UTF-8'?>
-<image name='openSUSE_JeOS' displayname='openSUSE_JeOS' schemaversion='5.2'>
-  <repository type='rpm-md'>
-    <source path='obs://BaseDistro2.0/BaseDistro2_repo'/>
-  </repository>
-  <repository type='rpm-md'>
-    <source path='obs://BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'/>
-  </repository>
-</image>
-EOF
+    kiwi_config_obs = <<-EOF.strip_heredoc
+      <?xml version='1.0' encoding='UTF-8'?>
+      <image name='openSUSE_JeOS' displayname='openSUSE_JeOS' schemaversion='5.2'>
+        <repository type='rpm-md'>
+          <source path='obs://BaseDistro2.0/BaseDistro2_repo'/>
+        </repository>
+        <repository type='rpm-md'>
+          <source path='obs://BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'/>
+        </repository>
+      </image>
+    EOF
 
     post '/source?cmd=orderkiwirepos', params: kiwi_config_obs, headers: { "Content-Type" => "text/xml" }
     assert_response 200
@@ -3590,7 +3590,7 @@ EOF
     # auto delete attribute got created
     get '/source/home:fredlibs:branches:home:Iggy/_attribute'
     assert_response :success
-    assert_xml_tag tag: "value", parent:                  { tag: "attribute", attributes: { name: "AutoCleanup", namespace: "OBS"} }
+    assert_xml_tag tag: "value", parent: { tag: "attribute", attributes: { name: "AutoCleanup", namespace: "OBS"} }
 
     # in future
     Timecop.freeze(10.days) do
@@ -4035,8 +4035,7 @@ EOF
                      { 'userid' => 'tom', 'role' => 'bugowner' },
                      { 'userid' => 'Iggy', 'role' => 'maintainer' },
                      { 'userid' => 'tom', 'role' => 'maintainer' }
-                   ]
-                 }, ret)
+                   ]}, ret)
 
     ret = duplicated_user_test('package', 'group', '/source/home:Iggy/TestPack/_meta')
     assert_equal({ 'name'        => 'TestPack',
@@ -4047,8 +4046,7 @@ EOF
                    'group'       => [
                      { 'groupid' => 'test_group', 'role' => 'bugowner' },
                      { 'groupid' => 'test_group', 'role' => 'maintainer' }
-                   ]
-                 }, ret)
+                   ]}, ret)
 
     ret = duplicated_user_test('project', 'user', '/source/home:Iggy/_meta')
     assert_equal({ 'name'        => 'home:Iggy',
@@ -4058,8 +4056,7 @@ EOF
                      { 'userid' => 'tom', 'role' => 'bugowner' },
                      { 'userid' => 'Iggy', 'role' => 'maintainer' },
                      { 'userid' => 'tom', 'role' => 'maintainer' }
-                   ]
-                 }, ret)
+                   ]}, ret)
 
     ret = duplicated_user_test('project', 'group', '/source/home:Iggy/_meta')
     assert_equal({ 'name'        => 'home:Iggy',
@@ -4069,8 +4066,7 @@ EOF
                    'group'       => [
                      { 'groupid' => 'test_group', 'role' => 'bugowner' },
                      { 'groupid' => 'test_group', 'role' => 'maintainer' }
-                   ]
-                 }, ret)
+                   ]}, ret)
 
     # restore (esp in backend)
     login_king

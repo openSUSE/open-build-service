@@ -15,7 +15,7 @@ RSpec.describe Notification::RssFeedItem do
     let(:greater_than_max_items_per_group) { max_items_per_group + 5 }
 
     context 'without any RSS items' do
-      it { expect{ Notification::RssFeedItem.cleanup }.not_to(change{ Notification::RssFeedItem.count }) }
+      it { expect { Notification::RssFeedItem.cleanup }.not_to(change { Notification::RssFeedItem.count }) }
     end
 
     context 'with a single users' do

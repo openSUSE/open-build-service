@@ -193,7 +193,7 @@ class ConsistencyCheckJob < ApplicationJob
       return ""
     end
     # filter multibuild source container
-    package_list_backend = plb.map{ |e| e.start_with?('_patchinfo:', '_product:') ? e : e.gsub(/:.*$/, '') }
+    package_list_backend = plb.map { |e| e.start_with?('_patchinfo:', '_product:') ? e : e.gsub(/:.*$/, '') }
 
     diff = package_list_api - package_list_backend
     unless diff.empty?
@@ -248,12 +248,12 @@ class ConsistencyCheckJob < ApplicationJob
       # old xml generator wrote them in a different order
       # but in other cases the order of elements matters
       if k == "person" && a_.kind_of?(Array)
-        a_ = a_.map{ |i| "#{i['userid']}/#{i['role']}" }.sort
-        b_ = b_.map{ |i| "#{i['userid']}/#{i['role']}" }.sort
+        a_ = a_.map { |i| "#{i['userid']}/#{i['role']}" }.sort
+        b_ = b_.map { |i| "#{i['userid']}/#{i['role']}" }.sort
       end
       if k == "group" && a_.kind_of?(Array)
-        a_ = a_.map{ |i| "#{i['groupid']}/#{i['role']}" }.sort
-        b_ = b_.map{ |i| "#{i['groupid']}/#{i['role']}" }.sort
+        a_ = a_.map { |i| "#{i['groupid']}/#{i['role']}" }.sort
+        b_ = b_.map { |i| "#{i['groupid']}/#{i['role']}" }.sort
       end
       if a_ != b_
         if a[k].class == Hash && b[k].class == Hash
