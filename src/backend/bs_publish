@@ -698,17 +698,17 @@ sub deleterepo_susetags {
 }
 
 sub compress_and_rename {
-  my($file) =@_;
-  if (-s "$file.new") {
-    unlink("$file");
-    link("$file.new", "$file");
-    qsystem('gzip', '-9', '-n', '-f', "$file.new") && print "    gzip $file.new failed: $?\n";
-    unlink("$file.new");
+  my ($tmpfile, $file) =@_;
+  if (-s $tmpfile) {
+    unlink($file);
+    link($tmpfile, $file);
+    qsystem('gzip', '-9', '-n', '-f', $tmpfile) && print "    gzip $tmpfile failed: $?\n";
+    unlink($tmpfile);
     unlink("$file.gz");
-    rename("$file.new.gz", "$file.gz");
+    rename("$tmpfile.gz", "$file.gz");
   } else {
-    unlink("$file.new");
-    unlink("$file");
+    unlink($tmpfile);
+    unlink($file);
     unlink("$file.gz");
   }
 }
@@ -718,28 +718,28 @@ sub createrepo_debian {
 
   print "    running dpkg-scanpackages\n";
   if (qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')) {
-      die("    dpkg-scanpackages failed: $?\n");
+    die("    dpkg-scanpackages failed: $?\n");
   }
-  compress_and_rename("$extrep/Packages");
+  compress_and_rename("$extrep/Packages.new", "$extrep/Packages");
 
   print "    running dpkg-scansources\n";
   if (qsystem('chdir', $extrep, 'stdout', 'Sources.new', 'dpkg-scansources', '.', '/dev/null')) {
-      die("    dpkg-scansources failed: $?\n");
+    die("    dpkg-scansources failed: $?\n");
   }
-  compress_and_rename("$extrep/Sources");
+  compress_and_rename("$extrep/Sources.new", "$extrep/Sources");
   createrelease_debian($extrep, $projid, $repoid, $data, $options);
 
-  my $udebs="$extrep/debian-installer";
-  mkdir_p("$udebs") unless -d "$udebs";
-  if (qsystem('chdir', $udebs, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-t','udeb','-m', '..', '/dev/null')) {
-      die("    dpkg-scanpackages for udebs failed: $?\n");
+  my $udebs = "$extrep/debian-installer";
+  mkdir_p($udebs) unless -d $udebs;
+  if (qsystem('chdir', $udebs, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-t', 'udeb', '-m', '..', '/dev/null')) {
+    die("    dpkg-scanpackages for udebs failed: $?\n");
   }
-  compress_and_rename("$udebs/Packages");
+  compress_and_rename("$udebs/Packages.new", "$udebs/Packages");
 
   if ( -e "$udebs/Packages") {
-      createrelease_debian($udebs, $projid, $repoid, $data, $options);
+    createrelease_debian($udebs, $projid, $repoid, $data, $options);
   } else {
-      rmdir("$udebs");
+    rmdir($udebs);
   }
 }
 
@@ -749,12 +749,7 @@ sub createrelease_debian {
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $date = POSIX::ctime(time());
   $date =~ s/\n//m;
-  my @debarchs = @{$data->{'repoinfo'}->{'arch'} || []};
-  for (@debarchs) {
-     s/x86_64/amd64/g;
-     s/i.86/i386/g;
-     s/ppc64le/ppc64el/g;
-  };
+  my @debarchs = map {Build::Deb::basearch($_)} @{$data->{'repoinfo'}->{'arch'} || []};
   my $archs = join(' ', @debarchs);
 
   # The Release file enables users to use Pinning. See also:
@@ -826,6 +821,10 @@ sub deleterepo_debian {
   unlink("$extrep/Release");
   unlink("$extrep/Release.gpg");
   unlink("$extrep/Release.key");
+  if (-d "$extrep/debian-installer") {
+    BSUtil::cleandir("$extrep/debian-installer");
+    rmdir("$extrep/debian-installer");
+  }
 }
 
 
