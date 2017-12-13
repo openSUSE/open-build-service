@@ -7,4 +7,3 @@ xml.collection do
     xml.missing_owner(attribs)
   end
 end
-

@@ -9,4 +9,3 @@ xml.most_active do
     )
   end
 end
-

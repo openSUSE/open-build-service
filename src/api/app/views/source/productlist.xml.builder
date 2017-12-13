@@ -4,4 +4,3 @@ xml.productlist(count: @products.count) do
                 originpackage: p.package.name, mtime: p.package.updated_at.to_i)
   end
 end
-

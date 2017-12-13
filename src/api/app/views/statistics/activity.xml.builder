@@ -18,4 +18,3 @@ xml.activity do
 
   end
 end
-

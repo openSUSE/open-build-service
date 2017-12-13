@@ -19,4 +19,3 @@ xml.latest_added do
     end
   end
 end
-
