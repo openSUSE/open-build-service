@@ -1340,7 +1340,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           context 'elements position' do
             it { expect { move }.to change { path_elements[0].reload.position }.by(1) }
             it { expect { move }.to change { path_elements[1].reload.position }.by(-1) }
-            it { expect { move }.not_to change { path_elements[2].reload.position } }
+            it { expect { move }.not_to(change { path_elements[2].reload.position }) }
           end
         end
 
@@ -1359,7 +1359,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           end
 
           context 'elements position' do
-            it { expect { move }.not_to change { path_elements[0].reload.position } }
+            it { expect { move }.not_to(change { path_elements[0].reload.position }) }
             it { expect { move }.to change { path_elements[1].reload.position }.by(1) }
             it { expect { move }.to change { path_elements[2].reload.position }.by(-1) }
           end

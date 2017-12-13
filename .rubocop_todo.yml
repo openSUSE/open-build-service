@@ -52,12 +52,6 @@ Layout/MultilineMethodCallIndentation:
 Layout/MultilineOperationIndentation:
   Enabled: false
 
-# Offense count: 3
-Lint/AmbiguousBlockAssociation:
-  Exclude:
-    - 'src/api/spec/controllers/webui/project_controller_spec.rb'
-    - 'src/api/spec/models/comment_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleAlignWith, SupportedStylesAlignWith.
